@@ -514,6 +514,7 @@ $(function() {
     $('#document_select').
         change(renderSelected);
 
+    directoryAndDoc = directory + (doc ? '/' + doc : '');
     updateState(doc);
   });
 
