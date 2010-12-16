@@ -1,0 +1,135 @@
+svg {
+  width: 100%;
+  height: 1px;
+  border: 1px solid #484;
+}
+
+  svg .span text {
+    text-anchor: middle;
+    font-family: Century Gothic, sans-serif;
+  }
+
+  svg .span rect {
+    stroke: black;
+    pointer-events: visibleFill;
+  }
+
+  svg .arc path {
+    pointer-events: visible;
+  }
+
+  svg .span path {
+    fill: none;
+    stroke: grey;
+  }
+
+  svg .span path.negation {
+    stroke: black;
+  }
+
+  svg .arc path {
+    fill: none;
+    opacity: 0.5;
+  }
+
+  svg .arc .highlight path {
+    stroke-width: 2.5;
+  }
+  svg .arc .highlight text {
+    font-size: 120%;
+  }
+
+  svg .arc text {
+    text-anchor: middle;
+    font-size: 80%;
+    opacity: 0.5
+  }
+
+
+
+.span_Protein {
+  fill: #ffff33;
+}
+
+.span_Positive_regulation {
+  fill: #ccffcc;
+}
+
+.span_Negative_regulation {
+  fill: #ffcccc;
+}
+
+.span_Expression {
+  fill: #ffccff;
+}
+
+.span_Binding {
+  fill: #99ccff;
+}
+
+.span_Entity {
+  fill: #ffcc99;
+}
+
+.span_Gene_expression {
+  fill: #cc99ff;
+}
+
+.span_Process {
+  fill: #99ffcc;
+}
+
+.span_Two-component-system {
+  fill: #9999ff;
+}
+
+
+.fill_Cause {
+  fill: #ff0000;
+}
+.stroke_Cause {
+  stroke: #ff0000;
+}
+
+.fill_Theme {
+  fill: #000088;
+}
+.stroke_Theme {
+  stroke: #000088;
+}
+.fill_Theme1 {
+  fill: #222288;
+}
+.stroke_Theme1 {
+  stroke: #222288;
+}
+.fill_Theme2 {
+  fill: #444488;
+}
+.stroke_Theme2 {
+  stroke: #444488;
+}
+
+.fill_Site {
+  fill: #008800;
+}
+.stroke_Site {
+  stroke: #008800;
+}
+.fill_Site1 {
+  fill: #228822;
+}
+.stroke_Site1 {
+  stroke: #228822;
+}
+.fill_Site2 {
+  fill: #448844;
+}
+.stroke_Site2 {
+  stroke: #448844;
+}
+
+svg {
+  pointer-events: none;
+  font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
+}
