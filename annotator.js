@@ -42,13 +42,19 @@ var Annotator = function(containerElement, onStart) {
     this.type = type;
     this.from = from;
     this.to = to;
+    this.outgoing = [];
+    this.incoming = [];
+    this.totalDist = 0;
   }
 
   // event is reserved
   var EventDesc = function(id, triggerId, roles) {
     this.id = id;
     this.triggerId = triggerId;
-    this.roles = roles;
+    var roleList = this.roles = [];
+    $.each(roles, function(roleNo, role) {
+      roleList.push({ type: role[0], targetId: role[1] });
+    });
   }
 
   var setData = function(_data) {
@@ -56,13 +62,11 @@ var Annotator = function(containerElement, onStart) {
     data = _data;
 
     // collect annotation data
-    data.spanOrder = [];
     data.spans = {};
     $.each(data.entities, function(entityNo, entity) {
       var span =
           new Span(entity[0], entity[1], entity[2], entity[3]);
       data.spans[entity[0]] = span;
-      data.spanOrder.push(span);
     });
     var triggerHash = {};
     $.each(data.triggers, function(triggerNo, trigger) {
@@ -71,12 +75,11 @@ var Annotator = function(containerElement, onStart) {
     });
     data.eventDescs = {};
     $.each(data.events, function(eventNo, eventRow) {
-      data.eventDescs[eventRow[0]] =
+      var eventDesc = data.eventDescs[eventRow[0]] =
           new EventDesc(eventRow[0], eventRow[1], eventRow[2]);
-      var span = $.extend({}, triggerHash[eventRow[1]]); // clone
-      span.id = eventRow[0];
-      data.spans[eventRow[0]] = span;
-      data.spanOrder.push(span);
+      var span = $.extend({}, triggerHash[eventDesc.triggerId]); // clone
+      span.id = eventDesc.id;
+      data.spans[eventDesc.id] = span;
     });
     $.each(data.modifications, function(modNo, mod) {
       data.spans[mod[2]][mod[1]] = true;
@@ -92,7 +95,7 @@ var Annotator = function(containerElement, onStart) {
     while ((pos = data.text.indexOf(' ', pos + 1)) != -1) {
       var wordBreak = true;
       // possible word break: see if it belongs to any spans
-      $.each(data.spanOrder, function(spanNo, span) {
+      $.each(data.spans, function(spanNo, span) {
         if (span.from <= pos + data.offset && pos + data.offset < span.to) {
           // it does; no word break
           wordBreak = false;
@@ -108,6 +111,7 @@ var Annotator = function(containerElement, onStart) {
     data.chunks = [];
     var numBreaks = breaks.length;
     breaks.push([data.text.length, false]);
+    var chunkNo = 0;
     for (var breakNo = 0; breakNo < numBreaks; breakNo++) {
       var from = breaks[breakNo][0] + 1;
       var to = breaks[breakNo + 1][0];
@@ -117,6 +121,7 @@ var Annotator = function(containerElement, onStart) {
             from: from + data.offset,
             to: to + data.offset,
             lineBreak: breaks[breakNo][1],
+            index: chunkNo++,
             spans: [],
           });
       }
@@ -130,10 +135,65 @@ var Annotator = function(containerElement, onStart) {
         var chunk = data.chunks[j];
         if (span.to <= chunk.to) {
           chunk.spans.push(span);
+          span.chunk = chunk;
           break; // chunks
         }
       }
     }
+   
+    // assign arcs to spans; calculate arc distances
+    data.arcs = [];
+    $.each(data.eventDescs, function(eventNo, eventDesc) {
+      var dist = 0;
+      var origin = data.spans[eventDesc.id];
+      var here = origin.chunk.index;
+      $.each(eventDesc.roles, function(roleNo, role) {
+        var target = data.spans[role.targetId];
+        var there = target.chunk.index;
+        var dist = Math.abs(here - there);
+        var arc = {
+          origin: eventDesc.id,
+          target: role.target,
+          dist: dist,
+        };
+        origin.totalDist += dist;
+        target.totalDist += dist;
+        data.arcs.push(arc);
+        // TODO: do we really need incoming and outgoing, if we have
+        // totalDist?
+        target.incoming.push(arc);
+        origin.outgoing.push(arc);
+      });
+    });
+
+    // sort spans in chunks
+    var spanline = []
+    var spanNo = 0;
+    $.each(data.chunks, function(chunkNo, chunk) {
+      chunk.spans.sort(function(a, b) {
+        // longer arc distances go last
+        // TODO: probably bad idea to go by total distance
+        // max distance, or min distance, or avg distance?
+        var tmp = a.totalDist - b.totalDist;
+        if (tmp) {
+          return tmp < 0 ? -1 : 1;
+        }
+        // if arc widths same, compare the span widths,
+        // put wider on bottom so they don't mess with arcs
+        var ad = a.to - a.from;
+        var bd = b.to - b.from;
+        tmp = ad - bd;
+        if (tmp) {
+          return tmp < 0 ? 1 : -1;
+        }
+        // lastly, all else being equal, earlier-starting ones go first
+        tmp = a.from != b.from;
+        if (tmp) {
+          return tmp < 0 ? -1 : 1;
+        }
+        return 0;
+      });
+    });
   }
 
   var placeReservation = function(from, to, reservations) {
@@ -331,72 +391,70 @@ var Annotator = function(containerElement, onStart) {
     // add the events
     $.each(data.eventDescs, function(eventId, eventDesc) {
       $.each(eventDesc.roles, function(j, role) {
-        var roleType = role[0];
-        var roleId = role[1];
-        roleClass = 'role_' + roleType;
+        roleClass = 'role_' + role.type;
 
-        if (!arrows[roleType]) {
-          var arrowId = 'annotator' + id + '_arrow_' + roleType;
+        if (!arrows[role.type]) {
+          var arrowId = 'annotator' + id + '_arrow_' + role.type;
           var arrowhead = svg.marker(defs, arrowId,
             5, 2.5, 5, 5, 'auto',
             {
               markerUnits: 'strokeWidth',
-              'class': 'fill_' + roleType,
+              'class': 'fill_' + role.type,
             });
           svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
 
-          arrows[roleType] = arrowId;
+          arrows[role.type] = arrowId;
         }
 
         var triggerSpan = data.spans[eventDesc.id];
-        var roleSpan = data.spans[roleId];
+        var roleSpan = data.spans[role.targetId];
 
         var triggerBox = realBBox(triggerSpan);
         var roleBox = realBBox(roleSpan);
         var leftToRight = triggerBox.x < roleBox.x;
-        var role = {
+        var target = {
           span: roleSpan,
           box: roleBox,
         };
-        var trigger = {
+        var origin = {
           span: triggerSpan,
           box: triggerBox,
         };
-        var displacement = triggerBox.width / 4;
+        var displacement = origin.box.width / 4;
         var sign = leftToRight ? 1 : -1;
 
         var startX = 
-            trigger.box.x + trigger.box.width / 2 + sign * displacement;
+            origin.box.x + origin.box.width / 2 + sign * displacement;
         var endX =
-            role.box.x + role.box.width / 2;
+            target.box.x + target.box.width / 2;
         var midX1 = (3 *
-          (trigger.box.x + trigger.box.width / 2 + sign * displacement) +
-          role.box.x + role.box.width / 2) / 4;
+          (origin.box.x + origin.box.width / 2 + sign * displacement) +
+          target.box.x + target.box.width / 2) / 4;
         var midX2 = (
-          trigger.box.x + trigger.box.width / 2 + sign * displacement +
-          3 * (role.box.x + role.box.width / 2)) / 4;
-        var pathId = 'annotator' + id + '_path_' + eventId + '_' + roleType;
+          origin.box.x + origin.box.width / 2 + sign * displacement +
+          3 * (target.box.x + target.box.width / 2)) / 4;
+        var pathId = 'annotator' + id + '_path_' + eventId + '_' + role.type;
         var path = svg.createPath().move(
-            startX, trigger.box.y
+            startX, origin.box.y
           ).curveC(
-            midX1, trigger.box.y - 50,
-            midX2, role.box.y - 50,
-            endX, role.box.y
+            midX1, origin.box.y - 50,
+            midX2, target.box.y - 50,
+            endX, target.box.y
           );
         var group = svg.group(arcs,
-            { 'data-from': eventDesc.id, 'data-to': roleId });
+            { 'data-from': eventDesc.id, 'data-to': role.triggerId });
         svg.path(group, path, {
-            markerEnd: 'url(#' + arrows[roleType] + ')',
+            markerEnd: 'url(#' + arrows[role.type] + ')',
             id: leftToRight ? pathId : undefined,
-            'class': 'stroke_' + roleType,
+            'class': 'stroke_' + role.type,
         });
         if (!leftToRight) {
           path = svg.createPath().move(
-              endX, role.box.y
+              endX, target.box.y
             ).curveC(
-              midX2, role.box.y - 50,
-              midX1, trigger.box.y - 50,
-              startX, trigger.box.y
+              midX2, target.box.y - 50,
+              midX1, origin.box.y - 50,
+              startX, origin.box.y
             );
           svg.path(group, path, {
               stroke: 'none',
@@ -404,9 +462,9 @@ var Annotator = function(containerElement, onStart) {
           });
         }
         var text = svg.text(group, '');
-        svg.textpath(text, '#' + pathId, svg.createText().string(roleType),
+        svg.textpath(text, '#' + pathId, svg.createText().string(role.type),
           {
-            'class': 'fill_' + roleType,
+            'class': 'fill_' + role.type,
             startOffset: '50%',
           });
       });

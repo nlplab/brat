@@ -55,6 +55,14 @@ svg {
   fill: #ffcccc;
 }
 
+.span_Regulation {
+  fill: #cccccc;
+}
+
+.span_Transcription {
+  fill: #ccccff;
+}
+
 .span_Expression {
   fill: #ffccff;
 }
