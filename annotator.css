@@ -14,10 +14,6 @@ svg {
     pointer-events: visibleFill;
   }
 
-  svg .arc path {
-    pointer-events: visible;
-  }
-
   svg .span path {
     fill: none;
     stroke: grey;

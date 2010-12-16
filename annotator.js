@@ -427,10 +427,6 @@ var Annotator = function(containerElement, onStart) {
         highlightArcs = target.closest('svg').find('.arc').
           children('g[data-from="' + id + '"], g[data-to="' + id + '"]');
         highlightArcs.addClass('highlight');
-      } else if (id = target.closest('g[data-to]')) {
-        highlightArcs = id;
-        highlightArcs.addClass('highlight');
-        highlight = null;
       }
     };
 
