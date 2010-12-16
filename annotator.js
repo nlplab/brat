@@ -167,8 +167,9 @@ var Annotator = function(containerElement, onStart) {
     });
 
     // sort spans in chunks
-    var spanline = []
-    var spanNo = 0;
+    data.spanLine = [];
+    var spanNo = -1;
+    var lastSpan = null;
     $.each(data.chunks, function(chunkNo, chunk) {
       chunk.spans.sort(function(a, b) {
         // longer arc distances go last
@@ -192,6 +193,17 @@ var Annotator = function(containerElement, onStart) {
           return tmp < 0 ? -1 : 1;
         }
         return 0;
+      });
+      // number the spans so we can check for heights later
+      $.each(chunk.spans, function(i, span) {
+        if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
+          spanNo++;
+          data.spanLine[spanNo] = []
+          span.drawBrace = true;
+        }
+        data.spanLine[spanNo].push(span);
+        span.lineIndex = spanNo;
+        lastSpan = span;
       });
     });
   }
@@ -248,6 +260,7 @@ var Annotator = function(containerElement, onStart) {
     var current = { x: margin.x, y: topSpace };
     var lastNonText = { chunkInRow: -1, rightmostX: 0 }; // TODO textsqueeze
     var rows = [];
+    var spanHeights = [];
     var row = new Row();
 
     $.each(data.chunks, function(chunkNo, chunk) {
@@ -302,8 +315,10 @@ var Annotator = function(containerElement, onStart) {
         var rectBox = span.rect.getBBox();
 
         var line = placeReservation(
-            rectBox.x, rectBox.x + rectBox.width, chunk.reservations);
+            rectBox.x, rectBox.x + rectBox.width, chunk.reservations, span.drawBrace);
         var yAdjust = line * lineHeight;
+
+        spanHeights[span.lineIndex] = yAdjust; // this is monotonous due to sort
         $(span.rect).attr('y', spanBox.y - margin.y - yAdjust);
         $(spanText).attr('y', y - yAdjust);
         if (span.Negation) {
@@ -320,17 +335,19 @@ var Annotator = function(containerElement, onStart) {
         svg.add(span.group, spanText);
 
         // Make curlies to show the span
-        var bottom = spanBox.y + spanBox.height + margin.y - yAdjust;
-        svg.path(span.group, svg.createPath()
-            .move(xFrom, bottom + curlyHeight)
-            .curveC(xFrom, bottom,
-              x, bottom + curlyHeight,
-              x, bottom)
-            .curveC(x, bottom + curlyHeight,
-              xTo, bottom,
-              xTo, bottom + curlyHeight),
-          {
-        });
+        if (span.drawBrace) {
+          var bottom = spanBox.y + spanBox.height + margin.y - yAdjust;
+          svg.path(span.group, svg.createPath()
+              .move(xFrom, bottom + curlyHeight)
+              .curveC(xFrom, bottom,
+                x, bottom + curlyHeight,
+                x, bottom)
+              .curveC(x, bottom + curlyHeight,
+                xTo, bottom,
+                xTo, bottom + curlyHeight),
+            {
+          });
+        }
       }); // spans
 
       // positioning of the chunk
@@ -442,7 +459,7 @@ var Annotator = function(containerElement, onStart) {
             endX, target.box.y
           );
         var group = svg.group(arcs,
-            { 'data-from': eventDesc.id, 'data-to': role.triggerId });
+            { 'data-from': eventDesc.id, 'data-to': role.targetId});
         svg.path(group, path, {
             markerEnd: 'url(#' + arrows[role.type] + ')',
             id: leftToRight ? pathId : undefined,
