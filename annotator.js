@@ -433,6 +433,7 @@ var Annotator = function(containerElement, onStart) {
     this.mouseOut = function(evt) {
       if (highlight) {
         svg.remove(highlight);
+        highlight = null;
       }
       if (highlightArcs) {
         highlightArcs.removeClass('highlight');
