@@ -145,6 +145,8 @@ var Annotator = function(containerElement, onStart) {
     $.each(data.eventDescs, function(eventNo, eventDesc) {
       var dist = 0;
       var origin = data.spans[eventDesc.id];
+      if (eventDesc.id[0] == '*') origin = data.spans[eventDesc.triggerId]; // equiv
+      console.log(origin);
       var here = origin.chunk.index;
       $.each(eventDesc.roles, function(roleNo, role) {
         var target = data.spans[role.targetId];
