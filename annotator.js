@@ -470,8 +470,8 @@ var Annotator = function(containerElement, onStart) {
           path = svg.createPath().move(
               endX, target.box.y
             ).curveC(
-              midX2, target.box.y - 50,
-              midX1, origin.box.y - 50,
+              midX2, target.box.y - arcHeight,
+              midX1, origin.box.y - arcHeight,
               startX, origin.box.y
             );
           svg.path(group, path, {
