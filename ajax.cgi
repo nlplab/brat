@@ -2,7 +2,7 @@
 
 from cgi import FieldStorage
 from os import listdir
-from re import split
+from re import split, sub
 from simplejson import dumps
 from itertools import chain
 
@@ -20,9 +20,11 @@ def document_json(document):
     from_offset = 0
     to_offset = None
 
+    text = open(document + ".txt", "rb").read()
+    text = sub(r'\. ([A-Z])',r'.\n\1', text)
     struct = {
             "offset": from_offset,
-            "text": open(document + ".txt", "rb").read(),
+            "text": text,
             "entities": [],
             "events": [],
             "triggers": [],

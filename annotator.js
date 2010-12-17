@@ -19,11 +19,11 @@ var Annotator = function(containerElement, onStart) {
   containerElement = $(containerElement);
 
   // settings
-  var margin = { x: 5, y: 5 };
+  var margin = { x: 2, y: 1 };
   var space = 5;
-  var curlyHeight = 10;
-  var topSpace = 50;
-  var textSeparation = 30;
+  var boxSpacing = 3;
+  var curlyHeight = 6;
+  var lineSpacing = 5;
 
   var canvasWidth;
   var svg;
@@ -232,7 +232,7 @@ var Annotator = function(containerElement, onStart) {
           return height;
         }
       }
-      height += newSlot.height + margin.y;
+      height += newSlot.height + boxSpacing; 
     }
     reservations.push({ ranges: [newSlot], height: height });
     return height;
@@ -261,15 +261,15 @@ var Annotator = function(containerElement, onStart) {
     setData(_data);
     svg.clear();
     if (!data || data.length == 0) return;
-    // FIXME for some reason, resizing does not work correctly
     canvasWidth = $(containerElement).width();
     $(svg).attr('width', canvasWidth);
     
-    var current = { x: margin.x, y: topSpace };
+    var current = { x: margin.x, y: margin.y };
     var lastNonText = { chunkInRow: -1, rightmostX: 0 }; // TODO textsqueeze
     var rows = [];
     var spanHeights = [];
     var row = new Row();
+    var textHeight;
 
     $.each(data.chunks, function(chunkNo, chunk) {
       var reservations = [];
@@ -278,8 +278,11 @@ var Annotator = function(containerElement, onStart) {
       // a group for text highlight below the text
       chunk.highlightGroup = svg.group(chunk.group);
 
-      svg.text(chunk.group, 0, 0, chunk.text);
-      var y = -textSeparation;
+      var chunkText = svg.text(chunk.group, 0, 0, chunk.text);
+      if (!textHeight) {
+        textHeight = chunkText.getBBox().height;
+      }
+      var y = 0;
 
       $.each(chunk.spans, function(spanNo, span) {
         span.chunk = chunk;
@@ -295,6 +298,7 @@ var Annotator = function(containerElement, onStart) {
         measureText = svg.text(chunk.group, 0, 0,
           chunk.text.substr(0, span.to - chunk.from));
         var measureBox = measureText.getBBox();
+        if (!y) y = -textHeight - curlyHeight;
         var xTo = measureBox.width;
         span.curly = {
           from: xFrom,
@@ -358,13 +362,14 @@ var Annotator = function(containerElement, onStart) {
 
       // positioning of the chunk
       var chunkBox = chunk.group.getBBox();
+      // TODO FIXME why does word wrap glitch?
       if (chunk.lineBreak
           || current.x + chunkBox.width >= canvasWidth - 2 * margin.x) {
         // new row
         var rowBox = row.group.getBBox();
         translate(row, 0, current.y - rowBox.y);
         rows.push(row);
-        current.y += rowBox.height + textSeparation;
+        current.y += rowBox.height + lineSpacing;
         current.x = margin.x;
         svg.remove(chunk.group);
         lastNonText = { chunkInRow: -1, rightmostX: 0 }; // TODO textsqueeze
