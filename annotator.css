@@ -12,7 +12,6 @@ svg {
   svg .span rect {
     stroke: black;
     pointer-events: visibleFill;
-    fill: red;
   }
 
   svg .span path {
@@ -43,51 +42,53 @@ svg {
   }
 
 
+.span_default {
+  fill: red;
+}
 
-.span .span_Protein {
+.span_Protein {
   fill: #ffff33;
 }
 
-.span .span_Positive_regulation {
+.span_Positive_regulation {
   fill: #ccffcc;
 }
 
-.span .span_Negative_regulation {
+.span_Negative_regulation {
   fill: #ffcccc;
 }
 
-.span .span_Regulation {
+.span_Regulation {
   fill: #cccccc;
 }
 
-.span .span_Transcription {
+.span_Transcription {
   fill: #ccccff;
 }
 
-.span .span_Expression {
+.span_Expression {
   fill: #ffccff;
 }
 
-.span .span_Binding {
+.span_Binding {
   fill: #99ccff;
 }
 
-.span .span_Entity {
+.span_Entity {
   fill: #ffcc99;
 }
 
-.span .span_Gene_expression {
+.span_Gene_expression {
   fill: #cc99ff;
 }
 
-.span .span_Process {
+.span_Process {
   fill: #99ffcc;
 }
 
-.span .span_Two-component-system {
+.span_Two-component-system {
   fill: #9999ff;
 }
-
 
 .fill_Cause {
   fill: #ff0000;

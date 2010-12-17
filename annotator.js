@@ -20,10 +20,10 @@ var Annotator = function(containerElement, onStart) {
 
   // settings
   var margin = { x: 5, y: 5 };
-  var textSeparation = 30;
   var space = 5;
   var curlyHeight = 10;
   var topSpace = 50;
+  var textSeparation = 30;
 
   var canvasWidth;
   var svg;
@@ -314,7 +314,7 @@ var Annotator = function(containerElement, onStart) {
           spanBox.y - margin.y,
           spanBox.width + 2 * margin.x,
           spanBox.height + 2 * margin.y, {
-            'class': 'span_' + span.type,
+            'class': 'span_' + span.type + ' span_default',
             rx: margin.x,
             ry: margin.y,
             'data-span-id': span.id,
@@ -496,7 +496,7 @@ var Annotator = function(containerElement, onStart) {
         highlight = svg.rect(span.chunk.highlightGroup,
           span.curly.from - 1, span.curly.y - 1,
           span.curly.to + 2 - span.curly.from, span.curly.height + 2,
-          { 'class': 'span_' + span.type });
+          { 'class': 'span_default span_' + span.type });
         highlightArcs = target.closest('svg').find('.arc').
           children('g[data-from="' + id + '"], g[data-to="' + id + '"]');
         highlightArcs.addClass('highlight');
