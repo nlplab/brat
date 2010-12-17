@@ -451,11 +451,12 @@ var Annotator = function(containerElement, onStart) {
           origin.box.x + origin.box.width / 2 + sign * displacement +
           3 * (target.box.x + target.box.width / 2)) / 4;
         var pathId = 'annotator' + id + '_path_' + eventId + '_' + role.type;
+        var arcHeight = 20 + Math.abs(target.box.y - origin.box.y) / 4;
         var path = svg.createPath().move(
             startX, origin.box.y
           ).curveC(
-            midX1, origin.box.y - 50,
-            midX2, target.box.y - 50,
+            midX1, origin.box.y - arcHeight,
+            midX2, target.box.y - arcHeight,
             endX, target.box.y
           );
         var group = svg.group(arcs,
