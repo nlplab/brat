@@ -20,8 +20,7 @@ var Annotator = function(containerElement, onStart) {
 
   // settings
   var margin = { x: 5, y: 5 };
-  var lineHeight = 60;
-  var textSeparation = 40;
+  var textSeparation = 30;
   var space = 5;
   var curlyHeight = 10;
   var topSpace = 50;
@@ -216,22 +215,27 @@ var Annotator = function(containerElement, onStart) {
       height: box.height + (span.drawCurly ? curlyHeight : 0),
     };
     var resLen = reservations.length;
-    for (var resNo = 0; resNo < resLen; resNo++) {
-      var line = reservations[resNo];
-      var overlap = false;
-      $.each(line, function(j, slot) {
-        if (slot.from <= newSlot.to && newSlot.from <= slot.to) {
-          overlap = true;
-          return false;
+    var height = 0;
+    if (resLen) {
+      for (var resNo = 0; resNo < resLen; resNo++) {
+        var line = reservations[resNo].ranges;
+        height = reservations[resNo].height;
+        var overlap = false;
+        $.each(line, function(j, slot) {
+          if (slot.from <= newSlot.to && newSlot.from <= slot.to) {
+            overlap = true;
+            return false;
+          }
+        });
+        if (!overlap) {
+          line.push(newSlot);
+          return height;
         }
-      });
-      if (!overlap) {
-        line.push(newSlot);
-        return resNo;
       }
+      height += newSlot.height + margin.y;
     }
-    reservations.push([newSlot]);
-    return resLen;
+    reservations.push({ ranges: [newSlot], height: height });
+    return height;
   }
 
   var translate = function(element, x, y) {
@@ -318,8 +322,7 @@ var Annotator = function(containerElement, onStart) {
           });
         var rectBox = span.rect.getBBox();
 
-        var line = placeReservation(span, rectBox, reservations);
-        var yAdjust = line * lineHeight;
+        var yAdjust = placeReservation(span, rectBox, reservations);
 
         spanHeights[span.lineIndex] = yAdjust; // this is monotonous due to sort
         $(span.rect).attr('y', spanBox.y - margin.y - yAdjust);
