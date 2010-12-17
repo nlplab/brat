@@ -44,6 +44,7 @@ var Annotator = function(containerElement, onStart) {
     this.outgoing = [];
     this.incoming = [];
     this.totalDist = 0;
+    this.numArcs = 0;
   }
 
   // event is reserved
@@ -145,8 +146,6 @@ var Annotator = function(containerElement, onStart) {
     $.each(data.eventDescs, function(eventNo, eventDesc) {
       var dist = 0;
       var origin = data.spans[eventDesc.id];
-      if (eventDesc.id[0] == '*') origin = data.spans[eventDesc.triggerId]; // equiv
-      console.log(origin);
       var here = origin.chunk.index;
       $.each(eventDesc.roles, function(roleNo, role) {
         var target = data.spans[role.targetId];
@@ -154,11 +153,15 @@ var Annotator = function(containerElement, onStart) {
         var dist = Math.abs(here - there);
         var arc = {
           origin: eventDesc.id,
-          target: role.target,
+          target: role.targetId,
           dist: dist,
+          type: role.type,
+          jumpHeight: 0,
         };
         origin.totalDist += dist;
+        origin.numArcs++;
         target.totalDist += dist;
+        target.numArcs++;
         data.arcs.push(arc);
         // TODO: do we really need incoming and outgoing, if we have
         // totalDist?
@@ -172,11 +175,12 @@ var Annotator = function(containerElement, onStart) {
     var spanNo = -1;
     var lastSpan = null;
     $.each(data.chunks, function(chunkNo, chunk) {
+      $.each(chunk.spans, function(spanNo, span) {
+        span.avgDist = span.totalDist / span.numArcs;
+      });
       chunk.spans.sort(function(a, b) {
         // longer arc distances go last
-        // TODO: probably bad idea to go by total distance
-        // max distance, or min distance, or avg distance?
-        var tmp = a.totalDist - b.totalDist;
+        var tmp = a.avgDist - b.avgDist;
         if (tmp) {
           return tmp < 0 ? -1 : 1;
         }
@@ -230,13 +234,21 @@ var Annotator = function(containerElement, onStart) {
           }
         });
         if (!overlap) {
+          if (!reservation.curly && span.drawCurly) {
+            // TODO: need to push other boxes up
+            // (rare glitch)
+          }
           line.push(newSlot);
           return height;
         }
       }
       height += newSlot.height + boxSpacing; 
     }
-    reservations.push({ ranges: [newSlot], height: height });
+    reservations.push({
+      ranges: [newSlot],
+      height: height,
+      curly: span.drawCurly,
+    });
     return height;
   }
 
@@ -409,87 +421,106 @@ var Annotator = function(containerElement, onStart) {
     var defs = svg.defs();
     var arrows = {};
 
-    // add the events
-    $.each(data.eventDescs, function(eventId, eventDesc) {
-      $.each(eventDesc.roles, function(j, role) {
-        roleClass = 'role_' + role.type;
+    // find out how high the arcs have to go
+    $.each(data.arcs, function(arcNo, arc) {
+      arc.jumpHeight = 0;
+      var from = data.spans[arc.origin].lineIndex;
+      var to = data.spans[arc.target].lineIndex;
+      if (from > to) {
+        var tmp = from; from = to; to = tmp;
+      }
+      for (var i = from + 1; i < to; i++) {
+        if (arc.jumpHeight < spanHeights[i]) arc.jumpHeight = spanHeights[i];
+      }
+    });
 
-        if (!arrows[role.type]) {
-          var arrowId = 'annotator' + id + '_arrow_' + role.type;
-          var arrowhead = svg.marker(defs, arrowId,
-            5, 2.5, 5, 5, 'auto',
-            {
-              markerUnits: 'strokeWidth',
-              'class': 'fill_' + role.type,
-            });
-          svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+    // sort the arcs
+    data.arcs.sort(function(a, b) {
+      // first write those that have less to jump over
+      var tmp = a.jumpHeight - b.jumpHeight;
+      if (tmp) return tmp < 0 ? -1 : 1;
+      // if equal, then those that span less distance
+      tmp = a.dist - b.dist;
+      if (tmp) return tmp < 0 ? -1 : 1;
+      // if equal, then those where heights of the targets are smaller
+      tmp = data.spans[a.origin].height + data.spans[a.target].height -
+        data.spans[b.origin].height - data.spans[b.target].height;
+      if (tmp) return tmp < 0 ? -1 : 1;
+      // if equal, they're just equal.
+      return 0;
+    });
 
-          arrows[role.type] = arrowId;
-        }
+    // add the arcs
+    $.each(data.arcs, function(arcNo, arc) {
+      roleClass = 'role_' + arc.type;
 
-        var triggerSpan = data.spans[eventDesc.id];
-        var roleSpan = data.spans[role.targetId];
-
-        var triggerBox = realBBox(triggerSpan);
-        var roleBox = realBBox(roleSpan);
-        var leftToRight = triggerBox.x < roleBox.x;
-        var target = {
-          span: roleSpan,
-          box: roleBox,
-        };
-        var origin = {
-          span: triggerSpan,
-          box: triggerBox,
-        };
-        var displacement = origin.box.width / 4;
-        var sign = leftToRight ? 1 : -1;
-
-        var startX = 
-            origin.box.x + origin.box.width / 2 + sign * displacement;
-        var endX =
-            target.box.x + target.box.width / 2;
-        var midX1 = (3 *
-          (origin.box.x + origin.box.width / 2 + sign * displacement) +
-          target.box.x + target.box.width / 2) / 4;
-        var midX2 = (
-          origin.box.x + origin.box.width / 2 + sign * displacement +
-          3 * (target.box.x + target.box.width / 2)) / 4;
-        var pathId = 'annotator' + id + '_path_' + eventId + '_' + role.type;
-        var arcHeight = 20 + Math.abs(target.box.y - origin.box.y) / 4;
-        var path = svg.createPath().move(
-            startX, origin.box.y
-          ).curveC(
-            midX1, origin.box.y - arcHeight,
-            midX2, target.box.y - arcHeight,
-            endX, target.box.y
-          );
-        var group = svg.group(arcs,
-            { 'data-from': eventDesc.id, 'data-to': role.targetId});
-        svg.path(group, path, {
-            markerEnd: 'url(#' + arrows[role.type] + ')',
-            id: leftToRight ? pathId : undefined,
-            'class': 'stroke_' + role.type,
-        });
-        if (!leftToRight) {
-          path = svg.createPath().move(
-              endX, target.box.y
-            ).curveC(
-              midX2, target.box.y - arcHeight,
-              midX1, origin.box.y - arcHeight,
-              startX, origin.box.y
-            );
-          svg.path(group, path, {
-              stroke: 'none',
-              id: pathId,
-          });
-        }
-        var text = svg.text(group, '');
-        svg.textpath(text, '#' + pathId, svg.createText().string(role.type),
+      if (!arrows[arc.type]) {
+        var arrowId = 'annotator' + id + '_arrow_' + arc.type;
+        var arrowhead = svg.marker(defs, arrowId,
+          5, 2.5, 5, 5, 'auto',
           {
-            'class': 'fill_' + role.type,
-            startOffset: '50%',
+            markerUnits: 'strokeWidth',
+            'class': 'fill_' + arc.type,
           });
+        svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+
+        arrows[arc.type] = arrowId;
+      }
+
+      var originSpan = data.spans[arc.origin];
+      var targetSpan = data.spans[arc.target];
+      var originBox = realBBox(originSpan);
+      var targetBox = realBBox(targetSpan);
+      var leftToRight = originSpan.from + originSpan.to < targetSpan.from + targetSpan.to; // /2 unneeded
+
+      var displacement = originBox.width / 2;
+      var sign = leftToRight ? 1 : -1;
+
+      var startX = 
+          originBox.x + originBox.width / 2 + sign * displacement;
+      var endX =
+          targetBox.x + targetBox.width / 2;
+      var midX1 = (3 *
+        (originBox.x + originBox.width / 2 + sign * displacement) +
+        targetBox.x + targetBox.width / 2) / 4;
+      var midX2 = (
+        originBox.x + originBox.width / 2 + sign * displacement +
+        3 * (targetBox.x + targetBox.width / 2)) / 4;
+      var pathId = 'annotator' + id + '_path_' + arc.from + '_' + arc.type;
+      var arcHeight = 20 + Math.abs(targetBox.y - originBox.y) / 4;
+      var path = svg.createPath().move(
+          startX, originBox.y
+        ).curveC(
+          midX1, originBox.y - arcHeight,
+          midX2, targetBox.y - arcHeight,
+          endX, targetBox.y
+        );
+      var group = svg.group(arcs,
+          { 'data-from': arc.origin, 'data-to': arc.target});
+      svg.path(group, path, {
+          markerEnd: 'url(#' + arrows[arc.type] + ')',
+          id: leftToRight ? pathId : undefined,
+          'class': 'stroke_' + arc.type,
       });
+      if (!leftToRight) {
+        path = svg.createPath().move(
+            endX, targetBox.y
+          ).curveC(
+            midX2, targetBox.y - arcHeight,
+            midX1, originBox.y - arcHeight,
+            startX, originBox.y
+          );
+        svg.path(group, path, {
+            stroke: 'none',
+            id: pathId,
+        });
+      }
+      var text = svg.text(group, '');
+      svg.textpath(text, '#' + pathId, svg.createText().string(arc.type),
+        {
+          'class': 'fill_' + arc.type,
+          startOffset: '50%',
+        });
     });
 
     var highlight;
