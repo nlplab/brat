@@ -199,7 +199,7 @@ var Annotator = function(containerElement, onStart) {
         if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
           spanNo++;
           data.spanLine[spanNo] = []
-          span.drawBrace = true;
+          span.drawCurly = true;
         }
         data.spanLine[spanNo].push(span);
         span.lineIndex = spanNo;
@@ -208,14 +208,19 @@ var Annotator = function(containerElement, onStart) {
     });
   }
 
-  var placeReservation = function(from, to, reservations) {
-    var newSlot = { from: from, to: to };
+  var placeReservation = function(span, box, reservations) {
+    var newSlot = {
+      from: box.x,
+      to: box.x + box.width,
+      span: span,
+      height: box.height + (span.drawCurly ? curlyHeight : 0),
+    };
     var resLen = reservations.length;
     for (var resNo = 0; resNo < resLen; resNo++) {
       var line = reservations[resNo];
       var overlap = false;
       $.each(line, function(j, slot) {
-        if (slot.from <= to && from <= slot.to) {
+        if (slot.from <= newSlot.to && newSlot.from <= slot.to) {
           overlap = true;
           return false;
         }
@@ -236,7 +241,6 @@ var Annotator = function(containerElement, onStart) {
 
   var Row = function() {
     this.group = svg.group();
-    this.reservations = [];
     this.chunks = [];
   }
 
@@ -264,7 +268,7 @@ var Annotator = function(containerElement, onStart) {
     var row = new Row();
 
     $.each(data.chunks, function(chunkNo, chunk) {
-      chunk.reservations = [];
+      var reservations = [];
       chunk.group = svg.group(row.group);
 
       // a group for text highlight below the text
@@ -314,8 +318,7 @@ var Annotator = function(containerElement, onStart) {
           });
         var rectBox = span.rect.getBBox();
 
-        var line = placeReservation(
-            rectBox.x, rectBox.x + rectBox.width, chunk.reservations, span.drawBrace);
+        var line = placeReservation(span, rectBox, reservations);
         var yAdjust = line * lineHeight;
 
         spanHeights[span.lineIndex] = yAdjust; // this is monotonous due to sort
@@ -335,7 +338,7 @@ var Annotator = function(containerElement, onStart) {
         svg.add(span.group, spanText);
 
         // Make curlies to show the span
-        if (span.drawBrace) {
+        if (span.drawCurly) {
           var bottom = spanBox.y + spanBox.height + margin.y - yAdjust;
           svg.path(span.group, svg.createPath()
               .move(xFrom, bottom + curlyHeight)
@@ -379,15 +382,6 @@ var Annotator = function(containerElement, onStart) {
       chunk.row = row;
       translate(chunk, current.x - chunkBox.x, 0);
 
-      // translate individual chunk reservations
-      var xShift = chunk.translation.x;
-      $.each(chunk.reservations, function(line, lineReservations) {
-        if (!row.reservations[line]) row.reservations[line] = [];
-        $.each(lineReservations, function(j, res) {
-          row.reservations[line].push(
-            { from: res.from + xShift, to: res.to + xShift });
-        }); // lineReservations
-      }); // chunk.reservations
       current.x += chunkBox.width + space;
     }); // chunks
 
