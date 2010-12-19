@@ -11,9 +11,11 @@ datadir = '/data/home/genia/public_html/SharedTask/visual/data/'
 def directory_options(directory):
     print "Content-Type: text/html\n"
     print "<option value=''>-- Select Document --</option>"
-    for file in listdir(directory):
-        if file.endswith('.txt'):
-            print "<option>%s</option>" % file[0:-4]
+    dirlist = [file[0:-4] for file in listdir(directory)
+            if file.endswith('txt')]
+    dirlist.sort()
+    for file in dirlist:
+        print "<option>%s</option>" % file
 
 def document_json(document):
     print "Content-Type: application/json\n"
