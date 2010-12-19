@@ -30,10 +30,41 @@ var Annotator = function(containerElement, onStart) {
   var svgElement;
   var data;
 
+  var highlight;
+  var highlightArcs;
+
+  var mouseOver = function(evt) {
+    var target = $(evt.target);
+    var id;
+    if (id = target.attr('data-span-id')) {
+      var span = data.spans[id];
+      highlight = svg.rect(span.chunk.highlightGroup,
+        span.curly.from - 1, span.curly.y - 1,
+        span.curly.to + 2 - span.curly.from, span.curly.height + 2,
+        { 'class': 'span_default span_' + span.type });
+      highlightArcs = target.closest('svg').find('.arc').
+        children('g[data-from="' + id + '"], g[data-to="' + id + '"]');
+      highlightArcs.addClass('highlight');
+    }
+  };
+
+  var mouseOut = function(evt) {
+    if (highlight) {
+      svg.remove(highlight);
+      highlight = null;
+    }
+    if (highlightArcs) {
+      highlightArcs.removeClass('highlight');
+    }
+  };
+
   this.drawInitial = function(_svg) {
     svg = _svg;
     svgElement = $(svg._svg);
     if (onStart) onStart.call(annotator);
+
+    containerElement.mouseover(mouseOver);
+    containerElement.mouseout(mouseOut);
   }
 
   var Span = function(id, type, from, to) {
@@ -220,12 +251,11 @@ var Annotator = function(containerElement, onStart) {
       span: span,
       height: box.height + (span.drawCurly ? curlyHeight : 0),
     };
-    var resLen = reservations.length;
     var height = 0;
-    if (resLen) {
-      for (var resNo = 0; resNo < resLen; resNo++) {
-        var line = reservations[resNo].ranges;
-        height = reservations[resNo].height;
+    if (reservations.length) {
+      $.each(reservations, function(resNo, reservation) {
+        var line = reservation.ranges;
+        height = reservation.height;
         var overlap = false;
         $.each(line, function(j, slot) {
           if (slot.from <= newSlot.to && newSlot.from <= slot.to) {
@@ -235,13 +265,13 @@ var Annotator = function(containerElement, onStart) {
         });
         if (!overlap) {
           if (!reservation.curly && span.drawCurly) {
-            // TODO: need to push other boxes up
+            // TODO: need to push up the boxes drawn so far
             // (rare glitch)
           }
           line.push(newSlot);
           return height;
         }
-      }
+      });
       height += newSlot.height + boxSpacing; 
     }
     reservations.push({
@@ -284,9 +314,10 @@ var Annotator = function(containerElement, onStart) {
     var spanHeights = [];
     var row = new Row();
     var textHeight;
+    var reservations;
 
     $.each(data.chunks, function(chunkNo, chunk) {
-      var reservations = [];
+      reservations = new Array();
       chunk.group = svg.group(row.group);
 
       // a group for text highlight below the text
@@ -486,8 +517,11 @@ var Annotator = function(containerElement, onStart) {
       var midX2 = (
         originBox.x + originBox.width / 2 + sign * displacement +
         3 * (targetBox.x + targetBox.width / 2)) / 4;
-      var pathId = 'annotator' + id + '_path_' + arc.from + '_' + arc.type;
+      var pathId = 'annotator' + id + '_path_' + arc.origin + '_' + arc.type;
       var arcHeight = 20 + Math.abs(targetBox.y - originBox.y) / 4;
+
+      var group = svg.group(arcs,
+          { 'data-from': arc.origin, 'data-to': arc.target});
       var path = svg.createPath().move(
           startX, originBox.y
         ).curveC(
@@ -495,8 +529,6 @@ var Annotator = function(containerElement, onStart) {
           midX2, targetBox.y - arcHeight,
           endX, targetBox.y
         );
-      var group = svg.group(arcs,
-          { 'data-from': arc.origin, 'data-to': arc.target});
       svg.path(group, path, {
           markerEnd: 'url(#' + arrows[arc.type] + ')',
           id: leftToRight ? pathId : undefined,
@@ -516,48 +548,21 @@ var Annotator = function(containerElement, onStart) {
         });
       }
       var text = svg.text(group, '');
-      svg.textpath(text, '#' + pathId, svg.createText().string(arc.type),
+      // svg.textpath(text, '#' + pathId, svg.createText().string(arc.type),
+      svg.textpath(text, '#' + pathId, svg.createText().string(arcNo),
         {
           'class': 'fill_' + arc.type,
           startOffset: '50%',
         });
     });
-
-    var highlight;
-    var highlightArcs;
-
-    this.mouseOver = function(evt) {
-      var target = $(evt.target);
-      var id;
-      if (id = target.attr('data-span-id')) {
-        var span = data.spans[id];
-        highlight = svg.rect(span.chunk.highlightGroup,
-          span.curly.from - 1, span.curly.y - 1,
-          span.curly.to + 2 - span.curly.from, span.curly.height + 2,
-          { 'class': 'span_default span_' + span.type });
-        highlightArcs = target.closest('svg').find('.arc').
-          children('g[data-from="' + id + '"], g[data-to="' + id + '"]');
-        highlightArcs.addClass('highlight');
-      }
-    };
-
-    this.mouseOut = function(evt) {
-      if (highlight) {
-        svg.remove(highlight);
-        highlight = null;
-      }
-      if (highlightArcs) {
-        highlightArcs.removeClass('highlight');
-      }
-    };
   }
 
   containerElement.svg({
       onLoad: this.drawInitial,
       settings: {
+      /*
           onmouseover: this.variable + ".mouseOver(evt)",
           onmouseout: this.variable + ".mouseOut(evt)",
-      /*
           onmousedown: this.variable + ".mouseDown(evt)",
           onmousemove: this.variable + ".mouseMove(evt)",
           onmouseup: this.variable + ".mouseUp(evt)",
@@ -597,9 +602,10 @@ $(function() {
       $('#document_select').val(doc);
 
       $('#document_name').text(directoryAndDoc);
-      $.get(ajaxURL + "&document=" + doc, function(data) {
+      if (!doc) return;
+      $.get(ajaxURL + "&document=" + doc, function(jsonData) {
           drawing = true;
-          annotator.renderData(data);
+          annotator.renderData(jsonData);
           drawing = false;
       });
     }
