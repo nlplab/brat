@@ -382,6 +382,7 @@ var Annotator = function(containerElement, onStart) {
         var measureText = svg.text(chunk.group, 0, 0,
           chunk.text.substr(0, span.from - chunk.from));
         var xFrom = measureText.getBBox().width;
+        if (xFrom < 0) xFrom = 0;
         svg.remove(measureText);
         measureText = svg.text(chunk.group, 0, 0,
           chunk.text.substr(0, span.to - chunk.from));
