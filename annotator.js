@@ -10,16 +10,6 @@ if (typeof(console) === 'undefined') {
 
 // SVG Annotation tool
 var Annotator = function(containerElement, onStart) {
-  var undefined; // prevent evil
-
-  if (!Annotator.count) Annotator.count = 0;
-  var id = Annotator.count;
-  this.variable = "Annotator[" + id + "]";
-  var annotator = Annotator[Annotator.count] = this;
-  Annotator.count++;
-
-  containerElement = $(containerElement);
-
   // settings
   var margin = { x: 2, y: 1 };
   var space = 5;
@@ -32,6 +22,17 @@ var Annotator = function(containerElement, onStart) {
   var arcHorizontalSpacing = 80;
   var dashArray = '3, 3';
 
+  var undefined; // prevents evil "undefined = 17" attacks
+
+  if (!Annotator.count) Annotator.count = 0;
+  var id = Annotator.count;
+  this.variable = "Annotator[" + id + "]";
+  var annotator = Annotator[Annotator.count] = this;
+  Annotator.count++;
+  $.browser.chrome = /chrome/.test( navigator.userAgent.toLowerCase() );
+
+  containerElement = $(containerElement);
+
   var canvasWidth;
   var svg;
   var svgElement;
@@ -39,6 +40,13 @@ var Annotator = function(containerElement, onStart) {
 
   var highlight;
   var highlightArcs;
+
+  // due to silly Chrome bug, I have to make it pay attention
+  var forceRedraw = function() {
+    if (!$.browser.chrome) return; // not needed
+    svgElement.css('margin-bottom', 1);
+    setTimeout(function() { svgElement.css('margin-bottom', 0); }, 0);
+  }
 
   var mouseOver = function(evt) {
     var target = $(evt.target);
@@ -52,6 +60,7 @@ var Annotator = function(containerElement, onStart) {
       highlightArcs = target.closest('svg').find('.arcs').
           find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
           addClass('highlight');
+      forceRedraw();
     }
   };
 
@@ -64,6 +73,7 @@ var Annotator = function(containerElement, onStart) {
       highlightArcs.removeClass('highlight');
       highlightArcs = undefined;
     }
+    forceRedraw();
   };
 
   var click = function(evt) {
@@ -335,7 +345,6 @@ var Annotator = function(containerElement, onStart) {
     $(svg).attr('width', canvasWidth);
     
     var current = { x: margin.x, y: margin.y };
-    var lastNonText = { chunkInRow: -1, rightmostX: 0 }; // TODO textsqueeze
     var rows = [];
     var spanHeights = [];
     var row = new Row();
@@ -359,7 +368,7 @@ var Annotator = function(containerElement, onStart) {
       var chunkIndexFrom, chunkIndexTo;
       var minArcDist;
       var lastArcBorder = 0;
-      var hasLeftArcs, hasRightArcs;
+      var hasLeftArcs, hasRightArcs, hasInternalArcs;
 
       $.each(chunk.spans, function(spanNo, span) {
         span.chunk = chunk;
@@ -443,13 +452,15 @@ var Annotator = function(containerElement, onStart) {
         // find the last arc backwards
         $.each(span.incoming, function(arcId, arc) {
           var origin = data.spans[arc.origin].chunk;
+          if (chunk.index == origin.index) {
+            hasInternalArcs = true;
+          }
           if (origin.row) {
             hasLeftArcs = true;
             if (origin.row.index == rowIndex) {
               // same row, but before this
               var border = origin.translation.x + origin.box.x + origin.box.width;
-              if (!lastArcBorder || border > lastArcBorder)
-                lastArcBorder = border;
+              if (border > lastArcBorder) lastArcBorder = border;
             }
           } else {
             hasRightArcs = true;
@@ -462,8 +473,7 @@ var Annotator = function(containerElement, onStart) {
             if (target.row.index == rowIndex) {
               // same row, but before this
               var border = target.translation.x + target.box.x + target.box.width;
-              if (!lastArcBorder || border > lastArcBorder)
-                lastArcBorder = border;
+              if (border > lastArcBorder) lastArcBorder = border;
             }
           } else {
             hasRightArcs = true;
@@ -476,22 +486,21 @@ var Annotator = function(containerElement, onStart) {
         spanHeights[i] = Math.max(spanHeights[i - 1], spanHeights[i + 1]);
 
       // positioning of the chunk
-      var chunkBox = chunk.group.getBBox();
-      chunk.box = chunkBox;
-      if (lastArcBorder) {
+      var chunkBox = chunk.box = chunk.group.getBBox();
+      if (hasLeftArcs) {
         var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
         // arc too small?
         if (spacing > 0) current.x += spacing;
       }
-      var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : 0;
+      var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
+
       if (chunk.lineBreak ||
           current.x + chunkBox.width + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
         row.arcs = svg.group(row.group, { 'class': 'arcs' });
         // new row
         rows.push(row);
-        current.x = margin.x + (hasLeftArcs ? arcHorizontalSpacing : 0);
+        current.x = margin.x + (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
         svg.remove(chunk.group);
-        lastNonText = { chunkInRow: -1, rightmostX: 0 }; // TODO textsqueeze
         row = new Row();
         row.index = ++rowIndex;
         svg.add(row.group, chunk.group);
