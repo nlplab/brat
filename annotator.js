@@ -29,7 +29,8 @@ var Annotator = function(containerElement, onStart) {
   var arcSpacing = 10;
   var arcSlant = 20;
   var arcStartHeight = 35;
-  var arcHorizontalSpacing = 75;
+  var arcHorizontalSpacing = 80;
+  var dashArray = '3, 3';
 
   var canvasWidth;
   var svg;
@@ -42,29 +43,26 @@ var Annotator = function(containerElement, onStart) {
   var mouseOver = function(evt) {
     var target = $(evt.target);
     var id;
-    console.log(target);
     if (id = target.attr('data-span-id')) {
-      console.log(id);
       var span = data.spans[id];
       highlight = svg.rect(span.chunk.highlightGroup,
         span.curly.from - 1, span.curly.y - 1,
         span.curly.to + 2 - span.curly.from, span.curly.height + 2,
         { 'class': 'span_default span_' + span.type });
       highlightArcs = target.closest('svg').find('.arcs').
-          find('g[data-from="' + id + '"], g[data-to="' + id + '"]');
-      highlightArcs.addClass('highlight');
-      console.log(highlightArcs);
+          find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
+          addClass('highlight');
     }
   };
 
   var mouseOut = function(evt) {
     if (highlight) {
       svg.remove(highlight);
-      highlight = null;
+      highlight = undefined;
     }
     if (highlightArcs) {
       highlightArcs.removeClass('highlight');
-      highlightArcs = null;
+      highlightArcs = undefined;
     }
   };
 
@@ -74,7 +72,7 @@ var Annotator = function(containerElement, onStart) {
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
-      console.log(span); // DEBUG
+      console.log(span.id, span); // DEBUG
     }
   }
 
@@ -100,13 +98,14 @@ var Annotator = function(containerElement, onStart) {
   }
 
   // event is reserved
-  var EventDesc = function(id, triggerId, roles) {
+  var EventDesc = function(id, triggerId, roles, equiv) {
     this.id = id;
     this.triggerId = triggerId;
     var roleList = this.roles = [];
     $.each(roles, function(roleNo, role) {
       roleList.push({ type: role[0], targetId: role[1] });
     });
+    if (equiv) this.equiv = true;
   }
 
   var setData = function(_data) {
@@ -135,6 +134,10 @@ var Annotator = function(containerElement, onStart) {
     });
     $.each(data.modifications, function(modNo, mod) {
       data.spans[mod[2]][mod[1]] = true;
+    });
+    $.each(data.equivs, function(equivNo, equiv) {
+      var eventDesc = data.eventDescs[equiv[0]] =
+          new EventDesc(equiv[1], equiv[1], [['Equiv', equiv[2]]], true);
     });
 
     // find chunk breaks
@@ -210,6 +213,7 @@ var Annotator = function(containerElement, onStart) {
           type: role.type,
           jumpHeight: 0,
         };
+        if (eventDesc.equiv) arc.equiv = true;
         origin.totalDist += dist;
         origin.numArcs++;
         target.totalDist += dist;
@@ -231,12 +235,12 @@ var Annotator = function(containerElement, onStart) {
         span.avgDist = span.totalDist / span.numArcs;
       });
       chunk.spans.sort(function(a, b) {
-        // longer arc distances go last
-        var tmp = a.avgDist - b.avgDist;
+        // earlier-starting ones go first
+        tmp = a.from - b.from;
         if (tmp) {
           return tmp < 0 ? -1 : 1;
         }
-        // if arc widths same, compare the span widths,
+        // compare the span widths,
         // put wider on bottom so they don't mess with arcs
         var ad = a.to - a.from;
         var bd = b.to - b.from;
@@ -244,8 +248,8 @@ var Annotator = function(containerElement, onStart) {
         if (tmp) {
           return tmp < 0 ? 1 : -1;
         }
-        // lastly, all else being equal, earlier-starting ones go first
-        tmp = a.from != b.from;
+        // longer arc distances go last
+        var tmp = a.avgDist - b.avgDist;
         if (tmp) {
           return tmp < 0 ? -1 : 1;
         }
@@ -274,11 +278,13 @@ var Annotator = function(containerElement, onStart) {
     };
     var height = 0;
     if (reservations.length) {
-      $.each(reservations, function(resNo, reservation) {
+      for (var resNo = 0, resLen = reservations.length; resNo < resLen; resNo++) {
+        var reservation = reservations[resNo];
         var line = reservation.ranges;
         height = reservation.height;
         var overlap = false;
-        $.each(line, function(j, slot) {
+        $.each(line, function(slotNo, slot) {
+          var slot = line[slotNo];
           if (slot.from <= newSlot.to && newSlot.from <= slot.to) {
             overlap = true;
             return false;
@@ -292,7 +298,7 @@ var Annotator = function(containerElement, onStart) {
           line.push(newSlot);
           return height;
         }
-      });
+      }
       height += newSlot.height + boxSpacing; 
     }
     reservations.push({
@@ -323,7 +329,7 @@ var Annotator = function(containerElement, onStart) {
 
   this.renderData = function(_data) {
     setData(_data);
-    svg.clear();
+    svg.clear(true);
     if (!data || data.length == 0) return;
     canvasWidth = $(containerElement).width();
     $(svg).attr('width', canvasWidth);
@@ -383,7 +389,6 @@ var Annotator = function(containerElement, onStart) {
         var spanText = svg.text(span.group, x, y, span.type);
         var spanBox = spanText.getBBox();
         svg.remove(spanText);
-        var dasharray = span.Speculation ? '3, 3' : 'none';
         span.rect = svg.rect(span.group,
           spanBox.x - margin.x,
           spanBox.y - margin.y,
@@ -393,7 +398,7 @@ var Annotator = function(containerElement, onStart) {
             rx: margin.x,
             ry: margin.y,
             'data-span-id': span.id,
-            'strokeDashArray': dasharray,
+            'strokeDashArray': span.Speculation ? dashArray : undefined,
           });
         var rectBox = span.rect.getBBox();
 
@@ -479,9 +484,9 @@ var Annotator = function(containerElement, onStart) {
         if (spacing > 0) current.x += spacing;
       }
       var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : 0;
-      if (chunk.lineBreak
-          || current.x + chunkBox.width + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
-        row.arcs = svg.group(row.group, { class: 'arcs' });
+      if (chunk.lineBreak ||
+          current.x + chunkBox.width + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
+        row.arcs = svg.group(row.group, { 'class': 'arcs' });
         // new row
         rows.push(row);
         current.x = margin.x + (hasLeftArcs ? arcHorizontalSpacing : 0);
@@ -509,7 +514,7 @@ var Annotator = function(containerElement, onStart) {
     }); // chunks
 
     // finish the last row
-    row.arcs = svg.group(row.group, { class: 'arcs' });
+    row.arcs = svg.group(row.group, { 'class': 'arcs' });
     rows.push(row);
 
     var defs = svg.defs();
@@ -573,8 +578,6 @@ var Annotator = function(containerElement, onStart) {
       var targetSpan = data.spans[arc.target];
       var pathId = 'annotator' + id + '_path_' + arc.origin + '_' + arc.type + '_' + arc.target;
 
-      // TODO FIXME: can we account for this in the original lineIndex?
-      //var leftToRight = originSpan.from + originSpan.to < targetSpan.from + targetSpan.to; // /2 unneeded
       var leftToRight = originSpan.lineIndex < targetSpan.lineIndex;
       var left, right;
       if (leftToRight) {
@@ -594,15 +597,27 @@ var Annotator = function(containerElement, onStart) {
 
       // find the next height
       var height = 0;
+      var fromIndex2 = fromIndex * 2;
       var toIndex2 = toIndex * 2;
-      for (var i = fromIndex * 2 + 1; i < toIndex2; i++) {
+      if (left.chunk.index != right.chunk.index) {
+        fromIndex2++;
+        toIndex2--;
+      }
+      for (var i = fromIndex2; i <= toIndex2; i++) {
         if (spanHeights[i] > height) height = spanHeights[i];
       }
       height += arcSpacing;
       var leftSlantBound, rightSlantBound;
-      for (var i = fromIndex * 2 + 1; i < toIndex2; i++) {
+      for (var i = fromIndex2; i <= toIndex2; i++) {
         if (spanHeights[i] < height) spanHeights[i] = height;
       }
+
+      var chunkReverse = false;
+      if (originSpan.chunk.index == targetSpan.chunk.index) {
+        chunkReverse =
+          leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2;
+      }
+      var chunkReverseSign = chunkReverse ? -1 : 1;
 
       for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
         var row = rows[rowIndex];
@@ -611,13 +626,13 @@ var Annotator = function(containerElement, onStart) {
         var from, to;
         
         if (rowIndex == leftRow) {
-          from = leftBox.x + leftBox.width;
+          from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
         } else {
           from = 0;
         }
 
         if (rowIndex == rightRow) {
-          to = rightBox.x;
+          to = rightBox.x + (chunkReverse ? rightBox.width : 0);
         } else {
           to = canvasWidth - 2 * margin.y;
         }
@@ -633,27 +648,29 @@ var Annotator = function(containerElement, onStart) {
         }
 
         var path;
-        path = svg.createPath().moveTo(textStart, -height);
+        path = svg.createPath().move(textStart, -height);
         if (rowIndex == leftRow) {
-          path.line(from + arcSlant, -height).
-            line(from, leftBox.y);
+          path.line(from + chunkReverseSign * arcSlant, -height).
+            line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : 0));
         } else {
           path.line(from, -height);
         }
         svg.path(arcGroup, path, {
-            markerEnd: leftToRight ? undefined : ('url(#' + arrows[arc.type] + ')'),
+            markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
             'class': 'stroke_' + arc.type,
+            'strokeDashArray': arc.equiv ? dashArray : undefined,
         });
-        path = svg.createPath().moveTo(textEnd, -height);
+        path = svg.createPath().move(textEnd, -height);
         if (rowIndex == rightRow) {
-          path.line(to - arcSlant, -height).
-            line(to, rightBox.y);
+          path.line(to - chunkReverseSign * arcSlant, -height).
+            line(to, rightBox.y + (leftToRight && !arc.equiv ? 0 : rightBox.height / 2));
         } else {
           path.line(to, -height);
         }
         svg.path(arcGroup, path, {
-            markerEnd: leftToRight ? 'url(#' + arrows[arc.type] + ')' : undefined,
+            markerEnd: leftToRight && !arc.equiv ? 'url(#' + arrows[arc.type] + ')' : undefined,
             'class': 'stroke_' + arc.type,
+            'strokeDashArray': arc.equiv ? dashArray : undefined,
         });
       } // arc rows
     }); // arcs

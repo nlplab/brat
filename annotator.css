@@ -139,9 +139,23 @@ svg {
 }
 .fill_CSite {
   /* TODO */
+  fill: purple;
+  stroke: purple;
 }
 .stroke_CSite {
   /* TODO */
+  stroke: purple;
+  stroke-width: 2px;
+}
+.fill_toLoc {
+  /* TODO */
+  fill: purple;
+  stroke: purple;
+}
+.stroke_toLoc {
+  /* TODO */
+  stroke: purple;
+  stroke-width: 2px;
 }
 
 .fill_Contextgene {
@@ -156,6 +170,13 @@ svg {
 }
 .stroke_Sidechain {
   stroke: #303030;
+}
+
+.fill_Equiv {
+  fill: black; /* TODO */
+}
+.stroke_Equiv {
+  stroke: black; /* TODO */
 }
 
 svg {

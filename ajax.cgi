@@ -31,6 +31,7 @@ def document_json(document):
             "events": [],
             "triggers": [],
             "modifications": [],
+            "equivs": [],
             }
 
     triggers = dict()
@@ -60,9 +61,8 @@ def document_json(document):
         elif tag == "M":
             struct["modifications"].append(row[0:3])
         elif tag == "*":
-            pass # TODO
-            # event = ['*' + row[2] + row[3], row[2], [[row[1], row[3]]]]
-            # struct["events"].append(event)
+            event = [row[2] + '*' + row[3], row[2], row[3]]
+            struct["equivs"].append(event)
     triggers = triggers.keys()
     struct["triggers"] = [entity for entity in struct["entities"] if entity[0] in triggers]
     struct["entities"] = [entity for entity in struct["entities"] if entity[0] not in triggers]
