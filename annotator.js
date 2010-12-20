@@ -10,6 +10,8 @@ if (typeof(console) === 'undefined') {
 
 // SVG Annotation tool
 var Annotator = function(containerElement, onStart) {
+  var undefined; // prevent evil
+
   if (!Annotator.count) Annotator.count = 0;
   var id = Annotator.count;
   this.variable = "Annotator[" + id + "]";
@@ -24,7 +26,10 @@ var Annotator = function(containerElement, onStart) {
   var boxSpacing = 3;
   var curlyHeight = 6;
   var lineSpacing = 5;
-  var arcSpacing = 15;
+  var arcSpacing = 10;
+  var arcSlant = 20;
+  var arcStartHeight = 35;
+  var arcHorizontalSpacing = 75;
 
   var canvasWidth;
   var svg;
@@ -37,15 +42,18 @@ var Annotator = function(containerElement, onStart) {
   var mouseOver = function(evt) {
     var target = $(evt.target);
     var id;
+    console.log(target);
     if (id = target.attr('data-span-id')) {
+      console.log(id);
       var span = data.spans[id];
       highlight = svg.rect(span.chunk.highlightGroup,
         span.curly.from - 1, span.curly.y - 1,
         span.curly.to + 2 - span.curly.from, span.curly.height + 2,
         { 'class': 'span_default span_' + span.type });
-      highlightArcs = target.closest('svg').find('.arc').
-        children('g[data-from="' + id + '"], g[data-to="' + id + '"]');
+      highlightArcs = target.closest('svg').find('.arcs').
+          find('g[data-from="' + id + '"], g[data-to="' + id + '"]');
       highlightArcs.addClass('highlight');
+      console.log(highlightArcs);
     }
   };
 
@@ -56,6 +64,7 @@ var Annotator = function(containerElement, onStart) {
     }
     if (highlightArcs) {
       highlightArcs.removeClass('highlight');
+      highlightArcs = null;
     }
   };
 
@@ -65,7 +74,7 @@ var Annotator = function(containerElement, onStart) {
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
-      console.log(span);
+      console.log(span); // DEBUG
     }
   }
 
@@ -304,12 +313,11 @@ var Annotator = function(containerElement, onStart) {
     this.chunks = [];
   }
 
-  var realBBox = function(span) {
+  var rowBBox = function(span) {
     var box = span.rect.getBBox();
     var chunkTranslation = span.chunk.translation;
-    var rowTranslation = span.chunk.row.translation;
-    box.x += chunkTranslation.x + rowTranslation.x;
-    box.y += chunkTranslation.y + rowTranslation.y;
+    box.x += chunkTranslation.x;
+    box.y += chunkTranslation.y;
     return box;
   }
 
@@ -325,6 +333,8 @@ var Annotator = function(containerElement, onStart) {
     var rows = [];
     var spanHeights = [];
     var row = new Row();
+    row.index = 0;
+    var rowIndex = 0;
     var textHeight;
     var reservations;
 
@@ -340,6 +350,10 @@ var Annotator = function(containerElement, onStart) {
         textHeight = chunkText.getBBox().height;
       }
       var y = 0;
+      var chunkIndexFrom, chunkIndexTo;
+      var minArcDist;
+      var lastArcBorder = 0;
+      var hasLeftArcs, hasRightArcs;
 
       $.each(chunk.spans, function(spanNo, span) {
         span.chunk = chunk;
@@ -383,9 +397,14 @@ var Annotator = function(containerElement, onStart) {
           });
         var rectBox = span.rect.getBBox();
 
+        if (chunkIndexFrom == undefined || chunkIndexFrom > span.lineIndex)
+          chunkIndexFrom = span.lineIndex;
+        if (chunkIndexTo == undefined || chunkIndexTo < span.lineIndex)
+          chunkIndexTo = span.lineIndex;
         var yAdjust = placeReservation(span, rectBox, reservations);
-
-        spanHeights[span.lineIndex] = yAdjust; // this is monotonous due to sort
+        // this is monotonous due to sort:
+        span.height = yAdjust + spanBox.height + 3 * margin.y + curlyHeight + arcSpacing;
+        spanHeights[span.lineIndex * 2] = span.height;
         $(span.rect).attr('y', spanBox.y - margin.y - yAdjust);
         $(spanText).attr('y', y - yAdjust);
         if (span.Negation) {
@@ -415,22 +434,61 @@ var Annotator = function(containerElement, onStart) {
             {
           });
         }
+
+        // find the last arc backwards
+        $.each(span.incoming, function(arcId, arc) {
+          var origin = data.spans[arc.origin].chunk;
+          if (origin.row) {
+            hasLeftArcs = true;
+            if (origin.row.index == rowIndex) {
+              // same row, but before this
+              var border = origin.translation.x + origin.box.x + origin.box.width;
+              if (!lastArcBorder || border > lastArcBorder)
+                lastArcBorder = border;
+            }
+          } else {
+            hasRightArcs = true;
+          }
+        });
+        $.each(span.outgoing, function(arcId, arc) {
+          var target = data.spans[arc.target].chunk;
+          if (target.row) {
+            hasLeftArcs = true;
+            if (target.row.index == rowIndex) {
+              // same row, but before this
+              var border = target.translation.x + target.box.x + target.box.width;
+              if (!lastArcBorder || border > lastArcBorder)
+                lastArcBorder = border;
+            }
+          } else {
+            hasRightArcs = true;
+          }
+        });
       }); // spans
+
+      var len = chunkIndexTo * 2;
+      for (var i = chunkIndexFrom * 2 + 1; i < len; i++)
+        spanHeights[i] = Math.max(spanHeights[i - 1], spanHeights[i + 1]);
 
       // positioning of the chunk
       var chunkBox = chunk.group.getBBox();
-      // TODO FIXME why does word wrap glitch?
+      chunk.box = chunkBox;
+      if (lastArcBorder) {
+        var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
+        // arc too small?
+        if (spacing > 0) current.x += spacing;
+      }
+      var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : 0;
       if (chunk.lineBreak
-          || current.x + chunkBox.width >= canvasWidth - 2 * margin.x) {
+          || current.x + chunkBox.width + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
+        row.arcs = svg.group(row.group, { class: 'arcs' });
         // new row
-        var rowBox = row.group.getBBox();
-        translate(row, 0, current.y - rowBox.y);
         rows.push(row);
-        current.y += rowBox.height + lineSpacing;
-        current.x = margin.x;
+        current.x = margin.x + (hasLeftArcs ? arcHorizontalSpacing : 0);
         svg.remove(chunk.group);
         lastNonText = { chunkInRow: -1, rightmostX: 0 }; // TODO textsqueeze
         row = new Row();
+        row.index = ++rowIndex;
         svg.add(row.group, chunk.group);
         chunk.group = row.group.lastElementChild;
         $(chunk.group).children("g[class='span']").
@@ -451,18 +509,16 @@ var Annotator = function(containerElement, onStart) {
     }); // chunks
 
     // finish the last row
-    var rowBox = row.group.getBBox();
-    translate(row, 0, current.y - rowBox.y);
+    row.arcs = svg.group(row.group, { class: 'arcs' });
     rows.push(row);
 
-    // resize the SVG
-    current.y += rowBox.height + margin.y;
-    $(svg._svg).attr('height', current.y).css('height', current.y);
-    $(containerElement).attr('height', current.y).css('height', current.y);
-
-    var arcs = svg.group({ 'class': 'arc' });
     var defs = svg.defs();
     var arrows = {};
+
+    var len = spanHeights.length;
+    for (var i = 0; i < len; i++) {
+      if (!spanHeights[i] || spanHeights[i] < arcStartHeight) spanHeights[i] = arcStartHeight;
+    }
 
     // find out how high the arcs have to go
     $.each(data.arcs, function(arcNo, arc) {
@@ -473,7 +529,7 @@ var Annotator = function(containerElement, onStart) {
         var tmp = from; from = to; to = tmp;
       }
       for (var i = from + 1; i < to; i++) {
-        if (arc.jumpHeight < spanHeights[i]) arc.jumpHeight = spanHeights[i];
+        if (arc.jumpHeight < spanHeights[i * 2]) arc.jumpHeight = spanHeights[i * 2];
       }
     });
 
@@ -488,6 +544,9 @@ var Annotator = function(containerElement, onStart) {
       // if equal, then those where heights of the targets are smaller
       tmp = data.spans[a.origin].height + data.spans[a.target].height -
         data.spans[b.origin].height - data.spans[b.target].height;
+      if (tmp) return tmp < 0 ? -1 : 1;
+      // if equal, then those with the lower origin
+      tmp = data.spans[a.origin].height - data.spans[b.origin].height;
       if (tmp) return tmp < 0 ? -1 : 1;
       // if equal, they're just equal.
       return 0;
@@ -512,81 +571,105 @@ var Annotator = function(containerElement, onStart) {
 
       var originSpan = data.spans[arc.origin];
       var targetSpan = data.spans[arc.target];
-      var originBox = realBBox(originSpan);
-      var targetBox = realBBox(targetSpan);
+      var pathId = 'annotator' + id + '_path_' + arc.origin + '_' + arc.type + '_' + arc.target;
+
       // TODO FIXME: can we account for this in the original lineIndex?
       //var leftToRight = originSpan.from + originSpan.to < targetSpan.from + targetSpan.to; // /2 unneeded
       var leftToRight = originSpan.lineIndex < targetSpan.lineIndex;
-
-      var from = targetSpan.lineIndex;
-      var to = originSpan.lineIndex;
+      var left, right;
       if (leftToRight) {
-        var tmp = from;
-        from = to;
-        to = tmp;
+        left = originSpan;
+        right = targetSpan;
+      } else {
+        left = targetSpan;
+        right = originSpan;
       }
+      var leftBox = rowBBox(left);
+      var rightBox = rowBBox(right);
+      var leftRow = left.chunk.row.index;
+      var rightRow = right.chunk.row.index;
+
+      var fromIndex = left.lineIndex;
+      var toIndex = right.lineIndex;
 
       // find the next height
       var height = 0;
-      for (var i = from + 1; i < to; i++) {
+      var toIndex2 = toIndex * 2;
+      for (var i = fromIndex * 2 + 1; i < toIndex2; i++) {
         if (spanHeights[i] > height) height = spanHeights[i];
       }
       height += arcSpacing;
-      for (var i = from; i <= to; i++) {
+      var leftSlantBound, rightSlantBound;
+      for (var i = fromIndex * 2 + 1; i < toIndex2; i++) {
         if (spanHeights[i] < height) spanHeights[i] = height;
       }
 
+      for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
+        var row = rows[rowIndex];
+        var arcGroup = svg.group(row.arcs,
+            { 'data-from': arc.origin, 'data-to': arc.target});
+        var from, to;
+        
+        if (rowIndex == leftRow) {
+          from = leftBox.x + leftBox.width;
+        } else {
+          from = 0;
+        }
 
-      var displacement = originBox.width / 2;
-      var sign = leftToRight ? 1 : -1;
+        if (rowIndex == rightRow) {
+          to = rightBox.x;
+        } else {
+          to = canvasWidth - 2 * margin.y;
+        }
 
-      var startX = 
-          originBox.x + originBox.width / 2 + sign * displacement;
-      var endX =
-          targetBox.x + targetBox.width / 2;
-      var midX1 = (3 *
-        (originBox.x + originBox.width / 2 + sign * displacement) +
-        targetBox.x + targetBox.width / 2) / 4;
-      var midX2 = (
-        originBox.x + originBox.width / 2 + sign * displacement +
-        3 * (targetBox.x + targetBox.width / 2)) / 4;
-      var pathId = 'annotator' + id + '_path_' + arc.origin + '_' + arc.type;
-
-      var group = svg.group(arcs,
-          { 'data-from': arc.origin, 'data-to': arc.target});
-      var path = svg.createPath().move(
-          startX, originBox.y
-        ).curveC(
-          midX1, originBox.y - height,
-          midX2, targetBox.y - height,
-          endX, targetBox.y
-        );
-      svg.path(group, path, {
-          markerEnd: 'url(#' + arrows[arc.type] + ')',
-          id: leftToRight ? pathId : undefined,
-          'class': 'stroke_' + arc.type,
-      });
-      if (!leftToRight) {
-        path = svg.createPath().move(
-            endX, targetBox.y
-          ).curveC(
-            midX2, targetBox.y - height,
-            midX1, originBox.y - height,
-            startX, originBox.y
-          );
-        svg.path(group, path, {
-            stroke: 'none',
-            id: pathId,
+        var text = svg.text(arcGroup, (from + to) / 2, -height, arc.type, {
+            'class': 'fill_' + arc.type,
         });
-      }
-      var text = svg.text(group, '');
-      // svg.textpath(text, '#' + pathId, svg.createText().string(arc.type),
-      svg.textpath(text, '#' + pathId, svg.createText().string(arc.type),
-        {
-          'class': 'fill_' + arc.type,
-          startOffset: '50%',
+        var textBox = text.getBBox();
+        var textStart = textBox.x - margin.x;
+        var textEnd = textStart + textBox.width + 2 * margin.x;
+        if (from > to) {
+          var tmp = textStart; textStart = textEnd; textEnd = tmp;
+        }
+
+        var path;
+        path = svg.createPath().moveTo(textStart, -height);
+        if (rowIndex == leftRow) {
+          path.line(from + arcSlant, -height).
+            line(from, leftBox.y);
+        } else {
+          path.line(from, -height);
+        }
+        svg.path(arcGroup, path, {
+            markerEnd: leftToRight ? undefined : ('url(#' + arrows[arc.type] + ')'),
+            'class': 'stroke_' + arc.type,
         });
+        path = svg.createPath().moveTo(textEnd, -height);
+        if (rowIndex == rightRow) {
+          path.line(to - arcSlant, -height).
+            line(to, rightBox.y);
+        } else {
+          path.line(to, -height);
+        }
+        svg.path(arcGroup, path, {
+            markerEnd: leftToRight ? 'url(#' + arrows[arc.type] + ')' : undefined,
+            'class': 'stroke_' + arc.type,
+        });
+      } // arc rows
+    }); // arcs
+
+    var y = margin.y;
+    $.each(rows, function(rowId, row) {
+      var rowBox = row.group.getBBox();
+      y += rowBox.height;
+      translate(row, 0, y);
+      y += margin.y;
     });
+    y += margin.y;
+
+    // resize the SVG
+    $(svg._svg).attr('height', y).css('height', y);
+    $(containerElement).attr('height', y).css('height', y);
   }
 
   containerElement.svg({
