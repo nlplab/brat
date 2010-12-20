@@ -24,6 +24,7 @@ var Annotator = function(containerElement, onStart) {
   var boxSpacing = 3;
   var curlyHeight = 6;
   var lineSpacing = 5;
+  var arcSpacing = 15;
 
   var canvasWidth;
   var svg;
@@ -58,6 +59,16 @@ var Annotator = function(containerElement, onStart) {
     }
   };
 
+  var click = function(evt) {
+    // DEBUG
+    var target = $(evt.target);
+    var id;
+    if (id = target.attr('data-span-id')) {
+      var span = data.spans[id];
+      console.log(span);
+    }
+  }
+
   this.drawInitial = function(_svg) {
     svg = _svg;
     svgElement = $(svg._svg);
@@ -65,6 +76,7 @@ var Annotator = function(containerElement, onStart) {
 
     containerElement.mouseover(mouseOver);
     containerElement.mouseout(mouseOut);
+    containerElement.click(click);
   }
 
   var Span = function(id, type, from, to) {
@@ -502,7 +514,28 @@ var Annotator = function(containerElement, onStart) {
       var targetSpan = data.spans[arc.target];
       var originBox = realBBox(originSpan);
       var targetBox = realBBox(targetSpan);
-      var leftToRight = originSpan.from + originSpan.to < targetSpan.from + targetSpan.to; // /2 unneeded
+      // TODO FIXME: can we account for this in the original lineIndex?
+      //var leftToRight = originSpan.from + originSpan.to < targetSpan.from + targetSpan.to; // /2 unneeded
+      var leftToRight = originSpan.lineIndex < targetSpan.lineIndex;
+
+      var from = targetSpan.lineIndex;
+      var to = originSpan.lineIndex;
+      if (leftToRight) {
+        var tmp = from;
+        from = to;
+        to = tmp;
+      }
+
+      // find the next height
+      var height = 0;
+      for (var i = from + 1; i < to; i++) {
+        if (spanHeights[i] > height) height = spanHeights[i];
+      }
+      height += arcSpacing;
+      for (var i = from; i <= to; i++) {
+        if (spanHeights[i] < height) spanHeights[i] = height;
+      }
+
 
       var displacement = originBox.width / 2;
       var sign = leftToRight ? 1 : -1;
@@ -518,15 +551,14 @@ var Annotator = function(containerElement, onStart) {
         originBox.x + originBox.width / 2 + sign * displacement +
         3 * (targetBox.x + targetBox.width / 2)) / 4;
       var pathId = 'annotator' + id + '_path_' + arc.origin + '_' + arc.type;
-      var arcHeight = 20 + Math.abs(targetBox.y - originBox.y) / 4;
 
       var group = svg.group(arcs,
           { 'data-from': arc.origin, 'data-to': arc.target});
       var path = svg.createPath().move(
           startX, originBox.y
         ).curveC(
-          midX1, originBox.y - arcHeight,
-          midX2, targetBox.y - arcHeight,
+          midX1, originBox.y - height,
+          midX2, targetBox.y - height,
           endX, targetBox.y
         );
       svg.path(group, path, {
@@ -538,8 +570,8 @@ var Annotator = function(containerElement, onStart) {
         path = svg.createPath().move(
             endX, targetBox.y
           ).curveC(
-            midX2, targetBox.y - arcHeight,
-            midX1, originBox.y - arcHeight,
+            midX2, targetBox.y - height,
+            midX1, originBox.y - height,
             startX, originBox.y
           );
         svg.path(group, path, {
@@ -549,7 +581,7 @@ var Annotator = function(containerElement, onStart) {
       }
       var text = svg.text(group, '');
       // svg.textpath(text, '#' + pathId, svg.createText().string(arc.type),
-      svg.textpath(text, '#' + pathId, svg.createText().string(arcNo),
+      svg.textpath(text, '#' + pathId, svg.createText().string(arc.type),
         {
           'class': 'fill_' + arc.type,
           startOffset: '50%',

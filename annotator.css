@@ -137,6 +137,20 @@ svg {
   stroke: #448844;
 }
 
+.fill_Contextgene {
+  fill: #303030;
+}
+.stroke_Contextgene {
+  stroke: #303030;
+}
+
+.fill_Sidechain {
+  fill: #303030;
+}
+.stroke_Sidechain {
+  stroke: #303030;
+}
+
 svg {
   pointer-events: none;
   font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
