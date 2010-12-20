@@ -25,8 +25,8 @@ var Annotator = function(containerElement, onStart) {
   var undefined; // prevents evil "undefined = 17" attacks
 
   if (!Annotator.count) Annotator.count = 0;
-  var id = Annotator.count;
-  this.variable = "Annotator[" + id + "]";
+  var annId = Annotator.count;
+  this.variable = "Annotator[" + annId + "]";
   var annotator = Annotator[Annotator.count] = this;
   Annotator.count++;
   $.browser.chrome = /chrome/.test( navigator.userAgent.toLowerCase() );
@@ -40,12 +40,17 @@ var Annotator = function(containerElement, onStart) {
 
   var highlight;
   var highlightArcs;
+  var highlightBoxes;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
     if (!$.browser.chrome) return; // not needed
     svgElement.css('margin-bottom', 1);
     setTimeout(function() { svgElement.css('margin-bottom', 0); }, 0);
+  }
+
+  var idForSpan = function(span) {
+    return 'annotator' + annId + '_span_' + span.id;
   }
 
   var mouseOver = function(evt) {
@@ -60,6 +65,21 @@ var Annotator = function(containerElement, onStart) {
       highlightArcs = target.closest('svg').find('.arcs').
           find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
           addClass('highlight');
+      /*
+      // TODO: Find out why incoming and outgoing are structure-shared
+      // >.<
+      var boxes = ['#' + idForSpan(span)];
+      boxes.push('foo');
+      $.each(span.incoming, function(arcNo, arc) {
+        boxes.push('#' + idForSpan(data.spans[arc.origin]));
+      });
+      boxes.push('foo');
+      $.each(span.outgoing, function(arcNo, arc) {
+        boxes.push('#' + idForSpan(data.spans[arc.target]));
+      });
+      highlightBoxes = $(boxes.join(', '))
+        .addClass('highlight');
+      */
       forceRedraw();
     }
   };
@@ -72,6 +92,10 @@ var Annotator = function(containerElement, onStart) {
     if (highlightArcs) {
       highlightArcs.removeClass('highlight');
       highlightArcs = undefined;
+    }
+    if (highlightBoxes) {
+      highlightBoxes.removeClass('highlight');
+      highlightBoxes = undefined;
     }
     forceRedraw();
   };
@@ -229,8 +253,6 @@ var Annotator = function(containerElement, onStart) {
         target.totalDist += dist;
         target.numArcs++;
         data.arcs.push(arc);
-        // TODO: do we really need incoming and outgoing, if we have
-        // totalDist?
         target.incoming.push(arc);
         origin.outgoing.push(arc);
       });
@@ -376,6 +398,7 @@ var Annotator = function(containerElement, onStart) {
         span.chunk = chunk;
         span.group = svg.group(chunk.group, {
           'class': 'span',
+          id: idForSpan(span),
         });
 
         // measure the text span
@@ -587,7 +610,7 @@ var Annotator = function(containerElement, onStart) {
       roleClass = 'role_' + arc.type;
 
       if (!arrows[arc.type]) {
-        var arrowId = 'annotator' + id + '_arrow_' + arc.type;
+        var arrowId = 'annotator' + annId + '_arrow_' + arc.type;
         var arrowhead = svg.marker(defs, arrowId,
           5, 2.5, 5, 5, 'auto',
           {
@@ -601,7 +624,6 @@ var Annotator = function(containerElement, onStart) {
 
       var originSpan = data.spans[arc.origin];
       var targetSpan = data.spans[arc.target];
-      var pathId = 'annotator' + id + '_path_' + arc.origin + '_' + arc.type + '_' + arc.target;
 
       var leftToRight = originSpan.lineIndex < targetSpan.lineIndex;
       var left, right;
@@ -647,7 +669,7 @@ var Annotator = function(containerElement, onStart) {
       for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
         var row = rows[rowIndex];
         var arcGroup = svg.group(row.arcs,
-            { 'data-from': arc.origin, 'data-to': arc.target});
+            { 'data-from': arc.origin, 'data-to': arc.target });
         var from, to;
         
         if (rowIndex == leftRow) {

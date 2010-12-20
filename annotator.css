@@ -43,6 +43,12 @@ svg {
     stroke: black;
     fill: black;
   }
+  svg .span.highlight rect {
+    stroke-width: 2px;
+  }
+  svg .span.highlight {
+    stroke: black;
+  }
 
   svg .arcs text {
     text-anchor: middle;
