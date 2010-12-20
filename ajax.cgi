@@ -2,7 +2,7 @@
 
 from cgi import FieldStorage
 from os import listdir
-from re import split
+from re import split, sub
 from simplejson import dumps
 from itertools import chain
 
@@ -11,18 +11,22 @@ datadir = '/data/home/genia/public_html/SharedTask/visual/data/'
 def directory_options(directory):
     print "Content-Type: text/html\n"
     print "<option value=''>-- Select Document --</option>"
-    for file in listdir(directory):
-        if file.endswith('.txt'):
-            print "<option>%s</option>" % file[0:-4]
+    dirlist = [file[0:-4] for file in listdir(directory)
+            if file.endswith('txt')]
+    dirlist.sort()
+    for file in dirlist:
+        print "<option>%s</option>" % file
 
 def document_json(document):
     print "Content-Type: application/json\n"
     from_offset = 0
     to_offset = None
 
+    text = open(document + ".txt", "rb").read()
+    text = sub(r'\. ([A-Z])',r'.\n\1', text)
     struct = {
             "offset": from_offset,
-            "text": open(document + ".txt", "rb").read(),
+            "text": text,
             "entities": [],
             "events": [],
             "triggers": [],
@@ -49,15 +53,16 @@ def document_json(document):
         elif tag == 'E':
             roles = [split(':', role) for role in row[1:] if role]
             triggers[roles[0][1]] = True
-            # WHAT IF NO TRIGGER? 
-            # data/BioNLP-ST_2011_bacteria_interactions_train_data/PMID-7883171-S4.a2:
-            #   E2 Interaction Agent:T1 Target:T3
-            event = [row[0], roles[0][1], roles[1:]]
-            struct["events"].append(event)
+            # Ignore if no trigger
+            if roles[0][1]:
+                event = [row[0], roles[0][1], roles[1:]]
+                struct["events"].append(event)
         elif tag == "M":
             struct["modifications"].append(row[0:3])
         elif tag == "*":
-            pass # WHAT IS THIS?
+            pass # TODO
+            # event = ['*' + row[2] + row[3], row[2], [[row[1], row[3]]]]
+            # struct["events"].append(event)
     triggers = triggers.keys()
     struct["triggers"] = [entity for entity in struct["entities"] if entity[0] in triggers]
     struct["entities"] = [entity for entity in struct["entities"] if entity[0] not in triggers]

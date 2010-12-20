@@ -1,10 +1,16 @@
+html {
+  overflow-y: scroll;
+}
+
 svg {
+  font-size: 14px;
   width: 100%;
   height: 1px;
   border: 1px solid #484;
 }
 
   svg .span text {
+    font-size: 80%;
     text-anchor: middle;
     font-family: Century Gothic, sans-serif;
   }
@@ -21,30 +27,30 @@ svg {
 
   svg .span path.negation {
     stroke: black;
+    opacity: 0.5;
   }
 
-  svg .arc path {
+  svg .arcs path {
     fill: none;
     opacity: 0.5;
   }
 
-  svg .arc .highlight path {
-    stroke-width: 2.5;
-  }
-  svg .arc .highlight text {
-    font-size: 120%;
+  svg .arcs .highlight path {
+    stroke-width: 2;
   }
 
-  svg .arc text {
+  svg .arcs text {
     text-anchor: middle;
     font-size: 80%;
-    opacity: 0.5
+    dominant-baseline: central;
   }
 
-
+.span_default {
+  fill: #7fd67f;
+}
 
 .span_Protein {
-  fill: #ffff33;
+  fill: #7fa2ff;
 }
 
 .span_Positive_regulation {
@@ -53,6 +59,14 @@ svg {
 
 .span_Negative_regulation {
   fill: #ffcccc;
+}
+
+.span_Regulation {
+  fill: #cccccc;
+}
+
+.span_Transcription {
+  fill: #ccccff;
 }
 
 .span_Expression {
@@ -64,7 +78,7 @@ svg {
 }
 
 .span_Entity {
-  fill: #ffcc99;
+  fill: #b4c8ff;
 }
 
 .span_Gene_expression {
@@ -78,7 +92,6 @@ svg {
 .span_Two-component-system {
   fill: #9999ff;
 }
-
 
 .fill_Cause {
   fill: #ff0000;
@@ -123,6 +136,26 @@ svg {
 }
 .stroke_Site2 {
   stroke: #448844;
+}
+.fill_CSite {
+  /* TODO */
+}
+.stroke_CSite {
+  /* TODO */
+}
+
+.fill_Contextgene {
+  fill: #303030;
+}
+.stroke_Contextgene {
+  stroke: #303030;
+}
+
+.fill_Sidechain {
+  fill: #303030;
+}
+.stroke_Sidechain {
+  stroke: #303030;
 }
 
 svg {
