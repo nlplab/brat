@@ -37,6 +37,11 @@ svg {
 
   svg .arcs .highlight path {
     stroke-width: 2;
+    opacity: 1;
+  }
+  svg .arcs .highlight text {
+    stroke: black;
+    fill: black;
   }
 
   svg .arcs text {
