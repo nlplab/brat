@@ -45,6 +45,16 @@ svg {
     dominant-baseline: central;
   }
 
+  svg .background0 {
+    stroke: none;
+    fill: #ffffff;
+  }
+
+  svg .background1 {
+    stroke: none;
+    fill: #eeeeee;
+  }
+
 .span_default {
   fill: #7fd67f;
 }

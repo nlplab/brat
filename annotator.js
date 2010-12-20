@@ -326,6 +326,7 @@ var Annotator = function(containerElement, onStart) {
 
   var Row = function() {
     this.group = svg.group();
+    this.background = svg.group(this.group);
     this.chunks = [];
   }
 
@@ -352,6 +353,7 @@ var Annotator = function(containerElement, onStart) {
     var rowIndex = 0;
     var textHeight;
     var reservations;
+    var lastBoxChunkIndex = -1;
 
     $.each(data.chunks, function(chunkNo, chunk) {
       reservations = new Array();
@@ -486,6 +488,7 @@ var Annotator = function(containerElement, onStart) {
         spanHeights[i] = Math.max(spanHeights[i - 1], spanHeights[i + 1]);
 
       // positioning of the chunk
+      var spacing;
       var chunkBox = chunk.box = chunk.group.getBBox();
       if (hasLeftArcs) {
         var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
@@ -502,6 +505,7 @@ var Annotator = function(containerElement, onStart) {
         current.x = margin.x + (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
         svg.remove(chunk.group);
         row = new Row();
+        lastBoxChunkIndex = chunk.index - 1;
         row.index = ++rowIndex;
         svg.add(row.group, chunk.group);
         chunk.group = row.group.lastElementChild;
@@ -515,6 +519,17 @@ var Annotator = function(containerElement, onStart) {
           });
         chunk.highlightGroup = chunk.group.firstElementChild;
       }
+
+      if (spacing > 0) {
+        // if we added a gap, center the intervening elements
+        spacing /= 2;
+        while (++lastBoxChunkIndex < chunk.index) {
+          var movedChunk = data.chunks[lastBoxChunkIndex];
+          translate(movedChunk, movedChunk.translation.x + spacing, 0);
+        }
+      }
+      if (chunk.spans.length) lastBoxChunkIndex = chunk.index;
+
       row.chunks.push(chunk);
       chunk.row = row;
       translate(chunk, current.x - chunkBox.x, 0);
@@ -660,7 +675,7 @@ var Annotator = function(containerElement, onStart) {
         path = svg.createPath().move(textStart, -height);
         if (rowIndex == leftRow) {
           path.line(from + chunkReverseSign * arcSlant, -height).
-            line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : 0));
+            line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
         } else {
           path.line(from, -height);
         }
@@ -672,7 +687,7 @@ var Annotator = function(containerElement, onStart) {
         path = svg.createPath().move(textEnd, -height);
         if (rowIndex == rightRow) {
           path.line(to - chunkReverseSign * arcSlant, -height).
-            line(to, rightBox.y + (leftToRight && !arc.equiv ? 0 : rightBox.height / 2));
+            line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
         } else {
           path.line(to, -height);
         }
@@ -687,6 +702,10 @@ var Annotator = function(containerElement, onStart) {
     var y = margin.y;
     $.each(rows, function(rowId, row) {
       var rowBox = row.group.getBBox();
+      svg.rect(row.background,
+        0, rowBox.y, canvasWidth, rowBox.height, {
+        'class': 'background' + (rowId % 2),
+      });
       y += rowBox.height;
       translate(row, 0, y);
       y += margin.y;
