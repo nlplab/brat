@@ -86,6 +86,14 @@ svg {
   fill: #ff9999;
 }
 
+.span_Deacetylation     { fill: #ff9999; }
+.span_Deglycosylation   { fill: #ff9999; }
+.span_Dehydroxylation   { fill: #ff9999; }
+.span_Demethylation     { fill: #ff9999; }
+.span_Dephosphorylation { fill: #ff9999; }
+.span_Deubiquitination  { fill: #ff9999; }
+.span_DNA_demethylation { fill: #ff9999; }
+
 .span_Regulation {
   fill: #dddddd;
 }
@@ -110,30 +118,14 @@ svg {
   fill: #9999ff;
 }
 
-.fill_Cause {
-  fill: #ff0000;
-}
-.stroke_Cause {
-  stroke: #ff0000;
-}
-.fill_Cause1 {
-  fill: #ff0000;
-}
-.stroke_Cause1 {
-  stroke: #ff0000;
-}
-.fill_Cause2 {
-  fill: #ff0000;
-}
-.stroke_Cause2 {
-  stroke: #ff0000;
-}
-.fill_Cause3 {
-  fill: #ff0000;
-}
-.stroke_Cause3 {
-  stroke: #ff0000;
-}
+.fill_Cause    { fill:   #ff0000; }
+.stroke_Cause  { stroke: #ff0000; }
+.fill_Cause1   { fill:   #ff0000; }
+.stroke_Cause1 { stroke: #ff0000; }
+.fill_Cause2   { fill:   #ff0000; }
+.stroke_Cause2 { stroke: #ff0000; }
+.fill_Cause3   { fill:   #ff0000; }
+.stroke_Cause3 { stroke: #ff0000; }
 
 .fill_Theme    { fill:   #000088; }
 .stroke_Theme  { stroke: #000088; }

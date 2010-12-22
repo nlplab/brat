@@ -28,7 +28,7 @@ var Annotator = function(containerElement, onStart) {
   var lineSpacing = 5;
   var arcSpacing = 10;
   var arcSlant = 10;
-  var arcStartHeight = 22;
+  var arcStartHeight = 30; //22;
   var arcHorizontalSpacing = 25;
   var dashArray = '3,3';
   var rowSpacing = 5;
@@ -38,31 +38,27 @@ var Annotator = function(containerElement, onStart) {
   var annotationAbbreviation = {
         "Protein" : "Prot",
         "Entity" : "Ent",
-
         "Gene_expression" : "Expr",
         "Binding" : "Bind",
         "Transcription" : "Trns",
         "Localization" : "Locl",
-
         "Regulation" : "Reg",
         "Positive_regulation" : "+Reg",
         "Negative_regulation" : "-Reg",
-
+	"Phosphorylation"   : "Phos",
+	"Dephosphorylation" : "-Phos",
 	"Acetylation"       : "Acet",
 	"Deacetylation"     : "-Acet",
-
 	"Hydroxylation"     : "Hydr",
 	"Dehydroxylation"   : "-Hydr",
-
         "Glycosylation"     : "Glyc",
         "Deglycosylation"   : "-Glyc",
-
         "Methylation"       : "Meth",
         "Demethylation"     : "-Meth",
-
+	"Ubiquitination"    : "Ubiq",
+	"Deubiquitination"  : "-Ubiq",
         "DNA_methylation"   : "DNA meth",
         "DNA_demethylation" : "-DNA meth",
-
 	"Catalysis"         : "Catal",
 	"Biological_process": "Biol.proc",
 	"Cellular_physiological_process": "Cell.phys.proc",
@@ -495,10 +491,11 @@ var Annotator = function(containerElement, onStart) {
 	// Two modes of abbreviation applied if needed
 	// and abbreviation defined.
 	var abbrevText = span.type;
-	if(span.to-span.from < abbrevText.length) {
+	// Assumes box text is 75% of the width of the body text
+	if((span.to-span.from)/0.75 < abbrevText.length) {
 	    abbrevText = annotationAbbreviation[span.type] || abbrevText;
 	}
-	if(span.to-span.from < abbrevText.length) {
+	if((span.to-span.from)/0.75 < abbrevText.length) {
 	    abbrevText = minimalAnnotationAbbreviation[span.type] || abbrevText;
 	}
 
