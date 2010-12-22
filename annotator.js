@@ -31,6 +31,7 @@ var Annotator = function(containerElement, onStart) {
   var arcStartHeight = 22;
   var arcHorizontalSpacing = 25;
   var dashArray = '3, 3';
+  var rowSpacing = 5;
 
   var undefined; // prevents evil "undefined = 17" attacks
 
@@ -400,6 +401,7 @@ var Annotator = function(containerElement, onStart) {
     this.group = svg.group();
     this.background = svg.group(this.group);
     this.chunks = [];
+    this.hasAnnotations = 0;
   }
 
   var rowBBox = function(span) {
@@ -445,6 +447,7 @@ var Annotator = function(containerElement, onStart) {
       var minArcDist;
       var lastArcBorder = 0;
       var hasLeftArcs, hasRightArcs, hasInternalArcs;
+      var hasAnnotations;
 
       $.each(chunk.spans, function(spanNo, span) {
         span.chunk = chunk;
@@ -572,6 +575,7 @@ var Annotator = function(containerElement, onStart) {
             hasRightArcs = true;
           }
         });
+        hasAnnotations = true;
       }); // spans
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
@@ -612,6 +616,7 @@ var Annotator = function(containerElement, onStart) {
           });
         chunk.highlightGroup = chunk.group.firstElementChild;
       }
+      if (hasAnnotations) row.hasAnnotations = true;
 
       if (spacing > 0) {
         // if we added a gap, center the intervening elements
@@ -737,6 +742,7 @@ var Annotator = function(containerElement, onStart) {
 
       for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
         var row = rows[rowIndex];
+        row.hasAnnotations = true;
         var arcGroup = svg.group(row.arcs,
             { 'data-from': arc.origin, 'data-to': arc.target });
         var from, to;
@@ -800,8 +806,12 @@ var Annotator = function(containerElement, onStart) {
     var y = margin.y;
     $.each(rows, function(rowId, row) {
       var rowBox = row.group.getBBox();
+      if (row.hasAnnotations) {
+        rowBox.height += rowSpacing;
+        rowBox.y -= rowSpacing;
+      }
       svg.rect(row.background,
-        0, rowBox.y, canvasWidth, rowBox.height, {
+        0, rowBox.y, canvasWidth, rowBox.height + 1, {
         'class': 'background' + row.backgroundIndex,
       });
       y += rowBox.height;
