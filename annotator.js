@@ -15,14 +15,14 @@ var Annotator = function(containerElement, onStart) {
   // fine tuning specifically for box text margins
   var boxTextMargin = { x: 0, y: 0 };
   var space = 5;
-  var boxSpacing = 0;
+  var boxSpacing = 1;
   var curlyHeight = 6;
   var lineSpacing = 5;
   var arcSpacing = 10;
   var arcSlant = 10;
   var arcStartHeight = 22;
   var arcHorizontalSpacing = 25;
-  var dashArray = '3, 3';
+  var dashArray = '3,3';
 
   var undefined; // prevents evil "undefined = 17" attacks
 
