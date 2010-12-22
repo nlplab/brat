@@ -1,0 +1,10 @@
+Fix the UFO catchers broken by last changes to chunkHeights
+
+Box behind trigger words and entity words
+  (like highlights, but on span basis)
+
+Annotation:
+    save current state
+    demarcate a span (and assign type)
+    draw an arc (and assign type)
+    delete an arc/span
