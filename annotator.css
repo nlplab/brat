@@ -68,11 +68,13 @@ svg {
   }
 
 .background_entity {
-  fill: #eeeeff;
+  fill: #7fa2ff;
+  opacity: 0.25;
 }
 
 .background_trigger {
-  fill: #eeffee;
+  fill: #7fd67f;
+  opacity: 0.25;
 }
 
 .span_default {
