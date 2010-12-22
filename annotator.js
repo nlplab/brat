@@ -216,7 +216,7 @@ var Annotator = function(containerElement, onStart) {
     var breaks = [[-1, false]];
     var pos = -1;
     while ((pos = data.text.indexOf('\n', pos + 1)) != -1) {
-      breaks.push([pos, true]);
+      breaks.push([pos, true, true]);
     }
     pos = -1;
     while ((pos = data.text.indexOf(' ', pos + 1)) != -1) {
@@ -250,6 +250,7 @@ var Annotator = function(containerElement, onStart) {
             lineBreak: breaks[breakNo][1],
             index: chunkNo++,
             spans: [],
+            newSentence: breaks[breakNo][2],
           });
       }
     }
@@ -417,6 +418,7 @@ var Annotator = function(containerElement, onStart) {
     var textHeight;
     var reservations;
     var lastBoxChunkIndex = -1;
+    var sentenceToggle = 0;
 
     $.each(data.chunks, function(chunkNo, chunk) {
       reservations = new Array();
@@ -563,6 +565,8 @@ var Annotator = function(containerElement, onStart) {
         });
       }); // spans
 
+      if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
+      row.backgroundIndex = sentenceToggle;
       var len = chunkIndexTo * 2;
       for (var i = chunkIndexFrom * 2 + 1; i < len; i++)
         spanHeights[i] = Math.max(spanHeights[i - 1], spanHeights[i + 1]);
@@ -789,7 +793,7 @@ var Annotator = function(containerElement, onStart) {
       var rowBox = row.group.getBBox();
       svg.rect(row.background,
         0, rowBox.y, canvasWidth, rowBox.height, {
-        'class': 'background' + (rowId % 2),
+        'class': 'background' + row.backgroundIndex,
       });
       y += rowBox.height;
       translate(row, 0, y);
