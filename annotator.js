@@ -27,21 +27,33 @@ var Annotator = function(containerElement, onStart) {
   var undefined; // prevents evil "undefined = 17" attacks
 
   var annotationAbbreviation = {
-        "Regulation" : "Reg",
-        "Positive_regulation" : "+Reg",
-        "Negative_regulation" : "-Reg",
+        "Protein" : "Prot",
+        "Entity" : "Ent",
+
         "Gene_expression" : "Expr",
         "Binding" : "Bind",
         "Transcription" : "Trns",
         "Localization" : "Locl",
-        "Protein" : "Prot",
-        "Entity" : "Ent",
+
+        "Regulation" : "Reg",
+        "Positive_regulation" : "+Reg",
+        "Negative_regulation" : "-Reg",
+
+	"Acetylation"       : "Acet",
+	"Deacetylation"     : "-Acet",
+
+	"Hydroxylation"     : "Hydr",
+	"Dehydroxylation"   : "-Hydr",
+
         "Glycosylation"     : "Glyc",
-        "Deglycosylation"   : "Deglyc",
+        "Deglycosylation"   : "-Glyc",
+
         "Methylation"       : "Meth",
-        "Demethylation"     : "Demeth",
+        "Demethylation"     : "-Meth",
+
         "DNA_methylation"   : "DNA meth",
-        "DNA_demethylation" : "DNA demeth",
+        "DNA_demethylation" : "-DNA meth",
+
 	"Catalysis"         : "Catal",
 	"Biological_process": "Biol.proc",
 	"Cellular_physiological_process": "Cell.phys.proc",

@@ -78,6 +78,9 @@ svg {
 .span_Positive_regulation {
   fill: #ccffcc;
 }
+.span_Catalysis {
+  fill: #ccffcc;
+}
 
 .span_Negative_regulation {
   fill: #ff9999;
