@@ -1,3 +1,5 @@
+Fix the UFO catchers broken by last changes to chunkHeights
+
 Box behind trigger words and entity words
   (like highlights, but on span basis)
 
