@@ -340,7 +340,7 @@ var Annotator = function(containerElement, onStart) {
         var bd = b.to - b.from;
         tmp = ad - bd;
         if (tmp) {
-          return tmp > 0 ? 1 : -1;
+          return tmp < 0 ? 1 : -1;
         }
         return 0;
       }); // spans
@@ -407,6 +407,7 @@ var Annotator = function(containerElement, onStart) {
     this.group = svg.group();
     this.background = svg.group(this.group);
     this.chunks = [];
+    this.hasAnnotations = 0;
   }
 
   var rowBBox = function(span) {
@@ -426,7 +427,7 @@ var Annotator = function(containerElement, onStart) {
     
     var current = { x: margin.x, y: margin.y };
     var rows = [];
-    var chunkHeights = [];
+    var spanHeights = [];
     var row = new Row();
     var sentenceToggle = 0;
     row.backgroundIndex = sentenceToggle;
@@ -439,7 +440,6 @@ var Annotator = function(containerElement, onStart) {
     $.each(data.chunks, function(chunkNo, chunk) {
       reservations = new Array();
       chunk.group = svg.group(row.group);
-      chunkHeights[chunk.index * 2] = 0;
 
       // a group for text highlight below the text
       chunk.highlightGroup = svg.group(chunk.group);
@@ -449,6 +449,7 @@ var Annotator = function(containerElement, onStart) {
         textHeight = chunkText.getBBox().height;
       }
       var y = 0;
+      var chunkIndexFrom, chunkIndexTo;
       var minArcDist;
       var lastArcBorder = 0;
       var hasLeftArcs, hasRightArcs, hasInternalArcs;
@@ -512,12 +513,14 @@ var Annotator = function(containerElement, onStart) {
           });
         var rectBox = span.rect.getBBox();
 
+        if (chunkIndexFrom == undefined || chunkIndexFrom > span.lineIndex)
+          chunkIndexFrom = span.lineIndex;
+        if (chunkIndexTo == undefined || chunkIndexTo < span.lineIndex)
+          chunkIndexTo = span.lineIndex;
         var yAdjust = placeReservation(span, rectBox, reservations);
-        // this is monotonous due to sort within chunks:
+        // this is monotonous due to sort:
         span.height = yAdjust + spanBox.height + 3 * margin.y + curlyHeight + arcSpacing;
-        if (chunkHeights[span.chunk.index * 2] < span.height) {
-          chunkHeights[span.chunk.index * 2] = span.height;
-        }
+        spanHeights[span.lineIndex * 2] = span.height;
         $(span.rect).attr('y', spanBox.y - margin.y - yAdjust);
         $(spanText).attr('y', y - yAdjust);
         if (span.Negation) {
@@ -582,6 +585,9 @@ var Annotator = function(containerElement, onStart) {
       }); // spans
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
+      var len = chunkIndexTo * 2;
+      for (var i = chunkIndexFrom * 2 + 1; i < len; i++)
+        spanHeights[i] = Math.max(spanHeights[i - 1], spanHeights[i + 1]);
 
       // span background
       if (chunk.spans.length) {
@@ -656,22 +662,21 @@ var Annotator = function(containerElement, onStart) {
     var defs = svg.defs();
     var arrows = {};
 
-    var len = chunkHeights.length;
+    var len = spanHeights.length;
     for (var i = 0; i < len; i++) {
-      if (!chunkHeights[i] || chunkHeights[i] < arcStartHeight) chunkHeights[i] = arcStartHeight;
+      if (!spanHeights[i] || spanHeights[i] < arcStartHeight) spanHeights[i] = arcStartHeight;
     }
 
     // find out how high the arcs have to go
     $.each(data.arcs, function(arcNo, arc) {
       arc.jumpHeight = 0;
-      var from = data.spans[arc.origin].chunk.index;
-      var to = data.spans[arc.target].chunk.index;
+      var from = data.spans[arc.origin].lineIndex;
+      var to = data.spans[arc.target].lineIndex;
       if (from > to) {
         var tmp = from; from = to; to = tmp;
       }
-      if (from == to) from--; // intra-chunk arcs (UFO-catcher)
       for (var i = from + 1; i < to; i++) {
-        if (arc.jumpHeight < chunkHeights[i * 2]) arc.jumpHeight = chunkHeights[i * 2];
+        if (arc.jumpHeight < spanHeights[i * 2]) arc.jumpHeight = spanHeights[i * 2];
       }
     });
 
@@ -714,7 +719,7 @@ var Annotator = function(containerElement, onStart) {
       var originSpan = data.spans[arc.origin];
       var targetSpan = data.spans[arc.target];
 
-      var leftToRight = originSpan.chunk.index < targetSpan.chunk.index;
+      var leftToRight = originSpan.lineIndex < targetSpan.lineIndex;
       var left, right;
       if (leftToRight) {
         left = originSpan;
@@ -728,21 +733,24 @@ var Annotator = function(containerElement, onStart) {
       var leftRow = left.chunk.row.index;
       var rightRow = right.chunk.row.index;
 
-      var fromIndex = left.chunk.index;
-      var toIndex = right.chunk.index;
+      var fromIndex = left.lineIndex;
+      var toIndex = right.lineIndex;
 
       // find the next height
       var height = 0;
       var fromIndex2 = fromIndex * 2;
       var toIndex2 = toIndex * 2;
-      if (fromIndex != toIndex) { fromIndex2++; toIndex2-- }
+      if (left.chunk.index != right.chunk.index) {
+        fromIndex2++;
+        toIndex2--;
+      }
       for (var i = fromIndex2; i <= toIndex2; i++) {
-        if (chunkHeights[i] > height) height = chunkHeights[i];
+        if (spanHeights[i] > height) height = spanHeights[i];
       }
       height += arcSpacing;
       var leftSlantBound, rightSlantBound;
       for (var i = fromIndex2; i <= toIndex2; i++) {
-        if (chunkHeights[i] < height) chunkHeights[i] = height;
+        if (spanHeights[i] < height) spanHeights[i] = height;
       }
 
       var chunkReverse = false;
