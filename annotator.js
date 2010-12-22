@@ -167,7 +167,7 @@ var Annotator = function(containerElement, onStart) {
     containerElement.click(click);
   }
 
-  var Span = function(id, type, from, to) {
+  var Span = function(id, type, from, to, generalType) {
     this.id = id;
     this.type = type;
     this.from = from;
@@ -176,6 +176,7 @@ var Annotator = function(containerElement, onStart) {
     this.incoming = [];
     this.totalDist = 0;
     this.numArcs = 0;
+    this.generalType = generalType;
   }
 
   // event is reserved
@@ -197,13 +198,13 @@ var Annotator = function(containerElement, onStart) {
     data.spans = {};
     $.each(data.entities, function(entityNo, entity) {
       var span =
-          new Span(entity[0], entity[1], entity[2], entity[3]);
+          new Span(entity[0], entity[1], entity[2], entity[3], 'entity');
       data.spans[entity[0]] = span;
     });
     var triggerHash = {};
     $.each(data.triggers, function(triggerNo, trigger) {
       triggerHash[trigger[0]] =
-          new Span(trigger[0], trigger[1], trigger[2], trigger[3]);
+          new Span(trigger[0], trigger[1], trigger[2], trigger[3], 'trigger');
     });
     data.eventDescs = {};
     $.each(data.events, function(eventNo, eventRow) {
@@ -306,8 +307,8 @@ var Annotator = function(containerElement, onStart) {
         data.arcs.push(arc);
         target.incoming.push(arc);
         origin.outgoing.push(arc);
-      });
-    });
+      }); // roles
+    }); // eventDescs
 
     // sort spans in chunks
     data.spanLine = [];
@@ -342,7 +343,7 @@ var Annotator = function(containerElement, onStart) {
           return tmp > 0 ? 1 : -1;
         }
         return 0;
-      });
+      }); // spans
       // number the spans so we can check for heights later
       $.each(chunk.spans, function(i, span) {
         if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
@@ -353,8 +354,8 @@ var Annotator = function(containerElement, onStart) {
         data.spanLine[spanNo].push(span);
         span.lineIndex = spanNo;
         lastSpan = span;
-      });
-    });
+      }); // spans
+    }); // chunks
   }
 
   var placeReservation = function(span, box, reservations) {
@@ -582,6 +583,20 @@ var Annotator = function(containerElement, onStart) {
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
 
+      // span background
+      if (chunk.spans.length) {
+        var spansFrom, spansTo, spansType;
+        $.each(chunk.spans, function(spanNo, span) {
+          if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
+          if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
+          if (span.generalType == 'trigger' || !spansType) spansType = span.generalType;
+        });
+        svg.rect(chunk.highlightGroup,
+          spansFrom - 1, chunk.spans[0].curly.y - 1,
+          spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
+          { 'class': 'background_' + spansType });
+      }
+
       // positioning of the chunk
       var spacing;
       var chunkBox = chunk.box = chunk.group.getBBox();
@@ -609,7 +624,7 @@ var Annotator = function(containerElement, onStart) {
           each(function(index, element) {
               chunk.spans[index].group = element;
           });
-        $(chunk.group).find("rect").
+        $(chunk.group).find("rect[data-span-id]").
           each(function(index, element) {
               chunk.spans[index].rect = element;
           });

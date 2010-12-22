@@ -67,6 +67,14 @@ svg {
     fill: #eeeeee;
   }
 
+.background_entity {
+  fill: #eeeeff;
+}
+
+.background_trigger {
+  fill: #eeffee;
+}
+
 .span_default {
   fill: #7fd67f;
 }
