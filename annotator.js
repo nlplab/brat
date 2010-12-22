@@ -413,12 +413,13 @@ var Annotator = function(containerElement, onStart) {
     var rows = [];
     var spanHeights = [];
     var row = new Row();
+    var sentenceToggle = 0;
+    row.backgroundIndex = sentenceToggle;
     row.index = 0;
     var rowIndex = 0;
     var textHeight;
     var reservations;
     var lastBoxChunkIndex = -1;
-    var sentenceToggle = 0;
 
     $.each(data.chunks, function(chunkNo, chunk) {
       reservations = new Array();
@@ -566,7 +567,6 @@ var Annotator = function(containerElement, onStart) {
       }); // spans
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
-      row.backgroundIndex = sentenceToggle;
       var len = chunkIndexTo * 2;
       for (var i = chunkIndexFrom * 2 + 1; i < len; i++)
         spanHeights[i] = Math.max(spanHeights[i - 1], spanHeights[i + 1]);
@@ -589,6 +589,7 @@ var Annotator = function(containerElement, onStart) {
         current.x = margin.x + (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
         svg.remove(chunk.group);
         row = new Row();
+        row.backgroundIndex = sentenceToggle;
         lastBoxChunkIndex = chunk.index - 1;
         row.index = ++rowIndex;
         svg.add(row.group, chunk.group);
