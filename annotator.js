@@ -1,3 +1,11 @@
+// (C) Goran Topic amadan@mad.scientist.com
+//
+// All rights reserved
+// Do not modify or redistribute without an explicit permission
+//
+// This temporary licence will probably be relaxed in near future
+// Thank you for your cooperation.
+
 // make JS debugger-friendly
 if (typeof(console) === 'undefined') {
   var console = {};
