@@ -13,7 +13,7 @@ var Annotator = function(containerElement, onStart) {
   // settings
   var margin = { x: 2, y: 1 };
   // fine tuning specifically for box text margins
-  var boxTextMargin = { x: 0, y: 0.5 };
+  var boxTextMargin = { x: 0, y: 0.0 };
   var space = 5;
   var boxSpacing = 0;
   var curlyHeight = 6;
