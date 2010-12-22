@@ -10,13 +10,14 @@ svg {
 }
 
   svg .span text {
-    font-size: 80%;
+    font-size: 75%;
     text-anchor: middle;
     font-family: Century Gothic, sans-serif;
   }
 
   svg .span rect {
     stroke: black;
+    stroke-width: 0.75;
     pointer-events: visibleFill;
   }
 
@@ -79,15 +80,11 @@ svg {
 }
 
 .span_Negative_regulation {
-  fill: #ffcccc;
+  fill: #ff9999;
 }
 
 .span_Regulation {
-  fill: #cccccc;
-}
-
-.span_Transcription {
-  fill: #ccccff;
+  fill: #dddddd;
 }
 
 .span_Expression {
@@ -95,15 +92,11 @@ svg {
 }
 
 .span_Binding {
-  fill: #99ccff;
+  fill: #6fb66f;
 }
 
 .span_Entity {
   fill: #b4c8ff;
-}
-
-.span_Gene_expression {
-  fill: #cc99ff;
 }
 
 .span_Process {
@@ -120,44 +113,43 @@ svg {
 .stroke_Cause {
   stroke: #ff0000;
 }
+.fill_Cause1 {
+  fill: #ff0000;
+}
+.stroke_Cause1 {
+  stroke: #ff0000;
+}
+.fill_Cause2 {
+  fill: #ff0000;
+}
+.stroke_Cause2 {
+  stroke: #ff0000;
+}
+.fill_Cause3 {
+  fill: #ff0000;
+}
+.stroke_Cause3 {
+  stroke: #ff0000;
+}
 
-.fill_Theme {
-  fill: #000088;
-}
-.stroke_Theme {
-  stroke: #000088;
-}
-.fill_Theme1 {
-  fill: #222288;
-}
-.stroke_Theme1 {
-  stroke: #222288;
-}
-.fill_Theme2 {
-  fill: #444488;
-}
-.stroke_Theme2 {
-  stroke: #444488;
-}
+.fill_Theme    { fill:   #000088; }
+.stroke_Theme  { stroke: #000088; }
+.fill_Theme1   { fill:   #000088; }
+.stroke_Theme1 { stroke: #000088; }
+.fill_Theme2   { fill:   #000088; }
+.stroke_Theme2 { stroke: #000088; }
+.fill_Theme3   { fill:   #000088; }
+.stroke_Theme3 { stroke: #000088; }
+.fill_Theme4   { fill:   #000088; }
+.stroke_Theme4 { stroke: #000088; }
 
-.fill_Site {
-  fill: #008800;
-}
-.stroke_Site {
-  stroke: #008800;
-}
-.fill_Site1 {
-  fill: #228822;
-}
-.stroke_Site1 {
-  stroke: #228822;
-}
-.fill_Site2 {
-  fill: #448844;
-}
-.stroke_Site2 {
-  stroke: #448844;
-}
+.fill_Site     { fill:   #008800; }
+.stroke_Site   { stroke: #008800; }
+.fill_Site1    { fill:   #008800; }
+.stroke_Site1  { stroke: #008800; }
+.fill_Site2    { fill:   #008800; }
+.stroke_Site2  { stroke: #008800; }
+
 .fill_CSite {
   /* TODO */
   fill: purple;
@@ -168,15 +160,21 @@ svg {
   stroke: purple;
   stroke-width: 2px;
 }
-.fill_toLoc {
+.fill_ToLoc {
   /* TODO */
   fill: purple;
-  stroke: purple;
 }
-.stroke_toLoc {
+.stroke_ToLoc {
   /* TODO */
   stroke: purple;
-  stroke-width: 2px;
+}
+.fill_AtLoc {
+  /* TODO */
+  fill: purple;
+}
+.stroke_AtLoc {
+  /* TODO */
+  stroke: purple;
 }
 
 .fill_Contextgene {
