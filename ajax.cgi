@@ -1,12 +1,14 @@
 #!/usr/bin/python
 
 from cgi import FieldStorage
-from os import listdir
+from os import listdir, makedirs
+from os.path import isdir
 from re import split, sub
 from simplejson import dumps
 from itertools import chain
 
-datadir = '/data/home/genia/public_html/SharedTask/visual/data/'
+basedir = '/data/home/genia/public_html/SharedTask/visual'
+datadir = basedir + '/data'
 
 def directory_options(directory):
     print "Content-Type: text/html\n"
@@ -68,22 +70,53 @@ def document_json(document):
     struct["entities"] = [entity for entity in struct["entities"] if entity[0] not in triggers]
     print dumps(struct, sort_keys=True, indent=2)
 
+
+def saveSVG(directory, document, svg):
+    dir = '/'.join([basedir, 'svg', directory])
+    if not isdir(dir):
+        makedirs(dir)
+    file = open(dir + '/' + document + '.svg', "wb")
+    file.write('<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
+    defs = svg.find('</defs>')
+    if defs != -1:
+        css = open(basedir + '/annotator.css').read()
+        css = '<style type="text/css"><![CDATA[' + css + ']]></style>'
+        svg = svg[:defs] + css + svg[defs:]
+        file.write(svg)
+        file.close()
+        print "Content-Type: application/json\n"
+    else:
+        print "Status: 400 Bad Request\n"
+
+
 def main():
     params = FieldStorage()
     directory = params.getvalue('directory')
     document = params.getvalue('document')
-    if document is None:
-        input = directory
+    savePassword = params.getvalue('save')
+    if savePassword:
+        if savePassword == 'crunchy':
+            svg = params.getvalue('svg')
+            input = directory + document
+            if input.find('/') != -1:
+                print "Status: 403 Forbidden (slash)\n\n"
+                return
+            saveSVG(directory, document, svg)
+        else:
+            print "Status: 403 Forbidden (password)\n\n"
     else:
-        input = directory + document
-    if input.find('/') != -1:
-        print "Content-Type: text/html\n"
-        return
-    directory = datadir + directory
+        if document is None:
+            input = directory
+        else:
+            input = directory + document
+        if input.find('/') != -1:
+            print "Status: 403 Forbidden\n"
+            return
+        directory = datadir + '/' + directory
 
-    if document is None:
-        directory_options(directory)
-    else:
-        document_json(directory + '/' + document)
+        if document is None:
+            directory_options(directory)
+        else:
+            document_json(directory + '/' + document)
 
 main()

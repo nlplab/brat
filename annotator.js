@@ -12,17 +12,55 @@ if (typeof(console) === 'undefined') {
 var Annotator = function(containerElement, onStart) {
   // settings
   var margin = { x: 2, y: 1 };
+  // fine tuning specifically for box text margins
+  var boxTextMargin = { x: 0, y: 0.5 };
   var space = 5;
-  var boxSpacing = 3;
+  var boxSpacing = 0;
   var curlyHeight = 6;
   var lineSpacing = 5;
   var arcSpacing = 10;
-  var arcSlant = 20;
-  var arcStartHeight = 35;
-  var arcHorizontalSpacing = 80;
+  var arcSlant = 10;
+  var arcStartHeight = 22;
+  var arcHorizontalSpacing = 25;
   var dashArray = '3, 3';
 
   var undefined; // prevents evil "undefined = 17" attacks
+
+  var annotationAbbreviation = {
+        "Regulation" : "Reg",
+        "Positive_regulation" : "+Reg",
+        "Negative_regulation" : "-Reg",
+        "Gene_expression" : "Expr",
+        "Binding" : "Bind",
+        "Transcription" : "Trns",
+        "Localization" : "Locl",
+        "Protein" : "Prot",
+        "Entity" : "Ent",
+        "Glycosylation"     : "Glyc",
+        "Deglycosylation"   : "Deglyc",
+        "Methylation"       : "Meth",
+        "Demethylation"     : "Demeth",
+        "DNA_methylation"   : "DNA meth",
+        "DNA_demethylation" : "DNA demeth",
+	"Catalysis"         : "Catal",
+	"Biological_process": "Biol.proc",
+	"Cellular_physiological_process": "Cell.phys.proc",
+	"Protein_family_or_group": "Prot fam/grp",
+        };
+
+  var minimalAnnotationAbbreviation = {
+        "Protein" : "Pr",
+        "Entity"  : "En",
+  }
+
+  var arcAbbreviation = {
+      "Theme" : "Th",
+      "Cause" : "Ca",
+      "Site"  : "Si",
+      "Equiv" : "Eq",
+      "Contextgene" : "CGn",
+      "Sidechain" : "SCh",
+  };
 
   if (!Annotator.count) Annotator.count = 0;
   var annId = Annotator.count;
@@ -238,6 +276,9 @@ var Annotator = function(containerElement, onStart) {
       var here = origin.chunk.index;
       $.each(eventDesc.roles, function(roleNo, role) {
         var target = data.spans[role.targetId];
+        if (!target) {
+          console.error('Error: "' + role.targetId + '" not found in ' + data.document);
+        }
         var there = target.chunk.index;
         var dist = Math.abs(here - there);
         var arc = {
@@ -421,8 +462,23 @@ var Annotator = function(containerElement, onStart) {
         svg.remove(measureText);
         var x = (xFrom + xTo) / 2;
 
-        var spanText = svg.text(span.group, x, y, span.type);
+	// Two modes of abbreviation applied if needed
+	// and abbreviation defined.
+	var abbrevText = span.type;
+	if(span.to-span.from < abbrevText.length) {
+	    abbrevText = annotationAbbreviation[span.type] || abbrevText;
+	}
+	if(span.to-span.from < abbrevText.length) {
+	    abbrevText = minimalAnnotationAbbreviation[span.type] || abbrevText;
+	}
+
+        var spanText = svg.text(span.group, x, y, abbrevText);
         var spanBox = spanText.getBBox();
+
+	// text margin fine-tuning
+	spanBox.y      += boxTextMargin.y;
+	spanBox.height -= 2*boxTextMargin.y;
+
         svg.remove(spanText);
         span.rect = svg.rect(span.group,
           spanBox.x - margin.x,
@@ -684,7 +740,13 @@ var Annotator = function(containerElement, onStart) {
           to = canvasWidth - 2 * margin.y;
         }
 
-        var text = svg.text(arcGroup, (from + to) / 2, -height, arc.type, {
+        var abbrevText = arcAbbreviation[arc.type] || arc.type;
+        if((to-from)/15 > arc.type.length || !abbrevText) {
+          // no need to (or cannot) abbreviate
+          // TODO cleaner heuristic
+          abbrevText = arc.type;
+        }
+        var text = svg.text(arcGroup, (from + to) / 2, -height, abbrevText, {
             'class': 'fill_' + arc.type,
         });
         var textBox = text.getBBox();
@@ -740,6 +802,10 @@ var Annotator = function(containerElement, onStart) {
     $(containerElement).attr('height', y).css('height', y);
   }
 
+  this.getSVG = function() {
+    return containerElement.html();
+  };
+
   containerElement.svg({
       onLoad: this.drawInitial,
       settings: {
@@ -763,10 +829,12 @@ $(function() {
   var qmark = address.indexOf('#');
   var slashmark = address.lastIndexOf('/', qmark);
   var base = address.slice(0, slashmark + 1);
-  var ajaxURL = base + "ajax.cgi?directory=" + directory;
-
+  var ajaxBase = base + 'ajax.cgi';
+  var ajaxURL = ajaxBase + "?directory=" + directory;
+  var docListReceived = false;
 
   $.get(ajaxURL, function(data) {
+    docListReceived = true;
     $('#document_select').html(data).val(doc);
   });
 
@@ -776,31 +844,81 @@ $(function() {
     var lastHash = null;
     var directoryAndDoc;
     var drawing = false;
+    var savePassword;
     var updateState = function() {
       if (drawing || lastHash == window.location.hash) return;
       lastHash = window.location.hash;
       var parts = lastHash.substr(1).split('/');
       directory = parts[0];
-      doc = parts[1];
-      $('#document_select').val(doc);
+      var _doc = doc = parts[1];
+      if (_doc == 'save' && (savePassword = parts[2])) return;
+      $('#document_select').val(_doc);
 
       $('#document_name').text(directoryAndDoc);
-      if (!doc) return;
-      $.get(ajaxURL + "&document=" + doc, function(jsonData) {
+      if (!_doc) return;
+      $.get(ajaxURL + "&document=" + _doc, function(jsonData) {
           drawing = true;
+          jsonData.document = _doc;
           annotator.renderData(jsonData);
           drawing = false;
       });
-    }
+    };
 
-    setInterval(updateState, 200); // TODO okay?
-
-    var renderSelected = function(evt) {
-      doc = $('#document_select').val();
+    var renderDocument = function(_doc) {
+      doc = _doc;
       directoryAndDoc = directory + (doc ? '/' + doc : '');
       window.location.hash = '#' + directoryAndDoc;
       updateState();
+    };
+
+    var renderSelected = function(evt) {
+      doc = $('#document_select').val();
+      renderDocument(doc);
       return false;
+    };
+
+    var renderToDiskAndSelectNext = function() {
+      var _doc = doc;
+      if (!savePassword) return;
+      renderSelected();
+      // see if converting to string helps?
+      var svgMarkup = '' + annotator.getSVG();
+      $.ajax({
+        type: 'POST',
+        url: ajaxBase,
+        data: {
+          directory: directory,
+          document: _doc,
+          save: savePassword,
+          svg: svgMarkup,
+        },
+        error: function(req, textStatus, errorThrown) {
+          console.error(_doc, textStatus, errorThrown);
+          if (savePassword) {
+            savePassword = undefined;
+            alert('Error occured.\nSVG dump aborted.');
+          }
+        },
+        success: function(data) {
+            // silently ignore
+        }
+      });
+      var select = $('#document_select')[0];
+      select.selectedIndex = select.selectedIndex + 1;
+      if (select.selectedIndex != -1) {
+        setTimeout(renderToDiskAndSelectNext, 0);
+      } else {
+        console.log('done');
+      }
+    };
+
+    var renderAllToDisk = function() {
+      if (docListReceived) {
+        $('#document_select')[0].selectedIndex = 1;
+        renderToDiskAndSelectNext();
+      } else {
+        setTimeout(renderAllToDisk, 100);
+      }
     };
 
     $('#document_form').
@@ -813,6 +931,11 @@ $(function() {
 
     directoryAndDoc = directory + (doc ? '/' + doc : '');
     updateState(doc);
+    if (savePassword) {
+      renderAllToDisk();
+    } else {
+      setInterval(updateState, 200); // TODO okay?
+    }
   });
 
   $(window).resize(function(evt) {
