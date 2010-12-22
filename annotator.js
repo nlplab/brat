@@ -328,6 +328,11 @@ var Annotator = function(containerElement, onStart) {
         if (tmp) {
           return tmp < 0 ? -1 : 1;
         }
+        // spans with more spans go last
+        var tmp = a.numArcs - b.numArcs;
+        if (tmp) {
+          return tmp < 0 ? -1 : 1;
+        }
         // compare the span widths,
         // put wider on bottom so they don't mess with arcs
         var ad = a.to - a.from;
