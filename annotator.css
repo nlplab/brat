@@ -13,6 +13,7 @@ svg {
     font-size: 75%;
     text-anchor: middle;
     font-family: Century Gothic, sans-serif;
+    pointer-events: none;
   }
 
   svg .span rect {
@@ -55,6 +56,7 @@ svg {
     text-anchor: middle;
     font-size: 80%;
     dominant-baseline: central;
+    pointer-events: none;
   }
 
   svg .background0 {
@@ -207,6 +209,5 @@ svg {
 }
 
 svg {
-  pointer-events: none;
   font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
 }

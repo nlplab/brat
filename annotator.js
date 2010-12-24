@@ -157,6 +157,31 @@ var Annotator = function(containerElement, onStart) {
     }
   }
 
+  var mouseUp = function(evt) {
+    var sel = window.getSelection();
+    foo = $(sel.anchorNode.parentNode);
+    var chunkIndexFrom = $(sel.anchorNode.parentNode).attr('data-chunk-id');
+    var chunkFrom = data.chunks[chunkIndexFrom];
+    var chunkIndexTo = $(sel.focusNode.parentNode).attr('data-chunk-id');
+    var chunkTo = data.chunks[chunkIndexTo];
+    if (chunkFrom != undefined && chunkTo != undefined) {
+      window.getSelection().removeAllRanges();
+      var from = chunkFrom.from + sel.anchorOffset;
+      var to = chunkTo.from + sel.extentOffset;
+      if (from == to) return; // simple click (zero-width span)
+
+      // TODO ugly, but temporarily works:
+      var type = window.prompt("Span annotation?");
+
+      if (type) {
+        console.log(from, to, type);
+        annotator.postChangesAndReload({
+          span: { from: from, to: to, type: type, },
+        });
+      }
+    }
+  }
+
   this.drawInitial = function(_svg) {
     svg = _svg;
     svgElement = $(svg._svg);
@@ -165,6 +190,7 @@ var Annotator = function(containerElement, onStart) {
     containerElement.mouseover(mouseOver);
     containerElement.mouseout(mouseOut);
     containerElement.click(click);
+    containerElement.mouseup(mouseUp);
   }
 
   var Span = function(id, type, from, to, generalType) {
@@ -444,7 +470,10 @@ var Annotator = function(containerElement, onStart) {
       // a group for text highlight below the text
       chunk.highlightGroup = svg.group(chunk.group);
 
-      var chunkText = svg.text(chunk.group, 0, 0, chunk.text);
+      var chunkText = svg.text(chunk.group, 0, 0, chunk.text, {
+        group: 'chunktext',
+        'data-chunk-id': chunk.index,
+      });
       if (!textHeight) {
         textHeight = chunkText.getBBox().height;
       }
@@ -913,6 +942,22 @@ $(function() {
       directoryAndDoc = directory + (doc ? '/' + doc : '');
       window.location.hash = '#' + directoryAndDoc;
       updateState();
+    };
+
+    annotator.postChangesAndReload = function(changes) {
+      changes.directory = directory;
+      changes.document = doc;
+      $.ajax({
+        type: 'POST',
+        url: ajaxBase,
+        data: changes,
+        error: function(req, textStatus, errorThrown) {
+          console.error(textStatus, errorThrown);
+        },
+        success: function(data) {
+          renderDocument(changes.document);
+        }
+      });
     };
 
     var renderSelected = function(evt) {
