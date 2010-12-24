@@ -1,5 +1,7 @@
 html {
   overflow-y: scroll;
+  font-family: Century Gothic, sans-serif;
+  font-size: 12px;
 }
 
 svg {
@@ -210,4 +212,33 @@ svg {
 
 svg {
   font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
+}
+
+
+#span_form {
+  position: fixed;
+  background-color: #cccccc;
+  border: 2px outset #999999;
+  left: 50px;
+  top: 50px;
+  height: auto;
+  right: 50px;
+  padding: 5px 10px;
+  z-index: 10;
+  display: none;
+}
+#span_form_buttons {
+  text-align: right;
+}
+#span_free_div {
+  float: left;
+}
+fieldset {
+  border: 1px solid #999999;
+}
+
+.shadow {
+  -moz-box-shadow: 5px 5px 5px #cccccc;
+  -webkit-box-shadow: 5px 5px 5px #cccccc;
+  box-shadow: 5px 5px 5px #cccccc;
 }

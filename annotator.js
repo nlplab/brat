@@ -88,6 +88,7 @@ var Annotator = function(containerElement, onStart) {
   var highlight;
   var highlightArcs;
   var highlightBoxes;
+  var selectedFrom, selectedTo;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -165,20 +166,11 @@ var Annotator = function(containerElement, onStart) {
     var chunkIndexTo = $(sel.focusNode.parentNode).attr('data-chunk-id');
     var chunkTo = data.chunks[chunkIndexTo];
     if (chunkFrom != undefined && chunkTo != undefined) {
-      var from = chunkFrom.from + sel.anchorOffset;
-      var to = chunkTo.from + sel.extentOffset;
+      selectedFrom = chunkFrom.from + sel.anchorOffset;
+      selectedTo = chunkTo.from + sel.extentOffset;
       window.getSelection().removeAllRanges();
-      if (from == to) return; // simple click (zero-width span)
-
-      // TODO ugly, but temporarily works:
-      var type = window.prompt("Span annotation?");
-
-      if (type) { // (if not cancelled)
-        console.log(from, to, type);
-        annotator.postChangesAndReload({
-          span: { from: from, to: to, type: type },
-        });
-      }
+      if (selectedFrom == selectedTo) return; // simple click (zero-width span)
+      $('#span_form').css('display', 'block');
     }
   }
 
@@ -191,6 +183,26 @@ var Annotator = function(containerElement, onStart) {
     containerElement.mouseout(mouseOut);
     containerElement.click(click);
     containerElement.mouseup(mouseUp);
+
+    // TODO not general - will break with more than one Annotator on the
+    // page (not that it's a concern, but then we could also remove that
+    // from Annotator code...)
+    var spanForm = $('#span_form').
+      submit(function(evt) {
+        spanForm.css('display', 'none');
+        var type = $('#span_form input:radio:checked').val();
+        if (!type) type = $('#span_free_text').val();
+        if (type) { // (if not cancelled)
+          console.log(selectedFrom, selectedTo, type);
+          annotator.postChangesAndReload({
+            span: { from: selectedFrom, to: selectedTo, type: type },
+          });
+        }
+        return false;
+      }).
+      bind('reset', function(evt) {
+        spanForm.css('display', 'none');
+      });
   }
 
   var Span = function(id, type, from, to, generalType) {

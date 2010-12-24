@@ -16,5 +16,34 @@
       <input type="submit" value="Render" disabled="disabled"/>
     </form>
     <div id="svg"></div>
+    <form id="span_form" class="shadow">
+
+      <fieldset id="span_entity_fset">
+        <legend>Entities</legend>
+        <input id="span_protein" type="radio" value="Protein"/>
+        <label for="span_protein">Protein</label>
+
+        <input id="span_entity" type="radio" value="Entity"/>
+        <label for="span_entity">Entity</label>
+      </fieldset>
+        
+      <fieldset id="span_trigger_fset">
+        <legend>Triggers</legend>
+        <input id="span_regulation" type="radio" value="Regulation"/>
+        <label for="span_regulation">Regulation</label>
+      </fieldset>
+
+      <fieldset id="span_form_buttons">
+        <legend>Submit</legend>
+        <div id="span_free_div">
+          <input id="span_free_entry" type="radio" value=""/>
+          <label for="span_free_entry">
+            <input id="span_free_text"/>
+          </label>
+        </div>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
+    </form>
   </body>
 </html>
