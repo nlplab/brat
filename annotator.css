@@ -242,3 +242,7 @@ fieldset {
   -webkit-box-shadow: 5px 5px 5px #cccccc;
   box-shadow: 5px 5px 5px #cccccc;
 }
+
+#span_selected {
+  font-weight: bold;
+}

@@ -173,6 +173,7 @@ var Annotator = function(containerElement, onStart) {
       if (selectedFrom > selectedTo) {
         var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
       }
+      $('#span_selected').text(data.text.substring(selectedFrom, selectedTo));
       $('#span_form').css('display', 'block');
     }
   }
@@ -196,7 +197,6 @@ var Annotator = function(containerElement, onStart) {
         var type = $('#span_form input:radio:checked').val();
         if (!type) type = $('#span_free_text').val();
         if (type) { // (if not cancelled)
-          console.log(selectedFrom, selectedTo, type);
           annotator.postChangesAndReload({
             action: 'span',
             from: selectedFrom,
