@@ -170,6 +170,9 @@ var Annotator = function(containerElement, onStart) {
       selectedTo = chunkTo.from + sel.extentOffset;
       window.getSelection().removeAllRanges();
       if (selectedFrom == selectedTo) return; // simple click (zero-width span)
+      if (selectedFrom > selectedTo) {
+        var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
+      }
       $('#span_form').css('display', 'block');
     }
   }
@@ -195,7 +198,10 @@ var Annotator = function(containerElement, onStart) {
         if (type) { // (if not cancelled)
           console.log(selectedFrom, selectedTo, type);
           annotator.postChangesAndReload({
-            span: { from: selectedFrom, to: selectedTo, type: type },
+            action: 'span',
+            from: selectedFrom,
+            to: selectedTo,
+            type: type,
           });
         }
         return false;
@@ -966,9 +972,10 @@ $(function() {
         error: function(req, textStatus, errorThrown) {
           console.error(textStatus, errorThrown);
         },
-        success: function(data) {
+        success: function(response) {
           lastHash = null; // force reload
           renderDocument(changes.document);
+          console.log("Ajax response: ", response); // DEBUG
         }
       });
     };

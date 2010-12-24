@@ -89,34 +89,46 @@ def saveSVG(directory, document, svg):
         print "Status: 400 Bad Request\n"
 
 
+def save_span(document, spanfrom, spanto, spantype):
+    print "Content-Type: text/html\n"
+    print document, spanfrom, spanto, spantype # TODO do something with it
+
+
 def main():
     params = FieldStorage()
     directory = params.getvalue('directory')
     document = params.getvalue('document')
+
+    if document is None:
+        input = directory
+    else:
+        input = directory + document
+    if input.find('/') != -1:
+        print "Status: 403 Forbidden\n"
+        return
+
     savePassword = params.getvalue('save')
     if savePassword:
         if savePassword == 'crunchy':
             svg = params.getvalue('svg')
-            input = directory + document
-            if input.find('/') != -1:
-                print "Status: 403 Forbidden (slash)\n\n"
-                return
             saveSVG(directory, document, svg)
         else:
             print "Status: 403 Forbidden (password)\n\n"
     else:
-        if document is None:
-            input = directory
-        else:
-            input = directory + document
-        if input.find('/') != -1:
-            print "Status: 403 Forbidden\n"
-            return
         directory = datadir + '/' + directory
 
         if document is None:
             directory_options(directory)
         else:
-            document_json(directory + '/' + document)
+            action = params.getvalue('action')
+            docpath = directory + '/' + document
+            span = params.getvalue('span')
+            if action == 'span':
+                save_span(docpath,
+                        params.getvalue('from'),
+                        params.getvalue('to'),
+                        params.getvalue('type'))
+            else:
+                document_json(docpath)
 
 main()
