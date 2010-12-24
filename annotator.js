@@ -165,18 +165,18 @@ var Annotator = function(containerElement, onStart) {
     var chunkIndexTo = $(sel.focusNode.parentNode).attr('data-chunk-id');
     var chunkTo = data.chunks[chunkIndexTo];
     if (chunkFrom != undefined && chunkTo != undefined) {
-      window.getSelection().removeAllRanges();
       var from = chunkFrom.from + sel.anchorOffset;
       var to = chunkTo.from + sel.extentOffset;
+      window.getSelection().removeAllRanges();
       if (from == to) return; // simple click (zero-width span)
 
       // TODO ugly, but temporarily works:
       var type = window.prompt("Span annotation?");
 
-      if (type) {
+      if (type) { // (if not cancelled)
         console.log(from, to, type);
         annotator.postChangesAndReload({
-          span: { from: from, to: to, type: type, },
+          span: { from: from, to: to, type: type },
         });
       }
     }
@@ -955,6 +955,7 @@ $(function() {
           console.error(textStatus, errorThrown);
         },
         success: function(data) {
+          lastHash = null; // force reload
           renderDocument(changes.document);
         }
       });
