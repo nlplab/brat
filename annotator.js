@@ -214,8 +214,8 @@ var Annotator = function(containerElement, onStart) {
   var Span = function(id, type, from, to, generalType) {
     this.id = id;
     this.type = type;
-    this.from = from;
-    this.to = to;
+    this.from = parseInt(from);
+    this.to = parseInt(to);
     this.outgoing = [];
     this.incoming = [];
     this.totalDist = 0;
@@ -354,12 +354,12 @@ var Annotator = function(containerElement, onStart) {
       }); // roles
     }); // eventDescs
 
-    // sort spans in chunks
-    data.spanLine = [];
-    var spanNo = -1;
+    var sortedSpans = [];
+    // sort spans in chunks for drawing purposes
     var lastSpan = null;
     $.each(data.chunks, function(chunkNo, chunk) {
       $.each(chunk.spans, function(spanNo, span) {
+        sortedSpans.push(span);
         span.avgDist = span.totalDist / span.numArcs;
       });
       chunk.spans.sort(function(a, b) {
@@ -391,15 +391,25 @@ var Annotator = function(containerElement, onStart) {
       // number the spans so we can check for heights later
       $.each(chunk.spans, function(i, span) {
         if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
-          spanNo++;
-          data.spanLine[spanNo] = []
           span.drawCurly = true;
         }
-        data.spanLine[spanNo].push(span);
-        span.lineIndex = spanNo;
         lastSpan = span;
       }); // spans
     }); // chunks
+
+    // sort the spans for linear order
+    sortedSpans.sort(function(a, b) {
+      var tmp = a.from + a.to - b.from - b.to;
+      if (tmp) {
+        return tmp < 0 ? -1 : 1;
+      }
+      return 0;
+    });
+    $.each(sortedSpans, function(spanNo, span) {
+      span.lineIndex = spanNo;
+      if (span.chunk.firstSpan == undefined) span.chunk.firstSpan = spanNo;
+      span.chunk.lastSpan = spanNo;
+    });
   }
 
   var placeReservation = function(span, box, reservations) {
@@ -427,9 +437,13 @@ var Annotator = function(containerElement, onStart) {
           if (!reservation.curly && span.drawCurly) {
             // TODO: need to push up the boxes drawn so far
             // (rare glitch)
+            // it would be prettier to track individual boxes (and not
+            // rows) but the cases when it matters are rare, and not
+            // worth the bother so far
+            reservation.height += curlyHeight;
           }
           line.push(newSlot);
-          return height;
+          return reservation.height;
         }
       }
       height += newSlot.height + boxSpacing; 
@@ -496,7 +510,6 @@ var Annotator = function(containerElement, onStart) {
         textHeight = chunkText.getBBox().height;
       }
       var y = 0;
-      var chunkIndexFrom, chunkIndexTo;
       var minArcDist;
       var lastArcBorder = 0;
       var hasLeftArcs, hasRightArcs, hasInternalArcs;
@@ -560,10 +573,6 @@ var Annotator = function(containerElement, onStart) {
           });
         var rectBox = span.rect.getBBox();
 
-        if (chunkIndexFrom == undefined || chunkIndexFrom > span.lineIndex)
-          chunkIndexFrom = span.lineIndex;
-        if (chunkIndexTo == undefined || chunkIndexTo < span.lineIndex)
-          chunkIndexTo = span.lineIndex;
         var yAdjust = placeReservation(span, rectBox, reservations);
         // this is monotonous due to sort:
         span.height = yAdjust + spanBox.height + 3 * margin.y + curlyHeight + arcSpacing;
@@ -632,8 +641,8 @@ var Annotator = function(containerElement, onStart) {
       }); // spans
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
-      var len = chunkIndexTo * 2;
-      for (var i = chunkIndexFrom * 2 + 1; i < len; i++)
+      var len = chunk.lastSpanIndex * 2;
+      for (var i = chunk.firstSpanIndex * 2 + 1; i < len; i++)
         spanHeights[i] = Math.max(spanHeights[i - 1], spanHeights[i + 1]);
 
       // span background
@@ -780,16 +789,16 @@ var Annotator = function(containerElement, onStart) {
       var leftRow = left.chunk.row.index;
       var rightRow = right.chunk.row.index;
 
-      var fromIndex = left.lineIndex;
-      var toIndex = right.lineIndex;
-
       // find the next height
       var height = 0;
-      var fromIndex2 = fromIndex * 2;
-      var toIndex2 = toIndex * 2;
-      if (left.chunk.index != right.chunk.index) {
-        fromIndex2++;
-        toIndex2--;
+
+      var fromIndex2, toIndex2;
+      if (left.chunk.index == right.chunk.index) {
+        fromIndex2 = left.lineIndex * 2;
+        toIndex2 = right.lineIndex * 2;
+      } else {
+        fromIndex2 = left.chunk.lastSpan * 2 + 1;
+        toIndex2 = right.chunk.firstSpan * 2 - 1;
       }
       for (var i = fromIndex2; i <= toIndex2; i++) {
         if (spanHeights[i] > height) height = spanHeights[i];
@@ -1017,7 +1026,7 @@ $(function() {
       if (select.selectedIndex != -1) {
         setTimeout(renderToDiskAndSelectNext, 0);
       } else {
-        console.log('done');
+        alert('done');
       }
     };
 
