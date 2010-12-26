@@ -419,6 +419,15 @@ var Annotator = function(containerElement, onStart) {
       span: span,
       height: box.height + (span.drawCurly ? curlyHeight : 0),
     };
+    // TODO look at this, and remove if ugly
+    // example where it matters: the degenerate case of
+    // http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/SharedTask/goran/visual/annotator.xhtml#miwa-genia-dev/9794389
+    // (again, it would be solved by individual box reservations instead
+    // of row-based)
+    if (span.drawCurly) {
+      if (span.curly.from < newSlot.from) newSlot.from = span.curly.from;
+      if (span.curly.to > newSlot.to) newSlot.to = span.curly.to;
+    }
     var height = 0;
     if (reservations.length) {
       for (var resNo = 0, resLen = reservations.length; resNo < resLen; resNo++) {
@@ -428,7 +437,9 @@ var Annotator = function(containerElement, onStart) {
         var overlap = false;
         $.each(line, function(slotNo, slot) {
           var slot = line[slotNo];
-          if (slot.from <= newSlot.to && newSlot.from <= slot.to) {
+          // with the curly change above, we can live with sharing
+          // borders
+          if (slot.from < newSlot.to && newSlot.from < slot.to) {
             overlap = true;
             return false;
           }
@@ -726,10 +737,18 @@ var Annotator = function(containerElement, onStart) {
     // find out how high the arcs have to go
     $.each(data.arcs, function(arcNo, arc) {
       arc.jumpHeight = 0;
-      var from = data.spans[arc.origin].lineIndex;
-      var to = data.spans[arc.target].lineIndex;
-      if (from > to) {
-        var tmp = from; from = to; to = tmp;
+      var fromSpan = data.spans[arc.origin];
+      var toSpan = data.spans[arc.target];
+      if (fromSpan.lineIndex > toSpan.lineIndex) {
+        var tmp = fromSpan; fromSpan = toSpan; toSpan = tmp;
+      }
+      var from, to;
+      if (fromSpan.chunk.index == toSpan.chunk.index) {
+        from = fromSpan.lineIndex;
+        to = toSpan.lineIndex;
+      } else {
+        from = fromSpan.chunk.lastSpan;
+        to = toSpan.chunk.firstSpan;
       }
       for (var i = from + 1; i < to; i++) {
         if (arc.jumpHeight < spanHeights[i * 2]) arc.jumpHeight = spanHeights[i * 2];
