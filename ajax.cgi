@@ -7,7 +7,7 @@ from re import split, sub
 from simplejson import dumps
 from itertools import chain
 
-basedir = '/data/home/genia/public_html/SharedTask/visual'
+basedir = '/data/home/genia/public_html/BioNLP-ST/visual'
 datadir = basedir + '/data'
 
 def directory_options(directory):
