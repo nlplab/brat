@@ -185,8 +185,9 @@ var Annotator = function(containerElement, onStart) {
 
     containerElement.mouseover(mouseOver);
     containerElement.mouseout(mouseOut);
-    containerElement.click(click);
-    containerElement.mouseup(mouseUp);
+    // TODO not needed for visualisation only
+    // containerElement.click(click);
+    // containerElement.mouseup(mouseUp);
 
     // TODO not general - will break with more than one Annotator on the
     // page (not that it's a concern, but then we could also remove that
@@ -424,10 +425,14 @@ var Annotator = function(containerElement, onStart) {
     // http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/SharedTask/goran/visual/annotator.xhtml#miwa-genia-dev/9794389
     // (again, it would be solved by individual box reservations instead
     // of row-based)
+    
+    // overlapping curly check: TODO delete or uncomment
+    /*
     if (span.drawCurly) {
       if (span.curly.from < newSlot.from) newSlot.from = span.curly.from;
       if (span.curly.to > newSlot.to) newSlot.to = span.curly.to;
     }
+    */
     var height = 0;
     if (reservations.length) {
       for (var resNo = 0, resLen = reservations.length; resNo < resLen; resNo++) {

@@ -9,6 +9,7 @@ svg {
   width: 100%;
   height: 1px;
   border: 1px solid #484;
+  font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
 }
 
   svg .span text {
@@ -208,10 +209,6 @@ svg {
 }
 .stroke_Equiv {
   stroke: black; /* TODO */
-}
-
-svg {
-  font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
 }
 
 
