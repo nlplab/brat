@@ -154,7 +154,7 @@ var Annotator = function(containerElement, onStart) {
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
-      console.log(span.id, span); // DEBUG
+      console.log(span.id, span, span.lineIndex); // DEBUG
     }
   }
 
@@ -406,10 +406,15 @@ var Annotator = function(containerElement, onStart) {
       }
       return 0;
     });
+    var realSpanNo = -1;
+    var lastSpan;
     $.each(sortedSpans, function(spanNo, span) {
-      span.lineIndex = spanNo;
-      if (span.chunk.firstSpan == undefined) span.chunk.firstSpan = spanNo;
-      span.chunk.lastSpan = spanNo;
+      if (!lastSpan || span.from != lastSpan.from || span.to != lastSpan.to) realSpanNo++;
+      console.log(realSpanNo);
+      span.lineIndex = realSpanNo;
+      if (span.chunk.firstSpanIndex == undefined) span.chunk.firstSpanIndex = realSpanNo;
+      span.chunk.lastSpanIndex = realSpanNo;
+      lastSpan = span;
     });
   }
 
@@ -752,10 +757,10 @@ var Annotator = function(containerElement, onStart) {
         from = fromSpan.lineIndex;
         to = toSpan.lineIndex;
       } else {
-        from = fromSpan.chunk.lastSpan;
-        to = toSpan.chunk.firstSpan;
+        from = fromSpan.lineIndex + 1;
+        to = toSpan.lineIndex - 1;
       }
-      for (var i = from + 1; i < to; i++) {
+      for (var i = from; i <= to; i++) {
         if (arc.jumpHeight < spanHeights[i * 2]) arc.jumpHeight = spanHeights[i * 2];
       }
     });
@@ -821,8 +826,8 @@ var Annotator = function(containerElement, onStart) {
         fromIndex2 = left.lineIndex * 2;
         toIndex2 = right.lineIndex * 2;
       } else {
-        fromIndex2 = left.chunk.lastSpan * 2 + 1;
-        toIndex2 = right.chunk.firstSpan * 2 - 1;
+        fromIndex2 = left.lineIndex * 2 + 1;
+        toIndex2 = right.lineIndex * 2 - 1;
       }
       for (var i = fromIndex2; i <= toIndex2; i++) {
         if (spanHeights[i] > height) height = spanHeights[i];
@@ -1020,38 +1025,44 @@ $(function() {
     };
 
     var renderToDiskAndSelectNext = function() {
-      var _doc = doc;
       if (!savePassword) return;
+
       renderSelected();
-      // see if converting to string helps?
-      var svgMarkup = '' + annotator.getSVG();
-      $.ajax({
-        type: 'POST',
-        url: ajaxBase,
-        data: {
-          directory: directory,
-          document: _doc,
-          save: savePassword,
-          svg: svgMarkup,
-        },
-        error: function(req, textStatus, errorThrown) {
-          console.error(_doc, textStatus, errorThrown);
-          if (savePassword) {
-            savePassword = undefined;
-            alert('Error occured.\nSVG dump aborted.');
+
+      var renderToDiskAndSelectNextInner = function() {
+        var svgMarkup = annotator.getSVG();
+
+        var _doc = doc;
+        console.log(_doc, "sending", svgMarkup.length);
+        $.ajax({
+          type: 'POST',
+          url: ajaxBase,
+          data: {
+            directory: directory,
+            document: _doc,
+            save: savePassword,
+            svg: svgMarkup,
+          },
+          error: function(req, textStatus, errorThrown) {
+            console.error(_doc, textStatus, errorThrown);
+            if (savePassword) {
+              savePassword = undefined;
+              alert('Error occured.\nSVG dump aborted.');
+            }
+          },
+          success: function(data) {
+              // silently ignore
           }
-        },
-        success: function(data) {
-            // silently ignore
+        });
+        var select = $('#document_select')[0];
+        select.selectedIndex = select.selectedIndex + 1;
+        if (select.selectedIndex != -1) {
+          setTimeout(renderToDiskAndSelectNext, 0);
+        } else {
+          alert('done');
         }
-      });
-      var select = $('#document_select')[0];
-      select.selectedIndex = select.selectedIndex + 1;
-      if (select.selectedIndex != -1) {
-        setTimeout(renderToDiskAndSelectNext, 0);
-      } else {
-        alert('done');
-      }
+      };
+      setTimeout(renderToDiskAndSelectNextInner, 500);
     };
 
     var renderAllToDisk = function() {
