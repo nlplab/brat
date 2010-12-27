@@ -1,10 +1,20 @@
-Fix the UFO catchers broken by last changes to chunkHeights
+fix SVG export
+    make it work (synchronicity?)
+    PNG export
 
-Box behind trigger words and entity words
-  (like highlights, but on span basis)
+generate cover page
 
 Annotation:
-    save current state
-    demarcate a span (and assign type)
+    reenable
+    extract all texts into a new text element
+        so we don't select random stuff on chrome
+        (with tspans, so safari can select all)
     draw an arc (and assign type)
     delete an arc/span
+    serverside:
+        add span (from, to, type)
+        add arc (origin, target, type)
+            pay attention to Equiv (exceptional handling)
+        delete span (id)
+        delete arc (origin, target, type)
+            pay attention to Equiv (exceptional handling)
