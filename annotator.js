@@ -410,7 +410,6 @@ var Annotator = function(containerElement, onStart) {
     var lastSpan;
     $.each(sortedSpans, function(spanNo, span) {
       if (!lastSpan || span.from != lastSpan.from || span.to != lastSpan.to) realSpanNo++;
-      console.log(realSpanNo);
       span.lineIndex = realSpanNo;
       if (span.chunk.firstSpanIndex == undefined) span.chunk.firstSpanIndex = realSpanNo;
       span.chunk.lastSpanIndex = realSpanNo;
@@ -665,9 +664,6 @@ var Annotator = function(containerElement, onStart) {
       }); // spans
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
-      var len = chunk.lastSpanIndex * 2;
-      for (var i = chunk.firstSpanIndex * 2 + 1; i < len; i++)
-        spanHeights[i] = Math.max(spanHeights[i - 1], spanHeights[i + 1]);
 
       // span background
       if (chunk.spans.length) {
@@ -1078,7 +1074,7 @@ $(function() {
     var renderAllToDisk = function() {
       if (docListReceived) {
         $('#document_select')[0].selectedIndex = 1;
-        annotator.forceWidth = 960;
+        annotator.forceWidth = 960; // for display in 1024-width browsers
         renderToDiskAndSelectNext();
       } else {
         setTimeout(renderAllToDisk, 100);
