@@ -501,8 +501,11 @@ var Annotator = function(containerElement, onStart) {
     setData(_data);
     svg.clear(true);
     if (!data || data.length == 0) return;
-    canvasWidth = $(containerElement).width();
-    $(svg).attr('width', canvasWidth);
+    canvasWidth = this.forceWidth || $(containerElement).width();
+    var commentName = data.document.replace('--', '-\\-');
+    svgElement.
+        attr('width', canvasWidth).
+        append('<!-- document: ' + commentName + ' -->');
     
     var current = { x: margin.x, y: margin.y };
     var rows = [];
@@ -935,6 +938,10 @@ var Annotator = function(containerElement, onStart) {
     return containerElement.html();
   };
 
+  this.getDocumentName = function() {
+    return data.document;
+  };
+
   containerElement.svg({
       onLoad: this.drawInitial,
       settings: {
@@ -974,7 +981,7 @@ $(function() {
     var directoryAndDoc;
     var drawing = false;
     var savePassword;
-    var updateState = function() {
+    var updateState = function(onRenderComplete) {
       if (drawing || lastHash == window.location.hash) return;
       lastHash = window.location.hash;
       var parts = lastHash.substr(1).split('/');
@@ -989,15 +996,18 @@ $(function() {
           drawing = true;
           jsonData.document = _doc;
           annotator.renderData(jsonData);
+          if (onRenderComplete) {
+            onRenderComplete.call();
+          }
           drawing = false;
       });
     };
 
-    var renderDocument = function(_doc) {
+    var renderDocument = function(_doc, onRenderComplete) {
       doc = _doc;
       directoryAndDoc = directory + (doc ? '/' + doc : '');
       window.location.hash = '#' + directoryAndDoc;
-      updateState();
+      updateState(onRenderComplete);
     };
 
     annotator.postChangesAndReload = function(changes) {
@@ -1018,56 +1028,57 @@ $(function() {
       });
     };
 
-    var renderSelected = function(evt) {
+    var renderSelected = function(evt, onRenderComplete) {
       doc = $('#document_select').val();
-      renderDocument(doc);
+      renderDocument(doc, onRenderComplete);
       return false;
     };
 
     var renderToDiskAndSelectNext = function() {
       if (!savePassword) return;
 
-      renderSelected();
-
-      var renderToDiskAndSelectNextInner = function() {
+      renderSelected(null, function() {
         var svgMarkup = annotator.getSVG();
+        var doc = annotator.getDocumentName();
+        /*
+        if (svgMarkup.indexOf('data-document') == -1) {
+          setTimeout(renderToDiskAndSelectNextInner, 200);
+        }
+        */
 
-        var _doc = doc;
-        console.log(_doc, "sending", svgMarkup.length);
         $.ajax({
           type: 'POST',
           url: ajaxBase,
           data: {
             directory: directory,
-            document: _doc,
+            document: doc,
             save: savePassword,
             svg: svgMarkup,
           },
           error: function(req, textStatus, errorThrown) {
-            console.error(_doc, textStatus, errorThrown);
+            console.error(doc, textStatus, errorThrown);
             if (savePassword) {
               savePassword = undefined;
               alert('Error occured.\nSVG dump aborted.');
             }
           },
           success: function(data) {
-              // silently ignore
-          }
+            var select = $('#document_select')[0];
+            select.selectedIndex = select.selectedIndex + 1;
+            if (select.selectedIndex != -1) {
+              setTimeout(renderToDiskAndSelectNext, 0);
+            } else {
+              alert('done');
+            }
+          },
         });
-        var select = $('#document_select')[0];
-        select.selectedIndex = select.selectedIndex + 1;
-        if (select.selectedIndex != -1) {
-          setTimeout(renderToDiskAndSelectNext, 0);
-        } else {
-          alert('done');
-        }
-      };
-      setTimeout(renderToDiskAndSelectNextInner, 500);
+      });
     };
 
     var renderAllToDisk = function() {
       if (docListReceived) {
         $('#document_select')[0].selectedIndex = 1;
+        annotator.forceWidth = 960;
         renderToDiskAndSelectNext();
       } else {
         setTimeout(renderAllToDisk, 100);
