@@ -88,7 +88,7 @@ var Annotator = function(containerElement, onStart) {
   var highlight;
   var highlightArcs;
   var highlightBoxes;
-  var selectedFrom, selectedTo;
+  var arcDragOrigin;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -113,22 +113,13 @@ var Annotator = function(containerElement, onStart) {
       highlightArcs = target.closest('svg').find('.arcs').
           find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
           addClass('highlight');
-      /*
-      // TODO: Find out why incoming and outgoing are structure-shared
-      // >.<
-      var boxes = ['#' + idForSpan(span)];
-      boxes.push('foo');
-      $.each(span.incoming, function(arcNo, arc) {
-        boxes.push('#' + idForSpan(data.spans[arc.origin]));
-      });
-      boxes.push('foo');
-      $.each(span.outgoing, function(arcNo, arc) {
-        boxes.push('#' + idForSpan(data.spans[arc.target]));
-      });
-      highlightBoxes = $(boxes.join(', '))
-        .addClass('highlight');
-      */
       forceRedraw();
+    } else if (id = target.attr('data-arc-role')) {
+      var originSpanId = target.attr('data-arc-origin');
+      var targetSpanId = target.attr('data-arc-target');
+      highlightArcs = target.closest('svg').find('.arcs').
+          find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
+          addClass('highlight');
     }
   };
 
@@ -156,31 +147,87 @@ var Annotator = function(containerElement, onStart) {
       var span = data.spans[id];
       console.log(span.id, span, span.lineIndex); // DEBUG
     }
-  }
+  };
+
+  var dblClick = function(evt) {
+    var target = $(evt.target);
+    var id;
+    // do we delete an arc?
+    if (id = target.attr('data-arc-role')) {
+      window.getSelection().removeAllRanges();
+      var originSpanId = target.attr('data-arc-origin');
+      var targetSpanId = target.attr('data-arc-target');
+      annotator.ajaxOptions = {
+        action: 'unarc',
+        origin: originSpanId,
+        target: targetSpanId,
+        type: id,
+      };
+      annotator.postChangesAndReload();
+      
+    // if not, then do we delete a span?
+    } else if (id = target.attr('data-span-id')) {
+      window.getSelection().removeAllRanges();
+      annotator.ajaxOptions = {
+        action: 'unspan',
+        id: id,
+      };
+      annotator.postChangesAndReload();
+    }
+  };
+
+  var mouseDown = function(evt) {
+    var target = $(evt.target);
+    var id;
+    // is it arc drag start?
+    if (id = target.attr('data-span-id')) {
+      arcDragOrigin = id;
+      // TODO draw arc
+      return false;
+    }
+  };
 
   var mouseUp = function(evt) {
-    var sel = window.getSelection();
-    foo = $(sel.anchorNode.parentNode);
-    var chunkIndexFrom = $(sel.anchorNode.parentNode).attr('data-chunk-id');
-    var chunkFrom = data.chunks[chunkIndexFrom];
-    var chunkIndexTo = $(sel.focusNode.parentNode).attr('data-chunk-id');
-    var chunkTo = data.chunks[chunkIndexTo];
-    if (chunkFrom != undefined && chunkTo != undefined) {
-      var selectedFrom = chunkFrom.from + sel.anchorOffset;
-      var selectedTo = chunkTo.from + sel.extentOffset;
-      window.getSelection().removeAllRanges();
-      if (selectedFrom == selectedTo) return; // simple click (zero-width span)
-      if (selectedFrom > selectedTo) {
-        var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
-      }
+    var target = $(evt.target);
+    // is it arc drag end?
+    if (arcDragOrigin && (id = target.attr('data-span-id')) && arcDragOrigin != id) {
+      // TODO erase arc
+      var originSpan = data.spans[arcDragOrigin];
+      var targetSpan = data.spans[id];
       annotator.ajaxOptions = {
-        from: selectedFrom,
-        to: selectedTo,
+        action: 'arc',
+        origin: originSpan.id,
+        target: targetSpan.id,
       };
-      $('#span_selected').text(data.text.substring(selectedFrom, selectedTo));
-      $('#span_form').css('display', 'block');
+      $('#arc_origin').text(data.text.substring(originSpan.from, originSpan.to));
+      $('#arc_target').text(data.text.substring(targetSpan.from, targetSpan.to));
+      $('#arc_form').css('display', 'block');
+      arcDragOrigin = undefined;
+    } else {
+      // if not, then is it span selection?
+      var sel = window.getSelection();
+      var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
+      var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
+      if (chunkIndexFrom != undefined && chunkIndexTo != undefined) {
+        var chunkFrom = data.chunks[chunkIndexFrom];
+        var chunkTo = data.chunks[chunkIndexTo];
+        var selectedFrom = chunkFrom.from + sel.anchorOffset;
+        var selectedTo = chunkTo.from + sel.focusOffset;
+        window.getSelection().removeAllRanges();
+        if (selectedFrom == selectedTo) return; // simple click (zero-width span)
+        if (selectedFrom > selectedTo) {
+          var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
+        }
+        annotator.ajaxOptions = {
+          action: 'span',
+          from: selectedFrom,
+          to: selectedTo,
+        };
+        $('#span_selected').text(data.text.substring(selectedFrom, selectedTo));
+        $('#span_form').css('display', 'block');
+      }
     }
-  }
+  };
 
   this.drawInitial = function(_svg) {
     svg = _svg;
@@ -191,7 +238,9 @@ var Annotator = function(containerElement, onStart) {
     containerElement.mouseout(mouseOut);
     // TODO not needed for visualisation only
     // containerElement.click(click);
+    containerElement.dblclick(dblClick);
     containerElement.mouseup(mouseUp);
+    containerElement.mousedown(mouseDown);
   }
 
   var Span = function(id, type, from, to, generalType) {
@@ -854,6 +903,9 @@ var Annotator = function(containerElement, onStart) {
         }
         var text = svg.text(arcGroup, (from + to) / 2, -height, abbrevText, {
             'class': 'fill_' + arc.type,
+            'data-arc-role': arc.type,
+            'data-arc-origin': arc.origin,
+            'data-arc-target': arc.target,
         });
         var textBox = text.getBBox();
         var textStart = textBox.x - margin.x;
@@ -1077,7 +1129,6 @@ $(function() {
       var type = $('#span_form input:radio:checked').val();
       if (!type) type = $('#span_free_text').val();
       if (type) { // (if not cancelled)
-        annotator.ajaxOptions.action = 'span';
         annotator.ajaxOptions.type = type;
         annotator.postChangesAndReload();
       }
@@ -1089,6 +1140,23 @@ $(function() {
         spanForm.css('display', 'none');
       });
     spanForm.find('input:radio').not('#span_free_entry').click(spanFormSubmit);
+
+    var arcFormSubmit = function(evt) {
+      arcForm.css('display', 'none');
+      var type = $('#arc_form input:radio:checked').val();
+      if (!type) type = $('#arc_free_text').val();
+      if (type) { // (if not cancelled)
+        annotator.ajaxOptions.type = type;
+        annotator.postChangesAndReload();
+      }
+      return false;
+    };
+    var arcForm = $('#arc_form').
+      submit(arcFormSubmit).
+      bind('reset', function(evt) {
+        arcForm.css('display', 'none');
+      });
+    arcForm.find('input:radio').not('#arc_free_entry').click(arcFormSubmit);
 
     directoryAndDoc = directory + (doc ? '/' + doc : '');
     updateState(doc);

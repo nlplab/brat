@@ -59,7 +59,7 @@ svg {
     text-anchor: middle;
     font-size: 80%;
     dominant-baseline: central;
-    pointer-events: none;
+    cursor: default;
   }
 
   svg .background0 {
@@ -212,7 +212,7 @@ svg {
 }
 
 
-#span_form {
+#span_form, #arc_form {
   position: fixed;
   background-color: #cccccc;
   border: 2px outset #999999;
@@ -224,10 +224,10 @@ svg {
   z-index: 10;
   display: none;
 }
-#span_form_buttons {
+#span_form_buttons, #arc_form_buttons {
   text-align: right;
 }
-#span_free_div {
+#span_free_div, #arc_free_div {
   float: left;
 }
 fieldset {
@@ -240,6 +240,6 @@ fieldset {
   box-shadow: 5px 5px 5px #cccccc;
 }
 
-#span_selected {
+#span_selected, #arc_origin, #arc_target {
   font-weight: bold;
 }

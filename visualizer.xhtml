@@ -24,25 +24,57 @@
 
       <fieldset id="span_entity_fset">
         <legend>Entities</legend>
-        <input id="span_protein" type="radio" value="Protein"/>
+        <input name="span_type" id="span_protein" type="radio" value="Protein"/>
         <label for="span_protein">Protein</label>
 
-        <input id="span_entity" type="radio" value="Entity"/>
+        <input name="span_type" id="span_entity" type="radio" value="Entity"/>
         <label for="span_entity">Entity</label>
       </fieldset>
         
       <fieldset id="span_trigger_fset">
         <legend>Triggers</legend>
-        <input id="span_regulation" type="radio" value="Regulation"/>
+        <input name="span_type" id="span_regulation" type="radio" value="Regulation"/>
         <label for="span_regulation">Regulation</label>
       </fieldset>
 
       <fieldset id="span_form_buttons">
         <legend>Submit</legend>
         <div id="span_free_div">
-          <input id="span_free_entry" type="radio" value=""/>
+          <input name="span_type" id="span_free_entry" type="radio" value=""/>
           <label for="span_free_entry">
             <input id="span_free_text"/>
+          </label>
+        </div>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
+    </form>
+    <form id="arc_form" class="shadow">
+      <fieldset id="arc_origin_fset">
+        <legend>Relation</legend>
+        <div id="arc_origin"/>
+      </fieldset>
+
+      <fieldset id="arc_target_fset">
+        <legend>Argument</legend>
+        <div id="arc_target"/>
+      </fieldset>
+
+      <fieldset id="arc_entity_fset">
+        <legend>Role</legend>
+        <input name="arc_type" id="arc_theme" type="radio" value="Theme"/>
+        <label for="arc_theme">Theme</label>
+
+        <input name="arc_type" id="arc_cause" type="radio" value="Cause"/>
+        <label for="arc_cause">Cause</label>
+      </fieldset>
+        
+      <fieldset id="arc_form_buttons">
+        <legend>Submit</legend>
+        <div id="arc_free_div">
+          <input name="arc_type" id="arc_free_entry" type="radio" value=""/>
+          <label for="arc_free_entry">
+            <input id="arc_free_text"/>
           </label>
         </div>
         <input type="submit" value="OK"/>

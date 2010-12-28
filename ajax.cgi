@@ -93,7 +93,19 @@ def saveSVG(directory, document, svg):
 
 def save_span(document, spanfrom, spanto, spantype):
     print "Content-Type: text/html\n"
-    print document, spanfrom, spanto, spantype # TODO do something with it
+    print "Added", document, spanfrom, spanto, spantype # TODO do something with it
+
+def save_arc(document, arcorigin, arctarget, arctype):
+    print "Content-Type: text/html\n"
+    print "Added", document, arcorigin, arctarget, arctype # TODO do something with it
+
+def delete_span(document, spanid):
+    print "Content-Type: text/html\n"
+    print "Deleted", document, spanid # TODO do something with it
+
+def delete_arc(document, arcorigin, arctarget, arctype):
+    print "Content-Type: text/html\n"
+    print "Deleted", document, arcorigin, arctarget, arctype # TODO do something with it
 
 
 def main():
@@ -129,6 +141,19 @@ def main():
                 save_span(docpath,
                         params.getvalue('from'),
                         params.getvalue('to'),
+                        params.getvalue('type'))
+            elif action == 'arc':
+                save_arc(docpath,
+                        params.getvalue('origin'),
+                        params.getvalue('target'),
+                        params.getvalue('type'))
+            elif action == 'unspan':
+                delete_span(docpath,
+                        params.getvalue('id'))
+            elif action == 'unarc':
+                delete_arc(docpath,
+                        params.getvalue('origin'),
+                        params.getvalue('target'),
                         params.getvalue('type'))
             else:
                 document_json(docpath)

@@ -3,12 +3,10 @@ PNG export
 generate cover page
 
 Annotation:
-    reenable
     extract all texts into a new text element
         so we don't select random stuff on chrome
         (with tspans, so safari can select all)
-    draw an arc (and assign type)
-    delete an arc/span
+    draw an arc when dragging to add an arc
     serverside:
         add span (from, to, type)
         add arc (origin, target, type)
