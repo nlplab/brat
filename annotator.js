@@ -166,13 +166,17 @@ var Annotator = function(containerElement, onStart) {
     var chunkIndexTo = $(sel.focusNode.parentNode).attr('data-chunk-id');
     var chunkTo = data.chunks[chunkIndexTo];
     if (chunkFrom != undefined && chunkTo != undefined) {
-      selectedFrom = chunkFrom.from + sel.anchorOffset;
-      selectedTo = chunkTo.from + sel.extentOffset;
+      var selectedFrom = chunkFrom.from + sel.anchorOffset;
+      var selectedTo = chunkTo.from + sel.extentOffset;
       window.getSelection().removeAllRanges();
       if (selectedFrom == selectedTo) return; // simple click (zero-width span)
       if (selectedFrom > selectedTo) {
         var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
       }
+      annotator.ajaxOptions = {
+        from: selectedFrom,
+        to: selectedTo,
+      };
       $('#span_selected').text(data.text.substring(selectedFrom, selectedTo));
       $('#span_form').css('display', 'block');
     }
@@ -187,29 +191,7 @@ var Annotator = function(containerElement, onStart) {
     containerElement.mouseout(mouseOut);
     // TODO not needed for visualisation only
     // containerElement.click(click);
-    // containerElement.mouseup(mouseUp);
-
-    // TODO not general - will break with more than one Annotator on the
-    // page (not that it's a concern, but then we could also remove that
-    // from Annotator code...)
-    var spanForm = $('#span_form').
-      submit(function(evt) {
-        spanForm.css('display', 'none');
-        var type = $('#span_form input:radio:checked').val();
-        if (!type) type = $('#span_free_text').val();
-        if (type) { // (if not cancelled)
-          annotator.postChangesAndReload({
-            action: 'span',
-            from: selectedFrom,
-            to: selectedTo,
-            type: type,
-          });
-        }
-        return false;
-      }).
-      bind('reset', function(evt) {
-        spanForm.css('display', 'none');
-      });
+    containerElement.mouseup(mouseUp);
   }
 
   var Span = function(id, type, from, to, generalType) {
@@ -1006,22 +988,23 @@ $(function() {
       updateState(onRenderComplete);
     };
 
-    annotator.postChangesAndReload = function(changes) {
-      changes.directory = directory;
-      changes.document = doc;
+    annotator.postChangesAndReload = function() {
+      annotator.ajaxOptions.directory = directory;
+      var _doc = annotator.ajaxOptions.document = doc;
       $.ajax({
         type: 'POST',
         url: ajaxBase,
-        data: changes,
+        data: annotator.ajaxOptions,
         error: function(req, textStatus, errorThrown) {
           console.error(textStatus, errorThrown);
         },
         success: function(response) {
           lastHash = null; // force reload
-          renderDocument(changes.document);
+          renderDocument(_doc);
           console.log("Ajax response: ", response); // DEBUG
         }
       });
+      annotator.ajaxOptions = null;
     };
 
     var renderSelected = function(evt, onRenderComplete) {
@@ -1088,6 +1071,24 @@ $(function() {
 
     $('#document_select').
         change(renderSelected);
+
+    var spanFormSubmit = function(evt) {
+      spanForm.css('display', 'none');
+      var type = $('#span_form input:radio:checked').val();
+      if (!type) type = $('#span_free_text').val();
+      if (type) { // (if not cancelled)
+        annotator.ajaxOptions.action = 'span';
+        annotator.ajaxOptions.type = type;
+        annotator.postChangesAndReload();
+      }
+      return false;
+    };
+    var spanForm = $('#span_form').
+      submit(spanFormSubmit).
+      bind('reset', function(evt) {
+        spanForm.css('display', 'none');
+      });
+    spanForm.find('input:radio').not('#span_free_entry').click(spanFormSubmit);
 
     directoryAndDoc = directory + (doc ? '/' + doc : '');
     updateState(doc);
