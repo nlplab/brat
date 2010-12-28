@@ -8,11 +8,7 @@ again, fix the arcs
     why isn't E17->T13 Theme raised above Organic_compound_other?
 
 
-fix SVG export
-    make it work (synchronicity?)
-        see if setting data-document on svgElement,
-            then searching through textual rep works
-    PNG export
+PNG export
 
 export to PNGs
     watch the resolution - try for 1024-width browser

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from cgi import FieldStorage
-from os import listdir, makedirs
+from os import listdir, makedirs, system
 from os.path import isdir
 from re import split, sub
 from simplejson import dumps
@@ -75,7 +75,8 @@ def saveSVG(directory, document, svg):
     dir = '/'.join([basedir, 'svg', directory])
     if not isdir(dir):
         makedirs(dir)
-    file = open(dir + '/' + document + '.svg', "wb")
+    basename = dir + '/' + document
+    file = open(basename + '.svg', "wb")
     file.write('<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
     defs = svg.find('</defs>')
     if defs != -1:
@@ -84,6 +85,7 @@ def saveSVG(directory, document, svg):
         svg = svg[:defs] + css + svg[defs:]
         file.write(svg)
         file.close()
+        system('rsvg %s.svg %s.png' % (basename, basename))
         print "Content-Type: application/json\n"
     else:
         print "Status: 400 Bad Request\n"

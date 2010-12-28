@@ -1,6 +1,6 @@
 html {
   overflow-y: scroll;
-  font-family: Century Gothic, sans-serif;
+  font-family: 'Century Gothic', sans-serif;
   font-size: 12px;
 }
 
@@ -15,7 +15,7 @@ svg {
   svg .span text {
     font-size: 75%;
     text-anchor: middle;
-    font-family: Century Gothic, sans-serif;
+    font-family: 'Century Gothic', sans-serif;
     pointer-events: none;
   }
 
