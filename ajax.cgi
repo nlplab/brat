@@ -85,7 +85,7 @@ def saveSVG(directory, document, svg):
         svg = svg[:defs] + css + svg[defs:]
         file.write(svg)
         file.close()
-        system('rsvg %s.svg %s.png' % (basename, basename))
+        # system('rsvg %s.svg %s.png' % (basename, basename))
         print "Content-Type: application/json\n"
     else:
         print "Status: 400 Bad Request\n"
