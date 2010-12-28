@@ -22,7 +22,6 @@ svg {
   svg .span rect {
     stroke: black;
     stroke-width: 0.75;
-    pointer-events: visibleFill;
   }
 
   svg .span path {
@@ -209,6 +208,13 @@ svg {
 }
 .stroke_Equiv {
   stroke: black; /* TODO */
+}
+
+.drag_stroke {
+  stroke: black;
+}
+.drag_fill {
+  fill: black;
 }
 
 

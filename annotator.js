@@ -83,12 +83,16 @@ var Annotator = function(containerElement, onStart) {
   var canvasWidth;
   var svg;
   var svgElement;
+  var svgPosition;
   var data;
 
   var highlight;
   var highlightArcs;
   var highlightBoxes;
   var arcDragOrigin;
+  var arcDragArc;
+  var arcDragOriginBox;
+  var dragArrowId;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -102,6 +106,7 @@ var Annotator = function(containerElement, onStart) {
   }
 
   var mouseOver = function(evt) {
+    if (arcDragOrigin) return false;
     var target = $(evt.target);
     var id;
     if (id = target.attr('data-span-id')) {
@@ -139,16 +144,6 @@ var Annotator = function(containerElement, onStart) {
     forceRedraw();
   };
 
-  var click = function(evt) {
-    // DEBUG
-    var target = $(evt.target);
-    var id;
-    if (id = target.attr('data-span-id')) {
-      var span = data.spans[id];
-      console.log(span.id, span, span.lineIndex); // DEBUG
-    }
-  };
-
   var dblClick = function(evt) {
     var target = $(evt.target);
     var id;
@@ -182,26 +177,49 @@ var Annotator = function(containerElement, onStart) {
     // is it arc drag start?
     if (id = target.attr('data-span-id')) {
       arcDragOrigin = id;
-      // TODO draw arc
+      arcDragArc = svg.path(svg.createPath(), {
+        markerEnd: 'url(#' + dragArrowId + ')',
+        'class': 'drag_stroke',
+        fill: 'none',
+      });
+      arcDragOriginBox = realBBox(data.spans[arcDragOrigin]);
+      arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
       return false;
     }
   };
 
+  var mouseMove = function(evt) {
+    if (arcDragOrigin) {
+      var mx = evt.pageX - svgPosition.left;
+      var my = evt.pageY - svgPosition.top - 5; // TODO FIXME why -5?!? SVG moves - why?
+      var y = Math.min(arcDragOriginBox.y, my) - 50;
+      var dx = (arcDragOriginBox.center - mx) / 4;
+      var path = svg.createPath().
+        move(arcDragOriginBox.center, arcDragOriginBox.y).
+        curveC(arcDragOriginBox.center - dx, y,
+            mx + dx, y,
+            mx, my);
+      arcDragArc.setAttribute('d', path.path());
+    }
+  }
+
   var mouseUp = function(evt) {
     var target = $(evt.target);
     // is it arc drag end?
-    if (arcDragOrigin && (id = target.attr('data-span-id')) && arcDragOrigin != id) {
-      // TODO erase arc
-      var originSpan = data.spans[arcDragOrigin];
-      var targetSpan = data.spans[id];
-      annotator.ajaxOptions = {
-        action: 'arc',
-        origin: originSpan.id,
-        target: targetSpan.id,
-      };
-      $('#arc_origin').text(data.text.substring(originSpan.from, originSpan.to));
-      $('#arc_target').text(data.text.substring(targetSpan.from, targetSpan.to));
-      $('#arc_form').css('display', 'block');
+    if (arcDragOrigin) {
+      if ((id = target.attr('data-span-id')) && arcDragOrigin != id) {
+        var originSpan = data.spans[arcDragOrigin];
+        var targetSpan = data.spans[id];
+        annotator.ajaxOptions = {
+          action: 'arc',
+          origin: originSpan.id,
+          target: targetSpan.id,
+        };
+        $('#arc_origin').text(data.text.substring(originSpan.from, originSpan.to));
+        $('#arc_target').text(data.text.substring(targetSpan.from, targetSpan.to));
+        $('#arc_form').css('display', 'block');
+      }
+      svg.remove(arcDragArc);
       arcDragOrigin = undefined;
     } else {
       // if not, then is it span selection?
@@ -232,12 +250,12 @@ var Annotator = function(containerElement, onStart) {
   this.drawInitial = function(_svg) {
     svg = _svg;
     svgElement = $(svg._svg);
+    svgPosition = svgElement.offset();
     if (onStart) onStart.call(annotator);
 
     containerElement.mouseover(mouseOver);
     containerElement.mouseout(mouseOut);
-    // TODO not needed for visualisation only
-    // containerElement.click(click);
+    containerElement.mousemove(mouseMove);
     containerElement.dblclick(dblClick);
     containerElement.mouseup(mouseUp);
     containerElement.mousedown(mouseDown);
@@ -527,6 +545,15 @@ var Annotator = function(containerElement, onStart) {
     return box;
   }
 
+  var realBBox = function(span) {
+    var box = span.rect.getBBox();
+    var chunkTranslation = span.chunk.translation;
+    var rowTranslation = span.chunk.row.translation;
+    box.x += chunkTranslation.x + rowTranslation.x;
+    box.y += chunkTranslation.y + rowTranslation.y;
+    return box;
+  }
+
   this.renderData = function(_data) {
     setData(_data);
     svg.clear(true);
@@ -813,6 +840,16 @@ var Annotator = function(containerElement, onStart) {
       // if equal, they're just equal.
       return 0;
     });
+
+    // draw the drag arc marker
+    dragArrowId = 'annotator' + annId + '_drag_arrow';
+    var arrowhead = svg.marker(defs, dragArrowId,
+      5, 2.5, 5, 5, 'auto',
+      {
+        markerUnits: 'strokeWidth',
+        'class': 'drag_fill',
+      });
+    svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
 
     // add the arcs
     $.each(data.arcs, function(arcNo, arc) {
