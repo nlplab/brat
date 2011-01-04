@@ -35,14 +35,24 @@ var Annotator = function(containerElement, onStart) {
 
   var undefined; // prevents evil "undefined = 17" attacks
 
+  var annotationAbbreviations = {
+      "Protein" : [ "Prot", "Pro", "Pr", "P" ],
+      "Entity"  : [ "Ent", "Et", "E" ],
+  };
+
   var annotationAbbreviation = {
-        "Protein" : "Prot",
-        "Entity" : "Ent",
-        "Gene_expression" : "Expr",
-        "Binding" : "Bind",
-        "Transcription" : "Trns",
-        "Localization" : "Locl",
-        "Regulation" : "Reg",
+        "Protein"           : "Prot",
+        "Entity"            : "Ent",
+        "Organism"          : "Org",
+        "Chemical"          : "Chem",
+        "Two-component-system" : "2-comp-sys",
+        "Regulon-operon"    : "Reg/oper",
+
+        "Gene_expression"   : "Expr",
+        "Binding"           : "Bind",
+        "Transcription"     : "Trns",
+        "Localization"      : "Locl",
+        "Regulation"        : "Reg",
         "Positive_regulation" : "+Reg",
         "Negative_regulation" : "-Reg",
 	"Phosphorylation"   : "Phos",
@@ -60,9 +70,11 @@ var Annotator = function(containerElement, onStart) {
         "DNA_methylation"   : "DNA meth",
         "DNA_demethylation" : "-DNA meth",
 	"Catalysis"         : "Catal",
-	"Biological_process": "Biol.proc",
-	"Cellular_physiological_process": "Cell.phys.proc",
-	"Protein_family_or_group": "Prot fam/grp",
+	"Biological_process": "Biol proc",
+	"Cellular_physiological_process": "Cell phys proc",
+	"Protein_molecule": "Prot mol",
+	"Protein_family_or_group": "Prot f/g",
+	"DNA_domain_or_region": "DNA d/r",
         };
 
   var minimalAnnotationAbbreviation = {
@@ -644,11 +656,21 @@ var Annotator = function(containerElement, onStart) {
 	// Two modes of abbreviation applied if needed
 	// and abbreviation defined.
 	var abbrevText = span.type;
-	// Assumes box text is 75% of the width of the body text
-	if((span.to-span.from)/0.75 < abbrevText.length) {
+
+	var abbrevIdx  = 0;
+	var spanLength = span.to-span.from;
+	while(abbrevText.length > spanLength/0.8 &&
+	      annotationAbbreviations[span.type] &&
+	      annotationAbbreviations[span.type][abbrevIdx]) {
+	    abbrevText = annotationAbbreviations[span.type][abbrevIdx];
+	    abbrevIdx += 1;
+	}
+
+	// Assumes box text is 80% of the width of the body text
+	if((span.to-span.from)/0.80 < abbrevText.length) {
 	    abbrevText = annotationAbbreviation[span.type] || abbrevText;
 	}
-	if((span.to-span.from)/0.75 < abbrevText.length) {
+	if((span.to-span.from)/0.80 < abbrevText.length) {
 	    abbrevText = minimalAnnotationAbbreviation[span.type] || abbrevText;
 	}
 

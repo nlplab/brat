@@ -85,8 +85,27 @@ svg {
   fill: #7fd67f;
 }
 
-.span_Protein {
-  fill: #7fa2ff;
+.span_Protein                 { fill: #7fa2ff; }
+.span_Protein_family_or_group { fill: #7fa2ff; }
+.span_Protein_complex         { fill: #7fa2ff; }
+.span_Protein_molecule        { fill: #7fa2ff; }
+.span_RNA_molecule            { fill: #7fa2ff; }
+.span_DNA_molecule            { fill: #7fa2ff; }
+.span_DNA_family_or_group     { fill: #7fa2ff; }
+
+.span_Chemical                { fill: #8fcfff; }
+
+.span_Lipid {
+  fill: #9fc2ff;
+}
+
+.span_Cell_natural            { fill: #9f9fff; }
+.span_Cell_cultured           { fill: #9f9fff; }
+.span_Virus                   { fill: #9f9fff; }
+.span_Organism                { fill: #9f9fff; }
+
+.span_Organic_compound_other {
+  fill: #9fc2ff;
 }
 
 .span_Positive_regulation {
@@ -112,52 +131,69 @@ svg {
   fill: #dddddd;
 }
 
-.span_Expression {
-  fill: #ffccff;
-}
-
 .span_Binding {
   fill: #6fb66f;
 }
 
-.span_Entity {
-  fill: #b4c8ff;
+.span_Process {
+  fill: #7fd67f;
 }
 
-.span_Process {
-  fill: #99ffcc;
-}
+.fill_scatter   { fill: #ff0000; }
+.stroke_scatter { stroke: #ff0000; }
+.fill_coref     { fill: #ff0000; }
+.stroke_coref   { stroke: #ff0000; }
+
+.span_Entity                   { fill: #b4c8ff; }
+.span_DNA_domain_or_region     { fill: #b4c8ff; }
+.span_Protein_domain_or_region { fill: #b4c8ff; }
+.span_Amino_acid_monomer       { fill: #b4c8ff; }
+.span_Polynucleotide           { fill: #b4c8ff; }
 
 .span_Two-component-system {
   fill: #9999ff;
 }
 
-.fill_Cause    { fill:   #ff0000; }
-.stroke_Cause  { stroke: #ff0000; }
-.fill_Cause1   { fill:   #ff0000; }
-.stroke_Cause1 { stroke: #ff0000; }
-.fill_Cause2   { fill:   #ff0000; }
-.stroke_Cause2 { stroke: #ff0000; }
-.fill_Cause3   { fill:   #ff0000; }
-.stroke_Cause3 { stroke: #ff0000; }
+.span_Experimental_method { fill: #ffff00; }
 
-.fill_Theme    { fill:   #000088; }
-.stroke_Theme  { stroke: #000088; }
-.fill_Theme1   { fill:   #000088; }
-.stroke_Theme1 { stroke: #000088; }
-.fill_Theme2   { fill:   #000088; }
-.stroke_Theme2 { stroke: #000088; }
-.fill_Theme3   { fill:   #000088; }
-.stroke_Theme3 { stroke: #000088; }
-.fill_Theme4   { fill:   #000088; }
-.stroke_Theme4 { stroke: #000088; }
+.span_Other        { fill: #ff0000; }
+.span_UNCLASSIFIED { fill: #ff0000; }
 
-.fill_Site     { fill:   #008800; }
-.stroke_Site   { stroke: #008800; }
-.fill_Site1    { fill:   #008800; }
-.stroke_Site1  { stroke: #008800; }
-.fill_Site2    { fill:   #008800; }
-.stroke_Site2  { stroke: #008800; }
+.fill_Theme    { fill:   #000000; }
+.stroke_Theme  { stroke: #000000; }
+.fill_Theme1   { fill:   #000000; }
+.stroke_Theme1 { stroke: #000000; }
+.fill_Theme2   { fill:   #000000; }
+.stroke_Theme2 { stroke: #000000; }
+.fill_Theme3   { fill:   #000000; }
+.stroke_Theme3 { stroke: #000000; }
+.fill_Theme4   { fill:   #000000; }
+.stroke_Theme4 { stroke: #000000; }
+
+.fill_Participant   { fill:   #000000; }
+.stroke_Participant { stroke: #000000; }
+
+.fill_Cause    { fill:   #007700; }
+.stroke_Cause  { stroke: #007700; }
+.fill_Cause1   { fill:   #007700; }
+.stroke_Cause1 { stroke: #007700; }
+.fill_Cause2   { fill:   #007700; }
+.stroke_Cause2 { stroke: #007700; }
+.fill_Cause3   { fill:   #007700; }
+.stroke_Cause3 { stroke: #007700; }
+.fill_Cause4   { fill:   #007700; }
+.stroke_Cause4 { stroke: #007700; }
+
+.fill_Site     { fill:   #0000aa; }
+.stroke_Site   { stroke: #0000aa; }
+.fill_Site1    { fill:   #0000aa; }
+.stroke_Site1  { stroke: #0000aa; }
+.fill_Site2    { fill:   #0000aa; }
+.stroke_Site2  { stroke: #0000aa; }
+.fill_Site3    { fill:   #0000aa; }
+.stroke_Site3  { stroke: #0000aa; }
+.fill_Site4    { fill:   #0000aa; }
+.stroke_Site4  { stroke: #0000aa; }
 
 .fill_CSite {
   /* TODO */
