@@ -328,8 +328,21 @@ var Annotator = function(containerElement, onStart) {
       data.spans[mod[2]][mod[1]] = true;
     });
     $.each(data.equivs, function(equivNo, equiv) {
-      var eventDesc = data.eventDescs[equiv[0]] =
-          new EventDesc(equiv[1], equiv[1], [['Equiv', equiv[2]]], true);
+      var equivSpans = equiv.slice(2);
+      equivSpans.sort(function(a, b) {
+        var aSpan = data.spans[a];
+        var bSpan = data.spans[b];
+        var tmp = aSpan.from + aSpan.to - bSpan.from - bSpan.to;
+        if (tmp) {
+          return tmp < 0 ? -1 : 1;
+        }
+        return 0;
+      });
+      var len = equivSpans.length;
+      for (var i = 1; i < len; i++) {
+        var eventDesc = data.eventDescs[equiv[0] + '*' + i] =
+            new EventDesc(equivSpans[i - 1], equivSpans[i - 1], [[equiv[1], equivSpans[i]]], true);
+      }
     });
 
     // find chunk breaks

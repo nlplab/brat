@@ -56,9 +56,10 @@ def document_json(document):
     except:
         iter = moreiter
 
+    equiv_id = 1
     for line in iter:
         tag = line[0]
-        row = split('\s+', line)
+        row = [elem for elem in split('\s+', line) if elem != '']
         if tag == 'T':
             struct["entities"].append(row[0:4])
         elif tag == 'E':
@@ -72,8 +73,9 @@ def document_json(document):
         elif tag == "M":
             struct["modifications"].append(row[0:3])
         elif tag == "*":
-            event = [row[2] + '*' + row[3], row[2], row[3]]
+            event = ['*%s' % equiv_id] + row[1:]
             struct["equivs"].append(event)
+            equiv_id += 1
     triggers = triggers.keys()
     struct["triggers"] = [entity for entity in struct["entities"] if entity[0] in triggers]
     struct["entities"] = [entity for entity in struct["entities"] if entity[0] not in triggers]
