@@ -10,10 +10,13 @@ from itertools import chain
 basedir = '/data/home/genia/public_html/BioNLP-ST/visual'
 datadir = basedir + '/data'
 
+def my_listdir(directory):
+    return [l for l in listdir(directory) if "hidden_" not in l]
+
 def directory_options(directory):
     print "Content-Type: text/html\n"
     print "<option value=''>-- Select Document --</option>"
-    dirlist = [file[0:-4] for file in listdir(directory)
+    dirlist = [file[0:-4] for file in my_listdir(directory)
             if file.endswith('txt')]
     dirlist.sort()
     for file in dirlist:
@@ -22,7 +25,7 @@ def directory_options(directory):
 def directories():
     print "Content-Type: text/html\n"
     print "<option value=''>-- Select Directory --</option>"
-    dirlist = [dir for dir in listdir(datadir)]
+    dirlist = [dir for dir in my_listdir(datadir)]
     dirlist.sort()
     for dir in dirlist:
         print "<option>%s</option>" % dir

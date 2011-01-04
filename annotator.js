@@ -35,40 +35,47 @@ var Annotator = function(containerElement, onStart) {
 
   var undefined; // prevents evil "undefined = 17" attacks
 
-  var annotationAbbreviation = {
-        "Protein" : "Prot",
-        "Entity" : "Ent",
-        "Gene_expression" : "Expr",
-        "Binding" : "Bind",
-        "Transcription" : "Trns",
-        "Localization" : "Locl",
-        "Regulation" : "Reg",
-        "Positive_regulation" : "+Reg",
-        "Negative_regulation" : "-Reg",
-	"Phosphorylation"   : "Phos",
-	"Dephosphorylation" : "-Phos",
-	"Acetylation"       : "Acet",
-	"Deacetylation"     : "-Acet",
-	"Hydroxylation"     : "Hydr",
-	"Dehydroxylation"   : "-Hydr",
-        "Glycosylation"     : "Glyc",
-        "Deglycosylation"   : "-Glyc",
-        "Methylation"       : "Meth",
-        "Demethylation"     : "-Meth",
-	"Ubiquitination"    : "Ubiq",
-	"Deubiquitination"  : "-Ubiq",
-        "DNA_methylation"   : "DNA meth",
-        "DNA_demethylation" : "-DNA meth",
-	"Catalysis"         : "Catal",
-	"Biological_process": "Biol.proc",
-	"Cellular_physiological_process": "Cell.phys.proc",
-	"Protein_family_or_group": "Prot fam/grp",
-        };
+  var annotationAbbreviations = {
+      "gene-or-gene-product" : [ "GGP" ],
 
-  var minimalAnnotationAbbreviation = {
-        "Protein" : "Pr",
-        "Entity"  : "En",
-  }
+      "Protein" : [ "Pro", "Pr", "P" ],
+      "Entity"  : [ "Ent", "En", "E" ],
+
+      "Multicellular_organism_natural" : [ "M-C Organism", "MCOrg" ],
+      "Organism"             : [ "Org" ],
+      "Chemical"             : [ "Chem" ],
+      "Two-component-system" : [ "2-comp-sys", "2CS" ],
+      "Regulon-operon"       : [ "Reg/op" ],
+      
+      "Gene_expression"      : [ "Expression", "Expr" ],
+      "Binding"              : [ "Bind" ],
+      "Transcription"        : [ "Trns" ],
+      "Localization"         : [ "Locl" ],
+      "Regulation"           : [ "Reg" ],
+      "Positive_regulation"  : [ "+Reg" ],
+      "Negative_regulation"  : [ "-Reg" ],
+      "Phosphorylation"      : [ "Phos" ],
+      "Dephosphorylation"    : [ "-Phos" ],
+      "Acetylation"          : [ "Acet" ],
+      "Deacetylation"        : [ "-Acet" ],
+      "Hydroxylation"        : [ "Hydr" ],
+      "Dehydroxylation"      : [ "-Hydr" ],
+      "Glycosylation"        : [ "Glyc" ],
+      "Deglycosylation"      : [ "-Glyc" ],
+      "Methylation"          : [ "Meth" ],
+      "Demethylation"        : [ "-Meth" ],
+      "Ubiquitination"       : [ "Ubiq" ],
+      "Deubiquitination"     : [ "-Ubiq" ],
+      "DNA_methylation"      : [ "DNA meth" ],
+      "DNA_demethylation"    : [ "-DNA meth" ],
+      "Catalysis"            : [ "Catal" ],
+      "Biological_process"   : [ "Biol proc" ],
+      "Cellular_physiological_process": [ "Cell phys proc" ],
+      "Protein_molecule": [ "Prot mol" ],
+      "Protein_family_or_group": [ "Prot f/g" ],
+      "DNA_domain_or_region": [ "DNA d/r" ],
+
+  };
 
   var arcAbbreviation = {
       "Theme" : "Th",
@@ -443,26 +450,25 @@ var Annotator = function(containerElement, onStart) {
         span.avgDist = span.totalDist / span.numArcs;
       });
       chunk.spans.sort(function(a, b) {
-        // earlier-starting ones go first
-        tmp = a.from - b.from;
-        if (tmp) {
-          return tmp < 0 ? -1 : 1;
-        }
         // longer arc distances go last
         var tmp = a.avgDist - b.avgDist;
         if (tmp) {
           return tmp < 0 ? -1 : 1;
         }
-        // spans with more spans go last
+        // spans with more arcs go last
         var tmp = a.numArcs - b.numArcs;
         if (tmp) {
           return tmp < 0 ? -1 : 1;
         }
         // compare the span widths,
-        // put wider on bottom so they don't mess with arcs
+        // put wider on bottom so they don't mess with arcs, or shorter
+	// on bottom if there are no arcs.
         var ad = a.to - a.from;
         var bd = b.to - b.from;
         tmp = ad - bd;
+	if(a.numArcs == 0 && b.numArcs == 0) {
+	    tmp = -tmp;
+	} 
         if (tmp) {
           return tmp < 0 ? 1 : -1;
         }
@@ -657,12 +663,14 @@ var Annotator = function(containerElement, onStart) {
 	// Two modes of abbreviation applied if needed
 	// and abbreviation defined.
 	var abbrevText = span.type;
-	// Assumes box text is 75% of the width of the body text
-	if((span.to-span.from)/0.75 < abbrevText.length) {
-	    abbrevText = annotationAbbreviation[span.type] || abbrevText;
-	}
-	if((span.to-span.from)/0.75 < abbrevText.length) {
-	    abbrevText = minimalAnnotationAbbreviation[span.type] || abbrevText;
+
+	var abbrevIdx  = 0;
+	var spanLength = span.to-span.from;
+	while(abbrevText.length > spanLength/0.8 &&
+	      annotationAbbreviations[span.type] &&
+	      annotationAbbreviations[span.type][abbrevIdx]) {
+	    abbrevText = annotationAbbreviations[span.type][abbrevIdx];
+	    abbrevIdx += 1;
 	}
 
         var spanText = svg.text(span.group, x, y, abbrevText);
@@ -964,7 +972,7 @@ var Annotator = function(containerElement, onStart) {
         }
 
         var abbrevText = arcAbbreviation[arc.type] || arc.type;
-        if((to-from)/15 > arc.type.length || !abbrevText) {
+        if(((to-from)-(2*arcSlant))/7 > arc.type.length || !abbrevText) {
           // no need to (or cannot) abbreviate
           // TODO cleaner heuristic
           abbrevText = arc.type;
