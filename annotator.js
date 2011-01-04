@@ -383,6 +383,7 @@ var Annotator = function(containerElement, onStart) {
         var target = data.spans[role.targetId];
         if (!target) {
           console.error('Error: "' + role.targetId + '" not found in ' + data.document);
+          throw "BadDocumentError";
         }
         var there = target.chunk.index;
         var dist = Math.abs(here - there);
@@ -1061,12 +1062,18 @@ $(function() {
       if (!_doc) return;
       $.get(ajaxURL + "&document=" + _doc, function(jsonData) {
           drawing = true;
+          var error = false;
           jsonData.document = _doc;
-          annotator.renderData(jsonData);
-          if (onRenderComplete) {
-            onRenderComplete.call();
+          try {
+            annotator.renderData(jsonData);
+          } catch (x) {
+            if (x == "BadDocumentError") error = true;
+            else throw(x);
           }
           drawing = false;
+          if (onRenderComplete) {
+            onRenderComplete.call(annotator, error);
+          }
       });
     };
 
@@ -1105,41 +1112,42 @@ $(function() {
     var renderToDiskAndSelectNext = function() {
       if (!savePassword) return;
 
-      renderSelected(null, function() {
+      renderSelected(null, function(error) {
         var svgMarkup = annotator.getSVG();
         var doc = annotator.getDocumentName();
-        /*
-        if (svgMarkup.indexOf('data-document') == -1) {
-          setTimeout(renderToDiskAndSelectNextInner, 200);
-        }
-        */
 
-        $.ajax({
-          type: 'POST',
-          url: ajaxBase,
-          data: {
-            directory: directory,
-            document: doc,
-            save: savePassword,
-            svg: svgMarkup,
-          },
-          error: function(req, textStatus, errorThrown) {
-            console.error(doc, textStatus, errorThrown);
-            if (savePassword) {
-              savePassword = undefined;
-              alert('Error occured.\nSVG dump aborted.');
-            }
-          },
-          success: function(data) {
-            var select = $('#document_select')[0];
-            select.selectedIndex = select.selectedIndex + 1;
-            if (select.selectedIndex != -1) {
-              setTimeout(renderToDiskAndSelectNext, 0);
-            } else {
-              alert('done');
-            }
-          },
-        });
+        var nextFunction = function(data) {
+          var select = $('#document_select')[0];
+          select.selectedIndex = select.selectedIndex + 1;
+          if (select.selectedIndex != -1) {
+            setTimeout(renderToDiskAndSelectNext, 0);
+          } else {
+            alert('done');
+          }
+        };
+
+        if (error) {
+          nextFunction.call();
+        } else {
+          $.ajax({
+            type: 'POST',
+            url: ajaxBase,
+            data: {
+              directory: directory,
+              document: doc,
+              save: savePassword,
+              svg: svgMarkup,
+            },
+            error: function(req, textStatus, errorThrown) {
+              console.error(doc, textStatus, errorThrown);
+              if (savePassword) {
+                savePassword = undefined;
+                alert('Error occured.\nSVG dump aborted.');
+              }
+            },
+            success: nextFunction,
+          });
+        }
       });
     };
 

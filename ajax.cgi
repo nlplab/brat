@@ -55,6 +55,7 @@ def document_json(document):
             struct["entities"].append(row[0:4])
         elif tag == 'E':
             roles = [split(':', role) for role in row[1:] if role]
+
             triggers[roles[0][1]] = True
             # Ignore if no trigger
             if roles[0][1]:
