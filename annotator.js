@@ -88,7 +88,6 @@ var Annotator = function(containerElement, onStart) {
 
   var highlight;
   var highlightArcs;
-  var highlightBoxes;
   var arcDragOrigin;
   var arcDragArc;
   var arcDragOriginBox;
@@ -111,10 +110,12 @@ var Annotator = function(containerElement, onStart) {
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
+      /* FIXME REMOVED
       highlight = svg.rect(span.chunk.highlightGroup,
         span.curly.from - 1, span.curly.y - 1,
         span.curly.to + 2 - span.curly.from, span.curly.height + 2,
         { 'class': 'span_default span_' + span.type });
+      */ highlight = true;
       highlightArcs = target.closest('svg').find('.arcs').
           find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
           addClass('highlight');
@@ -130,16 +131,12 @@ var Annotator = function(containerElement, onStart) {
 
   var mouseOut = function(evt) {
     if (highlight) {
-      svg.remove(highlight);
+      // FIXME REMOVED: svg.remove(highlight);
       highlight = undefined;
     }
     if (highlightArcs) {
       highlightArcs.removeClass('highlight');
       highlightArcs = undefined;
-    }
-    if (highlightBoxes) {
-      highlightBoxes.removeClass('highlight');
-      highlightBoxes = undefined;
     }
     forceRedraw();
   };
@@ -565,7 +562,12 @@ var Annotator = function(containerElement, onStart) {
         attr('width', canvasWidth).
         append('<!-- document: ' + commentName + ' -->');
     
-    var current = { x: margin.x, y: margin.y };
+    // set up the text element, find out font height
+    var textSpans = svg.createText();
+    var text = svg.text(0, 0, textSpans, {'class': 'text'});
+    var textHeight = text.getBBox().height;
+
+    var current = { x: margin.x, y: margin.y }; // TODO: we don't need some of this?
     var rows = [];
     var spanHeights = [];
     var row = new Row();
@@ -573,16 +575,16 @@ var Annotator = function(containerElement, onStart) {
     row.backgroundIndex = sentenceToggle;
     row.index = 0;
     var rowIndex = 0;
-    var textHeight;
     var reservations;
     var lastBoxChunkIndex = -1;
+
 
     $.each(data.chunks, function(chunkNo, chunk) {
       reservations = new Array();
       chunk.group = svg.group(row.group);
 
       // a group for text highlight below the text
-      chunk.highlightGroup = svg.group(chunk.group);
+      // FIXME REMOVED: chunk.highlightGroup = svg.group(chunk.group);
 
       var chunkText = svg.text(chunk.group, 0, 0, chunk.text, {
         group: 'chunktext',
@@ -732,10 +734,12 @@ var Annotator = function(containerElement, onStart) {
           if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
           if (span.generalType == 'trigger' || !spansType) spansType = span.generalType;
         });
+        /* FIXME REMOVED
         svg.rect(chunk.highlightGroup,
           spansFrom - 1, chunk.spans[0].curly.y - 1,
           spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
           { 'class': 'background_' + spansType });
+        */
       }
 
       // positioning of the chunk
@@ -769,7 +773,7 @@ var Annotator = function(containerElement, onStart) {
           each(function(index, element) {
               chunk.spans[index].rect = element;
           });
-        chunk.highlightGroup = chunk.group.firstElementChild;
+        // FIXME REMOVED: chunk.highlightGroup = chunk.group.firstElementChild;
       }
       if (hasAnnotations) row.hasAnnotations = true;
 
