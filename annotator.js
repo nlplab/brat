@@ -756,12 +756,12 @@ var Annotator = function(containerElement, onStart) {
         $.each(chunk.spans, function(spanNo, span) {
           if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
           if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
-          if (span.generalType == 'trigger' || !spansType) spansType = span.generalType;
+          if (span.generalType == 'trigger' || !spansType) spansType = span.type;
         });
         svg.rect(chunk.highlightGroup,
           spansFrom - 1, chunk.spans[0].curly.y - 1,
           spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
-          { 'class': 'background_' + spansType });
+		 { 'class': 'span_' + spansType, 'style': 'opacity: 0.25' });
       }
 
       // positioning of the chunk

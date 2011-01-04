@@ -4,18 +4,21 @@ html {
   font-size: 12px;
 }
 
-svg {
-  font-size: 14px;
-  width: 100%;
-  height: 1px;
-  border: 1px solid #484;
-  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
-}
+  svg {
+    width: 100%;
+    height: 1px;
+    border: 1px solid #484;
+  }
+
+  text {
+    font-size: 14px;
+    font-family: serif;
+  }
 
   .span text {
     font-size: 75%;
     text-anchor: middle;
-    font-family: 'Century Gothic', sans-serif;
+    font-family: sans-serif;
     pointer-events: none;
   }
 
@@ -119,6 +122,14 @@ svg {
 .span_Negative_regulation {
   fill: #ff9999;
 }
+
+.span_Acetylation       { fill: #7fd67f; }
+.span_Glycosylation     { fill: #7fd67f; }
+.span_Hydroxylation     { fill: #7fd67f; }
+.span_Methylation       { fill: #7fd67f; }
+.span_Phosphorylation   { fill: #7fd67f; }
+.span_Ubiquitination    { fill: #7fd67f; }
+.span_DNA_methylation   { fill: #7fd67f; }
 
 .span_Deacetylation     { fill: #ff9999; }
 .span_Deglycosylation   { fill: #ff9999; }
