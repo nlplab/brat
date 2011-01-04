@@ -19,6 +19,14 @@ def directory_options(directory):
     for file in dirlist:
         print "<option>%s</option>" % file
 
+def directories():
+    print "Content-Type: text/html\n"
+    print "<option value=''>-- Select Directory --</option>"
+    dirlist = [dir for dir in listdir(datadir)]
+    dirlist.sort()
+    for dir in dirlist:
+        print "<option>%s</option>" % dir
+
 def document_json(document):
     print "Content-Type: application/json\n"
     from_offset = 0
@@ -114,7 +122,9 @@ def main():
     directory = params.getvalue('directory')
     document = params.getvalue('document')
 
-    if document is None:
+    if directory is None:
+        input = ''
+    elif document is None:
         input = directory
     else:
         input = directory + document
@@ -129,6 +139,8 @@ def main():
             saveSVG(directory, document, svg)
         else:
             print "Status: 403 Forbidden (password)\n\n"
+    elif directory is None:
+        directories()
     else:
         directory = datadir + '/' + directory
 

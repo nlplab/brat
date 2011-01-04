@@ -1035,7 +1035,6 @@ var Annotator = function(containerElement, onStart) {
 
 $(function() {
   var address = window.location.href;
-  if (!window.location.hash.substr(1)) return;
   var directory = window.location.hash.substr(1).split('/')[0];
   var doc;
   var lastDoc = null;
@@ -1043,18 +1042,29 @@ $(function() {
   var slashmark = address.lastIndexOf('/', qmark);
   var base = address.slice(0, slashmark + 1);
   var ajaxBase = base + 'ajax.cgi';
-  var ajaxURL = ajaxBase + "?directory=" + directory;
+  var ajaxURL;
   var docListReceived = false;
+  var lastHash = null;
 
-  $.get(ajaxURL, function(data) {
-    docListReceived = true;
-    $('#document_select').html(data).val(doc);
+  var getDirectory = function() {
+    ajaxURL = ajaxBase + "?directory=" + directory;
+    $.get(ajaxURL, function(data) {
+      docListReceived = true;
+      var sel = $('#document_select').html(data);
+      if (doc) sel.val(doc);
+      lastHash = null;
+    });
+  };
+
+  $.get(ajaxBase, function(data) {
+    $('#directory_select').html(data).val(directory);
+    if (directory) getDirectory();
   });
+
 
   var annotator = new Annotator('#svg', function() {
     var annotator = this;
 
-    var lastHash = null;
     var directoryAndDoc;
     var drawing = false;
     var savePassword;
@@ -1062,14 +1072,22 @@ $(function() {
       if (drawing || lastHash == window.location.hash) return;
       lastHash = window.location.hash;
       var parts = lastHash.substr(1).split('/');
-      directory = parts[0];
+      if (directory != parts[0]) {
+        directory = parts[0];
+        getDirectory();
+        return;
+      }
       var _doc = doc = parts[1];
       if (_doc == 'save' && (savePassword = parts[2])) return;
       $('#document_select').val(_doc);
 
       $('#document_name').text(directoryAndDoc);
-      if (!_doc) return;
+      if (!_doc || !ajaxURL) return;
       $.get(ajaxURL + "&document=" + _doc, function(jsonData) {
+          if (!jsonData) {
+            console.error("No JSON data");
+            return;
+          }
           drawing = true;
           var error = false;
           jsonData.document = _doc;
@@ -1177,6 +1195,10 @@ $(function() {
 
     $('#document_select').
         change(renderSelected);
+    $('#directory_select').
+        change(function(evt) {
+          document.location.hash = $(evt.target).val();
+        });
 
     var spanFormSubmit = function(evt) {
       spanForm.css('display', 'none');
