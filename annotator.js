@@ -21,14 +21,14 @@ var Annotator = function(containerElement, onStart) {
   // settings
   var margin = { x: 2, y: 1 };
   // fine tuning specifically for box text margins
-  var boxTextMargin = { x: 0, y: 0.0 };
+  var boxTextMargin = { x: 0, y: 0 };
   var space = 5;
   var boxSpacing = 1;
   var curlyHeight = 6;
   var lineSpacing = 5;
   var arcSpacing = 10;
   var arcSlant = 10;
-  var arcStartHeight = 22;
+  var arcStartHeight = 30; //22;
   var arcHorizontalSpacing = 25;
   var dashArray = '3,3';
   var rowSpacing = 5;
@@ -36,21 +36,29 @@ var Annotator = function(containerElement, onStart) {
   var undefined; // prevents evil "undefined = 17" attacks
 
   var annotationAbbreviation = {
-        "Regulation" : "Reg",
-        "Positive_regulation" : "+Reg",
-        "Negative_regulation" : "-Reg",
+        "Protein" : "Prot",
+        "Entity" : "Ent",
         "Gene_expression" : "Expr",
         "Binding" : "Bind",
         "Transcription" : "Trns",
         "Localization" : "Locl",
-        "Protein" : "Prot",
-        "Entity" : "Ent",
+        "Regulation" : "Reg",
+        "Positive_regulation" : "+Reg",
+        "Negative_regulation" : "-Reg",
+	"Phosphorylation"   : "Phos",
+	"Dephosphorylation" : "-Phos",
+	"Acetylation"       : "Acet",
+	"Deacetylation"     : "-Acet",
+	"Hydroxylation"     : "Hydr",
+	"Dehydroxylation"   : "-Hydr",
         "Glycosylation"     : "Glyc",
-        "Deglycosylation"   : "Deglyc",
+        "Deglycosylation"   : "-Glyc",
         "Methylation"       : "Meth",
-        "Demethylation"     : "Demeth",
+        "Demethylation"     : "-Meth",
+	"Ubiquitination"    : "Ubiq",
+	"Deubiquitination"  : "-Ubiq",
         "DNA_methylation"   : "DNA meth",
-        "DNA_demethylation" : "DNA demeth",
+        "DNA_demethylation" : "-DNA meth",
 	"Catalysis"         : "Catal",
 	"Biological_process": "Biol.proc",
 	"Cellular_physiological_process": "Cell.phys.proc",
@@ -628,10 +636,11 @@ var Annotator = function(containerElement, onStart) {
 	// Two modes of abbreviation applied if needed
 	// and abbreviation defined.
 	var abbrevText = span.type;
-	if(span.to-span.from < abbrevText.length) {
+	// Assumes box text is 75% of the width of the body text
+	if((span.to-span.from)/0.75 < abbrevText.length) {
 	    abbrevText = annotationAbbreviation[span.type] || abbrevText;
 	}
-	if(span.to-span.from < abbrevText.length) {
+	if((span.to-span.from)/0.75 < abbrevText.length) {
 	    abbrevText = minimalAnnotationAbbreviation[span.type] || abbrevText;
 	}
 
