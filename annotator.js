@@ -192,6 +192,7 @@ var Annotator = function(containerElement, onStart) {
     var id;
     // is it arc drag start?
     if (id = target.attr('data-span-id')) {
+      svgPosition = svgElement.offset();
       arcDragOrigin = id;
       arcDragArc = svg.path(svg.createPath(), {
         markerEnd: 'url(#' + dragArrowId + ')',
@@ -207,7 +208,7 @@ var Annotator = function(containerElement, onStart) {
   var mouseMove = function(evt) {
     if (arcDragOrigin) {
       var mx = evt.pageX - svgPosition.left;
-      var my = evt.pageY - svgPosition.top - 5; // TODO FIXME why -5?!? SVG moves - why?
+      var my = evt.pageY - svgPosition.top + 5; // TODO FIXME why +5?!?
       var y = Math.min(arcDragOriginBox.y, my) - 50;
       var dx = (arcDragOriginBox.center - mx) / 4;
       var path = svg.createPath().
@@ -266,7 +267,6 @@ var Annotator = function(containerElement, onStart) {
   this.drawInitial = function(_svg) {
     svg = _svg;
     svgElement = $(svg._svg);
-    svgPosition = svgElement.offset();
     if (onStart) onStart.call(annotator);
 
     containerElement.mouseover(mouseOver);
@@ -574,6 +574,7 @@ var Annotator = function(containerElement, onStart) {
   this.renderData = function(_data) {
     setData(_data);
     svg.clear(true);
+    var defs = svg.defs();
     if (!data || data.length == 0) return;
     canvasWidth = this.forceWidth || $(containerElement).width();
     var commentName = data.document.replace('--', '-\\-');
@@ -811,7 +812,6 @@ var Annotator = function(containerElement, onStart) {
     row.arcs = svg.group(row.group, { 'class': 'arcs' });
     rows.push(row);
 
-    var defs = svg.defs();
     var arrows = {};
 
     var len = spanHeights.length;
