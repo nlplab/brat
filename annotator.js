@@ -91,11 +91,16 @@ var Annotator = function(containerElement, onStart) {
   var canvasWidth;
   var svg;
   var svgElement;
+  var svgPosition;
   var data;
 
   var highlight;
   var highlightArcs;
   var highlightBoxes;
+  var arcDragOrigin;
+  var arcDragArc;
+  var arcDragOriginBox;
+  var dragArrowId;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -109,6 +114,7 @@ var Annotator = function(containerElement, onStart) {
   }
 
   var mouseOver = function(evt) {
+    if (arcDragOrigin) return false;
     var target = $(evt.target);
     var id;
     if (id = target.attr('data-span-id')) {
@@ -120,22 +126,13 @@ var Annotator = function(containerElement, onStart) {
       highlightArcs = target.closest('svg').find('.arcs').
           find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
           addClass('highlight');
-      /*
-      // TODO: Find out why incoming and outgoing are structure-shared
-      // >.<
-      var boxes = ['#' + idForSpan(span)];
-      boxes.push('foo');
-      $.each(span.incoming, function(arcNo, arc) {
-        boxes.push('#' + idForSpan(data.spans[arc.origin]));
-      });
-      boxes.push('foo');
-      $.each(span.outgoing, function(arcNo, arc) {
-        boxes.push('#' + idForSpan(data.spans[arc.target]));
-      });
-      highlightBoxes = $(boxes.join(', '))
-        .addClass('highlight');
-      */
       forceRedraw();
+    } else if (id = target.attr('data-arc-role')) {
+      var originSpanId = target.attr('data-arc-origin');
+      var targetSpanId = target.attr('data-arc-target');
+      highlightArcs = target.closest('svg').find('.arcs').
+          find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
+          addClass('highlight');
     }
   };
 
@@ -155,31 +152,128 @@ var Annotator = function(containerElement, onStart) {
     forceRedraw();
   };
 
-  var click = function(evt) {
-    // DEBUG
+  var dblClick = function(evt) {
     var target = $(evt.target);
     var id;
+    // do we delete an arc?
+    if (id = target.attr('data-arc-role')) {
+      window.getSelection().removeAllRanges();
+      var originSpanId = target.attr('data-arc-origin');
+      var targetSpanId = target.attr('data-arc-target');
+      annotator.ajaxOptions = {
+        action: 'unarc',
+        origin: originSpanId,
+        target: targetSpanId,
+        type: id,
+      };
+      annotator.postChangesAndReload();
+      
+    // if not, then do we delete a span?
+    } else if (id = target.attr('data-span-id')) {
+      window.getSelection().removeAllRanges();
+      annotator.ajaxOptions = {
+        action: 'unspan',
+        id: id,
+      };
+      annotator.postChangesAndReload();
+    }
+  };
+
+  var mouseDown = function(evt) {
+    var target = $(evt.target);
+    var id;
+    // is it arc drag start?
     if (id = target.attr('data-span-id')) {
-      var span = data.spans[id];
-      console.log(span.id, span); // DEBUG
+      arcDragOrigin = id;
+      arcDragArc = svg.path(svg.createPath(), {
+        markerEnd: 'url(#' + dragArrowId + ')',
+        'class': 'drag_stroke',
+        fill: 'none',
+      });
+      arcDragOriginBox = realBBox(data.spans[arcDragOrigin]);
+      arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
+      return false;
+    }
+  };
+
+  var mouseMove = function(evt) {
+    if (arcDragOrigin) {
+      var mx = evt.pageX - svgPosition.left;
+      var my = evt.pageY - svgPosition.top - 5; // TODO FIXME why -5?!? SVG moves - why?
+      var y = Math.min(arcDragOriginBox.y, my) - 50;
+      var dx = (arcDragOriginBox.center - mx) / 4;
+      var path = svg.createPath().
+        move(arcDragOriginBox.center, arcDragOriginBox.y).
+        curveC(arcDragOriginBox.center - dx, y,
+            mx + dx, y,
+            mx, my);
+      arcDragArc.setAttribute('d', path.path());
     }
   }
+
+  var mouseUp = function(evt) {
+    var target = $(evt.target);
+    // is it arc drag end?
+    if (arcDragOrigin) {
+      if ((id = target.attr('data-span-id')) && arcDragOrigin != id) {
+        var originSpan = data.spans[arcDragOrigin];
+        var targetSpan = data.spans[id];
+        annotator.ajaxOptions = {
+          action: 'arc',
+          origin: originSpan.id,
+          target: targetSpan.id,
+        };
+        $('#arc_origin').text(data.text.substring(originSpan.from, originSpan.to));
+        $('#arc_target').text(data.text.substring(targetSpan.from, targetSpan.to));
+        $('#arc_form').css('display', 'block');
+      }
+      svg.remove(arcDragArc);
+      arcDragOrigin = undefined;
+    } else {
+      // if not, then is it span selection?
+      var sel = window.getSelection();
+      var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
+      var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
+      if (chunkIndexFrom != undefined && chunkIndexTo != undefined) {
+        var chunkFrom = data.chunks[chunkIndexFrom];
+        var chunkTo = data.chunks[chunkIndexTo];
+        var selectedFrom = chunkFrom.from + sel.anchorOffset;
+        var selectedTo = chunkTo.from + sel.focusOffset;
+        window.getSelection().removeAllRanges();
+        if (selectedFrom == selectedTo) return; // simple click (zero-width span)
+        if (selectedFrom > selectedTo) {
+          var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
+        }
+        annotator.ajaxOptions = {
+          action: 'span',
+          from: selectedFrom,
+          to: selectedTo,
+        };
+        $('#span_selected').text(data.text.substring(selectedFrom, selectedTo));
+        $('#span_form').css('display', 'block');
+      }
+    }
+  };
 
   this.drawInitial = function(_svg) {
     svg = _svg;
     svgElement = $(svg._svg);
+    svgPosition = svgElement.offset();
     if (onStart) onStart.call(annotator);
 
     containerElement.mouseover(mouseOver);
     containerElement.mouseout(mouseOut);
-    containerElement.click(click);
+    containerElement.mousemove(mouseMove);
+    containerElement.dblclick(dblClick);
+    containerElement.mouseup(mouseUp);
+    containerElement.mousedown(mouseDown);
   }
 
   var Span = function(id, type, from, to, generalType) {
     this.id = id;
     this.type = type;
-    this.from = from;
-    this.to = to;
+    this.from = parseInt(from);
+    this.to = parseInt(to);
     this.outgoing = [];
     this.incoming = [];
     this.totalDist = 0;
@@ -297,6 +391,7 @@ var Annotator = function(containerElement, onStart) {
         var target = data.spans[role.targetId];
         if (!target) {
           console.error('Error: "' + role.targetId + '" not found in ' + data.document);
+          throw "BadDocumentError";
         }
         var there = target.chunk.index;
         var dist = Math.abs(here - there);
@@ -318,12 +413,12 @@ var Annotator = function(containerElement, onStart) {
       }); // roles
     }); // eventDescs
 
-    // sort spans in chunks
-    data.spanLine = [];
-    var spanNo = -1;
+    var sortedSpans = [];
+    // sort spans in chunks for drawing purposes
     var lastSpan = null;
     $.each(data.chunks, function(chunkNo, chunk) {
       $.each(chunk.spans, function(spanNo, span) {
+        sortedSpans.push(span);
         span.avgDist = span.totalDist / span.numArcs;
       });
       chunk.spans.sort(function(a, b) {
@@ -355,15 +450,29 @@ var Annotator = function(containerElement, onStart) {
       // number the spans so we can check for heights later
       $.each(chunk.spans, function(i, span) {
         if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
-          spanNo++;
-          data.spanLine[spanNo] = []
           span.drawCurly = true;
         }
-        data.spanLine[spanNo].push(span);
-        span.lineIndex = spanNo;
         lastSpan = span;
       }); // spans
     }); // chunks
+
+    // sort the spans for linear order
+    sortedSpans.sort(function(a, b) {
+      var tmp = a.from + a.to - b.from - b.to;
+      if (tmp) {
+        return tmp < 0 ? -1 : 1;
+      }
+      return 0;
+    });
+    var realSpanNo = -1;
+    var lastSpan;
+    $.each(sortedSpans, function(spanNo, span) {
+      if (!lastSpan || span.from != lastSpan.from || span.to != lastSpan.to) realSpanNo++;
+      span.lineIndex = realSpanNo;
+      if (span.chunk.firstSpanIndex == undefined) span.chunk.firstSpanIndex = realSpanNo;
+      span.chunk.lastSpanIndex = realSpanNo;
+      lastSpan = span;
+    });
   }
 
   var placeReservation = function(span, box, reservations) {
@@ -373,6 +482,19 @@ var Annotator = function(containerElement, onStart) {
       span: span,
       height: box.height + (span.drawCurly ? curlyHeight : 0),
     };
+    // TODO look at this, and remove if ugly
+    // example where it matters: the degenerate case of
+    // http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/SharedTask/goran/visual/annotator.xhtml#miwa-genia-dev/9794389
+    // (again, it would be solved by individual box reservations instead
+    // of row-based)
+    
+    // overlapping curly check: TODO delete or uncomment
+    /*
+    if (span.drawCurly) {
+      if (span.curly.from < newSlot.from) newSlot.from = span.curly.from;
+      if (span.curly.to > newSlot.to) newSlot.to = span.curly.to;
+    }
+    */
     var height = 0;
     if (reservations.length) {
       for (var resNo = 0, resLen = reservations.length; resNo < resLen; resNo++) {
@@ -382,7 +504,9 @@ var Annotator = function(containerElement, onStart) {
         var overlap = false;
         $.each(line, function(slotNo, slot) {
           var slot = line[slotNo];
-          if (slot.from <= newSlot.to && newSlot.from <= slot.to) {
+          // with the curly change above, we can live with sharing
+          // borders
+          if (slot.from < newSlot.to && newSlot.from < slot.to) {
             overlap = true;
             return false;
           }
@@ -391,9 +515,13 @@ var Annotator = function(containerElement, onStart) {
           if (!reservation.curly && span.drawCurly) {
             // TODO: need to push up the boxes drawn so far
             // (rare glitch)
+            // it would be prettier to track individual boxes (and not
+            // rows) but the cases when it matters are rare, and not
+            // worth the bother so far
+            reservation.height += curlyHeight;
           }
           line.push(newSlot);
-          return height;
+          return reservation.height;
         }
       }
       height += newSlot.height + boxSpacing; 
@@ -426,12 +554,24 @@ var Annotator = function(containerElement, onStart) {
     return box;
   }
 
+  var realBBox = function(span) {
+    var box = span.rect.getBBox();
+    var chunkTranslation = span.chunk.translation;
+    var rowTranslation = span.chunk.row.translation;
+    box.x += chunkTranslation.x + rowTranslation.x;
+    box.y += chunkTranslation.y + rowTranslation.y;
+    return box;
+  }
+
   this.renderData = function(_data) {
     setData(_data);
     svg.clear(true);
     if (!data || data.length == 0) return;
-    canvasWidth = $(containerElement).width();
-    $(svg).attr('width', canvasWidth);
+    canvasWidth = this.forceWidth || $(containerElement).width();
+    var commentName = data.document.replace('--', '-\\-');
+    svgElement.
+        attr('width', canvasWidth).
+        append('<!-- document: ' + commentName + ' -->');
     
     var current = { x: margin.x, y: margin.y };
     var rows = [];
@@ -452,12 +592,14 @@ var Annotator = function(containerElement, onStart) {
       // a group for text highlight below the text
       chunk.highlightGroup = svg.group(chunk.group);
 
-      var chunkText = svg.text(chunk.group, 0, 0, chunk.text);
+      var chunkText = svg.text(chunk.group, 0, 0, chunk.text, {
+        group: 'chunktext',
+        'data-chunk-id': chunk.index,
+      });
       if (!textHeight) {
         textHeight = chunkText.getBBox().height;
       }
       var y = 0;
-      var chunkIndexFrom, chunkIndexTo;
       var minArcDist;
       var lastArcBorder = 0;
       var hasLeftArcs, hasRightArcs, hasInternalArcs;
@@ -522,10 +664,6 @@ var Annotator = function(containerElement, onStart) {
           });
         var rectBox = span.rect.getBBox();
 
-        if (chunkIndexFrom == undefined || chunkIndexFrom > span.lineIndex)
-          chunkIndexFrom = span.lineIndex;
-        if (chunkIndexTo == undefined || chunkIndexTo < span.lineIndex)
-          chunkIndexTo = span.lineIndex;
         var yAdjust = placeReservation(span, rectBox, reservations);
         // this is monotonous due to sort:
         span.height = yAdjust + spanBox.height + 3 * margin.y + curlyHeight + arcSpacing;
@@ -594,9 +732,6 @@ var Annotator = function(containerElement, onStart) {
       }); // spans
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
-      var len = chunkIndexTo * 2;
-      for (var i = chunkIndexFrom * 2 + 1; i < len; i++)
-        spanHeights[i] = Math.max(spanHeights[i - 1], spanHeights[i + 1]);
 
       // span background
       if (chunk.spans.length) {
@@ -679,12 +814,20 @@ var Annotator = function(containerElement, onStart) {
     // find out how high the arcs have to go
     $.each(data.arcs, function(arcNo, arc) {
       arc.jumpHeight = 0;
-      var from = data.spans[arc.origin].lineIndex;
-      var to = data.spans[arc.target].lineIndex;
-      if (from > to) {
-        var tmp = from; from = to; to = tmp;
+      var fromSpan = data.spans[arc.origin];
+      var toSpan = data.spans[arc.target];
+      if (fromSpan.lineIndex > toSpan.lineIndex) {
+        var tmp = fromSpan; fromSpan = toSpan; toSpan = tmp;
       }
-      for (var i = from + 1; i < to; i++) {
+      var from, to;
+      if (fromSpan.chunk.index == toSpan.chunk.index) {
+        from = fromSpan.lineIndex;
+        to = toSpan.lineIndex;
+      } else {
+        from = fromSpan.lineIndex + 1;
+        to = toSpan.lineIndex - 1;
+      }
+      for (var i = from; i <= to; i++) {
         if (arc.jumpHeight < spanHeights[i * 2]) arc.jumpHeight = spanHeights[i * 2];
       }
     });
@@ -707,6 +850,16 @@ var Annotator = function(containerElement, onStart) {
       // if equal, they're just equal.
       return 0;
     });
+
+    // draw the drag arc marker
+    dragArrowId = 'annotator' + annId + '_drag_arrow';
+    var arrowhead = svg.marker(defs, dragArrowId,
+      5, 2.5, 5, 5, 'auto',
+      {
+        markerUnits: 'strokeWidth',
+        'class': 'drag_fill',
+      });
+    svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
 
     // add the arcs
     $.each(data.arcs, function(arcNo, arc) {
@@ -742,16 +895,16 @@ var Annotator = function(containerElement, onStart) {
       var leftRow = left.chunk.row.index;
       var rightRow = right.chunk.row.index;
 
-      var fromIndex = left.lineIndex;
-      var toIndex = right.lineIndex;
-
       // find the next height
       var height = 0;
-      var fromIndex2 = fromIndex * 2;
-      var toIndex2 = toIndex * 2;
-      if (left.chunk.index != right.chunk.index) {
-        fromIndex2++;
-        toIndex2--;
+
+      var fromIndex2, toIndex2;
+      if (left.chunk.index == right.chunk.index) {
+        fromIndex2 = left.lineIndex * 2;
+        toIndex2 = right.lineIndex * 2;
+      } else {
+        fromIndex2 = left.lineIndex * 2 + 1;
+        toIndex2 = right.lineIndex * 2 - 1;
       }
       for (var i = fromIndex2; i <= toIndex2; i++) {
         if (spanHeights[i] > height) height = spanHeights[i];
@@ -797,6 +950,9 @@ var Annotator = function(containerElement, onStart) {
         }
         var text = svg.text(arcGroup, (from + to) / 2, -height, abbrevText, {
             'class': 'fill_' + arc.type,
+            'data-arc-role': arc.type,
+            'data-arc-origin': arc.origin,
+            'data-arc-target': arc.target,
         });
         var textBox = text.getBBox();
         var textStart = textBox.x - margin.x;
@@ -859,6 +1015,10 @@ var Annotator = function(containerElement, onStart) {
     return containerElement.html();
   };
 
+  this.getDocumentName = function() {
+    return data.document;
+  };
+
   containerElement.svg({
       onLoad: this.drawInitial,
       settings: {
@@ -898,7 +1058,7 @@ $(function() {
     var directoryAndDoc;
     var drawing = false;
     var savePassword;
-    var updateState = function() {
+    var updateState = function(onRenderComplete) {
       if (drawing || lastHash == window.location.hash) return;
       lastHash = window.location.hash;
       var parts = lastHash.substr(1).split('/');
@@ -911,63 +1071,99 @@ $(function() {
       if (!_doc) return;
       $.get(ajaxURL + "&document=" + _doc, function(jsonData) {
           drawing = true;
+          var error = false;
           jsonData.document = _doc;
-          annotator.renderData(jsonData);
+          try {
+            annotator.renderData(jsonData);
+          } catch (x) {
+            if (x == "BadDocumentError") error = true;
+            else throw(x);
+          }
           drawing = false;
+          if (onRenderComplete) {
+            onRenderComplete.call(annotator, error);
+          }
       });
     };
 
-    var renderDocument = function(_doc) {
+    var renderDocument = function(_doc, onRenderComplete) {
       doc = _doc;
       directoryAndDoc = directory + (doc ? '/' + doc : '');
       window.location.hash = '#' + directoryAndDoc;
-      updateState();
+      updateState(onRenderComplete);
     };
 
-    var renderSelected = function(evt) {
+    annotator.postChangesAndReload = function() {
+      annotator.ajaxOptions.directory = directory;
+      var _doc = annotator.ajaxOptions.document = doc;
+      $.ajax({
+        type: 'POST',
+        url: ajaxBase,
+        data: annotator.ajaxOptions,
+        error: function(req, textStatus, errorThrown) {
+          console.error(textStatus, errorThrown);
+        },
+        success: function(response) {
+          lastHash = null; // force reload
+          renderDocument(_doc);
+          console.log("Ajax response: ", response); // DEBUG
+        }
+      });
+      annotator.ajaxOptions = null;
+    };
+
+    var renderSelected = function(evt, onRenderComplete) {
       doc = $('#document_select').val();
-      renderDocument(doc);
+      renderDocument(doc, onRenderComplete);
       return false;
     };
 
     var renderToDiskAndSelectNext = function() {
-      var _doc = doc;
       if (!savePassword) return;
-      renderSelected();
-      // see if converting to string helps?
-      var svgMarkup = '' + annotator.getSVG();
-      $.ajax({
-        type: 'POST',
-        url: ajaxBase,
-        data: {
-          directory: directory,
-          document: _doc,
-          save: savePassword,
-          svg: svgMarkup,
-        },
-        error: function(req, textStatus, errorThrown) {
-          console.error(_doc, textStatus, errorThrown);
-          if (savePassword) {
-            savePassword = undefined;
-            alert('Error occured.\nSVG dump aborted.');
+
+      renderSelected(null, function(error) {
+        var svgMarkup = annotator.getSVG();
+        var doc = annotator.getDocumentName();
+
+        var nextFunction = function(data) {
+          var select = $('#document_select')[0];
+          select.selectedIndex = select.selectedIndex + 1;
+          if (select.selectedIndex != -1) {
+            setTimeout(renderToDiskAndSelectNext, 0);
+          } else {
+            alert('done');
           }
-        },
-        success: function(data) {
-            // silently ignore
+        };
+
+        if (error) {
+          nextFunction.call();
+        } else {
+          $.ajax({
+            type: 'POST',
+            url: ajaxBase,
+            data: {
+              directory: directory,
+              document: doc,
+              save: savePassword,
+              svg: svgMarkup,
+            },
+            error: function(req, textStatus, errorThrown) {
+              console.error(doc, textStatus, errorThrown);
+              if (savePassword) {
+                savePassword = undefined;
+                alert('Error occured.\nSVG dump aborted.');
+              }
+            },
+            success: nextFunction,
+          });
         }
       });
-      var select = $('#document_select')[0];
-      select.selectedIndex = select.selectedIndex + 1;
-      if (select.selectedIndex != -1) {
-        setTimeout(renderToDiskAndSelectNext, 0);
-      } else {
-        console.log('done');
-      }
     };
 
     var renderAllToDisk = function() {
       if (docListReceived) {
         $('#document_select')[0].selectedIndex = 1;
+        annotator.forceWidth = 960; // for display in 1024-width browsers
         renderToDiskAndSelectNext();
       } else {
         setTimeout(renderAllToDisk, 100);
@@ -981,6 +1177,40 @@ $(function() {
 
     $('#document_select').
         change(renderSelected);
+
+    var spanFormSubmit = function(evt) {
+      spanForm.css('display', 'none');
+      var type = $('#span_form input:radio:checked').val();
+      if (!type) type = $('#span_free_text').val();
+      if (type) { // (if not cancelled)
+        annotator.ajaxOptions.type = type;
+        annotator.postChangesAndReload();
+      }
+      return false;
+    };
+    var spanForm = $('#span_form').
+      submit(spanFormSubmit).
+      bind('reset', function(evt) {
+        spanForm.css('display', 'none');
+      });
+    spanForm.find('input:radio').not('#span_free_entry').click(spanFormSubmit);
+
+    var arcFormSubmit = function(evt) {
+      arcForm.css('display', 'none');
+      var type = $('#arc_form input:radio:checked').val();
+      if (!type) type = $('#arc_free_text').val();
+      if (type) { // (if not cancelled)
+        annotator.ajaxOptions.type = type;
+        annotator.postChangesAndReload();
+      }
+      return false;
+    };
+    var arcForm = $('#arc_form').
+      submit(arcFormSubmit).
+      bind('reset', function(evt) {
+        arcForm.css('display', 'none');
+      });
+    arcForm.find('input:radio').not('#arc_free_entry').click(arcFormSubmit);
 
     directoryAndDoc = directory + (doc ? '/' + doc : '');
     updateState(doc);

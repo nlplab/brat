@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Test</title>
+    <script type="text/javascript" src="jquery-1.4.3.min.js"></script>
+    <script type="text/javascript" src="jquery.svg.min.js"></script>
+    <script type="text/javascript" src="jquery.svgdom.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="annotator.css"/>
+    <script type="text/javascript" src="annotator.js"></script>
+  </head>
+  <body>
+    <form id="document_form">
+      <div id="document_name"/>
+      <select id="document_select" disabled="disabled"/>
+      <input type="submit" value="Render" disabled="disabled"/>
+    </form>
+    <div id="svg"></div>
+    <form id="span_form" class="shadow">
+      <fieldset id="span_selected_fset">
+        <legend>Selected Text</legend>
+        <div id="span_selected"/>
+      </fieldset>
+
+      <fieldset id="span_entity_fset">
+        <legend>Entities</legend>
+        <input name="span_type" id="span_protein" type="radio" value="Protein"/>
+        <label for="span_protein">Protein</label>
+
+        <input name="span_type" id="span_entity" type="radio" value="Entity"/>
+        <label for="span_entity">Entity</label>
+      </fieldset>
+        
+      <fieldset id="span_trigger_fset">
+        <legend>Triggers</legend>
+        <input name="span_type" id="span_regulation" type="radio" value="Regulation"/>
+        <label for="span_regulation">Regulation</label>
+      </fieldset>
+
+      <fieldset id="span_form_buttons">
+        <legend>Submit</legend>
+        <div id="span_free_div">
+          <input name="span_type" id="span_free_entry" type="radio" value=""/>
+          <label for="span_free_entry">
+            <input id="span_free_text"/>
+          </label>
+        </div>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
+    </form>
+    <form id="arc_form" class="shadow">
+      <fieldset id="arc_origin_fset">
+        <legend>Relation</legend>
+        <div id="arc_origin"/>
+      </fieldset>
+
+      <fieldset id="arc_target_fset">
+        <legend>Argument</legend>
+        <div id="arc_target"/>
+      </fieldset>
+
+      <fieldset id="arc_entity_fset">
+        <legend>Role</legend>
+        <input name="arc_type" id="arc_theme" type="radio" value="Theme"/>
+        <label for="arc_theme">Theme</label>
+
+        <input name="arc_type" id="arc_cause" type="radio" value="Cause"/>
+        <label for="arc_cause">Cause</label>
+      </fieldset>
+        
+      <fieldset id="arc_form_buttons">
+        <legend>Submit</legend>
+        <div id="arc_free_div">
+          <input name="arc_type" id="arc_free_entry" type="radio" value=""/>
+          <label for="arc_free_entry">
+            <input id="arc_free_text"/>
+          </label>
+        </div>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
+    </form>
+  </body>
+</html>
