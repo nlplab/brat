@@ -72,8 +72,16 @@ var Annotator = function(containerElement, onStart) {
 
   var arcAbbreviation = {
       "Theme" : "Th",
+      "Theme1": "Th1",
+      "Theme2": "Th2",
+      "Theme3": "Th3",
+      "Theme4": "Th4",
       "Cause" : "Ca",
       "Site"  : "Si",
+      "Site1" : "Si1",
+      "Site2" : "Si2",
+      "Site3" : "Si3",
+      "Site4" : "Si4",
       "Equiv" : "Eq",
       "Contextgene" : "CGn",
       "Sidechain" : "SCh",
