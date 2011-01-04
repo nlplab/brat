@@ -67,7 +67,7 @@ var Annotator = function(containerElement, onStart) {
       "Ubiquitination"       : [ "Ubiq" ],
       "Deubiquitination"     : [ "-Ubiq" ],
       "DNA_methylation"      : [ "DNA meth" ],
-      "DNA_demethylation"    : [ "-DNA meth" ],
+      "DNA_demethylation"    : [ "DNA -meth" ],
       "Catalysis"            : [ "Catal" ],
       "Biological_process"   : [ "Biol proc" ],
       "Cellular_physiological_process": [ "Cell phys proc" ],
@@ -774,7 +774,7 @@ var Annotator = function(containerElement, onStart) {
         svg.rect(chunk.highlightGroup,
           spansFrom - 1, chunk.spans[0].curly.y - 1,
           spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
-		 { 'class': 'span_' + spansType, 'style': 'opacity: 0.25' });
+		 { 'class': 'span_default span_' + spansType, 'style': 'opacity: 0.25' });
       }
 
       // positioning of the chunk

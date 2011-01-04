@@ -85,7 +85,7 @@ html {
 }
 
 .span_default {
-  fill: #7fd67f;
+  fill: #7fe67f;
 }
 
 .span_gene-or-gene-product    { fill: #7fa2ff; }
@@ -103,58 +103,32 @@ html {
   fill: #9fc2ff;
 }
 
-.span_Cell_natural            { fill: #9f9fff; }
-.span_Cell_cultured           { fill: #9f9fff; }
-.span_Virus                   { fill: #9f9fff; }
-.span_Organism                { fill: #9f9fff; }
+.span_Cell_natural            { fill: #cf9fff; }
+.span_Cell_cultured           { fill: #cf9fff; }
+.span_Virus                   { fill: #cf9fff; }
+.span_Organism                { fill: #cf9fff; }
 
-.span_Organic_compound_other {
-  fill: #9fc2ff;
-}
+.span_Organic_compound_other  { fill: #9fc2ff; }
 
-.span_Positive_regulation {
-  fill: #ccffcc;
-}
-.span_Catalysis {
-  fill: #ccffcc;
-}
+.span_Positive_regulation     { fill: #e0ff00; }
+.span_Catalysis               { fill: #e0ff00; }
+.span_Regulation              { fill: #ffff00; }
+.span_Negative_regulation     { fill: #ffe000; }
 
-.span_Negative_regulation {
-  fill: #ff9999;
-}
+.span_Deacetylation     { fill: #18c59a; }
+.span_Deglycosylation   { fill: #18c59a; }
+.span_Dehydroxylation   { fill: #18c59a; }
+.span_Demethylation     { fill: #18c59a; }
+.span_Dephosphorylation { fill: #18c59a; }
+.span_Deubiquitination  { fill: #18c59a; }
+.span_DNA_demethylation { fill: #18c59a; }
 
-.span_Acetylation       { fill: #7fd67f; }
-.span_Glycosylation     { fill: #7fd67f; }
-.span_Hydroxylation     { fill: #7fd67f; }
-.span_Methylation       { fill: #7fd67f; }
-.span_Phosphorylation   { fill: #7fd67f; }
-.span_Ubiquitination    { fill: #7fd67f; }
-.span_DNA_methylation   { fill: #7fd67f; }
+.span_Process           { fill: #9fe67f; }
 
-.span_Deacetylation     { fill: #ff9999; }
-.span_Deglycosylation   { fill: #ff9999; }
-.span_Dehydroxylation   { fill: #ff9999; }
-.span_Demethylation     { fill: #ff9999; }
-.span_Dephosphorylation { fill: #ff9999; }
-.span_Deubiquitination  { fill: #ff9999; }
-.span_DNA_demethylation { fill: #ff9999; }
-
-.span_Regulation {
-  fill: #dddddd;
-}
-
-.span_Binding {
-  fill: #6fb66f;
-}
-
-.span_Process {
-  fill: #7fd67f;
-}
-
-.fill_scatter   { fill: #ff0000; }
-.stroke_scatter { stroke: #ff0000; }
-.fill_coref     { fill: #ff0000; }
-.stroke_coref   { stroke: #ff0000; }
+.fill_scatter           { fill: #ff0000; }
+.stroke_scatter         { stroke: #ff0000; }
+.fill_coref             { fill: #ff0000; }
+.stroke_coref           { stroke: #ff0000; }
 
 .span_Entity                   { fill: #b4c8ff; }
 .span_DNA_domain_or_region     { fill: #b4c8ff; }
@@ -162,9 +136,8 @@ html {
 .span_Amino_acid_monomer       { fill: #b4c8ff; }
 .span_Polynucleotide           { fill: #b4c8ff; }
 
-.span_Two-component-system {
-  fill: #9999ff;
-}
+.span_Two-component-system     { fill: #9999ff; }
+.span_Regulon-operon           { fill: #9999ff; }
 
 .span_Experimental_method { fill: #ffff00; }
 
