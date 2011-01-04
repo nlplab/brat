@@ -752,18 +752,11 @@ var Annotator = function(containerElement, onStart) {
       var measureText = svg.text(textGroup, 0, 0, chunk.text);
       var textBox = measureText.getBBox();
       svg.remove(measureText);
-      var widthDiff = textBox.width - chunkBox.width;
-      if (widthDiff > 0) {
-        // text is larger
-        chunkBox.x -= widthDiff / 2;
-        chunkBox.width = textBox.width;
-        widthDiff = 0;
-      } else {
-        // boxes are larger
-        textBox.x += widthDiff / 2;
-        console.log(chunk.text);
-      }
       chunkBox.height += textBox.height;
+      var boxX = -Math.min(chunkBox.x, textBox.x);
+      var boxWidth =
+          Math.max(textBox.x + textBox.width, chunkBox.x + chunkBox.width) -
+          Math.min(textBox.x, chunkBox.x)
 
       if (hasLeftArcs) {
         var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
@@ -773,7 +766,7 @@ var Annotator = function(containerElement, onStart) {
       var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
       if (chunk.lineBreak ||
-          current.x + chunkBox.width + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
+          current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
         row.arcs = svg.group(row.group, { 'class': 'arcs' });
         // new row
         rows.push(row);
@@ -809,10 +802,11 @@ var Annotator = function(containerElement, onStart) {
 
       row.chunks.push(chunk);
       chunk.row = row;
-      translate(chunk, current.x - chunkBox.x, 0);
-      chunk.textX = current.x - textBox.x;
 
-      current.x += chunkBox.width + space;
+      translate(chunk, foo = current.x + boxX, 0);
+      chunk.textX = current.x - textBox.x + boxX;
+
+      current.x += space + boxWidth;
     }); // chunks
 
     // finish the last row
