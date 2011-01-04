@@ -85,6 +85,7 @@ svg {
   fill: #7fd67f;
 }
 
+.span_gene-or-gene-product    { fill: #7fa2ff; }
 .span_Protein                 { fill: #7fa2ff; }
 .span_Protein_family_or_group { fill: #7fa2ff; }
 .span_Protein_complex         { fill: #7fa2ff; }
@@ -159,6 +160,8 @@ svg {
 .span_Other        { fill: #ff0000; }
 .span_UNCLASSIFIED { fill: #ff0000; }
 
+.fill_theme    { fill:   #000000; }
+.stroke_theme  { stroke: #000000; }
 .fill_Theme    { fill:   #000000; }
 .stroke_Theme  { stroke: #000000; }
 .fill_Theme1   { fill:   #000000; }
@@ -173,6 +176,8 @@ svg {
 .fill_Participant   { fill:   #000000; }
 .stroke_Participant { stroke: #000000; }
 
+.fill_cause    { fill:   #007700; }
+.stroke_cause  { stroke: #007700; }
 .fill_Cause    { fill:   #007700; }
 .stroke_Cause  { stroke: #007700; }
 .fill_Cause1   { fill:   #007700; }
@@ -195,39 +200,17 @@ svg {
 .fill_Site4    { fill:   #0000aa; }
 .stroke_Site4  { stroke: #0000aa; }
 
-.fill_CSite {
-  /* TODO */
-  fill: purple;
-  stroke: purple;
-}
-.stroke_CSite {
-  /* TODO */
-  stroke: purple;
-  stroke-width: 2px;
-}
-.fill_ToLoc {
-  /* TODO */
-  fill: purple;
-}
-.stroke_ToLoc {
-  /* TODO */
-  stroke: purple;
-}
-.fill_AtLoc {
-  /* TODO */
-  fill: purple;
-}
-.stroke_AtLoc {
-  /* TODO */
-  stroke: purple;
-}
+.fill_CSite    { fill:   #0000aa; }
+.stroke_CSite  { stroke: #0000aa; }
 
-.fill_Contextgene {
-  fill: #303030;
-}
-.stroke_Contextgene {
-  stroke: #303030;
-}
+.fill_ToLoc    { fill:   #0000cc; }
+.stroke_ToLoc  { stroke: #0000cc; }
+
+.fill_AtLoc    { fill:   #0000cc; }
+.stroke_AtLoc  { stroke: #0000cc; }
+
+.fill_Contextgene   { fill: #303030; }
+.stroke_Contextgene { stroke: #303030; }
 
 .fill_Sidechain {
   fill: #303030;

@@ -36,51 +36,46 @@ var Annotator = function(containerElement, onStart) {
   var undefined; // prevents evil "undefined = 17" attacks
 
   var annotationAbbreviations = {
-      "Protein" : [ "Prot", "Pro", "Pr", "P" ],
-      "Entity"  : [ "Ent", "Et", "E" ],
+      "gene-or-gene-product" : [ "GGP" ],
+
+      "Protein" : [ "Pro", "Pr", "P" ],
+      "Entity"  : [ "Ent", "En", "E" ],
+
+      "Multicellular_organism_natural" : [ "M-C Organism", "MCOrg" ],
+      "Organism"             : [ "Org" ],
+      "Chemical"             : [ "Chem" ],
+      "Two-component-system" : [ "2-comp-sys", "2CS" ],
+      "Regulon-operon"       : [ "Reg/op" ],
+      
+      "Gene_expression"      : [ "Expression", "Expr" ],
+      "Binding"              : [ "Bind" ],
+      "Transcription"        : [ "Trns" ],
+      "Localization"         : [ "Locl" ],
+      "Regulation"           : [ "Reg" ],
+      "Positive_regulation"  : [ "+Reg" ],
+      "Negative_regulation"  : [ "-Reg" ],
+      "Phosphorylation"      : [ "Phos" ],
+      "Dephosphorylation"    : [ "-Phos" ],
+      "Acetylation"          : [ "Acet" ],
+      "Deacetylation"        : [ "-Acet" ],
+      "Hydroxylation"        : [ "Hydr" ],
+      "Dehydroxylation"      : [ "-Hydr" ],
+      "Glycosylation"        : [ "Glyc" ],
+      "Deglycosylation"      : [ "-Glyc" ],
+      "Methylation"          : [ "Meth" ],
+      "Demethylation"        : [ "-Meth" ],
+      "Ubiquitination"       : [ "Ubiq" ],
+      "Deubiquitination"     : [ "-Ubiq" ],
+      "DNA_methylation"      : [ "DNA meth" ],
+      "DNA_demethylation"    : [ "-DNA meth" ],
+      "Catalysis"            : [ "Catal" ],
+      "Biological_process"   : [ "Biol proc" ],
+      "Cellular_physiological_process": [ "Cell phys proc" ],
+      "Protein_molecule": [ "Prot mol" ],
+      "Protein_family_or_group": [ "Prot f/g" ],
+      "DNA_domain_or_region": [ "DNA d/r" ],
+
   };
-
-  var annotationAbbreviation = {
-        "Protein"           : "Prot",
-        "Entity"            : "Ent",
-        "Organism"          : "Org",
-        "Chemical"          : "Chem",
-        "Two-component-system" : "2-comp-sys",
-        "Regulon-operon"    : "Reg/oper",
-
-        "Gene_expression"   : "Expr",
-        "Binding"           : "Bind",
-        "Transcription"     : "Trns",
-        "Localization"      : "Locl",
-        "Regulation"        : "Reg",
-        "Positive_regulation" : "+Reg",
-        "Negative_regulation" : "-Reg",
-	"Phosphorylation"   : "Phos",
-	"Dephosphorylation" : "-Phos",
-	"Acetylation"       : "Acet",
-	"Deacetylation"     : "-Acet",
-	"Hydroxylation"     : "Hydr",
-	"Dehydroxylation"   : "-Hydr",
-        "Glycosylation"     : "Glyc",
-        "Deglycosylation"   : "-Glyc",
-        "Methylation"       : "Meth",
-        "Demethylation"     : "-Meth",
-	"Ubiquitination"    : "Ubiq",
-	"Deubiquitination"  : "-Ubiq",
-        "DNA_methylation"   : "DNA meth",
-        "DNA_demethylation" : "-DNA meth",
-	"Catalysis"         : "Catal",
-	"Biological_process": "Biol proc",
-	"Cellular_physiological_process": "Cell phys proc",
-	"Protein_molecule": "Prot mol",
-	"Protein_family_or_group": "Prot f/g",
-	"DNA_domain_or_region": "DNA d/r",
-        };
-
-  var minimalAnnotationAbbreviation = {
-        "Protein" : "Pr",
-        "Entity"  : "En",
-  }
 
   var arcAbbreviation = {
       "Theme" : "Th",
@@ -341,7 +336,7 @@ var Annotator = function(containerElement, onStart) {
     });
     $.each(data.equivs, function(equivNo, equiv) {
       var eventDesc = data.eventDescs[equiv[0]] =
-          new EventDesc(equiv[1], equiv[1], [['Equiv', equiv[2]]], true);
+          new EventDesc(equiv[1], equiv[1], [[equiv[3], equiv[2]]], true);
     });
 
     // find chunk breaks
@@ -442,11 +437,6 @@ var Annotator = function(containerElement, onStart) {
         span.avgDist = span.totalDist / span.numArcs;
       });
       chunk.spans.sort(function(a, b) {
-        // earlier-starting ones go first
-        tmp = a.from - b.from;
-        if (tmp) {
-          return tmp < 0 ? -1 : 1;
-        }
         // longer arc distances go last
         var tmp = a.avgDist - b.avgDist;
         if (tmp) {
@@ -668,14 +658,6 @@ var Annotator = function(containerElement, onStart) {
 	      annotationAbbreviations[span.type][abbrevIdx]) {
 	    abbrevText = annotationAbbreviations[span.type][abbrevIdx];
 	    abbrevIdx += 1;
-	}
-
-	// Assumes box text is 80% of the width of the body text
-	if((span.to-span.from)/0.80 < abbrevText.length) {
-	    abbrevText = annotationAbbreviation[span.type] || abbrevText;
-	}
-	if((span.to-span.from)/0.80 < abbrevText.length) {
-	    abbrevText = minimalAnnotationAbbreviation[span.type] || abbrevText;
 	}
 
         var spanText = svg.text(span.group, x, y, abbrevText);
@@ -977,7 +959,7 @@ var Annotator = function(containerElement, onStart) {
         }
 
         var abbrevText = arcAbbreviation[arc.type] || arc.type;
-        if((to-from)/15 > arc.type.length || !abbrevText) {
+        if(((to-from)-(2*arcSlant))/7 > arc.type.length || !abbrevText) {
           // no need to (or cannot) abbreviate
           // TODO cleaner heuristic
           abbrevText = arc.type;

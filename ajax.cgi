@@ -72,7 +72,7 @@ def document_json(document):
         elif tag == "M":
             struct["modifications"].append(row[0:3])
         elif tag == "*":
-            event = [row[2] + '*' + row[3], row[2], row[3]]
+            event = [row[2] + '*' + row[3], row[2], row[3], row[1]]
             struct["equivs"].append(event)
     triggers = triggers.keys()
     struct["triggers"] = [entity for entity in struct["entities"] if entity[0] in triggers]
