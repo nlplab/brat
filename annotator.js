@@ -100,8 +100,8 @@ var Annotator = function(containerElement, onStart) {
     setTimeout(function() { svgElement.css('margin-bottom', 0); }, 0);
   }
 
-  var idForSpan = function(span) {
-    return 'annotator' + annId + '_span_' + span.id;
+  var makeId = function(name) {
+    return 'annotator' + annId + '_' + name;
   }
 
   var mouseOver = function(evt) {
@@ -563,8 +563,17 @@ var Annotator = function(containerElement, onStart) {
         append('<!-- document: ' + commentName + ' -->');
     
     // set up the text element, find out font height
+    var backgroundGroup = svg.group({ 'class': 'background' });
+    var highlightGroup = svg.group({ 'class': 'highlight' });
+    var textGroup = svg.group({ 'class': 'text' });
     var textSpans = svg.createText();
-    var text = svg.text(0, 0, textSpans, {'class': 'text'});
+    $.each(data.chunks, function(chunkNo, chunk) {
+      if (chunkNo != 0) textSpans.string(' ');
+      textSpans.span(chunk.text, {
+          id: makeId('chunk' + chunk.index),
+      });
+    });
+    var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
     var textHeight = text.getBBox().height;
 
     var current = { x: margin.x, y: margin.y }; // TODO: we don't need some of this?
@@ -586,13 +595,6 @@ var Annotator = function(containerElement, onStart) {
       // a group for text highlight below the text
       // FIXME REMOVED: chunk.highlightGroup = svg.group(chunk.group);
 
-      var chunkText = svg.text(chunk.group, 0, 0, chunk.text, {
-        group: 'chunktext',
-        'data-chunk-id': chunk.index,
-      });
-      if (!textHeight) {
-        textHeight = chunkText.getBBox().height;
-      }
       var y = 0;
       var minArcDist;
       var lastArcBorder = 0;
@@ -603,16 +605,16 @@ var Annotator = function(containerElement, onStart) {
         span.chunk = chunk;
         span.group = svg.group(chunk.group, {
           'class': 'span',
-          id: idForSpan(span),
+          id: makeId('span_' + span.id),
         });
 
         // measure the text span
-        var measureText = svg.text(chunk.group, 0, 0,
+        var measureText = svg.text(textGroup, 0, 0,
           chunk.text.substr(0, span.from - chunk.from));
         var xFrom = measureText.getBBox().width;
         if (xFrom < 0) xFrom = 0;
         svg.remove(measureText);
-        measureText = svg.text(chunk.group, 0, 0,
+        measureText = svg.text(textGroup, 0, 0,
           chunk.text.substr(0, span.to - chunk.from));
         var measureBox = measureText.getBBox();
         if (!y) y = -textHeight - curlyHeight;
@@ -629,10 +631,10 @@ var Annotator = function(containerElement, onStart) {
 	// Two modes of abbreviation applied if needed
 	// and abbreviation defined.
 	var abbrevText = span.type;
-	if(span.to-span.from < abbrevText.length) {
+	if (span.to - span.from < abbrevText.length) {
 	    abbrevText = annotationAbbreviation[span.type] || abbrevText;
 	}
-	if(span.to-span.from < abbrevText.length) {
+	if (span.to - span.from < abbrevText.length) {
 	    abbrevText = minimalAnnotationAbbreviation[span.type] || abbrevText;
 	}
 
@@ -726,6 +728,7 @@ var Annotator = function(containerElement, onStart) {
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
 
+      /* FIXME REMOVED
       // span background
       if (chunk.spans.length) {
         var spansFrom, spansTo, spansType;
@@ -734,17 +737,34 @@ var Annotator = function(containerElement, onStart) {
           if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
           if (span.generalType == 'trigger' || !spansType) spansType = span.generalType;
         });
-        /* FIXME REMOVED
         svg.rect(chunk.highlightGroup,
           spansFrom - 1, chunk.spans[0].curly.y - 1,
           spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
           { 'class': 'background_' + spansType });
-        */
       }
+      */
+
+      chunk.tspan = $('#' + makeId('chunk' + chunk.index));
 
       // positioning of the chunk
       var spacing;
       var chunkBox = chunk.box = chunk.group.getBBox();
+      var measureText = svg.text(textGroup, 0, 0, chunk.text);
+      var textBox = measureText.getBBox();
+      svg.remove(measureText);
+      var widthDiff = textBox.width - chunkBox.width;
+      if (widthDiff > 0) {
+        // text is larger
+        chunkBox.x -= widthDiff / 2;
+        chunkBox.width = textBox.width;
+        widthDiff = 0;
+      } else {
+        // boxes are larger
+        textBox.x += widthDiff / 2;
+        console.log(chunk.text);
+      }
+      chunkBox.height += textBox.height;
+
       if (hasLeftArcs) {
         var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
         // arc too small?
@@ -790,6 +810,7 @@ var Annotator = function(containerElement, onStart) {
       row.chunks.push(chunk);
       chunk.row = row;
       translate(chunk, current.x - chunkBox.x, 0);
+      chunk.textX = current.x - textBox.x;
 
       current.x += chunkBox.width + space;
     }); // chunks
@@ -991,15 +1012,26 @@ var Annotator = function(containerElement, onStart) {
         rowBox.height += rowSpacing;
         rowBox.y -= rowSpacing;
       }
+      /* FIXME REMOVED:
       svg.rect(row.background,
         0, rowBox.y, canvasWidth, rowBox.height + 1, {
         'class': 'background' + row.backgroundIndex,
       });
+      */
       y += rowBox.height;
+      y += textHeight;
+      row.textY = y;
       translate(row, 0, y);
       y += margin.y;
     });
     y += margin.y;
+
+    $.each(data.chunks, function(chunkNo, chunk) {
+        chunk.tspan.attr({
+            x: chunk.textX,
+            y: chunk.row.textY,
+        });
+    });
 
     // resize the SVG
     $(svg._svg).attr('height', y).css('height', y);
