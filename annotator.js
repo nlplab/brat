@@ -32,6 +32,7 @@ var Annotator = function(containerElement, onStart) {
   var arcHorizontalSpacing = 25;
   var dashArray = '3,3';
   var rowSpacing = 5;
+  var editing = false;
 
   var undefined; // prevents evil "undefined = 17" attacks
 
@@ -166,6 +167,7 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var dblClick = function(evt) {
+    if (!editing) return;
     var target = $(evt.target);
     var id;
     // do we delete an arc?
@@ -193,6 +195,7 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var mouseDown = function(evt) {
+    if (!editing) return;
     var target = $(evt.target);
     var id;
     // is it arc drag start?
@@ -226,6 +229,7 @@ var Annotator = function(containerElement, onStart) {
   }
 
   var mouseUp = function(evt) {
+    if (!editing) return;
     var target = $(evt.target);
     // is it arc drag end?
     if (arcDragOrigin) {
@@ -1077,17 +1081,12 @@ var Annotator = function(containerElement, onStart) {
     return data.document;
   };
 
+  this.setEditing = function(_editing) {
+    editing = _editing;
+  };
+
   containerElement.svg({
       onLoad: this.drawInitial,
-      settings: {
-      /*
-          onmouseover: this.variable + ".mouseOver(evt)",
-          onmouseout: this.variable + ".mouseOut(evt)",
-          onmousedown: this.variable + ".mouseDown(evt)",
-          onmousemove: this.variable + ".mouseMove(evt)",
-          onmouseup: this.variable + ".mouseUp(evt)",
-      */
-      }
   });
 };
 
@@ -1235,7 +1234,7 @@ $(function() {
         }
       });
     };
-
+    
     var renderAllToDisk = function() {
       if (docListReceived) {
         $('#document_select')[0].selectedIndex = 1;
