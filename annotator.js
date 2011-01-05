@@ -773,6 +773,9 @@ var Annotator = function(containerElement, onStart) {
       var measureText = svg.text(textGroup, 0, 0, chunk.text);
       var textBox = measureText.getBBox();
       svg.remove(measureText);
+      if (!chunkBox) { // older Firefox bug
+        chunkBox = { x: 0, y: 0, height: 0, width: 0 };
+      }
       chunkBox.height += textBox.height;
       var boxX = -Math.min(chunkBox.x, textBox.x);
       var boxWidth =
@@ -1021,6 +1024,9 @@ var Annotator = function(containerElement, onStart) {
     var y = margin.y;
     $.each(rows, function(rowId, row) {
       var rowBox = row.group.getBBox();
+      if (!rowBox) { // older Firefox bug
+        rowBox = { x: 0, y: 0, height: 0, width: 0 };
+      }
       if (row.hasAnnotations) {
         rowBox.height = -rowBox.y;
         rowBox.y -= rowSpacing;
@@ -1150,7 +1156,7 @@ $(function() {
             else throw(x);
           }
           drawing = false;
-          if (onRenderComplete) {
+          if ($.isFunction(onRenderComplete)) {
             onRenderComplete.call(annotator, error);
           }
       });
