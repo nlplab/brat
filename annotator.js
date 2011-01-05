@@ -68,7 +68,7 @@ var Annotator = function(containerElement, onStart) {
       "Ubiquitination"       : [ "Ubiq" ],
       "Deubiquitination"     : [ "-Ubiq" ],
       "DNA_methylation"      : [ "DNA meth" ],
-      "DNA_demethylation"    : [ "-DNA meth" ],
+      "DNA_demethylation"    : [ "DNA -meth" ],
       "Catalysis"            : [ "Catal" ],
       "Biological_process"   : [ "Biol proc" ],
       "Cellular_physiological_process": [ "Cell phys proc" ],
