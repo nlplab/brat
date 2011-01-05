@@ -222,7 +222,7 @@ path {
 }
 
 
-#span_form, #arc_form {
+#span_form, #arc_form, #auth_form {
   position: fixed;
   background-color: #cccccc;
   border: 2px outset #999999;

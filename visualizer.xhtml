@@ -14,7 +14,7 @@
       <div id="document_name"/>
       <select id="directory_select" disabled="disabled"/>
       <select id="document_select" disabled="disabled"/>
-      <input type="submit" value="Render" disabled="disabled"/>
+      <input id="auth_button" type="button" value="Login"/>
     </form>
     <div id="svg"></div>
     <form id="span_form" class="shadow">
@@ -81,6 +81,18 @@
         <input type="submit" value="OK"/>
         <input type="reset" value="Cancel"/>
       </fieldset>
+    </form>
+    <form id="auth_form" class="shadow">
+      <fieldset id="arc_form_buttons">
+        <legend>Username</legend>
+        <input id="auth_user"/>
+      </fieldset>
+      <fieldset id="arc_form_buttons">
+        <legend>Password</legend>
+        <input id="auth_pass" type="password"/>
+      </fieldset>
+      <input type="submit" value="OK"/>
+      <input type="reset" value="Cancel"/>
     </form>
   </body>
 </html>
