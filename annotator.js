@@ -1023,7 +1023,7 @@ var Annotator = function(containerElement, onStart) {
     $.each(rows, function(rowId, row) {
       var rowBox = row.group.getBBox();
       if (row.hasAnnotations) {
-        rowBox.height += rowSpacing;
+        rowBox.height = -rowBox.y;
         rowBox.y -= rowSpacing;
       }
       svg.rect(backgroundGroup,
