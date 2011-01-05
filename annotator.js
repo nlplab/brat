@@ -605,7 +605,6 @@ var Annotator = function(containerElement, onStart) {
     var textGroup = svg.group({ 'class': 'text' });
     var textSpans = svg.createText();
     $.each(data.chunks, function(chunkNo, chunk) {
-      if (chunkNo != 0) textSpans.string(' ');
       textSpans.span(chunk.text, {
           id: makeId('chunk' + chunk.index),
           'data-chunk-id': chunk.index,
