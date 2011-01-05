@@ -12,6 +12,10 @@ svg {
   font-family: ‘Palatino Linotype’, ‘Book Antiqua’, Palatino, serif;
 }
 
+path {
+    pointer-events: none;
+}
+
   svg .span text {
     font-size: 75%;
     text-anchor: middle;

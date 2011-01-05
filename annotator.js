@@ -92,6 +92,8 @@ var Annotator = function(containerElement, onStart) {
   var arcDragArc;
   var arcDragOriginBox;
   var dragArrowId;
+  var highlightGroup;
+  var curlyY;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -105,20 +107,19 @@ var Annotator = function(containerElement, onStart) {
   }
 
   var mouseOver = function(evt) {
-    if (arcDragOrigin) return false;
     var target = $(evt.target);
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
-      /* FIXME REMOVED
-      highlight = svg.rect(span.chunk.highlightGroup,
-        span.curly.from - 1, span.curly.y - 1,
+      highlight = svg.rect(highlightGroup,
+        span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
         span.curly.to + 2 - span.curly.from, span.curly.height + 2,
         { 'class': 'span_default span_' + span.type });
-      */ highlight = true;
-      highlightArcs = target.closest('svg').find('.arcs').
-          find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
-          addClass('highlight');
+      if (!arcDragOrigin) {
+        highlightArcs = target.closest('svg').find('.arcs').
+            find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
+            addClass('highlight');
+      }
       forceRedraw();
     } else if (id = target.attr('data-arc-role')) {
       var originSpanId = target.attr('data-arc-origin');
@@ -131,7 +132,7 @@ var Annotator = function(containerElement, onStart) {
 
   var mouseOut = function(evt) {
     if (highlight) {
-      // FIXME REMOVED: svg.remove(highlight);
+      svg.remove(highlight);
       highlight = undefined;
     }
     if (highlightArcs) {
@@ -564,13 +565,14 @@ var Annotator = function(containerElement, onStart) {
     
     // set up the text element, find out font height
     var backgroundGroup = svg.group({ 'class': 'background' });
-    var highlightGroup = svg.group({ 'class': 'highlight' });
+    highlightGroup = svg.group({ 'class': 'highlight' });
     var textGroup = svg.group({ 'class': 'text' });
     var textSpans = svg.createText();
     $.each(data.chunks, function(chunkNo, chunk) {
       if (chunkNo != 0) textSpans.string(' ');
       textSpans.span(chunk.text, {
           id: makeId('chunk' + chunk.index),
+          'data-chunk-id': chunk.index,
       });
     });
     var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
@@ -591,9 +593,6 @@ var Annotator = function(containerElement, onStart) {
     $.each(data.chunks, function(chunkNo, chunk) {
       reservations = new Array();
       chunk.group = svg.group(row.group);
-
-      // a group for text highlight below the text
-      // FIXME REMOVED: chunk.highlightGroup = svg.group(chunk.group);
 
       var y = 0;
       var minArcDist;
@@ -622,9 +621,9 @@ var Annotator = function(containerElement, onStart) {
         span.curly = {
           from: xFrom,
           to: xTo,
-          y: measureBox.y,
           height: measureBox.height,
         };
+        curlyY = measureBox.y,
         svg.remove(measureText);
         var x = (xFrom + xTo) / 2;
 
@@ -728,22 +727,6 @@ var Annotator = function(containerElement, onStart) {
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
 
-      /* FIXME REMOVED
-      // span background
-      if (chunk.spans.length) {
-        var spansFrom, spansTo, spansType;
-        $.each(chunk.spans, function(spanNo, span) {
-          if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
-          if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
-          if (span.generalType == 'trigger' || !spansType) spansType = span.generalType;
-        });
-        svg.rect(chunk.highlightGroup,
-          spansFrom - 1, chunk.spans[0].curly.y - 1,
-          spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
-          { 'class': 'background_' + spansType });
-      }
-      */
-
       chunk.tspan = $('#' + makeId('chunk' + chunk.index));
 
       // positioning of the chunk
@@ -786,7 +769,6 @@ var Annotator = function(containerElement, onStart) {
           each(function(index, element) {
               chunk.spans[index].rect = element;
           });
-        // FIXME REMOVED: chunk.highlightGroup = chunk.group.firstElementChild;
       }
       if (hasAnnotations) row.hasAnnotations = true;
 
@@ -1006,12 +988,10 @@ var Annotator = function(containerElement, onStart) {
         rowBox.height += rowSpacing;
         rowBox.y -= rowSpacing;
       }
-      /* FIXME REMOVED:
-      svg.rect(row.background,
-        0, rowBox.y, canvasWidth, rowBox.height + 1, {
+      svg.rect(backgroundGroup,
+        0, y + curlyY + textHeight, canvasWidth, rowBox.height + textHeight + 1, {
         'class': 'background' + row.backgroundIndex,
       });
-      */
       y += rowBox.height;
       y += textHeight;
       row.textY = y;
@@ -1021,10 +1001,24 @@ var Annotator = function(containerElement, onStart) {
     y += margin.y;
 
     $.each(data.chunks, function(chunkNo, chunk) {
+        // text positioning
         chunk.tspan.attr({
             x: chunk.textX,
             y: chunk.row.textY,
         });
+        // chunk backgrounds
+        if (chunk.spans.length) {
+          var spansFrom, spansTo, spansType;
+          $.each(chunk.spans, function(spanNo, span) {
+            if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
+            if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
+            if (span.generalType == 'trigger' || !spansType) spansType = span.generalType;
+          });
+          svg.rect(highlightGroup,
+            chunk.textX + spansFrom - 1, chunk.row.textY + curlyY - 1,
+            spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
+            { 'class': 'background_' + spansType });
+        }
     });
 
     // resize the SVG
