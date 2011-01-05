@@ -11,7 +11,8 @@ basedir = '/data/home/genia/public_html/BioNLP-ST/visual'
 datadir = basedir + '/data'
 
 def my_listdir(directory):
-    return [l for l in listdir(directory) if "hidden_" not in l]
+    return [l for l in listdir(directory)
+            if not (l.startswith("hidden_") or l.startswith("."))]
 
 def directory_options(directory):
     print "Content-Type: text/html\n"
