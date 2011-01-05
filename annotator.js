@@ -111,11 +111,12 @@ var Annotator = function(containerElement, onStart) {
 
   var highlight;
   var highlightArcs;
-  var highlightBoxes;
   var arcDragOrigin;
   var arcDragArc;
   var arcDragOriginBox;
   var dragArrowId;
+  var highlightGroup;
+  var curlyY;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -124,23 +125,24 @@ var Annotator = function(containerElement, onStart) {
     setTimeout(function() { svgElement.css('margin-bottom', 0); }, 0);
   }
 
-  var idForSpan = function(span) {
-    return 'annotator' + annId + '_span_' + span.id;
+  var makeId = function(name) {
+    return 'annotator' + annId + '_' + name;
   }
 
   var mouseOver = function(evt) {
-    if (arcDragOrigin) return false;
     var target = $(evt.target);
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
-      highlight = svg.rect(span.chunk.highlightGroup,
-        span.curly.from - 1, span.curly.y - 1,
+      highlight = svg.rect(highlightGroup,
+        span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
         span.curly.to + 2 - span.curly.from, span.curly.height + 2,
         { 'class': 'span_default span_' + span.type });
-      highlightArcs = target.closest('svg').find('.arcs').
-          find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
-          addClass('highlight');
+      if (!arcDragOrigin) {
+        highlightArcs = target.closest('svg').find('.arcs').
+            find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
+            addClass('highlight');
+      }
       forceRedraw();
     } else if (id = target.attr('data-arc-role')) {
       var originSpanId = target.attr('data-arc-origin');
@@ -159,10 +161,6 @@ var Annotator = function(containerElement, onStart) {
     if (highlightArcs) {
       highlightArcs.removeClass('highlight');
       highlightArcs = undefined;
-    }
-    if (highlightBoxes) {
-      highlightBoxes.removeClass('highlight');
-      highlightBoxes = undefined;
     }
     forceRedraw();
   };
@@ -601,7 +599,22 @@ var Annotator = function(containerElement, onStart) {
         attr('width', canvasWidth).
         append('<!-- document: ' + commentName + ' -->');
     
-    var current = { x: margin.x, y: margin.y };
+    // set up the text element, find out font height
+    var backgroundGroup = svg.group({ 'class': 'background' });
+    highlightGroup = svg.group({ 'class': 'highlight' });
+    var textGroup = svg.group({ 'class': 'text' });
+    var textSpans = svg.createText();
+    $.each(data.chunks, function(chunkNo, chunk) {
+      if (chunkNo != 0) textSpans.string(' ');
+      textSpans.span(chunk.text, {
+          id: makeId('chunk' + chunk.index),
+          'data-chunk-id': chunk.index,
+      });
+    });
+    var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
+    var textHeight = text.getBBox().height;
+
+    var current = { x: margin.x, y: margin.y }; // TODO: we don't need some of this?
     var rows = [];
     var spanHeights = [];
     var row = new Row();
@@ -609,24 +622,14 @@ var Annotator = function(containerElement, onStart) {
     row.backgroundIndex = sentenceToggle;
     row.index = 0;
     var rowIndex = 0;
-    var textHeight;
     var reservations;
     var lastBoxChunkIndex = -1;
+
 
     $.each(data.chunks, function(chunkNo, chunk) {
       reservations = new Array();
       chunk.group = svg.group(row.group);
 
-      // a group for text highlight below the text
-      chunk.highlightGroup = svg.group(chunk.group);
-
-      var chunkText = svg.text(chunk.group, 0, 0, chunk.text, {
-        group: 'chunktext',
-        'data-chunk-id': chunk.index,
-      });
-      if (!textHeight) {
-        textHeight = chunkText.getBBox().height;
-      }
       var y = 0;
       var minArcDist;
       var lastArcBorder = 0;
@@ -637,16 +640,16 @@ var Annotator = function(containerElement, onStart) {
         span.chunk = chunk;
         span.group = svg.group(chunk.group, {
           'class': 'span',
-          id: idForSpan(span),
+          id: makeId('span_' + span.id),
         });
 
         // measure the text span
-        var measureText = svg.text(chunk.group, 0, 0,
+        var measureText = svg.text(textGroup, 0, 0,
           chunk.text.substr(0, span.from - chunk.from));
         var xFrom = measureText.getBBox().width;
         if (xFrom < 0) xFrom = 0;
         svg.remove(measureText);
-        measureText = svg.text(chunk.group, 0, 0,
+        measureText = svg.text(textGroup, 0, 0,
           chunk.text.substr(0, span.to - chunk.from));
         var measureBox = measureText.getBBox();
         if (!y) y = -textHeight - curlyHeight;
@@ -654,9 +657,9 @@ var Annotator = function(containerElement, onStart) {
         span.curly = {
           from: xFrom,
           to: xTo,
-          y: measureBox.y,
           height: measureBox.height,
         };
+        curlyY = measureBox.y,
         svg.remove(measureText);
         var x = (xFrom + xTo) / 2;
 
@@ -665,12 +668,12 @@ var Annotator = function(containerElement, onStart) {
 	var abbrevText = span.type;
 
 	var abbrevIdx  = 0;
-	var spanLength = span.to-span.from;
+	var spanLength = span.to - span.from;
 	while(abbrevText.length > spanLength/0.8 &&
 	      annotationAbbreviations[span.type] &&
 	      annotationAbbreviations[span.type][abbrevIdx]) {
 	    abbrevText = annotationAbbreviations[span.type][abbrevIdx];
-	    abbrevIdx += 1;
+	    abbrevIdx++;
 	}
 
         var spanText = svg.text(span.group, x, y, abbrevText);
@@ -763,23 +766,20 @@ var Annotator = function(containerElement, onStart) {
 
       if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
 
-      // span background
-      if (chunk.spans.length) {
-        var spansFrom, spansTo, spansType;
-        $.each(chunk.spans, function(spanNo, span) {
-          if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
-          if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
-          if (span.generalType == 'trigger' || !spansType) spansType = span.generalType;
-        });
-        svg.rect(chunk.highlightGroup,
-          spansFrom - 1, chunk.spans[0].curly.y - 1,
-          spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
-          { 'class': 'background_' + spansType });
-      }
+      chunk.tspan = $('#' + makeId('chunk' + chunk.index));
 
       // positioning of the chunk
       var spacing;
       var chunkBox = chunk.box = chunk.group.getBBox();
+      var measureText = svg.text(textGroup, 0, 0, chunk.text);
+      var textBox = measureText.getBBox();
+      svg.remove(measureText);
+      chunkBox.height += textBox.height;
+      var boxX = -Math.min(chunkBox.x, textBox.x);
+      var boxWidth =
+          Math.max(textBox.x + textBox.width, chunkBox.x + chunkBox.width) -
+          Math.min(textBox.x, chunkBox.x)
+
       if (hasLeftArcs) {
         var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
         // arc too small?
@@ -788,7 +788,7 @@ var Annotator = function(containerElement, onStart) {
       var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
       if (chunk.lineBreak ||
-          current.x + chunkBox.width + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
+          current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
         row.arcs = svg.group(row.group, { 'class': 'arcs' });
         // new row
         rows.push(row);
@@ -808,7 +808,6 @@ var Annotator = function(containerElement, onStart) {
           each(function(index, element) {
               chunk.spans[index].rect = element;
           });
-        chunk.highlightGroup = chunk.group.firstElementChild;
       }
       if (hasAnnotations) row.hasAnnotations = true;
 
@@ -824,9 +823,11 @@ var Annotator = function(containerElement, onStart) {
 
       row.chunks.push(chunk);
       chunk.row = row;
-      translate(chunk, current.x - chunkBox.x, 0);
 
-      current.x += chunkBox.width + space;
+      translate(chunk, foo = current.x + boxX, 0);
+      chunk.textX = current.x - textBox.x + boxX;
+
+      current.x += space + boxWidth;
     }); // chunks
 
     // finish the last row
@@ -1025,15 +1026,38 @@ var Annotator = function(containerElement, onStart) {
         rowBox.height += rowSpacing;
         rowBox.y -= rowSpacing;
       }
-      svg.rect(row.background,
-        0, rowBox.y, canvasWidth, rowBox.height + 1, {
+      svg.rect(backgroundGroup,
+        0, y + curlyY + textHeight, canvasWidth, rowBox.height + textHeight + 1, {
         'class': 'background' + row.backgroundIndex,
       });
       y += rowBox.height;
+      y += textHeight;
+      row.textY = y;
       translate(row, 0, y);
       y += margin.y;
     });
     y += margin.y;
+
+    $.each(data.chunks, function(chunkNo, chunk) {
+        // text positioning
+        chunk.tspan.attr({
+            x: chunk.textX,
+            y: chunk.row.textY,
+        });
+        // chunk backgrounds
+        if (chunk.spans.length) {
+          var spansFrom, spansTo, spansType;
+          $.each(chunk.spans, function(spanNo, span) {
+            if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
+            if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
+            if (span.generalType == 'trigger' || !spansType) spansType = span.generalType;
+          });
+          svg.rect(highlightGroup,
+            chunk.textX + spansFrom - 1, chunk.row.textY + curlyY - 1,
+            spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
+            { 'class': 'background_' + spansType });
+        }
+    });
 
     // resize the SVG
     $(svg._svg).attr('height', y).css('height', y);

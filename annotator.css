@@ -12,64 +12,68 @@ svg {
   font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
 }
 
-  .span text {
-    font-size: 75%;
-    text-anchor: middle;
-    font-family: 'Century Gothic', sans-serif;
-    pointer-events: none;
-  }
+path {
+  pointer-events: none;
+}
 
-  .span rect {
-    stroke: black;
-    stroke-width: 0.75;
-  }
+.span text {
+  font-size: 75%;
+  text-anchor: middle;
+  font-family: 'Century Gothic', sans-serif;
+  pointer-events: none;
+}
 
-  .span path {
-    fill: none;
-    stroke: grey;
-  }
+.span rect {
+  stroke: black;
+  stroke-width: 0.75;
+}
 
-  .span path.negation {
-    stroke: black;
-    opacity: 0.5;
-  }
+.span path {
+  fill: none;
+  stroke: grey;
+}
 
-  .arcs path {
-    fill: none;
-    opacity: 0.5;
-  }
+.span path.negation {
+  stroke: black;
+  opacity: 0.5;
+}
 
-  .arcs .highlight path {
-    stroke-width: 2;
-    opacity: 1;
-  }
-  .arcs .highlight text {
-    stroke: black;
-    fill: black;
-  }
-  .span.highlight rect {
-    stroke-width: 2px;
-  }
-  .span.highlight {
-    stroke: black;
-  }
+.arcs path {
+  fill: none;
+  opacity: 0.5;
+}
 
-  .arcs text {
-    text-anchor: middle;
-    font-size: 80%;
-    dominant-baseline: central;
-    cursor: default;
-  }
+.arcs .highlight path {
+  stroke-width: 2;
+  opacity: 1;
+}
+.arcs .highlight text {
+  stroke: black;
+  fill: black;
+}
+.span.highlight rect {
+  stroke-width: 2px;
+}
+.span.highlight {
+  stroke: black;
+}
 
-  .background0 {
-    stroke: none;
-    fill: #ffffff;
-  }
+.arcs text {
+  text-anchor: middle;
+  font-size: 80%;
+  dominant-baseline: central;
+  cursor: default;
+}
 
-  .background1 {
-    stroke: none;
-    fill: #eeeeee;
-  }
+.background0 {
+  stroke: none;
+  fill: #ffffff;
+}
+
+.background1 {
+  stroke: none;
+  fill: #eeeeee;
+}
 
 .background_entity {
   fill: #7fa2ff;

@@ -1,16 +1,4 @@
-PNG export
-
-generate cover page
-
 Annotation:
-    extract all texts into a new text element
-        so we don't select random stuff on chrome
-        (with tspans, so safari can select all)
-    global highlights
-    ajax from server to see what kinds of spans/arcs are available
-        generate the form dynamically
-        do not show the form if only one option
-    draw an arc when dragging to add an arc
     serverside:
         add span (from, to, type)
         add arc (origin, target, type)
