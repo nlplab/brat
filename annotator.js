@@ -32,7 +32,8 @@ var Annotator = function(containerElement, onStart) {
   var arcHorizontalSpacing = 25;
   var dashArray = '3,3';
   var rowSpacing = 5;
-  var editing = false;
+  var user;
+  var password;
 
   var undefined; // prevents evil "undefined = 17" attacks
 
@@ -167,7 +168,7 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var dblClick = function(evt) {
-    if (!editing) return;
+    if (!user) return;
     var target = $(evt.target);
     var id;
     // do we delete an arc?
@@ -195,7 +196,7 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var mouseDown = function(evt) {
-    if (!editing) return;
+    if (!user) return;
     var target = $(evt.target);
     var id;
     // is it arc drag start?
@@ -229,7 +230,7 @@ var Annotator = function(containerElement, onStart) {
   }
 
   var mouseUp = function(evt) {
-    if (!editing) return;
+    if (!user) return;
     var target = $(evt.target);
     // is it arc drag end?
     if (arcDragOrigin) {
@@ -1081,8 +1082,9 @@ var Annotator = function(containerElement, onStart) {
     return data.document;
   };
 
-  this.setEditing = function(_editing) {
-    editing = _editing;
+  this.setUser = function(_user, _password) {
+    user = _user;
+    password = _password;
   };
 
   containerElement.svg({
@@ -1124,6 +1126,7 @@ $(function() {
 
     var directoryAndDoc;
     var drawing = false;
+    var saveUser;
     var savePassword;
     var updateState = function(onRenderComplete) {
       if (drawing || lastHash == window.location.hash) return;
@@ -1135,7 +1138,7 @@ $(function() {
         return;
       }
       var _doc = doc = parts[1];
-      if (_doc == 'save' && (savePassword = parts[2])) return;
+      if (_doc == 'save' && (savePassword = parts[2]) && (savePassword = parts[3])) return;
       $('#document_select').val(_doc);
 
       $('#document_name').text(directoryAndDoc);
@@ -1169,8 +1172,13 @@ $(function() {
     };
 
     annotator.postChangesAndReload = function() {
-      annotator.ajaxOptions.directory = directory;
-      var _doc = annotator.ajaxOptions.document = doc;
+      var _doc = doc;
+      $.extend(annotator.ajaxOptions, {
+        directory: directory,
+        document: _doc,
+        user: user,
+        pass: pass,
+      });
       $.ajax({
         type: 'POST',
         url: ajaxBase,
@@ -1207,6 +1215,7 @@ $(function() {
             setTimeout(renderToDiskAndSelectNext, 0);
           } else {
             alert('done');
+            savePassword = undefined;
           }
         };
 
@@ -1219,7 +1228,8 @@ $(function() {
             data: {
               directory: directory,
               document: doc,
-              save: savePassword,
+              user: saveUser,
+              pass: savePassword,
               svg: svgMarkup,
             },
             error: function(req, textStatus, errorThrown) {
@@ -1291,6 +1301,50 @@ $(function() {
       });
     arcForm.find('input:radio').not('#arc_free_entry').click(arcFormSubmit);
 
+    var authFormSubmit = function(evt) {
+      var user = $('#auth_user').val();
+      var password = $('#auth_pass').val();
+      $.ajax({
+        type: 'POST',
+        url: ajaxBase,
+        data: {
+          action: 'auth',
+          user: user,
+          pass: password,
+        },
+        error: function(req, textStatus, errorThrown) {
+          // TODO: check if it is the auth error
+          authForm.css('display', 'block');
+          $('#auth_user').select().focus();
+          return false;
+        },
+        success: function(response) {
+          console.log(response);
+          annotator.setUser(user, password);
+          $('#auth_button').val('Logout');
+          $('#auth_user').val('');
+          $('#auth_pass').val('');
+        }
+      });
+      authForm.css('display', 'none');
+      return false;
+    };
+    var authForm = $('#auth_form').
+      submit(authFormSubmit).
+      bind('reset', function(evt) {
+        authForm.css('display', 'none');
+      });
+    $('#auth_button').click(function() {
+      var auth_button = $('#auth_button');
+      if (auth_button.val() == 'Login') {
+        $('#auth_form').css('display', 'block');
+        $('#auth_user').select().focus();
+      } else {
+        annotator.setUser();
+        auth_button.val('Login');
+      }
+    });
+
     directoryAndDoc = directory + (doc ? '/' + doc : '');
     updateState(doc);
     if (savePassword) {
@@ -1300,7 +1354,8 @@ $(function() {
     }
   });
 
+
   $(window).resize(function(evt) {
-    annotator.renderData();
+    renderSelected();
   });
 });

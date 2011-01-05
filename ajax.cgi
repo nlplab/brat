@@ -10,6 +10,8 @@ from itertools import chain
 basedir = '/data/home/genia/public_html/BioNLP-ST/visual'
 datadir = basedir + '/data'
 
+EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'auth']
+
 def my_listdir(directory):
     return [l for l in listdir(directory)
             if not (l.startswith("hidden_") or l.startswith("."))]
@@ -103,6 +105,7 @@ def saveSVG(directory, document, svg):
         # system('rsvg %s.svg %s.png' % (basename, basename))
         print "Content-Type: application/json\n"
     else:
+        print "Content-Type: text/plain"
         print "Status: 400 Bad Request\n"
 
 
@@ -122,6 +125,9 @@ def delete_arc(document, arcorigin, arctarget, arctype):
     print "Content-Type: text/html\n"
     print "Deleted", document, arcorigin, arctarget, arctype # TODO do something with it
 
+def authenticate(login, password):
+    # TODO
+    return (login == 'editor' and password == 'crunchy')
 
 def main():
     params = FieldStorage()
@@ -135,27 +141,37 @@ def main():
     else:
         input = directory + document
     if input.find('/') != -1:
-        print "Status: 403 Forbidden\n"
+        print "Content-Type: text/plain"
+        print "Status: 403 Forbidden (slash)\n"
         return
 
-    savePassword = params.getvalue('save')
-    if savePassword:
-        if savePassword == 'crunchy':
-            svg = params.getvalue('svg')
-            saveSVG(directory, document, svg)
+    action = params.getvalue('action')
+    if action in EDIT_ACTIONS:
+        user = params.getvalue('user')
+        if not authenticate(user, params.getvalue('pass')):
+            print "Content-Type: text/plain"
+            print "Status: 403 Forbidden (auth)\n"
+            return
+
+    if directory is None:
+        if action == 'auth':
+            print "Content-Type: text/plain\n"
+            print "Hello, %s" % user
         else:
-            print "Status: 403 Forbidden (password)\n\n"
-    elif directory is None:
-        directories()
+            directories()
     else:
         directory = datadir + '/' + directory
 
         if document is None:
-            directory_options(directory)
+            if action == 'save':
+                svg = params.getvalue('svg')
+                saveSVG(directory, document, svg)
+            else:
+                directory_options(directory)
         else:
-            action = params.getvalue('action')
             docpath = directory + '/' + document
             span = params.getvalue('span')
+
             if action == 'span':
                 save_span(docpath,
                         params.getvalue('from'),
