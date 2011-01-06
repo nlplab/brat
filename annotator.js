@@ -49,7 +49,7 @@ var Annotator = function(containerElement, onStart) {
       "Two-component-system" : [ "2-comp-sys", "2CS" ],
       "Regulon-operon"       : [ "Reg/op" ],
 
-      "Protein_catabolism"   : [ "Catabolism", "Catab" ]
+      "Protein_catabolism"   : [ "Catabolism", "Catab" ],
       "Gene_expression"      : [ "Expression", "Expr" ],
       "Binding"              : [ "Bind" ],
       "Transcription"        : [ "Trns" ],
