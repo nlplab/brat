@@ -61,14 +61,7 @@
         <div id="arc_target"/>
       </fieldset>
 
-      <fieldset id="arc_entity_fset">
-        <legend>Role</legend>
-        <input name="arc_type" id="arc_theme" type="radio" value="Theme"/>
-        <label for="arc_theme">Theme</label>
-
-        <input name="arc_type" id="arc_cause" type="radio" value="Cause"/>
-        <label for="arc_cause">Cause</label>
-      </fieldset>
+      <div id="arc_roles"/>
         
       <fieldset id="arc_form_buttons">
         <legend>Submit</legend>
@@ -83,16 +76,19 @@
       </fieldset>
     </form>
     <form id="auth_form" class="shadow">
-      <fieldset id="arc_form_buttons">
+      <fieldset>
         <legend>Username</legend>
         <input id="auth_user"/>
       </fieldset>
-      <fieldset id="arc_form_buttons">
+      <fieldset>
         <legend>Password</legend>
         <input id="auth_pass" type="password"/>
       </fieldset>
-      <input type="submit" value="OK"/>
-      <input type="reset" value="Cancel"/>
+      <fieldset id="auth_form_buttons">
+        <legend>Submit</legend>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
     </form>
   </body>
 </html>
