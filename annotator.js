@@ -48,14 +48,15 @@ var Annotator = function(containerElement, onStart) {
       "Chemical"             : [ "Chem" ],
       "Two-component-system" : [ "2-comp-sys", "2CS" ],
       "Regulon-operon"       : [ "Reg/op" ],
-      
+
+      "Protein_catabolism"   : [ "Catabolism", "Catab" ]
       "Gene_expression"      : [ "Expression", "Expr" ],
       "Binding"              : [ "Bind" ],
       "Transcription"        : [ "Trns" ],
       "Localization"         : [ "Locl" ],
       "Regulation"           : [ "Reg" ],
-      "Positive_regulation"  : [ "+Reg" ],
-      "Negative_regulation"  : [ "-Reg" ],
+      "Positive_regulation"  : [ "+Regulation", "+Reg" ],
+      "Negative_regulation"  : [ "-Regulation", "-Reg" ],
       "Phosphorylation"      : [ "Phos" ],
       "Dephosphorylation"    : [ "-Phos" ],
       "Acetylation"          : [ "Acet" ],
