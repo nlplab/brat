@@ -12,3 +12,5 @@ Annotation:
         delete span (id)
         delete arc (origin, target, type)
             pay attention to Equiv (exceptional handling)
+
+another test
