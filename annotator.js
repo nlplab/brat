@@ -1300,13 +1300,16 @@ $(function() {
       });
     spanForm.find('input:radio').not('#span_free_entry').click(spanFormSubmit);
 
+    var arcSubmit = function(type) {
+      annotator.ajaxOptions.type = type;
+      annotator.postChangesAndReload();
+    }
     var arcFormSubmit = function(evt) {
       arcForm.css('display', 'none');
       var type = $('#arc_form input:radio:checked').val();
       if (!type) type = $('#arc_free_text').val();
       if (type) { // (if not cancelled)
-        annotator.ajaxOptions.type = type;
-        annotator.postChangesAndReload();
+        arcSubmit(type);
       }
       return false;
     };
@@ -1320,10 +1323,30 @@ $(function() {
         action: 'arctypes',
         origin: originType,
         target: targetType,
-      }, function(data) {
-        $('#arc_roles').html(data);
-        arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
-        $('#arc_form').css('display', 'block');
+      }, function(jsonData) {
+        var markup = [];
+        var allRoles = [];
+        $.each(jsonData, function(fieldsetNo, fieldset) {
+          markup.push('<fieldset>');
+          markup.push('<legend>' + fieldset[0] + '</legend>');
+          $.each(fieldset[1], function(roleNo, role) {
+            markup.push('<input name="arc_type" id="arc_' + role + '" type="radio" value="' + role + '"/>');
+            markup.push('<label for="arc_' + role + '">' + role + '</label> ');
+            allRoles.push(role);
+          });
+          markup.push('</fieldset>');
+        });
+        // remove allRoles/len logic to always pop the form up,
+        // regardless of number of available role types
+        var len = allRoles.length;
+        if (len == 1) {
+          arcSubmit(allRoles[0]);
+        } else if (len) {
+          markup = markup.join('');
+          $('#arc_roles').html(markup);
+          arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+          $('#arc_form').css('display', 'block');
+        }
       });
     };
     arcForm.find('input:radio').not('#arc_free_entry').click(arcFormSubmit);

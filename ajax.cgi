@@ -109,14 +109,9 @@ def saveSVG(directory, document, svg):
         print "Status: 400 Bad Request\n"
 
 def arc_types_html(origin_type, target_type):
-    print "Content-Type: text/html\n"
-    print '<fieldset>'
-    print "<legend>Role Type</legend>"
-    possible_arc_types = ["Theme", "Cause"] # TODO do something here
-    for type in possible_arc_types:
-        print '<input name="arc_type" id="arc_%s" type="radio" value="%s"/>' % (type, type)
-        print '<label for="arc_%s">%s</label>' % (type, type)
-    print '</fieldset>'
+    print "Content-Type: application/json\n"
+    possible_arc_types = [["Roles", ["Theme", "Cause"]]] # TODO do something here
+    print dumps(possible_arc_types, sort_keys=True, indent=2)
 
 def save_span(document, spanfrom, spanto, spantype):
     print "Content-Type: text/html\n"
