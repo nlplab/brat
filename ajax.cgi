@@ -174,8 +174,11 @@ def arc_types_html(origin_type, target_type):
                      "types"   : [] }
     else:
         possible = [ t for t in possible_from if t in possible_to ]
+        
         # TODO: proper labeling / grouping (i.e. not just "Arc")
         response = { "types" : [["Arcs", possible]] }
+        if possible == []:
+            response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
 
     print dumps(response, sort_keys=True, indent=2)
 
