@@ -117,6 +117,7 @@ var Annotator = function(containerElement, onStart) {
   var arcDragOrigin;
   var arcDragArc;
   var arcDragOriginBox;
+  var arcDragOriginGroup;
   var dragArrowId;
   var highlightGroup;
   var curlyY;
@@ -141,13 +142,15 @@ var Annotator = function(containerElement, onStart) {
         span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
         span.curly.to + 2 - span.curly.from, span.curly.height + 2,
         { 'class': 'span_default span_' + span.type });
-      if (!arcDragOrigin) {
+      if (arcDragOrigin) {
+        target.parent().addClass('highlight');
+      } else {
         highlightArcs = target.closest('svg').find('.arcs').
             find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
             addClass('highlight');
       }
       forceRedraw();
-    } else if (id = target.attr('data-arc-role')) {
+    } else if (!arcDragOrigin && (id = target.attr('data-arc-role'))) {
       var originSpanId = target.attr('data-arc-origin');
       var targetSpanId = target.attr('data-arc-target');
       highlightArcs = target.closest('svg').find('.arcs').
@@ -157,6 +160,10 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var mouseOut = function(evt) {
+    var target = $(evt.target);
+    if (arcDragOrigin && arcDragOrigin != target.attr('data-span-id')) {
+      target.parent().removeClass('highlight');
+    }
     if (highlight) {
       svg.remove(highlight);
       highlight = undefined;
@@ -209,6 +216,8 @@ var Annotator = function(containerElement, onStart) {
         'class': 'drag_stroke',
         fill: 'none',
       });
+      arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
+      arcDragOriginGroup.addClass('highlight');
       arcDragOriginBox = realBBox(data.spans[arcDragOrigin]);
       arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
       return false;
@@ -235,6 +244,8 @@ var Annotator = function(containerElement, onStart) {
     var target = $(evt.target);
     // is it arc drag end?
     if (arcDragOrigin) {
+      arcDragOriginGroup.removeClass('highlight');
+      target.parent().removeClass('highlight');
       if ((id = target.attr('data-span-id')) && arcDragOrigin != id) {
         var originSpan = data.spans[arcDragOrigin];
         var targetSpan = data.spans[id];
@@ -245,7 +256,7 @@ var Annotator = function(containerElement, onStart) {
         };
         $('#arc_origin').text(data.text.substring(originSpan.from, originSpan.to));
         $('#arc_target').text(data.text.substring(targetSpan.from, targetSpan.to));
-        $('#arc_form').css('display', 'block');
+        annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type);
       }
       svg.remove(arcDragArc);
       arcDragOrigin = undefined;
@@ -1088,6 +1099,10 @@ var Annotator = function(containerElement, onStart) {
     password = _password;
   };
 
+  this.postChangesAndReload = function() {
+    annotator.postChangesAndReloadWithCreds(user, password);
+  };
+
   containerElement.svg({
       onLoad: this.drawInitial,
   });
@@ -1172,7 +1187,7 @@ $(function() {
       updateState(onRenderComplete);
     };
 
-    annotator.postChangesAndReload = function() {
+    annotator.postChangesAndReloadWithCreds = function(user, pass) {
       var _doc = doc;
       $.extend(annotator.ajaxOptions, {
         directory: directory,
@@ -1285,13 +1300,16 @@ $(function() {
       });
     spanForm.find('input:radio').not('#span_free_entry').click(spanFormSubmit);
 
+    var arcSubmit = function(type) {
+      annotator.ajaxOptions.type = type;
+      annotator.postChangesAndReload();
+    }
     var arcFormSubmit = function(evt) {
       arcForm.css('display', 'none');
       var type = $('#arc_form input:radio:checked').val();
       if (!type) type = $('#arc_free_text').val();
       if (type) { // (if not cancelled)
-        annotator.ajaxOptions.type = type;
-        annotator.postChangesAndReload();
+        arcSubmit(type);
       }
       return false;
     };
@@ -1300,6 +1318,37 @@ $(function() {
       bind('reset', function(evt) {
         arcForm.css('display', 'none');
       });
+    annotator.fillArcTypesAndDisplayForm = function(originType, targetType) {
+      $.get(ajaxBase, {
+        action: 'arctypes',
+        origin: originType,
+        target: targetType,
+      }, function(jsonData) {
+        var markup = [];
+        var allRoles = [];
+        $.each(jsonData, function(fieldsetNo, fieldset) {
+          markup.push('<fieldset>');
+          markup.push('<legend>' + fieldset[0] + '</legend>');
+          $.each(fieldset[1], function(roleNo, role) {
+            markup.push('<input name="arc_type" id="arc_' + role + '" type="radio" value="' + role + '"/>');
+            markup.push('<label for="arc_' + role + '">' + role + '</label> ');
+            allRoles.push(role);
+          });
+          markup.push('</fieldset>');
+        });
+        // remove allRoles/len logic to always pop the form up,
+        // regardless of number of available role types
+        var len = allRoles.length;
+        if (len == 1) {
+          arcSubmit(allRoles[0]);
+        } else if (len) {
+          markup = markup.join('');
+          $('#arc_roles').html(markup);
+          arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+          $('#arc_form').css('display', 'block');
+        }
+      });
+    };
     arcForm.find('input:radio').not('#arc_free_entry').click(arcFormSubmit);
 
     var authFormSubmit = function(evt) {

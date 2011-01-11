@@ -118,6 +118,10 @@ def saveSVG(directory, document, svg):
         print "Content-Type: text/plain"
         print "Status: 400 Bad Request\n"
 
+def arc_types_html(origin_type, target_type):
+    print "Content-Type: application/json\n"
+    possible_arc_types = [["Roles", ["Theme", "Cause"]]] # TODO do something here
+    print dumps(possible_arc_types, sort_keys=True, indent=2)
 
 def save_span(document, spanfrom, spanto, spantype):
     print "Content-Type: text/html\n"
@@ -167,6 +171,10 @@ def main():
         if action == 'auth':
             print "Content-Type: text/plain\n"
             print "Hello, %s" % user
+        elif action == 'arctypes':
+            arc_types_html(
+                params.getvalue('origin'),
+                params.getvalue('target'))
         else:
             directories()
     else:

@@ -57,9 +57,6 @@ path {
 .span.highlight rect {
   stroke-width: 2px;
 }
-.span.highlight {
-  stroke: black;
-}
 
 .arcs text {
   text-anchor: middle;
@@ -240,7 +237,7 @@ path {
   z-index: 10;
   display: none;
 }
-#span_form_buttons, #arc_form_buttons {
+#span_form_buttons, #arc_form_buttons, #auth_form_buttons {
   text-align: right;
 }
 #span_free_div, #arc_free_div {
