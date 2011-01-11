@@ -2,15 +2,60 @@
 
 from cgi import FieldStorage
 from os import listdir, makedirs, system
-from os.path import isdir
-from re import split, sub
+from os.path import isdir, isfile
+from re import split, sub, match
 from simplejson import dumps
 from itertools import chain
+import fileinput
 
 basedir = '/data/home/genia/public_html/BioNLP-ST/visual'
 datadir = basedir + '/data'
 
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'auth']
+
+physical_entity_types = [
+    "Protein",
+    "Entity",
+    ]
+
+event_role_types = [
+    "Theme",
+    "Cause",
+    "Site",
+    ]
+
+def is_physical_entity_type(t):
+    return t in physical_entity_types
+
+def is_event_type(t):
+    # TODO: this assumption may not always hold, check properly
+    return not is_physical_entity_type(t)
+
+def possible_arc_types_from(ann):
+    """
+    Returns a list of possible outgoing arc types from an annotation of
+    the given type.
+    """
+    if is_physical_entity_type(ann):
+        return ["Equiv"]
+    elif is_event_type:
+        return event_role_types
+    else:
+        return None
+
+def possible_arc_types_to(ann):
+    """
+    Returns a list of possible ingoing arc types from an annotation of
+    the given type.
+    """
+    if is_physical_entity_type(ann):
+        # TODO: restrict by entity type
+        return event_role_types + ["Equiv"]
+    elif is_event_type(ann):
+        # TODO: generalize
+        return ["Theme", "Cause"]
+    else:
+        return None
 
 def my_listdir(directory):
     return [l for l in listdir(directory)
@@ -51,16 +96,14 @@ def document_json(document):
             }
 
     triggers = dict()
-    iter = None
-    try:
-        iter = open(document + ".a1", "rb").readlines()
-    except:
-        pass
-    try:
-        moreiter = open(document + ".a2", "rb").readlines()
-        iter = chain(iter, moreiter)
-    except:
-        iter = moreiter
+
+    # iterate jointly over all present annotation files for the document
+    foundfiles = [document+ext for ext in (".a1", ".a2", ".co", ".rel")
+                  if isfile(document+ext)]
+    if foundfiles:
+        iter = fileinput.input(foundfiles)
+    else:
+        iter = []
 
     equiv_id = 1
     for line in iter:
@@ -78,6 +121,17 @@ def document_json(document):
                 struct["events"].append(event)
         elif tag == "M":
             struct["modifications"].append(row[0:3])
+        elif tag == "R":
+            # relation; fake as Equiv for now (TODO proper handling)
+            m = match(r'^(\S+)\s+(\S+)\s+(\S+):(\S+)\s+(\S+):(\S+)\s*$', line)
+            if m:
+                rel_id, rel_type, e1_role, e1_id, e2_role, e2_id = m.groups()
+                relann = ['*%s' % equiv_id] + [rel_type, e1_id, e2_id]
+                struct["equivs"].append(relann)
+                equiv_id += 1
+            else:
+                # TODO: error handling
+                pass
         elif tag == "*":
             event = ['*%s' % equiv_id] + row[1:]
             struct["equivs"].append(event)
@@ -110,8 +164,20 @@ def saveSVG(directory, document, svg):
 
 def arc_types_html(origin_type, target_type):
     print "Content-Type: application/json\n"
-    possible_arc_types = [["Roles", ["Theme", "Cause"]]] # TODO do something here
-    print dumps(possible_arc_types, sort_keys=True, indent=2)
+
+    possible_from = possible_arc_types_from(origin_type)
+    possible_to   = possible_arc_types_to(target_type)
+
+    # TODO: proper error handling
+    if possible_from is None or possible_from is None:
+        response = { "message" : "Error selecting arc types!",
+                     "types"   : [] }
+    else:
+        possible = [ t for t in possible_from if t in possible_to ]
+        # TODO: proper labeling / grouping (i.e. not just "Arc")
+        response = { "types" : [["Arcs", possible]] }
+
+    print dumps(response, sort_keys=True, indent=2)
 
 def save_span(document, spanfrom, spanto, spantype, id):
     # if id present: edit
