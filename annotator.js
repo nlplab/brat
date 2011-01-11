@@ -16,6 +16,9 @@ if (typeof(console) === 'undefined') {
       function() {};
 }
 
+
+var displayMessage;
+
 // SVG Annotation tool
 var Annotator = function(containerElement, onStart) {
   // settings
@@ -1149,6 +1152,28 @@ $(function() {
   var ajaxURL;
   var docListReceived = false;
   var lastHash = null;
+
+  displayMessage = function() {
+    var timer;
+    var opacity;
+    var message = $('#message');
+    var fadeMessage = function() {
+      message.css('opacity', opacity > 1 ? 1 : opacity);
+      opacity -= 0.05;
+      if (opacity <= 0) {
+        message.css('display', 'none');
+        clearInterval(timer);
+        timer = 0;
+      }
+    };
+    return function(html) {
+      message.html(html).css('display', 'block');
+      opacity = 2;
+      if (!timer) {
+        timer = setInterval(fadeMessage, 50);
+      }
+    };
+  }();
 
   var getDirectory = function() {
     ajaxURL = ajaxBase + "?directory=" + directory;
