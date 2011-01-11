@@ -1057,16 +1057,16 @@ var Annotator = function(containerElement, onStart) {
         });
         // chunk backgrounds
         if (chunk.spans.length) {
-          var spansFrom, spansTo, spansType;
+          var spansFrom, spansTo, spansType;	 
           $.each(chunk.spans, function(spanNo, span) {
             if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
             if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
-            if (span.generalType == 'trigger' || !spansType) spansType = span.generalType;
+            if (span.generalType == 'trigger' || !spansType) spansType = span.type;
           });
           svg.rect(highlightGroup,
             chunk.textX + spansFrom - 1, chunk.row.textY + curlyY - 1,
             spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
-            { 'class': 'background_' + spansType });
+            { 'class': 'span_default span_' + spansType, opacity:0.15 });
         }
     });
 

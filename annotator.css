@@ -92,6 +92,8 @@ path {
   fill: #7fe67f;
 }
 
+.span_Exp { fill:#ff0000; }
+
 .span_gene-or-gene-product    { fill: #7fa2ff; }
 .span_Protein                 { fill: #7fa2ff; }
 .span_Protein_family_or_group { fill: #7fa2ff; }
@@ -133,6 +135,10 @@ path {
 .stroke_scatter         { stroke: #ff0000; }
 .fill_coref             { fill: #ff0000; }
 .stroke_coref           { stroke: #ff0000; }
+.fill_Coref             { fill: #ff0000; }
+.stroke_Coref           { stroke: #ff0000; }
+.fill_Protein-Component { fill: #ff0000; }
+.stroke_Protein-Component { stroke: #ff0000; }
 
 .span_Entity                   { fill: #b4c8ff; }
 .span_DNA_domain_or_region     { fill: #b4c8ff; }

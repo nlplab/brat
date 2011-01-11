@@ -2,10 +2,11 @@
 
 from cgi import FieldStorage
 from os import listdir, makedirs, system
-from os.path import isdir
-from re import split, sub
+from os.path import isdir, isfile
+from re import split, sub, match
 from simplejson import dumps
 from itertools import chain
+import fileinput
 
 basedir = '/data/home/genia/public_html/BioNLP-ST/visual'
 datadir = basedir + '/data'
@@ -51,16 +52,14 @@ def document_json(document):
             }
 
     triggers = dict()
-    iter = None
-    try:
-        iter = open(document + ".a1", "rb").readlines()
-    except:
-        pass
-    try:
-        moreiter = open(document + ".a2", "rb").readlines()
-        iter = chain(iter, moreiter)
-    except:
-        iter = moreiter
+
+    # iterate jointly over all present annotation files for the document
+    foundfiles = [document+ext for ext in (".a1", ".a2", ".co", ".rel")
+                  if isfile(document+ext)]
+    if foundfiles:
+        iter = fileinput.input(foundfiles)
+    else:
+        iter = []
 
     equiv_id = 1
     for line in iter:
@@ -78,6 +77,17 @@ def document_json(document):
                 struct["events"].append(event)
         elif tag == "M":
             struct["modifications"].append(row[0:3])
+        elif tag == "R":
+            # relation; fake as Equiv for now (TODO proper handling)
+            m = match(r'^(\S+)\s+(\S+)\s+(\S+):(\S+)\s+(\S+):(\S+)\s*$', line)
+            if m:
+                rel_id, rel_type, e1_role, e1_id, e2_role, e2_id = m.groups()
+                relann = ['*%s' % equiv_id] + [rel_type, e1_id, e2_id]
+                struct["equivs"].append(relann)
+                equiv_id += 1
+            else:
+                # TODO: error handling
+                pass
         elif tag == "*":
             event = ['*%s' % equiv_id] + row[1:]
             struct["equivs"].append(event)
