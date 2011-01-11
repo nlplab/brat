@@ -256,3 +256,15 @@ fieldset {
 #span_selected, #arc_origin, #arc_target {
   font-weight: bold;
 }
+
+#message {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #ff0000;
+  color: #000000;
+  opacity: 0.9;
+  padding: 10px;
+  display: none;
+}
