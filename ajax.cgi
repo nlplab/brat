@@ -223,16 +223,16 @@ def arc_types_html(origin_type, target_type):
 
     possible = possible_arc_types_from_to(origin_type, target_type)
 
+    response = { "types" : [], "message" : None }
+
     # TODO: proper error handling
     if possible is None:
-        response = { "message" : "Error selecting arc types!",
-                     "types"   : [] }
+        response["message"] = "Error selecting arc types!"
+    elif possible == []:
+        response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
     else:
-        # TODO: proper labeling / grouping (i.e. not just "Arc")
-        response = { "types" : [["Arcs", possible]], "message" : None }
-        if possible == []:
-            response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
-
+        response["types"]   = [["Arcs", possible]]
+        
     print dumps(response, sort_keys=True, indent=2)
 
 def save_span(document, spanfrom, spanto, spantype, negation,

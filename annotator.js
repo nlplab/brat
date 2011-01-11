@@ -207,8 +207,8 @@ var Annotator = function(containerElement, onStart) {
         origin: originSpanId,
         target: targetSpanId,
       };
-      $('#arc_origin').text(data.text.substring(originSpan.from, originSpan.to));
-      $('#arc_target').text(data.text.substring(targetSpan.from, targetSpan.to));
+      $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
+      $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
       $('#del_arc_button').css('display', 'inline');
       annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type, type);
       
@@ -284,8 +284,8 @@ var Annotator = function(containerElement, onStart) {
           origin: originSpan.id,
           target: targetSpan.id,
         };
-        $('#arc_origin').text(data.text.substring(originSpan.from, originSpan.to));
-        $('#arc_target').text(data.text.substring(targetSpan.from, targetSpan.to));
+        $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
+	$('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
         $('#del_arc_button').css('display', 'none');
         annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type);
       }
@@ -1381,28 +1381,31 @@ $(function() {
       }, function(jsonData) {
         var markup = [];
 	if (jsonData.message) {
-	  console.log(jsonData.message);
+	  displayMessage(jsonData.message);
+	  //console.log(jsonData.message);
 	}
-        $.each(jsonData.types, function(fieldsetNo, fieldset) {
-          markup.push('<fieldset>');
-          markup.push('<legend>' + fieldset[0] + '</legend>');
-          $.each(fieldset[1], function(roleNo, role) {
-            markup.push('<input name="arc_type" id="arc_' + role + '" type="radio" value="' + role + '"/>');
-            markup.push('<label for="arc_' + role + '">' + role + '</label> ');
-          });
-          markup.push('</fieldset>');
-        });
-        markup = markup.join('');
-        $('#arc_roles').html(markup);
-        var el = $('#arc_' + arcType);
-        if (el.length) {
-          el[0].checked = true;
-        } else {
-          $('#arc_free_text').val(arcType);
-          $('#arc_free_entry')[0].checked = true;
-        }
-        arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
-        $('#arc_form').css('display', 'block');
+	if(jsonData.types && jsonData.types.length != 0) {
+	  $.each(jsonData.types, function(fieldsetNo, fieldset) {
+	    markup.push('<fieldset>');
+	    markup.push('<legend>' + fieldset[0] + '</legend>');
+	    $.each(fieldset[1], function(roleNo, role) {
+	      markup.push('<input name="arc_type" id="arc_' + role + '" type="radio" value="' + role + '"/>');
+	      markup.push('<label for="arc_' + role + '">' + role + '</label> ');
+	    });
+	    markup.push('</fieldset>');
+	  });
+	  markup = markup.join('');
+	  $('#arc_roles').html(markup);
+	  var el = $('#arc_' + arcType);
+	  if (el.length) {
+	    el[0].checked = true;
+	  } else {
+	    $('#arc_free_text').val(arcType);
+	    $('#arc_free_entry')[0].checked = true;
+	  }
+	  arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+	  $('#arc_form').css('display', 'block');
+	}
       });
     };
     arcForm.find('input:radio').not('#arc_free_entry').click(arcFormSubmit);
