@@ -13,6 +13,50 @@ datadir = basedir + '/data'
 
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'auth']
 
+physical_entity_types = [
+    "Protein",
+    "Entity",
+    ]
+
+event_role_types = [
+    "Theme",
+    "Cause",
+    "Site",
+    ]
+
+def is_physical_entity_type(t):
+    return t in physical_entity_types
+
+def is_event_type(t):
+    # TODO: this assumption may not always hold, check properly
+    return not is_physical_entity_type(t)
+
+def possible_arc_types_from(ann):
+    """
+    Returns a list of possible outgoing arc types from an annotation of
+    the given type.
+    """
+    if is_physical_entity_type(ann):
+        return ["Equiv"]
+    elif is_event_type:
+        return event_role_types
+    else:
+        return None
+
+def possible_arc_types_to(ann):
+    """
+    Returns a list of possible ingoing arc types from an annotation of
+    the given type.
+    """
+    if is_physical_entity_type(ann):
+        # TODO: restrict by entity type
+        return event_role_types + ["Equiv"]
+    elif is_event_type(ann):
+        # TODO: generalize
+        return ["Theme", "Cause"]
+    else:
+        return None
+
 def my_listdir(directory):
     return [l for l in listdir(directory)
             if not (l.startswith("hidden_") or l.startswith("."))]
@@ -120,8 +164,20 @@ def saveSVG(directory, document, svg):
 
 def arc_types_html(origin_type, target_type):
     print "Content-Type: application/json\n"
-    possible_arc_types = [["Roles", ["Theme", "Cause"]]] # TODO do something here
-    print dumps(possible_arc_types, sort_keys=True, indent=2)
+
+    possible_from = possible_arc_types_from(origin_type)
+    possible_to   = possible_arc_types_to(target_type)
+
+    # TODO: proper error handling
+    if possible_from is None or possible_from is None:
+        response = { "message" : "Error selecting arc types!",
+                     "types"   : [] }
+    else:
+        possible = [ t for t in possible_from if t in possible_to ]
+        # TODO: proper labeling / grouping (i.e. not just "Arc")
+        response = { "types" : [["Arcs", possible]] }
+
+    print dumps(response, sort_keys=True, indent=2)
 
 def save_span(document, spanfrom, spanto, spantype):
     print "Content-Type: text/html\n"

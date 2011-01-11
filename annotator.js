@@ -1326,7 +1326,10 @@ $(function() {
       }, function(jsonData) {
         var markup = [];
         var allRoles = [];
-        $.each(jsonData, function(fieldsetNo, fieldset) {
+	if (jsonData.message) {
+	  console.log(jsonData.message);
+	}
+        $.each(jsonData.types, function(fieldsetNo, fieldset) {
           markup.push('<fieldset>');
           markup.push('<legend>' + fieldset[0] + '</legend>');
           $.each(fieldset[1], function(roleNo, role) {
