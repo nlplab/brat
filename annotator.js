@@ -175,31 +175,58 @@ var Annotator = function(containerElement, onStart) {
     forceRedraw();
   };
 
+  this.deleteSpan = function(evt) {
+    $('#span_form').css('display', 'none');
+    annotator.ajaxOptions.action = 'unspan';
+    annotator.postChangesAndReload();
+  };
+
+  this.deleteArc = function(evt) {
+    $('#arc_form').css('display', 'none');
+    annotator.ajaxOptions.action = 'unarc';
+    annotator.postChangesAndReload();
+  };
+
   var dblClick = function(evt) {
     if (!user) return;
     var target = $(evt.target);
     var id;
-    // do we delete an arc?
+    // do we edit an arc?
     if (id = target.attr('data-arc-role')) {
       window.getSelection().removeAllRanges();
       var originSpanId = target.attr('data-arc-origin');
       var targetSpanId = target.attr('data-arc-target');
+      var type = target.attr('data-arc-role');
+      var originSpan = data.spans[originSpanId];
+      var targetSpan = data.spans[targetSpanId];
       annotator.ajaxOptions = {
-        action: 'unarc',
+        action: 'arc',
         origin: originSpanId,
         target: targetSpanId,
-        type: id,
       };
-      annotator.postChangesAndReload();
+      $('#arc_origin').text(data.text.substring(originSpan.from, originSpan.to));
+      $('#arc_target').text(data.text.substring(targetSpan.from, targetSpan.to));
+      $('#del_arc_button').css('display', 'inline');
+      annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type, type);
       
-    // if not, then do we delete a span?
+    // if not, then do we edit a span?
     } else if (id = target.attr('data-span-id')) {
       window.getSelection().removeAllRanges();
+      var span = data.spans[id];
       annotator.ajaxOptions = {
-        action: 'unspan',
+        action: 'span',
         id: id,
       };
-      annotator.postChangesAndReload();
+      $('#span_selected').text(data.text.substring(span.from, span.to));
+      $('#del_span_button').css('display', 'inline');
+      $('#span_form').css('display', 'block');
+      var el = $('#span_' + span.type);
+      if (el.length) {
+        el[0].checked = true;
+      } else {
+        $('#span_free_text').val(span.type);
+        $('#span_free_entry')[0].checked = true;
+      }
     }
   };
 
@@ -256,6 +283,7 @@ var Annotator = function(containerElement, onStart) {
         };
         $('#arc_origin').text(data.text.substring(originSpan.from, originSpan.to));
         $('#arc_target').text(data.text.substring(targetSpan.from, targetSpan.to));
+        $('#del_arc_button').css('display', 'none');
         annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type);
       }
       svg.remove(arcDragArc);
@@ -281,6 +309,7 @@ var Annotator = function(containerElement, onStart) {
           to: selectedTo,
         };
         $('#span_selected').text(data.text.substring(selectedFrom, selectedTo));
+        $('#del_span_button').css('display', 'none');
         $('#span_form').css('display', 'block');
       }
     }
@@ -1299,6 +1328,7 @@ $(function() {
         spanForm.css('display', 'none');
       });
     spanForm.find('input:radio').not('#span_free_entry').click(spanFormSubmit);
+    $('#del_span_button').click(annotator.deleteSpan);
 
     var arcSubmit = function(type) {
       annotator.ajaxOptions.type = type;
@@ -1318,38 +1348,37 @@ $(function() {
       bind('reset', function(evt) {
         arcForm.css('display', 'none');
       });
-    annotator.fillArcTypesAndDisplayForm = function(originType, targetType) {
+    annotator.fillArcTypesAndDisplayForm = function(originType, targetType, arcType) {
       $.get(ajaxBase, {
         action: 'arctypes',
         origin: originType,
         target: targetType,
       }, function(jsonData) {
         var markup = [];
-        var allRoles = [];
         $.each(jsonData, function(fieldsetNo, fieldset) {
           markup.push('<fieldset>');
           markup.push('<legend>' + fieldset[0] + '</legend>');
           $.each(fieldset[1], function(roleNo, role) {
             markup.push('<input name="arc_type" id="arc_' + role + '" type="radio" value="' + role + '"/>');
             markup.push('<label for="arc_' + role + '">' + role + '</label> ');
-            allRoles.push(role);
           });
           markup.push('</fieldset>');
         });
-        // remove allRoles/len logic to always pop the form up,
-        // regardless of number of available role types
-        var len = allRoles.length;
-        if (len == 1) {
-          arcSubmit(allRoles[0]);
-        } else if (len) {
-          markup = markup.join('');
-          $('#arc_roles').html(markup);
-          arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
-          $('#arc_form').css('display', 'block');
+        markup = markup.join('');
+        $('#arc_roles').html(markup);
+        var el = $('#arc_' + arcType);
+        if (el.length) {
+          el[0].checked = true;
+        } else {
+          $('#arc_free_text').val(arcType);
+          $('#arc_free_entry')[0].checked = true;
         }
+        arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+        $('#arc_form').css('display', 'block');
       });
     };
     arcForm.find('input:radio').not('#arc_free_entry').click(arcFormSubmit);
+    $('#del_arc_button').click(annotator.deleteArc);
 
     var authFormSubmit = function(evt) {
       var user = $('#auth_user').val();
