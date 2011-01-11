@@ -179,11 +179,12 @@ def arc_types_html(origin_type, target_type):
 
     print dumps(response, sort_keys=True, indent=2)
 
-def save_span(document, spanfrom, spanto, spantype, id):
+def save_span(document, spanfrom, spanto, spantype, negation,
+        speculation, id):
     # if id present: edit
     # if spanfrom and spanto present, new
     print "Content-Type: text/html\n"
-    print "Added", document, spanfrom, spanto, spantype # TODO do something with it
+    print "Added", document, spanfrom, spanto, spantype, modifications, id # TODO do something with it
 
 def save_arc(document, arcorigin, arctarget, arctype):
     # (arcorigin, arctarget) is unique
@@ -255,6 +256,8 @@ def main():
                         params.getvalue('from'),
                         params.getvalue('to'),
                         params.getvalue('type'),
+                        params.getvalue('negation'),
+                        params.getvalue('speculation'),
                         params.getvalue('id'))
             elif action == 'arc':
                 save_arc(docpath,
