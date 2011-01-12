@@ -85,6 +85,16 @@ path {
   opacity: 0.25;
 }
 
+.sentnum text {
+  fill: #999999;
+  text-anchor: end;
+}
+
+.sentnum path {
+  stroke: #999999;
+  stroke-width: 1px;
+}
+
 .span_default {
   fill: #7fe67f;
 }

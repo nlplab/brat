@@ -1,10 +1,4 @@
 Annotation:
-    clientside:
-        ask the server for possible options for span and arc types
-        generate the form dynamically (or not at all, if only 1 type)
-        add modifications to the form
-        edit form on double-click
-            (delete, toggle modifications)
     serverside:
         add span (from, to, type)
         add arc (origin, target, type)
@@ -14,8 +8,3 @@ Annotation:
             pay attention to Equiv (exceptional handling)
 
 test again
-
-message box
-paragraph numbers
-modifications
-
