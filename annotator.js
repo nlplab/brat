@@ -37,6 +37,8 @@ var Annotator = function(containerElement, onStart) {
   var rowSpacing = 5;
   var user;
   var password;
+  var user = 'editor';      // TODO REMOVE !!!
+  var password = 'crunchy'; // TODO REMOVE !!!
 
   var undefined; // prevents evil "undefined = 17" attacks
 
@@ -1353,6 +1355,8 @@ $(function() {
       if (!type) type = $('#span_free_text').val();
       if (type) { // (if not cancelled)
         annotator.ajaxOptions.type = type;
+        annotator.ajaxOptions.negation = $('#span_mod_Negation')[0].checked;
+        annotator.ajaxOptions.speculation = $('#span_mod_Speculation')[0].checked;
         annotator.postChangesAndReload();
       }
       return false;
