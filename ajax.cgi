@@ -18,11 +18,72 @@ physical_entity_types = [
     "Entity",
     ]
 
-event_role_types = [
-    "Theme",
-    "Cause",
-    "Site",
-    ]
+# Arguments allowed for events, by type. Derived from the tables on
+# the per-task pages under http://sites.google.com/site/bionlpst/ .
+
+# abbrevs
+theme_only_argument = {
+    "Theme" : ["Protein"],
+    }
+
+theme_and_site_arguments = {
+    "Theme" : ["Protein"],
+    "Site"  : ["Entity"],
+}
+
+regulation_arguments = {
+    "Theme" : ["Protein", "event"],
+    "Cause" : ["Protein", "event"],
+    "Site"  : ["Entity"],
+    "CSite" : ["Entity"],
+    }
+
+localization_arguments = {
+    "Theme" : ["Protein"],
+    "AtLoc" : ["Entity"],
+    "ToLoc" : ["Entity"],
+    }
+
+sidechain_modification_arguments = {
+    "Theme"     : ["Protein"],
+    "Site"      : ["Entity"],
+    "Sidechain" : ["Entity"],
+    }
+
+contextgene_modification_arguments = {
+    "Theme"       : ["Protein"],
+    "Site"        : ["Entity"],
+    "Contextgene" : ["Protein"],
+    }
+
+event_argument_types = {
+    # GENIA
+    "default"             : theme_only_argument,
+    "Phosphorylation"     : theme_and_site_arguments,
+    "Localization"        : localization_arguments,
+    "Binding"             : theme_and_site_arguments,
+    "Regulation"          : regulation_arguments,
+    "Positive_regulation" : regulation_arguments,
+    "Negative_regulation" : regulation_arguments,
+
+    # EPI
+    "Dephosphorylation"   : theme_and_site_arguments,
+    "Hydroxylation"       : theme_and_site_arguments,
+    "Dehydroxylation"     : theme_and_site_arguments,
+    "Ubiquitination"      : theme_and_site_arguments,
+    "Deubiquitination"    : theme_and_site_arguments,
+    "DNA_methylation"     : theme_and_site_arguments,
+    "DNA_demethylation"   : theme_and_site_arguments,
+    "Glycosylation"       : sidechain_modification_arguments,
+    "Deglycosylation"     : sidechain_modification_arguments,
+    "Acetylation"         : contextgene_modification_arguments,
+    "Deacetylation"       : contextgene_modification_arguments,
+    "Methylation"         : contextgene_modification_arguments,
+    "Demethylation"       : contextgene_modification_arguments,
+    "Catalysis"           : regulation_arguments,
+
+    # TODO: ID
+    }
 
 def is_physical_entity_type(t):
     return t in physical_entity_types
@@ -31,29 +92,24 @@ def is_event_type(t):
     # TODO: this assumption may not always hold, check properly
     return not is_physical_entity_type(t)
 
-def possible_arc_types_from(ann):
-    """
-    Returns a list of possible outgoing arc types from an annotation of
-    the given type.
-    """
-    if is_physical_entity_type(ann):
-        return ["Equiv"]
-    elif is_event_type:
-        return event_role_types
-    else:
-        return None
+def possible_arc_types_from_to(from_ann, to_ann):
+    if is_physical_entity_type(from_ann):
+        # only possible "outgoing" edge from a physical entity is Equiv
+        # to another entity of the same type.
+        if from_ann == to_ann:
+            return ["Equiv"]
+        else:
+            return []
+    elif is_event_type(from_ann):
+        # look up the big table
+        args = event_argument_types.get(from_ann, event_argument_types["default"])
 
-def possible_arc_types_to(ann):
-    """
-    Returns a list of possible ingoing arc types from an annotation of
-    the given type.
-    """
-    if is_physical_entity_type(ann):
-        # TODO: restrict by entity type
-        return event_role_types + ["Equiv"]
-    elif is_event_type(ann):
-        # TODO: generalize
-        return ["Theme", "Cause"]
+        possible = []
+        for a in args:
+            if (to_ann in args[a] or
+                is_event_type(to_ann) and "event" in args[a]):
+                possible.append(a)
+        return possible
     else:
         return None
 
@@ -165,18 +221,18 @@ def saveSVG(directory, document, svg):
 def arc_types_html(origin_type, target_type):
     print "Content-Type: application/json\n"
 
-    possible_from = possible_arc_types_from(origin_type)
-    possible_to   = possible_arc_types_to(target_type)
+    possible = possible_arc_types_from_to(origin_type, target_type)
+
+    response = { "types" : [], "message" : None }
 
     # TODO: proper error handling
-    if possible_from is None or possible_from is None:
-        response = { "message" : "Error selecting arc types!",
-                     "types"   : [] }
+    if possible is None:
+        response["message"] = "Error selecting arc types!"
+    elif possible == []:
+        response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
     else:
-        possible = [ t for t in possible_from if t in possible_to ]
-        # TODO: proper labeling / grouping (i.e. not just "Arc")
-        response = { "types" : [["Arcs", possible]] }
-
+        response["types"]   = [["Arcs", possible]]
+        
     print dumps(response, sort_keys=True, indent=2)
 
 def save_span(document, spanfrom, spanto, spantype, negation,
