@@ -35,6 +35,7 @@ var Annotator = function(containerElement, onStart) {
   var arcHorizontalSpacing = 25;
   var dashArray = '3,3';
   var rowSpacing = 5;
+  var sentNumMargin = 25;
   var user;
   var password;
   var user = 'editor';      // TODO REMOVE !!!
@@ -674,11 +675,13 @@ var Annotator = function(containerElement, onStart) {
     var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
     var textHeight = text.getBBox().height;
 
-    var current = { x: margin.x, y: margin.y }; // TODO: we don't need some of this?
+    var current = { x: margin.x + sentNumMargin, y: margin.y }; // TODO: we don't need some of this?
     var rows = [];
     var spanHeights = [];
-    var row = new Row();
     var sentenceToggle = 0;
+    var sentenceNumber = 0;
+    var row = new Row();
+    row.sentence = ++sentenceNumber;
     row.backgroundIndex = sentenceToggle;
     row.index = 0;
     var rowIndex = 0;
@@ -855,7 +858,8 @@ var Annotator = function(containerElement, onStart) {
         row.arcs = svg.group(row.group, { 'class': 'arcs' });
         // new row
         rows.push(row);
-        current.x = margin.x + (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
+        current.x = margin.x + sentNumMargin +
+            (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
         svg.remove(chunk.group);
         row = new Row();
         row.backgroundIndex = sentenceToggle;
@@ -873,6 +877,7 @@ var Annotator = function(containerElement, onStart) {
           });
       }
       if (hasAnnotations) row.hasAnnotations = true;
+      if (chunk.newSentence) row.sentence = ++sentenceNumber;
 
       if (spacing > 0) {
         // if we added a gap, center the intervening elements
@@ -1026,7 +1031,7 @@ var Annotator = function(containerElement, onStart) {
         if (rowIndex == leftRow) {
           from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
         } else {
-          from = 0;
+          from = sentNumMargin;
         }
 
         if (rowIndex == rightRow) {
@@ -1083,6 +1088,7 @@ var Annotator = function(containerElement, onStart) {
     }); // arcs
 
     var y = margin.y;
+    var sentNumGroup = svg.group({'class': 'sentnum'});
     $.each(rows, function(rowId, row) {
       var rowBox = row.group.getBBox();
       if (!rowBox) { // older Firefox bug
@@ -1099,6 +1105,9 @@ var Annotator = function(containerElement, onStart) {
       y += rowBox.height;
       y += textHeight;
       row.textY = y;
+      if (row.sentence) {
+        svg.text(sentNumGroup, sentNumMargin - margin.x, y, '' + row.sentence);
+      }
       translate(row, 0, y);
       y += margin.y;
     });
@@ -1125,6 +1134,9 @@ var Annotator = function(containerElement, onStart) {
         }
     });
 
+    svg.path(sentNumGroup, svg.createPath().
+      move(sentNumMargin, 0).
+      line(sentNumMargin, y));
     // resize the SVG
     $(svg._svg).attr('height', y).css('height', y);
     $(containerElement).attr('height', y).css('height', y);
