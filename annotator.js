@@ -38,8 +38,6 @@ var Annotator = function(containerElement, onStart) {
   var sentNumMargin = 25;
   var user;
   var password;
-  var user = 'editor';      // TODO REMOVE !!!
-  var password = 'crunchy'; // TODO REMOVE !!!
 
   var undefined; // prevents evil "undefined = 17" attacks
 
