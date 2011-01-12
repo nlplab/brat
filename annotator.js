@@ -443,9 +443,12 @@ var Annotator = function(containerElement, onStart) {
     }
 
     // assign spans to appropriate chunks
+    // and copy spans to sortedSpans array
+    var sortedSpans = [];
     var numChunks = data.chunks.length;
     for (spanId in data.spans) {
       var span = data.spans[spanId];
+      sortedSpans.push(span);
       for (var j = 0; j < numChunks; j++) {
         var chunk = data.chunks[j];
         if (span.to <= chunk.to) {
@@ -488,14 +491,30 @@ var Annotator = function(containerElement, onStart) {
       }); // roles
     }); // eventDescs
 
-    var sortedSpans = [];
-    // sort spans in chunks for drawing purposes
+    // sort the spans for linear order
+    sortedSpans.sort(function(a, b) {
+      var tmp = a.from + a.to - b.from - b.to;
+      if (tmp) {
+        return tmp < 0 ? -1 : 1;
+      }
+      return 0;
+    });
+
+    // mark curlies where needed
     var lastSpan = null;
+    var curlyId = 0;
+    $.each(sortedSpans, function(i, span) {
+      if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
+        curlyId++;
+      }
+      span.curlyId = curlyId;
+      span.avgDist = span.totalDist / span.numArcs;
+      lastSpan = span;
+    }); // sortedSpans
+
+    var drawnCurlies = {};
+    // sort spans in chunks for drawing purposes
     $.each(data.chunks, function(chunkNo, chunk) {
-      $.each(chunk.spans, function(spanNo, span) {
-        sortedSpans.push(span);
-        span.avgDist = span.totalDist / span.numArcs;
-      });
       chunk.spans.sort(function(a, b) {
         // longer arc distances go last
         var tmp = a.avgDist - b.avgDist;
@@ -520,24 +539,15 @@ var Annotator = function(containerElement, onStart) {
           return tmp < 0 ? 1 : -1;
         }
         return 0;
-      }); // spans
-      // number the spans so we can check for heights later
-      $.each(chunk.spans, function(i, span) {
-        if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
+      }); // sort
+      $.each(chunk.spans, function(spanNo, span) {
+        if (!drawnCurlies[span.curlyId]) {
+          drawnCurlies[span.curlyId] = true;
           span.drawCurly = true;
         }
-        lastSpan = span;
-      }); // spans
+      }); // chunk.spans
     }); // chunks
 
-    // sort the spans for linear order
-    sortedSpans.sort(function(a, b) {
-      var tmp = a.from + a.to - b.from - b.to;
-      if (tmp) {
-        return tmp < 0 ? -1 : 1;
-      }
-      return 0;
-    });
     var realSpanNo = -1;
     var lastSpan;
     $.each(sortedSpans, function(spanNo, span) {
