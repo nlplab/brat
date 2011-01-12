@@ -513,9 +513,9 @@ var Annotator = function(containerElement, onStart) {
     }); // sortedSpans
 
     var drawnCurlies = {};
-    // sort spans in chunks for drawing purposes
-    $.each(data.chunks, function(chunkNo, chunk) {
-      chunk.spans.sort(function(a, b) {
+
+    var compareHeights = false;
+    var sortComparator = function(a, b) {
         // longer arc distances go last
         var tmp = a.avgDist - b.avgDist;
         if (tmp) {
@@ -538,8 +538,37 @@ var Annotator = function(containerElement, onStart) {
         if (tmp) {
           return tmp < 0 ? 1 : -1;
         }
+	if (compareHeights) {
+	  tmp = b.refedIndexSum - a.refedIndexSum;
+	  if (tmp) {
+	    return tmp < 0 ? 1 : -1;
+	  }
+	}
+	
         return 0;
-      }); // sort
+    };
+
+    // preliminary sort to assign heights for basic cases
+    $.each(data.chunks, function(chunkNo, chunk) {
+      chunk.spans.sort(sortComparator); // sort
+      $.each(chunk.spans, function(spanNo, span) {
+		 span.indexNumber = spanNo;
+		 span.refedIndexSum = 0;
+	     });
+	   });
+    // basic cases not referencing others will now have indexNumber set
+    // to indicate their relative order. Sum those for referencing cases
+    $.each(data.arcs, function(arcNo, arc) {
+	     data.spans[arc.origin].refedIndexSum += data.spans[arc.target].indexNumber;
+	   });
+    // and make the next sort take this into account. Note that this will
+    // now resolve first-order dependencies between sort orders but not
+    // second-order or higher.
+    compareHeights = true;
+
+    // Sort spans in chunks for drawing purposes
+    $.each(data.chunks, function(chunkNo, chunk) {
+      chunk.spans.sort(sortComparator); // sort
       $.each(chunk.spans, function(spanNo, span) {
         if (!drawnCurlies[span.curlyId]) {
           drawnCurlies[span.curlyId] = true;
