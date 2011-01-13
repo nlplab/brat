@@ -27,7 +27,7 @@ var Annotator = function(containerElement, onStart) {
   var boxTextMargin = { x: 0, y: 0 };
   var space = 5;
   var boxSpacing = 1;
-  var curlyHeight = 6;
+  var curlyHeight = 4;
   var lineSpacing = 5;
   var arcSpacing = 9; //10;
   var arcSlant = 10;
@@ -35,7 +35,7 @@ var Annotator = function(containerElement, onStart) {
   var arcHorizontalSpacing = 25;
   var dashArray = '3,3';
   var rowSpacing = 5;
-  var sentNumMargin = 25;
+  var sentNumMargin = 20;
   var user;
   var password;
 
@@ -753,8 +753,8 @@ var Annotator = function(containerElement, onStart) {
         svg.remove(measureText);
         var x = (xFrom + xTo) / 2;
 
-	// Two modes of abbreviation applied if needed
-	// and abbreviation defined.
+	// Pick longest defined abbreviation that is estimated to fit
+	// without exceeding the length of the marked span.
 	var abbrevText = span.type;
 
 	var abbrevIdx  = 0;
