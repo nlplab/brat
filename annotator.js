@@ -503,17 +503,17 @@ var Annotator = function(containerElement, onStart) {
 
     // mark curlies where needed
     var lastSpan = null;
-    var curlyId = 0;
+    var towerId = 0;
     $.each(sortedSpans, function(i, span) {
       if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
-        curlyId++;
+        towerId++;
       }
-      span.curlyId = curlyId;
+      span.towerId = towerId;
       span.avgDist = span.totalDist / span.numArcs;
       lastSpan = span;
     }); // sortedSpans
 
-    var drawnCurlies = {};
+    var curliedTowers = {};
     // sort spans in chunks for drawing purposes
     $.each(data.chunks, function(chunkNo, chunk) {
       chunk.spans.sort(function(a, b) {
@@ -541,11 +541,27 @@ var Annotator = function(containerElement, onStart) {
         }
         return 0;
       }); // sort
+
+      // add extra info to spans (curlies, chunks, texts, abbrevs)
       $.each(chunk.spans, function(spanNo, span) {
-        if (!drawnCurlies[span.curlyId]) {
-          drawnCurlies[span.curlyId] = true;
+        span.chunk = chunk;
+        span.text = chunk.text.substring(span.from, span.to);
+        if (!curliedTowers[span.towerId]) {
+          curliedTowers[span.towerId] = true;
           span.drawCurly = true;
         }
+
+	// Find the most appropriate abbreviation according to text
+        // width
+	span.abbrevText = span.type;
+	var abbrevIdx = 0;
+	var maxLength = (span.to - span.from) / 0.8;
+	while (span.abbrevText.length > maxLength &&
+            annotationAbbreviations[span.type] &&
+            annotationAbbreviations[span.type][abbrevIdx]) {
+          span.abbrevText = annotationAbbreviations[span.type][abbrevIdx];
+          abbrevIdx++;
+	}
       }); // chunk.spans
     }); // chunks
 
@@ -665,7 +681,7 @@ var Annotator = function(containerElement, onStart) {
     var textGroup = svg.group({ 'class': 'text' });
     var textSpans = svg.createText();
     $.each(data.chunks, function(chunkNo, chunk) {
-      textSpans.span(chunk.text, {
+      textSpans.span(chunk.text + ' ', {
           id: makeId('chunk' + chunk.index),
           'data-chunk-id': chunk.index,
       });
@@ -698,7 +714,6 @@ var Annotator = function(containerElement, onStart) {
       var hasAnnotations;
 
       $.each(chunk.spans, function(spanNo, span) {
-        span.chunk = chunk;
         span.group = svg.group(chunk.group, {
           'class': 'span',
           id: makeId('span_' + span.id),
@@ -724,20 +739,7 @@ var Annotator = function(containerElement, onStart) {
         svg.remove(measureText);
         var x = (xFrom + xTo) / 2;
 
-	// Two modes of abbreviation applied if needed
-	// and abbreviation defined.
-	var abbrevText = span.type;
-
-	var abbrevIdx  = 0;
-	var spanLength = span.to - span.from;
-	while(abbrevText.length > spanLength/0.8 &&
-	      annotationAbbreviations[span.type] &&
-	      annotationAbbreviations[span.type][abbrevIdx]) {
-	    abbrevText = annotationAbbreviations[span.type][abbrevIdx];
-	    abbrevIdx++;
-	}
-
-        var spanText = svg.text(span.group, x, y, abbrevText);
+        var spanText = svg.text(span.group, x, y, span.abbrevText);
         var spanBox = spanText.getBBox();
 
 	// text margin fine-tuning
@@ -1486,10 +1488,9 @@ $(function() {
     } else {
       setInterval(updateState, 200); // TODO okay?
     }
-  });
 
-
-  $(window).resize(function(evt) {
-    renderSelected();
+    $(window).resize(function(evt) {
+      renderSelected();
+    });
   });
 });
