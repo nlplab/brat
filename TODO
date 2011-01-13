@@ -8,3 +8,5 @@ Annotation:
             pay attention to Equiv (exceptional handling)
 
 test again
+
+check: vars rowSpacing and lineSpacing appear to have no effect
