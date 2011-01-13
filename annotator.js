@@ -545,11 +545,19 @@ var Annotator = function(containerElement, onStart) {
 	    return tmp < 0 ? 1 : -1;
 	  }
 	}
+	// if no other criterion is found, sort by type to maintain
+	// consistency
+	// TODO: isn't there a cmp() in JS?
+	if (a.type < b.type) {
+	    return -1;
+	} else if (a.type > b.type) {
+	    return 1;
+	}
 	
         return 0;
     };
 
-    // preliminary sort to assign heights for basic cases
+    // preliminary sort to assign order for basic cases
     $.each(data.chunks, function(chunkNo, chunk) {
       chunk.spans.sort(sortComparator); // sort
       $.each(chunk.spans, function(spanNo, span) {
