@@ -1,15 +1,13 @@
 Annotation:
     serverside:
-        add span (from, to, type)
-        add arc (origin, target, type)
+        add span (from, to, type, mods) OR MODIFY
+        add arc (origin, target, type) OR MODIFY
             pay attention to Equiv (exceptional handling)
         delete span (id)
         delete arc (origin, target, type)
             pay attention to Equiv (exceptional handling)
 
 test again
-
-check out the resizing. again.
 
 uniform tower widths
   http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/BioNLP-ST/goran/visual/visualizer.xhtml#BioNLP-ST_2011_GENIA_train_data/PMID-10339475

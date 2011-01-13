@@ -356,7 +356,6 @@ var Annotator = function(containerElement, onStart) {
   }
 
   var setData = function(_data) {
-    if (!_data) return;
     data = _data;
 
     // collect annotation data
@@ -664,8 +663,16 @@ var Annotator = function(containerElement, onStart) {
     return box;
   }
 
+  this.drawing = false;
+  this.redraw = false;
+
   this.renderData = function(_data) {
-    setData(_data);
+    if (this.drawing) return;
+    this.redraw = false;
+    this.drawing = true;
+
+    if (_data) setData(_data);
+
     svg.clear(true);
     var defs = svg.defs();
     if (!data || data.length == 0) return;
@@ -1140,6 +1147,12 @@ var Annotator = function(containerElement, onStart) {
     // resize the SVG
     $(svg._svg).attr('height', y).css('height', y);
     $(containerElement).attr('height', y).css('height', y);
+
+    this.drawing = false;
+    if (this.redraw) {
+      this.redraw = false;
+      this.renderData();
+    }
   }
 
   this.getSVG = function() {
@@ -1219,11 +1232,11 @@ $(function() {
     var annotator = this;
 
     var directoryAndDoc;
-    var drawing = false;
     var saveUser;
     var savePassword;
+
     var updateState = function(onRenderComplete) {
-      if (drawing || lastHash == window.location.hash) return;
+      if (annotator.drawing || lastHash == window.location.hash) return;
       lastHash = window.location.hash;
       var parts = lastHash.substr(1).split('/');
       if (directory != parts[0]) {
@@ -1242,18 +1255,10 @@ $(function() {
             console.error("No JSON data");
             return;
           }
-          drawing = true;
-          var error = false;
           jsonData.document = _doc;
-          try {
-            annotator.renderData(jsonData);
-          } catch (x) {
-            if (x == "BadDocumentError") error = true;
-            else throw(x);
-          }
-          drawing = false;
+          annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
-            onRenderComplete.call(annotator, error);
+            onRenderComplete.call(annotator, jsonData.error);
           }
       });
     };
@@ -1490,7 +1495,11 @@ $(function() {
     }
 
     $(window).resize(function(evt) {
-      renderSelected();
+      if (!annotator.drawing) {
+        annotator.renderData();
+      } else {
+        annotator.redraw = true;
+      }
     });
   });
 });
