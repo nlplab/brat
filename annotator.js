@@ -724,6 +724,7 @@ var Annotator = function(containerElement, onStart) {
     var textGroup = svg.group({ 'class': 'text' });
     var textSpans = svg.createText();
     $.each(data.chunks, function(chunkNo, chunk) {
+      chunk.row = undefined; // reset
       textSpans.span(chunk.text + ' ', {
           id: makeId('chunk' + chunk.index),
           'data-chunk-id': chunk.index,
@@ -765,7 +766,6 @@ var Annotator = function(containerElement, onStart) {
     var rowIndex = 0;
     var reservations;
     var lastBoxChunkIndex = -1;
-
 
     $.each(data.chunks, function(chunkNo, chunk) {
       reservations = new Array();
