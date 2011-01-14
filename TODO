@@ -9,6 +9,10 @@ Annotation:
 
 test again
 
+<<<<<<< HEAD
 resizing again
 
 
+=======
+check: vars rowSpacing and lineSpacing appear to have no effect
+>>>>>>> 7c58fb7d0464c1e4af7fa83ae7ed34abc46c81f4

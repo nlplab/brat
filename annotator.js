@@ -27,15 +27,15 @@ var Annotator = function(containerElement, onStart) {
   var boxTextMargin = { x: 0, y: 0 };
   var space = 4;
   var boxSpacing = 1;
-  var curlyHeight = 6;
+  var curlyHeight = 4;
   var lineSpacing = 5;
-  var arcSpacing = 10;
+  var arcSpacing = 9; //10;
   var arcSlant = 10;
-  var arcStartHeight = 30; //22;
+  var arcStartHeight = 25; // 30;
   var arcHorizontalSpacing = 25;
   var dashArray = '3,3';
   var rowSpacing = 5;
-  var sentNumMargin = 25;
+  var sentNumMargin = 20;
   var user;
   var password;
 
@@ -515,35 +515,61 @@ var Annotator = function(containerElement, onStart) {
     var spanAnnTexts = {};
     data.spanAnnTexts = [];
     data.towers = {};
-    // sort spans in chunks for drawing purposes
-    $.each(data.chunks, function(chunkNo, chunk) {
-      chunk.spans.sort(function(a, b) {
-        // longer arc distances go last
-        var tmp = a.avgDist - b.avgDist;
-        if (tmp) {
-          return tmp < 0 ? -1 : 1;
-        }
-        // spans with more arcs go last
-        var tmp = a.numArcs - b.numArcs;
-        if (tmp) {
-          return tmp < 0 ? -1 : 1;
-        }
-        // compare the span widths,
-        // put wider on bottom so they don't mess with arcs, or shorter
-	// on bottom if there are no arcs.
-        var ad = a.to - a.from;
-        var bd = b.to - b.from;
-        tmp = ad - bd;
-	if(a.numArcs == 0 && b.numArcs == 0) {
-	    tmp = -tmp;
-	} 
-        if (tmp) {
-          return tmp < 0 ? 1 : -1;
-        }
-        return 0;
-      }); // sort
 
-      // add extra info to spans (curlies, chunks, texts, abbrevs)
+    var sortComparator = function(a, b) {
+      // longer arc distances go last
+      var tmp = a.avgDist - b.avgDist;
+      if (tmp) {
+        return tmp < 0 ? -1 : 1;
+      }
+      // spans with more arcs go last
+      var tmp = a.numArcs - b.numArcs;
+      if (tmp) {
+        return tmp < 0 ? -1 : 1;
+      }
+      // compare the span widths,
+      // put wider on bottom so they don't mess with arcs, or shorter
+      // on bottom if there are no arcs.
+      var ad = a.to - a.from;
+      var bd = b.to - b.from;
+      tmp = ad - bd;
+      if(a.numArcs == 0 && b.numArcs == 0) {
+          tmp = -tmp;
+      } 
+      if (tmp) {
+        return tmp < 0 ? 1 : -1;
+      }
+      tmp = a.refedIndexSum - b.refedIndexSum;
+      if (tmp) {
+        return tmp < 0 ? -1 : 1;
+      }
+      
+      return 0;
+    };
+
+    for (var i = 0; i < 2; i++) {
+      // preliminary sort to assign heights for basic cases
+      $.each(data.chunks, function(chunkNo, chunk) {
+        chunk.spans.sort(sortComparator); // sort
+        $.each(chunk.spans, function(spanNo, span) {
+          span.indexNumber = spanNo;
+          span.refedIndexSum = 0;
+        });
+      });
+      // basic cases not referencing others will now have indexNumber set
+      // to indicate their relative order. Sum those for referencing cases
+      $.each(data.arcs, function(arcNo, arc) {
+        data.spans[arc.origin].refedIndexSum += data.spans[arc.target].indexNumber;
+      });
+    }
+
+
+    // Sort spans in chunks for drawing purposes
+    $.each(data.chunks, function(chunkNo, chunk) {
+      // and make the next sort take this into account. Note that this will
+      // now resolve first-order dependencies between sort orders but not
+      // second-order or higher.
+      chunk.spans.sort(sortComparator); // sort
       $.each(chunk.spans, function(spanNo, span) {
         span.chunk = chunk;
         span.text = chunk.text.substring(span.from, span.to);
