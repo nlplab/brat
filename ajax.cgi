@@ -195,6 +195,7 @@ def document_json(document):
     triggers = triggers.keys()
     struct["triggers"] = [entity for entity in struct["entities"] if entity[0] in triggers]
     struct["entities"] = [entity for entity in struct["entities"] if entity[0] not in triggers]
+    struct["error"] = None
     print dumps(struct, sort_keys=True, indent=2)
 
 

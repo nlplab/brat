@@ -25,7 +25,7 @@ var Annotator = function(containerElement, onStart) {
   var margin = { x: 2, y: 1 };
   // fine tuning specifically for box text margins
   var boxTextMargin = { x: 0, y: 0 };
-  var space = 5;
+  var space = 4;
   var boxSpacing = 1;
   var curlyHeight = 4;
   var lineSpacing = 5;
@@ -356,7 +356,6 @@ var Annotator = function(containerElement, onStart) {
   }
 
   var setData = function(_data) {
-    if (!_data) return;
     data = _data;
 
     // collect annotation data
@@ -503,85 +502,107 @@ var Annotator = function(containerElement, onStart) {
 
     // mark curlies where needed
     var lastSpan = null;
-    var curlyId = 0;
+    var towerId = 0;
     $.each(sortedSpans, function(i, span) {
       if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
-        curlyId++;
+        towerId++;
       }
-      span.curlyId = curlyId;
+      span.towerId = towerId;
       span.avgDist = span.totalDist / span.numArcs;
       lastSpan = span;
     }); // sortedSpans
 
-    var drawnCurlies = {};
+    var spanAnnTexts = {};
+    data.spanAnnTexts = [];
+    data.towers = {};
 
-    var compareHeights = false;
     var sortComparator = function(a, b) {
-        // longer arc distances go last
-        var tmp = a.avgDist - b.avgDist;
-        if (tmp) {
-          return tmp < 0 ? -1 : 1;
-        }
-        // spans with more arcs go last
-        var tmp = a.numArcs - b.numArcs;
-        if (tmp) {
-          return tmp < 0 ? -1 : 1;
-        }
-        // compare the span widths,
-        // put wider on bottom so they don't mess with arcs, or shorter
-	// on bottom if there are no arcs.
-        var ad = a.to - a.from;
-        var bd = b.to - b.from;
-        tmp = ad - bd;
-	if(a.numArcs == 0 && b.numArcs == 0) {
-	    tmp = -tmp;
-	} 
-        if (tmp) {
-          return tmp < 0 ? 1 : -1;
-        }
-	if (compareHeights) {
-	  tmp = b.refedIndexSum - a.refedIndexSum;
-	  if (tmp) {
-	    return tmp < 0 ? 1 : -1;
-	  }
-	}
-	// if no other criterion is found, sort by type to maintain
-	// consistency
-	// TODO: isn't there a cmp() in JS?
-	if (a.type < b.type) {
-	    return -1;
-	} else if (a.type > b.type) {
-	    return 1;
-	}
-	
-        return 0;
+      // longer arc distances go last
+      var tmp = a.avgDist - b.avgDist;
+      if (tmp) {
+        return tmp < 0 ? -1 : 1;
+      }
+      // spans with more arcs go last
+      var tmp = a.numArcs - b.numArcs;
+      if (tmp) {
+        return tmp < 0 ? -1 : 1;
+      }
+      // compare the span widths,
+      // put wider on bottom so they don't mess with arcs, or shorter
+      // on bottom if there are no arcs.
+      var ad = a.to - a.from;
+      var bd = b.to - b.from;
+      tmp = ad - bd;
+      if(a.numArcs == 0 && b.numArcs == 0) {
+          tmp = -tmp;
+      } 
+      if (tmp) {
+        return tmp < 0 ? 1 : -1;
+      }
+      tmp = a.refedIndexSum - b.refedIndexSum;
+      if (tmp) {
+        return tmp < 0 ? -1 : 1;
+      }
+      // if no other criterion is found, sort by type to maintain
+      // consistency
+      // TODO: isn't there a cmp() in JS?
+      if (a.type < b.type) {
+        return -1;
+      } else if (a.type > b.type) {
+        return 1;
+      }
+      
+      return 0;
     };
 
-    // preliminary sort to assign order for basic cases
-    $.each(data.chunks, function(chunkNo, chunk) {
-      chunk.spans.sort(sortComparator); // sort
-      $.each(chunk.spans, function(spanNo, span) {
-		 span.indexNumber = spanNo;
-		 span.refedIndexSum = 0;
-	     });
-	   });
-    // basic cases not referencing others will now have indexNumber set
-    // to indicate their relative order. Sum those for referencing cases
-    $.each(data.arcs, function(arcNo, arc) {
-	     data.spans[arc.origin].refedIndexSum += data.spans[arc.target].indexNumber;
-	   });
-    // and make the next sort take this into account. Note that this will
-    // now resolve first-order dependencies between sort orders but not
-    // second-order or higher.
-    compareHeights = true;
+    for (var i = 0; i < 2; i++) {
+      // preliminary sort to assign heights for basic cases
+      // (first round) and cases resolved in the previous
+      // round(s).
+      $.each(data.chunks, function(chunkNo, chunk) {
+        chunk.spans.sort(sortComparator); // sort
+        $.each(chunk.spans, function(spanNo, span) {
+          span.indexNumber = spanNo;
+          span.refedIndexSum = 0;
+        });
+      });
+      // resolved cases will now have indexNumber set
+      // to indicate their relative order. Sum those for referencing cases
+      $.each(data.arcs, function(arcNo, arc) {
+        data.spans[arc.origin].refedIndexSum += data.spans[arc.target].indexNumber;
+      });
+    }
 
     // Sort spans in chunks for drawing purposes
     $.each(data.chunks, function(chunkNo, chunk) {
+      // and make the next sort take this into account. Note that this will
+      // now resolve first-order dependencies between sort orders but not
+      // second-order or higher.
       chunk.spans.sort(sortComparator); // sort
       $.each(chunk.spans, function(spanNo, span) {
-        if (!drawnCurlies[span.curlyId]) {
-          drawnCurlies[span.curlyId] = true;
+        span.chunk = chunk;
+        span.text = chunk.text.substring(span.from, span.to);
+        if (!data.towers[span.towerId]) {
+          data.towers[span.towerId] = [];
           span.drawCurly = true;
+        }
+        data.towers[span.towerId].push(span);
+
+	// Find the most appropriate abbreviation according to text
+        // width
+	span.abbrevText = span.type;
+	var abbrevIdx = 0;
+	var maxLength = (span.to - span.from) / 0.8;
+	while (span.abbrevText.length > maxLength &&
+            annotationAbbreviations[span.type] &&
+            annotationAbbreviations[span.type][abbrevIdx]) {
+          span.abbrevText = annotationAbbreviations[span.type][abbrevIdx];
+          abbrevIdx++;
+	}
+
+        if (!spanAnnTexts[span.abbrevText]) {
+          spanAnnTexts[span.abbrevText] = true;
+          data.spanAnnTexts.push(span.abbrevText);
         }
       }); // chunk.spans
     }); // chunks
@@ -596,6 +617,8 @@ var Annotator = function(containerElement, onStart) {
       lastSpan = span;
     });
   }
+
+  // TODO do the towerId and lineIndex overlap?
 
   var placeReservation = function(span, box, reservations) {
     var newSlot = {
@@ -685,8 +708,16 @@ var Annotator = function(containerElement, onStart) {
     return box;
   }
 
+  this.drawing = false;
+  this.redraw = false;
+
   this.renderData = function(_data) {
-    setData(_data);
+    if (this.drawing) return;
+    this.redraw = false;
+    this.drawing = true;
+
+    if (_data) setData(_data);
+
     svg.clear(true);
     var defs = svg.defs();
     if (!data || data.length == 0) return;
@@ -702,13 +733,35 @@ var Annotator = function(containerElement, onStart) {
     var textGroup = svg.group({ 'class': 'text' });
     var textSpans = svg.createText();
     $.each(data.chunks, function(chunkNo, chunk) {
-      textSpans.span(chunk.text, {
+      chunk.row = undefined; // reset
+      textSpans.span(chunk.text + ' ', {
           id: makeId('chunk' + chunk.index),
           'data-chunk-id': chunk.index,
       });
     });
     var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
     var textHeight = text.getBBox().height;
+
+    // measure annotations
+    var dummySpan = svg.group({ 'class': 'span' });
+    var spanAnnBoxes = {};
+    $.each(data.spanAnnTexts, function(textNo, text) {
+      var spanText = svg.text(dummySpan, 0, 0, text);
+      spanAnnBoxes[text] = spanText.getBBox();
+    }); // data.spanAnnTexts
+    svg.remove(dummySpan);
+
+    // find biggest annotation in each tower
+    $.each(data.towers, function(towerNo, tower) {
+      var biggestBox = { width: 0 };
+      $.each(tower, function(spanNo, span) {
+        var annBox = spanAnnBoxes[span.abbrevText];
+        if (annBox.width > biggestBox.width) biggestBox = annBox;
+      }); // tower
+      $.each(tower, function(spanNo, span) {
+        span.annBox = biggestBox;
+      }); // tower
+    }); // data.towers
 
     var current = { x: margin.x + sentNumMargin, y: margin.y }; // TODO: we don't need some of this?
     var rows = [];
@@ -723,7 +776,6 @@ var Annotator = function(containerElement, onStart) {
     var reservations;
     var lastBoxChunkIndex = -1;
 
-
     $.each(data.chunks, function(chunkNo, chunk) {
       reservations = new Array();
       chunk.group = svg.group(row.group);
@@ -735,18 +787,19 @@ var Annotator = function(containerElement, onStart) {
       var hasAnnotations;
 
       $.each(chunk.spans, function(spanNo, span) {
-        span.chunk = chunk;
         span.group = svg.group(chunk.group, {
           'class': 'span',
           id: makeId('span_' + span.id),
         });
 
         // measure the text span
-        var measureText = svg.text(textGroup, 0, 0,
-          chunk.text.substr(0, span.from - chunk.from));
-        var xFrom = measureText.getBBox().width;
-        if (xFrom < 0) xFrom = 0;
-        svg.remove(measureText);
+        var xFrom = 0;
+        if (span.from != chunk.from) {
+          var measureText = svg.text(textGroup, 0, 0,
+            chunk.text.substr(0, span.from - chunk.from));
+          xFrom = measureText.getBBox().width;
+          svg.remove(measureText);
+        }
         measureText = svg.text(textGroup, 0, 0,
           chunk.text.substr(0, span.to - chunk.from));
         var measureBox = measureText.getBBox();
@@ -761,32 +814,20 @@ var Annotator = function(containerElement, onStart) {
         svg.remove(measureText);
         var x = (xFrom + xTo) / 2;
 
-	// Pick longest defined abbreviation that is estimated to fit
-	// without exceeding the length of the marked span.
-	var abbrevText = span.type;
-
-	var abbrevIdx  = 0;
-	var spanLength = span.to - span.from;
-	while(abbrevText.length > spanLength/0.8 &&
-	      annotationAbbreviations[span.type] &&
-	      annotationAbbreviations[span.type][abbrevIdx]) {
-	    abbrevText = annotationAbbreviations[span.type][abbrevIdx];
-	    abbrevIdx++;
-	}
-
-        var spanText = svg.text(span.group, x, y, abbrevText);
-        var spanBox = spanText.getBBox();
+        var spanBox = span.annBox;
+        var xx = spanBox.x + x;
+        var yy = spanBox.y + y;
+        var hh = spanBox.height;
 
 	// text margin fine-tuning
-	spanBox.y      += boxTextMargin.y;
-	spanBox.height -= 2*boxTextMargin.y;
+	yy += boxTextMargin.y;
+	hh -= 2*boxTextMargin.y;
 
-        svg.remove(spanText);
         span.rect = svg.rect(span.group,
-          spanBox.x - margin.x,
-          spanBox.y - margin.y,
+          xx - margin.x,
+          yy - margin.y,
           spanBox.width + 2 * margin.x,
-          spanBox.height + 2 * margin.y, {
+          hh + 2 * margin.y, {
             'class': 'span_' + span.type + ' span_default',
             rx: margin.x,
             ry: margin.y,
@@ -797,26 +838,25 @@ var Annotator = function(containerElement, onStart) {
 
         var yAdjust = placeReservation(span, rectBox, reservations);
         // this is monotonous due to sort:
-        span.height = yAdjust + spanBox.height + 3 * margin.y + curlyHeight + arcSpacing;
+        span.height = yAdjust + hh + 3 * margin.y + curlyHeight + arcSpacing;
         spanHeights[span.lineIndex * 2] = span.height;
-        $(span.rect).attr('y', spanBox.y - margin.y - yAdjust);
-        $(spanText).attr('y', y - yAdjust);
+        $(span.rect).attr('y', yy - margin.y - yAdjust);
         if (span.Negation) {
           svg.path(span.group, svg.createPath().
-              move(spanBox.x, spanBox.y - margin.y - yAdjust).
-              line(spanBox.x + spanBox.width,
-                spanBox.y + spanBox.height + margin.y - yAdjust),
+              move(xx, yy - margin.y - yAdjust).
+              line(xx + spanBox.width,
+                yy + hh + margin.y - yAdjust),
               { 'class': 'negation' });
           svg.path(span.group, svg.createPath().
-              move(spanBox.x + spanBox.width, spanBox.y - margin.y - yAdjust).
-              line(spanBox.x, spanBox.y + spanBox.height + margin.y - yAdjust),
+              move(xx + spanBox.width, yy - margin.y - yAdjust).
+              line(xx, yy + hh + margin.y - yAdjust),
               { 'class': 'negation' });
         }
-        svg.add(span.group, spanText);
+        var spanText = svg.text(span.group, x, y - yAdjust, span.abbrevText);
 
         // Make curlies to show the span
         if (span.drawCurly) {
-          var bottom = spanBox.y + spanBox.height + margin.y - yAdjust;
+          var bottom = yy + hh + margin.y - yAdjust;
           svg.path(span.group, svg.createPath()
               .move(xFrom, bottom + curlyHeight)
               .curveC(xFrom, bottom,
@@ -1175,6 +1215,12 @@ var Annotator = function(containerElement, onStart) {
     // resize the SVG
     $(svg._svg).attr('height', y).css('height', y);
     $(containerElement).attr('height', y).css('height', y);
+
+    this.drawing = false;
+    if (this.redraw) {
+      this.redraw = false;
+      this.renderData();
+    }
   }
 
   this.getSVG = function() {
@@ -1225,8 +1271,9 @@ $(function() {
         timer = 0;
       }
     };
-    return function(html) {
+    return function(html, error) {
       message.html(html).css('display', 'block');
+      message[0].className = error ? 'error' : 'normal';
       opacity = 2;
       if (!timer) {
         timer = setInterval(fadeMessage, 50);
@@ -1254,11 +1301,11 @@ $(function() {
     var annotator = this;
 
     var directoryAndDoc;
-    var drawing = false;
     var saveUser;
     var savePassword;
+
     var updateState = function(onRenderComplete) {
-      if (drawing || lastHash == window.location.hash) return;
+      if (annotator.drawing || lastHash == window.location.hash) return;
       lastHash = window.location.hash;
       var parts = lastHash.substr(1).split('/');
       if (directory != parts[0]) {
@@ -1277,18 +1324,10 @@ $(function() {
             console.error("No JSON data");
             return;
           }
-          drawing = true;
-          var error = false;
           jsonData.document = _doc;
-          try {
-            annotator.renderData(jsonData);
-          } catch (x) {
-            if (x == "BadDocumentError") error = true;
-            else throw(x);
-          }
-          drawing = false;
+          annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
-            onRenderComplete.call(annotator, error);
+            onRenderComplete.call(annotator, jsonData.error);
           }
       });
     };
@@ -1490,7 +1529,7 @@ $(function() {
           return false;
         },
         success: function(response) {
-          console.log(response);
+          displayMessage(response);
           annotator.setUser(user, password);
           $('#auth_button').val('Logout');
           $('#auth_user').val('');
@@ -1523,10 +1562,13 @@ $(function() {
     } else {
       setInterval(updateState, 200); // TODO okay?
     }
-  });
 
-
-  $(window).resize(function(evt) {
-    renderSelected();
+    $(window).resize(function(evt) {
+      if (!annotator.drawing) {
+        annotator.renderData();
+      } else {
+        annotator.redraw = true;
+      }
+    });
   });
 });
