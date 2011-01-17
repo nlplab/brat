@@ -38,6 +38,9 @@ var Annotator = function(containerElement, onStart) {
   var sentNumMargin = 20;
   var user;
   var password;
+  var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
+  var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
+  var reverseArcControlx = 5;   // control point distance for "UFO catchers"
 
   var undefined; // prevents evil "undefined = 17" attacks
 
@@ -1137,10 +1140,19 @@ var Annotator = function(containerElement, onStart) {
         var path;
         path = svg.createPath().move(textStart, -height);
         if (rowIndex == leftRow) {
-          path.line(from + ufoCatcherMod * arcSlant, -height).
-            line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+	    var cornerx = from + ufoCatcherMod * arcSlant;
+	    // for normal cases, should not be past textStart even if narrow
+	    if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
+	    if (smoothArcCurves) {
+		var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
+		path.line(cornerx, -height).
+		    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+	    } else {
+		path.line(cornerx, -height).
+		    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+	    }
         } else {
-          path.line(from, -height);
+	    path.line(from, -height);
         }
         svg.path(arcGroup, path, {
             markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
@@ -1149,8 +1161,18 @@ var Annotator = function(containerElement, onStart) {
         });
         path = svg.createPath().move(textEnd, -height);
         if (rowIndex == rightRow) {
-          path.line(to - ufoCatcherMod * arcSlant, -height).
-            line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+	    // TODO: duplicates above in part, make funcs
+	    var cornerx  = to - ufoCatcherMod * arcSlant;
+	    // for normal cases, should not be past textEnd even if narrow
+	    if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
+	    if (smoothArcCurves) {
+		var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
+		path.line(cornerx, -height).
+		    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+	    } else {
+		path.line(cornerx, -height).
+		    line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+	    }
         } else {
           path.line(to, -height);
         }
