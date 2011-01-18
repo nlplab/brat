@@ -1,14 +1,20 @@
-#!/usr/bin/python
+#!/data/home/pontus/local/bin/python
+
+#XXX: The above is a hack to get a non-ancient Python
+
+#!/usr/bin/env python
 
 from cgi import FieldStorage
 from os import listdir, makedirs, system
 from os.path import isdir, isfile
+from os.path import join as join_path
 from re import split, sub, match
 from simplejson import dumps
 from itertools import chain
 import fileinput
 
-basedir = '/data/home/genia/public_html/BioNLP-ST/visual'
+### Constants?
+basedir = '/data/home/genia/public_html/BioNLP-ST/pontus/visual'
 datadir = basedir + '/data'
 
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'auth']
@@ -23,6 +29,237 @@ event_role_types = [
     "Cause",
     "Site",
     ]
+###
+
+class InvalidAnnotationFileSyntaxError(Exception):
+    def __init__(self, line):
+        self.line = line
+
+class AnnotationFile(object):
+    def __init__(self, ann_path, txt_path):
+        from collections import defaultdict
+        self.ann_path = ann_path
+        self.txt_path = txt_path
+        # Map 
+        self.id_by_id_prefix = defaultdict(set)
+        #TODO: Shorthands for the types for quick access, maintain invariants
+        self.lines = []
+
+        self._parse_ann_file(ann_path, txt_path)
+    
+    #TODO: How do we handle id collisions?
+    def _parse_ann_file(self, ann_path, txt_path):
+        from itertools import takewhile
+        # If you knew the format, you would have used regexes...
+        with open(ann_path, 'r') as ann_file, open(txt_path, 'r') as txt_file:
+            #XXX: Assumptions start here...
+            for ann_line in (l.rstrip('\n') for l in ann_file):
+                try:
+                    # ID processing
+                    id, id_tail = ann_line.split('\t', 1)
+                    id_pre = ''.join([char for char in takewhile(
+                        lambda c : not c.isdigit(), id)])
+                    try:
+                        id_num = int(id[len(id_pre):])
+                        #XXX: Assert, not good
+                        assert id_num not in self.id_by_id_prefix[id_pre]
+                        self.id_by_id_prefix[id_pre].add(id_num)
+                    except ValueError:
+                        id_num = None
+
+                    # Cases for lines
+                    try:
+                        data_delim = id_tail.index('\t')
+                        data, data_tail = (id_tail[:data_delim],
+                                id_tail[data_delim:])
+                    except ValueError:
+                        data = id_tail
+                        # No tail at all, although it should have a \t
+                        data_tail = ''
+
+                    if id_pre == '*':
+                        type, type_tail = data.split(None, 1)
+                        # For now we can only handle Equivs
+                        if type != 'Equiv':
+                            raise InvalidAnnotationFileSyntaxError(ann_line)
+                        equivs = type_tail.split(None)
+                        self.lines.append(
+                                EquivAnnotation(type, equivs, data_tail))
+                    elif id_pre == 'E' or id_pre == 'R':
+                        #print data
+                        #print data_tail
+                        #XXX: A bit nasty, we require a single space
+                        try:
+                            type_delim = data.index(' ')
+                            type_trigger, type_trigger_tail = (data[:type_delim],
+                                    data[type_delim:])
+                        except ValueError:
+                            type_trigger = data
+                            type_trigger_tail = None
+                        #type_trigger, type_trigger_tail = data.split(None, 1)
+                        #print ann_line
+                        #print type_trigger
+                        try:
+                            type, trigger = type_trigger.split(':')
+                        except ValueError:
+                            #XXX: Stupid event without a trigger, bacteria task
+                            raise InvalidAnnotationFileSyntaxError(ann_line)
+                        
+                        #if type_trigger_tail == ' ':
+                        #    args = []
+                        if type_trigger_tail is not None:
+                            args = [arg.split(':')
+                                    for arg in type_trigger_tail.split()]
+                        else:
+                            args = []
+                        self.lines.append(
+                                EventAnnotation(trigger, args, id, type, data_tail))
+                    elif id_pre == 'M':
+                        type, target = data.split()
+                        self.lines.append(
+                                ModifierAnnotation(
+                                    target, id, type, data_tail))
+                    elif id_pre == 'T' or id_pre == 'W':
+                        type, start_str, end_str = data.split(None, 3)
+                        # Abort if we have trailing values
+                        if any((c.isspace() for c in end_str)):
+                            raise InvalidAnnotationFileSyntaxError(ann_line)
+                        start, end = (int(start_str), int(end_str))
+                        txt_file.seek(start)
+                        text = txt_file.read(end - start)
+                        self.lines.append(TextBoundAnnotation(
+                            start, end, text, id, type, data_tail))
+                    else:
+                        assert False, ann_line #XXX: REMOVE!
+                        raise InvalidAnnotationFileSyntaxError(ann_line)
+                        #assert False, 'No code to handle exception type'
+                except InvalidAnnotationFileSyntaxError, e:
+                    #TODO: Print warning here
+                    # We could not parse the line, just add it as an unknown annotation
+                    self.lines.append(Annotation(e.line))
+
+            #TODO: Add fillers if there was no annotation!
+
+    def get_ann_by_id(self, id):
+        for ann in self.lines:
+            if ann.id == id:
+                return ann
+        return None #XXX: NASTY! EXCEPTION should be used!
+
+    def get_new_id(self, id_pre):
+        seen = []
+        for ann in self.lines:
+            if ann.id.startswith(id_pre):
+                seen.append(int(ann.id[len(id_pre):]))
+        seen = [id for id in set(seen)]
+        seen.sort()
+        for i, id_num in enumerate(seen, start=1):
+            if i != id_num:
+                # We found an unused gap!
+                break
+        else:
+            # We found no gaps, use the number after the last seen
+            i = len(seen) + 1
+        return id_pre + str(i)
+
+    def get_annotation_by_line(self, number):
+        pass
+
+    def __str__(self):
+        return '\n'.join(str(ann) for ann in self.lines)
+
+#XXX: You are not using __init__ correctly!
+#TODO: No annotation annotation, for blank lines etc.?, no just annotation tail
+class Annotation(object):
+    def __init__(self, tail):
+        self.tail = tail
+
+    def __str__(self):
+        return self.tail
+
+
+class TypedAnnotation(Annotation):
+    def __init__(self, type, tail):
+        super(TypedAnnotation, self).__init__(tail)
+        self.type = type
+
+    def __str__(self):
+        raise NotImplementedError
+
+
+class IdedAnnotation(TypedAnnotation):
+    def __init__(self, id, type, tail):
+        super(IdedAnnotation, self).__init__(type, tail)
+        self.id = id
+
+    def __str__(self):
+        raise NotImplementedError
+
+
+class EventAnnotation(IdedAnnotation):
+    #TODO: It is not called target is it?
+    def __init__(self, trigger, args, id, type, tail):
+        super(EventAnnotation, self).__init__(id, type, tail)
+        self.trigger = trigger
+        self.args = args
+
+    def __str__(self):
+        return '{id}\t{type}:{trigger} {args}{tail}'.format(
+                id=self.id,
+                type=self.type,
+                trigger=self.trigger,
+                args=' '.join([':'.join(arg_tup) for arg_tup in self.args]),
+                tail=self.tail
+                )
+
+class EquivAnnotation(TypedAnnotation):
+    def __init__(self, type, entities, tail):
+        super(EquivAnnotation, self).__init__(type, tail)
+        self.entities = entities
+
+    def __in__(self, other):
+        return other in self.entities
+
+    def __str__(self):
+        return '*\t{type} {equivs}{tail}'.format(
+                type=self.type,
+                equivs=' '.join(self.entities),
+                tail=self.tail
+                )
+
+
+class ModifierAnnotation(IdedAnnotation):
+    def __init__(self, target, id, type, tail):
+        super(ModifierAnnotation, self).__init__(id, type, tail)
+        self.target = target
+        
+    def __str__(self):
+        return '{id}\t{type} {target}{tail}'.format(
+                id=self.id,
+                type=self.type,
+                target=self.target,
+                tail=self.tail
+                )
+
+
+class TextBoundAnnotation(IdedAnnotation):
+    #TODO: This order here is not right, start, end, text are first,
+    def __init__(self, start, end, text, id, type, tail):
+        super(TextBoundAnnotation, self).__init__(id, type, tail)
+        self.start = start
+        self.end = end
+        self.text = text
+
+    def __str__(self):
+        return '{id}\t{type} {start} {end}{tail}'.format(
+                id=self.id,
+                type=self.type,
+                start=self.start,
+                end=self.end,
+                text=self.text,
+                tail=self.tail
+                )
+###
 
 def is_physical_entity_type(t):
     return t in physical_entity_types
@@ -83,23 +320,25 @@ def document_json(document):
     from_offset = 0
     to_offset = None
 
-    text = open(document + ".txt", "rb").read()
+    text = open(document + '.txt', 'rb').read()
     text = sub(r'\. ([A-Z])',r'.\n\1', text)
     struct = {
-            "offset": from_offset,
-            "text": text,
-            "entities": [],
-            "events": [],
-            "triggers": [],
-            "modifications": [],
-            "equivs": [],
+            'offset': from_offset,
+            'text': text,
+            'entities': [],
+            'events': [],
+            'triggers': [],
+            'modifications': [],
+            'equivs': [],
             }
 
     triggers = dict()
 
     # iterate jointly over all present annotation files for the document
-    foundfiles = [document+ext for ext in (".a1", ".a2", ".co", ".rel")
-                  if isfile(document+ext)]
+    #XXX: One file to rule them all
+    foundfiles = [document + ext for ext in ('.ann',)
+            #".a1", ".a2", ".co", ".rel")
+                  if isfile(document + ext)]
     if foundfiles:
         iter = fileinput.input(foundfiles)
     else:
@@ -179,12 +418,32 @@ def arc_types_html(origin_type, target_type):
 
     print dumps(response, sort_keys=True, indent=2)
 
-def save_span(document, spanfrom, spanto, spantype, negation,
-        speculation, id):
+TEXT_FILE_SUFFIX = 'txt'
+ANN_FILE_SUFFIX = 'ann'
+
+def save_span(document, start, end, type, negation, speculation, id):
     # if id present: edit
     # if spanfrom and spanto present, new
+    #XXX: Negation, speculation not done!
+    ann_file_path = document + '.' + ANN_FILE_SUFFIX
+    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+
+    ann_obj = AnnotationFile(ann_file_path, txt_file_path)
+    if id: #XXX: What will ID be really? None?
+        pass
+    else:
+        # Get a new ID
+        #XXX:
+        # Get the text span
+        with open(txt_file_path, 'r') as txt_file:
+            txt_file.seek(start)
+            text = txt_file.read(end - start)
+    
+        #TODO: Data tail should be optional
+        ann = TextBoundAnnotation(start, end, text, new_id, type, '')
+
     print "Content-Type: text/html\n"
-    print "Added", document, spanfrom, spanto, spantype, modifications, id # TODO do something with it
+    print "Added", document, spanfrom, spanto, spantype, modifications, id
 
 def save_arc(document, arcorigin, arctarget, arctype):
     # (arcorigin, arctarget) is unique
@@ -275,4 +534,45 @@ def main():
             else:
                 document_json(docpath)
 
-main()
+def debug():
+    """
+    import os
+    from difflib import unified_diff
+    from sys import stderr
+    for root, dirs, files in os.walk(datadir):
+        for file_path in (join_path(root, f) for f in files):
+            if file_path.endswith('.ann') and not 'hidden_' in file_path:
+                #if file_path.endswith('PMC2714965-02-Results-01.ann'):
+                print file_path
+                with open(file_path, 'r') as ann_file:
+                    ann_lines = ann_file.readlines()
+                
+                ann_obj = AnnotationFile(file_path,
+                        file_path.replace('.ann', '.txt'))
+                ann_obj_lines = [str(l) + '\n' for l in ann_obj.lines]
+
+                #print str(ann_obj)
+    
+                if ann_lines != ann_obj_lines:
+                    print >> stderr, 'MISMATCH:'
+                    print >> stderr, file_path
+                    for udiff_line in unified_diff(ann_lines, ann_obj_lines):
+                        print >> stderr, udiff_line,
+                    exit(-1)
+                
+                #exit(0)
+    """
+
+    #a = AnnotationFile(
+    #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann',
+    #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.txt')
+    #print a
+
+if __name__ == '__main__':
+    from sys import argv
+    try:
+        if argv[1] == '-d':
+            exit(debug())
+    except IndexError:
+        pass
+    main()
