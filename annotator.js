@@ -270,6 +270,8 @@ var Annotator = function(containerElement, onStart) {
       var span = data.spans[id];
       annotator.ajaxOptions = {
         action: 'span',
+        from: span.from,
+        to: span.to,
         id: id,
       };
       $('#span_selected').text(data.text.substring(span.from, span.to));
