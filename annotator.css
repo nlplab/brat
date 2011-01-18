@@ -33,6 +33,7 @@ path {
 
 .span rect.wrong {
   stroke: #ff0000;
+  stroke-width: 2;
 }
 
 .span path {
