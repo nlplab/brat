@@ -47,12 +47,13 @@ path {
 }
 
 .arcs .highlight path {
-  stroke-width: 2;
+  stroke-width: 1.5;
   opacity: 1;
 }
 .arcs .highlight text {
   stroke: black;
   fill: black;
+  stroke-width: 0.5;
 }
 .span.highlight rect {
   stroke-width: 2px;

@@ -30,14 +30,17 @@ var Annotator = function(containerElement, onStart) {
   var curlyHeight = 4;
   var lineSpacing = 5;
   var arcSpacing = 9; //10;
-  var arcSlant = 10;
-  var arcStartHeight = 25; // 30;
+  var arcSlant = 15; //10;
+  var arcStartHeight = 19; //23; //25;
   var arcHorizontalSpacing = 25;
   var dashArray = '3,3';
   var rowSpacing = 5;
   var sentNumMargin = 20;
   var user;
   var password;
+  var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
+  var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
+  var reverseArcControlx = 5;   // control point distance for "UFO catchers"
 
   var undefined; // prevents evil "undefined = 17" attacks
 
@@ -565,12 +568,22 @@ var Annotator = function(containerElement, onStart) {
       if (tmp) {
         return tmp < 0 ? -1 : 1;
       }
+      // if no other criterion is found, sort by type to maintain
+      // consistency
+      // TODO: isn't there a cmp() in JS?
+      if (a.type < b.type) {
+        return -1;
+      } else if (a.type > b.type) {
+        return 1;
+      }
       
       return 0;
     };
 
     for (var i = 0; i < 2; i++) {
       // preliminary sort to assign heights for basic cases
+      // (first round) and cases resolved in the previous
+      // round(s).
       $.each(data.chunks, function(chunkNo, chunk) {
         chunk.spans.sort(sortComparator); // sort
         $.each(chunk.spans, function(spanNo, span) {
@@ -578,13 +591,12 @@ var Annotator = function(containerElement, onStart) {
           span.refedIndexSum = 0;
         });
       });
-      // basic cases not referencing others will now have indexNumber set
+      // resolved cases will now have indexNumber set
       // to indicate their relative order. Sum those for referencing cases
       $.each(data.arcs, function(arcNo, arc) {
         data.spans[arc.origin].refedIndexSum += data.spans[arc.target].indexNumber;
       });
     }
-
 
     // Sort spans in chunks for drawing purposes
     $.each(data.chunks, function(chunkNo, chunk) {
@@ -1150,10 +1162,19 @@ var Annotator = function(containerElement, onStart) {
         var path;
         path = svg.createPath().move(textStart, -height);
         if (rowIndex == leftRow) {
-          path.line(from + ufoCatcherMod * arcSlant, -height).
-            line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+	    var cornerx = from + ufoCatcherMod * arcSlant;
+	    // for normal cases, should not be past textStart even if narrow
+	    if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
+	    if (smoothArcCurves) {
+		var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
+		path.line(cornerx, -height).
+		    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+	    } else {
+		path.line(cornerx, -height).
+		    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+	    }
         } else {
-          path.line(from, -height);
+	    path.line(from, -height);
         }
         svg.path(arcGroup, path, {
             markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
@@ -1162,8 +1183,18 @@ var Annotator = function(containerElement, onStart) {
         });
         path = svg.createPath().move(textEnd, -height);
         if (rowIndex == rightRow) {
-          path.line(to - ufoCatcherMod * arcSlant, -height).
-            line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+	    // TODO: duplicates above in part, make funcs
+	    var cornerx  = to - ufoCatcherMod * arcSlant;
+	    // for normal cases, should not be past textEnd even if narrow
+	    if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
+	    if (smoothArcCurves) {
+		var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
+		path.line(cornerx, -height).
+		    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+	    } else {
+		path.line(cornerx, -height).
+		    line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+	    }
         } else {
           path.line(to, -height);
         }
