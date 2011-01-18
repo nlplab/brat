@@ -118,6 +118,7 @@ var Annotator = function(containerElement, onStart) {
 
   var highlight;
   var highlightArcs;
+  var highlightSpans;
   var arcDragOrigin;
   var arcDragArc;
   var arcDragOriginBox;
@@ -149,16 +150,36 @@ var Annotator = function(containerElement, onStart) {
       if (arcDragOrigin) {
         target.parent().addClass('highlight');
       } else {
-        highlightArcs = target.closest('svg').find('.arcs').
+        highlightArcs = $(svgElement).
             find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
+            addClass('highlight');
+        var spans = {};
+        spans[id] = true;
+        var spanIds = [];
+        $.each(span.incoming, function(arcNo, arc) {
+            spans[arc.origin] = true;
+        });
+        $.each(span.outgoing, function(arcNo, arc) {
+            spans[arc.target] = true;
+        });
+        $.each(spans, function(spanId, dummy) {
+            spanIds.push('rect[data-span-id="' + spanId + '"]');
+        });
+        highlightSpans = $(svgElement).
+            find(spanIds.join(', ')).
+            parent().
             addClass('highlight');
       }
       forceRedraw();
     } else if (!arcDragOrigin && (id = target.attr('data-arc-role'))) {
       var originSpanId = target.attr('data-arc-origin');
       var targetSpanId = target.attr('data-arc-target');
-      highlightArcs = target.closest('svg').find('.arcs').
+      highlightArcs = $(svgElement).
           find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
+          addClass('highlight');
+      highlightSpans = $(svgElement).
+          find('rect[data-span-id="' + originSpanId + '"], rect[data-span-id="' + targetSpanId + '"]').
+          parent().
           addClass('highlight');
     }
   };
@@ -172,9 +193,10 @@ var Annotator = function(containerElement, onStart) {
       svg.remove(highlight);
       highlight = undefined;
     }
-    if (highlightArcs) {
+    if (highlightSpans) {
       highlightArcs.removeClass('highlight');
-      highlightArcs = undefined;
+      highlightSpans.removeClass('highlight');
+      highlightSpans = undefined;
     }
     forceRedraw();
   };
