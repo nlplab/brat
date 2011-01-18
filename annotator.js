@@ -24,7 +24,6 @@ var infoBoxTimer;
 var displayInfo = function(html, evt) {
     var infoBox = $('#infopopup');
     infoBox.html(html).css('display', 'block');
-    console.log(infoBox.height());
     infoBox.css({ 'opacity' : 1, 'top': evt.pageY-40-infoBox.height(), 'left':evt.pageX });
     infoBoxVisible = true;
     if (infoBoxTimer) {
@@ -878,13 +877,15 @@ var Annotator = function(containerElement, onStart) {
 	// text margin fine-tuning
 	yy += boxTextMargin.y;
 	hh -= 2*boxTextMargin.y;
-
+        
+        var rectClass = 'span_' + span.type + ' span_default';
+        if (span.info && (span.info.type.substr(0, 5) == 'False')) rectClass += ' wrong';
         span.rect = svg.rect(span.group,
           xx - margin.x - boxTextMargin.x,
           yy - margin.y,
           spanBox.width + 2 * margin.x + 2 * boxTextMargin.x,
           hh + 2 * margin.y, {
-            'class': 'span_' + span.type + ' span_default',
+            'class': rectClass,
             rx: margin.x,
             ry: margin.y,
             'data-span-id': span.id,

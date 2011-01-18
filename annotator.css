@@ -31,6 +31,10 @@ path {
   stroke-width: 0.75;
 }
 
+.span rect.wrong {
+  stroke: #ff0000;
+}
+
 .span path {
   fill: none;
   stroke: grey;
