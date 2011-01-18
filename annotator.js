@@ -18,6 +18,20 @@ if (typeof(console) === 'undefined') {
 
 
 var displayMessage;
+var hideInfo;
+var infoBoxVisible = 0;
+var infoBoxTimer;
+var displayInfo = function(html, evt) {
+    var infoBox = $('#infopopup');
+    infoBox.html(html).css('display', 'block');
+    console.log(infoBox.height());
+    infoBox.css({ 'opacity' : 1, 'top': evt.pageY-40-infoBox.height(), 'left':evt.pageX });
+    infoBoxVisible = true;
+    if (infoBoxTimer) {
+	clearInterval(infoBoxTimer);
+	infoBoxTimer = 0;
+    }
+}
 
 // SVG Annotation tool
 var Annotator = function(containerElement, onStart) {
@@ -147,6 +161,7 @@ var Annotator = function(containerElement, onStart) {
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
+      displayInfo(id+" "+span.type+"<br/>FOO!", evt);
       highlight = svg.rect(highlightGroup,
         span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
         span.curly.to + 2 - span.curly.from, span.curly.height + 2,
@@ -189,6 +204,9 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var mouseOut = function(evt) {
+      if (infoBoxVisible) {
+	  hideInfo();
+      }
     var target = $(evt.target);
     if (arcDragOrigin && arcDragOrigin != target.attr('data-span-id')) {
       target.parent().removeClass('highlight');
@@ -1327,6 +1345,27 @@ $(function() {
       }
     };
   }();
+
+  hideInfo = function() {
+      var infoBox = $('#infopopup');
+      var opacity;
+      var fadeInfo = function() {
+	  infoBox.css('opacity', opacity > 1 ? 1 : opacity);
+	  opacity -= 0.05;
+	  if (opacity <= 0) {
+	      infoBox.css('display', 'none');
+	      clearInterval(infoBoxTimer);
+	      infoBoxTimer = 0;
+	  }
+      };
+      return function(html, evt) {
+	  opacity = 1;
+	  infoBoxVisible = false;
+	  if (!infoBoxTimer) {
+	      infoBoxTimer = setInterval(fadeInfo, 10);
+	  }
+      };
+  } ();
 
   var getDirectory = function() {
     ajaxURL = ajaxBase + "?directory=" + directory;
