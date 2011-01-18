@@ -161,7 +161,14 @@ var Annotator = function(containerElement, onStart) {
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
-      displayInfo(id+" "+span.type+"<br/>FOO!", evt);
+      var info = '<div class="info_id">' + id + '</div>';
+      var idtype;
+      if (span.info) {
+        info += span.info.text;
+        idtype = 'info_' + span.info.type;
+      }
+      $('#infopopup')[0].className = idtype;
+      displayInfo(info, evt);
       highlight = svg.rect(highlightGroup,
         span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
         span.curly.to + 2 - span.curly.from, span.curly.height + 2,
@@ -443,6 +450,9 @@ var Annotator = function(containerElement, onStart) {
         var eventDesc = data.eventDescs[equiv[0] + '*' + i] =
             new EventDesc(equivSpans[i - 1], equivSpans[i - 1], [[equiv[1], equivSpans[i]]], true);
       }
+    });
+    $.each(data.infos, function(infoNo, info) {
+      data.spans[info[0]].info = { type: info[1], text: info[2] };
     });
 
     // find chunk breaks

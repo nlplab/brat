@@ -149,6 +149,7 @@ def document_json(document):
             "triggers": [],
             "modifications": [],
             "equivs": [],
+            "infos": [],
             }
 
     triggers = dict()

@@ -298,3 +298,11 @@ fieldset {
   background-color: #eeeeee;
   color: #000000;
 }
+
+#infopopup.info_False_positive {
+  background-color: #ff9999;
+}
+
+.info_id {
+  font-weight: bold;
+}
