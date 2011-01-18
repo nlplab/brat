@@ -193,6 +193,19 @@ def document_json(document):
             event = ['*%s' % equiv_id] + row[1:]
             struct["equivs"].append(event)
             equiv_id += 1
+        elif tag == "#":
+            # comment (i.e. info). Comments formatted as "#\tTYPE ID[\tSTRING]"
+            # can be displayed on the visualization; others will be ignored.
+            fields = line.split("\t")
+            if len(fields) > 1:
+                f2 = fields[1].split(" ")
+                if len(f2) == 2:
+                    ctype, cid = f2
+                    comment = ""
+                    if len(fields) > 2:
+                        comment = fields[2]
+                    struct["infos"].append([cid, ctype, comment])
+            
     triggers = triggers.keys()
     struct["triggers"] = [entity for entity in struct["entities"] if entity[0] in triggers]
     struct["entities"] = [entity for entity in struct["entities"] if entity[0] not in triggers]
