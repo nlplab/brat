@@ -401,6 +401,8 @@ var Annotator = function(containerElement, onStart) {
       var eventDesc = data.eventDescs[eventRow[0]] =
           new EventDesc(eventRow[0], eventRow[1], eventRow[2]);
       var span = $.extend({}, triggerHash[eventDesc.triggerId]); // clone
+      span.incoming = []; // protect from shallow copy
+      span.outgoing = [];
       span.id = eventDesc.id;
       data.spans[eventDesc.id] = span;
     });
