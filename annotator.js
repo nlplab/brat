@@ -102,6 +102,7 @@ var Annotator = function(containerElement, onStart) {
       "Equiv" : "Eq",
       "Contextgene" : "CGn",
       "Sidechain" : "SCh",
+      "Participant" : "Pa"
   };
 
   if (!Annotator.count) Annotator.count = 0;
@@ -827,9 +828,9 @@ var Annotator = function(containerElement, onStart) {
 	hh -= 2*boxTextMargin.y;
 
         span.rect = svg.rect(span.group,
-          xx - margin.x,
+          xx - margin.x - boxTextMargin.x,
           yy - margin.y,
-          spanBox.width + 2 * margin.x,
+          spanBox.width + 2 * margin.x + 2 * boxTextMargin.x,
           hh + 2 * margin.y, {
             'class': 'span_' + span.type + ' span_default',
             rx: margin.x,
