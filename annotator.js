@@ -257,6 +257,7 @@ var Annotator = function(containerElement, onStart) {
         action: 'arc',
         origin: originSpanId,
         target: targetSpanId,
+        type: type,
       };
       $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
       $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
