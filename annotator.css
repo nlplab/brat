@@ -31,9 +31,19 @@ path {
   stroke-width: 0.75;
 }
 
-.span rect.wrong {
+.span rect.False_positive {
   stroke: #ff0000;
-  stroke-width: 2;
+  stroke-width: 1;
+}
+
+.span rect.False_negative {
+  stroke: #ff0000;
+  stroke-width: 1;
+  opacity: 0.3;
+}
+
+.span rect.True_positive {
+  /* stroke: #007700; */
 }
 
 .span path {
@@ -305,9 +315,15 @@ fieldset {
 }
 
 #infopopup.info_False_positive {
-  background-color: #ff9999;
+  background-color: #ff7777;
 }
 
 .info_id {
+  font-weight: bold;
+}
+.info_type {
+  font-weight: bold;
+}
+.info_arc {
   font-weight: bold;
 }
