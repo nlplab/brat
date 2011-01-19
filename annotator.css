@@ -31,6 +31,11 @@ path {
   stroke-width: 0.75;
 }
 
+.span rect.wrong {
+  stroke: #ff0000;
+  stroke-width: 2;
+}
+
 .span path {
   fill: none;
   stroke: grey;
@@ -47,12 +52,13 @@ path {
 }
 
 .arcs .highlight path {
-  stroke-width: 2;
+  stroke-width: 1.5;
   opacity: 1;
 }
 .arcs .highlight text {
   stroke: black;
   fill: black;
+  stroke-width: 0.5;
 }
 .span.highlight rect {
   stroke-width: 2px;
@@ -83,6 +89,16 @@ path {
 .background_trigger {
   fill: #7fd67f;
   opacity: 0.25;
+}
+
+.sentnum text {
+  fill: #999999;
+  text-anchor: end;
+}
+
+.sentnum path {
+  stroke: #999999;
+  stroke-width: 1px;
 }
 
 .span_default {
@@ -248,11 +264,50 @@ fieldset {
 }
 
 .shadow {
-  -moz-box-shadow: 5px 5px 5px #cccccc;
-  -webkit-box-shadow: 5px 5px 5px #cccccc;
-  box-shadow: 5px 5px 5px #cccccc;
+  -moz-box-shadow: 5px 5px 5px #aaaaaa;
+  -webkit-box-shadow: 5px 5px 5px #aaaaaa;
+  box-shadow: 5px 5px 5px #aaaaaa;
 }
 
 #span_selected, #arc_origin, #arc_target {
+  font-weight: bold;
+}
+
+#message {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0.9;
+  padding: 10px;
+  display: none;
+  border: 1px outset #000000;
+}
+#message.error {
+  background-color: #ff6666;
+  color: #000000;
+}
+#message.normal {
+  background-color: #66ff66;
+  color: #000000;
+}
+
+#infopopup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.9;
+  padding: 10px;
+  display: none;
+  border: 1px outset #000000;
+  background-color: #eeeeee;
+  color: #000000;
+}
+
+#infopopup.info_False_positive {
+  background-color: #ff9999;
+}
+
+.info_id {
   font-weight: bold;
 }

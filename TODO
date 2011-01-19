@@ -1,13 +1,7 @@
 Annotation:
-    clientside:
-        ask the server for possible options for span and arc types
-        generate the form dynamically (or not at all, if only 1 type)
-        add modifications to the form
-        edit form on double-click
-            (delete, toggle modifications)
     serverside:
-        add span (from, to, type)
-        add arc (origin, target, type)
+        add span (from, to, type, mods) OR MODIFY
+        add arc (origin, target, type) OR MODIFY
             pay attention to Equiv (exceptional handling)
         delete span (id)
         delete arc (origin, target, type)
@@ -15,7 +9,10 @@ Annotation:
 
 test again
 
-message box
-paragraph numbers
-modifications
+<<<<<<< HEAD
+resizing again
 
+
+=======
+check: vars rowSpacing and lineSpacing appear to have no effect
+>>>>>>> 7c58fb7d0464c1e4af7fa83ae7ed34abc46c81f4

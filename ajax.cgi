@@ -24,11 +24,80 @@ physical_entity_types = [
     "Entity",
     ]
 
-event_role_types = [
-    "Theme",
-    "Cause",
-    "Site",
-    ]
+#XXX: Redundant?
+#event_role_types = [
+#    "Theme",
+#    "Cause",
+#    "Site",
+#    ]
+
+# Arguments allowed for events, by type. Derived from the tables on
+# the per-task pages under http://sites.google.com/site/bionlpst/ .
+
+# abbrevs
+theme_only_argument = {
+        "Theme" : ["Protein"],
+        }
+
+theme_and_site_arguments = {
+        "Theme" : ["Protein"],
+        "Site"  : ["Entity"],
+        }
+
+regulation_arguments = {
+        "Theme" : ["Protein", "event"],
+        "Cause" : ["Protein", "event"],
+        "Site"  : ["Entity"],
+        "CSite" : ["Entity"],
+        }
+
+localization_arguments = {
+        "Theme" : ["Protein"],
+        "AtLoc" : ["Entity"],
+        "ToLoc" : ["Entity"],
+        }
+
+sidechain_modification_arguments = {
+        "Theme"     : ["Protein"],
+        "Site"      : ["Entity"],
+        "Sidechain" : ["Entity"],
+        }
+
+contextgene_modification_arguments = {
+    "Theme"       : ["Protein"],
+    "Site"        : ["Entity"],
+    "Contextgene" : ["Protein"],
+    }
+
+event_argument_types = {
+    # GENIA
+    "default"             : theme_only_argument,
+    "Phosphorylation"     : theme_and_site_arguments,
+    "Localization"        : localization_arguments,
+    "Binding"             : theme_and_site_arguments,
+    "Regulation"          : regulation_arguments,
+    "Positive_regulation" : regulation_arguments,
+    "Negative_regulation" : regulation_arguments,
+
+    # EPI
+    "Dephosphorylation"   : theme_and_site_arguments,
+    "Hydroxylation"       : theme_and_site_arguments,
+    "Dehydroxylation"     : theme_and_site_arguments,
+    "Ubiquitination"      : theme_and_site_arguments,
+    "Deubiquitination"    : theme_and_site_arguments,
+    "DNA_methylation"     : theme_and_site_arguments,
+    "DNA_demethylation"   : theme_and_site_arguments,
+    "Glycosylation"       : sidechain_modification_arguments,
+    "Deglycosylation"     : sidechain_modification_arguments,
+    "Acetylation"         : contextgene_modification_arguments,
+    "Deacetylation"       : contextgene_modification_arguments,
+    "Methylation"         : contextgene_modification_arguments,
+    "Demethylation"       : contextgene_modification_arguments,
+    "Catalysis"           : regulation_arguments,
+
+    # TODO: ID
+    }
+
 ###
 
 class InvalidAnnotationFileSyntaxError(Exception):
@@ -51,6 +120,7 @@ class AnnotationFile(object):
     def _parse_ann_file(self, ann_path, txt_path):
         from itertools import takewhile
         # If you knew the format, you would have used regexes...
+        #TODO: No need to read the text files any more
         with open(ann_path, 'r') as ann_file, open(txt_path, 'r') as txt_file:
             #XXX: Assumptions start here...
             for ann_line in (l.rstrip('\n') for l in ann_file):
@@ -125,10 +195,10 @@ class AnnotationFile(object):
                         if any((c.isspace() for c in end_str)):
                             raise InvalidAnnotationFileSyntaxError(ann_line)
                         start, end = (int(start_str), int(end_str))
-                        txt_file.seek(start)
-                        text = txt_file.read(end - start)
+                        #txt_file.seek(start)
+                        #text = txt_file.read(end - start)
                         self.lines.append(TextBoundAnnotation(
-                            start, end, text, id, type, data_tail))
+                            start, end, id, type, data_tail))
                     else:
                         assert False, ann_line #XXX: REMOVE!
                         raise InvalidAnnotationFileSyntaxError(ann_line)
@@ -142,15 +212,23 @@ class AnnotationFile(object):
 
     def get_ann_by_id(self, id):
         for ann in self.lines:
-            if ann.id == id:
-                return ann
+            try:
+                if ann.id == id:
+                    return ann
+            except AttributeError:
+                # The annotation lacked an id, ignore it
+                pass
         return None #XXX: NASTY! EXCEPTION should be used!
 
     def get_new_id(self, id_pre):
         seen = []
         for ann in self.lines:
-            if ann.id.startswith(id_pre):
-                seen.append(int(ann.id[len(id_pre):]))
+            try:
+                if ann.id.startswith(id_pre):
+                    seen.append(int(ann.id[len(id_pre):]))
+            except AttributeError:
+                # The annotation lacked an id
+                pass
         seen = [id for id in set(seen)]
         seen.sort()
         for i, id_num in enumerate(seen, start=1):
@@ -243,12 +321,12 @@ class ModifierAnnotation(IdedAnnotation):
 
 
 class TextBoundAnnotation(IdedAnnotation):
-    #TODO: This order here is not right, start, end, text are first,
-    def __init__(self, start, end, text, id, type, tail):
+    def __init__(self, start, end, id, type, tail):
+        #XXX: Note that the text goes in the tail! 
         super(TextBoundAnnotation, self).__init__(id, type, tail)
         self.start = start
         self.end = end
-        self.text = text
+        #self.text = text
 
     def __str__(self):
         return '{id}\t{type} {start} {end}{tail}'.format(
@@ -256,7 +334,6 @@ class TextBoundAnnotation(IdedAnnotation):
                 type=self.type,
                 start=self.start,
                 end=self.end,
-                text=self.text,
                 tail=self.tail
                 )
 ###
@@ -268,29 +345,24 @@ def is_event_type(t):
     # TODO: this assumption may not always hold, check properly
     return not is_physical_entity_type(t)
 
-def possible_arc_types_from(ann):
-    """
-    Returns a list of possible outgoing arc types from an annotation of
-    the given type.
-    """
-    if is_physical_entity_type(ann):
-        return ["Equiv"]
-    elif is_event_type:
-        return event_role_types
-    else:
-        return None
+def possible_arc_types_from_to(from_ann, to_ann):
+    if is_physical_entity_type(from_ann):
+        # only possible "outgoing" edge from a physical entity is Equiv
+        # to another entity of the same type.
+        if from_ann == to_ann:
+            return ["Equiv"]
+        else:
+            return []
+    elif is_event_type(from_ann):
+        # look up the big table
+        args = event_argument_types.get(from_ann, event_argument_types["default"])
 
-def possible_arc_types_to(ann):
-    """
-    Returns a list of possible ingoing arc types from an annotation of
-    the given type.
-    """
-    if is_physical_entity_type(ann):
-        # TODO: restrict by entity type
-        return event_role_types + ["Equiv"]
-    elif is_event_type(ann):
-        # TODO: generalize
-        return ["Theme", "Cause"]
+        possible = []
+        for a in args:
+            if (to_ann in args[a] or
+                is_event_type(to_ann) and "event" in args[a]):
+                possible.append(a)
+        return possible
     else:
         return None
 
@@ -316,12 +388,16 @@ def directories():
         print "<option>%s</option>" % dir
 
 def document_json(document):
-    print "Content-Type: application/json\n"
+    print 'Content-Type: application/json\n'
     from_offset = 0
     to_offset = None
 
-    text = open(document + '.txt', 'rb').read()
-    text = sub(r'\. ([A-Z])',r'.\n\1', text)
+    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+    ann_file_path = document + '.' + ANN_FILE_SUFFIX
+
+    with open(txt_file_path, 'rb') as text_file:
+        text = sub(r'\. ([A-Z])',r'.\n\1', text_file.read())
+
     struct = {
             'offset': from_offset,
             'text': text,
@@ -330,10 +406,15 @@ def document_json(document):
             'triggers': [],
             'modifications': [],
             'equivs': [],
+            'infos': [],
             }
 
     triggers = dict()
 
+    #for line in AnnotationFile(ann_file_path, txt_file_path).lines:
+    #    pass
+
+    
     # iterate jointly over all present annotation files for the document
     #XXX: One file to rule them all
     foundfiles = [document + ext for ext in ('.ann',)
@@ -375,9 +456,22 @@ def document_json(document):
             event = ['*%s' % equiv_id] + row[1:]
             struct["equivs"].append(event)
             equiv_id += 1
+        elif tag == "#":
+            # comment (i.e. info). Comments formatted as "#\tTYPE ID[\tSTRING]"
+            # can be displayed on the visualization; others will be ignored.
+            fields = line.split("\t")
+            if len(fields) > 1:
+                f2 = fields[1].split(" ")
+                if len(f2) == 2:
+                    ctype, cid = f2
+                    comment = ""
+                    if len(fields) > 2:
+                        comment = fields[2]
+                    struct["infos"].append([cid, ctype, comment])
     triggers = triggers.keys()
     struct["triggers"] = [entity for entity in struct["entities"] if entity[0] in triggers]
     struct["entities"] = [entity for entity in struct["entities"] if entity[0] not in triggers]
+    struct["error"] = None
     print dumps(struct, sort_keys=True, indent=2)
 
 
@@ -404,24 +498,25 @@ def saveSVG(directory, document, svg):
 def arc_types_html(origin_type, target_type):
     print "Content-Type: application/json\n"
 
-    possible_from = possible_arc_types_from(origin_type)
-    possible_to   = possible_arc_types_to(target_type)
+    possible = possible_arc_types_from_to(origin_type, target_type)
+
+    response = { "types" : [], "message" : None }
 
     # TODO: proper error handling
-    if possible_from is None or possible_from is None:
-        response = { "message" : "Error selecting arc types!",
-                     "types"   : [] }
+    if possible is None:
+        response["message"] = "Error selecting arc types!"
+    elif possible == []:
+        response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
     else:
-        possible = [ t for t in possible_from if t in possible_to ]
-        # TODO: proper labeling / grouping (i.e. not just "Arc")
-        response = { "types" : [["Arcs", possible]] }
-
+        response["types"]   = [["Arcs", possible]]
+        
     print dumps(response, sort_keys=True, indent=2)
 
 TEXT_FILE_SUFFIX = 'txt'
 ANN_FILE_SUFFIX = 'ann'
 
-def save_span(document, start, end, type, negation, speculation, id):
+def save_span(document, start_str, end_str, type, negation, speculation, id):
+    #TODO: Handle the case when negation and speculation both are positive
     # if id present: edit
     # if spanfrom and spanto present, new
     #XXX: Negation, speculation not done!
@@ -429,35 +524,164 @@ def save_span(document, start, end, type, negation, speculation, id):
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
     ann_obj = AnnotationFile(ann_file_path, txt_file_path)
-    if id: #XXX: What will ID be really? None?
-        pass
+    if id is not None:
+        #TODO: Handle failure to find!
+        ann = ann_obj.get_ann_by_id(id)
+        
+        # We can't update start end as it is, read more below
+        """
+        if start != ann.start or end != ann.end:
+            '''
+            This scenario has been discussed and changing the span inevitably
+            leads to the text span being out of sync since we can't for sure
+            determine where in the data format the text (if at all) it is
+            stored. For now we will fail loudly here.
+            '''
+            assert False, 'unable to change the span of an existing textual annotation'
+
+        ann.start = start
+        ann.end = end
+        """
+        ann.type = type
+
+        # Here we assume that there is at most one of each in the file, this can be wrong
+        seen_spec = None
+        seen_neg = None
+        for other_ann in ann_obj.lines:
+            try:
+                if other_ann.target == ann.id:
+                    if other_ann.type == 'Speculation': #XXX: Cons
+                        seen_spec = other_ann
+                    if other_ann.type == 'Negation': #XXX: Cons
+                        seen_neg = other_ann
+            except AttributeError:
+                pass
+        # Is the attribute set and none existing? Add.
+        if speculation and seen_spec is None:
+            spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+            spec_mod = ModifierAnnotation(ann.id, spec_mod_id, 'Speculation', '') #XXX: Cons
+            ann_obj.lines.append(spec_mod)
+        if negation and seen_neg is None:
+            neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+            neg_mod = ModifierAnnotation(ann.id, neg_mod_id, 'Negation', '') #XXX: Cons
+            ann_obj.lines.append(neg_mod)
+        # Is the attribute unset and one existing? Erase.
+        if not speculation and seen_spec is not None:
+            ann_obj.lines.remove(seen_spec)
+        if not negation and seen_neg is not None:
+            ann_obj.lines.remove(seen_neg)
     else:
+        start = int(start_str)
+        end = int(end_str)
+
         # Get a new ID
-        #XXX:
+        new_id = ann_obj.get_new_id('T') #XXX: Cons
         # Get the text span
         with open(txt_file_path, 'r') as txt_file:
             txt_file.seek(start)
             text = txt_file.read(end - start)
     
         #TODO: Data tail should be optional
-        ann = TextBoundAnnotation(start, end, text, new_id, type, '')
+        ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
+        ann_obj.lines.append(ann)
 
-    print "Content-Type: text/html\n"
-    print "Added", document, spanfrom, spanto, spantype, modifications, id
+        if speculation:
+            spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+            spec_mod = ModifierAnnotation(new_id, spec_mod_id, 'Speculation', '') #XXX: Cons
+            ann_obj.lines.append(spec_mod)
+        else:
+            neg_mod = None
+        if negation:
+            neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+            neg_mod = ModifierAnnotation(new_id, neg_mod_id, 'Negation', '') #XXX: Cons
+            ann_obj.lines.append(neg_mod)
+        else:
+            neg_mod = None
 
-def save_arc(document, arcorigin, arctarget, arctype):
+    print 'Content-Type: text/html\n'
+    print 'save_span:', document, start_str, end_str, type, negation, speculation, id
+    
+    print 'Resulting line:', ann
+
+    with open(ann_file_path, 'w') as ann_file:
+        ann_file.write(str(ann_obj))
+
+def save_arc(document, origin, target, type):
     # (arcorigin, arctarget) is unique
     # if exists before, replace
-    print "Content-Type: text/html\n"
-    print "Added", document, arcorigin, arctarget, arctype # TODO do something with it
+    
+    ann_file_path = document + '.' + ANN_FILE_SUFFIX
+    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-def delete_span(document, spanid):
-    print "Content-Type: text/html\n"
-    print "Deleted", document, spanid # TODO do something with it
+    ann_obj = AnnotationFile(ann_file_path, txt_file_path)
 
-def delete_arc(document, arcorigin, arctarget, arctype):
-    print "Content-Type: text/html\n"
-    print "Deleted", document, arcorigin, arctarget, arctype # TODO do something with it
+    #TODO: Check for None!
+    orig_ann = ann_obj.get_ann_by_id(origin)
+    try:
+        arg_tup = (type, target)
+        if (target, target) not in orig_ann.args:
+            orig_ann.args.append(arg_tup)
+        else:
+            # It already existed, we were called to do nothing...
+            pass
+    except AttributeError:
+        # The annotation did not have args, it was most likely an entity
+        # thus we need to create a new Event...
+        event_id = ann_obj.get_new_id('E')
+        event_ann = EventAnnotation(
+                origin, [(type, target)], event_id, orig_ann.type, '')
+        ann_obj.lines.append(event_ann)
+
+    print 'Content-Type: text/html\n'
+    print 'Added', document, origin, target, type
+    
+    with open(ann_file_path, 'w') as ann_file:
+        ann_file.write(str(ann_obj))
+
+def delete_span(document, id):
+    ann_file_path = document + '.' + ANN_FILE_SUFFIX
+    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+
+    ann_obj = AnnotationFile(ann_file_path, txt_file_path)
+    
+    #TODO: Handle a failure to find it
+    #XXX: Slow, O(2N)
+    ann = ann_obj.get_ann_by_id(id)
+    ann_obj.lines.remove(ann)
+
+    #TODO: Handle consequences of removal, should be in the object
+
+    print 'Content-Type: text/html\n'
+    print 'Deleted', document, id # TODO do something with it
+
+    with open(ann_file_path, 'w') as ann_file:
+        ann_file.write(str(ann_obj))
+
+def delete_arc(document, origin, target, type):
+    ann_file_path = document + '.' + ANN_FILE_SUFFIX
+    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+
+    ann_obj = AnnotationFile(ann_file_path, txt_file_path)
+
+    print 'Content-Type: text/html\n'
+    #TODO: Check for None!
+    orig_ann = ann_obj.get_ann_by_id(origin)
+    arg_tup = (type, target)
+    print arg_tup
+    print orig_ann.args
+    if arg_tup in orig_ann.args:
+        orig_ann.args.remove(arg_tup)
+        if not orig_ann.args:
+            # It was the last argument tuple, remove it all
+            ann_obj.lines.remove(orig_ann)
+    else:
+        # What we were to remove did not even exist in the first place
+        pass
+
+    print 'Deleted', document, origin, target, type
+    
+    with open(ann_file_path, 'w') as ann_file:
+        ann_file.write(str(ann_obj))
 
 def authenticate(login, password):
     # TODO
@@ -515,8 +739,8 @@ def main():
                         params.getvalue('from'),
                         params.getvalue('to'),
                         params.getvalue('type'),
-                        params.getvalue('negation'),
-                        params.getvalue('speculation'),
+                        params.getvalue('negation') == 'true',
+                        params.getvalue('speculation') == 'true',
                         params.getvalue('id'))
             elif action == 'arc':
                 save_arc(docpath,
@@ -535,7 +759,7 @@ def main():
                 document_json(docpath)
 
 def debug():
-    """
+    '''
     import os
     from difflib import unified_diff
     from sys import stderr
@@ -561,12 +785,23 @@ def debug():
                     exit(-1)
                 
                 #exit(0)
-    """
 
     #a = AnnotationFile(
     #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann',
     #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.txt')
     #print a
+    '''
+
+    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
+        'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
+        '59',
+        '74',
+        'Protein',
+        False,
+        False,
+        None
+        )
+    save_span(*args)
 
 if __name__ == '__main__':
     from sys import argv
