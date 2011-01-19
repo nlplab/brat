@@ -49,8 +49,6 @@ var Annotator = function(containerElement, onStart) {
   var dashArray = '3,3';
   var rowSpacing = 5;
   var sentNumMargin = 20;
-  var user;
-  var password;
   var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
   var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
   var reverseArcControlx = 5;   // control point distance for "UFO catchers"
@@ -254,7 +252,7 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var dblClick = function(evt) {
-    if (!user) return;
+    if (!annotator.user) return;
     var target = $(evt.target);
     var id;
     // do we edit an arc?
@@ -300,7 +298,7 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var mouseDown = function(evt) {
-    if (!user) return;
+    if (!annotator.user) return;
     var target = $(evt.target);
     var id;
     // is it arc drag start?
@@ -336,7 +334,7 @@ var Annotator = function(containerElement, onStart) {
   }
 
   var mouseUp = function(evt) {
-    if (!user) return;
+    if (!annotator.user) return;
     var target = $(evt.target);
     // is it arc drag end?
     if (arcDragOrigin) {
@@ -1323,15 +1321,6 @@ var Annotator = function(containerElement, onStart) {
     return data.document;
   };
 
-  this.setUser = function(_user, _password) {
-    user = _user;
-    password = _password;
-  };
-
-  this.postChangesAndReload = function() {
-    annotator.postChangesAndReloadWithCreds(user, password);
-  };
-
   containerElement.svg({
       onLoad: this.drawInitial,
   });
@@ -1426,8 +1415,11 @@ $(function() {
         getDirectory();
         return;
       }
+      if (parts[2] == 'save') {
+        renderAllToDisk();
+        return;
+      }
       var _doc = doc = parts[1];
-      if (_doc == 'save' && (savePassword = parts[2]) && (savePassword = parts[3])) return;
       $('#document_select').val(_doc);
 
       $('#document_name').text(directoryAndDoc);
@@ -1452,13 +1444,13 @@ $(function() {
       updateState(onRenderComplete);
     };
 
-    annotator.postChangesAndReloadWithCreds = function(user, pass) {
+    annotator.postChangesAndReload = function() {
       var _doc = doc;
       $.extend(annotator.ajaxOptions, {
         directory: directory,
         document: _doc,
-        user: user,
-        pass: pass,
+        user: annotator.user,
+        pass: annotator.password,
       });
       $.ajax({
         type: 'POST',
@@ -1483,8 +1475,7 @@ $(function() {
     };
 
     var renderToDiskAndSelectNext = function() {
-      if (!savePassword) return;
-
+      if (!annotator.user) return;
       renderSelected(null, function(error) {
         var svgMarkup = annotator.getSVG();
         var doc = annotator.getDocumentName();
@@ -1496,7 +1487,6 @@ $(function() {
             setTimeout(renderToDiskAndSelectNext, 0);
           } else {
             alert('done');
-            savePassword = undefined;
           }
         };
 
@@ -1507,18 +1497,16 @@ $(function() {
             type: 'POST',
             url: ajaxBase,
             data: {
+              action: 'save',
               directory: directory,
               document: doc,
-              user: saveUser,
-              pass: savePassword,
+              user: annotator.user,
+              pass: annotator.password,
               svg: svgMarkup,
             },
             error: function(req, textStatus, errorThrown) {
               console.error(doc, textStatus, errorThrown);
-              if (savePassword) {
-                savePassword = undefined;
-                alert('Error occured.\nSVG dump aborted.');
-              }
+              alert('Error occured.\nSVG dump aborted.');
             },
             success: nextFunction,
           });
@@ -1594,7 +1582,7 @@ $(function() {
       }, function(jsonData) {
         var markup = [];
 	if (jsonData.message) {
-	  displayMessage(jsonData.message);
+	  displayMessage(jsonData.message, jsonData.category);
 	  //console.log(jsonData.message);
 	}
 	if(jsonData.types && jsonData.types.length != 0) {
@@ -1643,7 +1631,8 @@ $(function() {
         },
         success: function(response) {
           displayMessage(response);
-          annotator.setUser(user, password);
+          annotator.user = user;
+          annotator.password = password;
           $('#auth_button').val('Logout');
           $('#auth_user').val('');
           $('#auth_pass').val('');
@@ -1670,11 +1659,7 @@ $(function() {
 
     directoryAndDoc = directory + (doc ? '/' + doc : '');
     updateState(doc);
-    if (savePassword) {
-      renderAllToDisk();
-    } else {
-      setInterval(updateState, 200); // TODO okay?
-    }
+    setInterval(updateState, 200); // TODO okay?
 
     $(window).resize(function(evt) {
       if (!annotator.drawing) {

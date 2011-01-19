@@ -600,7 +600,9 @@ def saveSVG(directory, document, svg):
         file.write(svg)
         file.close()
         # system('rsvg %s.svg %s.png' % (basename, basename))
-        print "Content-Type: application/json\n"
+        # print "Content-Type: application/json\n"
+        print "Content-Type: text/plain\n"
+        print "Saved as %s in %s" % (basename + '.svg', dir)
     else:
         print "Content-Type: text/plain"
         print "Status: 400 Bad Request\n"
@@ -610,13 +612,15 @@ def arc_types_html(origin_type, target_type):
 
     possible = possible_arc_types_from_to(origin_type, target_type)
 
-    response = { "types" : [], "message" : None }
+    response = { "types" : [], "message" : None, "category" : None }
 
     # TODO: proper error handling
     if possible is None:
         response["message"] = "Error selecting arc types!"
+        response["category"] = "error"
     elif possible == []:
         response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
+        response["category"] = "error"
     else:
         response["types"]   = [["Arcs", possible]]
         
@@ -836,16 +840,13 @@ def main():
         else:
             directories()
     else:
-        directory = datadir + '/' + directory
+        real_directory = datadir + '/' + directory
 
         if document is None:
-            if action == 'save':
-                svg = params.getvalue('svg')
-                saveSVG(directory, document, svg)
-            else:
-                directory_options(directory)
+            directory_options(real_directory)
         else:
-            docpath = directory + '/' + document
+            # XXX: check that the path doesn't refer up the directory tree (e.g. "../../")
+            docpath = real_directory + '/' + document
             span = params.getvalue('span')
 
             if action == 'span':
@@ -869,6 +870,9 @@ def main():
                         params.getvalue('origin'),
                         params.getvalue('target'),
                         params.getvalue('type'))
+            elif action == 'save':
+                svg = params.getvalue('svg')
+                saveSVG(directory, document, svg)
             else:
                 document_json(docpath)
 

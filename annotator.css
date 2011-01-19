@@ -312,6 +312,9 @@ fieldset {
   border: 1px outset #000000;
   background-color: #eeeeee;
   color: #000000;
+  -moz-box-shadow: 5px 5px 5px #aaaaaa;
+  -webkit-box-shadow: 5px 5px 5px #aaaaaa;
+  box-shadow: 5px 5px 5px #aaaaaa;
 }
 
 #infopopup.info_False_positive {
