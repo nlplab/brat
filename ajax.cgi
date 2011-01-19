@@ -228,7 +228,9 @@ def saveSVG(directory, document, svg):
         file.write(svg)
         file.close()
         # system('rsvg %s.svg %s.png' % (basename, basename))
-        print "Content-Type: application/json\n"
+        # print "Content-Type: application/json\n"
+        print "Content-Type: text/plain\n"
+        print "Saved as %s in %s" % (basename + '.svg', dir)
     else:
         print "Content-Type: text/plain"
         print "Status: 400 Bad Request\n"
@@ -312,17 +314,13 @@ def main():
         else:
             directories()
     else:
-        directory = datadir + '/' + directory
+        real_directory = datadir + '/' + directory
 
         if document is None:
-            if action == 'save':
-                svg = params.getvalue('svg')
-                saveSVG(directory, document, svg)
-            else:
-                directory_options(directory)
+            directory_options(real_directory)
         else:
             # XXX: check that the path doesn't refer up the directory tree (e.g. "../../")
-            docpath = directory + '/' + document
+            docpath = real_directory + '/' + document
             span = params.getvalue('span')
 
             if action == 'span':
@@ -346,6 +344,9 @@ def main():
                         params.getvalue('origin'),
                         params.getvalue('target'),
                         params.getvalue('type'))
+            elif action == 'save':
+                svg = params.getvalue('svg')
+                saveSVG(directory, document, svg)
             else:
                 document_json(docpath)
 
