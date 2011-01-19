@@ -1594,7 +1594,7 @@ $(function() {
       }, function(jsonData) {
         var markup = [];
 	if (jsonData.message) {
-	  displayMessage(jsonData.message);
+	  displayMessage(jsonData.message, jsonData.category);
 	  //console.log(jsonData.message);
 	}
 	if(jsonData.types && jsonData.types.length != 0) {

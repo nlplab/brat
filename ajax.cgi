@@ -238,13 +238,15 @@ def arc_types_html(origin_type, target_type):
 
     possible = possible_arc_types_from_to(origin_type, target_type)
 
-    response = { "types" : [], "message" : None }
+    response = { "types" : [], "message" : None, "category" : None }
 
     # TODO: proper error handling
     if possible is None:
         response["message"] = "Error selecting arc types!"
+        response["category"] = "error"
     elif possible == []:
         response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
+        response["category"] = "error"
     else:
         response["types"]   = [["Arcs", possible]]
         
