@@ -160,7 +160,7 @@ var Annotator = function(containerElement, onStart) {
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
-      var info = '<div class="info_id">' + id + '</div>';
+      var info = '<div><span class="info_id">' + id + '</span>' + ' ' + '<span class="info_type">' + span.type + '</span></div>';
       var idtype;
       if (span.info) {
         info += span.info.text;
@@ -199,6 +199,18 @@ var Annotator = function(containerElement, onStart) {
     } else if (!arcDragOrigin && (id = target.attr('data-arc-role'))) {
       var originSpanId = target.attr('data-arc-origin');
       var targetSpanId = target.attr('data-arc-target');
+      // TODO: remove special-case processing, introduce way to differentiate
+      // symmetric relations in general
+      var info;
+      if (target.attr('data-arc-role') == "Equiv") {
+	  // symmetric
+	  info = '<div class="info_arc">' + originSpanId + ' ' + target.attr('data-arc-role') + ' ' + targetSpanId +'</div>'
+      } else {
+	  // directed
+	  info = '<div class="info_arc">' + originSpanId + ' &#8594; ' + target.attr('data-arc-role') + ':' + targetSpanId +'</div>'
+      }
+      $('#infopopup')[0].className = "";
+      displayInfo(info, evt);
       highlightArcs = $(svgElement).
           find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
           addClass('highlight');
@@ -257,6 +269,7 @@ var Annotator = function(containerElement, onStart) {
         action: 'arc',
         origin: originSpanId,
         target: targetSpanId,
+        type: type,
       };
       $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
       $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
@@ -269,6 +282,8 @@ var Annotator = function(containerElement, onStart) {
       var span = data.spans[id];
       annotator.ajaxOptions = {
         action: 'span',
+        from: span.from,
+        to: span.to,
         id: id,
       };
       $('#span_selected').text(data.text.substring(span.from, span.to));
@@ -879,7 +894,8 @@ var Annotator = function(containerElement, onStart) {
 	hh -= 2*boxTextMargin.y;
         
         var rectClass = 'span_' + span.type + ' span_default';
-        if (span.info && (span.info.type.substr(0, 5) == 'False')) rectClass += ' wrong';
+	// attach e.g. "False_positive" into the type
+	if (span.info && span.info.type) { rectClass += ' '+span.info.type; }
         span.rect = svg.rect(span.group,
           xx - margin.x - boxTextMargin.x,
           yy - margin.y,
