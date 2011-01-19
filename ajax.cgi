@@ -319,6 +319,7 @@ def main():
             else:
                 directory_options(directory)
         else:
+            # XXX: check that the path doesn't refer up the directory tree (e.g. "../../")
             docpath = directory + '/' + document
             span = params.getvalue('span')
 
