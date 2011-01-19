@@ -4,6 +4,7 @@
 
 #!/usr/bin/env python
 
+#TODO: Move imports into their respective functions to boost load time
 from cgi import FieldStorage
 from os import listdir, makedirs, system
 from os.path import isdir, isfile
@@ -100,41 +101,168 @@ event_argument_types = {
 
 ###
 
-class InvalidAnnotationFileSyntaxError(Exception):
+#TODO: __str__ for the errors
+#TODO: Rename and re-work this one
+class AnnotationLineSyntaxError(Exception):
     def __init__(self, line):
         self.line = line
 
-class AnnotationFile(object):
-    def __init__(self, ann_path, txt_path):
-        from collections import defaultdict
-        self.ann_path = ann_path
-        self.txt_path = txt_path
-        # Map 
-        self.id_by_id_prefix = defaultdict(set)
-        #TODO: Shorthands for the types for quick access, maintain invariants
-        self.lines = []
 
-        self._parse_ann_file(ann_path, txt_path)
+class AnnotationNotFoundError(Exception):
+    def __init__(self, id):
+        self.id = id
+
+
+class DuplicateAnnotationIdError(Exception):
+    def __init__(self, id):
+        self.id = id
+
+
+class InvalidIdError(Exception):
+    def __init__(self, id):
+        self.id = id
+
+
+def _split_id(id):
+    '''
+    Split an id into its prefix and numerical component.
+
+    id format: [A-Za-z]+[0-9]+
+
+    Arguments:
+    id - a valid id
+
+    Returns:
+    A tuple containing the id prefix and number
+
+    Raises:
+    InvalidIdError - if the format of the id is invalid
+    '''
+    from itertools import takewhile
+
+    id_pre = ''.join([char for char in takewhile(
+        lambda c : not c.isdigit(), id)])
+    if not id_pre:
+        raise InvalidIdError(id)
+
+    try:
+        id_num = int(id[len(id_pre):])
+    except ValueError:
+        raise InvalidIdError(id)
+
+    return (id_pre, id_num)
+
+
+# We are NOT concerned with the conformity to the text file
+class AnnotationFile(object):
+    #TODO: DOC!
+    #TODO: We should handle ID collisions somehow upon initialisation
+    def __init__(self, ann_path):
+        #TODO: DOC!
+        #TODO: Incorparate file locking! Is the destructor called upon inter crash?
+        from collections import defaultdict
+
+        self.ann_path = ann_path
+
+        ### Here be dragons, these objects need constant updating and syncing
+        # Annotation for each line of the file
+        self._lines = []
+        # Mapping between annotation objects and which line they occur on
+        # Range: [0, inf.) unlike [1, inf.) which is common for files
+        self._line_by_ann = {}
+        # Maximum id number used for each id prefix, to speed up id generation
+        self._max_id_num_by_prefix = defaultdict(lambda : 1)
+        #TODO: DOC:
+        self._ann_by_id = {}
+        ###
+
+        # Finally, parse the given annotation file
+        self._parse_ann_file()
+
+    def add_annotation(self, ann):
+        #TODO: DOC!
+        try:
+            id_pre, id_num = _split_id(ann.id)
+            self._ann_by_id[ann.id] = ann
+            self._max_id_num_by_prefix[id_pre] = max(id_num, 
+                    self._max_id_num_by_prefix[id_pre])
+        except AttributeError:
+            # The annotation simply lacked an id which is fine
+            pass
+        # Add the annotation as the last line
+        self._lines.append(ann)
+        self._line_by_ann[ann] = len(self) - 1 
+
+    def del_annotation(self, ann, recursive=True):
+        # Recursive controls if we are allowed to cascade or raises an excep.
+        #TODO: DOC!
+        #TODO:
+        #XXX: We will have cascades here! This is only for atomics
+        self._atomic_del_annotation(ann)
+        pass
+
+    def _atomic_del_annotation(self, ann):
+        ann_line = self._line_by_ann[ann]
+        del self._lines[ann_line]
+        #TODO: Update ann -> line
+        del self._line_by_ann[ann]
+        #TODO: Update id -> ann
+        del self._ann_by_id[ann.id]
+
+        pass
     
-    #TODO: How do we handle id collisions?
-    def _parse_ann_file(self, ann_path, txt_path):
+    def get_ann_by_id(self, id):
+        #XXX: O(N)
+        for ann in self:
+            try:
+                if ann.id == id:
+                    return ann
+            except AttributeError:
+                # The annotation lacked an id, ignore it
+                pass
+        raise AnnotationNotFoundError(id)
+
+    def get_new_id(self, id_pre):
+        '''
+        Return a new valid unique id for this annotation file for the given
+        prefix. No ids are re-used for traceability over time for annotations,
+        but this only holds for the lifetime of the annotation object. If the
+        annotation file is parsed once again into an annotation object the
+        next assigned id will be the maximum seen for a given prefix plus one
+        which could have been deleted during a previous annotation session.
+
+        Warning: get_new_id('T') == get_new_id('T')
+        Just calling this method does not reserve the id, you need to
+        add the annotation with the returned id to the annotation object in
+        order to reserve it.
+
+        Argument(s):
+        id_pre - an annotation prefix on the format [A-Za-z]+
+
+        Returns:
+        An id that is guaranteed to be unique for the lifetime of the
+        annotation.
+        '''
+        return id_pre + str(self._max_id_num_by_prefix[id_pre] + 1)
+
+    def _parse_ann_file(self):
         from itertools import takewhile
         # If you knew the format, you would have used regexes...
-        #TODO: No need to read the text files any more
-        with open(ann_path, 'r') as ann_file, open(txt_path, 'r') as txt_file:
+        with open(self.ann_path, 'r') as ann_file:
             #XXX: Assumptions start here...
             for ann_line in (l.rstrip('\n') for l in ann_file):
                 try:
                     # ID processing
                     id, id_tail = ann_line.split('\t', 1)
-                    id_pre = ''.join([char for char in takewhile(
-                        lambda c : not c.isdigit(), id)])
+                    if id in self._ann_by_id:
+                        raise DuplicateAnnotationIdError(id)
                     try:
-                        id_num = int(id[len(id_pre):])
-                        #XXX: Assert, not good
-                        assert id_num not in self.id_by_id_prefix[id_pre]
-                        self.id_by_id_prefix[id_pre].add(id_num)
-                    except ValueError:
+                        id_pre, id_num = _split_id(id)
+                    except InvalidIdError:
+                        # This is silly, we call it an id_pre although for
+                        # example * is not an id_pre since it is not an id at
+                        # all?
+                        id_pre = id
                         id_num = None
 
                     # Cases for lines
@@ -151,9 +279,9 @@ class AnnotationFile(object):
                         type, type_tail = data.split(None, 1)
                         # For now we can only handle Equivs
                         if type != 'Equiv':
-                            raise InvalidAnnotationFileSyntaxError(ann_line)
+                            raise AnnotationLineSyntaxError(ann_line)
                         equivs = type_tail.split(None)
-                        self.lines.append(
+                        self.add_annotation(
                                 EquivAnnotation(type, equivs, data_tail))
                     elif id_pre == 'E' or id_pre == 'R':
                         #print data
@@ -173,78 +301,60 @@ class AnnotationFile(object):
                             type, trigger = type_trigger.split(':')
                         except ValueError:
                             #XXX: Stupid event without a trigger, bacteria task
-                            raise InvalidAnnotationFileSyntaxError(ann_line)
+                            raise AnnotationLineSyntaxError(ann_line)
                         
                         #if type_trigger_tail == ' ':
                         #    args = []
                         if type_trigger_tail is not None:
-                            args = [arg.split(':')
+                            args = [tuple(arg.split(':'))
                                     for arg in type_trigger_tail.split()]
                         else:
                             args = []
-                        self.lines.append(
-                                EventAnnotation(trigger, args, id, type, data_tail))
+                        self.add_annotation(EventAnnotation(
+                            trigger, args, id, type, data_tail))
                     elif id_pre == 'M':
                         type, target = data.split()
-                        self.lines.append(
-                                ModifierAnnotation(
-                                    target, id, type, data_tail))
+                        self.add_annotation(ModifierAnnotation(
+                            target, id, type, data_tail))
                     elif id_pre == 'T' or id_pre == 'W':
                         type, start_str, end_str = data.split(None, 3)
                         # Abort if we have trailing values
                         if any((c.isspace() for c in end_str)):
-                            raise InvalidAnnotationFileSyntaxError(ann_line)
+                            raise AnnotationLineSyntaxError(ann_line)
                         start, end = (int(start_str), int(end_str))
                         #txt_file.seek(start)
                         #text = txt_file.read(end - start)
-                        self.lines.append(TextBoundAnnotation(
+                        self.add_annotation(TextBoundAnnotation(
                             start, end, id, type, data_tail))
                     else:
                         assert False, ann_line #XXX: REMOVE!
-                        raise InvalidAnnotationFileSyntaxError(ann_line)
+                        raise AnnotationLineSyntaxError(ann_line)
                         #assert False, 'No code to handle exception type'
-                except InvalidAnnotationFileSyntaxError, e:
-                    #TODO: Print warning here
+                except AnnotationLineSyntaxError, e:
+                    #TODO: Print warning here, how do we print to console in a CGI?
                     # We could not parse the line, just add it as an unknown annotation
-                    self.lines.append(Annotation(e.line))
-
-            #TODO: Add fillers if there was no annotation!
-
-    def get_ann_by_id(self, id):
-        for ann in self.lines:
-            try:
-                if ann.id == id:
-                    return ann
-            except AttributeError:
-                # The annotation lacked an id, ignore it
-                pass
-        return None #XXX: NASTY! EXCEPTION should be used!
-
-    def get_new_id(self, id_pre):
-        seen = []
-        for ann in self.lines:
-            try:
-                if ann.id.startswith(id_pre):
-                    seen.append(int(ann.id[len(id_pre):]))
-            except AttributeError:
-                # The annotation lacked an id
-                pass
-        seen = [id for id in set(seen)]
-        seen.sort()
-        for i, id_num in enumerate(seen, start=1):
-            if i != id_num:
-                # We found an unused gap!
-                break
-        else:
-            # We found no gaps, use the number after the last seen
-            i = len(seen) + 1
-        return id_pre + str(i)
-
-    def get_annotation_by_line(self, number):
-        pass
+                    self.add_annotation(Annotation(e.line))
 
     def __str__(self):
-        return '\n'.join(str(ann) for ann in self.lines)
+        return '\n'.join(str(ann) for ann in self._lines)
+
+    def __it__(self):
+        for ann in self._lines:
+            yield ann
+
+    def __getitem__(self, val):
+        try:
+            # First, try to use it as a slice object
+            return self._lines[val.start, val.stop, val.step]
+        except AttributeError:
+            # It appears not to be a slice object, try an index
+            return self._lines[val]
+
+    def __len__(self):
+        return len(self._lines)
+
+    def __in__(self, other):
+        pass
 
 #XXX: You are not using __init__ correctly!
 #TODO: No annotation annotation, for blank lines etc.?, no just annotation tail
@@ -523,7 +633,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path, txt_file_path)
+    ann_obj = AnnotationFile(ann_file_path)
     if id is not None:
         #TODO: Handle failure to find!
         ann = ann_obj.get_ann_by_id(id)
@@ -547,7 +657,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         # Here we assume that there is at most one of each in the file, this can be wrong
         seen_spec = None
         seen_neg = None
-        for other_ann in ann_obj.lines:
+        for other_ann in ann_obj:
             try:
                 if other_ann.target == ann.id:
                     if other_ann.type == 'Speculation': #XXX: Cons
@@ -560,16 +670,20 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         if speculation and seen_spec is None:
             spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
             spec_mod = ModifierAnnotation(ann.id, spec_mod_id, 'Speculation', '') #XXX: Cons
-            ann_obj.lines.append(spec_mod)
+            ann_obj.add_annotation(spec_mod)
         if negation and seen_neg is None:
             neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
             neg_mod = ModifierAnnotation(ann.id, neg_mod_id, 'Negation', '') #XXX: Cons
-            ann_obj.lines.append(neg_mod)
+            ann_obj.add_annotation(neg_mod)
         # Is the attribute unset and one existing? Erase.
         if not speculation and seen_spec is not None:
-            ann_obj.lines.remove(seen_spec)
+            ann_obj.del_annotation(seen_spec)
         if not negation and seen_neg is not None:
-            ann_obj.lines.remove(seen_neg)
+            ann_obj.del_annotation(seen_neg)
+
+        # It could be the case that the span is involved in event(s), if so, 
+        # the type of that event is changed
+        #TODO:
     else:
         start = int(start_str)
         end = int(end_str)
@@ -583,18 +697,18 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
     
         #TODO: Data tail should be optional
         ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
-        ann_obj.lines.append(ann)
+        ann_obj.add_annotation(ann)
 
         if speculation:
             spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
             spec_mod = ModifierAnnotation(new_id, spec_mod_id, 'Speculation', '') #XXX: Cons
-            ann_obj.lines.append(spec_mod)
+            ann_obj.add_annotation(spec_mod)
         else:
             neg_mod = None
         if negation:
             neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
             neg_mod = ModifierAnnotation(new_id, neg_mod_id, 'Negation', '') #XXX: Cons
-            ann_obj.lines.append(neg_mod)
+            ann_obj.add_annotation(neg_mod)
         else:
             neg_mod = None
 
@@ -613,7 +727,7 @@ def save_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path, txt_file_path)
+    ann_obj = AnnotationFile(ann_file_path)
 
     #TODO: Check for None!
     orig_ann = ann_obj.get_ann_by_id(origin)
@@ -630,7 +744,7 @@ def save_arc(document, origin, target, type):
         event_id = ann_obj.get_new_id('E')
         event_ann = EventAnnotation(
                 origin, [(type, target)], event_id, orig_ann.type, '')
-        ann_obj.lines.append(event_ann)
+        ann_obj.add_annotation(event_ann)
 
     print 'Content-Type: text/html\n'
     print 'Added', document, origin, target, type
@@ -642,12 +756,12 @@ def delete_span(document, id):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path, txt_file_path)
+    ann_obj = AnnotationFile(ann_file_path)
     
     #TODO: Handle a failure to find it
     #XXX: Slow, O(2N)
     ann = ann_obj.get_ann_by_id(id)
-    ann_obj.lines.remove(ann)
+    ann_obj.del_annotation(ann)
 
     #TODO: Handle consequences of removal, should be in the object
 
@@ -661,7 +775,7 @@ def delete_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path, txt_file_path)
+    ann_obj = AnnotationFile(ann_file_path)
 
     print 'Content-Type: text/html\n'
     #TODO: Check for None!
@@ -673,7 +787,7 @@ def delete_arc(document, origin, target, type):
         orig_ann.args.remove(arg_tup)
         if not orig_ann.args:
             # It was the last argument tuple, remove it all
-            ann_obj.lines.remove(orig_ann)
+            ann_obj.del_annotation(orig_ann)
     else:
         # What we were to remove did not even exist in the first place
         pass
@@ -771,9 +885,8 @@ def debug():
                 with open(file_path, 'r') as ann_file:
                     ann_lines = ann_file.readlines()
                 
-                ann_obj = AnnotationFile(file_path,
-                        file_path.replace('.ann', '.txt'))
-                ann_obj_lines = [str(l) + '\n' for l in ann_obj.lines]
+                ann_obj = AnnotationFile(file_path)
+                ann_obj_lines = [str(l) + '\n' for l in ann_obj]
 
                 #print str(ann_obj)
     
@@ -787,8 +900,7 @@ def debug():
                 #exit(0)
 
     #a = AnnotationFile(
-    #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann',
-    #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.txt')
+    #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann')
     #print a
     '''
 
