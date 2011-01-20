@@ -13,6 +13,7 @@ physical_entity_types = [
     'Entity',
     ]
 
+
 # Arguments allowed for events, by type. Derived from the tables on
 # the per-task pages under http://sites.google.com/site/bionlpst/ .
 
@@ -79,3 +80,9 @@ event_argument_types = {
 
     # TODO: ID
     }
+
+
+# Types of textbounds that should not overlap with others of their
+# type.
+no_sametype_overlap_textbound_types = physical_entity_types[:]
+
