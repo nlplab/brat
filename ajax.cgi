@@ -14,6 +14,7 @@ from simplejson import dumps
 from itertools import chain
 import fileinput
 
+from annspec import physical_entity_types, event_argument_types
 from verify_annotations import verify_annotation
 
 ### Constants?
@@ -59,82 +60,6 @@ exec 'from {} import {}'.format(CONF_NAME, ', '.join(CONF_VARIABLES))
 path.extend(_old_path)
 # Clean the namespace
 del deepcopy, dirname, path, _old_path
-
-physical_entity_types = [
-    'Protein',
-    'Entity',
-    ]
-###
-
-
-# Arguments allowed for events, by type. Derived from the tables on
-# the per-task pages under http://sites.google.com/site/bionlpst/ .
-
-# abbrevs
-theme_only_argument = {
-        "Theme" : ["Protein"],
-        }
-
-theme_and_site_arguments = {
-        "Theme" : ["Protein"],
-        "Site"  : ["Entity"],
-        }
-
-regulation_arguments = {
-        "Theme" : ["Protein", "event"],
-        "Cause" : ["Protein", "event"],
-        "Site"  : ["Entity"],
-        "CSite" : ["Entity"],
-        }
-
-localization_arguments = {
-        "Theme" : ["Protein"],
-        "AtLoc" : ["Entity"],
-        "ToLoc" : ["Entity"],
-        }
-
-sidechain_modification_arguments = {
-        "Theme"     : ["Protein"],
-        "Site"      : ["Entity"],
-        "Sidechain" : ["Entity"],
-        }
-
-contextgene_modification_arguments = {
-    "Theme"       : ["Protein"],
-    "Site"        : ["Entity"],
-    "Contextgene" : ["Protein"],
-    }
-
-event_argument_types = {
-    # GENIA
-    "default"             : theme_only_argument,
-    "Phosphorylation"     : theme_and_site_arguments,
-    "Localization"        : localization_arguments,
-    "Binding"             : theme_and_site_arguments,
-    "Regulation"          : regulation_arguments,
-    "Positive_regulation" : regulation_arguments,
-    "Negative_regulation" : regulation_arguments,
-
-    # EPI
-    "Dephosphorylation"   : theme_and_site_arguments,
-    "Hydroxylation"       : theme_and_site_arguments,
-    "Dehydroxylation"     : theme_and_site_arguments,
-    "Ubiquitination"      : theme_and_site_arguments,
-    "Deubiquitination"    : theme_and_site_arguments,
-    "DNA_methylation"     : theme_and_site_arguments,
-    "DNA_demethylation"   : theme_and_site_arguments,
-    "Glycosylation"       : sidechain_modification_arguments,
-    "Deglycosylation"     : sidechain_modification_arguments,
-    "Acetylation"         : contextgene_modification_arguments,
-    "Deacetylation"       : contextgene_modification_arguments,
-    "Methylation"         : contextgene_modification_arguments,
-    "Demethylation"       : contextgene_modification_arguments,
-    "Catalysis"           : regulation_arguments,
-
-    # TODO: ID
-    }
-
-###
 
 #TODO: __str__ for the errors
 #TODO: Rename and re-work this one
@@ -213,6 +138,17 @@ class AnnotationFile(object):
 
         # Finally, parse the given annotation file
         self._parse_ann_file()
+
+    def get_events(self):
+        return [a for a in self if isinstance(a, EventAnnotation)]
+
+    def get_equivs(self):
+        return [a for a in self if isinstance(a, EquivAnnotation)]
+
+    def get_textbounds(self):
+        return [a for a in self if isinstance(a, TextBoundAnnotation)]
+
+    # TODO: getters for other categories of annotation
 
     def add_annotation(self, ann):
         #TODO: DOC!
