@@ -166,6 +166,42 @@ class Annotations(object):
 
     def add_annotation(self, ann):
         #TODO: DOC!
+        
+        # Equivs have to be merged with other equivs
+        try:
+            # Bail as soon as possible for non-equivs
+            ann.entities
+            merge_cand = ann
+            for eq_ann in self.get_equivs():
+                try:
+                    # Make sure that this Equiv duck quacks
+                    eq_ann.entities
+                except AttributeError, e:
+                    assert False, 'got a non-entity from an entity call'
+
+                # Do we have an entitiy in common with this equiv?
+                for ent in merge_cand.entities:
+                    if ent in eq_ann.entities:
+                        for m_ent in merge_cand.entities:
+                            if m_ent not in eq_ann.entities: 
+                                eq_ann.entities.append(m_ent)
+                        # Don't try to delete ann since it never was added
+                        if merge_cand != ann:
+                            self.del_annotation(merge_cand)
+                        merge_cand = eq_ann
+                        # We already merged it all, break to the next ann
+                        break
+
+            if merge_cand != ann:
+                # The proposed annotation was simply merged, no need to add it
+                return
+
+        except AttributeError:
+            #XXX: This can catch a ton more than we want to! Ugly!
+            # It was not an Equiv, skip along
+            pass
+
+        # Register the object id
         try:
             id_pre, id_num = _split_id(ann.id)
             self._ann_by_id[ann.id] = ann
@@ -174,6 +210,7 @@ class Annotations(object):
         except AttributeError:
             # The annotation simply lacked an id which is fine
             pass
+
         # Add the annotation as the last line
         self._lines.append(ann)
         self._line_by_ann[ann] = len(self) - 1 
@@ -218,7 +255,12 @@ class Annotations(object):
     def _atomic_del_annotation(self, ann):
         #TODO: DOC
         # Erase the ann by id shorthand
-        del self._ann_by_id[ann.id]
+        try:
+            del self._ann_by_id[ann.id]
+        except AttributeError:
+            # So, we did not have id to erase in the first place
+            pass
+
         ann_line = self._line_by_ann[ann]
         # Erase the main annotation
         del self._lines[ann_line]
@@ -768,24 +810,37 @@ def save_arc(document, origin, target, type):
 
     ann_obj = Annotations(ann_file_path)
 
-    #TODO: Check for None!
-    orig_ann = ann_obj.get_ann_by_id(origin)
-    try:
-        arg_tup = (type, target)
-        if (target, target) not in orig_ann.args:
-            orig_ann.args.append(arg_tup)
-        else:
-            # It already existed, we were called to do nothing...
-            pass
-    except AttributeError:
-        # The annotation did not have args, it was most likely an entity
-        # thus we need to create a new Event...
-        #TODO: You need to do merging of EquivAnnotation, in add_annotation...
-        ann_obj.add_annotation(EquivAnnotation('Equiv', set([origin, target]), ''))
+    # Ugly check, but we really get no other information
+    if type != 'Equiv':
+        target_ann = ann_obj.get_ann_by_id(target)
+        try:
+            orig_ann = ann_obj.get_ann_by_id(origin)
+            arg_tup = (target_ann.type, target)
+            if arg_tup not in orig_ann.args:
+                orig_ann.args.append(arg_tup)
+            else:
+                # It already existed as an arg, we were called to do nothing...
+                pass
+        except AttributeError:
+            # The annotation did not have args, it was most likely an entity
+            # thus we need to create a new Event...
+            new_id = ann_obj.get_new_id('E')
+            ann_obj.add_annotation(
+                    EventAnnotation(
+                        origin,
+                        [(target_ann.type, target_ann.id)],
+                        new_id,
+                        type,
+                        ''
+                        ))
+    else:
+        # It is an Equiv
+        ann_obj.add_annotation(EquivAnnotation(type, [origin, target], ''))
 
     print 'Content-Type: text/html\n'
     print 'Added', document, origin, target, type
-    
+  
+    #XXX: Convert the string, THEN write or you cock up the file, blanking it
     with open(ann_file_path, 'w') as ann_file:
         ann_file.write(str(ann_obj))
 
@@ -814,20 +869,39 @@ def delete_arc(document, origin, target, type):
 
     ann_obj = Annotations(ann_file_path)
 
+    # This can be an event or an equiv
+
     print 'Content-Type: text/html\n'
     #TODO: Check for None!
-    orig_ann = ann_obj.get_ann_by_id(origin)
-    arg_tup = (type, target)
-    print arg_tup
-    print orig_ann.args
-    if arg_tup in orig_ann.args:
-        orig_ann.args.remove(arg_tup)
-        if not orig_ann.args:
-            # It was the last argument tuple, remove it all
-            ann_obj.del_annotation(orig_ann)
-    else:
-        # What we were to remove did not even exist in the first place
-        pass
+    try:
+        event_ann = ann_obj.get_ann_by_id(origin)
+        # Try if it is an event
+        arg_tup = (type, target)
+        #print arg_tup
+        #print orig_ann.args
+        if arg_tup in event_ann.args:
+            event_ann.args.remove(arg_tup)
+            if not event_ann.args:
+                # It was the last argument tuple, remove it all
+                ann_obj.del_annotation(event_ann)
+        else:
+            # What we were to remove did not even exist in the first place
+            pass
+
+    except AttributeError:
+        # It is an equiv then?
+        #XXX: Slow hack! Should have a better accessor! O(eq_ann)
+            for eq_ann in ann_obj.get_equivs():
+                # We don't assume that the ids only occur in one Equiv, we
+                # keep on going since the data "could" be corrupted
+                if origin in eq_ann.entities and target in eq_ann.entities:
+                    eq_ann.entities.remove(origin)
+                    eq_ann.entities.remove(target)
+
+                if len(eq_ann.entities) < 2:
+                    # We need to delete this one
+                    ann_obj.del_annotation(eq_ann)
+
 
     print 'Deleted', document, origin, target, type
     
@@ -956,6 +1030,7 @@ def main():
                 document_json(docpath)
 
 def debug():
+    '''
     # A little bit of debug to make it easier for me // Pontus
     import os
     from difflib import unified_diff, ndiff
@@ -984,11 +1059,13 @@ def debug():
                     exit(-1)
                 
                 #exit(0)
+    '''
 
     #a = Annotations(
     #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann')
     #print a
 
+    '''
     args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
         'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
         '59',
@@ -999,6 +1076,16 @@ def debug():
         None
         )
     save_span(*args)
+    '''
+
+    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
+        'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
+        'T5',
+        'T4',
+        'Equiv',
+        )
+    save_arc(*args)
+    #def save_arc(document, origin, target, type, equiv):
 
 if __name__ == '__main__':
     from sys import argv
