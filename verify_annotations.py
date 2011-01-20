@@ -58,24 +58,31 @@ def verify_annotation(ann_obj):
     """
     issues = []
 
-    # group textbounds by type
-    textbounds_by_type = {}
-    for a in ann_obj.get_textbounds():
-        if a.type not in textbounds_by_type:
-            textbounds_by_type[a.type] = []
-        textbounds_by_type[a.type].append(a)
+    # check for overlap between physical entities
+    physical_entities = [a for a in ann_obj.get_textbounds() if a.type in annspec.physical_entity_types]
+    overlapping = check_textbound_overlap(physical_entities)
+    for a1, a2 in overlapping:
+        issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap a %s (%s)" % (a1.type, a2.type, a2.id)))
+    
+    # TODO: generalize to other cases
 
-    # check for overlap between textbounds that should not have any
-    for type in textbounds_by_type:
-        if type not in annspec.no_sametype_overlap_textbound_types:
-            # overlap OK
-            continue
-
-        overlapping = check_textbound_overlap(textbounds_by_type[type])
-
-        for a1, a2 in overlapping:
-            issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap another entity (%s) of the same type" % (a1.type, a2.id)))
-
+#     # group textbounds by type
+#     textbounds_by_type = {}
+#     for a in ann_obj.get_textbounds():
+#         if a.type not in textbounds_by_type:
+#             textbounds_by_type[a.type] = []
+#         textbounds_by_type[a.type].append(a)
+#
+#     # check for overlap between textbounds that should not have any
+#     for type in textbounds_by_type:
+#         if type not in annspec.no_sametype_overlap_textbound_types:
+#             # overlap OK
+#             continue
+#
+#         overlapping = check_textbound_overlap(textbounds_by_type[type])
+#
+#         for a1, a2 in overlapping:
+#             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap another entity (%s) of the same type" % (a1.type, a2.id)))
 
     # check for events missing mandatory arguments
     for e in ann_obj.get_events():

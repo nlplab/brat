@@ -45,18 +45,23 @@ path {
   opacity: 0.3;
 }
 
+.shadow_AnnotationError {
+  fill: #ff0000;
+}
 .span rect.AnnotationError {
-  stroke: #ff0000;
-  stroke-width: 2;
+  stroke-width: 1;
 }
 #infopopup.info_AnnotationError {
   background-color: #ff7777;
 }
 
+.shadow_AnnotationIncomplete {
+  fill: #aaaaaa;
+}
 .span rect.AnnotationIncomplete {
-  stroke: #ffff00;
-  stroke-width: 2;
-  opacity: 0.6;
+  stroke: #002200;
+  stroke-width: 0.5;
+  fill: #ffffff;
 }
 #infopopup.info_AnnotationIncomplete {
   background-color: #ffff77;
