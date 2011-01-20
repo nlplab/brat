@@ -464,7 +464,10 @@ var Annotator = function(containerElement, onStart) {
       }
     });
     $.each(data.infos, function(infoNo, info) {
-      data.spans[info[0]].info = { type: info[1], text: info[2] };
+      // TODO error handling
+      if (info[0] in data.spans) {
+	 data.spans[info[0]].info = { type: info[1], text: info[2] };
+      }
     });
 
     // find chunk breaks
