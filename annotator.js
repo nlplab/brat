@@ -284,7 +284,7 @@ var Annotator = function(containerElement, onStart) {
         to: span.to,
         id: id,
       };
-      $('#span_selected').text(data.text.substring(span.from, span.to));
+      $('#span_selected').text('"'+data.text.substring(span.from, span.to)+'"');
       $('#del_span_button').css('display', 'inline');
       $('#span_form').css('display', 'block');
       var el = $('#span_' + span.type);
@@ -375,7 +375,7 @@ var Annotator = function(containerElement, onStart) {
           from: selectedFrom,
           to: selectedTo,
         };
-        $('#span_selected').text(data.text.substring(selectedFrom, selectedTo));
+        $('#span_selected').text('"'+data.text.substring(selectedFrom, selectedTo)+'"');
         $('#del_span_button').css('display', 'none');
         $('#span_form').css('display', 'block');
       }
@@ -464,7 +464,15 @@ var Annotator = function(containerElement, onStart) {
       }
     });
     $.each(data.infos, function(infoNo, info) {
-      data.spans[info[0]].info = { type: info[1], text: info[2] };
+      // TODO error handling
+      if (info[0] in data.spans) {
+	 var span = data.spans[info[0]]
+	 span.info = { type: info[1], text: info[2] };
+	 if (info[1].indexOf('Error') != -1 ||
+	     info[1].indexOf('Incomplete') != -1) {
+	     span.shadowClass = info[1]
+	 }
+      }
     });
 
     // find chunk breaks
@@ -788,6 +796,8 @@ var Annotator = function(containerElement, onStart) {
 
     svg.clear(true);
     var defs = svg.defs();
+    var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
+    svg.add(defs, filter);
     if (!data || data.length == 0) return;
     canvasWidth = this.forceWidth || $(containerElement).width();
     var commentName = data.document.replace('--', '-\\-');
@@ -892,19 +902,33 @@ var Annotator = function(containerElement, onStart) {
 	hh -= 2*boxTextMargin.y;
         
         var rectClass = 'span_' + span.type + ' span_default';
-	// attach e.g. "False_positive" into the type
-	if (span.info && span.info.type) { rectClass += ' '+span.info.type; }
-        span.rect = svg.rect(span.group,
-          xx - margin.x - boxTextMargin.x,
-          yy - margin.y,
-          spanBox.width + 2 * margin.x + 2 * boxTextMargin.x,
-          hh + 2 * margin.y, {
-            'class': rectClass,
-            rx: margin.x,
-            ry: margin.y,
-            'data-span-id': span.id,
-            'strokeDashArray': span.Speculation ? dashArray : undefined,
-          });
+
+       // attach e.g. "False_positive" into the type
+       if (span.info && span.info.type) { rectClass += ' '+span.info.type; }
+       var bx = xx - margin.x - boxTextMargin.x;
+       var by = yy - margin.y;
+       var bw = spanBox.width + 2 * margin.x + 2 * boxTextMargin.x;
+       var bh = hh + 2 * margin.y;
+       var shadowRect;
+       var shadowSize = 5;
+       if (span.shadowClass) {
+           shadowRect = svg.rect(span.group,
+               bx - shadowSize, by - shadowSize, bw + 2*shadowSize, bh + 2*shadowSize, {
+
+               filter: 'url(#Gaussian_Blur)',
+               'class': "shadow_" + span.shadowClass,
+               rx: shadowSize,
+               ry: shadowSize,
+           });
+       }
+       span.rect = svg.rect(span.group,
+           bx, by, bw, bh, {
+           'class': rectClass,
+           rx: margin.x,
+           ry: margin.y,
+           'data-span-id': span.id,
+           'strokeDashArray': span.Speculation ? dashArray : undefined,
+         });
         var rectBox = span.rect.getBBox();
 
         var yAdjust = placeReservation(span, rectBox, reservations);
@@ -912,6 +936,9 @@ var Annotator = function(containerElement, onStart) {
         span.height = yAdjust + hh + 3 * margin.y + curlyHeight + arcSpacing;
         spanHeights[span.lineIndex * 2] = span.height;
         $(span.rect).attr('y', yy - margin.y - yAdjust);
+	if (shadowRect) {
+	    $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
+	}
         if (span.Negation) {
           svg.path(span.group, svg.createPath().
               move(xx, yy - margin.y - yAdjust).
@@ -1355,7 +1382,7 @@ $(function() {
     return function(html, error) {
       message.html(html).css('display', 'block');
       message[0].className = error ? 'error' : 'normal';
-      opacity = 2;
+      opacity = 3;
       if (!timer) {
         timer = setInterval(fadeMessage, 50);
       }

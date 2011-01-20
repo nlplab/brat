@@ -35,11 +35,36 @@ path {
   stroke: #ff0000;
   stroke-width: 1;
 }
+#infopopup.info_False_positive {
+  background-color: #ff7777;
+}
 
 .span rect.False_negative {
   stroke: #ff0000;
   stroke-width: 1;
   opacity: 0.3;
+}
+
+.shadow_AnnotationError {
+  fill: #ff0000;
+}
+.span rect.AnnotationError {
+  stroke-width: 1;
+}
+#infopopup.info_AnnotationError {
+  background-color: #ff7777;
+}
+
+.shadow_AnnotationIncomplete {
+  fill: #aaaaaa;
+}
+.span rect.AnnotationIncomplete {
+  stroke: #002200;
+  stroke-width: 0.5;
+  fill: #ffffff;
+}
+#infopopup.info_AnnotationIncomplete {
+  background-color: #ffff77;
 }
 
 .span rect.True_positive {
@@ -258,7 +283,6 @@ path {
   left: 50px;
   top: 50px;
   height: auto;
-  right: 50px;
   padding: 5px 10px;
   z-index: 10;
   display: none;
@@ -315,10 +339,6 @@ fieldset {
   -moz-box-shadow: 5px 5px 5px #aaaaaa;
   -webkit-box-shadow: 5px 5px 5px #aaaaaa;
   box-shadow: 5px 5px 5px #aaaaaa;
-}
-
-#infopopup.info_False_positive {
-  background-color: #ff7777;
 }
 
 .info_id {

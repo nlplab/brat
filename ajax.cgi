@@ -17,9 +17,16 @@ from simplejson import dumps, loads
 from itertools import chain
 import fileinput
 
+from simplejson import dumps
+
+from annspec import physical_entity_types, event_argument_types
+from verify_annotations import verify_annotation
+
 ### Constants?
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
 COOKIE_ID = 'brat-cred'
+TEXT_FILE_SUFFIX = 'txt'
+ANN_FILE_SUFFIX = 'ann'
 
 # Try to import our configurations
 from copy import deepcopy
@@ -29,10 +36,12 @@ from sys import path
 CONF_FNAME = 'config.py'
 CONF_TEMPLATE_FNAME = 'config_template.py'
 CONF_NAME = CONF_FNAME.replace('.py', '')
-CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR']
+# Add new configuration variables here
+CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR', 'USERNAME', 'PASSWORD']
 
 # We unset the path so that we can import being sure what we import
 _old_path = deepcopy(path)
+# Can you empty in in O(1) instead of O(N)?
 while path:
     path.pop()
 path.append(dirname(__file__))
@@ -61,82 +70,6 @@ exec 'from {} import {}'.format(CONF_NAME, ', '.join(CONF_VARIABLES))
 path.extend(_old_path)
 # Clean the namespace
 del deepcopy, dirname, path, _old_path
-
-physical_entity_types = [
-    'Protein',
-    'Entity',
-    ]
-###
-
-
-# Arguments allowed for events, by type. Derived from the tables on
-# the per-task pages under http://sites.google.com/site/bionlpst/ .
-
-# abbrevs
-theme_only_argument = {
-        "Theme" : ["Protein"],
-        }
-
-theme_and_site_arguments = {
-        "Theme" : ["Protein"],
-        "Site"  : ["Entity"],
-        }
-
-regulation_arguments = {
-        "Theme" : ["Protein", "event"],
-        "Cause" : ["Protein", "event"],
-        "Site"  : ["Entity"],
-        "CSite" : ["Entity"],
-        }
-
-localization_arguments = {
-        "Theme" : ["Protein"],
-        "AtLoc" : ["Entity"],
-        "ToLoc" : ["Entity"],
-        }
-
-sidechain_modification_arguments = {
-        "Theme"     : ["Protein"],
-        "Site"      : ["Entity"],
-        "Sidechain" : ["Entity"],
-        }
-
-contextgene_modification_arguments = {
-    "Theme"       : ["Protein"],
-    "Site"        : ["Entity"],
-    "Contextgene" : ["Protein"],
-    }
-
-event_argument_types = {
-    # GENIA
-    "default"             : theme_only_argument,
-    "Phosphorylation"     : theme_and_site_arguments,
-    "Localization"        : localization_arguments,
-    "Binding"             : theme_and_site_arguments,
-    "Regulation"          : regulation_arguments,
-    "Positive_regulation" : regulation_arguments,
-    "Negative_regulation" : regulation_arguments,
-
-    # EPI
-    "Dephosphorylation"   : theme_and_site_arguments,
-    "Hydroxylation"       : theme_and_site_arguments,
-    "Dehydroxylation"     : theme_and_site_arguments,
-    "Ubiquitination"      : theme_and_site_arguments,
-    "Deubiquitination"    : theme_and_site_arguments,
-    "DNA_methylation"     : theme_and_site_arguments,
-    "DNA_demethylation"   : theme_and_site_arguments,
-    "Glycosylation"       : sidechain_modification_arguments,
-    "Deglycosylation"     : sidechain_modification_arguments,
-    "Acetylation"         : contextgene_modification_arguments,
-    "Deacetylation"       : contextgene_modification_arguments,
-    "Methylation"         : contextgene_modification_arguments,
-    "Demethylation"       : contextgene_modification_arguments,
-    "Catalysis"           : regulation_arguments,
-
-    # TODO: ID
-    }
-
-###
 
 #TODO: __str__ for the errors
 #TODO: Rename and re-work this one
@@ -191,7 +124,7 @@ def _split_id(id):
 
 
 # We are NOT concerned with the conformity to the text file
-class AnnotationFile(object):
+class Annotations(object):
     #TODO: DOC!
     #TODO: We should handle ID collisions somehow upon initialisation
     def __init__(self, ann_path):
@@ -209,12 +142,27 @@ class AnnotationFile(object):
         self._line_by_ann = {}
         # Maximum id number used for each id prefix, to speed up id generation
         self._max_id_num_by_prefix = defaultdict(lambda : 1)
-        #TODO: DOC:
+        # Annotation by id, not includid non-ided annotations 
         self._ann_by_id = {}
+        # 
         ###
 
         # Finally, parse the given annotation file
         self._parse_ann_file()
+
+    def get_events(self):
+        return (a for a in self if isinstance(a, EventAnnotation))
+
+    def get_equivs(self):
+        return (a for a in self if isinstance(a, EquivAnnotation))
+
+    def get_textbounds(self):
+        return (a for a in self if isinstance(a, TextBoundAnnotation))
+
+    def get_modifers(self):
+        return (a for a in self if isinstance(a, ModifierAnnotation))
+
+    # TODO: getters for other categories of annotations
 
     def add_annotation(self, ann):
         #TODO: DOC!
@@ -230,34 +178,63 @@ class AnnotationFile(object):
         self._lines.append(ann)
         self._line_by_ann[ann] = len(self) - 1 
 
+    def _ann_deps(ann):
+        #TODO: DOC
+        hard_deps = []
+        soft_deps = []
+       
+        raise NotImplementedError
+        """
+        try:
+            
+
+            for other_ann in ann.
+        except AttributeError:
+            # So it wasn't an EventAnnotation then
+            pass
+        """
+        
+        return (soft_deps, hard_deps)
+
     def del_annotation(self, ann, recursive=True):
         # Recursive controls if we are allowed to cascade or raises an excep.
         #TODO: DOC!
         #TODO:
         #XXX: We will have cascades here! This is only for atomics
         self._atomic_del_annotation(ann)
-        pass
+
+        """
+        soft_deps, hard_deps = ann.get_deps()
+        if (soft_deps or hard_deps) and not recursive:
+            #TODO: Requires permissions some exception!
+            raise NotImplementedError
+
+        #TODO: Traverse all deps and erase once they get atomic!
+
+        # Now it is fine to delete out annotation
+        self._atomic_del_annotation(ann)
+        """
 
     def _atomic_del_annotation(self, ann):
-        ann_line = self._line_by_ann[ann]
-        del self._lines[ann_line]
-        #TODO: Update ann -> line
-        del self._line_by_ann[ann]
-        #TODO: Update id -> ann
+        #TODO: DOC
+        # Erase the ann by id shorthand
         del self._ann_by_id[ann.id]
-
-        pass
+        ann_line = self._line_by_ann[ann]
+        # Erase the main annotation
+        del self._lines[ann_line]
+        # Erase the ann by line shorthand
+        del self._line_by_ann[ann]
+        # Update the line shorthand of every annotation after this one
+        # to reflect the new self._lines
+        for l_num in xrange(ann_line, len(self)):
+            self._line_by_ann[self[l_num]] = l_num
     
     def get_ann_by_id(self, id):
-        #XXX: O(N)
-        for ann in self:
-            try:
-                if ann.id == id:
-                    return ann
-            except AttributeError:
-                # The annotation lacked an id, ignore it
-                pass
-        raise AnnotationNotFoundError(id)
+        #TODO: DOC
+        try:
+            return self._ann_by_id[id]
+        except KeyError:
+            raise AnnotationNotFoundError(id)
 
     def get_new_id(self, id_pre):
         '''
@@ -285,9 +262,13 @@ class AnnotationFile(object):
     def _parse_ann_file(self):
         from itertools import takewhile
         # If you knew the format, you would have used regexes...
+        #
+        # We use ids internally since otherwise we need to resolve a dep graph
+        # when parsing to make sure we have the annotations to refer to.
         with open(self.ann_path, 'r') as ann_file:
             #XXX: Assumptions start here...
-            for ann_line in (l.rstrip('\n') for l in ann_file):
+            for ann_line in ann_file:
+            #for ann_line in (l.rstrip('\n') for l in ann_file):
                 try:
                     # ID processing
                     id, id_tail = ann_line.split('\t', 1)
@@ -320,9 +301,7 @@ class AnnotationFile(object):
                         equivs = type_tail.split(None)
                         self.add_annotation(
                                 EquivAnnotation(type, equivs, data_tail))
-                    elif id_pre == 'E' or id_pre == 'R':
-                        #print data
-                        #print data_tail
+                    elif id_pre == 'E':
                         #XXX: A bit nasty, we require a single space
                         try:
                             type_delim = data.index(' ')
@@ -331,9 +310,7 @@ class AnnotationFile(object):
                         except ValueError:
                             type_trigger = data
                             type_trigger_tail = None
-                        #type_trigger, type_trigger_tail = data.split(None, 1)
-                        #print ann_line
-                        #print type_trigger
+                        
                         try:
                             type, trigger = type_trigger.split(':')
                         except ValueError:
@@ -347,8 +324,11 @@ class AnnotationFile(object):
                                     for arg in type_trigger_tail.split()]
                         else:
                             args = []
+
                         self.add_annotation(EventAnnotation(
                             trigger, args, id, type, data_tail))
+                    elif id_pre == 'R':
+                        raise NotImplementedError
                     elif id_pre == 'M':
                         type, target = data.split()
                         self.add_annotation(ModifierAnnotation(
@@ -363,8 +343,11 @@ class AnnotationFile(object):
                         #text = txt_file.read(end - start)
                         self.add_annotation(TextBoundAnnotation(
                             start, end, id, type, data_tail))
+                    elif id_pre == '#':
+                        # XXX: properly process comments!
+                        pass
                     else:
-                        assert False, ann_line #XXX: REMOVE!
+                        #assert False, ann_line #XXX: REMOVE!
                         raise AnnotationLineSyntaxError(ann_line)
                         #assert False, 'No code to handle exception type'
                 except AnnotationLineSyntaxError, e:
@@ -373,7 +356,8 @@ class AnnotationFile(object):
                     self.add_annotation(Annotation(e.line))
 
     def __str__(self):
-        return '\n'.join(str(ann) for ann in self._lines)
+        s = '\n'.join(str(ann).rstrip('\n') for ann in self)
+        return s if s[-1] == '\n' else s + '\n'
 
     def __it__(self):
         for ann in self._lines:
@@ -401,6 +385,9 @@ class Annotation(object):
 
     def __str__(self):
         return self.tail
+    
+    def get_deps(self):
+        return (set(), set())
 
 
 class TypedAnnotation(Annotation):
@@ -437,6 +424,17 @@ class EventAnnotation(IdedAnnotation):
                 tail=self.tail
                 )
 
+    def get_deps(self):
+        soft_deps, hard_deps = super(self).get_deps()
+        hard_deps.add(self.trigger)
+        arg_ids = [arg_tup[1] for arg_tup in self.args]
+        if len(arg_ids) > 1:
+            soft_deps.union(set(arg_ids))
+        else:
+            hard_deps.union(set(arg_ids))
+        return (soft_deps, hard_deps)
+
+
 class EquivAnnotation(TypedAnnotation):
     def __init__(self, type, entities, tail):
         super(EquivAnnotation, self).__init__(type, tail)
@@ -452,6 +450,14 @@ class EquivAnnotation(TypedAnnotation):
                 tail=self.tail
                 )
 
+    def get_deps(self):
+        soft_deps, hard_deps = super(self).get_deps()
+        if len(self.entities) > 1:
+            soft_deps.union(set(self.entities))
+        else:
+            hard_deps.union(set(self.entities))
+        return (soft_deps, hard_deps)
+
 
 class ModifierAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail):
@@ -465,6 +471,11 @@ class ModifierAnnotation(IdedAnnotation):
                 target=self.target,
                 tail=self.tail
                 )
+
+    def get_deps(self):
+        soft_deps, hard_deps = super(self).get_deps()
+        hard_deps.append(self.target)
+        return (soft_deps, hard_deps)
 
 
 class TextBoundAnnotation(IdedAnnotation):
@@ -497,17 +508,17 @@ def possible_arc_types_from_to(from_ann, to_ann):
         # only possible "outgoing" edge from a physical entity is Equiv
         # to another entity of the same type.
         if from_ann == to_ann:
-            return ["Equiv"]
+            return ['Equiv']
         else:
             return []
     elif is_event_type(from_ann):
         # look up the big table
-        args = event_argument_types.get(from_ann, event_argument_types["default"])
+        args = event_argument_types.get(from_ann, event_argument_types['default'])
 
         possible = []
         for a in args:
             if (to_ann in args[a] or
-                is_event_type(to_ann) and "event" in args[a]):
+                is_event_type(to_ann) and 'event' in args[a]):
                 possible.append(a)
         return possible
     else:
@@ -515,113 +526,98 @@ def possible_arc_types_from_to(from_ann, to_ann):
 
 def my_listdir(directory):
     return [l for l in listdir(directory)
-            if not (l.startswith("hidden_") or l.startswith("."))]
+            # XXX: A hack to remove what we don't want to be seen
+            if not (l.startswith('hidden_') or l.startswith('.'))]
 
 def directory_options(directory):
-    print "Content-Type: text/html\n"
+    print 'Content-Type: text/html\n'
     print "<option value=''>-- Select Document --</option>"
     dirlist = [file[0:-4] for file in my_listdir(directory)
             if file.endswith('txt')]
     dirlist.sort()
     for file in dirlist:
-        print "<option>%s</option>" % file
+        print '<option>%s</option>' % file
 
 def directories():
-    print "Content-Type: text/html\n"
+    print 'Content-Type: text/html\n'
     print "<option value=''>-- Select Directory --</option>"
     dirlist = [dir for dir in my_listdir(DATA_DIR)]
     dirlist.sort()
     for dir in dirlist:
-        print "<option>%s</option>" % dir
+        print '<option>%s</option>' % dir
 
 def document_json(document):
+    #TODO: DOC!
+    #TODO: Shouldn't this print be in the end? Or even here?
     print 'Content-Type: application/json\n'
     from_offset = 0
     to_offset = None
 
+    #TODO: We don't check if the files exist, let's be more error friendly
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
 
+    # Read in the textual data to make it ready to push
     with open(txt_file_path, 'rb') as text_file:
         text = sub(r'\. ([A-Z])',r'.\n\1', text_file.read())
 
-    struct = {
-            'offset': from_offset,
-            'text': text,
-            'entities': [],
-            'events': [],
-            'triggers': [],
-            'modifications': [],
-            'equivs': [],
-            'infos': [],
+    # Dictionary to be converted into JSON
+    # TODO: Make the names here and the ones in the Annotations object conform
+    j_dic = {
+            'offset':           from_offset,
+            'text':             text,
+            'entities':         [],
+            'events':           [],
+            'triggers':         [],
+            'modifications':    [],
+            'equivs':           [],
+            'infos':            [],
             }
 
-    triggers = dict()
+    ann_obj = Annotations(ann_file_path)
 
-    #for line in AnnotationFile(ann_file_path, txt_file_path).lines:
-    #    pass
+    # We collect trigger ids to be able to link the textbound later on
+    trigger_ids = set()
+    for event_ann in ann_obj.get_events():
+        trigger_ids.add(event_ann.trigger)
+        j_dic['events'].append(
+                [event_ann.id, event_ann.trigger, event_ann.args]
+                )
 
+    for tb_ann in ann_obj.get_textbounds():
+        j_tb = [tb_ann.id, tb_ann.type, tb_ann.start, tb_ann.end]
+
+        # If we spotted it in the previous pass as a trigger for an event, we
+        # only add it as a json trigger.
+        if tb_ann.id in trigger_ids:
+            j_dic['triggers'].append(j_tb)
+        else: 
+            j_dic['entities'].append(j_tb)
+
+    for eq_id, eq_ann in enumerate(ann_obj.get_equivs(), start=1):
+        j_dic['equivs'].append(
+                (['*{}'.format(eq_id), eq_ann.type]
+                    + [e for e in eq_ann.entities])
+                )
+
+    for mod_ann in ann_obj.get_modifers():
+        j_dic['modifications'].append(
+                [mod_ann.id, mod_ann.type, mod_ann.target]
+                )
+
+    j_dic['error'] = None
+
+    try:
+        issues = verify_annotation(ann_obj)
+    except Exception, e:
+        # TODO add an issue about the failure
+        issues = []
+
+    for i in issues:
+        j_dic['infos'].append((i.ann_id, i.type, i.description))
+
+    print dumps(j_dic, sort_keys=True, indent=2)
     
-    # iterate jointly over all present annotation files for the document
-    #XXX: One file to rule them all
-    foundfiles = [document + ext for ext in ('.ann',)
-            #".a1", ".a2", ".co", ".rel")
-                  if isfile(document + ext)]
-    if foundfiles:
-        iter = fileinput.input(foundfiles)
-    else:
-        iter = []
-
-    equiv_id = 1
-    for line in iter:
-        tag = line[0]
-        row = [elem for elem in split('\s+', line) if elem != '']
-        if tag == 'T':
-            struct["entities"].append(row[0:4])
-        elif tag == 'E':
-            roles = [split(':', role) for role in row[1:] if role]
-
-            triggers[roles[0][1]] = True
-            # Ignore if no trigger
-            if roles[0][1]:
-                event = [row[0], roles[0][1], roles[1:]]
-                struct["events"].append(event)
-        elif tag == "M":
-            struct["modifications"].append(row[0:3])
-        elif tag == "R":
-            # relation; fake as Equiv for now (TODO proper handling)
-            m = match(r'^(\S+)\s+(\S+)\s+(\S+):(\S+)\s+(\S+):(\S+)\s*$', line)
-            if m:
-                rel_id, rel_type, e1_role, e1_id, e2_role, e2_id = m.groups()
-                relann = ['*%s' % equiv_id] + [rel_type, e1_id, e2_id]
-                struct["equivs"].append(relann)
-                equiv_id += 1
-            else:
-                # TODO: error handling
-                pass
-        elif tag == "*":
-            event = ['*%s' % equiv_id] + row[1:]
-            struct["equivs"].append(event)
-            equiv_id += 1
-        elif tag == "#":
-            # comment (i.e. info). Comments formatted as "#\tTYPE ID[\tSTRING]"
-            # can be displayed on the visualization; others will be ignored.
-            fields = line.split("\t")
-            if len(fields) > 1:
-                f2 = fields[1].split(" ")
-                if len(f2) == 2:
-                    ctype, cid = f2
-                    comment = ""
-                    if len(fields) > 2:
-                        comment = fields[2]
-                    struct["infos"].append([cid, ctype, comment])
-    triggers = triggers.keys()
-    struct["triggers"] = [entity for entity in struct["entities"] if entity[0] in triggers]
-    struct["entities"] = [entity for entity in struct["entities"] if entity[0] not in triggers]
-    struct["error"] = None
-    print dumps(struct, sort_keys=True, indent=2)
-
-
 def saveSVG(directory, document, svg):
     dir = '/'.join([BASE_DIR, 'svg', directory])
     if not isdir(dir):
@@ -638,33 +634,35 @@ def saveSVG(directory, document, svg):
         file.close()
         # system('rsvg %s.svg %s.png' % (basename, basename))
         # print "Content-Type: application/json\n"
-        print "Content-Type: text/plain\n"
-        print "Saved as %s in %s" % (basename + '.svg', dir)
+        print 'Content-Type: text/plain\n'
+        print 'Saved as %s in %s' % (basename + '.svg', dir)
     else:
-        print "Content-Type: text/plain"
-        print "Status: 400 Bad Request\n"
+        print 'Content-Type: text/plain'
+        print 'Status: 400 Bad Request\n'
 
 def arc_types_html(origin_type, target_type):
-    print "Content-Type: application/json\n"
+    from simplejson import dumps
 
-    possible = possible_arc_types_from_to(origin_type, target_type)
+    response = { 'types' : [], 'message' : None, 'category' : None }
 
-    response = { "types" : [], "message" : None, "category" : None }
+    try:
+        possible = possible_arc_types_from_to(origin_type, target_type)
 
-    # TODO: proper error handling
-    if possible is None:
+        # TODO: proper error handling
+        if possible is None:
+            response["message"] = "Error selecting arc types!"
+            response["category"] = "error"
+        elif possible == []:
+            response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
+            response["category"] = "error"
+        else:
+            response["types"]   = [["Arcs", possible]]
+    except:
         response["message"] = "Error selecting arc types!"
         response["category"] = "error"
-    elif possible == []:
-        response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
-        response["category"] = "error"
-    else:
-        response["types"]   = [["Arcs", possible]]
-        
+    
+    print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
-
-TEXT_FILE_SUFFIX = 'txt'
-ANN_FILE_SUFFIX = 'ann'
 
 def save_span(document, start_str, end_str, type, negation, speculation, id):
     #TODO: Handle the case when negation and speculation both are positive
@@ -674,7 +672,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path)
+    ann_obj = Annotations(ann_file_path)
     if id is not None:
         #TODO: Handle failure to find!
         ann = ann_obj.get_ann_by_id(id)
@@ -768,7 +766,7 @@ def save_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path)
+    ann_obj = Annotations(ann_file_path)
 
     #TODO: Check for None!
     orig_ann = ann_obj.get_ann_by_id(origin)
@@ -782,10 +780,8 @@ def save_arc(document, origin, target, type):
     except AttributeError:
         # The annotation did not have args, it was most likely an entity
         # thus we need to create a new Event...
-        event_id = ann_obj.get_new_id('E')
-        event_ann = EventAnnotation(
-                origin, [(type, target)], event_id, orig_ann.type, '')
-        ann_obj.add_annotation(event_ann)
+        #TODO: You need to do merging of EquivAnnotation, in add_annotation...
+        ann_obj.add_annotation(EquivAnnotation('Equiv', set([origin, target]), ''))
 
     print 'Content-Type: text/html\n'
     print 'Added', document, origin, target, type
@@ -797,7 +793,7 @@ def delete_span(document, id):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path)
+    ann_obj = Annotations(ann_file_path)
     
     #TODO: Handle a failure to find it
     #XXX: Slow, O(2N)
@@ -816,7 +812,7 @@ def delete_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path)
+    ann_obj = Annotations(ann_file_path)
 
     print 'Content-Type: text/html\n'
     #TODO: Check for None!
@@ -843,8 +839,8 @@ class InvalidAuthException(Exception):
 
 def authenticate(login, password):
     # TODO
-    crunchyhash = hashlib.sha512('crunchy').hexdigest()
-    if (login != 'editor' or password != crunchyhash):
+    crunchyhash = hashlib.sha512(PASSWORD).hexdigest()
+    if (login != USERNAME or password != crunchyhash):
         raise InvalidAuthException()
 
 def main():
@@ -868,8 +864,8 @@ def main():
     else:
         input = directory + document
     if input.find('/') != -1:
-        print "Content-Type: text/plain"
-        print "Status: 403 Forbidden (slash)\n"
+        print 'Content-Type: text/plain'
+        print 'Status: 403 Forbidden (slash)\n'
         return
 
     action = params.getvalue('action')
@@ -960,9 +956,9 @@ def main():
                 document_json(docpath)
 
 def debug():
-    '''
+    # A little bit of debug to make it easier for me // Pontus
     import os
-    from difflib import unified_diff
+    from difflib import unified_diff, ndiff
     from sys import stderr
     for root, dirs, files in os.walk(DATA_DIR):
         for file_path in (join_path(root, f) for f in files):
@@ -970,26 +966,28 @@ def debug():
                 #if file_path.endswith('PMC2714965-02-Results-01.ann'):
                 print file_path
                 with open(file_path, 'r') as ann_file:
-                    ann_lines = ann_file.readlines()
+                    ann_str = ann_file.read()
                 
-                ann_obj = AnnotationFile(file_path)
-                ann_obj_lines = [str(l) + '\n' for l in ann_obj]
+                ann_obj_str = str(Annotations(file_path))
+                print ann_obj_str
 
-                #print str(ann_obj)
-    
-                if ann_lines != ann_obj_lines:
+                if ann_str != ann_obj_str:
                     print >> stderr, 'MISMATCH:'
                     print >> stderr, file_path
-                    for udiff_line in unified_diff(ann_lines, ann_obj_lines):
-                        print >> stderr, udiff_line,
+                    print >> stderr, 'OLD:'
+                    print >> stderr, ann_str
+                    print >> stderr, 'NEW:'
+                    print >> stderr, ann_obj_str
+                    #for diff_line in unified_diff(ann_str.split('\n'),
+                    #        ann_obj_str.split('\n')):
+                    #    print >> stderr, diff_line,
                     exit(-1)
                 
                 #exit(0)
 
-    #a = AnnotationFile(
+    #a = Annotations(
     #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann')
     #print a
-    '''
 
     args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
         'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
