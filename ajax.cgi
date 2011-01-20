@@ -18,6 +18,8 @@ from verify_annotations import verify_annotation
 
 ### Constants?
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'auth']
+TEXT_FILE_SUFFIX = 'txt'
+ANN_FILE_SUFFIX = 'ann'
 
 # Try to import our configurations
 from copy import deepcopy
@@ -27,10 +29,12 @@ from sys import path
 CONF_FNAME = 'config.py'
 CONF_TEMPLATE_FNAME = 'config_template.py'
 CONF_NAME = CONF_FNAME.replace('.py', '')
-CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR']
+# Add new configuration variables here
+CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR', 'USERNAME', 'PASSWORD']
 
 # We unset the path so that we can import being sure what we import
 _old_path = deepcopy(path)
+# Can you empty in in O(1) instead of O(N)?
 while path:
     path.pop()
 path.append(dirname(__file__))
@@ -131,8 +135,9 @@ class Annotations(object):
         self._line_by_ann = {}
         # Maximum id number used for each id prefix, to speed up id generation
         self._max_id_num_by_prefix = defaultdict(lambda : 1)
-        #TODO: DOC:
+        # Annotation by id, not includid non-ided annotations 
         self._ann_by_id = {}
+        # 
         ###
 
         # Finally, parse the given annotation file
@@ -166,34 +171,63 @@ class Annotations(object):
         self._lines.append(ann)
         self._line_by_ann[ann] = len(self) - 1 
 
+    def _ann_deps(ann):
+        #TODO: DOC
+        hard_deps = []
+        soft_deps = []
+       
+        raise NotImplementedError
+        """
+        try:
+            
+
+            for other_ann in ann.
+        except AttributeError:
+            # So it wasn't an EventAnnotation then
+            pass
+        """
+        
+        return (soft_deps, hard_deps)
+
     def del_annotation(self, ann, recursive=True):
         # Recursive controls if we are allowed to cascade or raises an excep.
         #TODO: DOC!
         #TODO:
         #XXX: We will have cascades here! This is only for atomics
         self._atomic_del_annotation(ann)
-        pass
+
+        """
+        soft_deps, hard_deps = ann.get_deps()
+        if (soft_deps or hard_deps) and not recursive:
+            #TODO: Requires permissions some exception!
+            raise NotImplementedError
+
+        #TODO: Traverse all deps and erase once they get atomic!
+
+        # Now it is fine to delete out annotation
+        self._atomic_del_annotation(ann)
+        """
 
     def _atomic_del_annotation(self, ann):
-        ann_line = self._line_by_ann[ann]
-        del self._lines[ann_line]
-        #TODO: Update ann -> line
-        del self._line_by_ann[ann]
-        #TODO: Update id -> ann
+        #TODO: DOC
+        # Erase the ann by id shorthand
         del self._ann_by_id[ann.id]
-
-        pass
+        ann_line = self._line_by_ann[ann]
+        # Erase the main annotation
+        del self._lines[ann_line]
+        # Erase the ann by line shorthand
+        del self._line_by_ann[ann]
+        # Update the line shorthand of every annotation after this one
+        # to reflect the new self._lines
+        for l_num in xrange(ann_line, len(self)):
+            self._line_by_ann[self[l_num]] = l_num
     
     def get_ann_by_id(self, id):
-        #XXX: O(N)
-        for ann in self:
-            try:
-                if ann.id == id:
-                    return ann
-            except AttributeError:
-                # The annotation lacked an id, ignore it
-                pass
-        raise AnnotationNotFoundError(id)
+        #TODO: DOC
+        try:
+            return self._ann_by_id[id]
+        except KeyError:
+            raise AnnotationNotFoundError(id)
 
     def get_new_id(self, id_pre):
         '''
@@ -221,9 +255,13 @@ class Annotations(object):
     def _parse_ann_file(self):
         from itertools import takewhile
         # If you knew the format, you would have used regexes...
+        #
+        # We use ids internally since otherwise we need to resolve a dep graph
+        # when parsing to make sure we have the annotations to refer to.
         with open(self.ann_path, 'r') as ann_file:
             #XXX: Assumptions start here...
-            for ann_line in (l.rstrip('\n') for l in ann_file):
+            for ann_line in ann_file:
+            #for ann_line in (l.rstrip('\n') for l in ann_file):
                 try:
                     # ID processing
                     id, id_tail = ann_line.split('\t', 1)
@@ -256,9 +294,7 @@ class Annotations(object):
                         equivs = type_tail.split(None)
                         self.add_annotation(
                                 EquivAnnotation(type, equivs, data_tail))
-                    elif id_pre == 'E' or id_pre == 'R':
-                        #print data
-                        #print data_tail
+                    elif id_pre == 'E':
                         #XXX: A bit nasty, we require a single space
                         try:
                             type_delim = data.index(' ')
@@ -267,9 +303,7 @@ class Annotations(object):
                         except ValueError:
                             type_trigger = data
                             type_trigger_tail = None
-                        #type_trigger, type_trigger_tail = data.split(None, 1)
-                        #print ann_line
-                        #print type_trigger
+                        
                         try:
                             type, trigger = type_trigger.split(':')
                         except ValueError:
@@ -283,8 +317,11 @@ class Annotations(object):
                                     for arg in type_trigger_tail.split()]
                         else:
                             args = []
+
                         self.add_annotation(EventAnnotation(
                             trigger, args, id, type, data_tail))
+                    elif id_pre == 'R':
+                        raise NotImplementedError
                     elif id_pre == 'M':
                         type, target = data.split()
                         self.add_annotation(ModifierAnnotation(
@@ -299,7 +336,7 @@ class Annotations(object):
                         #text = txt_file.read(end - start)
                         self.add_annotation(TextBoundAnnotation(
                             start, end, id, type, data_tail))
-                    elif id_pre == "#":
+                    elif id_pre == '#':
                         # XXX: properly process comments!
                         pass
                     else:
@@ -312,7 +349,7 @@ class Annotations(object):
                     self.add_annotation(Annotation(e.line))
 
     def __str__(self):
-        return '\n'.join(str(ann) for ann in self._lines)
+        return '\n'.join(str(ann) for ann in self)
 
     def __it__(self):
         for ann in self._lines:
@@ -340,6 +377,9 @@ class Annotation(object):
 
     def __str__(self):
         return self.tail
+    
+    def get_deps(self):
+        return (set(), set())
 
 
 class TypedAnnotation(Annotation):
@@ -376,6 +416,17 @@ class EventAnnotation(IdedAnnotation):
                 tail=self.tail
                 )
 
+    def get_deps(self):
+        soft_deps, hard_deps = super(self).get_deps()
+        hard_deps.add(self.trigger)
+        arg_ids = [arg_tup[1] for arg_tup in self.args]
+        if len(arg_ids) > 1:
+            soft_deps.union(set(arg_ids))
+        else:
+            hard_deps.union(set(arg_ids))
+        return (soft_deps, hard_deps)
+
+
 class EquivAnnotation(TypedAnnotation):
     def __init__(self, type, entities, tail):
         super(EquivAnnotation, self).__init__(type, tail)
@@ -391,6 +442,14 @@ class EquivAnnotation(TypedAnnotation):
                 tail=self.tail
                 )
 
+    def get_deps(self):
+        soft_deps, hard_deps = super(self).get_deps()
+        if len(self.entities) > 1:
+            soft_deps.union(set(self.entities))
+        else:
+            hard_deps.union(set(self.entities))
+        return (soft_deps, hard_deps)
+
 
 class ModifierAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail):
@@ -404,6 +463,11 @@ class ModifierAnnotation(IdedAnnotation):
                 target=self.target,
                 tail=self.tail
                 )
+
+    def get_deps(self):
+        soft_deps, hard_deps = super(self).get_deps()
+        hard_deps.append(self.target)
+        return (soft_deps, hard_deps)
 
 
 class TextBoundAnnotation(IdedAnnotation):
@@ -436,17 +500,17 @@ def possible_arc_types_from_to(from_ann, to_ann):
         # only possible "outgoing" edge from a physical entity is Equiv
         # to another entity of the same type.
         if from_ann == to_ann:
-            return ["Equiv"]
+            return ['Equiv']
         else:
             return []
     elif is_event_type(from_ann):
         # look up the big table
-        args = event_argument_types.get(from_ann, event_argument_types["default"])
+        args = event_argument_types.get(from_ann, event_argument_types['default'])
 
         possible = []
         for a in args:
             if (to_ann in args[a] or
-                is_event_type(to_ann) and "event" in args[a]):
+                is_event_type(to_ann) and 'event' in args[a]):
                 possible.append(a)
         return possible
     else:
@@ -454,24 +518,25 @@ def possible_arc_types_from_to(from_ann, to_ann):
 
 def my_listdir(directory):
     return [l for l in listdir(directory)
-            if not (l.startswith("hidden_") or l.startswith("."))]
+            # XXX: A hack to remove what we don't want to be seen
+            if not (l.startswith('hidden_') or l.startswith('.'))]
 
 def directory_options(directory):
-    print "Content-Type: text/html\n"
+    print 'Content-Type: text/html\n'
     print "<option value=''>-- Select Document --</option>"
     dirlist = [file[0:-4] for file in my_listdir(directory)
             if file.endswith('txt')]
     dirlist.sort()
     for file in dirlist:
-        print "<option>%s</option>" % file
+        print '<option>%s</option>' % file
 
 def directories():
-    print "Content-Type: text/html\n"
+    print 'Content-Type: text/html\n'
     print "<option value=''>-- Select Directory --</option>"
     dirlist = [dir for dir in my_listdir(DATA_DIR)]
     dirlist.sort()
     for dir in dirlist:
-        print "<option>%s</option>" % dir
+        print '<option>%s</option>' % dir
 
 def document_json(document):
     from simplejson import dumps
@@ -553,33 +618,30 @@ def saveSVG(directory, document, svg):
         file.close()
         # system('rsvg %s.svg %s.png' % (basename, basename))
         # print "Content-Type: application/json\n"
-        print "Content-Type: text/plain\n"
-        print "Saved as %s in %s" % (basename + '.svg', dir)
+        print 'Content-Type: text/plain\n'
+        print 'Saved as %s in %s' % (basename + '.svg', dir)
     else:
-        print "Content-Type: text/plain"
-        print "Status: 400 Bad Request\n"
+        print 'Content-Type: text/plain'
+        print 'Status: 400 Bad Request\n'
 
 def arc_types_html(origin_type, target_type):
-    print "Content-Type: application/json\n"
+    print 'Content-Type: application/json\n'
 
     possible = possible_arc_types_from_to(origin_type, target_type)
 
-    response = { "types" : [], "message" : None, "category" : None }
+    response = { 'types' : [], 'message' : None, 'category' : None }
 
     # TODO: proper error handling
     if possible is None:
-        response["message"] = "Error selecting arc types!"
-        response["category"] = "error"
+        response['message'] = 'Error selecting arc types!'
+        response['category'] = 'error'
     elif possible == []:
-        response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
-        response["category"] = "error"
+        response['message'] = 'No choices for %s -> %s' % (origin_type, target_type)
+        response['category'] = 'error'
     else:
-        response["types"]   = [["Arcs", possible]]
+        response['types']   = [['Arcs', possible]]
         
     print dumps(response, sort_keys=True, indent=2)
-
-TEXT_FILE_SUFFIX = 'txt'
-ANN_FILE_SUFFIX = 'ann'
 
 def save_span(document, start_str, end_str, type, negation, speculation, id):
     #TODO: Handle the case when negation and speculation both are positive
@@ -763,9 +825,9 @@ def delete_arc(document, origin, target, type):
     with open(ann_file_path, 'w') as ann_file:
         ann_file.write(str(ann_obj))
 
-def authenticate(login, password):
-    # TODO
-    return (login == 'editor' and password == 'crunchy')
+def authenticate(username, password):
+    # TODO: Should use a backend
+    return (username == USERNAME and password == PASSWORD)
 
 def main():
     params = FieldStorage()
@@ -839,9 +901,9 @@ def main():
                 document_json(docpath)
 
 def debug():
-    '''
+    # A little bit of debug to make it easier for me // Pontus
     import os
-    from difflib import unified_diff
+    from difflib import unified_diff, ndiff
     from sys import stderr
     for root, dirs, files in os.walk(DATA_DIR):
         for file_path in (join_path(root, f) for f in files):
@@ -849,18 +911,21 @@ def debug():
                 #if file_path.endswith('PMC2714965-02-Results-01.ann'):
                 print file_path
                 with open(file_path, 'r') as ann_file:
-                    ann_lines = ann_file.readlines()
+                    ann_str = ann_file.read()
                 
-                ann_obj = Annotations(file_path)
-                ann_obj_lines = [str(l) + '\n' for l in ann_obj]
+                ann_obj_str = str(AnnotationFile(file_path))
+                print ann_obj_str
 
-                #print str(ann_obj)
-    
-                if ann_lines != ann_obj_lines:
+                if ann_str != ann_obj_str:
                     print >> stderr, 'MISMATCH:'
                     print >> stderr, file_path
-                    for udiff_line in unified_diff(ann_lines, ann_obj_lines):
-                        print >> stderr, udiff_line,
+                    print >> stderr, 'OLD:'
+                    print >> stderr, ann_str
+                    print >> stderr, 'NEW:'
+                    print >> stderr, ann_obj_str
+                    #for diff_line in unified_diff(ann_str.split('\n'),
+                    #        ann_obj_str.split('\n')):
+                    #    print >> stderr, diff_line,
                     exit(-1)
                 
                 #exit(0)
@@ -868,7 +933,6 @@ def debug():
     #a = Annotations(
     #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann')
     #print a
-    '''
 
     args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
         'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
