@@ -349,7 +349,8 @@ class Annotations(object):
                     self.add_annotation(Annotation(e.line))
 
     def __str__(self):
-        return '\n'.join(str(ann) for ann in self)
+        s = '\n'.join(str(ann).rstrip('\n') for ann in self)
+        return s if s[-1] == '\n' else s + '\n'
 
     def __it__(self):
         for ann in self._lines:
@@ -625,7 +626,7 @@ def saveSVG(directory, document, svg):
         print 'Status: 400 Bad Request\n'
 
 def arc_types_html(origin_type, target_type):
-    print 'Content-Type: application/json\n'
+    from simplejson import dumps
 
     possible = possible_arc_types_from_to(origin_type, target_type)
 
@@ -641,6 +642,7 @@ def arc_types_html(origin_type, target_type):
     else:
         response['types']   = [['Arcs', possible]]
         
+    print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
 
 def save_span(document, start_str, end_str, type, negation, speculation, id):
@@ -769,10 +771,8 @@ def save_arc(document, origin, target, type):
     except AttributeError:
         # The annotation did not have args, it was most likely an entity
         # thus we need to create a new Event...
-        event_id = ann_obj.get_new_id('E')
-        event_ann = EventAnnotation(
-                origin, [(type, target)], event_id, orig_ann.type, '')
-        ann_obj.add_annotation(event_ann)
+        #TODO: You need to do merging of EquivAnnotation, in add_annotation...
+        ann_obj.add_annotation(EquivAnnotation('Equiv', set([origin, target]), ''))
 
     print 'Content-Type: text/html\n'
     print 'Added', document, origin, target, type
@@ -913,7 +913,7 @@ def debug():
                 with open(file_path, 'r') as ann_file:
                     ann_str = ann_file.read()
                 
-                ann_obj_str = str(AnnotationFile(file_path))
+                ann_obj_str = str(Annotations(file_path))
                 print ann_obj_str
 
                 if ann_str != ann_obj_str:
