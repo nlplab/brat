@@ -10,7 +10,6 @@ from os import listdir, makedirs, system
 from os.path import isdir, isfile
 from os.path import join as join_path
 from re import split, sub, match
-from simplejson import dumps
 from itertools import chain
 import fileinput
 
@@ -114,7 +113,7 @@ def _split_id(id):
 
 
 # We are NOT concerned with the conformity to the text file
-class AnnotationFile(object):
+class Annotations(object):
     #TODO: DOC!
     #TODO: We should handle ID collisions somehow upon initialisation
     def __init__(self, ann_path):
@@ -140,15 +139,18 @@ class AnnotationFile(object):
         self._parse_ann_file()
 
     def get_events(self):
-        return [a for a in self if isinstance(a, EventAnnotation)]
+        return (a for a in self if isinstance(a, EventAnnotation))
 
     def get_equivs(self):
-        return [a for a in self if isinstance(a, EquivAnnotation)]
+        return (a for a in self if isinstance(a, EquivAnnotation))
 
     def get_textbounds(self):
-        return [a for a in self if isinstance(a, TextBoundAnnotation)]
+        return (a for a in self if isinstance(a, TextBoundAnnotation))
 
-    # TODO: getters for other categories of annotation
+    def get_modifers(self):
+        return (a for a in self if isinstance(a, ModifierAnnotation))
+
+    # TODO: getters for other categories of annotations
 
     def add_annotation(self, ann):
         #TODO: DOC!
@@ -472,93 +474,69 @@ def directories():
         print "<option>%s</option>" % dir
 
 def document_json(document):
+    from simplejson import dumps
+
+    #TODO: DOC!
+    #TODO: Shouldn't this print be in the end? Or even here?
     print 'Content-Type: application/json\n'
     from_offset = 0
     to_offset = None
 
+    #TODO: We don't check if the files exist, let's be more error friendly
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
 
+    # Read in the textual data to make it ready to push
     with open(txt_file_path, 'rb') as text_file:
         text = sub(r'\. ([A-Z])',r'.\n\1', text_file.read())
 
-    struct = {
-            'offset': from_offset,
-            'text': text,
-            'entities': [],
-            'events': [],
-            'triggers': [],
-            'modifications': [],
-            'equivs': [],
-            'infos': [],
+    # Dictionary to be converted into JSON
+    # TODO: Make the names here and the ones in the Annotations object conform
+    j_dic = {
+            'offset':           from_offset,
+            'text':             text,
+            'entities':         [],
+            'events':           [],
+            'triggers':         [],
+            'modifications':    [],
+            'equivs':           [],
+            'infos':            [],
             }
 
-    triggers = dict()
+    ann_obj = Annotations(ann_file_path)
 
-    #for line in AnnotationFile(ann_file_path, txt_file_path).lines:
-    #    pass
+    # We collect trigger ids to be able to link the textbound later on
+    trigger_ids = set()
+    for event_ann in ann_obj.get_events():
+        trigger_ids.add(event_ann.trigger)
+        j_dic['events'].append(
+                [event_ann.id, event_ann.trigger, event_ann.args]
+                )
 
+    for tb_ann in ann_obj.get_textbounds():
+        j_tb = [tb_ann.id, tb_ann.type, tb_ann.start, tb_ann.end]
+
+        # If we spotted it in the previous pass as a trigger for an event, we
+        # only add it as a json trigger.
+        if tb_ann.id in trigger_ids:
+            j_dic['triggers'].append(j_tb)
+        else: 
+            j_dic['entities'].append(j_tb)
+
+    for eq_id, eq_ann in enumerate(ann_obj.get_equivs(), start=1):
+        j_dic['equivs'].append(
+                (['*{}'.format(eq_id), eq_ann.type]
+                    + [e for e in eq_ann.entities])
+                )
+
+    for mod_ann in ann_obj.get_modifers():
+        j_dic['modifications'].append(
+                [mod_ann.id, mod_ann.type, mod_ann.target]
+                )
+
+    j_dic['error'] = None
+    print dumps(j_dic, sort_keys=True, indent=2)
     
-    # iterate jointly over all present annotation files for the document
-    #XXX: One file to rule them all
-    foundfiles = [document + ext for ext in ('.ann',)
-            #".a1", ".a2", ".co", ".rel")
-                  if isfile(document + ext)]
-    if foundfiles:
-        iter = fileinput.input(foundfiles)
-    else:
-        iter = []
-
-    equiv_id = 1
-    for line in iter:
-        tag = line[0]
-        row = [elem for elem in split('\s+', line) if elem != '']
-        if tag == 'T':
-            struct["entities"].append(row[0:4])
-        elif tag == 'E':
-            roles = [split(':', role) for role in row[1:] if role]
-
-            triggers[roles[0][1]] = True
-            # Ignore if no trigger
-            if roles[0][1]:
-                event = [row[0], roles[0][1], roles[1:]]
-                struct["events"].append(event)
-        elif tag == "M":
-            struct["modifications"].append(row[0:3])
-        elif tag == "R":
-            # relation; fake as Equiv for now (TODO proper handling)
-            m = match(r'^(\S+)\s+(\S+)\s+(\S+):(\S+)\s+(\S+):(\S+)\s*$', line)
-            if m:
-                rel_id, rel_type, e1_role, e1_id, e2_role, e2_id = m.groups()
-                relann = ['*%s' % equiv_id] + [rel_type, e1_id, e2_id]
-                struct["equivs"].append(relann)
-                equiv_id += 1
-            else:
-                # TODO: error handling
-                pass
-        elif tag == "*":
-            event = ['*%s' % equiv_id] + row[1:]
-            struct["equivs"].append(event)
-            equiv_id += 1
-        elif tag == "#":
-            # comment (i.e. info). Comments formatted as "#\tTYPE ID[\tSTRING]"
-            # can be displayed on the visualization; others will be ignored.
-            fields = line.split("\t")
-            if len(fields) > 1:
-                f2 = fields[1].split(" ")
-                if len(f2) == 2:
-                    ctype, cid = f2
-                    comment = ""
-                    if len(fields) > 2:
-                        comment = fields[2]
-                    struct["infos"].append([cid, ctype, comment])
-    triggers = triggers.keys()
-    struct["triggers"] = [entity for entity in struct["entities"] if entity[0] in triggers]
-    struct["entities"] = [entity for entity in struct["entities"] if entity[0] not in triggers]
-    struct["error"] = None
-    print dumps(struct, sort_keys=True, indent=2)
-
-
 def saveSVG(directory, document, svg):
     dir = '/'.join([BASE_DIR, 'svg', directory])
     if not isdir(dir):
@@ -611,7 +589,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path)
+    ann_obj = Annotations(ann_file_path)
     if id is not None:
         #TODO: Handle failure to find!
         ann = ann_obj.get_ann_by_id(id)
@@ -715,7 +693,7 @@ def save_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path)
+    ann_obj = Annotations(ann_file_path)
 
     #TODO: Check for None!
     orig_ann = ann_obj.get_ann_by_id(origin)
@@ -744,7 +722,7 @@ def delete_span(document, id):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path)
+    ann_obj = Annotations(ann_file_path)
     
     #TODO: Handle a failure to find it
     #XXX: Slow, O(2N)
@@ -763,7 +741,7 @@ def delete_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = AnnotationFile(ann_file_path)
+    ann_obj = Annotations(ann_file_path)
 
     print 'Content-Type: text/html\n'
     #TODO: Check for None!
@@ -801,22 +779,22 @@ def main():
     else:
         input = directory + document
     if input.find('/') != -1:
-        print "Content-Type: text/plain"
-        print "Status: 403 Forbidden (slash)\n"
+        print 'Content-Type: text/plain'
+        print 'Status: 403 Forbidden (slash)\n'
         return
 
     action = params.getvalue('action')
     if action in EDIT_ACTIONS:
         user = params.getvalue('user')
         if not authenticate(user, params.getvalue('pass')):
-            print "Content-Type: text/plain"
-            print "Status: 403 Forbidden (auth)\n"
+            print 'Content-Type: text/plain'
+            print 'Status: 403 Forbidden (auth)\n'
             return
 
     if directory is None:
         if action == 'auth':
-            print "Content-Type: text/plain\n"
-            print "Hello, %s" % user
+            print 'Content-Type: text/plain\n'
+            print 'Hello, %s' % user
         elif action == 'arctypes':
             arc_types_html(
                 params.getvalue('origin'),
@@ -873,7 +851,7 @@ def debug():
                 with open(file_path, 'r') as ann_file:
                     ann_lines = ann_file.readlines()
                 
-                ann_obj = AnnotationFile(file_path)
+                ann_obj = Annotations(file_path)
                 ann_obj_lines = [str(l) + '\n' for l in ann_obj]
 
                 #print str(ann_obj)
@@ -887,7 +865,7 @@ def debug():
                 
                 #exit(0)
 
-    #a = AnnotationFile(
+    #a = Annotations(
     #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann')
     #print a
     '''
