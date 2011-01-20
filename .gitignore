@@ -8,3 +8,6 @@ config.py
 # Python remenants
 *.pyc
 *.pyo
+
+# Who/what leaves these around?
+*.swo
