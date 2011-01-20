@@ -14,6 +14,8 @@ from simplejson import dumps
 from itertools import chain
 import fileinput
 
+from verify_annotations import verify_annotation
+
 ### Constants?
 basedir = '/data/home/genia/public_html/BioNLP-ST/pontus/visual'
 datadir = basedir + '/data'
@@ -327,7 +329,7 @@ class AnnotationFile(object):
                         self.add_annotation(TextBoundAnnotation(
                             start, end, id, type, data_tail))
                     else:
-                        assert False, ann_line #XXX: REMOVE!
+                        #assert False, ann_line #XXX: REMOVE!
                         raise AnnotationLineSyntaxError(ann_line)
                         #assert False, 'No code to handle exception type'
                 except AnnotationLineSyntaxError, e:
@@ -721,7 +723,13 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
     
     print 'Resulting line:', ann
 
+    issues = verify_annotation(ann_obj)
+    print 'Issues:', issues
+
     with open(ann_file_path, 'w') as ann_file:
+        #print >> ann_file, "#1\tfoo?"
+        for i in issues:
+            print >> ann_file, i
         ann_file.write(str(ann_obj))
 
 def save_arc(document, origin, target, type):
