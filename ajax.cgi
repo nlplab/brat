@@ -469,6 +469,8 @@ def directories():
         print "<option>%s</option>" % dir
 
 def document_json(document):
+    #TODO: DOC!
+    #TODO: Shouldn't this print be in the end? Or even here?
     print 'Content-Type: application/json\n'
     from_offset = 0
     to_offset = None
@@ -480,22 +482,18 @@ def document_json(document):
         text = sub(r'\. ([A-Z])',r'.\n\1', text_file.read())
 
     struct = {
-            'offset': from_offset,
-            'text': text,
-            'entities': [],
-            'events': [],
-            'triggers': [],
-            'modifications': [],
-            'equivs': [],
-            'infos': [],
+            'offset':           from_offset,
+            'text':             text,
+            'entities':         [],
+            'events':           [],
+            'triggers':         [],
+            'modifications':    [],
+            'equivs':           [],
+            'infos':            [],
             }
 
     triggers = dict()
 
-    #for line in AnnotationFile(ann_file_path, txt_file_path).lines:
-    #    pass
-
-    
     # iterate jointly over all present annotation files for the document
     #XXX: One file to rule them all
     foundfiles = [document + ext for ext in ('.ann',)
@@ -794,22 +792,22 @@ def main():
     else:
         input = directory + document
     if input.find('/') != -1:
-        print "Content-Type: text/plain"
-        print "Status: 403 Forbidden (slash)\n"
+        print 'Content-Type: text/plain'
+        print 'Status: 403 Forbidden (slash)\n'
         return
 
     action = params.getvalue('action')
     if action in EDIT_ACTIONS:
         user = params.getvalue('user')
         if not authenticate(user, params.getvalue('pass')):
-            print "Content-Type: text/plain"
-            print "Status: 403 Forbidden (auth)\n"
+            print 'Content-Type: text/plain'
+            print 'Status: 403 Forbidden (auth)\n'
             return
 
     if directory is None:
         if action == 'auth':
-            print "Content-Type: text/plain\n"
-            print "Hello, %s" % user
+            print 'Content-Type: text/plain\n'
+            print 'Hello, %s' % user
         elif action == 'arctypes':
             arc_types_html(
                 params.getvalue('origin'),
