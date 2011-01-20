@@ -1,0 +1,10 @@
+# Don't ever commit your settings
+config.py
+
+# vim remenants
+*.swp
+*~
+
+# Python remenants
+*.pyc
+*.pyo
