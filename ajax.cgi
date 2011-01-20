@@ -297,6 +297,9 @@ class AnnotationFile(object):
                         #text = txt_file.read(end - start)
                         self.add_annotation(TextBoundAnnotation(
                             start, end, id, type, data_tail))
+                    elif id_pre == "#":
+                        # XXX: properly process comments!
+                        pass
                     else:
                         #assert False, ann_line #XXX: REMOVE!
                         raise AnnotationLineSyntaxError(ann_line)
@@ -690,11 +693,15 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
     
     print 'Resulting line:', ann
 
-    issues = verify_annotation(ann_obj)
-    print 'Issues:', issues
+    try:
+        issues = verify_annotation(ann_obj)
+        print 'Issues:', issues
+    except Exception, e:
+        print "Failed to run verify_annotation! %s" % e
+        issues = []
+        # TODO add an issue about the failure
 
     with open(ann_file_path, 'w') as ann_file:
-        #print >> ann_file, "#1\tfoo?"
         for i in issues:
             print >> ann_file, i
         ann_file.write(str(ann_obj))

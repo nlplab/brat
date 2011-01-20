@@ -1358,7 +1358,7 @@ $(function() {
     return function(html, error) {
       message.html(html).css('display', 'block');
       message[0].className = error ? 'error' : 'normal';
-      opacity = 2;
+      opacity = 3;
       if (!timer) {
         timer = setInterval(fadeMessage, 50);
       }
