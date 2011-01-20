@@ -284,7 +284,7 @@ var Annotator = function(containerElement, onStart) {
         to: span.to,
         id: id,
       };
-      $('#span_selected').text(data.text.substring(span.from, span.to));
+      $('#span_selected').text('"'+data.text.substring(span.from, span.to)+'"');
       $('#del_span_button').css('display', 'inline');
       $('#span_form').css('display', 'block');
       var el = $('#span_' + span.type);
@@ -375,7 +375,7 @@ var Annotator = function(containerElement, onStart) {
           from: selectedFrom,
           to: selectedTo,
         };
-        $('#span_selected').text(data.text.substring(selectedFrom, selectedTo));
+        $('#span_selected').text('"'+data.text.substring(selectedFrom, selectedTo)+'"');
         $('#del_span_button').css('display', 'none');
         $('#span_form').css('display', 'block');
       }

@@ -85,7 +85,6 @@ event_argument_types = {
     # TODO: ID
     }
 
-
 # Types of textbounds that should not overlap with others of their
 # type.
 no_sametype_overlap_textbound_types = physical_entity_types[:]

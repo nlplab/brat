@@ -82,7 +82,8 @@ def verify_annotation(ann_obj):
         found_args = {}
         for arg, aid in e.args:
             found_args[arg] = True
-        if "Theme" not in found_args:
+        # TODO: don't hard-code what Themes are required for
+        if "Theme" not in found_args and e.type != "Process":
             issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "Theme required for event"))
 
     return issues

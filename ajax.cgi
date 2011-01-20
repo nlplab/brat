@@ -13,6 +13,8 @@ from re import split, sub, match
 from itertools import chain
 import fileinput
 
+from simplejson import dumps
+
 from annspec import physical_entity_types, event_argument_types
 from verify_annotations import verify_annotation
 
@@ -540,8 +542,6 @@ def directories():
         print '<option>%s</option>' % dir
 
 def document_json(document):
-    from simplejson import dumps
-
     #TODO: DOC!
     #TODO: Shouldn't this print be in the end? Or even here?
     print 'Content-Type: application/json\n'
@@ -601,6 +601,16 @@ def document_json(document):
                 )
 
     j_dic['error'] = None
+
+    try:
+        issues = verify_annotation(ann_obj)
+    except Exception, e:
+        # TODO add an issue about the failure
+        issues = []
+
+    for i in issues:
+        j_dic['infos'].append((i.ann_id, i.type, i.description))
+
     print dumps(j_dic, sort_keys=True, indent=2)
     
 def saveSVG(directory, document, svg):
@@ -628,20 +638,24 @@ def saveSVG(directory, document, svg):
 def arc_types_html(origin_type, target_type):
     from simplejson import dumps
 
-    possible = possible_arc_types_from_to(origin_type, target_type)
-
     response = { 'types' : [], 'message' : None, 'category' : None }
 
-    # TODO: proper error handling
-    if possible is None:
-        response['message'] = 'Error selecting arc types!'
-        response['category'] = 'error'
-    elif possible == []:
-        response['message'] = 'No choices for %s -> %s' % (origin_type, target_type)
-        response['category'] = 'error'
-    else:
-        response['types']   = [['Arcs', possible]]
-        
+    try:
+        possible = possible_arc_types_from_to(origin_type, target_type)
+
+        # TODO: proper error handling
+        if possible is None:
+            response["message"] = "Error selecting arc types!"
+            response["category"] = "error"
+        elif possible == []:
+            response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
+            response["category"] = "error"
+        else:
+            response["types"]   = [["Arcs", possible]]
+    except:
+        response["message"] = "Error selecting arc types!"
+        response["category"] = "error"
+    
     print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
 
@@ -737,17 +751,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
     
     print 'Resulting line:', ann
 
-    try:
-        issues = verify_annotation(ann_obj)
-        print 'Issues:', issues
-    except Exception, e:
-        print "Failed to run verify_annotation! %s" % e
-        issues = []
-        # TODO add an issue about the failure
-
     with open(ann_file_path, 'w') as ann_file:
-        for i in issues:
-            print >> ann_file, i
         ann_file.write(str(ann_obj))
 
 def save_arc(document, origin, target, type):

@@ -56,6 +56,7 @@ path {
 .span rect.AnnotationIncomplete {
   stroke: #ffff00;
   stroke-width: 2;
+  opacity: 0.6;
 }
 #infopopup.info_AnnotationIncomplete {
   background-color: #ffff77;
