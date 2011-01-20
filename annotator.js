@@ -1449,8 +1449,6 @@ $(function() {
       $.extend(annotator.ajaxOptions, {
         directory: directory,
         document: _doc,
-        user: annotator.user,
-        pass: annotator.password,
       });
       $.ajax({
         type: 'POST',
@@ -1500,8 +1498,6 @@ $(function() {
               action: 'save',
               directory: directory,
               document: doc,
-              user: annotator.user,
-              pass: annotator.password,
               svg: svgMarkup,
             },
             error: function(req, textStatus, errorThrown) {
@@ -1619,7 +1615,7 @@ $(function() {
         type: 'POST',
         url: ajaxBase,
         data: {
-          action: 'auth',
+          action: 'login',
           user: user,
           pass: password,
         },
@@ -1632,7 +1628,6 @@ $(function() {
         success: function(response) {
           displayMessage(response);
           annotator.user = user;
-          annotator.password = password;
           $('#auth_button').val('Logout');
           $('#auth_user').val('');
           $('#auth_pass').val('');
@@ -1652,8 +1647,17 @@ $(function() {
         $('#auth_form').css('display', 'block');
         $('#auth_user').select().focus();
       } else {
-        annotator.setUser();
-        auth_button.val('Login');
+        $.ajax({
+          type: 'POST',
+          url: ajaxBase,
+          data: {
+            action: 'logout',
+          },
+          success: function(data) {
+            displayMessage(data);
+            auth_button.val('Login');
+          },
+        });
       }
     });
 
@@ -1668,5 +1672,23 @@ $(function() {
         annotator.redraw = true;
       }
     });
+  });
+
+  $.ajax({
+    type: 'POST',
+    url: ajaxBase,
+    data: {
+      action: 'getuser',
+    },
+    success: function(jsonData) {
+      var auth_button = $('#auth_button');
+      if (jsonData.user) {
+        annotator.user = jsonData.user;
+        displayMessage('Hello, ' + jsonData.user);
+        auth_button.val('Logout');
+      } else {
+        auth_button.val('Login');
+      }
+    },
   });
 });

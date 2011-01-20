@@ -9,13 +9,17 @@ from cgi import FieldStorage
 from os import listdir, makedirs, system
 from os.path import isdir, isfile
 from os.path import join as join_path
+from Cookie import SimpleCookie
+from os import environ
+import hashlib
 from re import split, sub, match
-from simplejson import dumps
+from simplejson import dumps, loads
 from itertools import chain
 import fileinput
 
 ### Constants?
-EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'auth']
+EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
+COOKIE_ID = 'brat-cred'
 
 # Try to import our configurations
 from copy import deepcopy
@@ -834,12 +838,26 @@ def delete_arc(document, origin, target, type):
     with open(ann_file_path, 'w') as ann_file:
         ann_file.write(str(ann_obj))
 
+class InvalidAuthException(Exception):
+    pass
+
 def authenticate(login, password):
     # TODO
-    return (login == 'editor' and password == 'crunchy')
+    crunchyhash = hashlib.sha512('crunchy').hexdigest()
+    if (login != 'editor' or password != crunchyhash):
+        raise InvalidAuthException()
 
 def main():
     params = FieldStorage()
+    
+    cookie = SimpleCookie()
+    if environ.has_key('HTTP_COOKIE'):
+        cookie.load(environ['HTTP_COOKIE'])
+    try:
+        creds = loads(cookie[COOKIE_ID].value)
+    except KeyError:
+        creds = {}
+
     directory = params.getvalue('directory')
     document = params.getvalue('document')
 
@@ -855,17 +873,49 @@ def main():
         return
 
     action = params.getvalue('action')
+
     if action in EDIT_ACTIONS:
-        user = params.getvalue('user')
-        if not authenticate(user, params.getvalue('pass')):
+        try:
+            authenticate(creds['user'], creds['password'])
+        except (InvalidAuthException):
             print "Content-Type: text/plain"
             print "Status: 403 Forbidden (auth)\n"
             return
 
     if directory is None:
-        if action == 'auth':
-            print "Content-Type: text/plain\n"
-            print "Hello, %s" % user
+        if action == 'login':
+            creds = {
+                    'user': params.getvalue('user'),
+                    'password': hashlib.sha512(params.getvalue('pass')).hexdigest(),
+                    }
+            try:
+                authenticate(creds['user'], creds['password'])
+                cookie[COOKIE_ID] = dumps(creds)
+                # cookie[COOKIE_ID]['max-age'] = 15*60 # 15 minutes
+                print "Content-Type: text/plain"
+                print cookie
+                print "\n"
+                print "Hello, %s" % creds['user']
+            except InvalidAuthException:
+                print "Content-Type: text/plain"
+                print "Status: 403 Forbidden (auth)\n"
+
+        elif action == 'logout':
+            cookie[COOKIE_ID]['expires'] = 'Thu, 20 Jan 2010 00:00:00 UTC'
+            print "Content-Type: text/plain"
+            print cookie
+            print "\n"
+            print "Goodbye, %s" % creds['user']
+
+        elif action == 'getuser':
+            result = {}
+            try:
+                result['user'] = creds['user']
+            except (KeyError):
+                result['error'] = 'Not logged in'
+            print 'Content-Type: application/json\n'
+            print dumps(result)
+
         elif action == 'arctypes':
             arc_types_html(
                 params.getvalue('origin'),

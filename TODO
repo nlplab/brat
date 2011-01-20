@@ -9,10 +9,23 @@ Annotation:
 
 test again
 
-<<<<<<< HEAD
-resizing again
-
-
-=======
 check: vars rowSpacing and lineSpacing appear to have no effect
->>>>>>> 7c58fb7d0464c1e4af7fa83ae7ed34abc46c81f4
+
+git the data
+    undo
+
+make sure space is trimmed on span creation
+
+error handling
+
+keyboard shortcuts
+    Esc
+
+recursive delete
+    confirmation?
+
+"when a span is marked as an event trigger, an event attached to the
+trigger should be created (not just the trigger textbound). (A trigger
+with no events attached can be treated as an error; when the last event
+bound to a specific trigger is deleted, the trigger textbound should be
+deleted with it."
