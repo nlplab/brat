@@ -64,7 +64,7 @@ def verify_annotation(ann_obj):
     for a1, a2 in overlapping:
         issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap a %s (%s)" % (a1.type, a2.type, a2.id)))
     
-    # TODO: generalize to other cases
+    # TODO: generalize to other cases please
 
 #     # group textbounds by type
 #     textbounds_by_type = {}
