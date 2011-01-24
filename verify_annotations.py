@@ -52,6 +52,12 @@ def check_textbound_overlap(anns):
 
     return overlapping
 
+def contained_in_span(a1, a2):
+    """
+    Returns True if the first given TextBoundAnnotation is contained in the second, False otherwise.
+    """
+    return a1.start >= a2.start and a1.end <= a2.end
+
 def verify_annotation(ann_obj):
     """
     Verifies the correctness of a given AnnotationFile.
@@ -63,7 +69,17 @@ def verify_annotation(ann_obj):
     physical_entities = [a for a in ann_obj.get_textbounds() if a.type in annspec.physical_entity_types]
     overlapping = check_textbound_overlap(physical_entities)
     for a1, a2 in overlapping:
-        issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap a %s (%s)" % (a1.type, a2.type, a2.id)))
+        if a1.start == a2.start and a1.end == a2.end:
+            issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s has identical span with %s %s" % (a1.type, a2.type, a2.id)))            
+        elif contained_in_span(a1, a2):
+            if a1.type not in annspec.allowed_entity_nestings.get(a2.type, annspec.allowed_entity_nestings['default']):
+                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in a %s (%s)" % (a1.type, a2.type, a2.id)))
+        elif contained_in_span(a2, a1):
+            if a2.type not in annspec.allowed_entity_nestings.get(a1.type, annspec.allowed_entity_nestings['default']):
+                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain a %s (%s)" % (a1.type, a2.type, a2.id)))
+        else:
+            # crossing boundaries; never allowed for physical entities.
+            issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: entity has crossing span with %s" % a2.id))
     
     # TODO: generalize to other cases please
 
