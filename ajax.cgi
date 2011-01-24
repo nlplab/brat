@@ -679,7 +679,7 @@ def document_json(document):
 
     foundfiles = [document + '.'  + ext for ext in ('a1', 'a2')
             #, 'co', 'rel')
-            if isfile(document+ext)]
+            if isfile(document+'.'+ext)]
 
     if isfile(ann_file_path):
         ann_iter = open(ann_file_path, 'r')
@@ -722,7 +722,7 @@ def document_json(document):
 
     for com_ann in ann_obj.get_oneline_comments():
         j_dic['infos'].append(
-                [com_ann.id, com_ann.type, com_ann.tail]
+                [com_ann.target, com_ann.type, com_ann.tail.strip()]
                 )
 
     j_dic['error'] = None
