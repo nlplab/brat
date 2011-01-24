@@ -802,9 +802,6 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         ann_file.write(str(ann_obj))
 
 def save_arc(document, origin, target, type):
-    # (arcorigin, arctarget) is unique
-    # if exists before, replace
-    
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
@@ -912,7 +909,7 @@ class InvalidAuthException(Exception):
     pass
 
 def authenticate(login, password):
-    # TODO
+    # TODO: Database back-end
     crunchyhash = hashlib.sha512(PASSWORD).hexdigest()
     if (login != USERNAME or password != crunchyhash):
         raise InvalidAuthException()
@@ -956,26 +953,30 @@ def main():
         if action == 'login':
             creds = {
                     'user': params.getvalue('user'),
-                    'password': hashlib.sha512(params.getvalue('pass')).hexdigest(),
+                    'password': hashlib.sha512(
+                        params.getvalue('pass')).hexdigest(),
                     }
             try:
                 authenticate(creds['user'], creds['password'])
                 cookie[COOKIE_ID] = dumps(creds)
                 # cookie[COOKIE_ID]['max-age'] = 15*60 # 15 minutes
-                print "Content-Type: text/plain"
+                print 'Content-Type: text/plain'
                 print cookie
-                print "\n"
-                print "Hello, %s" % creds['user']
+                print '\n'
+                print 'Hello, %s' % creds['user']
             except InvalidAuthException:
-                print "Content-Type: text/plain"
-                print "Status: 403 Forbidden (auth)\n"
+                print 'Content-Type: text/plain'
+                print 'Status: 403 Forbidden (auth)\n'
 
         elif action == 'logout':
-            cookie[COOKIE_ID]['expires'] = 'Thu, 20 Jan 2010 00:00:00 UTC'
-            print "Content-Type: text/plain"
+            from datetime import datetime
+            cookie[COOKIE_ID]['expires'] = (
+                    datetime.fromtimestamp(0L).strftime(
+                        '%a, %d %b %Y %H:%M:%S UTC'))
+            print 'Content-Type: text/plain'
             print cookie
-            print "\n"
-            print "Goodbye, %s" % creds['user']
+            print '\n'
+            print 'Goodbye, %s' % creds['user']
 
         elif action == 'getuser':
             result = {}
@@ -989,17 +990,17 @@ def main():
         elif action == 'arctypes':
             arc_types_html(
                 params.getvalue('origin'),
-                params.getvalue('target'))
+                params.getvalue('target')
+                )
         else:
             directories()
     else:
-        real_directory = DATA_DIR + '/' + directory
+        real_directory = join_path(DATA_DIR, directory)
 
         if document is None:
             directory_options(real_directory)
         else:
-            # XXX: check that the path doesn't refer up the directory tree (e.g. "../../")
-            docpath = real_directory + '/' + document
+            docpath = join_path(real_directory, document)
             span = params.getvalue('span')
 
             if action == 'span':
