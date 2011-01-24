@@ -645,12 +645,11 @@ def directory_options(directory):
         print '<option>%s</option>' % file
 
 def directories():
-    print 'Content-Type: text/html\n'
-    print "<option value=''>-- Select Directory --</option>"
+    print 'Content-Type: application/json\n'
     dirlist = [dir for dir in my_listdir(DATA_DIR)]
     dirlist.sort()
-    for dir in dirlist:
-        print '<option>%s</option>' % dir
+    response = { 'directories': dirlist }
+    print dumps(response, sort_keys=True, indent=2)
 
 def document_json(document):
     #TODO: DOC!

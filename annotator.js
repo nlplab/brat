@@ -1381,6 +1381,7 @@ $(function() {
   var address = window.location.href;
   var directory = window.location.hash.substr(1).split('/')[0];
   var doc;
+  var directories;
   var lastDoc = null;
   var qmark = address.indexOf('#');
   var slashmark = address.lastIndexOf('/', qmark);
@@ -1414,13 +1415,11 @@ $(function() {
       });
       message[0].className = error ? 'error' : 'normal';
       opacity = duration || 3;
-      //if (duration == -1) {
-      if (true) {
+      if (duration == -1) {
         // click handler, no fade
         var okButton = $('<input type="button" value="OK"/>');
         message.append(okButton);
         okButton.click(dismissMessage);
-        console.log(okButton);
       } else {
         if (!timer) {
           timer = setInterval(fadeMessage, 50);
@@ -1457,12 +1456,25 @@ $(function() {
       var sel = $('#document_select').html(data);
       if (doc) sel.val(doc);
       lastHash = null;
+      if ($.inArray(directory, directories) == -1) {
+        directories.push(directory);
+        $('#directory_select').
+            append('<option>' + directory + '</option>').
+            val(directory);
+      }
     });
   };
 
-  $.get(ajaxBase, function(data) {
-    $('#directory_select').html(data).val(directory);
-    if (directory) getDirectory();
+  $.get(ajaxBase, function(jsonData) {
+    var dirSelect = $('#directory_select');
+    directories = jsonData.directories;
+    $.each(directories, function(subdirNo, subdir) {
+      dirSelect.append('<option>' + subdir + '</option>');
+    });
+    if (directory) {
+      dirSelect.val(directory);
+      getDirectory();
+    }
   });
 
 
