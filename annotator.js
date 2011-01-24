@@ -33,6 +33,16 @@ var displayInfo = function(html, evt) {
     }
 }
 
+var displayMessagesAndCheckForErrors = function(response) {
+    if (response.message) {
+      displayMessage(response.message, false, response.duration);
+    } else if (response.error) {
+      displayMessage(response.error, true, response.duration);
+      return false;
+    }
+    return true;
+}
+
 // SVG Annotation tool
 var Annotator = function(containerElement, onStart) {
   // settings
@@ -1486,6 +1496,7 @@ $(function() {
             console.error("No JSON data");
             return;
           }
+          displayMessagesAndCheckForErrors(jsonData);
           jsonData.document = _doc;
           annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
@@ -1516,12 +1527,9 @@ $(function() {
         },
         success: function(response) {
           lastHash = null; // force reload
-          if (response.message) {
-            displayMessage(response.message, false, response.duration);
-          } else if (response.error) {
-            displayMessage(response.error, true, response.duration);
+          if (displayMessagesAndCheckForErrors(response)) {
+            renderDocument(_doc);
           }
-          renderDocument(_doc);
         }
       });
       annotator.ajaxOptions = null;

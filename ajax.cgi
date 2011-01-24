@@ -104,7 +104,7 @@ class InvalidIdError(Exception):
         self.id = id
 
 
-class DependingAnntotionDeleteError(Exception):
+class DependingAnnotationDeleteError(Exception):
     def __init__(self, target, dependant):
         self.target = target
         self.dependant = dependant
@@ -162,6 +162,8 @@ class Annotations(object):
         #TODO: DOC!
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
         from collections import defaultdict
+        
+        self.failed_lines = []
 
         ### Here be dragons, these objects need constant updating and syncing
         # Annotation for each line of the file
@@ -221,7 +223,7 @@ class Annotations(object):
                         if merge_cand != ann:
                             try:
                                 self.del_annotation(merge_cand)
-                            except DependingAnntotionDeleteError:
+                            except DependingAnnotationDeleteError:
                                 assert False, ('Equivs lack ids and should '
                                         'never have dependents')
                         merge_cand = eq_ann
@@ -283,7 +285,7 @@ class Annotations(object):
         for other_ann in self:
             soft_deps, hard_deps = other_ann.get_deps()
             if ann.id in soft_deps or ann.id in hard_deps:
-                raise DependingAnntotionDeleteError(ann, other_ann)
+                raise DependingAnnotationDeleteError(ann, other_ann)
         self._atomic_del_annotation(ann)
 
     def _atomic_del_annotation(self, ann):
@@ -347,7 +349,11 @@ class Annotations(object):
         #for ann_line in (l.rstrip('\n') for l in ann_file):
             try:
                 # ID processing
-                id, id_tail = ann_line.split('\t', 1)
+                try:
+                    id, id_tail = ann_line.split('\t', 1)
+                except ValueError:
+                    raise AnnotationLineSyntaxError(ann_line)
+
                 if id in self._ann_by_id:
                     raise DuplicateAnnotationIdError(id)
                 try:
@@ -429,9 +435,9 @@ class Annotations(object):
                     raise AnnotationLineSyntaxError(ann_line)
                     #assert False, 'No code to handle exception type'
             except AnnotationLineSyntaxError, e:
-                #TODO: Print warning here, how do we print to console in a CGI?
                 # We could not parse the line, just add it as an unknown annotation
                 self.add_annotation(Annotation(e.line))
+                self.failed_lines.append(len(self) - 1)
 
     def __str__(self):
         s = '\n'.join(str(ann).rstrip('\n') for ann in self)
@@ -725,7 +731,18 @@ def document_json(document):
                 [com_ann.target, com_ann.type, com_ann.tail.strip()]
                 )
 
-    j_dic['error'] = None
+    if ann_obj.failed_lines:
+        j_dic['error'] = 'Unable to parse the following line(s):<br/>{}'.format(
+                '\n<br/>\n'.join(
+                    ['{}: {}'.format(
+                        str(line_num - 1),
+                        str(ann_obj[line_num])
+                        ).strip()
+                    for line_num in ann_obj.failed_lines])
+                    )
+        j_dic['duration'] = len(ann_obj.failed_lines) * 3
+    else:
+        j_dic['error'] = None
 
     try:
         issues = verify_annotation(ann_obj)
@@ -784,6 +801,43 @@ def arc_types_html(origin_type, target_type):
     print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
 
+
+#TODO: Couldn't we incorporate this nicely into the Annotations class?
+class LineModificationTracker(object):
+    def __init__(self):
+        self.added = []
+        self.changed = []
+        self.deleted = []
+
+    def __len__(self):
+        return len(self.added) + len(self.changed) + len(self.deleted)
+
+    def change(self, before, after):
+        self.changed.append(
+                '\t{}\n<br/>\n\tInto:\n<br/>\t{}'.format(before, after))
+
+    def json_response(self, response=None):
+        if response is None:
+            response = {}
+
+        msg_str = ''
+        if self.added:
+            msg_str += ('Added the following line(s):\n<br/>'
+                    + '\n<br/>\n'.join([str(a) for a in self.added]))
+        if self.changed:
+            msg_str += ('Changed the following line(s):\n<br/>'
+                    + '\n<br/>\n'.join([str(a) for a in self.changed]))
+        if self.deleted:
+            msg_str += ('Deleted the following line(s):\n<br/>'
+                    + '\n<br/>\n'.join([str(a) for a in self.deleted]))
+        if msg_str:
+            response['message'] = msg_str
+            response['duration'] = 3 * len(self)
+        else:
+            response['message'] = 'No changes made'
+        return response
+
+
 def save_span(document, start_str, end_str, type, negation, speculation, id):
     #TODO: Handle the case when negation and speculation both are positive
     # if id present: edit
@@ -794,25 +848,33 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
 
     with open(ann_file_path) as ann_file:
         ann_obj = Annotations(ann_file)
+
+    mods = LineModificationTracker()
+
     if id is not None:
         #TODO: Handle failure to find!
         ann = ann_obj.get_ann_by_id(id)
         
-        # We can't update start end as it is, read more below
-        """
-        if start != ann.start or end != ann.end:
-            '''
-            This scenario has been discussed and changing the span inevitably
-            leads to the text span being out of sync since we can't for sure
-            determine where in the data format the text (if at all) it is
-            stored. For now we will fail loudly here.
-            '''
-            assert False, 'unable to change the span of an existing textual annotation'
+        if int(start_str) != ann.start or int(end_str) != ann.end:
+            # This scenario has been discussed and changing the span inevitably
+            # leads to the text span being out of sync since we can't for sure
+            # determine where in the data format the text (if at all) it is
+            # stored. For now we will fail loudly here.
+            print 'Content-Type: application/json\n'
+            error = 'unable to change the span of an existing annotation'
+            print dumps({ 'error': error }, sort_keys=True, indent=2)
+            # Not sure if we only get an internal server error or the data
+            # will actually reach the client to be displayed.
+            assert False, error
 
-        ann.start = start
-        ann.end = end
-        """
-        ann.type = type
+        # Span changes are as of yet unsupported
+        #ann.start = start
+        #ann.end = end
+
+        if ann.type != type:
+            before = str(ann)
+            ann.type = type
+            mods.change(before, ann)
 
         # Here we assume that there is at most one of each in the file, this can be wrong
         seen_spec = None
@@ -831,20 +893,24 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
             spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
             spec_mod = ModifierAnnotation(ann.id, spec_mod_id, 'Speculation', '') #XXX: Cons
             ann_obj.add_annotation(spec_mod)
+            mods.added.append(spec_mod)
         if negation and seen_neg is None:
             neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
             neg_mod = ModifierAnnotation(ann.id, neg_mod_id, 'Negation', '') #XXX: Cons
             ann_obj.add_annotation(neg_mod)
+            mods.added.append(neg_mod)
         # Is the attribute unset and one existing? Erase.
         if not speculation and seen_spec is not None:
             try:
                 ann_obj.del_annotation(seen_spec)
-            except DependingAnntotionDeleteError:
+                mods.deleted.append(seen_spec)
+            except DependingAnnotationDeleteError:
                 assert False, 'Dependant attached to speculation'
         if not negation and seen_neg is not None:
             try:
                 ann_obj.del_annotation(seen_neg)
-            except DependingAnntotionDeleteError:
+                mods.deleted.append(seen_neg)
+            except DependingAnnotationDeleteError:
                 assert False, 'Dependant attached to negation'
 
         # It could be the case that the span is involved in event(s), if so, 
@@ -864,6 +930,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         #TODO: Data tail should be optional
         ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
         ann_obj.add_annotation(ann)
+        mods.added.append(ann)
 
         if is_physical_entity_type(type):
             # TODO: alert that negation / speculation are ignored if set
@@ -873,6 +940,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
             new_event_id = ann_obj.get_new_id('E') #XXX: Cons
             event = EventAnnotation(ann.id, [], new_event_id, type, '')
             ann_obj.add_annotation(event)
+            mods.added.append(event)
 
             # TODO: use an existing identical textbound for the trigger
             # if one exists, don't dup            
@@ -881,35 +949,33 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
                 spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
                 spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
                 ann_obj.add_annotation(spec_mod)
+                mods.added.append(spec_mod)
             else:
                 neg_mod = None
             if negation:
                 neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
                 neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
                 ann_obj.add_annotation(neg_mod)
+                mods.added.append(neg_mod)
             else:
                 neg_mod = None
-
-    # TODO remove this later
-    # print 'Content-Type: text/html\n'
-    # print 'save_span:', document, start_str, end_str, type, negation, speculation, id
-    
-    # print 'Resulting line:', ann
 
     with open(ann_file_path, 'w') as ann_file:
         ann_file.write(str(ann_obj))
 
-    # response = { 'message': 'Annotation:<br/>%s' % ann, 'duration': 3 }
-    response = { 'error': 'Annotation:<br/>%s' % ann }
     print 'Content-Type: application/json\n'
-    print dumps(response, sort_keys=True, indent=2)
+    print dumps(mods.json_response(), sort_keys=True, indent=2)
 
+#TODO: When addin an equiv the modification tracker won't really show what is
+# correct since it can't know about merging
 def save_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
     with open(ann_file_path) as ann_file:
         ann_obj = Annotations(ann_file)
+    
+    mods = LineModificationTracker()
 
     # Ugly check, but we really get no other information
     if type != 'Equiv':
@@ -919,31 +985,35 @@ def save_arc(document, origin, target, type):
             arg_tup = (type, target_ann.id)
             if arg_tup not in orig_ann.args:
                 orig_ann.args.append(arg_tup)
+                ann = orig_ann
             else:
                 # It already existed as an arg, we were called to do nothing...
-                pass
+                ann = 'Duplicate, nothing added'
         except AttributeError:
             # The annotation did not have args, it was most likely an entity
             # thus we need to create a new Event...
             new_id = ann_obj.get_new_id('E')
-            ann_obj.add_annotation(
-                    EventAnnotation(
+            ann = EventAnnotation(
                         origin,
                         [arg_tup],
                         new_id,
                         orig_ann.type,
                         ''
-                        ))
+                        )
+            ann_obj.add_annotation(ann)
+            mods.added.append(ann)
     else:
         # It is an Equiv
-        ann_obj.add_annotation(EquivAnnotation(type, [origin, target], ''))
+        ann = EquivAnnotation(type, [origin, target], '')
+        ann_obj.add_annotation(ann)
+        mods.added.append(ann)
 
-    print 'Content-Type: text/html\n'
-    print 'Added', document, origin, target, type
-  
     #XXX: Convert the string, THEN write or you cock up the file, blanking it
     with open(ann_file_path, 'w') as ann_file:
         ann_file.write(str(ann_obj))
+
+    print 'Content-Type: application/json\n'
+    print dumps(mods.json_response(), sort_keys=True, indent=2)
 
 def delete_span(document, id):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
@@ -952,23 +1022,44 @@ def delete_span(document, id):
     with open(ann_file_path) as ann_file:
         ann_obj = Annotations(ann_file)
     
+    mods = LineModificationTracker()
+    
     #TODO: Handle a failure to find it
     #XXX: Slow, O(2N)
     ann = ann_obj.get_ann_by_id(id)
     try:
         ann_obj.del_annotation(ann)
-    except DependingAnntotionDeleteError, e:
+        mods.deleted.append(ann)
+        try:
+            trig = ann_obj.get_ann_by_id(ann.trigger)
+            # We can't do this at this stage, needs to be removed prior to ann
+            '''
+            try:
+                ann_obj.del_annotation(trig)
+                mods.deleted.append(trig)
+
+                for mod_ann in ann_obj.get_modifers():
+                    if mod_ann.target == ann.id:
+                        try:
+                            ann_obj.del_annotation(trig)
+                            mods.deleted.append(trig)
+                        except DependingAnnotationDeleteError:
+                            assert False, 'insane' 
+            except DependingAnnotationDeleteError:
+                assert False, 'insane'
+            '''
+        except AttributeError:
+            pass
+    except DependingAnnotationDeleteError, e:
         print 'Content-Type: application/json\n'
         print dumps(e.json_error_response(), sort_keys=True, indent=2)
         return
 
-    #TODO: Handle consequences of removal, should be in the object
-
-    print 'Content-Type: text/html\n'
-    print 'Deleted', document, id # TODO do something with it
-
     with open(ann_file_path, 'w') as ann_file:
         ann_file.write(str(ann_obj))
+    
+    print 'Content-Type: application/json\n'
+    print dumps(mods.json_response(), sort_keys=True, indent=2)
 
 def delete_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
@@ -977,23 +1068,22 @@ def delete_arc(document, origin, target, type):
     with open(ann_file_path) as ann_file:
         ann_obj = Annotations(ann_file)
 
-    # This can be an event or an equiv
+    mods = LineModificationTracker()
 
-    print 'Content-Type: text/html\n'
+    # This can be an event or an equiv
     #TODO: Check for None!
     try:
         event_ann = ann_obj.get_ann_by_id(origin)
         # Try if it is an event
         arg_tup = (type, target)
-        #print arg_tup
-        #print orig_ann.args
         if arg_tup in event_ann.args:
             event_ann.args.remove(arg_tup)
             if not event_ann.args:
                 # It was the last argument tuple, remove it all
                 try:
                     ann_obj.del_annotation(event_ann)
-                except DependingAnntotionDeleteError, e:
+                    mods.deleted.append(event_ann)
+                except DependingAnnotationDeleteError, e:
                     print 'Content-Type: application/json\n'
                     print dumps(e.json_error_response(), sort_keys=True, indent=2)
                     return
@@ -1004,27 +1094,30 @@ def delete_arc(document, origin, target, type):
     except AttributeError:
         # It is an equiv then?
         #XXX: Slow hack! Should have a better accessor! O(eq_ann)
-            for eq_ann in ann_obj.get_equivs():
-                # We don't assume that the ids only occur in one Equiv, we
-                # keep on going since the data "could" be corrupted
-                if origin in eq_ann.entities and target in eq_ann.entities:
-                    eq_ann.entities.remove(origin)
-                    eq_ann.entities.remove(target)
+        for eq_ann in ann_obj.get_equivs():
+            # We don't assume that the ids only occur in one Equiv, we
+            # keep on going since the data "could" be corrupted
+            if origin in eq_ann.entities and target in eq_ann.entities:
+                before = str(eq_ann)
+                eq_ann.entities.remove(origin)
+                eq_ann.entities.remove(target)
+                mods.change(before, eq_ann)
 
-                if len(eq_ann.entities) < 2:
-                    # We need to delete this one
-                    try:
-                        ann_obj.del_annotation(eq_ann)
-                    except DependingAnntotionDeleteError, e:
-                        print 'Content-Type: application/json\n'
-                        print dumps(e.json_error_response(), sort_keys=True, indent=2)
-                        return
+            if len(eq_ann.entities) < 2:
+                # We need to delete this one
+                try:
+                    ann_obj.del_annotation(eq_ann)
+                    mods.deleted.append(eq_ann)
+                except DependingAnnotationDeleteError, e:
+                    print 'Content-Type: application/json\n'
+                    print dumps(e.json_error_response(), sort_keys=True, indent=2)
+                    return
 
-
-    print 'Deleted', document, origin, target, type
-    
     with open(ann_file_path, 'w') as ann_file:
         ann_file.write(str(ann_obj))
+
+    print 'Content-Type: application/json\n'
+    print dumps(mods.json_response(), sort_keys=True, indent=2)
 
 class InvalidAuthException(Exception):
     pass
