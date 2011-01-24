@@ -14,8 +14,6 @@ check: vars rowSpacing and lineSpacing appear to have no effect
 git the data
     undo
 
-make sure space is trimmed on span creation
-
 error handling
 
 keyboard shortcuts

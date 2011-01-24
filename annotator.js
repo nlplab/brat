@@ -366,6 +366,11 @@ var Annotator = function(containerElement, onStart) {
         var selectedFrom = chunkFrom.from + sel.anchorOffset;
         var selectedTo = chunkTo.from + sel.focusOffset;
         window.getSelection().removeAllRanges();
+
+        // trim
+        while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedFrom, 1)) != -1) selectedFrom++;
+        while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedTo - 1, 1)) != -1) selectedTo--;
+
         if (selectedFrom == selectedTo) return; // simple click (zero-width span)
         if (selectedFrom > selectedTo) {
           var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
