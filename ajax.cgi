@@ -818,13 +818,19 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         else:
             neg_mod = None
 
-    print 'Content-Type: text/html\n'
-    print 'save_span:', document, start_str, end_str, type, negation, speculation, id
+    # TODO remove this later
+    # print 'Content-Type: text/html\n'
+    # print 'save_span:', document, start_str, end_str, type, negation, speculation, id
     
-    print 'Resulting line:', ann
+    # print 'Resulting line:', ann
 
     with open(ann_file_path, 'w') as ann_file:
         ann_file.write(str(ann_obj))
+
+    # response = { 'message': 'Annotation:<br/>%s' % ann, 'duration': 3 }
+    response = { 'error': 'Annotation:<br/>%s' % ann }
+    print 'Content-Type: application/json\n'
+    print dumps(response, sort_keys=True, indent=2)
 
 def save_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
