@@ -244,24 +244,23 @@ class Annotations(object):
         
         return (soft_deps, hard_deps)
 
-    def del_annotation(self, ann, recursive=True):
-        # Recursive controls if we are allowed to cascade or raises an excep.
+    def del_annotation(self, ann):
+        #TODO: Flag to allow recursion
+        #TODO: Sampo wants to allow delet of direct deps but not indirect, one step
         #TODO: DOC!
-        #TODO:
-        #XXX: We will have cascades here! This is only for atomics
+        try:
+            ann.id
+        except AttributeError:
+            # If it doesn't have an id, nothing can depend on it
+            self._atomic_del_annotation(ann)
+            return
+
+        for other_ann in self:
+            soft_deps, hard_deps = other_ann.get_deps()
+            if ann.id in soft_deps or ann.id in hard_deps:
+                # Recursive controls if we are allowed to cascade or raises an excep.
+                return #XXX: We can't do this! It is a cascade!
         self._atomic_del_annotation(ann)
-
-        """
-        soft_deps, hard_deps = ann.get_deps()
-        if (soft_deps or hard_deps) and not recursive:
-            #TODO: Requires permissions some exception!
-            raise NotImplementedError
-
-        #TODO: Traverse all deps and erase once they get atomic!
-
-        # Now it is fine to delete out annotation
-        self._atomic_del_annotation(ann)
-        """
 
     def _atomic_del_annotation(self, ann):
         #TODO: DOC
@@ -445,7 +444,7 @@ class Annotation(object):
 
 class TypedAnnotation(Annotation):
     def __init__(self, type, tail):
-        super(TypedAnnotation, self).__init__(tail)
+        Annotation.__init__(self, tail)
         self.type = type
 
     def __str__(self):
@@ -454,7 +453,7 @@ class TypedAnnotation(Annotation):
 
 class IdedAnnotation(TypedAnnotation):
     def __init__(self, id, type, tail):
-        super(IdedAnnotation, self).__init__(type, tail)
+        TypedAnnotation.__init__(self, type, tail)
         self.id = id
 
     def __str__(self):
@@ -464,7 +463,7 @@ class IdedAnnotation(TypedAnnotation):
 class EventAnnotation(IdedAnnotation):
     #TODO: It is not called target is it?
     def __init__(self, trigger, args, id, type, tail):
-        super(EventAnnotation, self).__init__(id, type, tail)
+        IdedAnnotation.__init__(self, id, type, tail)
         self.trigger = trigger
         self.args = args
 
@@ -478,19 +477,21 @@ class EventAnnotation(IdedAnnotation):
                 )
 
     def get_deps(self):
-        soft_deps, hard_deps = super(self).get_deps()
+        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
         hard_deps.add(self.trigger)
         arg_ids = [arg_tup[1] for arg_tup in self.args]
         if len(arg_ids) > 1:
-            soft_deps.union(set(arg_ids))
+            for arg in arg_ids:
+                soft_deps.add(arg)
         else:
-            hard_deps.union(set(arg_ids))
+            for arg in arg_ids:
+                hard_deps.add(arg)
         return (soft_deps, hard_deps)
 
 
 class EquivAnnotation(TypedAnnotation):
     def __init__(self, type, entities, tail):
-        super(EquivAnnotation, self).__init__(type, tail)
+        TypedAnnotation.__init__(self, type, tail)
         self.entities = entities
 
     def __in__(self, other):
@@ -504,17 +505,19 @@ class EquivAnnotation(TypedAnnotation):
                 )
 
     def get_deps(self):
-        soft_deps, hard_deps = super(self).get_deps()
-        if len(self.entities) > 1:
-            soft_deps.union(set(self.entities))
+        soft_deps, hard_deps = TypedAnnotation.get_deps(self)
+        if len(self.entities) > 2:
+            for ent in self.entities:
+                soft_deps.add(ent)
         else:
-            hard_deps.union(set(self.entities))
+            for ent in self.entities:
+                hard_deps.add(ent)
         return (soft_deps, hard_deps)
 
 
 class ModifierAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail):
-        super(ModifierAnnotation, self).__init__(id, type, tail)
+        IdedAnnotation.__init__(self, id, type, tail)
         self.target = target
         
     def __str__(self):
@@ -526,18 +529,17 @@ class ModifierAnnotation(IdedAnnotation):
                 )
 
     def get_deps(self):
-        soft_deps, hard_deps = super(self).get_deps()
-        hard_deps.append(self.target)
+        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
+        hard_deps.add(self.target)
         return (soft_deps, hard_deps)
 
 
+# NOTE: The actual text goes into the tail
 class TextBoundAnnotation(IdedAnnotation):
     def __init__(self, start, end, id, type, tail):
-        #XXX: Note that the text goes in the tail! 
-        super(TextBoundAnnotation, self).__init__(id, type, tail)
+        IdedAnnotation.__init__(self, id, type, tail)
         self.start = start
         self.end = end
-        #self.text = text
 
     def __str__(self):
         return '{id}\t{type} {start} {end}{tail}'.format(
