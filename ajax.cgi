@@ -792,18 +792,30 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
         ann_obj.add_annotation(ann)
 
-        if speculation:
-            spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-            spec_mod = ModifierAnnotation(new_id, spec_mod_id, 'Speculation', '') #XXX: Cons
-            ann_obj.add_annotation(spec_mod)
+        if type in physical_entity_types:
+            # TODO: alert that negation / speculation are ignored if set
+            pass
         else:
-            neg_mod = None
-        if negation:
-            neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-            neg_mod = ModifierAnnotation(new_id, neg_mod_id, 'Negation', '') #XXX: Cons
-            ann_obj.add_annotation(neg_mod)
-        else:
-            neg_mod = None
+            # Create the event also
+            new_event_id = ann_obj.get_new_id('E') #XXX: Cons
+            event = EventAnnotation(ann.id, [], new_event_id, type, '')
+            ann_obj.add_annotation(event)
+
+            # TODO: use an existing identical textbound for the trigger
+            # if one exists, don't dup            
+
+            if speculation:
+                spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
+                ann_obj.add_annotation(spec_mod)
+            else:
+                neg_mod = None
+            if negation:
+                neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
+                ann_obj.add_annotation(neg_mod)
+            else:
+                neg_mod = None
 
     print 'Content-Type: text/html\n'
     print 'save_span:', document, start_str, end_str, type, negation, speculation, id

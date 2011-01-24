@@ -15,6 +15,10 @@ Version:    2011-01-20
 physical_entity_types = [
     'Protein',
     'Entity',
+    'Organism',
+    'Chemical',
+    'Two-component-system',
+    'Regulon-operon',
     ]
 
 
