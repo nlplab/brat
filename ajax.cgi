@@ -1031,22 +1031,22 @@ def delete_span(document, id):
         mods.deleted.append(ann)
         try:
             trig = ann_obj.get_ann_by_id(ann.trigger)
-            # We can't do this at this stage, needs to be removed prior to ann
-            '''
             try:
                 ann_obj.del_annotation(trig)
                 mods.deleted.append(trig)
-
+                
+                # We can't do this at this stage, to be removed before ann
+                '''
                 for mod_ann in ann_obj.get_modifers():
                     if mod_ann.target == ann.id:
                         try:
                             ann_obj.del_annotation(trig)
                             mods.deleted.append(trig)
                         except DependingAnnotationDeleteError:
-                            assert False, 'insane' 
+                            assert False, 'insane'
+                '''
             except DependingAnnotationDeleteError:
                 assert False, 'insane'
-            '''
         except AttributeError:
             pass
     except DependingAnnotationDeleteError, e:
