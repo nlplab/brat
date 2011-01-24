@@ -9,17 +9,9 @@ git the data
 CLIENT:
 error handling
 
-CLIENT:
-keyboard shortcuts
-    Esc
-
 recursive delete
     confirmation?
 
 SERVER:
 don't create duplicate trigger textbounds for events; delete trigger
 textbound when the last referring event is deleted.
-
-CLIENT:
-add hidden directories by need
-    transform directory list from HTML to AJAX
