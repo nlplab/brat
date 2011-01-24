@@ -3,6 +3,7 @@ config.py
 
 # vim remenants
 *.swp
+*.swo
 *~
 
 # Python remenants
