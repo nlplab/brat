@@ -1,4 +1,15 @@
 #!/data/home/pontus/local/bin/python
+# coding=utf-8
+
+'''
+Brat (/brât/)
+TODO: DOC!
+
+Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
+Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
+Author:     Goran   Topič       <smp is s u tokyo ac jp>
+Version:    2010-01-24
+'''
 
 #XXX: The above is a hack to get a non-ancient Python
 
