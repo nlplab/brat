@@ -104,11 +104,31 @@ class InvalidIdError(Exception):
         self.id = id
 
 
+class DependingAnntotionDeleteError(Exception):
+    def __init__(self, target, dependant):
+        self.target = target
+        self.dependant = dependant
+
+    def json_error_response(self, response=None):
+        if response is None:
+            response = {}
+        response['error'] = '''
+        Annotation:
+        <br/>
+        {}
+        <br/>
+        Has a depending annotation attached to it:
+        <br/>
+        {}
+        '''.format(self.target, self.dependant)
+        return response
+
+
 def _split_id(id):
     '''
     Split an id into its prefix and numerical component.
 
-    id format: [A-Za-z]+[0-9]+
+    id format: ([A-Za-z]+|#)[0-9]+
 
     Arguments:
     id - a valid id
@@ -171,6 +191,9 @@ class Annotations(object):
     def get_modifers(self):
         return (a for a in self if isinstance(a, ModifierAnnotation))
 
+    def get_oneline_comments(self):
+        return (a for a in self if isinstance(a, OnelineCommentAnnotation))
+
     # TODO: getters for other categories of annotations
 
     def add_annotation(self, ann):
@@ -196,7 +219,11 @@ class Annotations(object):
                                 eq_ann.entities.append(m_ent)
                         # Don't try to delete ann since it never was added
                         if merge_cand != ann:
-                            self.del_annotation(merge_cand)
+                            try:
+                                self.del_annotation(merge_cand)
+                            except DependingAnntotionDeleteError:
+                                assert False, ('Equivs lack ids and should '
+                                        'never have dependents')
                         merge_cand = eq_ann
                         # We already merged it all, break to the next ann
                         break
@@ -256,8 +283,7 @@ class Annotations(object):
         for other_ann in self:
             soft_deps, hard_deps = other_ann.get_deps()
             if ann.id in soft_deps or ann.id in hard_deps:
-                # Recursive controls if we are allowed to cascade or raises an excep.
-                return #XXX: We can't do this! It is a cascade!
+                raise DependingAnntotionDeleteError(ann, other_ann)
         self._atomic_del_annotation(ann)
 
     def _atomic_del_annotation(self, ann):
@@ -394,8 +420,10 @@ class Annotations(object):
                     self.add_annotation(TextBoundAnnotation(
                         start, end, id, type, data_tail))
                 elif id_pre == '#':
-                    # XXX: properly process comments!
-                    pass
+                    type, target = data.split()
+                    self.add_annotation(OnelineCommentAnnotation(
+                        target, id, type, data_tail
+                        ))
                 else:
                     #assert False, ann_line #XXX: REMOVE!
                     raise AnnotationLineSyntaxError(ann_line)
@@ -514,6 +542,25 @@ class EquivAnnotation(TypedAnnotation):
 
 
 class ModifierAnnotation(IdedAnnotation):
+    def __init__(self, target, id, type, tail):
+        IdedAnnotation.__init__(self, id, type, tail)
+        self.target = target
+        
+    def __str__(self):
+        return '{id}\t{type} {target}{tail}'.format(
+                id=self.id,
+                type=self.type,
+                target=self.target,
+                tail=self.tail
+                )
+
+    def get_deps(self):
+        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
+        hard_deps.add(self.target)
+        return (soft_deps, hard_deps)
+
+
+class OnelineCommentAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail):
         IdedAnnotation.__init__(self, id, type, tail)
         self.target = target
@@ -673,6 +720,11 @@ def document_json(document):
                 [mod_ann.id, mod_ann.type, mod_ann.target]
                 )
 
+    for com_ann in ann_obj.get_oneline_comments():
+        j_dic['infos'].append(
+                [com_ann.id, com_ann.type, com_ann.tail]
+                )
+
     j_dic['error'] = None
 
     try:
@@ -785,9 +837,15 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
             ann_obj.add_annotation(neg_mod)
         # Is the attribute unset and one existing? Erase.
         if not speculation and seen_spec is not None:
-            ann_obj.del_annotation(seen_spec)
+            try:
+                ann_obj.del_annotation(seen_spec)
+            except DependingAnntotionDeleteError:
+                assert False, 'Dependant attached to speculation'
         if not negation and seen_neg is not None:
-            ann_obj.del_annotation(seen_neg)
+            try:
+                ann_obj.del_annotation(seen_neg)
+            except DependingAnntotionDeleteError:
+                assert False, 'Dependant attached to negation'
 
         # It could be the case that the span is involved in event(s), if so, 
         # the type of that event is changed
@@ -897,7 +955,12 @@ def delete_span(document, id):
     #TODO: Handle a failure to find it
     #XXX: Slow, O(2N)
     ann = ann_obj.get_ann_by_id(id)
-    ann_obj.del_annotation(ann)
+    try:
+        ann_obj.del_annotation(ann)
+    except DependingAnntotionDeleteError, e:
+        print 'Content-Type: application/json\n'
+        print dumps(e.json_error_response(), sort_keys=True, indent=2)
+        return
 
     #TODO: Handle consequences of removal, should be in the object
 
@@ -928,7 +991,12 @@ def delete_arc(document, origin, target, type):
             event_ann.args.remove(arg_tup)
             if not event_ann.args:
                 # It was the last argument tuple, remove it all
-                ann_obj.del_annotation(event_ann)
+                try:
+                    ann_obj.del_annotation(event_ann)
+                except DependingAnntotionDeleteError, e:
+                    print 'Content-Type: application/json\n'
+                    print dumps(e.json_error_response(), sort_keys=True, indent=2)
+                    return
         else:
             # What we were to remove did not even exist in the first place
             pass
@@ -945,7 +1013,12 @@ def delete_arc(document, origin, target, type):
 
                 if len(eq_ann.entities) < 2:
                     # We need to delete this one
-                    ann_obj.del_annotation(eq_ann)
+                    try:
+                        ann_obj.del_annotation(eq_ann)
+                    except DependingAnntotionDeleteError, e:
+                        print 'Content-Type: application/json\n'
+                        print dumps(e.json_error_response(), sort_keys=True, indent=2)
+                        return
 
 
     print 'Deleted', document, origin, target, type
