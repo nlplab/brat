@@ -653,9 +653,10 @@ def document_json(document):
     for tb_ann in ann_obj.get_textbounds():
         j_tb = [tb_ann.id, tb_ann.type, tb_ann.start, tb_ann.end]
 
-        # If we spotted it in the previous pass as a trigger for an event, we
-        # only add it as a json trigger.
-        if tb_ann.id in trigger_ids:
+        # If we spotted it in the previous pass as a trigger for an
+        # event or if the type is known to be an event type, we add it
+        # as a json trigger.
+        if tb_ann.id in trigger_ids or is_event_type(tb_ann.type):
             j_dic['triggers'].append(j_tb)
         else: 
             j_dic['entities'].append(j_tb)
@@ -805,18 +806,30 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
         ann_obj.add_annotation(ann)
 
-        if speculation:
-            spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-            spec_mod = ModifierAnnotation(new_id, spec_mod_id, 'Speculation', '') #XXX: Cons
-            ann_obj.add_annotation(spec_mod)
+        if is_physical_entity_type(type):
+            # TODO: alert that negation / speculation are ignored if set
+            pass
         else:
-            neg_mod = None
-        if negation:
-            neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-            neg_mod = ModifierAnnotation(new_id, neg_mod_id, 'Negation', '') #XXX: Cons
-            ann_obj.add_annotation(neg_mod)
-        else:
-            neg_mod = None
+            # Create the event also
+            new_event_id = ann_obj.get_new_id('E') #XXX: Cons
+            event = EventAnnotation(ann.id, [], new_event_id, type, '')
+            ann_obj.add_annotation(event)
+
+            # TODO: use an existing identical textbound for the trigger
+            # if one exists, don't dup            
+
+            if speculation:
+                spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
+                ann_obj.add_annotation(spec_mod)
+            else:
+                neg_mod = None
+            if negation:
+                neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
+                ann_obj.add_annotation(neg_mod)
+            else:
+                neg_mod = None
 
     # TODO remove this later
     # print 'Content-Type: text/html\n'

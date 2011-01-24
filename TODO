@@ -22,8 +22,5 @@ keyboard shortcuts
 recursive delete
     confirmation?
 
-"when a span is marked as an event trigger, an event attached to the
-trigger should be created (not just the trigger textbound). (A trigger
-with no events attached can be treated as an error; when the last event
-bound to a specific trigger is deleted, the trigger textbound should be
-deleted with it."
+don't create duplicate trigger textbounds for events; delete trigger
+textbound when the last referring event is deleted.
