@@ -159,6 +159,8 @@ var Annotator = function(containerElement, onStart) {
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
       var info = '<div><span class="info_id">' + id + '</span>' + ' ' + '<span class="info_type">' + span.type + '</span></div>';
+      info += '<div>"'+data.text.substring(span.from, span.to)+'"</div>';
+
       var idtype;
       if (span.info) {
         info += span.info.text;
