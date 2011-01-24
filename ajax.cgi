@@ -138,12 +138,10 @@ def _split_id(id):
 class Annotations(object):
     #TODO: DOC!
     #TODO: We should handle ID collisions somehow upon initialisation
-    def __init__(self, ann_path):
+    def __init__(self, ann_iter):
         #TODO: DOC!
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
         from collections import defaultdict
-
-        self.ann_path = ann_path
 
         ### Here be dragons, these objects need constant updating and syncing
         # Annotation for each line of the file
@@ -159,7 +157,7 @@ class Annotations(object):
         ###
 
         # Finally, parse the given annotation file
-        self._parse_ann_file()
+        self._parse_ann_file(ann_iter)
 
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
@@ -311,101 +309,101 @@ class Annotations(object):
         '''
         return id_pre + str(self._max_id_num_by_prefix[id_pre] + 1)
 
-    def _parse_ann_file(self):
+    def _parse_ann_file(self, ann_iter):
         from itertools import takewhile
         # If you knew the format, you would have used regexes...
         #
         # We use ids internally since otherwise we need to resolve a dep graph
         # when parsing to make sure we have the annotations to refer to.
-        with open(self.ann_path, 'r') as ann_file:
-            #XXX: Assumptions start here...
-            for ann_line in ann_file:
-            #for ann_line in (l.rstrip('\n') for l in ann_file):
+
+        #XXX: Assumptions start here...
+        for ann_line in ann_iter:
+        #for ann_line in (l.rstrip('\n') for l in ann_file):
+            try:
+                # ID processing
+                id, id_tail = ann_line.split('\t', 1)
+                if id in self._ann_by_id:
+                    raise DuplicateAnnotationIdError(id)
                 try:
-                    # ID processing
-                    id, id_tail = ann_line.split('\t', 1)
-                    if id in self._ann_by_id:
-                        raise DuplicateAnnotationIdError(id)
-                    try:
-                        id_pre, id_num = _split_id(id)
-                    except InvalidIdError:
-                        # This is silly, we call it an id_pre although for
-                        # example * is not an id_pre since it is not an id at
-                        # all?
-                        id_pre = id
-                        id_num = None
+                    id_pre, id_num = _split_id(id)
+                except InvalidIdError:
+                    # This is silly, we call it an id_pre although for
+                    # example * is not an id_pre since it is not an id at
+                    # all?
+                    id_pre = id
+                    id_num = None
 
-                    # Cases for lines
-                    try:
-                        data_delim = id_tail.index('\t')
-                        data, data_tail = (id_tail[:data_delim],
-                                id_tail[data_delim:])
-                    except ValueError:
-                        data = id_tail
-                        # No tail at all, although it should have a \t
-                        data_tail = ''
+                # Cases for lines
+                try:
+                    data_delim = id_tail.index('\t')
+                    data, data_tail = (id_tail[:data_delim],
+                            id_tail[data_delim:])
+                except ValueError:
+                    data = id_tail
+                    # No tail at all, although it should have a \t
+                    data_tail = ''
 
-                    if id_pre == '*':
-                        type, type_tail = data.split(None, 1)
-                        # For now we can only handle Equivs
-                        if type != 'Equiv':
-                            raise AnnotationLineSyntaxError(ann_line)
-                        equivs = type_tail.split(None)
-                        self.add_annotation(
-                                EquivAnnotation(type, equivs, data_tail))
-                    elif id_pre == 'E':
-                        #XXX: A bit nasty, we require a single space
-                        try:
-                            type_delim = data.index(' ')
-                            type_trigger, type_trigger_tail = (data[:type_delim],
-                                    data[type_delim:])
-                        except ValueError:
-                            type_trigger = data
-                            type_trigger_tail = None
-                        
-                        try:
-                            type, trigger = type_trigger.split(':')
-                        except ValueError:
-                            #XXX: Stupid event without a trigger, bacteria task
-                            raise AnnotationLineSyntaxError(ann_line)
-                        
-                        #if type_trigger_tail == ' ':
-                        #    args = []
-                        if type_trigger_tail is not None:
-                            args = [tuple(arg.split(':'))
-                                    for arg in type_trigger_tail.split()]
-                        else:
-                            args = []
-
-                        self.add_annotation(EventAnnotation(
-                            trigger, args, id, type, data_tail))
-                    elif id_pre == 'R':
-                        raise NotImplementedError
-                    elif id_pre == 'M':
-                        type, target = data.split()
-                        self.add_annotation(ModifierAnnotation(
-                            target, id, type, data_tail))
-                    elif id_pre == 'T' or id_pre == 'W':
-                        type, start_str, end_str = data.split(None, 3)
-                        # Abort if we have trailing values
-                        if any((c.isspace() for c in end_str)):
-                            raise AnnotationLineSyntaxError(ann_line)
-                        start, end = (int(start_str), int(end_str))
-                        #txt_file.seek(start)
-                        #text = txt_file.read(end - start)
-                        self.add_annotation(TextBoundAnnotation(
-                            start, end, id, type, data_tail))
-                    elif id_pre == '#':
-                        # XXX: properly process comments!
-                        pass
-                    else:
-                        #assert False, ann_line #XXX: REMOVE!
+                if id_pre == '*':
+                    type, type_tail = data.split(None, 1)
+                    # For now we can only handle Equivs
+                    if type != 'Equiv':
                         raise AnnotationLineSyntaxError(ann_line)
-                        #assert False, 'No code to handle exception type'
-                except AnnotationLineSyntaxError, e:
-                    #TODO: Print warning here, how do we print to console in a CGI?
-                    # We could not parse the line, just add it as an unknown annotation
-                    self.add_annotation(Annotation(e.line))
+                    equivs = type_tail.split(None)
+                    self.add_annotation(
+                            EquivAnnotation(type, equivs, data_tail))
+                elif id_pre == 'E':
+                    #XXX: A bit nasty, we require a single space
+                    try:
+                        type_delim = data.index(' ')
+                        type_trigger, type_trigger_tail = (data[:type_delim],
+                                data[type_delim:])
+                    except ValueError:
+                        type_trigger = data
+                        type_trigger_tail = None
+
+                    try:
+                        type, trigger = type_trigger.split(':')
+                    except ValueError:
+                        #XXX: Stupid event without a trigger, bacteria task
+                        raise AnnotationLineSyntaxError(ann_line)
+
+                    #if type_trigger_tail == ' ':
+                    #    args = []
+                    if type_trigger_tail is not None:
+                        args = [tuple(arg.split(':'))
+                                for arg in type_trigger_tail.split()]
+                    else:
+                        args = []
+
+                    self.add_annotation(EventAnnotation(
+                        trigger, args, id, type, data_tail))
+                elif id_pre == 'R':
+                    raise NotImplementedError
+                elif id_pre == 'M':
+                    type, target = data.split()
+                    self.add_annotation(ModifierAnnotation(
+                        target, id, type, data_tail))
+                elif id_pre == 'T' or id_pre == 'W':
+                    type, start_str, end_str = data.split(None, 3)
+                    # Abort if we have trailing values
+                    if any((c.isspace() for c in end_str)):
+                        raise AnnotationLineSyntaxError(ann_line)
+                    start, end = (int(start_str), int(end_str))
+                    #txt_file.seek(start)
+                    #text = txt_file.read(end - start)
+                    self.add_annotation(TextBoundAnnotation(
+                        start, end, id, type, data_tail))
+                elif id_pre == '#':
+                    # XXX: properly process comments!
+                    pass
+                else:
+                    #assert False, ann_line #XXX: REMOVE!
+                    raise AnnotationLineSyntaxError(ann_line)
+                    #assert False, 'No code to handle exception type'
+            except AnnotationLineSyntaxError, e:
+                #TODO: Print warning here, how do we print to console in a CGI?
+                # We could not parse the line, just add it as an unknown annotation
+                self.add_annotation(Annotation(e.line))
 
     def __str__(self):
         s = '\n'.join(str(ann).rstrip('\n') for ann in self)
@@ -629,7 +627,20 @@ def document_json(document):
             'infos':            [],
             }
 
-    ann_obj = Annotations(ann_file_path)
+    # if the basic annotation file does not exist, fall back
+    # to reading from a set of separate ones (e.g. ".a1" and ".a2").
+
+    foundfiles = [document+ext for ext in (".a1", ".a2") #, ".co", ".rel")
+                  if isfile(document+ext)]
+
+    if isfile(ann_file_path):
+        ann_iter = open(ann_file_path, 'r')
+    elif foundfiles:
+        ann_iter = fileinput.input(foundfiles)
+    else:
+        ann_iter = []
+
+    ann_obj = Annotations(ann_iter)
 
     # We collect trigger ids to be able to link the textbound later on
     trigger_ids = set()
@@ -727,7 +738,8 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = Annotations(ann_file_path)
+    with open(ann_file_path) as ann_file:
+        ann_obj = Annotations(ann_file)
     if id is not None:
         #TODO: Handle failure to find!
         ann = ann_obj.get_ann_by_id(id)
@@ -818,7 +830,8 @@ def save_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = Annotations(ann_file_path)
+    with open(ann_file_path) as ann_file:
+        ann_obj = Annotations(ann_file)
 
     # Ugly check, but we really get no other information
     if type != 'Equiv':
@@ -858,7 +871,8 @@ def delete_span(document, id):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = Annotations(ann_file_path)
+    with open(ann_file_path) as ann_file:
+        ann_obj = Annotations(ann_file)
     
     #TODO: Handle a failure to find it
     #XXX: Slow, O(2N)
@@ -877,7 +891,8 @@ def delete_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    ann_obj = Annotations(ann_file_path)
+    with open(ann_file_path) as ann_file:
+        ann_obj = Annotations(ann_file)
 
     # This can be an event or an equiv
 

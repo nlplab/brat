@@ -159,6 +159,8 @@ var Annotator = function(containerElement, onStart) {
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
       var info = '<div><span class="info_id">' + id + '</span>' + ' ' + '<span class="info_type">' + span.type + '</span></div>';
+      info += '<div>"'+data.text.substring(span.from, span.to)+'"</div>';
+
       var idtype;
       if (span.info) {
         info += span.info.text;
@@ -471,12 +473,18 @@ var Annotator = function(containerElement, onStart) {
     $.each(data.infos, function(infoNo, info) {
       // TODO error handling
       if (info[0] in data.spans) {
-	 var span = data.spans[info[0]]
-	 span.info = { type: info[1], text: info[2] };
-	 if (info[1].indexOf('Error') != -1 ||
-	     info[1].indexOf('Incomplete') != -1) {
-	     span.shadowClass = info[1]
-	 }
+	  var span = data.spans[info[0]];
+	  if (!span.info) {
+	      span.info = { type: info[1], text: info[2] };
+	  } else {
+	      // TODO prioritize type setting when multiple infos are present
+	      span.info.type = info[1];
+	      span.info.text += "<br/>" + info[2];
+	  }
+	  if (info[1].indexOf('Error') != -1 ||
+	      info[1].indexOf('Incomplete') != -1) {
+	      span.shadowClass = info[1]
+	  }
       }
     });
 
