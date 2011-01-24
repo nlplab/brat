@@ -873,7 +873,7 @@ def main():
     if action in EDIT_ACTIONS:
         try:
             authenticate(creds['user'], creds['password'])
-        except (InvalidAuthException):
+        except (InvalidAuthException, KeyError):
             print "Content-Type: text/plain"
             print "Status: 403 Forbidden (auth)\n"
             return
