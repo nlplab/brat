@@ -389,6 +389,17 @@ var Annotator = function(containerElement, onStart) {
       }
     }
   };
+  
+  var keyDown = function(evt) {
+    if (evt.keyCode == 27) {
+      // HERE
+      $('#message').css('display', 'none');
+      $('#span_form').css('display', 'none');
+      $('#arc_form').css('display', 'none');
+      $('#auth_form').css('display', 'none');
+      return false;
+    }
+  };
 
   this.drawInitial = function(_svg) {
     svg = _svg;
@@ -401,6 +412,7 @@ var Annotator = function(containerElement, onStart) {
     containerElement.dblclick(dblClick);
     containerElement.mouseup(mouseUp);
     containerElement.mousedown(mouseDown);
+    $(document).keydown(keyDown);
   }
 
   var Span = function(id, type, from, to, generalType) {
