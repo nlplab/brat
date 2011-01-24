@@ -26,7 +26,7 @@ physical_entity_types = [
 allowed_entity_nestings = {
     'default'              : [],
     'Two-component-system' : ['Protein'],
-    'Organism'             : ['Protein', 'Two-component-system'],
+    'Organism'             : ['Protein', 'Chemical', 'Two-component-system'],
     'Regulon-operon'       : ['Protein'],
     }
 

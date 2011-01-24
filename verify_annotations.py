@@ -73,10 +73,10 @@ def verify_annotation(ann_obj):
             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s has identical span with %s %s" % (a1.type, a2.type, a2.id)))            
         elif contained_in_span(a1, a2):
             if a1.type not in annspec.allowed_entity_nestings.get(a2.type, annspec.allowed_entity_nestings['default']):
-                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in a %s (%s)" % (a1.type, a2.type, a2.id)))
+                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in %s (%s)" % (a1.type, a2.type, a2.id)))
         elif contained_in_span(a2, a1):
             if a2.type not in annspec.allowed_entity_nestings.get(a1.type, annspec.allowed_entity_nestings['default']):
-                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain a %s (%s)" % (a1.type, a2.type, a2.id)))
+                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain %s (%s)" % (a1.type, a2.type, a2.id)))
         else:
             # crossing boundaries; never allowed for physical entities.
             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: entity has crossing span with %s" % a2.id))
