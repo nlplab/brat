@@ -473,12 +473,18 @@ var Annotator = function(containerElement, onStart) {
     $.each(data.infos, function(infoNo, info) {
       // TODO error handling
       if (info[0] in data.spans) {
-	 var span = data.spans[info[0]]
-	 span.info = { type: info[1], text: info[2] };
-	 if (info[1].indexOf('Error') != -1 ||
-	     info[1].indexOf('Incomplete') != -1) {
-	     span.shadowClass = info[1]
-	 }
+	  var span = data.spans[info[0]];
+	  if (!span.info) {
+	      span.info = { type: info[1], text: info[2] };
+	  } else {
+	      // TODO prioritize type setting when multiple infos are present
+	      span.info.type = info[1];
+	      span.info.text += "<br/>" + info[2];
+	  }
+	  if (info[1].indexOf('Error') != -1 ||
+	      info[1].indexOf('Incomplete') != -1) {
+	      span.shadowClass = info[1]
+	  }
       }
     });
 
