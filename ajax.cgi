@@ -812,7 +812,7 @@ def save_arc(document, origin, target, type):
         target_ann = ann_obj.get_ann_by_id(target)
         try:
             orig_ann = ann_obj.get_ann_by_id(origin)
-            arg_tup = (target_ann.type, target)
+            arg_tup = (type, target_ann.id)
             if arg_tup not in orig_ann.args:
                 orig_ann.args.append(arg_tup)
             else:
@@ -825,9 +825,9 @@ def save_arc(document, origin, target, type):
             ann_obj.add_annotation(
                     EventAnnotation(
                         origin,
-                        [(target_ann.type, target_ann.id)],
+                        [arg_tup],
                         new_id,
-                        type,
+                        orig_ann.type,
                         ''
                         ))
     else:
