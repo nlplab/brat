@@ -653,9 +653,10 @@ def document_json(document):
     for tb_ann in ann_obj.get_textbounds():
         j_tb = [tb_ann.id, tb_ann.type, tb_ann.start, tb_ann.end]
 
-        # If we spotted it in the previous pass as a trigger for an event, we
-        # only add it as a json trigger.
-        if tb_ann.id in trigger_ids:
+        # If we spotted it in the previous pass as a trigger for an
+        # event or if the type is known to be an event type, we add it
+        # as a json trigger.
+        if tb_ann.id in trigger_ids or is_event_type(tb_ann.type):
             j_dic['triggers'].append(j_tb)
         else: 
             j_dic['entities'].append(j_tb)
@@ -805,7 +806,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
         ann_obj.add_annotation(ann)
 
-        if type in physical_entity_types:
+        if is_physical_entity_type(type):
             # TODO: alert that negation / speculation are ignored if set
             pass
         else:
