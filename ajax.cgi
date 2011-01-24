@@ -630,8 +630,9 @@ def document_json(document):
     # if the basic annotation file does not exist, fall back
     # to reading from a set of separate ones (e.g. ".a1" and ".a2").
 
-    foundfiles = [document+ext for ext in (".a1", ".a2") #, ".co", ".rel")
-                  if isfile(document+ext)]
+    foundfiles = [document + '.'  + ext for ext in ('a1', 'a2')
+            #, 'co', 'rel')
+            if isfile(document+ext)]
 
     if isfile(ann_file_path):
         ann_iter = open(ann_file_path, 'r')
@@ -690,7 +691,7 @@ def saveSVG(directory, document, svg):
     if not isdir(dir):
         makedirs(dir)
     basename = dir + '/' + document
-    file = open(basename + '.svg', "wb")
+    file = open(basename + '.svg', 'wb')
     file.write('<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
     defs = svg.find('</defs>')
     if defs != -1:
@@ -700,7 +701,7 @@ def saveSVG(directory, document, svg):
         file.write(svg)
         file.close()
         # system('rsvg %s.svg %s.png' % (basename, basename))
-        # print "Content-Type: application/json\n"
+        # print 'Content-Type: application/json\n'
         print 'Content-Type: text/plain\n'
         print 'Saved as %s in %s' % (basename + '.svg', dir)
     else:
@@ -717,16 +718,16 @@ def arc_types_html(origin_type, target_type):
 
         # TODO: proper error handling
         if possible is None:
-            response["message"] = "Error selecting arc types!"
-            response["category"] = "error"
+            response['message'] = 'Error selecting arc types!'
+            response['category'] = 'error'
         elif possible == []:
-            response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
-            response["category"] = "error"
+            response['message'] = 'No choices for %s -> %s' % (origin_type, target_type)
+            response['category] = 'error'
         else:
-            response["types"]   = [["Arcs", possible]]
+            response['types']   = [['Arcs', possible]]
     except:
-        response["message"] = "Error selecting arc types!"
-        response["category"] = "error"
+        response['message'] = 'Error selecting arc types!'
+        response['category'] = 'error'
     
     print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
@@ -992,8 +993,8 @@ def main():
         try:
             authenticate(creds['user'], creds['password'])
         except (InvalidAuthException, KeyError):
-            print "Content-Type: text/plain"
-            print "Status: 403 Forbidden (auth)\n"
+            print 'Content-Type: text/plain'
+            print 'Status: 403 Forbidden (auth)\n'
             return
 
     if directory is None:
