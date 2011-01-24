@@ -1,26 +1,25 @@
-Annotation:
-    serverside:
-        add span (from, to, type, mods) OR MODIFY
-        add arc (origin, target, type) OR MODIFY
-            pay attention to Equiv (exceptional handling)
-        delete span (id)
-        delete arc (origin, target, type)
-            pay attention to Equiv (exceptional handling)
-
-test again
-
+CLIENT:
 check: vars rowSpacing and lineSpacing appear to have no effect
 
+SERVER:
 git the data
+    CLIENT, SERVER:
     undo
 
+CLIENT:
 error handling
 
+CLIENT:
 keyboard shortcuts
     Esc
 
 recursive delete
     confirmation?
 
+SERVER:
 don't create duplicate trigger textbounds for events; delete trigger
 textbound when the last referring event is deleted.
+
+CLIENT:
+add hidden directories by need
+    transform directory list from HTML to AJAX
