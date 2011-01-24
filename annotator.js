@@ -20,6 +20,7 @@ if (typeof(console) === 'undefined') {
 var displayMessage;
 var hideInfo;
 var infoBoxVisible = 0;
+var messageOpacity = 0.9;
 var infoBoxTimer;
 var displayInfo = function(html, evt) {
     var infoBox = $('#infopopup');
@@ -1384,7 +1385,8 @@ $(function() {
     var opacity;
     var message = $('#message');
     var fadeMessage = function() {
-      message.css('opacity', opacity > 1 ? 1 : opacity);
+      message.css('opacity',
+          opacity > messageOpacity ? messageOpacity : opacity);
       opacity -= 0.05;
       if (opacity <= 0) {
         message.css('display', 'none');
@@ -1392,12 +1394,27 @@ $(function() {
         timer = 0;
       }
     };
+    var dismissMessage = function() {
+      message.css('display', 'none');
+    };
     return function(html, error, duration) {
-      message.html(html).css('display', 'block');
+      message.html(html).css({
+        display: 'block',
+        opacity: messageOpacity,
+      });
       message[0].className = error ? 'error' : 'normal';
       opacity = duration || 3;
-      if (!timer) {
-        timer = setInterval(fadeMessage, 50);
+      //if (duration == -1) {
+      if (true) {
+        // click handler, no fade
+        var okButton = $('<input type="button" value="OK"/>');
+        message.append(okButton);
+        okButton.click(dismissMessage);
+        console.log(okButton);
+      } else {
+        if (!timer) {
+          timer = setInterval(fadeMessage, 50);
+        }
       }
     };
   }();

@@ -326,6 +326,11 @@ fieldset {
   color: #000000;
 }
 
+#message input {
+  float: right;
+  display: block;
+}
+
 #infopopup {
   position: absolute;
   top: 0;
