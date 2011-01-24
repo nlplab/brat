@@ -33,7 +33,7 @@ path {
 
 .span rect.False_positive {
   stroke: #ff0000;
-  stroke-width: 1;
+  stroke-width: 2;
 }
 #infopopup.info_False_positive {
   background-color: #ff7777;
@@ -41,8 +41,8 @@ path {
 
 .span rect.False_negative {
   stroke: #ff0000;
-  stroke-width: 1;
-  opacity: 0.3;
+  fill: #ffffff;
+  stroke-width: 2;
 }
 
 .shadow_AnnotationError {
