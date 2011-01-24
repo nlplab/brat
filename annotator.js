@@ -1405,13 +1405,11 @@ $(function() {
       });
       message[0].className = error ? 'error' : 'normal';
       opacity = duration || 3;
-      //if (duration == -1) {
-      if (true) {
+      if (duration == -1) {
         // click handler, no fade
         var okButton = $('<input type="button" value="OK"/>');
         message.append(okButton);
         okButton.click(dismissMessage);
-        console.log(okButton);
       } else {
         if (!timer) {
           timer = setInterval(fadeMessage, 50);
