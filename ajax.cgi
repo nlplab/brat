@@ -104,11 +104,31 @@ class InvalidIdError(Exception):
         self.id = id
 
 
+class DependingAnntotionDeleteError(Exception):
+    def __init__(self, target, dependant):
+        self.target = target
+        self.dependant = dependant
+
+    def json_error_response(self, response=None):
+        if response is None:
+            response = {}
+        response['error'] = '''
+        Annotation:
+        <br/>
+        {}
+        <br/>
+        Has a depending annotation attached to it:
+        <br/>
+        {}
+        '''.format(self.target, self.dependant)
+        return response
+
+
 def _split_id(id):
     '''
     Split an id into its prefix and numerical component.
 
-    id format: [A-Za-z]+[0-9]+
+    id format: ([A-Za-z]+|#)[0-9]+
 
     Arguments:
     id - a valid id
@@ -171,6 +191,9 @@ class Annotations(object):
     def get_modifers(self):
         return (a for a in self if isinstance(a, ModifierAnnotation))
 
+    def get_oneline_comments(self):
+        return (a for a in self if isinstance(a, OnelineCommentAnnotation))
+
     # TODO: getters for other categories of annotations
 
     def add_annotation(self, ann):
@@ -196,7 +219,11 @@ class Annotations(object):
                                 eq_ann.entities.append(m_ent)
                         # Don't try to delete ann since it never was added
                         if merge_cand != ann:
-                            self.del_annotation(merge_cand)
+                            try:
+                                self.del_annotation(merge_cand)
+                            except DependingAnntotionDeleteError:
+                                assert False, ('Equivs lack ids and should '
+                                        'never have dependents')
                         merge_cand = eq_ann
                         # We already merged it all, break to the next ann
                         break
@@ -256,8 +283,7 @@ class Annotations(object):
         for other_ann in self:
             soft_deps, hard_deps = other_ann.get_deps()
             if ann.id in soft_deps or ann.id in hard_deps:
-                # Recursive controls if we are allowed to cascade or raises an excep.
-                return #XXX: We can't do this! It is a cascade!
+                raise DependingAnntotionDeleteError(ann, other_ann)
         self._atomic_del_annotation(ann)
 
     def _atomic_del_annotation(self, ann):
@@ -394,8 +420,10 @@ class Annotations(object):
                     self.add_annotation(TextBoundAnnotation(
                         start, end, id, type, data_tail))
                 elif id_pre == '#':
-                    # XXX: properly process comments!
-                    pass
+                    type, target = data.split()
+                    self.add_annotation(OnelineCommentAnnotation(
+                        target, id, type, data_tail
+                        ))
                 else:
                     #assert False, ann_line #XXX: REMOVE!
                     raise AnnotationLineSyntaxError(ann_line)
@@ -532,6 +560,25 @@ class ModifierAnnotation(IdedAnnotation):
         return (soft_deps, hard_deps)
 
 
+class OnelineCommentAnnotation(IdedAnnotation):
+    def __init__(self, target, id, type, tail):
+        IdedAnnotation.__init__(self, id, type, tail)
+        self.target = target
+        
+    def __str__(self):
+        return '{id}\t{type} {target}{tail}'.format(
+                id=self.id,
+                type=self.type,
+                target=self.target,
+                tail=self.tail
+                )
+
+    def get_deps(self):
+        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
+        hard_deps.add(self.target)
+        return (soft_deps, hard_deps)
+
+
 # NOTE: The actual text goes into the tail
 class TextBoundAnnotation(IdedAnnotation):
     def __init__(self, start, end, id, type, tail):
@@ -630,8 +677,9 @@ def document_json(document):
     # if the basic annotation file does not exist, fall back
     # to reading from a set of separate ones (e.g. ".a1" and ".a2").
 
-    foundfiles = [document+ext for ext in (".a1", ".a2") #, ".co", ".rel")
-                  if isfile(document+ext)]
+    foundfiles = [document + '.'  + ext for ext in ('a1', 'a2')
+            #, 'co', 'rel')
+            if isfile(document+ext)]
 
     if isfile(ann_file_path):
         ann_iter = open(ann_file_path, 'r')
@@ -672,6 +720,11 @@ def document_json(document):
                 [mod_ann.id, mod_ann.type, mod_ann.target]
                 )
 
+    for com_ann in ann_obj.get_oneline_comments():
+        j_dic['infos'].append(
+                [com_ann.id, com_ann.type, com_ann.tail]
+                )
+
     j_dic['error'] = None
 
     try:
@@ -690,7 +743,7 @@ def saveSVG(directory, document, svg):
     if not isdir(dir):
         makedirs(dir)
     basename = dir + '/' + document
-    file = open(basename + '.svg', "wb")
+    file = open(basename + '.svg', 'wb')
     file.write('<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
     defs = svg.find('</defs>')
     if defs != -1:
@@ -700,7 +753,7 @@ def saveSVG(directory, document, svg):
         file.write(svg)
         file.close()
         # system('rsvg %s.svg %s.png' % (basename, basename))
-        # print "Content-Type: application/json\n"
+        # print 'Content-Type: application/json\n'
         print 'Content-Type: text/plain\n'
         print 'Saved as %s in %s' % (basename + '.svg', dir)
     else:
@@ -717,16 +770,16 @@ def arc_types_html(origin_type, target_type):
 
         # TODO: proper error handling
         if possible is None:
-            response["message"] = "Error selecting arc types!"
-            response["category"] = "error"
+            response['message'] = 'Error selecting arc types!'
+            response['category'] = 'error'
         elif possible == []:
-            response["message"] = "No choices for %s -> %s" % (origin_type, target_type)
-            response["category"] = "error"
+            response['message'] = 'No choices for %s -> %s' % (origin_type, target_type)
+            response['category'] = 'error'
         else:
-            response["types"]   = [["Arcs", possible]]
+            response['types']   = [['Arcs', possible]]
     except:
-        response["message"] = "Error selecting arc types!"
-        response["category"] = "error"
+        response['message'] = 'Error selecting arc types!'
+        response['category'] = 'error'
     
     print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
@@ -784,9 +837,15 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
             ann_obj.add_annotation(neg_mod)
         # Is the attribute unset and one existing? Erase.
         if not speculation and seen_spec is not None:
-            ann_obj.del_annotation(seen_spec)
+            try:
+                ann_obj.del_annotation(seen_spec)
+            except DependingAnntotionDeleteError:
+                assert False, 'Dependant attached to speculation'
         if not negation and seen_neg is not None:
-            ann_obj.del_annotation(seen_neg)
+            try:
+                ann_obj.del_annotation(seen_neg)
+            except DependingAnntotionDeleteError:
+                assert False, 'Dependant attached to negation'
 
         # It could be the case that the span is involved in event(s), if so, 
         # the type of that event is changed
@@ -831,13 +890,19 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
             else:
                 neg_mod = None
 
-    print 'Content-Type: text/html\n'
-    print 'save_span:', document, start_str, end_str, type, negation, speculation, id
+    # TODO remove this later
+    # print 'Content-Type: text/html\n'
+    # print 'save_span:', document, start_str, end_str, type, negation, speculation, id
     
-    print 'Resulting line:', ann
+    # print 'Resulting line:', ann
 
     with open(ann_file_path, 'w') as ann_file:
         ann_file.write(str(ann_obj))
+
+    # response = { 'message': 'Annotation:<br/>%s' % ann, 'duration': 3 }
+    response = { 'error': 'Annotation:<br/>%s' % ann }
+    print 'Content-Type: application/json\n'
+    print dumps(response, sort_keys=True, indent=2)
 
 def save_arc(document, origin, target, type):
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
@@ -890,7 +955,12 @@ def delete_span(document, id):
     #TODO: Handle a failure to find it
     #XXX: Slow, O(2N)
     ann = ann_obj.get_ann_by_id(id)
-    ann_obj.del_annotation(ann)
+    try:
+        ann_obj.del_annotation(ann)
+    except DependingAnntotionDeleteError, e:
+        print 'Content-Type: application/json\n'
+        print dumps(e.json_error_response(), sort_keys=True, indent=2)
+        return
 
     #TODO: Handle consequences of removal, should be in the object
 
@@ -921,7 +991,12 @@ def delete_arc(document, origin, target, type):
             event_ann.args.remove(arg_tup)
             if not event_ann.args:
                 # It was the last argument tuple, remove it all
-                ann_obj.del_annotation(event_ann)
+                try:
+                    ann_obj.del_annotation(event_ann)
+                except DependingAnntotionDeleteError, e:
+                    print 'Content-Type: application/json\n'
+                    print dumps(e.json_error_response(), sort_keys=True, indent=2)
+                    return
         else:
             # What we were to remove did not even exist in the first place
             pass
@@ -938,7 +1013,12 @@ def delete_arc(document, origin, target, type):
 
                 if len(eq_ann.entities) < 2:
                     # We need to delete this one
-                    ann_obj.del_annotation(eq_ann)
+                    try:
+                        ann_obj.del_annotation(eq_ann)
+                    except DependingAnntotionDeleteError, e:
+                        print 'Content-Type: application/json\n'
+                        print dumps(e.json_error_response(), sort_keys=True, indent=2)
+                        return
 
 
     print 'Deleted', document, origin, target, type
@@ -986,8 +1066,8 @@ def main():
         try:
             authenticate(creds['user'], creds['password'])
         except (InvalidAuthException, KeyError):
-            print "Content-Type: text/plain"
-            print "Status: 403 Forbidden (auth)\n"
+            print 'Content-Type: text/plain'
+            print 'Status: 403 Forbidden (auth)\n'
             return
 
     if directory is None:

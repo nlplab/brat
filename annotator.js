@@ -1392,10 +1392,10 @@ $(function() {
         timer = 0;
       }
     };
-    return function(html, error) {
+    return function(html, error, duration) {
       message.html(html).css('display', 'block');
       message[0].className = error ? 'error' : 'normal';
-      opacity = 3;
+      opacity = duration || 3;
       if (!timer) {
         timer = setInterval(fadeMessage, 50);
       }
@@ -1499,8 +1499,12 @@ $(function() {
         },
         success: function(response) {
           lastHash = null; // force reload
+          if (response.message) {
+            displayMessage(response.message, false, response.duration);
+          } else if (response.error) {
+            displayMessage(response.error, true, response.duration);
+          }
           renderDocument(_doc);
-          console.log("Ajax response: ", response); // DEBUG
         }
       });
       annotator.ajaxOptions = null;
