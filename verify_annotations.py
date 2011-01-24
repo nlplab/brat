@@ -4,6 +4,7 @@
 
 import sys
 import os
+import re
 import argparse
 
 import annspec
@@ -87,10 +88,16 @@ def verify_annotation(ann_obj):
     # check for events missing mandatory arguments
     for e in ann_obj.get_events():
         found_args = {}
+        found_nonum_args = {}
         for arg, aid in e.args:
             found_args[arg] = True
+            # remove trailing numbers (e.g. "Theme1") if any for check 
+            m = re.match(r'^(.*?)\d*$', arg)
+            if m:
+                found_nonum_args[m.group(1)] = True
+            
         # TODO: don't hard-code what Themes are required for
-        if "Theme" not in found_args and e.type != "Process":
+        if "Theme" not in found_nonum_args and e.type != "Process":
             issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "Theme required for event"))
 
     return issues
