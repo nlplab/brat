@@ -722,7 +722,7 @@ def arc_types_html(origin_type, target_type):
             response['category'] = 'error'
         elif possible == []:
             response['message'] = 'No choices for %s -> %s' % (origin_type, target_type)
-            response['category] = 'error'
+            response['category'] = 'error'
         else:
             response['types']   = [['Arcs', possible]]
     except:
