@@ -465,7 +465,7 @@ var Annotator = function(containerElement, onStart) {
     });
     $.each(data.modifications, function(modNo, mod) {
       if (!data.spans[mod[2]]) {
-        displayMessage('<strong>ERROR</strong><br/>Tree-trigger' + mod[2] + '" (trigger for modification "' + mod[0] + '") in document ' + data.document, true);
+        displayMessage('<strong>ERROR</strong><br/>The trigger ' + mod[2] + ' (referenced from ' + mod[0] + ') does not occur in document ' + data.document, true);
         throw "BadDocumentError";
       }
       data.spans[mod[2]][mod[1]] = true;
