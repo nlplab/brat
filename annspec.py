@@ -94,6 +94,10 @@ event_argument_types = {
     'Demethylation'       : contextgene_modification_arguments,
     'Catalysis'           : regulation_arguments,
 
+    # TODO: this is a temporary workaround extension for PIR annotation
+    # revision. Implement a proper solution.
+    'PTM'                 : theme_and_site_arguments,
+
     # TODO: ID
     }
 
