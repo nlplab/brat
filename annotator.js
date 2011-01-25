@@ -1366,6 +1366,7 @@ var Annotator = function(containerElement, onStart) {
         this.renderData();
       }
     } catch(x) {
+      this.drawing = false;
       displayMessage('<strong>ERROR</strong><br/>' + x, true);
     }
   }
