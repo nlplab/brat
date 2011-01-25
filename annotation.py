@@ -5,7 +5,6 @@ Author:     Pontus Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-01-25
 '''
 
-#TODO: Rename and re-work this one
 class AnnotationLineSyntaxError(Exception):
     def __init__(self, line, line_num):
         self.line = line
@@ -39,7 +38,6 @@ class InvalidIdError(Exception):
         return 'Invalid id: {}'.format(self.id)
 
 
-
 class DependingAnnotationDeleteError(Exception):
     def __init__(self, target, dependant):
         self.target = target
@@ -64,6 +62,8 @@ class DependingAnnotationDeleteError(Exception):
         return response
 
 
+#TODO: Sampo doesn't like this one, Pontus doesn't like this one either
+# Suggesting to loosen the definition of what is an id
 class AnnotationId(object):
     '''
     ^([A-Za-z]|#)[0-9]+(.*?)$
@@ -97,7 +97,6 @@ class AnnotationId(object):
 # We are NOT concerned with the conformity to the text file
 class Annotations(object):
     #TODO: DOC!
-    #TODO: We should handle ID collisions somehow upon initialisation
     def __init__(self, ann_iter):
         #TODO: DOC!
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
@@ -116,7 +115,6 @@ class Annotations(object):
         self._max_id_num_by_prefix = defaultdict(lambda : 1)
         # Annotation by id, not includid non-ided annotations 
         self._ann_by_id = {}
-        # 
         ###
 
         # Finally, parse the given annotation file
@@ -141,7 +139,6 @@ class Annotations(object):
 
     def add_annotation(self, ann):
         #TODO: DOC!
-        
         # Equivs have to be merged with other equivs
         try:
             # Bail as soon as possible for non-equivs
@@ -193,27 +190,10 @@ class Annotations(object):
         self._lines.append(ann)
         self._line_by_ann[ann] = len(self) - 1 
 
-    def _ann_deps(ann):
-        #TODO: DOC
-        hard_deps = []
-        soft_deps = []
-       
-        raise NotImplementedError
-        """
-        try:
-            
-
-            for other_ann in ann.
-        except AttributeError:
-            # So it wasn't an EventAnnotation then
-            pass
-        """
-        
-        return (soft_deps, hard_deps)
-
     def del_annotation(self, ann):
         #TODO: Flag to allow recursion
         #TODO: Sampo wants to allow delet of direct deps but not indirect, one step
+        #TODO: We really want modifications to be pervasive and be deleted for events
         #TODO: DOC!
         try:
             ann.id
@@ -341,8 +321,6 @@ class Annotations(object):
                         #XXX: Stupid event without a trigger, bacteria task
                         raise AnnotationLineSyntaxError(ann_line, ann_line_num)
 
-                    #if type_trigger_tail == ' ':
-                    #    args = []
                     if type_trigger_tail is not None:
                         args = [tuple(arg.split(':'))
                                 for arg in type_trigger_tail.split()]
@@ -363,8 +341,6 @@ class Annotations(object):
                     if any((c.isspace() for c in end_str)):
                         raise AnnotationLineSyntaxError(ann_line, ann_line_num)
                     start, end = (int(start_str), int(end_str))
-                    #txt_file.seek(start)
-                    #text = txt_file.read(end - start)
                     self.add_annotation(TextBoundAnnotation(
                         start, end, id, type, data_tail))
                 elif id.pre == '#':
@@ -373,9 +349,7 @@ class Annotations(object):
                         target, id, type, data_tail
                         ))
                 else:
-                    #assert False, ann_line #XXX: REMOVE!
                     raise AnnotationLineSyntaxError(ann_line, ann_line_num)
-                    #assert False, 'No code to handle exception type'
             except AnnotationLineSyntaxError, e:
                 # We could not parse the line, just add it as an unknown annotation
                 self.add_annotation(Annotation(e.line))
@@ -395,7 +369,7 @@ class Annotations(object):
             # First, try to use it as a slice object
             return self._lines[val.start, val.stop, val.step]
         except AttributeError:
-            # It appears not to be a slice object, try an index
+            # It appears not to be a slice object, try it as an index
             return self._lines[val]
 
     def __len__(self):
@@ -412,7 +386,7 @@ class Annotation(object):
         return self.tail
 
     def __repr__(self):
-        return str(self)
+        return '{}("{}")'.format(str(self.__class__), str(self))
     
     def get_deps(self):
         return (set(), set())
@@ -437,7 +411,6 @@ class IdedAnnotation(TypedAnnotation):
 
 
 class EventAnnotation(IdedAnnotation):
-    #TODO: It is not called target is it?
     def __init__(self, trigger, args, id, type, tail):
         IdedAnnotation.__init__(self, id, type, tail)
         self.trigger = trigger
