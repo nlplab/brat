@@ -29,8 +29,6 @@ from simplejson import dumps
 from annspec import physical_entity_types, event_argument_types
 from verify_annotations import verify_annotation
 from annotation import Annotations, TEXT_FILE_SUFFIX
-# For backwards compability
-from annotation import JOINED_ANN_FILE_SUFF as ANN_FILE_SUFFIX
 # We should not import this in the end...
 from annotation import (TextBoundAnnotation, AnnotationId, EquivAnnotation,
         EventAnnotation, ModifierAnnotation, DependingAnnotationDeleteError)
@@ -403,17 +401,32 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
             start = int(start_str)
             end = int(end_str)
 
-            # Get a new ID
-            new_id = ann_obj.get_new_id('T') #XXX: Cons
-            # Get the text span
-            with open(txt_file_path, 'r') as txt_file:
-                txt_file.seek(start)
-                text = txt_file.read(end - start)
-        
-            #TODO: Data tail should be optional
-            ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
-            ann_obj.add_annotation(ann)
-            mods.added.append(ann)
+            # Before we add a new trigger, does it already exist?
+            found = None
+            for tb_ann in ann_obj.get_textbounds():
+                try:
+                    if (tb_ann.start == start and tb_ann.end == end
+                            and tb_ann.type == type):
+                        found = tb_ann
+                        break
+                except AttributeError:
+                    # Not a trigger then
+                    pass
+
+            if found is None:
+                # Get a new ID
+                new_id = ann_obj.get_new_id('T') #XXX: Cons
+                # Get the text span
+                with open(txt_file_path, 'r') as txt_file:
+                    txt_file.seek(start)
+                    text = txt_file.read(end - start)
+                        
+                #TODO: Data tail should be optional
+                ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
+                ann_obj.add_annotation(ann)
+                mods.added.append(ann)
+            else:
+                ann = found
 
             if is_physical_entity_type(type):
                 # TODO: alert that negation / speculation are ignored if set
@@ -542,7 +555,8 @@ def delete_span(document, id):
                                 assert False, 'insane'
                     '''
                 except DependingAnnotationDeleteError:
-                    assert False, 'insane'
+                    # Someone else depended on that trigger
+                    pass
             except AttributeError:
                 pass
         except DependingAnnotationDeleteError, e:

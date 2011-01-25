@@ -260,7 +260,7 @@ class Annotations(object):
 
         for other_ann in self:
             soft_deps, hard_deps = other_ann.get_deps()
-            if ann.id in soft_deps or ann.id in hard_deps:
+            if str(ann.id) in soft_deps or str(ann.id) in hard_deps:
                 raise DependingAnnotationDeleteError(ann, other_ann)
         self._atomic_del_annotation(ann)
 
@@ -318,7 +318,7 @@ class Annotations(object):
         from random import randint
         while True:
             #XXX: Arbitary constant!
-            suggestion = prefix + str(randint(0, 2**12))
+            suggestion = prefix + str(randint(1, 2**12))
             if not suggestion in self._ann_by_id:
                 return suggestion
 
