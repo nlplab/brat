@@ -465,7 +465,7 @@ var Annotator = function(containerElement, onStart) {
     });
     $.each(data.modifications, function(modNo, mod) {
       if (!data.spans[mod[2]]) {
-        displayMessage('<strong>ERROR</strong><br/>The trigger ' + mod[2] + ' (referenced from ' + mod[0] + ') does not occur in document ' + data.document, true);
+        displayMessage('<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', true, 5);
         throw "BadDocumentError";
       }
       data.spans[mod[2]][mod[1]] = true;
@@ -571,7 +571,8 @@ var Annotator = function(containerElement, onStart) {
       var dist = 0;
       var origin = data.spans[eventDesc.id];
       if (!origin.chunk) {
-        displayMessage('<strong>ERROR</strong><br/>Trigger "' + eventDesc.id + '" not found in ' + data.document, true);
+	// TODO: include missing trigger ID in error message
+        displayMessage('<strong>ERROR</strong><br/>Trigger for event "' + eventDesc.id + '" not found in ' + data.document + '<br/>(please correct the source data)', true, 5);
         throw "BadDocumentError";
       }
       var here = origin.chunk.index;
