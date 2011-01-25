@@ -464,6 +464,10 @@ var Annotator = function(containerElement, onStart) {
       data.spans[eventDesc.id] = span;
     });
     $.each(data.modifications, function(modNo, mod) {
+      if (!data.spans[mod[2]]) {
+        displayMessage('<strong>ERROR</strong><br/>The trigger ' + mod[2] + ' (referenced from ' + mod[0] + ') does not occur in document ' + data.document, true);
+        throw "BadDocumentError";
+      }
       data.spans[mod[2]][mod[1]] = true;
     });
     $.each(data.equivs, function(equivNo, equiv) {
@@ -566,6 +570,10 @@ var Annotator = function(containerElement, onStart) {
     $.each(data.eventDescs, function(eventNo, eventDesc) {
       var dist = 0;
       var origin = data.spans[eventDesc.id];
+      if (!origin.chunk) {
+        displayMessage('<strong>ERROR</strong><br/>Trigger "' + eventDesc.id + '" not found in ' + data.document, true);
+        throw "BadDocumentError";
+      }
       var here = origin.chunk.index;
       $.each(eventDesc.roles, function(roleNo, role) {
         var target = data.spans[role.targetId];
@@ -818,569 +826,569 @@ var Annotator = function(containerElement, onStart) {
     this.redraw = false;
     this.drawing = true;
 
-    try {
-      if (_data) setData(_data);
+      try {
+        if (_data) setData(_data);
 
-      svg.clear(true);
-      var defs = svg.defs();
-      var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
-      svg.add(defs, filter);
-      if (!data || data.length == 0) return;
-      canvasWidth = this.forceWidth || $(containerElement).width();
-      var commentName = data.document.replace('--', '-\\-');
-      svgElement.
-          attr('width', canvasWidth).
-          append('<!-- document: ' + commentName + ' -->');
-      
-      // set up the text element, find out font height
-      var backgroundGroup = svg.group({ 'class': 'background' });
-      highlightGroup = svg.group({ 'class': 'highlight' });
-      var textGroup = svg.group({ 'class': 'text' });
-      var textSpans = svg.createText();
-      $.each(data.chunks, function(chunkNo, chunk) {
-        chunk.row = undefined; // reset
-        textSpans.span(chunk.text + ' ', {
-            id: makeId('chunk' + chunk.index),
-            'data-chunk-id': chunk.index,
-        });
-      });
-      var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
-      var textHeight = text.getBBox().height;
-
-      // measure annotations
-      var dummySpan = svg.group({ 'class': 'span' });
-      var spanAnnBoxes = {};
-      $.each(data.spanAnnTexts, function(textNo, text) {
-        var spanText = svg.text(dummySpan, 0, 0, text);
-        spanAnnBoxes[text] = spanText.getBBox();
-      }); // data.spanAnnTexts
-      svg.remove(dummySpan);
-
-      // find biggest annotation in each tower
-      $.each(data.towers, function(towerNo, tower) {
-        var biggestBox = { width: 0 };
-        $.each(tower, function(spanNo, span) {
-          var annBox = spanAnnBoxes[span.abbrevText];
-          if (annBox.width > biggestBox.width) biggestBox = annBox;
-        }); // tower
-        $.each(tower, function(spanNo, span) {
-          span.annBox = biggestBox;
-        }); // tower
-      }); // data.towers
-
-      var current = { x: margin.x + sentNumMargin, y: margin.y }; // TODO: we don't need some of this?
-      var rows = [];
-      var spanHeights = [];
-      var sentenceToggle = 0;
-      var sentenceNumber = 0;
-      var row = new Row();
-      row.sentence = ++sentenceNumber;
-      row.backgroundIndex = sentenceToggle;
-      row.index = 0;
-      var rowIndex = 0;
-      var reservations;
-      var lastBoxChunkIndex = -1;
-
-      $.each(data.chunks, function(chunkNo, chunk) {
-        reservations = new Array();
-        chunk.group = svg.group(row.group);
-
-        var y = 0;
-        var minArcDist;
-        var lastArcBorder = 0;
-        var hasLeftArcs, hasRightArcs, hasInternalArcs;
-        var hasAnnotations;
-
-        $.each(chunk.spans, function(spanNo, span) {
-          span.group = svg.group(chunk.group, {
-            'class': 'span',
-            id: makeId('span_' + span.id),
+        svg.clear(true);
+        var defs = svg.defs();
+        var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
+        svg.add(defs, filter);
+        if (!data || data.length == 0) return;
+        canvasWidth = this.forceWidth || $(containerElement).width();
+        var commentName = data.document.replace('--', '-\\-');
+        svgElement.
+            attr('width', canvasWidth).
+            append('<!-- document: ' + commentName + ' -->');
+        
+        // set up the text element, find out font height
+        var backgroundGroup = svg.group({ 'class': 'background' });
+        highlightGroup = svg.group({ 'class': 'highlight' });
+        var textGroup = svg.group({ 'class': 'text' });
+        var textSpans = svg.createText();
+        $.each(data.chunks, function(chunkNo, chunk) {
+          chunk.row = undefined; // reset
+          textSpans.span(chunk.text + ' ', {
+              id: makeId('chunk' + chunk.index),
+              'data-chunk-id': chunk.index,
           });
+        });
+        var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
+        var textHeight = text.getBBox().height;
 
-          // measure the text span
-          var xFrom = 0;
-          if (span.from != chunk.from) {
-            var measureText = svg.text(textGroup, 0, 0,
-              chunk.text.substr(0, span.from - chunk.from));
-            xFrom = measureText.getBBox().width;
+        // measure annotations
+        var dummySpan = svg.group({ 'class': 'span' });
+        var spanAnnBoxes = {};
+        $.each(data.spanAnnTexts, function(textNo, text) {
+          var spanText = svg.text(dummySpan, 0, 0, text);
+          spanAnnBoxes[text] = spanText.getBBox();
+        }); // data.spanAnnTexts
+        svg.remove(dummySpan);
+
+        // find biggest annotation in each tower
+        $.each(data.towers, function(towerNo, tower) {
+          var biggestBox = { width: 0 };
+          $.each(tower, function(spanNo, span) {
+            var annBox = spanAnnBoxes[span.abbrevText];
+            if (annBox.width > biggestBox.width) biggestBox = annBox;
+          }); // tower
+          $.each(tower, function(spanNo, span) {
+            span.annBox = biggestBox;
+          }); // tower
+        }); // data.towers
+
+        var current = { x: margin.x + sentNumMargin, y: margin.y }; // TODO: we don't need some of this?
+        var rows = [];
+        var spanHeights = [];
+        var sentenceToggle = 0;
+        var sentenceNumber = 0;
+        var row = new Row();
+        row.sentence = ++sentenceNumber;
+        row.backgroundIndex = sentenceToggle;
+        row.index = 0;
+        var rowIndex = 0;
+        var reservations;
+        var lastBoxChunkIndex = -1;
+
+        $.each(data.chunks, function(chunkNo, chunk) {
+          reservations = new Array();
+          chunk.group = svg.group(row.group);
+
+          var y = 0;
+          var minArcDist;
+          var lastArcBorder = 0;
+          var hasLeftArcs, hasRightArcs, hasInternalArcs;
+          var hasAnnotations;
+
+          $.each(chunk.spans, function(spanNo, span) {
+            span.group = svg.group(chunk.group, {
+              'class': 'span',
+              id: makeId('span_' + span.id),
+            });
+
+            // measure the text span
+            var xFrom = 0;
+            if (span.from != chunk.from) {
+              var measureText = svg.text(textGroup, 0, 0,
+                chunk.text.substr(0, span.from - chunk.from));
+              xFrom = measureText.getBBox().width;
+              svg.remove(measureText);
+            }
+            measureText = svg.text(textGroup, 0, 0,
+              chunk.text.substr(0, span.to - chunk.from));
+            var measureBox = measureText.getBBox();
+            if (!y) y = -textHeight - curlyHeight;
+            var xTo = measureBox.width;
+            span.curly = {
+              from: xFrom,
+              to: xTo,
+              height: measureBox.height,
+            };
+            curlyY = measureBox.y,
             svg.remove(measureText);
-          }
-          measureText = svg.text(textGroup, 0, 0,
-            chunk.text.substr(0, span.to - chunk.from));
-          var measureBox = measureText.getBBox();
-          if (!y) y = -textHeight - curlyHeight;
-          var xTo = measureBox.width;
-          span.curly = {
-            from: xFrom,
-            to: xTo,
-            height: measureBox.height,
-          };
-          curlyY = measureBox.y,
-          svg.remove(measureText);
-          var x = (xFrom + xTo) / 2;
+            var x = (xFrom + xTo) / 2;
 
-          var spanBox = span.annBox;
-          var xx = spanBox.x + x;
-          var yy = spanBox.y + y;
-          var hh = spanBox.height;
+            var spanBox = span.annBox;
+            var xx = spanBox.x + x;
+            var yy = spanBox.y + y;
+            var hh = spanBox.height;
 
-          // text margin fine-tuning
-          yy += boxTextMargin.y;
-          hh -= 2*boxTextMargin.y;
-          
-          var rectClass = 'span_' + span.type + ' span_default';
+            // text margin fine-tuning
+            yy += boxTextMargin.y;
+            hh -= 2*boxTextMargin.y;
+            
+            var rectClass = 'span_' + span.type + ' span_default';
 
-         // attach e.g. "False_positive" into the type
-         if (span.info && span.info.type) { rectClass += ' '+span.info.type; }
-         var bx = xx - margin.x - boxTextMargin.x;
-         var by = yy - margin.y;
-         var bw = spanBox.width + 2 * margin.x + 2 * boxTextMargin.x;
-         var bh = hh + 2 * margin.y;
-         var shadowRect;
-         var shadowSize = 5;
-         if (span.shadowClass) {
-             shadowRect = svg.rect(span.group,
-                 bx - shadowSize, by - shadowSize, bw + 2*shadowSize, bh + 2*shadowSize, {
+           // attach e.g. "False_positive" into the type
+           if (span.info && span.info.type) { rectClass += ' '+span.info.type; }
+           var bx = xx - margin.x - boxTextMargin.x;
+           var by = yy - margin.y;
+           var bw = spanBox.width + 2 * margin.x + 2 * boxTextMargin.x;
+           var bh = hh + 2 * margin.y;
+           var shadowRect;
+           var shadowSize = 5;
+           if (span.shadowClass) {
+               shadowRect = svg.rect(span.group,
+                   bx - shadowSize, by - shadowSize, bw + 2*shadowSize, bh + 2*shadowSize, {
 
-                 filter: 'url(#Gaussian_Blur)',
-                 'class': "shadow_" + span.shadowClass,
-                 rx: shadowSize,
-                 ry: shadowSize,
+                   filter: 'url(#Gaussian_Blur)',
+                   'class': "shadow_" + span.shadowClass,
+                   rx: shadowSize,
+                   ry: shadowSize,
+               });
+           }
+           span.rect = svg.rect(span.group,
+               bx, by, bw, bh, {
+               'class': rectClass,
+               rx: margin.x,
+               ry: margin.y,
+               'data-span-id': span.id,
+               'strokeDashArray': span.Speculation ? dashArray : undefined,
              });
-         }
-         span.rect = svg.rect(span.group,
-             bx, by, bw, bh, {
-             'class': rectClass,
-             rx: margin.x,
-             ry: margin.y,
-             'data-span-id': span.id,
-             'strokeDashArray': span.Speculation ? dashArray : undefined,
-           });
-          var rectBox = span.rect.getBBox();
+            var rectBox = span.rect.getBBox();
 
-          var yAdjust = placeReservation(span, rectBox, reservations);
-          // this is monotonous due to sort:
-          span.height = yAdjust + hh + 3 * margin.y + curlyHeight + arcSpacing;
-          spanHeights[span.lineIndex * 2] = span.height;
-          $(span.rect).attr('y', yy - margin.y - yAdjust);
-          if (shadowRect) {
-              $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
-          }
-          if (span.Negation) {
-            svg.path(span.group, svg.createPath().
-                move(xx, yy - margin.y - yAdjust).
-                line(xx + spanBox.width,
-                  yy + hh + margin.y - yAdjust),
-                { 'class': 'negation' });
-            svg.path(span.group, svg.createPath().
-                move(xx + spanBox.width, yy - margin.y - yAdjust).
-                line(xx, yy + hh + margin.y - yAdjust),
-                { 'class': 'negation' });
-          }
-          var spanText = svg.text(span.group, x, y - yAdjust, span.abbrevText);
-
-          // Make curlies to show the span
-          if (span.drawCurly) {
-            var bottom = yy + hh + margin.y - yAdjust;
-            svg.path(span.group, svg.createPath()
-                .move(xFrom, bottom + curlyHeight)
-                .curveC(xFrom, bottom,
-                  x, bottom + curlyHeight,
-                  x, bottom)
-                .curveC(x, bottom + curlyHeight,
-                  xTo, bottom,
-                  xTo, bottom + curlyHeight),
-              {
-            });
-          }
-
-          // find the last arc backwards
-          $.each(span.incoming, function(arcId, arc) {
-            var origin = data.spans[arc.origin].chunk;
-            if (chunk.index == origin.index) {
-              hasInternalArcs = true;
+            var yAdjust = placeReservation(span, rectBox, reservations);
+            // this is monotonous due to sort:
+            span.height = yAdjust + hh + 3 * margin.y + curlyHeight + arcSpacing;
+            spanHeights[span.lineIndex * 2] = span.height;
+            $(span.rect).attr('y', yy - margin.y - yAdjust);
+            if (shadowRect) {
+                $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
             }
-            if (origin.row) {
-              hasLeftArcs = true;
-              if (origin.row.index == rowIndex) {
-                // same row, but before this
-                var border = origin.translation.x + origin.box.x + origin.box.width;
-                if (border > lastArcBorder) lastArcBorder = border;
+            if (span.Negation) {
+              svg.path(span.group, svg.createPath().
+                  move(xx, yy - margin.y - yAdjust).
+                  line(xx + spanBox.width,
+                    yy + hh + margin.y - yAdjust),
+                  { 'class': 'negation' });
+              svg.path(span.group, svg.createPath().
+                  move(xx + spanBox.width, yy - margin.y - yAdjust).
+                  line(xx, yy + hh + margin.y - yAdjust),
+                  { 'class': 'negation' });
+            }
+            var spanText = svg.text(span.group, x, y - yAdjust, span.abbrevText);
+
+            // Make curlies to show the span
+            if (span.drawCurly) {
+              var bottom = yy + hh + margin.y - yAdjust;
+              svg.path(span.group, svg.createPath()
+                  .move(xFrom, bottom + curlyHeight)
+                  .curveC(xFrom, bottom,
+                    x, bottom + curlyHeight,
+                    x, bottom)
+                  .curveC(x, bottom + curlyHeight,
+                    xTo, bottom,
+                    xTo, bottom + curlyHeight),
+                {
+              });
+            }
+
+            // find the last arc backwards
+            $.each(span.incoming, function(arcId, arc) {
+              var origin = data.spans[arc.origin].chunk;
+              if (chunk.index == origin.index) {
+                hasInternalArcs = true;
               }
-            } else {
-              hasRightArcs = true;
-            }
-          });
-          $.each(span.outgoing, function(arcId, arc) {
-            var target = data.spans[arc.target].chunk;
-            if (target.row) {
-              hasLeftArcs = true;
-              if (target.row.index == rowIndex) {
-                // same row, but before this
-                var border = target.translation.x + target.box.x + target.box.width;
-                if (border > lastArcBorder) lastArcBorder = border;
+              if (origin.row) {
+                hasLeftArcs = true;
+                if (origin.row.index == rowIndex) {
+                  // same row, but before this
+                  var border = origin.translation.x + origin.box.x + origin.box.width;
+                  if (border > lastArcBorder) lastArcBorder = border;
+                }
+              } else {
+                hasRightArcs = true;
               }
-            } else {
-              hasRightArcs = true;
-            }
-          });
-          hasAnnotations = true;
-        }); // spans
-
-        if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
-
-        chunk.tspan = $('#' + makeId('chunk' + chunk.index));
-
-        // positioning of the chunk
-        var spacing;
-        var chunkBox = chunk.box = chunk.group.getBBox();
-        var measureText = svg.text(textGroup, 0, 0, chunk.text);
-        var textBox = measureText.getBBox();
-        svg.remove(measureText);
-        if (!chunkBox) { // older Firefox bug
-          chunkBox = { x: 0, y: 0, height: 0, width: 0 };
-        }
-        chunkBox.height += textBox.height;
-        var boxX = -Math.min(chunkBox.x, textBox.x);
-        var boxWidth =
-            Math.max(textBox.x + textBox.width, chunkBox.x + chunkBox.width) -
-            Math.min(textBox.x, chunkBox.x)
-
-        if (hasLeftArcs) {
-          var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
-          // arc too small?
-          if (spacing > 0) current.x += spacing;
-        }
-        var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
-
-        if (chunk.lineBreak ||
-            current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
-          row.arcs = svg.group(row.group, { 'class': 'arcs' });
-          // new row
-          rows.push(row);
-          current.x = margin.x + sentNumMargin +
-              (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
-          svg.remove(chunk.group);
-          row = new Row();
-          row.backgroundIndex = sentenceToggle;
-          lastBoxChunkIndex = chunk.index - 1;
-          row.index = ++rowIndex;
-          svg.add(row.group, chunk.group);
-          chunk.group = row.group.lastElementChild;
-          $(chunk.group).children("g[class='span']").
-            each(function(index, element) {
-                chunk.spans[index].group = element;
             });
-          $(chunk.group).find("rect[data-span-id]").
-            each(function(index, element) {
-                chunk.spans[index].rect = element;
+            $.each(span.outgoing, function(arcId, arc) {
+              var target = data.spans[arc.target].chunk;
+              if (target.row) {
+                hasLeftArcs = true;
+                if (target.row.index == rowIndex) {
+                  // same row, but before this
+                  var border = target.translation.x + target.box.x + target.box.width;
+                  if (border > lastArcBorder) lastArcBorder = border;
+                }
+              } else {
+                hasRightArcs = true;
+              }
             });
-        }
-        if (hasAnnotations) row.hasAnnotations = true;
-        if (chunk.newSentence) row.sentence = ++sentenceNumber;
+            hasAnnotations = true;
+          }); // spans
 
-        if (spacing > 0) {
-          // if we added a gap, center the intervening elements
-          spacing /= 2;
-          while (++lastBoxChunkIndex < chunk.index) {
-            var movedChunk = data.chunks[lastBoxChunkIndex];
-            translate(movedChunk, movedChunk.translation.x + spacing, 0);
+          if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
+
+          chunk.tspan = $('#' + makeId('chunk' + chunk.index));
+
+          // positioning of the chunk
+          var spacing;
+          var chunkBox = chunk.box = chunk.group.getBBox();
+          var measureText = svg.text(textGroup, 0, 0, chunk.text);
+          var textBox = measureText.getBBox();
+          svg.remove(measureText);
+          if (!chunkBox) { // older Firefox bug
+            chunkBox = { x: 0, y: 0, height: 0, width: 0 };
           }
-        }
-        if (chunk.spans.length) lastBoxChunkIndex = chunk.index;
+          chunkBox.height += textBox.height;
+          var boxX = -Math.min(chunkBox.x, textBox.x);
+          var boxWidth =
+              Math.max(textBox.x + textBox.width, chunkBox.x + chunkBox.width) -
+              Math.min(textBox.x, chunkBox.x)
 
-        row.chunks.push(chunk);
-        chunk.row = row;
+          if (hasLeftArcs) {
+            var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
+            // arc too small?
+            if (spacing > 0) current.x += spacing;
+          }
+          var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
-        translate(chunk, foo = current.x + boxX, 0);
-        chunk.textX = current.x - textBox.x + boxX;
+          if (chunk.lineBreak ||
+              current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
+            row.arcs = svg.group(row.group, { 'class': 'arcs' });
+            // new row
+            rows.push(row);
+            current.x = margin.x + sentNumMargin +
+                (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
+            svg.remove(chunk.group);
+            row = new Row();
+            row.backgroundIndex = sentenceToggle;
+            lastBoxChunkIndex = chunk.index - 1;
+            row.index = ++rowIndex;
+            svg.add(row.group, chunk.group);
+            chunk.group = row.group.lastElementChild;
+            $(chunk.group).children("g[class='span']").
+              each(function(index, element) {
+                  chunk.spans[index].group = element;
+              });
+            $(chunk.group).find("rect[data-span-id]").
+              each(function(index, element) {
+                  chunk.spans[index].rect = element;
+              });
+          }
+          if (hasAnnotations) row.hasAnnotations = true;
+          if (chunk.newSentence) row.sentence = ++sentenceNumber;
 
-        current.x += space + boxWidth;
-      }); // chunks
+          if (spacing > 0) {
+            // if we added a gap, center the intervening elements
+            spacing /= 2;
+            while (++lastBoxChunkIndex < chunk.index) {
+              var movedChunk = data.chunks[lastBoxChunkIndex];
+              translate(movedChunk, movedChunk.translation.x + spacing, 0);
+            }
+          }
+          if (chunk.spans.length) lastBoxChunkIndex = chunk.index;
 
-      // finish the last row
-      row.arcs = svg.group(row.group, { 'class': 'arcs' });
-      rows.push(row);
+          row.chunks.push(chunk);
+          chunk.row = row;
 
-      var arrows = {};
+          translate(chunk, foo = current.x + boxX, 0);
+          chunk.textX = current.x - textBox.x + boxX;
 
-      var len = spanHeights.length;
-      for (var i = 0; i < len; i++) {
-        if (!spanHeights[i] || spanHeights[i] < arcStartHeight) spanHeights[i] = arcStartHeight;
-      }
+          current.x += space + boxWidth;
+        }); // chunks
 
-      // find out how high the arcs have to go
-      $.each(data.arcs, function(arcNo, arc) {
-        arc.jumpHeight = 0;
-        var fromSpan = data.spans[arc.origin];
-        var toSpan = data.spans[arc.target];
-        if (fromSpan.lineIndex > toSpan.lineIndex) {
-          var tmp = fromSpan; fromSpan = toSpan; toSpan = tmp;
-        }
-        var from, to;
-        if (fromSpan.chunk.index == toSpan.chunk.index) {
-          from = fromSpan.lineIndex;
-          to = toSpan.lineIndex;
-        } else {
-          from = fromSpan.lineIndex + 1;
-          to = toSpan.lineIndex - 1;
-        }
-        for (var i = from; i <= to; i++) {
-          if (arc.jumpHeight < spanHeights[i * 2]) arc.jumpHeight = spanHeights[i * 2];
-        }
-      });
+        // finish the last row
+        row.arcs = svg.group(row.group, { 'class': 'arcs' });
+        rows.push(row);
 
-      // sort the arcs
-      data.arcs.sort(function(a, b) {
-        // first write those that have less to jump over
-        var tmp = a.jumpHeight - b.jumpHeight;
-        if (tmp) return tmp < 0 ? -1 : 1;
-        // if equal, then those that span less distance
-        tmp = a.dist - b.dist;
-        if (tmp) return tmp < 0 ? -1 : 1;
-        // if equal, then those where heights of the targets are smaller
-        tmp = data.spans[a.origin].height + data.spans[a.target].height -
-          data.spans[b.origin].height - data.spans[b.target].height;
-        if (tmp) return tmp < 0 ? -1 : 1;
-        // if equal, then those with the lower origin
-        tmp = data.spans[a.origin].height - data.spans[b.origin].height;
-        if (tmp) return tmp < 0 ? -1 : 1;
-        // if equal, they're just equal.
-        return 0;
-      });
+        var arrows = {};
 
-      // draw the drag arc marker
-      dragArrowId = 'annotator' + annId + '_drag_arrow';
-      var arrowhead = svg.marker(defs, dragArrowId,
-        5, 2.5, 5, 5, 'auto',
-        {
-          markerUnits: 'strokeWidth',
-          'class': 'drag_fill',
-        });
-      svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
-
-      // add the arcs
-      $.each(data.arcs, function(arcNo, arc) {
-        roleClass = 'role_' + arc.type;
-
-        if (!arrows[arc.type]) {
-          var arrowId = 'annotator' + annId + '_arrow_' + arc.type;
-          var arrowhead = svg.marker(defs, arrowId,
-            5, 2.5, 5, 5, 'auto',
-            {
-              markerUnits: 'strokeWidth',
-              'class': 'fill_' + arc.type,
-            });
-          svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
-
-          arrows[arc.type] = arrowId;
+        var len = spanHeights.length;
+        for (var i = 0; i < len; i++) {
+          if (!spanHeights[i] || spanHeights[i] < arcStartHeight) spanHeights[i] = arcStartHeight;
         }
 
-        var originSpan = data.spans[arc.origin];
-        var targetSpan = data.spans[arc.target];
-
-        var leftToRight = originSpan.lineIndex < targetSpan.lineIndex;
-        var left, right;
-        if (leftToRight) {
-          left = originSpan;
-          right = targetSpan;
-        } else {
-          left = targetSpan;
-          right = originSpan;
-        }
-        var leftBox = rowBBox(left);
-        var rightBox = rowBBox(right);
-        var leftRow = left.chunk.row.index;
-        var rightRow = right.chunk.row.index;
-
-        // find the next height
-        var height = 0;
-
-        var fromIndex2, toIndex2;
-        if (left.chunk.index == right.chunk.index) {
-          fromIndex2 = left.lineIndex * 2;
-          toIndex2 = right.lineIndex * 2;
-        } else {
-          fromIndex2 = left.lineIndex * 2 + 1;
-          toIndex2 = right.lineIndex * 2 - 1;
-        }
-        for (var i = fromIndex2; i <= toIndex2; i++) {
-          if (spanHeights[i] > height) height = spanHeights[i];
-        }
-        height += arcSpacing;
-        var leftSlantBound, rightSlantBound;
-        for (var i = fromIndex2; i <= toIndex2; i++) {
-          if (spanHeights[i] < height) spanHeights[i] = height;
-        }
-
-        var chunkReverse = false;
-        var ufoCatcher = originSpan.chunk.index == targetSpan.chunk.index;
-        if (ufoCatcher) {
-          chunkReverse =
-            leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2;
-        }
-        var ufoCatcherMod = ufoCatcher ? chunkReverse ? -0.5 : 0.5 : 1;
-
-        for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
-          var row = rows[rowIndex];
-          row.hasAnnotations = true;
-          var arcGroup = svg.group(row.arcs,
-              { 'data-from': arc.origin, 'data-to': arc.target });
+        // find out how high the arcs have to go
+        $.each(data.arcs, function(arcNo, arc) {
+          arc.jumpHeight = 0;
+          var fromSpan = data.spans[arc.origin];
+          var toSpan = data.spans[arc.target];
+          if (fromSpan.lineIndex > toSpan.lineIndex) {
+            var tmp = fromSpan; fromSpan = toSpan; toSpan = tmp;
+          }
           var from, to;
-          
-          if (rowIndex == leftRow) {
-            from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
+          if (fromSpan.chunk.index == toSpan.chunk.index) {
+            from = fromSpan.lineIndex;
+            to = toSpan.lineIndex;
           } else {
-            from = sentNumMargin;
+            from = fromSpan.lineIndex + 1;
+            to = toSpan.lineIndex - 1;
           }
-
-          if (rowIndex == rightRow) {
-            to = rightBox.x + (chunkReverse ? rightBox.width : 0);
-          } else {
-            to = canvasWidth - 2 * margin.y;
+          for (var i = from; i <= to; i++) {
+            if (arc.jumpHeight < spanHeights[i * 2]) arc.jumpHeight = spanHeights[i * 2];
           }
-
-          var abbrevText = arcAbbreviation[arc.type] || arc.type;
-          if(((to-from)-(2*arcSlant))/7 > arc.type.length || !abbrevText) {
-            // no need to (or cannot) abbreviate
-            // TODO cleaner heuristic
-            abbrevText = arc.type;
-          }
-          var text = svg.text(arcGroup, (from + to) / 2, -height, abbrevText, {
-              'class': 'fill_' + arc.type,
-              'data-arc-role': arc.type,
-              'data-arc-origin': arc.origin,
-              'data-arc-target': arc.target,
-          });
-          var textBox = text.getBBox();
-          var textStart = textBox.x - margin.x;
-          var textEnd = textStart + textBox.width + 2 * margin.x;
-          if (from > to) {
-            var tmp = textStart; textStart = textEnd; textEnd = tmp;
-          }
-
-          var path;
-          path = svg.createPath().move(textStart, -height);
-          if (rowIndex == leftRow) {
-              var cornerx = from + ufoCatcherMod * arcSlant;
-              // for normal cases, should not be past textStart even if narrow
-              if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
-              if (smoothArcCurves) {
-                  var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                  path.line(cornerx, -height).
-                      curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
-              } else {
-                  path.line(cornerx, -height).
-                      line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
-              }
-          } else {
-              path.line(from, -height);
-          }
-          svg.path(arcGroup, path, {
-              markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
-              'class': 'stroke_' + arc.type,
-              'strokeDashArray': arc.equiv ? dashArray : undefined,
-          });
-          path = svg.createPath().move(textEnd, -height);
-          if (rowIndex == rightRow) {
-              // TODO: duplicates above in part, make funcs
-              var cornerx  = to - ufoCatcherMod * arcSlant;
-              // for normal cases, should not be past textEnd even if narrow
-              if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
-              if (smoothArcCurves) {
-                  var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-                  path.line(cornerx, -height).
-                      curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
-              } else {
-                  path.line(cornerx, -height).
-                      line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
-              }
-          } else {
-            path.line(to, -height);
-          }
-          svg.path(arcGroup, path, {
-              markerEnd: leftToRight && !arc.equiv ? 'url(#' + arrows[arc.type] + ')' : undefined,
-              'class': 'stroke_' + arc.type,
-              'strokeDashArray': arc.equiv ? dashArray : undefined,
-          });
-        } // arc rows
-      }); // arcs
-
-      var y = margin.y;
-      var sentNumGroup = svg.group({'class': 'sentnum'});
-      $.each(rows, function(rowId, row) {
-        var rowBox = row.group.getBBox();
-        if (!rowBox) { // older Firefox bug
-          rowBox = { x: 0, y: 0, height: 0, width: 0 };
-        }
-        if (row.hasAnnotations) {
-          rowBox.height = -rowBox.y;
-          rowBox.y -= rowSpacing;
-        }
-        svg.rect(backgroundGroup,
-          0, y + curlyY + textHeight, canvasWidth, rowBox.height + textHeight + 1, {
-          'class': 'background' + row.backgroundIndex,
         });
-        y += rowBox.height;
-        y += textHeight;
-        row.textY = y;
-        if (row.sentence) {
-          svg.text(sentNumGroup, sentNumMargin - margin.x, y, '' + row.sentence);
-        }
-        translate(row, 0, y);
-        y += margin.y;
-      });
-      y += margin.y;
 
-      $.each(data.chunks, function(chunkNo, chunk) {
-          // text positioning
-          chunk.tspan.attr({
-              x: chunk.textX,
-              y: chunk.row.textY,
+        // sort the arcs
+        data.arcs.sort(function(a, b) {
+          // first write those that have less to jump over
+          var tmp = a.jumpHeight - b.jumpHeight;
+          if (tmp) return tmp < 0 ? -1 : 1;
+          // if equal, then those that span less distance
+          tmp = a.dist - b.dist;
+          if (tmp) return tmp < 0 ? -1 : 1;
+          // if equal, then those where heights of the targets are smaller
+          tmp = data.spans[a.origin].height + data.spans[a.target].height -
+            data.spans[b.origin].height - data.spans[b.target].height;
+          if (tmp) return tmp < 0 ? -1 : 1;
+          // if equal, then those with the lower origin
+          tmp = data.spans[a.origin].height - data.spans[b.origin].height;
+          if (tmp) return tmp < 0 ? -1 : 1;
+          // if equal, they're just equal.
+          return 0;
+        });
+
+        // draw the drag arc marker
+        dragArrowId = 'annotator' + annId + '_drag_arrow';
+        var arrowhead = svg.marker(defs, dragArrowId,
+          5, 2.5, 5, 5, 'auto',
+          {
+            markerUnits: 'strokeWidth',
+            'class': 'drag_fill',
           });
-          // chunk backgrounds
-          if (chunk.spans.length) {
-            var spansFrom, spansTo, spansType;	 
-            $.each(chunk.spans, function(spanNo, span) {
-              if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
-              if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
-              if (span.generalType == 'trigger' || !spansType) spansType = span.type;
-            });
-            svg.rect(highlightGroup,
-              chunk.textX + spansFrom - 1, chunk.row.textY + curlyY - 1,
-              spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
-              { 'class': 'span_default span_' + spansType, opacity:0.15 });
+        svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+
+        // add the arcs
+        $.each(data.arcs, function(arcNo, arc) {
+          roleClass = 'role_' + arc.type;
+
+          if (!arrows[arc.type]) {
+            var arrowId = 'annotator' + annId + '_arrow_' + arc.type;
+            var arrowhead = svg.marker(defs, arrowId,
+              5, 2.5, 5, 5, 'auto',
+              {
+                markerUnits: 'strokeWidth',
+                'class': 'fill_' + arc.type,
+              });
+            svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+
+            arrows[arc.type] = arrowId;
           }
-      });
 
-      svg.path(sentNumGroup, svg.createPath().
-        move(sentNumMargin, 0).
-        line(sentNumMargin, y));
-      // resize the SVG
-      $(svg._svg).attr('height', y).css('height', y);
-      $(containerElement).attr('height', y).css('height', y);
+          var originSpan = data.spans[arc.origin];
+          var targetSpan = data.spans[arc.target];
 
-      this.drawing = false;
-      if (this.redraw) {
-        this.redraw = false;
-        this.renderData();
+          var leftToRight = originSpan.lineIndex < targetSpan.lineIndex;
+          var left, right;
+          if (leftToRight) {
+            left = originSpan;
+            right = targetSpan;
+          } else {
+            left = targetSpan;
+            right = originSpan;
+          }
+          var leftBox = rowBBox(left);
+          var rightBox = rowBBox(right);
+          var leftRow = left.chunk.row.index;
+          var rightRow = right.chunk.row.index;
+
+          // find the next height
+          var height = 0;
+
+          var fromIndex2, toIndex2;
+          if (left.chunk.index == right.chunk.index) {
+            fromIndex2 = left.lineIndex * 2;
+            toIndex2 = right.lineIndex * 2;
+          } else {
+            fromIndex2 = left.lineIndex * 2 + 1;
+            toIndex2 = right.lineIndex * 2 - 1;
+          }
+          for (var i = fromIndex2; i <= toIndex2; i++) {
+            if (spanHeights[i] > height) height = spanHeights[i];
+          }
+          height += arcSpacing;
+          var leftSlantBound, rightSlantBound;
+          for (var i = fromIndex2; i <= toIndex2; i++) {
+            if (spanHeights[i] < height) spanHeights[i] = height;
+          }
+
+          var chunkReverse = false;
+          var ufoCatcher = originSpan.chunk.index == targetSpan.chunk.index;
+          if (ufoCatcher) {
+            chunkReverse =
+              leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2;
+          }
+          var ufoCatcherMod = ufoCatcher ? chunkReverse ? -0.5 : 0.5 : 1;
+
+          for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
+            var row = rows[rowIndex];
+            row.hasAnnotations = true;
+            var arcGroup = svg.group(row.arcs,
+                { 'data-from': arc.origin, 'data-to': arc.target });
+            var from, to;
+            
+            if (rowIndex == leftRow) {
+              from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
+            } else {
+              from = sentNumMargin;
+            }
+
+            if (rowIndex == rightRow) {
+              to = rightBox.x + (chunkReverse ? rightBox.width : 0);
+            } else {
+              to = canvasWidth - 2 * margin.y;
+            }
+
+            var abbrevText = arcAbbreviation[arc.type] || arc.type;
+            if(((to-from)-(2*arcSlant))/7 > arc.type.length || !abbrevText) {
+              // no need to (or cannot) abbreviate
+              // TODO cleaner heuristic
+              abbrevText = arc.type;
+            }
+            var text = svg.text(arcGroup, (from + to) / 2, -height, abbrevText, {
+                'class': 'fill_' + arc.type,
+                'data-arc-role': arc.type,
+                'data-arc-origin': arc.origin,
+                'data-arc-target': arc.target,
+            });
+            var textBox = text.getBBox();
+            var textStart = textBox.x - margin.x;
+            var textEnd = textStart + textBox.width + 2 * margin.x;
+            if (from > to) {
+              var tmp = textStart; textStart = textEnd; textEnd = tmp;
+            }
+
+            var path;
+            path = svg.createPath().move(textStart, -height);
+            if (rowIndex == leftRow) {
+                var cornerx = from + ufoCatcherMod * arcSlant;
+                // for normal cases, should not be past textStart even if narrow
+                if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
+                if (smoothArcCurves) {
+                    var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
+                    path.line(cornerx, -height).
+                        curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+                } else {
+                    path.line(cornerx, -height).
+                        line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+                }
+            } else {
+                path.line(from, -height);
+            }
+            svg.path(arcGroup, path, {
+                markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
+                'class': 'stroke_' + arc.type,
+                'strokeDashArray': arc.equiv ? dashArray : undefined,
+            });
+            path = svg.createPath().move(textEnd, -height);
+            if (rowIndex == rightRow) {
+                // TODO: duplicates above in part, make funcs
+                var cornerx  = to - ufoCatcherMod * arcSlant;
+                // for normal cases, should not be past textEnd even if narrow
+                if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
+                if (smoothArcCurves) {
+                    var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
+                    path.line(cornerx, -height).
+                        curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+                } else {
+                    path.line(cornerx, -height).
+                        line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+                }
+            } else {
+              path.line(to, -height);
+            }
+            svg.path(arcGroup, path, {
+                markerEnd: leftToRight && !arc.equiv ? 'url(#' + arrows[arc.type] + ')' : undefined,
+                'class': 'stroke_' + arc.type,
+                'strokeDashArray': arc.equiv ? dashArray : undefined,
+            });
+          } // arc rows
+        }); // arcs
+
+        var y = margin.y;
+        var sentNumGroup = svg.group({'class': 'sentnum'});
+        $.each(rows, function(rowId, row) {
+          var rowBox = row.group.getBBox();
+          if (!rowBox) { // older Firefox bug
+            rowBox = { x: 0, y: 0, height: 0, width: 0 };
+          }
+          if (row.hasAnnotations) {
+            rowBox.height = -rowBox.y;
+            rowBox.y -= rowSpacing;
+          }
+          svg.rect(backgroundGroup,
+            0, y + curlyY + textHeight, canvasWidth, rowBox.height + textHeight + 1, {
+            'class': 'background' + row.backgroundIndex,
+          });
+          y += rowBox.height;
+          y += textHeight;
+          row.textY = y;
+          if (row.sentence) {
+            svg.text(sentNumGroup, sentNumMargin - margin.x, y, '' + row.sentence);
+          }
+          translate(row, 0, y);
+          y += margin.y;
+        });
+        y += margin.y;
+
+        $.each(data.chunks, function(chunkNo, chunk) {
+            // text positioning
+            chunk.tspan.attr({
+                x: chunk.textX,
+                y: chunk.row.textY,
+            });
+            // chunk backgrounds
+            if (chunk.spans.length) {
+              var spansFrom, spansTo, spansType;	 
+              $.each(chunk.spans, function(spanNo, span) {
+                if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
+                if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
+                if (span.generalType == 'trigger' || !spansType) spansType = span.type;
+              });
+              svg.rect(highlightGroup,
+                chunk.textX + spansFrom - 1, chunk.row.textY + curlyY - 1,
+                spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
+                { 'class': 'span_default span_' + spansType, opacity:0.15 });
+            }
+        });
+
+        svg.path(sentNumGroup, svg.createPath().
+          move(sentNumMargin, 0).
+          line(sentNumMargin, y));
+        // resize the SVG
+        $(svg._svg).attr('height', y).css('height', y);
+        $(containerElement).attr('height', y).css('height', y);
+
+        this.drawing = false;
+        if (this.redraw) {
+          this.redraw = false;
+          this.renderData();
+        }
+      } catch(x) {
+        this.drawing = false;
       }
-    } catch(x) {
-      this.drawing = false;
     }
-  }
 
-  this.getSVG = function() {
-    return containerElement.html();
-  };
+    this.getSVG = function() {
+      return containerElement.html();
+    };
 
-  this.getDocumentName = function() {
-    return data.document;
-  };
+    this.getDocumentName = function() {
+      return data.document;
+    };
 
-  containerElement.svg({
-      onLoad: this.drawInitial,
-  });
+    containerElement.svg({
+        onLoad: this.drawInitial,
+    });
 };
 
 $(function() {
