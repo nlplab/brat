@@ -1413,6 +1413,10 @@ $(function() {
     };
     var dismissMessage = function() {
       message.css('display', 'none');
+      if (timer) {
+        clearInterval(timer);
+        timer = 0;
+      }
     };
     return function(html, error, duration) {
       message.html(html).css({
