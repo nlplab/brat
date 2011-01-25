@@ -124,34 +124,34 @@ class DependingAnnotationDeleteError(Exception):
         return response
 
 
-def _split_id(id):
+class AnnotationId(object):
     '''
-    Split an id into its prefix and numerical component.
-
-    id format: ([A-Za-z]+|#)[0-9]+
-
-    Arguments:
-    id - a valid id
-
-    Returns:
-    A tuple containing the id prefix and number
-
-    Raises:
-    InvalidIdError - if the format of the id is invalid
+    ^([A-Za-z]|#)[0-9]+(.*?)$
     '''
-    from itertools import takewhile
+    def __init__(self, id_str):
+        import re
+        m = re.match(r'^([A-Za-z]|#)([0-9]+)(.*?)$', id_str)
+        if m is None:
+            raise InvalidIdError(id)
 
-    id_pre = ''.join([char for char in takewhile(
-        lambda c : not c.isdigit(), id)])
-    if not id_pre:
-        raise InvalidIdError(id)
+        self.pre, num_str, self.suf = m.groups()
+        # Should never fail if the regex holds
+        self.num = int(num_str)
 
-    try:
-        id_num = int(id[len(id_pre):])
-    except ValueError:
-        raise InvalidIdError(id)
+    def __hash__(self):
+        return hash(self.pre) + hash(self.num) + hash(self.suf)
 
-    return (id_pre, id_num)
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __cmp__(self, other):
+        return cmp(hash(self), hash(other))
+
+    def __str__(self):
+        return '{}{}{}'.format(self.pre, self.num, self.suf)
+
+    def __repr__(self):
+        return str(self)
 
 
 # We are NOT concerned with the conformity to the text file
@@ -172,6 +172,7 @@ class Annotations(object):
         # Range: [0, inf.) unlike [1, inf.) which is common for files
         self._line_by_ann = {}
         # Maximum id number used for each id prefix, to speed up id generation
+        #XXX: This is effectively broken by the introduction of id suffixes
         self._max_id_num_by_prefix = defaultdict(lambda : 1)
         # Annotation by id, not includid non-ided annotations 
         self._ann_by_id = {}
@@ -241,10 +242,9 @@ class Annotations(object):
 
         # Register the object id
         try:
-            id_pre, id_num = _split_id(ann.id)
             self._ann_by_id[ann.id] = ann
-            self._max_id_num_by_prefix[id_pre] = max(id_num, 
-                    self._max_id_num_by_prefix[id_pre])
+            self._max_id_num_by_prefix[ann.id.pre] = max(ann.id.num, 
+                    self._max_id_num_by_prefix[ann.id.pre])
         except AttributeError:
             # The annotation simply lacked an id which is fine
             pass
@@ -350,20 +350,20 @@ class Annotations(object):
             try:
                 # ID processing
                 try:
-                    id, id_tail = ann_line.split('\t', 1)
+                    id_str, id_tail = ann_line.split('\t', 1)
                 except ValueError:
                     raise AnnotationLineSyntaxError(ann_line)
 
+                try:
+                    id = AnnotationId(id_str)
+                except InvalidIdError:
+                    # The line lacks an id, we attempt to create a dummy
+                    from collections import namedtuple
+                    id =  namedtuple('DummyId', ('pre', 'num', 'suf')
+                            )(id_str, None, None)
+
                 if id in self._ann_by_id:
                     raise DuplicateAnnotationIdError(id)
-                try:
-                    id_pre, id_num = _split_id(id)
-                except InvalidIdError:
-                    # This is silly, we call it an id_pre although for
-                    # example * is not an id_pre since it is not an id at
-                    # all?
-                    id_pre = id
-                    id_num = None
 
                 # Cases for lines
                 try:
@@ -375,7 +375,7 @@ class Annotations(object):
                     # No tail at all, although it should have a \t
                     data_tail = ''
 
-                if id_pre == '*':
+                if id.pre == '*':
                     type, type_tail = data.split(None, 1)
                     # For now we can only handle Equivs
                     if type != 'Equiv':
@@ -383,7 +383,7 @@ class Annotations(object):
                     equivs = type_tail.split(None)
                     self.add_annotation(
                             EquivAnnotation(type, equivs, data_tail))
-                elif id_pre == 'E':
+                elif id.pre == 'E':
                     #XXX: A bit nasty, we require a single space
                     try:
                         type_delim = data.index(' ')
@@ -409,13 +409,13 @@ class Annotations(object):
 
                     self.add_annotation(EventAnnotation(
                         trigger, args, id, type, data_tail))
-                elif id_pre == 'R':
+                elif id.pre == 'R':
                     raise NotImplementedError
-                elif id_pre == 'M':
+                elif id.pre == 'M':
                     type, target = data.split()
                     self.add_annotation(ModifierAnnotation(
                         target, id, type, data_tail))
-                elif id_pre == 'T' or id_pre == 'W':
+                elif id.pre == 'T' or id.pre == 'W':
                     type, start_str, end_str = data.split(None, 3)
                     # Abort if we have trailing values
                     if any((c.isspace() for c in end_str)):
@@ -425,7 +425,7 @@ class Annotations(object):
                     #text = txt_file.read(end - start)
                     self.add_annotation(TextBoundAnnotation(
                         start, end, id, type, data_tail))
-                elif id_pre == '#':
+                elif id.pre == '#':
                     type, target = data.split()
                     self.add_annotation(OnelineCommentAnnotation(
                         target, id, type, data_tail
@@ -469,6 +469,9 @@ class Annotation(object):
 
     def __str__(self):
         return self.tail
+
+    def __repr__(self):
+        return str(self)
     
     def get_deps(self):
         return (set(), set())
@@ -504,7 +507,8 @@ class EventAnnotation(IdedAnnotation):
                 id=self.id,
                 type=self.type,
                 trigger=self.trigger,
-                args=' '.join([':'.join(arg_tup) for arg_tup in self.args]),
+                args=' '.join([':'.join(map(str, arg_tup))
+                    for arg_tup in self.args]),
                 tail=self.tail
                 )
 
@@ -532,7 +536,7 @@ class EquivAnnotation(TypedAnnotation):
     def __str__(self):
         return '*\t{type} {equivs}{tail}'.format(
                 type=self.type,
-                equivs=' '.join(self.entities),
+                equivs=' '.join([str(e) for e in self.entities]),
                 tail=self.tail
                 )
 
@@ -562,7 +566,7 @@ class ModifierAnnotation(IdedAnnotation):
 
     def get_deps(self):
         soft_deps, hard_deps = IdedAnnotation.get_deps(self)
-        hard_deps.add(self.target)
+        hard_deps.add(AnnotationId(self.target))
         return (soft_deps, hard_deps)
 
 
@@ -700,11 +704,11 @@ def document_json(document):
     for event_ann in ann_obj.get_events():
         trigger_ids.add(event_ann.trigger)
         j_dic['events'].append(
-                [event_ann.id, event_ann.trigger, event_ann.args]
+                [str(event_ann.id), event_ann.trigger, event_ann.args]
                 )
 
     for tb_ann in ann_obj.get_textbounds():
-        j_tb = [tb_ann.id, tb_ann.type, tb_ann.start, tb_ann.end]
+        j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
 
         # If we spotted it in the previous pass as a trigger for an
         # event or if the type is known to be an event type, we add it
@@ -722,7 +726,7 @@ def document_json(document):
 
     for mod_ann in ann_obj.get_modifers():
         j_dic['modifications'].append(
-                [mod_ann.id, mod_ann.type, mod_ann.target]
+                [str(mod_ann.id), mod_ann.type, mod_ann.target]
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
@@ -750,7 +754,7 @@ def document_json(document):
         issues = []
 
     for i in issues:
-        j_dic['infos'].append((i.ann_id, i.type, i.description))
+        j_dic['infos'].append((str(i.ann_id), i.type, i.description))
 
     print dumps(j_dic, sort_keys=True, indent=2)
     
@@ -968,6 +972,8 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
 #TODO: When addin an equiv the modification tracker won't really show what is
 # correct since it can't know about merging
 def save_arc(document, origin, target, type):
+    origin = AnnotationId(origin)
+    target = AnnotationId(target)
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
@@ -981,13 +987,14 @@ def save_arc(document, origin, target, type):
         target_ann = ann_obj.get_ann_by_id(target)
         try:
             orig_ann = ann_obj.get_ann_by_id(origin)
-            arg_tup = (type, target_ann.id)
+            arg_tup = (type, str(target_ann.id))
             if arg_tup not in orig_ann.args:
+                before = str(orig_ann)
                 orig_ann.args.append(arg_tup)
-                ann = orig_ann
+                mods.change(before, orig_ann)
             else:
                 # It already existed as an arg, we were called to do nothing...
-                ann = 'Duplicate, nothing added'
+                pass
         except AttributeError:
             # The annotation did not have args, it was most likely an entity
             # thus we need to create a new Event...
@@ -1015,6 +1022,7 @@ def save_arc(document, origin, target, type):
     print dumps(mods.json_response(), sort_keys=True, indent=2)
 
 def delete_span(document, id):
+    id = AnnotationId(id)
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
@@ -1030,7 +1038,8 @@ def delete_span(document, id):
         ann_obj.del_annotation(ann)
         mods.deleted.append(ann)
         try:
-            trig = ann_obj.get_ann_by_id(ann.trigger)
+            #TODO: Why do we need this conversion? Isn't it an id?
+            trig = ann_obj.get_ann_by_id(AnnotationId(ann.trigger))
             try:
                 ann_obj.del_annotation(trig)
                 mods.deleted.append(trig)
@@ -1061,6 +1070,8 @@ def delete_span(document, id):
     print dumps(mods.json_response(), sort_keys=True, indent=2)
 
 def delete_arc(document, origin, target, type):
+    origin = AnnotationId(origin)
+    target = AnnotationId(target)
     ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
@@ -1074,9 +1085,13 @@ def delete_arc(document, origin, target, type):
     try:
         event_ann = ann_obj.get_ann_by_id(origin)
         # Try if it is an event
-        arg_tup = (type, target)
+        arg_tup = (type, str(target))
         if arg_tup in event_ann.args:
+            before = str(event_ann)
             event_ann.args.remove(arg_tup)
+            mods.change(before, event_ann)
+
+            '''
             if not event_ann.args:
                 # It was the last argument tuple, remove it all
                 try:
@@ -1086,6 +1101,7 @@ def delete_arc(document, origin, target, type):
                     print 'Content-Type: application/json\n'
                     print dumps(e.json_error_response(), sort_keys=True, indent=2)
                     return
+            '''
         else:
             # What we were to remove did not even exist in the first place
             pass
@@ -1279,7 +1295,6 @@ def debug():
     #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann')
     #print a
 
-    '''
     args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
         'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
         '59',
@@ -1290,7 +1305,12 @@ def debug():
         None
         )
     save_span(*args)
-    '''
+    
+    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
+        'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
+        'T31',
+        )
+    delete_span(*args)
 
     args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
         'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
@@ -1299,7 +1319,16 @@ def debug():
         'Equiv',
         )
     save_arc(*args)
-    #def save_arc(document, origin, target, type, equiv):
+    
+    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
+        'BioNLP-ST_2011_Epi_and_PTM_development_data/PMID-10086714'),
+        'E2',
+        'T10',
+        'Theme',
+        )
+    save_arc(*args)
+    delete_arc(*args)
+
 
 if __name__ == '__main__':
     from sys import argv
