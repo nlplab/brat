@@ -7,7 +7,7 @@ TODO: DOC!
 
 Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
-Author:     Goran   Topič       <smp is s u tokyo ac jp>
+Author:     Goran   Topič       <goran is s u tokyo ac jp>
 Version:    2010-01-24
 '''
 
@@ -658,7 +658,8 @@ def document_json(document):
 
     # Read in the textual data to make it ready to push
     with open(txt_file_path, 'rb') as text_file:
-        text = sub(r'\. ([A-Z])',r'.\n\1', text_file.read())
+        # TODO: replace this crude heuristic with proper sentence splitting
+        text = sub(r'(\. *) ([A-Z])',r'\1\n\2', text_file.read())
 
     # Dictionary to be converted into JSON
     # TODO: Make the names here and the ones in the Annotations object conform
