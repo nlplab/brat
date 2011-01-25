@@ -34,7 +34,7 @@ from annspec import physical_entity_types, event_argument_types
 from verify_annotations import verify_annotation
 from annotation import Annotations
 # We should not import this in the end...
-from annotation import TextBoundAnnotation, AnnotationId, EquivAnnotation
+from annotation import TextBoundAnnotation, AnnotationId, EquivAnnotation, EventAnnotation
 
 ### Constants?
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
