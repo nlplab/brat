@@ -570,7 +570,7 @@ var Annotator = function(containerElement, onStart) {
       $.each(eventDesc.roles, function(roleNo, role) {
         var target = data.spans[role.targetId];
         if (!target) {
-          console.error('Error: "' + role.targetId + '" not found in ' + data.document);
+          displayMessage('<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + role.originId + '") not found in ' + data.document, true);
           throw "BadDocumentError";
         }
         var there = target.chunk.index;
@@ -1367,7 +1367,6 @@ var Annotator = function(containerElement, onStart) {
       }
     } catch(x) {
       this.drawing = false;
-      displayMessage('<strong>ERROR</strong><br/>' + x, true);
     }
   }
 
