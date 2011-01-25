@@ -65,6 +65,23 @@ def verify_annotation(ann_obj):
     """
     issues = []
 
+    # TODO: break this up into separate functions.
+
+    # check equivs
+    for eq in ann_obj.get_equivs():
+        # get the equivalent annotations
+        equiv_anns = [ann_obj.get_ann_by_id(eid) for eid in eq.entities]
+
+        # all the types of the Equivalent entities have to match
+        eq_type = {}
+        for e in equiv_anns:
+            eq_type[e.type] = True
+        if len(eq_type) != 1:
+            # more than one type
+            # TODO: mark this error on the Eq relation, not the entities
+            for e in equiv_anns:
+                issues.append(AnnotationIssue(e.id, AnnotationError, "%s in Equiv relation involving entities of more than one type (%s)" % (e.id, ", ".join(eq_type.keys()))))
+
     # check for overlap between physical entities
     physical_entities = [a for a in ann_obj.get_textbounds() if a.type in annspec.physical_entity_types]
     overlapping = check_textbound_overlap(physical_entities)

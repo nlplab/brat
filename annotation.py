@@ -146,7 +146,7 @@ class Annotations(object):
         # Equivs have to be merged with other equivs
         try:
             # Bail as soon as possible for non-equivs
-            ann.entities
+            ann.entities # TODO: what is this?
             merge_cand = ann
             for eq_ann in self.get_equivs():
                 try:
@@ -250,6 +250,9 @@ class Annotations(object):
     
     def get_ann_by_id(self, id):
         #TODO: DOC
+        # support access by string
+        if isinstance(id, str):
+            id = AnnotationId(id)
         try:
             return self._ann_by_id[id]
         except KeyError:

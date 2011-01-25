@@ -232,6 +232,8 @@ def document_json(document):
     except Exception, e:
         # TODO add an issue about the failure
         issues = []
+        j_dic['error']    = 'Error: verify_annotation() failed: %s' % e
+        j_dic['duration'] = -1
 
     for i in issues:
         j_dic['infos'].append((str(i.ann_id), i.type, i.description))
