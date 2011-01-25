@@ -570,7 +570,7 @@ var Annotator = function(containerElement, onStart) {
       $.each(eventDesc.roles, function(roleNo, role) {
         var target = data.spans[role.targetId];
         if (!target) {
-          displayMessage('<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + eventDesc.id + '") not found in ' + data.document, true);
+          displayMessage('<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + eventDesc.id + '") not found in ' + data.document + '<br/>(please correct the source data)', true, 5);
           throw "BadDocumentError";
         }
         var there = target.chunk.index;
