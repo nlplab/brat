@@ -5,7 +5,6 @@ Author:     Pontus Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-01-25
 '''
 
-#TODO: __str__ for the errors
 #TODO: Rename and re-work this one
 class AnnotationLineSyntaxError(Exception):
     def __init__(self, line, line_num):
@@ -289,14 +288,13 @@ class Annotations(object):
         # when parsing to make sure we have the annotations to refer to.
 
         #XXX: Assumptions start here...
-        for ann_line in ann_iter:
-        #for ann_line in (l.rstrip('\n') for l in ann_file):
+        for ann_line_num, ann_line in enumerate(ann_iter, start=1):
             try:
                 # ID processing
                 try:
                     id_str, id_tail = ann_line.split('\t', 1)
                 except ValueError:
-                    raise AnnotationLineSyntaxError(ann_line)
+                    raise AnnotationLineSyntaxError(ann_line, ann_line_num)
 
                 try:
                     id = AnnotationId(id_str)
@@ -323,7 +321,7 @@ class Annotations(object):
                     type, type_tail = data.split(None, 1)
                     # For now we can only handle Equivs
                     if type != 'Equiv':
-                        raise AnnotationLineSyntaxError(ann_line)
+                        raise AnnotationLineSyntaxError(ann_line, ann_line_num)
                     equivs = type_tail.split(None)
                     self.add_annotation(
                             EquivAnnotation(type, equivs, data_tail))
@@ -341,7 +339,7 @@ class Annotations(object):
                         type, trigger = type_trigger.split(':')
                     except ValueError:
                         #XXX: Stupid event without a trigger, bacteria task
-                        raise AnnotationLineSyntaxError(ann_line)
+                        raise AnnotationLineSyntaxError(ann_line, ann_line_num)
 
                     #if type_trigger_tail == ' ':
                     #    args = []
@@ -363,7 +361,7 @@ class Annotations(object):
                     type, start_str, end_str = data.split(None, 3)
                     # Abort if we have trailing values
                     if any((c.isspace() for c in end_str)):
-                        raise AnnotationLineSyntaxError(ann_line)
+                        raise AnnotationLineSyntaxError(ann_line, ann_line_num)
                     start, end = (int(start_str), int(end_str))
                     #txt_file.seek(start)
                     #text = txt_file.read(end - start)
@@ -376,12 +374,13 @@ class Annotations(object):
                         ))
                 else:
                     #assert False, ann_line #XXX: REMOVE!
-                    raise AnnotationLineSyntaxError(ann_line)
+                    raise AnnotationLineSyntaxError(ann_line, ann_line_num)
                     #assert False, 'No code to handle exception type'
             except AnnotationLineSyntaxError, e:
                 # We could not parse the line, just add it as an unknown annotation
                 self.add_annotation(Annotation(e.line))
-                self.failed_lines.append(len(self) - 1)
+                # NOTE: For access we start at line 0, not 1 as in here
+                self.failed_lines.append(e.line_num - 1)
 
     def __str__(self):
         s = '\n'.join(str(ann).rstrip('\n') for ann in self)
@@ -405,8 +404,6 @@ class Annotations(object):
     def __in__(self, other):
         pass
 
-#XXX: You are not using __init__ correctly!
-#TODO: No annotation annotation, for blank lines etc.?, no just annotation tail
 class Annotation(object):
     def __init__(self, tail):
         self.tail = tail
