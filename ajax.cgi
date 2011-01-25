@@ -341,26 +341,44 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         #TODO: Handle failure to find!
         ann = ann_obj.get_ann_by_id(id)
         
-        if int(start_str) != ann.start or int(end_str) != ann.end:
-            # This scenario has been discussed and changing the span inevitably
-            # leads to the text span being out of sync since we can't for sure
-            # determine where in the data format the text (if at all) it is
-            # stored. For now we will fail loudly here.
-            print 'Content-Type: application/json\n'
-            error = 'unable to change the span of an existing annotation'
-            print dumps({ 'error': error }, sort_keys=True, indent=2)
-            # Not sure if we only get an internal server error or the data
-            # will actually reach the client to be displayed.
-            assert False, error
-
-        # Span changes are as of yet unsupported
-        #ann.start = start
-        #ann.end = end
+        # Hack to support event annotations
+        try:
+            if int(start_str) != ann.start or int(end_str) != ann.end:
+                # This scenario has been discussed and changing the span inevitably
+                # leads to the text span being out of sync since we can't for sure
+                # determine where in the data format the text (if at all) it is
+                # stored. For now we will fail loudly here.
+                print 'Content-Type: application/json\n'
+                error = 'unable to change the span of an existing annotation'
+                print dumps({ 'error': error }, sort_keys=True, indent=2)
+                # Not sure if we only get an internal server error or the data
+                # will actually reach the client to be displayed.
+                assert False, error
+                
+                # Span changes are as of yet unsupported
+                #ann.start = start
+                #ann.end = end
+        except AttributeError:
+             # It is most likely an event annotion
+            pass
 
         if ann.type != type:
             before = str(ann)
             ann.type = type
             mods.change(before, ann)
+
+            # Try to propagate the type change
+            try:
+                #XXX: We don't take into consideration other anns with the
+                # same trigger here!
+                ann_trig = ann_obj.get_ann_by_id(ann.trigger)
+                if ann_trig.type != ann.type:
+                    before = str(ann_trig)
+                    ann_trig.type = ann.type
+                    mods.change(before, ann_trig)
+            except AttributeError:
+                # It was most likely a TextBound entity
+                pass
 
         # Here we assume that there is at most one of each in the file, this can be wrong
         seen_spec = None
