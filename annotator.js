@@ -818,9 +818,9 @@ var Annotator = function(containerElement, onStart) {
     this.redraw = false;
     this.drawing = true;
 
-    if (_data) setData(_data);
-
     try {
+      if (_data) setData(_data);
+
       svg.clear(true);
       var defs = svg.defs();
       var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
