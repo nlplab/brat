@@ -5,6 +5,15 @@ Author:     Pontus Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-01-25
 '''
 
+### Constants
+# The only suffix we allow to write to, which is the joined annotation file
+JOINED_ANN_FILE_SUFF = 'ann'
+# These file suffixes indicate partial annotations that can not be written to
+# since they depend on multiple files for completeness
+PARTIAL_ANN_FILE_SUFF = ['a1', 'a2', 'co', 'rel']
+TEXT_FILE_SUFFIX = 'txt'
+###
+
 class AnnotationLineSyntaxError(Exception):
     def __init__(self, line, line_num):
         self.line = line
@@ -97,10 +106,12 @@ class AnnotationId(object):
 # We are NOT concerned with the conformity to the text file
 class Annotations(object):
     #TODO: DOC!
-    def __init__(self, ann_iter):
+    def __init__(self, document):
         #TODO: DOC!
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
         from collections import defaultdict
+        from os.path import basename, isfile
+        import fileinput
         
         self.failed_lines = []
 
@@ -117,8 +128,51 @@ class Annotations(object):
         self._ann_by_id = {}
         ###
 
+        ## We use some heuristics to find the appropriate files
+        self._read_only = False
+        try:
+            # Do we have a valid suffix? If so, it is probably best to the file
+            suff = document[document.rindex('.') + 1:]
+            if suff == JOINED_ANN_FILE_SUFF:
+                # It is a joined file, let's load it and we are editable
+                input_files = [document]
+            elif suff in PARTIAL_ANN_FILE_SUFF:
+                # It is only a partial annotation, we will most likely fail
+                # but we will try opening it
+                input_files = [document]
+                self._read_only = True
+            else:
+                input_files = []
+        except ValueError:
+            # The document lacked a suffix
+            input_files = []
+
+        if not input_files:
+            # Our first attempts at finding the input by checking suffixes
+            # failed, so we try to attach know suffixes to the path.
+            sugg_path = document + '.' + JOINED_ANN_FILE_SUFF
+            if isfile(sugg_path):
+                # We found a joined file by adding the joined suffix
+                input_files = [sugg_path]
+            else:
+                # Our last shot, we go for as many partial files as possible
+                input_files = [sugg_path for sugg_path in 
+                        (document + '.' + suff
+                            for suff in PARTIAL_ANN_FILE_SUFF)
+                        if isfile(sugg_path)]
+                self._read_only = True
+
+        # We then try to open the files we got using the heuristics
+        if input_files:
+            self._file_input = fileinput.input(input_files)
+            self._input_files = input_files
+        else:
+            #XXX: Proper exception here, this is horrible
+            assert False, ('could not find any plausible annotations '
+                    'for {}').format(document)
+
         # Finally, parse the given annotation file
-        self._parse_ann_file(ann_iter)
+        self._parse_ann_file()
 
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
@@ -139,6 +193,7 @@ class Annotations(object):
 
     def add_annotation(self, ann):
         #TODO: DOC!
+        #TODO: Check read only
         # Equivs have to be merged with other equivs
         try:
             # Bail as soon as possible for non-equivs
@@ -191,6 +246,7 @@ class Annotations(object):
         self._line_by_ann[ann] = len(self) - 1 
 
     def del_annotation(self, ann):
+        #TODO: Check read only
         #TODO: Flag to allow recursion
         #TODO: Sampo wants to allow delet of direct deps but not indirect, one step
         #TODO: We really want modifications to be pervasive and be deleted for events
@@ -237,7 +293,7 @@ class Annotations(object):
         except KeyError:
             raise AnnotationNotFoundError(id)
 
-    def get_new_id(self, id_pre):
+    def get_new_id(self, prefix, suffix=None):
         '''
         Return a new valid unique id for this annotation file for the given
         prefix. No ids are re-used for traceability over time for annotations,
@@ -258,9 +314,15 @@ class Annotations(object):
         An id that is guaranteed to be unique for the lifetime of the
         annotation.
         '''
-        return id_pre + str(self._max_id_num_by_prefix[id_pre] + 1)
+        #XXX: We have changed this one radically!
+        from random import randint
+        while True:
+            #XXX: Arbitary constant!
+            suggestion = prefix + str(randint(0, 2**12))
+            if not suggestion in self._ann_by_id:
+                return suggestion
 
-    def _parse_ann_file(self, ann_iter):
+    def _parse_ann_file(self):
         from itertools import takewhile
         # If you knew the format, you would have used regexes...
         #
@@ -268,7 +330,7 @@ class Annotations(object):
         # when parsing to make sure we have the annotations to refer to.
 
         #XXX: Assumptions start here...
-        for ann_line_num, ann_line in enumerate(ann_iter, start=1):
+        for ann_line_num, ann_line in enumerate(self._file_input, start=1):
             try:
                 # ID processing
                 try:
@@ -375,7 +437,21 @@ class Annotations(object):
     def __len__(self):
         return len(self._lines)
 
+    def __enter__(self):
+        # No need to do any handling here, the constructor handles that
+        return self
+    
+    def __exit__(self, type, value, traceback):
+        self._file_input.close()
+        if not self._read_only:
+            assert len(self._input_files) == 1, 'more than one valid outfile'
+            out_str = str(self)
+            with open(self._input_files[0], 'w') as ann_file:
+                ann_file.write(out_str)
+        return
+
     def __in__(self, other):
+        #XXX: You should do this one!
         pass
 
 class Annotation(object):
