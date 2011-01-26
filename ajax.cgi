@@ -5,6 +5,8 @@
 Brat (/brât/)
 TODO: DOC!
 
+Brat Rapid Annotation Tool (BRAT)
+
 Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
 Author:     Goran   Topič       <goran is s u tokyo ac jp>
