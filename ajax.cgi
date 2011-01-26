@@ -608,10 +608,11 @@ def delete_arc(document, origin, target, type):
             for eq_ann in ann_obj.get_equivs():
                 # We don't assume that the ids only occur in one Equiv, we
                 # keep on going since the data "could" be corrupted
-                if origin in eq_ann.entities and target in eq_ann.entities:
+                if (str(origin) in eq_ann.entities
+                        and str(target) in eq_ann.entities):
                     before = str(eq_ann)
-                    eq_ann.entities.remove(origin)
-                    eq_ann.entities.remove(target)
+                    eq_ann.entities.remove(str(origin))
+                    eq_ann.entities.remove(str(target))
                     mods.change(before, eq_ann)
 
                 if len(eq_ann.entities) < 2:
