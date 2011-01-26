@@ -11,6 +11,7 @@ Version:    2011-01-20
 #TODO: Silly, but : placement isn't really standard.
 
 ## Configuration for annotation types and semantics
+
 # Types of textbounds representing physical entities.
 physical_entity_types = [
     'Protein',
@@ -21,6 +22,13 @@ physical_entity_types = [
     'Regulon-operon',
     ]
 
+# Allowed nestings for physical entities.
+allowed_entity_nestings = {
+    'default'              : [],
+    'Two-component-system' : ['Protein'],
+    'Organism'             : ['Protein', 'Chemical', 'Two-component-system'],
+    'Regulon-operon'       : ['Protein'],
+    }
 
 # Arguments allowed for events, by type. Derived from the tables on
 # the per-task pages under http://sites.google.com/site/bionlpst/ .
@@ -85,6 +93,10 @@ event_argument_types = {
     'Methylation'         : contextgene_modification_arguments,
     'Demethylation'       : contextgene_modification_arguments,
     'Catalysis'           : regulation_arguments,
+
+    # TODO: this is a temporary workaround extension for PIR annotation
+    # revision. Implement a proper solution.
+    'PTM'                 : theme_and_site_arguments,
 
     # TODO: ID
     }

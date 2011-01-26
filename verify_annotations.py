@@ -52,6 +52,12 @@ def check_textbound_overlap(anns):
 
     return overlapping
 
+def contained_in_span(a1, a2):
+    """
+    Returns True if the first given TextBoundAnnotation is contained in the second, False otherwise.
+    """
+    return a1.start >= a2.start and a1.end <= a2.end
+
 def verify_annotation(ann_obj):
     """
     Verifies the correctness of a given AnnotationFile.
@@ -59,11 +65,38 @@ def verify_annotation(ann_obj):
     """
     issues = []
 
+    # TODO: break this up into separate functions.
+
+    # check equivs
+    for eq in ann_obj.get_equivs():
+        # get the equivalent annotations
+        equiv_anns = [ann_obj.get_ann_by_id(eid) for eid in eq.entities]
+
+        # all the types of the Equivalent entities have to match
+        eq_type = {}
+        for e in equiv_anns:
+            eq_type[e.type] = True
+        if len(eq_type) != 1:
+            # more than one type
+            # TODO: mark this error on the Eq relation, not the entities
+            for e in equiv_anns:
+                issues.append(AnnotationIssue(e.id, AnnotationError, "%s in Equiv relation involving entities of more than one type (%s)" % (e.id, ", ".join(eq_type.keys()))))
+
     # check for overlap between physical entities
     physical_entities = [a for a in ann_obj.get_textbounds() if a.type in annspec.physical_entity_types]
     overlapping = check_textbound_overlap(physical_entities)
     for a1, a2 in overlapping:
-        issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap a %s (%s)" % (a1.type, a2.type, a2.id)))
+        if a1.start == a2.start and a1.end == a2.end:
+            issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s has identical span with %s %s" % (a1.type, a2.type, a2.id)))            
+        elif contained_in_span(a1, a2):
+            if a1.type not in annspec.allowed_entity_nestings.get(a2.type, annspec.allowed_entity_nestings['default']):
+                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in %s (%s)" % (a1.type, a2.type, a2.id)))
+        elif contained_in_span(a2, a1):
+            if a2.type not in annspec.allowed_entity_nestings.get(a1.type, annspec.allowed_entity_nestings['default']):
+                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain %s (%s)" % (a1.type, a2.type, a2.id)))
+        else:
+            # crossing boundaries; never allowed for physical entities.
+            issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: entity has crossing span with %s" % a2.id))
     
     # TODO: generalize to other cases please
 
@@ -85,21 +118,36 @@ def verify_annotation(ann_obj):
 #         for a1, a2 in overlapping:
 #             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap another entity (%s) of the same type" % (a1.type, a2.id)))
 
-    # check for events missing mandatory arguments
-    for e in ann_obj.get_events():
-        found_args = {}
-        found_nonum_args = {}
+    def event_nonum_args(e):
+        # returns event arguments without trailing numbers
+        # (e.g. "Theme1")
+        nna = {}
         for arg, aid in e.args:
-            found_args[arg] = True
-            # remove trailing numbers (e.g. "Theme1") if any for check 
             m = re.match(r'^(.*?)\d*$', arg)
             if m:
-                found_nonum_args[m.group(1)] = True
-            
+                nna[m.group(1)] = True
+            else:
+                # should never happen
+                nna[arg] = True
+        return nna.keys()
+
+    # check for events missing mandatory arguments
+    for e in ann_obj.get_events():
+        found_nonum_args = event_nonum_args(e)
         # TODO: don't hard-code what Themes are required for
         if "Theme" not in found_nonum_args and e.type != "Process":
             issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "Theme required for event"))
 
+    # check for event with disallowed arguments
+    for e in ann_obj.get_events():
+        allowed = annspec.event_argument_types.get(e.type, annspec.event_argument_types["default"])
+        for a in event_nonum_args(e):
+            if a not in allowed:
+                issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take a %s argument" % (e.type, a)))
+            else:
+                # TODO: check type of referenced entity / event
+                pass
+    
     return issues
 
 def main(argv=None):

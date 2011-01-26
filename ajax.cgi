@@ -7,13 +7,9 @@ TODO: DOC!
 
 Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
-Author:     Goran   Topič       <smp is s u tokyo ac jp>
+Author:     Goran   Topič       <goran is s u tokyo ac jp>
 Version:    2010-01-24
 '''
-
-#XXX: The above is a hack to get a non-ancient Python
-
-#!/usr/bin/env python
 
 #TODO: Move imports into their respective functions to boost load time
 from cgi import FieldStorage
@@ -32,12 +28,14 @@ from simplejson import dumps
 
 from annspec import physical_entity_types, event_argument_types
 from verify_annotations import verify_annotation
+from annotation import Annotations, TEXT_FILE_SUFFIX
+# We should not import this in the end...
+from annotation import (TextBoundAnnotation, AnnotationId, EquivAnnotation,
+        EventAnnotation, ModifierAnnotation, DependingAnnotationDeleteError)
 
 ### Constants?
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
 COOKIE_ID = 'brat-cred'
-TEXT_FILE_SUFFIX = 'txt'
-ANN_FILE_SUFFIX = 'ann'
 
 # Try to import our configurations
 from copy import deepcopy
@@ -81,520 +79,6 @@ exec 'from {} import {}'.format(CONF_NAME, ', '.join(CONF_VARIABLES))
 path.extend(_old_path)
 # Clean the namespace
 del deepcopy, dirname, path, _old_path
-
-#TODO: __str__ for the errors
-#TODO: Rename and re-work this one
-class AnnotationLineSyntaxError(Exception):
-    def __init__(self, line):
-        self.line = line
-
-
-class AnnotationNotFoundError(Exception):
-    def __init__(self, id):
-        self.id = id
-
-
-class DuplicateAnnotationIdError(Exception):
-    def __init__(self, id):
-        self.id = id
-
-
-class InvalidIdError(Exception):
-    def __init__(self, id):
-        self.id = id
-
-
-class DependingAnntotionDeleteError(Exception):
-    def __init__(self, target, dependant):
-        self.target = target
-        self.dependant = dependant
-
-    def json_error_response(self, response=None):
-        if response is None:
-            response = {}
-        response['error'] = '''
-        Annotation:
-        <br/>
-        {}
-        <br/>
-        Has a depending annotation attached to it:
-        <br/>
-        {}
-        '''.format(self.target, self.dependant)
-        return response
-
-
-def _split_id(id):
-    '''
-    Split an id into its prefix and numerical component.
-
-    id format: ([A-Za-z]+|#)[0-9]+
-
-    Arguments:
-    id - a valid id
-
-    Returns:
-    A tuple containing the id prefix and number
-
-    Raises:
-    InvalidIdError - if the format of the id is invalid
-    '''
-    from itertools import takewhile
-
-    id_pre = ''.join([char for char in takewhile(
-        lambda c : not c.isdigit(), id)])
-    if not id_pre:
-        raise InvalidIdError(id)
-
-    try:
-        id_num = int(id[len(id_pre):])
-    except ValueError:
-        raise InvalidIdError(id)
-
-    return (id_pre, id_num)
-
-
-# We are NOT concerned with the conformity to the text file
-class Annotations(object):
-    #TODO: DOC!
-    #TODO: We should handle ID collisions somehow upon initialisation
-    def __init__(self, ann_iter):
-        #TODO: DOC!
-        #TODO: Incorparate file locking! Is the destructor called upon inter crash?
-        from collections import defaultdict
-
-        ### Here be dragons, these objects need constant updating and syncing
-        # Annotation for each line of the file
-        self._lines = []
-        # Mapping between annotation objects and which line they occur on
-        # Range: [0, inf.) unlike [1, inf.) which is common for files
-        self._line_by_ann = {}
-        # Maximum id number used for each id prefix, to speed up id generation
-        self._max_id_num_by_prefix = defaultdict(lambda : 1)
-        # Annotation by id, not includid non-ided annotations 
-        self._ann_by_id = {}
-        # 
-        ###
-
-        # Finally, parse the given annotation file
-        self._parse_ann_file(ann_iter)
-
-    def get_events(self):
-        return (a for a in self if isinstance(a, EventAnnotation))
-
-    def get_equivs(self):
-        return (a for a in self if isinstance(a, EquivAnnotation))
-
-    def get_textbounds(self):
-        return (a for a in self if isinstance(a, TextBoundAnnotation))
-
-    def get_modifers(self):
-        return (a for a in self if isinstance(a, ModifierAnnotation))
-
-    def get_oneline_comments(self):
-        return (a for a in self if isinstance(a, OnelineCommentAnnotation))
-
-    # TODO: getters for other categories of annotations
-
-    def add_annotation(self, ann):
-        #TODO: DOC!
-        
-        # Equivs have to be merged with other equivs
-        try:
-            # Bail as soon as possible for non-equivs
-            ann.entities
-            merge_cand = ann
-            for eq_ann in self.get_equivs():
-                try:
-                    # Make sure that this Equiv duck quacks
-                    eq_ann.entities
-                except AttributeError, e:
-                    assert False, 'got a non-entity from an entity call'
-
-                # Do we have an entitiy in common with this equiv?
-                for ent in merge_cand.entities:
-                    if ent in eq_ann.entities:
-                        for m_ent in merge_cand.entities:
-                            if m_ent not in eq_ann.entities: 
-                                eq_ann.entities.append(m_ent)
-                        # Don't try to delete ann since it never was added
-                        if merge_cand != ann:
-                            try:
-                                self.del_annotation(merge_cand)
-                            except DependingAnntotionDeleteError:
-                                assert False, ('Equivs lack ids and should '
-                                        'never have dependents')
-                        merge_cand = eq_ann
-                        # We already merged it all, break to the next ann
-                        break
-
-            if merge_cand != ann:
-                # The proposed annotation was simply merged, no need to add it
-                return
-
-        except AttributeError:
-            #XXX: This can catch a ton more than we want to! Ugly!
-            # It was not an Equiv, skip along
-            pass
-
-        # Register the object id
-        try:
-            id_pre, id_num = _split_id(ann.id)
-            self._ann_by_id[ann.id] = ann
-            self._max_id_num_by_prefix[id_pre] = max(id_num, 
-                    self._max_id_num_by_prefix[id_pre])
-        except AttributeError:
-            # The annotation simply lacked an id which is fine
-            pass
-
-        # Add the annotation as the last line
-        self._lines.append(ann)
-        self._line_by_ann[ann] = len(self) - 1 
-
-    def _ann_deps(ann):
-        #TODO: DOC
-        hard_deps = []
-        soft_deps = []
-       
-        raise NotImplementedError
-        """
-        try:
-            
-
-            for other_ann in ann.
-        except AttributeError:
-            # So it wasn't an EventAnnotation then
-            pass
-        """
-        
-        return (soft_deps, hard_deps)
-
-    def del_annotation(self, ann):
-        #TODO: Flag to allow recursion
-        #TODO: Sampo wants to allow delet of direct deps but not indirect, one step
-        #TODO: DOC!
-        try:
-            ann.id
-        except AttributeError:
-            # If it doesn't have an id, nothing can depend on it
-            self._atomic_del_annotation(ann)
-            return
-
-        for other_ann in self:
-            soft_deps, hard_deps = other_ann.get_deps()
-            if ann.id in soft_deps or ann.id in hard_deps:
-                raise DependingAnntotionDeleteError(ann, other_ann)
-        self._atomic_del_annotation(ann)
-
-    def _atomic_del_annotation(self, ann):
-        #TODO: DOC
-        # Erase the ann by id shorthand
-        try:
-            del self._ann_by_id[ann.id]
-        except AttributeError:
-            # So, we did not have id to erase in the first place
-            pass
-
-        ann_line = self._line_by_ann[ann]
-        # Erase the main annotation
-        del self._lines[ann_line]
-        # Erase the ann by line shorthand
-        del self._line_by_ann[ann]
-        # Update the line shorthand of every annotation after this one
-        # to reflect the new self._lines
-        for l_num in xrange(ann_line, len(self)):
-            self._line_by_ann[self[l_num]] = l_num
-    
-    def get_ann_by_id(self, id):
-        #TODO: DOC
-        try:
-            return self._ann_by_id[id]
-        except KeyError:
-            raise AnnotationNotFoundError(id)
-
-    def get_new_id(self, id_pre):
-        '''
-        Return a new valid unique id for this annotation file for the given
-        prefix. No ids are re-used for traceability over time for annotations,
-        but this only holds for the lifetime of the annotation object. If the
-        annotation file is parsed once again into an annotation object the
-        next assigned id will be the maximum seen for a given prefix plus one
-        which could have been deleted during a previous annotation session.
-
-        Warning: get_new_id('T') == get_new_id('T')
-        Just calling this method does not reserve the id, you need to
-        add the annotation with the returned id to the annotation object in
-        order to reserve it.
-
-        Argument(s):
-        id_pre - an annotation prefix on the format [A-Za-z]+
-
-        Returns:
-        An id that is guaranteed to be unique for the lifetime of the
-        annotation.
-        '''
-        return id_pre + str(self._max_id_num_by_prefix[id_pre] + 1)
-
-    def _parse_ann_file(self, ann_iter):
-        from itertools import takewhile
-        # If you knew the format, you would have used regexes...
-        #
-        # We use ids internally since otherwise we need to resolve a dep graph
-        # when parsing to make sure we have the annotations to refer to.
-
-        #XXX: Assumptions start here...
-        for ann_line in ann_iter:
-        #for ann_line in (l.rstrip('\n') for l in ann_file):
-            try:
-                # ID processing
-                id, id_tail = ann_line.split('\t', 1)
-                if id in self._ann_by_id:
-                    raise DuplicateAnnotationIdError(id)
-                try:
-                    id_pre, id_num = _split_id(id)
-                except InvalidIdError:
-                    # This is silly, we call it an id_pre although for
-                    # example * is not an id_pre since it is not an id at
-                    # all?
-                    id_pre = id
-                    id_num = None
-
-                # Cases for lines
-                try:
-                    data_delim = id_tail.index('\t')
-                    data, data_tail = (id_tail[:data_delim],
-                            id_tail[data_delim:])
-                except ValueError:
-                    data = id_tail
-                    # No tail at all, although it should have a \t
-                    data_tail = ''
-
-                if id_pre == '*':
-                    type, type_tail = data.split(None, 1)
-                    # For now we can only handle Equivs
-                    if type != 'Equiv':
-                        raise AnnotationLineSyntaxError(ann_line)
-                    equivs = type_tail.split(None)
-                    self.add_annotation(
-                            EquivAnnotation(type, equivs, data_tail))
-                elif id_pre == 'E':
-                    #XXX: A bit nasty, we require a single space
-                    try:
-                        type_delim = data.index(' ')
-                        type_trigger, type_trigger_tail = (data[:type_delim],
-                                data[type_delim:])
-                    except ValueError:
-                        type_trigger = data
-                        type_trigger_tail = None
-
-                    try:
-                        type, trigger = type_trigger.split(':')
-                    except ValueError:
-                        #XXX: Stupid event without a trigger, bacteria task
-                        raise AnnotationLineSyntaxError(ann_line)
-
-                    #if type_trigger_tail == ' ':
-                    #    args = []
-                    if type_trigger_tail is not None:
-                        args = [tuple(arg.split(':'))
-                                for arg in type_trigger_tail.split()]
-                    else:
-                        args = []
-
-                    self.add_annotation(EventAnnotation(
-                        trigger, args, id, type, data_tail))
-                elif id_pre == 'R':
-                    raise NotImplementedError
-                elif id_pre == 'M':
-                    type, target = data.split()
-                    self.add_annotation(ModifierAnnotation(
-                        target, id, type, data_tail))
-                elif id_pre == 'T' or id_pre == 'W':
-                    type, start_str, end_str = data.split(None, 3)
-                    # Abort if we have trailing values
-                    if any((c.isspace() for c in end_str)):
-                        raise AnnotationLineSyntaxError(ann_line)
-                    start, end = (int(start_str), int(end_str))
-                    #txt_file.seek(start)
-                    #text = txt_file.read(end - start)
-                    self.add_annotation(TextBoundAnnotation(
-                        start, end, id, type, data_tail))
-                elif id_pre == '#':
-                    type, target = data.split()
-                    self.add_annotation(OnelineCommentAnnotation(
-                        target, id, type, data_tail
-                        ))
-                else:
-                    #assert False, ann_line #XXX: REMOVE!
-                    raise AnnotationLineSyntaxError(ann_line)
-                    #assert False, 'No code to handle exception type'
-            except AnnotationLineSyntaxError, e:
-                #TODO: Print warning here, how do we print to console in a CGI?
-                # We could not parse the line, just add it as an unknown annotation
-                self.add_annotation(Annotation(e.line))
-
-    def __str__(self):
-        s = '\n'.join(str(ann).rstrip('\n') for ann in self)
-        return s if s[-1] == '\n' else s + '\n'
-
-    def __it__(self):
-        for ann in self._lines:
-            yield ann
-
-    def __getitem__(self, val):
-        try:
-            # First, try to use it as a slice object
-            return self._lines[val.start, val.stop, val.step]
-        except AttributeError:
-            # It appears not to be a slice object, try an index
-            return self._lines[val]
-
-    def __len__(self):
-        return len(self._lines)
-
-    def __in__(self, other):
-        pass
-
-#XXX: You are not using __init__ correctly!
-#TODO: No annotation annotation, for blank lines etc.?, no just annotation tail
-class Annotation(object):
-    def __init__(self, tail):
-        self.tail = tail
-
-    def __str__(self):
-        return self.tail
-    
-    def get_deps(self):
-        return (set(), set())
-
-
-class TypedAnnotation(Annotation):
-    def __init__(self, type, tail):
-        Annotation.__init__(self, tail)
-        self.type = type
-
-    def __str__(self):
-        raise NotImplementedError
-
-
-class IdedAnnotation(TypedAnnotation):
-    def __init__(self, id, type, tail):
-        TypedAnnotation.__init__(self, type, tail)
-        self.id = id
-
-    def __str__(self):
-        raise NotImplementedError
-
-
-class EventAnnotation(IdedAnnotation):
-    #TODO: It is not called target is it?
-    def __init__(self, trigger, args, id, type, tail):
-        IdedAnnotation.__init__(self, id, type, tail)
-        self.trigger = trigger
-        self.args = args
-
-    def __str__(self):
-        return '{id}\t{type}:{trigger} {args}{tail}'.format(
-                id=self.id,
-                type=self.type,
-                trigger=self.trigger,
-                args=' '.join([':'.join(arg_tup) for arg_tup in self.args]),
-                tail=self.tail
-                )
-
-    def get_deps(self):
-        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
-        hard_deps.add(self.trigger)
-        arg_ids = [arg_tup[1] for arg_tup in self.args]
-        if len(arg_ids) > 1:
-            for arg in arg_ids:
-                soft_deps.add(arg)
-        else:
-            for arg in arg_ids:
-                hard_deps.add(arg)
-        return (soft_deps, hard_deps)
-
-
-class EquivAnnotation(TypedAnnotation):
-    def __init__(self, type, entities, tail):
-        TypedAnnotation.__init__(self, type, tail)
-        self.entities = entities
-
-    def __in__(self, other):
-        return other in self.entities
-
-    def __str__(self):
-        return '*\t{type} {equivs}{tail}'.format(
-                type=self.type,
-                equivs=' '.join(self.entities),
-                tail=self.tail
-                )
-
-    def get_deps(self):
-        soft_deps, hard_deps = TypedAnnotation.get_deps(self)
-        if len(self.entities) > 2:
-            for ent in self.entities:
-                soft_deps.add(ent)
-        else:
-            for ent in self.entities:
-                hard_deps.add(ent)
-        return (soft_deps, hard_deps)
-
-
-class ModifierAnnotation(IdedAnnotation):
-    def __init__(self, target, id, type, tail):
-        IdedAnnotation.__init__(self, id, type, tail)
-        self.target = target
-        
-    def __str__(self):
-        return '{id}\t{type} {target}{tail}'.format(
-                id=self.id,
-                type=self.type,
-                target=self.target,
-                tail=self.tail
-                )
-
-    def get_deps(self):
-        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
-        hard_deps.add(self.target)
-        return (soft_deps, hard_deps)
-
-
-class OnelineCommentAnnotation(IdedAnnotation):
-    def __init__(self, target, id, type, tail):
-        IdedAnnotation.__init__(self, id, type, tail)
-        self.target = target
-        
-    def __str__(self):
-        return '{id}\t{type} {target}{tail}'.format(
-                id=self.id,
-                type=self.type,
-                target=self.target,
-                tail=self.tail
-                )
-
-    def get_deps(self):
-        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
-        hard_deps.add(self.target)
-        return (soft_deps, hard_deps)
-
-
-# NOTE: The actual text goes into the tail
-class TextBoundAnnotation(IdedAnnotation):
-    def __init__(self, start, end, id, type, tail):
-        IdedAnnotation.__init__(self, id, type, tail)
-        self.start = start
-        self.end = end
-
-    def __str__(self):
-        return '{id}\t{type} {start} {end}{tail}'.format(
-                id=self.id,
-                type=self.type,
-                start=self.start,
-                end=self.end,
-                tail=self.tail
-                )
-###
 
 def is_physical_entity_type(t):
     return t in physical_entity_types
@@ -648,17 +132,14 @@ def directories():
 def document_json(document):
     #TODO: DOC!
     #TODO: Shouldn't this print be in the end? Or even here?
-    print 'Content-Type: application/json\n'
     from_offset = 0
     to_offset = None
 
     #TODO: We don't check if the files exist, let's be more error friendly
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-    ann_file_path = document + '.' + ANN_FILE_SUFFIX
-
     # Read in the textual data to make it ready to push
-    with open(txt_file_path, 'rb') as text_file:
-        text = sub(r'\. ([A-Z])',r'.\n\1', text_file.read())
+    with open(document + '.' + TEXT_FILE_SUFFIX, 'rb') as text_file:
+        # TODO: replace this crude heuristic with proper sentence splitting
+        text = sub(r'(\. *) ([A-Z])',r'\1\n\2', text_file.read())
 
     # Dictionary to be converted into JSON
     # TODO: Make the names here and the ones in the Annotations object conform
@@ -676,66 +157,68 @@ def document_json(document):
     # if the basic annotation file does not exist, fall back
     # to reading from a set of separate ones (e.g. ".a1" and ".a2").
 
-    foundfiles = [document + '.'  + ext for ext in ('a1', 'a2')
-            #, 'co', 'rel')
-            if isfile(document+'.'+ext)]
+    with Annotations(document) as ann_obj:
+        # We collect trigger ids to be able to link the textbound later on
+        trigger_ids = set()
+        for event_ann in ann_obj.get_events():
+            trigger_ids.add(event_ann.trigger)
+            j_dic['events'].append(
+                    [str(event_ann.id), event_ann.trigger, event_ann.args]
+                    )
 
-    if isfile(ann_file_path):
-        ann_iter = open(ann_file_path, 'r')
-    elif foundfiles:
-        ann_iter = fileinput.input(foundfiles)
-    else:
-        ann_iter = []
+        for tb_ann in ann_obj.get_textbounds():
+            j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
 
-    ann_obj = Annotations(ann_iter)
+            # If we spotted it in the previous pass as a trigger for an
+            # event or if the type is known to be an event type, we add it
+            # as a json trigger.
+            if tb_ann.id in trigger_ids or is_event_type(tb_ann.type):
+                j_dic['triggers'].append(j_tb)
+            else: 
+                j_dic['entities'].append(j_tb)
 
-    # We collect trigger ids to be able to link the textbound later on
-    trigger_ids = set()
-    for event_ann in ann_obj.get_events():
-        trigger_ids.add(event_ann.trigger)
-        j_dic['events'].append(
-                [event_ann.id, event_ann.trigger, event_ann.args]
-                )
+        for eq_id, eq_ann in enumerate(ann_obj.get_equivs(), start=1):
+            j_dic['equivs'].append(
+                    (['*{}'.format(eq_id), eq_ann.type]
+                        + [e for e in eq_ann.entities])
+                    )
 
-    for tb_ann in ann_obj.get_textbounds():
-        j_tb = [tb_ann.id, tb_ann.type, tb_ann.start, tb_ann.end]
+        for mod_ann in ann_obj.get_modifers():
+            j_dic['modifications'].append(
+                    [str(mod_ann.id), mod_ann.type, mod_ann.target]
+                    )
 
-        # If we spotted it in the previous pass as a trigger for an
-        # event or if the type is known to be an event type, we add it
-        # as a json trigger.
-        if tb_ann.id in trigger_ids or is_event_type(tb_ann.type):
-            j_dic['triggers'].append(j_tb)
-        else: 
-            j_dic['entities'].append(j_tb)
+        for com_ann in ann_obj.get_oneline_comments():
+            j_dic['infos'].append(
+                    [com_ann.target, com_ann.type, com_ann.tail.strip()]
+                    )
 
-    for eq_id, eq_ann in enumerate(ann_obj.get_equivs(), start=1):
-        j_dic['equivs'].append(
-                (['*{}'.format(eq_id), eq_ann.type]
-                    + [e for e in eq_ann.entities])
-                )
+        if ann_obj.failed_lines:
+            j_dic['error'] = 'Unable to parse the following line(s):<br/>{}'.format(
+                    '\n<br/>\n'.join(
+                        ['{}: {}'.format(
+                            str(line_num - 1),
+                            str(ann_obj[line_num])
+                            ).strip()
+                        for line_num in ann_obj.failed_lines])
+                        )
+            j_dic['duration'] = len(ann_obj.failed_lines) * 3
+        else:
+            j_dic['error'] = None
 
-    for mod_ann in ann_obj.get_modifers():
-        j_dic['modifications'].append(
-                [mod_ann.id, mod_ann.type, mod_ann.target]
-                )
+        try:
+            issues = verify_annotation(ann_obj)
+        except Exception, e:
+            # TODO add an issue about the failure
+            issues = []
+            j_dic['error']    = 'Error: verify_annotation() failed: %s' % e
+            j_dic['duration'] = -1
 
-    for com_ann in ann_obj.get_oneline_comments():
-        j_dic['infos'].append(
-                [com_ann.target, com_ann.type, com_ann.tail.strip()]
-                )
+        for i in issues:
+            j_dic['infos'].append((str(i.ann_id), i.type, i.description))
 
-    j_dic['error'] = None
-
-    try:
-        issues = verify_annotation(ann_obj)
-    except Exception, e:
-        # TODO add an issue about the failure
-        issues = []
-
-    for i in issues:
-        j_dic['infos'].append((i.ann_id, i.type, i.description))
-
-    print dumps(j_dic, sort_keys=True, indent=2)
+        print 'Content-Type: application/json\n'
+        print dumps(j_dic, sort_keys=True, indent=2)
     
 def saveSVG(directory, document, svg):
     dir = '/'.join([BASE_DIR, 'svg', directory])
@@ -783,141 +266,238 @@ def arc_types_html(origin_type, target_type):
     print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
 
+
+#TODO: Couldn't we incorporate this nicely into the Annotations class?
+class LineModificationTracker(object):
+    def __init__(self):
+        self.added = []
+        self.changed = []
+        self.deleted = []
+
+    def __len__(self):
+        return len(self.added) + len(self.changed) + len(self.deleted)
+
+    def change(self, before, after):
+        self.changed.append(
+                '\t{}\n<br/>\n\tInto:\n<br/>\t{}'.format(before, after))
+
+    def json_response(self, response=None):
+        if response is None:
+            response = {}
+
+        msg_str = ''
+        if self.added:
+            msg_str += ('Added the following line(s):\n<br/>'
+                    + '\n<br/>\n'.join([str(a) for a in self.added]))
+        if self.changed:
+            msg_str += ('Changed the following line(s):\n<br/>'
+                    + '\n<br/>\n'.join([str(a) for a in self.changed]))
+        if self.deleted:
+            msg_str += ('Deleted the following line(s):\n<br/>'
+                    + '\n<br/>\n'.join([str(a) for a in self.deleted]))
+        if msg_str:
+            response['message'] = msg_str
+            response['duration'] = 3 * len(self)
+        else:
+            response['message'] = 'No changes made'
+        return response
+
+
+#TODO: ONLY determine what action to take! Delegate to Annotations!
 def save_span(document, start_str, end_str, type, negation, speculation, id):
     #TODO: Handle the case when negation and speculation both are positive
     # if id present: edit
     # if spanfrom and spanto present, new
     #XXX: Negation, speculation not done!
-    ann_file_path = document + '.' + ANN_FILE_SUFFIX
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    with open(ann_file_path) as ann_file:
-        ann_obj = Annotations(ann_file)
-    if id is not None:
-        #TODO: Handle failure to find!
-        ann = ann_obj.get_ann_by_id(id)
-        
-        # We can't update start end as it is, read more below
-        """
-        if start != ann.start or end != ann.end:
-            '''
-            This scenario has been discussed and changing the span inevitably
-            leads to the text span being out of sync since we can't for sure
-            determine where in the data format the text (if at all) it is
-            stored. For now we will fail loudly here.
-            '''
-            assert False, 'unable to change the span of an existing textual annotation'
+    with Annotations(document) as ann_obj:
+        mods = LineModificationTracker()
 
-        ann.start = start
-        ann.end = end
-        """
-        ann.type = type
-
-        # Here we assume that there is at most one of each in the file, this can be wrong
-        seen_spec = None
-        seen_neg = None
-        for other_ann in ann_obj:
+        if id is not None:
+            #TODO: Handle failure to find!
+            ann = ann_obj.get_ann_by_id(id)
+            
+            # Hack to support event annotations
             try:
-                if other_ann.target == ann.id:
-                    if other_ann.type == 'Speculation': #XXX: Cons
-                        seen_spec = other_ann
-                    if other_ann.type == 'Negation': #XXX: Cons
-                        seen_neg = other_ann
+                if int(start_str) != ann.start or int(end_str) != ann.end:
+                    # This scenario has been discussed and changing the span inevitably
+                    # leads to the text span being out of sync since we can't for sure
+                    # determine where in the data format the text (if at all) it is
+                    # stored. For now we will fail loudly here.
+                    print 'Content-Type: application/json\n'
+                    error = 'unable to change the span of an existing annotation'
+                    print dumps({ 'error': error }, sort_keys=True, indent=2)
+                    # Not sure if we only get an internal server error or the data
+                    # will actually reach the client to be displayed.
+                    assert False, error
+                    
+                    # Span changes are as of yet unsupported
+                    #ann.start = start
+                    #ann.end = end
             except AttributeError:
+                 # It is most likely an event annotion
                 pass
-        # Is the attribute set and none existing? Add.
-        if speculation and seen_spec is None:
-            spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-            spec_mod = ModifierAnnotation(ann.id, spec_mod_id, 'Speculation', '') #XXX: Cons
-            ann_obj.add_annotation(spec_mod)
-        if negation and seen_neg is None:
-            neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-            neg_mod = ModifierAnnotation(ann.id, neg_mod_id, 'Negation', '') #XXX: Cons
-            ann_obj.add_annotation(neg_mod)
-        # Is the attribute unset and one existing? Erase.
-        if not speculation and seen_spec is not None:
-            try:
-                ann_obj.del_annotation(seen_spec)
-            except DependingAnntotionDeleteError:
-                assert False, 'Dependant attached to speculation'
-        if not negation and seen_neg is not None:
-            try:
-                ann_obj.del_annotation(seen_neg)
-            except DependingAnntotionDeleteError:
-                assert False, 'Dependant attached to negation'
 
-        # It could be the case that the span is involved in event(s), if so, 
-        # the type of that event is changed
-        #TODO:
-    else:
-        start = int(start_str)
-        end = int(end_str)
+            if ann.type != type:
+                before = str(ann)
+                ann.type = type
+                mods.change(before, ann)
 
-        # Get a new ID
-        new_id = ann_obj.get_new_id('T') #XXX: Cons
-        # Get the text span
-        with open(txt_file_path, 'r') as txt_file:
-            txt_file.seek(start)
-            text = txt_file.read(end - start)
-    
-        #TODO: Data tail should be optional
-        ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
-        ann_obj.add_annotation(ann)
+                # Try to propagate the type change
+                try:
+                    #XXX: We don't take into consideration other anns with the
+                    # same trigger here!
+                    ann_trig = ann_obj.get_ann_by_id(ann.trigger)
+                    if ann_trig.type != ann.type:
+                        before = str(ann_trig)
+                        ann_trig.type = ann.type
+                        mods.change(before, ann_trig)
+                except AttributeError:
+                    # It was most likely a TextBound entity
+                    pass
 
-        if is_physical_entity_type(type):
-            # TODO: alert that negation / speculation are ignored if set
-            pass
-        else:
-            # Create the event also
-            new_event_id = ann_obj.get_new_id('E') #XXX: Cons
-            event = EventAnnotation(ann.id, [], new_event_id, type, '')
-            ann_obj.add_annotation(event)
-
-            # TODO: use an existing identical textbound for the trigger
-            # if one exists, don't dup            
-
-            if speculation:
+            # Here we assume that there is at most one of each in the file, this can be wrong
+            seen_spec = None
+            seen_neg = None
+            for other_ann in ann_obj:
+                try:
+                    if other_ann.target == ann.id:
+                        if other_ann.type == 'Speculation': #XXX: Cons
+                            seen_spec = other_ann
+                        if other_ann.type == 'Negation': #XXX: Cons
+                            seen_neg = other_ann
+                except AttributeError:
+                    pass
+            # Is the attribute set and none existing? Add.
+            if speculation and seen_spec is None:
                 spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
+                spec_mod = ModifierAnnotation(ann.id, spec_mod_id, 'Speculation', '') #XXX: Cons
                 ann_obj.add_annotation(spec_mod)
-            else:
-                neg_mod = None
-            if negation:
+                mods.added.append(spec_mod)
+            if negation and seen_neg is None:
                 neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
+                neg_mod = ModifierAnnotation(ann.id, neg_mod_id, 'Negation', '') #XXX: Cons
                 ann_obj.add_annotation(neg_mod)
+                mods.added.append(neg_mod)
+            # Is the attribute unset and one existing? Erase.
+            if not speculation and seen_spec is not None:
+                try:
+                    ann_obj.del_annotation(seen_spec)
+                    mods.deleted.append(seen_spec)
+                except DependingAnnotationDeleteError:
+                    assert False, 'Dependant attached to speculation'
+            if not negation and seen_neg is not None:
+                try:
+                    ann_obj.del_annotation(seen_neg)
+                    mods.deleted.append(seen_neg)
+                except DependingAnnotationDeleteError:
+                    assert False, 'Dependant attached to negation'
+
+            # It could be the case that the span is involved in event(s), if so, 
+            # the type of that event is changed
+            #TODO:
+        else:
+            start = int(start_str)
+            end = int(end_str)
+
+            # Before we add a new trigger, does it already exist?
+            found = None
+            for tb_ann in ann_obj.get_textbounds():
+                try:
+                    if (tb_ann.start == start and tb_ann.end == end
+                            and tb_ann.type == type):
+                        found = tb_ann
+                        break
+                except AttributeError:
+                    # Not a trigger then
+                    pass
+
+            if found is None:
+                # Get a new ID
+                new_id = ann_obj.get_new_id('T') #XXX: Cons
+                # Get the text span
+                with open(txt_file_path, 'r') as txt_file:
+                    txt_file.seek(start)
+                    text = txt_file.read(end - start)
+                        
+                #TODO: Data tail should be optional
+                ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
+                ann_obj.add_annotation(ann)
+                mods.added.append(ann)
             else:
-                neg_mod = None
+                ann = found
 
-    # TODO remove this later
-    # print 'Content-Type: text/html\n'
-    # print 'save_span:', document, start_str, end_str, type, negation, speculation, id
-    
-    # print 'Resulting line:', ann
+            if is_physical_entity_type(type):
+                # TODO: alert that negation / speculation are ignored if set
+                pass
+            else:
+                # Create the event also
+                new_event_id = ann_obj.get_new_id('E') #XXX: Cons
+                event = EventAnnotation(ann.id, [], new_event_id, type, '')
+                ann_obj.add_annotation(event)
+                mods.added.append(event)
 
-    with open(ann_file_path, 'w') as ann_file:
-        ann_file.write(str(ann_obj))
+                # TODO: use an existing identical textbound for the trigger
+                # if one exists, don't dup            
 
-    # response = { 'message': 'Annotation:<br/>%s' % ann, 'duration': 3 }
-    response = { 'error': 'Annotation:<br/>%s' % ann }
-    print 'Content-Type: application/json\n'
-    print dumps(response, sort_keys=True, indent=2)
+                if speculation:
+                    spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                    spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
+                    ann_obj.add_annotation(spec_mod)
+                    mods.added.append(spec_mod)
+                else:
+                    neg_mod = None
+                if negation:
+                    neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                    neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
+                    ann_obj.add_annotation(neg_mod)
+                    mods.added.append(neg_mod)
+                else:
+                    neg_mod = None
 
-def save_arc(document, origin, target, type):
-    ann_file_path = document + '.' + ANN_FILE_SUFFIX
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+        print 'Content-Type: application/json\n'
+        print dumps(mods.json_response(), sort_keys=True, indent=2)
 
-    with open(ann_file_path) as ann_file:
-        ann_obj = Annotations(ann_file)
+# XXX: This didn't really look as pretty as planned
+# TODO: Prettify the decorator to preserve signature
+def _annotations_decorator(doc_index_in_args, id_indexes=None):
+    '''
+    Decorate a function to convert the document path for a given path to an
+    Annotations object upon calling. Also allows the look-up of ids turning
+    them into actual annotations.
 
+    TODO: Extensive doc
+    TODO: Also raises annotation not found.
+    '''
+    def dec(func):
+        def _func(*args):
+            from copy import copy
+            document = args[doc_index_in_args]
+            with Annotations(document) as ann_obj:
+                # We only need a shallow copy
+                new_args = list(copy(args))
+                new_args[doc_index_in_args] = ann_obj
+                if id_indexes is not None:
+                    for i in id_indexes:
+                        new_args[i] = ann_obj.get_ann_by_id(args[i])
+                return func(*new_args)
+        return _func
+    return dec
+           
+#TODO: Should determine which step to call next
+@_annotations_decorator(0, [1, 2])
+def save_arc(ann_obj, origin, target, type):
+    mods = LineModificationTracker()
+   
     # Ugly check, but we really get no other information
     if type != 'Equiv':
-        target_ann = ann_obj.get_ann_by_id(target)
         try:
-            orig_ann = ann_obj.get_ann_by_id(origin)
-            arg_tup = (type, target_ann.id)
-            if arg_tup not in orig_ann.args:
-                orig_ann.args.append(arg_tup)
+            arg_tup = (type, str(target.id))
+            if arg_tup not in origin.args:
+                before = str(origin)
+                origin.args.append(arg_tup)
+                mods.change(before, origin)
             else:
                 # It already existed as an arg, we were called to do nothing...
                 pass
@@ -925,105 +505,128 @@ def save_arc(document, origin, target, type):
             # The annotation did not have args, it was most likely an entity
             # thus we need to create a new Event...
             new_id = ann_obj.get_new_id('E')
-            ann_obj.add_annotation(
-                    EventAnnotation(
-                        origin,
+            ann = EventAnnotation(
+                        origin.id,
                         [arg_tup],
                         new_id,
-                        orig_ann.type,
+                        origin.type,
                         ''
-                        ))
+                        )
+            ann_obj.add_annotation(ann)
+            mods.added.append(ann)
     else:
         # It is an Equiv
-        ann_obj.add_annotation(EquivAnnotation(type, [origin, target], ''))
+        ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
+        ann_obj.add_annotation(ann)
+        mods.added.append(ann)
 
-    print 'Content-Type: text/html\n'
-    print 'Added', document, origin, target, type
-  
-    #XXX: Convert the string, THEN write or you cock up the file, blanking it
-    with open(ann_file_path, 'w') as ann_file:
-        ann_file.write(str(ann_obj))
-
-def delete_span(document, id):
-    ann_file_path = document + '.' + ANN_FILE_SUFFIX
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-
-    with open(ann_file_path) as ann_file:
-        ann_obj = Annotations(ann_file)
+    print 'Content-Type: application/json\n'
+    print dumps(mods.json_response(), sort_keys=True, indent=2)
     
-    #TODO: Handle a failure to find it
-    #XXX: Slow, O(2N)
-    ann = ann_obj.get_ann_by_id(id)
-    try:
-        ann_obj.del_annotation(ann)
-    except DependingAnntotionDeleteError, e:
-        print 'Content-Type: application/json\n'
-        print dumps(e.json_error_response(), sort_keys=True, indent=2)
-        return
-
-    #TODO: Handle consequences of removal, should be in the object
-
-    print 'Content-Type: text/html\n'
-    print 'Deleted', document, id # TODO do something with it
-
-    with open(ann_file_path, 'w') as ann_file:
-        ann_file.write(str(ann_obj))
-
-def delete_arc(document, origin, target, type):
-    ann_file_path = document + '.' + ANN_FILE_SUFFIX
+#TODO: ONLY determine what action to take! Delegate to Annotations!
+def delete_span(document, id):
+    id = AnnotationId(id)
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    with open(ann_file_path) as ann_file:
-        ann_obj = Annotations(ann_file)
-
-    # This can be an event or an equiv
-
-    print 'Content-Type: text/html\n'
-    #TODO: Check for None!
-    try:
-        event_ann = ann_obj.get_ann_by_id(origin)
-        # Try if it is an event
-        arg_tup = (type, target)
-        #print arg_tup
-        #print orig_ann.args
-        if arg_tup in event_ann.args:
-            event_ann.args.remove(arg_tup)
-            if not event_ann.args:
-                # It was the last argument tuple, remove it all
+    with Annotations(document) as ann_obj:
+        mods = LineModificationTracker()
+        
+        #TODO: Handle a failure to find it
+        #XXX: Slow, O(2N)
+        ann = ann_obj.get_ann_by_id(id)
+        try:
+            ann_obj.del_annotation(ann)
+            mods.deleted.append(ann)
+            try:
+                #TODO: Why do we need this conversion? Isn't it an id?
+                trig = ann_obj.get_ann_by_id(AnnotationId(ann.trigger))
                 try:
-                    ann_obj.del_annotation(event_ann)
-                except DependingAnntotionDeleteError, e:
-                    print 'Content-Type: application/json\n'
-                    print dumps(e.json_error_response(), sort_keys=True, indent=2)
-                    return
-        else:
-            # What we were to remove did not even exist in the first place
-            pass
+                    ann_obj.del_annotation(trig)
+                    mods.deleted.append(trig)
+                    
+                    # We can't do this at this stage, to be removed before ann
+                    '''
+                    for mod_ann in ann_obj.get_modifers():
+                        if mod_ann.target == ann.id:
+                            try:
+                                ann_obj.del_annotation(trig)
+                                mods.deleted.append(trig)
+                            except DependingAnnotationDeleteError:
+                                assert False, 'insane'
+                    '''
+                except DependingAnnotationDeleteError:
+                    # Someone else depended on that trigger
+                    pass
+            except AttributeError:
+                pass
+        except DependingAnnotationDeleteError, e:
+            print 'Content-Type: application/json\n'
+            print dumps(e.json_error_response(), sort_keys=True, indent=2)
+            return
 
-    except AttributeError:
-        # It is an equiv then?
-        #XXX: Slow hack! Should have a better accessor! O(eq_ann)
+        print 'Content-Type: application/json\n'
+        print dumps(mods.json_response(), sort_keys=True, indent=2)
+
+#TODO: ONLY determine what action to take! Delegate to Annotations!
+def delete_arc(document, origin, target, type):
+    origin = AnnotationId(origin)
+    target = AnnotationId(target)
+    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+
+    with Annotations(document) as ann_obj:
+        mods = LineModificationTracker()
+
+        # This can be an event or an equiv
+        #TODO: Check for None!
+        try:
+            event_ann = ann_obj.get_ann_by_id(origin)
+            # Try if it is an event
+            arg_tup = (type, str(target))
+            if arg_tup in event_ann.args:
+                before = str(event_ann)
+                event_ann.args.remove(arg_tup)
+                mods.change(before, event_ann)
+
+                '''
+                if not event_ann.args:
+                    # It was the last argument tuple, remove it all
+                    try:
+                        ann_obj.del_annotation(event_ann)
+                        mods.deleted.append(event_ann)
+                    except DependingAnnotationDeleteError, e:
+                        print 'Content-Type: application/json\n'
+                        print dumps(e.json_error_response(), sort_keys=True, indent=2)
+                        return
+                '''
+            else:
+                # What we were to remove did not even exist in the first place
+                pass
+
+        except AttributeError:
+            # It is an equiv then?
+            #XXX: Slow hack! Should have a better accessor! O(eq_ann)
             for eq_ann in ann_obj.get_equivs():
                 # We don't assume that the ids only occur in one Equiv, we
                 # keep on going since the data "could" be corrupted
-                if origin in eq_ann.entities and target in eq_ann.entities:
-                    eq_ann.entities.remove(origin)
-                    eq_ann.entities.remove(target)
+                if (str(origin) in eq_ann.entities
+                        and str(target) in eq_ann.entities):
+                    before = str(eq_ann)
+                    eq_ann.entities.remove(str(origin))
+                    eq_ann.entities.remove(str(target))
+                    mods.change(before, eq_ann)
 
                 if len(eq_ann.entities) < 2:
                     # We need to delete this one
                     try:
                         ann_obj.del_annotation(eq_ann)
-                    except DependingAnntotionDeleteError, e:
+                        mods.deleted.append(eq_ann)
+                    except DependingAnnotationDeleteError, e:
                         print 'Content-Type: application/json\n'
                         print dumps(e.json_error_response(), sort_keys=True, indent=2)
                         return
 
-
-    print 'Deleted', document, origin, target, type
-    
-    with open(ann_file_path, 'w') as ann_file:
-        ann_file.write(str(ann_obj))
+        print 'Content-Type: application/json\n'
+        print dumps(mods.json_response(), sort_keys=True, indent=2)
 
 class InvalidAuthException(Exception):
     pass
@@ -1123,6 +726,7 @@ def main():
             docpath = join_path(real_directory, document)
             span = params.getvalue('span')
 
+            #XXX: Calls to save and delete can raise AnnotationNotFoundError
             if action == 'span':
                 save_span(docpath,
                         params.getvalue('from'),
@@ -1186,7 +790,6 @@ def debug():
     #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann')
     #print a
 
-    '''
     args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
         'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
         '59',
@@ -1197,6 +800,13 @@ def debug():
         None
         )
     save_span(*args)
+
+    '''
+    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
+        'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
+        'T31',
+        )
+    delete_span(*args)
     '''
 
     args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
@@ -1206,7 +816,16 @@ def debug():
         'Equiv',
         )
     save_arc(*args)
-    #def save_arc(document, origin, target, type, equiv):
+    
+    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
+        'BioNLP-ST_2011_Epi_and_PTM_development_data/PMID-10086714'),
+        'E2',
+        'T10',
+        'Theme',
+        )
+    save_arc(*args)
+    delete_arc(*args)
+
 
 if __name__ == '__main__':
     from sys import argv

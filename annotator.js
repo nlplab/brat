@@ -33,6 +33,16 @@ var displayInfo = function(html, evt) {
     }
 }
 
+var displayMessagesAndCheckForErrors = function(response) {
+    if (response.message) {
+      displayMessage(response.message, false, response.duration);
+    } else if (response.error) {
+      displayMessage(response.error, true, response.duration);
+      return false;
+    }
+    return true;
+}
+
 // SVG Annotation tool
 var Annotator = function(containerElement, onStart) {
   // settings
@@ -390,13 +400,21 @@ var Annotator = function(containerElement, onStart) {
     }
   };
   
-  var keyDown = function(evt) {
-    if (evt.keyCode == 27) {
-      // HERE
+  var keyDown = function(evt) {    
+    var hideAllForms = function() {
       $('#message').css('display', 'none');
       $('#span_form').css('display', 'none');
       $('#arc_form').css('display', 'none');
       $('#auth_form').css('display', 'none');
+    }
+
+    if (evt.keyCode == 27) { // ("Esc")
+      // HERE
+      hideAllForms();
+      return false;
+    } else if (evt.keyCode == 68) { // ("d") TODO: avoid magic numbers
+      hideAllForms();
+      // TODO: if span form is open, perform "delete"
       return false;
     }
   };
@@ -465,7 +483,7 @@ var Annotator = function(containerElement, onStart) {
     });
     $.each(data.modifications, function(modNo, mod) {
       if (!data.spans[mod[2]]) {
-        displayMessage('<strong>ERROR</strong><br/>The trigger ' + mod[2] + ' (referenced from ' + mod[0] + ') does not occur in document ' + data.document, true);
+        displayMessage('<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', true, 5);
         throw "BadDocumentError";
       }
       data.spans[mod[2]][mod[1]] = true;
@@ -571,14 +589,15 @@ var Annotator = function(containerElement, onStart) {
       var dist = 0;
       var origin = data.spans[eventDesc.id];
       if (!origin.chunk) {
-        displayMessage('<strong>ERROR</strong><br/>Trigger "' + eventDesc.id + '" not found in ' + data.document, true);
+	// TODO: include missing trigger ID in error message
+        displayMessage('<strong>ERROR</strong><br/>Trigger for event "' + eventDesc.id + '" not found in ' + data.document + '<br/>(please correct the source data)', true, 5);
         throw "BadDocumentError";
       }
       var here = origin.chunk.index;
       $.each(eventDesc.roles, function(roleNo, role) {
         var target = data.spans[role.targetId];
         if (!target) {
-          displayMessage('<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + eventDesc.id + '") not found in ' + data.document, true);
+          displayMessage('<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + eventDesc.id + '") not found in ' + data.document + '<br/>(please correct the source data)', true, 5);
           throw "BadDocumentError";
         }
         var there = target.chunk.index;
@@ -1526,6 +1545,7 @@ $(function() {
             displayMessage('<strong>ERROR</strong><br/>No JSON data', true);
             return;
           }
+          displayMessagesAndCheckForErrors(jsonData);
           jsonData.document = _doc;
           annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
@@ -1556,12 +1576,9 @@ $(function() {
         },
         success: function(response) {
           lastHash = null; // force reload
-          if (response.message) {
-            displayMessage(response.message, false, response.duration);
-          } else if (response.error) {
-            displayMessage(response.error, true, response.duration);
+          if (displayMessagesAndCheckForErrors(response)) {
+            renderDocument(_doc);
           }
-          renderDocument(_doc);
         }
       });
       annotator.ajaxOptions = null;
