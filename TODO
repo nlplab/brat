@@ -9,6 +9,17 @@ git the data
 CLIENT:
 error handling
 
+CLIENT:
+put forms near cursor
+
+CLIENT:
+form entry
+    accelerator keys
+    remove free entry
+
+CLIENT:
+displayMessage with multiple messages
+
 recursive delete
     confirmation?
 
