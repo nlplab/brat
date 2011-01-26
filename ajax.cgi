@@ -341,64 +341,71 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
                 pass
 
             if ann.type != type:
-                before = str(ann)
-                ann.type = type
+                if ((is_event_type(ann.type)
+                    and is_physical_entity_type(type))
+                    or
+                    (is_physical_entity_type(ann.type)
+                        and is_event_type(type))):
+                        # XXX: We don't allow this! Warn!
+                        pass
+                else:
+                    before = str(ann)
+                    ann.type = type
 
-                # Try to propagate the type change
-                try:
-                    #XXX: We don't take into consideration other anns with the
-                    # same trigger here!
-                    ann_trig = ann_obj.get_ann_by_id(ann.trigger)
-                    if ann_trig.type != ann.type:
-                        # At this stage we need to determine if someone else
-                        # is using the same trigger
-                        if any((event_ann
-                            for event_ann in ann_obj.get_events()
-                            if (event_ann.trigger == ann.trigger
-                                    and event_ann != ann))):
-                            # Someone else is using it, create a new one
-                            from copy import copy
-                            # A shallow copy should be enough
-                            new_ann_trig = copy(ann_trig)
-                            # It needs a new id
-                            new_ann_trig.id = ann_obj.get_new_id('T')
-                            # And we will change the type
-                            new_ann_trig.type = ann.type
-                            # Update the old annotation to use this trigger
-                            ann.trigger = str(new_ann_trig.id)
-                            ann_obj.add_annotation(new_ann_trig)
-                            mods.added.append(new_ann_trig)
-                        else:
-                            # Okay, we own the current trigger, but does an
-                            # identical to our sought one already exist?
-                            found = None
-                            for tb_ann in ann_obj.get_textbounds():
-                                if (tb_ann.start == ann_trig.start
-                                        and tb_ann.end == ann_trig.end
-                                        and tb_ann.type == ann.type):
-                                    found = tb_ann
-                                    break
-
-                            if found is None:
-                                # Just change the trigger type since we are the
-                                # only users
-
-                                before = str(ann_trig)
-                                ann_trig.type = ann.type
-                                mods.change(before, ann_trig)
+                    # Try to propagate the type change
+                    try:
+                        #XXX: We don't take into consideration other anns with the
+                        # same trigger here!
+                        ann_trig = ann_obj.get_ann_by_id(ann.trigger)
+                        if ann_trig.type != ann.type:
+                            # At this stage we need to determine if someone else
+                            # is using the same trigger
+                            if any((event_ann
+                                for event_ann in ann_obj.get_events()
+                                if (event_ann.trigger == ann.trigger
+                                        and event_ann != ann))):
+                                # Someone else is using it, create a new one
+                                from copy import copy
+                                # A shallow copy should be enough
+                                new_ann_trig = copy(ann_trig)
+                                # It needs a new id
+                                new_ann_trig.id = ann_obj.get_new_id('T')
+                                # And we will change the type
+                                new_ann_trig.type = ann.type
+                                # Update the old annotation to use this trigger
+                                ann.trigger = str(new_ann_trig.id)
+                                ann_obj.add_annotation(new_ann_trig)
+                                mods.added.append(new_ann_trig)
                             else:
-                                # Attach the new trigger THEN delete
-                                # or the dep will hit you
-                                ann.trigger = str(found.id)
-                                ann_obj.del_annotation(ann_trig)
-                                mods.deleted.append(ann_trig)
-                except AttributeError:
-                    # It was most likely a TextBound entity
-                    pass
+                                # Okay, we own the current trigger, but does an
+                                # identical to our sought one already exist?
+                                found = None
+                                for tb_ann in ann_obj.get_textbounds():
+                                    if (tb_ann.start == ann_trig.start
+                                            and tb_ann.end == ann_trig.end
+                                            and tb_ann.type == ann.type):
+                                        found = tb_ann
+                                        break
 
-                # Finally remember the change
-                mods.change(before, ann)
+                                if found is None:
+                                    # Just change the trigger type since we are the
+                                    # only users
 
+                                    before = str(ann_trig)
+                                    ann_trig.type = ann.type
+                                    mods.change(before, ann_trig)
+                                else:
+                                    # Attach the new trigger THEN delete
+                                    # or the dep will hit you
+                                    ann.trigger = str(found.id)
+                                    ann_obj.del_annotation(ann_trig)
+                                    mods.deleted.append(ann_trig)
+                    except AttributeError:
+                        # It was most likely a TextBound entity
+                        pass
+
+                    # Finally remember the change
+                    mods.change(before, ann)
             # Here we assume that there is at most one of each in the file, this can be wrong
             seen_spec = None
             seen_neg = None
