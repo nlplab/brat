@@ -118,21 +118,36 @@ def verify_annotation(ann_obj):
 #         for a1, a2 in overlapping:
 #             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap another entity (%s) of the same type" % (a1.type, a2.id)))
 
-    # check for events missing mandatory arguments
-    for e in ann_obj.get_events():
-        found_args = {}
-        found_nonum_args = {}
+    def event_nonum_args(e):
+        # returns event arguments without trailing numbers
+        # (e.g. "Theme1")
+        nna = {}
         for arg, aid in e.args:
-            found_args[arg] = True
-            # remove trailing numbers (e.g. "Theme1") if any for check 
             m = re.match(r'^(.*?)\d*$', arg)
             if m:
-                found_nonum_args[m.group(1)] = True
-            
+                nna[m.group(1)] = True
+            else:
+                # should never happen
+                nna[arg] = True
+        return nna.keys()
+
+    # check for events missing mandatory arguments
+    for e in ann_obj.get_events():
+        found_nonum_args = event_nonum_args(e)
         # TODO: don't hard-code what Themes are required for
         if "Theme" not in found_nonum_args and e.type != "Process":
             issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "Theme required for event"))
 
+    # check for event with disallowed arguments
+    for e in ann_obj.get_events():
+        allowed = annspec.event_argument_types.get(e.type, annspec.event_argument_types["default"])
+        for a in event_nonum_args(e):
+            if a not in allowed:
+                issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take a %s argument" % (e.type, a)))
+            else:
+                # TODO: check type of referenced entity / event
+                pass
+    
     return issues
 
 def main(argv=None):
