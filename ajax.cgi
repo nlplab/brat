@@ -516,7 +516,7 @@ def save_arc(ann_obj, origin, target, type):
             mods.added.append(ann)
     else:
         # It is an Equiv
-        ann = EquivAnnotation(type, [origin, target], '')
+        ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
         ann_obj.add_annotation(ann)
         mods.added.append(ann)
 
