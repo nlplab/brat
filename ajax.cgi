@@ -404,7 +404,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
             seen_neg = None
             for other_ann in ann_obj:
                 try:
-                    if other_ann.target == ann.id:
+                    if other_ann.target == str(ann.id):
                         if other_ann.type == 'Speculation': #XXX: Cons
                             seen_spec = other_ann
                         if other_ann.type == 'Negation': #XXX: Cons
