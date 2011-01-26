@@ -298,15 +298,15 @@ var Annotator = function(containerElement, onStart) {
         id: id,
       };
       $('#span_selected').text('"'+data.text.substring(span.from, span.to)+'"');
+      $('#span_mod_Negation')[0].checked = span.Negation;
+      $('#span_mod_Speculation')[0].checked = span.Speculation;
       $('#del_span_button').css('display', 'inline');
-      $('#span_form').css('display', 'block');
       var el = $('#span_' + span.type);
       if (el.length) {
         el[0].checked = true;
-      } else {
-        $('#span_free_text').val(span.type);
-        $('#span_free_entry')[0].checked = true;
       }
+      $('#span_form').css('display', 'block');
+      $('#span_form input:submit').focus();
     }
   };
 
@@ -395,7 +395,10 @@ var Annotator = function(containerElement, onStart) {
         };
         $('#span_selected').text('"'+data.text.substring(selectedFrom, selectedTo)+'"');
         $('#del_span_button').css('display', 'none');
+        $('#span_mod_Negation')[0].checked = false;
+        $('#span_mod_Speculation')[0].checked = false;
         $('#span_form').css('display', 'block');
+        $('#span_form input:submit').focus();
       }
     }
   };
@@ -1653,7 +1656,6 @@ $(function() {
     var spanFormSubmit = function(evt) {
       spanForm.css('display', 'none');
       var type = $('#span_form input:radio:checked').val();
-      if (!type) type = $('#span_free_text').val();
       if (type) { // (if not cancelled)
         annotator.ajaxOptions.type = type;
         annotator.ajaxOptions.negation = $('#span_mod_Negation')[0].checked;
@@ -1667,7 +1669,7 @@ $(function() {
       bind('reset', function(evt) {
         spanForm.css('display', 'none');
       });
-    spanForm.find('input:radio').not('#span_free_entry').click(spanFormSubmit);
+    spanForm.find('input:radio').click(spanFormSubmit);
     $('#del_span_button').click(annotator.deleteSpan);
 
     var arcSubmit = function(type) {
@@ -1677,7 +1679,6 @@ $(function() {
     var arcFormSubmit = function(evt) {
       arcForm.css('display', 'none');
       var type = $('#arc_form input:radio:checked').val();
-      if (!type) type = $('#arc_free_text').val();
       if (type) { // (if not cancelled)
         arcSubmit(type);
       }
@@ -1700,30 +1701,44 @@ $(function() {
 	  //console.log(jsonData.message);
 	}
 	if(jsonData.types && jsonData.types.length != 0) {
+          var accesskeys = {};
 	  $.each(jsonData.types, function(fieldsetNo, fieldset) {
 	    markup.push('<fieldset>');
 	    markup.push('<legend>' + fieldset[0] + '</legend>');
 	    $.each(fieldset[1], function(roleNo, role) {
-	      markup.push('<input name="arc_type" id="arc_' + role + '" type="radio" value="' + role + '"/>');
-	      markup.push('<label for="arc_' + role + '">' + role + '</label> ');
+              var acesskey = '';
+              var roleLen = role.length;
+              $.each(role.toLowerCase(), function(letterNo, letter) {
+                if (!accesskeys[letter]) {
+                  accesskeys[accesskey = letter] = true;
+                  return false;
+                }
+              });
+              var roleText = role;
+              if (accesskey) {
+                roleText = role.replace(accesskey, '<span class="accesskey">' + accesskey + '</span>');
+                accesskey = accesskey.toUpperCase();
+                roleText = role.replace(accesskey, '<span class="accesskey">' + accesskey + '</span>');
+                accesskey = ' accesskey="' + accesskey + '"';
+              }
+	      markup.push('<input name="arc_type" id="arc_' + role + '" type="radio" value="' + role + '"' + accesskey + '/>');
+	      markup.push('<label for="arc_' + role + '">' + roleText + '</label> ');
 	    });
 	    markup.push('</fieldset>');
 	  });
 	  markup = markup.join('');
 	  $('#arc_roles').html(markup);
-	  var el = $('#arc_' + arcType);
+	  var el = $(arcType ? '#arc_' + arcType : '#arc_form input:radio:first');
 	  if (el.length) {
 	    el[0].checked = true;
-	  } else {
-	    $('#arc_free_text').val(arcType);
-	    $('#arc_free_entry')[0].checked = true;
 	  }
 	  arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
 	  $('#arc_form').css('display', 'block');
+          $('#arc_form input:submit').focus();
 	}
       });
     };
-    arcForm.find('input:radio').not('#arc_free_entry').click(arcFormSubmit);
+    arcForm.find('input:radio').click(arcFormSubmit);
     $('#del_arc_button').click(annotator.deleteArc);
 
     var authFormSubmit = function(evt) {

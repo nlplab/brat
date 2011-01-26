@@ -296,6 +296,10 @@ path {
 fieldset {
   border: 1px solid #999999;
 }
+.accesskey {
+  text-decoration: underline;
+}
+
 
 .shadow {
   -moz-box-shadow: 5px 5px 5px #aaaaaa;
