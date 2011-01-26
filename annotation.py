@@ -315,10 +315,12 @@ class Annotations(object):
         annotation.
         '''
         #XXX: We have changed this one radically!
-        from random import randint
-        while True:
-            #XXX: Arbitary constant!
-            suggestion = prefix + str(randint(1, 2**12))
+        #XXX: Stupid and linear
+        if suffix is None:
+            suffix = ''
+        #XXX: Arbitary constant!
+        for suggestion in (AnnotationId(prefix + str(i) + suffix)
+                for i in xrange(1, 2**32)):
             if not suggestion in self._ann_by_id:
                 return suggestion
 
