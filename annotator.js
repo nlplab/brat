@@ -400,13 +400,21 @@ var Annotator = function(containerElement, onStart) {
     }
   };
   
-  var keyDown = function(evt) {
-    if (evt.keyCode == 27) {
-      // HERE
+  var keyDown = function(evt) {    
+    var hideAllForms = function() {
       $('#message').css('display', 'none');
       $('#span_form').css('display', 'none');
       $('#arc_form').css('display', 'none');
       $('#auth_form').css('display', 'none');
+    }
+
+    if (evt.keyCode == 27) { // ("Esc")
+      // HERE
+      hideAllForms();
+      return false;
+    } else if (evt.keyCode == 68) { // ("d") TODO: avoid magic numbers
+      hideAllForms();
+      // TODO: if span form is open, perform "delete"
       return false;
     }
   };
