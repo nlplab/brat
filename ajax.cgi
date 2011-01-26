@@ -36,6 +36,7 @@ from annotation import (TextBoundAnnotation, AnnotationId, EquivAnnotation,
 ### Constants?
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
 COOKIE_ID = 'brat-cred'
+DEBUG = True
 
 # Try to import our configurations
 from copy import deepcopy
@@ -530,7 +531,7 @@ def _annotations_decorator(doc_index_in_args, id_indexes=None):
 @_annotations_decorator(0, [1, 2])
 def save_arc(ann_obj, origin, target, type):
     mods = LineModificationTracker()
-   
+
     # Ugly check, but we really get no other information
     if type != 'Equiv':
         try:
@@ -768,32 +769,60 @@ def main():
             span = params.getvalue('span')
 
             #XXX: Calls to save and delete can raise AnnotationNotFoundError
-            if action == 'span':
-                save_span(docpath,
-                        params.getvalue('from'),
-                        params.getvalue('to'),
-                        params.getvalue('type'),
-                        params.getvalue('negation') == 'true',
-                        params.getvalue('speculation') == 'true',
-                        params.getvalue('id'))
-            elif action == 'arc':
-                save_arc(docpath,
-                        params.getvalue('origin'),
-                        params.getvalue('target'),
-                        params.getvalue('type'))
-            elif action == 'unspan':
-                delete_span(docpath,
-                        params.getvalue('id'))
-            elif action == 'unarc':
-                delete_arc(docpath,
-                        params.getvalue('origin'),
-                        params.getvalue('target'),
-                        params.getvalue('type'))
-            elif action == 'save':
-                svg = params.getvalue('svg')
-                saveSVG(directory, document, svg)
-            else:
-                document_json(docpath)
+            # TODO: We could potentially push everything out of ajax.cgi and
+            # catch anything showing up in the code and push it back to the dev.
+            # For now these are the only parts that speak json
+            try:
+                if action == 'span':
+                    save_span(docpath,
+                            params.getvalue('from'),
+                            params.getvalue('to'),
+                            params.getvalue('type'),
+                            params.getvalue('negation') == 'true',
+                            params.getvalue('speculation') == 'true',
+                            params.getvalue('id'))
+                elif action == 'arc':
+                    save_arc(docpath,
+                            params.getvalue('origin'),
+                            params.getvalue('target'),
+                            params.getvalue('type'))
+                elif action == 'unspan':
+                    delete_span(docpath,
+                            params.getvalue('id'))
+                elif action == 'unarc':
+                    delete_arc(docpath,
+                            params.getvalue('origin'),
+                            params.getvalue('target'),
+                            params.getvalue('type'))
+                elif action == 'save':
+                    svg = params.getvalue('svg')
+                    saveSVG(directory, document, svg)
+                else:
+                    document_json(docpath)
+            except Exception, e:
+                # Catch even an interpreter crash
+                if DEBUG:
+                    from traceback import print_exc
+                    try:
+                        from cStringIO import StringIO
+                    except ImportError:
+                        from StringIO import StringIO
+
+                    buf = StringIO()
+                    print_exc(file=buf)
+                    buf.seek(0)
+                    print 'Content-Type: application/json\n'
+                    error_msg = '<br/>'.join((
+                    'Python crashed, we got:\n',
+                    buf.read())).replace('\n', '\n<br/>\n')
+                    print dumps(
+                            {
+                                'error': error_msg,
+                                'duration': -1,
+                                },
+                            sort_keys=True, indent=2)
+                # Allow the exception to fall through so it is logged
+                raise
 
 def debug():
     '''
@@ -875,4 +904,4 @@ if __name__ == '__main__':
             exit(debug())
     except IndexError:
         pass
-    main()
+    main() 
