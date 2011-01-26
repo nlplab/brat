@@ -398,6 +398,10 @@ var Annotator = function(containerElement, onStart) {
         $('#span_mod_Negation')[0].checked = false;
         $('#span_mod_Speculation')[0].checked = false;
         $('#span_form').css('display', 'block');
+        var el = $('#span_form input:radio:first');
+        if (el.length) {
+          el[0].checked = true;
+        }
         $('#span_form input:submit').focus();
       }
     }
