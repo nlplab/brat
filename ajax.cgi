@@ -5,6 +5,8 @@
 Brat (/brât/)
 TODO: DOC!
 
+Brat Rapid Annotation Tool (BRAT)
+
 Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
 Author:     Goran   Topič       <goran is s u tokyo ac jp>
@@ -36,6 +38,7 @@ from annotation import (TextBoundAnnotation, AnnotationId, EquivAnnotation,
 ### Constants?
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
 COOKIE_ID = 'brat-cred'
+DEBUG = True
 
 # Try to import our configurations
 from copy import deepcopy
@@ -340,70 +343,77 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
                 pass
 
             if ann.type != type:
-                before = str(ann)
-                ann.type = type
+                if ((is_event_type(ann.type)
+                    and is_physical_entity_type(type))
+                    or
+                    (is_physical_entity_type(ann.type)
+                        and is_event_type(type))):
+                        # XXX: We don't allow this! Warn!
+                        pass
+                else:
+                    before = str(ann)
+                    ann.type = type
 
-                # Try to propagate the type change
-                try:
-                    #XXX: We don't take into consideration other anns with the
-                    # same trigger here!
-                    ann_trig = ann_obj.get_ann_by_id(ann.trigger)
-                    if ann_trig.type != ann.type:
-                        # At this stage we need to determine if someone else
-                        # is using the same trigger
-                        if any((event_ann
-                            for event_ann in ann_obj.get_events()
-                            if (event_ann.trigger == ann.trigger
-                                    and event_ann != ann))):
-                            # Someone else is using it, create a new one
-                            from copy import copy
-                            # A shallow copy should be enough
-                            new_ann_trig = copy(ann_trig)
-                            # It needs a new id
-                            new_ann_trig.id = ann_obj.get_new_id('T')
-                            # And we will change the type
-                            new_ann_trig.type = ann.type
-                            # Update the old annotation to use this trigger
-                            ann.trigger = str(new_ann_trig.id)
-                            ann_obj.add_annotation(new_ann_trig)
-                            mods.added.append(new_ann_trig)
-                        else:
-                            # Okay, we own the current trigger, but does an
-                            # identical to our sought one already exist?
-                            found = None
-                            for tb_ann in ann_obj.get_textbounds():
-                                if (tb_ann.start == ann_trig.start
-                                        and tb_ann.end == ann_trig.end
-                                        and tb_ann.type == ann.type):
-                                    found = tb_ann
-                                    break
-
-                            if found is None:
-                                # Just change the trigger type since we are the
-                                # only users
-
-                                before = str(ann_trig)
-                                ann_trig.type = ann.type
-                                mods.change(before, ann_trig)
+                    # Try to propagate the type change
+                    try:
+                        #XXX: We don't take into consideration other anns with the
+                        # same trigger here!
+                        ann_trig = ann_obj.get_ann_by_id(ann.trigger)
+                        if ann_trig.type != ann.type:
+                            # At this stage we need to determine if someone else
+                            # is using the same trigger
+                            if any((event_ann
+                                for event_ann in ann_obj.get_events()
+                                if (event_ann.trigger == ann.trigger
+                                        and event_ann != ann))):
+                                # Someone else is using it, create a new one
+                                from copy import copy
+                                # A shallow copy should be enough
+                                new_ann_trig = copy(ann_trig)
+                                # It needs a new id
+                                new_ann_trig.id = ann_obj.get_new_id('T')
+                                # And we will change the type
+                                new_ann_trig.type = ann.type
+                                # Update the old annotation to use this trigger
+                                ann.trigger = str(new_ann_trig.id)
+                                ann_obj.add_annotation(new_ann_trig)
+                                mods.added.append(new_ann_trig)
                             else:
-                                # Attach the new trigger THEN delete
-                                # or the dep will hit you
-                                ann.trigger = str(found.id)
-                                ann_obj.del_annotation(ann_trig)
-                                mods.deleted.append(ann_trig)
-                except AttributeError:
-                    # It was most likely a TextBound entity
-                    pass
+                                # Okay, we own the current trigger, but does an
+                                # identical to our sought one already exist?
+                                found = None
+                                for tb_ann in ann_obj.get_textbounds():
+                                    if (tb_ann.start == ann_trig.start
+                                            and tb_ann.end == ann_trig.end
+                                            and tb_ann.type == ann.type):
+                                        found = tb_ann
+                                        break
 
-                # Finally remember the change
-                mods.change(before, ann)
+                                if found is None:
+                                    # Just change the trigger type since we are the
+                                    # only users
 
+                                    before = str(ann_trig)
+                                    ann_trig.type = ann.type
+                                    mods.change(before, ann_trig)
+                                else:
+                                    # Attach the new trigger THEN delete
+                                    # or the dep will hit you
+                                    ann.trigger = str(found.id)
+                                    ann_obj.del_annotation(ann_trig)
+                                    mods.deleted.append(ann_trig)
+                    except AttributeError:
+                        # It was most likely a TextBound entity
+                        pass
+
+                    # Finally remember the change
+                    mods.change(before, ann)
             # Here we assume that there is at most one of each in the file, this can be wrong
             seen_spec = None
             seen_neg = None
             for other_ann in ann_obj:
                 try:
-                    if other_ann.target == ann.id:
+                    if other_ann.target == str(ann.id):
                         if other_ann.type == 'Speculation': #XXX: Cons
                             seen_spec = other_ann
                         if other_ann.type == 'Negation': #XXX: Cons
@@ -530,7 +540,7 @@ def _annotations_decorator(doc_index_in_args, id_indexes=None):
 @_annotations_decorator(0, [1, 2])
 def save_arc(ann_obj, origin, target, type):
     mods = LineModificationTracker()
-   
+
     # Ugly check, but we really get no other information
     if type != 'Equiv':
         try:
@@ -768,32 +778,60 @@ def main():
             span = params.getvalue('span')
 
             #XXX: Calls to save and delete can raise AnnotationNotFoundError
-            if action == 'span':
-                save_span(docpath,
-                        params.getvalue('from'),
-                        params.getvalue('to'),
-                        params.getvalue('type'),
-                        params.getvalue('negation') == 'true',
-                        params.getvalue('speculation') == 'true',
-                        params.getvalue('id'))
-            elif action == 'arc':
-                save_arc(docpath,
-                        params.getvalue('origin'),
-                        params.getvalue('target'),
-                        params.getvalue('type'))
-            elif action == 'unspan':
-                delete_span(docpath,
-                        params.getvalue('id'))
-            elif action == 'unarc':
-                delete_arc(docpath,
-                        params.getvalue('origin'),
-                        params.getvalue('target'),
-                        params.getvalue('type'))
-            elif action == 'save':
-                svg = params.getvalue('svg')
-                saveSVG(directory, document, svg)
-            else:
-                document_json(docpath)
+            # TODO: We could potentially push everything out of ajax.cgi and
+            # catch anything showing up in the code and push it back to the dev.
+            # For now these are the only parts that speak json
+            try:
+                if action == 'span':
+                    save_span(docpath,
+                            params.getvalue('from'),
+                            params.getvalue('to'),
+                            params.getvalue('type'),
+                            params.getvalue('negation') == 'true',
+                            params.getvalue('speculation') == 'true',
+                            params.getvalue('id'))
+                elif action == 'arc':
+                    save_arc(docpath,
+                            params.getvalue('origin'),
+                            params.getvalue('target'),
+                            params.getvalue('type'))
+                elif action == 'unspan':
+                    delete_span(docpath,
+                            params.getvalue('id'))
+                elif action == 'unarc':
+                    delete_arc(docpath,
+                            params.getvalue('origin'),
+                            params.getvalue('target'),
+                            params.getvalue('type'))
+                elif action == 'save':
+                    svg = params.getvalue('svg')
+                    saveSVG(directory, document, svg)
+                else:
+                    document_json(docpath)
+            except Exception, e:
+                # Catch even an interpreter crash
+                if DEBUG:
+                    from traceback import print_exc
+                    try:
+                        from cStringIO import StringIO
+                    except ImportError:
+                        from StringIO import StringIO
+
+                    buf = StringIO()
+                    print_exc(file=buf)
+                    buf.seek(0)
+                    print 'Content-Type: application/json\n'
+                    error_msg = '<br/>'.join((
+                    'Python crashed, we got:\n',
+                    buf.read())).replace('\n', '\n<br/>\n')
+                    print dumps(
+                            {
+                                'error': error_msg,
+                                'duration': -1,
+                                },
+                            sort_keys=True, indent=2)
+                # Allow the exception to fall through so it is logged
+                raise
 
 def debug():
     '''
@@ -875,4 +913,4 @@ if __name__ == '__main__':
             exit(debug())
     except IndexError:
         pass
-    main()
+    main() 
