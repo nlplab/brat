@@ -538,20 +538,35 @@ def _annotations_decorator(doc_index_in_args, id_indexes=None):
            
 #TODO: Should determine which step to call next
 @_annotations_decorator(0, [1, 2])
-def save_arc(ann_obj, origin, target, type):
+def save_arc(ann_obj, origin, target, type, old_type):
     mods = LineModificationTracker()
 
     # Ugly check, but we really get no other information
     if type != 'Equiv':
         try:
             arg_tup = (type, str(target.id))
-            if arg_tup not in origin.args:
-                before = str(origin)
-                origin.args.append(arg_tup)
-                mods.change(before, origin)
+            if old_type is None:
+                old_arg_tup = None
             else:
-                # It already existed as an arg, we were called to do nothing...
-                pass
+                old_arg_tup = (old_type, str(target.id))
+    
+            if old_arg_tup is None:
+                if arg_tup not in origin.args:
+                    before = str(origin)
+                    origin.args.append(arg_tup)
+                    mods.change(before, origin)
+                else:
+                    # It already existed as an arg, we were called to do nothing...
+                    pass
+            else:
+                if old_arg_tup in origin.args and arg_tup not in origin.args:
+                    before = str(origin)
+                    origin.args.remove(old_arg_tup)
+                    origin.args.append(arg_tup)
+                    mods.change(before, origin)
+                else:
+                    # Collision etc. don't do anything
+                    pass
         except AttributeError:
             # The annotation did not have args, it was most likely an entity
             # thus we need to create a new Event...
@@ -567,6 +582,7 @@ def save_arc(ann_obj, origin, target, type):
             mods.added.append(ann)
     else:
         # It is an Equiv
+        assert old_type is None, 'attempting to change Equiv, not supported'
         ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
         ann_obj.add_annotation(ann)
         mods.added.append(ann)
@@ -794,7 +810,8 @@ def main():
                     save_arc(docpath,
                             params.getvalue('origin'),
                             params.getvalue('target'),
-                            params.getvalue('type'))
+                            params.getvalue('type'),
+                            params.getvalue('old') or None)
                 elif action == 'unspan':
                     delete_span(docpath,
                             params.getvalue('id'))
