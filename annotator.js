@@ -281,7 +281,7 @@ var Annotator = function(containerElement, onStart) {
         origin: originSpanId,
         target: targetSpanId,
         type: type,
-        edit: true,
+        old: type,
       };
       $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
       $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
@@ -419,10 +419,6 @@ var Annotator = function(containerElement, onStart) {
     if (evt.keyCode == 27) { // ("Esc")
       // HERE
       hideAllForms();
-      return false;
-    } else if (evt.keyCode == 68) { // ("d") TODO: avoid magic numbers
-      hideAllForms();
-      // TODO: if span form is open, perform "delete"
       return false;
     }
   };
