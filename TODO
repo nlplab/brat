@@ -8,6 +8,7 @@ git the data
 
 CLIENT:
 error handling
+    first enumerate actions which fail to do so
 
 CLIENT:
 put forms near cursor
@@ -15,13 +16,29 @@ put forms near cursor
 CLIENT:
 displayMessage with multiple messages
 
+CLIENT:
+access keys -> keypress handler
+(take care to only listen for the active form)
+
 recursive delete
     confirmation?
+
+SERVER:
+use 'edit' parameter to distinguish new arcs from old ones
+
+SERVER:
+when deleting a span, delete all dependent modifications
+
+CLIENT:
+restrict edit choices in edit span menu
+    Sampo: get a clear spec what can be edited and what can't
 
 SERVER:
 don't create duplicate trigger textbounds for events; delete trigger
 textbound when the last referring event is deleted.
 
+SERVER:
+session handling
 
 GIT:
   BIG PROBLEM:
