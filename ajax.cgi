@@ -2,10 +2,10 @@
 # coding=utf-8
 
 '''
-Brat (/brât/)
+brat (/brât/)
 TODO: DOC!
 
-Brat Rapid Annotation Tool (BRAT)
+Brat Rapid Annotation Tool (brat)
 
 Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>

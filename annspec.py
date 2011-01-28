@@ -1,6 +1,6 @@
 '''
 Annotation specification file, used to determine possible choices and for
-verifying the correctness by the verifier ${WITTY_NAME_OF_SOFTWARE}
+verifying the correctness by the verifier.
 
 Author:     Sampo Pyysalo
 Version:    2011-01-20

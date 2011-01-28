@@ -1,5 +1,5 @@
 '''
-Configuration parameters for ${WITTY_NAME_OF_SOFTWARE}
+Configuration parameters for brat
 
 Author:     Pontus Stenetorp
 Version:    2011-01-19
