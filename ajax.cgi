@@ -1,4 +1,4 @@
-#!/data/home/pontus/local/bin/python
+#!/home/users/pontus/local/bin/python
 # coding=utf-8
 
 '''
@@ -14,23 +14,29 @@ Version:    2010-01-24
 '''
 
 #TODO: Move imports into their respective functions to boost load time
+from Cookie import SimpleCookie
 from cgi import FieldStorage
+from itertools import chain
+from os import environ
 from os import listdir, makedirs, system
 from os.path import isdir, isfile
 from os.path import join as join_path
-from Cookie import SimpleCookie
-from os import environ
-import hashlib
 from re import split, sub, match
-from simplejson import dumps, loads
-from itertools import chain
 import fileinput
+import hashlib
 
+# Relative library imports
+import sys
+import os.path
+sys.path.append(os.path.join(os.path.dirname(__file__), 'lib/simplejson-2.1.3'))
+from simplejson import dumps, loads
 from simplejson import dumps
+#TODO: Clean up the path and imports
+#
 
+from annotation import Annotations, TEXT_FILE_SUFFIX
 from annspec import physical_entity_types, event_argument_types
 from verify_annotations import verify_annotation
-from annotation import Annotations, TEXT_FILE_SUFFIX
 # We should not import this in the end...
 from annotation import (TextBoundAnnotation, AnnotationId, EquivAnnotation,
         EventAnnotation, ModifierAnnotation, DependingAnnotationDeleteError)
