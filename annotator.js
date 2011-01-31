@@ -1682,8 +1682,7 @@ $(function() {
         target: targetType,
       }, function(jsonData) {
         var markup = [];
-        if (displayMessagesAndCheckForErrors(jsonData)
-           && jsonData.types.length != 0) {
+        if (displayMessagesAndCheckForErrors(jsonData)) {
 	  $('#arc_roles').html(jsonData.html);
 	  var el = $(arcType ? '#arc_' + arcType : '#arc_form input:radio:first');
 	  if (el.length) {

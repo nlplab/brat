@@ -254,7 +254,7 @@ def saveSVG(directory, document, svg):
 def arc_types_html(origin_type, target_type):
     from simplejson import dumps
 
-    response = { 'types' : [], 'message' : None, 'category' : None }
+    response = { }
 
     try:
         possible = possible_arc_types_from_to(origin_type, target_type)
@@ -266,11 +266,11 @@ def arc_types_html(origin_type, target_type):
             response['error'] = 'No choices for %s -> %s' % (origin_type, target_type)
         else:
             # TODO: proper generation
-            response['html']    = """<frameset>
+            response['html']    = """<fieldset>
 <legend>Entities</legend>
 <input id="arc_Theme" type="radio" name="arc_type" value="Theme"/>
 <label for="arc_Theme"><span class="accesskey">T</span>heme</label>
-</frameset>"""
+</fieldset>"""
             response['keymap']  = { 'T' : 'Theme' }
     except:
         response['error'] = 'Error selecting arc types!'
