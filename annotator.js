@@ -152,7 +152,7 @@ var Annotator = function(containerElement, onStart) {
   var dragArrowId;
   var highlightGroup;
   var curlyY;
-  var keymap;
+  this.keymap = {};
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -286,7 +286,6 @@ var Annotator = function(containerElement, onStart) {
       };
       $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
       $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
-      $('#del_arc_button').css('display', 'inline');
       annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type, type);
       
     // if not, then do we edit a span?
@@ -299,16 +298,8 @@ var Annotator = function(containerElement, onStart) {
         to: span.to,
         id: id,
       };
-      $('#span_selected').text('"'+data.text.substring(span.from, span.to)+'"');
-      $('#span_mod_Negation')[0].checked = span.Negation;
-      $('#span_mod_Speculation')[0].checked = span.Speculation;
-      $('#del_span_button').css('display', 'inline');
-      var el = $('#span_' + span.type);
-      if (el.length) {
-        el[0].checked = true;
-      }
-      $('#span_form').css('display', 'block');
-      $('#span_form input:submit').focus();
+      var spanText = data.text.substring(span.from, span.to);
+      annotator.fillSpanTypesAndDisplayForm(spanText, span.type);
     }
   };
 
@@ -365,7 +356,6 @@ var Annotator = function(containerElement, onStart) {
         };
         $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
 	$('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
-        $('#del_arc_button').css('display', 'none');
         annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type);
       }
       svg.remove(arcDragArc);
@@ -395,16 +385,8 @@ var Annotator = function(containerElement, onStart) {
           from: selectedFrom,
           to: selectedTo,
         };
-        $('#span_selected').text('"'+data.text.substring(selectedFrom, selectedTo)+'"');
-        $('#del_span_button').css('display', 'none');
-        $('#span_mod_Negation')[0].checked = false;
-        $('#span_mod_Speculation')[0].checked = false;
-        $('#span_form').css('display', 'block');
-        var el = $('#span_form input:radio:first');
-        if (el.length) {
-          el[0].checked = true;
-        }
-        $('#span_form input:submit').focus();
+        var spanText = data.text.substring(selectedFrom, selectedTo);
+        annotator.fillSpanTypesAndDisplayForm(spanText);
       }
     }
   };
@@ -1655,7 +1637,32 @@ $(function() {
       bind('reset', function(evt) {
         spanForm.css('display', 'none');
       });
-    spanForm.find('input:radio').click(spanFormSubmit);
+    annotator.fillSpanTypesAndDisplayForm = function(spanText, spanType) {
+      $.get(ajaxBase, {
+        action: 'spantypes',
+      }, function(jsonData) {
+        if (displayMessagesAndCheckForErrors(jsonData)) {
+	  $('#span_types').html(jsonData.html);
+	  var el = $('#span_' + spanType);
+	  if (el.length) {
+	    el[0].checked = true;
+	  }
+          annotator.keymap = jsonData.keymap;
+	  arcForm.find('#span_types input:radio').click(spanFormSubmit);
+          $('#del_span_button').css('display', spanType ? 'inline' : 'none');
+          if (spanType) annotator.keymap[46] = 'del_span_button'; // Del
+          $('#span_selected').text('"' + spanText + '"');
+          if (el = $('#span_mod_Negation')[0]) {
+            el.checked = span.Negation;
+          }
+          if (el = $('#span_mod_Speculation')[0]) {
+            el.checked = span.Speculation;
+          }
+	  $('#span_form').css('display', 'block');
+          $('#span_form input:submit').focus();
+	}
+      });
+    };
     $('#del_span_button').click(annotator.deleteSpan);
 
     var arcSubmit = function(type) {
@@ -1681,21 +1688,21 @@ $(function() {
         origin: originType,
         target: targetType,
       }, function(jsonData) {
-        var markup = [];
         if (displayMessagesAndCheckForErrors(jsonData)) {
 	  $('#arc_roles').html(jsonData.html);
-	  var el = $(arcType ? '#arc_' + arcType : '#arc_form input:radio:first');
+	  var el = $('#arc_' + arcType);
 	  if (el.length) {
 	    el[0].checked = true;
 	  }
-          keymap = jsonData.keymap;
+          annotator.keymap = jsonData.keymap;
 	  arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+          $('#del_arc_button').css('display', arcType ? 'inline' : 'none');
+          if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
 	  $('#arc_form').css('display', 'block');
           $('#arc_form input:submit').focus();
 	}
       });
     };
-    arcForm.find('input:radio').click(arcFormSubmit);
     $('#del_arc_button').click(annotator.deleteArc);
 
     var authFormSubmit = function(evt) {
@@ -1780,6 +1787,10 @@ $(function() {
       return false;
     } else if (code == 37) { // Left arrow
     } else if (code == 39) { // Right arrow
+    } else if (mapping = annotator.keymap[code] ||
+        annotator.keymap[foo = String.fromCharCode(code)]) {
+      var el = $('#' + mapping);
+      if (el.length) el[0].click();
     }
   });
 
