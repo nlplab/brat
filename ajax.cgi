@@ -261,16 +261,19 @@ def arc_types_html(origin_type, target_type):
 
         # TODO: proper error handling
         if possible is None:
-            response['message'] = 'Error selecting arc types!'
-            response['category'] = 'error'
+            response['error'] = 'Error selecting arc types!'
         elif possible == []:
-            response['message'] = 'No choices for %s -> %s' % (origin_type, target_type)
-            response['category'] = 'error'
+            response['error'] = 'No choices for %s -> %s' % (origin_type, target_type)
         else:
-            response['types']   = [['Arcs', possible]]
+            # TODO: proper generation
+            response['html']    = """<frameset>
+<legend>Entities</legend>
+<input id="arc_Theme" type="radio" name="arc_type" value="Theme"/>
+<label for="arc_Theme"><span class="accesskey">T</span>heme</label>
+</frameset>"""
+            response['keymap']  = { 'T' : 'Theme' }
     except:
-        response['message'] = 'Error selecting arc types!'
-        response['category'] = 'error'
+        response['error'] = 'Error selecting arc types!'
     
     print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
