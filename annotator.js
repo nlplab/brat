@@ -1399,6 +1399,7 @@ var Annotator = function(containerElement, onStart) {
       } catch(x) {
         this.drawing = false;
       }
+      $('title').text(data.document + ' - brat');
     }
 
     this.getSVG = function() {
