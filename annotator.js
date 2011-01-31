@@ -152,6 +152,7 @@ var Annotator = function(containerElement, onStart) {
   var dragArrowId;
   var highlightGroup;
   var curlyY;
+  var keymap;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -408,21 +409,6 @@ var Annotator = function(containerElement, onStart) {
     }
   };
   
-  var keyDown = function(evt) {    
-    var hideAllForms = function() {
-      $('#message').css('display', 'none');
-      $('#span_form').css('display', 'none');
-      $('#arc_form').css('display', 'none');
-      $('#auth_form').css('display', 'none');
-    }
-
-    if (evt.keyCode == 27) { // ("Esc")
-      // HERE
-      hideAllForms();
-      return false;
-    }
-  };
-
   this.drawInitial = function(_svg) {
     svg = _svg;
     svgElement = $(svg._svg);
@@ -434,7 +420,6 @@ var Annotator = function(containerElement, onStart) {
     containerElement.dblclick(dblClick);
     containerElement.mouseup(mouseUp);
     containerElement.mousedown(mouseDown);
-    $(document).keydown(keyDown);
   }
 
   var Span = function(id, type, from, to, generalType) {
@@ -1697,42 +1682,14 @@ $(function() {
         target: targetType,
       }, function(jsonData) {
         var markup = [];
-	if (jsonData.message) {
-	  displayMessage(jsonData.message, jsonData.category);
-	  //console.log(jsonData.message);
-	}
-	if(jsonData.types && jsonData.types.length != 0) {
-          var accesskeys = {};
-	  $.each(jsonData.types, function(fieldsetNo, fieldset) {
-	    markup.push('<fieldset>');
-	    markup.push('<legend>' + fieldset[0] + '</legend>');
-	    $.each(fieldset[1], function(roleNo, role) {
-              var acesskey = '';
-              var roleLen = role.length;
-              $.each(role.toLowerCase(), function(letterNo, letter) {
-                if (!accesskeys[letter]) {
-                  accesskeys[accesskey = letter] = true;
-                  return false;
-                }
-              });
-              var roleText = role;
-              if (accesskey) {
-                roleText = role.replace(accesskey, '<span class="accesskey">' + accesskey + '</span>');
-                accesskey = accesskey.toUpperCase();
-                roleText = role.replace(accesskey, '<span class="accesskey">' + accesskey + '</span>');
-                accesskey = ' accesskey="' + accesskey + '"';
-              }
-	      markup.push('<input name="arc_type" id="arc_' + role + '" type="radio" value="' + role + '"' + accesskey + '/>');
-	      markup.push('<label for="arc_' + role + '">' + roleText + '</label> ');
-	    });
-	    markup.push('</fieldset>');
-	  });
-	  markup = markup.join('');
-	  $('#arc_roles').html(markup);
+        if (displayMessagesAndCheckForErrors(jsonData)
+           && jsonData.types.length != 0) {
+	  $('#arc_roles').html(jsonData.html);
 	  var el = $(arcType ? '#arc_' + arcType : '#arc_form input:radio:first');
 	  if (el.length) {
 	    el[0].checked = true;
 	  }
+          keymap = jsonData.keymap;
 	  arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
 	  $('#arc_form').css('display', 'block');
           $('#arc_form input:submit').focus();
@@ -1806,6 +1763,25 @@ $(function() {
         annotator.redraw = true;
       }
     });
+  });
+
+  $(document).keydown(function(evt) {    
+    var hideAllForms = function() {
+      $('#message').css('display', 'none');
+      $('#span_form').css('display', 'none');
+      $('#arc_form').css('display', 'none');
+      $('#auth_form').css('display', 'none');
+    }
+
+    var mapping;
+    var code = evt.keyCode;
+    if (code == 27) { // ("Esc")
+      // HERE
+      hideAllForms();
+      return false;
+    } else if (code == 37) { // Left arrow
+    } else if (code == 39) { // Right arrow
+    }
   });
 
   $.ajax({
