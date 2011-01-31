@@ -71,6 +71,11 @@ path {
   /* stroke: #007700; */
 }
 
+.shadow_EditHighlight {
+  fill: #cccc66;
+  stroke: #cccc66;
+}
+
 .span path {
   fill: none;
   stroke: grey;

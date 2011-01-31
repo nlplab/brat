@@ -63,6 +63,10 @@ var Annotator = function(containerElement, onStart) {
   var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
   var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
   var reverseArcControlx = 5;   // control point distance for "UFO catchers"
+  var shadowSize = 5;
+  var shadowStroke = 5;
+  var editedSize = 7;
+  var editedStroke = 7;
 
   var undefined; // prevents evil "undefined = 17" attacks
 
@@ -169,11 +173,11 @@ var Annotator = function(containerElement, onStart) {
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
-      var info = '<div><span class="info_id">' + id + '</span>' + ' ' + '<span class="info_type">' + span.type + '</span>' + mods + '</div>';
       var mods = [];
       if (span.Negation) mods.push("Negated");
       if (span.Speculation) mods.push("Speculated");
-      if (mods.length) info += '<div>' + mods.join(', ') + '</div>';
+      if (mods.length) mods = '<div>' + mods.join(', ') + '</div>';
+      var info = '<div><span class="info_id">' + id + '</span>' + ' ' + '<span class="info_type">' + span.type + '</span>' + mods + '</div>';
       info += '<div>"'+data.text.substring(span.from, span.to)+'"</div>';
 
       var idtype;
@@ -628,6 +632,23 @@ var Annotator = function(containerElement, onStart) {
       }); // roles
     }); // eventDescs
 
+    // last edited highlighting
+    if (annotator.edited) {
+      var span = data.spans[annotator.edited[0]];
+      if (span) {
+        if (annotator.edited.length == 3) { // arc
+          $.each(span.outgoing, function(arcNo, arc) {
+            if (arc.target == annotator.edited[2] && arc.type == annotator.edited[1]) {
+              arc.edited = true;
+            }
+          });
+        } else { // span
+          span.edited = true;
+        }
+      }
+    }
+    annotator.edited = null;
+
     // sort the spans for linear order
     sortedSpans.sort(function(a, b) {
       var tmp = a.from + a.to - b.from - b.to;
@@ -972,10 +993,22 @@ var Annotator = function(containerElement, onStart) {
            var bw = spanBox.width + 2 * margin.x + 2 * boxTextMargin.x;
            var bh = hh + 2 * margin.y;
            var shadowRect;
-           var shadowSize = 5;
+           var editedRect;
+           if (span.edited) {
+               editedRect = svg.rect(span.group,
+                   bx - editedSize, by - editedSize,
+                   bw + 2 * editedSize, bh + 2 * editedSize, {
+
+                   filter: 'url(#Gaussian_Blur)',
+                   'class': "shadow_EditHighlight",
+                   rx: editedSize,
+                   ry: editedSize,
+               });
+           }
            if (span.shadowClass) {
                shadowRect = svg.rect(span.group,
-                   bx - shadowSize, by - shadowSize, bw + 2*shadowSize, bh + 2*shadowSize, {
+                   bx - shadowSize, by - shadowSize,
+                   bw + 2 * shadowSize, bh + 2 * shadowSize, {
 
                    filter: 'url(#Gaussian_Blur)',
                    'class': "shadow_" + span.shadowClass,
@@ -1000,6 +1033,9 @@ var Annotator = function(containerElement, onStart) {
             $(span.rect).attr('y', yy - margin.y - yAdjust);
             if (shadowRect) {
                 $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
+            }
+            if (editedRect) {
+                $(editedRect).attr('y', yy - editedSize - margin.y - yAdjust);
             }
             if (span.Negation) {
               svg.path(span.group, svg.createPath().
@@ -1281,6 +1317,8 @@ var Annotator = function(containerElement, onStart) {
               // TODO cleaner heuristic
               abbrevText = arc.type;
             }
+            var shadowGroup;
+            if (arc.shadowClass || arc.edited) shadowGroup = svg.group(arcGroup);
             var text = svg.text(arcGroup, (from + to) / 2, -height, abbrevText, {
                 'class': 'fill_' + arc.type,
                 'data-arc-role': arc.type,
@@ -1288,6 +1326,26 @@ var Annotator = function(containerElement, onStart) {
                 'data-arc-target': arc.target,
             });
             var textBox = text.getBBox();
+            if (arc.edited) {
+              svg.rect(shadowGroup,
+                  textBox.x - editedSize, textBox.y - editedSize,
+                  textBox.width + 2 * editedSize, textBox.height + 2 * editedSize, {
+                    filter: 'url(#Gaussian_Blur)',
+                    'class': "shadow_EditHighlight",
+                    rx: editedSize,
+                    ry: editedSize,
+              });
+            }
+            if (arc.shadowClass) {
+              svg.rect(shadowGroup,
+                  textBox.x - shadowSize, textBox.y - shadowSize,
+                  textBox.width + 2 * shadowSize, textBox.height + 2 * shadowSize, {
+                    filter: 'url(#Gaussian_Blur)',
+                    'class': "shadow_" + arc.shadowClass,
+                    rx: shadowSize,
+                    ry: shadowSize,
+              });
+            }
             var textStart = textBox.x - margin.x;
             var textEnd = textStart + textBox.width + 2 * margin.x;
             if (from > to) {
@@ -1302,7 +1360,7 @@ var Annotator = function(containerElement, onStart) {
                 if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
                 if (smoothArcCurves) {
                     var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                    path.line(cornerx, -height).
+                    line = path.line(cornerx, -height).
                         curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
                 } else {
                     path.line(cornerx, -height).
@@ -1316,6 +1374,18 @@ var Annotator = function(containerElement, onStart) {
                 'class': 'stroke_' + arc.type,
                 'strokeDashArray': arc.equiv ? dashArray : undefined,
             });
+            if (arc.edited) {
+              svg.path(shadowGroup, path, {
+                  'class': 'shadow_EditHighlight',
+                  strokeWidth: editedStroke,
+              });
+            }
+            if (arc.shadowClass) {
+              svg.path(shadowGroup, path, {
+                  'class': 'shadow_' + arc.shadowClass,
+                  strokeWidth: shadowStroke,
+              });
+            }
             path = svg.createPath().move(textEnd, -height);
             if (rowIndex == rightRow) {
                 // TODO: duplicates above in part, make funcs
@@ -1338,6 +1408,18 @@ var Annotator = function(containerElement, onStart) {
                 'class': 'stroke_' + arc.type,
                 'strokeDashArray': arc.equiv ? dashArray : undefined,
             });
+            if (arc.edited) {
+              svg.path(shadowGroup, path, {
+                  'class': 'shadow_EditHighlight',
+                  strokeWidth: editedStroke,
+              });
+            }
+            if (shadowGroup) {
+              svg.path(shadowGroup, path, {
+                  'class': 'shadow_' + arc.shadowClass,
+                  strokeWidth: shadowStroke,
+              });
+            }
           } // arc rows
         }); // arcs
 
@@ -1540,9 +1622,13 @@ $(function() {
         getDirectory();
         return;
       }
-      if (parts[2] == 'save') {
-        renderAllToDisk();
-        return;
+      if (parts[2]) {
+        if (parts[2] == 'save') {
+          renderAllToDisk();
+          return;
+        } else {
+          annotator.edited = parts[2].split('--');
+        }
       }
       var _doc = doc = parts[1];
       $('#document_select').val(_doc);
@@ -1586,6 +1672,7 @@ $(function() {
         success: function(response) {
           lastHash = null; // force reload
           if (displayMessagesAndCheckForErrors(response)) {
+            annotator.edited = response.edited;
             renderDocument(_doc);
           }
         }
