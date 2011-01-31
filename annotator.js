@@ -1557,7 +1557,7 @@ $(function() {
       annotator.ajaxOptions = null;
     };
 
-    var renderSelected = function(evt, onRenderComplete) {
+    annotator.renderSelected = function(evt, onRenderComplete) {
       doc = $('#document_select').val();
       renderDocument(doc, onRenderComplete);
       return false;
@@ -1565,7 +1565,7 @@ $(function() {
 
     var renderToDiskAndSelectNext = function() {
       if (!annotator.user) return;
-      renderSelected(null, function(error) {
+      annotator.renderSelected(null, function(error) {
         var svgMarkup = annotator.getSVG();
         var doc = annotator.getDocumentName();
 
@@ -1612,12 +1612,12 @@ $(function() {
     };
 
     $('#document_form').
-        submit(renderSelected).
+        submit(annotator.renderSelected).
         children().
         removeAttr('disabled');
 
     $('#document_select').
-        change(renderSelected);
+        change(annotator.renderSelected);
     $('#directory_select').
         change(function(evt) {
           document.location.hash = $(evt.target).val();
@@ -1765,7 +1765,7 @@ $(function() {
     });
 
     directoryAndDoc = directory + (doc ? '/' + doc : '');
-    updateState(doc);
+    updateState();
     setInterval(updateState, 200); // TODO okay?
 
     $(window).resize(function(evt) {
@@ -1793,7 +1793,17 @@ $(function() {
       hideAllForms();
       return false;
     } else if (code == 37) { // Left arrow
+      var select = $('#document_select')[0];
+      if (select.selectedIndex > 1) {
+        select.selectedIndex = select.selectedIndex - 1;
+        annotator.renderSelected();
+      }
     } else if (code == 39) { // Right arrow
+      var select = $('#document_select')[0];
+      if (select.selectedIndex < select.length - 1) {
+        select.selectedIndex = select.selectedIndex + 1;
+        annotator.renderSelected();
+      }
     } else if (mapping = annotator.keymap[code] ||
         annotator.keymap[foo = String.fromCharCode(code)]) {
       var el = $('#' + mapping);
