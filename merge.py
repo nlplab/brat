@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/home/users/pontus/local/bin/python
+##!/usr/bin/env python
 
 '''
 Merge BioNLP'11 Shared Task annotation format into a single annotation file.
@@ -56,6 +57,7 @@ def main(args):
     for file_path in (l.strip() for l in stdin):
         if not any((file_path.endswith(suff) for suff in UNMERGED_SUFFIXES)):
             if not argp.no_warn:
+                import sys
                 print >> sys.stderr, (
                         'WARNING: invalid file suffix for {}, ignoring'
                         ).format(file_path)
