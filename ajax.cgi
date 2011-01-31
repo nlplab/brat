@@ -113,6 +113,12 @@ def possible_arc_types_from_to(from_ann, to_ann):
             if (to_ann in args[a] or
                 is_event_type(to_ann) and 'event' in args[a]):
                 possible.append(a)
+
+        # prioritize the "possible" list so that frequent ones go first.
+        # TODO: learn this from the data.
+        argument_priority = { "Theme": 10, "Site" : 10 }
+        possible.sort(lambda a,b : cmp(argument_priority.get(b,0), argument_priority.get(a,0)))
+
         return possible
     else:
         return None
@@ -265,13 +271,30 @@ def arc_types_html(origin_type, target_type):
         elif possible == []:
             response['error'] = 'No choices for %s -> %s' % (origin_type, target_type)
         else:
-            # TODO: proper generation
-            response['html']    = """<fieldset>
-<legend>Entities</legend>
-<input id="arc_Theme" type="radio" name="arc_type" value="Theme"/>
-<label for="arc_Theme"><span class="accesskey">T</span>heme</label>
-</fieldset>"""
-            response['keymap']  = { 'T' : 'Theme' }
+            # pick hotkeys
+            key_taken = {}
+            key_for   = {}
+            response['keymap']  = { }
+            for p in possible:
+                for i in range(len(p)):
+                    if p[i].lower() not in key_taken:
+                        key_taken[p[i].lower()] = True
+                        key_for[p] = p[i].lower()
+                        response['keymap'][p[i].upper()] = p
+                        break
+
+            # generate input for each possible choice
+            inputs = []
+            for p in possible:
+                inputstr = '<input id="arc_%s" type="radio" name="arc_type" value="%s"/>' % (p,p)
+                if p not in key_for:
+                    inputstr += '<label for="arc_%s">%s</label>' % (p, p)
+                else:
+                    accesskey = key_for[p]
+                    key_offset= p.lower().find(accesskey)
+                    inputstr += '<label for="arc_%s">%s<span class="accesskey">%s</span>%s</label>' % (p, p[:key_offset], p[key_offset:key_offset+1], p[key_offset+1:])
+                inputs.append(inputstr)
+            response['html']  = '<fieldset><legend>Type</legend>' + '\n'.join(inputs) + '</fieldset>'
     except:
         response['error'] = 'Error selecting arc types!'
     
