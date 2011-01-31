@@ -255,12 +255,14 @@ var Annotator = function(containerElement, onStart) {
 
   this.deleteSpan = function(evt) {
     $('#span_form').css('display', 'none');
+    annotator.keymap = {};
     annotator.ajaxOptions.action = 'unspan';
     annotator.postChangesAndReload();
   };
 
   this.deleteArc = function(evt) {
     $('#arc_form').css('display', 'none');
+    annotator.keymap = {};
     annotator.ajaxOptions.action = 'unarc';
     annotator.postChangesAndReload();
   };
@@ -1623,6 +1625,7 @@ $(function() {
 
     var spanFormSubmit = function(evt) {
       spanForm.css('display', 'none');
+      annotator.keymap = {};
       var type = $('#span_form input:radio:checked').val();
       if (type) { // (if not cancelled)
         annotator.ajaxOptions.type = type;
@@ -1636,6 +1639,7 @@ $(function() {
       submit(spanFormSubmit).
       bind('reset', function(evt) {
         spanForm.css('display', 'none');
+        annotator.keymap = {};
       });
     annotator.fillSpanTypesAndDisplayForm = function(spanText, spanType) {
       $.get(ajaxBase, {
@@ -1671,6 +1675,7 @@ $(function() {
     }
     var arcFormSubmit = function(evt) {
       arcForm.css('display', 'none');
+      annotator.keymap = {};
       var type = $('#arc_form input:radio:checked').val();
       if (type) { // (if not cancelled)
         arcSubmit(type);
@@ -1681,6 +1686,7 @@ $(function() {
       submit(arcFormSubmit).
       bind('reset', function(evt) {
         arcForm.css('display', 'none');
+        annotator.keymap = {};
       });
     annotator.fillArcTypesAndDisplayForm = function(originType, targetType, arcType) {
       $.get(ajaxBase, {
@@ -1777,6 +1783,7 @@ $(function() {
       $('#span_form').css('display', 'none');
       $('#arc_form').css('display', 'none');
       $('#auth_form').css('display', 'none');
+      annotator.keymap = {};
     }
 
     var mapping;
