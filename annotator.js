@@ -169,7 +169,11 @@ var Annotator = function(containerElement, onStart) {
     var id;
     if (id = target.attr('data-span-id')) {
       var span = data.spans[id];
-      var info = '<div><span class="info_id">' + id + '</span>' + ' ' + '<span class="info_type">' + span.type + '</span></div>';
+      var info = '<div><span class="info_id">' + id + '</span>' + ' ' + '<span class="info_type">' + span.type + '</span>' + mods + '</div>';
+      var mods = [];
+      if (span.Negation) mods.push("Negated");
+      if (span.Speculation) mods.push("Speculated");
+      if (mods.length) info += '<div>' + mods.join(', ') + '</div>';
       info += '<div>"'+data.text.substring(span.from, span.to)+'"</div>';
 
       var idtype;
