@@ -301,7 +301,7 @@ var Annotator = function(containerElement, onStart) {
         id: id,
       };
       var spanText = data.text.substring(span.from, span.to);
-      annotator.fillSpanTypesAndDisplayForm(spanText, span.type);
+      annotator.fillSpanTypesAndDisplayForm(spanText, span);
     }
   };
 
@@ -1629,8 +1629,13 @@ $(function() {
       var type = $('#span_form input:radio:checked').val();
       if (type) { // (if not cancelled)
         annotator.ajaxOptions.type = type;
-        annotator.ajaxOptions.negation = $('#span_mod_Negation')[0].checked;
-        annotator.ajaxOptions.speculation = $('#span_mod_Speculation')[0].checked;
+        var el;
+        if (el = $('#span_mod_Negation')[0]) {
+          annotator.ajaxOptions.negation = el.checked;
+        }
+        if (el = $('#span_mod_Speculation')[0]) {
+          annotator.ajaxOptions.speculation = el.checked;
+        }
         annotator.postChangesAndReload();
       }
       return false;
@@ -1641,26 +1646,28 @@ $(function() {
         spanForm.css('display', 'none');
         annotator.keymap = {};
       });
-    annotator.fillSpanTypesAndDisplayForm = function(spanText, spanType) {
+    annotator.fillSpanTypesAndDisplayForm = function(spanText, span) {
       $.get(ajaxBase, {
         action: 'spantypes',
       }, function(jsonData) {
         if (displayMessagesAndCheckForErrors(jsonData)) {
 	  $('#span_types').html(jsonData.html);
-	  var el = $('#span_' + spanType);
-	  if (el.length) {
-	    el[0].checked = true;
-	  }
           annotator.keymap = jsonData.keymap;
-	  arcForm.find('#span_types input:radio').click(spanFormSubmit);
-          $('#del_span_button').css('display', spanType ? 'inline' : 'none');
-          if (spanType) annotator.keymap[46] = 'del_span_button'; // Del
+	  spanForm.find('#span_types input:radio').click(spanFormSubmit);
+          $('#del_span_button').css('display', span ? 'inline' : 'none');
           $('#span_selected').text('"' + spanText + '"');
-          if (el = $('#span_mod_Negation')[0]) {
-            el.checked = span.Negation;
-          }
-          if (el = $('#span_mod_Speculation')[0]) {
-            el.checked = span.Speculation;
+          if (span) {
+            annotator.keymap[46] = 'del_span_button'; // Del
+            var el = $('#span_' + span.type);
+            if (el.length) {
+              el[0].checked = true;
+            }
+            if (el = $('#span_mod_Negation')[0]) {
+              el.checked = span.Negation;
+            }
+            if (el = $('#span_mod_Speculation')[0]) {
+              el.checked = span.Speculation;
+            }
           }
 	  $('#span_form').css('display', 'block');
           $('#span_form input:submit').focus();
