@@ -384,6 +384,8 @@ fieldset {
     margin-left: 20px;
 }
 #span_scroller {
-    height: 200px;
-    overflow: scroll-y;
+    background: #bbbbbb;
+    height: 400px;
+    width: 500px;
+    overflow-y: scroll;
 }
