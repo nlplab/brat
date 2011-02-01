@@ -1651,9 +1651,7 @@ $(function() {
       var open = el.hasClass('open');
       var collapsible = el.parent().find('.collapsible').first();
       el.toggleClass('open');
-      el.toggleClass('closed');
       collapsible.toggleClass('open');
-      collapsible.toggleClass('closed');
     };
     annotator.fillSpanTypesAndDisplayForm = function(spanText, span) {
       $.get(ajaxBase, {

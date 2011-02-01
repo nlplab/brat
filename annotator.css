@@ -366,21 +366,16 @@ fieldset {
     width: 16px;
     margin-top: 3px;
     cursor: hand;
-    background-color: lime;
+    background: url('expand_icon.gif') no-repeat;
 }
 #span_form .collapser.open {
     background: url('collapse_icon.gif') no-repeat;
 }
-#span_form .collapser.closed {
-    background: url('expand_icon.gif') no-repeat;
-}
 #span_form .collapsible.open {
     display: block;
 }
-#span_form .collapsible.closed {
+#span_form .collapsible {
     display: none;
-}
-#span_form .item {
 }
 #span_form .item_content {
     margin-left: 16px;
