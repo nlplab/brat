@@ -1646,6 +1646,15 @@ $(function() {
         spanForm.css('display', 'none');
         annotator.keymap = {};
       });
+    var collapseHandler = function(evt) {
+      var el = $(evt.target);
+      var open = el.hasClass('open');
+      var collapsible = el.parent().find('.collapsible').first();
+      el.toggleClass('open');
+      el.toggleClass('closed');
+      collapsible.toggleClass('open');
+      collapsible.toggleClass('closed');
+    };
     annotator.fillSpanTypesAndDisplayForm = function(spanText, span) {
       $.get(ajaxBase, {
         action: 'spantypes',
@@ -1654,6 +1663,7 @@ $(function() {
 	  $('#span_types').html(jsonData.html);
           annotator.keymap = jsonData.keymap;
 	  spanForm.find('#span_types input:radio').click(spanFormSubmit);
+          spanForm.find('.collapser').click(collapseHandler);
           $('#del_span_button').css('display', span ? 'inline' : 'none');
           $('#span_selected').text('"' + spanText + '"');
           if (span) {
