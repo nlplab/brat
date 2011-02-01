@@ -1,15 +1,14 @@
 #!/home/users/pontus/local/bin/python
-# coding=utf-8
 
 '''
-brat (/brât/)
+brat
 TODO: DOC!
 
 Brat Rapid Annotation Tool (brat)
 
 Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
-Author:     Goran   Topić       <goran is s u tokyo ac jp>
+Author:     Goran   Topic       <goran is s u tokyo ac jp>
 Version:    2010-01-24
 '''
 
@@ -256,6 +255,106 @@ def saveSVG(directory, document, svg):
     else:
         print 'Content-Type: text/plain'
         print 'Status: 400 Bad Request\n'
+
+
+def span_types_html():
+    from simplejson import dumps
+
+    response = { }
+
+    # reminder: if there's an error when generating (eventually), this
+    # is how to get it across
+#     if there_is_an_error:
+#         response['error'] = 'Error message'
+
+    # just hard-coded for now
+    response['keymap'] = {
+        'P': 'span_Protein',
+        'E': 'span_Entity',
+        'H': 'span_Hydroxylation',
+        'R': 'span_Dehidroxylation',
+        'O': 'span_Phosphorylation',
+        'S': 'span_Dephosphorylation',
+        'U': 'span_Ubiquitination',
+        'B': 'span_Deubiquitination',
+        'G': 'span_Glycosylation',
+        'L': 'span_Deglycosylation',
+        'A': 'span_Acetylation',
+        'T': 'span_Deacetylation',
+        'M': 'span_Methylation',
+        'Y': 'span_Demethylation',
+        'D': 'span_DNA_methylation',
+        'N': 'span_DNA_demethylation',
+        'C': 'span_Catalysis',
+        }
+
+    response['html']  = """<div id="span_scroller">
+  <div class="item">
+    <div class="collapser open"></div>
+    <div class="item_content">
+      <input id="span_Catalysis" name="span_type" type="radio" value="Catalysis"/><label for="span_Catalysis">Catalysis</label>
+<!--
+      <div class="collapsible open">
+  
+        <div class="item">
+          <div class="item_content">
+            <input id="span_Catalysis" name="span_type" type="radio" value="Catalysis"/><label for="span_Catalysis">Catalysis</label>
+          </div>
+        </div>
+        <div class="item">  
+          <div class="collapser open"></div>
+          <div class="item_content">
+            <input name="span_type" type="radio"/><label>Level 2</label>
+
+            <div class="collapsible open">
+  
+              <div class="item">
+                <div class="item_content">
+                  <input name="span_type" type="radio"/><label>Level 3</label>
+                </div>
+              </div>
+  
+            </div>
+          </div>
+        </div>
+  
+        <div class="item">
+          <div class="collapser closed"></div>
+          <div class="item_content">
+            <input name="span_type" type="radio"/>
+            <label>Level 2</label>
+            <div class="collapsible closed">
+  
+              <div class="item">
+                <div class="item_content">
+                  <input name="span_type" type="radio"/><label>Level 3</label>
+                </div>
+              </div>
+  
+            </div>
+          </div>
+        </div>
+  
+        <div class="item">
+          <div class="item_content">
+            <input name="span_type" type="radio"/><label>Level 2</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="item">
+    <div class="item_content">
+      <input name="span_type" type="radio"/><label>Level 1</label>
+-->
+    </div>
+  </div>
+</div>"""
+    
+    print 'Content-Type: application/json\n'
+    print dumps(response, sort_keys=True, indent=2)
+
 
 def arc_types_html(origin_type, target_type):
     from simplejson import dumps
@@ -808,6 +907,9 @@ def main():
                 result['error'] = 'Not logged in'
             print 'Content-Type: application/json\n'
             print dumps(result)
+
+        elif action == 'spantypes':
+            span_types_html()
 
         elif action == 'arctypes':
             arc_types_html(

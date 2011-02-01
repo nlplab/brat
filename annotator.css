@@ -359,3 +359,36 @@ fieldset {
 .info_arc {
   font-weight: bold;
 }
+
+#span_form .collapser {
+    float: left;
+    height: 16px;
+    width: 16px;
+    margin-top: 3px;
+    cursor: hand;
+    background-color: lime;
+}
+#span_form .collapser.open {
+    background: url('collapse_icon.gif') no-repeat;
+}
+#span_form .collapser.closed {
+    background: url('expand_icon.gif') no-repeat;
+}
+#span_form .collapsible.open {
+    display: block;
+}
+#span_form .collapsible.closed {
+    display: none;
+}
+#span_form .item {
+}
+#span_form .item_content {
+    margin-left: 16px;
+}
+#span_form .collapsible {
+    margin-left: 20px;
+}
+#span_scroller {
+    height: 200px;
+    overflow: scroll-y;
+}
