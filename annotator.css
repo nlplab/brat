@@ -186,6 +186,13 @@ path {
 .span_Dephosphorylation { fill: #18c59a; }
 .span_Deubiquitination  { fill: #18c59a; }
 .span_DNA_demethylation { fill: #18c59a; }
+.span_Deacylation       { fill: #18c59a; }
+.span_Dealkylation      { fill: #18c59a; }
+.span_Depalmitoylation  { fill: #18c59a; }
+.span_Delipidation      { fill: #18c59a; }
+.span_Deprenylation     { fill: #18c59a; }
+.span_Deneddylation     { fill: #18c59a; }
+.span_Desumoylation     { fill: #18c59a; }
 
 .span_Process           { fill: #9fe67f; }
 

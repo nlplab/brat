@@ -110,6 +110,20 @@ var Annotator = function(containerElement, onStart) {
       "Protein_family_or_group": [ "Prot f/g" ],
       "DNA_domain_or_region": [ "DNA d/r" ],
 
+      'Acylation'            : [ "Acyl" ],
+      'Deacylation'          : [ "-Acyl" ],
+      'Alkylation'           : [ "Alkyl" ],
+      'Dealkylation'         : [ "-Alkyl" ],
+      'Palmitoylation'       : [ "Palm" ],
+      'Depalmitoylation'     : [ "-Palm" ],
+      'Lipidation'           : [ "Lipid" ],
+      'Delipidation'         : [ "-Lipid" ],
+      'Prenylation'          : [ "Prenyl" ],
+      'Deprenylation'        : [ "-Prenyl" ],
+      'Neddylation'          : [ "Nedd" ],
+      'Deneddylation'        : [ "-Nedd" ],
+      'Sumoylation'          : [ "Sumo" ],
+      'Desumoylation'        : [ "-Sumo" ],
   };
 
   var arcAbbreviation = {

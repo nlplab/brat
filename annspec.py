@@ -95,7 +95,20 @@ event_argument_types = {
     'Catalysis'           : regulation_arguments,
 
     # More PTM
+    'Acylation'           : theme_and_site_arguments,
+    'Deacylation'         : theme_and_site_arguments,
+    'Alkylation'          : theme_and_site_arguments,
+    'Dealkylation'        : theme_and_site_arguments,
     'Palmitoylation'      : theme_and_site_arguments,
+    'Depalmitoylation'    : theme_and_site_arguments,
+    'Lipidation'          : theme_and_site_arguments,
+    'Delipidation'        : theme_and_site_arguments,
+    'Prenylation'         : theme_and_site_arguments,
+    'Deprenylation'       : theme_and_site_arguments,
+    'Neddylation'         : theme_and_site_arguments,
+    'Deneddylation'       : theme_and_site_arguments,
+    'Sumoylation'         : theme_and_site_arguments,
+    'Desumoylation'       : theme_and_site_arguments,
 
     # TODO: this is a temporary workaround extension for PIR annotation
     # revision. Implement a proper solution.
