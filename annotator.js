@@ -1806,15 +1806,19 @@ $(function() {
 		displayMessage("No choices for "+originType+" -> "+targetType, true);
 	    } else {
 		$('#arc_roles').html(jsonData.html);
-		var el = $('#arc_' + arcType);
-		if (el.length) {
-		    el[0].checked = true;
-		}
 		annotator.keymap = jsonData.keymap;
 		if (arcId) {
 		    $('#arc_highlight_link').css('display', 'inline').attr('href', document.location + '/' + arcId);
+		    var el = $('#arc_' + arcType)[0];
+		    if (el) {
+			el.checked = true;
+		    }
 		} else {
 		    $('#arc_highlight_link').css('display', 'none');
+		    el = $('#arc_form input:radio:first')[0];
+		    if (el) {
+			el.checked = true;
+		    }
 		}
 		arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
 		$('#del_arc_button').css('display', arcType ? 'inline' : 'none');
