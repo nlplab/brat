@@ -309,16 +309,26 @@ def span_types_html():
     from htmlgen import generate_span_type_html
     response['html']  = """<fieldset>
 <legend>Entities</legend>
-<div class="item">
-  <div class="item_content">
+<div class="item"><div class="item_content">
    <input id="span_Protein" name="span_type" type="radio" value="Protein"/><label for="span_Protein"><span class="accesskey">P</span>rotein</label>
-  </div>
-</div>
-<div class="item">
-  <div class="item_content">
+</div></div>
+<!--
+<div class="item"><div class="item_content">
    <input id="span_Entity" name="span_type" type="radio" value="Entity"/><label for="span_Entity"><span class="accesskey">E</span>ntity</label>
-  </div>
-</div>
+</div></div>
+-->
+<div class="item"><div class="item_content">
+   <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group"><span class="accesskey"></span>Protein_family_or_group</label>
+</div></div>
+<div class="item"><div class="item_content">
+   <input id="span_Carbohydrate" name="span_type" type="radio" value="Carbohydrate"/><label for="span_Carbohydrate"><span class="accesskey"></span>Carbohydrate</label>
+</div></div>
+<div class="item"><div class="item_content">
+   <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region"><span class="accesskey"></span>Protein_domain_or_region</label>
+</div></div>
+<div class="item"><div class="item_content">
+   <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey"></span>DNA_domain_or_region</label>
+</div></div>
 </fieldset>
 <fieldset>
 <legend>Events</legend>

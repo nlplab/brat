@@ -20,6 +20,12 @@ physical_entity_types = [
     'Chemical',
     'Two-component-system',
     'Regulon-operon',
+    # for more PTM annotation
+    'Protein_family_or_group',
+    'DNA_domain_or_region',
+    'Protein_domain_or_region',
+    'Amino_acid_monomer',
+    'Carbohydrate',
     ]
 
 # Allowed nestings for physical entities.
@@ -35,38 +41,52 @@ allowed_entity_nestings = {
 
 # abbrevs
 theme_only_argument = {
-        'Theme' : ['Protein'],
+        #'Theme' : ['Protein'],
+        'Theme' : ['Protein', 'Protein_family_or_group'], # More PTM version
         }
 
 theme_and_site_arguments = {
-        'Theme' : ['Protein'],
-        'Site'  : ['Entity'],
+        #'Theme' : ['Protein'],
+        'Theme' : ['Protein', 'Protein_family_or_group'], # More PTM version
+        #'Site'  : ['Entity'],
+        'Site'  : ['DNA_domain_or_region', 'Protein_domain_or_region', 'Amino_acid_monomer'], # More PTM version
         }
 
 regulation_arguments = {
-        'Theme' : ['Protein', 'event'],
-        'Cause' : ['Protein', 'event'],
-        'Site'  : ['Entity'],
-        'CSite' : ['Entity'],
+        #'Theme' : ['Protein', 'event'],
+        'Theme' : ['Protein', 'Protein_family_or_group', 'event'], # More PTM version
+        #'Cause' : ['Protein', 'event'],
+        'Cause' : ['Protein', 'Protein_family_or_group', 'event'], # More PTM version
+        #'Site'  : ['Entity'],
+        'Site'  : ['DNA_domain_or_region', 'Protein_domain_or_region', 'Amino_acid_monomer'], # More PTM version
+        #'CSite' : ['Entity'],
+        'CSite'  : ['DNA_domain_or_region', 'Protein_domain_or_region', 'Amino_acid_monomer'], # More PTM version
         }
 
 localization_arguments = {
-        'Theme' : ['Protein'],
+        #'Theme' : ['Protein'],
+        'Theme' : ['Protein', 'Protein_family_or_group'], # More PTM version
         'AtLoc' : ['Entity'],
         'ToLoc' : ['Entity'],
         }
 
 sidechain_modification_arguments = {
-        'Theme'     : ['Protein'],
-        'Site'      : ['Entity'],
-        'Sidechain' : ['Entity'],
+        #'Theme'     : ['Protein'],
+        'Theme'     : ['Protein', 'Protein_family_or_group'], # More PTM version
+        #'Site'      : ['Entity'],
+        'Site'  : ['DNA_domain_or_region', 'Protein_domain_or_region', 'Amino_acid_monomer'], # More PTM version
+        #'Sidechain' : ['Entity'],
+        'Sidechain' : ['Carbohydrate'], # More PTM version
         }
 
 contextgene_modification_arguments = {
-    'Theme'       : ['Protein'],
-    'Site'        : ['Entity'],
-    'Contextgene' : ['Protein'],
-    }
+        #'Theme'       : ['Protein'],
+        'Theme'       : ['Protein', 'Protein_family_or_group'], # More PTM version
+        #'Site'        : ['Entity'],
+        'Site'  : ['DNA_domain_or_region', 'Protein_domain_or_region', 'Amino_acid_monomer'], # More PTM version
+        #'Contextgene' : ['Protein'],
+        'Contextgene' : ['Protein', 'Protein_family_or_group'],
+        }
 
 event_argument_types = {
     # GENIA
