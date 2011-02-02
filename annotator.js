@@ -1418,7 +1418,7 @@ var Annotator = function(containerElement, onStart) {
                 (editedSent && editedSent == currentSent ?
                  'Highlight' : row.backgroundIndex),
           });
-          console.log(editedSent, row.sentence);
+          //console.log(editedSent, row.sentence);
           y += rowBox.height;
           y += textHeight;
           row.textY = y;
