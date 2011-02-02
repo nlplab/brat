@@ -119,17 +119,17 @@ def verify_annotation(ann_obj):
 #             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap another entity (%s) of the same type" % (a1.type, a2.id)))
 
     def event_nonum_args(e):
-        # returns event arguments without trailing numbers
+        # returns event arguments without trailing numbers and their count
         # (e.g. "Theme1")
         nna = {}
         for arg, aid in e.args:
             m = re.match(r'^(.*?)\d*$', arg)
             if m:
-                nna[m.group(1)] = True
+                nna[m.group(1)] = nna.get(m.group(1),0) + 1
             else:
                 # should never happen
-                nna[arg] = True
-        return nna.keys()
+                nna[arg] = nna.get(arg,0)+1
+        return nna
 
     # check for events missing mandatory arguments
     for e in ann_obj.get_events():
@@ -138,7 +138,7 @@ def verify_annotation(ann_obj):
         if "Theme" not in found_nonum_args and e.type != "Process":
             issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "Theme required for event"))
 
-    # check for event with disallowed arguments
+    # check for events with disallowed arguments
     for e in ann_obj.get_events():
         allowed = annspec.event_argument_types.get(e.type, annspec.event_argument_types["default"])
         for a in event_nonum_args(e):
@@ -147,6 +147,14 @@ def verify_annotation(ann_obj):
             else:
                 # TODO: check type of referenced entity / event
                 pass
+
+    # check for events with disallowed argument counts
+    for e in ann_obj.get_events():
+        found_nonum_args = event_nonum_args(e)
+        for a in found_nonum_args:
+            # TODO: don't hard-code what multiple arguments are allowed for
+            if found_nonum_args[a] > 1 and not (e.type == "Binding" and a in ("Theme", "Site")):
+                issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take multiple %s arguments" % (e.type, a)))
     
     return issues
 
