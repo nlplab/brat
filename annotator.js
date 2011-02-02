@@ -156,6 +156,7 @@ var Annotator = function(containerElement, onStart) {
   var dragArrowId;
   var highlightGroup;
   var curlyY;
+  this.keymap = {};
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -262,12 +263,14 @@ var Annotator = function(containerElement, onStart) {
 
   this.deleteSpan = function(evt) {
     $('#span_form').css('display', 'none');
+    annotator.keymap = {};
     annotator.ajaxOptions.action = 'unspan';
     annotator.postChangesAndReload();
   };
 
   this.deleteArc = function(evt) {
     $('#arc_form').css('display', 'none');
+    annotator.keymap = {};
     annotator.ajaxOptions.action = 'unarc';
     annotator.postChangesAndReload();
   };
@@ -293,7 +296,6 @@ var Annotator = function(containerElement, onStart) {
       };
       $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
       $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
-      $('#del_arc_button').css('display', 'inline');
       annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type, type);
       
     // if not, then do we edit a span?
@@ -306,16 +308,8 @@ var Annotator = function(containerElement, onStart) {
         to: span.to,
         id: id,
       };
-      $('#span_selected').text('"'+data.text.substring(span.from, span.to)+'"');
-      $('#span_mod_Negation')[0].checked = span.Negation;
-      $('#span_mod_Speculation')[0].checked = span.Speculation;
-      $('#del_span_button').css('display', 'inline');
-      var el = $('#span_' + span.type);
-      if (el.length) {
-        el[0].checked = true;
-      }
-      $('#span_form').css('display', 'block');
-      $('#span_form input:submit').focus();
+      var spanText = data.text.substring(span.from, span.to);
+      annotator.fillSpanTypesAndDisplayForm(spanText, span);
     }
   };
 
@@ -372,7 +366,6 @@ var Annotator = function(containerElement, onStart) {
         };
         $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
 	$('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
-        $('#del_arc_button').css('display', 'none');
         annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type);
       }
       svg.remove(arcDragArc);
@@ -402,35 +395,12 @@ var Annotator = function(containerElement, onStart) {
           from: selectedFrom,
           to: selectedTo,
         };
-        $('#span_selected').text('"'+data.text.substring(selectedFrom, selectedTo)+'"');
-        $('#del_span_button').css('display', 'none');
-        $('#span_mod_Negation')[0].checked = false;
-        $('#span_mod_Speculation')[0].checked = false;
-        $('#span_form').css('display', 'block');
-        var el = $('#span_form input:radio:first');
-        if (el.length) {
-          el[0].checked = true;
-        }
-        $('#span_form input:submit').focus();
+        var spanText = data.text.substring(selectedFrom, selectedTo);
+        annotator.fillSpanTypesAndDisplayForm(spanText);
       }
     }
   };
   
-  var keyDown = function(evt) {    
-    var hideAllForms = function() {
-      $('#message').css('display', 'none');
-      $('#span_form').css('display', 'none');
-      $('#arc_form').css('display', 'none');
-      $('#auth_form').css('display', 'none');
-    }
-
-    if (evt.keyCode == 27) { // ("Esc")
-      // HERE
-      hideAllForms();
-      return false;
-    }
-  };
-
   this.drawInitial = function(_svg) {
     svg = _svg;
     svgElement = $(svg._svg);
@@ -442,7 +412,6 @@ var Annotator = function(containerElement, onStart) {
     containerElement.dblclick(dblClick);
     containerElement.mouseup(mouseUp);
     containerElement.mousedown(mouseDown);
-    $(document).keydown(keyDown);
   }
 
   var Span = function(id, type, from, to, generalType) {
@@ -1680,7 +1649,7 @@ $(function() {
       annotator.ajaxOptions = null;
     };
 
-    var renderSelected = function(evt, onRenderComplete) {
+    annotator.renderSelected = function(evt, onRenderComplete) {
       doc = $('#document_select').val();
       renderDocument(doc, onRenderComplete);
       return false;
@@ -1688,7 +1657,7 @@ $(function() {
 
     var renderToDiskAndSelectNext = function() {
       if (!annotator.user) return;
-      renderSelected(null, function(error) {
+      annotator.renderSelected(null, function(error) {
         var svgMarkup = annotator.getSVG();
         var doc = annotator.getDocumentName();
 
@@ -1735,34 +1704,40 @@ $(function() {
     };
 
     $('#document_form').
-        submit(renderSelected).
+        submit(annotator.renderSelected).
         children().
         removeAttr('disabled');
 
     $('#document_select').
-        change(renderSelected);
+        change(annotator.renderSelected);
     $('#directory_select').
         change(function(evt) {
           document.location.hash = $(evt.target).val();
         });
 
-    var spanFormSubmit = function(evt) {
-      spanForm.css('display', 'none');
-      var type = $('#span_form input:radio:checked').val();
-      if (type) { // (if not cancelled)
-        annotator.ajaxOptions.type = type;
-        annotator.ajaxOptions.negation = $('#span_mod_Negation')[0].checked;
-        annotator.ajaxOptions.speculation = $('#span_mod_Speculation')[0].checked;
-        annotator.postChangesAndReload();
+    annotator.fillSpanTypesAndDisplayForm = function(spanText, span) {
+      annotator.keymap = annotator.spanKeymap;
+      $('#del_span_button').css('display', span ? 'inline' : 'none');
+      $('#span_selected').text('"' + spanText + '"');
+      if (span) {
+        annotator.keymap[46] = 'del_span_button'; // Del
+        var el = $('#span_' + span.type);
+        if (el.length) {
+          el[0].checked = true;
+        }
+        if (el = $('#span_mod_Negation')[0]) {
+          el.checked = span.Negation;
+        }
+        if (el = $('#span_mod_Speculation')[0]) {
+          el.checked = span.Speculation;
+        }
+      } else {
+        annotator.keymap[46] = undefined;
+        $('#span_form input:radio:first')[0].checked = true;
       }
-      return false;
+      $('#span_form').css('display', 'block');
+      $('#span_form input:submit').focus();
     };
-    var spanForm = $('#span_form').
-      submit(spanFormSubmit).
-      bind('reset', function(evt) {
-        spanForm.css('display', 'none');
-      });
-    spanForm.find('input:radio').click(spanFormSubmit);
     $('#del_span_button').click(annotator.deleteSpan);
 
     var arcSubmit = function(type) {
@@ -1771,6 +1746,7 @@ $(function() {
     }
     var arcFormSubmit = function(evt) {
       arcForm.css('display', 'none');
+      annotator.keymap = {};
       var type = $('#arc_form input:radio:checked').val();
       if (type) { // (if not cancelled)
         arcSubmit(type);
@@ -1781,6 +1757,7 @@ $(function() {
       submit(arcFormSubmit).
       bind('reset', function(evt) {
         arcForm.css('display', 'none');
+        annotator.keymap = {};
       });
     annotator.fillArcTypesAndDisplayForm = function(originType, targetType, arcType) {
       $.get(ajaxBase, {
@@ -1788,50 +1765,21 @@ $(function() {
         origin: originType,
         target: targetType,
       }, function(jsonData) {
-        var markup = [];
-	if (jsonData.message) {
-	  displayMessage(jsonData.message, jsonData.category);
-	  //console.log(jsonData.message);
-	}
-	if(jsonData.types && jsonData.types.length != 0) {
-          var accesskeys = {};
-	  $.each(jsonData.types, function(fieldsetNo, fieldset) {
-	    markup.push('<fieldset>');
-	    markup.push('<legend>' + fieldset[0] + '</legend>');
-	    $.each(fieldset[1], function(roleNo, role) {
-              var acesskey = '';
-              var roleLen = role.length;
-              $.each(role.toLowerCase(), function(letterNo, letter) {
-                if (!accesskeys[letter]) {
-                  accesskeys[accesskey = letter] = true;
-                  return false;
-                }
-              });
-              var roleText = role;
-              if (accesskey) {
-                roleText = role.replace(accesskey, '<span class="accesskey">' + accesskey + '</span>');
-                accesskey = accesskey.toUpperCase();
-                roleText = role.replace(accesskey, '<span class="accesskey">' + accesskey + '</span>');
-                accesskey = ' accesskey="' + accesskey + '"';
-              }
-	      markup.push('<input name="arc_type" id="arc_' + role + '" type="radio" value="' + role + '"' + accesskey + '/>');
-	      markup.push('<label for="arc_' + role + '">' + roleText + '</label> ');
-	    });
-	    markup.push('</fieldset>');
-	  });
-	  markup = markup.join('');
-	  $('#arc_roles').html(markup);
-	  var el = $(arcType ? '#arc_' + arcType : '#arc_form input:radio:first');
+        if (displayMessagesAndCheckForErrors(jsonData)) {
+	  $('#arc_roles').html(jsonData.html);
+	  var el = $('#arc_' + arcType);
 	  if (el.length) {
 	    el[0].checked = true;
 	  }
+          annotator.keymap = jsonData.keymap;
 	  arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+          $('#del_arc_button').css('display', arcType ? 'inline' : 'none');
+          if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
 	  $('#arc_form').css('display', 'block');
           $('#arc_form input:submit').focus();
 	}
       });
     };
-    arcForm.find('input:radio').click(arcFormSubmit);
     $('#del_arc_button').click(annotator.deleteArc);
 
     var authFormSubmit = function(evt) {
@@ -1888,7 +1836,7 @@ $(function() {
     });
 
     directoryAndDoc = directory + (doc ? '/' + doc : '');
-    updateState(doc);
+    updateState();
     setInterval(updateState, 200); // TODO okay?
 
     $(window).resize(function(evt) {
@@ -1900,6 +1848,41 @@ $(function() {
     });
   });
 
+  $(document).keydown(function(evt) {    
+    var hideAllForms = function() {
+      $('#message').css('display', 'none');
+      $('#span_form').css('display', 'none');
+      $('#arc_form').css('display', 'none');
+      $('#auth_form').css('display', 'none');
+      annotator.keymap = {};
+    }
+
+    var mapping;
+    var code = evt.keyCode;
+    if (code == 27) { // ("Esc")
+      // HERE
+      hideAllForms();
+      return false;
+    } else if (code == 37) { // Left arrow
+      var select = $('#document_select')[0];
+      if (select.selectedIndex > 1) {
+        select.selectedIndex = select.selectedIndex - 1;
+        annotator.renderSelected();
+      }
+    } else if (code == 39) { // Right arrow
+      var select = $('#document_select')[0];
+      if (select.selectedIndex < select.length - 1) {
+        select.selectedIndex = select.selectedIndex + 1;
+        annotator.renderSelected();
+      }
+    } else if (mapping = annotator.keymap[code] ||
+        annotator.keymap[foo = String.fromCharCode(code)]) {
+      var el = $('#' + mapping);
+      if (el.length) el[0].click();
+    }
+  });
+
+  // user
   $.ajax({
     type: 'POST',
     url: ajaxBase,
@@ -1916,5 +1899,47 @@ $(function() {
         auth_button.val('Login');
       }
     },
+  });
+
+  // span form
+  $.get(ajaxBase, {
+    action: 'spantypes',
+  }, function(jsonData) {
+    var collapseHandler = function(evt) {
+      var el = $(evt.target);
+      var open = el.hasClass('open');
+      var collapsible = el.parent().find('.collapsible').first();
+      el.toggleClass('open');
+      collapsible.toggleClass('open');
+    };
+    var spanFormSubmit = function(evt) {
+      spanForm.css('display', 'none');
+      annotator.keymap = {};
+      var type = $('#span_form input:radio:checked').val();
+      if (type) { // (if not cancelled)
+        annotator.ajaxOptions.type = type;
+        var el;
+        if (el = $('#span_mod_Negation')[0]) {
+          annotator.ajaxOptions.negation = el.checked;
+        }
+        if (el = $('#span_mod_Speculation')[0]) {
+          annotator.ajaxOptions.speculation = el.checked;
+        }
+        annotator.postChangesAndReload();
+      }
+      return false;
+    };
+    var spanForm = $('#span_form').
+      submit(spanFormSubmit).
+      bind('reset', function(evt) {
+        spanForm.css('display', 'none');
+        annotator.keymap = {};
+      });
+    if (displayMessagesAndCheckForErrors(jsonData)) {
+      $('#span_types').html(jsonData.html);
+      annotator.spanKeymap = jsonData.keymap;
+      spanForm.find('#span_types input:radio').click(spanFormSubmit);
+      spanForm.find('.collapser').click(collapseHandler);
+    }
   });
 });

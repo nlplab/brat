@@ -1,15 +1,14 @@
 #!/home/users/pontus/local/bin/python
-# coding=utf-8
 
 '''
-brat (/brât/)
+brat
 TODO: DOC!
 
 Brat Rapid Annotation Tool (brat)
 
 Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
-Author:     Goran   Topić       <goran is s u tokyo ac jp>
+Author:     Goran   Topic       <goran is s u tokyo ac jp>
 Version:    2010-01-24
 '''
 
@@ -113,6 +112,12 @@ def possible_arc_types_from_to(from_ann, to_ann):
             if (to_ann in args[a] or
                 is_event_type(to_ann) and 'event' in args[a]):
                 possible.append(a)
+
+        # prioritize the "possible" list so that frequent ones go first.
+        # TODO: learn this from the data.
+        argument_priority = { "Theme": 10, "Site" : 10 }
+        possible.sort(lambda a,b : cmp(argument_priority.get(b,0), argument_priority.get(a,0)))
+
         return possible
     else:
         return None
@@ -251,26 +256,283 @@ def saveSVG(directory, document, svg):
         print 'Content-Type: text/plain'
         print 'Status: 400 Bad Request\n'
 
+
+def span_types_html():
+    from simplejson import dumps
+
+    response = { }
+
+    # reminder: if there's an error when generating (eventually), this
+    # is how to get it across
+#     if there_is_an_error:
+#         response['error'] = 'Error message'
+
+    # just hard-coded for now
+    response['keymap'] = {
+        'P': 'span_Protein',
+        'E': 'span_Entity',
+        'H': 'span_Hydroxylation',
+        'R': 'span_Dehidroxylation',
+        'O': 'span_Phosphorylation',
+        'S': 'span_Dephosphorylation',
+        'U': 'span_Ubiquitination',
+        'B': 'span_Deubiquitination',
+        'G': 'span_Glycosylation',
+        'L': 'span_Deglycosylation',
+        'A': 'span_Acetylation',
+        'T': 'span_Deacetylation',
+        'M': 'span_Methylation',
+        'Y': 'span_Demethylation',
+        'D': 'span_DNA_methylation',
+        'N': 'span_DNA_demethylation',
+        'C': 'span_Catalysis',
+        }
+
+    response['html']  = """<fieldset>
+<legend>Entities</legend>
+<div class="item">
+  <div class="item_content">
+   <input id="span_Protein" name="span_type" type="radio" value="Protein"/><label for="span_Protein">Protein</label>
+  </div>
+</div>
+<div class="item">
+  <div class="item_content">
+   <input id="span_Entity" name="span_type" type="radio" value="Entity"/><label for="span_Entity">Entity</label>
+  </div>
+</div>
+</fieldset>
+<fieldset>
+<legend>Events</legend>
+<div id="span_scroller">
+<!-- GENERATED DATA BEGIN -->
+<div class="item">
+  <div class="collapser open"></div>
+  <div class="item_content">
+    <input id="span_Protein_modification_process" name="span_type" type="radio" value="Protein_modification_process"/><label for="span_Protein_modification_process">Protein modification process</label>
+    <div class="collapsible open">
+      <div class="item">
+        <div class="collapser open"></div>
+        <div class="item_content">
+          <input id="span_Acylation" name="span_type" type="radio" value="Acylation"/><label for="span_Acylation">Acylation</label>
+          <div class="collapsible open">
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Acetylation" name="span_type" type="radio" value="Acetylation"/><label for="span_Acetylation">Acetylation</label>
+              </div>
+            </div>
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Palmitoylation" name="span_type" type="radio" value="Palmitoylation"/><label for="span_Palmitoylation">Palmitoylation</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="collapser open"></div>
+        <div class="item_content">
+          <input id="span_Alkylation" name="span_type" type="radio" value="Alkylation"/><label for="span_Alkylation">Alkylation</label>
+          <div class="collapsible open">
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Methylation" name="span_type" type="radio" value="Methylation"/><label for="span_Methylation">Methylation</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="item_content">
+          <input id="span_Glycosylation" name="span_type" type="radio" value="Glycosylation"/><label for="span_Glycosylation">Glycosylation</label>
+        </div>
+      </div>
+      <div class="item">
+        <div class="item_content">
+          <input id="span_Hydroxylation" name="span_type" type="radio" value="Hydroxylation"/><label for="span_Hydroxylation">Hydroxylation</label>
+        </div>
+      </div>
+      <div class="item">
+        <div class="item_content">
+          <input id="span_Phosphorylation" name="span_type" type="radio" value="Phosphorylation"/><label for="span_Phosphorylation">Phosphorylation</label>
+        </div>
+      </div>
+      <div class="item">
+        <div class="collapser open"></div>
+        <div class="item_content">
+          <input id="span_Lipidation" name="span_type" type="radio" value="Lipidation"/><label for="span_Lipidation">Lipidation</label>
+          <div class="collapsible open">
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Prenylation" name="span_type" type="radio" value="Prenylation"/><label for="span_Prenylation">Prenylation</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="collapser open"></div>
+        <div class="item_content">
+          <input disabled="disabled" id="span_Protein_modification_by_small_protein_conjugation" name="span_type" type="radio" value="Protein_modification_by_small_protein_conjugation"/><label for="span_Protein_modification_by_small_protein_conjugation">Protein modification by small protein conjugation</label>
+          <div class="collapsible open">
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Neddylation" name="span_type" type="radio" value="Neddylation"/><label for="span_Neddylation">Neddylation</label>
+              </div>
+            </div>
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Sumoylation" name="span_type" type="radio" value="Sumoylation"/><label for="span_Sumoylation">Sumoylation</label>
+              </div>
+            </div>
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Ubiquitination" name="span_type" type="radio" value="Ubiquitination"/><label for="span_Ubiquitination">Ubiquitination</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="collapser open"></div>
+        <div class="item_content">
+          <input id="span_Deacylation" name="span_type" type="radio" value="Deacylation"/><label for="span_Deacylation">Deacylation</label>
+          <div class="collapsible open">
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Deacetylation" name="span_type" type="radio" value="Deacetylation"/><label for="span_Deacetylation">Deacetylation</label>
+              </div>
+            </div>
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Depalmitoylation" name="span_type" type="radio" value="Depalmitoylation"/><label for="span_Depalmitoylation">Depalmitoylation</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="collapser open"></div>
+        <div class="item_content">
+          <input id="span_Dealkylation" name="span_type" type="radio" value="Dealkylation"/><label for="span_Dealkylation">Dealkylation</label>
+          <div class="collapsible open">
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Demethylation" name="span_type" type="radio" value="Demethylation"/><label for="span_Demethylation">Demethylation</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="item_content">
+          <input id="span_Deglycosylation" name="span_type" type="radio" value="Deglycosylation"/><label for="span_Deglycosylation">Deglycosylation</label>
+        </div>
+      </div>
+      <div class="item">
+        <div class="item_content">
+          <input id="span_Dehydroxylation" name="span_type" type="radio" value="Dehydroxylation"/><label for="span_Dehydroxylation">Dehydroxylation</label>
+        </div>
+      </div>
+      <div class="item">
+        <div class="item_content">
+          <input id="span_Dephosphorylation" name="span_type" type="radio" value="Dephosphorylation"/><label for="span_Dephosphorylation">Dephosphorylation</label>
+        </div>
+      </div>
+      <div class="item">
+        <div class="collapser open"></div>
+        <div class="item_content">
+          <input id="span_Delipidation" name="span_type" type="radio" value="Delipidation"/><label for="span_Delipidation">Delipidation</label>
+          <div class="collapsible open">
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Deprenylation" name="span_type" type="radio" value="Deprenylation"/><label for="span_Deprenylation">Deprenylation</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="collapser open"></div>
+        <div class="item_content">
+          <input disabled="disabled" id="span_Protein_modification_by_small_protein_removal" name="span_type" type="radio" value="Protein_modification_by_small_protein_removal"/><label for="span_Protein_modification_by_small_protein_removal">Protein modification by small protein removal</label>
+          <div class="collapsible open">
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Deneddylation" name="span_type" type="radio" value="Deneddylation"/><label for="span_Deneddylation">Deneddylation</label>
+              </div>
+            </div>
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Desumoylation" name="span_type" type="radio" value="Desumoylation"/><label for="span_Desumoylation">Desumoylation</label>
+              </div>
+            </div>
+            <div class="item">
+              <div class="item_content">
+                <input id="span_Deubiquitination" name="span_type" type="radio" value="Deubiquitination"/><label for="span_Deubiquitination">Deubiquitination</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- GENERATED DATA END -->
+</div>
+<fieldset id="span_mod_fset">
+  <legend>Modifications</legend>
+  <input id="span_mod_Negation" type="checkbox" value="Negation"/>
+  <label for="span_mod_Negation">Negation</label>
+  <input id="span_mod_Speculation" type="checkbox" value="Speculation"/>
+  <label for="span_mod_Speculation">Speculation</label>
+</fieldset>
+</fieldset>
+"""
+    
+    print 'Content-Type: application/json\n'
+    print dumps(response, sort_keys=True, indent=2)
+
+
 def arc_types_html(origin_type, target_type):
     from simplejson import dumps
 
-    response = { 'types' : [], 'message' : None, 'category' : None }
+    response = { }
 
     try:
         possible = possible_arc_types_from_to(origin_type, target_type)
 
         # TODO: proper error handling
         if possible is None:
-            response['message'] = 'Error selecting arc types!'
-            response['category'] = 'error'
+            response['error'] = 'Error selecting arc types!'
         elif possible == []:
-            response['message'] = 'No choices for %s -> %s' % (origin_type, target_type)
-            response['category'] = 'error'
+            response['error'] = 'No choices for %s -> %s' % (origin_type, target_type)
         else:
-            response['types']   = [['Arcs', possible]]
+            # pick hotkeys
+            key_taken = {}
+            key_for   = {}
+            response['keymap']  = { }
+            for p in possible:
+                for i in range(len(p)):
+                    if p[i].lower() not in key_taken:
+                        key_taken[p[i].lower()] = True
+                        key_for[p] = p[i].lower()
+                        response['keymap'][p[i].upper()] = "arc_"+p
+                        break
+
+            # generate input for each possible choice
+            inputs = []
+            for p in possible:
+                inputstr = '<input id="arc_%s" type="radio" name="arc_type" value="%s"/>' % (p,p)
+                if p not in key_for:
+                    inputstr += '<label for="arc_%s">%s</label>' % (p, p)
+                else:
+                    accesskey = key_for[p]
+                    key_offset= p.lower().find(accesskey)
+                    inputstr += '<label for="arc_%s">%s<span class="accesskey">%s</span>%s</label>' % (p, p[:key_offset], p[key_offset:key_offset+1], p[key_offset+1:])
+                inputs.append(inputstr)
+            response['html']  = '<fieldset><legend>Type</legend>' + '\n'.join(inputs) + '</fieldset>'
     except:
-        response['message'] = 'Error selecting arc types!'
-        response['category'] = 'error'
+        response['error'] = 'Error selecting arc types!'
     
     print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
@@ -782,6 +1044,9 @@ def main():
                 result['error'] = 'Not logged in'
             print 'Content-Type: application/json\n'
             print dumps(result)
+
+        elif action == 'spantypes':
+            span_types_html()
 
         elif action == 'arctypes':
             arc_types_html(
