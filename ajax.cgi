@@ -592,45 +592,58 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
                     text = txt_file.read(end - start)
                         
                 #TODO: Data tail should be optional
-                ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
-                ann_obj.add_annotation(ann)
-                mods.added.append(ann)
+                if '\n' not in text:
+                    ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
+                    ann_obj.add_annotation(ann)
+                    mods.added.append(ann)
+                else:
+                    ann = None
             else:
                 ann = found
 
-            if is_physical_entity_type(type):
-                # TODO: alert that negation / speculation are ignored if set
-                pass
+            if ann is not None:
+                if is_physical_entity_type(type):
+                    # TODO: alert that negation / speculation are ignored if set
+                    pass
+                else:
+                    # Create the event also
+                    new_event_id = ann_obj.get_new_id('E') #XXX: Cons
+                    event = EventAnnotation(ann.id, [], new_event_id, type, '')
+                    ann_obj.add_annotation(event)
+                    mods.added.append(event)
+
+                    # TODO: use an existing identical textbound for the trigger
+                    # if one exists, don't dup            
+
+                    if speculation:
+                        spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                        spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
+                        ann_obj.add_annotation(spec_mod)
+                        mods.added.append(spec_mod)
+                    else:
+                        neg_mod = None
+                    if negation:
+                        neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                        neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
+                        ann_obj.add_annotation(neg_mod)
+                        mods.added.append(neg_mod)
+                    else:
+                        neg_mod = None
             else:
-                # Create the event also
-                new_event_id = ann_obj.get_new_id('E') #XXX: Cons
-                event = EventAnnotation(ann.id, [], new_event_id, type, '')
-                ann_obj.add_annotation(event)
-                mods.added.append(event)
-
-                # TODO: use an existing identical textbound for the trigger
-                # if one exists, don't dup            
-
-                if speculation:
-                    spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                    spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
-                    ann_obj.add_annotation(spec_mod)
-                    mods.added.append(spec_mod)
-                else:
-                    neg_mod = None
-                if negation:
-                    neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                    neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
-                    ann_obj.add_annotation(neg_mod)
-                    mods.added.append(neg_mod)
-                else:
-                    neg_mod = None
+                # We got a newline in the span, don't take any action
+                pass
 
         print 'Content-Type: application/json\n'
-        mods_json = mods.json_response()
+        if ann is not None:
+            mods_json = mods.json_response()
+        else:
+            # Hack, we had a new-line in the span
+            mods_json = {}
+            mods_json['error'] = 'Text span contained new-line, rejected'
+            mods_json['duration'] = 3
         # save a roundtrip and send the annotations also
         j_dic = document_json_dict(document)
-        mods_json["annotations"] = j_dic
+        mods_json['annotations'] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
     
 
