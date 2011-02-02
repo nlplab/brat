@@ -154,7 +154,7 @@ def enrich_json_with_data(j_dic, ann_obj):
     for event_ann in ann_obj.get_events():
         trigger_ids.add(event_ann.trigger)
         j_dic['events'].append(
-                [str(event_ann.id), event_ann.trigger, event_ann.args]
+                [str(event_ann.id), str(event_ann.trigger), event_ann.args]
                 )
 
     for tb_ann in ann_obj.get_textbounds():
@@ -606,7 +606,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
                 else:
                     # Create the event also
                     new_event_id = ann_obj.get_new_id('E') #XXX: Cons
-                    event = EventAnnotation(ann.id, [], new_event_id, type, '')
+                    event = EventAnnotation(ann.id, [], str(new_event_id), type, '')
                     ann_obj.add_annotation(event)
                     mods.added.append(event)
 
@@ -644,7 +644,6 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json['annotations'] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
-    
 
 # XXX: This didn't really look as pretty as planned
 # TODO: Prettify the decorator to preserve signature
@@ -844,7 +843,7 @@ def delete_arc(document, origin, target, type):
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
-        mods_json["annotations"] = j_dic
+        mods_json['annotations'] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
 
 class InvalidAuthException(Exception):
