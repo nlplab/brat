@@ -1591,6 +1591,8 @@ $(function() {
 
   var annotator = new Annotator('#svg', function() {
     var annotator = this;
+    var PMIDre = new RegExp('^(?:PMID-?)?([0-9]{4,})');
+    var PMCre  = new RegExp('^(?:PMC-?)?([0-9]{4,})');
 
     var directoryAndDoc;
     var saveUser;
@@ -1615,6 +1617,18 @@ $(function() {
       }
       var _doc = doc = parts[1];
       $('#document_select').val(_doc);
+
+      if (_doc) {
+          var PMIDm = PMIDre.exec(_doc);
+	  var PMCm  = PMCre.exec(_doc);
+	  if (PMIDm) {
+	      $('#original_link').attr("href","http://www.ncbi.nlm.nih.gov/pubmed/"+PMIDm[1]).css("display","inline");
+	  } else if (PMCm) {
+	      $('#original_link').attr("href","http://www.ncbi.nlm.nih.gov/pmc/articles/PMC"+PMCm[1]).css("display","inline");
+	  } else {
+	      $('#original_link').css("display","none");
+	  }
+      }
 
       $('#document_name').text(directoryAndDoc);
       if (!_doc || !ajaxURL) return;

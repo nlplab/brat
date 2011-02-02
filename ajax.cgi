@@ -305,12 +305,12 @@ def span_types_html():
 <legend>Entities</legend>
 <div class="item">
   <div class="item_content">
-   <input id="span_Protein" name="span_type" type="radio" value="Protein"/><label for="span_Protein">Protein</label>
+   <input id="span_Protein" name="span_type" type="radio" value="Protein"/><label for="span_Protein"><span class="accesskey">P</span>rotein</label>
   </div>
 </div>
 <div class="item">
   <div class="item_content">
-   <input id="span_Entity" name="span_type" type="radio" value="Entity"/><label for="span_Entity">Entity</label>
+   <input id="span_Entity" name="span_type" type="radio" value="Entity"/><label for="span_Entity"><span class="accesskey">E</span>ntity</label>
   </div>
 </div>
 </fieldset>
