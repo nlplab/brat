@@ -121,6 +121,11 @@ path {
   fill: #eeeeee;
 }
 
+.backgroundHighlight {
+  stroke: none;
+  fill: #ffff99;
+}
+
 .background_entity {
   fill: #7fa2ff;
   opacity: 0.25;
@@ -390,7 +395,10 @@ fieldset {
 }
 #span_scroller {
     background: #bbbbbb;
-    height: 350px;
+    height: 250px;
     width: 500px;
     overflow-y: scroll;
+}
+#span_highlight_link, #arc_highlight_link {
+  float: right;
 }

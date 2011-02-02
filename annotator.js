@@ -157,6 +157,7 @@ var Annotator = function(containerElement, onStart) {
   var highlightGroup;
   var curlyY;
   this.keymap = {};
+  var editedSent;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -296,7 +297,8 @@ var Annotator = function(containerElement, onStart) {
       };
       $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
       $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
-      annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type, type);
+      var arcId = originSpanId + '--' + type + '--' + targetSpanId;
+      annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type, type, arcId);
       
     // if not, then do we edit a span?
     } else if (id = target.attr('data-span-id')) {
@@ -603,16 +605,21 @@ var Annotator = function(containerElement, onStart) {
 
     // last edited highlighting
     if (annotator.edited) {
-      var span = data.spans[annotator.edited[0]];
-      if (span) {
-        if (annotator.edited.length == 3) { // arc
-          $.each(span.outgoing, function(arcNo, arc) {
-            if (arc.target == annotator.edited[2] && arc.type == annotator.edited[1]) {
-              arc.edited = true;
-            }
-          });
-        } else { // span
-          span.edited = true;
+      if (annotator.edited[0] == 'sent') {
+        editedSent = annotator.edited[1];
+      } else {
+        editedSent = null;
+        var span = data.spans[annotator.edited[0]];
+        if (span) {
+          if (annotator.edited.length == 3) { // arc
+            $.each(span.outgoing, function(arcNo, arc) {
+              if (arc.target == annotator.edited[2] && arc.type == annotator.edited[1]) {
+                arc.edited = true;
+              }
+            });
+          } else { // span
+            span.edited = true;
+          }
         }
       }
     }
@@ -1394,7 +1401,11 @@ var Annotator = function(containerElement, onStart) {
 
         var y = margin.y;
         var sentNumGroup = svg.group({'class': 'sentnum'});
+        var currentSent;
         $.each(rows, function(rowId, row) {
+          if (row.sentence) {
+            currentSent = row.sentence;
+          }
           var rowBox = row.group.getBBox();
           if (!rowBox) { // older Firefox bug
             rowBox = { x: 0, y: 0, height: 0, width: 0 };
@@ -1405,8 +1416,11 @@ var Annotator = function(containerElement, onStart) {
           }
           svg.rect(backgroundGroup,
             0, y + curlyY + textHeight, canvasWidth, rowBox.height + textHeight + 1, {
-            'class': 'background' + row.backgroundIndex,
+            'class': 'background' +
+                (editedSent && editedSent == currentSent ?
+                 'Highlight' : row.backgroundIndex),
           });
+          console.log(editedSent, row.sentence);
           y += rowBox.height;
           y += textHeight;
           row.textY = y;
@@ -1720,16 +1734,19 @@ $(function() {
       $('#del_span_button').css('display', span ? 'inline' : 'none');
       $('#span_selected').text('"' + spanText + '"');
       var encodedText = encodeURIComponent(spanText);
-      $('#span_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
       $('#span_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
       $('#span_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
+      $('#span_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
+      $('#span_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
       if (span) {
+        $('#span_highlight_link').css('display', 'inline').attr('href', document.location + '/' + span.id);
         annotator.keymap[46] = 'del_span_button'; // Del
         var el = $('#span_' + span.type);
         if (el.length) {
           el[0].checked = true;
         }
       } else {
+        $('#span_highlight_link').css('display', 'none');
         annotator.keymap[46] = undefined;
         $('#span_form input:radio:first')[0].checked = true;
       }
@@ -1763,7 +1780,7 @@ $(function() {
         arcForm.css('display', 'none');
         annotator.keymap = {};
       });
-    annotator.fillArcTypesAndDisplayForm = function(originType, targetType, arcType) {
+    annotator.fillArcTypesAndDisplayForm = function(originType, targetType, arcType, arcId) {
       $.get(ajaxBase, {
         action: 'arctypes',
         origin: originType,
@@ -1776,6 +1793,11 @@ $(function() {
 	    el[0].checked = true;
 	  }
           annotator.keymap = jsonData.keymap;
+          if (arcId) {
+            $('#arc_highlight_link').css('display', 'inline').attr('href', document.location + '/' + arcId);
+          } else {
+            $('#arc_highlight_link').css('display', 'none');
+          }
 	  arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
           $('#del_arc_button').css('display', arcType ? 'inline' : 'none');
           if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
