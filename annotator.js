@@ -1873,6 +1873,7 @@ $(function() {
             action: 'logout',
           },
           success: function(data) {
+            annotator.user = undefined;
             displayMessage(data);
             auth_button.val('Login');
           },
