@@ -100,7 +100,7 @@ class AnnotationId(object):
         return '{}{}{}'.format(self.pre, self.num, self.suf)
 
     def __repr__(self):
-        return str(self)
+        return str(self.__class__) + ':' + str(self)
 
 
 # We are NOT concerned with the conformity to the text file
