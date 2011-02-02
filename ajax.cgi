@@ -143,101 +143,98 @@ def directories():
     response = { 'directories': dirlist }
     print dumps(response, sort_keys=True, indent=2)
 
+#TODO: All this enrichment isn't a good idea, at some point we need an object
+def enrich_json_with_text(j_dic, txt_file):
+    # TODO: replace this crude heuristic with proper sentence splitting
+    j_dic['text'] = sub(r'(\. *) ([A-Z])',r'\1\n\2', txt_file.read())
+
+def enrich_json_with_data(j_dic, ann_obj):
+    # We collect trigger ids to be able to link the textbound later on
+    trigger_ids = set()
+    for event_ann in ann_obj.get_events():
+        trigger_ids.add(event_ann.trigger)
+        j_dic['events'].append(
+                [str(event_ann.id), event_ann.trigger, event_ann.args]
+                )
+
+    for tb_ann in ann_obj.get_textbounds():
+        j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
+
+        # If we spotted it in the previous pass as a trigger for an
+        # event or if the type is known to be an event type, we add it
+        # as a json trigger.
+        if tb_ann.id in trigger_ids or is_event_type(tb_ann.type):
+            j_dic['triggers'].append(j_tb)
+        else: 
+            j_dic['entities'].append(j_tb)
+
+    for eq_id, eq_ann in enumerate(ann_obj.get_equivs(), start=1):
+        j_dic['equivs'].append(
+                (['*{}'.format(eq_id), eq_ann.type]
+                    + [e for e in eq_ann.entities])
+                )
+
+    for mod_ann in ann_obj.get_modifers():
+        j_dic['modifications'].append(
+                [str(mod_ann.id), mod_ann.type, mod_ann.target]
+                )
+
+    for com_ann in ann_obj.get_oneline_comments():
+        j_dic['infos'].append(
+                [com_ann.target, com_ann.type, com_ann.tail.strip()]
+                )
+
+    if ann_obj.failed_lines:
+        j_dic['error'] = 'Unable to parse the following line(s):<br/>{}'.format(
+                '\n<br/>\n'.join(
+                    ['{}: {}'.format(
+                        str(line_num - 1),
+                        str(ann_obj[line_num])
+                        ).strip()
+                    for line_num in ann_obj.failed_lines])
+                    )
+        j_dic['duration'] = len(ann_obj.failed_lines) * 3
+    else:
+        j_dic['error'] = None
+
+    try:
+        issues = verify_annotation(ann_obj)
+    except Exception, e:
+        # TODO add an issue about the failure
+        issues = []
+        j_dic['error']    = 'Error: verify_annotation() failed: %s' % e
+        j_dic['duration'] = -1
+
+    for i in issues:
+        j_dic['infos'].append((str(i.ann_id), i.type, i.description))
+
+def enrich_json_with_base(j_dic):
+    # TODO: Make the names here and the ones in the Annotations object conform
+    # This is the from offset
+    j_dic['offset'] = 0
+    j_dic['entities'] = []
+    j_dic['events'] = []
+    j_dic['triggers'] = []
+    j_dic['modifications'] = []
+    j_dic['equivs'] = []
+    j_dic['infos'] = []
+
 def document_json_dict(document):
     #TODO: DOC!
-    #TODO: Shouldn't this print be in the end? Or even here?
-    from_offset = 0
-    to_offset = None
+
+    j_dic = {}
+    enrich_json_with_base(j_dic)
 
     #TODO: We don't check if the files exist, let's be more error friendly
     # Read in the textual data to make it ready to push
-    with open(document + '.' + TEXT_FILE_SUFFIX, 'rb') as text_file:
-        # TODO: replace this crude heuristic with proper sentence splitting
-        text = sub(r'(\. *) ([A-Z])',r'\1\n\2', text_file.read())
-
-    # Dictionary to be converted into JSON
-    # TODO: Make the names here and the ones in the Annotations object conform
-    j_dic = {
-            'offset':           from_offset,
-            'text':             text,
-            'entities':         [],
-            'events':           [],
-            'triggers':         [],
-            'modifications':    [],
-            'equivs':           [],
-            'infos':            [],
-            }
-
-    # if the basic annotation file does not exist, fall back
-    # to reading from a set of separate ones (e.g. ".a1" and ".a2").
+    with open(document + '.' + TEXT_FILE_SUFFIX, 'r') as txt_file:
+        enrich_json_with_text(j_dic, txt_file)
 
     with Annotations(document) as ann_obj:
-        # We collect trigger ids to be able to link the textbound later on
-        trigger_ids = set()
-        for event_ann in ann_obj.get_events():
-            trigger_ids.add(event_ann.trigger)
-            j_dic['events'].append(
-                    [str(event_ann.id), event_ann.trigger, event_ann.args]
-                    )
+        enrich_json_with_data(j_dic, ann_obj)
 
-        for tb_ann in ann_obj.get_textbounds():
-            j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
-
-            # If we spotted it in the previous pass as a trigger for an
-            # event or if the type is known to be an event type, we add it
-            # as a json trigger.
-            if tb_ann.id in trigger_ids or is_event_type(tb_ann.type):
-                j_dic['triggers'].append(j_tb)
-            else: 
-                j_dic['entities'].append(j_tb)
-
-        for eq_id, eq_ann in enumerate(ann_obj.get_equivs(), start=1):
-            j_dic['equivs'].append(
-                    (['*{}'.format(eq_id), eq_ann.type]
-                        + [e for e in eq_ann.entities])
-                    )
-
-        for mod_ann in ann_obj.get_modifers():
-            j_dic['modifications'].append(
-                    [str(mod_ann.id), mod_ann.type, mod_ann.target]
-                    )
-
-        for com_ann in ann_obj.get_oneline_comments():
-            j_dic['infos'].append(
-                    [com_ann.target, com_ann.type, com_ann.tail.strip()]
-                    )
-
-        if ann_obj.failed_lines:
-            j_dic['error'] = 'Unable to parse the following line(s):<br/>{}'.format(
-                    '\n<br/>\n'.join(
-                        ['{}: {}'.format(
-                            str(line_num - 1),
-                            str(ann_obj[line_num])
-                            ).strip()
-                        for line_num in ann_obj.failed_lines])
-                        )
-            j_dic['duration'] = len(ann_obj.failed_lines) * 3
-        else:
-            j_dic['error'] = None
-
-        try:
-            issues = verify_annotation(ann_obj)
-        except Exception, e:
-            # TODO add an issue about the failure
-            issues = []
-            j_dic['error']    = 'Error: verify_annotation() failed: %s' % e
-            j_dic['duration'] = -1
-
-        for i in issues:
-            j_dic['infos'].append((str(i.ann_id), i.type, i.description))
-
-        return j_dic
-
-    # failed to get ann_obj
-    j_dic['error'] = "Error: no ann_obj in document_json_dict"
-    j_dic['duration'] = -1
     return j_dic
-    
+
 def document_json(document):
     j_dic = document_json_dict(document)
     print 'Content-Type: application/json\n'
@@ -391,7 +388,6 @@ def arc_types_html(origin_type, target_type):
     print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
 
-
 #TODO: Couldn't we incorporate this nicely into the Annotations class?
 class LineModificationTracker(object):
     def __init__(self):
@@ -426,7 +422,6 @@ class LineModificationTracker(object):
         else:
             response['message'] = 'No changes made'
         return response
-
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def save_span(document, start_str, end_str, type, negation, speculation, id):
@@ -595,45 +590,59 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
                     text = txt_file.read(end - start)
                         
                 #TODO: Data tail should be optional
-                ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
-                ann_obj.add_annotation(ann)
-                mods.added.append(ann)
+                if '\n' not in text:
+                    ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
+                    ann_obj.add_annotation(ann)
+                    mods.added.append(ann)
+                else:
+                    ann = None
             else:
                 ann = found
 
-            if is_physical_entity_type(type):
-                # TODO: alert that negation / speculation are ignored if set
-                pass
+            if ann is not None:
+                if is_physical_entity_type(type):
+                    # TODO: alert that negation / speculation are ignored if set
+                    pass
+                else:
+                    # Create the event also
+                    new_event_id = ann_obj.get_new_id('E') #XXX: Cons
+                    event = EventAnnotation(ann.id, [], new_event_id, type, '')
+                    ann_obj.add_annotation(event)
+                    mods.added.append(event)
+
+                    # TODO: use an existing identical textbound for the trigger
+                    # if one exists, don't dup            
+
+                    if speculation:
+                        spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                        spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
+                        ann_obj.add_annotation(spec_mod)
+                        mods.added.append(spec_mod)
+                    else:
+                        neg_mod = None
+                    if negation:
+                        neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                        neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
+                        ann_obj.add_annotation(neg_mod)
+                        mods.added.append(neg_mod)
+                    else:
+                        neg_mod = None
             else:
-                # Create the event also
-                new_event_id = ann_obj.get_new_id('E') #XXX: Cons
-                event = EventAnnotation(ann.id, [], new_event_id, type, '')
-                ann_obj.add_annotation(event)
-                mods.added.append(event)
-
-                # TODO: use an existing identical textbound for the trigger
-                # if one exists, don't dup            
-
-                if speculation:
-                    spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                    spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
-                    ann_obj.add_annotation(spec_mod)
-                    mods.added.append(spec_mod)
-                else:
-                    neg_mod = None
-                if negation:
-                    neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                    neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
-                    ann_obj.add_annotation(neg_mod)
-                    mods.added.append(neg_mod)
-                else:
-                    neg_mod = None
+                # We got a newline in the span, don't take any action
+                pass
 
         print 'Content-Type: application/json\n'
-        mods_json = mods.json_response()
+        if ann is not None:
+            mods_json = mods.json_response()
+        else:
+            # Hack, we had a new-line in the span
+            mods_json = {}
+            mods_json['error'] = 'Text span contained new-line, rejected'
+            mods_json['duration'] = 3
         # save a roundtrip and send the annotations also
-        j_dic = document_json_dict(document)
-        mods_json["annotations"] = j_dic
+        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+        j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
+        mods_json['annotations'] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
     
 
@@ -716,11 +725,24 @@ def save_arc(ann_obj, origin, target, type, old_type):
 
     print 'Content-Type: application/json\n'
     mods_json = mods.json_response()
-    # save a roundtrip and send the annotations also
-    j_dic = document_json_dict(ann_obj.get_document())
-    mods_json["annotations"] = j_dic
+
+    # Hack since we don't have the actual text, should use a factory?
+    txt_file_path = ann_obj.get_document() + '.' + TEXT_FILE_SUFFIX
+    j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
+
+    mods_json['annotations'] = j_dic
     print dumps(mods_json, sort_keys=True, indent=2)
-    
+
+# Hack for the round-trip
+def json_from_ann_and_txt(ann_obj, txt_file_path):
+    j_dic = {}
+    enrich_json_with_base(j_dic)
+    with open(txt_file_path, 'r') as txt_file:
+        enrich_json_with_text(j_dic, txt_file)
+    enrich_json_with_data(j_dic, ann_obj)
+    return j_dic
+
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def delete_span(document, id):
     id = AnnotationId(id)
@@ -754,7 +776,8 @@ def delete_span(document, id):
         print 'Content-Type: application/json\n'
         mods_json = mods.json_response()
         # save a roundtrip and send the annotations also
-        j_dic = document_json_dict(document)
+        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+        j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json["annotations"] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
 
@@ -819,7 +842,8 @@ def delete_arc(document, origin, target, type):
         print 'Content-Type: application/json\n'
         mods_json = mods.json_response()
         # save a roundtrip and send the annotations also
-        j_dic = document_json_dict(document)
+        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+        j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json["annotations"] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
 
