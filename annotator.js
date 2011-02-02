@@ -52,13 +52,12 @@ var Annotator = function(containerElement, onStart) {
   var space = 4;
   var boxSpacing = 1;
   var curlyHeight = 4;
-  var lineSpacing = 5;
   var arcSpacing = 9; //10;
   var arcSlant = 15; //10;
   var arcStartHeight = 19; //23; //25;
   var arcHorizontalSpacing = 25;
+  var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
   var dashArray = '3,3';
-  var rowSpacing = 5;
   var sentNumMargin = 20;
   var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
   var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
@@ -1411,8 +1410,7 @@ var Annotator = function(containerElement, onStart) {
             rowBox = { x: 0, y: 0, height: 0, width: 0 };
           }
           if (row.hasAnnotations) {
-            rowBox.height = -rowBox.y;
-            rowBox.y -= rowSpacing;
+	    rowBox.height = -rowBox.y+rowSpacing;
           }
           svg.rect(backgroundGroup,
             0, y + curlyY + textHeight, canvasWidth, rowBox.height + textHeight + 1, {
