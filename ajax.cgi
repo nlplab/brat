@@ -303,12 +303,19 @@ def span_types_html():
 </fieldset>
 <fieldset>
 <legend>Events</legend>
+<fieldset>
+<legend>Type</legend>
 <div id="span_scroller">
+<div class="item">
+  <div class="item_content">
+    <input id="span_Catalysis" name="span_type" type="radio" value="Catalysis"/><label for="span_Catalysis">Catalysis</label>
+  </div>
+</div>
 <!-- GENERATED DATA BEGIN -->
 <div class="item">
   <div class="collapser open"></div>
   <div class="item_content">
-    <input id="span_Protein_modification_process" name="span_type" type="radio" value="Protein_modification_process"/><label for="span_Protein_modification_process">Protein modification process</label>
+    <input disabled="disabled" id="span_Protein_modification_process" name="span_type" type="radio" value="Protein_modification_process"/><label for="span_Protein_modification_process">Protein modification process</label>
     <div class="collapsible open">
       <div class="item">
         <div class="collapser open"></div>
@@ -479,6 +486,7 @@ def span_types_html():
 </div>
 <!-- GENERATED DATA END -->
 </div>
+</fieldset>
 <fieldset id="span_mod_fset">
   <legend>Modifications</legend>
   <input id="span_mod_Negation" type="checkbox" value="Negation"/>
