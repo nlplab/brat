@@ -274,7 +274,6 @@ def span_types_html():
         'H': 'Hydroxylation',
         'R': 'Dehydroxylation',
         'O': 'Phosphorylation',
-        'S': 'Dephosphorylation',
         'U': 'Ubiquitination',
         'B': 'Deubiquitination',
         'G': 'Glycosylation',
@@ -284,12 +283,15 @@ def span_types_html():
         'M': 'Methylation',
         'Y': 'Demethylation',
         'D': 'DNA_methylation',
-        'N': 'DNA_demethylation',
         'C': 'Catalysis',
+        'N': 'mod_Negation',
+        'S': 'mod_Speculation',
         }
 
     client_keymap = {}
     for k in keymap:
+        # TODO: the info on how to format these for the client
+        # should go into htmlgen
         client_keymap[k] = 'span_'+keymap[k]
 
     type_to_key_map = {}
@@ -322,9 +324,9 @@ def span_types_html():
 <fieldset id="span_mod_fset">
   <legend>Modifications</legend>
   <input id="span_mod_Negation" type="checkbox" value="Negation"/>
-  <label for="span_mod_Negation">Negation</label>
+  <label for="span_mod_Negation"><span class="accesskey">N</span>egation</label>
   <input id="span_mod_Speculation" type="checkbox" value="Speculation"/>
-  <label for="span_mod_Speculation">Speculation</label>
+  <label for="span_mod_Speculation"><span class="accesskey">S</span>peculation</label>
 </fieldset>
 </fieldset>
 """
