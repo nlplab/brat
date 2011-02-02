@@ -385,7 +385,7 @@ fieldset {
 }
 #span_scroller {
     background: #bbbbbb;
-    height: 400px;
+    height: 350px;
     width: 500px;
     overflow-y: scroll;
 }
