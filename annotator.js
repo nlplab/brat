@@ -1746,7 +1746,7 @@ $(function() {
     annotator.fillSpanTypesAndDisplayForm = function(spanText, span) {
       annotator.keymap = annotator.spanKeymap;
       $('#del_span_button').css('display', span ? 'inline' : 'none');
-      $('#span_selected').text('"' + spanText + '"');
+      $('#span_selected').text(spanText);
       var encodedText = encodeURIComponent(spanText);
       $('#span_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
       $('#span_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
