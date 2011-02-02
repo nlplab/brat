@@ -105,6 +105,9 @@ class AnnotationId(object):
 
 # We are NOT concerned with the conformity to the text file
 class Annotations(object):
+    def get_document(self):
+        return self._document
+
     #TODO: DOC!
     def __init__(self, document):
         #TODO: DOC!
@@ -112,6 +115,9 @@ class Annotations(object):
         from collections import defaultdict
         from os.path import basename, isfile
         import fileinput
+
+        # we should remember this
+        self._document = document
         
         self.failed_lines = []
 

@@ -143,7 +143,7 @@ def directories():
     response = { 'directories': dirlist }
     print dumps(response, sort_keys=True, indent=2)
 
-def document_json(document):
+def document_json_dict(document):
     #TODO: DOC!
     #TODO: Shouldn't this print be in the end? Or even here?
     from_offset = 0
@@ -231,9 +231,18 @@ def document_json(document):
         for i in issues:
             j_dic['infos'].append((str(i.ann_id), i.type, i.description))
 
-        print 'Content-Type: application/json\n'
-        print dumps(j_dic, sort_keys=True, indent=2)
+        return j_dic
+
+    # failed to get ann_obj
+    j_dic['error'] = "Error: no ann_obj in document_json_dict"
+    j_dic['duration'] = -1
+    return j_dic
     
+def document_json(document):
+    j_dic = document_json_dict(document)
+    print 'Content-Type: application/json\n'
+    print dumps(j_dic, sort_keys=True, indent=2)
+
 def saveSVG(directory, document, svg):
     dir = '/'.join([BASE_DIR, 'svg', directory])
     if not isdir(dir):
@@ -618,7 +627,12 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
                     neg_mod = None
 
         print 'Content-Type: application/json\n'
-        print dumps(mods.json_response(), sort_keys=True, indent=2)
+        mods_json = mods.json_response()
+        # save a roundtrip and send the annotations also
+        j_dic = document_json_dict(document)
+        mods_json["annotations"] = j_dic
+        print dumps(mods_json, sort_keys=True, indent=2)
+    
 
 # XXX: This didn't really look as pretty as planned
 # TODO: Prettify the decorator to preserve signature
@@ -698,7 +712,11 @@ def save_arc(ann_obj, origin, target, type, old_type):
         mods.added.append(ann)
 
     print 'Content-Type: application/json\n'
-    print dumps(mods.json_response(), sort_keys=True, indent=2)
+    mods_json = mods.json_response()
+    # save a roundtrip and send the annotations also
+    j_dic = document_json_dict(ann_obj.get_document())
+    mods_json["annotations"] = j_dic
+    print dumps(mods_json, sort_keys=True, indent=2)
     
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def delete_span(document, id):
@@ -731,7 +749,11 @@ def delete_span(document, id):
             return
 
         print 'Content-Type: application/json\n'
-        print dumps(mods.json_response(), sort_keys=True, indent=2)
+        mods_json = mods.json_response()
+        # save a roundtrip and send the annotations also
+        j_dic = document_json_dict(document)
+        mods_json["annotations"] = j_dic
+        print dumps(mods_json, sort_keys=True, indent=2)
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def delete_arc(document, origin, target, type):
@@ -792,7 +814,11 @@ def delete_arc(document, origin, target, type):
                         return
 
         print 'Content-Type: application/json\n'
-        print dumps(mods.json_response(), sort_keys=True, indent=2)
+        mods_json = mods.json_response()
+        # save a roundtrip and send the annotations also
+        j_dic = document_json_dict(document)
+        mods_json["annotations"] = j_dic
+        print dumps(mods_json, sort_keys=True, indent=2)
 
 class InvalidAuthException(Exception):
     pass
