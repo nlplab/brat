@@ -10,9 +10,12 @@ import re
 # TODO: this whole thing is an ugly hack. Event types should be read
 # from a proper separately stored ontology.
 
+# Note: nesting implies hierarchy structure; "!" at the start of a
+# type marks terms that should not be used for annotation (only
+# structure)
 __event_type_hierarchy = """
 GO:------- : catalysis
-GO:0006464 : protein modification process
+GO:0006464 : !protein modification process
   GO:0043543 : protein acylation
     GO:0006473 : protein acetylation
     GO:0018345 : protein palmitoylation
@@ -24,7 +27,7 @@ GO:0006464 : protein modification process
   GO:0006497 : protein lipidation
     GO:0018342 : protein prenylation
 #  GO:0070647 : protein modification by small protein conjugation or removal
-  GO:0032446 : protein modification by small protein conjugation
+  GO:0032446 : !protein modification by small protein conjugation
     GO:0045116 : protein neddylation
     GO:0016925 : protein sumoylation
     GO:0016567 : protein ubiquitination
@@ -38,7 +41,7 @@ GO:0006464 : protein modification process
   GO:0006470 : protein dephosphorylation
   GO:0051697 : protein delipidation
     GO:------- : protein deprenylation
-  GO:0070646 : protein modification by small protein removal
+  GO:0070646 : !protein modification by small protein removal
     GO:0000338 : protein deneddylation
     GO:0016926 : protein desumoylation
     GO:0016579 : protein deubiquitination"""
@@ -48,6 +51,10 @@ GO:0006464 : protein modification process
 class EventHierarchyNode:
     def __init__(self, GOid, GOtype):
         self.GOid, self.GOtype = GOid, GOtype
+        self.unused = False
+        if self.GOtype[0] == "!":
+            self.GOtype = self.GOtype[1:]
+            self.unused = True
         self.children = []
     def formtype(self):
         # abbreviated form of the GO type ala BioNLP ST
@@ -95,10 +102,14 @@ def generate_span_type_html(type_key_map):
 
     root_nodes = __read_event_hierarchy(__event_type_hierarchy.split("\n"))
 
-    def input_and_label(t, indent):
+    def input_and_label(t, indent, disabled):
         l = []
         nst = t.replace(" ","_")
-        l.append(indent+'    <input id="span_%s" name="span_type" type="radio" value="%s"/>' % (nst,nst))
+        if not disabled:
+            dstr = ""
+        else:
+            dstr = ' disabled="disabled"'
+        l.append(indent+'    <input id="span_%s" name="span_type" type="radio" value="%s" %s/>' % (nst,nst,dstr))
         s = indent+'    <label for="span_%s">' % nst
         if t not in type_key_map or t.lower().find(type_key_map[t].lower()) == -1:
             s += '%s</label>' % t
@@ -117,7 +128,7 @@ def generate_span_type_html(type_key_map):
             # simple item
             lines.append(indent+'<div class="item">')
             lines.append(indent+'  <div class="item_content">')
-            lines += input_and_label(t, indent)
+            lines += input_and_label(t, indent, node.unused)
             lines.append(indent+'  </div>')
             lines.append(indent+'</div>')
         else:
@@ -125,7 +136,7 @@ def generate_span_type_html(type_key_map):
             lines.append(indent+'<div class="item">')
             lines.append(indent+'  <div class="collapser open"></div>')
             lines.append(indent+'  <div class="item_content">')
-            lines += input_and_label(t, indent)
+            lines += input_and_label(t, indent, node.unused)
             lines.append(indent+'    <div class="collapsible open">')
 
             for n in node.children:
