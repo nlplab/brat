@@ -1287,7 +1287,7 @@ var Annotator = function(containerElement, onStart) {
             }
 
             var abbrevText = arcAbbreviation[arc.type] || arc.type;
-            if(((to-from)-(2*arcSlant))/7 > arc.type.length || !abbrevText) {
+            if(((to-from)-(2*arcSlant))/7 > arc.type.length || !abbrevText || ufoCatcher) {
               // no need to (or cannot) abbreviate
               // TODO cleaner heuristic
               abbrevText = arc.type;
