@@ -52,13 +52,12 @@ var Annotator = function(containerElement, onStart) {
   var space = 4;
   var boxSpacing = 1;
   var curlyHeight = 4;
-  var lineSpacing = 5;
   var arcSpacing = 9; //10;
   var arcSlant = 15; //10;
   var arcStartHeight = 19; //23; //25;
   var arcHorizontalSpacing = 25;
+  var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
   var dashArray = '3,3';
-  var rowSpacing = 5;
   var sentNumMargin = 20;
   var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
   var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
@@ -1288,7 +1287,7 @@ var Annotator = function(containerElement, onStart) {
             }
 
             var abbrevText = arcAbbreviation[arc.type] || arc.type;
-            if(((to-from)-(2*arcSlant))/7 > arc.type.length || !abbrevText) {
+            if(((to-from)-(2*arcSlant))/7 > arc.type.length || !abbrevText || ufoCatcher) {
               // no need to (or cannot) abbreviate
               // TODO cleaner heuristic
               abbrevText = arc.type;
@@ -1411,8 +1410,7 @@ var Annotator = function(containerElement, onStart) {
             rowBox = { x: 0, y: 0, height: 0, width: 0 };
           }
           if (row.hasAnnotations) {
-            rowBox.height = -rowBox.y;
-            rowBox.y -= rowSpacing;
+	    rowBox.height = -rowBox.y+rowSpacing;
           }
           svg.rect(backgroundGroup,
             0, y + curlyY + textHeight, canvasWidth, rowBox.height + textHeight + 1, {
@@ -1806,15 +1804,19 @@ $(function() {
 		displayMessage("No choices for "+originType+" -> "+targetType, true);
 	    } else {
 		$('#arc_roles').html(jsonData.html);
-		var el = $('#arc_' + arcType);
-		if (el.length) {
-		    el[0].checked = true;
-		}
 		annotator.keymap = jsonData.keymap;
 		if (arcId) {
 		    $('#arc_highlight_link').css('display', 'inline').attr('href', document.location + '/' + arcId);
+		    var el = $('#arc_' + arcType)[0];
+		    if (el) {
+			el.checked = true;
+		    }
 		} else {
 		    $('#arc_highlight_link').css('display', 'none');
+		    el = $('#arc_form input:radio:first')[0];
+		    if (el) {
+			el.checked = true;
+		    }
 		}
 		arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
 		$('#del_arc_button').css('display', arcType ? 'inline' : 'none');
@@ -1873,6 +1875,7 @@ $(function() {
             action: 'logout',
           },
           success: function(data) {
+            annotator.user = undefined;
             displayMessage(data);
             auth_button.val('Login');
           },
