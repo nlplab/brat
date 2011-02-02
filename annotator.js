@@ -849,7 +849,7 @@ var Annotator = function(containerElement, onStart) {
     this.redraw = false;
     this.drawing = true;
 
-      try {
+    try {
         if (_data) setData(_data);
 
         svg.clear(true);
@@ -1418,7 +1418,6 @@ var Annotator = function(containerElement, onStart) {
                 (editedSent && editedSent == currentSent ?
                  'Highlight' : row.backgroundIndex),
           });
-          //console.log(editedSent, row.sentence);
           y += rowBox.height;
           y += textHeight;
           row.textY = y;
@@ -1596,6 +1595,18 @@ $(function() {
     var saveUser;
     var savePassword;
 
+    var URLHash = function() {
+      var original = window.location.hash;
+      var parts = original.substr(1).split('/');
+      this.directory = parts[0];
+      this.edited = parts[1].split('--');
+      this.doc = this.edited.shift();
+
+      this.toString = function() {
+        this.directory + ([this.doc] + this.edited).join('--');
+      }
+    }
+
     var updateState = function(onRenderComplete) {
       if (annotator.drawing || lastHash == window.location.hash) return;
       lastHash = window.location.hash;
@@ -1605,15 +1616,12 @@ $(function() {
         getDirectory();
         return;
       }
-      if (parts[2]) {
-        if (parts[2] == 'save') {
-          renderAllToDisk();
-          return;
-        } else {
-          annotator.edited = parts[2].split('--');
-        }
+      if (parts[2] == 'save') {
+        renderAllToDisk();
+        return;
       }
-      var _doc = doc = parts[1];
+      annotator.edited = parts[1].split('--');
+      var _doc = doc = annotator.edited.shift();
       $('#document_select').val(_doc);
 
       if (_doc) {
@@ -1665,10 +1673,16 @@ $(function() {
           console.error(textStatus, errorThrown);
         },
         success: function(response) {
-          lastHash = null; // force reload
           if (displayMessagesAndCheckForErrors(response)) {
             annotator.edited = response.edited;
             renderDocument(_doc);
+            var newData = response.annotations;
+            if (newData) {
+              newData.document = _doc;
+              annotator.renderData(newData);
+            } else {
+              displayError("No data received!", true); // TODO?
+            }
           }
         }
       });
