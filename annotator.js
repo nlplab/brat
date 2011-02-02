@@ -1725,15 +1725,15 @@ $(function() {
         if (el.length) {
           el[0].checked = true;
         }
-        if (el = $('#span_mod_Negation')[0]) {
-          el.checked = span.Negation;
-        }
-        if (el = $('#span_mod_Speculation')[0]) {
-          el.checked = span.Speculation;
-        }
       } else {
         annotator.keymap[46] = undefined;
         $('#span_form input:radio:first')[0].checked = true;
+      }
+      if (el = $('#span_mod_Negation')[0]) {
+        el.checked = span ? span.Negation : false;
+      }
+      if (el = $('#span_mod_Speculation')[0]) {
+        el.checked = span ? span.Speculation : false;
       }
       $('#span_form').css('display', 'block');
       $('#span_form input:submit').focus();
