@@ -558,7 +558,7 @@ class ModifierAnnotation(IdedAnnotation):
 
     def get_deps(self):
         soft_deps, hard_deps = IdedAnnotation.get_deps(self)
-        hard_deps.add(AnnotationId(self.target))
+        hard_deps.add(self.target)
         return (soft_deps, hard_deps)
 
 
