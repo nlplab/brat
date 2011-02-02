@@ -878,25 +878,14 @@ def delete_span(document, id):
         #XXX: Slow, O(2N)
         ann = ann_obj.get_ann_by_id(id)
         try:
-            ann_obj.del_annotation(ann)
-            mods.deleted.append(ann)
+            # Note: need to pass the tracker to del_annotation to track
+            # recursive deletes. TODO: make usage consistent.
+            ann_obj.del_annotation(ann, mods)
             try:
                 #TODO: Why do we need this conversion? Isn't it an id?
                 trig = ann_obj.get_ann_by_id(AnnotationId(ann.trigger))
                 try:
-                    ann_obj.del_annotation(trig)
-                    mods.deleted.append(trig)
-                    
-                    # We can't do this at this stage, to be removed before ann
-                    '''
-                    for mod_ann in ann_obj.get_modifers():
-                        if mod_ann.target == ann.id:
-                            try:
-                                ann_obj.del_annotation(trig)
-                                mods.deleted.append(trig)
-                            except DependingAnnotationDeleteError:
-                                assert False, 'insane'
-                    '''
+                    ann_obj.del_annotation(trig, mods)
                 except DependingAnnotationDeleteError:
                     # Someone else depended on that trigger
                     pass

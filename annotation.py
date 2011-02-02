@@ -48,13 +48,13 @@ class InvalidIdError(Exception):
 
 
 class DependingAnnotationDeleteError(Exception):
-    def __init__(self, target, dependant):
+    def __init__(self, target, dependants):
         self.target = target
-        self.dependant = dependant
+        self.dependants = dependants
 
     def __str__(self):
-        return '{} can not be deleted due to depending annotation {}'.format(
-                self.target, self.dependant)
+        return '{} can not be deleted due to depending annotations {}'.format(
+                self.target, self.dependants)
 
     def json_error_response(self, response=None):
         if response is None:
@@ -64,10 +64,10 @@ class DependingAnnotationDeleteError(Exception):
         <br/>
         {}
         <br/>
-        Has a depending annotation attached to it:
+        Has depending annotations attached to it:
         <br/>
         {}
-        '''.format(self.target, self.dependant)
+        '''.format(self.target, self.dependants)
         return response
 
 
@@ -218,7 +218,7 @@ class Annotations(object):
                                 self.del_annotation(merge_cand)
                             except DependingAnnotationDeleteError:
                                 assert False, ('Equivs lack ids and should '
-                                        'never have dependents')
+                                        'never have dependent annotations')
                         merge_cand = eq_ann
                         # We already merged it all, break to the next ann
                         break
@@ -245,23 +245,46 @@ class Annotations(object):
         self._lines.append(ann)
         self._line_by_ann[ann] = len(self) - 1 
 
-    def del_annotation(self, ann):
+    def del_annotation(self, ann, tracker=None):
         #TODO: Check read only
         #TODO: Flag to allow recursion
         #TODO: Sampo wants to allow delet of direct deps but not indirect, one step
-        #TODO: We really want modifications to be pervasive and be deleted for events
+        #TODO: needed to pass tracker to track recursive mods, but use is too
+        #      invasive (direct modification of LineModificationTracker.deleted)
         #TODO: DOC!
         try:
             ann.id
         except AttributeError:
             # If it doesn't have an id, nothing can depend on it
+            if tracker is not None:
+                tracker.deleted.append(ann)
             self._atomic_del_annotation(ann)
             return
 
+        # collect annotations dependending on ann
+        ann_deps = []
+
         for other_ann in self:
             soft_deps, hard_deps = other_ann.get_deps()
-            if str(ann.id) in soft_deps or str(ann.id) in hard_deps:
-                raise DependingAnnotationDeleteError(ann, other_ann)
+            if str(ann.id) in soft_deps | hard_deps:
+                ann_deps.append(other_ann)
+              
+        # If all depending are ModifierAnnotations, delete all
+        # recursively (without confirmation) and clear.
+        # Note: this assumes ModifierAnnotations cannot have
+        # other dependencies depending on them.
+        if len([d for d in ann_deps if not isinstance(d, ModifierAnnotation)]) == 0:
+            for d in ann_deps:
+                if tracker is not None:
+                    tracker.deleted.append(d)
+                self._atomic_del_annotation(d)
+            ann_deps = []
+            
+        if ann_deps:
+            raise DependingAnnotationDeleteError(ann, ann_deps)
+
+        if tracker is not None:
+            tracker.deleted.append(ann)
         self._atomic_del_annotation(ann)
 
     def _atomic_del_annotation(self, ann):
