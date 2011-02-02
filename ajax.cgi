@@ -388,7 +388,6 @@ def arc_types_html(origin_type, target_type):
     print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
 
-
 #TODO: Couldn't we incorporate this nicely into the Annotations class?
 class LineModificationTracker(object):
     def __init__(self):
@@ -423,7 +422,6 @@ class LineModificationTracker(object):
         else:
             response['message'] = 'No changes made'
         return response
-
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def save_span(document, start_str, end_str, type, negation, speculation, id):
@@ -642,7 +640,8 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
             mods_json['error'] = 'Text span contained new-line, rejected'
             mods_json['duration'] = 3
         # save a roundtrip and send the annotations also
-        j_dic = document_json_dict(document)
+        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+        j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json['annotations'] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
     
@@ -728,14 +727,22 @@ def save_arc(ann_obj, origin, target, type, old_type):
     mods_json = mods.json_response()
 
     # Hack since we don't have the actual text, should use a factory?
-    j_dic = {}
-    enrich_json_with_base(j_dic)
-    with open(ann_obj.get_document() + '.' + TEXT_FILE_SUFFIX, 'r') as txt_file:
-        enrich_json_with_text(j_dic, txt_file)
-    enrich_json_with_data(j_dic, ann_obj)
+    txt_file_path = ann_obj.get_document() + '.' + TEXT_FILE_SUFFIX
+    j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
+
     mods_json['annotations'] = j_dic
     print dumps(mods_json, sort_keys=True, indent=2)
-    
+
+# Hack for the round-trip
+def json_from_ann_and_txt(ann_obj, txt_file_path):
+    j_dic = {}
+    enrich_json_with_base(j_dic)
+    with open(txt_file_path, 'r') as txt_file:
+        enrich_json_with_text(j_dic, txt_file)
+    enrich_json_with_data(j_dic, ann_obj)
+    return j_dic
+
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def delete_span(document, id):
     id = AnnotationId(id)
@@ -769,7 +776,8 @@ def delete_span(document, id):
         print 'Content-Type: application/json\n'
         mods_json = mods.json_response()
         # save a roundtrip and send the annotations also
-        j_dic = document_json_dict(document)
+        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+        j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json["annotations"] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
 
@@ -834,7 +842,8 @@ def delete_arc(document, origin, target, type):
         print 'Content-Type: application/json\n'
         mods_json = mods.json_response()
         # save a roundtrip and send the annotations also
-        j_dic = document_json_dict(document)
+        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+        j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json["annotations"] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
 
