@@ -1801,22 +1801,27 @@ $(function() {
         target: targetType,
       }, function(jsonData) {
         if (displayMessagesAndCheckForErrors(jsonData)) {
-	  $('#arc_roles').html(jsonData.html);
-	  var el = $('#arc_' + arcType);
-	  if (el.length) {
-	    el[0].checked = true;
-	  }
-          annotator.keymap = jsonData.keymap;
-          if (arcId) {
-            $('#arc_highlight_link').css('display', 'inline').attr('href', document.location + '/' + arcId);
-          } else {
-            $('#arc_highlight_link').css('display', 'none');
-          }
-	  arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
-          $('#del_arc_button').css('display', arcType ? 'inline' : 'none');
-          if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
-	  $('#arc_form').css('display', 'block');
-          $('#arc_form input:submit').focus();
+	    if (jsonData.empty && !arcType) {
+		// no valid choices
+		displayMessage("No choices for "+originType+" -> "+targetType, true);
+	    } else {
+		$('#arc_roles').html(jsonData.html);
+		var el = $('#arc_' + arcType);
+		if (el.length) {
+		    el[0].checked = true;
+		}
+		annotator.keymap = jsonData.keymap;
+		if (arcId) {
+		    $('#arc_highlight_link').css('display', 'inline').attr('href', document.location + '/' + arcId);
+		} else {
+		    $('#arc_highlight_link').css('display', 'none');
+		}
+		arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+		$('#del_arc_button').css('display', arcType ? 'inline' : 'none');
+		if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
+		$('#arc_form').css('display', 'block');
+		$('#arc_form input:submit').focus();
+	    }
 	}
       });
     };

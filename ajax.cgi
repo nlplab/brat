@@ -356,7 +356,10 @@ def arc_types_html(origin_type, target_type):
         if possible is None:
             response['error'] = 'Error selecting arc types!'
         elif possible == []:
-            response['error'] = 'No choices for %s -> %s' % (origin_type, target_type)
+            # nothing to select
+            response['html'] = "<fieldset><legend>Type</legend>(No valid arc types)</fieldset>"
+            response['keymap'] = {}
+            response['empty'] = True
         else:
             # pick hotkeys
             key_taken = {}
