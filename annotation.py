@@ -54,7 +54,7 @@ class DependingAnnotationDeleteError(Exception):
 
     def __str__(self):
         return '{} can not be deleted due to depending annotations {}'.format(
-                self.target, self.dependants)
+                self.target, ",".join([str(d) for d in self.dependants]))
 
     def json_error_response(self, response=None):
         if response is None:
@@ -67,7 +67,7 @@ class DependingAnnotationDeleteError(Exception):
         Has depending annotations attached to it:
         <br/>
         {}
-        '''.format(self.target, self.dependants)
+        '''.format(self.target, ",".join([str(d) for d in self.dependants]))
         return response
 
 
