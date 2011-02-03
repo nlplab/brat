@@ -476,7 +476,10 @@ class Annotations(object):
 
     def __str__(self):
         s = '\n'.join(str(ann).rstrip('\n') for ann in self)
-        return s if s[-1] == '\n' else s + '\n'
+        if not s:
+            return ""
+        else:
+            return s if s[-1] == '\n' else s + '\n'
 
     def __it__(self):
         for ann in self._lines:

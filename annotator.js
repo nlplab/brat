@@ -428,7 +428,11 @@ var Annotator = function(containerElement, onStart) {
           to: selectedTo,
         };
         var spanText = data.text.substring(selectedFrom, selectedTo);
-        annotator.fillSpanTypesAndDisplayForm(spanText);
+        if (spanText.indexOf("\n") != -1) {
+          displayMessage("Error: cannot annotate across a sentence break", true);
+        } else {
+          annotator.fillSpanTypesAndDisplayForm(spanText);
+        }
       }
     }
   };
@@ -1697,7 +1701,7 @@ $(function() {
     var format_time = function(secs) {
 	var month_name = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 	jdate = new Date(secs);
-	return jdate.getDate() + ' ' + month_name[jdate.getMonth()] + ' ' + jdate.getFullYear() + ' ' + jdate.getHours() + ':' + jdate.getMinutes();
+	return jdate.getDate() + ' ' + month_name[jdate.getMonth()] + ' ' + jdate.getFullYear() + ' ' + jdate.getHours() + ':' + (jdate.getMinutes() < 10 ? '0' : '') + jdate.getMinutes() ;
     }
 
     var updateState = function(onRenderComplete) {
