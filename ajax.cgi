@@ -147,7 +147,13 @@ def directories():
 def _sentence_split(txt_file_path):
     from geniass import sentence_split_file
     try:
-        return sentence_split_file(txt_file_path, use_cache=True)
+        ret = sentence_split_file(txt_file_path, use_cache=True)
+        # This ought to be the hack of the month, if we got nothing back,
+        # fake an exception and fall into the heuristic.
+        if not ret:
+            err = OSError()
+            err.errno = 2
+            raise err
     except OSError, e:
         # If the file is not found we do an ugly fall-back, this is far
         # too general of an exception handling at the moment.
