@@ -514,8 +514,14 @@ class Annotations(object):
 
             # Was it changed?
             if out_str != old_str:
-                with open(self._input_files[0], 'w') as ann_file:
-                    ann_file.write(out_str)
+                from tempfile import NamedTemporaryFile
+                # TODO: XXX: Is copyfile really atomic?
+                from shutil import copyfile
+                with NamedTemporaryFile('w') as tmp_file:
+                    tmp_file.write(out_str)
+                    tmp_file.flush()
+                    # Move the temporary file onto the old file
+                    copyfile(tmp_file.name, self._input_files[0])
         return
 
     def __in__(self, other):
