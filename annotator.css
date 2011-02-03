@@ -420,3 +420,13 @@ fieldset {
   background-color: #99FFFF;
   border: 1px solid #66CCCC;
 }
+#blind {
+  z-index: 5;
+  opacity: 0.5;
+  background-color: #000000;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
