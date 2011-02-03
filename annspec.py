@@ -92,7 +92,7 @@ regulation_arguments = {
         'Cause' : core_physical_entity + ['event'],
         #'Theme' : physical_entity_types + ['event'], # AZ version
         #'Cause' : physical_entity_types + ['event'], # AZ version
-        'Site'  : any_site_entity,
+        #'Site'  : any_site_entity,
         'CSite' : any_site_entity,
         }
 
