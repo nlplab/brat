@@ -1012,7 +1012,7 @@ var Annotator = function(containerElement, onStart) {
                  bx - editedSize, by - editedSize,
                  bw + 2 * editedSize, bh + 2 * editedSize, {
 
-                 filter: 'url(#Gaussian_Blur)',
+                 // filter: 'url(#Gaussian_Blur)',
                  'class': "shadow_EditHighlight",
                  rx: editedSize,
                  ry: editedSize,
@@ -1343,7 +1343,7 @@ var Annotator = function(containerElement, onStart) {
             svg.rect(shadowGroup,
                 textBox.x - editedSize, textBox.y - editedSize,
                 textBox.width + 2 * editedSize, textBox.height + 2 * editedSize, {
-                  filter: 'url(#Gaussian_Blur)',
+                  // filter: 'url(#Gaussian_Blur)',
                   'class': "shadow_EditHighlight",
                   rx: editedSize,
                   ry: editedSize,
@@ -1389,7 +1389,7 @@ var Annotator = function(containerElement, onStart) {
           });
           if (arc.edited) {
             svg.path(shadowGroup, path, {
-                'class': 'shadow_EditHighlight',
+                'class': 'shadow_EditHighlight_arc',
                 strokeWidth: editedStroke,
             });
           }
@@ -1423,7 +1423,7 @@ var Annotator = function(containerElement, onStart) {
           });
           if (arc.edited) {
             svg.path(shadowGroup, path, {
-                'class': 'shadow_EditHighlight',
+                'class': 'shadow_EditHighlight_arc',
                 strokeWidth: editedStroke,
             });
           }
