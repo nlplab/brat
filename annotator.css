@@ -416,7 +416,10 @@ fieldset {
 #span_highlight_link, #arc_highlight_link {
   float: right;
 }
-
+#document_ctime, #document_mtime {
+  background-color: #99FFFF;
+  border: 1px solid #66CCCC;
+}
 #blind {
   z-index: 5;
   opacity: 0.5;
