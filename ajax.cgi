@@ -1020,6 +1020,20 @@ def main():
                     saveSVG(directory, document, svg)
                 else:
                     document_json(docpath)
+            except IOError, e:
+                #TODO: This is too general, should be caught at a higher level
+                # No such file or directory
+                if e.errno == 2:
+                    print 'Content-Type: application/json\n'
+                    error_msg = 'Error: file not found'
+                    print dumps(
+                            {
+                                'error': error_msg,
+                                'duration': -1,
+                                },
+                            sort_keys=True, indent=2)
+                else:
+                    raise
             except Exception, e:
                 # Catch even an interpreter crash
                 if DEBUG:
