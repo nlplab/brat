@@ -2029,13 +2029,13 @@ $(function() {
       // HERE
       hideAllForms();
       return false;
-    } else if (code == 37) { // Left arrow
+    } else if (!formDisplayed && code == 37) { // Left arrow
       var select = $('#document_select')[0];
       if (select.selectedIndex > 1) {
         select.selectedIndex = select.selectedIndex - 1;
         annotator.renderSelected();
       }
-    } else if (code == 39) { // Right arrow
+    } else if (!formDisplayed && code == 39) { // Right arrow
       var select = $('#document_select')[0];
       if (select.selectedIndex < select.length - 1) {
         select.selectedIndex = select.selectedIndex + 1;
@@ -2045,6 +2045,12 @@ $(function() {
         annotator.keymap[foo = String.fromCharCode(code)]) {
       var el = $('#' + mapping);
       if (el.length) el[0].click();
+    }
+  });
+  $('#document_select').keydown(function(evt) {
+    var code = evt.keyCode;
+    if (code == 37 || code == 39) { // Left/right arrow
+      return false;
     }
   });
 
