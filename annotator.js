@@ -428,7 +428,11 @@ var Annotator = function(containerElement, onStart) {
           to: selectedTo,
         };
         var spanText = data.text.substring(selectedFrom, selectedTo);
-        annotator.fillSpanTypesAndDisplayForm(spanText);
+        if (spanText.indexOf("\n") != -1) {
+          displayMessage("Error: cannot annotate across a sentence break", true);
+        } else {
+          annotator.fillSpanTypesAndDisplayForm(spanText);
+        }
       }
     }
   };
