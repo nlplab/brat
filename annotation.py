@@ -241,6 +241,9 @@ class Annotations(object):
 
             if merge_cand != ann:
                 # The proposed annotation was simply merged, no need to add it
+                # Update the modification time
+                from time import time
+                self.ann_mtime = time()
                 return
 
         except AttributeError:
@@ -278,6 +281,9 @@ class Annotations(object):
             if tracker is not None:
                 tracker.deleted.append(ann)
             self._atomic_del_annotation(ann)
+            # Update the modification time
+            from time import time
+            self.ann_mtime = time()
             return
 
         # collect annotations dependending on ann
@@ -324,6 +330,9 @@ class Annotations(object):
         # to reflect the new self._lines
         for l_num in xrange(ann_line, len(self)):
             self._line_by_ann[self[l_num]] = l_num
+        # Update the modification time
+        from time import time
+        self.ann_mtime = time()
     
     def get_ann_by_id(self, id):
         #TODO: DOC
