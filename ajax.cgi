@@ -144,10 +144,22 @@ def directories():
     response = { 'directories': dirlist }
     print dumps(response, sort_keys=True, indent=2)
 
+def _sentence_split(txt_file_path):
+    from geniass import sentence_split_file
+    try:
+        return sentence_split_file(txt_file_path, use_cache=True)
+    except OSError, e:
+        # If the file is not found we do an ugly fall-back, this is far
+        # too general of an exception handling at the moment.
+        if e.errno == 2:
+            with open(txt_file_path, 'r') as txt_file:
+                return sub(r'(\. *) ([A-Z])',r'\1\n\2', txt_file.read())
+        else:
+            raise
+
 #TODO: All this enrichment isn't a good idea, at some point we need an object
-def enrich_json_with_text(j_dic, txt_file):
-    # TODO: replace this crude heuristic with proper sentence splitting
-    j_dic['text'] = sub(r'(\. *) ([A-Z])',r'\1\n\2', txt_file.read())
+def enrich_json_with_text(j_dic, txt_file_path):
+    j_dic['text'] = _sentence_split(txt_file_path)
 
 def enrich_json_with_data(j_dic, ann_obj):
     # We collect trigger ids to be able to link the textbound later on
@@ -231,8 +243,7 @@ def document_json_dict(document):
 
     #TODO: We don't check if the files exist, let's be more error friendly
     # Read in the textual data to make it ready to push
-    with open(document + '.' + TEXT_FILE_SUFFIX, 'r') as txt_file:
-        enrich_json_with_text(j_dic, txt_file)
+    enrich_json_with_text(j_dic, document + '.' + TEXT_FILE_SUFFIX)
 
     with Annotations(document) as ann_obj:
         enrich_json_with_data(j_dic, ann_obj)
@@ -771,8 +782,7 @@ def save_arc(ann_obj, origin, target, type, old_type):
 def json_from_ann_and_txt(ann_obj, txt_file_path):
     j_dic = {}
     enrich_json_with_base(j_dic)
-    with open(txt_file_path, 'r') as txt_file:
-        enrich_json_with_text(j_dic, txt_file)
+    enrich_json_with_text(j_dic, txt_file_path)
     enrich_json_with_data(j_dic, ann_obj)
     return j_dic
 
@@ -1091,12 +1101,11 @@ def debug():
                 #exit(0)
     '''
 
-    #a = Annotations(
-    #        'data/BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553.ann')
-    #print a
+    from os.path import dirname, join
+    debug_file_path = join(dirname(__file__), 'data',
+            'BioNLP-ST_2011_Epi_and_PTM_development_data', 'PMID-10086714')
 
-    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
-        'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
+    args = (debug_file_path,
         '59',
         '74',
         'Protein',
@@ -1107,28 +1116,29 @@ def debug():
     save_span(*args)
 
     '''
-    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
-        'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
+    args = (debug_file_path,
         'T31',
         )
     delete_span(*args)
     '''
 
-    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
-        'BioNLP-ST_2011_Epi_and_PTM_training_data/PMID-10190553'),
+    args = (debug_file_path,
         'T5',
         'T4',
         'Equiv',
+        None
         )
     save_arc(*args)
     
-    args = (('/data/home/genia/public_html/BioNLP-ST/pontus/visual/data/'
-        'BioNLP-ST_2011_Epi_and_PTM_development_data/PMID-10086714'),
+    args = (debug_file_path,
         'E2',
         'T10',
         'Theme',
+        None
         )
     save_arc(*args)
+
+    args = args[:-1] 
     delete_arc(*args)
 
 
