@@ -890,6 +890,15 @@ var Annotator = function(containerElement, onStart) {
     try {
       if (_data) setData(_data);
 
+      if (_data.mtime) {
+	  // we're getting seconds and need milliseconds
+	  //$('#document_ctime').text("Created: " + Annotator.format_time(1000*_data.ctime)).css("display", "inline");
+	  $('#document_mtime').text("Last modified: " + Annotator.format_time(1000*_data.mtime)).css("display", "inline");
+      } else {
+	  //$('#document_ctime').css("display", "none");
+	  $('#document_mtime').css("display", "none");
+      }
+
       svg.clear(true);
       var defs = svg.defs();
       var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
@@ -1698,10 +1707,10 @@ $(function() {
       }
     }
 
-    var format_time = function(secs) {
+    Annotator.format_time = function(secs) {
 	var month_name = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 	jdate = new Date(secs);
-	return jdate.getDate() + ' ' + month_name[jdate.getMonth()] + ' ' + jdate.getFullYear() + ' ' + jdate.getHours() + ':' + (jdate.getMinutes() < 10 ? '0' : '') + jdate.getMinutes() ;
+	return jdate.getDate() + ' ' + month_name[jdate.getMonth()] + ' ' + jdate.getFullYear() + ' ' + jdate.getHours() + ':' + (jdate.getMinutes() < 10 ? '0' : '') + jdate.getMinutes()
     }
 
     var updateState = function(onRenderComplete) {
@@ -1744,14 +1753,6 @@ $(function() {
           }
           displayMessagesAndCheckForErrors(jsonData);
           jsonData.document = _doc;
-	  if (jsonData.mtime) {
-	      // we're getting seconds and need milliseconds
-	      //$('#document_ctime').text("Created: " + format_time(1000*jsonData.ctime)).css("display", "inline");
-	      $('#document_mtime').text("Last modified: " + format_time(1000*jsonData.mtime)).css("display", "inline");
-	  } else {
-	      //$('#document_ctime').css("display", "none");
-	      $('#document_mtime').css("display", "none");
-	  }
           annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
             onRenderComplete.call(annotator, jsonData.error);
