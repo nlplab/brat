@@ -113,7 +113,7 @@ sidechain_modification_arguments = {
 contextgene_modification_arguments = {
         'Theme'       : core_physical_entity,
         'Site'        : protein_site_entity,
-        'Contextgene' : core_physical_entity,
+        'Contextgene' : ['Gene_or_gene_product'],
         }
 
 event_argument_types = {

@@ -116,7 +116,7 @@ var Annotator = function(containerElement, onStart) {
       "Protein_family_or_group": [ "PFG" ],
       "DNA_domain_or_region" : [ "DDR" ],
       "Protein_domain_or_region": [ "PDR" ],
-      "Amino_acid_monomer"   : [ "ACM" ],
+      "Amino_acid_monomer"   : [ "AA" ],
       "Carbohydrate"         : [ "Carb" ],
 
       'Acylation'            : [ "Acyl" ],

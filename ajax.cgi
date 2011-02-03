@@ -287,10 +287,11 @@ def span_types_html():
         'D': 'DNA_domain_or_region',
         'F': 'Protein_family_or_group',
         'R': 'Protein_domain_or_region',
+        'O': 'Amino_acid_monomer',
         'E': 'Entity',
         'H': 'Hydroxylation',
         #'R': 'Dehydroxylation',
-        'O': 'Phosphorylation',
+        #'O': 'Phosphorylation',
         'U': 'Ubiquitination',
         #'B': 'Deubiquitination',
         #'G': 'Glycosylation',
@@ -329,18 +330,21 @@ def span_types_html():
 </div></div>
 -->
 <div class="item"><div class="item_content">
-   <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group"><span class="accesskey"></span>Protein <span class="accesskey">f</span>amily or group</label>
+   <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group">Protein <span class="accesskey">f</span>amily or group</label>
 </div></div>
 <hr/>
 <div class="item"><div class="item_content">
-   <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region"><span class="accesskey"></span>Protein domain or <span class="accesskey">r</span>egion</label>
+   <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region">Protein domain or <span class="accesskey">r</span>egion</label>
 </div></div>
 <div class="item"><div class="item_content">
-   <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey"></span><span class="accesskey">D</span>NA domain or region</label>
+   <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey">D</span>NA domain or region</label>
+</div></div>
+<div class="item"><div class="item_content">
+   <input id="span_Amino_acid_monomer" name="span_type" type="radio" value="Amino_acid_monomer"/><label for="span_Amino_acid_monomer">Amino acid m<span class="accesskey">o</span>nomer</label>
 </div></div>
 <hr/>
 <div class="item"><div class="item_content">
-   <input id="span_Carbohydrate" name="span_type" type="radio" value="Carbohydrate"/><label for="span_Carbohydrate"><span class="accesskey"></span>Carbohydrate</label>
+   <input id="span_Carbohydrate" name="span_type" type="radio" value="Carbohydrate"/><label for="span_Carbohydrate">Carbohydrate</label>
 </div></div>
 </fieldset>
 <fieldset>
