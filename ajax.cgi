@@ -43,7 +43,6 @@ from annotation import (TextBoundAnnotation, AnnotationId, EquivAnnotation,
 ### Constants?
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
 COOKIE_ID = 'brat-cred'
-DEBUG = True
 
 # Try to import our configurations
 from copy import deepcopy
@@ -54,7 +53,7 @@ CONF_FNAME = 'config.py'
 CONF_TEMPLATE_FNAME = 'config_template.py'
 CONF_NAME = CONF_FNAME.replace('.py', '')
 # Add new configuration variables here
-CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR', 'USERNAME', 'PASSWORD']
+CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR', 'USERNAME', 'PASSWORD', 'DEBUG']
 
 # We unset the path so that we can import being sure what we import
 _old_path = deepcopy(path)
@@ -663,7 +662,10 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
 
         print 'Content-Type: application/json\n'
         if ann is not None:
-            mods_json = mods.json_response()
+            if DEBUG:
+                mods_json = mods.json_response()
+            else:
+                mods_json = {}
         else:
             # Hack, we had a new-line in the span
             mods_json = {}
@@ -753,7 +755,10 @@ def save_arc(ann_obj, origin, target, type, old_type):
         mods.added.append(ann)
 
     print 'Content-Type: application/json\n'
-    mods_json = mods.json_response()
+    if DEBUG:
+        mods_json = mods.json_response()
+    else:
+        mods_json = {}
 
     # Hack since we don't have the actual text, should use a factory?
     txt_file_path = ann_obj.get_document() + '.' + TEXT_FILE_SUFFIX
@@ -803,7 +808,10 @@ def delete_span(document, id):
             return
 
         print 'Content-Type: application/json\n'
-        mods_json = mods.json_response()
+        if DEBUG:
+            mods_json = mods.json_response()
+        else:
+            mods_json = {}
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
@@ -869,7 +877,10 @@ def delete_arc(document, origin, target, type):
                         return
 
         print 'Content-Type: application/json\n'
-        mods_json = mods.json_response()
+        if DEBUG:
+            mods_json = mods.json_response()
+        else:
+            mods_json = {}
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
