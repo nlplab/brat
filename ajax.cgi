@@ -43,7 +43,6 @@ from annotation import (TextBoundAnnotation, AnnotationId, EquivAnnotation,
 ### Constants?
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
 COOKIE_ID = 'brat-cred'
-DEBUG = True
 
 # Try to import our configurations
 from copy import deepcopy
@@ -54,7 +53,7 @@ CONF_FNAME = 'config.py'
 CONF_TEMPLATE_FNAME = 'config_template.py'
 CONF_NAME = CONF_FNAME.replace('.py', '')
 # Add new configuration variables here
-CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR', 'USERNAME', 'PASSWORD']
+CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR', 'USERNAME', 'PASSWORD', 'DEBUG']
 
 # We unset the path so that we can import being sure what we import
 _old_path = deepcopy(path)
@@ -127,14 +126,16 @@ def my_listdir(directory):
             # XXX: A hack to remove what we don't want to be seen
             if not (l.startswith('hidden_') or l.startswith('.'))]
 
-def directory_options(directory):
-    print 'Content-Type: text/html\n'
-    print "<option value=''>-- Select Document --</option>"
-    dirlist = [file[0:-4] for file in my_listdir(directory)
-            if file.endswith('txt')]
-    dirlist.sort()
-    for file in dirlist:
-        print '<option>%s</option>' % file
+def documents(directory):
+    print 'Content-Type: application/json\n'
+    try:
+        dirlist = [file[0:-4] for file in my_listdir(directory)
+                if file.endswith('txt')]
+        dirlist.sort()
+        response = { 'docnames': dirlist, 'message': None }
+    except OSError, x:
+        response = { 'error': 'Error: No such directory: ' + directory }
+    print dumps(response, sort_keys=True, indent=2)
 
 def directories():
     print 'Content-Type: application/json\n'
@@ -278,20 +279,26 @@ def span_types_html():
 
     # just hard-coded for now
     keymap =  {
-        'P': 'Protein',
+        #'P': 'Protein',
+        'P': 'Phosphorylation',
+        'G': 'Gene_or_gene_product',
+        'D': 'DNA_domain_or_region',
+        'F': 'Protein_family_or_group',
+        'R': 'Protein_domain_or_region',
+        'O': 'Amino_acid_monomer',
         'E': 'Entity',
         'H': 'Hydroxylation',
-        'R': 'Dehydroxylation',
-        'O': 'Phosphorylation',
+        #'R': 'Dehydroxylation',
+        #'O': 'Phosphorylation',
         'U': 'Ubiquitination',
-        'B': 'Deubiquitination',
-        'G': 'Glycosylation',
-        'L': 'Deglycosylation',
+        #'B': 'Deubiquitination',
+        #'G': 'Glycosylation',
+        #'L': 'Deglycosylation',
         'A': 'Acetylation',
-        'T': 'Deacetylation',
+        #'T': 'Deacetylation',
         'M': 'Methylation',
-        'Y': 'Demethylation',
-        'D': 'DNA_methylation',
+        #'Y': 'Demethylation',
+        #'D': 'DNA_methylation',
         'C': 'Catalysis',
         'N': 'mod_Negation',
         'S': 'mod_Speculation',
@@ -313,7 +320,7 @@ def span_types_html():
     response['html']  = """<fieldset>
 <legend>Entities</legend>
 <div class="item"><div class="item_content">
-   <input id="span_Protein" name="span_type" type="radio" value="Protein"/><label for="span_Protein"><span class="accesskey">P</span>rotein</label>
+   <input id="span_Gene_or_gene_product" name="span_type" type="radio" value="Gene_or_gene_product"/><label for="span_Gene_or_gene_product"><span class="accesskey">G</span>ene or gene product</label>
 </div></div>
 <!--
 <div class="item"><div class="item_content">
@@ -321,16 +328,21 @@ def span_types_html():
 </div></div>
 -->
 <div class="item"><div class="item_content">
-   <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group"><span class="accesskey"></span>Protein_family_or_group</label>
+   <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group">Protein <span class="accesskey">f</span>amily or group</label>
+</div></div>
+<hr/>
+<div class="item"><div class="item_content">
+   <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region">Protein domain or <span class="accesskey">r</span>egion</label>
 </div></div>
 <div class="item"><div class="item_content">
-   <input id="span_Carbohydrate" name="span_type" type="radio" value="Carbohydrate"/><label for="span_Carbohydrate"><span class="accesskey"></span>Carbohydrate</label>
+   <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey">D</span>NA domain or region</label>
 </div></div>
 <div class="item"><div class="item_content">
-   <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region"><span class="accesskey"></span>Protein_domain_or_region</label>
+   <input id="span_Amino_acid_monomer" name="span_type" type="radio" value="Amino_acid_monomer"/><label for="span_Amino_acid_monomer">Amino acid m<span class="accesskey">o</span>nomer</label>
 </div></div>
+<hr/>
 <div class="item"><div class="item_content">
-   <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey"></span>DNA_domain_or_region</label>
+   <input id="span_Carbohydrate" name="span_type" type="radio" value="Carbohydrate"/><label for="span_Carbohydrate">Carbohydrate</label>
 </div></div>
 </fieldset>
 <fieldset>
@@ -650,7 +662,10 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
 
         print 'Content-Type: application/json\n'
         if ann is not None:
-            mods_json = mods.json_response()
+            if DEBUG:
+                mods_json = mods.json_response()
+            else:
+                mods_json = {}
         else:
             # Hack, we had a new-line in the span
             mods_json = {}
@@ -740,7 +755,10 @@ def save_arc(ann_obj, origin, target, type, old_type):
         mods.added.append(ann)
 
     print 'Content-Type: application/json\n'
-    mods_json = mods.json_response()
+    if DEBUG:
+        mods_json = mods.json_response()
+    else:
+        mods_json = {}
 
     # Hack since we don't have the actual text, should use a factory?
     txt_file_path = ann_obj.get_document() + '.' + TEXT_FILE_SUFFIX
@@ -790,7 +808,10 @@ def delete_span(document, id):
             return
 
         print 'Content-Type: application/json\n'
-        mods_json = mods.json_response()
+        if DEBUG:
+            mods_json = mods.json_response()
+        else:
+            mods_json = {}
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
@@ -856,7 +877,10 @@ def delete_arc(document, origin, target, type):
                         return
 
         print 'Content-Type: application/json\n'
-        mods_json = mods.json_response()
+        if DEBUG:
+            mods_json = mods.json_response()
+        else:
+            mods_json = {}
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
@@ -959,7 +983,7 @@ def main():
         real_directory = join_path(DATA_DIR, directory)
 
         if document is None:
-            directory_options(real_directory)
+            documents(real_directory)
         else:
             docpath = join_path(real_directory, document)
             span = params.getvalue('span')
@@ -996,6 +1020,20 @@ def main():
                     saveSVG(directory, document, svg)
                 else:
                     document_json(docpath)
+            except IOError, e:
+                #TODO: This is too general, should be caught at a higher level
+                # No such file or directory
+                if e.errno == 2:
+                    print 'Content-Type: application/json\n'
+                    error_msg = 'Error: file not found'
+                    print dumps(
+                            {
+                                'error': error_msg,
+                                'duration': -1,
+                                },
+                            sort_keys=True, indent=2)
+                else:
+                    raise
             except Exception, e:
                 # Catch even an interpreter crash
                 if DEBUG:

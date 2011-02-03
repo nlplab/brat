@@ -11,3 +11,6 @@ DATA_DIR = CHANGE_ME
 # TODO: Remove these when we have a back-end
 USERNAME = CHANGE_ME
 PASSWORD = CHANGE_ME
+
+# Enable additional debug output
+DEBUG = False

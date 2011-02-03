@@ -15,6 +15,8 @@ import re
 # structure)
 __event_type_hierarchy = """
 GO:------- : catalysis
+GO:0006306 : DNA methylation
+GO:0080111 : DNA demethylation
 GO:0006464 : !protein modification process
   GO:0043543 : protein acylation
     GO:0006473 : protein acetylation

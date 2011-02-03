@@ -116,7 +116,7 @@ var Annotator = function(containerElement, onStart) {
       "Protein_family_or_group": [ "PFG" ],
       "DNA_domain_or_region" : [ "DDR" ],
       "Protein_domain_or_region": [ "PDR" ],
-      "Amino_acid_monomer"   : [ "ACM" ],
+      "Amino_acid_monomer"   : [ "AA" ],
       "Carbohydrate"         : [ "Carb" ],
 
       'Acylation'            : [ "Acyl" ],
@@ -428,7 +428,11 @@ var Annotator = function(containerElement, onStart) {
           to: selectedTo,
         };
         var spanText = data.text.substring(selectedFrom, selectedTo);
-        annotator.fillSpanTypesAndDisplayForm(spanText);
+        if (spanText.indexOf("\n") != -1) {
+          displayMessage("Error: cannot annotate across a sentence break", true);
+        } else {
+          annotator.fillSpanTypesAndDisplayForm(spanText);
+        }
       }
     }
   };
@@ -886,12 +890,22 @@ var Annotator = function(containerElement, onStart) {
     try {
       if (_data) setData(_data);
 
+      if (data.mtime) {
+	  // we're getting seconds and need milliseconds
+	  //$('#document_ctime').text("Created: " + Annotator.format_time(1000 * data.ctime)).css("display", "inline");
+	  $('#document_mtime').text("Last modified: " + Annotator.format_time(1000 * data.mtime)).css("display", "inline");
+      } else {
+	  //$('#document_ctime').css("display", "none");
+	  $('#document_mtime').css("display", "none");
+      }
+
       svg.clear(true);
       var defs = svg.defs();
       var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
       svg.add(defs, filter);
       if (!data || data.length == 0) return;
       canvasWidth = this.forceWidth || $(containerElement).width();
+      $(svgElement).width(canvasWidth);
       var commentName = data.document.replace('--', '-\\-');
       svgElement.
           attr('width', canvasWidth).
@@ -1008,7 +1022,7 @@ var Annotator = function(containerElement, onStart) {
                  bx - editedSize, by - editedSize,
                  bw + 2 * editedSize, bh + 2 * editedSize, {
 
-                 filter: 'url(#Gaussian_Blur)',
+                 // filter: 'url(#Gaussian_Blur)',
                  'class': "shadow_EditHighlight",
                  rx: editedSize,
                  ry: editedSize,
@@ -1339,7 +1353,7 @@ var Annotator = function(containerElement, onStart) {
             svg.rect(shadowGroup,
                 textBox.x - editedSize, textBox.y - editedSize,
                 textBox.width + 2 * editedSize, textBox.height + 2 * editedSize, {
-                  filter: 'url(#Gaussian_Blur)',
+                  // filter: 'url(#Gaussian_Blur)',
                   'class': "shadow_EditHighlight",
                   rx: editedSize,
                   ry: editedSize,
@@ -1385,7 +1399,7 @@ var Annotator = function(containerElement, onStart) {
           });
           if (arc.edited) {
             svg.path(shadowGroup, path, {
-                'class': 'shadow_EditHighlight',
+                'class': 'shadow_EditHighlight_arc',
                 strokeWidth: editedStroke,
             });
           }
@@ -1419,7 +1433,7 @@ var Annotator = function(containerElement, onStart) {
           });
           if (arc.edited) {
             svg.path(shadowGroup, path, {
-                'class': 'shadow_EditHighlight',
+                'class': 'shadow_EditHighlight_arc',
                 strokeWidth: editedStroke,
             });
           }
@@ -1494,7 +1508,7 @@ var Annotator = function(containerElement, onStart) {
       this.drawing = false;
       if (this.redraw) {
         this.redraw = false;
-        this.renderData();
+        renderDataReal();
       }
     } catch(x) {
       this.drawing = false;
@@ -1626,18 +1640,35 @@ $(function() {
     }
   }
 
-  var getDirectory = function() {
+  var getDirectory = function(directory) {
+    if (!directory) {
+      $('#document_select').css('display', 'none');
+      Annotator.actionsAllowed(true);
+      return;
+    }
+    var dsel = $('#directory_select');
     ajaxURL = ajaxBase + "?directory=" + directory;
-    $.get(ajaxURL, function(data) {
-      docListReceived = true;
-      var sel = $('#document_select').html(data);
-      if (doc) sel.val(doc);
-      lastHash = null;
-      if ($.inArray(directory, directories) == -1) {
-        directories.push(directory);
-        $('#directory_select').
-            append('<option>' + directory + '</option>').
-            val(directory);
+    $.get(ajaxURL, function(response) {
+      if (displayMessagesAndCheckForErrors(response)) {
+        docListReceived = true;
+        var html = ['<option value="">-- Select Document --</option>'];
+        $.each(response.docnames, function(docnameNo, docname) {
+          html.push('<option>' + docname + '</option>');
+        });
+        html = html.join();
+        var sel = $('#document_select').html(html).css('display', 'inline');
+        if (doc) sel.val(doc);
+        else Annotator.actionsAllowed(true);
+        lastHash = null;
+        if ($.inArray(directory, directories) == -1) {
+          directories.push(directory);
+          dsel.append('<option>' + directory + '</option>');
+        }
+        dsel.val(directory);
+      } else {
+        $('#document_select').css('display', 'none');
+        dsel[0].selectedIndex = 0;
+        Annotator.actionsAllowed(true);
       }
     });
   };
@@ -1649,8 +1680,9 @@ $(function() {
       dirSelect.append('<option>' + subdir + '</option>');
     });
     if (directory) {
-      dirSelect.val(directory);
-      getDirectory();
+      getDirectory(directory);
+    } else {
+      Annotator.actionsAllowed(true);
     }
   });
 
@@ -1676,13 +1708,19 @@ $(function() {
       }
     }
 
+    Annotator.format_time = function(secs) {
+	var month_name = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+	jdate = new Date(secs);
+	return jdate.getDate() + ' ' + month_name[jdate.getMonth()] + ' ' + jdate.getFullYear() + ' ' + jdate.getHours() + ':' + (jdate.getMinutes() < 10 ? '0' : '') + jdate.getMinutes()
+    }
+
     var updateState = function(onRenderComplete) {
       if (annotator.drawing || lastHash == window.location.hash) return;
       lastHash = window.location.hash;
       var parts = lastHash.substr(1).split('/');
       if (directory != parts[0]) {
         directory = parts[0];
-        getDirectory();
+        getDirectory(directory);
         return;
       }
       if (parts[2] == 'save') {
@@ -1716,8 +1754,6 @@ $(function() {
           }
           displayMessagesAndCheckForErrors(jsonData);
           jsonData.document = _doc;
-          $('#document_mtime').text(jsonData.mtime);
-          $('#document_ctime').text(jsonData.ctime);
           annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
             onRenderComplete.call(annotator, jsonData.error);
@@ -1907,7 +1943,10 @@ $(function() {
                 el.checked = true;
               }
             }
-            arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+            var confirmMode = $('#confirm_mode')[0].checked;
+            if (!confirmMode) {
+              arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+            }
             $('#del_arc_button').css('display', arcType ? 'inline' : 'none');
             if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
             $('#arc_form').css('display', 'block');
@@ -1992,13 +2031,13 @@ $(function() {
       // HERE
       hideAllForms();
       return false;
-    } else if (code == 37) { // Left arrow
+    } else if (!formDisplayed && code == 37) { // Left arrow
       var select = $('#document_select')[0];
       if (select.selectedIndex > 1) {
         select.selectedIndex = select.selectedIndex - 1;
         annotator.renderSelected();
       }
-    } else if (code == 39) { // Right arrow
+    } else if (!formDisplayed && code == 39) { // Right arrow
       var select = $('#document_select')[0];
       if (select.selectedIndex < select.length - 1) {
         select.selectedIndex = select.selectedIndex + 1;
@@ -2008,6 +2047,12 @@ $(function() {
         annotator.keymap[foo = String.fromCharCode(code)]) {
       var el = $('#' + mapping);
       if (el.length) el[0].click();
+    }
+  });
+  $('#document_select').keydown(function(evt) {
+    var code = evt.keyCode;
+    if (code == 37 || code == 39) { // Left/right arrow
+      return false;
     }
   });
 
@@ -2058,13 +2103,21 @@ $(function() {
       }
       return false;
     };
+    var spanFormSubmitRadio = function(evt) {
+      var confirmMode = $('#confirm_mode')[0].checked;
+      if (confirmMode) {
+        $('#span_form input:submit').focus();
+      } else {
+        spanFormSubmit(evt);
+      }
+    }
     var spanForm = $('#span_form').
       submit(spanFormSubmit).
       bind('reset', hideAllForms);
     if (displayMessagesAndCheckForErrors(jsonData)) {
       $('#span_types').html(jsonData.html);
       annotator.spanKeymap = jsonData.keymap;
-      spanForm.find('#span_types input:radio').click(spanFormSubmit);
+      spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
       spanForm.find('.collapser').click(collapseHandler);
     }
   });

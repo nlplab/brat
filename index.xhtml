@@ -11,13 +11,14 @@
     <link rel="shortcut icon" href="favicon.ico"/>
   </head>
   <body>
+    <img id="logo" src="brat-logo.png"/>
     <div id="message"/>
     <div id="infopopup" class="shadow"/>
       <form id="document_form">
       <div>
         <span id="document_name"/>
-        <span id="document_mtime"/>
-        <span id="document_ctime"/>
+	<span id="document_mtime"/>
+	<!-- <span id="document_ctime"/> -->
       </div>
       <select id="directory_select" disabled="disabled">
         <option value=''>-- Select Document --</option>
@@ -25,7 +26,7 @@
       <select id="document_select" disabled="disabled"/>
       <input id="auth_button" type="button" value="Login"/>
       <a href="#" id="original_link" target="brat_search" style="display:none">Original document</a>
-      <span style="float:right">Confirm mode <input id="confirm_mode" type="checkbox" value="true"/></span>
+      <span style="float:right"><label for="confirm_mode">Confirm mode</label> <input id="confirm_mode" type="checkbox" value="true" checked="checked"/></span>
     </form>
     <div id="svg"></div>
     <div id="blind"></div>

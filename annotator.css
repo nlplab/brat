@@ -7,7 +7,7 @@ html {
   svg {
     width: 100%;
     height: 1px;
-    border: 1px solid #484;
+    border: 1px solid #7fa2ff;
   }
 
   text {
@@ -72,8 +72,11 @@ path {
 }
 
 .shadow_EditHighlight {
-  fill: #cccc99;
-  stroke: #cccc99;
+  fill: #ffff99;
+  stroke: #000000;
+}
+.shadow_EditHighlight_arc {
+  stroke: #ffff99;
 }
 
 .span path {
@@ -417,8 +420,11 @@ fieldset {
   float: right;
 }
 #document_ctime, #document_mtime {
-  background-color: #99FFFF;
-  border: 1px solid #66CCCC;
+  margin-left: 10px;
+  padding: 0 2px;
+  background-color: #dddddd;
+  border: 1px solid #999999;
+  display: none;
 }
 #blind {
   z-index: 5;
@@ -429,4 +435,9 @@ fieldset {
   right: 0;
   top: 0;
   bottom: 0;
+}
+
+#logo {
+  float:right;
+  margin-left: 20px;
 }
