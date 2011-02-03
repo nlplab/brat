@@ -1626,18 +1626,35 @@ $(function() {
     }
   }
 
-  var getDirectory = function() {
+  var getDirectory = function(directory) {
+    if (!directory) {
+      $('#document_select').css('display', 'none');
+      Annotator.actionsAllowed(true);
+      return;
+    }
+    var dsel = $('#directory_select');
     ajaxURL = ajaxBase + "?directory=" + directory;
-    $.get(ajaxURL, function(data) {
-      docListReceived = true;
-      var sel = $('#document_select').html(data);
-      if (doc) sel.val(doc);
-      lastHash = null;
-      if ($.inArray(directory, directories) == -1) {
-        directories.push(directory);
-        $('#directory_select').
-            append('<option>' + directory + '</option>').
-            val(directory);
+    $.get(ajaxURL, function(response) {
+      if (displayMessagesAndCheckForErrors(response)) {
+        docListReceived = true;
+        var html = ['<option value="">-- Select Document --</option>'];
+        $.each(response.docnames, function(docnameNo, docname) {
+          html.push('<option>' + docname + '</option>');
+        });
+        html = html.join();
+        var sel = $('#document_select').html(html).css('display', 'inline');
+        if (doc) sel.val(doc);
+        else Annotator.actionsAllowed(true);
+        lastHash = null;
+        if ($.inArray(directory, directories) == -1) {
+          directories.push(directory);
+          dsel.append('<option>' + directory + '</option>');
+        }
+        dsel.val(directory);
+      } else {
+        $('#document_select').css('display', 'none');
+        dsel[0].selectedIndex = 0;
+        Annotator.actionsAllowed(true);
       }
     });
   };
@@ -1649,8 +1666,9 @@ $(function() {
       dirSelect.append('<option>' + subdir + '</option>');
     });
     if (directory) {
-      dirSelect.val(directory);
-      getDirectory();
+      getDirectory(directory);
+    } else {
+      Annotator.actionsAllowed(true);
     }
   });
 
@@ -1682,7 +1700,7 @@ $(function() {
       var parts = lastHash.substr(1).split('/');
       if (directory != parts[0]) {
         directory = parts[0];
-        getDirectory();
+        getDirectory(directory);
         return;
       }
       if (parts[2] == 'save') {

@@ -127,14 +127,16 @@ def my_listdir(directory):
             # XXX: A hack to remove what we don't want to be seen
             if not (l.startswith('hidden_') or l.startswith('.'))]
 
-def directory_options(directory):
-    print 'Content-Type: text/html\n'
-    print "<option value=''>-- Select Document --</option>"
-    dirlist = [file[0:-4] for file in my_listdir(directory)
-            if file.endswith('txt')]
-    dirlist.sort()
-    for file in dirlist:
-        print '<option>%s</option>' % file
+def documents(directory):
+    print 'Content-Type: application/json\n'
+    try:
+        dirlist = [file[0:-4] for file in my_listdir(directory)
+                if file.endswith('txt')]
+        dirlist.sort()
+        response = { 'docnames': dirlist, 'message': None }
+    except OSError, x:
+        response = { 'error': 'Error: No such directory: ' + directory }
+    print dumps(response, sort_keys=True, indent=2)
 
 def directories():
     print 'Content-Type: application/json\n'
@@ -962,7 +964,7 @@ def main():
         real_directory = join_path(DATA_DIR, directory)
 
         if document is None:
-            directory_options(real_directory)
+            documents(real_directory)
         else:
             docpath = join_path(real_directory, document)
             span = params.getvalue('span')
