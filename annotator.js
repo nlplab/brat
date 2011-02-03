@@ -116,7 +116,7 @@ var Annotator = function(containerElement, onStart) {
       "Protein_family_or_group": [ "PFG" ],
       "DNA_domain_or_region" : [ "DDR" ],
       "Protein_domain_or_region": [ "PDR" ],
-      "Amino_acid_monomer"   : [ "ACM" ],
+      "Amino_acid_monomer"   : [ "AA" ],
       "Carbohydrate"         : [ "Carb" ],
 
       'Acylation'            : [ "Acyl" ],
@@ -1694,6 +1694,12 @@ $(function() {
       }
     }
 
+    var format_time = function(secs) {
+	var month_name = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+	jdate = new Date(secs);
+	return jdate.getDate() + ' ' + month_name[jdate.getMonth()] + ' ' + jdate.getFullYear() + ' ' + jdate.getHours() + ':' + jdate.getMinutes();
+    }
+
     var updateState = function(onRenderComplete) {
       if (annotator.drawing || lastHash == window.location.hash) return;
       lastHash = window.location.hash;
@@ -1734,8 +1740,9 @@ $(function() {
           }
           displayMessagesAndCheckForErrors(jsonData);
           jsonData.document = _doc;
-          $('#document_mtime').text(jsonData.mtime);
-          $('#document_ctime').text(jsonData.ctime);
+	  // we're getting seconds and need milliseconds
+          $('#document_mtime').text("Last modified: " + format_time(1000*jsonData.mtime));
+          //$('#document_ctime').text(format_time(1000*jsonData.ctime));
           annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
             onRenderComplete.call(annotator, jsonData.error);

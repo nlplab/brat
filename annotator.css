@@ -417,8 +417,10 @@ fieldset {
   float: right;
 }
 #document_ctime, #document_mtime {
-  background-color: #99FFFF;
-  border: 1px solid #66CCCC;
+  margin-left: 10px;
+  padding: 0 2px;
+  background-color: #dddddd;
+  border: 1px solid #999999;
 }
 #blind {
   z-index: 5;
