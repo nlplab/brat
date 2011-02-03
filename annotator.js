@@ -1740,9 +1740,14 @@ $(function() {
           }
           displayMessagesAndCheckForErrors(jsonData);
           jsonData.document = _doc;
-	  // we're getting seconds and need milliseconds
-          $('#document_mtime').text("Last modified: " + format_time(1000*jsonData.mtime));
-          //$('#document_ctime').text(format_time(1000*jsonData.ctime));
+	  if (jsonData.mtime) {
+	      // we're getting seconds and need milliseconds
+	      //$('#document_ctime').text("Created: " + format_time(1000*jsonData.ctime)).css("display", "inline");
+	      $('#document_mtime').text("Last modified: " + format_time(1000*jsonData.mtime)).css("display", "inline");
+	  } else {
+	      //$('#document_ctime').css("display", "none");
+	      $('#document_mtime').css("display", "none");
+	  }
           annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
             onRenderComplete.call(annotator, jsonData.error);
