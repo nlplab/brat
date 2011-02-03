@@ -1689,7 +1689,7 @@ $(function() {
         renderAllToDisk();
         return;
       }
-      annotator.edited = parts[1].split('--');
+      annotator.edited = parts[1] ? parts[1].split('--') : [];
       var _doc = doc = annotator.edited.shift();
       $('#document_select').val(_doc);
 
