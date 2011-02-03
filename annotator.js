@@ -279,6 +279,10 @@ var Annotator = function(containerElement, onStart) {
   };
 
   this.deleteSpan = function(evt) {
+    var confirmMode = $('#confirm_mode')[0].checked;
+    if (confirmMode && !confirm("Are you sure you want to delete this annotation?")) {
+      return;
+    }
     $('#span_form').css('display', 'none');
     annotator.keymap = {};
     annotator.ajaxOptions.action = 'unspan';
@@ -286,6 +290,10 @@ var Annotator = function(containerElement, onStart) {
   };
 
   this.deleteArc = function(evt) {
+    var confirmMode = $('#confirm_mode')[0].checked;
+    if (confirmMode && !confirm("Are you sure you want to delete this annotation?")) {
+      return;
+    }
     $('#arc_form').css('display', 'none');
     annotator.keymap = {};
     annotator.ajaxOptions.action = 'unarc';
