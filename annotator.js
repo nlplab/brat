@@ -70,6 +70,12 @@ var Annotator = function(containerElement, onStart) {
   var undefined; // prevents evil "undefined = 17" attacks
 
   var annotationAbbreviations = {
+      // begin AZ additions
+      "Gene_or_gene_product" : [ "GGP" ],
+      "Drug_or_compound"     : [ "Drug/comp", "D/C" ],
+      "Other_pharmaceutical_agent" : [ "Other_pharm" ],
+      // end AZ additions
+
       "gene-or-gene-product" : [ "GGP" ],
 
       "Protein" : [ "Pro", "Pr", "P" ],
