@@ -197,6 +197,12 @@ def enrich_json_with_data(j_dic, ann_obj):
     else:
         j_dic['error'] = None
 
+    #XXX: Quick hack, localisation not done, etc.
+    from time import localtime, strftime
+    strftime_format = '%Y-%m-%dT%H:%M:%SJST'
+    j_dic['mtime'] = strftime(strftime_format, localtime(ann_obj.ann_mtime))
+    j_dic['ctime'] = strftime(strftime_format, localtime(ann_obj.ann_ctime))
+
     try:
         issues = verify_annotation(ann_obj)
     except Exception, e:

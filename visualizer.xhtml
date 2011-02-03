@@ -13,8 +13,12 @@
   <body>
     <div id="message"/>
     <div id="infopopup" class="shadow"/>
-    <form id="document_form">
-      <div id="document_name"/>
+      <form id="document_form">
+      <div>
+        <span id="document_name"/>
+        <span id="document_mtime"/>
+        <span id="document_ctime"/>
+      </div>
       <select id="directory_select" disabled="disabled">
         <option value=''>-- Select Document --</option>
       </select>
@@ -24,6 +28,7 @@
       <span style="float:right">Confirm mode <input id="confirm_mode" type="checkbox" value="true"/></span>
     </form>
     <div id="svg"></div>
+    <div id="blind"></div>
     <form id="span_form" class="shadow">
       <fieldset id="span_selected_fset">
         <legend>Selected Text</legend>
