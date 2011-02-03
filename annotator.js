@@ -1980,7 +1980,7 @@ $(function() {
       var auth_button = $('#auth_button');
       if (jsonData.user) {
         annotator.user = jsonData.user;
-        displayMessage('Hello, ' + jsonData.user);
+        //displayMessage('Hello, ' + jsonData.user);
         auth_button.val('Logout');
       } else {
         auth_button.val('Login');
