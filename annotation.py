@@ -259,7 +259,10 @@ class Annotations(object):
 
         # Add the annotation as the last line
         self._lines.append(ann)
-        self._line_by_ann[ann] = len(self) - 1 
+        self._line_by_ann[ann] = len(self) - 1
+        # Update the modification time
+        from time import time
+        self.ann_mtime = time()
 
     def del_annotation(self, ann, tracker=None):
         #TODO: Check read only

@@ -1676,6 +1676,8 @@ $(function() {
           }
           displayMessagesAndCheckForErrors(jsonData);
           jsonData.document = _doc;
+          $('#document_mtime').text(jsonData.mtime);
+          $('#document_ctime').text(jsonData.ctime);
           annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
             onRenderComplete.call(annotator, jsonData.error);
