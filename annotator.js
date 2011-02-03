@@ -1932,7 +1932,10 @@ $(function() {
                 el.checked = true;
               }
             }
-            arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+            var confirmMode = $('#confirm_mode')[0].checked;
+            if (!confirmMode) {
+              arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+            }
             $('#del_arc_button').css('display', arcType ? 'inline' : 'none');
             if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
             $('#arc_form').css('display', 'block');
@@ -2083,13 +2086,21 @@ $(function() {
       }
       return false;
     };
+    var spanFormSubmitRadio = function(evt) {
+      var confirmMode = $('#confirm_mode')[0].checked;
+      if (confirmMode) {
+        $('#span_form input:submit').focus();
+      } else {
+        spanFormSubmit(evt);
+      }
+    }
     var spanForm = $('#span_form').
       submit(spanFormSubmit).
       bind('reset', hideAllForms);
     if (displayMessagesAndCheckForErrors(jsonData)) {
       $('#span_types').html(jsonData.html);
       annotator.spanKeymap = jsonData.keymap;
-      spanForm.find('#span_types input:radio').click(spanFormSubmit);
+      spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
       spanForm.find('.collapser').click(collapseHandler);
     }
   });
