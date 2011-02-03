@@ -550,12 +550,14 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
             # Is the attribute set and none existing? Add.
             if speculation and seen_spec is None:
                 spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                spec_mod = ModifierAnnotation(ann.id, spec_mod_id, 'Speculation', '') #XXX: Cons
+                spec_mod = ModifierAnnotation(str(ann.id), str(spec_mod_id),
+                        'Speculation', '') #XXX: Cons
                 ann_obj.add_annotation(spec_mod)
                 mods.added.append(spec_mod)
             if negation and seen_neg is None:
                 neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                neg_mod = ModifierAnnotation(ann.id, neg_mod_id, 'Negation', '') #XXX: Cons
+                neg_mod = ModifierAnnotation(str(ann.id), str(neg_mod_id),
+                        'Negation', '') #XXX: Cons
                 ann_obj.add_annotation(neg_mod)
                 mods.added.append(neg_mod)
             # Is the attribute unset and one existing? Erase.
@@ -625,14 +627,16 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
 
                     if speculation:
                         spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                        spec_mod = ModifierAnnotation(new_event_id, spec_mod_id, 'Speculation', '') #XXX: Cons
+                        spec_mod = ModifierAnnotation(str(new_event_id),
+                                str(spec_mod_id), 'Speculation', '') #XXX: Cons
                         ann_obj.add_annotation(spec_mod)
                         mods.added.append(spec_mod)
                     else:
                         neg_mod = None
                     if negation:
                         neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                        neg_mod = ModifierAnnotation(new_event_id, neg_mod_id, 'Negation', '') #XXX: Cons
+                        neg_mod = ModifierAnnotation(str(new_event_id),
+                                str(neg_mod_id), 'Negation', '') #XXX: Cons
                         ann_obj.add_annotation(neg_mod)
                         mods.added.append(neg_mod)
                     else:

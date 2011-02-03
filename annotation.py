@@ -113,7 +113,7 @@ class Annotations(object):
         #TODO: DOC!
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
         from collections import defaultdict
-        from os.path import basename, isfile
+        from os.path import basename, isfile, getmtime, getctime
         import fileinput
 
         # we should remember this
@@ -142,10 +142,15 @@ class Annotations(object):
             if suff == JOINED_ANN_FILE_SUFF:
                 # It is a joined file, let's load it and we are editable
                 input_files = [document]
+                self.ann_mtime = getmtime(sugg_path)
+                self.ann_ctime = getctime(sugg_path)
             elif suff in PARTIAL_ANN_FILE_SUFF:
                 # It is only a partial annotation, we will most likely fail
                 # but we will try opening it
                 input_files = [document]
+                # We don't have a single file, just set to epoch for now
+                self.ann_mtime = 0
+                self.ann_ctime = 0
                 self._read_only = True
             else:
                 input_files = []
@@ -160,12 +165,17 @@ class Annotations(object):
             if isfile(sugg_path):
                 # We found a joined file by adding the joined suffix
                 input_files = [sugg_path]
+                self.ann_mtime = getmtime(sugg_path)
+                self.ann_ctime = getctime(sugg_path)
             else:
                 # Our last shot, we go for as many partial files as possible
                 input_files = [sugg_path for sugg_path in 
                         (document + '.' + suff
                             for suff in PARTIAL_ANN_FILE_SUFF)
                         if isfile(sugg_path)]
+                # We don't have a single file, just set to epoch for now
+                self.ann_mtime = 0
+                self.ann_ctime = 0
                 self._read_only = True
 
         # We then try to open the files we got using the heuristics
@@ -350,7 +360,10 @@ class Annotations(object):
         #XXX: Arbitary constant!
         for suggestion in (AnnotationId(prefix + str(i) + suffix)
                 for i in xrange(1, 2**32)):
-            if not suggestion in self._ann_by_id:
+            # This is getting more complicated by the minute, two checks since
+            # the developers no longer know when it is an id or string.
+            if (suggestion not in self._ann_by_id
+                    and str(suggestion) not in self._ann_by_id):
                 return suggestion
 
     def _parse_ann_file(self):
