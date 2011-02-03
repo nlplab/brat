@@ -7,6 +7,7 @@ import os
 import re
 import argparse
 
+import annotation
 import annspec
 
 # Issue types. Values should match with annotation interface.
@@ -119,16 +120,16 @@ def verify_annotation(ann_obj):
 #             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap another entity (%s) of the same type" % (a1.type, a2.id)))
 
     def event_nonum_args(e):
-        # returns event arguments without trailing numbers and their count
-        # (e.g. "Theme1")
+        # returns event arguments without trailing numbers
+        # (e.g. "Theme1" -> "Theme").
         nna = {}
         for arg, aid in e.args:
             m = re.match(r'^(.*?)\d*$', arg)
             if m:
-                nna[m.group(1)] = nna.get(m.group(1),0) + 1
-            else:
-                # should never happen
-                nna[arg] = nna.get(arg,0)+1
+                arg = m.group(1)
+            if arg not in nna:
+                nna[arg] = []
+            nna[arg].append(aid)
         return nna
 
     # check for events missing mandatory arguments
@@ -141,19 +142,22 @@ def verify_annotation(ann_obj):
     # check for events with disallowed arguments
     for e in ann_obj.get_events():
         allowed = annspec.event_argument_types.get(e.type, annspec.event_argument_types["default"])
-        for a in event_nonum_args(e):
+        eargs = event_nonum_args(e)
+        for a in eargs:
             if a not in allowed:
                 issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take a %s argument" % (e.type, a)))
             else:
-                # TODO: check type of referenced entity / event
-                pass
+                for rid in eargs[a]:
+                    r = ann_obj.get_ann_by_id(rid)
+                    if r.type not in allowed[a] and ('event' not in allowed[a] or not isinstance(r, annotation.EventAnnotation)):
+                        issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s argument %s cannot be of type %s" % (e.type, a, r.type)))
 
     # check for events with disallowed argument counts
     for e in ann_obj.get_events():
         found_nonum_args = event_nonum_args(e)
         for a in found_nonum_args:
             # TODO: don't hard-code what multiple arguments are allowed for
-            if found_nonum_args[a] > 1 and not (e.type == "Binding" and a in ("Theme", "Site")):
+            if len(found_nonum_args[a]) > 1 and not (e.type == "Binding" and a in ("Theme", "Site")):
                 issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take multiple %s arguments" % (e.type, a)))
     
     return issues
