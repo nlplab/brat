@@ -1740,9 +1740,14 @@ $(function() {
           }
           displayMessagesAndCheckForErrors(jsonData);
           jsonData.document = _doc;
-	  // we're getting seconds and need milliseconds
-          $('#document_mtime').text("Last modified: " + format_time(1000*jsonData.mtime));
-          //$('#document_ctime').text(format_time(1000*jsonData.ctime));
+	  if (jsonData.mtime) {
+	      // we're getting seconds and need milliseconds
+	      //$('#document_ctime').text("Created: " + format_time(1000*jsonData.ctime)).css("display", "inline");
+	      $('#document_mtime').text("Last modified: " + format_time(1000*jsonData.mtime)).css("display", "inline");
+	  } else {
+	      //$('#document_ctime').css("display", "none");
+	      $('#document_mtime').css("display", "none");
+	  }
           annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
             onRenderComplete.call(annotator, jsonData.error);
@@ -1932,7 +1937,10 @@ $(function() {
                 el.checked = true;
               }
             }
-            arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+            var confirmMode = $('#confirm_mode')[0].checked;
+            if (!confirmMode) {
+              arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+            }
             $('#del_arc_button').css('display', arcType ? 'inline' : 'none');
             if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
             $('#arc_form').css('display', 'block');
@@ -2083,13 +2091,21 @@ $(function() {
       }
       return false;
     };
+    var spanFormSubmitRadio = function(evt) {
+      var confirmMode = $('#confirm_mode')[0].checked;
+      if (confirmMode) {
+        $('#span_form input:submit').focus();
+      } else {
+        spanFormSubmit(evt);
+      }
+    }
     var spanForm = $('#span_form').
       submit(spanFormSubmit).
       bind('reset', hideAllForms);
     if (displayMessagesAndCheckForErrors(jsonData)) {
       $('#span_types').html(jsonData.html);
       annotator.spanKeymap = jsonData.keymap;
-      spanForm.find('#span_types input:radio').click(spanFormSubmit);
+      spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
       spanForm.find('.collapser').click(collapseHandler);
     }
   });

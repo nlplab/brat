@@ -421,6 +421,7 @@ fieldset {
   padding: 0 2px;
   background-color: #dddddd;
   border: 1px solid #999999;
+  display: none;
 }
 #blind {
   z-index: 5;
