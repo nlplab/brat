@@ -59,11 +59,17 @@ allowed_entity_nestings = {
 # shorthand for abbrevs
 
 #core_physical_entity = ['Protein']  # EPI version
-#core_physical_entity = ['Gene_or_gene_product', 'Protein_family_or_group']  # More PTM version
-core_physical_entity = ['Gene_or_gene_product', 'Drug_or_compound', 'Protein_family_or_group']  # More PTM+AZ version
+core_physical_entity = ['Gene_or_gene_product', 'Protein_family_or_group']  # More PTM version
+#core_physical_entity = ['Gene_or_gene_product', 'Drug_or_compound', 'Protein_family_or_group']  # AZ version
 
-site_entity = ['Entity'] # EPI/AZ version
-#site_entity = ['DNA_domain_or_region', 'Protein_domain_or_region', 'Amino_acid_monomer'] # More PTM version
+# EPI/AZ version
+#protein_site_entity = dna_site_entity = any_site_entity = ['Entity']
+
+# More PTM version
+protein_site_entity = ['Protein_domain_or_region', 'Amino_acid_monomer']
+dna_site_entity = ['DNA_domain_or_region']
+any_site_entity = list(set(protein_site_entity + dna_site_entity))
+
 
 # abbrevs
 theme_only_argument = {
@@ -71,37 +77,42 @@ theme_only_argument = {
         }
 
 theme_and_site_arguments = {
-        #'Theme' : core_physical_entity,
-        'Theme' : physical_entity_types, # AZ version
-        'Site'  : site_entity,
+        'Theme' : core_physical_entity,
+        #'Theme' : physical_entity_types, # AZ version
+        'Site'  : protein_site_entity,
+        }
+
+dna_theme_and_site_arguments = {
+        'Theme' : ['Gene_or_gene_product'],
+        'Site'  : dna_site_entity
         }
 
 regulation_arguments = {
-        #'Theme' : core_physical_entity + ['event'],
-        #'Cause' : core_physical_entity + ['event'],
-        'Theme' : physical_entity_types + ['event'], # AZ version
-        'Cause' : physical_entity_types + ['event'], # AZ version
-        'Site'  : site_entity,
-        'CSite' : site_entity,
+        'Theme' : core_physical_entity + ['event'],
+        'Cause' : core_physical_entity + ['event'],
+        #'Theme' : physical_entity_types + ['event'], # AZ version
+        #'Cause' : physical_entity_types + ['event'], # AZ version
+        'Site'  : any_site_entity,
+        'CSite' : any_site_entity,
         }
 
 localization_arguments = {
-        #'Theme' : core_physical_entity,
-        'Theme' : physical_entity_types, # AZ version
+        'Theme' : core_physical_entity,
+        #'Theme' : physical_entity_types, # AZ version
         'AtLoc' : ['Entity'],
         'ToLoc' : ['Entity'],
         }
 
 sidechain_modification_arguments = {
         'Theme'     : core_physical_entity,
-        'Site'      : site_entity,
+        'Site'      : protein_site_entity,
         #'Sidechain' : ['Entity'],      # EPI version
         'Sidechain' : ['Carbohydrate'], # More PTM version
         }
 
 contextgene_modification_arguments = {
         'Theme'       : core_physical_entity,
-        'Site'        : site_entity,
+        'Site'        : protein_site_entity,
         'Contextgene' : core_physical_entity,
         }
 
@@ -121,8 +132,8 @@ event_argument_types = {
     'Dehydroxylation'     : theme_and_site_arguments,
     'Ubiquitination'      : theme_and_site_arguments,
     'Deubiquitination'    : theme_and_site_arguments,
-    'DNA_methylation'     : theme_and_site_arguments,
-    'DNA_demethylation'   : theme_and_site_arguments,
+    'DNA_methylation'     : dna_theme_and_site_arguments, #theme_and_site_arguments,
+    'DNA_demethylation'   : dna_theme_and_site_arguments, #theme_and_site_arguments,
     'Glycosylation'       : sidechain_modification_arguments,
     'Deglycosylation'     : sidechain_modification_arguments,
     'Acetylation'         : contextgene_modification_arguments,

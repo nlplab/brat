@@ -275,20 +275,25 @@ def span_types_html():
 
     # just hard-coded for now
     keymap =  {
-        'P': 'Protein',
+        #'P': 'Protein',
+        'P': 'Phosphorylation',
+        'G': 'Gene_or_gene_product',
+        'D': 'DNA_domain_or_region',
+        'F': 'Protein_family_or_group',
+        'R': 'Protein_domain_or_region',
         'E': 'Entity',
         'H': 'Hydroxylation',
-        'R': 'Dehydroxylation',
+        #'R': 'Dehydroxylation',
         'O': 'Phosphorylation',
         'U': 'Ubiquitination',
-        'B': 'Deubiquitination',
-        'G': 'Glycosylation',
-        'L': 'Deglycosylation',
+        #'B': 'Deubiquitination',
+        #'G': 'Glycosylation',
+        #'L': 'Deglycosylation',
         'A': 'Acetylation',
-        'T': 'Deacetylation',
+        #'T': 'Deacetylation',
         'M': 'Methylation',
-        'Y': 'Demethylation',
-        'D': 'DNA_methylation',
+        #'Y': 'Demethylation',
+        #'D': 'DNA_methylation',
         'C': 'Catalysis',
         'N': 'mod_Negation',
         'S': 'mod_Speculation',
@@ -310,7 +315,7 @@ def span_types_html():
     response['html']  = """<fieldset>
 <legend>Entities</legend>
 <div class="item"><div class="item_content">
-   <input id="span_Protein" name="span_type" type="radio" value="Protein"/><label for="span_Protein"><span class="accesskey">P</span>rotein</label>
+   <input id="span_Gene_or_gene_product" name="span_type" type="radio" value="Gene_or_gene_product"/><label for="span_Gene_or_gene_product"><span class="accesskey">G</span>ene or gene product</label>
 </div></div>
 <!--
 <div class="item"><div class="item_content">
@@ -318,16 +323,18 @@ def span_types_html():
 </div></div>
 -->
 <div class="item"><div class="item_content">
-   <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group"><span class="accesskey"></span>Protein_family_or_group</label>
+   <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group"><span class="accesskey"></span>Protein <span class="accesskey">f</span>amily or group</label>
 </div></div>
+<hr/>
+<div class="item"><div class="item_content">
+   <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region"><span class="accesskey"></span>Protein domain or <span class="accesskey">r</span>egion</label>
+</div></div>
+<div class="item"><div class="item_content">
+   <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey"></span><span class="accesskey">D</span>NA domain or region</label>
+</div></div>
+<hr/>
 <div class="item"><div class="item_content">
    <input id="span_Carbohydrate" name="span_type" type="radio" value="Carbohydrate"/><label for="span_Carbohydrate"><span class="accesskey"></span>Carbohydrate</label>
-</div></div>
-<div class="item"><div class="item_content">
-   <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region"><span class="accesskey"></span>Protein_domain_or_region</label>
-</div></div>
-<div class="item"><div class="item_content">
-   <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey"></span>DNA_domain_or_region</label>
 </div></div>
 </fieldset>
 <fieldset>
