@@ -890,10 +890,10 @@ var Annotator = function(containerElement, onStart) {
     try {
       if (_data) setData(_data);
 
-      if (_data.mtime) {
+      if (data.mtime) {
 	  // we're getting seconds and need milliseconds
-	  //$('#document_ctime').text("Created: " + Annotator.format_time(1000*_data.ctime)).css("display", "inline");
-	  $('#document_mtime').text("Last modified: " + Annotator.format_time(1000*_data.mtime)).css("display", "inline");
+	  //$('#document_ctime').text("Created: " + Annotator.format_time(1000 * data.ctime)).css("display", "inline");
+	  $('#document_mtime').text("Last modified: " + Annotator.format_time(1000 * data.mtime)).css("display", "inline");
       } else {
 	  //$('#document_ctime').css("display", "none");
 	  $('#document_mtime').css("display", "none");
@@ -905,6 +905,7 @@ var Annotator = function(containerElement, onStart) {
       svg.add(defs, filter);
       if (!data || data.length == 0) return;
       canvasWidth = this.forceWidth || $(containerElement).width();
+      $(svgElement).width(canvasWidth);
       var commentName = data.document.replace('--', '-\\-');
       svgElement.
           attr('width', canvasWidth).
@@ -1507,7 +1508,7 @@ var Annotator = function(containerElement, onStart) {
       this.drawing = false;
       if (this.redraw) {
         this.redraw = false;
-        this.renderData();
+        renderDataReal();
       }
     } catch(x) {
       this.drawing = false;
