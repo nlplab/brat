@@ -142,15 +142,10 @@ class Annotations(object):
             if suff == JOINED_ANN_FILE_SUFF:
                 # It is a joined file, let's load it and we are editable
                 input_files = [document]
-                self.ann_mtime = getmtime(sugg_path)
-                self.ann_ctime = getctime(sugg_path)
             elif suff in PARTIAL_ANN_FILE_SUFF:
                 # It is only a partial annotation, we will most likely fail
                 # but we will try opening it
                 input_files = [document]
-                # We don't have a single file, just set to epoch for now
-                self.ann_mtime = 0
-                self.ann_ctime = 0
                 self._read_only = True
             else:
                 input_files = []
@@ -165,22 +160,17 @@ class Annotations(object):
             if isfile(sugg_path):
                 # We found a joined file by adding the joined suffix
                 input_files = [sugg_path]
-                self.ann_mtime = getmtime(sugg_path)
-                self.ann_ctime = getctime(sugg_path)
             else:
                 # Our last shot, we go for as many partial files as possible
                 input_files = [sugg_path for sugg_path in 
                         (document + '.' + suff
                             for suff in PARTIAL_ANN_FILE_SUFF)
                         if isfile(sugg_path)]
-                # We don't have a single file, just set to epoch for now
-                self.ann_mtime = 0
-                self.ann_ctime = 0
                 self._read_only = True
 
         # We then try to open the files we got using the heuristics
         if input_files:
-            self._file_input = fileinput.input(input_files)
+            self._file_input = fileinput.input(input_files, mode='r')
             self._input_files = input_files
         else:
             #XXX: Proper exception here, this is horrible
@@ -189,6 +179,16 @@ class Annotations(object):
 
         # Finally, parse the given annotation file
         self._parse_ann_file()
+
+        #XXX: Hack to get the timestamps after parsing
+        if (len(self._input_files) == 1 and
+                self._input_files[0].endswith(JOINED_ANN_FILE_SUFF)):
+            self.ann_mtime = getmtime(self._input_files[0])
+            self.ann_ctime = getctime(self._input_files[0])
+        else:
+            # We don't have a single file, just set to epoch for now
+            self.ann_mtime = 0
+            self.ann_ctime = 0
 
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
@@ -495,9 +495,18 @@ class Annotations(object):
         self._file_input.close()
         if not self._read_only:
             assert len(self._input_files) == 1, 'more than one valid outfile'
+
+            # We are hitting the disk a lot more than we should here, what we
+            # should have is a modification flag in the object but we can't
+            # due to how we change the annotations.
             out_str = str(self)
-            with open(self._input_files[0], 'w') as ann_file:
-                ann_file.write(out_str)
+            with open(self._input_files[0], 'r') as old_ann_file:
+                old_str = old_ann_file.read()
+
+            # Was it changed?
+            if out_str != old_str:
+                with open(self._input_files[0], 'w') as ann_file:
+                    ann_file.write(out_str)
         return
 
     def __in__(self, other):
