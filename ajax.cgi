@@ -286,7 +286,7 @@ def saveSVG(directory, document, svg):
         print 'Status: 400 Bad Request\n'
 
 
-def span_types_html():
+def span_types_html(directory=None):
     from simplejson import dumps
     from htmlgen import generate_entity_type_html, generate_event_type_html
 
@@ -311,14 +311,14 @@ def span_types_html():
     response['keymap'] = client_keymap
     response['html']  = """<fieldset>
 <legend>Entities</legend>
-""" + generate_entity_type_html(type_to_key_map) + """
+""" + generate_entity_type_html(directory, type_to_key_map) + """
 </fieldset>
 <fieldset>
 <legend>Events</legend>
 <fieldset>
 <legend>Type</legend>
 <div id="span_scroller">
-""" + generate_event_type_html(type_to_key_map) + """</div>
+""" + generate_event_type_html(directory, type_to_key_map) + """</div>
 </fieldset>
 <fieldset id="span_mod_fset">
   <legend>Modifications</legend>
@@ -936,6 +936,8 @@ def main():
             print dumps(result)
 
         elif action == 'spantypes':
+            # no directory given, get default
+            # TODO: remove once the spantypes query is tied to dir in client
             span_types_html()
 
         elif action == 'arctypes':
@@ -949,7 +951,10 @@ def main():
         real_directory = join_path(DATA_DIR, directory)
 
         if document is None:
-            documents(real_directory)
+            if action == 'spantypes':
+                span_types_html(real_directory)
+            else:
+                documents(real_directory)
         else:
             docpath = join_path(real_directory, document)
             span = params.getvalue('span')

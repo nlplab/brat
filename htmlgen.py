@@ -170,29 +170,47 @@ def __generate_node_html_lines(node, keymap, depth=0):
 
     return lines
 
-def generate_entity_type_html(type_key_map):
-    entity_type_hierarchy = __read_term_hierarchy_file(__entity_type_hierarchy_filename,
-                                                       __default_entity_type_hierarchy)
 
-    entity_root_nodes = __parse_term_hierarchy(entity_type_hierarchy,
-                                               [TypeHierarchyNode("generic", "-------", "protein")])
+def __generate_term_hierarchy_html(directory, type_key_map,
+                                   filename, default_hierarchy, min_hierarchy):
+    type_hierarchy = None
+
+    import sys
+
+    if directory is not None:
+        # try to find a config file in the directory
+        import os
+        fn = os.path.join(directory, filename)
+        type_hierarchy = __read_term_hierarchy_file(fn, None)
+        print >> sys.stderr, "READ", fn
+
+    if type_hierarchy is None:
+        # if we didn't get a directory-specific one, try default dir
+        # and fall back to the default hierarchy
+        type_hierarchy = __read_term_hierarchy_file(filename, default_hierarchy)
+
+    print >> sys.stderr, "Type hierarchy:", type_hierarchy
+
+    # try to parse what we got, fall back to minimal hierarchy
+    root_nodes = __parse_term_hierarchy(type_hierarchy, min_hierarchy)
     
     all_lines = []
-    for n in entity_root_nodes:
+    for n in root_nodes:
         all_lines += __generate_node_html_lines(n, type_key_map)
     return "\n".join(all_lines)
 
-def generate_event_type_html(type_key_map):
-    event_type_hierarchy = __read_term_hierarchy_file(__event_type_hierarchy_filename,
-                                                      __default_event_type_hierarchy)
 
-    event_root_nodes = __parse_term_hierarchy(event_type_hierarchy,
-                                              [TypeHierarchyNode("generic", "-------", "event")])
+def generate_entity_type_html(directory, type_key_map):
+    return __generate_term_hierarchy_html(directory, type_key_map, 
+                                          __entity_type_hierarchy_filename,
+                                          __default_entity_type_hierarchy,
+                                          [TypeHierarchyNode("generic", "-------", "protein")])
 
-    all_lines = []
-    for n in event_root_nodes:
-        all_lines += __generate_node_html_lines(n, type_key_map)
-    return "\n".join(all_lines)
+def generate_event_type_html(directory, type_key_map):
+    return __generate_term_hierarchy_html(directory, type_key_map, 
+                                          __event_type_hierarchy_filename,
+                                          __default_event_type_hierarchy,
+                                          [TypeHierarchyNode("generic", "-------", "event")])
 
 if __name__ == '__main__':
     # debugging
