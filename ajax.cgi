@@ -53,7 +53,7 @@ CONF_FNAME = 'config.py'
 CONF_TEMPLATE_FNAME = 'config_template.py'
 CONF_NAME = CONF_FNAME.replace('.py', '')
 # Add new configuration variables here
-CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR', 'USERNAME', 'PASSWORD', 'DEBUG']
+CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR', 'USER_PASSWORD', 'DEBUG']
 
 # We unset the path so that we can import being sure what we import
 _old_path = deepcopy(path)
@@ -859,8 +859,7 @@ class InvalidAuthException(Exception):
 
 def authenticate(login, password):
     # TODO: Database back-end
-    crunchyhash = hashlib.sha512(PASSWORD).hexdigest()
-    if (login != USERNAME or password != crunchyhash):
+    if login not in USER_PASSWORD or password != hashlib.sha512(USER_PASSWORD[login]).hexdigest():
         raise InvalidAuthException()
 
 def main():
