@@ -175,21 +175,16 @@ def __generate_term_hierarchy_html(directory, type_key_map,
                                    filename, default_hierarchy, min_hierarchy):
     type_hierarchy = None
 
-    import sys
-
     if directory is not None:
         # try to find a config file in the directory
         import os
         fn = os.path.join(directory, filename)
         type_hierarchy = __read_term_hierarchy_file(fn, None)
-        print >> sys.stderr, "READ", fn
 
     if type_hierarchy is None:
         # if we didn't get a directory-specific one, try default dir
         # and fall back to the default hierarchy
         type_hierarchy = __read_term_hierarchy_file(filename, default_hierarchy)
-
-    print >> sys.stderr, "Type hierarchy:", type_hierarchy
 
     # try to parse what we got, fall back to minimal hierarchy
     root_nodes = __parse_term_hierarchy(type_hierarchy, min_hierarchy)
