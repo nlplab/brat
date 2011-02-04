@@ -1914,6 +1914,7 @@ $(function() {
       $('#span_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
       $('#span_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
       $('#span_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
+      $('#span_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
       if (span) {
         $('#span_highlight_link').css('display', 'inline').attr('href', document.location + '/' + span.id);
         annotator.keymap[46] = 'del_span_button'; // Del
