@@ -10,8 +10,8 @@ import re
 # TODO: this whole thing is an ugly hack. Event types should be read
 # from a proper ontology.
 
-__event_type_hierarchy_filename  = 'config_event_types.txt'
-__entity_type_hierarchy_filename = 'config_entity_types.txt'
+__event_type_hierarchy_filename  = 'event_types.conf'
+__entity_type_hierarchy_filename = 'entity_types.conf'
 
 __default_event_type_hierarchy  = """
 generic:------- : !event
