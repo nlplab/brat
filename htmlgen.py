@@ -125,9 +125,6 @@ def __generate_input_and_label(t, keymap, indent, disabled):
     s  = indent+'    <input id="span_%s" name="span_type" type="radio" value="%s" %s/>' % (nst.lower(),nst,dstr)
     s += indent+'<label for="span_%s">' % nst.lower()
 
-    import sys
-    print >> sys.stderr, t, keymap
-
     # TODO: saner case/space-vs-underscore-insensitive processing
     kmt = t.lower().replace(" ", "_")
     if kmt not in keymap or kmt.find(keymap[kmt].lower()) == -1:
