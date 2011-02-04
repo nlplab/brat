@@ -8,45 +8,13 @@ Brat Rapid Annotation Tool (brat)
 import re
 
 # TODO: this whole thing is an ugly hack. Event types should be read
-# from a proper separately stored ontology.
+# from a proper ontology.
 
-# Note: nesting implies hierarchy structure; "!" at the start of a
-# type marks terms that should not be used for annotation (only
-# structure)
-__event_type_hierarchy = """
-GO:------- : catalysis
-GO:0006306 : DNA methylation
-GO:0080111 : DNA demethylation
-GO:0006464 : !protein modification process
-  GO:0043543 : protein acylation
-    GO:0006473 : protein acetylation
-    GO:0018345 : protein palmitoylation
-  GO:0008213 : protein alkylation
-    GO:0006479 : protein methylation
-  GO:0006486 : protein glycosylation
-  GO:0018126 : protein hydroxylation
-  GO:0006468 : protein phosphorylation
-  GO:0006497 : protein lipidation
-    GO:0018342 : protein prenylation
-#  GO:0070647 : protein modification by small protein conjugation or removal
-  GO:0032446 : !protein modification by small protein conjugation
-    GO:0045116 : protein neddylation
-    GO:0016925 : protein sumoylation
-    GO:0016567 : protein ubiquitination
-  GO:0035601 : protein deacylation
-    GO:0006476 : protein deacetylation
-    GO:0002084 : protein depalmitoylation
-  GO:0008214 : protein dealkylation
-    GO:0006482 : protein demethylation
-  GO:0006517 : protein deglycosylation
-  GO:------- : protein dehydroxylation
-  GO:0006470 : protein dephosphorylation
-  GO:0051697 : protein delipidation
-    GO:------- : protein deprenylation
-  GO:0070646 : !protein modification by small protein removal
-    GO:0000338 : protein deneddylation
-    GO:0016926 : protein desumoylation
-    GO:0016579 : protein deubiquitination"""
+__event_type_hierarchy_filename = 'config_event_types.txt'
+
+__default_event_type_hierarchy  = """GO:------- : !event
+ GO:0005515 : protein binding
+ GO:0010467 : gene expression"""
 
 # special-purpose class for representing the structure of
 # the event type hierarchy
@@ -84,8 +52,9 @@ def __read_event_hierarchy(input):
         assert m, "Error parsing line: '%s'" % l
         indent, GOid, GOtype = m.groups()
 
-        # assume two-space indent for depth in hierarchy
-        depth = len(indent) / 2
+        # depth in the ontology corresponds to the number of
+        # spaces in the initial indent.
+        depth = len(indent)
 
         n = EventHierarchyNode(GOid, GOtype)
         if depth == 0:
@@ -100,9 +69,29 @@ def __read_event_hierarchy(input):
     return root_nodes
 
 def generate_span_type_html(type_key_map):
-    global __event_type_hierarchy
+    global __event_type_hierarchy_filename
 
-    root_nodes = __read_event_hierarchy(__event_type_hierarchy.split("\n"))
+    try:
+        f = open(__event_type_hierarchy_filename, 'r')
+        event_type_hierarchy = f.read()
+        f.close()
+    except:
+        # TODO: specific exceptions, useful error reporting
+        # also to the user
+        import sys
+        print >> sys.stderr, 'brat htmlgen.py: error reading %s' % __event_type_hierarchy_filename
+        # fall back to a minimal default hierarchy
+        event_type_hierarchy = __default_event_type_hierarchy
+
+    try:
+        root_nodes = __read_event_hierarchy(event_type_hierarchy.split("\n"))
+    except:
+        # TODO: specific exceptions, useful error reporting
+        # also to the user
+        import sys
+        print >> sys.stderr, 'brat htmlgen.py: error parsing event hierarchy.'
+        # fall back to a minimum single choice
+        root_nodes = [EventHierarchyNode("GO:-------", "event")]
 
     def input_and_label(t, indent, disabled):
         l = []
