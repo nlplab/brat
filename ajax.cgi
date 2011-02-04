@@ -322,10 +322,10 @@ def span_types_html():
 </fieldset>
 <fieldset id="span_mod_fset">
   <legend>Modifications</legend>
-  <input id="span_mod_Negation" type="checkbox" value="Negation"/>
-  <label for="span_mod_Negation"><span class="accesskey">N</span>egation</label>
-  <input id="span_mod_Speculation" type="checkbox" value="Speculation"/>
-  <label for="span_mod_Speculation"><span class="accesskey">S</span>peculation</label>
+  <input id="span_mod_negation" type="checkbox" value="Negation"/>
+  <label for="span_mod_negation"><span class="accesskey">N</span>egation</label>
+  <input id="span_mod_speculation" type="checkbox" value="Speculation"/>
+  <label for="span_mod_speculation"><span class="accesskey">S</span>peculation</label>
 </fieldset>
 </fieldset>
 """

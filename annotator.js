@@ -1888,10 +1888,10 @@ $(function() {
         annotator.keymap[46] = undefined;
         $('#span_form input:radio:first')[0].checked = true;
       }
-      if (el = $('#span_mod_Negation')[0]) {
+      if (el = $('#span_mod_negation')[0]) {
         el.checked = span ? span.Negation : false;
       }
-      if (el = $('#span_mod_Speculation')[0]) {
+      if (el = $('#span_mod_speculation')[0]) {
         el.checked = span ? span.Speculation : false;
       }
       $('#span_form').css('display', 'block');
@@ -2093,10 +2093,10 @@ $(function() {
       if (type) { // (if not cancelled)
         annotator.ajaxOptions.type = type;
         var el;
-        if (el = $('#span_mod_Negation')[0]) {
+        if (el = $('#span_mod_negation')[0]) {
           annotator.ajaxOptions.negation = el.checked;
         }
-        if (el = $('#span_mod_Speculation')[0]) {
+        if (el = $('#span_mod_speculation')[0]) {
           annotator.ajaxOptions.speculation = el.checked;
         }
         annotator.postChangesAndReload();
