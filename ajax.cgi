@@ -259,6 +259,7 @@ def document_json_dict(document):
     return j_dic
 
 def document_json(document):
+    assert False
     j_dic = document_json_dict(document)
     print 'Content-Type: application/json\n'
     print dumps(j_dic, sort_keys=True, indent=2)
