@@ -288,6 +288,7 @@ def saveSVG(directory, document, svg):
 
 def span_types_html():
     from simplejson import dumps
+    from htmlgen import generate_entity_type_html, generate_event_type_html
 
     response = { }
 
@@ -306,41 +307,42 @@ def span_types_html():
     
     response['keymap'] = client_keymap
 
-    from htmlgen import generate_span_type_html
+# <div class="item"><div class="item_content">
+#    <input id="span_Gene_or_gene_product" name="span_type" type="radio" value="Gene_or_gene_product"/><label for="span_Gene_or_gene_product"><span class="accesskey">G</span>ene or gene product</label>
+# </div></div>
+# <!--
+# <div class="item"><div class="item_content">
+#    <input id="span_Entity" name="span_type" type="radio" value="Entity"/><label for="span_Entity"><span class="accesskey">E</span>ntity</label>
+# </div></div>
+# -->
+# <div class="item"><div class="item_content">
+#    <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group">Protein <span class="accesskey">f</span>amily or group</label>
+# </div></div>
+# <hr/>
+# <div class="item"><div class="item_content">
+#    <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region">Protein domain or <span class="accesskey">r</span>egion</label>
+# </div></div>
+# <div class="item"><div class="item_content">
+#    <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey">D</span>NA domain or region</label>
+# </div></div>
+# <div class="item"><div class="item_content">
+#    <input id="span_Amino_acid_monomer" name="span_type" type="radio" value="Amino_acid_monomer"/><label for="span_Amino_acid_monomer">Amino acid m<span class="accesskey">o</span>nomer</label>
+# </div></div>
+# <hr/>
+# <div class="item"><div class="item_content">
+#    <input id="span_Carbohydrate" name="span_type" type="radio" value="Carbohydrate"/><label for="span_Carbohydrate">Carbohydrate</label>
+# </div></div>
+
     response['html']  = """<fieldset>
 <legend>Entities</legend>
-<div class="item"><div class="item_content">
-   <input id="span_Gene_or_gene_product" name="span_type" type="radio" value="Gene_or_gene_product"/><label for="span_Gene_or_gene_product"><span class="accesskey">G</span>ene or gene product</label>
-</div></div>
-<!--
-<div class="item"><div class="item_content">
-   <input id="span_Entity" name="span_type" type="radio" value="Entity"/><label for="span_Entity"><span class="accesskey">E</span>ntity</label>
-</div></div>
--->
-<div class="item"><div class="item_content">
-   <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group">Protein <span class="accesskey">f</span>amily or group</label>
-</div></div>
-<hr/>
-<div class="item"><div class="item_content">
-   <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region">Protein domain or <span class="accesskey">r</span>egion</label>
-</div></div>
-<div class="item"><div class="item_content">
-   <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey">D</span>NA domain or region</label>
-</div></div>
-<div class="item"><div class="item_content">
-   <input id="span_Amino_acid_monomer" name="span_type" type="radio" value="Amino_acid_monomer"/><label for="span_Amino_acid_monomer">Amino acid m<span class="accesskey">o</span>nomer</label>
-</div></div>
-<hr/>
-<div class="item"><div class="item_content">
-   <input id="span_Carbohydrate" name="span_type" type="radio" value="Carbohydrate"/><label for="span_Carbohydrate">Carbohydrate</label>
-</div></div>
+""" + generate_entity_type_html(type_to_key_map) + """
 </fieldset>
 <fieldset>
 <legend>Events</legend>
 <fieldset>
 <legend>Type</legend>
 <div id="span_scroller">
-""" + generate_span_type_html(type_to_key_map) + """</div>
+""" + generate_event_type_html(type_to_key_map) + """</div>
 </fieldset>
 <fieldset id="span_mod_fset">
   <legend>Modifications</legend>

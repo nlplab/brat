@@ -1,14 +1,20 @@
 # Simple text-based definition of a hierarchial ontology of event
 # types.
 
-# Note: indentation implies hierarchy structure, with each space (or
-# tab) taken as one level of nesting. Lines beginning with "#" are
-# ignored at comments, and "!" at the start of a type marks terms that
-# should not be used for annotation (only hierarchy structure)
+# Format: 
+# - Indentation implies hierarchy structure, with each space (or
+#   tab) taken as one level of nesting. 
+# - Lines beginning with "#" are ignored at comments.
+# - "!" at the start of a type marks terms that should not be
+#   used for annotation (only hierarchy structure)
+# - lines consisting solely of hyphens (e.g. "-----") are
+#   interpreted as separators when displaying the strucutre.
 
 GO:------- : catalysis
+----------------------------------------
 GO:0006306 : DNA methylation
 GO:0080111 : DNA demethylation
+----------------------------------------
 GO:0006464 : !protein modification process
 	GO:0043543 : protein acylation
 		GO:0006473 : protein acetylation
