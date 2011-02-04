@@ -34,6 +34,7 @@ var displayInfo = function(html, evt) {
 }
 
 var displayMessagesAndCheckForErrors = function(response) {
+  if (response) {
     if (response.message) {
       displayMessage(response.message, false, response.duration);
     } else if (response.error) {
@@ -41,6 +42,8 @@ var displayMessagesAndCheckForErrors = function(response) {
       return false;
     }
     return true;
+  }
+  return false;
 }
 
 // SVG Annotation tool
@@ -346,7 +349,7 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var mouseDown = function(evt) {
-    if (!annotator.user) return;
+    if (!annotator.user || arcDragOrigin) return;
     var target = $(evt.target);
     var id;
     // is it arc drag start?
@@ -1186,7 +1189,7 @@ var Annotator = function(containerElement, onStart) {
         row.chunks.push(chunk);
         chunk.row = row;
 
-        translate(chunk, foo = current.x + boxX, 0);
+        translate(chunk, current.x + boxX, 0);
         chunk.textX = current.x - textBox.x + boxX;
 
         current.x += space + boxWidth;
@@ -1511,6 +1514,7 @@ var Annotator = function(containerElement, onStart) {
         renderDataReal();
       }
     } catch(x) {
+      annotator.clearSVG();
       this.drawing = false;
     }
     $('title').text(data.document + ' - brat');
@@ -1533,6 +1537,10 @@ var Annotator = function(containerElement, onStart) {
   containerElement.svg({
       onLoad: this.drawInitial,
   });
+
+  this.clearSVG = function() {
+    svg.clear();
+  }
 };
 
 $(function() {
@@ -1547,7 +1555,6 @@ $(function() {
   var slashmark = address.lastIndexOf('/', qmark);
   var base = address.slice(0, slashmark + 1);
   var ajaxBase = base + 'ajax.cgi';
-  var ajaxURL;
   var docListReceived = false;
   var lastHash = null;
   var formDisplayed = false;
@@ -1647,25 +1654,35 @@ $(function() {
       return;
     }
     var dsel = $('#directory_select');
-    ajaxURL = ajaxBase + "?directory=" + directory;
-    $.get(ajaxURL, function(response) {
-      if (displayMessagesAndCheckForErrors(response)) {
-        docListReceived = true;
-        var html = ['<option value="">-- Select Document --</option>'];
-        $.each(response.docnames, function(docnameNo, docname) {
-          html.push('<option>' + docname + '</option>');
-        });
-        html = html.join();
-        var sel = $('#document_select').html(html).css('display', 'inline');
-        if (doc) sel.val(doc);
-        else Annotator.actionsAllowed(true);
-        lastHash = null;
-        if ($.inArray(directory, directories) == -1) {
-          directories.push(directory);
-          dsel.append('<option>' + directory + '</option>');
+    $.ajax({
+      url: ajaxBase,
+      type: 'GET',
+      data: { directory: directory },
+      success: function(response) {
+        if (displayMessagesAndCheckForErrors(response)) {
+          docListReceived = true;
+          var html = ['<option value="">-- Select Document --</option>'];
+          $.each(response.docnames, function(docnameNo, docname) {
+            html.push('<option>' + docname + '</option>');
+          });
+          html = html.join();
+          var sel = $('#document_select').html(html).css('display', 'inline');
+          if (doc) sel.val(doc);
+          else Annotator.actionsAllowed(true);
+          lastHash = null;
+          if ($.inArray(directory, directories) == -1) {
+            directories.push(directory);
+            dsel.append('<option>' + directory + '</option>');
+          }
+          dsel.val(directory);
+        } else {
+          $('#document_select').css('display', 'none');
+          dsel[0].selectedIndex = 0;
+          Annotator.actionsAllowed(true);
         }
-        dsel.val(directory);
-      } else {
+      },
+      error: function(req, textStatus, errorThrown) {
+        console.error("Directory fetch error", textStatus, errorThrown);
         $('#document_select').css('display', 'none');
         dsel[0].selectedIndex = 0;
         Annotator.actionsAllowed(true);
@@ -1673,17 +1690,26 @@ $(function() {
     });
   };
 
-  $.get(ajaxBase, function(jsonData) {
-    var dirSelect = $('#directory_select');
-    directories = jsonData.directories;
-    $.each(directories, function(subdirNo, subdir) {
-      dirSelect.append('<option>' + subdir + '</option>');
-    });
-    if (directory) {
-      getDirectory(directory);
-    } else {
-      Annotator.actionsAllowed(true);
-    }
+  $.ajax({
+    url: ajaxBase,
+    type: 'GET',
+    success: function(jsonData) {
+        var dirSelect = $('#directory_select');
+        directories = jsonData.directories;
+        $.each(directories, function(subdirNo, subdir) {
+          dirSelect.append('<option>' + subdir + '</option>');
+        });
+        if (directory) {
+          getDirectory(directory);
+        } else {
+          Annotator.actionsAllowed(true);
+        }
+      },
+      error: function(req, textStatus, errorThrown) {
+        console.error("Directory list fetch error", textStatus, errorThrown);
+        displayMessage("No data directories", true);
+        Annotator.actionsAllowed(true);
+      },
   });
 
 
@@ -1744,11 +1770,16 @@ $(function() {
       }
 
       $('#document_name').text(directoryAndDoc);
-      if (!_doc || !ajaxURL) return;
+      if (!_doc || !directory) return;
       Annotator.actionsAllowed(false);
-      $.get(ajaxURL + "&document=" + _doc, function(jsonData) {
+      $.ajax({
+        url: ajaxBase,
+        type: 'GET',
+        data: { 'directory': directory, 'document': _doc },
+        success: function(jsonData) {
           if (!jsonData) {
             displayMessage('<strong>ERROR</strong><br/>No JSON data', true);
+            annotator.clearSVG();
             Annotator.actionsAllowed(true);
             return;
           }
@@ -1758,6 +1789,12 @@ $(function() {
           if ($.isFunction(onRenderComplete)) {
             onRenderComplete.call(annotator, jsonData.error);
           }
+        },
+        error: function(req, textStatus, errorThrown) {
+          console.error("Document fetch error", textStatus, errorThrown);
+          annotator.clearSVG();
+          Annotator.actionsAllowed(true);
+        },
       });
     };
 
@@ -1779,7 +1816,7 @@ $(function() {
         url: ajaxBase,
         data: annotator.ajaxOptions,
         error: function(req, textStatus, errorThrown) {
-          console.error(textStatus, errorThrown);
+          console.error("Change posting error", textStatus, errorThrown);
           Annotator.actionsAllowed(true);
         },
         success: function(response) {
@@ -1791,7 +1828,7 @@ $(function() {
               newData.document = _doc;
               annotator.renderData(newData);
             } else {
-              displayError("No data received!", true); // TODO?
+              displayMessage("No data received!", true); // TODO?
             }
           }
           Annotator.actionsAllowed(true);
@@ -1868,6 +1905,7 @@ $(function() {
         });
 
     annotator.fillSpanTypesAndDisplayForm = function(spanText, span) {
+      Annotator.actionsAllowed(false);
       annotator.keymap = annotator.spanKeymap;
       $('#del_span_button').css('display', span ? 'inline' : 'none');
       $('#span_selected').text(spanText);
@@ -1896,7 +1934,6 @@ $(function() {
       }
       $('#span_form').css('display', 'block');
       $('#span_form input:submit').focus();
-      Annotator.actionsAllowed(false);
       formDisplayed = true;
     };
     $('#del_span_button').click(annotator.deleteSpan);
@@ -1918,43 +1955,53 @@ $(function() {
       submit(arcFormSubmit).
       bind('reset', hideAllForms);
     annotator.fillArcTypesAndDisplayForm = function(originType, targetType, arcType, arcId) {
-      $.get(ajaxBase, {
-        action: 'arctypes',
-        origin: originType,
-        target: targetType,
-      }, function(jsonData) {
-        if (displayMessagesAndCheckForErrors(jsonData)) {
-          if (jsonData.empty && !arcType) {
-            // no valid choices
-            displayMessage("No choices for "+originType+" -> "+targetType, true);
-          } else {
-            $('#arc_roles').html(jsonData.html);
-            annotator.keymap = jsonData.keymap;
-            if (arcId) {
-              $('#arc_highlight_link').css('display', 'inline').attr('href', document.location + '/' + arcId);
-              var el = $('#arc_' + arcType)[0];
-              if (el) {
-                el.checked = true;
-              }
-            } else {
-              $('#arc_highlight_link').css('display', 'none');
-              el = $('#arc_form input:radio:first')[0];
-              if (el) {
-                el.checked = true;
+      Annotator.actionsAllowed(false);
+      $.ajax({
+        url: ajaxBase,
+        type: 'GET',
+        data: {
+          action: 'arctypes',
+          origin: originType,
+          target: targetType,
+        },
+        success: function(jsonData) {
+            if (displayMessagesAndCheckForErrors(jsonData)) {
+              if (jsonData.empty && !arcType) {
+                // no valid choices
+                displayMessage("No choices for "+originType+" -> "+targetType, true);
+                Annotator.actionsAllowed(true);
+              } else {
+                $('#arc_roles').html(jsonData.html);
+                annotator.keymap = jsonData.keymap;
+                if (arcId) {
+                  $('#arc_highlight_link').css('display', 'inline').attr('href', document.location + '/' + arcId);
+                  var el = $('#arc_' + arcType)[0];
+                  if (el) {
+                    el.checked = true;
+                  }
+                } else {
+                  $('#arc_highlight_link').css('display', 'none');
+                  el = $('#arc_form input:radio:first')[0];
+                  if (el) {
+                    el.checked = true;
+                  }
+                }
+                var confirmMode = $('#confirm_mode')[0].checked;
+                if (!confirmMode) {
+                  arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+                }
+                $('#del_arc_button').css('display', arcType ? 'inline' : 'none');
+                if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
+                $('#arc_form').css('display', 'block');
+                $('#arc_form input:submit').focus();
+                formDisplayed = true;
               }
             }
-            var confirmMode = $('#confirm_mode')[0].checked;
-            if (!confirmMode) {
-              arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
-            }
-            $('#del_arc_button').css('display', arcType ? 'inline' : 'none');
-            if (arcType) annotator.keymap[46] = 'del_arc_button'; // Del
-            $('#arc_form').css('display', 'block');
-            $('#arc_form input:submit').focus();
-            Annotator.actionsAllowed(false);
-            formDisplayed = true;
-          }
-	}
+          },
+        error: function(req, textStatus, errorThrown) {
+          console.error("Arc type fetch error", textStatus, errorThrown);
+          Annotator.actionsAllowed(true);
+        },
       });
     };
     $('#del_arc_button').click(annotator.deleteArc);
@@ -2006,6 +2053,9 @@ $(function() {
             annotator.user = undefined;
             displayMessage(data);
             auth_button.val('Login');
+          },
+          error: function(req, textStatus, errorThrown) {
+            console.error("Logout error", textStatus, errorThrown);
           },
         });
       }
@@ -2073,52 +2123,61 @@ $(function() {
         auth_button.val('Login');
       }
     },
+    error: function(req, textStatus, errorThrown) {
+      console.error("User fetch error", textStatus, errorThrown);
+    },
   });
 
   // span form
-  $.get(ajaxBase, {
-    action: 'spantypes',
-  }, function(jsonData) {
-    var collapseHandler = function(evt) {
-      var el = $(evt.target);
-      var open = el.hasClass('open');
-      var collapsible = el.parent().find('.collapsible').first();
-      el.toggleClass('open');
-      collapsible.toggleClass('open');
-    };
-    var spanFormSubmit = function(evt) {
-      spanForm.css('display', 'none');
-      annotator.keymap = {};
-      var type = $('#span_form input:radio:checked').val();
-      if (type) { // (if not cancelled)
-        annotator.ajaxOptions.type = type;
-        var el;
-        if (el = $('#span_mod_negation')[0]) {
-          annotator.ajaxOptions.negation = el.checked;
+  $.ajax({
+      url: ajaxBase,
+      data: { action: 'spantypes' },
+      type: 'GET',
+      success: function(jsonData) {
+        var collapseHandler = function(evt) {
+          var el = $(evt.target);
+          var open = el.hasClass('open');
+          var collapsible = el.parent().find('.collapsible').first();
+          el.toggleClass('open');
+          collapsible.toggleClass('open');
+        };
+        var spanFormSubmit = function(evt) {
+          spanForm.css('display', 'none');
+          annotator.keymap = {};
+          var type = $('#span_form input:radio:checked').val();
+          if (type) { // (if not cancelled)
+            annotator.ajaxOptions.type = type;
+            var el;
+            if (el = $('#span_mod_negation')[0]) {
+              annotator.ajaxOptions.negation = el.checked;
+            }
+            if (el = $('#span_mod_speculation')[0]) {
+              annotator.ajaxOptions.speculation = el.checked;
+            }
+            annotator.postChangesAndReload();
+          }
+          return false;
+        };
+        var spanFormSubmitRadio = function(evt) {
+          var confirmMode = $('#confirm_mode')[0].checked;
+          if (confirmMode) {
+            $('#span_form input:submit').focus();
+          } else {
+            spanFormSubmit(evt);
+          }
         }
-        if (el = $('#span_mod_speculation')[0]) {
-          annotator.ajaxOptions.speculation = el.checked;
+        var spanForm = $('#span_form').
+          submit(spanFormSubmit).
+          bind('reset', hideAllForms);
+        if (displayMessagesAndCheckForErrors(jsonData)) {
+          $('#span_types').html(jsonData.html);
+          annotator.spanKeymap = jsonData.keymap;
+          spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
+          spanForm.find('.collapser').click(collapseHandler);
         }
-        annotator.postChangesAndReload();
-      }
-      return false;
-    };
-    var spanFormSubmitRadio = function(evt) {
-      var confirmMode = $('#confirm_mode')[0].checked;
-      if (confirmMode) {
-        $('#span_form input:submit').focus();
-      } else {
-        spanFormSubmit(evt);
-      }
-    }
-    var spanForm = $('#span_form').
-      submit(spanFormSubmit).
-      bind('reset', hideAllForms);
-    if (displayMessagesAndCheckForErrors(jsonData)) {
-      $('#span_types').html(jsonData.html);
-      annotator.spanKeymap = jsonData.keymap;
-      spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
-      spanForm.find('.collapser').click(collapseHandler);
-    }
+      },
+      error: function(req, textStatus, errorThrown) {
+        console.error("Span type fetch error", textStatus, errorThrown);
+      },
   });
 });
