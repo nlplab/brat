@@ -883,6 +883,7 @@ var Annotator = function(containerElement, onStart) {
   this.redraw = false;
 
   var renderDataReal = function(_data) {
+    $(containerElement).css('display', 'block');
     if (this.drawing) {
       Annotator.actionsAllowed(true);
       return;
@@ -1540,6 +1541,7 @@ var Annotator = function(containerElement, onStart) {
 
   this.clearSVG = function() {
     svg.clear();
+    $(containerElement).css('display', 'none');
   }
 };
 
