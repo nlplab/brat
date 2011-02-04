@@ -292,47 +292,23 @@ def span_types_html():
 
     response = { }
 
-    # just hard-coded for now
     keymap =  span_type_keyboard_shortcuts
+
+    # Note: all keymap processing is case-insensitive and treats space
+    # and underscore ("_") interchangeably to reduce surprise in
+    # configuration attempts
     
     client_keymap = {}
     for k in keymap:
         # TODO: the info on how to format these for the client
         # should go into htmlgen
-        client_keymap[k] = 'span_'+keymap[k]
+        client_keymap[k] = 'span_'+keymap[k].lower().replace(" ", "_")
 
     type_to_key_map = {}
     for k in keymap:
-        type_to_key_map[keymap[k]] = k
+        type_to_key_map[keymap[k].lower().replace(" ", "_")] = k.lower()
     
     response['keymap'] = client_keymap
-
-# <div class="item"><div class="item_content">
-#    <input id="span_Gene_or_gene_product" name="span_type" type="radio" value="Gene_or_gene_product"/><label for="span_Gene_or_gene_product"><span class="accesskey">G</span>ene or gene product</label>
-# </div></div>
-# <!--
-# <div class="item"><div class="item_content">
-#    <input id="span_Entity" name="span_type" type="radio" value="Entity"/><label for="span_Entity"><span class="accesskey">E</span>ntity</label>
-# </div></div>
-# -->
-# <div class="item"><div class="item_content">
-#    <input id="span_Protein_family_or_group" name="span_type" type="radio" value="Protein_family_or_group"/><label for="span_Protein_family_or_group">Protein <span class="accesskey">f</span>amily or group</label>
-# </div></div>
-# <hr/>
-# <div class="item"><div class="item_content">
-#    <input id="span_Protein_domain_or_region" name="span_type" type="radio" value="Protein_domain_or_region"/><label for="span_Protein_domain_or_region">Protein domain or <span class="accesskey">r</span>egion</label>
-# </div></div>
-# <div class="item"><div class="item_content">
-#    <input id="span_DNA_domain_or_region" name="span_type" type="radio" value="DNA_domain_or_region"/><label for="span_DNA_domain_or_region"><span class="accesskey">D</span>NA domain or region</label>
-# </div></div>
-# <div class="item"><div class="item_content">
-#    <input id="span_Amino_acid_monomer" name="span_type" type="radio" value="Amino_acid_monomer"/><label for="span_Amino_acid_monomer">Amino acid m<span class="accesskey">o</span>nomer</label>
-# </div></div>
-# <hr/>
-# <div class="item"><div class="item_content">
-#    <input id="span_Carbohydrate" name="span_type" type="radio" value="Carbohydrate"/><label for="span_Carbohydrate">Carbohydrate</label>
-# </div></div>
-
     response['html']  = """<fieldset>
 <legend>Entities</legend>
 """ + generate_entity_type_html(type_to_key_map) + """

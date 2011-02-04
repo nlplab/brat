@@ -100,7 +100,6 @@ def __read_term_hierarchy_file(filename, default):
         import sys
         print >> sys.stderr, 'brat htmlgen.py: error reading %s' % filename
         term_hierarchy = default
-        raise
     return term_hierarchy
 
 
@@ -113,7 +112,6 @@ def __parse_term_hierarchy(hierarchy, default):
         import sys
         print >> sys.stderr, 'brat htmlgen.py: error parsing term hierarchy.'
         root_nodes = default
-        raise
     return root_nodes
 
 
@@ -124,13 +122,19 @@ def __generate_input_and_label(t, keymap, indent, disabled):
         dstr = ""
     else:
         dstr = ' disabled="disabled"'
-    s  = indent+'    <input id="span_%s" name="span_type" type="radio" value="%s" %s/>' % (nst,nst,dstr)
-    s += indent+'<label for="span_%s">' % nst
-    if t not in keymap or t.lower().find(keymap[t].lower()) == -1:
+    s  = indent+'    <input id="span_%s" name="span_type" type="radio" value="%s" %s/>' % (nst.lower(),nst,dstr)
+    s += indent+'<label for="span_%s">' % nst.lower()
+
+    import sys
+    print >> sys.stderr, t, keymap
+
+    # TODO: saner case/space-vs-underscore-insensitive processing
+    kmt = t.lower().replace(" ", "_")
+    if kmt not in keymap or kmt.find(keymap[kmt].lower()) == -1:
         s += '%s</label>' % t
     else:
-        accesskey = keymap[t].lower()
-        key_offset= t.lower().find(accesskey)
+        accesskey = keymap[kmt].lower()
+        key_offset= kmt.find(accesskey)
         s += '%s<span class="accesskey">%s</span>%s</label>' % (t[:key_offset], t[key_offset:key_offset+1], t[key_offset+1:])
     l.append(s)
     return l
@@ -219,4 +223,4 @@ if __name__ == '__main__':
     for k in keymap:
         reverse_keymap[keymap[k]] = k
 
-    print generate_span_type_html(reverse_keymap)
+    print generate_event_type_html(reverse_keymap)
