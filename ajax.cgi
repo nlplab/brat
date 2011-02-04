@@ -34,7 +34,7 @@ from simplejson import dumps
 #
 
 from annotation import Annotations, TEXT_FILE_SUFFIX
-from annspec import physical_entity_types, event_argument_types
+from annspec import physical_entity_types, event_argument_types, span_type_keyboard_shortcuts
 from verify_annotations import verify_annotation
 # We should not import this in the end...
 from annotation import (TextBoundAnnotation, AnnotationId, EquivAnnotation,
@@ -291,38 +291,9 @@ def span_types_html():
 
     response = { }
 
-    # reminder: if there's an error when generating (eventually), this
-    # is how to get it across
-#     if there_is_an_error:
-#         response['error'] = 'Error message'
-
     # just hard-coded for now
-    keymap =  {
-        #'P': 'Protein',
-        'P': 'Phosphorylation',
-        'G': 'Gene_or_gene_product',
-        'D': 'DNA_domain_or_region',
-        'F': 'Protein_family_or_group',
-        'R': 'Protein_domain_or_region',
-        'O': 'Amino_acid_monomer',
-        'E': 'Entity',
-        'H': 'Hydroxylation',
-        #'R': 'Dehydroxylation',
-        #'O': 'Phosphorylation',
-        'U': 'Ubiquitination',
-        #'B': 'Deubiquitination',
-        #'G': 'Glycosylation',
-        #'L': 'Deglycosylation',
-        'A': 'Acetylation',
-        #'T': 'Deacetylation',
-        'M': 'Methylation',
-        #'Y': 'Demethylation',
-        #'D': 'DNA_methylation',
-        'C': 'Catalysis',
-        'N': 'mod_Negation',
-        'S': 'mod_Speculation',
-        }
-
+    keymap =  span_type_keyboard_shortcuts
+    
     client_keymap = {}
     for k in keymap:
         # TODO: the info on how to format these for the client

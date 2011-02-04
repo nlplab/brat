@@ -8,7 +8,27 @@ Version:    2011-01-20
 
 #TODO: These are really constants, upper-case the names, remember to make
 # the other files that import them conform too.
-#TODO: Silly, but : placement isn't really standard.
+
+## Configuration of keyboard shortcuts for span type selection dialog
+span_type_keyboard_shortcuts = {
+        'P': 'Protein',
+        #'P': 'Phosphorylation',
+        'G': 'Gene_or_gene_product',
+        'D': 'DNA_domain_or_region',
+        'F': 'Protein_family_or_group',
+        'R': 'Protein_domain_or_region',
+        'O': 'Amino_acid_monomer',
+        'E': 'Entity',
+        'H': 'Hydroxylation',
+        'U': 'Ubiquitination',
+        #'G': 'Glycosylation',
+        'A': 'Acetylation',
+        'M': 'Methylation',
+        #'D': 'DNA_methylation',
+        'C': 'Catalysis',
+        'N': 'mod_Negation',
+        'S': 'mod_Speculation',
+        }
 
 ## Configuration for annotation types and semantics
 
@@ -166,6 +186,7 @@ event_argument_types = {
     }
 
 # Types of textbounds that should not overlap with others of their
-# type.
-no_sametype_overlap_textbound_types = physical_entity_types[:]
+# type. (Appears to be unused at the moment)
+# TODO: remove if this remains unused
+#no_sametype_overlap_textbound_types = physical_entity_types[:]
 
