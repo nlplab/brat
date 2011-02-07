@@ -125,12 +125,58 @@ def my_listdir(directory):
             if not (l.startswith('hidden_') or l.startswith('.'))]
 
 def documents(directory):
+    from simplejson import dumps
+    from htmlgen import generate_entity_type_html, generate_event_type_html
     print 'Content-Type: application/json\n'
     try:
         dirlist = [file[0:-4] for file in my_listdir(directory)
                 if file.endswith('txt')]
         dirlist.sort()
-        response = { 'docnames': dirlist, 'message': None }
+
+        keymap =  span_type_keyboard_shortcuts
+
+        # Note: all keymap processing is case-insensitive and treats space
+        # and underscore ("_") interchangeably to reduce surprise in
+        # configuration attempts
+        
+        client_keymap = {}
+        for k in keymap:
+            # TODO: the info on how to format these for the client
+            # should go into htmlgen
+            client_keymap[k] = 'span_'+keymap[k].lower().replace(" ", "_")
+
+        type_to_key_map = {}
+        for k in keymap:
+            type_to_key_map[keymap[k].lower().replace(" ", "_")] = k.lower()
+        
+        html = """<fieldset>
+<legend>Entities</legend>
+""" + generate_entity_type_html(directory, type_to_key_map) + """
+</fieldset>
+<fieldset>
+<legend>Events</legend>
+<fieldset>
+<legend>Type</legend>
+<div id="span_scroller">
+""" + generate_event_type_html(directory, type_to_key_map) + """</div>
+</fieldset>
+<fieldset id="span_mod_fset">
+  <legend>Modifications</legend>
+  <input id="span_mod_negation" type="checkbox" value="Negation"/>
+  <label for="span_mod_negation"><span class="accesskey">N</span>egation</label>
+  <input id="span_mod_speculation" type="checkbox" value="Speculation"/>
+  <label for="span_mod_speculation"><span class="accesskey">S</span>peculation</label>
+</fieldset>
+</fieldset>
+"""
+
+        response = {
+            'docnames': dirlist,
+            'message': None,
+            'keymap': client_keymap,
+            'html': html,
+            }
+
     except OSError, x:
         response = { 'error': 'Error: No such directory: ' + directory }
     print dumps(response, sort_keys=True, indent=2)
@@ -289,54 +335,6 @@ def saveSVG(directory, document, svg):
     else:
         print 'Content-Type: text/plain'
         print 'Status: 400 Bad Request\n'
-
-
-def span_types_html(directory=None):
-    from simplejson import dumps
-    from htmlgen import generate_entity_type_html, generate_event_type_html
-
-    response = { }
-
-    keymap =  span_type_keyboard_shortcuts
-
-    # Note: all keymap processing is case-insensitive and treats space
-    # and underscore ("_") interchangeably to reduce surprise in
-    # configuration attempts
-    
-    client_keymap = {}
-    for k in keymap:
-        # TODO: the info on how to format these for the client
-        # should go into htmlgen
-        client_keymap[k] = 'span_'+keymap[k].lower().replace(" ", "_")
-
-    type_to_key_map = {}
-    for k in keymap:
-        type_to_key_map[keymap[k].lower().replace(" ", "_")] = k.lower()
-    
-    response['keymap'] = client_keymap
-    response['html']  = """<fieldset>
-<legend>Entities</legend>
-""" + generate_entity_type_html(directory, type_to_key_map) + """
-</fieldset>
-<fieldset>
-<legend>Events</legend>
-<fieldset>
-<legend>Type</legend>
-<div id="span_scroller">
-""" + generate_event_type_html(directory, type_to_key_map) + """</div>
-</fieldset>
-<fieldset id="span_mod_fset">
-  <legend>Modifications</legend>
-  <input id="span_mod_negation" type="checkbox" value="Negation"/>
-  <label for="span_mod_negation"><span class="accesskey">N</span>egation</label>
-  <input id="span_mod_speculation" type="checkbox" value="Speculation"/>
-  <label for="span_mod_speculation"><span class="accesskey">S</span>peculation</label>
-</fieldset>
-</fieldset>
-"""
-    
-    print 'Content-Type: application/json\n'
-    print dumps(response, sort_keys=True, indent=2)
 
 
 def arc_types_html(projectconfig, origin_type, target_type):

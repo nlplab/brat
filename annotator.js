@@ -1677,6 +1677,10 @@ $(function() {
             dsel.append('<option>' + directory + '</option>');
           }
           dsel.val(directory);
+          $('#span_types').html(response.html);
+          annotator.spanKeymap = response.keymap;
+          spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
+          spanForm.find('.collapser').click(collapseHandler);
         } else {
           $('#document_select').css('display', 'none');
           dsel[0].selectedIndex = 0;
@@ -1689,26 +1693,6 @@ $(function() {
         dsel[0].selectedIndex = 0;
         Annotator.actionsAllowed(true);
       }
-    });
-    // TODO: join into one call!
-    $.ajax({
-        url: ajaxBase,
-        data: {
-          action: 'spantypes',
-          directory: directory,
-        },
-        type: 'GET',
-        success: function(jsonData) {
-          if (displayMessagesAndCheckForErrors(jsonData)) {
-            $('#span_types').html(jsonData.html);
-            annotator.spanKeymap = jsonData.keymap;
-            spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
-            spanForm.find('.collapser').click(collapseHandler);
-          }
-        },
-        error: function(req, textStatus, errorThrown) {
-          console.error("Span type fetch error", textStatus, errorThrown);
-        },
     });
   };
 
