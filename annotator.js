@@ -1667,7 +1667,7 @@ $(function() {
           $.each(response.docnames, function(docnameNo, docname) {
             html.push('<option>' + docname + '</option>');
           });
-          html = html.join();
+          html = html.join('');
           var sel = $('#document_select').html(html).css('display', 'inline');
           if (doc) sel.val(doc);
           else Annotator.actionsAllowed(true);
