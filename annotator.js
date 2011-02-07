@@ -1950,6 +1950,7 @@ $(function() {
       annotator.postChangesAndReload();
     }
     var arcFormSubmit = function(evt) {
+      if (!formDisplayed) return false; // prevents #58
       arcForm.css('display', 'none');
       annotator.keymap = {};
       var type = $('#arc_form input:radio:checked').val();
