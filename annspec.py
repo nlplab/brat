@@ -30,33 +30,6 @@ span_type_keyboard_shortcuts = {
         'S': 'mod_Speculation',
         }
 
-## Configuration for annotation types and semantics
-
-# Types of textbounds representing physical entities.
-physical_entity_types = [
-    'Protein',
-    'Entity',
-    'Organism',
-    'Chemical',
-    'Two-component-system',
-    'Regulon-operon',
-    # for more PTM annotation
-    'Protein_family_or_group',
-    'DNA_domain_or_region',
-    'Protein_domain_or_region',
-    'Amino_acid_monomer',
-    'Carbohydrate',
-    # for AZ corpus
-    'Cell_type',
-    'Drug_or_compound',
-    'Gene_or_gene_product',
-    'Pathway',
-    'Tissue',
-    'Not_sure',
-    'Other',
-    'Other_pharmaceutical_agent',
-    ]
-
 # Allowed nestings for physical entities.
 allowed_entity_nestings = {
     'default'              : [],
@@ -79,15 +52,21 @@ allowed_entity_nestings = {
 # shorthand for abbrevs
 
 #core_physical_entity = ['Protein']  # EPI version
-core_physical_entity = ['Gene_or_gene_product', 'Protein_family_or_group']  # More PTM version
+#core_physical_entity = ['Gene_or_gene_product', 'Protein_family_or_group']  # More PTM version
 #core_physical_entity = ['Gene_or_gene_product', 'Drug_or_compound', 'Protein_family_or_group']  # AZ version
+core_physical_entity = ['Gene_or_gene_product', 'Protein_family_or_group', 'Protein'] # combination version
 
 # EPI/AZ version
 #protein_site_entity = dna_site_entity = any_site_entity = ['Entity']
 
 # More PTM version
-protein_site_entity = ['Protein_domain_or_region', 'Amino_acid_monomer']
-dna_site_entity = ['DNA_domain_or_region']
+# protein_site_entity = ['Protein_domain_or_region', 'Amino_acid_monomer']
+# dna_site_entity = ['DNA_domain_or_region']
+# any_site_entity = list(set(protein_site_entity + dna_site_entity))
+
+# Combination version
+protein_site_entity = ['Protein_domain_or_region', 'Amino_acid_monomer', 'Entity']
+dna_site_entity = ['DNA_domain_or_region', 'Entity']
 any_site_entity = list(set(protein_site_entity + dna_site_entity))
 
 
@@ -103,7 +82,8 @@ theme_and_site_arguments = {
         }
 
 dna_theme_and_site_arguments = {
-        'Theme' : ['Gene_or_gene_product'],
+        #'Theme' : ['Gene_or_gene_product'],# More PTM version 
+        'Theme' : ['Protein', 'Gene_or_gene_product'], # combination version
         'Site'  : dna_site_entity
         }
 
@@ -127,7 +107,8 @@ sidechain_modification_arguments = {
         'Theme'     : core_physical_entity,
         'Site'      : protein_site_entity,
         #'Sidechain' : ['Entity'],      # EPI version
-        'Sidechain' : ['Carbohydrate'], # More PTM version
+        #'Sidechain' : ['Carbohydrate'], # More PTM version
+        'Sidechain' : ['Entity', 'Carbohydrate'], # combination version
         }
 
 contextgene_modification_arguments = {
@@ -184,9 +165,3 @@ event_argument_types = {
 
     # TODO: ID
     }
-
-# Types of textbounds that should not overlap with others of their
-# type. (Appears to be unused at the moment)
-# TODO: remove if this remains unused
-#no_sametype_overlap_textbound_types = physical_entity_types[:]
-

@@ -34,10 +34,11 @@ from simplejson import dumps
 #
 
 from annotation import Annotations, TEXT_FILE_SUFFIX
-from annspec import physical_entity_types, event_argument_types, span_type_keyboard_shortcuts
+from annspec import span_type_keyboard_shortcuts
+from projectconfig import ProjectConfiguration
 from verify_annotations import verify_annotation
 # We should not import this in the end...
-from annotation import (TextBoundAnnotation, AnnotationId, EquivAnnotation,
+from annotation import (TextBoundAnnotation, EquivAnnotation,
         EventAnnotation, ModifierAnnotation, DependingAnnotationDeleteError)
 
 ### Constants?
@@ -87,29 +88,25 @@ path.extend(_old_path)
 # Clean the namespace
 del deepcopy, dirname, path, _old_path
 
-def is_physical_entity_type(t):
-    return t in physical_entity_types
+def possible_arc_types_from_to(projectconfig, from_ann, to_ann):
+    # TODO: avoid accessing this
+    from annspec import event_argument_types
 
-def is_event_type(t):
-    # TODO: this assumption may not always hold, check properly
-    return not is_physical_entity_type(t)
-
-def possible_arc_types_from_to(from_ann, to_ann):
-    if is_physical_entity_type(from_ann):
+    if projectconfig.is_physical_entity_type(from_ann):
         # only possible "outgoing" edge from a physical entity is Equiv
         # to another entity of the same type.
         if from_ann == to_ann:
             return ['Equiv']
         else:
             return []
-    elif is_event_type(from_ann):
+    elif projectconfig.is_event_type(from_ann):
         # look up the big table
         args = event_argument_types.get(from_ann, event_argument_types['default'])
 
         possible = []
         for a in args:
             if (to_ann in args[a] or
-                is_event_type(to_ann) and 'event' in args[a]):
+                projectconfig.is_event_type(to_ann) and 'event' in args[a]):
                 possible.append(a)
 
         # prioritize the "possible" list so that frequent ones go first.
@@ -119,6 +116,7 @@ def possible_arc_types_from_to(from_ann, to_ann):
 
         return possible
     else:
+        # TODO: report error!
         return None
 
 def my_listdir(directory):
@@ -184,7 +182,9 @@ def enrich_json_with_data(j_dic, ann_obj):
         # If we spotted it in the previous pass as a trigger for an
         # event or if the type is known to be an event type, we add it
         # as a json trigger.
-        if tb_ann.id in trigger_ids or is_event_type(tb_ann.type):
+        # TODO: proper handling of disconnected triggers. Currently
+        # these will be erroneously passed as 'entities'
+        if str(tb_ann.id) in trigger_ids:
             j_dic['triggers'].append(j_tb)
         else: 
             j_dic['entities'].append(j_tb)
@@ -222,7 +222,11 @@ def enrich_json_with_data(j_dic, ann_obj):
     j_dic['ctime'] = ann_obj.ann_ctime
 
     try:
-        issues = verify_annotation(ann_obj)
+        # XXX avoid digging the directory from the ann_obj
+        import os
+        docdir = os.path.dirname(ann_obj._document)
+        projectconfig = ProjectConfiguration(docdir)
+        issues = verify_annotation(ann_obj, projectconfig)
     except Exception, e:
         # TODO add an issue about the failure
         issues = []
@@ -258,7 +262,8 @@ def document_json_dict(document):
 
     return j_dic
 
-def document_json(document):
+def document_json(docdir, docname):
+    document = join_path(docdir, docname)
     j_dic = document_json_dict(document)
     print 'Content-Type: application/json\n'
     print dumps(j_dic, sort_keys=True, indent=2)
@@ -334,13 +339,13 @@ def span_types_html(directory=None):
     print dumps(response, sort_keys=True, indent=2)
 
 
-def arc_types_html(origin_type, target_type):
+def arc_types_html(projectconfig, origin_type, target_type):
     from simplejson import dumps
 
     response = { }
 
     try:
-        possible = possible_arc_types_from_to(origin_type, target_type)
+        possible = possible_arc_types_from_to(projectconfig, origin_type, target_type)
 
         # TODO: proper error handling
         if possible is None:
@@ -417,12 +422,19 @@ class LineModificationTracker(object):
         return response
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def save_span(document, start_str, end_str, type, negation, speculation, id):
+def save_span(docdir, docname, start_str, end_str, type, negation, speculation, id):
     #TODO: Handle the case when negation and speculation both are positive
     # if id present: edit
     # if spanfrom and spanto present, new
     #XXX: Negation, speculation not done!
+
+    document = join_path(docdir, docname)
+
+    projectconfig = ProjectConfiguration(docdir)
+
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+
+    working_directory = os.path.split(document)[0]
 
     with Annotations(document) as ann_obj:
         mods = LineModificationTracker()
@@ -453,13 +465,9 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
                 pass
 
             if ann.type != type:
-                if ((is_event_type(ann.type)
-                    and is_physical_entity_type(type))
-                    or
-                    (is_physical_entity_type(ann.type)
-                        and is_event_type(type))):
-                        # XXX: We don't allow this! Warn!
-                        pass
+                if projectconfig.type_category(ann.type) != projectconfig.type_category(type):
+                    # XXX: We don't allow this! Warn!
+                    pass
                 else:
                     before = str(ann)
                     ann.type = type
@@ -595,7 +603,7 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
                 ann = found
 
             if ann is not None:
-                if is_physical_entity_type(type):
+                if projectconfig.is_physical_entity_type(type):
                     # TODO: alert that negation / speculation are ignored if set
                     pass
                 else:
@@ -644,96 +652,74 @@ def save_span(document, start_str, end_str, type, negation, speculation, id):
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json['annotations'] = j_dic
         print dumps(mods_json, sort_keys=True, indent=2)
-
-# XXX: This didn't really look as pretty as planned
-# TODO: Prettify the decorator to preserve signature
-def _annotations_decorator(doc_index_in_args, id_indexes=None):
-    '''
-    Decorate a function to convert the document path for a given path to an
-    Annotations object upon calling. Also allows the look-up of ids turning
-    them into actual annotations.
-
-    TODO: Extensive doc
-    TODO: Also raises annotation not found.
-    '''
-    def dec(func):
-        def _func(*args):
-            from copy import copy
-            document = args[doc_index_in_args]
-            with Annotations(document) as ann_obj:
-                # We only need a shallow copy
-                new_args = list(copy(args))
-                new_args[doc_index_in_args] = ann_obj
-                if id_indexes is not None:
-                    for i in id_indexes:
-                        new_args[i] = ann_obj.get_ann_by_id(args[i])
-                return func(*new_args)
-        return _func
-    return dec
            
 #TODO: Should determine which step to call next
-@_annotations_decorator(0, [1, 2])
-def save_arc(ann_obj, origin, target, type, old_type):
+def save_arc(docdir, docname, origin, target, type, old_type):
     mods = LineModificationTracker()
 
-    # Ugly check, but we really get no other information
-    if type != 'Equiv':
-        try:
-            arg_tup = (type, str(target.id))
-            if old_type is None:
-                old_arg_tup = None
-            else:
-                old_arg_tup = (old_type, str(target.id))
-    
-            if old_arg_tup is None:
-                if arg_tup not in origin.args:
-                    before = str(origin)
-                    origin.args.append(arg_tup)
-                    mods.change(before, origin)
+    document = join_path(docdir, docname)
+
+    with Annotations(document) as ann_obj:
+        origin, target = ann_obj.get_ann_by_id(origin), ann_obj.get_ann_by_id(target)
+
+        # Ugly check, but we really get no other information
+        if type != 'Equiv':
+            try:
+                arg_tup = (type, str(target.id))
+                if old_type is None:
+                    old_arg_tup = None
                 else:
-                    # It already existed as an arg, we were called to do nothing...
-                    pass
-            else:
-                if old_arg_tup in origin.args and arg_tup not in origin.args:
-                    before = str(origin)
-                    origin.args.remove(old_arg_tup)
-                    origin.args.append(arg_tup)
-                    mods.change(before, origin)
+                    old_arg_tup = (old_type, str(target.id))
+
+                if old_arg_tup is None:
+                    if arg_tup not in origin.args:
+                        before = str(origin)
+                        origin.args.append(arg_tup)
+                        mods.change(before, origin)
+                    else:
+                        # It already existed as an arg, we were called to do nothing...
+                        pass
                 else:
-                    # Collision etc. don't do anything
-                    pass
-        except AttributeError:
-            # The annotation did not have args, it was most likely an entity
-            # thus we need to create a new Event...
-            new_id = ann_obj.get_new_id('E')
-            ann = EventAnnotation(
-                        origin.id,
-                        [arg_tup],
-                        new_id,
-                        origin.type,
-                        ''
-                        )
+                    if old_arg_tup in origin.args and arg_tup not in origin.args:
+                        before = str(origin)
+                        origin.args.remove(old_arg_tup)
+                        origin.args.append(arg_tup)
+                        mods.change(before, origin)
+                    else:
+                        # Collision etc. don't do anything
+                        pass
+            except AttributeError:
+                # The annotation did not have args, it was most likely an entity
+                # thus we need to create a new Event...
+                new_id = ann_obj.get_new_id('E')
+                ann = EventAnnotation(
+                            origin.id,
+                            [arg_tup],
+                            new_id,
+                            origin.type,
+                            ''
+                            )
+                ann_obj.add_annotation(ann)
+                mods.added.append(ann)
+        else:
+            # It is an Equiv
+            assert old_type is None, 'attempting to change Equiv, not supported'
+            ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
             ann_obj.add_annotation(ann)
             mods.added.append(ann)
-    else:
-        # It is an Equiv
-        assert old_type is None, 'attempting to change Equiv, not supported'
-        ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
-        ann_obj.add_annotation(ann)
-        mods.added.append(ann)
 
-    print 'Content-Type: application/json\n'
-    if DEBUG:
-        mods_json = mods.json_response()
-    else:
-        mods_json = {}
+        print 'Content-Type: application/json\n'
+        if DEBUG:
+            mods_json = mods.json_response()
+        else:
+            mods_json = {}
 
-    # Hack since we don't have the actual text, should use a factory?
-    txt_file_path = ann_obj.get_document() + '.' + TEXT_FILE_SUFFIX
-    j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
+        # Hack since we don't have the actual text, should use a factory?
+        txt_file_path = ann_obj.get_document() + '.' + TEXT_FILE_SUFFIX
+        j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
 
-    mods_json['annotations'] = j_dic
-    print dumps(mods_json, sort_keys=True, indent=2)
+        mods_json['annotations'] = j_dic
+        print dumps(mods_json, sort_keys=True, indent=2)
 
 # Hack for the round-trip
 def json_from_ann_and_txt(ann_obj, txt_file_path):
@@ -745,8 +731,9 @@ def json_from_ann_and_txt(ann_obj, txt_file_path):
 
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def delete_span(document, id):
-    id = AnnotationId(id)
+def delete_span(docdir, docname, id):
+    document = join_path(docdir, docname)
+    
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
     with Annotations(document) as ann_obj:
@@ -760,8 +747,7 @@ def delete_span(document, id):
             # recursive deletes. TODO: make usage consistent.
             ann_obj.del_annotation(ann, mods)
             try:
-                #TODO: Why do we need this conversion? Isn't it an id?
-                trig = ann_obj.get_ann_by_id(AnnotationId(ann.trigger))
+                trig = ann_obj.get_ann_by_id(ann.trigger)
                 try:
                     ann_obj.del_annotation(trig, mods)
                 except DependingAnnotationDeleteError:
@@ -786,9 +772,9 @@ def delete_span(document, id):
         print dumps(mods_json, sort_keys=True, indent=2)
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def delete_arc(document, origin, target, type):
-    origin = AnnotationId(origin)
-    target = AnnotationId(target)
+def delete_arc(docdir, docname, origin, target, type):
+    document = join_path(docdir, docname)
+
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
     with Annotations(document) as ann_obj:
@@ -935,28 +921,26 @@ def main():
             print 'Content-Type: application/json\n'
             print dumps(result)
 
-        elif action == 'spantypes':
-            # no directory given, get default
-            # TODO: remove once the spantypes query is tied to dir in client
-            span_types_html()
-
-        elif action == 'arctypes':
-            arc_types_html(
-                params.getvalue('origin'),
-                params.getvalue('target')
-                )
         else:
             directories()
     else:
         real_directory = join_path(DATA_DIR, directory)
 
-        if document is None:
-            if action == 'spantypes':
-                span_types_html(real_directory)
-            else:
-                documents(real_directory)
+        if action == 'spantypes':
+            span_types_html(real_directory)
+
+        elif action == 'arctypes':
+            projectconfig = ProjectConfiguration(params.getvalue('directory'))
+            arc_types_html(
+                projectconfig,
+                params.getvalue('origin'),
+                params.getvalue('target')
+                )
+
+        elif document is None:
+            documents(real_directory)
+
         else:
-            docpath = join_path(real_directory, document)
             span = params.getvalue('span')
 
             #XXX: Calls to save and delete can raise AnnotationNotFoundError
@@ -965,7 +949,7 @@ def main():
             # For now these are the only parts that speak json
             try:
                 if action == 'span':
-                    save_span(docpath,
+                    save_span(real_directory, document,
                             params.getvalue('from'),
                             params.getvalue('to'),
                             params.getvalue('type'),
@@ -973,16 +957,16 @@ def main():
                             params.getvalue('speculation') == 'true',
                             params.getvalue('id'))
                 elif action == 'arc':
-                    save_arc(docpath,
+                    save_arc(real_directory, document,
                             params.getvalue('origin'),
                             params.getvalue('target'),
                             params.getvalue('type'),
                             params.getvalue('old') or None)
                 elif action == 'unspan':
-                    delete_span(docpath,
+                    delete_span(real_directory, document,
                             params.getvalue('id'))
                 elif action == 'unarc':
-                    delete_arc(docpath,
+                    delete_arc(real_directory, document,
                             params.getvalue('origin'),
                             params.getvalue('target'),
                             params.getvalue('type'))
@@ -990,7 +974,7 @@ def main():
                     svg = params.getvalue('svg')
                     saveSVG(directory, document, svg)
                 else:
-                    document_json(docpath)
+                    document_json(real_directory, document)
             except IOError, e:
                 #TODO: This is too general, should be caught at a higher level
                 # No such file or directory
@@ -1031,42 +1015,13 @@ def main():
                 raise
 
 def debug():
-    '''
-    # A little bit of debug to make it easier for me // Pontus
-    import os
-    from difflib import unified_diff, ndiff
-    from sys import stderr
-    for root, dirs, files in os.walk(DATA_DIR):
-        for file_path in (join_path(root, f) for f in files):
-            if file_path.endswith('.ann') and not 'hidden_' in file_path:
-                #if file_path.endswith('PMC2714965-02-Results-01.ann'):
-                print file_path
-                with open(file_path, 'r') as ann_file:
-                    ann_str = ann_file.read()
-                
-                ann_obj_str = str(Annotations(file_path))
-                print ann_obj_str
-
-                if ann_str != ann_obj_str:
-                    print >> stderr, 'MISMATCH:'
-                    print >> stderr, file_path
-                    print >> stderr, 'OLD:'
-                    print >> stderr, ann_str
-                    print >> stderr, 'NEW:'
-                    print >> stderr, ann_obj_str
-                    #for diff_line in unified_diff(ann_str.split('\n'),
-                    #        ann_obj_str.split('\n')):
-                    #    print >> stderr, diff_line,
-                    exit(-1)
-                
-                #exit(0)
-    '''
-
     from os.path import dirname, join
-    debug_file_path = join(dirname(__file__), 'data',
-            'BioNLP-ST_2011_Epi_and_PTM_development_data', 'PMID-10086714')
 
-    args = (debug_file_path,
+    debug_file_path = join('BioNLP-ST_2011_Epi_and_PTM_development_data', 'PMID-10086714')
+    dirname = dirname(__file__)
+
+    args = (dirname,
+            debug_file_path,
         '59',
         '74',
         'Protein',
@@ -1083,7 +1038,8 @@ def debug():
     delete_span(*args)
     '''
 
-    args = (debug_file_path,
+    args = (dirname,
+            debug_file_path,
         'T5',
         'T4',
         'Equiv',
@@ -1091,7 +1047,8 @@ def debug():
         )
     save_arc(*args)
     
-    args = (debug_file_path,
+    args = (dirname,
+            debug_file_path,
         'E2',
         'T10',
         'Theme',
