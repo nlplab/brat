@@ -2066,6 +2066,7 @@ $(function() {
       if (auth_button.val() == 'Login') {
         $('#auth_form').css('display', 'block');
         $('#auth_user').select().focus();
+        formDisplayed = true;
       } else {
         $.ajax({
           type: 'POST',
