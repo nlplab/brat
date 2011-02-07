@@ -61,16 +61,9 @@ def contained_in_span(a1, a2):
     """
     return a1.start >= a2.start and a1.end <= a2.end
 
-def verify_annotation(ann_obj, projectconfig):
-    """
-    Verifies the correctness of a given AnnotationFile.
-    Returns a list of AnnotationIssues.
-    """
+def verify_equivs(ann_obj, projectconfig):
     issues = []
 
-    # TODO: break this up into separate functions.
-
-    # check equivs
     for eq in ann_obj.get_equivs():
         # get the equivalent annotations
         equiv_anns = [ann_obj.get_ann_by_id(eid) for eid in eq.entities]
@@ -84,6 +77,11 @@ def verify_annotation(ann_obj, projectconfig):
             # TODO: mark this error on the Eq relation, not the entities
             for e in equiv_anns:
                 issues.append(AnnotationIssue(e.id, AnnotationError, "%s in Equiv relation involving entities of more than one type (%s)" % (e.id, ", ".join(eq_type.keys()))))
+
+    return issues
+
+def verify_entity_overlap(ann_obj, projectconfig):
+    issues = []
 
     # check for overlap between physical entities
     physical_entities = [a for a in ann_obj.get_textbounds() if projectconfig.is_physical_entity_type(a.type)]
@@ -101,25 +99,39 @@ def verify_annotation(ann_obj, projectconfig):
             # crossing boundaries; never allowed for physical entities.
             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: entity has crossing span with %s" % a2.id))
     
-    # TODO: generalize to other cases please
+    # TODO: generalize to other cases
+    return issues
 
-#     # group textbounds by type
-#     textbounds_by_type = {}
-#     for a in ann_obj.get_textbounds():
-#         if a.type not in textbounds_by_type:
-#             textbounds_by_type[a.type] = []
-#         textbounds_by_type[a.type].append(a)
-#
-#     # check for overlap between textbounds that should not have any
-#     for type in textbounds_by_type:
-#         if type not in annspec.no_sametype_overlap_textbound_types:
-#             # overlap OK
-#             continue
-#
-#         overlapping = check_textbound_overlap(textbounds_by_type[type])
-#
-#         for a1, a2 in overlapping:
-#             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot overlap another entity (%s) of the same type" % (a1.type, a2.id)))
+def verify_annotation_types(ann_obj, projectconfig):
+    issues = []
+
+    event_types = projectconfig.get_event_types()
+    textbound_types = event_types + projectconfig.get_entity_types()
+
+    for e in ann_obj.get_events():
+        if e.type not in event_types:
+            issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s is not a known event type (check configuration?)" % e.type))
+
+    for t in ann_obj.get_textbounds():
+        if t.type not in textbound_types:
+            issues.append(AnnotationIssue(t.id, AnnotationError, "Error: %s is not a known textbound type (check configuration?)" % t.type))
+
+    return issues
+
+def verify_annotation(ann_obj, projectconfig):
+    """
+    Verifies the correctness of a given AnnotationFile.
+    Returns a list of AnnotationIssues.
+    """
+    issues = []
+
+    issues += verify_annotation_types(ann_obj, projectconfig)
+
+    issues += verify_equivs(ann_obj, projectconfig)
+
+    issues += verify_entity_overlap(ann_obj, projectconfig)
+
+    # various event type checks
 
     def event_nonum_args(e):
         # returns event arguments without trailing numbers

@@ -38,6 +38,12 @@ class TypeHierarchyNode:
             self.ontology_term = self.ontology_term[1:]
             self.unused = True
         self.children = []
+
+    def storage_term(self):
+        # currently same as display term but replacing
+        # space with underscore so that the type can be
+        # stored in the standard standoff
+        return self.display_term().replace(" ","_")
         
     def display_term(self):
         t = self.ontology_term
@@ -168,7 +174,7 @@ def __collect_types(node, collected):
     if node == "SEPARATOR":
         return collected
 
-    t = node.display_term()
+    t = node.storage_term()
 
     if t not in collected:
         collected.append(t)
@@ -204,7 +210,6 @@ def pc_get_event_types(directory):
 
 # fallback for missing or partial config: these are highly likely to
 # be entity (as opposed to an event or relation) types.
-
 very_likely_physical_entity_types = [
     'Protein',
     'Entity',
@@ -224,8 +229,8 @@ very_likely_physical_entity_types = [
     'Gene_or_gene_product',
     'Pathway',
     'Tissue',
-    'Not_sure',
-    'Other',
+    #'Not_sure',
+    #'Other',
     'Other_pharmaceutical_agent',
     ]
 
