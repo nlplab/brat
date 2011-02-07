@@ -32,30 +32,31 @@ span_type_keyboard_shortcuts = {
 
 ## Configuration for annotation types and semantics
 
-# Types of textbounds representing physical entities.
-physical_entity_types = [
-    'Protein',
-    'Entity',
-    'Organism',
-    'Chemical',
-    'Two-component-system',
-    'Regulon-operon',
-    # for more PTM annotation
-    'Protein_family_or_group',
-    'DNA_domain_or_region',
-    'Protein_domain_or_region',
-    'Amino_acid_monomer',
-    'Carbohydrate',
-    # for AZ corpus
-    'Cell_type',
-    'Drug_or_compound',
-    'Gene_or_gene_product',
-    'Pathway',
-    'Tissue',
-    'Not_sure',
-    'Other',
-    'Other_pharmaceutical_agent',
-    ]
+# (deprecating; this is now in projectconfig.)
+# # Types of textbounds representing physical entities.
+# physical_entity_types = [
+#     'Protein',
+#     'Entity',
+#     'Organism',
+#     'Chemical',
+#     'Two-component-system',
+#     'Regulon-operon',
+#     # for more PTM annotation
+#     'Protein_family_or_group',
+#     'DNA_domain_or_region',
+#     'Protein_domain_or_region',
+#     'Amino_acid_monomer',
+#     'Carbohydrate',
+#     # for AZ corpus
+#     'Cell_type',
+#     'Drug_or_compound',
+#     'Gene_or_gene_product',
+#     'Pathway',
+#     'Tissue',
+#     'Not_sure',
+#     'Other',
+#     'Other_pharmaceutical_agent',
+#     ]
 
 # Allowed nestings for physical entities.
 allowed_entity_nestings = {

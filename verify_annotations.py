@@ -10,6 +10,8 @@ import argparse
 import annotation
 import annspec
 
+from projectconfig import ProjectConfiguration
+
 # Issue types. Values should match with annotation interface.
 AnnotationError = "AnnotationError"
 AnnotationIncomplete = "AnnotationIncomplete"
@@ -59,7 +61,7 @@ def contained_in_span(a1, a2):
     """
     return a1.start >= a2.start and a1.end <= a2.end
 
-def verify_annotation(ann_obj):
+def verify_annotation(ann_obj, projectconfig):
     """
     Verifies the correctness of a given AnnotationFile.
     Returns a list of AnnotationIssues.
@@ -84,7 +86,7 @@ def verify_annotation(ann_obj):
                 issues.append(AnnotationIssue(e.id, AnnotationError, "%s in Equiv relation involving entities of more than one type (%s)" % (e.id, ", ".join(eq_type.keys()))))
 
     # check for overlap between physical entities
-    physical_entities = [a for a in ann_obj.get_textbounds() if a.type in annspec.physical_entity_types]
+    physical_entities = [a for a in ann_obj.get_textbounds() if projectconfig.is_physical_entity_type(a.type)]
     overlapping = check_textbound_overlap(physical_entities)
     for a1, a2 in overlapping:
         if a1.start == a2.start and a1.end == a2.end:

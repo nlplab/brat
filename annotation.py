@@ -71,37 +71,22 @@ class DependingAnnotationDeleteError(Exception):
         return response
 
 
-#TODO: Sampo doesn't like this one, Pontus doesn't like this one either
-# Suggesting to loosen the definition of what is an id
-class AnnotationId(object):
-    '''
-    ^([A-Za-z]|#)[0-9]+(.*?)$
-    '''
-    def __init__(self, id_str):
-        import re
-        m = re.match(r'^([A-Za-z]|#)([0-9]+)(.*?)$', id_str)
-        if m is None:
-            raise InvalidIdError(id)
+def __split_annotation_id(id):
+    import re
+    m = re.match(r'^([A-Za-z]|#)([0-9]+)(.*?)$', id)
+    if m is None:
+        raise InvalidIdError(id)
+    pre, num_str, suf = m.groups()
+    return pre, num_str, suf
 
-        self.pre, num_str, self.suf = m.groups()
-        # Should never fail if the regex holds
-        self.num = int(num_str)
+def annotation_id_prefix(id):
+    try:
+        return id[0]
+    except:
+        raise InvalidIdError(id)
 
-    def __hash__(self):
-        return hash(self.pre) + hash(self.num) + hash(self.suf)
-
-    def __eq__(self, other):
-        return hash(self) == hash(other)
-
-    def __cmp__(self, other):
-        return cmp(hash(self), hash(other))
-
-    def __str__(self):
-        return '{}{}{}'.format(self.pre, self.num, self.suf)
-
-    def __repr__(self):
-        return str(self.__class__) + ':' + str(self)
-
+def annotation_id_number(id):
+    return __split_annotation_id(id)[1]
 
 # We are NOT concerned with the conformity to the text file
 class Annotations(object):
@@ -254,8 +239,8 @@ class Annotations(object):
         # Register the object id
         try:
             self._ann_by_id[ann.id] = ann
-            self._max_id_num_by_prefix[ann.id.pre] = max(ann.id.num, 
-                    self._max_id_num_by_prefix[ann.id.pre])
+            pre, num = annotation_id_prefix(ann.id), annotation_id_number(ann.id)
+            self._max_id_num_by_prefix[pre] = max(num, self._max_id_num_by_prefix[pre])
         except AttributeError:
             # The annotation simply lacked an id which is fine
             pass
@@ -354,9 +339,6 @@ class Annotations(object):
     
     def get_ann_by_id(self, id):
         #TODO: DOC
-        # support access by string
-        if isinstance(id, str):
-            id = AnnotationId(id)
         try:
             return self._ann_by_id[id]
         except KeyError:
@@ -388,8 +370,7 @@ class Annotations(object):
         if suffix is None:
             suffix = ''
         #XXX: Arbitary constant!
-        for suggestion in (AnnotationId(prefix + str(i) + suffix)
-                for i in xrange(1, 2**32)):
+        for suggestion in (prefix + str(i) + suffix for i in xrange(1, 2**32)):
             # This is getting more complicated by the minute, two checks since
             # the developers no longer know when it is an id or string.
             if (suggestion not in self._ann_by_id
@@ -408,19 +389,13 @@ class Annotations(object):
             try:
                 # ID processing
                 try:
-                    id_str, id_tail = ann_line.split('\t', 1)
+                    id, id_tail = ann_line.split('\t', 1)
                 except ValueError:
                     raise AnnotationLineSyntaxError(ann_line, ann_line_num)
 
-                try:
-                    id = AnnotationId(id_str)
-                except InvalidIdError:
-                    # The line lacks an id, we attempt to create a dummy
-                    from collections import namedtuple
-                    id =  namedtuple('DummyId', ('pre', 'num', 'suf')
-                            )(id_str, None, None)
+                pre = annotation_id_prefix(id)
 
-                if id in self._ann_by_id:
+                if id in self._ann_by_id and pre != "*":
                     raise DuplicateAnnotationIdError(id)
 
                 # Cases for lines
@@ -433,7 +408,7 @@ class Annotations(object):
                     # No tail at all, although it should have a \t
                     data_tail = ''
 
-                if id.pre == '*':
+                if pre == '*':
                     type, type_tail = data.split(None, 1)
                     # For now we can only handle Equivs
                     if type != 'Equiv':
@@ -441,7 +416,7 @@ class Annotations(object):
                     equivs = type_tail.split(None)
                     self.add_annotation(
                             EquivAnnotation(type, equivs, data_tail))
-                elif id.pre == 'E':
+                elif pre == 'E':
                     #XXX: A bit nasty, we require a single space
                     try:
                         type_delim = data.index(' ')
@@ -465,13 +440,13 @@ class Annotations(object):
 
                     self.add_annotation(EventAnnotation(
                         trigger, args, id, type, data_tail))
-                elif id.pre == 'R':
+                elif pre == 'R':
                     raise NotImplementedError
-                elif id.pre == 'M':
+                elif pre == 'M':
                     type, target = data.split()
                     self.add_annotation(ModifierAnnotation(
                         target, id, type, data_tail))
-                elif id.pre == 'T' or id.pre == 'W':
+                elif pre == 'T' or pre == 'W':
                     type, start_str, end_str = data.split(None, 3)
                     # Abort if we have trailing values
                     if any((c.isspace() for c in end_str)):
@@ -479,7 +454,7 @@ class Annotations(object):
                     start, end = (int(start_str), int(end_str))
                     self.add_annotation(TextBoundAnnotation(
                         start, end, id, type, data_tail))
-                elif id.pre == '#':
+                elif pre == '#':
                     type, target = data.split()
                     self.add_annotation(OnelineCommentAnnotation(
                         target, id, type, data_tail

@@ -1984,6 +1984,7 @@ $(function() {
         type: 'GET',
         data: {
           action: 'arctypes',
+          directory: directory,
           origin: originType,
           target: targetType,
         },
