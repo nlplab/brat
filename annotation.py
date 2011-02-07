@@ -294,15 +294,33 @@ class Annotations(object):
             if str(ann.id) in soft_deps | hard_deps:
                 ann_deps.append(other_ann)
               
-        # If all depending are ModifierAnnotations, delete all
-        # recursively (without confirmation) and clear.
+        # If all depending are ModifierAnnotations or EquivAnnotations,
+        # delete all modifiers recursively (without confirmation) and remove
+        # the annotation id from the equivs (and remove the equiv if there is
+        # only one id left in the equiv)
         # Note: this assumes ModifierAnnotations cannot have
-        # other dependencies depending on them.
-        if len([d for d in ann_deps if not isinstance(d, ModifierAnnotation)]) == 0:
+        # other dependencies depending on them, nor can EquivAnnotations
+        if all((False for d in ann_deps if (
+            not isinstance(d, ModifierAnnotation)
+            and not isinstance(d, EquivAnnotation)))):
+
             for d in ann_deps:
-                if tracker is not None:
-                    tracker.deleted.append(d)
-                self._atomic_del_annotation(d)
+                if isinstance(d, ModifierAnnotation):
+                    if tracker is not None:
+                        tracker.deleted.append(d)
+                    self._atomic_del_annotation(d)
+                elif isinstance(d, EquivAnnotation):
+                    if len(d.entities) <= 2:
+                        # An equiv has to have more than one member
+                        self._atomic_del_annotation(d)
+                        if tracker is not None:
+                            tracker.deleted.append(d)
+                    else:
+                        if tracker is not None:
+                            before = str(d)
+                        d.entities.remove(str(ann.id))
+                        if tracker is not None:
+                            tracker.change(before, d)
             ann_deps = []
             
         if ann_deps:
