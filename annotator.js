@@ -2119,7 +2119,7 @@ $(function() {
         annotator.renderSelected();
       }
     } else if (mapping = annotator.keymap[code] ||
-        annotator.keymap[foo = String.fromCharCode(code)]) {
+        annotator.keymap[String.fromCharCode(code)]) {
       var el = $('#' + mapping);
       if (el.length) el[0].click();
     }
