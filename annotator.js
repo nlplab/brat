@@ -1690,6 +1690,26 @@ $(function() {
         Annotator.actionsAllowed(true);
       }
     });
+    // TODO: join into one call!
+    $.ajax({
+        url: ajaxBase,
+        data: {
+          action: 'spantypes',
+          directory: directory,
+        },
+        type: 'GET',
+        success: function(jsonData) {
+          if (displayMessagesAndCheckForErrors(jsonData)) {
+            $('#span_types').html(jsonData.html);
+            annotator.spanKeymap = jsonData.keymap;
+            spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
+            spanForm.find('.collapser').click(collapseHandler);
+          }
+        },
+        error: function(req, textStatus, errorThrown) {
+          console.error("Span type fetch error", textStatus, errorThrown);
+        },
+    });
   };
 
   $.ajax({
@@ -2131,56 +2151,39 @@ $(function() {
     },
   });
 
-  // span form
-  $.ajax({
-      url: ajaxBase,
-      data: { action: 'spantypes' },
-      type: 'GET',
-      success: function(jsonData) {
-        var collapseHandler = function(evt) {
-          var el = $(evt.target);
-          var open = el.hasClass('open');
-          var collapsible = el.parent().find('.collapsible').first();
-          el.toggleClass('open');
-          collapsible.toggleClass('open');
-        };
-        var spanFormSubmit = function(evt) {
-          spanForm.css('display', 'none');
-          annotator.keymap = {};
-          var type = $('#span_form input:radio:checked').val();
-          if (type) { // (if not cancelled)
-            annotator.ajaxOptions.type = type;
-            var el;
-            if (el = $('#span_mod_negation')[0]) {
-              annotator.ajaxOptions.negation = el.checked;
-            }
-            if (el = $('#span_mod_speculation')[0]) {
-              annotator.ajaxOptions.speculation = el.checked;
-            }
-            annotator.postChangesAndReload();
-          }
-          return false;
-        };
-        var spanFormSubmitRadio = function(evt) {
-          var confirmMode = $('#confirm_mode')[0].checked;
-          if (confirmMode) {
-            $('#span_form input:submit').focus();
-          } else {
-            spanFormSubmit(evt);
-          }
-        }
-        var spanForm = $('#span_form').
-          submit(spanFormSubmit).
-          bind('reset', hideAllForms);
-        if (displayMessagesAndCheckForErrors(jsonData)) {
-          $('#span_types').html(jsonData.html);
-          annotator.spanKeymap = jsonData.keymap;
-          spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
-          spanForm.find('.collapser').click(collapseHandler);
-        }
-      },
-      error: function(req, textStatus, errorThrown) {
-        console.error("Span type fetch error", textStatus, errorThrown);
-      },
-  });
+  var collapseHandler = function(evt) {
+    var el = $(evt.target);
+    var open = el.hasClass('open');
+    var collapsible = el.parent().find('.collapsible').first();
+    el.toggleClass('open');
+    collapsible.toggleClass('open');
+  };
+  var spanFormSubmit = function(evt) {
+    spanForm.css('display', 'none');
+    annotator.keymap = {};
+    var type = $('#span_form input:radio:checked').val();
+    if (type) { // (if not cancelled)
+      annotator.ajaxOptions.type = type;
+      var el;
+      if (el = $('#span_mod_negation')[0]) {
+        annotator.ajaxOptions.negation = el.checked;
+      }
+      if (el = $('#span_mod_speculation')[0]) {
+        annotator.ajaxOptions.speculation = el.checked;
+      }
+      annotator.postChangesAndReload();
+    }
+    return false;
+  };
+  var spanFormSubmitRadio = function(evt) {
+    var confirmMode = $('#confirm_mode')[0].checked;
+    if (confirmMode) {
+      $('#span_form input:submit').focus();
+    } else {
+      spanFormSubmit(evt);
+    }
+  }
+  var spanForm = $('#span_form').
+    submit(spanFormSubmit).
+    bind('reset', hideAllForms);
 });
