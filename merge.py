@@ -1,5 +1,4 @@
-#!/home/users/pontus/local/bin/python
-##!/usr/bin/env python
+#!/usr/bin/env python
 
 '''
 Merge BioNLP'11 Shared Task annotation format into a single annotation file.
