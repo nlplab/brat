@@ -265,6 +265,11 @@ var Annotator = function(containerElement, onStart) {
           find('rect[data-span-id="' + originSpanId + '"], rect[data-span-id="' + targetSpanId + '"]').
           parent().
           addClass('highlight');
+    } else if (id = target.attr('data-sent')) {
+      var info = data.sentInfo[id];
+      if (info) {
+        displayInfo(info.text, evt);
+      }
     }
   };
 
@@ -526,21 +531,29 @@ var Annotator = function(containerElement, onStart) {
             new EventDesc(equivSpans[i - 1], equivSpans[i - 1], [[equiv[1], equivSpans[i]]], true);
       }
     });
+    data.sentInfo = {};
     $.each(data.infos, function(infoNo, info) {
       // TODO error handling
-      if (info[0] in data.spans) {
-	  var span = data.spans[info[0]];
-	  if (!span.info) {
-	      span.info = { type: info[1], text: info[2] };
-	  } else {
-	      // TODO prioritize type setting when multiple infos are present
-	      span.info.type = info[1];
-	      span.info.text += "<br/>" + info[2];
-	  }
-	  if (info[1].indexOf('Error') != -1 ||
-	      info[1].indexOf('Incomplete') != -1) {
-	      span.shadowClass = info[1]
-	  }
+      if (info[0] instanceof Array && info[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
+        var sent = info[0][1];
+        var text = info[2];
+        if (data.sentInfo[sent]) {
+          text = data.sentInfo[sent].text + '<br/>' + text;
+        }
+        data.sentInfo[sent] = { type: info[1], text: text };
+      } else if (info[0] in data.spans) {
+        var span = data.spans[info[0]];
+        if (!span.info) {
+          span.info = { type: info[1], text: info[2] };
+        } else {
+          // TODO prioritize type setting when multiple infos are present
+          span.info.type = info[1];
+          span.info.text += "<br/>" + info[2];
+        }
+        if (info[1].indexOf('Error') != -1 ||
+            info[1].indexOf('Incomplete') != -1) {
+          span.shadowClass = info[1]
+        }
       }
     });
 
@@ -1497,7 +1510,27 @@ var Annotator = function(containerElement, onStart) {
         y += textHeight;
         row.textY = y;
         if (row.sentence) {
-          svg.text(sentNumGroup, sentNumMargin - margin.x, y, '' + row.sentence);
+          var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y, '' + row.sentence, {
+              'data-sent': row.sentence,
+            });
+          var sentInfo = data.sentInfo[row.sentence];
+          if (sentInfo) {
+            var box = text.getBBox();
+            svg.remove(text);
+            shadowRect = svg.rect(sentNumGroup,
+                box.x - shadowSize, box.y - shadowSize,
+                box.width + 2 * shadowSize, box.height + 2 * shadowSize, {
+
+                filter: 'url(#Gaussian_Blur)',
+                'class': "shadow_" + sentInfo.type,
+                rx: shadowSize,
+                ry: shadowSize,
+                'data-sent': row.sentence,
+            });
+            var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y, '' + row.sentence, {
+              'data-sent': row.sentence,
+            });
+          }
         }
         translate(row, 0, y);
         y += margin.y;
