@@ -71,9 +71,9 @@ path {
   /* stroke: #007700; */
 }
 
-.shadow_EditHighlight {
+rect.shadow_EditHighlight {
   fill: #ffff99;
-  stroke: #000000;
+  stroke: #dddd66;
 }
 .shadow_EditHighlight_arc {
   stroke: #ffff99;

@@ -67,7 +67,8 @@ var Annotator = function(containerElement, onStart) {
   var reverseArcControlx = 5;   // control point distance for "UFO catchers"
   var shadowSize = 5;
   var shadowStroke = 5;
-  var editedSize = 7;
+  var editedSpanSize = 7;
+  var editedArcSize = 3;
   var editedStroke = 7;
 
   var undefined; // prevents evil "undefined = 17" attacks
@@ -1025,13 +1026,13 @@ var Annotator = function(containerElement, onStart) {
          var editedRect;
          if (span.edited) {
              editedRect = svg.rect(span.group,
-                 bx - editedSize, by - editedSize,
-                 bw + 2 * editedSize, bh + 2 * editedSize, {
+                 bx - editedSpanSize, by - editedSpanSize,
+                 bw + 2 * editedSpanSize, bh + 2 * editedSpanSize, {
 
                  // filter: 'url(#Gaussian_Blur)',
                  'class': "shadow_EditHighlight",
-                 rx: editedSize,
-                 ry: editedSize,
+                 rx: editedSpanSize,
+                 ry: editedSpanSize,
              });
          }
          if (span.shadowClass) {
@@ -1064,7 +1065,7 @@ var Annotator = function(containerElement, onStart) {
               $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
           }
           if (editedRect) {
-              $(editedRect).attr('y', yy - editedSize - margin.y - yAdjust);
+              $(editedRect).attr('y', yy - editedSpanSize - margin.y - yAdjust);
           }
           if (span.Negation) {
             svg.path(span.group, svg.createPath().
@@ -1357,12 +1358,12 @@ var Annotator = function(containerElement, onStart) {
           var textBox = text.getBBox();
           if (arc.edited) {
             svg.rect(shadowGroup,
-                textBox.x - editedSize, textBox.y - editedSize,
-                textBox.width + 2 * editedSize, textBox.height + 2 * editedSize, {
+                textBox.x - editedArcSize, textBox.y - editedArcSize,
+                textBox.width + 2 * editedArcSize, textBox.height + 2 * editedArcSize, {
                   // filter: 'url(#Gaussian_Blur)',
                   'class': "shadow_EditHighlight",
-                  rx: editedSize,
-                  ry: editedSize,
+                  rx: editedArcSize,
+                  ry: editedArcSize,
             });
           }
           if (arc.shadowClass) {
