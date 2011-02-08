@@ -17,6 +17,7 @@ if (typeof(console) === 'undefined') {
 }
 
 
+var displayMessages;
 var displayMessage;
 var hideInfo;
 var infoBoxVisible = 0;
@@ -1632,47 +1633,59 @@ $(function() {
   var lastHash = null;
   var formDisplayed = false;
 
-  displayMessage = function() {
-    var timer;
+  var messages = [];
+  var messageRefresh = 100; // milliseconds
+  var messageOpacityDecrease = messageRefresh / 1000;
+  var messageContainer = $('#messages');
+  setInterval(function() {
     var opacity;
-    var message = $('#message');
-    var fadeMessage = function() {
-      message.css('opacity',
-          opacity > messageOpacity ? messageOpacity : opacity);
-      opacity -= 0.05;
-      if (opacity <= 0) {
-        message.css('display', 'none');
-        clearInterval(timer);
-        timer = 0;
-      }
-    };
-    var dismissMessage = function() {
-      message.css('display', 'none');
-      if (timer) {
-        clearInterval(timer);
-        timer = 0;
-      }
-    };
-
-    return function(html, error, duration) {
-      message.html(html).css({
-        display: 'block',
-        opacity: messageOpacity,
-      });
-      message[0].className = error ? 'error' : 'normal';
-      opacity = duration || 3;
-      if (duration == -1) {
-        // click handler, no fade
-        var okButton = $('<input type="button" value="OK"/>');
-        message.append(okButton);
-        okButton.click(dismissMessage);
+    var removed = [];
+    $.each(messages, function(messageNo, message) {
+      if (message.opacity == -1) {
+        opacity = messageOpacity;
       } else {
-        if (!timer) {
-          timer = setInterval(fadeMessage, 50);
-        }
+        opacity = message.opacity -= messageOpacityDecrease;
       }
-    };
-  }();
+      if (opacity <= 0) {
+        message.element.remove();
+        removed.push(messageNo);
+        return;
+      } else if (opacity > messageOpacity) {
+        opacity = messageOpacity;
+      }
+      message.element.css('opacity', opacity);
+    });
+    removed = removed.sort().reverse();
+    $.each(removed, function(removedNo, messageNo) {
+      messages.splice(messageNo, 1);
+    });
+  }, messageRefresh);
+  displayMessages = function(msgs) {
+    if (msgs === false) {
+      $.each(messages, function(messageNo, message) {
+        message.opacity = -0.5; // (less than zero, and not -1, so it will trigger deletion)
+      });
+    } else {
+      $.each(msgs, function(msgNo, msg) {
+        var message = {};
+        message.element = $('<div class="' + msg[1] + '">' + msg[0] + '</div>');
+        messageContainer.append(message.element);
+        message.opacity = msg[2] != -1 ? msg[2] : -1;
+        if (msg[2] == -1) {
+          var button = $('<input type="button" value="OK"/>');
+          message.element.prepend(button);
+          button.click(function(evt) {
+            message.opacity = -0.5; // (less than zero, and not -1, so it will trigger deletion)
+          });
+        }
+        messages.push(message);
+      });
+    }
+  }
+  displayMessage = function(text, error, duration) {
+    displayMessages([[text, error ? "error" : "info", duration]]);
+  }
+
 
   hideInfo = function() {
       var infoBox = $('#infopopup');
@@ -1708,7 +1721,7 @@ $(function() {
   })();
 
   var hideAllForms = function() {
-    $('#message').css('display', 'none');
+    displayMessages(false);
     annotator.keymap = {};
     if (formDisplayed) {
       formDisplayed = false;

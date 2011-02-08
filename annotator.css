@@ -348,26 +348,31 @@ fieldset {
   font-weight: bold;
 }
 
-#message {
+#messages {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  opacity: 0.9;
+}
+#messages > div {
   padding: 10px;
-  display: none;
   border: 1px outset #000000;
 }
-#message.error {
+
+#messages > div.error {
   background-color: #ff6666;
   color: #000000;
 }
-#message.normal {
+#messages > div.info {
   background-color: #66ff66;
   color: #000000;
 }
+#messages > div.debug {
+  background-color: #ffff99;
+  color: #000000;
+}
 
-#message input {
+#messages > div > input {
   float: right;
   display: block;
 }
