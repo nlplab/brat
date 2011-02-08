@@ -395,7 +395,7 @@ class Annotations(object):
 
                 pre = annotation_id_prefix(id)
 
-                if id in self._ann_by_id and pre != "*":
+                if id in self._ann_by_id and pre != '*':
                     raise DuplicateAnnotationIdError(id)
 
                 # Cases for lines
@@ -455,7 +455,10 @@ class Annotations(object):
                     self.add_annotation(TextBoundAnnotation(
                         start, end, id, type, data_tail))
                 elif pre == '#':
-                    type, target = data.split()
+                    try:
+                        type, target = data.split()
+                    except ValueError:
+                        raise AnnotationLineSyntaxError(ann_line, ann_line_num)
                     self.add_annotation(OnelineCommentAnnotation(
                         target, id, type, data_tail
                         ))

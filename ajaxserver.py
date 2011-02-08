@@ -16,22 +16,15 @@ Version:    2010-01-24
 from Cookie import SimpleCookie
 from cgi import FieldStorage
 from itertools import chain
+from json import dumps, loads
 from os import environ
 from os import listdir, makedirs, system
 from os.path import isdir, isfile
 from os.path import join as join_path
+from os.path import split as split_path
 from re import split, sub, match
 import fileinput
 import hashlib
-
-# Relative library imports
-import sys
-import os.path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'lib/simplejson-2.1.3'))
-from simplejson import dumps, loads
-from simplejson import dumps
-#TODO: Clean up the path and imports
-#
 
 from annotation import Annotations, TEXT_FILE_SUFFIX
 from annspec import span_type_keyboard_shortcuts
@@ -126,7 +119,6 @@ def my_listdir(directory):
             if not (l.startswith('hidden_') or l.startswith('.'))]
 
 def documents(directory):
-    from simplejson import dumps
     from htmlgen import generate_entity_type_html, generate_event_type_html
     print 'Content-Type: application/json\n'
     try:
@@ -256,7 +248,8 @@ def enrich_json_with_data(j_dic, ann_obj):
         j_dic['error'] = 'Unable to parse the following line(s):<br/>{}'.format(
                 '\n<br/>\n'.join(
                     ['{}: {}'.format(
-                        str(line_num - 1),
+                        # The line number is off by one
+                        str(line_num + 1),
                         str(ann_obj[line_num])
                         ).strip()
                     for line_num in ann_obj.failed_lines])
@@ -338,8 +331,6 @@ def saveSVG(directory, document, svg):
         print 'Status: 400 Bad Request\n'
 
 def arc_types_html(projectconfig, origin_type, target_type):
-    from simplejson import dumps
-
     response = { }
 
     try:
@@ -457,7 +448,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
 
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    working_directory = os.path.split(document)[0]
+    working_directory = split_path(document)[0]
 
     with Annotations(document) as ann_obj:
         mods = ModificationTracker()
