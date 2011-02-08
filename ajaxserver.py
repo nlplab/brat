@@ -334,13 +334,13 @@ def arc_types_html(projectconfig, origin_type, target_type):
             # generate input for each possible choice
             inputs = []
             for p in possible:
-                inputstr = '<input id="arc_%s" type="radio" name="arc_type" value="%s"/>' % (p,p)
+                inputstr = '<input id="arc_%s" type="radio" name="arc_type" value="%s"/>' % (p.lower().replace(" ","_"),p)
                 if p not in key_for:
-                    inputstr += '<label for="arc_%s">%s</label>' % (p, p)
+                    inputstr += '<label for="arc_%s">%s</label>' % (p.lower().replace(" ","_"), p)
                 else:
                     accesskey = key_for[p]
                     key_offset= p.lower().find(accesskey)
-                    inputstr += '<label for="arc_%s">%s<span class="accesskey">%s</span>%s</label>' % (p, p[:key_offset], p[key_offset:key_offset+1], p[key_offset+1:])
+                    inputstr += '<label for="arc_%s">%s<span class="accesskey">%s</span>%s</label>' % (p.lower().replace(" ","_"), p[:key_offset], p[key_offset:key_offset+1], p[key_offset+1:])
                 inputs.append(inputstr)
             response['html']  = '<fieldset><legend>Type</legend>' + '\n'.join(inputs) + '</fieldset>'
     except:
