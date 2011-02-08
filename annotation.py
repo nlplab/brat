@@ -612,8 +612,7 @@ class EquivAnnotation(TypedAnnotation):
         return (soft_deps, hard_deps)
 
     def reference_id(self):
-        # TODO: the choice of how to ID this is a hack
-        return [self.entities[0], "Equiv", self.entities[1]]
+        return ["equiv", self.type, self.entities[0]]
 
 class ModifierAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail):

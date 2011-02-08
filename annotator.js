@@ -522,7 +522,7 @@ var Annotator = function(containerElement, onStart) {
       });
       var len = equivSpans.length;
       for (var i = 1; i < len; i++) {
-        var eventDesc = data.eventDescs[equiv[0] + '*' + i] =
+        data.eventDescs[equiv[0] + '*' + i] =
             new EventDesc(equivSpans[i - 1], equivSpans[i - 1], [[equiv[1], equivSpans[i]]], true);
       }
     });
@@ -630,7 +630,10 @@ var Annotator = function(containerElement, onStart) {
           type: role.type,
           jumpHeight: 0,
         };
-        if (eventDesc.equiv) arc.equiv = true;
+        if (eventDesc.equiv) {
+          arc.equiv = true;
+          eventDesc.equivArc = arc;
+        }
         origin.totalDist += dist;
         origin.numArcs++;
         target.totalDist += dist;
@@ -646,6 +649,23 @@ var Annotator = function(containerElement, onStart) {
       $.each(annotator.edited, function(editedNo, edited) {
         if (edited[0] == 'sent') {
           editedSent = edited[1];
+        } else if (edited[0] == 'equiv') { // [equiv, Equiv, T1]
+          $.each(data.equivs, function(equivNo, equiv) {
+            if (equiv[1] == edited[1]) {
+              var len = equiv.length;
+              for (var i = 2; i < len; i++) {
+                if (equiv[i] == edited[2]) {
+                  // found it
+                  len -= 3;
+                  for (var i = 1; i <= len; i++) {
+                    var arc = data.eventDescs[equiv[0] + "*" + i].equivArc;
+                    arc.edited = true;
+                  }
+                  return; // next equiv
+                }
+              }
+            }
+          });
         } else {
           editedSent = null;
           var span = data.spans[edited[0]];
