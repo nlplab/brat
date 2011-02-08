@@ -43,6 +43,19 @@ COOKIE_ID = 'brat-cred'
 #       if these configurations are wrong.
 from config import BASE_DIR, DATA_DIR, USER_PASSWORD, DEBUG
 
+# TODO: make this into a proper interface for messaging
+__pending_messages = []
+def display_message(s, type='info', duration=3):
+    global __pending_messages
+    __pending_messages.append((s, type, duration))
+
+def add_messages_to_json(json_dict):
+    global __pending_messages
+    for s, type, duration in __pending_messages:
+        # TODO: multiple messages
+        json_dict['message'] = s
+    __pending_messages = []
+
 def possible_arc_types_from_to(projectconfig, from_ann, to_ann):
     # TODO: avoid accessing this
     from annspec import event_argument_types
@@ -441,7 +454,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
 
             if ann.type != type:
                 if projectconfig.type_category(ann.type) != projectconfig.type_category(type):
-                    # XXX: We don't allow this! Warn!
+                    display_message("Cannot convert %s (%s) into %s (%s)" % (ann.type, projectconfig.type_category(ann.type), type, projectconfig.type_category(type)), "error", -1)
                     pass
                 else:
                     before = str(ann)
@@ -626,6 +639,9 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json['annotations'] = j_dic
+
+        add_messages_to_json(mods_json)
+        
         print dumps(mods_json, sort_keys=True, indent=2)
            
 #TODO: Should determine which step to call next
