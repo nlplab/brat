@@ -555,13 +555,14 @@ var Annotator = function(containerElement, onStart) {
         if (!span.info) {
           span.info = { type: info[1], text: info[2] };
         } else {
-          // TODO prioritize type setting when multiple infos are present
           span.info.type = info[1];
           span.info.text += "<br/>" + info[2];
         }
-        if (info[1].indexOf('Error') != -1 ||
-            info[1].indexOf('Incomplete') != -1) {
-          span.shadowClass = info[1]
+	// prioritize type setting when multiple infos are present: Error > Warning > Incomplete
+        if ((info[1].indexOf('Error') != -1) ||
+	    (info[1].indexOf('Warning') != -1 && (!span.shadowClass || span.shadowClass.indexOf("Error") == -1)) ||
+            (info[1].indexOf('Incomplete') != -1 && (!span.shadowClass || (span.shadowClass.indexOf("Error") == -1 && span.shadowClass.indexOf("Warning") == -1)))) {
+	    span.shadowClass = info[1]
         }
       }
     });
@@ -1798,6 +1799,10 @@ $(function() {
     var saveUser;
     var savePassword;
 
+    var normalize = function(str) {
+      return str.toLowerCase().replace(' ', '_');
+    }
+
     var URLHash = function() {
       var original = window.location.hash;
       var parts = original.substr(1).split('/');
@@ -1995,9 +2000,13 @@ $(function() {
       if (span) {
         $('#span_highlight_link').css('display', 'inline').attr('href', document.location + '/' + span.id);
         annotator.keymap[46] = 'del_span_button'; // Del
-        var el = $('#span_' + span.type);
+        var el = $('#span_' + normalize(span.type));
         if (el.length) {
           el[0].checked = true;
+        } else {
+          $('#span_form input:radio:checked').each(function (radioNo, radio) {
+              radio.checked = false;
+          });
         }
       } else {
         $('#span_highlight_link').css('display', 'none');
@@ -2027,6 +2036,9 @@ $(function() {
       var type = $('#arc_form input:radio:checked').val();
       if (type) { // (if not cancelled)
         arcSubmit(type);
+      } else {
+        displayMessage('Error: No type selected', true);
+        hideAllForms();
       }
       return false;
     };
@@ -2055,7 +2067,7 @@ $(function() {
                 annotator.keymap = jsonData.keymap;
                 if (arcId) {
                   $('#arc_highlight_link').css('display', 'inline').attr('href', document.location + '/' + arcId);
-                  var el = $('#arc_' + arcType)[0];
+                  var el = $('#arc_' + normalize(arcType))[0];
                   if (el) {
                     el.checked = true;
                   }
@@ -2220,7 +2232,7 @@ $(function() {
     spanForm.css('display', 'none');
     annotator.keymap = {};
     var type = $('#span_form input:radio:checked').val();
-    if (type) { // (if not cancelled)
+    if (type) {
       annotator.ajaxOptions.type = type;
       var el;
       if (el = $('#span_mod_negation')[0]) {
@@ -2230,6 +2242,9 @@ $(function() {
         annotator.ajaxOptions.speculation = el.checked;
       }
       annotator.postChangesAndReload();
+    } else {
+      hideAllForms();
+      displayMessage('Error: No type selected', true);
     }
     return false;
   };
