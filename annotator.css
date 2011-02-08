@@ -55,6 +55,16 @@ path {
   background-color: #ff7777;
 }
 
+.shadow_AnnotationWarning {
+  fill: #ff8800;
+}
+.span rect.AnnotationWarning {
+  stroke-width: 1;
+}
+#infopopup.info_AnnotationWarning {
+  background-color: #ff9900;
+}
+
 .shadow_AnnotationIncomplete {
   fill: #aaaaaa;
 }

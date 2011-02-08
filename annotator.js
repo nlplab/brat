@@ -555,13 +555,14 @@ var Annotator = function(containerElement, onStart) {
         if (!span.info) {
           span.info = { type: info[1], text: info[2] };
         } else {
-          // TODO prioritize type setting when multiple infos are present
           span.info.type = info[1];
           span.info.text += "<br/>" + info[2];
         }
-        if (info[1].indexOf('Error') != -1 ||
-            info[1].indexOf('Incomplete') != -1) {
-          span.shadowClass = info[1]
+	// prioritize type setting when multiple infos are present: Error > Warning > Incomplete
+        if ((info[1].indexOf('Error') != -1) ||
+	    (info[1].indexOf('Warning') != -1 && (!span.shadowClass || span.shadowClass.indexOf("Error") == -1)) ||
+            (info[1].indexOf('Incomplete') != -1 && (!span.shadowClass || (span.shadowClass.indexOf("Error") == -1 && span.shadowClass.indexOf("Warning") == -1)))) {
+	    span.shadowClass = info[1]
         }
       }
     });

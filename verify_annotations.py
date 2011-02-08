@@ -14,6 +14,7 @@ from projectconfig import ProjectConfiguration
 
 # Issue types. Values should match with annotation interface.
 AnnotationError = "AnnotationError"
+AnnotationWarning = "AnnotationWarning"
 AnnotationIncomplete = "AnnotationIncomplete"
 
 class AnnotationIssue:
@@ -118,6 +119,45 @@ def verify_annotation_types(ann_obj, projectconfig):
 
     return issues
 
+def verify_triggers(ann_obj, projectconfig):
+    issues = []
+
+    events_by_trigger = {}
+
+    for e in ann_obj.get_events():
+        if e.trigger not in events_by_trigger:
+            events_by_trigger[e.trigger] = []
+        events_by_trigger[e.trigger].append(e)
+
+    trigger_by_span_and_type = {}
+
+    for t in ann_obj.get_textbounds():
+        if not projectconfig.is_event_type(t.type):
+            continue
+
+        if t.id not in events_by_trigger:
+            issues.append(AnnotationIssue(t.id, AnnotationIncomplete, "Warning: trigger %s is not referenced from any event" % t.id))
+
+        spt = (t.start, t.end, t.type)
+        if spt not in trigger_by_span_and_type:
+            trigger_by_span_and_type[spt] = []
+        trigger_by_span_and_type[spt].append(t)
+
+    for spt in trigger_by_span_and_type:
+        trigs = trigger_by_span_and_type[spt]
+        if len(trigs) < 2:
+            continue
+        for t in trigs:
+            # We currently need to attach these to events if
+            # there are any; triggers referenced from events don't get
+            # shown. TODO: revise once this is fixed.
+            if t.id in events_by_trigger:
+                issues.append(AnnotationIssue(events_by_trigger[t.id][0].id, AnnotationWarning, "Warning: triggers %s have identical span and type (harmless but unnecessary duplication)" % ",".join([x.id for x in trigs])))
+            else:
+                issues.append(AnnotationIssue(t.id, AnnotationWarning, "Warning: triggers %s have identical span and type (harmless but unnecessary duplication)" % ",".join([x.id for x in trigs])))
+
+    return issues
+
 def verify_annotation(ann_obj, projectconfig):
     """
     Verifies the correctness of a given AnnotationFile.
@@ -130,6 +170,8 @@ def verify_annotation(ann_obj, projectconfig):
     issues += verify_equivs(ann_obj, projectconfig)
 
     issues += verify_entity_overlap(ann_obj, projectconfig)
+
+    issues += verify_triggers(ann_obj, projectconfig)
 
     # various event type checks
 
