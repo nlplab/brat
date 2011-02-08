@@ -38,49 +38,10 @@ from annotation import (TextBoundAnnotation, EquivAnnotation,
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
 COOKIE_ID = 'brat-cred'
 
-# Try to import our configurations
-from copy import deepcopy
-from os.path import dirname
-from sys import path
-
-CONF_FNAME = 'config.py'
-CONF_TEMPLATE_FNAME = 'config_template.py'
-CONF_NAME = CONF_FNAME.replace('.py', '')
 # Add new configuration variables here
-CONF_VARIABLES = ['BASE_DIR', 'DATA_DIR', 'USER_PASSWORD', 'DEBUG']
-
-# We unset the path so that we can import being sure what we import
-_old_path = deepcopy(path)
-# Can you empty in in O(1) instead of O(N)?
-while path:
-    path.pop()
-path.append(dirname(__file__))
-
-try:
-    # Check if the config file exists
-    exec 'import {}'.format(CONF_NAME)
-    # Clean up the namespace
-    exec 'del {}'.format(CONF_NAME)
-except ImportError:
-    from sys import stderr
-    print >> stderr, ('ERROR: could not find {script_dir}/{conf_fname} if '
-            'this is a new install run '
-            "'cp {conf_template_fname} {conf_fname}' "
-            'and configure {conf_fname} to suit your environment'
-            ).format(
-                    script_dir=dirname(__file__),
-                    conf_fname=CONF_FNAME,
-                    conf_template_fname=CONF_TEMPLATE_FNAME
-                    )
-    #TODO: Remove this! Not allowed to exit!
-    exit(-1)
-
-# Now import the actual configurations
-exec 'from {} import {}'.format(CONF_NAME, ', '.join(CONF_VARIABLES))
-# Restore the path
-path.extend(_old_path)
-# Clean the namespace
-del deepcopy, dirname, path, _old_path
+#TODO: We really should raise an exception to ajax.cgi to give a nicer message
+#       if these configurations are wrong.
+from config import BASE_DIR, DATA_DIR, USER_PASSWORD, DEBUG
 
 def possible_arc_types_from_to(projectconfig, from_ann, to_ann):
     # TODO: avoid accessing this
@@ -956,11 +917,7 @@ def serve(argv):
 
         else:
             span = params.getvalue('span')
-
             #XXX: Calls to save and delete can raise AnnotationNotFoundError
-            # TODO: We could potentially push everything out of ajax.cgi and
-            # catch anything showing up in the code and push it back to the dev.
-            # For now these are the only parts that speak json
             try:
                 if action == 'span':
                     save_span(real_directory, document,
@@ -1001,32 +958,6 @@ def serve(argv):
                                 'duration': -1,
                                 },
                             sort_keys=True, indent=2)
-                else:
-                    raise
-            except Exception, e:
-                # Catch even an interpreter crash
-                if DEBUG:
-                    from traceback import print_exc
-                    try:
-                        from cStringIO import StringIO
-                    except ImportError:
-                        from StringIO import StringIO
-
-                    buf = StringIO()
-                    print_exc(file=buf)
-                    buf.seek(0)
-                    print 'Content-Type: application/json\n'
-                    error_msg = '<br/>'.join((
-                    'Python crashed, we got:\n',
-                    buf.read())).replace('\n', '\n<br/>\n')
-                    print dumps(
-                            {
-                                'error': error_msg,
-                                'duration': -1,
-                                },
-                            sort_keys=True, indent=2)
-                # Allow the exception to fall through so it is logged
-                raise
 
 def debug():
     from os.path import dirname, join

@@ -309,6 +309,7 @@ var Annotator = function(containerElement, onStart) {
     if (confirmMode && !confirm("Are you sure you want to delete this annotation?")) {
       return;
     }
+    var eventDataId = $(evt.target).attr('data-arc-ed');
     $('#arc_form').css('display', 'none');
     annotator.keymap = {};
     annotator.ajaxOptions.action = 'unarc';
@@ -334,6 +335,12 @@ var Annotator = function(containerElement, onStart) {
         type: type,
         old: type,
       };
+      var eventDescId = target.attr('data-arc-ed');
+      if (eventDescId) {
+        var eventDesc = data.eventDescs[eventDescId];
+        annotator.ajaxOptions['left'] = eventDesc.leftSpans.join(',');
+        annotator.ajaxOptions['right'] = eventDesc.rightSpans.join(',');
+      }
       $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
       $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
       var arcId = originSpanId + '--' + type + '--' + targetSpanId;
@@ -527,8 +534,10 @@ var Annotator = function(containerElement, onStart) {
       });
       var len = equivSpans.length;
       for (var i = 1; i < len; i++) {
-        data.eventDescs[equiv[0] + '*' + i] =
+        var eventDesc = data.eventDescs[equiv[0] + '*' + i] =
             new EventDesc(equivSpans[i - 1], equivSpans[i - 1], [[equiv[1], equivSpans[i]]], true);
+        eventDesc.leftSpans = equivSpans.slice(0, i);
+        eventDesc.rightSpans = equivSpans.slice(i);
       }
     });
     data.sentInfo = {};
@@ -647,6 +656,7 @@ var Annotator = function(containerElement, onStart) {
         if (eventDesc.equiv) {
           arc.equiv = true;
           eventDesc.equivArc = arc;
+          arc.eventDescId = eventNo;
         }
         origin.totalDist += dist;
         origin.numArcs++;
@@ -1383,12 +1393,16 @@ var Annotator = function(containerElement, onStart) {
           }
           var shadowGroup;
           if (arc.shadowClass || arc.edited) shadowGroup = svg.group(arcGroup);
-          var text = svg.text(arcGroup, (from + to) / 2, -height, abbrevText, {
-              'class': 'fill_' + arc.type,
-              'data-arc-role': arc.type,
-              'data-arc-origin': arc.origin,
-              'data-arc-target': arc.target,
-          });
+          var options = {
+            'class': 'fill_' + arc.type,
+            'data-arc-role': arc.type,
+            'data-arc-origin': arc.origin,
+            'data-arc-target': arc.target,
+          };
+          if (arc.equiv) {
+            options['data-arc-ed'] = arc.eventDescId;
+          }
+          var text = svg.text(arcGroup, (from + to) / 2, -height, abbrevText, options);
           var textBox = text.getBBox();
           if (arc.edited) {
             svg.rect(shadowGroup,
