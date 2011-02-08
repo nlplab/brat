@@ -257,14 +257,14 @@ class Annotations(object):
         #TODO: Flag to allow recursion
         #TODO: Sampo wants to allow delet of direct deps but not indirect, one step
         #TODO: needed to pass tracker to track recursive mods, but use is too
-        #      invasive (direct modification of LineModificationTracker.deleted)
+        #      invasive (direct modification of ModificationTracker.deleted)
         #TODO: DOC!
         try:
             ann.id
         except AttributeError:
             # If it doesn't have an id, nothing can depend on it
             if tracker is not None:
-                tracker.deleted.append(ann)
+                tracker.deletion(ann)
             self._atomic_del_annotation(ann)
             # Update the modification time
             from time import time
@@ -292,14 +292,14 @@ class Annotations(object):
             for d in ann_deps:
                 if isinstance(d, ModifierAnnotation):
                     if tracker is not None:
-                        tracker.deleted.append(d)
+                        tracker.deletion(d)
                     self._atomic_del_annotation(d)
                 elif isinstance(d, EquivAnnotation):
                     if len(d.entities) <= 2:
                         # An equiv has to have more than one member
                         self._atomic_del_annotation(d)
                         if tracker is not None:
-                            tracker.deleted.append(d)
+                            tracker.deletion(d)
                     else:
                         if tracker is not None:
                             before = str(d)
@@ -312,7 +312,7 @@ class Annotations(object):
             raise DependingAnnotationDeleteError(ann, ann_deps)
 
         if tracker is not None:
-            tracker.deleted.append(ann)
+            tracker.deletion(ann)
         self._atomic_del_annotation(ann)
 
     def _atomic_del_annotation(self, ann):
@@ -549,6 +549,10 @@ class IdedAnnotation(TypedAnnotation):
         TypedAnnotation.__init__(self, type, tail)
         self.id = id
 
+    def reference_id(self):
+        # Return list that uniquely identifies this annotation within the document
+        return [self.id]
+
     def __str__(self):
         raise NotImplementedError
 
@@ -607,6 +611,9 @@ class EquivAnnotation(TypedAnnotation):
                 hard_deps.add(ent)
         return (soft_deps, hard_deps)
 
+    def reference_id(self):
+        # TODO: the choice of how to ID this is a hack
+        return [self.entities[0], "Equiv", self.entities[1]]
 
 class ModifierAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail):
@@ -626,6 +633,10 @@ class ModifierAnnotation(IdedAnnotation):
         hard_deps.add(self.target)
         return (soft_deps, hard_deps)
 
+    def reference_id(self):
+        # TODO: can't currently ID modifier in isolation; return
+        # reference to modified instead
+        return [self.target]
 
 class OnelineCommentAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail):

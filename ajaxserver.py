@@ -385,38 +385,63 @@ def arc_types_html(projectconfig, origin_type, target_type):
     print dumps(response, sort_keys=True, indent=2)
 
 #TODO: Couldn't we incorporate this nicely into the Annotations class?
-class LineModificationTracker(object):
+class ModificationTracker(object):
     def __init__(self):
-        self.added = []
-        self.changed = []
-        self.deleted = []
+        self.__added = []
+        self.__changed = []
+        self.__deleted = []
 
     def __len__(self):
-        return len(self.added) + len(self.changed) + len(self.deleted)
+        return len(self.__added) + len(self.__changed) + len(self.__deleted)
+
+    def addition(self, added):
+        self.__added.append(added)
+
+    def deletion(self, deleted):
+        self.__deleted.append(deleted)
 
     def change(self, before, after):
-        self.changed.append(
-                '\t{}\n<br/>\n\tInto:\n<br/>\t{}'.format(before, after))
+        self.__changed.append((before, after))
 
     def json_response(self, response=None):
         if response is None:
             response = {}
 
+        # debugging
         msg_str = ''
-        if self.added:
+        if self.__added:
             msg_str += ('Added the following line(s):\n<br/>'
-                    + '\n<br/>\n'.join([str(a) for a in self.added]))
-        if self.changed:
+                    + '\n<br/>\n'.join([str(a) for a in self.__added]))
+        if self.__changed:
+            changed_strs = []
+            for before, after in self.__changed:
+                changed_strs.append('\t{}\n<br/>\n\tInto:\n<br/>\t{}'.format(before, after))
             msg_str += ('Changed the following line(s):\n<br/>'
-                    + '\n<br/>\n'.join([str(a) for a in self.changed]))
-        if self.deleted:
+                    + '\n<br/>\n'.join([str(a) for a in changed_strs]))
+        if self.__deleted:
             msg_str += ('Deleted the following line(s):\n<br/>'
-                    + '\n<br/>\n'.join([str(a) for a in self.deleted]))
+                    + '\n<br/>\n'.join([str(a) for a in self.__deleted]))
         if msg_str:
             response['message'] = msg_str
             response['duration'] = 3 * len(self)
         else:
             response['message'] = 'No changes made'
+
+        # highlighting
+        response['edited'] = []
+        # TODO: implement cleanly, e.g. add a highlightid() method to Annotation classes
+        for a in self.__added:
+            try:
+                response['edited'].append(a.reference_id())
+            except:
+                pass # not all implement reference_id()
+        for b,a in self.__changed:
+            # can't mark "before" since it's stopped existing
+            try:
+                response['edited'].append(a.reference_id())
+            except:
+                pass
+
         return response
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
@@ -435,7 +460,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
     working_directory = os.path.split(document)[0]
 
     with Annotations(document) as ann_obj:
-        mods = LineModificationTracker()
+        mods = ModificationTracker()
 
         if id is not None:
             #TODO: Handle failure to find!
@@ -493,7 +518,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                                 # Update the old annotation to use this trigger
                                 ann.trigger = str(new_ann_trig.id)
                                 ann_obj.add_annotation(new_ann_trig)
-                                mods.added.append(new_ann_trig)
+                                mods.addition(new_ann_trig)
                             else:
                                 # Okay, we own the current trigger, but does an
                                 # identical to our sought one already exist?
@@ -517,7 +542,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                                     # or the dep will hit you
                                     ann.trigger = str(found.id)
                                     ann_obj.del_annotation(ann_trig)
-                                    mods.deleted.append(ann_trig)
+                                    mods.deletion(ann_trig)
                     except AttributeError:
                         # It was most likely a TextBound entity
                         pass
@@ -542,24 +567,24 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                 spec_mod = ModifierAnnotation(str(ann.id), str(spec_mod_id),
                         'Speculation', '') #XXX: Cons
                 ann_obj.add_annotation(spec_mod)
-                mods.added.append(spec_mod)
+                mods.addition(spec_mod)
             if negation and seen_neg is None:
                 neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
                 neg_mod = ModifierAnnotation(str(ann.id), str(neg_mod_id),
                         'Negation', '') #XXX: Cons
                 ann_obj.add_annotation(neg_mod)
-                mods.added.append(neg_mod)
+                mods.addition(neg_mod)
             # Is the attribute unset and one existing? Erase.
             if not speculation and seen_spec is not None:
                 try:
                     ann_obj.del_annotation(seen_spec)
-                    mods.deleted.append(seen_spec)
+                    mods.deletion(seen_spec)
                 except DependingAnnotationDeleteError:
                     assert False, 'Dependant attached to speculation'
             if not negation and seen_neg is not None:
                 try:
                     ann_obj.del_annotation(seen_neg)
-                    mods.deleted.append(seen_neg)
+                    mods.deletion(seen_neg)
                 except DependingAnnotationDeleteError:
                     assert False, 'Dependant attached to negation'
 
@@ -594,7 +619,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                 if '\n' not in text:
                     ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
                     ann_obj.add_annotation(ann)
-                    mods.added.append(ann)
+                    mods.addition(ann)
                 else:
                     ann = None
             else:
@@ -609,7 +634,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                     new_event_id = ann_obj.get_new_id('E') #XXX: Cons
                     event = EventAnnotation(ann.id, [], str(new_event_id), type, '')
                     ann_obj.add_annotation(event)
-                    mods.added.append(event)
+                    mods.addition(event)
 
                     # TODO: use an existing identical textbound for the trigger
                     # if one exists, don't dup            
@@ -619,7 +644,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                         spec_mod = ModifierAnnotation(str(new_event_id),
                                 str(spec_mod_id), 'Speculation', '') #XXX: Cons
                         ann_obj.add_annotation(spec_mod)
-                        mods.added.append(spec_mod)
+                        mods.addition(spec_mod)
                     else:
                         neg_mod = None
                     if negation:
@@ -627,7 +652,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                         neg_mod = ModifierAnnotation(str(new_event_id),
                                 str(neg_mod_id), 'Negation', '') #XXX: Cons
                         ann_obj.add_annotation(neg_mod)
-                        mods.added.append(neg_mod)
+                        mods.addition(neg_mod)
                     else:
                         neg_mod = None
             else:
@@ -653,7 +678,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
            
 #TODO: Should determine which step to call next
 def save_arc(docdir, docname, origin, target, type, old_type):
-    mods = LineModificationTracker()
+    mods = ModificationTracker()
 
     document = join_path(docdir, docname)
 
@@ -698,13 +723,13 @@ def save_arc(docdir, docname, origin, target, type, old_type):
                             ''
                             )
                 ann_obj.add_annotation(ann)
-                mods.added.append(ann)
+                mods.addition(ann)
         else:
             # It is an Equiv
             assert old_type is None, 'attempting to change Equiv, not supported'
             ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
             ann_obj.add_annotation(ann)
-            mods.added.append(ann)
+            mods.addition(ann)
 
         print 'Content-Type: application/json\n'
         if DEBUG:
@@ -735,7 +760,7 @@ def delete_span(docdir, docname, id):
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
     with Annotations(document) as ann_obj:
-        mods = LineModificationTracker()
+        mods = ModificationTracker()
         
         #TODO: Handle a failure to find it
         #XXX: Slow, O(2N)
@@ -776,7 +801,7 @@ def delete_arc(docdir, docname, origin, target, type):
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
     with Annotations(document) as ann_obj:
-        mods = LineModificationTracker()
+        mods = ModificationTracker()
 
         # This can be an event or an equiv
         #TODO: Check for None!
@@ -794,7 +819,7 @@ def delete_arc(docdir, docname, origin, target, type):
                     # It was the last argument tuple, remove it all
                     try:
                         ann_obj.del_annotation(event_ann)
-                        mods.deleted.append(event_ann)
+                        mods.deletion(event_ann)
                     except DependingAnnotationDeleteError, e:
                         print 'Content-Type: application/json\n'
                         print dumps(e.json_error_response(), sort_keys=True, indent=2)
@@ -821,7 +846,7 @@ def delete_arc(docdir, docname, origin, target, type):
                     # We need to delete this one
                     try:
                         ann_obj.del_annotation(eq_ann)
-                        mods.deleted.append(eq_ann)
+                        mods.deletion(eq_ann)
                     except DependingAnnotationDeleteError, e:
                         print 'Content-Type: application/json\n'
                         print dumps(e.json_error_response(), sort_keys=True, indent=2)
