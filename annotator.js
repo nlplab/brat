@@ -642,23 +642,25 @@ var Annotator = function(containerElement, onStart) {
 
     // last edited highlighting
     if (annotator.edited) {
-      if (annotator.edited[0] == 'sent') {
-        editedSent = annotator.edited[1];
-      } else {
-        editedSent = null;
-        var span = data.spans[annotator.edited[0]];
-        if (span) {
-          if (annotator.edited.length == 3) { // arc
-            $.each(span.outgoing, function(arcNo, arc) {
-              if (arc.target == annotator.edited[2] && arc.type == annotator.edited[1]) {
-                arc.edited = true;
-              }
-            });
-          } else { // span
-            span.edited = true;
+      $.each(annotator.edited, function(editedNo, edited) {
+        if (edited[0] == 'sent') {
+          editedSent = edited[1];
+        } else {
+          editedSent = null;
+          var span = data.spans[edited[0]];
+          if (span) {
+            if (edited.length == 3) { // arc
+              $.each(span.outgoing, function(arcNo, arc) {
+                if (arc.target == edited[2] && arc.type == edited[1]) {
+                  arc.edited = true;
+                }
+              });
+            } else { // span
+              span.edited = true;
+            }
           }
         }
-      }
+      });
     }
     annotator.edited = null;
 
@@ -1759,8 +1761,9 @@ $(function() {
         renderAllToDisk();
         return;
       }
-      annotator.edited = parts[1] ? parts[1].split('--') : [];
-      var _doc = doc = annotator.edited.shift();
+      var edited = parts[1] ? parts[1].split('--') : [];
+      var _doc = doc = edited.shift();
+      annotator.edited = [edited];
       $('#document_select').val(_doc);
 
       if (_doc) {
