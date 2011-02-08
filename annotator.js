@@ -551,6 +551,7 @@ var Annotator = function(containerElement, onStart) {
           span.info.text += "<br/>" + info[2];
         }
         if (info[1].indexOf('Error') != -1 ||
+	    info[1].indexOf('Warning') != -1 ||
             info[1].indexOf('Incomplete') != -1) {
           span.shadowClass = info[1]
         }
