@@ -523,6 +523,7 @@ var Annotator = function(containerElement, onStart) {
       data.spans[mod[2]][mod[1]] = true;
     });
     $.each(data.equivs, function(equivNo, equiv) {
+      equiv[0] = "*" + equivNo;
       var equivSpans = equiv.slice(2);
       equivSpans.sort(function(a, b) {
         var aSpan = data.spans[a];
