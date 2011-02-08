@@ -248,7 +248,8 @@ def enrich_json_with_data(j_dic, ann_obj):
         j_dic['error'] = 'Unable to parse the following line(s):<br/>{}'.format(
                 '\n<br/>\n'.join(
                     ['{}: {}'.format(
-                        str(line_num - 1),
+                        # The line number is off by one
+                        str(line_num + 1),
                         str(ann_obj[line_num])
                         ).strip()
                     for line_num in ann_obj.failed_lines])
