@@ -1723,6 +1723,7 @@ $(function() {
     $('#message').css('display', 'none');
     annotator.keymap = {};
     if (formDisplayed) {
+      $('input').blur();
       formDisplayed = false;
       keymap = {};
       $('#span_form').css('display', 'none');
@@ -1931,6 +1932,7 @@ $(function() {
             }
           }
           Annotator.actionsAllowed(true);
+	  $('input').blur();
           formDisplayed = false;
         }
       });
@@ -2047,7 +2049,6 @@ $(function() {
       annotator.postChangesAndReload();
     }
     var arcFormSubmit = function(evt) {
-      if (!formDisplayed) return false; // prevents #58
       arcForm.css('display', 'none');
       annotator.keymap = {};
       var type = $('#arc_form input:radio:checked').val();
@@ -2131,11 +2132,13 @@ $(function() {
         },
         error: function(req, textStatus, errorThrown) {
           // TODO: check if it is the auth error
+	  Annotator.showSpinner(false);
           authForm.css('display', 'block');
           $('#auth_user').select().focus();
           return false;
         },
         success: function(response) {
+	  Annotator.showSpinner(false);
           displayMessage(response);
           annotator.user = user;
           $('#auth_button').val('Logout');
@@ -2164,11 +2167,13 @@ $(function() {
             action: 'logout',
           },
           success: function(data) {
+	    Annotator.showSpinner(false);
             annotator.user = undefined;
             displayMessage(data);
             auth_button.val('Login');
           },
           error: function(req, textStatus, errorThrown) {
+	    Annotator.showSpinner(false);
             console.error("Logout error", textStatus, errorThrown);
           },
         });
