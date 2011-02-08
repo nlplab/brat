@@ -189,9 +189,9 @@ def enrich_json_with_data(j_dic, ann_obj):
         else: 
             j_dic['entities'].append(j_tb)
 
-    for eq_id, eq_ann in enumerate(ann_obj.get_equivs(), start=1):
+    for eq_ann in ann_obj.get_equivs():
         j_dic['equivs'].append(
-                (['*{}'.format(eq_id), eq_ann.type]
+                (['*', eq_ann.type]
                     + [e for e in eq_ann.entities])
                 )
 
