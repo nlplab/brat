@@ -694,10 +694,15 @@ def save_arc(docdir, docname, origin, target, type, old_type):
                 mods.addition(ann)
         else:
             # It is an Equiv
-            assert old_type is None, 'attempting to change Equiv, not supported'
-            ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
-            ann_obj.add_annotation(ann)
-            mods.addition(ann)
+            if old_type == "Equiv":
+                # "Change" from Equiv to Equiv is harmless
+                # TODO: some message needed?
+                pass
+            else:
+                assert old_type is None, 'attempting to change Equiv, not supported'
+                ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
+                ann_obj.add_annotation(ann)
+                mods.addition(ann)
 
         print 'Content-Type: application/json\n'
         if DEBUG:

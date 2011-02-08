@@ -1695,14 +1695,26 @@ $(function() {
       };
   } ();
 
+  Annotator.showSpinner = function(show) {
+    if (show === undefined) {
+      show = true;
+    }
+    var spinner = $('#spinner');
+    spinner.css('display', show ? 'block' : 'none');
+  }
+
   Annotator.actionsAllowed = (function() {
     var blind = $('#blind');
+    var spinner = $('#spinner');
     var allowed = false;
     return function(_allowed) {
       if (_allowed === undefined) {
         return allowed;
       }
       blind.css('display', _allowed ? 'none' : 'block');
+      if (_allowed) {
+	  spinner.css('display', 'none');
+      }
       return allowed = _allowed;
     }
   })();
@@ -1727,6 +1739,7 @@ $(function() {
       return;
     }
     var dsel = $('#directory_select');
+    Annotator.showSpinner();
     $.ajax({
       url: ajaxBase,
       type: 'GET',
@@ -1767,6 +1780,7 @@ $(function() {
     });
   };
 
+  Annotator.showSpinner();
   $.ajax({
     url: ajaxBase,
     type: 'GET',
@@ -1854,6 +1868,7 @@ $(function() {
       $('#document_name').text(directoryAndDoc);
       if (!_doc || !directory) return;
       Annotator.actionsAllowed(false);
+      Annotator.showSpinner();
       $.ajax({
         url: ajaxBase,
         type: 'GET',
@@ -1893,11 +1908,13 @@ $(function() {
         directory: directory,
         document: _doc,
       });
+      Annotator.showSpinner();
       $.ajax({
         type: 'POST',
         url: ajaxBase,
         data: annotator.ajaxOptions,
         error: function(req, textStatus, errorThrown) {
+          spinner.css('display', 'none');
           console.error("Change posting error", textStatus, errorThrown);
           Annotator.actionsAllowed(true);
         },
@@ -2047,6 +2064,7 @@ $(function() {
       bind('reset', hideAllForms);
     annotator.fillArcTypesAndDisplayForm = function(originType, targetType, arcType, arcId) {
       Annotator.actionsAllowed(false);
+      Annotator.showSpinner();
       $.ajax({
         url: ajaxBase,
         type: 'GET',
@@ -2057,6 +2075,7 @@ $(function() {
           target: targetType,
         },
         success: function(jsonData) {
+	    Annotator.showSpinner(false);
             if (displayMessagesAndCheckForErrors(jsonData)) {
               if (jsonData.empty && !arcType) {
                 // no valid choices
@@ -2101,6 +2120,7 @@ $(function() {
     var authFormSubmit = function(evt) {
       var user = $('#auth_user').val();
       var password = $('#auth_pass').val();
+      Annotator.showSpinner();
       $.ajax({
         type: 'POST',
         url: ajaxBase,
@@ -2136,6 +2156,7 @@ $(function() {
         $('#auth_user').select().focus();
         formDisplayed = true;
       } else {
+	Annotator.showSpinner();
         $.ajax({
           type: 'POST',
           url: ajaxBase,
@@ -2200,6 +2221,7 @@ $(function() {
   });
 
   // user
+  Annotator.showSpinner();
   $.ajax({
     type: 'POST',
     url: ajaxBase,

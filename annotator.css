@@ -452,3 +452,10 @@ fieldset {
   float:right;
   margin-left: 20px;
 }
+
+#spinner {
+  display: none;
+  position: fixed;
+  right:10px;
+  top: 55px;
+}
