@@ -1,10 +1,7 @@
-#!/home/users/pontus/local/bin/python
+#!/usr/bin/env python
 
 '''
-brat
-TODO: DOC!
-
-Brat Rapid Annotation Tool (brat)
+Ajax server called upon by the CGI to serve requests to the service.
 
 Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
