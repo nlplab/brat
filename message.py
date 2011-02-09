@@ -16,8 +16,8 @@ def display_message(s, type='info', duration=3):
 
 def add_messages_to_json(json_dict):
     global __pending_messages
-    for s, type, duration in __pending_messages:
-        # TODO: multiple messages
-        json_dict['message'] = s
+    if 'messages' not in json_dict:
+        json_dict['messages'] = []
+    json_dict['messages'] += __pending_messages
     __pending_messages = []
 

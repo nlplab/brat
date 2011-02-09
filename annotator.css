@@ -363,6 +363,10 @@ fieldset {
   background-color: #ff6666;
   color: #000000;
 }
+#messages > div.warning {
+  background-color: #ff8800;
+  color: #000000;
+}
 #messages > div.info {
   background-color: #66ff66;
   color: #000000;

@@ -7,6 +7,8 @@ Brat Rapid Annotation Tool (brat)
 
 import re
 
+from message import display_message
+
 # TODO: this whole thing is an ugly hack. Event types should be read
 # from a proper ontology.
 
@@ -107,22 +109,17 @@ def __read_term_hierarchy_file(filename, default):
         term_hierarchy = f.read()
         f.close()
     except:
-        # TODO: specific exceptions, useful error reporting
-        # also to the user
-        import sys
-        print >> sys.stderr, 'brat htmlgen.py: error reading %s' % filename
+        # TODO: specific exception handling
         term_hierarchy = default
     return term_hierarchy
 
 
-def __parse_term_hierarchy(hierarchy, default):
+def __parse_term_hierarchy(hierarchy, default, source):
     try:
         root_nodes = __read_term_hierarchy(hierarchy.split("\n"))
     except:
-        # TODO: specific exceptions, useful error reporting
-        # also to the user
-        import sys
-        print >> sys.stderr, 'brat htmlgen.py: error parsing term hierarchy.'
+        # TODO: specific exception handling
+        display_message("Project configuration: error parsing types from %s. Configuration may be wrong." % source, "warning", 5)
         root_nodes = default
     return root_nodes
 
@@ -133,15 +130,22 @@ def __get_type_hierarchy(directory, filename, default_hierarchy, min_hierarchy):
         # try to find a config file in the directory
         import os
         fn = os.path.join(directory, filename)
+        source = fn
         type_hierarchy = __read_term_hierarchy_file(fn, None)
 
     if type_hierarchy is None:
         # if we didn't get a directory-specific one, try default dir
         # and fall back to the default hierarchy
+        #
+        source = filename
+        # too noisy
+        #display_message("Project configuration: type config %s not found in %s" % (filename, directory))
         type_hierarchy = __read_term_hierarchy_file(filename, default_hierarchy)
+        if type_hierarchy == default_hierarchy:
+            source = "[default hierarchy]"
         
     # try to parse what we got, fall back to minimal hierarchy
-    root_nodes = __parse_term_hierarchy(type_hierarchy, min_hierarchy)
+    root_nodes = __parse_term_hierarchy(type_hierarchy, min_hierarchy, source)
 
     return root_nodes
 

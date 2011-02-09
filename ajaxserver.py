@@ -124,7 +124,7 @@ def documents(directory):
 
         response = {
                 'docnames': dirlist,
-                'message': None,
+                'messages': [],
                 'keymap': client_keymap,
                 'html': html,
                 }
@@ -377,10 +377,9 @@ class ModificationTracker(object):
             msg_str += ('Deleted the following line(s):\n<br/>'
                     + '\n<br/>\n'.join([str(a) for a in self.__deleted]))
         if msg_str:
-            response['message'] = msg_str
-            response['duration'] = 3 * len(self)
+            display_message(msg_str, duration=3*len(self))
         else:
-            response['message'] = 'No changes made'
+            display_message('No changes made')
 
         # highlighting
         response['edited'] = []
