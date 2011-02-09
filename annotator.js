@@ -1692,6 +1692,9 @@ $(function() {
 	    message.element = $('<div class="error"><b>[ERROR: could not display the following message normally due to malformed XML:]</b><br/>' + escaped + '</div>');
 	}
         messageContainer.append(message.element);
+	if (msg[2] === undefined) {
+	    msg[2] = 3;
+	}
         message.opacity = msg[2] != -1 ? msg[2] : -1;
         if (msg[2] == -1) {
           var button = $('<input type="button" value="OK"/>');
@@ -2175,11 +2178,16 @@ $(function() {
         },
         success: function(response) {
 	  Annotator.showSpinner(false);
-          displayMessage(response);
-          annotator.user = user;
-          $('#auth_button').val('Logout');
-          $('#auth_user').val('');
-          $('#auth_pass').val('');
+	  if (displayMessagesAndCheckForErrors(response)) {
+	      annotator.user = response.user;
+	      $('#auth_button').val('Logout');
+	      $('#auth_user').val('');
+	      $('#auth_pass').val('');
+	  } else {
+	      authForm.css('display', 'block');
+	      $('#auth_user').select().focus();
+	      return false;
+	  }
         }
       });
       authForm.css('display', 'none');

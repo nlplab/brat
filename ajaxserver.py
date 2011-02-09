@@ -880,18 +880,21 @@ def serve(argv):
                     'password': hashlib.sha512(
                         params.getvalue('pass')).hexdigest(),
                     }
+
+            auth_dict = {}
             try:
                 authenticate(creds['user'], creds['password'])
-                # TODO: add_messages_to_json?
+                auth_dict['user'] = creds['user']
                 cookie[COOKIE_ID] = dumps(creds)
                 # cookie[COOKIE_ID]['max-age'] = 15*60 # 15 minutes
-                print 'Content-Type: text/plain'
                 print cookie
-                print '\n'
-                print 'Hello, %s' % creds['user']
+                display_message('Hello from the new message interface')
             except InvalidAuthException:
-                print 'Content-Type: text/plain'
-                print 'Status: 403 Forbidden (auth)\n'
+                display_message('Incorrect login or password', 'error', 5)
+
+            print 'Content-Type: application/json\n'
+            add_messages_to_json(auth_dict)
+            print dumps(auth_dict, sort_keys=True, indent=2)
 
         elif action == 'logout':
             from datetime import datetime
