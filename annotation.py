@@ -287,7 +287,9 @@ class Annotations(object):
         # other dependencies depending on them, nor can EquivAnnotations
         if all((False for d in ann_deps if (
             not isinstance(d, ModifierAnnotation)
-            and not isinstance(d, EquivAnnotation)))):
+            and not isinstance(d, EquivAnnotation)
+            and not isinstance(d, OnelineCommentAnnotation)
+            ))):
 
             for d in ann_deps:
                 if isinstance(d, ModifierAnnotation):
@@ -306,6 +308,11 @@ class Annotations(object):
                         d.entities.remove(str(ann.id))
                         if tracker is not None:
                             tracker.change(before, d)
+                elif isinstance(d, OnelineCommentAnnotation):
+                    #TODO: Can't anything refer to comments?
+                    self._atomic_del_annotation(d)
+                    if tracker is not None:
+                        tracker.deletion(d)
             ann_deps = []
             
         if ann_deps:
