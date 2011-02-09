@@ -888,7 +888,7 @@ def serve(argv):
                 cookie[COOKIE_ID] = dumps(creds)
                 # cookie[COOKIE_ID]['max-age'] = 15*60 # 15 minutes
                 print cookie
-                display_message('Hello from the new message interface')
+                display_message('Hello!')
             except InvalidAuthException:
                 display_message('Incorrect login or password', 'error', 5)
 
@@ -901,10 +901,12 @@ def serve(argv):
             cookie[COOKIE_ID]['expires'] = (
                     datetime.fromtimestamp(0L).strftime(
                         '%a, %d %b %Y %H:%M:%S UTC'))
-            print 'Content-Type: text/plain'
+            logout_dict = {}
             print cookie
-            print '\n'
-            print 'Goodbye, %s' % creds['user']
+            print 'Content-Type: application/json\n'
+            display_message('Bye!')
+            add_messages_to_json(logout_dict)
+            print dumps(logout_dict, sort_keys=True, indent=2)
 
         elif action == 'getuser':
             result = {}

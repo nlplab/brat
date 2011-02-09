@@ -2210,11 +2210,12 @@ $(function() {
           data: {
             action: 'logout',
           },
-          success: function(data) {
+          success: function(response) {
 	    Annotator.showSpinner(false);
-            annotator.user = undefined;
-            displayMessage(data);
-            auth_button.val('Login');
+	    if (displayMessagesAndCheckForErrors(response)) {
+		annotator.user = undefined;
+		auth_button.val('Login');
+	    }
           },
           error: function(req, textStatus, errorThrown) {
 	    Annotator.showSpinner(false);
