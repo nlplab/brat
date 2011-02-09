@@ -31,6 +31,10 @@ class AnnotationNotFoundError(Exception):
         return 'Could not find an annotation with id: {}'.format(self.id)
 
 
+class AnnotationsIsReadOnly(Exception):
+    pass
+
+
 class DuplicateAnnotationIdError(Exception):
     def __init__(self, id):
         self.id = id
@@ -99,6 +103,7 @@ class Annotations(object):
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
         from collections import defaultdict
         from os.path import basename, isfile, getmtime, getctime
+        from os import access, W_OK
         import fileinput
 
         # we should remember this
@@ -125,8 +130,12 @@ class Annotations(object):
             # Do we have a valid suffix? If so, it is probably best to the file
             suff = document[document.rindex('.') + 1:]
             if suff == JOINED_ANN_FILE_SUFF:
-                # It is a joined file, let's load it and we are editable
+                # It is a joined file, let's load it
                 input_files = [document]
+                # Do we lack write permissions?
+                if not access(document, W_OK):
+                    #TODO: Should raise an exception or warning
+                    self._read_only = True
             elif suff in PARTIAL_ANN_FILE_SUFF:
                 # It is only a partial annotation, we will most likely fail
                 # but we will try opening it
@@ -145,6 +154,10 @@ class Annotations(object):
             if isfile(sugg_path):
                 # We found a joined file by adding the joined suffix
                 input_files = [sugg_path]
+                # Do we lack write permissions?
+                if not access(sugg_path, W_OK):
+                    #TODO: Should raise an exception or warning
+                    self._read_only = True
             else:
                 # Our last shot, we go for as many partial files as possible
                 input_files = [sugg_path for sugg_path in 
@@ -191,10 +204,13 @@ class Annotations(object):
         return (a for a in self if isinstance(a, OnelineCommentAnnotation))
 
     # TODO: getters for other categories of annotations
-
-    def add_annotation(self, ann):
+    #TODO: Remove read and use an internal and external version instead
+    def add_annotation(self, ann, read=False):
         #TODO: DOC!
         #TODO: Check read only
+        if not read and self._read_only:
+            raise AnnotationsIsReadOnly
+
         # Equivs have to be merged with other equivs
         try:
             # Bail as soon as possible for non-equivs
@@ -259,6 +275,9 @@ class Annotations(object):
         #TODO: needed to pass tracker to track recursive mods, but use is too
         #      invasive (direct modification of ModificationTracker.deleted)
         #TODO: DOC!
+        if self._read_only:
+            raise AnnotationsIsReadOnly
+
         try:
             ann.id
         except AttributeError:
@@ -287,7 +306,9 @@ class Annotations(object):
         # other dependencies depending on them, nor can EquivAnnotations
         if all((False for d in ann_deps if (
             not isinstance(d, ModifierAnnotation)
-            and not isinstance(d, EquivAnnotation)))):
+            and not isinstance(d, EquivAnnotation)
+            and not isinstance(d, OnelineCommentAnnotation)
+            ))):
 
             for d in ann_deps:
                 if isinstance(d, ModifierAnnotation):
@@ -306,6 +327,11 @@ class Annotations(object):
                         d.entities.remove(str(ann.id))
                         if tracker is not None:
                             tracker.change(before, d)
+                elif isinstance(d, OnelineCommentAnnotation):
+                    #TODO: Can't anything refer to comments?
+                    self._atomic_del_annotation(d)
+                    if tracker is not None:
+                        tracker.deletion(d)
             ann_deps = []
             
         if ann_deps:
@@ -415,7 +441,8 @@ class Annotations(object):
                         raise AnnotationLineSyntaxError(ann_line, ann_line_num)
                     equivs = type_tail.split(None)
                     self.add_annotation(
-                            EquivAnnotation(type, equivs, data_tail))
+                            EquivAnnotation(type, equivs, data_tail),
+                            read=True)
                 elif pre == 'E':
                     #XXX: A bit nasty, we require a single space
                     try:
@@ -439,13 +466,13 @@ class Annotations(object):
                         args = []
 
                     self.add_annotation(EventAnnotation(
-                        trigger, args, id, type, data_tail))
+                        trigger, args, id, type, data_tail), read=True)
                 elif pre == 'R':
                     raise NotImplementedError
                 elif pre == 'M':
                     type, target = data.split()
                     self.add_annotation(ModifierAnnotation(
-                        target, id, type, data_tail))
+                        target, id, type, data_tail), read=True)
                 elif pre == 'T' or pre == 'W':
                     type, start_str, end_str = data.split(None, 3)
                     # Abort if we have trailing values
@@ -453,7 +480,7 @@ class Annotations(object):
                         raise AnnotationLineSyntaxError(ann_line, ann_line_num)
                     start, end = (int(start_str), int(end_str))
                     self.add_annotation(TextBoundAnnotation(
-                        start, end, id, type, data_tail))
+                        start, end, id, type, data_tail), read=True)
                 elif pre == '#':
                     try:
                         type, target = data.split()
@@ -461,12 +488,12 @@ class Annotations(object):
                         raise AnnotationLineSyntaxError(ann_line, ann_line_num)
                     self.add_annotation(OnelineCommentAnnotation(
                         target, id, type, data_tail
-                        ))
+                        ), read=True)
                 else:
                     raise AnnotationLineSyntaxError(ann_line, ann_line_num)
             except AnnotationLineSyntaxError, e:
                 # We could not parse the line, just add it as an unknown annotation
-                self.add_annotation(Annotation(e.line))
+                self.add_annotation(Annotation(e.line), read=True)
                 # NOTE: For access we start at line 0, not 1 as in here
                 self.failed_lines.append(e.line_num - 1)
 
@@ -513,11 +540,22 @@ class Annotations(object):
                 from tempfile import NamedTemporaryFile
                 # TODO: XXX: Is copyfile really atomic?
                 from shutil import copyfile
-                with NamedTemporaryFile('w') as tmp_file:
+                with NamedTemporaryFile('w', suffix='.ann') as tmp_file:
                     tmp_file.write(out_str)
                     tmp_file.flush()
-                    # Move the temporary file onto the old file
-                    copyfile(tmp_file.name, self._input_files[0])
+                    #XXX: Temporary hack to make sure we don't write corrupted
+                    #       files, but the client will already have the version
+                    #       at this stage leading to potential problems upon
+                    #       the next change to the file.
+                    try:
+                        with Annotations(tmp_file.name) as ann:
+                            pass
+                        # Move the temporary file onto the old file
+                        copyfile(tmp_file.name, self._input_files[0])
+                    except Exception, e:
+                        from sys import stderr
+                        print >> stderr, 'WARNING: Could not write changes!'
+                        print >> stderr, e
         return
 
     def __in__(self, other):
