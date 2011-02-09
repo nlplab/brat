@@ -520,11 +520,22 @@ class Annotations(object):
                 from tempfile import NamedTemporaryFile
                 # TODO: XXX: Is copyfile really atomic?
                 from shutil import copyfile
-                with NamedTemporaryFile('w') as tmp_file:
+                with NamedTemporaryFile('w', suffix='.ann') as tmp_file:
                     tmp_file.write(out_str)
                     tmp_file.flush()
-                    # Move the temporary file onto the old file
-                    copyfile(tmp_file.name, self._input_files[0])
+                    #XXX: Temporary hack to make sure we don't write corrupted
+                    #       files, but the client will already have the version
+                    #       at this stage leading to potential problems upon
+                    #       the next change to the file.
+                    try:
+                        with Annotations(tmp_file.name) as ann:
+                            pass
+                        # Move the temporary file onto the old file
+                        copyfile(tmp_file.name, self._input_files[0])
+                    except Exception, e:
+                        from sys import stderr
+                        print >> stderr, 'WARNING: Could not write changes!'
+                        print >> stderr, e
         return
 
     def __in__(self, other):
