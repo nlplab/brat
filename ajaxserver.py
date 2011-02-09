@@ -1,10 +1,7 @@
-#!/home/users/pontus/local/bin/python
+#!/usr/bin/env python
 
 '''
-brat
-TODO: DOC!
-
-Brat Rapid Annotation Tool (brat)
+Ajax server called upon by the CGI to serve requests to the service.
 
 Author:     Sampo   Pyysalo     <smp is s u tokyo ac jp>
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
@@ -202,9 +199,9 @@ def enrich_json_with_data(j_dic, ann_obj):
         else: 
             j_dic['entities'].append(j_tb)
 
-    for eq_id, eq_ann in enumerate(ann_obj.get_equivs(), start=1):
+    for eq_ann in ann_obj.get_equivs():
         j_dic['equivs'].append(
-                (['*{}'.format(eq_id), eq_ann.type]
+                (['*', eq_ann.type]
                     + [e for e in eq_ann.entities])
                 )
 
