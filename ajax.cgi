@@ -15,6 +15,7 @@ Version:    2010-02-07
 '''
 
 from sys import version_info
+from cgi import escape
 
 ### Constants
 # This handling of version_info is strictly for backwards compability
@@ -141,8 +142,8 @@ def main(args):
             buf.seek(0)
             print 'Content-Type: application/json\n'
             error_msg = '<br/>'.join((
-            'Server Python crash, stacktrace is:\n',
-            buf.read())).replace('\n', '\n<br/>\n')
+                'Server Python crash, stacktrace is:\n',
+                escape(buf.read()))).replace('\n', '\n<br/>\n')
             print _dumps(
                     {
                         'error': error_msg,

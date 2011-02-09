@@ -1684,7 +1684,13 @@ $(function() {
     } else {
       $.each(msgs, function(msgNo, msg) {
         var message = {};
-        message.element = $('<div class="' + msg[1] + '">' + msg[0] + '</div>');
+	try {
+	    message.element = $('<div class="' + msg[1] + '">' + msg[0] + '</div>');
+	}
+	catch(x) {
+	    escaped = msg[0].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	    message.element = $('<div class="error"><b>[ERROR: could not display the following message normally due to malformed XML:]</b><br/>' + escaped + '</div>');
+	}
         messageContainer.append(message.element);
         message.opacity = msg[2] != -1 ? msg[2] : -1;
         if (msg[2] == -1) {
@@ -1815,16 +1821,17 @@ $(function() {
     url: ajaxBase,
     type: 'GET',
     success: function(jsonData) {
-        var dirSelect = $('#directory_select');
-        directories = jsonData.directories;
-        $.each(directories, function(subdirNo, subdir) {
-          dirSelect.append('<option>' + subdir + '</option>');
-        });
-        if (directory) {
-          getDirectory(directory);
-        } else {
-          Annotator.actionsAllowed(true);
-        }
+	if (displayMessagesAndCheckForErrors(jsonData)) {
+	  var dirSelect = $('#directory_select');
+	  directories = jsonData.directories;
+	  $.each(directories, function(subdirNo, subdir) {
+	    dirSelect.append('<option>' + subdir + '</option>');
+	  });
+	  if (directory) {
+	    getDirectory(directory);
+	  }
+	}
+	Annotator.actionsAllowed(true);
       },
       error: function(req, textStatus, errorThrown) {
         console.error("Directory list fetch error", textStatus, errorThrown);
