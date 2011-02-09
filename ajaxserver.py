@@ -23,7 +23,7 @@ from re import split, sub, match
 import fileinput
 import hashlib
 
-from annotation import Annotations, TEXT_FILE_SUFFIX
+from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationsIsReadOnly
 from annspec import span_type_keyboard_shortcuts
 from projectconfig import ProjectConfiguration
 from verify_annotations import verify_annotation
@@ -955,6 +955,18 @@ def serve(argv):
                                 'duration': -1,
                                 },
                             sort_keys=True, indent=2)
+            except AnnotationsIsReadOnly:
+                print 'Content-Type: application/json\n'
+                error_msg = ('Error: server lacks permission a write-able '
+                        '.ann annotations file, please contact '
+                        'the administrator(s)')
+                print dumps(
+                        {
+                            'error': error_msg,
+                            'duration': -1,
+                            },
+                            sort_keys=True, indent=2)
+
 
 def debug():
     from os.path import dirname, join
