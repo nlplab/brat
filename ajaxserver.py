@@ -30,6 +30,7 @@ from verify_annotations import verify_annotation
 # We should not import this in the end...
 from annotation import (TextBoundAnnotation, EquivAnnotation,
         EventAnnotation, ModifierAnnotation, DependingAnnotationDeleteError)
+from message import display_message, add_messages_to_json
 
 ### Constants?
 EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
@@ -39,19 +40,6 @@ COOKIE_ID = 'brat-cred'
 #TODO: We really should raise an exception to ajax.cgi to give a nicer message
 #       if these configurations are wrong.
 from config import BASE_DIR, DATA_DIR, USER_PASSWORD, DEBUG
-
-# TODO: make this into a proper interface for messaging
-__pending_messages = []
-def display_message(s, type='info', duration=3):
-    global __pending_messages
-    __pending_messages.append((s, type, duration))
-
-def add_messages_to_json(json_dict):
-    global __pending_messages
-    for s, type, duration in __pending_messages:
-        # TODO: multiple messages
-        json_dict['message'] = s
-    __pending_messages = []
 
 def possible_arc_types_from_to(projectconfig, from_ann, to_ann):
     # TODO: avoid accessing this
@@ -143,6 +131,8 @@ def documents(directory):
 
     except OSError, x:
         response = { 'error': 'Error: No such directory: ' + directory }
+
+    add_messages_to_json(response)
     print dumps(response, sort_keys=True, indent=2)
 
 def directories():
@@ -150,6 +140,7 @@ def directories():
     dirlist = [dir for dir in my_listdir(DATA_DIR)]
     dirlist.sort()
     response = { 'directories': dirlist }
+    add_messages_to_json(response)
     print dumps(response, sort_keys=True, indent=2)
 
 def _sentence_split(txt_file_path):
@@ -277,6 +268,7 @@ def document_json(docdir, docname):
     document = join_path(docdir, docname)
     j_dic = document_json_dict(document)
     print 'Content-Type: application/json\n'
+    add_messages_to_json(j_dic)
     print dumps(j_dic, sort_keys=True, indent=2)
 
 def saveSVG(directory, document, svg):
@@ -344,6 +336,7 @@ def arc_types_html(projectconfig, origin_type, target_type):
         response['error'] = 'Error selecting arc types!'
     
     print 'Content-Type: application/json\n'
+    add_messages_to_json(response)
     print dumps(response, sort_keys=True, indent=2)
 
 #TODO: Couldn't we incorporate this nicely into the Annotations class?
@@ -437,6 +430,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                     # stored. For now we will fail loudly here.
                     print 'Content-Type: application/json\n'
                     error = 'unable to change the span of an existing annotation'
+                    # TODO use display_message and add_messages_to_json
                     print dumps({ 'error': error }, sort_keys=True, indent=2)
                     # Not sure if we only get an internal server error or the data
                     # will actually reach the client to be displayed.
@@ -638,7 +632,6 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
         mods_json['annotations'] = j_dic
 
         add_messages_to_json(mods_json)
-        
         print dumps(mods_json, sort_keys=True, indent=2)
            
 #TODO: Should determine which step to call next
@@ -712,6 +705,7 @@ def save_arc(docdir, docname, origin, target, type, old_type):
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
 
         mods_json['annotations'] = j_dic
+        add_messages_to_json(mods_json)
         print dumps(mods_json, sort_keys=True, indent=2)
 
 # Hack for the round-trip
@@ -750,6 +744,7 @@ def delete_span(docdir, docname, id):
                 pass
         except DependingAnnotationDeleteError, e:
             print 'Content-Type: application/json\n'
+            # TODO: use display_message and add_messages_to_json here
             print dumps(e.json_error_response(), sort_keys=True, indent=2)
             return
 
@@ -762,6 +757,7 @@ def delete_span(docdir, docname, id):
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json["annotations"] = j_dic
+        add_messages_to_json(mods_json)
         print dumps(mods_json, sort_keys=True, indent=2)
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
@@ -819,6 +815,7 @@ def delete_arc(docdir, docname, origin, target, type):
                         mods.deletion(eq_ann)
                     except DependingAnnotationDeleteError, e:
                         print 'Content-Type: application/json\n'
+                        # TODO: use display_message and add_messages_to_json
                         print dumps(e.json_error_response(), sort_keys=True, indent=2)
                         return
 
@@ -831,6 +828,7 @@ def delete_arc(docdir, docname, origin, target, type):
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
         mods_json['annotations'] = j_dic
+        add_messages_to_json(mods_json)
         print dumps(mods_json, sort_keys=True, indent=2)
 
 class InvalidAuthException(Exception):
@@ -885,6 +883,7 @@ def serve(argv):
                     }
             try:
                 authenticate(creds['user'], creds['password'])
+                # TODO: add_messages_to_json?
                 cookie[COOKIE_ID] = dumps(creds)
                 # cookie[COOKIE_ID]['max-age'] = 15*60 # 15 minutes
                 print 'Content-Type: text/plain'
@@ -912,6 +911,7 @@ def serve(argv):
             except (KeyError):
                 result['error'] = 'Not logged in'
             print 'Content-Type: application/json\n'
+            # TODO: add_messages_to_json?
             print dumps(result)
 
         else:
@@ -970,6 +970,7 @@ def serve(argv):
                 if e.errno == 2:
                     print 'Content-Type: application/json\n'
                     error_msg = 'Error: file not found'
+                    # TODO use display_message and add_messages_to_json
                     print dumps(
                             {
                                 'error': error_msg,

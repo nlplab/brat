@@ -36,13 +36,28 @@ var displayInfo = function(html, evt) {
 
 var displayMessagesAndCheckForErrors = function(response) {
   if (response) {
+    var no_errors = true;
+
+    if (response.messages) {
+	displayMessages(response.messages);
+	$.each(response.messages, function(messageNo, message) {
+	    if (message[1] == 'error') {
+		no_errors = false;
+	    }
+	})
+    } 
+
+    // TODO: remove this once all users of the old single-message
+    // protocol have been weeded out
     if (response.message) {
-      displayMessage(response.message, false, response.duration);
-    } else if (response.error) {
-      displayMessage(response.error, true, response.duration);
-      return false;
+      displayMessage("<b>[NOTE: server received the following message directly as 'response.message'. Use display_message() instead]</b> " + response.message, false, -1);
     }
-    return true;
+    if (response.error) {
+	displayMessage("<b>[NOTE: server received the following message directly as 'response.error'. Use display_message() instead]</b> " + response.error, true, -1);
+	no_errors = false;
+    }
+
+    return no_errors;
   }
   return false;
 }
