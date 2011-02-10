@@ -317,7 +317,7 @@ def arc_types_html(projectconfig, origin_type, target_type):
                     if p[i].lower() not in key_taken:
                         key_taken[p[i].lower()] = True
                         key_for[p] = p[i].lower()
-                        response['keymap'][p[i].upper()] = "arc_"+p
+                        response['keymap'][p[i].upper()] = "arc_"+p.lower()
                         break
 
             # generate input for each possible choice
