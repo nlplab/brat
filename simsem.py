@@ -62,7 +62,7 @@ def _train_model(data_path):
     model = train(problem, Parameter('-q -s 0'))
     return model
 
-def pridict_sem_type(text):
+def predict_sem_type(text):
     path.append(SIMSEM_LIB_DIR)
     path.append(LIBLINEAR_PYTHON_PATH)
     path.insert(0, SIMSEM_DIR)
@@ -75,7 +75,7 @@ def pridict_sem_type(text):
     else:
         model = load_model(MODEL_PATH)
 
-    from config import QDB_LABEL_DB_PATH
+    from simsemconfig import QDB_LABEL_DB_PATH
     from quarkdb import QuarkDB
 
     labels_qdb = QuarkDB()
@@ -96,4 +96,4 @@ def pridict_sem_type(text):
 
 if __name__ == '__main__':
     print 'p53'
-    print pridict_sem_type('p53')
+    print predict_sem_type('p53')
