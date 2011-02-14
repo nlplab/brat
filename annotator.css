@@ -433,12 +433,11 @@ fieldset {
 #span_form .collapsible {
     margin-left: 20px;
 }
-#span_scroller {
+.type_scroller {
     background: #bbbbbb;
     border: 1px solid #aaaaaa;
-    height: 250px;
-    width: 500px;
     overflow-y: scroll;
+    min-height: 50px;
 }
 #span_highlight_link, #arc_highlight_link {
   float: right;

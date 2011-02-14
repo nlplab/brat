@@ -360,7 +360,7 @@ var Annotator = function(containerElement, onStart) {
       $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
       $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
       var arcId = originSpanId + '--' + type + '--' + targetSpanId;
-      annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type, type, arcId);
+      annotator.fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
       
     // if not, then do we edit a span?
     } else if (id = target.attr('data-span-id')) {
@@ -373,7 +373,7 @@ var Annotator = function(containerElement, onStart) {
         id: id,
       };
       var spanText = data.text.substring(span.from, span.to);
-      annotator.fillSpanTypesAndDisplayForm(spanText, span);
+      annotator.fillSpanTypesAndDisplayForm(evt, spanText, span);
     }
   };
 
@@ -430,7 +430,7 @@ var Annotator = function(containerElement, onStart) {
         };
         $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
 	$('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
-        annotator.fillArcTypesAndDisplayForm(originSpan.type, targetSpan.type);
+        annotator.fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
       }
       svg.remove(arcDragArc);
       arcDragOrigin = undefined;
@@ -469,7 +469,7 @@ var Annotator = function(containerElement, onStart) {
 	      annotator.ajaxOptions.spantext = data.text.substring(selectedFrom, selectedTo);
 	      annotator.postChangesAndReload();
 	  } else {
-	      annotator.fillSpanTypesAndDisplayForm(spanText);
+	      annotator.fillSpanTypesAndDisplayForm(evt, spanText);
 	  }
         }
       }
@@ -1655,11 +1655,16 @@ $(function() {
   var docListReceived = false;
   var lastHash = null;
   var formDisplayed = false;
+  var formMargin = 50;
+  var minFormElementHeight = 50;
 
   var messages = [];
   var messageRefresh = 100; // milliseconds
   var messageOpacityDecrease = messageRefresh / 1000;
   var messageContainer = $('#messages');
+
+  var spanFormHTML;
+
   setInterval(function() {
     var opacity;
     var removed = [];
@@ -1778,6 +1783,29 @@ $(function() {
     }
   }
 
+  var resizeFormToFit = function(form, typesContainer, html) {
+    form.css('display', 'block');
+    typesContainer.html('');
+    var screenHeight = $(window).height() - formMargin;
+    var emptyFormHeight = form.height();
+    typesContainer.html(html);
+    var fullFormHeight = form.height();
+    var typesChildren = typesContainer.find('.type_scroller').css('max-height', 'inherit');
+    var excessHeight = Math.max(0, fullFormHeight - screenHeight);
+    var totalChildrenHeight = 0;
+    var heights = typesChildren.map(function(childNo, child) {
+        var height = $(child).height() - minFormElementHeight;
+        totalChildrenHeight += height;
+        return height;
+    });
+    console.log(heights);
+    typesChildren.each(function(childNo, child) {
+        var maxHeight = minFormElementHeight + Math.max(0, heights[childNo] * (1 - excessHeight / totalChildrenHeight));
+        $(child).css('max-height', maxHeight);
+    });
+    form.css('display', 'none');
+  };
+
   var getDirectory = function(directory) {
     if (!directory) {
       $('#document_select').css('display', 'none');
@@ -1807,7 +1835,10 @@ $(function() {
             dsel.append('<option>' + directory + '</option>');
           }
           dsel.val(directory);
-          $('#span_types').html(response.html);
+
+          spanFormHTML = response.html;
+          resizeFormToFit(spanForm, $('#span_types'), response.html);
+
           annotator.spanKeymap = response.keymap;
           spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
           spanForm.find('.collapser').click(collapseHandler);
@@ -2051,7 +2082,17 @@ $(function() {
           document.location.hash = $(evt.target).val();
         });
 
-    annotator.fillSpanTypesAndDisplayForm = function(spanText, span) {
+    var adjustToCursor = function(evt, element) {
+      var screenHeight = $(window).height() - 15; // TODO HACK - no idea why -15 is needed
+      var screenWidth = $(window).width();
+      var elementHeight = element.height();
+      var elementWidth = element.width();
+      var y = Math.min(evt.clientY, screenHeight - elementHeight);
+      var x = Math.min(evt.clientX, screenWidth - elementWidth);
+      element.css({ top: y, left: x });
+    };
+    
+    annotator.fillSpanTypesAndDisplayForm = function(evt, spanText, span) {
       Annotator.actionsAllowed(false);
       annotator.keymap = annotator.spanKeymap;
       $('#del_span_button').css('display', span ? 'inline' : 'none');
@@ -2087,6 +2128,8 @@ $(function() {
       $('#span_form').css('display', 'block');
       $('#span_form input:submit').focus();
       formDisplayed = true;
+
+      adjustToCursor(evt, spanForm);
     };
     $('#del_span_button').click(annotator.deleteSpan);
 
@@ -2109,7 +2152,7 @@ $(function() {
     var arcForm = $('#arc_form').
       submit(arcFormSubmit).
       bind('reset', hideAllForms);
-    annotator.fillArcTypesAndDisplayForm = function(originType, targetType, arcType, arcId) {
+    annotator.fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId) {
       Annotator.actionsAllowed(false);
       Annotator.showSpinner();
       $.ajax({
@@ -2129,7 +2172,7 @@ $(function() {
                 displayMessage("No choices for "+originType+" -> "+targetType, true);
                 Annotator.actionsAllowed(true);
               } else {
-                $('#arc_roles').html(jsonData.html);
+                resizeFormToFit(arcForm, $('#arc_roles'), jsonData.html);
                 annotator.keymap = jsonData.keymap;
                 if (arcId) {
                   $('#arc_highlight_link').css('display', 'inline').attr('href', document.location + '/' + arcId);
@@ -2153,6 +2196,7 @@ $(function() {
                 $('#arc_form').css('display', 'block');
                 $('#arc_form input:submit').focus();
                 formDisplayed = true;
+                adjustToCursor(evt, arcForm);
               }
             }
           },
@@ -2236,12 +2280,19 @@ $(function() {
     updateState();
     setInterval(updateState, 200); // TODO okay?
 
-    $(window).resize(function(evt) {
+    var resizeFunction = function(evt) {
       if (!annotator.drawing) {
+        resizeFormToFit($('#span_form'), $('#span_types'), spanFormHTML);
         annotator.renderData();
       } else {
         annotator.redraw = true;
       }
+    };
+
+    var resizerTimeout = 0;
+    $(window).resize(function(evt) {
+        clearTimeout(resizerTimeout);
+        resizerTimeout = setTimeout(resizeFunction, 100); // TODO is 100ms okay?
     });
   });
 

@@ -103,13 +103,15 @@ def documents(directory):
         
         html = """<fieldset>
 <legend>Entities</legend>
+<div class="type_scroller">
 """ + generate_entity_type_html(directory, type_to_key_map) + """
+</div>
 </fieldset>
 <fieldset>
 <legend>Events</legend>
 <fieldset>
 <legend>Type</legend>
-<div id="span_scroller">
+<div class="type_scroller">
 """ + generate_event_type_html(directory, type_to_key_map) + """</div>
 </fieldset>
 <fieldset id="span_mod_fset">
