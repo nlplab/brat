@@ -434,8 +434,8 @@ var Annotator = function(containerElement, onStart) {
       }
       svg.remove(arcDragArc);
       arcDragOrigin = undefined;
-    } else {
-      // if not, then is it span selection?
+    } else if (!evt.ctrlKey) {
+      // if not, then is it span selection? (ctrl key cancels)
       var sel = window.getSelection();
       var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
       var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
@@ -2303,6 +2303,7 @@ $(function() {
     if (code == 27) { // ("Esc")
       hideAllForms();
       return false;
+    } else if (code == 9) { // Tab
     } else if (!formDisplayed && code == 37) { // Left arrow
       var select = $('#document_select')[0];
       if (select.selectedIndex > 1) {
