@@ -2301,7 +2301,6 @@ $(function() {
     var mapping;
     var code = evt.keyCode;
     if (code == 27) { // ("Esc")
-      // HERE
       hideAllForms();
       return false;
     } else if (!formDisplayed && code == 37) { // Left arrow
