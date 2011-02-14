@@ -130,7 +130,9 @@ def documents(directory):
                 }
 
     except OSError, x:
-        response = { 'error': 'Error: No such directory: ' + directory }
+        # TODO: don't guess at the reason; there may be other OSErrors
+        display_message('Error: No such directory: ' + directory, 'error', -1)
+        response = {}
 
     add_messages_to_json(response)
     print dumps(response, sort_keys=True, indent=2)
@@ -207,6 +209,7 @@ def enrich_json_with_data(j_dic, ann_obj):
                 )
 
     if ann_obj.failed_lines:
+        # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
         j_dic['error'] = 'Unable to parse the following line(s):<br/>{}'.format(
                 '\n<br/>\n'.join(
                     ['{}: {}'.format(
@@ -218,6 +221,7 @@ def enrich_json_with_data(j_dic, ann_obj):
                     )
         j_dic['duration'] = len(ann_obj.failed_lines) * 3
     else:
+        # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
         j_dic['error'] = None
 
     j_dic['mtime'] = ann_obj.ann_mtime
@@ -230,10 +234,9 @@ def enrich_json_with_data(j_dic, ann_obj):
         projectconfig = ProjectConfiguration(docdir)
         issues = verify_annotation(ann_obj, projectconfig)
     except Exception, e:
-        # TODO add an issue about the failure
+        # TODO add an issue about the failure?
         issues = []
-        j_dic['error']    = 'Error: verify_annotation() failed: %s' % e
-        j_dic['duration'] = -1
+        display_message('Error: verify_annotation() failed: %s' % e, 'error', -1)
 
     for i in issues:
         j_dic['infos'].append((str(i.ann_id), i.type, i.description))
@@ -301,6 +304,7 @@ def arc_types_html(projectconfig, origin_type, target_type):
 
         # TODO: proper error handling
         if possible is None:
+            # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
             response['error'] = 'Error selecting arc types!'
         elif possible == []:
             # nothing to select
@@ -333,6 +337,7 @@ def arc_types_html(projectconfig, origin_type, target_type):
                 inputs.append(inputstr)
             response['html']  = '<fieldset><legend>Type</legend>' + '\n'.join(inputs) + '</fieldset>'
     except:
+        # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
         response['error'] = 'Error selecting arc types!'
     
     print 'Content-Type: application/json\n'
@@ -429,7 +434,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                     # stored. For now we will fail loudly here.
                     print 'Content-Type: application/json\n'
                     error = 'unable to change the span of an existing annotation'
-                    # TODO use display_message and add_messages_to_json
+                    # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
                     print dumps({ 'error': error }, sort_keys=True, indent=2)
                     # Not sure if we only get an internal server error or the data
                     # will actually reach the client to be displayed.
@@ -623,6 +628,7 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
         else:
             # Hack, we had a new-line in the span
             mods_json = {}
+            # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
             mods_json['error'] = 'Text span contained new-line, rejected'
             mods_json['duration'] = 3
         # save a roundtrip and send the annotations also
@@ -913,6 +919,7 @@ def serve(argv):
             try:
                 result['user'] = creds['user']
             except (KeyError):
+                # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
                 result['error'] = 'Not logged in'
             print 'Content-Type: application/json\n'
             # TODO: add_messages_to_json?
@@ -979,26 +986,24 @@ def serve(argv):
                 #TODO: This is too general, should be caught at a higher level
                 # No such file or directory
                 if e.errno == 2:
-                    print 'Content-Type: application/json\n'
-                    error_msg = 'Error: file not found'
-                    # TODO use display_message and add_messages_to_json
-                    print dumps(
-                            {
-                                'error': error_msg,
-                                'duration': -1,
-                                },
-                            sort_keys=True, indent=2)
-            except AnnotationsIsReadOnly:
+                    display_message('Error: file not found', 'error', -1)
+                else:
+                    display_message('Error: I/O error opening file', 'error', -1)
+
                 print 'Content-Type: application/json\n'
-                error_msg = ('Error: server lacks permission a write-able '
-                        '.ann annotations file, please contact '
-                        'the administrator(s)')
-                print dumps(
-                        {
-                            'error': error_msg,
-                            'duration': -1,
-                            },
-                            sort_keys=True, indent=2)
+                response = {}
+                add_messages_to_json(response)
+                print dumps(response, sort_keys=True, indent=2)
+
+            except AnnotationsIsReadOnly:
+                display_message('Error: server lacks permission to write the '
+                                '.ann annotations file, please contact '
+                                'the administrator(s)', 'error', -1)
+
+                print 'Content-Type: application/json\n'
+                response = {}
+                add_messages_to_json(response)
+                print dumps(response, sort_keys=True, indent=2)
 
 
 def debug():

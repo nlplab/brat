@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+##!/home/users/pontus/local/bin/python
 
 '''
 Entry for cgi calls to the brat application. This is a simple wrapper that
