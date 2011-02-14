@@ -1798,7 +1798,6 @@ $(function() {
         totalChildrenHeight += height;
         return height;
     });
-    console.log(heights);
     typesChildren.each(function(childNo, child) {
         var maxHeight = minFormElementHeight + Math.max(0, heights[childNo] * (1 - excessHeight / totalChildrenHeight));
         $(child).css('max-height', maxHeight);
@@ -1847,12 +1846,14 @@ $(function() {
           dsel[0].selectedIndex = 0;
           Annotator.actionsAllowed(true);
         }
+        Annotator.showSpinner(false);
       },
       error: function(req, textStatus, errorThrown) {
         console.error("Directory fetch error", textStatus, errorThrown);
         $('#document_select').css('display', 'none');
         dsel[0].selectedIndex = 0;
         Annotator.actionsAllowed(true);
+        Annotator.showSpinner(false);
       }
     });
   };
