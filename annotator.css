@@ -319,7 +319,7 @@ rect.shadow_EditHighlight {
 
 #span_form, #arc_form, #auth_form {
   position: fixed;
-  background-color: #cccccc;
+  background-color: #dddde0;
   border: 2px outset #999999;
   left: 50px;
   top: 50px;
@@ -327,6 +327,7 @@ rect.shadow_EditHighlight {
   padding: 5px 10px;
   z-index: 10;
   display: none;
+  min-width: 400px;
 }
 #span_form_buttons, #arc_form_buttons, #auth_form_buttons {
   text-align: right;
@@ -343,9 +344,9 @@ fieldset {
 
 
 .shadow {
-  -moz-box-shadow: 5px 5px 5px #aaaaaa;
-  -webkit-box-shadow: 5px 5px 5px #aaaaaa;
-  box-shadow: 5px 5px 5px #aaaaaa;
+  -moz-box-shadow: 5px 5px 5px #444444;
+  -webkit-box-shadow: 5px 5px 5px #444444;
+  box-shadow: 5px 5px 5px #444444;
 }
 
 #span_selected, #arc_origin, #arc_target {
@@ -434,8 +435,8 @@ fieldset {
     margin-left: 20px;
 }
 .type_scroller {
-    background: #bbbbbb;
-    border: 1px solid #aaaaaa;
+    background: #ccccd0;
+    border: 1px inset #ccccd0;
     overflow-y: scroll;
     min-height: 50px;
 }

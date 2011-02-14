@@ -103,9 +103,12 @@ def documents(directory):
         
         html = """<fieldset>
 <legend>Entities</legend>
+<fieldset>
+<legend>Type</legend>
 <div class="type_scroller">
 """ + generate_entity_type_html(directory, type_to_key_map) + """
 </div>
+</fieldset>
 </fieldset>
 <fieldset>
 <legend>Events</legend>
