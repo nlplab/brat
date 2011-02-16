@@ -317,10 +317,10 @@ rect.shadow_EditHighlight {
 }
 
 
-#span_form, #arc_form, #auth_form {
+#span_form, #arc_form, #auth_form, #file_browser {
   position: fixed;
   background-color: #dddde0;
-  border: 2px outset #999999;
+  border: 2px outset #dddde0;
   left: 50px;
   top: 50px;
   height: auto;
@@ -471,4 +471,46 @@ fieldset {
   position: fixed;
   right:10px;
   top: 55px;
+}
+
+#file_browser div.files {
+  width: 200px;
+  height: 200px;
+  overflow-y: auto;
+  display: inline-block;
+  border: 2px inset;
+  background-color: #ffffff;
+}
+#file_browser div.files table {
+  width: 100%;
+  border-collapse: collapse;
+}
+#file_browser div.files tr {
+  cursor: pointer;
+}
+#file_browser div.files tr * {
+  white-space: nowrap;
+}
+#file_browser div.files tr:hover {
+  background-color: #bbbbff;
+}
+#file_browser div.files tr.selected {
+  background-color: #0000ff;
+  color: #ffffff;
+}
+#filedir_inputs_table {
+  width: 100%;
+}
+#filedir_inputs_table input {
+  width: 100%;
+}
+#file_inputs_table th {
+  width: 1px;
+}
+#file_browser th {
+  font-weight: normal;
+  text-align: left;
+}
+#file_buttons {
+  text-align: right;
 }
