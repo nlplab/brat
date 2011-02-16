@@ -5,19 +5,32 @@ html {
 }
 
 #svg {
+  margin-top: 50px;
   margin-bottom: 100px;
 }
 
-  svg {
-    width: 100%;
-    height: 1px;
-    border: 1px solid #7fa2ff;
-  }
+svg {
+  width: 100%;
+  height: 1px;
+  border: 1px solid #7fa2ff;
+}
 
-  text {
-    font-size: 14px;
-    font-family: serif;
-  }
+text {
+  font-size: 14px;
+  font-family: serif;
+}
+
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  padding: 2px 5px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #7fa2ff;
+  overflow: hidden;
+}
 
 path {
   pointer-events: none;
