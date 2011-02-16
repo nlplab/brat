@@ -466,14 +466,7 @@ var Annotator = function(containerElement, onStart) {
         if (spanText.indexOf("\n") != -1) {
           displayMessage("Error: cannot annotate across a sentence break", true);
         } else {
-	  var rapidAnnotate = $('#rapid_mode')[0].checked;
-	  if (rapidAnnotate) {
-	      annotator.ajaxOptions.type = "GUESS";
-	      annotator.ajaxOptions.spantext = data.text.substring(selectedFrom, selectedTo);
-	      annotator.postChangesAndReload();
-	  } else {
-	      annotator.fillSpanTypesAndDisplayForm(evt, spanText);
-	  }
+	        annotator.fillSpanTypesAndDisplayForm(evt, spanText);
         }
       }
     }

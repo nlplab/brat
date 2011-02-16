@@ -956,13 +956,6 @@ def serve(argv):
             #XXX: Calls to save and delete can raise AnnotationNotFoundError
             try:
                 if action == 'span':
-                    # TODO: proper interface for rapid mode span
-                    spantype = params.getvalue('type')
-                    if spantype == "GUESS":
-                        from simsem import predict_sem_type
-                        predicted = predict_sem_type(params.getvalue('spantext'))
-                        display_message("<br/>".join(predicted))
-
                     save_span(real_directory, document,
                             params.getvalue('from'),
                             params.getvalue('to'),
