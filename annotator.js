@@ -2067,7 +2067,7 @@ $(function() {
       }
     };
 
-    $('#document_form').
+    $('#header').
         submit(annotator.renderSelected).
         children().
         removeAttr('disabled');
