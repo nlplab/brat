@@ -2407,31 +2407,39 @@ $(function() {
       hideAllForms();
       return false;
     } else if (!formDisplayed && code == 37) { // Left arrow
-      var select = $('#document_select')[0];
-      if (select.selectedIndex > 1) {
-        select.selectedIndex = select.selectedIndex - 1;
-        annotator.renderSelected();
+      var pos;
+      var curDoc = URLHash.current.doc;
+      // could have used $.inArray, but this way is extensible
+      $.each(filesData.docnames, function(docNo, doc) {
+        if (doc == curDoc) {
+          pos = docNo;
+          return false;
+        }
+      });
+      if (pos > 0) {
+        new URLHash().setDocument(filesData.docnames[pos - 1]);
       }
       return false;
     } else if (!formDisplayed && code == 39) { // Right arrow
-      var select = $('#document_select')[0];
-      if (select.selectedIndex < select.length - 1) {
-        select.selectedIndex = select.selectedIndex + 1;
-        annotator.renderSelected();
+      var pos;
+      var curDoc = URLHash.current.doc;
+      // could have used $.inArray, but this way is extensible
+      $.each(filesData.docnames, function(docNo, doc) {
+        if (doc == curDoc) {
+          pos = docNo;
+          return false;
+        }
+      });
+      if (pos < filesData.docnames.length - 1) {
+        new URLHash().setDocument(filesData.docnames[pos + 1]);
       }
       return false;
     } else if (mapping = annotator.keymap[code] ||
         annotator.keymap[String.fromCharCode(code)]) {
       var el = $('#' + mapping);
       if (el.length) el[0].click();
-    } else if (!formDisplayed && code == 9) { // Q
+    } else if (!formDisplayed && code == 9) { // Tab
       openFileBrowser();
-      return false;
-    }
-  });
-  $('#document_select').keydown(function(evt) {
-    var code = evt.keyCode;
-    if (code == 37 || code == 39) { // Left/right arrow
       return false;
     }
   });
