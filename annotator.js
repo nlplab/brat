@@ -203,6 +203,7 @@ var Annotator = function(containerElement, onStart) {
   var curlyY;
   this.keymap = {};
   var editedSent;
+  this.selectedRange = null;
 
   // due to silly Chrome bug, I have to make it pay attention
   var forceRedraw = function() {
@@ -440,6 +441,9 @@ var Annotator = function(containerElement, onStart) {
     } else if (!evt.ctrlKey) {
       // if not, then is it span selection? (ctrl key cancels)
       var sel = window.getSelection();
+      if (sel.rangeCount) {
+        annotator.selectedRange = sel.getRangeAt(0);
+      }
       var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
       var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
       if (chunkIndexFrom != undefined && chunkIndexTo != undefined) {
@@ -447,7 +451,7 @@ var Annotator = function(containerElement, onStart) {
         var chunkTo = data.chunks[chunkIndexTo];
         var selectedFrom = chunkFrom.from + sel.anchorOffset;
         var selectedTo = chunkTo.from + sel.focusOffset;
-        window.getSelection().removeAllRanges();
+        sel.removeAllRanges();
 
         // trim
         while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedFrom, 1)) != -1) selectedFrom++;
@@ -1776,6 +1780,11 @@ $(function() {
       $('#arc_form').css('display', 'none');
       $('#auth_form').css('display', 'none');
       Annotator.actionsAllowed(true);
+      if (annotator.selectedRange) {
+        var sel = document.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(annotator.selectedRange);
+      }
     }
   }
 
