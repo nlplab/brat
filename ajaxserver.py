@@ -84,10 +84,16 @@ def documents(directory):
         doclist = [file[0:-4] for file in my_listdir(directory)
                 if file.endswith('txt')]
         doclist.sort()
+        # add extra document info
+        # TODO FIXME make real mtime info
+        doclist = [[file, 0] for file in doclist]
 
         dirlist = [dir for dir in my_listdir(directory)
                 if isdir(join_path(directory, dir))]
         dirlist.sort()
+        # just in case, and for generality
+        dirlist = [[dir] for dir in dirlist]
+
         if directory != DATA_DIR:
             parent = abspath(join_path(directory, '..'))[len(DATA_DIR) + 1:]
         else:
@@ -136,8 +142,8 @@ def documents(directory):
 """
 
         response = {
-                'docnames': doclist,
-                'dirnames': dirlist,
+                'docs': doclist,
+                'dirs': dirlist,
                 'parent': parent,
                 'messages': [],
                 'keymap': client_keymap,

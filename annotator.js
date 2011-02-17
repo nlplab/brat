@@ -977,8 +977,8 @@ var Annotator = function(containerElement, onStart) {
 
       if (data.mtime) {
 	  // we're getting seconds and need milliseconds
-	  //$('#document_ctime').text("Created: " + Annotator.format_time(1000 * data.ctime)).css("display", "inline");
-	  $('#document_mtime').text("Last modified: " + Annotator.format_time(1000 * data.mtime)).css("display", "inline");
+	  //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
+	  $('#document_mtime').text("Last modified: " + Annotator.formatTime(1000 * data.mtime)).css("display", "inline");
       } else {
 	  //$('#document_ctime').css("display", "none");
 	  $('#document_mtime').css("display", "none");
@@ -1650,6 +1650,37 @@ var Annotator = function(containerElement, onStart) {
   }
 };
 
+(function() {
+  var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+  var unitAgo = function(n, unit) {
+    if (n == 1) return "" + n + " " + unit + " ago";
+    return "" + n + " " + unit + "s ago";
+  }
+
+  Annotator.formatTime = function(time) {
+    var nowDate = new Date();
+    var now = nowDate.getTime();
+    var diff = Math.floor((now - time) / 1000);
+    if (!diff) return "just now";
+    if (diff < 60) return unitAgo(diff, "second");
+    diff = Math.floor(diff / 60);
+    if (diff < 60) return unitAgo(diff, "minute");
+    diff = Math.floor(diff / 60);
+    if (diff < 24) return unitAgo(diff, "hour");
+    diff = Math.floor(diff / 24);
+    if (diff < 7) return unitAgo(diff, "day");
+    if (diff < 28) return unitAgo(Math.floor(diff / 7), "week");
+    var thenDate = new Date(time);
+    var result = thenDate.getDate() + ' ' + monthNames[thenDate.getMonth()];
+    if (thenDate.getYear() != nowDate.getYear()) {
+      result += ' ' + thenDate.getFullYear();
+    }
+    return result;
+  }
+})();
+
+
 $(function() {
   var undefined; // prevents evil "undefined = 17" attacks
 
@@ -1789,7 +1820,7 @@ $(function() {
       $('#span_form').css('display', 'none');
       $('#arc_form').css('display', 'none');
       $('#auth_form').css('display', 'none');
-      fileBrowser.find('.files > table').html(''); // prevent a slowbug
+      fileBrowser.find('table.files tbody').html(''); // prevent a slowbug
       fileBrowser.css('display', 'none');
       Annotator.actionsAllowed(true);
     }
@@ -1950,12 +1981,6 @@ $(function() {
 
     var normalize = function(str) {
       return str.toLowerCase().replace(' ', '_');
-    }
-
-    Annotator.format_time = function(secs) {
-	var month_name = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-	jdate = new Date(secs);
-	return jdate.getDate() + ' ' + month_name[jdate.getMonth()] + ' ' + jdate.getFullYear() + ' ' + jdate.getHours() + ':' + (jdate.getMinutes() < 10 ? '0' : '') + jdate.getMinutes()
     }
 
     annotator.forceUpdateState = false;
@@ -2358,12 +2383,31 @@ $(function() {
     });
   });
 
+  var makeSortFunction = function(sort) {
+    return function(a, b) {
+        var col = sort[0];
+        var aa = a[col];
+        var bb = b[col];
+        if (aa != bb) return (aa < bb) ? -sort[1] : sort[1];
+        
+        // prevent random shuffles on columns with duplicate values
+        aa = a[0];
+        bb = b[0];
+        if (aa != bb) return (aa < bb) ? -1 : 1;
+        return 0;
+    };
+  };
+  var dirSort = [0, 1]; // column (0..), sort order (1, -1)
+  var docSort = [0, 1];
+  var dirSortFunction = makeSortFunction(dirSort);
+  var docSortFunction = makeSortFunction(docSort);
   var openFileBrowser = function() {
     $('#file_browser').css('display', 'block');
     Annotator.actionsAllowed(false);
     formDisplayed = true;
 
     var html;
+    var tbody;
     
     html = [];
     if (filesData.parent !== null) {
@@ -2371,28 +2415,30 @@ $(function() {
           '<tr data-value="' + filesData.parent + '"><th>..</th></tr>'
           );
     }
-    $.each(filesData.dirnames, function(dirnameNo, dirname) {
+    filesData.dirs.sort(dirSortFunction);
+    $.each(filesData.dirs, function(dirNo, dir) {
       html.push(
-        '<tr data-value="' + dirname + '"><th>' + dirname + '</th></tr>'
+        '<tr data-value="' + dir[0] + '"><th>' + dir[0] + '</th></tr>'
         );
     });
     html = html.join('');
-    $('#directory_select').html(html).
-        parent()[0].scrollTop = dirScroll;
-    $('#directory_select tr').
+    tbody = $('#directory_select tbody').html(html);
+    $('#directory_select')[0].scrollTop = dirScroll;
+    tbody.find('tr').
         click(chooseDirectory).
         dblclick(chooseDirectoryAndSubmit);
 
     html = [];
-    $.each(filesData.docnames, function(docnameNo, docname) {
+    filesData.docs.sort(docSortFunction);
+    $.each(filesData.docs, function(docNo, doc) {
       html.push(
-          '<tr data-value="' + docname + '"><th>' + docname + '</th></tr>'
+          '<tr data-value="' + doc[0] + '"><th>' + doc[0] + '</th><td>' + Annotator.formatTime(doc[1]) + '</td></tr>'
           );
     });
     html = html.join('');
-    $('#document_select').html(html).
-        parent()[0].scrollTop = fileScroll;
-    $('#document_select tr').
+    tbody = $('#document_select tbody').html(html);
+    $('#document_select')[0].scrollTop = fileScroll;
+    tbody.find('tr').
         click(chooseDocument).
         dblclick(chooseDocumentAndSubmit);
 
@@ -2410,28 +2456,28 @@ $(function() {
       var pos;
       var curDoc = URLHash.current.doc;
       // could have used $.inArray, but this way is extensible
-      $.each(filesData.docnames, function(docNo, doc) {
-        if (doc == curDoc) {
+      $.each(filesData.docs, function(docNo, doc) {
+        if (doc[0] == curDoc) {
           pos = docNo;
           return false;
         }
       });
       if (pos > 0) {
-        new URLHash().setDocument(filesData.docnames[pos - 1]);
+        new URLHash().setDocument(filesData.docs[pos - 1][0]);
       }
       return false;
     } else if (!formDisplayed && code == 39) { // Right arrow
       var pos;
       var curDoc = URLHash.current.doc;
       // could have used $.inArray, but this way is extensible
-      $.each(filesData.docnames, function(docNo, doc) {
-        if (doc == curDoc) {
+      $.each(filesData.docs, function(docNo, doc) {
+        if (doc[0] == curDoc) {
           pos = docNo;
           return false;
         }
       });
-      if (pos < filesData.docnames.length - 1) {
-        new URLHash().setDocument(filesData.docnames[pos + 1]);
+      if (pos < filesData.docs.length - 1) {
+        new URLHash().setDocument(filesData.docs[pos + 1][0]);
       }
       return false;
     } else if (mapping = annotator.keymap[code] ||
@@ -2479,9 +2525,9 @@ $(function() {
     var _doc = $('#document_input').val();
     new URLHash().setDirectory(_directory, _doc);
     Annotator.actionsAllowed(true); // just in case the user opens current doc
-    dirScroll = $('#directory_select').parent()[0].scrollTop;
-    fileScroll = $('#document_select').parent()[0].scrollTop;
-    fileBrowser.find('.files > table').html(''); // prevent a slowbug
+    dirScroll = $('#directory_select')[0].scrollTop;
+    fileScroll = $('#document_select')[0].scrollTop;
+    fileBrowser.find('table.files tbody').html(''); // prevent a slowbug
     fileBrowser.css('display', 'none');
     formDisplayed = false;
     return false;
@@ -2490,6 +2536,19 @@ $(function() {
   var fileBrowser = $('#file_browser').
     submit(fileBrowserSubmit).
     bind('reset', hideAllForms);
+  var makeSortFunction = function(sort, th, thNo) {
+      $(th).click(function() {
+          if (sort[0] == thNo) sort[1] = -sort[1];
+          else { sort[0] = thNo; sort[1] = 1; }
+          openFileBrowser(); // resort
+      });
+  }
+  $('#directory_select thead tr *').each(function(thNo, th) {
+      makeSortFunction(dirSort, th, thNo);
+  });
+  $('#document_select thead tr *').each(function(thNo, th) {
+      makeSortFunction(docSort, th, thNo);
+  });
   var spanFormSubmit = function(evt) {
     spanForm.css('display', 'none');
     annotator.keymap = {};
