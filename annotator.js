@@ -2457,7 +2457,6 @@ $(function() {
     if (code == 27) { // ("Esc")
       hideAllForms();
       return false;
-    } else if (code == 9) { // Tab
     } else if (!formDisplayed && code == 37) { // Left arrow
       var pos;
       var curDoc = URLHash.current.doc;
