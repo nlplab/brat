@@ -490,13 +490,18 @@ fieldset {
 }
 
 #file_browser table.files {
-  width: 200px;
   height: 200px;
   display: inline-block;
   border: 2px inset;
   background-color: #ffffff;
   border-collapse: collapse;
   overflow: auto;
+}
+#directory_select {
+  width: 150px;
+}
+#document_select {
+  width: 300px;
 }
 #file_browser table.files thead tr * {
   padding: 2px 5px;
