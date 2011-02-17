@@ -2074,9 +2074,10 @@ $(function() {
     };
 
     annotator.postChangesAndReload = function() {
-      var _doc = doc;
+      var _doc = URLHash.current.doc;
+      var _directory = URLHash.current.directory;
       $.extend(annotator.ajaxOptions, {
-        directory: directory,
+        directory: _directory,
         document: _doc,
       });
       Annotator.showSpinner();
@@ -2102,7 +2103,7 @@ $(function() {
             }
           }
           Annotator.actionsAllowed(true);
-	  $('input').blur();
+          $('input').blur();
           formDisplayed = false;
         }
       });
