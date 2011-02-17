@@ -18,7 +18,7 @@ from itertools import chain
 from json import dumps, loads
 from os import environ
 from os import listdir, makedirs, system
-from os.path import isdir, isfile
+from os.path import isdir, isfile, abspath
 from os.path import join as join_path
 from os.path import split as split_path
 from re import split, sub, match
@@ -83,9 +83,23 @@ def documents(directory):
     from htmlgen import generate_entity_type_html, generate_event_type_html
     print 'Content-Type: application/json\n'
     try:
-        dirlist = [file[0:-4] for file in my_listdir(directory)
+        doclist = [file[0:-4] for file in my_listdir(directory)
                 if file.endswith('txt')]
+        doclist.sort()
+        # add extra document info
+        # TODO FIXME make real mtime info
+        doclist = [[file, 0] for file in doclist]
+
+        dirlist = [dir for dir in my_listdir(directory)
+                if isdir(join_path(directory, dir))]
         dirlist.sort()
+        # just in case, and for generality
+        dirlist = [[dir] for dir in dirlist]
+
+        if directory != DATA_DIR:
+            parent = abspath(join_path(directory, '..'))[len(DATA_DIR) + 1:]
+        else:
+            parent = None
 
         keymap =  span_type_keyboard_shortcuts
 
@@ -130,7 +144,9 @@ def documents(directory):
 """
 
         response = {
-                'docnames': dirlist,
+                'docs': doclist,
+                'dirs': dirlist,
+                'parent': parent,
                 'messages': [],
                 'keymap': client_keymap,
                 'html': html,
@@ -846,6 +862,9 @@ def delete_arc(docdir, docname, origin, target, type):
 class InvalidAuthException(Exception):
     pass
 
+class SecurityViolationException(Exception):
+    pass
+
 def authenticate(login, password):
     # TODO: Database back-end
     if login not in USER_PASSWORD or password != hashlib.sha512(USER_PASSWORD[login]).hexdigest():
@@ -865,28 +884,17 @@ def serve(argv):
     directory = params.getvalue('directory')
     document = params.getvalue('document')
 
-    if directory is None:
-        input = ''
-    elif document is None:
-        input = directory
-    else:
-        input = directory + document
-    if input.find('/') != -1:
-        print 'Content-Type: text/plain'
-        print 'Status: 403 Forbidden (slash)\n'
-        return
-
     action = params.getvalue('action')
 
-    if action in EDIT_ACTIONS:
-        try:
-            authenticate(creds['user'], creds['password'])
-        except (InvalidAuthException, KeyError):
-            print 'Content-Type: text/plain'
-            print 'Status: 403 Forbidden (auth)\n'
-            return
+    try:
+        if action in EDIT_ACTIONS:
+            try:
+                authenticate(creds['user'], creds['password'])
+            except (InvalidAuthException, KeyError):
+                print 'Content-Type: text/plain'
+                print 'Status: 403 Forbidden (auth)\n'
+                return
 
-    if directory is None:
         if action == 'login':
             creds = {
                     'user': params.getvalue('user'),
@@ -931,79 +939,101 @@ def serve(argv):
             print 'Content-Type: application/json\n'
             # TODO: add_messages_to_json?
             print dumps(result)
-
         else:
-            directories()
-    else:
-        real_directory = join_path(DATA_DIR, directory)
+            if directory is None:
+                directory = ''
+            real_directory = abspath(join_path(DATA_DIR, directory))
+            data_abs = abspath(DATA_DIR)
+            if not real_directory.startswith(data_abs):
+                # FIXME: possible security breach, Pythonistas please fix:
+                # "/foo/dataforbidden/securedir" directory would match "/foo/data" directory
+                # is there a better way to determine subdirectoricity than:
+                # dir.startswith(parent + '/') or dir == parent
+                # (also, Pontus doesn't like me using '/')
+                raise SecurityViolationException()
 
-        if action == 'spantypes':
-            span_types_html(real_directory)
+            if action == 'spantypes':
+                span_types_html(real_directory)
 
-        elif action == 'arctypes':
-            projectconfig = ProjectConfiguration(params.getvalue('directory'))
-            arc_types_html(
-                projectconfig,
-                params.getvalue('origin'),
-                params.getvalue('target')
-                )
+            elif action == 'arctypes':
+                projectconfig = ProjectConfiguration(params.getvalue('directory'))
+                arc_types_html(
+                    projectconfig,
+                    params.getvalue('origin'),
+                    params.getvalue('target')
+                    )
 
-        elif document is None:
-            documents(real_directory)
+            elif action == 'ls':
+                documents(real_directory)
 
-        else:
-            span = params.getvalue('span')
-            #XXX: Calls to save and delete can raise AnnotationNotFoundError
-            try:
-                if action == 'span':
-                    save_span(real_directory, document,
-                            params.getvalue('from'),
-                            params.getvalue('to'),
-                            params.getvalue('type'),
-                            params.getvalue('negation') == 'true',
-                            params.getvalue('speculation') == 'true',
-                            params.getvalue('id'))
-                elif action == 'arc':
-                    save_arc(real_directory, document,
-                            params.getvalue('origin'),
-                            params.getvalue('target'),
-                            params.getvalue('type'),
-                            params.getvalue('old') or None)
-                elif action == 'unspan':
-                    delete_span(real_directory, document,
-                            params.getvalue('id'))
-                elif action == 'unarc':
-                    delete_arc(real_directory, document,
-                            params.getvalue('origin'),
-                            params.getvalue('target'),
-                            params.getvalue('type'))
-                elif action == 'save':
-                    svg = params.getvalue('svg')
-                    saveSVG(directory, document, svg)
-                else:
-                    document_json(real_directory, document)
-            except IOError, e:
-                #TODO: This is too general, should be caught at a higher level
-                # No such file or directory
-                if e.errno == 2:
-                    display_message('Error: file not found', 'error', -1)
-                else:
-                    display_message('Error: I/O error opening file', 'error', -1)
+            else:
+                if document.find('/') != -1:
+                    raise SecurityViolationException()
 
-                print 'Content-Type: application/json\n'
-                response = {}
-                add_messages_to_json(response)
-                print dumps(response, sort_keys=True, indent=2)
+                span = params.getvalue('span')
+                #XXX: Calls to save and delete can raise AnnotationNotFoundError
+                try:
+                    if action == 'span':
+                        # TODO: proper interface for rapid mode span
+                        spantype = params.getvalue('type')
+                        if spantype == "GUESS":
+                            from simsem import predict_sem_type
+                            predicted = predict_sem_type(params.getvalue('spantext'))
+                            display_message("<br/>".join(predicted))
 
-            except AnnotationsIsReadOnly:
-                display_message('Error: server lacks permission to write the '
-                                '.ann annotations file, please contact '
-                                'the administrator(s)', 'error', -1)
+                        save_span(real_directory, document,
+                                params.getvalue('from'),
+                                params.getvalue('to'),
+                                params.getvalue('type'),
+                                params.getvalue('negation') == 'true',
+                                params.getvalue('speculation') == 'true',
+                                params.getvalue('id'))
+                    elif action == 'arc':
+                        save_arc(real_directory, document,
+                                params.getvalue('origin'),
+                                params.getvalue('target'),
+                                params.getvalue('type'),
+                                params.getvalue('old') or None)
+                    elif action == 'unspan':
+                        delete_span(real_directory, document,
+                                params.getvalue('id'))
+                    elif action == 'unarc':
+                        delete_arc(real_directory, document,
+                                params.getvalue('origin'),
+                                params.getvalue('target'),
+                                params.getvalue('type'))
+                    elif action == 'save':
+                        svg = params.getvalue('svg')
+                        saveSVG(directory, document, svg)
+                    else:
+                        document_json(real_directory, document)
+                except IOError, e:
+                    #TODO: This is too general, should be caught at a higher level
+                    # No such file or directory
+                    if e.errno == 2:
+                        display_message('Error: file not found', 'error', -1)
+                    else:
+                        display_message('Error: I/O error opening file', 'error', -1)
 
-                print 'Content-Type: application/json\n'
-                response = {}
-                add_messages_to_json(response)
-                print dumps(response, sort_keys=True, indent=2)
+                    print 'Content-Type: application/json\n'
+                    response = {}
+                    add_messages_to_json(response)
+                    print dumps(response, sort_keys=True, indent=2)
+
+                except AnnotationsIsReadOnly:
+                    display_message('Error: server lacks permission to write the '
+                                    '.ann annotations file, please contact '
+                                    'the administrator(s)', 'error', -1)
+
+                    print 'Content-Type: application/json\n'
+                    response = {}
+                    add_messages_to_json(response)
+                    print dumps(response, sort_keys=True, indent=2)
+    except SecurityViolationException, e:
+        print 'Content-Type: text/plain'
+        print 'Status: 403 Forbidden (path)\n'
+        return
+
 
 
 def debug():
