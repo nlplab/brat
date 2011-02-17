@@ -1867,7 +1867,16 @@ $(function() {
   }
   var chooseDirectory = function(evt) {
     var _directory = $(evt.target).closest('tr').data('value');
-    $('#directory_input').val(_directory);
+    var real_directory = URLHash.current.directory;
+    if (_directory == '..') {
+      var pos = real_directory.lastIndexOf('/');
+      real_directory = (pos == -1) ? '' : real_directory.substr(0, pos);
+    } else if (real_directory == '') {
+      real_directory = _directory;
+    } else {
+      real_directory += '/' + _directory;
+    }
+    $('#directory_input').val(real_directory);
     $('#document_input').val('');
     selectElementInTable($('#directory_select'), _directory);
   }
@@ -1972,6 +1981,8 @@ $(function() {
 
     $('#directory_input').val(_directory);
     $('#document_input').val(_doc);
+    var pos = _directory.lastIndexOf('/');
+    if (pos != -1) _directory = _directory.substring(pos + 1);
     selectElementInTable($('#directory_select'), _directory);
     selectElementInTable($('#document_select'), _doc);
   }
@@ -2418,7 +2429,7 @@ $(function() {
     html = [];
     if (filesData.parent !== null) {
       html.push(
-          '<tr data-value="' + filesData.parent + '"><th>..</th></tr>'
+          '<tr data-value=".."><th>..</th></tr>'
           );
     }
     filesData.dirs.sort(dirSortFunction);
