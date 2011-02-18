@@ -71,10 +71,6 @@ class TypeHierarchyNode:
             display_message("Empty term in type configuration" % (a, args), "debug", -1)
             raise InvalidProjectConfigException
 
-        # by convention, the last of the listed terms is used
-        # as the primary term
-        self.primary_term = self.terms[-1]
-
         # unused if any of the terms marked with "!"
         self.unused = False
         for i in range(len(self.terms)):
@@ -82,6 +78,10 @@ class TypeHierarchyNode:
                 self.terms[i]= self.terms[i][1:]
                 self.unused = True
         self.children = []
+
+        # by convention, the last of the listed terms is used
+        # as the primary term
+        self.primary_term = self.terms[-1]
 
         # TODO: cleaner and more localized parsing
         self.arguments = []
