@@ -1890,8 +1890,15 @@ $(function() {
           filesData = response;
 
           spanFormHTML = response.html;
-          resizeFormToFit(spanForm, $('#span_types'), response.html);
-
+          try {
+	    resizeFormToFit(spanForm, $('#span_types'), spanFormHTML);
+          }
+	  catch(x) {
+	    escaped = spanFormHTML.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	    displayMessage("Error: failed to display span form; received HTML:<br/>"+escaped, "error", -1);
+	    spanFormHTML = "<div><b>Error displaying form</b></div>";
+	    resizeFormToFit(spanForm, $('#span_types'), spanFormHTML);
+	  }
           annotator.spanKeymap = response.keymap;
           spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
           spanForm.find('.collapser').click(collapseHandler);
@@ -2291,7 +2298,9 @@ $(function() {
                 formDisplayed = true;
                 adjustToCursor(evt, arcForm);
               }
-            }
+            } else {
+                Annotator.actionsAllowed(true);
+	    }
           },
         error: function(req, textStatus, errorThrown) {
           console.error("Arc type fetch error", textStatus, errorThrown);
