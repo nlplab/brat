@@ -43,46 +43,6 @@ COOKIE_ID = 'brat-cred'
 #       if these configurations are wrong.
 from config import BASE_DIR, DATA_DIR, USER_PASSWORD, DEBUG
 
-def old_possible_arc_types_from_to(projectconfig, from_ann, to_ann):
-    # TODO: avoid accessing this
-    from annspec import event_argument_types
-
-    if projectconfig.is_physical_entity_type(from_ann):
-        # only possible "outgoing" edge from a physical entity is Equiv
-        # to another entity of the same type.
-        if from_ann == to_ann:
-            return ['Equiv']
-        else:
-            return []
-    elif projectconfig.is_event_type(from_ann):
-        # look up the big table
-        args = event_argument_types.get(from_ann, event_argument_types['default'])
-
-        possible = []
-        for a in args:
-            if (to_ann in args[a] or
-                projectconfig.is_event_type(to_ann) and 'event' in args[a]):
-                possible.append(a)
-
-        # prioritize the "possible" list so that frequent ones go first.
-        # TODO: learn this from the data or read from config.
-        argument_priority = { "Theme": 10, "Site" : 10 }
-        possible.sort(lambda a,b : cmp(argument_priority.get(b,0), argument_priority.get(a,0)))
-
-        return possible
-    else:
-        # TODO: report error!
-        return None
-
-def possible_arc_types_from_to(projectconfig, from_ann, to_ann):
-    # TODO: debugging, remove this function, use projectconfig.arc_types_from_to
-    display_message("remove me!", "debug", 1)
-    old = old_possible_arc_types_from_to(projectconfig, from_ann, to_ann)
-    new = projectconfig.arc_types_from_to(from_ann, to_ann)
-    if old != new:
-        display_message("Possible types differ! <br/>Old: %s <br/>New: %s" % (",".join(old), ",".join(new)), "error", -1)
-    return old
-
 def my_listdir(directory):
     return [l for l in listdir(directory)
             # XXX: A hack to remove what we don't want to be seen
@@ -332,7 +292,7 @@ def arc_types_html(projectconfig, origin_type, target_type):
     response = { }
 
     try:
-        possible = possible_arc_types_from_to(projectconfig, origin_type, target_type)
+        possible = projectconfig.arc_types_from_to(origin_type, target_type)
 
         # TODO: proper error handling
         if possible is None:

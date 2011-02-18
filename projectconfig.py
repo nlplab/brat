@@ -326,7 +326,7 @@ class ProjectConfiguration(object):
         self.__event_type_dict = None
 
     def arc_types_from(self, from_ann):
-        return list(set(self.arc_types_from_to(from_ann)))
+        return self.arc_types_from_to(from_ann)
 
     def arc_types_from_to(self, from_ann, to_ann="<ANY>"):
         """
@@ -334,12 +334,22 @@ class ProjectConfiguration(object):
         of type from_ann to an annotation of type to_ann.
         If to_ann has the value \"<ANY>\", returns all possible arc types.
         """
+
+        def unique_preserve_order(iterable):
+            seen = set()
+            uniqued = []
+            for i in iterable:
+                if i not in seen:
+                    seen.add(i)
+                    uniqued.append(i)
+            return uniqued
+
         from_node = pc_get_node_by_term(self.directory, from_ann)
         if from_node is None:
             display_message("Project configuration: unknown type %s. Configuration may be wrong." % from_ann, "warning")
             return []
         if to_ann == "<ANY>":
-            return [role for role, type in from_node.arguments]
+            return unique_preserve_order([role for role, type in from_node.arguments])
 
         # specific hits
         if to_ann not in from_node.roles_by_type:
@@ -353,7 +363,7 @@ class ProjectConfiguration(object):
         if self.is_physical_entity_type(to_ann) and '<ENTITY>' in from_node.roles_by_type:
             types += from_node.roles_by_type['<ENTITY>']
 
-        return types
+        return unique_preserve_order(types)
 
     def get_event_types(self):
         return [t.storage_term() for t in pc_get_event_type_list(self.directory)]
