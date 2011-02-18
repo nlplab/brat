@@ -1,0 +1,24 @@
+# -*- Mode: Text; tab-width: 8; indent-tabs-mode: nil; coding: utf-8; -*-
+# vim:set ft=conf ts=2 sw=2 sts=2 autoindent:
+
+# Simple text-based definition of a hierarchial ontology of event
+# types and their arguments.
+
+GO:-------|catalysis	Theme:<EVENT>, Cause:protein
+----------------------------------------
+GO:0006306|DNA methylation	Theme:protein, Site:entity
+GO:0080111|DNA demethylation	Theme:protein, Site:entity
+----------------------------------------
+GO:0006473|protein acetylation	Theme:protein, Site:entity, Contextgene:protein
+GO:0006479|protein methylation	Theme:protein, Site:entity, Contextgene:protein
+GO:0006486|protein glycosylation	Theme:protein, Site:entity, Sidechain:entity
+GO:0018126|protein hydroxylation	Theme:protein, Site:entity
+GO:0006468|protein phosphorylation	Theme:protein, Site:entity
+GO:0016567|protein ubiquitination	Theme:protein, Site:entity
+----------------------------------------
+GO:0006476|protein deacetylation	Theme:protein, Site:entity, Contextgene:protein
+GO:0006482|protein demethylation	Theme:protein, Site:entity, Contextgene:protein
+GO:0006517|protein deglycosylation	Theme:protein, Site:entity, Sidechain:entity
+GO:-------|protein dehydroxylation	Theme:protein, Site:entity
+GO:0006470|protein dephosphorylation	Theme:protein, Site:entity
+GO:0016579|protein deubiquitination	Theme:protein, Site:entity
