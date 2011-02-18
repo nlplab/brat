@@ -333,7 +333,7 @@ rect.shadow_EditHighlight {
 }
 
 
-#span_form, #arc_form, #auth_form, #file_browser {
+#span_form, #arc_form, #auth_form, #file_browser, #import_form {
   position: fixed;
   background-color: #dddde0;
   border: 2px outset #dddde0;
@@ -345,7 +345,7 @@ rect.shadow_EditHighlight {
   display: none;
   min-width: 400px;
 }
-#span_form_buttons, #arc_form_buttons, #auth_form_buttons {
+#span_form_buttons, #arc_form_buttons, #auth_form_buttons, #import_form_buttons {
   text-align: right;
 }
 #span_free_div, #arc_free_div {

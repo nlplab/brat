@@ -1748,6 +1748,7 @@ $(function() {
       $('#span_form').css('display', 'none');
       $('#arc_form').css('display', 'none');
       $('#auth_form').css('display', 'none');
+      $('#import_form').css('display', 'none');
       fileBrowser.find('table.files tbody').html(''); // prevent a slowbug
       fileBrowser.css('display', 'none');
       Annotator.actionsAllowed(true);
@@ -2403,6 +2404,21 @@ $(function() {
     $('#document_input').focus().select();
   }
   $('#file_browser_button').click(openFileBrowser);
+
+  var openImportForm = function() {
+      $('#import_form').css('display', 'block');
+  }
+  $('#import_button').click(openImportForm);
+  var importFormSubmit = function(evt) {
+      $('#import_form').css('display', 'none');
+      var docid = $('#import_docid')[0].value;
+      var doctext = $('#import_text')[0].value;
+      displayMessage("Directory:"+directory);
+      displayMessage("Import:<br/>Document ID: <b>"+docid+"</b><br/>"+"TEXT:<br/>"+doctext, 0, -1);
+      return false;
+  };
+  $('#import_form').submit(importFormSubmit);
+
   $(document).keydown(function(evt) {    
     var mapping;
     var code = evt.keyCode;

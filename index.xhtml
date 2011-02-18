@@ -25,11 +25,27 @@
       </div>
       <input id="file_browser_button" type="button" value="File (Tab)"/>
       <input id="auth_button" type="button" value="Login"/>
+      <input id="import_button" type="button" value="Import"/>
       <a href="#" id="original_link" target="brat_search" style="display:none">Original document</a>
       <span style="float:right"><label for="confirm_mode">Confirm mode</label> <input id="confirm_mode" type="checkbox" value="true"/></span>
     </form>
     <div id="svg"></div>
     <div id="blind"></div>
+    <form id="import_form" class="shadow">
+      <fieldset id="import_form_docid">
+        <legend>Document ID</legend>
+        <input id="import_docid" type="text"/>
+      </fieldset>
+      <fieldset id="import_form_text">
+        <legend>Document text</legend>
+        <textarea id="import_text" cols="80" rows="10"/>
+      </fieldset>
+      <fieldset id="import_form_buttons">
+        <legend>Submit</legend>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
+    </form>
     <form id="span_form" class="shadow">
       <fieldset id="span_selected_fset">
         <legend>Selected Text</legend>
