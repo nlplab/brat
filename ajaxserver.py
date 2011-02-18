@@ -930,7 +930,9 @@ def serve(argv):
                 raise SecurityViolationException()
 
             if action == 'spantypes':
-                span_types_html(real_directory)
+                # TODO: remove this once it's confirmed that there are no
+                # attempts to use it
+                display_message("Error: received 'spantypes' request; this is deprecated.", "error", -1)
 
             elif action == 'arctypes':
                 projectconfig = ProjectConfiguration(real_directory)
