@@ -55,9 +55,18 @@ def documents(directory):
         doclist = [file[0:-4] for file in my_listdir(directory)
                 if file.endswith('txt')]
         doclist.sort()
-        # add extra document info
-        # TODO FIXME make real mtime info
-        doclist = [[file, 0] for file in doclist]
+
+        from os.path import getmtime, join
+        doclist_with_time = []
+        for file in doclist:
+            try:
+                # TODO: guessing the suffix to be looking for is .ann,
+                # replace with a more general solution
+                mtime = getmtime(join(DATA_DIR, join(directory, file+".ann")))
+            except:
+                mtime = -1
+            doclist_with_time.append([file, -1])
+        doclist = doclist_with_time
 
         dirlist = [dir for dir in my_listdir(directory)
                 if isdir(join_path(directory, dir))]

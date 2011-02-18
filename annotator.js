@@ -1659,6 +1659,10 @@ var Annotator = function(containerElement, onStart) {
   }
 
   Annotator.formatTime = function(time) {
+    if (time == -1000) {
+	return "never";
+    }
+
     var nowDate = new Date();
     var now = nowDate.getTime();
     var diff = Math.floor((now - time) / 1000);
@@ -2458,7 +2462,7 @@ $(function() {
     filesData.docs.sort(docSortFunction);
     $.each(filesData.docs, function(docNo, doc) {
       html.push(
-          '<tr data-value="' + doc[0] + '"><th>' + doc[0] + '</th><td>' + Annotator.formatTime(doc[1]) + '</td></tr>'
+          '<tr data-value="' + doc[0] + '"><th>' + doc[0] + '</th><td>' + Annotator.formatTime(doc[1]*1000) + '</td></tr>'
           );
     });
     html = html.join('');
