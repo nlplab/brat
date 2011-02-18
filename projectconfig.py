@@ -12,8 +12,7 @@ import re
 
 from message import display_message
 
-# TODO: this whole thing is an ugly hack. Event types should be read
-# from a proper ontology.
+# TODO: replace with reading a proper ontology.
 
 class InvalidProjectConfigException(Exception):
     pass
@@ -214,43 +213,52 @@ def __parse_abbreviations(abbrevstr, default, source):
         abbreviations = default
     return abbreviations
 
-def __get_type_hierarchy(directory, filename, default_hierarchy, min_hierarchy):
-    type_hierarchy = None
+def __read_first_in_directory_tree(directory, filename):
+    from config import BASE_DIR
+    from os.path import split, join
 
+    source, result = None, None
+
+    # check from the given directory and parents, but not above BASE_DIR
     if directory is not None:
-        # try to find a config file in the directory
-        from os.path import join
-        source = join(directory, filename)
-        type_hierarchy = __read_or_default(source, None)
+        # TODO: this check may fail; consider "foo//bar/data"
+        while BASE_DIR in directory:
+            source = join(directory, filename)
+            result = __read_or_default(source, None)
+            if result is not None:
+                break
+            directory = split(directory)[0]
+
+    return (result, source)
+
+def __get_type_hierarchy(directory, filename, default_hierarchy, min_hierarchy):
+
+    type_hierarchy, source = __read_first_in_directory_tree(directory, filename)
 
     if type_hierarchy is None:
-        # if we didn't get a directory-specific one, try default dir
-        # and fall back to the default hierarchy
-        source = filename
+        # didn't get one; try default dir and fall back to the default
+        # hierarchy
         type_hierarchy = __read_or_default(filename, default_hierarchy)
         if type_hierarchy == default_hierarchy:
             source = "[default hierarchy]"
+        else:
+            source = filename
         
     # try to parse what we got, fall back to minimal hierarchy
     root_nodes = __parse_term_hierarchy(type_hierarchy, min_hierarchy, source)
 
     return root_nodes
 
-# TODO: the abbreviations logic duplicates a lot of the type
-# hierarchy logic. Clean up.
 def __get_abbreviations(directory, filename, default_abbrevs, min_abbrevs):
-    abbrevstr = None
 
-    if directory is not None:
-        from os.path import join
-        source = join(directory, filename)
-        abbrevstr = __read_or_default(source, None)
+    abbrevstr, source = __read_first_in_directory_tree(directory, filename)
 
     if abbrevstr is None:
-        source = filename
         abbrevstr = __read_or_default(filename, default_abbrevs)
         if abbrevstr == default_abbrevs:
             source = "[default abbreviations]"
+        else:
+            source = filename
 
     abbreviations = __parse_abbreviations(abbrevstr, min_abbrevs, source)
     return abbreviations
