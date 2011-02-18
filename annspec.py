@@ -118,7 +118,7 @@ sidechain_modification_arguments = {
 contextgene_modification_arguments = {
         'Theme'       : core_physical_entity,
         'Site'        : protein_site_entity,
-        'Contextgene' : ['Gene_or_gene_product'],
+        'Contextgene' : ['Protein', 'Gene_or_gene_product'],
         }
 
 event_argument_types = {
@@ -145,7 +145,7 @@ event_argument_types = {
     'Deacetylation'       : contextgene_modification_arguments,
     'Methylation'         : contextgene_modification_arguments,
     'Demethylation'       : contextgene_modification_arguments,
-    'Catalysis'           : regulation_arguments,
+    'Catalysis'           : { 'Theme' : ['event'], 'Cause' : core_physical_entity },
 
     # More PTM
     'Acylation'           : theme_and_site_arguments,
