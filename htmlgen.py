@@ -7,9 +7,12 @@ Server-side HTML generation-related functionality for
 Brat Rapid Annotation Tool (brat)
 '''
 
-from cgi import escape
+from cgi import escape as cgi_escape
 
 from projectconfig import get_entity_type_hierarchy, get_event_type_hierarchy
+
+def escape(s):
+    return cgi_escape(s).replace('"', '&quot;');
 
 def __generate_input_and_label(t, keymap, indent, disabled):
     l = []
