@@ -2406,7 +2406,13 @@ $(function() {
   $('#file_browser_button').click(openFileBrowser);
 
   var openImportForm = function() {
+      $('#import_docid')[0].value = '';
+      $('#import_title')[0].value = '';
+      $('#import_text')[0].value = '';
+
       $('#import_form').css('display', 'block');
+      Annotator.actionsAllowed(false);
+      formDisplayed = true;
   }
   $('#import_button').click(openImportForm);
   var importFormSubmit = function(evt) {
@@ -2416,9 +2422,13 @@ $(function() {
       var doctext = $('#import_text')[0].value;
       displayMessage("Directory:"+directory);
       displayMessage("Import:<br/>Document ID: <b>"+docid+"</b><br/>TITLE:<b>"+doctitle+"</b><br/>TEXT:<br/>"+doctext, 0, -1);
+      Annotator.actionsAllowed(true);
+      formDisplayed = false;
       return false;
   };
-  $('#import_form').submit(importFormSubmit);
+  var importForm = $('#import_form').
+      submit(importFormSubmit).
+      bind('reset', hideAllForms);
 
   $(document).keydown(function(evt) {    
     var mapping;
