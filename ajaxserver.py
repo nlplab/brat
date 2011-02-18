@@ -43,7 +43,7 @@ COOKIE_ID = 'brat-cred'
 #       if these configurations are wrong.
 from config import BASE_DIR, DATA_DIR, USER_PASSWORD, DEBUG
 
-def possible_arc_types_from_to(projectconfig, from_ann, to_ann):
+def old_possible_arc_types_from_to(projectconfig, from_ann, to_ann):
     # TODO: avoid accessing this
     from annspec import event_argument_types
 
@@ -65,7 +65,7 @@ def possible_arc_types_from_to(projectconfig, from_ann, to_ann):
                 possible.append(a)
 
         # prioritize the "possible" list so that frequent ones go first.
-        # TODO: learn this from the data.
+        # TODO: learn this from the data or read from config.
         argument_priority = { "Theme": 10, "Site" : 10 }
         possible.sort(lambda a,b : cmp(argument_priority.get(b,0), argument_priority.get(a,0)))
 
@@ -73,6 +73,15 @@ def possible_arc_types_from_to(projectconfig, from_ann, to_ann):
     else:
         # TODO: report error!
         return None
+
+def possible_arc_types_from_to(projectconfig, from_ann, to_ann):
+    # TODO: debugging, remove this function, use projectconfig.arc_types_from_to
+    display_message("remove me!", "debug", 1)
+    old = old_possible_arc_types_from_to(projectconfig, from_ann, to_ann)
+    new = projectconfig.arc_types_from_to(from_ann, to_ann)
+    if old != new:
+        display_message("Possible types differ! <br/>Old: %s <br/>New: %s" % (",".join(old), ",".join(new)), "error", -1)
+    return old
 
 def my_listdir(directory):
     return [l for l in listdir(directory)
@@ -327,8 +336,7 @@ def arc_types_html(projectconfig, origin_type, target_type):
 
         # TODO: proper error handling
         if possible is None:
-            # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
-            response['error'] = 'Error selecting arc types!'
+            display_message("Error selecting arc types!", "error", -1)
         elif possible == []:
             # nothing to select
             response['html'] = "<fieldset><legend>Type</legend>(No valid arc types)</fieldset>"
@@ -360,8 +368,8 @@ def arc_types_html(projectconfig, origin_type, target_type):
                 inputs.append(inputstr)
             response['html']  = '<fieldset><legend>Type</legend>' + '\n'.join(inputs) + '</fieldset>'
     except:
-        # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
-        response['error'] = 'Error selecting arc types!'
+        display_message("Error selecting arc types!", "error", -1)
+        raise
     
     print 'Content-Type: application/json\n'
     add_messages_to_json(response)
@@ -956,7 +964,7 @@ def serve(argv):
                 span_types_html(real_directory)
 
             elif action == 'arctypes':
-                projectconfig = ProjectConfiguration(params.getvalue('directory'))
+                projectconfig = ProjectConfiguration(real_directory)
                 arc_types_html(
                     projectconfig,
                     params.getvalue('origin'),

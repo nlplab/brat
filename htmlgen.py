@@ -7,6 +7,8 @@ Server-side HTML generation-related functionality for
 Brat Rapid Annotation Tool (brat)
 '''
 
+from cgi import escape
+
 from projectconfig import get_entity_type_hierarchy, get_event_type_hierarchy
 
 def __generate_input_and_label(t, keymap, indent, disabled):
@@ -16,17 +18,17 @@ def __generate_input_and_label(t, keymap, indent, disabled):
         dstr = ""
     else:
         dstr = ' disabled="disabled"'
-    s  = indent+'    <input id="span_%s" name="span_type" type="radio" value="%s" %s/>' % (nst.lower(),nst,dstr)
-    s += indent+'<label for="span_%s">' % nst.lower()
+    s  = indent+'    <input id="span_%s" name="span_type" type="radio" value="%s" %s/>' % (escape(nst.lower()),escape(nst),dstr)
+    s += '<label for="span_%s">' % escape(nst.lower())
 
     # TODO: saner case/space-vs-underscore-insensitive processing
     kmt = t.lower().replace(" ", "_")
     if kmt not in keymap or kmt.find(keymap[kmt].lower()) == -1:
-        s += '%s</label>' % t
+        s += '%s</label>' % escape(t)
     else:
         accesskey = keymap[kmt].lower()
         key_offset= kmt.find(accesskey)
-        s += '%s<span class="accesskey">%s</span>%s</label>' % (t[:key_offset], t[key_offset:key_offset+1], t[key_offset+1:])
+        s += '%s<span class="accesskey">%s</span>%s</label>' % (escape(t[:key_offset]), escape(t[key_offset:key_offset+1]), escape(t[key_offset+1:]))
     l.append(s)
     return l
     
@@ -36,7 +38,7 @@ def __generate_node_html_lines(node, keymap, depth=0):
     if node == "SEPARATOR":
         return ["<hr/>"]
 
-    t = node.display_term()
+    t = node.interface_term()
     # for debugging
     indent = " "*6*depth
     lines = []

@@ -12,6 +12,9 @@ import argparse
 import annotation
 import annspec
 
+# TODO: remove dependency on display_message.
+# this component should only communicate via AnnotationIssues.
+from message import display_message
 from projectconfig import ProjectConfiguration
 
 # Issue types. Values should match with annotation interface.
@@ -199,7 +202,13 @@ def verify_annotation(ann_obj, projectconfig):
 
     # check for events with disallowed arguments
     for e in ann_obj.get_events():
-        allowed = annspec.event_argument_types.get(e.type, annspec.event_argument_types["default"])
+        # XXX TODO: remove allowed_dict and allowed_old, rename allowed_new to allowed
+        allowed_dict = annspec.event_argument_types.get(e.type, annspec.event_argument_types["default"])
+        allowed_old = annspec.event_argument_types.get(e.type, annspec.event_argument_types["default"]).keys()
+        allowed_new = projectconfig.arc_types_from(e.type)
+        if sorted(allowed_old) != sorted(allowed_new):
+            display_message("verify_annotations: old/new config mismatch: from " + e.type + "<br/>Old:" + str(allowed_old) + "<br/>New:" + str(allowed_new), "warning", -1)
+        allowed = allowed_old
         eargs = event_nonum_args(e)
         for a in eargs:
             if a not in allowed:
@@ -207,7 +216,12 @@ def verify_annotation(ann_obj, projectconfig):
             else:
                 for rid in eargs[a]:
                     r = ann_obj.get_ann_by_id(rid)
-                    if r.type not in allowed[a] and ('event' not in allowed[a] or not isinstance(r, annotation.EventAnnotation)):
+                    # XXX TODO: remove old_ and new_, just work through projectconfig
+                    old_arc_disallowed = r.type not in allowed_dict[a] and ('event' not in allowed_dict[a] or not isinstance(r, annotation.EventAnnotation))
+                    new_arc_disallowed = a not in projectconfig.arc_types_from_to(e.type, r.type)
+                    if old_arc_disallowed != new_arc_disallowed:
+                        display_message("verify_annotations: old/new config disagreement on %s -> %s:%s" % (e.type, r.type, a), "warning", -1)
+                    if old_arc_disallowed:
                         issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s argument %s cannot be of type %s" % (e.type, a, r.type)))
 
     # check for events with disallowed argument counts
