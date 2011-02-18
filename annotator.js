@@ -2412,9 +2412,10 @@ $(function() {
   var importFormSubmit = function(evt) {
       $('#import_form').css('display', 'none');
       var docid = $('#import_docid')[0].value;
+      var doctitle = $('#import_title')[0].value;
       var doctext = $('#import_text')[0].value;
       displayMessage("Directory:"+directory);
-      displayMessage("Import:<br/>Document ID: <b>"+docid+"</b><br/>"+"TEXT:<br/>"+doctext, 0, -1);
+      displayMessage("Import:<br/>Document ID: <b>"+docid+"</b><br/>TITLE:<b>"+doctitle+"</b><br/>TEXT:<br/>"+doctext, 0, -1);
       return false;
   };
   $('#import_form').submit(importFormSubmit);
