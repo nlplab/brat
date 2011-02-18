@@ -18,8 +18,24 @@ def display_message(s, type='info', duration=3):
 
 def add_messages_to_json(json_dict):
     global __pending_messages
+
+    # to avoid crowding the interface, combine messages with identical content
+    msgcount = {}
+    for m in __pending_messages:
+        msgcount[m] = msgcount.get(m,0)+1
+
+    merged_messages = []
+    for m in __pending_messages:
+        if m in msgcount:
+            count = msgcount[m]
+            del msgcount[m]
+            s, t, r = m
+            if count > 1:
+                s = s + "<br/><b>[message repeated %d times]</b>"%count
+            merged_messages.append((s,t,r))
+
     if 'messages' not in json_dict:
         json_dict['messages'] = []
-    json_dict['messages'] += __pending_messages
+    json_dict['messages'] += merged_messages
     __pending_messages = []
 
