@@ -20,7 +20,9 @@ class InvalidProjectConfigException(Exception):
 
 __event_type_hierarchy_filename  = 'event_types.conf'
 __entity_type_hierarchy_filename = 'entity_types.conf'
+__abbreviation_filename          = 'abbreviations.conf'
 
+# fallback defaults if configs not found
 __default_event_type_hierarchy  = """
 !event
  GO:0005515 | protein binding	Theme+:Protein
@@ -30,12 +32,22 @@ __default_entity_type_hierarchy = """
 Protein
 Entity"""
 
-# caches to avoid re-reading on every invocation of getters
+__default_abbreviations = """
+Protein : Pro, P
+Protein binding : Binding, Bind
+Gene expression : Expression, Exp
+Theme   : Th
+"""
+
+# caches to avoid re-reading on every invocation of getters.
+# outside of ProjectConfiguration class to minimize reads
+# when multiple configs are in play.
 __directory_entity_type_hierarchy = {}
 __directory_event_type_hierarchy = {}
 __directory_entity_types = {}
 __directory_event_types = {}
 __directory_node_by_storage_term = {}
+__directory_abbreviations = {}
 
 def term_interface_form(t):
     """
@@ -168,17 +180,15 @@ def __read_term_hierarchy(input):
 
     return root_nodes
 
-
-def __read_term_hierarchy_file(filename, default):
+def __read_or_default(filename, default):
     try:
         f = open(filename, 'r')
-        term_hierarchy = f.read()
+        r = f.read()
         f.close()
+        return r
     except:
-        # TODO: specific exception handling
-        term_hierarchy = default
-    return term_hierarchy
-
+        # TODO: specific exception handling and reporting
+        return default
 
 def __parse_term_hierarchy(hierarchy, default, source):
     try:
@@ -189,24 +199,35 @@ def __parse_term_hierarchy(hierarchy, default, source):
         root_nodes = default
     return root_nodes
 
+def __parse_abbreviations(abbrevstr, default, source):
+    try:
+        abbreviations = {}
+        for l in abbrevstr.split("\n"):
+            l = l.strip()
+            if l == "" or l[:1] == "#":
+                continue
+            full, abbrevs = l.split(":")
+            abbreviations[full.strip()] = [a.strip() for a in abbrevs.split(",")]
+    except:
+        # TODO: specific exception handling
+        display_message("Project configuration: error parsing abbreviations from %s. Configuration may be wrong." % source, "warning", 5)
+        abbreviations = default
+    return abbreviations
+
 def __get_type_hierarchy(directory, filename, default_hierarchy, min_hierarchy):
     type_hierarchy = None
 
     if directory is not None:
         # try to find a config file in the directory
-        import os
-        fn = os.path.join(directory, filename)
-        source = fn
-        type_hierarchy = __read_term_hierarchy_file(fn, None)
+        from os.path import join
+        source = join(directory, filename)
+        type_hierarchy = __read_or_default(source, None)
 
     if type_hierarchy is None:
         # if we didn't get a directory-specific one, try default dir
         # and fall back to the default hierarchy
-        #
         source = filename
-        # too noisy
-        # display_message("Project configuration: type config %s not found in %s" % (filename, directory))
-        type_hierarchy = __read_term_hierarchy_file(filename, default_hierarchy)
+        type_hierarchy = __read_or_default(filename, default_hierarchy)
         if type_hierarchy == default_hierarchy:
             source = "[default hierarchy]"
         
@@ -214,6 +235,25 @@ def __get_type_hierarchy(directory, filename, default_hierarchy, min_hierarchy):
     root_nodes = __parse_term_hierarchy(type_hierarchy, min_hierarchy, source)
 
     return root_nodes
+
+# TODO: the abbreviations logic duplicates a lot of the type
+# hierarchy logic. Clean up.
+def __get_abbreviations(directory, filename, default_abbrevs, min_abbrevs):
+    abbrevstr = None
+
+    if directory is not None:
+        from os.path import join
+        source = join(directory, filename)
+        abbrevstr = __read_or_default(source, None)
+
+    if abbrevstr is None:
+        source = filename
+        abbrevstr = __read_or_default(filename, default_abbrevs)
+        if abbrevstr == default_abbrevs:
+            source = "[default abbreviations]"
+
+    abbreviations = __parse_abbreviations(abbrevstr, min_abbrevs, source)
+    return abbreviations
 
 def get_entity_type_hierarchy(directory):
     global __directory_entity_type_hierarchy
@@ -239,6 +279,18 @@ def get_event_type_hierarchy(directory):
         __directory_event_type_hierarchy[directory] = h
 
     return __directory_event_type_hierarchy[directory]
+
+def get_abbreviations(directory):
+    global __directory_abbreviations
+
+    if directory not in __directory_abbreviations:
+        a = __get_abbreviations(directory,
+                                __abbreviation_filename,
+                                __default_abbreviations,
+                                { "Protein" : [ "Pro", "P" ], "Theme" : [ "Th" ] })
+        __directory_abbreviations[directory] = a
+
+    return __directory_abbreviations[directory]
 
 def __collect_type_list(node, collected):
     if node == "SEPARATOR":
@@ -322,8 +374,6 @@ class ProjectConfiguration(object):
         if directory[:1] != "/":
             display_message("Warning: project config received relative directory, configuration may not be found.", "debug", -1)
         self.directory = directory
-        self.__entity_type_dict = None
-        self.__event_type_dict = None
 
     def arc_types_from(self, from_ann):
         return self.arc_types_from_to(from_ann)
@@ -364,6 +414,9 @@ class ProjectConfiguration(object):
             types += from_node.roles_by_type['<ENTITY>']
 
         return unique_preserve_order(types)
+
+    def get_abbreviations(self):
+        return get_abbreviations(self.directory)
 
     def get_event_types(self):
         return [t.storage_term() for t in pc_get_event_type_list(self.directory)]

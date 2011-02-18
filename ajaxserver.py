@@ -49,6 +49,8 @@ def my_listdir(directory):
             if not (l.startswith('hidden_') or l.startswith('.'))]
 
 def documents(directory):
+    # TODO: this function combines up unrelated functionality; split
+
     from htmlgen import generate_entity_type_html, generate_event_type_html
     print 'Content-Type: application/json\n'
     try:
@@ -94,7 +96,8 @@ def documents(directory):
 
         for k in keymap:
             type_to_key_map[keymap[k].lower().replace(" ", "_")] = k.lower()
-        
+
+        # TODO: this should likely go into htmlgen
         html = """<fieldset>
 <legend>Entities</legend>
 <fieldset>
@@ -121,12 +124,18 @@ def documents(directory):
 </fieldset>
 """
 
+        # we need a ProjectConfiguration for the abbrevs here. This could be
+        # shared with htmlgen, which also needs one.
+        projectconfig = ProjectConfiguration(directory)
+        abbrevs = projectconfig.get_abbreviations()
+
         response = {
                 'docs': doclist,
                 'dirs': dirlist,
                 'parent': parent,
                 'messages': [],
                 'keymap': client_keymap,
+                'abbrevs': abbrevs,
                 'html': html,
                 }
 
@@ -300,6 +309,7 @@ def saveSVG(directory, document, svg):
 def arc_types_html(projectconfig, origin_type, target_type):
     response = { }
 
+    # TODO: this should likely go into htmlgen
     try:
         possible = projectconfig.arc_types_from_to(origin_type, target_type)
 

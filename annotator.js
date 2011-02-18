@@ -28,6 +28,7 @@ var profileend = function(str) {
 }
 var profile = function(str) {
 } // profile
+// XXX TODO: what is this? "profilefoo" doesn't appear in other places
 profilefoo = []
 
 var displayMessages;
@@ -102,89 +103,8 @@ var Annotator = function(containerElement, onStart) {
 
   var undefined; // prevents evil "undefined = 17" attacks
 
-  var spanAbbreviations = {
-      // begin AZ additions
-      "Gene_or_gene_product" : [ "GGP" ],
-      "Drug_or_compound"     : [ "Drug/comp", "D/C" ],
-      "Other_pharmaceutical_agent" : [ "Other_pharm" ],
-      // end AZ additions
-
-      "gene-or-gene-product" : [ "GGP" ],
-
-      "Protein" : [ "Pro", "Pr", "P" ],
-      "Entity"  : [ "Ent", "En", "E" ],
-
-      "Multicellular_organism_natural" : [ "M-C Organism", "MCOrg" ],
-      "Organism"             : [ "Org" ],
-      "Chemical"             : [ "Chem" ],
-      "Two-component-system" : [ "2-comp-sys", "2CS" ],
-      "Regulon-operon"       : [ "Reg/op" ],
-
-      "Protein_catabolism"   : [ "Catabolism", "Catab" ],
-      "Gene_expression"      : [ "Expression", "Expr" ],
-      "Binding"              : [ "Bind" ],
-      "Transcription"        : [ "Trns" ],
-      "Localization"         : [ "Locl" ],
-      "Regulation"           : [ "Reg" ],
-      "Positive_regulation"  : [ "+Regulation", "+Reg" ],
-      "Negative_regulation"  : [ "-Regulation", "-Reg" ],
-      "Phosphorylation"      : [ "Phos" ],
-      "Dephosphorylation"    : [ "-Phos" ],
-      "Acetylation"          : [ "Acet" ],
-      "Deacetylation"        : [ "-Acet" ],
-      "Hydroxylation"        : [ "Hydr" ],
-      "Dehydroxylation"      : [ "-Hydr" ],
-      "Glycosylation"        : [ "Glyc" ],
-      "Deglycosylation"      : [ "-Glyc" ],
-      "Methylation"          : [ "Meth" ],
-      "Demethylation"        : [ "-Meth" ],
-      "Ubiquitination"       : [ "Ubiq" ],
-      "Deubiquitination"     : [ "-Ubiq" ],
-      "DNA_methylation"      : [ "DNA meth" ],
-      "DNA_demethylation"    : [ "DNA -meth" ],
-      "Catalysis"            : [ "Catal" ],
-      "Biological_process"   : [ "Biol proc" ],
-      "Cellular_physiological_process": [ "Cell phys proc" ],
-      "Protein_molecule"     : [ "Prot mol" ],
-      "Protein_family_or_group": [ "PFG" ],
-      "DNA_domain_or_region" : [ "DDR" ],
-      "Protein_domain_or_region": [ "PDR" ],
-      "Amino_acid_monomer"   : [ "AA" ],
-      "Carbohydrate"         : [ "Carb" ],
-
-      'Acylation'            : [ "Acyl" ],
-      'Deacylation'          : [ "-Acyl" ],
-      'Alkylation'           : [ "Alkyl" ],
-      'Dealkylation'         : [ "-Alkyl" ],
-      'Palmitoylation'       : [ "Palm" ],
-      'Depalmitoylation'     : [ "-Palm" ],
-      'Lipidation'           : [ "Lipid" ],
-      'Delipidation'         : [ "-Lipid" ],
-      'Prenylation'          : [ "Prenyl" ],
-      'Deprenylation'        : [ "-Prenyl" ],
-      'Neddylation'          : [ "Nedd" ],
-      'Deneddylation'        : [ "-Nedd" ],
-      'Sumoylation'          : [ "Sumo" ],
-      'Desumoylation'        : [ "-Sumo" ],
-  };
-
-  var arcAbbreviations = {
-      "Theme" : [ "Th" ],
-      "Theme1": [ "Th1" ],
-      "Theme2": [ "Th2" ],
-      "Theme3": [ "Th3" ],
-      "Theme4": [ "Th4" ],
-      "Cause" : [ "Ca" ],
-      "Site"  : [ "Si" ],
-      "Site1" : [ "Si1" ],
-      "Site2" : [ "Si2" ],
-      "Site3" : [ "Si3" ],
-      "Site4" : [ "Si4" ],
-      "Equiv" : [ "Eq" ],
-      "Contextgene" : [ "CGn" ],
-      "Sidechain"   : [ "SCh" ],
-      "Participant" : [ "Pa" ],
-  };
+  this.spanAbbreviations = {};
+  this.arcAbbreviations = {};
 
   if (!Annotator.count) Annotator.count = 0;
   var annId = Annotator.count;
@@ -846,9 +766,9 @@ var Annotator = function(containerElement, onStart) {
 	var abbrevIdx = 0;
 	var maxLength = (span.to - span.from) / 0.8;
 	while (span.abbrevText.length > maxLength &&
-            spanAbbreviations[span.type] &&
-            spanAbbreviations[span.type][abbrevIdx]) {
-          span.abbrevText = spanAbbreviations[span.type][abbrevIdx];
+            annotator.spanAbbreviations[span.type] &&
+            annotator.spanAbbreviations[span.type][abbrevIdx]) {
+          span.abbrevText = annotator.spanAbbreviations[span.type][abbrevIdx];
           abbrevIdx++;
 	}
 
@@ -1424,9 +1344,9 @@ var Annotator = function(containerElement, onStart) {
 	  var abbrevIdx = 0;
 	  var maxLength = ((to-from)-(2*arcSlant))/7;
 	  while (abbrevText.length > maxLength &&
-		 arcAbbreviations[arc.type] &&
-		 arcAbbreviations[arc.type][abbrevIdx]) {
-	      abbrevText = arcAbbreviations[arc.type][abbrevIdx];
+		 annotator.arcAbbreviations[arc.type] &&
+		 annotator.arcAbbreviations[arc.type][abbrevIdx]) {
+	      abbrevText = annotator.arcAbbreviations[arc.type][abbrevIdx];
 	      abbrevIdx++;
 	  }
 
@@ -1917,6 +1837,9 @@ $(function() {
 	    resizeFormToFit(spanForm, $('#span_types'), spanFormHTML);
 	  }
           annotator.spanKeymap = response.keymap;
+	  // TODO: consider separating span and arc abbreviations
+	  annotator.spanAbbreviations = response.abbrevs;
+	  annotator.arcAbbreviations = response.abbrevs;
           spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
           spanForm.find('.collapser').click(collapseHandler);
           annotator.forceUpdateState = true;
