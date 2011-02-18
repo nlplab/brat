@@ -102,7 +102,7 @@ var Annotator = function(containerElement, onStart) {
 
   var undefined; // prevents evil "undefined = 17" attacks
 
-  var annotationAbbreviations = {
+  var spanAbbreviations = {
       // begin AZ additions
       "Gene_or_gene_product" : [ "GGP" ],
       "Drug_or_compound"     : [ "Drug/comp", "D/C" ],
@@ -168,22 +168,22 @@ var Annotator = function(containerElement, onStart) {
       'Desumoylation'        : [ "-Sumo" ],
   };
 
-  var arcAbbreviation = {
-      "Theme" : "Th",
-      "Theme1": "Th1",
-      "Theme2": "Th2",
-      "Theme3": "Th3",
-      "Theme4": "Th4",
-      "Cause" : "Ca",
-      "Site"  : "Si",
-      "Site1" : "Si1",
-      "Site2" : "Si2",
-      "Site3" : "Si3",
-      "Site4" : "Si4",
-      "Equiv" : "Eq",
-      "Contextgene" : "CGn",
-      "Sidechain" : "SCh",
-      "Participant" : "Pa"
+  var arcAbbreviations = {
+      "Theme" : [ "Th" ],
+      "Theme1": [ "Th1" ],
+      "Theme2": [ "Th2" ],
+      "Theme3": [ "Th3" ],
+      "Theme4": [ "Th4" ],
+      "Cause" : [ "Ca" ],
+      "Site"  : [ "Si" ],
+      "Site1" : [ "Si1" ],
+      "Site2" : [ "Si2" ],
+      "Site3" : [ "Si3" ],
+      "Site4" : [ "Si4" ],
+      "Equiv" : [ "Eq" ],
+      "Contextgene" : [ "CGn" ],
+      "Sidechain"   : [ "SCh" ],
+      "Participant" : [ "Pa" ],
   };
 
   if (!Annotator.count) Annotator.count = 0;
@@ -846,9 +846,9 @@ var Annotator = function(containerElement, onStart) {
 	var abbrevIdx = 0;
 	var maxLength = (span.to - span.from) / 0.8;
 	while (span.abbrevText.length > maxLength &&
-            annotationAbbreviations[span.type] &&
-            annotationAbbreviations[span.type][abbrevIdx]) {
-          span.abbrevText = annotationAbbreviations[span.type][abbrevIdx];
+            spanAbbreviations[span.type] &&
+            spanAbbreviations[span.type][abbrevIdx]) {
+          span.abbrevText = spanAbbreviations[span.type][abbrevIdx];
           abbrevIdx++;
 	}
 
@@ -1420,12 +1420,16 @@ var Annotator = function(containerElement, onStart) {
             to = canvasWidth - 2 * margin.y;
           }
 
-          var abbrevText = arcAbbreviation[arc.type] || arc.type;
-          if(((to-from)-(2*arcSlant))/7 > arc.type.length || !abbrevText || ufoCatcher) {
-            // no need to (or cannot) abbreviate
-            // TODO cleaner heuristic
-            abbrevText = arc.type;
-          }
+	  var abbrevText = arc.type;
+	  var abbrevIdx = 0;
+	  var maxLength = ((to-from)-(2*arcSlant))/7;
+	  while (abbrevText.length > maxLength &&
+		 arcAbbreviations[arc.type] &&
+		 arcAbbreviations[arc.type][abbrevIdx]) {
+	      abbrevText = arcAbbreviations[arc.type][abbrevIdx];
+	      abbrevIdx++;
+	  }
+
           var shadowGroup;
           if (arc.shadowClass || arc.edited) shadowGroup = svg.group(arcGroup);
           var options = {
