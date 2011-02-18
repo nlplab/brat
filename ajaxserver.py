@@ -65,7 +65,7 @@ def documents(directory):
                 mtime = getmtime(join(DATA_DIR, join(directory, file+".ann")))
             except:
                 mtime = -1
-            doclist_with_time.append([file, -1])
+            doclist_with_time.append([file, mtime])
         doclist = doclist_with_time
 
         dirlist = [dir for dir in my_listdir(directory)
