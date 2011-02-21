@@ -339,8 +339,7 @@ def enrich_json_with_data(j_dic, ann_obj):
                 )
 
     if ann_obj.failed_lines:
-        # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
-        j_dic['error'] = 'Unable to parse the following line(s):<br/>{}'.format(
+        error_msg = 'Unable to parse the following line(s):<br/>{}'.format(
                 '\n<br/>\n'.join(
                     ['{}: {}'.format(
                         # The line number is off by one
@@ -349,10 +348,7 @@ def enrich_json_with_data(j_dic, ann_obj):
                         ).strip()
                     for line_num in ann_obj.failed_lines])
                     )
-        j_dic['duration'] = len(ann_obj.failed_lines) * 3
-    else:
-        # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
-        j_dic['error'] = None
+        display_message(error_msg, type='error', duration=len(ann_obj.failed_lines) * 3)
 
     j_dic['mtime'] = ann_obj.ann_mtime
     j_dic['ctime'] = ann_obj.ann_ctime
@@ -478,6 +474,8 @@ def arc_types_html(projectconfig, origin_type, target_type):
     print dumps(response, sort_keys=True, indent=2)
 
 #TODO: Couldn't we incorporate this nicely into the Annotations class?
+#TODO: Yes, it is even gimped compared to what it should do when not. This
+#       has been a long pending goal for refactoring.
 class ModificationTracker(object):
     def __init__(self):
         self.__added = []
@@ -594,9 +592,9 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
                     # determine where in the data format the text (if at all) it is
                     # stored. For now we will fail loudly here.
                     print 'Content-Type: application/json\n'
-                    error = 'unable to change the span of an existing annotation'
-                    # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
-                    print dumps({ 'error': error }, sort_keys=True, indent=2)
+                    error_msg = 'unable to change the span of an existing annotation'
+                    display_message(error_msg, type='error', duration=3)
+                    print dumps(add_messages_to_json({}), sort_keys=True, indent=2)
                     # Not sure if we only get an internal server error or the data
                     # will actually reach the client to be displayed.
                     assert False, error
@@ -789,9 +787,8 @@ def save_span(docdir, docname, start_str, end_str, type, negation, speculation, 
         else:
             # Hack, we had a new-line in the span
             mods_json = {}
-            # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
-            mods_json['error'] = 'Text span contained new-line, rejected'
-            mods_json['duration'] = 3
+            display_message('Text span contained new-line, rejected',
+                    type='error', duration=3)
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
@@ -910,8 +907,8 @@ def delete_span(docdir, docname, id):
                 pass
         except DependingAnnotationDeleteError, e:
             print 'Content-Type: application/json\n'
-            # TODO: use display_message and add_messages_to_json here
-            print dumps(e.json_error_response(), sort_keys=True, indent=2)
+            display_message(e.html_error_str(), type='error', duration=3)
+            print dumps(add_messages_to_json({}), sort_keys=True, indent=2)
             return
 
         print 'Content-Type: application/json\n'
@@ -953,6 +950,7 @@ def delete_arc(docdir, docname, origin, target, type):
                         ann_obj.del_annotation(event_ann)
                         mods.deletion(event_ann)
                     except DependingAnnotationDeleteError, e:
+                        #XXX: Old message api
                         print 'Content-Type: application/json\n'
                         print dumps(e.json_error_response(), sort_keys=True, indent=2)
                         return
@@ -980,9 +978,10 @@ def delete_arc(docdir, docname, origin, target, type):
                         ann_obj.del_annotation(eq_ann)
                         mods.deletion(eq_ann)
                     except DependingAnnotationDeleteError, e:
+                        #TODO: This should never happen, dep on equiv
                         print 'Content-Type: application/json\n'
-                        # TODO: use display_message and add_messages_to_json
-                        print dumps(e.json_error_response(), sort_keys=True, indent=2)
+                        display_message(e.json_error_response(), type='error', duration=3)
+                        print dumps(add_messages_to_json({}), sort_keys=True, indent=2)
                         return
 
         print 'Content-Type: application/json\n'
@@ -1072,11 +1071,9 @@ def serve(argv):
             try:
                 result['user'] = creds['user']
             except (KeyError):
-                # TODO: direct use of json['error'] is deprecated; use display_message('...', 'error') instead.
-                result['error'] = 'Not logged in'
+                display_message('Not logged in!', type='error', duration=3)
             print 'Content-Type: application/json\n'
-            # TODO: add_messages_to_json?
-            print dumps(result)
+            print dumps(add_messages_to_json(result), sort_keys=True, indent=2)
 
         elif action == 'import':
             from docimport import save_import, FileExistsError

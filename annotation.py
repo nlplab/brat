@@ -64,10 +64,8 @@ class DependingAnnotationDeleteError(Exception):
         return '{} can not be deleted due to depending annotations {}'.format(
                 self.target, ",".join([str(d) for d in self.dependants]))
 
-    def json_error_response(self, response=None):
-        if response is None:
-            response = {}
-        response['error'] = '''
+    def html_error_str(self, response=None):
+        return '''
         Annotation:
         <br/>
         {}
@@ -76,7 +74,6 @@ class DependingAnnotationDeleteError(Exception):
         <br/>
         {}
         '''.format(self.target, ",".join([str(d) for d in self.dependants]))
-        return response
 
 
 def __split_annotation_id(id):
