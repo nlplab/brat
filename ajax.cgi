@@ -19,13 +19,20 @@ Version:    2010-02-07
 from sys import version_info
 from cgi import escape
 
+from message import add_messages_to_json, display_message
+
 ### Constants
 # This handling of version_info is strictly for backwards compability
 PY_VER_STR = '%d.%d.%d-%s-%d' % tuple(version_info)
 INVALID_PY_JSON = '''
 {
-  "error": "Incompatible Python version (%s), 2.7 or above is supported",
-  "duration": -1
+  "messages": [
+    [
+      "Incompatible Python version (%s), 2.7 or above is supported",
+      "error",
+      -1
+    ]
+  ]
 }
 ''' % PY_VER_STR
 CONF_FNAME = 'config.py'
@@ -47,6 +54,7 @@ def _miss_config_msg():
             'your installation directory and edit it to suit your environment'
             ).format(config=CONF_FNAME, template=CONF_TEMPLATE_FNAME)
 
+# TODO: This may belong in a helper module
 def _dumps(dic):
     '''
     Create a json dumps string out of a dictionary. Used for consistent usage
@@ -86,12 +94,9 @@ def main(args):
     except ImportError:
         path.extend(orig_path)
         print 'Content-Type: application/json\n'
-        print _dumps(
-                {
-                    'error': _miss_config_msg(),
-                    'duration': -1,
-                }
-                )
+        display_message(_miss_config_msg(),
+            type='error', duration=-1)
+        print _dumps(add_messages_to_json({}))
         raise
     # Try importing the config entries we need
     try:
@@ -99,26 +104,18 @@ def main(args):
     except ImportError:
         path.extend(orig_path)
         print 'Content-Type: application/json\n'
-        print _dumps(
-                {
-                    # Keep this string up-to-date
-                    'error': _miss_var_msg('DEBUG'),
-                    'duration': -1,
-                }
-                )
+        display_message(_miss_var_msg('DEBUG'),
+            type='error', duration=-1)
+        print _dumps(add_messages_to_json({}))
         raise
     try:
         from config import ADMIN_CONTACT_EMAIL
     except ImportError:
         path.extend(orig_path)
         print 'Content-Type: application/json\n'
-        print _dumps(
-                {
-                    # Keep this string up-to-date
-                    'error': _miss_var_msg('ADMIN_CONTACT_EMAIL'),
-                    'duration': -1,
-                }
-                )
+        display_message(_miss_var_msg('ADMIN_CONTACT_EMAIL'),
+            type='error', duration=-1)
+        print _dumps(add_messages_to_json({}))
         raise
     # Remove our entry to the path
     path.pop()
@@ -146,11 +143,8 @@ def main(args):
             error_msg = '<br/>'.join((
                 'Server Python crash, stacktrace is:\n',
                 escape(buf.read()))).replace('\n', '\n<br/>\n')
-            print _dumps(
-                    {
-                        'error': error_msg,
-                        'duration': -1,
-                    })
+            display_message(error_msg, type='error', duration=-1)
+            print _dumps(add_messages_to_json({}))
         else:
             # Give the user an error message
             from time import time
@@ -160,11 +154,8 @@ def main(args):
                     'and give the id #{}'
                     ).format(ADMIN_CONTACT_EMAIL, int(time()))
             print 'Content-Type: application/json\n'
-            print _dumps(
-                    {
-                        'error': error_msg,
-                        'duration': -1,
-                    })
+            display_message(error_msg, type='error', duration=-1)
+            print _dumps(add_messages_to_json({}))
         # Allow the exception to fall through so it is logged by Apache
         raise
     return -1
