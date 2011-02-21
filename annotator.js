@@ -2452,10 +2452,10 @@ $(function() {
     var _docid = $('#import_docid').val();
     var _doctitle = $('#import_title').val();
     var _doctext = $('#import_text').val();
-    var _docdir  = URLHash.current.directory;
+    var _directory  = URLHash.current.directory;
     var _data = {
 	action : 'import',
-	directory : _docdir,
+	directory : _directory,
 	docid  : _docid,
 	title : _doctitle,
 	text  : _doctext,
@@ -2466,7 +2466,7 @@ $(function() {
       url: ajaxBase,
       data: _data,
       error: function(req, textStatus, errorThrown) {
-	spinner.css('display', 'none');
+        Annotator.showSpinner(false);
 	console.error("Import error", textStatus, errorThrown);
 	Annotator.actionsAllowed(true);
 	formDisplayed = false;
@@ -2487,6 +2487,41 @@ $(function() {
   var importForm = $('#import_form').
       submit(importFormSubmit).
       bind('reset', hideAllForms);
+
+  var runTagger = function() {
+    var ok = confirm('NOTE: automatic tagging will remove all existing annotations and replace them with predicted annotations. Proceed?');
+    if (!ok) {
+      return;
+    }
+    var _directory = URLHash.current.directory;
+    var _doc = URLHash.current.doc;
+    var _data = {
+	action : 'runtagger',
+	directory : _directory,
+	document : _doc,
+    }
+    Annotator.actionsAllowed(false);
+    Annotator.showSpinner();
+    $.ajax({
+      type: 'POST',
+      url: ajaxBase,
+      data: _data,
+      error: function(req, textStatus, errorThrown) {
+        Annotator.showSpinner(false);
+	console.error("Tagging error", textStatus, errorThrown);
+	Annotator.actionsAllowed(true);
+      },
+      success: function(response) {
+	if (displayMessagesAndCheckForErrors(response)) {
+	  annotator.forceUpdateState = true;
+	}
+	Annotator.actionsAllowed(true);
+	$('input').blur();
+      }
+    });
+    return false;
+  };
+  $('#tag_button').click(runTagger);
 
   $(document).keydown(function(evt) {    
     var mapping;

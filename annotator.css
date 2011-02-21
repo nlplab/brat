@@ -97,6 +97,18 @@ path {
   background-color: #ffff77;
 }
 
+.shadow_AnnotationUnconfirmed {
+  fill: #eeeeee;
+}
+.span rect.AnnotationUnconfirmed {
+  stroke: #002200;
+  stroke-width: 0.5;
+  opacity : 0.5;
+}
+#infopopup.info_AnnotationUnconfirmed {
+  background-color: #ddddff;
+}
+
 .span rect.True_positive {
   /* stroke: #007700; */
 }

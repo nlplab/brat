@@ -35,13 +35,61 @@ from annotation import (TextBoundAnnotation, EquivAnnotation,
 from message import display_message, add_messages_to_json
 
 ### Constants?
-EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout']
+EDIT_ACTIONS = ['span', 'arc', 'unspan', 'unarc', 'logout', 'import', 'confirm', 'runtagger']
 COOKIE_ID = 'brat-cred'
 
 # Add new configuration variables here
 #TODO: We really should raise an exception to ajax.cgi to give a nicer message
 #       if these configurations are wrong.
 from config import BASE_DIR, DATA_DIR, USER_PASSWORD, DEBUG
+
+# XXX TODO: replace this quick ugly hack with an invocation through
+# the interface we designed for taggers
+def tag_file(directory, document):
+    import os
+    textfn      = os.path.join(DATA_DIR, directory, document+'.txt')
+    tagger_root = os.path.join(BASE_DIR, '../nlpwrap')
+    tagger_cmd  = os.path.join(tagger_root, 'tag-NERsuite.sh')+" "+textfn
+    try:
+        os.system(tagger_cmd)
+    except:
+        display_message("Error: failed to run tagger. Please contact the administrator(s).", "error", -1)
+        return
+    taggedfn    = os.path.join(tagger_root, 'output', document+'.ner')
+
+    # read in tagged, mark everything with AnnotationUnconfirmed
+    import re
+    try:
+        f = open(taggedfn)
+        outputlines = []
+        next_comment_id = 1
+        for l in f:
+            m = re.match(r'^(T\d+)\t(\S+) (\d+) (\d+)\t(.*)', l)
+            assert m, "Failed to parse tagger output line '%s'" % l
+            tid, ttype, start, end, ttext = m.groups()
+            # worse hack in bad hack: rename type
+            if ttype == "Protein":
+                ttype = "Gene_or_gene_product"
+            l = "%s\t%s %s %s\t%s\n" % (tid, ttype, start, end, ttext)
+            outputlines.append(l)
+            outputlines.append('#%d\tAnnotationUnconfirmed %s\tAutomatically generated annotation, please confirm by clicking\n' % (next_comment_id, tid))
+            next_comment_id += 1
+        f.close()
+    except:
+        display_message("Error: failed to read tagger output. Please contact the administrator(s).", "error", -1)
+        return
+
+    # XXX TODO: incorporate via Annotation object
+    # first-attempt hack: clobber the existing .ann
+    try:
+        annfn = os.path.join(DATA_DIR, directory, document+'.ann')
+        f = open(annfn, 'wt')
+        for l in outputlines:
+            f.write(l)
+        f.close()
+    except:
+        display_message("Error: failed to store tagger output. Please contact the administrator(s).", "error", -1)
+        return
 
 def my_listdir(directory):
     return [l for l in listdir(directory)
@@ -412,6 +460,34 @@ class ModificationTracker(object):
                 pass
 
         return response
+
+def confirm_span(docdir, docname, span_id):
+    document = join_path(docdir, docname)
+
+    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+
+    with Annotations(document) as ann_obj:
+        mods = ModificationTracker()
+
+        # find AnnotationUnconfirmed comments that refer
+        # to the span and remove them
+        # TODO: error checking
+        for ann in ann_obj.get_oneline_comments():
+            if ann.type == "AnnotationUnconfirmed" and ann.target == span_id:
+                ann_obj.del_annotation(ann, mods)
+
+        print 'Content-Type: application/json\n'
+        if DEBUG:
+            mods_json = mods.json_response()
+        else:
+            mods_json = {}
+        # save a roundtrip and send the annotations also
+        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+        j_dic = json_from_ann_and_txt(ann_obj, txt_file_path)
+        mods_json["annotations"] = j_dic
+        add_messages_to_json(mods_json)
+        print dumps(mods_json, sort_keys=True, indent=2)
+
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def save_span(docdir, docname, start_str, end_str, type, negation, speculation, id):
@@ -941,6 +1017,16 @@ def serve(argv):
             add_messages_to_json(import_dict)
             print dumps(import_dict, sort_keys=True, indent=2)
 
+        elif action == 'runtagger':
+            runtagger_dict = {}
+            directory = params.getvalue('directory')
+            document  = params.getvalue('document')
+            tag_file(directory, document)
+            display_message('Run tagger invoked for %s doc %s. TODO: implement server-side' % (directory, document))
+            print 'Content-Type: application/json\n'
+            add_messages_to_json(runtagger_dict)
+            print dumps(runtagger_dict, sort_keys=True, indent=2)
+
         else:
             if directory is None:
                 directory = ''
@@ -1006,6 +1092,9 @@ def serve(argv):
                                 params.getvalue('origin'),
                                 params.getvalue('target'),
                                 params.getvalue('type'))
+                    elif action == 'confirmspan':
+                        confirm_span(real_directory, document,
+                                     params.getvalue('span'))
                     elif action == 'save':
                         svg = params.getvalue('svg')
                         saveSVG(directory, document, svg)
