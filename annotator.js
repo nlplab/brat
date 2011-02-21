@@ -2406,25 +2406,51 @@ $(function() {
   $('#file_browser_button').click(openFileBrowser);
 
   var openImportForm = function() {
-      $('#import_docid')[0].value = '';
-      $('#import_title')[0].value = '';
-      $('#import_text')[0].value = '';
+    $('#import_docid').val('').focus().select();
+    $('#import_title').val('');
+    $('#import_text').val('');
 
-      $('#import_form').css('display', 'block');
-      Annotator.actionsAllowed(false);
-      formDisplayed = true;
+    $('#import_form').css('display', 'block');
+    Annotator.actionsAllowed(false);
+    formDisplayed = true;
   }
   $('#import_button').click(openImportForm);
   var importFormSubmit = function(evt) {
-      $('#import_form').css('display', 'none');
-      var docid = $('#import_docid')[0].value;
-      var doctitle = $('#import_title')[0].value;
-      var doctext = $('#import_text')[0].value;
-      displayMessage("Directory:"+directory);
-      displayMessage("Import:<br/>Document ID: <b>"+docid+"</b><br/>TITLE:<b>"+doctitle+"</b><br/>TEXT:<br/>"+doctext, 0, -1);
-      Annotator.actionsAllowed(true);
-      formDisplayed = false;
-      return false;
+    $('#import_form').css('display', 'none');
+    var _docid = $('#import_docid').val();
+    var _doctitle = $('#import_title').val();
+    var _doctext = $('#import_text').val();
+    var _docdir  = URLHash.current.directory;
+    var _data = {
+	action : 'import',
+	directory : _docdir,
+	docid  : _docid,
+	title : _doctitle,
+	text  : _doctext,
+    };
+    Annotator.showSpinner();
+    $.ajax({
+      type: 'POST',
+      url: ajaxBase,
+      data: _data,
+      error: function(req, textStatus, errorThrown) {
+	spinner.css('display', 'none');
+	console.error("Import error", textStatus, errorThrown);
+	Annotator.actionsAllowed(true);
+	formDisplayed = false;
+      },
+      success: function(response) {
+	if (displayMessagesAndCheckForErrors(response)) {
+	  docaddress = response.address;
+	  URLHash.current.setDocument(docaddress);
+	  annotator.forceUpdateState = true;
+	}
+	Annotator.actionsAllowed(true);
+	$('input').blur();
+	formDisplayed = false;
+      }
+    });
+    return false;
   };
   var importForm = $('#import_form').
       submit(importFormSubmit).

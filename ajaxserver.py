@@ -926,6 +926,21 @@ def serve(argv):
             print 'Content-Type: application/json\n'
             # TODO: add_messages_to_json?
             print dumps(result)
+
+        elif action == 'import':
+            from docimport import save_import, FileExistsError
+            doctext = params.getvalue('title')+"\n"+params.getvalue('text')
+            import_dict = {}
+            try:
+                save_import(doctext, params.getvalue('docid'),
+                            params.getvalue('directory'))
+                import_dict['address'] = params.getvalue('docid')
+            except FileExistsError:
+                display_message('Cannot import: file exists', 'error', -1)
+            print 'Content-Type: application/json\n'
+            add_messages_to_json(import_dict)
+            print dumps(import_dict, sort_keys=True, indent=2)
+
         else:
             if directory is None:
                 directory = ''
