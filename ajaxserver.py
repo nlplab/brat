@@ -42,6 +42,11 @@ COOKIE_ID = 'brat-cred'
 #TODO: We really should raise an exception to ajax.cgi to give a nicer message
 #       if these configurations are wrong.
 from config import BASE_DIR, DATA_DIR, USER_PASSWORD, DEBUG
+try:
+    from config import PERFORM_VERIFICATION
+except:
+    # reasonable default
+    PERFORM_VERIFICATION = True
 
 # XXX TODO: replace this quick ugly hack with an invocation through
 # the interface we designed for taggers
@@ -343,10 +348,13 @@ def enrich_json_with_data(j_dic, ann_obj):
 
     try:
         # XXX avoid digging the directory from the ann_obj
-        import os
-        docdir = os.path.dirname(ann_obj._document)
-        projectconfig = ProjectConfiguration(docdir)
-        issues = verify_annotation(ann_obj, projectconfig)
+        if PERFORM_VERIFICATION:
+            import os
+            docdir = os.path.dirname(ann_obj._document)
+            projectconfig = ProjectConfiguration(docdir)
+            issues = verify_annotation(ann_obj, projectconfig)
+        else:
+            issues = []
     except Exception, e:
         # TODO add an issue about the failure?
         issues = []
