@@ -271,7 +271,7 @@ var Annotator = function(containerElement, onStart) {
     if (target.hasClass("AnnotationUnconfirmed")) {
       var spanId = target.data('span-id');
       annotator.ajaxOptions = {
-        action: 'confirm',
+        action: 'confirmspan',
         span: spanId,
       };
       annotator.postChangesAndReload();
