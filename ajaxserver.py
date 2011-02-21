@@ -96,6 +96,58 @@ def my_listdir(directory):
             # XXX: A hack to remove what we don't want to be seen
             if not (l.startswith('hidden_') or l.startswith('.'))]
 
+def export(directory, real_directory):
+    from urllib import quote
+    from cgi import escape
+
+    try:
+        doclist = [file[0:-4] for file in my_listdir(real_directory)
+                if file.endswith('txt')]
+        doclist.sort()
+
+        edir = escape(directory)
+        qdir = quote(directory)
+        print """Content-Type: text/html
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html>
+<head>
+<title>%s - brat</title>
+</head>
+<body>
+<table>
+""" % edir
+        for file in doclist:
+            efile = escape(file)
+            qfile = quote(file)
+
+            print """
+<tr>
+<th>%s</th>
+<td><a href="ajax.cgi?action=fetch&amp;directory=%s&amp;document=%s.txt">Text</a></td>
+<td><a href="ajax.cgi?action=fetch&amp;directory=%s&amp;document=%s.ann">Annotations</a></td>
+</tr>
+""" % (efile, qdir, qfile, qdir, qfile)
+
+        print """
+</table>
+</body>
+</html>"""
+
+    except OSError, x:
+        print "Content-Type: text/html"
+        print "Status: 404 File Not Found\n"
+
+def fetch(real_directory, document):
+    try:
+        print "Content-Type: text/plain\n"
+        with open(join_path(real_directory, document)) as f:
+            print f.read()
+    except OSError, x:
+        print "Content-Type: text/html\n"
+        print "Status: 404 File Not Found\n"
+
 def documents(directory):
     # TODO: this function combines up unrelated functionality; split
 
@@ -1056,6 +1108,9 @@ def serve(argv):
             elif action == 'ls':
                 documents(real_directory)
 
+            elif action == 'export':
+                export(directory, real_directory)
+
             else:
                 if document.find('/') != -1:
                     raise SecurityViolationException()
@@ -1063,7 +1118,10 @@ def serve(argv):
                 span = params.getvalue('span')
                 #XXX: Calls to save and delete can raise AnnotationNotFoundError
                 try:
-                    if action == 'span':
+                    if action == 'fetch':
+                        fetch(real_directory, document)
+
+                    elif action == 'span':
                         # TODO: proper interface for rapid mode span
                         spantype = params.getvalue('type')
                         if spantype == "GUESS":

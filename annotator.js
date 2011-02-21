@@ -2454,11 +2454,11 @@ $(function() {
     var _doctext = $('#import_text').val();
     var _directory  = URLHash.current.directory;
     var _data = {
-	action : 'import',
-	directory : _directory,
-	docid  : _docid,
-	title : _doctitle,
-	text  : _doctext,
+      action : 'import',
+      directory : _directory,
+      docid  : _docid,
+      title : _doctitle,
+      text  : _doctext,
     };
     Annotator.showSpinner();
     $.ajax({
@@ -2467,19 +2467,19 @@ $(function() {
       data: _data,
       error: function(req, textStatus, errorThrown) {
         Annotator.showSpinner(false);
-	console.error("Import error", textStatus, errorThrown);
-	Annotator.actionsAllowed(true);
-	formDisplayed = false;
+        console.error("Import error", textStatus, errorThrown);
+        Annotator.actionsAllowed(true);
+        formDisplayed = false;
       },
       success: function(response) {
-	if (displayMessagesAndCheckForErrors(response)) {
-	  docaddress = response.address;
-	  URLHash.current.setDocument(docaddress);
-	  annotator.forceUpdateState = true;
-	}
-	Annotator.actionsAllowed(true);
-	$('input').blur();
-	formDisplayed = false;
+        if (displayMessagesAndCheckForErrors(response)) {
+          docaddress = response.address;
+          URLHash.current.setDocument(docaddress);
+          annotator.forceUpdateState = true;
+        }
+        Annotator.actionsAllowed(true);
+        $('input').blur();
+        formDisplayed = false;
       }
     });
     return false;
@@ -2487,6 +2487,14 @@ $(function() {
   var importForm = $('#import_form').
       submit(importFormSubmit).
       bind('reset', hideAllForms);
+
+  $('#export_button').click(function(evt) {
+      var args = {
+        action: 'export',
+        directory: URLHash.current.directory,
+      };
+      window.open(ajaxBase + "?" + $.param(args), 'brat_search');
+  });
 
   var runTagger = function() {
     var ok = confirm('NOTE: automatic tagging will remove all existing annotations and replace them with predicted annotations. Proceed?');
@@ -2496,9 +2504,9 @@ $(function() {
     var _directory = URLHash.current.directory;
     var _doc = URLHash.current.doc;
     var _data = {
-	action : 'runtagger',
-	directory : _directory,
-	document : _doc,
+      action : 'runtagger',
+      directory : _directory,
+      document : _doc,
     }
     Annotator.actionsAllowed(false);
     Annotator.showSpinner();
@@ -2508,15 +2516,15 @@ $(function() {
       data: _data,
       error: function(req, textStatus, errorThrown) {
         Annotator.showSpinner(false);
-	console.error("Tagging error", textStatus, errorThrown);
-	Annotator.actionsAllowed(true);
+        console.error("Tagging error", textStatus, errorThrown);
+        Annotator.actionsAllowed(true);
       },
       success: function(response) {
-	if (displayMessagesAndCheckForErrors(response)) {
-	  annotator.forceUpdateState = true;
-	}
-	Annotator.actionsAllowed(true);
-	$('input').blur();
+        if (displayMessagesAndCheckForErrors(response)) {
+          annotator.forceUpdateState = true;
+        }
+        Annotator.actionsAllowed(true);
+        $('input').blur();
       }
     });
     return false;
