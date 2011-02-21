@@ -44,7 +44,7 @@ COOKIE_ID = 'brat-cred'
 from config import BASE_DIR, DATA_DIR, USER_PASSWORD, DEBUG
 try:
     from config import PERFORM_VERIFICATION
-except:
+except ImportError:
     # reasonable default
     PERFORM_VERIFICATION = True
 
@@ -57,8 +57,10 @@ def tag_file(directory, document):
     tagger_cmd  = os.path.join(tagger_root, 'tag-NERsuite.sh')+" "+textfn
     try:
         os.system(tagger_cmd)
-    except:
+    except Exception, e:
         display_message("Error: failed to run tagger. Please contact the administrator(s).", "error", -1)
+        from sys import stderr
+        print >> stderr, e
         return
     taggedfn    = os.path.join(tagger_root, 'output', document+'.ner')
 
@@ -80,8 +82,10 @@ def tag_file(directory, document):
             outputlines.append('#%d\tAnnotationUnconfirmed %s\tAutomatically generated annotation, please confirm by clicking\n' % (next_comment_id, tid))
             next_comment_id += 1
         f.close()
-    except:
+    except Exception, e:
         display_message("Error: failed to read tagger output. Please contact the administrator(s).", "error", -1)
+        from sys import stderr
+        print >> stderr, e
         return
 
     # XXX TODO: incorporate via Annotation object
@@ -92,8 +96,10 @@ def tag_file(directory, document):
         for l in outputlines:
             f.write(l)
         f.close()
-    except:
+    except Exception, e:
         display_message("Error: failed to store tagger output. Please contact the administrator(s).", "error", -1)
+        from sys import stderr
+        print >> stderr, e
         return
 
 def my_listdir(directory):
@@ -173,8 +179,11 @@ def documents(directory):
             try:
                 # TODO: guessing the suffix to be looking for is .ann,
                 # replace with a more general solution
-                mtime = getmtime(join(DATA_DIR, join(directory, file+".ann")))
-            except:
+                from annotation import JOINED_ANN_FILE_SUFF
+                mtime = getmtime(join(DATA_DIR,
+                    join(directory, file + JOINED_ANN_FILE_SUFF)))
+            except OSError:
+                # The file did not exist
                 mtime = -1
             doclist_with_time.append([file, mtime])
         doclist = doclist_with_time
@@ -514,14 +523,14 @@ class ModificationTracker(object):
         for a in self.__added:
             try:
                 response['edited'].append(a.reference_id())
-            except:
+            except AttributeError:
                 pass # not all implement reference_id()
         for b,a in self.__changed:
             # can't mark "before" since it's stopped existing
             try:
                 response['edited'].append(a.reference_id())
-            except:
-                pass
+            except AttributeError:
+                pass # not all implement reference_id()
 
         return response
 
