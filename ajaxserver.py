@@ -114,23 +114,25 @@ def export(directory, real_directory):
 <html>
 <head>
 <title>%s - brat</title>
-<style>
-  /* styles */
-</style>
+<link rel="stylesheet" type="text/css" href="annotator.css"/>
 </head>
-<body>
+<body id="export_page">
+<img id="logo" src="brat-logo.png"/>
+<div><strong>Documents in directory %s</strong></div>
 <table>
-""" % edir
+""" % (edir, edir)
+        background = 0
         for file in doclist:
             efile = escape(file)
             qfile = quote(file)
 
-            print """<tr>
+            print """<tr class="background%d">
 <th>%s</th>
 <td><a href="ajax.cgi?action=fetch&amp;directory=%s&amp;document=%s.txt">Text</a></td>
 <td><a href="ajax.cgi?action=fetch&amp;directory=%s&amp;document=%s.ann">Annotations</a></td>
 </tr>
-""" % (efile, qdir, qfile, qdir, qfile)
+""" % (background, efile, qdir, qfile, qdir, qfile)
+            background = 1-background
 
         print """</table>
 </body>
