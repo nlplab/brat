@@ -257,10 +257,12 @@ def documents(directory):
                 'html': html,
                 }
 
-    except OSError, x:
-        # TODO: don't guess at the reason; there may be other OSErrors
-        display_message('Error: No such directory: ' + directory, 'error', -1)
-        response = {}
+    except OSError, e:
+        if e.errno == 2:
+            display_message('Error: No such directory: ' + directory, 'error', -1)
+            response = {}
+        else:
+            raise
 
     add_messages_to_json(response)
     print dumps(response, sort_keys=True, indent=2)
