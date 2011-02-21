@@ -568,3 +568,21 @@ fieldset {
 #import_title {
   width: 400px;
 }
+#export_page div {
+  margin: 5px 5px 5px 5px;
+  font-size: 14px;
+}
+#export_page table {
+  border-collapse: collapse;
+  border: 1px solid #cccccc;
+}
+#export_page td, #export_page th {
+  padding: 2px 5px;
+  text-align: left;
+}
+#export_page tr.background0 {
+  background-color: #eeeeee;
+}
+#export_page tr.background1 {
+  background-color: #dddddd;
+}
