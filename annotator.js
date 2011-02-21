@@ -1638,7 +1638,9 @@ $(function() {
     var opacity;
     var removed = [];
     $.each(messages, function(messageNo, message) {
-      if (message.opacity == -1) {
+      if (message.paused) {
+        opacity = message.opacity = 1;
+      } else if (message.opacity == -1) {
         opacity = messageOpacity;
       } else {
         opacity = message.opacity -= messageOpacityDecrease;
@@ -1660,28 +1662,34 @@ $(function() {
   displayMessages = function(msgs) {
     if (msgs === false) {
       $.each(messages, function(messageNo, message) {
-        message.opacity = -0.5; // (less than zero, and not -1, so it will trigger deletion)
+        message.opacity = 0;
       });
     } else {
       $.each(msgs, function(msgNo, msg) {
-        var message = {};
-	try {
-	    message.element = $('<div class="' + msg[1] + '">' + msg[0] + '</div>');
-	}
-	catch(x) {
-	    escaped = msg[0].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-	    message.element = $('<div class="error"><b>[ERROR: could not display the following message normally due to malformed XML:]</b><br/>' + escaped + '</div>');
-	}
+        var message = { paused: false };
+        try {
+          message.element = $('<div class="' + msg[1] + '">' + msg[0] + '</div>');
+        }
+        catch(x) {
+          escaped = msg[0].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          message.element = $('<div class="error"><b>[ERROR: could not display the following message normally due to malformed XML:]</b><br/>' + escaped + '</div>');
+        }
         messageContainer.append(message.element);
-	if (msg[2] === undefined) {
-	    msg[2] = 3;
-	}
+        if (msg[2] === undefined) {
+          msg[2] = 3;
+        }
         message.opacity = msg[2] != -1 ? msg[2] : -1;
         if (msg[2] == -1) {
           var button = $('<input type="button" value="OK"/>');
           message.element.prepend(button);
           button.click(function(evt) {
-            message.opacity = -0.5; // (less than zero, and not -1, so it will trigger deletion)
+            message.opacity = 0;
+          });
+        } else {
+          message.element.mouseover(function(evt) {
+            message.paused = true;
+          }).mouseout(function(evt) {
+            message.paused = false;
           });
         }
         messages.push(message);
