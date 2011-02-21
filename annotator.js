@@ -265,6 +265,18 @@ var Annotator = function(containerElement, onStart) {
     annotator.ajaxOptions.action = 'unarc';
     annotator.postChangesAndReload();
   };
+  
+  var click = function(evt) {
+    var target = $(evt.target);
+    if (target.hasClass("AnnotationUnconfirmed")) {
+      var spanId = target.data('span-id');
+      annotator.ajaxOptions = {
+        action: 'confirm',
+        span: spanId,
+      };
+      annotator.postChangesAndReload();
+    }
+  };
 
   var dblClick = function(evt) {
     if (!annotator.user) return;
@@ -415,6 +427,7 @@ var Annotator = function(containerElement, onStart) {
     containerElement.mouseout(mouseOut);
     containerElement.mousemove(mouseMove);
     containerElement.dblclick(dblClick);
+    containerElement.click(click);
     containerElement.mouseup(mouseUp);
     containerElement.mousedown(mouseDown);
   }
@@ -441,6 +454,18 @@ var Annotator = function(containerElement, onStart) {
     });
     if (equiv) this.equiv = true;
   }
+
+  var infoPriority = (function() {
+    var infoPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error'];
+    return function(infoClass) {
+      if (infoClass === undefined) return -1;
+      var len = infoPrioLevels.length;
+      for (var i = 0; i < len; i++) {
+        if (infoClass.indexOf(infoPrioLevels[i]) != -1) return i;
+      }
+      return 0;
+    };
+  })();
 
   var setData = function(_data) {
     data = _data;
@@ -495,6 +520,7 @@ var Annotator = function(containerElement, onStart) {
       }
     });
     data.sentInfo = {};
+
     $.each(data.infos, function(infoNo, info) {
       // TODO error handling
       if (info[0] instanceof Array && info[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
@@ -512,11 +538,9 @@ var Annotator = function(containerElement, onStart) {
           span.info.type = info[1];
           span.info.text += "<br/>" + info[2];
         }
-	// prioritize type setting when multiple infos are present: Error > Warning > Incomplete
-        if ((info[1].indexOf('Error') != -1) ||
-	    (info[1].indexOf('Warning') != -1 && (!span.shadowClass || span.shadowClass.indexOf("Error") == -1)) ||
-            (info[1].indexOf('Incomplete') != -1 && (!span.shadowClass || (span.shadowClass.indexOf("Error") == -1 && span.shadowClass.indexOf("Warning") == -1)))) {
-	    span.shadowClass = info[1]
+        // prioritize type setting when multiple infos are present
+        if (infoPriority(info[1]) > infoPriority(span.shadowClass)) {
+          span.shadowClass = info[1];
         }
       }
     });
