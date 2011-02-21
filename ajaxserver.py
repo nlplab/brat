@@ -114,6 +114,9 @@ def export(directory, real_directory):
 <html>
 <head>
 <title>%s - brat</title>
+<style>
+  /* styles */
+</style>
 </head>
 <body>
 <table>
@@ -122,18 +125,17 @@ def export(directory, real_directory):
             efile = escape(file)
             qfile = quote(file)
 
-            print """
-<tr>
+            print """<tr>
 <th>%s</th>
 <td><a href="ajax.cgi?action=fetch&amp;directory=%s&amp;document=%s.txt">Text</a></td>
 <td><a href="ajax.cgi?action=fetch&amp;directory=%s&amp;document=%s.ann">Annotations</a></td>
 </tr>
 """ % (efile, qdir, qfile, qdir, qfile)
 
-        print """
-</table>
+        print """</table>
 </body>
-</html>"""
+</html>
+"""
 
     except OSError, x:
         print "Content-Type: text/html"
