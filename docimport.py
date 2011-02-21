@@ -93,8 +93,7 @@ if __name__ == '__main__':
             mkdir(join_path(self.tmpdir, DEFAULT_IMPORT_DIR))
 
         def tearDown(self):
-            #rmtree(self.tmpdir)
-            print self.tmpdir
+            rmtree(self.tmpdir)
 
         def test_import(self):
             save_import(SaveImportTest.test_text, SaveImportTest.test_filename,
