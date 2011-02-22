@@ -216,14 +216,6 @@ def documents(directory):
     add_messages_to_json(response)
     print dumps(response, sort_keys=True, indent=2)
 
-def directories():
-    print 'Content-Type: application/json\n'
-    dirlist = [dir for dir in my_listdir(DATA_DIR)]
-    dirlist.sort()
-    response = { 'directories': dirlist }
-    add_messages_to_json(response)
-    print dumps(response, sort_keys=True, indent=2)
-
 def _sentence_split(txt_file_path):
     from geniass import sentence_split_file
     try:
