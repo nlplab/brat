@@ -163,9 +163,11 @@ def documents(directory):
     from htmlgen import generate_textbound_type_html, generate_client_keymap
     print 'Content-Type: application/json\n'
     try:
-        doclist = [file[0:-4] for file in my_listdir(directory)
-                if file.endswith('txt')]
-        doclist.sort()
+        basenames = [file[0:-4] for file in my_listdir(directory)
+                     if file.endswith('txt')]
+        basenames.sort()
+
+        doclist   = basenames[:]
         doclist_header = [("Document", "string")]
 
         from os.path import getmtime, join
@@ -179,11 +181,21 @@ def documents(directory):
                 mtime = -1
             doclist_with_time.append([file, mtime])
         doclist = doclist_with_time
-        doclist_header += [("Modified", "time")]
+        doclist_header.append(("Modified", "time"))
 
-        # testing flexible file list
-        #doclist = [d+["foo"] for d in doclist]
-        #doclist_header += [("Foo", "foo")]
+        # TODO: replace this costly hack with an implementation that
+        # caches statistics
+        docstats = []
+        for docname in basenames:
+            try:
+                ann_obj = Annotations(join_path(directory, docname+".ann"))
+                tb_count = len([a for a in ann_obj.get_textbounds()])
+                event_count = len([a for a in ann_obj.get_events()])
+                docstats.append([tb_count, event_count])
+            except:
+                docstats.append(["(no stats)"])
+        doclist = [doclist[i] + docstats[i] for i in range(len(doclist))]
+        doclist_header += [("Textbounds", "int"), ("Events", "int")]
 
         dirlist = [dir for dir in my_listdir(directory)
                 if isdir(join_path(directory, dir))]
