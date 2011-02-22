@@ -166,6 +166,7 @@ def documents(directory):
         doclist = [file[0:-4] for file in my_listdir(directory)
                 if file.endswith('txt')]
         doclist.sort()
+        doclist_header = [("Document", "string")]
 
         from os.path import getmtime, join
         doclist_with_time = []
@@ -178,6 +179,11 @@ def documents(directory):
                 mtime = -1
             doclist_with_time.append([file, mtime])
         doclist = doclist_with_time
+        doclist_header += [("Modified", "time")]
+
+        # testing flexible file list
+        #doclist = [d+["foo"] for d in doclist]
+        #doclist_header += [("Foo", "foo")]
 
         dirlist = [dir for dir in my_listdir(directory)
                 if isdir(join_path(directory, dir))]
@@ -200,6 +206,7 @@ def documents(directory):
 
         response = {
                 'docs': doclist,
+                'dochead' : doclist_header,
                 'dirs': dirlist,
                 'parent': parent,
                 'messages': [],
