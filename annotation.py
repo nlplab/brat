@@ -403,8 +403,7 @@ class Annotations(object):
         for suggestion in (prefix + str(i) + suffix for i in xrange(1, 2**32)):
             # This is getting more complicated by the minute, two checks since
             # the developers no longer know when it is an id or string.
-            if (suggestion not in self._ann_by_id
-                    and str(suggestion) not in self._ann_by_id):
+            if suggestion not in self._ann_by_id:
                 return suggestion
 
     def _parse_ann_file(self):
