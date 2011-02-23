@@ -1011,7 +1011,7 @@ def authenticate(login, password):
 
 def serve(argv):
     # Check for back-ups
-    with file_lock('.backup.lock', pid_policy=PID_WARN):
+    with file_lock('.backup.lock', pid_policy=PID_WARN, timeout=3):
         backup()
 
     params = FieldStorage()
