@@ -102,7 +102,7 @@ class Annotations(object):
         return self._document
 
     #TODO: DOC!
-    def __init__(self, document):
+    def __init__(self, document, read_only=False):
         #TODO: DOC!
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
         from collections import defaultdict
@@ -129,7 +129,7 @@ class Annotations(object):
         ###
 
         ## We use some heuristics to find the appropriate files
-        self._read_only = False
+        self._read_only = read_only
         try:
             # Do we have a valid suffix? If so, it is probably best to the file
             suff = document[document.rindex('.') + 1:]
@@ -551,7 +551,7 @@ class Annotations(object):
                     #       at this stage leading to potential problems upon
                     #       the next change to the file.
                     try:
-                        with Annotations(tmp_file.name) as ann:
+                        with Annotations(tmp_file.name, read_only=True) as ann:
                             pass
                         # Move the temporary file onto the old file
                         copyfile(tmp_file.name, self._input_files[0])
