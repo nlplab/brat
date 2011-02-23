@@ -9,6 +9,11 @@ Author:     Pontus Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-01-25
 '''
 
+from os import utime
+from time import time
+
+from config import DATA_DIR
+
 ### Constants
 # The only suffix we allow to write to, which is the joined annotation file
 JOINED_ANN_FILE_SUFF = 'ann'
@@ -542,17 +547,22 @@ class Annotations(object):
                 # TODO: XXX: Is copyfile really atomic?
                 from shutil import copyfile
                 with NamedTemporaryFile('w', suffix='.ann') as tmp_file:
-                    tmp_file.write(out_str)
-                    tmp_file.flush()
                     #XXX: Temporary hack to make sure we don't write corrupted
                     #       files, but the client will already have the version
                     #       at this stage leading to potential problems upon
                     #       the next change to the file.
+                    tmp_file.write(out_str)
+                    tmp_file.flush()
+
                     try:
                         with Annotations(tmp_file.name) as ann:
-                            pass
-                        # Move the temporary file onto the old file
-                        copyfile(tmp_file.name, self._input_files[0])
+                            # Move the temporary file onto the old file
+                            copyfile(tmp_file.name, self._input_files[0])
+                            # As a matter of convention we adjust the modified
+                            # time of the data dir when we write to it. This
+                            # helps us to make back-ups
+                            now = time()
+                            utime(DATA_DIR, (now, now))
                     except Exception, e:
                         from sys import stderr
                         print >> stderr, 'WARNING: Could not write changes!'

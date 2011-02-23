@@ -23,7 +23,7 @@ from config import BACKUP_DIR, DATA_DIR
 
 ### Constants
 #TODO: Move to a config
-MIN_INTERVAL = timedelta(minutes=15)
+MIN_INTERVAL = timedelta(days=1)
 CHECKSUM_FILENAME = 'CHECKSUM'
 TAR_GZ_SUFFIX = 'tar.gz'
 ###
@@ -35,6 +35,9 @@ def _safe_dirname(path):
     # This handles the case of a trailing slash for the dir path
     return basename(path) or dirname(dirname(path))
 
+# NOTE: Finds the younges file in a directory structure, currently not in use
+#       due to performance problems
+'''
 def _youngest_file(dir):
     youngest = dir
     y_mtime = _datetime_mtime(dir)
@@ -45,6 +48,7 @@ def _youngest_file(dir):
                 youngest = file_path
                 y_mtime = f_mtime
     return youngest, y_mtime
+'''
 
 def _youngest_backup(dir):
     backups = [(_datetime_mtime(f), f)
@@ -59,7 +63,8 @@ def _youngest_backup(dir):
 
 def backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR):
     b_file, b_mtime = _youngest_backup(backup_dir)
-    y_file, y_mtime = _youngest_file(data_dir)
+    y_mtime = _datetime_mtime(DATA_DIR)
+    #_, y_mtime = _youngest_file(data_dir)
     # If we have a back-up arch and no file has changed since the back-up or
     #       the delay has not expired, return
     if b_file is not None and (y_mtime <= b_mtime
