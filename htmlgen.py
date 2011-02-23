@@ -84,6 +84,47 @@ def generate_event_type_html(directory, type_key_map):
     hierarchy = get_event_type_hierarchy(directory)
     return __generate_term_hierarchy_html(hierarchy, type_key_map)
 
+def generate_client_keymap(keyboard_shortcuts):
+    client_keymap = {}
+    for k in keyboard_shortcuts:
+        # Note: all keymap processing is case-insensitive and treats space
+        # and underscore ("_") interchangeably
+        client_keymap[k] = 'span_'+keyboard_shortcuts[k].lower().replace(" ", "_")
+    return client_keymap
+
+def generate_textbound_type_html(directory, keyboard_shortcuts):
+    # Note: all keymap processing is case-insensitive and treats space
+    # and underscore ("_") interchangeably
+    type_to_key_map = {}
+    for k in keyboard_shortcuts:
+        type_to_key_map[keyboard_shortcuts[k].lower().replace(" ", "_")] = k.lower()
+
+    return """<fieldset>
+<legend>Entities</legend>
+<fieldset>
+<legend>Type</legend>
+<div class="type_scroller">
+""" + generate_entity_type_html(directory, type_to_key_map) + """
+</div>
+</fieldset>
+</fieldset>
+<fieldset>
+<legend>Events</legend>
+<fieldset>
+<legend>Type</legend>
+<div class="type_scroller">
+""" + generate_event_type_html(directory, type_to_key_map) + """</div>
+</fieldset>
+<fieldset id="span_mod_fset">
+<legend>Modifications</legend>
+<input id="span_mod_negation" type="checkbox" value="Negation"/>
+<label for="span_mod_negation"><span class="accesskey">N</span>egation</label>
+<input id="span_mod_speculation" type="checkbox" value="Speculation"/>
+<label for="span_mod_speculation"><span class="accesskey">S</span>peculation</label>
+</fieldset>
+</fieldset>
+"""
+
 if __name__ == '__main__':
     # debugging
     keymap = {

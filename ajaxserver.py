@@ -168,12 +168,15 @@ def fetch(real_directory, document):
 def documents(directory):
     # TODO: this function combines up unrelated functionality; split
 
-    from htmlgen import generate_entity_type_html, generate_event_type_html
+    from htmlgen import generate_textbound_type_html, generate_client_keymap
     print 'Content-Type: application/json\n'
     try:
-        doclist = [file[0:-4] for file in my_listdir(directory)
-                if file.endswith('txt')]
-        doclist.sort()
+        basenames = [file[0:-4] for file in my_listdir(directory)
+                     if file.endswith('txt')]
+        basenames.sort()
+
+        doclist   = basenames[:]
+        doclist_header = [("Document", "string")]
 
         from os.path import getmtime, join
         doclist_with_time = []
@@ -189,6 +192,21 @@ def documents(directory):
                 mtime = -1
             doclist_with_time.append([file, mtime])
         doclist = doclist_with_time
+        doclist_header.append(("Modified", "time"))
+
+        # TODO: replace this costly hack with an implementation that
+        # caches statistics
+        docstats = []
+        for docname in basenames:
+            try:
+                with Annotations(docname) as ann_obj:
+                    tb_count = len([a for a in ann_obj.get_textbounds()])
+                    event_count = len([a for a in ann_obj.get_events()])
+                    docstats.append([tb_count, event_count])
+            except:
+                docstats.append(["(no stats)"])
+        doclist = [doclist[i] + docstats[i] for i in range(len(doclist))]
+        doclist_header += [("Textbounds", "int"), ("Events", "int")]
 
         dirlist = [dir for dir in my_listdir(directory)
                 if isdir(join_path(directory, dir))]
@@ -201,48 +219,8 @@ def documents(directory):
         else:
             parent = None
 
-        keymap =  span_type_keyboard_shortcuts
-
-        # Note: all keymap processing is case-insensitive and treats space
-        # and underscore ("_") interchangeably to reduce surprise in
-        # configuration attempts
-
-        client_keymap = {}
-        for k in keymap:
-            # TODO: the info on how to format these for the client
-            # should go into htmlgen
-            client_keymap[k] = 'span_'+keymap[k].lower().replace(" ", "_")
-            type_to_key_map = {}
-
-        for k in keymap:
-            type_to_key_map[keymap[k].lower().replace(" ", "_")] = k.lower()
-
-        # TODO: this should likely go into htmlgen
-        html = """<fieldset>
-<legend>Entities</legend>
-<fieldset>
-<legend>Type</legend>
-<div class="type_scroller">
-""" + generate_entity_type_html(directory, type_to_key_map) + """
-</div>
-</fieldset>
-</fieldset>
-<fieldset>
-<legend>Events</legend>
-<fieldset>
-<legend>Type</legend>
-<div class="type_scroller">
-""" + generate_event_type_html(directory, type_to_key_map) + """</div>
-</fieldset>
-<fieldset id="span_mod_fset">
-<legend>Modifications</legend>
-<input id="span_mod_negation" type="checkbox" value="Negation"/>
-<label for="span_mod_negation"><span class="accesskey">N</span>egation</label>
-<input id="span_mod_speculation" type="checkbox" value="Speculation"/>
-<label for="span_mod_speculation"><span class="accesskey">S</span>peculation</label>
-</fieldset>
-</fieldset>
-"""
+        client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
+        html = generate_textbound_type_html(directory, span_type_keyboard_shortcuts)
 
         # we need a ProjectConfiguration for the abbrevs here. This could be
         # shared with htmlgen, which also needs one.
@@ -251,6 +229,7 @@ def documents(directory):
 
         response = {
                 'docs': doclist,
+                'dochead' : doclist_header,
                 'dirs': dirlist,
                 'parent': parent,
                 'messages': [],
@@ -266,14 +245,6 @@ def documents(directory):
         else:
             raise
 
-    add_messages_to_json(response)
-    print dumps(response, sort_keys=True, indent=2)
-
-def directories():
-    print 'Content-Type: application/json\n'
-    dirlist = [dir for dir in my_listdir(DATA_DIR)]
-    dirlist.sort()
-    response = { 'directories': dirlist }
     add_messages_to_json(response)
     print dumps(response, sort_keys=True, indent=2)
 

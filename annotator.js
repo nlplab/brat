@@ -2068,7 +2068,7 @@ $(function() {
         url: ajaxBase,
         data: annotator.ajaxOptions,
         error: function(req, textStatus, errorThrown) {
-          spinner.css('display', 'none');
+	  Annotator.showSpinner(false);
           console.error("Change posting error", textStatus, errorThrown);
           Annotator.actionsAllowed(true);
         },
@@ -2418,12 +2418,32 @@ $(function() {
         click(chooseDirectory).
         dblclick(chooseDirectoryAndSubmit);
 
+    html = []
+    $.each(filesData.dochead, function(headNo, head) {
+	html.push('<th>'+head[0]+'</th>')
+    });
+    html = '<tr>'+html.join('')+'</tr>'
+    thead = $('#document_select thead').html(html);
+
     html = [];
     filesData.docs.sort(docSortFunction);
     $.each(filesData.docs, function(docNo, doc) {
-      html.push(
-          '<tr data-value="' + doc[0] + '"><th>' + doc[0] + '</th><td>' + Annotator.formatTime(doc[1]*1000) + '</td></tr>'
-          );
+      // assume document name is always first
+      trs = '<tr data-value="' + doc[0] + '"><th>' + doc[0] + '</th>';
+      for (var i = 1; i < doc.length; i++) {
+	  // format rest according to "data type" specified in header
+	  if (!filesData.dochead[i]) {
+	      console.error('Missing document list data type');
+	      trs += '<td>' + doc[i] + '</td>';
+	  }
+	  else if (filesData.dochead[i][1] == "time") {
+	      trs += '<td>' + Annotator.formatTime(doc[i]*1000) + '</td>';
+	  } else {
+	      trs += '<td>' + doc[i] + '</td>';
+	  }
+      }
+      trs += '</tr>';
+      html.push(trs);
     });
     html = html.join('');
     tbody = $('#document_select tbody').html(html);
@@ -2431,6 +2451,13 @@ $(function() {
     tbody.find('tr').
         click(chooseDocument).
         dblclick(chooseDocumentAndSubmit);
+
+    $('#directory_select thead tr *').each(function(thNo, th) {
+	makeSortFunction(dirSort, th, thNo);
+    });
+    $('#document_select thead tr *').each(function(thNo, th) {
+	makeSortFunction(docSort, th, thNo);
+    });
 
     updateFileBrowser();
     $('#document_input').focus().select();
@@ -2628,12 +2655,6 @@ $(function() {
           openFileBrowser(); // resort
       });
   }
-  $('#directory_select thead tr *').each(function(thNo, th) {
-      makeSortFunction(dirSort, th, thNo);
-  });
-  $('#document_select thead tr *').each(function(thNo, th) {
-      makeSortFunction(docSort, th, thNo);
-  });
   var spanFormSubmit = function(evt) {
     spanForm.css('display', 'none');
     annotator.keymap = {};

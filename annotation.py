@@ -104,7 +104,7 @@ class Annotations(object):
         return self._document
 
     #TODO: DOC!
-    def __init__(self, document):
+    def __init__(self, document, read_only=False):
         #TODO: DOC!
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
         from collections import defaultdict
@@ -114,6 +114,8 @@ class Annotations(object):
 
         # we should remember this
         self._document = document
+
+        
         
         self.failed_lines = []
 
@@ -131,7 +133,7 @@ class Annotations(object):
         ###
 
         ## We use some heuristics to find the appropriate files
-        self._read_only = False
+        self._read_only = read_only
         try:
             # Do we have a valid suffix? If so, it is probably best to the file
             suff = document[document.rindex('.') + 1:]
@@ -405,8 +407,7 @@ class Annotations(object):
         for suggestion in (prefix + str(i) + suffix for i in xrange(1, 2**32)):
             # This is getting more complicated by the minute, two checks since
             # the developers no longer know when it is an id or string.
-            if (suggestion not in self._ann_by_id
-                    and str(suggestion) not in self._ann_by_id):
+            if suggestion not in self._ann_by_id:
                 return suggestion
 
     def _parse_ann_file(self):
@@ -537,6 +538,7 @@ class Annotations(object):
             # We are hitting the disk a lot more than we should here, what we
             # should have is a modification flag in the object but we can't
             # due to how we change the annotations.
+            
             out_str = str(self)
             with open(self._input_files[0], 'r') as old_ann_file:
                 old_str = old_ann_file.read()
@@ -564,9 +566,10 @@ class Annotations(object):
                             now = time()
                             utime(DATA_DIR, (now, now))
                     except Exception, e:
-                        from sys import stderr
-                        print >> stderr, 'WARNING: Could not write changes!'
-                        print >> stderr, e
+                        from message import display_message
+                        import sys
+                        print >> sys.stderr, "Here"
+                        display_message('ERROR: Could not write changes!<br/>%s' % e, 'error', -1)
         return
 
     def __in__(self, other):
