@@ -2068,7 +2068,7 @@ $(function() {
         url: ajaxBase,
         data: annotator.ajaxOptions,
         error: function(req, textStatus, errorThrown) {
-          spinner.css('display', 'none');
+	  Annotator.showSpinner(false);
           console.error("Change posting error", textStatus, errorThrown);
           Annotator.actionsAllowed(true);
         },
