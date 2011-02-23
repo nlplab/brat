@@ -188,10 +188,10 @@ def documents(directory):
         docstats = []
         for docname in basenames:
             try:
-                ann_obj = Annotations(join_path(directory, docname+".ann"))
-                tb_count = len([a for a in ann_obj.get_textbounds()])
-                event_count = len([a for a in ann_obj.get_events()])
-                docstats.append([tb_count, event_count])
+                with Annotations(docname) as ann_obj:
+                    tb_count = len([a for a in ann_obj.get_textbounds()])
+                    event_count = len([a for a in ann_obj.get_events()])
+                    docstats.append([tb_count, event_count])
             except:
                 docstats.append(["(no stats)"])
         doclist = [doclist[i] + docstats[i] for i in range(len(doclist))]

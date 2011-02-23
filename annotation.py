@@ -112,6 +112,8 @@ class Annotations(object):
 
         # we should remember this
         self._document = document
+
+        
         
         self.failed_lines = []
 
@@ -534,6 +536,7 @@ class Annotations(object):
             # We are hitting the disk a lot more than we should here, what we
             # should have is a modification flag in the object but we can't
             # due to how we change the annotations.
+            
             out_str = str(self)
             with open(self._input_files[0], 'r') as old_ann_file:
                 old_str = old_ann_file.read()
@@ -552,13 +555,13 @@ class Annotations(object):
                     #       the next change to the file.
                     try:
                         with Annotations(tmp_file.name, read_only=True) as ann:
-                            pass
-                        # Move the temporary file onto the old file
-                        copyfile(tmp_file.name, self._input_files[0])
+                            # Move the temporary file onto the old file
+                            copyfile(tmp_file.name, self._input_files[0])
                     except Exception, e:
-                        from sys import stderr
-                        print >> stderr, 'WARNING: Could not write changes!'
-                        print >> stderr, e
+                        from message import display_message
+                        import sys
+                        print >> sys.stderr, "Here"
+                        display_message('ERROR: Could not write changes!<br/>%s' % e, 'error', -1)
         return
 
     def __in__(self, other):
