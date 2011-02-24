@@ -181,13 +181,11 @@ def documents(directory):
         doclist_with_time = []
         for file in doclist:
             try:
-                # TODO: guessing the suffix to be looking for is .ann,
-                # replace with a more general solution
                 from annotation import JOINED_ANN_FILE_SUFF
                 mtime = getmtime(join(DATA_DIR,
-                    join(directory, file + JOINED_ANN_FILE_SUFF)))
+                    join(directory, file+"."+JOINED_ANN_FILE_SUFF)))
             except OSError:
-                # The file did not exist
+                # The file did not exist (or similar problem)
                 mtime = -1
             doclist_with_time.append([file, mtime])
         doclist = doclist_with_time
@@ -198,12 +196,16 @@ def documents(directory):
         docstats = []
         for docname in basenames:
             try:
-                with Annotations(docname) as ann_obj:
+                # TODO: didn't work as Annotations(docname) although
+                # (if I understand correctly) it should. Check
+#                 with Annotations(docname, read_only=True) as ann_obj:
+                from annotation import JOINED_ANN_FILE_SUFF
+                with Annotations(join(DATA_DIR, join(directory, file+"."+JOINED_ANN_FILE_SUFF)), read_only=True) as ann_obj:
                     tb_count = len([a for a in ann_obj.get_textbounds()])
                     event_count = len([a for a in ann_obj.get_events()])
                     docstats.append([tb_count, event_count])
             except:
-                docstats.append(["(no stats)"])
+                docstats.append(["(no stats)", "(no stats)"])
         doclist = [doclist[i] + docstats[i] for i in range(len(doclist))]
         doclist_header += [("Textbounds", "int"), ("Events", "int")]
 
