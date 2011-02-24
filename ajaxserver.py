@@ -28,7 +28,6 @@ import hashlib
 from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationsIsReadOnly
 from annspec import span_type_keyboard_shortcuts
 from backup import backup
-from filelock import file_lock, PID_WARN
 from projectconfig import ProjectConfiguration
 from verify_annotations import verify_annotation
 # We should not import this in the end...
@@ -982,8 +981,7 @@ def authenticate(login, password):
 
 def serve(argv):
     # Check for back-ups
-    with file_lock('.backup.lock', pid_policy=PID_WARN, timeout=3):
-        backup()
+    backup()
 
     params = FieldStorage()
     

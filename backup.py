@@ -19,6 +19,8 @@ from datetime import datetime, timedelta
 from os import listdir, walk
 from subprocess import Popen, PIPE
 
+from filelock import file_lock, PID_WARN
+
 from config import BACKUP_DIR, DATA_DIR
 
 ### Constants
@@ -62,9 +64,13 @@ def _youngest_backup(dir):
     return backups[0][::-1]
 
 def backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR):
-    if BACKUP_DIR is None:
+    if backup_dir is None:
         return
 
+    with file_lock('.backup.lock', pid_policy=PID_WARN, timeout=3):
+        _backup(min_interval, backup_dir, data_dir)
+
+def _backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR):
     b_file, b_mtime = _youngest_backup(backup_dir)
     y_mtime = _datetime_mtime(DATA_DIR)
     #_, y_mtime = _youngest_file(data_dir)
