@@ -62,6 +62,9 @@ def _youngest_backup(dir):
     return backups[0][::-1]
 
 def backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR):
+    if BACKUP_DIR is None:
+        return
+
     b_file, b_mtime = _youngest_backup(backup_dir)
     y_mtime = _datetime_mtime(DATA_DIR)
     #_, y_mtime = _youngest_file(data_dir)
