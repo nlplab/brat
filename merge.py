@@ -3,7 +3,7 @@
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 '''
-Merge BioNLP'11 Shared Task annotation format into a single annotation file.
+Merge BioNLP Shared Task annotation format into a single annotation file.
 
 find data -name '*.a1' -o -name '*.a2' -o -name '*.rel' -o -name '*.co' \
     | ./merge.py
