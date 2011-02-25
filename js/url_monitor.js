@@ -2,16 +2,21 @@ var URLMonitor = (function($, window, undefined) {
     var PULSE = 100; // ms
 
     var URLMonitor = function(dispatcher) {
+      var urlMonitor = this;
+
       var updateForced = false;
+      urlMonitor.args = {};
+      urlMonitor.doc = '';
+      urlMonitor.dir = '';
 
       var forceUpdate = function() {
         updateForced = true;
       };
 
       var engage = function() {
-        var uri = this.dir + '/' + this.doc;
+        var uri = urlMonitor.dir + '/' + urlMonitor.doc;
         // TODO only allowed args?
-        var args = $.param(this.args);
+        var args = $.param(urlMonitor.args);
         if (args.length) args = '?' + args;
         uri += args;
         if (uri.length) uri = '#' + uri;
@@ -19,22 +24,36 @@ var URLMonitor = (function($, window, undefined) {
       };
 
       var setArguments = function(args) {
-        this.args = args;
+        var oldArgs = urlMonitor.args;
+        urlMonitor.args = args;
+        var oldArgStr = $.param(oldArgs);
+        var argStr = $.param(args);
+        if (oldArgStr !== argStr) {
+          dispatcher.post("args_changed", args, oldArgs);
+        }
         forceUpdate();
         engage();
       };
 
       var setDocument = function(doc, args) {
-        this.doc = doc;
+        var oldDoc = urlMonitor.doc;
+        urlMonitor.doc = doc;
+        if (oldDoc !== doc) {
+          dispatcher.post("doc_changed", doc, oldDoc);
+        }
         setArguments(args);
       };
 
       var setDirectory = function(dir, doc, args) {
-        this.dir = dir;
+        var oldDir = urlMonitor.dir;
+        urlMonitor.dir = dir;
+        if (oldDir !== dir) {
+          dispatcher.post("dir_changed", dir, oldDir);
+        }
         setDocument(doc, args);
       }
 
-      var oldHash = {};
+      var oldHash = '';
 
       var pulse = function() {
         var newHash = window.location.hash;
@@ -43,7 +62,7 @@ var URLMonitor = (function($, window, undefined) {
           // old news; do nothing
           return;
         }
-        var oldDir = this.dir;
+        var oldDir = urlMonitor.dir;
         oldHash = newHash;
 
         if (newHash.length) {
@@ -52,27 +71,23 @@ var URLMonitor = (function($, window, undefined) {
         }
         var pathAndArgs = newHash.split('?');
         var path = pathAndArgs[0] || '';
-        var args = pathAndArgs[1] || '';
+        var argsStr = pathAndArgs[1] || '';
+        var dir;
         var slashPos = path.lastIndexOf('/');
         if (slashPos === -1) {
-          this.dir = '';
+          dir = '';
         } else {
-          this.dir = path.substr(0, slashPos);
+          dir = path.substr(0, slashPos);
         }
-        this.doc = path.substr(slashPos + 1);
-        this.args = {};
-        if (args.length) {
-          $.each(args.split('&'), function(argNo, arg) {
+        var doc = path.substr(slashPos + 1);
+        var args = {};
+        if (argsStr.length) {
+          $.each(argsStr.split('&'), function(argNo, arg) {
               var keyAndValue = arg.split('=');
-              this.args[decodeURI(keyAndValue[0])] = decodeURI(keyAndValue[1]);
+              args[decodeURI(keyAndValue[0])] = decodeURI(keyAndValue[1]);
           });
         }
-        engage();
-
-        if (oldDir !== this.dir) {
-          // directory changed
-          dispatcher.post(0, "chdir", this.dir);
-        }
+        setDirectory(dir, doc, args);
       };
 
       setInterval(pulse, PULSE);
@@ -82,6 +97,8 @@ var URLMonitor = (function($, window, undefined) {
           on("setArguments", setArguments).
           on("setDocument", setDocument).
           on("setDirectory", setDirectory);
+
+      return urlMonitor;
     };
 
     return URLMonitor;

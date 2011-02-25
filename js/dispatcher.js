@@ -37,6 +37,9 @@ var Dispatcher = (function($, window, undefined) {
         message = args.shift();
       }
       var results = [];
+
+      console.log(message, args);
+
       var todo = table[message];
       if (todo !== undefined) {
         $.each(todo, function(itemNo, item) {
