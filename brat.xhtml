@@ -14,11 +14,13 @@
       );
       head.js(
           "js/dispatcher.js",
-          "js/url_monitor.js"
+          "js/url_monitor.js",
+          "js/ajax.js"
       );
       head.ready(function() {
           var dispatcher = new Dispatcher();
           var urlMonitor = new URLMonitor(dispatcher);
+          var ajax = new Ajax(dispatcher);
           dispatcher.post("js_loaded");
       });
 

@@ -6,8 +6,8 @@ var URLMonitor = (function($, window, undefined) {
 
       var updateForced = false;
       urlMonitor.args = {};
-      urlMonitor.doc = '';
-      urlMonitor.dir = '';
+      urlMonitor.doc = null;
+      urlMonitor.dir = null;
 
       var forceUpdate = function() {
         updateForced = true;
@@ -31,7 +31,6 @@ var URLMonitor = (function($, window, undefined) {
         if (oldArgStr !== argStr) {
           dispatcher.post("args_changed", args, oldArgs);
         }
-        forceUpdate();
         engage();
       };
 

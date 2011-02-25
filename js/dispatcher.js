@@ -10,6 +10,9 @@
 /*jshint curly: true, eqeqeq: true, forin: true, newcap: true, noarg: false, nonew: true, nomen: false, undef: true, strict: true, white: true */
 /*global $ */
 
+
+// TODO: does "arguments.callee.caller" work?
+
 var Dispatcher = (function($, window, undefined) {
   var Dispatcher = function() {
 
@@ -38,23 +41,37 @@ var Dispatcher = (function($, window, undefined) {
       }
       var results = [];
 
-      console.log(message, args);
-
-      var todo = table[message];
-      if (todo !== undefined) {
-        $.each(todo, function(itemNo, item) {
-          var result;
-          if (asynch !== null) {
-            result = setTimeout(function() {
-              item[1].apply(item[0], args);
-            }, asynch);
-          } else {
-            result = item[1].apply(item[0], args);
-          }
-          results.push(result);
-        });
+      if (typeof(message) === 'function') {
+        console.log("functional 'message'");
+        // someone was lazy and sent a simple function
+        var host = arguments.callee.caller;
+        if (asynch !== null) {
+          result = setTimeout(function() {
+            message.apply(host, args);
+          }, asynch);
+        } else {
+          result = message.apply(host, args);
+        }
+        results.push(result);
+      } else {
+        // a proper message, propagate to all interested parties
+        console.log(message, args);
+        var todo = table[message];
+        if (todo !== undefined) {
+          $.each(todo, function(itemNo, item) {
+            var result;
+            if (asynch !== null) {
+              result = setTimeout(function() {
+                item[1].apply(item[0], args);
+              }, asynch);
+            } else {
+              result = item[1].apply(item[0], args);
+            }
+            results.push(result);
+          });
+        }
       }
-      return this;
+      return results;
     };
 
     return {
