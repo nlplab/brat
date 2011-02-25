@@ -9,10 +9,13 @@ var URLMonitor = (function($, window, undefined) {
       };
 
       var engage = function() {
-        var temp = '#' + this.dir + '/' + this.doc;
-        // TODO prettify (conditional "?", only allowed args)
-        temp += '?' + $.param(this.args);
-        window.location.hash = temp;
+        var uri = this.dir + '/' + this.doc;
+        // TODO only allowed args?
+        var args = $.param(this.args);
+        if (args.length) args = '?' + args;
+        uri += args;
+        if (uri.length) uri = '#' + uri;
+        window.location.hash = uri;
       };
 
       var setArguments = function(args) {
@@ -66,8 +69,8 @@ var URLMonitor = (function($, window, undefined) {
         }
         engage();
 
-
         if (oldDir !== this.dir) {
+          // directory changed
           dispatcher.post(0, "chdir", this.dir);
         }
       };
