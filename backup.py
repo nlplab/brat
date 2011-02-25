@@ -11,6 +11,9 @@ Version:    2011-02-22
 #       we need to share a mutex with the rest of the system somehow
 #XXX: Does not check the return values of the external calls
 #XXX: File/directory permissions must be checked
+#XXX: The check for the latest data ASSUMES that the data dir has not been
+#       changed, if it has been changed it will not do a back-up although
+#       there is no existing back-up
 
 from os.path import getmtime, isfile, dirname, abspath, relpath, basename
 from os.path import join as join_path
