@@ -70,7 +70,10 @@ def backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR):
     if backup_dir is None:
         return
 
-    with file_lock('.backup.lock', pid_policy=PID_WARN, timeout=3):
+    #XXX: The timeout is arbitary but dependant on the back-up, should we start
+    #       with a sane default and then refer to how long the last back-up
+    #       took?  
+    with file_lock('.backup.lock', pid_policy=PID_WARN, timeout=60):
         _backup(min_interval, backup_dir, data_dir)
 
 def _backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR):
