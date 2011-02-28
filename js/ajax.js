@@ -8,9 +8,9 @@ var Ajax = (function($, window, undefined) {
           data: data,
           method: 'POST',
           success: function(response) {
-            dispatcher.post("messages", response.messages);
+            dispatcher.post('messages', [response.messages]);
             if (!response.error && callback) {
-              dispatcher.post(0, callback, response);
+              dispatcher.post(0, callback, [response]);
             }
           },
           error: function(x) {
@@ -20,7 +20,7 @@ var Ajax = (function($, window, undefined) {
       };
 
       dispatcher.
-          on("ajax", ajaxCall);
+          on('ajax', ajaxCall);
     };
 
     return Ajax;

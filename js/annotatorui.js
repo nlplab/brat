@@ -6,13 +6,13 @@ var AnnotatorUI = function($, window, undefined) {
       };
 
       submitSpanForm = function(evt) {
-        dispatcher.post("save_span", spanId, spanData);
+        dispatcher.post('save_span', [spanId, spanData]);
       };
 
       $('#span_form_submit').submit(submitSpanForm);
 
       dispatcher.
-          on("edit_span", editSpan);
+          on('edit_span', editSpan);
     };
 
     return AnnotatorUI;

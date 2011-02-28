@@ -1,19 +1,14 @@
 var URLMonitor = (function($, window, undefined) {
-    var PULSE = 100; // ms
-
     var URLMonitor = function(dispatcher) {
       var urlMonitor = this;
 
-      var updateForced = false;
+      var toRender = false;
+
       urlMonitor.args = {};
       urlMonitor.doc = null;
       urlMonitor.dir = null;
 
-      var forceUpdate = function() {
-        updateForced = true;
-      };
-
-      var engage = function() {
+      var updateURL = function(dirChanging) {
         var uri = urlMonitor.dir + '/' + urlMonitor.doc;
         // TODO only allowed args?
         var args = $.param(urlMonitor.args);
@@ -21,54 +16,50 @@ var URLMonitor = (function($, window, undefined) {
         uri += args;
         if (uri.length) uri = '#' + uri;
         window.location.hash = uri;
+        dispatcher.post('current', [urlMonitor.dir, urlMonitor.doc, urlMonitor.args]);
       };
 
-      var setArguments = function(args) {
+      var setArguments = function(args, dirChanging) {
         var oldArgs = urlMonitor.args;
         urlMonitor.args = args;
         var oldArgStr = $.param(oldArgs);
         var argStr = $.param(args);
         if (oldArgStr !== argStr) {
-          dispatcher.post("args_changed", args, oldArgs);
+          dispatcher.post('argsChanged', [args, oldArgs]);
         }
-        engage();
+        updateURL();
       };
 
       var setDocument = function(doc, args) {
         var oldDoc = urlMonitor.doc;
         urlMonitor.doc = doc;
         if (oldDoc !== doc) {
-          dispatcher.post("doc_changed", doc, oldDoc);
+          dispatcher.post('docChanged', [doc, oldDoc]);
         }
-        setArguments(args);
+        setArguments(args, true);
       };
 
       var setDirectory = function(dir, doc, args) {
         var oldDir = urlMonitor.dir;
         urlMonitor.dir = dir;
         if (oldDir !== dir) {
-          dispatcher.post("dir_changed", dir, oldDir);
+          dispatcher.post('ajax', [{
+              action: 'ls',
+              directory: dir
+            }, 'dirLoaded']);
+          dispatcher.post('dirChanged', [dir, oldDir]);
         }
         setDocument(doc, args);
       }
 
-      var oldHash = '';
-
-      var pulse = function() {
-        var newHash = window.location.hash;
-        
-        if (oldHash === newHash && !updateForced) {
-          // old news; do nothing
-          return;
+      var updateState = function(evt) {
+        var hash = window.location.hash;
+        if (hash.length) {
+          hash = hash.substr(1);
         }
         var oldDir = urlMonitor.dir;
-        oldHash = newHash;
 
-        if (newHash.length) {
-          // kill # sign
-          newHash = newHash.substr(1);
-        }
-        var pathAndArgs = newHash.split('?');
+        var pathAndArgs = hash.split('?');
         var path = pathAndArgs[0] || '';
         var argsStr = pathAndArgs[1] || '';
         var dir;
@@ -79,23 +70,26 @@ var URLMonitor = (function($, window, undefined) {
           dir = path.substr(0, slashPos);
         }
         var doc = path.substr(slashPos + 1);
-        var args = {};
-        if (argsStr.length) {
-          $.each(argsStr.split('&'), function(argNo, arg) {
-              var keyAndValue = arg.split('=');
-              args[decodeURI(keyAndValue[0])] = decodeURI(keyAndValue[1]);
-          });
-        }
+        var args = $.deparam(argsStr);
+        console.log(args);
         setDirectory(dir, doc, args);
       };
 
-      setInterval(pulse, PULSE);
+      var forceUpdate = function() {
+        $(window).trigger('hashchange');
+      };
+
+      var init = function() {
+        $(window).bind('hashchange', updateState);
+        forceUpdate();
+      }
 
       dispatcher.
-          on("forceUpdate", forceUpdate).
-          on("setArguments", setArguments).
-          on("setDocument", setDocument).
-          on("setDirectory", setDirectory);
+          on('forceUpdate', forceUpdate).
+          on('setArguments', setArguments).
+          on('setDocument', setDocument).
+          on('setDirectory', setDirectory).
+          on('init', init);
 
       return urlMonitor;
     };

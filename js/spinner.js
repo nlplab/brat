@@ -18,8 +18,8 @@ var Spinner = (function($, window, undefined) {
       };
 
       dispatcher.
-          on("spin", spin).
-          on("unspin", unspin);
+          on('spin', spin).
+          on('unspin', unspin);
     };
 
     return Spinner;
