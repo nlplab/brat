@@ -11,6 +11,9 @@ Version:    2011-02-22
 #       we need to share a mutex with the rest of the system somehow
 #XXX: Does not check the return values of the external calls
 #XXX: File/directory permissions must be checked
+#XXX: The check for the latest data ASSUMES that the data dir has not been
+#       changed, if it has been changed it will not do a back-up although
+#       there is no existing back-up
 
 from os.path import getmtime, isfile, dirname, abspath, relpath, basename
 from os.path import join as join_path
@@ -67,7 +70,10 @@ def backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR):
     if backup_dir is None:
         return
 
-    with file_lock('.backup.lock', pid_policy=PID_WARN, timeout=3):
+    #XXX: The timeout is arbitary but dependant on the back-up, should we start
+    #       with a sane default and then refer to how long the last back-up
+    #       took?  
+    with file_lock('.backup.lock', pid_policy=PID_WARN, timeout=60):
         _backup(min_interval, backup_dir, data_dir)
 
 def _backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR):
