@@ -86,7 +86,7 @@ var Visualizer = (function($, window, undefined) {
 
       var clearSVG = function() {
         svg.clear();
-        svgContainer.css('display', 'none');
+        svgContainer.hide();
       };
 
       var setData = function(_data) {
@@ -501,7 +501,7 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var renderDataReal = function(_data) {
-        svgContainer.css('display', 'block');
+        svgContainer.show();
         if (this.drawing) { // FIXME
           dispatcher.post('setUIAllowed', [true]);
           return;
@@ -1208,7 +1208,7 @@ var Visualizer = (function($, window, undefined) {
         triggerRender();
       };
 
-      svgContainer = $(svgContainer);
+      svgContainer = $(svgContainer).hide();
       svgContainer.svg({
           onLoad: function(_svg) {
               svg = _svg;

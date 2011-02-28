@@ -18,13 +18,15 @@
           'js/dispatcher.js',
           'js/url_monitor.js',
           'js/ajax.js',
-          'js/visualizer.js'
+          'js/visualizer.js',
+          'js/annotatorui.js'
       );
       head.ready(function() {
           var dispatcher = new Dispatcher();
           var urlMonitor = new URLMonitor(dispatcher);
           var ajax = new Ajax(dispatcher);
           var visualizer = new Visualizer(dispatcher, '#svg');
+          var annotatorUI = new AnnotatorUI(dispatcher);
           dispatcher.post('init');
       });
 
