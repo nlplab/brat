@@ -71,7 +71,6 @@ var URLMonitor = (function($, window, undefined) {
         }
         var doc = path.substr(slashPos + 1);
         var args = $.deparam(argsStr);
-        console.log(args);
         setDirectory(dir, doc, args);
       };
 

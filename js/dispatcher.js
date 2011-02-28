@@ -33,6 +33,9 @@ var Dispatcher = (function($, window, undefined) {
         message = asynch;
         asynch = null;
       }
+      if (args === undefined) {
+        args = [];
+      }
       var results = [];
 
       if (typeof(message) === 'function') {

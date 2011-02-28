@@ -13,6 +13,7 @@
           'js/lib/jquery.svgdom.min.js',
           'js/lib/jquery.ba-bbq.min.js'
       );
+      head.js('js/brat.js');
       head.js(
           'js/dispatcher.js',
           'js/url_monitor.js',
@@ -23,7 +24,7 @@
           var dispatcher = new Dispatcher();
           var urlMonitor = new URLMonitor(dispatcher);
           var ajax = new Ajax(dispatcher);
-          var visualizer = new Visualizer(dispatcher);
+          var visualizer = new Visualizer(dispatcher, '#svg');
           dispatcher.post('init');
       });
 
