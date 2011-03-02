@@ -1233,7 +1233,7 @@ var Visualizer = (function($, window, undefined) {
           var mods = [];
           if (span.Negation) mods.push("Negated");
           if (span.Speculation) mods.push("Speculated");
-          dispatcher.post('displayInfo', [
+          dispatcher.post('displaySpanInfo', [
               evt, target, id, span.type, mods,
               data.text.substring(span.from, span.to),
               span.info && span.info.text,
@@ -1267,15 +1267,38 @@ var Visualizer = (function($, window, undefined) {
                 addClass('highlight');
           }
           forceRedraw();
+        } else if (!that.arcDragOrigin && (id = target.attr('data-arc-role'))) {
+          var originSpanId = target.attr('data-arc-origin');
+          var targetSpanId = target.attr('data-arc-target');
+          var role = target.attr('data-arc-role');
+          // TODO: remove special-case processing, introduce way to differentiate
+          // symmetric relations in general
+          var symmetric = role === "Equiv";
+          // NOTE: no infoText, infoType for now
+          dispatcher.post('displayArcInfo', [
+              evt, target, symmetric, 
+              originSpanId, role, targetSpanId]);
+          highlightArcs = $(svgElement).
+              find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
+              addClass('highlight');
+          highlightSpans = $(svgElement).
+              find('rect[data-span-id="' + originSpanId + '"], rect[data-span-id="' + targetSpanId + '"]').
+              parent().
+              addClass('highlight');
+        } else if (id = target.attr('data-sent')) {
+          var info = data.sentInfo[id];
+          if (info) {
+          // NOTE: no infoText, infoType for now
+          dispatcher.post('displaySentInfo', [
+              evt, target, info]);
+            displaySentInfo(info.text, evt);
+          }
         }
       };
 
       var onMouseOut = function(evt) {
         var target = $(evt.target);
-        var id = target.attr('data-span-id');
-        if (id === infoId) {
-          dispatcher.post('hideInfo');
-        }
+        dispatcher.post('hideInfo');
         if (highlight) {
           svg.remove(highlight);
           highlight = undefined;

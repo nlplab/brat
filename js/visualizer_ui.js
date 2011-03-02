@@ -65,7 +65,8 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var adjustToCursor = function(evt, element, offset, top, right) {
-        element.css({ left: 0, top: 0 }); // to get the real width, without wrapping
+        // get the real width, without wrapping
+        element.css({ left: 0, top: 0 });
         var screenHeight = $(window).height();
         var screenWidth = $(window).width();
         // FIXME why the hell is this 22 necessary?!?
@@ -92,17 +93,7 @@ var VisualizerUI = (function($, window, undefined) {
       var infoPopup = $('#infopopup');
       var infoDisplayed = false;
 
-      var displayInfo = function(
-          evt, target, spanId, spanType, mods, spanText, infoText, infoType) {
-
-        var info = '<div><span class="info_id">' + spanId + '</span>' +
-          ' ' + '<span class="info_type">' + spanType + '</span>';
-        if (mods.length) {
-          info += '<div>' + mods.join(', ') + '</div>';
-        }
-        info += '</div>';
-        info += '<div>"' + spanText + '"</div>';
-
+      var displayInfo = function(evt, target, info, infoText, infoType) {
         var idtype;
         if (infoType) {
           info += infoText;
@@ -115,17 +106,50 @@ var VisualizerUI = (function($, window, undefined) {
         infoDisplayed = true;
       };
 
+      var displaySpanInfo = function(
+          evt, target, spanId, spanType, mods, spanText, infoText, infoType) {
+
+        var info = '<div><span class="info_id">' + spanId + '</span>' +
+          ' ' + '<span class="info_type">' + spanType + '</span>';
+        if (mods.length) {
+          info += '<div>' + mods.join(', ') + '</div>';
+        }
+        info += '</div>';
+        info += '<div>"' + spanText + '"</div>';
+        displayInfo(evt, target, info, infoText, infoType);
+      };
+
+      var displayArcInfo = function(
+          evt, target, symmetric,
+          originSpanId, role, targetSpanId, infoText, infoType) {
+        var info = (symmetric
+          ? '<div class="info_arc">' + originSpanId + ' ' +
+            target.attr('data-arc-role') + ' ' + targetSpanId +'</div>'
+          : '<div class="info_arc">' + originSpanId + ' &#8594; ' +
+            target.attr('data-arc-role') + ':' + targetSpanId +'</div>');
+        displayInfo(evt, target, info, infoText, infoType);
+      };
+
+      var displaySentInfo = function(
+          evt, target, infoText, infoType) {
+        displayInfo(evt, target, '', infoText, infoType);
+      };
+
       var hideInfo = function() {
-        infoPopup.stop(true, true).fadeOut();
+        infoPopup.stop(true, true).fadeOut(function() { infoDisplayed = false; });
       };
 
       var onMouseMove = function(evt) {
-        adjustToCursor(evt, infoPopup, 10, true, true);
+        if (infoDisplayed) {
+          adjustToCursor(evt, infoPopup, 10, true, true);
+        }
       };
 
       dispatcher.
           on('messages', displayMessages).
-          on('displayInfo', displayInfo).
+          on('displaySpanInfo', displaySpanInfo).
+          on('displayArcInfo', displayArcInfo).
+          on('displaySentInfo', displaySentInfo).
           on('hideInfo', hideInfo).
           on('mousemove', onMouseMove);
     };
