@@ -1,6 +1,6 @@
 var Annotator = (function($, window, undefined) {
     var Annotator = function(dispatcher, visualizer, svg) {
-      var annotator = this;
+      var that = this;
 
       var dblclick = function(evt) {
         var target = $(evt.target);

@@ -1,7 +1,6 @@
 var Visualizer = (function($, window, undefined) {
     var Visualizer = function(dispatcher, svgContainer) {
-      var visualizer = this;
-
+      var that = this;
 
       // OPTIONS
 
@@ -37,6 +36,15 @@ var Visualizer = (function($, window, undefined) {
       var isRenderRequested;
 
       var infoPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error'];
+
+      this.arcDragOrigin = null; // TODO
+
+      // due to silly Chrome bug, I have to make it pay attention
+      var forceRedraw = function() {
+        if (!$.browser.chrome) return; // not needed
+        svgElement.css('margin-bottom', 1);
+        setTimeout(function() { svgElement.css('margin-bottom', 0); }, 0);
+      }
 
       var Span = function(id, type, from, to, generalType) {
         this.id = id;
@@ -500,14 +508,17 @@ var Visualizer = (function($, window, undefined) {
         element.translation = { x: x, y: y };
       };
 
+      var drawing = false;
+      var redraw = false;
+
       var renderDataReal = function(_data) {
         svgContainer.show();
-        if (this.drawing) { // FIXME
-          dispatcher.post('setUIAllowed', [true]);
+        if (drawing) {
+          redraw = true;
           return;
         }
-        this.redraw = false; // FIXME
-        this.drawing = true; // FIXME
+        redraw = false;
+        drawing = true;
 
         try {
           if (_data) setData(_data);
@@ -526,7 +537,7 @@ var Visualizer = (function($, window, undefined) {
           var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
           svg.add(defs, filter);
           if (!data || data.length == 0) return;
-          canvasWidth = this.forceWidth || svgContainer.width();
+          canvasWidth = that.forceWidth || svgContainer.width();
           svgElement.width(canvasWidth);
           var commentName = (dir + '/' + doc).replace('--', '-\\-');
           svgElement.
@@ -1156,15 +1167,15 @@ var Visualizer = (function($, window, undefined) {
           $(svg._svg).attr('height', y).css('height', y);
           svgContainer.attr('height', y).css('height', y);
 
-          this.drawing = false;
-          if (this.redraw) {
-            this.redraw = false;
+          drawing = false;
+          if (redraw) {
+            redraw = false;
             renderDataReal();
           }
         } catch(x) {
           if (x === 'BadDocumentError') {
             clearSVG();
-            this.drawing = false;
+            that.drawing = false;
           } else {
             console.error('FIXME Error during rendering: ', x); // FIXME
           }
@@ -1208,7 +1219,93 @@ var Visualizer = (function($, window, undefined) {
         triggerRender();
       };
 
+
+      // event handlers
+
+      var highlight, highlightArcs, highlightSpans, infoId;
+
+      var onMouseOver = function(evt) {
+        var target = $(evt.target);
+        var id;
+        if (id = target.attr('data-span-id')) {
+          infoId = id;
+          var span = data.spans[id];
+          var mods = [];
+          if (span.Negation) mods.push("Negated");
+          if (span.Speculation) mods.push("Speculated");
+          dispatcher.post('displayInfo', [
+              evt, target, id, span.type, mods,
+              data.text.substring(span.from, span.to),
+              span.info && span.info.text,
+              span.info && span.info.type]);
+          highlight = svg.rect(highlightGroup,
+            span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
+            span.curly.to + 2 - span.curly.from, span.curly.height + 2,
+            { 'class': 'span_default span_' + span.type });
+
+          if (that.arcDragOrigin) {
+            target.parent().addClass('highlight');
+          } else {
+            highlightArcs = svgElement.
+                find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
+                addClass('highlight');
+            var spans = {};
+            spans[id] = true;
+            var spanIds = [];
+            $.each(span.incoming, function(arcNo, arc) {
+                spans[arc.origin] = true;
+            });
+            $.each(span.outgoing, function(arcNo, arc) {
+                spans[arc.target] = true;
+            });
+            $.each(spans, function(spanId, dummy) {
+                spanIds.push('rect[data-span-id="' + spanId + '"]');
+            });
+            highlightSpans = svgElement.
+                find(spanIds.join(', ')).
+                parent().
+                addClass('highlight');
+          }
+          forceRedraw();
+        }
+      };
+
+      var onMouseOut = function(evt) {
+        var target = $(evt.target);
+        var id = target.attr('data-span-id');
+        if (id === infoId) {
+          dispatcher.post('hideInfo');
+        }
+        if (highlight) {
+          svg.remove(highlight);
+          highlight = undefined;
+        }
+        if (highlightSpans) {
+          highlightArcs.removeClass('highlight');
+          highlightSpans.removeClass('highlight');
+          highlightSpans = undefined;
+        }
+        forceRedraw();
+      };
+
       svgContainer = $(svgContainer).hide();
+
+      // register event listeners
+      var toHandle = [
+          'mouseover', 'mouseout',
+          'mousemove',
+          'dblclick', 'click',
+          'mouseup', 'mousedown'
+      ];
+      $.each(toHandle, function(eventNo, eventName) {
+          svgContainer.bind(eventName,
+            function(evt) {
+              dispatcher.post(eventName, [evt]);
+            }
+          );
+      });
+
+      // create the svg wrapper
       svgContainer.svg({
           onLoad: function(_svg) {
               svg = _svg;
@@ -1221,7 +1318,9 @@ var Visualizer = (function($, window, undefined) {
           on('dirChanged', dirChanged).
           on('dirLoaded', dirLoaded).
           on('renderData', renderData).
-          on('current', gotCurrent);
+          on('current', gotCurrent).
+          on('mouseover', onMouseOver).
+          on('mouseout', onMouseOut);
     };
 
     return Visualizer;

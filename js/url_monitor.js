@@ -1,27 +1,27 @@
 var URLMonitor = (function($, window, undefined) {
     var URLMonitor = function(dispatcher) {
-      var urlMonitor = this;
+      var that = this;
 
       var toRender = false;
 
-      urlMonitor.args = {};
-      urlMonitor.doc = null;
-      urlMonitor.dir = null;
+      that.args = {};
+      that.doc = null;
+      that.dir = null;
 
       var updateURL = function(dirChanging) {
-        var uri = urlMonitor.dir + '/' + urlMonitor.doc;
+        var uri = that.dir + '/' + that.doc;
         // TODO only allowed args?
-        var args = $.param(urlMonitor.args);
+        var args = $.param(that.args);
         if (args.length) args = '?' + args;
         uri += args;
         if (uri.length) uri = '#' + uri;
         window.location.hash = uri;
-        dispatcher.post('current', [urlMonitor.dir, urlMonitor.doc, urlMonitor.args]);
+        dispatcher.post('current', [that.dir, that.doc, that.args]);
       };
 
       var setArguments = function(args, dirChanging) {
-        var oldArgs = urlMonitor.args;
-        urlMonitor.args = args;
+        var oldArgs = that.args;
+        that.args = args;
         var oldArgStr = $.param(oldArgs);
         var argStr = $.param(args);
         if (oldArgStr !== argStr) {
@@ -31,8 +31,8 @@ var URLMonitor = (function($, window, undefined) {
       };
 
       var setDocument = function(doc, args) {
-        var oldDoc = urlMonitor.doc;
-        urlMonitor.doc = doc;
+        var oldDoc = that.doc;
+        that.doc = doc;
         if (oldDoc !== doc) {
           dispatcher.post('docChanged', [doc, oldDoc]);
         }
@@ -40,8 +40,8 @@ var URLMonitor = (function($, window, undefined) {
       };
 
       var setDirectory = function(dir, doc, args) {
-        var oldDir = urlMonitor.dir;
-        urlMonitor.dir = dir;
+        var oldDir = that.dir;
+        that.dir = dir;
         if (oldDir !== dir) {
           dispatcher.post('ajax', [{
               action: 'ls',
@@ -57,7 +57,7 @@ var URLMonitor = (function($, window, undefined) {
         if (hash.length) {
           hash = hash.substr(1);
         }
-        var oldDir = urlMonitor.dir;
+        var oldDir = that.dir;
 
         var pathAndArgs = hash.split('?');
         var path = pathAndArgs[0] || '';
@@ -89,8 +89,6 @@ var URLMonitor = (function($, window, undefined) {
           on('setDocument', setDocument).
           on('setDirectory', setDirectory).
           on('init', init);
-
-      return urlMonitor;
     };
 
     return URLMonitor;

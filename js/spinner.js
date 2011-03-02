@@ -1,6 +1,6 @@
 var Spinner = (function($, window, undefined) {
     var Spinner = function(dispatcher, spinEl) {
-      var spinner = this;
+      var that = this;
       var spinJQ = $(spinEl);
 
       var count = 0:

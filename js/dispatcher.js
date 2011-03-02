@@ -11,6 +11,7 @@
 
 var Dispatcher = (function($, window, undefined) {
   var Dispatcher = function() {
+    var that = this;
 
     var table = {};
 
@@ -39,7 +40,6 @@ var Dispatcher = (function($, window, undefined) {
       var results = [];
 
       if (typeof(message) === 'function') {
-        console.log('functional "message"');
         // someone was lazy and sent a simple function
         var host = arguments.callee.caller;
         if (asynch !== null) {
@@ -52,7 +52,6 @@ var Dispatcher = (function($, window, undefined) {
         results.push(result);
       } else {
         // a proper message, propagate to all interested parties
-        console.log(message, args); // DEBUG
         var todo = table[message];
         if (todo !== undefined) {
           $.each(todo, function(itemNo, item) {

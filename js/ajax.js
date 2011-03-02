@@ -1,6 +1,6 @@
 var Ajax = (function($, window, undefined) {
     var Ajax = function(dispatcher) {
-      var ajax = this;
+      var that = this;
 
       var ajaxCall = function(data, callback) {
         $.ajax({
