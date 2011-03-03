@@ -1197,7 +1197,11 @@ var Visualizer = (function($, window, undefined) {
       var triggerRender = function() {
         if (svg && isRenderRequested && isDirLoaded) {
           isRenderRequested = false;
-          renderDocument();
+          if (doc.length) {
+            renderDocument();
+          } else {
+            dispatcher.post(0, 'noFileSpecified');
+          }
         }
       };
       
@@ -1314,19 +1318,23 @@ var Visualizer = (function($, window, undefined) {
       svgContainer = $(svgContainer).hide();
 
       // register event listeners
-      var toHandle = [
-          'mouseover', 'mouseout',
-          'mousemove',
-          'dblclick', 'click',
-          'mouseup', 'mousedown'
-      ];
-      $.each(toHandle, function(eventNo, eventName) {
-          svgContainer.bind(eventName,
-            function(evt) {
-              dispatcher.post(eventName, [evt]);
-            }
-          );
-      });
+      var registerHandlers = function(element, events) {
+        $.each(events, function(eventNo, eventName) {
+            element.bind(eventName,
+              function(evt) {
+                dispatcher.post(eventName, [evt]);
+              }
+            );
+        });
+      };
+      registerHandlers(svgContainer, [
+          'mouseover', 'mouseout', 'mousemove',
+          'mouseup', 'mousedown',
+          'dblclick', 'click'
+      ]);
+      registerHandlers($(document), [
+          'keydown', 'keypress'
+      ]);
 
       // create the svg wrapper
       svgContainer.svg({

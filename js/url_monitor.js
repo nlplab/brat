@@ -20,10 +20,10 @@ var URLMonitor = (function($, window, undefined) {
       };
 
       var setArguments = function(args, dirChanging) {
-        var oldArgs = that.args;
-        that.args = args;
+        var oldArgs = that.args || {};
+        that.args = args || {};
         var oldArgStr = $.param(oldArgs);
-        var argStr = $.param(args);
+        var argStr = $.param(that.args);
         if (oldArgStr !== argStr) {
           dispatcher.post('argsChanged', [args, oldArgs]);
         }
@@ -46,7 +46,9 @@ var URLMonitor = (function($, window, undefined) {
           dispatcher.post('ajax', [{
               action: 'ls',
               directory: dir
-            }, 'dirLoaded']);
+            }, 'dirLoaded', {
+              directory: dir
+            }]);
           dispatcher.post('dirChanged', [dir, oldDir]);
         }
         setDocument(doc, args);

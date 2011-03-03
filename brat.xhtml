@@ -8,13 +8,14 @@
     <script type="text/javascript" src="js/lib/head.load.min.js"></script>
     <script type="text/javascript">
       head.js(
+          // libraries
           'js/lib/jquery-1.4.3.min.js',
           'js/lib/jquery.svg.min.js',
           'js/lib/jquery.svgdom.min.js',
-          'js/lib/jquery.ba-bbq.min.js'
-      );
-      head.js('js/brat.js');
-      head.js(
+          'js/lib/jquery.ba-bbq.min.js',
+          // brat helpers
+          'js/brat.js',
+          // brat modules
           'js/dispatcher.js',
           'js/url_monitor.js',
           'js/ajax.js',
@@ -38,21 +39,25 @@
     <img id="spinner" src="spinner.gif"/>
     <div id="messages"/>
     <div id="infopopup" class="shadow"/>
-    <!--form id="header">
+    <div id="header">
       <img id="logo" src="brat-logo.png"/>
       <div>
         <span id="document_name"/>
-	<span id="document_mtime"/>
-	<!- <span id="document_ctime"/> ->
+        <span id="document_mtime"/>
+<!-- <span id="document_ctime"/> -->
       </div>
       <input id="file_browser_button" type="button" value="File (Tab)"/>
+<!--
       <input id="auth_button" type="button" value="Login"/>
       <input id="export_button" type="button" value="Export"/>
       <input id="import_button" type="button" value="Import"/>
       <input id="tag_button" type="button" value="Tag (NERsuite)"/>
+-->
       <a href="#" id="original_link" target="brat_search" style="display:none">Original document</a>
+<!--
       <span style="float:right"><label for="confirm_mode">Confirm mode</label> <input id="confirm_mode" type="checkbox" value="true"/></span>
-    </form-->
+-->
+    </div>
     <div id="svg"></div>
     <!--div id="blind"></div-->
     <form id="import_form" class="shadow">

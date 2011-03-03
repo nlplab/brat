@@ -2,7 +2,7 @@ var Ajax = (function($, window, undefined) {
     var Ajax = function(dispatcher) {
       var that = this;
 
-      var ajaxCall = function(data, callback) {
+      var ajaxCall = function(data, callback, merge) {
         $.ajax({
           url: 'ajax.cgi',
           data: data,
@@ -10,6 +10,9 @@ var Ajax = (function($, window, undefined) {
           success: function(response) {
             dispatcher.post('messages', [response.messages]);
             if (!response.error && callback) {
+              if (merge) {
+                $.extend(response, merge);
+              }
               dispatcher.post(0, callback, [response]);
             }
           },
