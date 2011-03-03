@@ -215,6 +215,8 @@ def documents(directory):
 
         if directory != DATA_DIR:
             parent = abspath(join_path(directory, '..'))[len(DATA_DIR) + 1:]
+            # to get consistent processing client-side, add explicitly to list
+            dirlist.append([".."])
         else:
             parent = None
 
