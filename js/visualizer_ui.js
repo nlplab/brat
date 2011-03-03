@@ -283,14 +283,14 @@ var VisualizerUI = (function($, window, undefined) {
               + name + dirSuffix + '"><th>' + name + dirSuffix + '</th>');
           var len = doc.length - 1;
           for (var i = 1; i < len; i++) {
-            var type = filesData.dochead[i];
+            var type = filesData.dochead[i][1];
             var datum = doc[i + 1];
             // format rest according to "data type" specified in header
             if (!type) {
               console.error('Missing document list data type');
               html.push('<td>' + datum + '</td>');
             } else if (type === "time") {
-              html.push('<td>' + Brat.formatTimeAgo(datum * 1000) + '</td>');
+	      html.push('<td>' + Brat.formatTimeAgo(datum * 1000) + '</td>');
             } else {
               html.push('<td>' + datum + '</td>');
             }
