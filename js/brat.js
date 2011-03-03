@@ -1,9 +1,3 @@
-/*
- * Various utility functions
- *
- * Brat.formatTimeAgo(milliseconds)
- */
-
 var Brat = (function(window, undefined) {
 
     var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
