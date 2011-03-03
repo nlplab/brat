@@ -502,44 +502,35 @@ fieldset {
   top: 55px;
 }
 
-#file_browser table.files {
+#document_select {
   height: 200px;
   display: inline-block;
   border: 2px inset;
   background-color: #ffffff;
   border-collapse: collapse;
   overflow: auto;
+  width: 100%;
 }
-#directory_select {
-  width: 250px;
-}
-#document_select {
-  width: 400px;
-}
-#file_browser table.files thead tr * {
+#document_select thead tr * {
   padding: 2px 5px;
 }
-#file_browser table.files tbody tr * {
+#document_select tbody tr * {
   padding: 0 5px;
 }
-#file_browser table.files thead {
+#document_select thead {
   background-color: #666666;
   color: #ffffff;
 }
-#file_browser table.files table {
-  width: 100%;
-  border-collapse: collapse;
-}
-#file_browser table.files tr {
+#document_select tr {
   cursor: pointer;
 }
-#file_browser table.files tr * {
+#document_select tr * {
   white-space: nowrap;
 }
-#file_browser table.files tbody tr:hover {
+#document_select tbody tr:hover {
   background-color: #bbbbff;
 }
-#file_browser table.files tr.selected {
+#document_select tr.selected {
   background-color: #0000ff;
   color: #ffffff;
 }
@@ -549,8 +540,8 @@ fieldset {
 #filedir_inputs_table input {
   width: 100%;
 }
-#file_inputs_table th {
-  width: 1px;
+#filedir_inputs_table th {
+  width: 50px;
 }
 #file_browser th {
   font-weight: normal;
@@ -585,4 +576,14 @@ fieldset {
 }
 #export_page tr.background1 {
   background-color: #dddddd;
+}
+.ui-icon-gripsmall-diagonal-se {
+  margin: 0 -3px -3px 0;
+}
+
+.file {
+  color: #333366;
+}
+.dir {
+  color: #336633;
 }

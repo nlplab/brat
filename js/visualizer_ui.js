@@ -11,27 +11,35 @@ var VisualizerUI = (function($, window, undefined) {
       var dirScroll;
       var docScroll;
 
-      var makeSortFunction = function(sort) {
-        return function(a, b) {
-            var col = sort[0];
-            var aa = a[col];
-            var bb = b[col];
-            if (aa != bb) return (aa < bb) ? -sort[1] : sort[1];
-            
-            // prevent random shuffles on columns with duplicate values
-            aa = a[0];
-            bb = b[0];
-            if (aa != bb) return (aa < bb) ? -1 : 1;
-            return 0;
-        };
+      var sortOrder = [1, 1]; // column (0..), sort order (1, -1)
+      var docSortFunction = function(a, b) {
+          // parent dir at the top
+          if (a[1] === '..') return -1;
+          if (b[1] === '..') return 1;
+
+          // then other directories
+          var aa = a[0];
+          var bb = b[0];
+          if (aa !== bb) return aa ? -1 : 1;
+
+          // desired column in the desired order
+          var col = sortOrder[0];
+          var aa = a[col];
+          var bb = b[col];
+          if (aa != bb) return (aa < bb) ? -sortOrder[1] : sortOrder[1];
+          
+          // prevent random shuffles on columns with duplicate values
+          // (alphabetical order of filenames)
+          aa = a[1];
+          bb = b[1];
+          if (aa != bb) return (aa < bb) ? -1 : 1;
+          return 0;
       };
-      var dirSort = [0, 1]; // column (0..), sort order (1, -1)
-      var docSort = [0, 1];
 
       var makeSortChangeFunction = function(sort, th, thNo) {
           $(th).click(function() {
-              if (sort[0] == thNo) sort[1] = -sort[1];
-              else { sort[0] = thNo; sort[1] = 1; }
+              if (sort[0] == thNo + 1) sort[1] = -sort[1];
+              else { sort[0] = thNo + 1; sort[1] = 1; }
               showFileBrowser(); // resort
           });
       }
@@ -184,52 +192,59 @@ var VisualizerUI = (function($, window, undefined) {
         }
       }
       var chooseDocument = function(evt) {
-        var _doc = $(evt.target).closest('tr').data('value');
-        $('#document_input').val(_doc);
-        selectElementInTable('#document_select', _doc);
+        var docname = $(evt.target).closest('tr').data('value');
+        $('#document_input').val(docname);
+        selectElementInTable('#document_select', docname);
       }
       var chooseDocumentAndSubmit = function(evt) {
         chooseDocument(evt);
         fileBrowserSubmit();
       }
-      var chooseDirectory = function(evt) {
-        var _directory = $(evt.target).closest('tr').data('value');
-        var real_directory = filesData.directory;
-        if (_directory === '..') {
-          var pos = real_directory.lastIndexOf('/');
-          real_directory = (pos == -1) ? '' : real_directory.substr(0, pos);
-        } else if (real_directory == '') {
-          real_directory = _directory;
-        } else {
-          real_directory += '/' + _directory;
-        }
-        $('#directory_input').val(real_directory);
-        $('#document_input').val('');
-        selectElementInTable('#directory_select', _directory);
-      }
-      var chooseDirectoryAndSubmit = function(evt) {
-        chooseDirectory(evt);
-        fileBrowserSubmit();
-      }
 
-      var fileBrowser = $('#file_browser');
-      $('#directory_input').change(function(evt) {
-        var newdir = $(this).val();
-        selectElementInTable('#directory_select', $(this).val());
-        if (newdir !== dir) {
-          $('#document_input').val('');
-        }
+      var fileBrowser = $('#file_browser').resizable({
+          alsoResize: '#document_select'
       });
       $('#document_input').change(function(evt) {
         selectElementInTable('#document_select', $(this).val());
       });
       var fileBrowserSubmit = function(evt) {
-        var _directory = $('#directory_input').val();
-        var _doc = $('#document_input').val();
-        dispatcher.post('setDirectory', [_directory, _doc]);
-        dirScroll = $('#directory_select')[0].scrollTop;
+        var _dir, _doc, found;
+        var input = $('#document_input').
+            val().
+            replace(/\/?\\s+$/, '').
+            replace(/^\s+/, '');
+        if (input === '..') {
+          // ..
+          var pos = dir.substr(0, dir.length - 1).lastIndexOf('/');
+          if (pos === -1) {
+            dispatcher.post('messages', [[['At the top directory', 'error', 2]]]);
+            $('#document_input').focus().select();
+            return false;
+          } else {
+            _dir = dir.substr(0, pos + 1);
+            _doc = '';
+          }
+        } else if (found = input.match(/^(\/?)((?:[^\/]+\/)*)([^\/]*)$/)) {
+          var abs = found[1];
+          var dirname = found[2].substr(0, found[2].length - 1);
+          var docname = found[3];
+          if (abs) {
+            _dir = abs + dirname;
+            if (_dir.length < 2) dir += '/';
+            _doc = docname;
+          } else {
+            if (dirname) dirname += '/';
+            _dir = dir + dirname;
+            _doc = docname;
+            console.log(dirname)
+          }
+        } else {
+          dispatcher.post('messages', [[['Invalid document name format', 'error', 2]]]);
+          $('#document_input').focus().select();
+        }
+        dispatcher.post('setDirectory', [_dir, _doc]);
         docScroll = $('#document_select')[0].scrollTop;
-        fileBrowser.find('table.files tbody').html(''); // prevent a slowbug
+        fileBrowser.find('#document_select tbody').html(''); // prevent a slowbug
         if (_doc !== '') {
           hideForm();
         }
@@ -237,7 +252,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
       fileBrowser.
           submit(fileBrowserSubmit).
-          bind('cancel', hideForm);
+          bind('reset', hideForm);
       var showFileBrowser = function() {
         if (currentForm) {
           if (currentForm != fileBrowser) return;
@@ -249,50 +264,35 @@ var VisualizerUI = (function($, window, undefined) {
         // currentForm.fadeIn();
         currentForm.show();
 
-        var dirSortFunction = makeSortFunction(dirSort);
-        var docSortFunction = makeSortFunction(docSort);
-
-        var html = [];
+        var html = ['<tr>'];
         var tbody;
-        if (filesData.parent !== null) {
-          html.push('<tr data-value=".."><th>..</th></tr>');
-        }
-        filesData.dirs.sort(dirSortFunction);
-        $.each(filesData.dirs, function(dirNo, dir) {
-          html.push(
-            '<tr data-value="' + dir[0] + '"><th>' + dir[0] + '</th></tr>'
-            );
-        });
-        html = html.join('');
-        tbody = $('#directory_select tbody').html(html);
-        $('#directory_select')[0].scrollTop = dirScroll;
-        // TODO scrollIntoView
-        tbody.find('tr').
-            click(chooseDirectory).
-            dblclick(chooseDirectoryAndSubmit);
-
-        html = [];
         $.each(filesData.dochead, function(headNo, head) {
           html.push('<th>' + head[0] + '</th>');
         });
-        html = '<tr>' + html.join('') + '</tr>';
-        $('#document_select thead').html(html);
+        html.push('</tr>');
+        $('#document_select thead').html(html.join(''));
 
         html = [];
         filesData.docs.sort(docSortFunction);
         $.each(filesData.docs, function(docNo, doc) {
-          // assume document name is always first
-          html.push('<tr data-value="' + doc[0] + '"><th>' + doc[0] + '</th>');
-          var len = doc.length;
+          var isDir = doc[0];
+          var name = doc[1];
+          var dirFile = isDir ? 'dir' : 'file';
+          var dirSuffix = isDir ? '/' : '';
+          html.push('<tr class="' + dirFile + '" data-value="'
+              + name + dirSuffix + '"><th>' + name + dirSuffix + '</th>');
+          var len = doc.length - 1;
           for (var i = 1; i < len; i++) {
+            var type = filesData.dochead[i];
+            var datum = doc[i + 1];
             // format rest according to "data type" specified in header
-            if (!filesData.dochead[i]) {
+            if (!type) {
               console.error('Missing document list data type');
-              html.push('<td>' + doc[i] + '</td>');
-            } else if (filesData.dochead[i][1] == "time") {
-              html.push('<td>' + Brat.formatTimeAgo(doc[i] * 1000) + '</td>');
+              html.push('<td>' + datum + '</td>');
+            } else if (type === "time") {
+              html.push('<td>' + Brat.formatTimeAgo(datum * 1000) + '</td>');
             } else {
-              html.push('<td>' + doc[i] + '</td>');
+              html.push('<td>' + datum + '</td>');
             }
           }
           html.push('</tr>');
@@ -304,11 +304,8 @@ var VisualizerUI = (function($, window, undefined) {
             click(chooseDocument).
             dblclick(chooseDocumentAndSubmit);
 
-        $('#directory_select thead tr *').each(function(thNo, th) {
-            makeSortChangeFunction(dirSort, th, thNo);
-        });
         $('#document_select thead tr *').each(function(thNo, th) {
-            makeSortChangeFunction(docSort, th, thNo);
+            makeSortChangeFunction(sortOrder, th, thNo);
         });
 
         $('#directory_input').val(filesData.directory);
@@ -361,14 +358,18 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var dirLoaded = function(response) {
-        filesData = response;
+        if (response.exception) {
+          dispatcher.post('setDirectory', ['/']);
+        } else {
+          filesData = response;
+        }
       };
 
       var gotCurrent = function(_dir, _doc, _args) {
         dir = _dir;
         doc = _doc;
         args = _args;
-        $('#document_name').text(dir + '/' + doc);
+        $('#document_name').text(dir + doc);
         $('#document_mtime').hide();
       };
 

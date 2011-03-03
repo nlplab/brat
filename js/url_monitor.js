@@ -9,7 +9,7 @@ var URLMonitor = (function($, window, undefined) {
       that.dir = null;
 
       var updateURL = function() {
-        var uri = that.dir + '/' + that.doc;
+        var uri = that.dir + that.doc;
         // TODO only allowed args?
         var args = $.param(that.args);
         if (args.length) args = '?' + args;
@@ -35,7 +35,7 @@ var URLMonitor = (function($, window, undefined) {
         if (oldDoc !== doc) {
           dispatcher.post('docChanged', [doc, oldDoc]);
         }
-        setArguments(args, true);
+        setArguments(args || {}, true);
       };
 
       var setDirectory = function(dir, doc, args) {
@@ -50,7 +50,7 @@ var URLMonitor = (function($, window, undefined) {
             }]);
           dispatcher.post('dirChanged', [dir, oldDir]);
         }
-        setDocument(doc, args);
+        setDocument(doc || '', args);
       }
 
       var updateState = function(evt) {
@@ -66,12 +66,19 @@ var URLMonitor = (function($, window, undefined) {
         var dir;
         var slashPos = path.lastIndexOf('/');
         if (slashPos === -1) {
-          dir = '';
+          dir = '/';
         } else {
-          dir = path.substr(0, slashPos);
+          dir = path.substr(0, slashPos + 1);
+          if (dir[dir.length - 1] !== '/') {
+            dir += '/';
+          }
+          if (dir[0] !== '/') {
+            dir = '/' + dir;
+          }
         }
         var doc = path.substr(slashPos + 1);
         var args = $.deparam(argsStr);
+
         setDirectory(dir, doc, args);
         dispatcher.post('current', [that.dir, that.doc, that.args]);
       };

@@ -11,9 +11,16 @@ var Ajax = (function($, window, undefined) {
           data: data,
           method: 'POST',
           success: function(response) {
+/* TODO Commented out until
+ * server-side complies
+            if (response.action !== data.action) {
+              console.error('Action ' + data.action +
+                ' returned the results of action ' + response.action);
+            }
+*/
             dispatcher.post('messages', [response.messages]);
 
-            // if .exception is just "true", do not process
+            // if .exception is just Boolean true, do not process
             // the callback; if it is anything else, the
             // callback is responsible for handling it
             if (response.exception !== true && callback) {

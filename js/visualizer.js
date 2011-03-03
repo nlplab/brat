@@ -1185,15 +1185,20 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var renderData = function(_data) {
-        dispatcher.post('spin');
-        setTimeout(function() {
-            renderDataReal(_data);
-            dispatcher.post('unspin');
-        }, 0);
+        if (_data.exception) {
+          dispatcher.post('noFileSpecified');
+        } else {
+          dispatcher.post('spin');
+          setTimeout(function() {
+              renderDataReal(_data);
+              dispatcher.post('unspin');
+          }, 0);
+        }
       };
 
       var renderDocument = function() {
         dispatcher.post('ajax', [{
+            action: 'getdocument',
             directory: dir,
             'document': doc,
           }, 'renderData', {
@@ -1218,9 +1223,11 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var dirLoaded = function(response) {
-        abbrevs = response.abbrevs;
-        isDirLoaded = true;
-        triggerRender();
+        if (!response.exception) {
+          abbrevs = response.abbrevs;
+          isDirLoaded = true;
+          triggerRender();
+        }
       };
 
       var gotCurrent = function(_dir, _doc, _args) {

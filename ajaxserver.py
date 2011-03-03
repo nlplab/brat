@@ -249,7 +249,7 @@ def documents(directory):
     except OSError, e:
         if e.errno == 2:
             display_message('Error: No such directory: ' + directory, 'error', -1)
-            response = {}
+            response = { 'exception': 'InvalidDirectory' }
         else:
             raise
 
@@ -1086,6 +1086,8 @@ def serve(argv):
         else:
             if directory is None:
                 directory = ''
+            else:
+                directory = directory.lstrip('/')
             real_directory = abspath(join_path(DATA_DIR, directory))
             data_abs = abspath(DATA_DIR)
             if not real_directory.startswith(data_abs):
@@ -1094,6 +1096,7 @@ def serve(argv):
                 # is there a better way to determine subdirectoricity than:
                 # dir.startswith(parent + '/') or dir == parent
                 # (also, Pontus doesn't like me using '/')
+                assert False, "DATA_DIR: " + DATA_DIR + "; data_abs: " + data_abs + "; real_directory: " + real_directory
                 raise SecurityViolationException()
 
             if action == 'spantypes':
@@ -1165,13 +1168,14 @@ def serve(argv):
                 except IOError, e:
                     #TODO: This is too general, should be caught at a higher level
                     # No such file or directory
+                    response = {}
                     if e.errno == 2:
                         display_message('Error: file not found', 'error', -1)
+                        response['exception'] = 'FileNotFound'
                     else:
                         display_message('Error: I/O error opening file', 'error', -1)
 
                     print 'Content-Type: application/json\n'
-                    response = {}
                     add_messages_to_json(response)
                     print dumps(response, sort_keys=True, indent=2)
 
