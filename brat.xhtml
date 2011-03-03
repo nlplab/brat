@@ -1,0 +1,168 @@
+<!-- -*- Mode: XHTML; tab-width: 2; indent-tabs-mode: nil; -*- -->
+<!-- vim:set ft=xhtml ts=2 sw=2 sts=2 autoindent: -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>brat</title>
+    <script type="text/javascript" src="js/lib/head.load.min.js"></script>
+    <script type="text/javascript">
+      head.js(
+          // libraries
+          'js/lib/jquery-1.4.3.min.js',
+          'js/lib/jquery.svg.min.js',
+          'js/lib/jquery.svgdom.min.js',
+          'js/lib/jquery.ba-bbq.min.js',
+          // brat helpers
+          'js/brat.js',
+          // brat modules
+          'js/dispatcher.js',
+          'js/url_monitor.js',
+          'js/ajax.js',
+          'js/visualizer.js',
+          'js/visualizer_ui.js',
+          'js/spinner.js'
+      );
+      head.ready(function() {
+          var dispatcher = new Dispatcher();
+          var urlMonitor = new URLMonitor(dispatcher);
+          var ajax = new Ajax(dispatcher);
+          var visualizer = new Visualizer(dispatcher, '#svg');
+          var visualizerUI = new VisualizerUI(dispatcher);
+          var spinner = new Spinner(dispatcher, '#spinner');
+          dispatcher.post('init');
+      });
+
+    </script>
+    <link rel="stylesheet" type="text/css" href="annotator.css"/>
+    <link rel="shortcut icon" href="favicon.ico"/>
+  </head>
+  <body>
+    <img id="spinner" src="spinner.gif"/>
+    <div id="messages"/>
+    <div id="infopopup" class="shadow"/>
+    <div id="header">
+      <img id="logo" src="brat-logo.png"/>
+      <div>
+        <span id="document_name"/>
+        <span id="document_mtime"/>
+<!-- <span id="document_ctime"/> -->
+      </div>
+      <input id="file_browser_button" type="button" value="File (Tab)" tabindex="-1"/>
+<!--
+      <input id="auth_button" type="button" value="Login"/>
+      <input id="export_button" type="button" value="Export"/>
+      <input id="import_button" type="button" value="Import"/>
+      <input id="tag_button" type="button" value="Tag (NERsuite)"/>
+-->
+      <a href="#" id="original_link" target="brat_search" style="display:none">Original document</a>
+<!--
+      <span style="float:right"><label for="confirm_mode">Confirm mode</label> <input id="confirm_mode" type="checkbox" value="true"/></span>
+-->
+    </div>
+    <div id="svg"></div>
+    <!--div id="blind"></div-->
+    <form id="import_form" class="shadow">
+      <fieldset id="import_form_docid">
+        <legend>Document ID</legend>
+        <input id="import_docid" type="text"/>
+      </fieldset>
+      <fieldset id="import_form_title">
+        <legend>Document title</legend>
+        <input id="import_title"/>
+      </fieldset>
+      <fieldset id="import_form_text">
+        <legend>Document text</legend>
+        <textarea id="import_text"/>
+      </fieldset>
+      <fieldset id="import_form_buttons">
+        <legend>Submit</legend>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
+    </form>
+    <form id="span_form" class="shadow">
+      <fieldset id="span_selected_fset">
+        <legend>Selected Text</legend>
+        <a target="brat_linked" id="span_highlight_link" href="#">Link</a>
+        <div id="span_selected"/>
+      </fieldset>
+
+      <fieldset>
+        <legend>Search</legend>
+        <a target="brat_search" id="span_uniprot" href="#">UniProt</a>,
+        <a target="brat_search" id="span_entregene" href="#">EntreGene</a>,
+        <a target="brat_search" id="span_wikipedia" href="#">Wikipedia</a>,
+        <a target="brat_search" id="span_google" href="#">Google</a>,
+	<a target="brat_search" id="span_alc" href="#">ALC</a>
+      </fieldset>
+
+      <div id="span_types"/>
+        
+      <fieldset id="span_form_buttons">
+        <legend>Submit</legend>
+        <input id="del_span_button" type="button" value="Delete"/>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
+    </form>
+    <form id="arc_form" class="shadow">
+      <fieldset id="arc_origin_fset">
+        <legend>From</legend>
+        <a target="brat_linked" id="arc_highlight_link" href="#">Link</a>
+        <div id="arc_origin"/>
+      </fieldset>
+
+      <fieldset id="arc_target_fset">
+        <legend>To</legend>
+        <div id="arc_target"/>
+      </fieldset>
+
+      <div id="arc_roles"/>
+        
+      <fieldset id="arc_form_buttons">
+        <legend>Submit</legend>
+        <input id="del_arc_button" type="button" value="Delete"/>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
+    </form>
+    <form id="auth_form" class="shadow">
+      <fieldset>
+        <legend>Username</legend>
+        <input id="auth_user"/>
+      </fieldset>
+      <fieldset>
+        <legend>Password</legend>
+        <input id="auth_pass" type="password"/>
+      </fieldset>
+      <fieldset id="auth_form_buttons">
+        <legend>Submit</legend>
+        <input type="submit" value="OK"/>
+        <input type="reset" value="Cancel"/>
+      </fieldset>
+    </form>
+    <form id="file_browser" class="shadow">
+      <table id="filedir_inputs_table">
+        <tr><th>Directory:</th><td><input id="directory_input"/></td></tr>
+        <tr><th>File:</th><td><input id="document_input"/></td></tr>
+      </table>
+      <table id="directory_select" class="files">
+        <thead>
+          <tr>
+            <th>Directory</th>
+          </tr>
+        </thead>
+        <tbody/>
+      </table>
+      <table id="document_select" class="files">
+        <thead/>
+        <tbody/>
+      </table>
+      <div id="file_buttons">
+        <input type="reset" value="Cancel" tabindex="-1"/>
+        <input type="submit" value="OK"/>
+      </div>
+    </form>
+  </body>
+</html>

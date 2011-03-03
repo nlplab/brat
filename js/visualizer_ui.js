@@ -1,0 +1,390 @@
+var VisualizerUI = (function($, window, undefined) {
+    var VisualizerUI = function(dispatcher) {
+      var that = this;
+
+      var messagePostOutFadeDelay = 1000;
+      var messageDefaultFadeDelay = 3000;
+
+      var currentForm = null;
+      var filesData = null;
+      var dir, doc, args;
+      var dirScroll;
+      var docScroll;
+
+      var makeSortFunction = function(sort) {
+        return function(a, b) {
+            var col = sort[0];
+            var aa = a[col];
+            var bb = b[col];
+            if (aa != bb) return (aa < bb) ? -sort[1] : sort[1];
+            
+            // prevent random shuffles on columns with duplicate values
+            aa = a[0];
+            bb = b[0];
+            if (aa != bb) return (aa < bb) ? -1 : 1;
+            return 0;
+        };
+      };
+      var dirSort = [0, 1]; // column (0..), sort order (1, -1)
+      var docSort = [0, 1];
+
+      var makeSortChangeFunction = function(sort, th, thNo) {
+          $(th).click(function() {
+              if (sort[0] == thNo) sort[1] = -sort[1];
+              else { sort[0] = thNo; sort[1] = 1; }
+              showFileBrowser(); // resort
+          });
+      }
+
+      var messageContainer = $('#messages');
+      var displayMessages = function(msgs) {
+        if (msgs === false) {
+          messageContainer.each(function(msgElNo, msgEl) {
+              msgEl.remove();
+          });
+        } else {
+          $.each(msgs, function(msgNo, msg) {
+            var element;
+            var timer = null;
+            try {
+              element = $('<div class="' + msg[1] + '">' + msg[0] + '</div>');
+            }
+            catch(x) {
+              escaped = msg[0].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+              element = $('<div class="error"><b>[ERROR: could not display the following message normally due to malformed XML:]</b><br/>' + escaped + '</div>');
+            }
+            messageContainer.append(element);
+            var delay = (msg[2] === undefined)
+                          ? messageDefaultFadeDelay
+                          : (msg[2] == -1)
+                              ? null
+                              : (msg[2] * 1000);
+            var fader = function() {
+              element.hide(function() {
+                element.remove();
+              });
+            };
+            if (delay === null) {
+              var button = $('<input type="button" value="OK"/>');
+              element.prepend(button);
+              button.click(function(evt) {
+                timer = setTimeout(fader, 0);
+              });
+            } else {
+              timer = setTimeout(fader, delay);
+              element.mouseover(function() {
+                  clearTimeout(timer);
+                  element.show();
+              }).mouseout(function() {
+                  timer = setTimeout(fader, messagePostOutFadeDelay);
+              });
+            }
+          });
+        }
+      };
+
+      var adjustToCursor = function(evt, element, offset, top, right) {
+        // get the real width, without wrapping
+        element.css({ left: 0, top: 0 });
+        var screenHeight = $(window).height();
+        var screenWidth = $(window).width();
+        // FIXME why the hell is this 22 necessary?!?
+        var elementHeight = element.height() + 22;
+        var elementWidth = element.width() + 22;
+        var x, y;
+        if (top) {
+          y = evt.clientY - elementHeight - offset;
+          if (y < 0) top = false;
+        }
+        if (!top) {
+          y = evt.clientY + offset;
+        }
+        if (right) {
+          x = evt.clientX + offset;
+          if (x >= screenWidth - elementWidth) right = false;
+        }
+        if (!right) {
+          x = evt.clientX - elementWidth - offset;
+        }
+        element.css({ top: y, left: x });
+      };
+      
+      var infoPopup = $('#infopopup');
+      var infoDisplayed = false;
+
+      var displayInfo = function(evt, target, info, infoText, infoType) {
+        var idtype;
+        if (infoType) {
+          info += infoText;
+          idtype = 'info_' + infoType;
+        }
+        infoPopup[0].className = idtype;
+        infoPopup.html(info);
+        adjustToCursor(evt, infoPopup, 10, true, true);
+        infoPopup.stop(true, true).fadeIn();
+        infoDisplayed = true;
+      };
+
+      var displaySpanInfo = function(
+          evt, target, spanId, spanType, mods, spanText, infoText, infoType) {
+
+        var info = '<div><span class="info_id">' + spanId + '</span>' +
+          ' ' + '<span class="info_type">' + spanType + '</span>';
+        if (mods.length) {
+          info += '<div>' + mods.join(', ') + '</div>';
+        }
+        info += '</div>';
+        info += '<div>"' + spanText + '"</div>';
+        displayInfo(evt, target, info, infoText, infoType);
+      };
+
+      var displayArcInfo = function(
+          evt, target, symmetric,
+          originSpanId, role, targetSpanId, infoText, infoType) {
+        var info = (symmetric
+          ? '<div class="info_arc">' + originSpanId + ' ' +
+            target.attr('data-arc-role') + ' ' + targetSpanId +'</div>'
+          : '<div class="info_arc">' + originSpanId + ' &#8594; ' +
+            target.attr('data-arc-role') + ':' + targetSpanId +'</div>');
+        displayInfo(evt, target, info, infoText, infoType);
+      };
+
+      var displaySentInfo = function(
+          evt, target, infoText, infoType) {
+        displayInfo(evt, target, '', infoText, infoType);
+      };
+
+      var hideInfo = function() {
+        infoPopup.stop(true, true).fadeOut(function() { infoDisplayed = false; });
+      };
+
+      var onMouseMove = function(evt) {
+        if (infoDisplayed) {
+          adjustToCursor(evt, infoPopup, 10, true, true);
+        }
+      };
+
+      var onKeyPress = function(evt) {
+        var char = evt.which;
+      };
+      
+      var hideForm = function() {
+        if (!currentForm) return;
+        // fadeOut version:
+        // currentForm.fadeOut(function() { currentForm = null; });
+        currentForm.hide();
+        currentForm = null;
+      };
+
+      var selectElementInTable = function(table, value) {
+        table = $(table);
+        table.find('tr').removeClass('selected');
+        if (value) {
+          table.find('tr[data-value="' + value + '"]').addClass('selected');
+        }
+      }
+      var chooseDocument = function(evt) {
+        var _doc = $(evt.target).closest('tr').data('value');
+        $('#document_input').val(_doc);
+        selectElementInTable('#document_select', _doc);
+      }
+      var chooseDocumentAndSubmit = function(evt) {
+        chooseDocument(evt);
+        fileBrowserSubmit();
+      }
+      var chooseDirectory = function(evt) {
+        var _directory = $(evt.target).closest('tr').data('value');
+        var real_directory = filesData.directory;
+        if (_directory === '..') {
+          var pos = real_directory.lastIndexOf('/');
+          real_directory = (pos == -1) ? '' : real_directory.substr(0, pos);
+        } else if (real_directory == '') {
+          real_directory = _directory;
+        } else {
+          real_directory += '/' + _directory;
+        }
+        $('#directory_input').val(real_directory);
+        $('#document_input').val('');
+        selectElementInTable('#directory_select', _directory);
+      }
+      var chooseDirectoryAndSubmit = function(evt) {
+        chooseDirectory(evt);
+        fileBrowserSubmit();
+      }
+
+      var fileBrowser = $('#file_browser');
+      $('#directory_input').change(function(evt) {
+        var newdir = $(this).val();
+        selectElementInTable('#directory_select', $(this).val());
+        if (newdir !== dir) {
+          $('#document_input').val('');
+        }
+      });
+      $('#document_input').change(function(evt) {
+        selectElementInTable('#document_select', $(this).val());
+      });
+      var fileBrowserSubmit = function(evt) {
+        var _directory = $('#directory_input').val();
+        var _doc = $('#document_input').val();
+        dispatcher.post('setDirectory', [_directory, _doc]);
+        dirScroll = $('#directory_select')[0].scrollTop;
+        docScroll = $('#document_select')[0].scrollTop;
+        fileBrowser.find('table.files tbody').html(''); // prevent a slowbug
+        if (_doc !== '') {
+          hideForm();
+        }
+        return false;
+      };
+      fileBrowser.
+          submit(fileBrowserSubmit).
+          bind('cancel', hideForm);
+      var showFileBrowser = function() {
+        if (currentForm) {
+          if (currentForm != fileBrowser) return;
+        } else {
+          // TODO actions not allowed
+        }
+        currentForm = fileBrowser;
+        // fadeIn version:
+        // currentForm.fadeIn();
+        currentForm.show();
+
+        var dirSortFunction = makeSortFunction(dirSort);
+        var docSortFunction = makeSortFunction(docSort);
+
+        var html = [];
+        var tbody;
+        if (filesData.parent !== null) {
+          html.push('<tr data-value=".."><th>..</th></tr>');
+        }
+        filesData.dirs.sort(dirSortFunction);
+        $.each(filesData.dirs, function(dirNo, dir) {
+          html.push(
+            '<tr data-value="' + dir[0] + '"><th>' + dir[0] + '</th></tr>'
+            );
+        });
+        html = html.join('');
+        tbody = $('#directory_select tbody').html(html);
+        $('#directory_select')[0].scrollTop = dirScroll;
+        // TODO scrollIntoView
+        tbody.find('tr').
+            click(chooseDirectory).
+            dblclick(chooseDirectoryAndSubmit);
+
+        html = [];
+        $.each(filesData.dochead, function(headNo, head) {
+          html.push('<th>' + head[0] + '</th>');
+        });
+        html = '<tr>' + html.join('') + '</tr>';
+        $('#document_select thead').html(html);
+
+        html = [];
+        filesData.docs.sort(docSortFunction);
+        $.each(filesData.docs, function(docNo, doc) {
+          // assume document name is always first
+          html.push('<tr data-value="' + doc[0] + '"><th>' + doc[0] + '</th>');
+          var len = doc.length;
+          for (var i = 1; i < len; i++) {
+            // format rest according to "data type" specified in header
+            if (!filesData.dochead[i]) {
+              console.error('Missing document list data type');
+              html.push('<td>' + doc[i] + '</td>');
+            } else if (filesData.dochead[i][1] == "time") {
+              html.push('<td>' + Brat.formatTimeAgo(doc[i] * 1000) + '</td>');
+            } else {
+              html.push('<td>' + doc[i] + '</td>');
+            }
+          }
+          html.push('</tr>');
+        });
+        html = html.join('');
+        tbody = $('#document_select tbody').html(html);
+        $('#document_select')[0].scrollTop = docScroll;
+        tbody.find('tr').
+            click(chooseDocument).
+            dblclick(chooseDocumentAndSubmit);
+
+        $('#directory_select thead tr *').each(function(thNo, th) {
+            makeSortChangeFunction(dirSort, th, thNo);
+        });
+        $('#document_select thead tr *').each(function(thNo, th) {
+            makeSortChangeFunction(docSort, th, thNo);
+        });
+
+        $('#directory_input').val(filesData.directory);
+        $('#document_input').val(doc); // FIXME
+        var curdir = filesData.directory;
+        var pos = curdir.lastIndexOf('/');
+        if (pos != -1) curdir = curdir.substring(pos + 1);
+        selectElementInTable($('#directory_select'), curdir);
+        selectElementInTable($('#document_select'), doc);
+        setTimeout(function() {
+          $('#document_input').focus().select();
+        }, 0);
+      };
+      $('#file_browser_button').click(showFileBrowser);
+
+      var onKeyDown = function(evt) {
+        var code = evt.keyCode;
+        if (code === 27) { // Esc
+          hideForm();
+          return false;
+        } else if (code === 9) { // Tab
+          if (currentForm) return;
+          showFileBrowser();
+          return false;
+        } else if (!currentForm && code == 37) { // Left arrow
+          var pos;
+          $.each(filesData.docs, function(docNo, docRow) {
+            if (docRow[0] == doc) {
+              pos = docNo;
+              return false;
+            }
+          });
+          if (pos > 0) {
+            dispatcher.post('setDocument', [filesData.docs[pos - 1][0]]);
+          }
+          return false;
+        } else if (!currentForm && code == 39) { // Right arrow
+          var pos;
+          $.each(filesData.docs, function(docNo, docRow) {
+            if (docRow[0] == doc) {
+              pos = docNo;
+              return false;
+            }
+          });
+          if (pos < filesData.docs.length - 1) {
+            dispatcher.post('setDocument', [filesData.docs[pos + 1][0]]);
+          }
+          return false;
+        }
+      };
+
+      var dirLoaded = function(response) {
+        filesData = response;
+      };
+
+      var gotCurrent = function(_dir, _doc, _args) {
+        dir = _dir;
+        doc = _doc;
+        args = _args;
+        $('#document_name').text(dir + '/' + doc);
+        $('#document_mtime').hide();
+      };
+
+      dispatcher.
+          on('messages', displayMessages).
+          on('displaySpanInfo', displaySpanInfo).
+          on('displayArcInfo', displayArcInfo).
+          on('displaySentInfo', displaySentInfo).
+          on('hideInfo', hideInfo).
+          on('dirLoaded', dirLoaded).
+          on('current', gotCurrent).
+          on('noFileSpecified', showFileBrowser).
+          on('keydown', onKeyDown).
+          on('keypress', onKeyPress).
+          on('mousemove', onMouseMove);
+    };
+
+    return VisualizerUI;
+})(jQuery, window);
