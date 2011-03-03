@@ -2,6 +2,8 @@ var Ajax = (function($, window, undefined) {
     var Ajax = function(dispatcher) {
       var that = this;
 
+      // merge data will get merged into the response data
+      // before calling the callback
       var ajaxCall = function(data, callback, merge) {
         dispatcher.post('spin');
         $.ajax({
@@ -10,7 +12,11 @@ var Ajax = (function($, window, undefined) {
           method: 'POST',
           success: function(response) {
             dispatcher.post('messages', [response.messages]);
-            if (!response.error && callback) {
+
+            // if .exception is just "true", do not process
+            // the callback; if it is anything else, the
+            // callback is responsible for handling it
+            if (response.exception !== true && callback) {
               if (merge) {
                 $.extend(response, merge);
               }
