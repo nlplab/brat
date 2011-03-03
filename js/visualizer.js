@@ -513,6 +513,7 @@ var Visualizer = (function($, window, undefined) {
 
       var renderDataReal = function(_data) {
         svgContainer.show();
+        if (_data.document !== doc || _data.directory !== dir) return;
         if (drawing) {
           redraw = true;
           return;
@@ -1191,7 +1192,10 @@ var Visualizer = (function($, window, undefined) {
         dispatcher.post('ajax', [{
             directory: dir,
             'document': doc,
-          }, 'renderData']);
+          }, 'renderData', {
+            directory: dir,
+            'document': doc
+          }]);
       };
 
       var triggerRender = function() {

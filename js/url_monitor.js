@@ -8,7 +8,7 @@ var URLMonitor = (function($, window, undefined) {
       that.doc = null;
       that.dir = null;
 
-      var updateURL = function(dirChanging) {
+      var updateURL = function() {
         var uri = that.dir + '/' + that.doc;
         // TODO only allowed args?
         var args = $.param(that.args);
@@ -16,7 +16,6 @@ var URLMonitor = (function($, window, undefined) {
         uri += args;
         if (uri.length) uri = '#' + uri;
         window.location.hash = uri;
-        dispatcher.post('current', [that.dir, that.doc, that.args]);
       };
 
       var setArguments = function(args, dirChanging) {
@@ -74,6 +73,7 @@ var URLMonitor = (function($, window, undefined) {
         var doc = path.substr(slashPos + 1);
         var args = $.deparam(argsStr);
         setDirectory(dir, doc, args);
+        dispatcher.post('current', [that.dir, that.doc, that.args]);
       };
 
       var forceUpdate = function() {
