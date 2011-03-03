@@ -172,7 +172,6 @@ def documents(directory):
     try:
         basenames = [file[0:-4] for file in my_listdir(directory)
                      if file.endswith('txt')]
-        basenames.sort()
 
         doclist   = basenames[:]
         doclist_header = [("Document", "string")]
@@ -200,7 +199,7 @@ def documents(directory):
                 # (if I understand correctly) it should. Check
 #                 with Annotations(docname, read_only=True) as ann_obj:
                 from annotation import JOINED_ANN_FILE_SUFF
-                with Annotations(join(DATA_DIR, join(directory, file+"."+JOINED_ANN_FILE_SUFF)), read_only=True) as ann_obj:
+                with Annotations(join(DATA_DIR, join(directory, docname+"."+JOINED_ANN_FILE_SUFF)), read_only=True) as ann_obj:
                     tb_count = len([a for a in ann_obj.get_textbounds()])
                     event_count = len([a for a in ann_obj.get_events()])
                     docstats.append([tb_count, event_count])
@@ -211,7 +210,6 @@ def documents(directory):
 
         dirlist = [dir for dir in my_listdir(directory)
                 if isdir(join_path(directory, dir))]
-        dirlist.sort()
         # just in case, and for generality
         dirlist = [[dir] for dir in dirlist]
 
@@ -219,6 +217,14 @@ def documents(directory):
             parent = abspath(join_path(directory, '..'))[len(DATA_DIR) + 1:]
         else:
             parent = None
+
+        # combine document and directory lists, adding a column
+        # differentiating files from directories (True for dir).
+        combolist = []
+        for i in dirlist:
+            combolist.append([True]+i)
+        for i in doclist:
+            combolist.append([False]+i)
 
         client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
         html = generate_textbound_type_html(directory, span_type_keyboard_shortcuts)
@@ -229,9 +235,8 @@ def documents(directory):
         abbrevs = projectconfig.get_abbreviations()
 
         response = {
-                'docs': doclist,
+                'docs': combolist,
                 'dochead' : doclist_header,
-                'dirs': dirlist,
                 'parent': parent,
                 'messages': [],
                 'keymap': client_keymap,
