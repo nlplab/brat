@@ -1185,7 +1185,11 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var renderData = function(_data) {
-        setTimeout(function() { renderDataReal(_data); }, 0);
+        dispatcher.post('spin');
+        setTimeout(function() {
+            renderDataReal(_data);
+            dispatcher.post('unspin');
+        }, 0);
       };
 
       var renderDocument = function() {

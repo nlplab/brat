@@ -20,7 +20,8 @@
           'js/url_monitor.js',
           'js/ajax.js',
           'js/visualizer.js',
-          'js/visualizer_ui.js'
+          'js/visualizer_ui.js',
+          'js/spinner.js'
       );
       head.ready(function() {
           var dispatcher = new Dispatcher();
@@ -28,6 +29,7 @@
           var ajax = new Ajax(dispatcher);
           var visualizer = new Visualizer(dispatcher, '#svg');
           var visualizerUI = new VisualizerUI(dispatcher);
+          var spinner = new Spinner(dispatcher, '#spinner');
           dispatcher.post('init');
       });
 

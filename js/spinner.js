@@ -1,19 +1,19 @@
 var Spinner = (function($, window, undefined) {
-    var Spinner = function(dispatcher, spinEl) {
+    var Spinner = function(dispatcher, spinElement) {
       var that = this;
-      var spinJQ = $(spinEl);
+      var spinElement = $(spinElement);
 
-      var count = 0:
+      var count = 0;
       var spin = function() {
         if (count === 0) {
-          spinJQ.css('display', 'block');
+          spinElement.css('display', 'block');
         }
         count++;
       };
       var unspin = function() {
         count--;
         if (count === 0) {
-          spinJQ.css('display', 'none');
+          spinElement.css('display', 'none');
         }
       };
 

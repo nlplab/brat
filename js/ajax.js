@@ -3,6 +3,7 @@ var Ajax = (function($, window, undefined) {
       var that = this;
 
       var ajaxCall = function(data, callback, merge) {
+        dispatcher.post('spin');
         $.ajax({
           url: 'ajax.cgi',
           data: data,
@@ -15,8 +16,10 @@ var Ajax = (function($, window, undefined) {
               }
               dispatcher.post(0, callback, [response]);
             }
+            dispatcher.post('unspin');
           },
           error: function(x) {
+            dispatcher.post('unspin');
             console.error(x);
           }
         });
