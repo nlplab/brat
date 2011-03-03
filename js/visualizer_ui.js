@@ -5,18 +5,6 @@ var VisualizerUI = (function($, window, undefined) {
       var messagePostOutFadeDelay = 1000;
       var messageDefaultFadeDelay = 3000;
 
-      /*
-      var editSpan = function() {
-        fillSpanForm();
-        showSpanForm();
-      };
-
-      submitSpanForm = function(evt) {
-        dispatcher.post('save_span', [spanId, spanData]);
-      };
-      $('#span_form_submit').submit(submitSpanForm);
-      */
-
       var currentForm = null;
       var filesData = null;
       var dir, doc, args;
@@ -330,7 +318,9 @@ var VisualizerUI = (function($, window, undefined) {
         if (pos != -1) curdir = curdir.substring(pos + 1);
         selectElementInTable($('#directory_select'), curdir);
         selectElementInTable($('#document_select'), doc);
-        $('#document_input').focus().select();
+        setTimeout(function() {
+          $('#document_input').focus().select();
+        }, 0);
       };
       $('#file_browser_button').click(showFileBrowser);
 
