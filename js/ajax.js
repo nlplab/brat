@@ -31,9 +31,9 @@ var Ajax = (function($, window, undefined) {
             }
             dispatcher.post('unspin');
           },
-          error: function(x) {
+          error: function(response, textStatus, errorThrown) {
             dispatcher.post('unspin');
-            console.error(x);
+            console.error(textStatus + ':', errorThrown, response);
           }
         });
       };
