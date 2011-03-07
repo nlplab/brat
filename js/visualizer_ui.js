@@ -4,6 +4,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var messagePostOutFadeDelay = 1000;
       var messageDefaultFadeDelay = 3000;
+      var defaultFloatFormat = '%.1f/right';
 
       var currentForm = null;
       var filesData = null;
@@ -286,7 +287,7 @@ var VisualizerUI = (function($, window, undefined) {
             var type = filesData.dochead[i][1];
             var datum = doc[i + 1];
             // format rest according to "data type" specified in header
-            var formatted;
+            var formatted = null;
             var cssClass = 'rightalign';
             if (!type) {
               console.error('Missing document list data type');
@@ -298,9 +299,14 @@ var VisualizerUI = (function($, window, undefined) {
 	      formatted = Brat.formatTimeAgo(datum * 1000);
               cssClass = null;
             } else if (type === 'float') {
-              formatted = $.sprintf('%.2f', datum);
-            } else {
-              formatted = datum;
+              type = defaultFloatFormat;
+            } else if (type === 'int') {
+              formatted = '' + datum;
+            }
+            if (formatted === null) {
+              var m = type.match(/^(.*?)(?:\/(right))?$/);
+              cssClass = m[2] ? 'rightalign' : null;
+              formatted = $.sprintf(m[1], datum);
             }
             html.push('<td' + (cssClass ? ' class="' + cssClass + '"' : '') + '>' +
                 formatted + '</td>');
