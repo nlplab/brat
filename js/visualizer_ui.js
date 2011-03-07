@@ -51,10 +51,10 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var messageContainer = $('#messages');
-      var displayMessages = function(msgs) {
+      var displayMessages = foo = function(msgs) {
         if (msgs === false) {
-          messageContainer.each(function(msgElNo, msgEl) {
-              msgEl.remove();
+          messageContainer.children().each(function(msgElNo, msgEl) {
+              $(msgEl).remove();
           });
         } else {
           $.each(msgs, function(msgNo, msg) {
@@ -74,7 +74,7 @@ var VisualizerUI = (function($, window, undefined) {
                               ? null
                               : (msg[2] * 1000);
             var fader = function() {
-              element.hide(function() {
+              element.hide('slow', function() {
                 element.remove();
               });
             };
@@ -346,6 +346,7 @@ var VisualizerUI = (function($, window, undefined) {
         var code = evt.keyCode;
         if (code === 27) { // Esc
           hideForm();
+          dispatcher.post('messages', [false]);
           return false;
         } else if (code === 9) { // Tab
           if (currentForm) return;
