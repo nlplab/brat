@@ -1176,7 +1176,7 @@ var Visualizer = (function($, window, undefined) {
         } catch(x) {
           if (x === 'BadDocumentError') {
             clearSVG();
-            that.drawing = false;
+            drawing = false;
           } else {
             console.error('FIXME Error during rendering: ', x); // FIXME
           }
