@@ -287,17 +287,23 @@ var VisualizerUI = (function($, window, undefined) {
             var datum = doc[i + 1];
             // format rest according to "data type" specified in header
             var formatted;
+            var cssClass = 'rightalign';
             if (!type) {
               console.error('Missing document list data type');
               formatted = datum;
+            } else if (type === 'string') {
+              formatted = datum;
+              cssClass = null;
             } else if (type === 'time') {
 	      formatted = Brat.formatTimeAgo(datum * 1000);
+              cssClass = null;
             } else if (type === 'float') {
               formatted = $.sprintf('%.2f', datum);
             } else {
               formatted = datum;
             }
-            html.push('<td>' + formatted + '</td>');
+            html.push('<td' + (cssClass ? ' class="' + cssClass + '"' : '') + '>' +
+                formatted + '</td>');
           }
           html.push('</tr>');
         });

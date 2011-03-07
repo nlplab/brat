@@ -587,3 +587,6 @@ fieldset {
 .dir {
   color: #336633;
 }
+.rightalign {
+  text-align: right;
+}
