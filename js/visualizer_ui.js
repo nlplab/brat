@@ -40,7 +40,12 @@ var VisualizerUI = (function($, window, undefined) {
       var makeSortChangeFunction = function(sort, th, thNo) {
           $(th).click(function() {
               if (sort[0] == thNo + 1) sort[1] = -sort[1];
-              else { sort[0] = thNo + 1; sort[1] = 1; }
+              else {
+                var type = filesData.dochead[thNo][1];
+                var ascending = type === "string";
+                sort[0] = thNo + 1;
+                sort[1] = ascending ? 1 : -1;
+              }
               showFileBrowser(); // resort
           });
       }
