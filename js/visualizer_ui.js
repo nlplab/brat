@@ -262,6 +262,9 @@ var VisualizerUI = (function($, window, undefined) {
       var showFileBrowser = function() {
         if (currentForm) {
           if (currentForm != fileBrowser) return;
+        } else if (!filesData) {
+          // directory data not arrived yet
+          return false;
         } else {
           // TODO actions not allowed
         }
@@ -330,7 +333,7 @@ var VisualizerUI = (function($, window, undefined) {
         });
 
         $('#directory_input').val(filesData.directory);
-        $('#document_input').val(doc); // FIXME
+        $('#document_input').val(doc);
         var curdir = filesData.directory;
         var pos = curdir.lastIndexOf('/');
         if (pos != -1) curdir = curdir.substring(pos + 1);
