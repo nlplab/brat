@@ -286,14 +286,18 @@ var VisualizerUI = (function($, window, undefined) {
             var type = filesData.dochead[i][1];
             var datum = doc[i + 1];
             // format rest according to "data type" specified in header
+            var formatted;
             if (!type) {
               console.error('Missing document list data type');
-              html.push('<td>' + datum + '</td>');
-            } else if (type === "time") {
-	      html.push('<td>' + Brat.formatTimeAgo(datum * 1000) + '</td>');
+              formatted = datum;
+            } else if (type === 'time') {
+	      formatted = Brat.formatTimeAgo(datum * 1000);
+            } else if (type === 'float') {
+              formatted = $.sprintf('%.2f', datum);
             } else {
-              html.push('<td>' + datum + '</td>');
+              formatted = datum;
             }
+            html.push('<td>' + formatted + '</td>');
           }
           html.push('</tr>');
         });
