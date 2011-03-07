@@ -354,25 +354,25 @@ var VisualizerUI = (function($, window, undefined) {
         } else if (!currentForm && code == 37) { // Left arrow
           var pos;
           $.each(filesData.docs, function(docNo, docRow) {
-            if (docRow[0] == doc) {
+            if (docRow[1] == doc) {
               pos = docNo;
               return false;
             }
           });
           if (pos > 0) {
-            dispatcher.post('setDocument', [filesData.docs[pos - 1][0]]);
+            dispatcher.post('setDocument', [filesData.docs[pos - 1][1]]);
           }
           return false;
         } else if (!currentForm && code == 39) { // Right arrow
           var pos;
           $.each(filesData.docs, function(docNo, docRow) {
-            if (docRow[0] == doc) {
+            if (docRow[1] == doc) {
               pos = docNo;
               return false;
             }
           });
           if (pos < filesData.docs.length - 1) {
-            dispatcher.post('setDocument', [filesData.docs[pos + 1][0]]);
+            dispatcher.post('setDocument', [filesData.docs[pos + 1][1]]);
           }
           return false;
         }
