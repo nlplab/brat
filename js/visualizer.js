@@ -249,7 +249,7 @@ var Visualizer = (function($, window, undefined) {
           $.each(eventDesc.roles, function(roleNo, role) {
             var target = data.spans[role.targetId];
             if (!target) {
-              dispatcher/post('messages', [[['<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + eventDesc.id + '") not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
+              dispatcher.post('messages', [[['<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + eventDesc.id + '") not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
               throw "BadDocumentError";
             }
             var there = target.chunk.index;
