@@ -1577,6 +1577,9 @@ var Annotator = function(containerElement, onStart) {
 
   this.renderData = function(_data) {
     Annotator.actionsAllowed(false);
+
+    annotator.getStatus();
+
     setTimeout(function() { renderDataReal(_data); }, 0);
   };
 
@@ -1861,18 +1864,17 @@ $(function() {
 
           spanFormHTML = response.html;
           try {
-	    resizeFormToFit(spanForm, $('#span_types'), spanFormHTML);
+            resizeFormToFit(spanForm, $('#span_types'), spanFormHTML);
+          } catch(x) {
+            escaped = spanFormHTML.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            displayMessage("Error: failed to display span form; received HTML:<br/>"+escaped, "error", -1);
+            spanFormHTML = "<div><b>Error displaying form</b></div>";
+            resizeFormToFit(spanForm, $('#span_types'), spanFormHTML);
           }
-	  catch(x) {
-	    escaped = spanFormHTML.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-	    displayMessage("Error: failed to display span form; received HTML:<br/>"+escaped, "error", -1);
-	    spanFormHTML = "<div><b>Error displaying form</b></div>";
-	    resizeFormToFit(spanForm, $('#span_types'), spanFormHTML);
-	  }
           annotator.spanKeymap = response.keymap;
-	  // TODO: consider separating span and arc abbreviations
-	  annotator.spanAbbreviations = response.abbrevs;
-	  annotator.arcAbbreviations = response.abbrevs;
+          // TODO: consider separating span and arc abbreviations
+          annotator.spanAbbreviations = response.abbrevs;
+          annotator.arcAbbreviations = response.abbrevs;
           spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
           spanForm.find('.collapser').click(collapseHandler);
           annotator.forceUpdateState = true;
@@ -2037,6 +2039,7 @@ $(function() {
           }
           displayMessagesAndCheckForErrors(jsonData);
           jsonData.document = _doc;
+          jsonData.dir = _directory;
           annotator.renderData(jsonData);
           if ($.isFunction(onRenderComplete)) {
             onRenderComplete.call(annotator, jsonData.error);
@@ -2644,7 +2647,6 @@ $(function() {
     formDisplayed = false;
     return false;
   };
-  foo = URLHash;
   var fileBrowser = $('#file_browser').
     submit(fileBrowserSubmit).
     bind('reset', hideAllForms);
@@ -2686,4 +2688,47 @@ $(function() {
   var spanForm = $('#span_form').
     submit(spanFormSubmit).
     bind('reset', hideAllForms);
+
+  $('#status').hide().change(function(evt) {
+      var options = {
+        action: 'setstatus',
+        directory: URLHash.current.directory,
+        'document': URLHash.current.doc,
+        'status': $(evt.target).val()
+      };
+      $.ajax({
+        url: ajaxBase,
+        type: 'POST',
+        data: options,
+        success: function(response) {
+          displayMessagesAndCheckForErrors(response);
+        },
+        error: function(req, textStatus, errorThrown) {
+          console.error("Set Status error", textStatus, errorThrown);
+        }
+      });
+  });
+    
+  annotator.getStatus = function() {
+    var statusBox = $('#status').hide();
+    var options = {
+      action: 'getstatus',
+      directory: URLHash.current.directory,
+      'document': URLHash.current.doc,
+    };
+    $.ajax({
+      url: ajaxBase,
+      type: 'GET',
+      data: options,
+      success: function(response) {
+        console.log(response);
+        if (displayMessagesAndCheckForErrors(response)) {
+          statusBox.val(response.status).show();
+        }
+      },
+      error: function(req, textStatus, errorThrown) {
+        console.error("Set Status error", textStatus, errorThrown);
+      }
+    });
+  };
 });
