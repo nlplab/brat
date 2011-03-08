@@ -2690,11 +2690,15 @@ $(function() {
     bind('reset', hideAllForms);
 
   $('#status').hide().change(function(evt) {
+      var val = $(evt.target).val();
+      if (!val) {
+        return false;
+      }
       var options = {
         action: 'setstatus',
         directory: URLHash.current.directory,
         'document': URLHash.current.doc,
-        'status': $(evt.target).val()
+        'status': val
       };
       $.ajax({
         url: ajaxBase,

@@ -209,7 +209,14 @@ class Annotations(object):
         return (a for a in self if isinstance(a, ModifierAnnotation))
 
     def get_oneline_comments(self):
-        return (a for a in self if isinstance(a, OnelineCommentAnnotation))
+        #XXX: The status exception is for the document status protocol
+        #       which is yet to be formalised
+        return (a for a in self if isinstance(a, OnelineCommentAnnotation)
+                and a.type != 'STATUS')
+
+    def get_statuses(self):
+        return (a for a in self if isinstance(a, OnelineCommentAnnotation)
+                and a.type == 'STATUS')
 
     # TODO: getters for other categories of annotations
     #TODO: Remove read and use an internal and external version instead
