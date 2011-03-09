@@ -1,0 +1,592 @@
+/* -*- Mode: CSS; tab-width: 2; indent-tabs-mode: nil; -*- */
+/* vim:set ft=css ts=2 sw=2 sts=2 autoindent: */
+
+html {
+  overflow-y: scroll;
+  font-family: 'Century Gothic', sans-serif;
+  font-size: 12px;
+}
+
+#svg {
+  margin-top: 50px;
+  margin-bottom: 100px;
+}
+
+svg {
+  width: 100%;
+  height: 1px;
+  border: 1px solid #a1a1a1;
+}
+
+text {
+  font-size: 14px;
+  font-family: serif;
+}
+
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  padding: 2px 5px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #a1a1a1;
+  overflow: hidden;
+}
+
+path {
+  pointer-events: none;
+}
+
+.span text {
+  font-size: 75%;
+  text-anchor: middle;
+  font-family: sans-serif;
+  pointer-events: none;
+}
+
+.span rect {
+  stroke: black;
+  stroke-width: 0.75;
+}
+
+.span rect.False_positive {
+  stroke: #4c4c4c;
+  stroke-width: 2;
+}
+#infopopup.info_False_positive {
+  background-color: #9f9f9f;
+}
+
+.span rect.False_negative {
+  stroke: #4c4c4c;
+  fill: #ffffff;
+  stroke-width: 2;
+}
+
+.shadow_AnnotationError {
+  fill: #4c4c4c;
+}
+.span rect.AnnotationError {
+  stroke-width: 1;
+}
+#infopopup.info_AnnotationError {
+  background-color: #9f9f9f;
+}
+
+.shadow_AnnotationWarning {
+  fill: #9c9c9c;
+}
+.span rect.AnnotationWarning {
+  stroke-width: 1;
+}
+#infopopup.info_AnnotationWarning {
+  background-color: #a6a6a6;
+}
+
+.shadow_AnnotationIncomplete {
+  fill: #aaaaaa;
+}
+.span rect.AnnotationIncomplete {
+  stroke: #141414;
+  stroke-width: 0.5;
+  fill: #ffffff;
+}
+#infopopup.info_AnnotationIncomplete {
+  background-color: #f0f0f0;
+}
+
+.shadow_AnnotationUnconfirmed {
+  fill: #eeeeee;
+}
+.span rect.AnnotationUnconfirmed {
+  stroke: #141414;
+  stroke-width: 0.5;
+  opacity : 0.5;
+}
+#infopopup.info_AnnotationUnconfirmed {
+  background-color: #e0e0e0;
+}
+
+.span rect.True_positive {
+  /* stroke: #464646; */
+}
+
+rect.shadow_EditHighlight {
+  fill: #f3f3f3;
+  stroke: #cfcfcf;
+}
+.shadow_EditHighlight_arc {
+  stroke: #f3f3f3;
+}
+
+.span path {
+  fill: none;
+  stroke: grey;
+}
+
+.span path.negation {
+  stroke: black;
+  opacity: 0.5;
+}
+
+.arcs path {
+  fill: none;
+  opacity: 0.5;
+}
+
+.arcs .highlight path {
+  stroke-width: 1.5;
+  opacity: 1;
+}
+.arcs .highlight text {
+  stroke: black;
+  fill: black;
+  stroke-width: 0.5;
+}
+.span.highlight rect {
+  stroke-width: 2px;
+}
+
+.arcs text {
+  text-anchor: middle;
+  font-size: 80%;
+  dominant-baseline: central;
+  cursor: default;
+}
+
+.background0 {
+  stroke: none;
+  fill: #ffffff;
+}
+
+.background1 {
+  stroke: none;
+  fill: #eeeeee;
+}
+
+.backgroundHighlight {
+  stroke: none;
+  fill: #f3f3f3;
+}
+
+.background_entity {
+  fill: #a1a1a1;
+  opacity: 0.25;
+}
+
+.background_trigger {
+  fill: #b2b2b2;
+  opacity: 0.25;
+}
+
+.sentnum text {
+  fill: #999999;
+  text-anchor: end;
+}
+
+.sentnum path {
+  stroke: #999999;
+  stroke-width: 1px;
+}
+
+.span_default {
+  fill: #bbbbbb;
+}
+
+.span_Exp { fill:#4c4c4c; }
+
+.span_gene-or-gene-product    { fill: #a1a1a1; }
+.span_Protein                 { fill: #a1a1a1; }
+.span_Protein_family_or_group { fill: #a1a1a1; }
+.span_Protein_complex         { fill: #a1a1a1; }
+.span_Protein_molecule        { fill: #a1a1a1; }
+.span_RNA_molecule            { fill: #a1a1a1; }
+.span_DNA_molecule            { fill: #a1a1a1; }
+.span_DNA_family_or_group     { fill: #a1a1a1; }
+
+.span_Chemical                { fill: #c1c1c1; }
+.span_Carbohydrate            { fill: #c1c1c1; }
+.span_Drug_or_compound        { fill: #c1c1c1; }
+.span_Other_pharmaceutical_agent { fill: #c1c1c1; }
+
+.span_Gene_or_gene_product    { fill: #a1a1a1; }
+
+.span_Lipid {
+  fill: #bebebe;
+}
+
+.span_Cell_natural            { fill: #b7b7b7; }
+.span_Cell_cultured           { fill: #b7b7b7; }
+.span_Virus                   { fill: #b7b7b7; }
+.span_Organism                { fill: #b7b7b7; }
+.span_Tissue                  { fill: #b7b7b7; }
+.span_Cell_type               { fill: #b7b7b7; }
+
+.span_Organic_compound_other  { fill: #bebebe; }
+
+.span_Positive_regulation     { fill: #d9d9d9; }
+.span_Catalysis               { fill: #d9d9d9; }
+.span_Regulation              { fill: #e2e2e2; }
+.span_Negative_regulation     { fill: #d0d0d0; }
+
+.span_Deacetylation     { fill: #8c8c8c; }
+.span_Deglycosylation   { fill: #8c8c8c; }
+.span_Dehydroxylation   { fill: #8c8c8c; }
+.span_Demethylation     { fill: #8c8c8c; }
+.span_Dephosphorylation { fill: #8c8c8c; }
+.span_Deubiquitination  { fill: #8c8c8c; }
+.span_DNA_demethylation { fill: #8c8c8c; }
+.span_Deacylation       { fill: #8c8c8c; }
+.span_Dealkylation      { fill: #8c8c8c; }
+.span_Depalmitoylation  { fill: #8c8c8c; }
+.span_Delipidation      { fill: #8c8c8c; }
+.span_Deprenylation     { fill: #8c8c8c; }
+.span_Deneddylation     { fill: #8c8c8c; }
+.span_Desumoylation     { fill: #8c8c8c; }
+
+.span_Process           { fill: #c5c5c5; }
+
+.fill_scatter           { fill: #4c4c4c; }
+.stroke_scatter         { stroke: #4c4c4c; }
+.fill_coref             { fill: #4c4c4c; }
+.stroke_coref           { stroke: #4c4c4c; }
+.fill_Coref             { fill: #4c4c4c; }
+.stroke_Coref           { stroke: #4c4c4c; }
+.fill_Protein-Component { fill: #4c4c4c; }
+.stroke_Protein-Component { stroke: #4c4c4c; }
+
+.span_Entity                   { fill: #c8c8c8; }
+.span_DNA_domain_or_region     { fill: #c8c8c8; }
+.span_Protein_domain_or_region { fill: #c8c8c8; }
+.span_Amino_acid_monomer       { fill: #c8c8c8; }
+.span_Polynucleotide           { fill: #c8c8c8; }
+
+.span_Two-component-system     { fill: #a4a4a4; }
+.span_Regulon-operon           { fill: #a4a4a4; }
+
+.span_Experimental_method { fill: #e2e2e2; }
+
+.span_Other        { fill: #4c4c4c; }
+.span_UNCLASSIFIED { fill: #4c4c4c; }
+
+.fill_theme    { fill:   #000000; }
+.stroke_theme  { stroke: #000000; }
+.fill_Theme    { fill:   #000000; }
+.stroke_Theme  { stroke: #000000; }
+.fill_Theme1   { fill:   #000000; }
+.stroke_Theme1 { stroke: #000000; }
+.fill_Theme2   { fill:   #000000; }
+.stroke_Theme2 { stroke: #000000; }
+.fill_Theme3   { fill:   #000000; }
+.stroke_Theme3 { stroke: #000000; }
+.fill_Theme4   { fill:   #000000; }
+.stroke_Theme4 { stroke: #000000; }
+
+.fill_Participant   { fill:   #000000; }
+.stroke_Participant { stroke: #000000; }
+
+.fill_cause    { fill:   #464646; }
+.stroke_cause  { stroke: #464646; }
+.fill_Cause    { fill:   #464646; }
+.stroke_Cause  { stroke: #464646; }
+.fill_Cause1   { fill:   #464646; }
+.stroke_Cause1 { stroke: #464646; }
+.fill_Cause2   { fill:   #464646; }
+.stroke_Cause2 { stroke: #464646; }
+.fill_Cause3   { fill:   #464646; }
+.stroke_Cause3 { stroke: #464646; }
+.fill_Cause4   { fill:   #464646; }
+.stroke_Cause4 { stroke: #464646; }
+
+.fill_Site     { fill:   #121212; }
+.stroke_Site   { stroke: #121212; }
+.fill_Site1    { fill:   #121212; }
+.stroke_Site1  { stroke: #121212; }
+.fill_Site2    { fill:   #121212; }
+.stroke_Site2  { stroke: #121212; }
+.fill_Site3    { fill:   #121212; }
+.stroke_Site3  { stroke: #121212; }
+.fill_Site4    { fill:   #121212; }
+.stroke_Site4  { stroke: #121212; }
+
+.fill_CSite    { fill:   #121212; }
+.stroke_CSite  { stroke: #121212; }
+
+.fill_ToLoc    { fill:   #161616; }
+.stroke_ToLoc  { stroke: #161616; }
+
+.fill_AtLoc    { fill:   #161616; }
+.stroke_AtLoc  { stroke: #161616; }
+
+.fill_Contextgene   { fill: #303030; }
+.stroke_Contextgene { stroke: #303030; }
+
+.fill_Sidechain {
+  fill: #303030;
+}
+.stroke_Sidechain {
+  stroke: #303030;
+}
+
+.fill_Equiv {
+  fill: black; /* TODO */
+}
+.stroke_Equiv {
+  stroke: black; /* TODO */
+}
+
+.drag_stroke {
+  stroke: black;
+}
+.drag_fill {
+  fill: black;
+}
+
+
+#span_form, #arc_form, #auth_form, #file_browser, #import_form {
+  position: fixed;
+  background-color: #dddddd;
+  border: 2px outset #dddddd;
+  left: 50px;
+  top: 50px;
+  height: auto;
+  padding: 5px 10px;
+  z-index: 10;
+  display: none;
+  min-width: 400px;
+}
+#span_form_buttons, #arc_form_buttons, #auth_form_buttons, #import_form_buttons {
+  text-align: right;
+}
+#span_free_div, #arc_free_div {
+  float: left;
+}
+fieldset {
+  border: 1px solid #999999;
+}
+.accesskey {
+  text-decoration: underline;
+}
+
+
+.shadow {
+  -moz-box-shadow: 5px 5px 5px #444444;
+  -webkit-box-shadow: 5px 5px 5px #444444;
+  box-shadow: 5px 5px 5px #444444;
+}
+
+#span_selected, #arc_origin, #arc_target {
+  font-weight: bold;
+}
+
+#messages {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+#messages > div {
+  padding: 10px;
+  border: 1px outset #000000;
+}
+
+#messages > div.error {
+  background-color: #939393;
+  color: #000000;
+}
+#messages > div.warning {
+  background-color: #9c9c9c;
+  color: #000000;
+}
+#messages > div.info {
+  background-color: #c0c0c0;
+  color: #000000;
+}
+#messages > div.debug {
+  background-color: #f3f3f3;
+  color: #000000;
+}
+
+#messages > div > input {
+  float: right;
+  display: block;
+}
+
+#infopopup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0.9;
+  padding: 10px;
+  display: none;
+  border: 1px outset #000000;
+  background-color: #eeeeee;
+  color: #000000;
+  z-index: 20;
+  -moz-box-shadow: 5px 5px 5px #aaaaaa;
+  -webkit-box-shadow: 5px 5px 5px #aaaaaa;
+  box-shadow: 5px 5px 5px #aaaaaa;
+}
+
+.info_id {
+  font-weight: bold;
+}
+.info_type {
+  font-weight: bold;
+}
+.info_arc {
+  font-weight: bold;
+}
+
+#span_form .collapser {
+    float: left;
+    height: 16px;
+    width: 16px;
+    margin-top: 3px;
+    cursor: hand;
+    background: url('expand_icon.gif') no-repeat;
+}
+#span_form .collapser.open {
+    background: url('collapse_icon.gif') no-repeat;
+}
+#span_form .collapsible.open {
+    display: block;
+}
+#span_form .collapsible {
+    display: none;
+}
+#span_form .item_content {
+    margin-left: 16px;
+}
+#span_form .collapsible {
+    margin-left: 20px;
+}
+.type_scroller {
+    background: #cccccc;
+    border: 1px inset #cccccc;
+    overflow-y: scroll;
+    min-height: 50px;
+}
+#span_highlight_link, #arc_highlight_link {
+  float: right;
+}
+#document_ctime, #document_mtime {
+  margin-left: 10px;
+  padding: 0 2px;
+  background-color: #dddddd;
+  border: 1px solid #999999;
+  display: none;
+}
+#blind {
+  z-index: 5;
+  opacity: 0.5;
+  background-color: #000000;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+#logo {
+  float:right;
+  margin-left: 20px;
+}
+
+#spinner {
+  display: none;
+  position: fixed;
+  right:10px;
+  top: 55px;
+}
+
+#document_select {
+  height: 200px;
+  display: inline-block;
+  border: 2px inset;
+  background-color: #ffffff;
+  border-collapse: collapse;
+  overflow: auto;
+  width: 100%;
+}
+#document_select thead tr * {
+  padding: 2px 5px;
+}
+#document_select tbody tr * {
+  padding: 0 5px;
+}
+#document_select thead {
+  background-color: #666666;
+  color: #ffffff;
+}
+#document_select tr {
+  cursor: pointer;
+}
+#document_select tr * {
+  white-space: nowrap;
+}
+#document_select tbody tr:hover {
+  background-color: #c2c2c2;
+}
+#document_select tr.selected {
+  background-color: #1c1c1c;
+  color: #ffffff;
+}
+#filedir_inputs_table {
+  width: 100%;
+}
+#filedir_inputs_table input {
+  width: 100%;
+}
+#filedir_inputs_table th {
+  width: 50px;
+}
+#file_browser th {
+  font-weight: normal;
+  text-align: left;
+}
+#file_buttons {
+  text-align: right;
+}
+#import_text {
+  border: 2px inset #dddddd;
+  font-family: inherit;
+  height: 150px;
+  width: 400px;
+}
+#import_title {
+  width: 400px;
+}
+#export_page div {
+  margin: 5px 5px 5px 5px;
+  font-size: 14px;
+}
+#export_page table {
+  border-collapse: collapse;
+  border: 1px solid #cccccc;
+}
+#export_page td, #export_page th {
+  padding: 2px 5px;
+  text-align: left;
+}
+#export_page tr.background0 {
+  background-color: #eeeeee;
+}
+#export_page tr.background1 {
+  background-color: #dddddd;
+}
+.ui-icon-gripsmall-diagonal-se {
+  margin: 0 -3px -3px 0;
+}
+
+.file {
+  color: #383838;
+}
+.dir {
+  color: #515151;
+}
+.rightalign {
+  text-align: right;
+}
