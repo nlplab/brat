@@ -384,27 +384,58 @@ def document_json(docdir, docname):
     add_messages_to_json(j_dic)
     print dumps(j_dic, sort_keys=True, indent=2)
 
-def saveSVG(directory, document, svg):
-    dir = '/'.join([BASE_DIR, 'svg', directory])
-    if not isdir(dir):
-        makedirs(dir)
-    basename = dir + '/' + document
-    file = open(basename + '.svg', 'wb')
+def saveSVGReal(svgPath, cssPath, svg):
+    file = open(svgPath, 'wb')
     file.write('<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
     defs = svg.find('</defs>')
     if defs != -1:
-        css = open(BASE_DIR + '/annotator.css').read()
+        css = open(cssPath).read()
         css = '<style type="text/css"><![CDATA[' + css + ']]></style>'
         svg = svg[:defs] + css + svg[defs:]
         file.write(svg)
         file.close()
         # system('rsvg %s.svg %s.png' % (basename, basename))
-        # print 'Content-Type: application/json\n'
-        print 'Content-Type: text/plain\n'
-        print 'Saved as %s in %s' % (basename + '.svg', dir)
     else:
-        print 'Content-Type: text/plain'
-        print 'Status: 400 Bad Request\n'
+        display_message("Error: bad SVG!", "error", -1)
+
+def saveSVG(directory, document, svg):
+    dir = '/'.join([BASE_DIR, 'svg', directory])
+    if not isdir(dir):
+        makedirs(dir)
+    basename = dir + '/' + document
+    svgPath = basename + '.svg'
+    cssPath = BASE_DIR + '/annotator.css'
+    saveSVGReal(svgPath, cssPath, svg)
+
+    response = { }
+    print 'Content-Type: application/json\n'
+    add_messages_to_json(response)
+    print dumps(response, sort_keys=True, indent=2)
+
+def saveSVGForUser(user, svg):
+    dir = '/'.join([BASE_DIR, 'svg', 'user'])
+    if not isdir(dir):
+        makedirs(dir)
+    basename = dir + '/' + user
+
+    cssPath = BASE_DIR + '/annotator.css'
+    saveSVGReal(basename + '_color.svg', BASE_DIR + '/annotator.css', svg)
+    saveSVGReal(basename + '_grayscale.svg', BASE_DIR + '/annotator_grayscale.css', svg)
+
+    response = { }
+    print 'Content-Type: application/json\n'
+    add_messages_to_json(response)
+    print dumps(response, sort_keys=True, indent=2)
+
+def downloadSVGForUser(user, document, version):
+    dir = '/'.join([BASE_DIR, 'svg', 'user'])
+    basename = dir + '/' + user
+    svgPath = basename + '_' + version + '.svg'
+    print 'Content-Type: application/octet-stream'
+    print 'X-Test: ' + svgPath
+    print 'Content-Disposition: attachment; filename=' + document + '.svg\n'
+    print open(svgPath).read()
+
 
 def arc_types_html(projectconfig, origin_type, target_type):
     response = { }
@@ -1082,6 +1113,22 @@ def serve(argv):
             print 'Content-Type: application/json\n'
             add_messages_to_json(runtagger_dict)
             print dumps(runtagger_dict, sort_keys=True, indent=2)
+
+        elif action == 'saveUserSVG':
+            # FIXME
+            # does not work for multiuser environment.
+            # I want sessions!
+            # otherwise, can't distinguish anonymous users.
+            saveSVGForUser("SINGLEUSER", params.getvalue('svg'))
+
+        elif action == 'downloadUserSVG':
+            # FIXME
+            # does not work for multiuser environment.
+            # I want sessions!
+            # otherwise, can't distinguish anonymous users.
+            downloadSVGForUser("SINGLEUSER",
+                    params.getvalue('document'),
+                    params.getvalue('version'))
 
         else:
             if directory is None:

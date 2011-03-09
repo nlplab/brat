@@ -1181,7 +1181,7 @@ var Visualizer = (function($, window, undefined) {
             console.error('FIXME Error during rendering: ', x); // FIXME
           }
         }
-        dispatcher.post('setUIAllowed', [true]);
+        dispatcher.post('doneRendering', [dir, doc, args]);
       };
 
       var renderData = function(_data) {

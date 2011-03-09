@@ -9,7 +9,7 @@ var Ajax = (function($, window, undefined) {
         $.ajax({
           url: 'ajax.cgi',
           data: data,
-          method: 'POST',
+          type: 'POST',
           success: function(response) {
 /* TODO Commented out until
  * server-side complies

@@ -390,12 +390,36 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
+      var saveSVG = function(css) {
+        dispatcher.post('ajax', [{
+          action: 'saveUserSVG',
+          svg: $('#svg').html()
+        }, 'savedSVG']);
+      };
+
+      var showSVGDownloadLinks = function(data) {
+        var params = {
+            action: 'downloadUserSVG',
+            'document': doc,
+            version: 'color'
+        };
+        $('#download_svg_color').attr('href', 'ajax.cgi?' + $.param(params));
+        params['version'] = 'grayscale';
+        $('#download_svg_grayscale').attr('href', 'ajax.cgi?' + $.param(params));
+        $('#download_svg').show();
+      };
+
+      var hideSVGDownloadLinks = function() {
+        $('#download_svg').hide();
+      };
+
       var gotCurrent = function(_dir, _doc, _args) {
         dir = _dir;
         doc = _doc;
         args = _args;
         $('#document_name').text(dir + doc);
         $('#document_mtime').hide();
+        hideSVGDownloadLinks();
       };
 
       dispatcher.
@@ -406,6 +430,9 @@ var VisualizerUI = (function($, window, undefined) {
           on('hideInfo', hideInfo).
           on('dirLoaded', dirLoaded).
           on('current', gotCurrent).
+          on('doneRendering', saveSVG).
+          on('renderData', hideSVGDownloadLinks).
+          on('savedSVG', showSVGDownloadLinks).
           on('noFileSpecified', showFileBrowser).
           on('keydown', onKeyDown).
           on('keypress', onKeyPress).
