@@ -66,14 +66,14 @@ class Session:
 
         try:
             # what's our session ID?
-            self._sid = self._cookie[name].value;
+            self.sid = self._cookie[name].value;
         except KeyError:
             # there isn't any, make a new session ID
             remote = environ.get('REMOTE_ADDR')
-            self._sid = hashlib.sha224('%s-%s' % (remote, now)).hexdigest()
+            self.sid = hashlib.sha224('%s-%s' % (remote, now)).hexdigest()
 
         self._cookie.clear();
-        self._cookie[name] = self._sid
+        self._cookie[name] = self.sid
 
         # set/reset path
         if path:
@@ -101,7 +101,7 @@ class Session:
         self._cookie[name]['httponly'] = True
         
         # persist the session data
-        self._shelf_file = join_path(dir, self._sid)
+        self._shelf_file = join_path(dir, self.sid)
         self._shelf = shelve.open(self._shelf_file, writeback=True)
 
         # send the headers

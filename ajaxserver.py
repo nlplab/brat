@@ -1101,14 +1101,14 @@ def serve(argv):
             # does not work for multiuser environment.
             # I want sessions!
             # otherwise, can't distinguish anonymous users.
-            saveSVGForUser("SINGLEUSER", params.getvalue('svg'))
+            saveSVGForUser(Session.instance.sid, params.getvalue('svg'))
 
         elif action == 'downloadUserSVG':
             # FIXME
             # does not work for multiuser environment.
             # I want sessions!
             # otherwise, can't distinguish anonymous users.
-            downloadSVGForUser("SINGLEUSER",
+            downloadSVGForUser(Session.instance.sid,
                     params.getvalue('document'),
                     params.getvalue('version'))
 
