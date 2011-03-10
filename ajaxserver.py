@@ -12,7 +12,7 @@ Version:    2010-01-24
 '''
 
 #TODO: Move imports into their respective functions to boost load time
-from Cookie import SimpleCookie
+from session import Session
 from cgi import FieldStorage
 from itertools import chain
 from json import dumps, loads
@@ -1025,13 +1025,7 @@ def serve(argv):
 
     params = FieldStorage()
     
-    cookie = SimpleCookie()
-    if environ.has_key('HTTP_COOKIE'):
-        cookie.load(environ['HTTP_COOKIE'])
-    try:
-        creds = loads(cookie[COOKIE_ID].value)
-    except KeyError:
-        creds = {}
+    user = Session.instance.get('user')
 
     directory = params.getvalue('directory')
     document = params.getvalue('document')
@@ -1040,42 +1034,30 @@ def serve(argv):
 
     try:
         if action in EDIT_ACTIONS:
-            try:
-                authenticate(creds['user'], creds['password'])
-            except (InvalidAuthException, KeyError):
+            if not user:
                 print 'Content-Type: text/plain'
                 print 'Status: 403 Forbidden (auth)\n'
                 return
 
         if action == 'login':
-            creds = {
-                    'user': params.getvalue('user'),
-                    'password': hashlib.sha512(
-                        params.getvalue('pass')).hexdigest(),
-                    }
+            user = params.getvalue('user')
+            password = hashlib.sha512(params.getvalue('pass')).hexdigest()
 
-            auth_dict = {}
             try:
-                authenticate(creds['user'], creds['password'])
-                auth_dict['user'] = creds['user']
-                cookie[COOKIE_ID] = dumps(creds)
-                # cookie[COOKIE_ID]['max-age'] = 15*60 # 15 minutes
-                print cookie
+                authenticate(user, password)
+                Session.instance['user'] = user
                 display_message('Hello!')
             except InvalidAuthException:
                 display_message('Incorrect login or password', 'error', 5)
 
             print 'Content-Type: application/json\n'
+            auth_dict = { }
             add_messages_to_json(auth_dict)
             print dumps(auth_dict, sort_keys=True, indent=2)
 
         elif action == 'logout':
-            from datetime import datetime
-            cookie[COOKIE_ID]['expires'] = (
-                    datetime.fromtimestamp(0L).strftime(
-                        '%a, %d %b %Y %H:%M:%S UTC'))
+            Session.instance.invalidate()
             logout_dict = {}
-            print cookie
             print 'Content-Type: application/json\n'
             display_message('Bye!')
             add_messages_to_json(logout_dict)
@@ -1084,7 +1066,7 @@ def serve(argv):
         elif action == 'getuser':
             result = {}
             try:
-                result['user'] = creds['user']
+                result['user'] = Session.instance.get('user')
             except (KeyError):
                 display_message('Not logged in!', type='error', duration=3)
             print 'Content-Type: application/json\n'

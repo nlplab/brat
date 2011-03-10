@@ -123,6 +123,12 @@ def main(args):
     path.extend(orig_path)
 
     try:
+        # Initialise the session
+        # TODO: pythonic way to make it available everywhere?
+        # (in ajaxserver, I mean)
+        from session import Session
+        Session()
+
         # Make the actual call to the server
         from ajaxserver import serve
         return serve(args)
@@ -158,6 +164,9 @@ def main(args):
             print _dumps(add_messages_to_json({}))
         # Allow the exception to fall through so it is logged by Apache
         raise
+    finally:
+        # Save the session
+        Session.instance.close()
     return -1
 
 if __name__ == '__main__':
