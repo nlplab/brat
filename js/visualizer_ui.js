@@ -363,7 +363,8 @@ var VisualizerUI = (function($, window, undefined) {
               return false;
             }
           });
-          if (pos > 0) {
+          if (pos > 0 && !filesData.docs[pos - 1][0]) {
+            // not at the start, and the previous is not a directory
             dispatcher.post('setDocument', [filesData.docs[pos - 1][1]]);
           }
           return false;
@@ -376,6 +377,7 @@ var VisualizerUI = (function($, window, undefined) {
             }
           });
           if (pos < filesData.docs.length - 1) {
+            // not at the end
             dispatcher.post('setDocument', [filesData.docs[pos + 1][1]]);
           }
           return false;
