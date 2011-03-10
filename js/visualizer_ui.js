@@ -219,7 +219,7 @@ var VisualizerUI = (function($, window, undefined) {
             val().
             replace(/\/?\\s+$/, '').
             replace(/^\s+/, '');
-        if (input === '..') {
+        if (input.substr(0, 2) === '..') {
           // ..
           var pos = dir.substr(0, dir.length - 1).lastIndexOf('/');
           if (pos === -1) {
