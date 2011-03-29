@@ -6,7 +6,6 @@ var VisualizerUI = (function($, window, undefined) {
       var messageDefaultFadeDelay = 3000;
       var defaultFloatFormat = '%.1f/right';
 
-      var currentForm = null;
       var filesData = null;
       var dir, doc, args;
       var dirScroll;
@@ -28,7 +27,7 @@ var VisualizerUI = (function($, window, undefined) {
           var aa = a[col];
           var bb = b[col];
           if (aa != bb) return (aa < bb) ? -sortOrder[1] : sortOrder[1];
-          
+
           // prevent random shuffles on columns with duplicate values
           // (alphabetical order of filenames)
           aa = a[1];
@@ -122,7 +121,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
         element.css({ top: y, left: x });
       };
-      
+
       var infoPopup = $('#infopopup');
       var infoDisplayed = false;
 
@@ -181,13 +180,34 @@ var VisualizerUI = (function($, window, undefined) {
       var onKeyPress = function(evt) {
         var char = evt.which;
       };
-      
+
+      var initForm = function(form, alsoResize) {
+        form.dialog({
+          autoOpen: false,
+          closeOnEscape: true,
+          resizable: true,
+          modal: true
+        });
+        // HACK: jQuery UI's dialog does not support alsoResize
+        if (alsoResize) {
+          form.parent().resizable('option', 'alsoResize',
+              '#' + form.attr('id') + ', ' + alsoResize);
+        }
+      };
+
+      var showForm = function(form) {
+        if (this.currentForm && this.currentForm !== form) return false;
+        this.currentForm = form;
+        form.dialog('open');
+        return form;
+      };
+
       var hideForm = function() {
-        if (!currentForm) return;
+        if (!this.currentForm) return;
         // fadeOut version:
-        // currentForm.fadeOut(function() { currentForm = null; });
-        currentForm.hide();
-        currentForm = null;
+        // this.currentForm.fadeOut(function() { this.currentForm = null; });
+        this.currentForm.dialog('close');
+        this.currentForm = null;
       };
 
       var selectElementInTable = function(table, value) {
@@ -207,9 +227,9 @@ var VisualizerUI = (function($, window, undefined) {
         fileBrowserSubmit();
       }
 
-      var fileBrowser = $('#file_browser').resizable({
-          alsoResize: '#document_select'
-      });
+      var fileBrowser = $('#file_browser');
+      initForm(fileBrowser, '#document_select');
+      //fileBrowser.widget().resizable('option', 'alsoResize', '#document_select');
       $('#document_input').change(function(evt) {
         selectElementInTable('#document_select', $(this).val());
       });
@@ -260,18 +280,7 @@ var VisualizerUI = (function($, window, undefined) {
           submit(fileBrowserSubmit).
           bind('reset', hideForm);
       var showFileBrowser = function() {
-        if (currentForm) {
-          if (currentForm != fileBrowser) return;
-        } else if (!filesData) {
-          // directory data not arrived yet
-          return false;
-        } else {
-          // TODO actions not allowed
-        }
-        currentForm = fileBrowser;
-        // fadeIn version:
-        // currentForm.fadeIn();
-        currentForm.show();
+        if (!(filesData && showForm(fileBrowser))) return false;
 
         var html = ['<tr>'];
         var tbody;
@@ -304,7 +313,7 @@ var VisualizerUI = (function($, window, undefined) {
               formatted = datum;
               cssClass = null;
             } else if (type === 'time') {
-	      formatted = Brat.formatTimeAgo(datum * 1000);
+              formatted = Brat.formatTimeAgo(datum * 1000);
               cssClass = null;
             } else if (type === 'float') {
               type = defaultFloatFormat;
@@ -352,10 +361,9 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('messages', [false]);
           return false;
         } else if (code === 9) { // Tab
-          if (currentForm) return;
           showFileBrowser();
           return false;
-        } else if (!currentForm && code == 37) { // Left arrow
+        } else if (!this.currentForm && code == 37) { // Left arrow
           var pos;
           $.each(filesData.docs, function(docNo, docRow) {
             if (docRow[1] == doc) {
@@ -368,7 +376,7 @@ var VisualizerUI = (function($, window, undefined) {
             dispatcher.post('setDocument', [filesData.docs[pos - 1][1]]);
           }
           return false;
-        } else if (!currentForm && code == 39) { // Right arrow
+        } else if (!this.currentForm && code == 39) { // Right arrow
           var pos;
           $.each(filesData.docs, function(docNo, docRow) {
             if (docRow[1] == doc) {
@@ -439,6 +447,11 @@ var VisualizerUI = (function($, window, undefined) {
           on('keydown', onKeyDown).
           on('keypress', onKeyPress).
           on('mousemove', onMouseMove);
+
+      return {
+          showForm: showForm,
+          hideForm: hideForm
+      };
     };
 
     return VisualizerUI;

@@ -593,6 +593,7 @@ var Visualizer = (function($, window, undefined) {
           var rowIndex = 0;
           var reservations;
           var lastBoxChunkIndex = -1;
+          var curlyY = 0;
 
           $.each(data.chunks, function(chunkNo, chunk) {
             reservations = new Array();
