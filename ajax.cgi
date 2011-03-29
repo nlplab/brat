@@ -69,7 +69,7 @@ def _dumps(dic):
 def main(args):
     # Check the Python version, if it is incompatible print a manually crafted
     # json error. This needs to be updated manually as the protocol changes.
-    if version_info[0] != 2 or version_info[1] < 7:
+    if version_info[0] != 2 or version_info[1] < 6: # DEBUG return 6 to 7
         print 'Content-Type: application/json\n'
         print INVALID_PY_JSON
         return -1
@@ -156,8 +156,8 @@ def main(args):
             from time import time
             # Use the current time since epoch as an id for later log look-up
             error_msg = ('The server encountered a serious error, '
-                    'please contact the administrators at {} '
-                    'and give the id #{}'
+                    'please contact the administrators at {0} '
+                    'and give the id #{1}'
                     ).format(ADMIN_CONTACT_EMAIL, int(time()))
             print 'Content-Type: application/json\n'
             display_message(error_msg, type='error', duration=-1)

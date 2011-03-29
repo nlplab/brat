@@ -320,9 +320,9 @@ def enrich_json_with_data(j_dic, ann_obj):
                 )
 
     if ann_obj.failed_lines:
-        error_msg = 'Unable to parse the following line(s):<br/>{}'.format(
+        error_msg = 'Unable to parse the following line(s):<br/>{0}'.format(
                 '\n<br/>\n'.join(
-                    ['{}: {}'.format(
+                    ['{0}: {1}'.format(
                         # The line number is off by one
                         str(line_num + 1),
                         str(ann_obj[line_num])
@@ -518,7 +518,7 @@ class ModificationTracker(object):
         if self.__changed:
             changed_strs = []
             for before, after in self.__changed:
-                changed_strs.append('\t{}\n<br/>\n\tInto:\n<br/>\t{}'.format(before, after))
+                changed_strs.append('\t{0}\n<br/>\n\tInto:\n<br/>\t{1}'.format(before, after))
             msg_str += ('Changed the following line(s):\n<br/>'
                     + '\n<br/>\n'.join([str(a) for a in changed_strs]))
         if self.__deleted:
@@ -1024,6 +1024,7 @@ def serve(argv):
     backup()
 
     params = FieldStorage()
+    Session.instance = Session()
     
     user = Session.instance.get('user')
 

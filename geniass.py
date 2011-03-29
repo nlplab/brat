@@ -42,23 +42,24 @@ def sentence_split_file(txt_file_path, use_cache=False):
                 return ss_file.read()
    
     # Get a temporary file to which GeniaSS can write output
-    with NamedTemporaryFile('r') as temp_file, open('/dev/null', 'w') as null:
-        # Use GeniaSS to generate an intermediate file
-        geniass_p = Popen(shlex_split('{} {} {}'.format(GENIASS_PATH,
-            txt_file_path, temp_file.name)), stderr=null)
-        geniass_p.wait()
-        # Then post-process it to correct errors
-        geniass_post_p = Popen(shlex_split('{} {}'.format(
-            GENIASS_POST_PATH, temp_file.name)), stdout=PIPE)
-        geniass_post_p.wait()
-        ss_output = geniass_post_p.stdout.read()
+    with NamedTemporaryFile('r') as temp_file:
+        with open('/dev/null', 'w') as null:
+            # Use GeniaSS to generate an intermediate file
+            geniass_p = Popen(shlex_split('{0} {1} {2}'.format(GENIASS_PATH,
+                txt_file_path, temp_file.name)), stderr=null)
+            geniass_p.wait()
+            # Then post-process it to correct errors
+            geniass_post_p = Popen(shlex_split('{0} {1}'.format(
+                GENIASS_POST_PATH, temp_file.name)), stdout=PIPE)
+            geniass_post_p.wait()
+            ss_output = geniass_post_p.stdout.read()
 
-        # Save the output if we are to use a cache and may write
-        if use_cache and access(dirname(ss_file_path), W_OK):
-            with open(ss_file_path, 'w') as ss_file:
-                ss_file.write(ss_output)
+            # Save the output if we are to use a cache and may write
+            if use_cache and access(dirname(ss_file_path), W_OK):
+                with open(ss_file_path, 'w') as ss_file:
+                    ss_file.write(ss_output)
 
-        return ss_output
+            return ss_output
 
 if __name__ == '__main__':
     from unittest import TestCase
