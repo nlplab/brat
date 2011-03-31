@@ -7,6 +7,7 @@ var VisualizerUI = (function($, window, undefined) {
       var defaultFloatFormat = '%.1f/right';
 
       var filesData = null;
+      var currentForm;
       var dir, doc, args;
       var dirScroll;
       var docScroll;
@@ -38,7 +39,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var makeSortChangeFunction = function(sort, th, thNo) {
           $(th).click(function() {
-              if (sort[0] == thNo + 1) sort[1] = -sort[1];
+              if (sort[0] === thNo + 1) sort[1] = -sort[1];
               else {
                 var type = filesData.dochead[thNo][1];
                 var ascending = type === "string";
@@ -69,7 +70,7 @@ var VisualizerUI = (function($, window, undefined) {
             messageContainer.append(element);
             var delay = (msg[2] === undefined)
                           ? messageDefaultFadeDelay
-                          : (msg[2] == -1)
+                          : (msg[2] === -1)
                               ? null
                               : (msg[2] * 1000);
             var fader = function() {
@@ -177,18 +178,23 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
-      var onKeyPress = function(evt) {
-        var char = evt.which;
-      };
-
-      var initForm = function(form, alsoResize) {
+      initForm = function(form, alsoResize) {
         form.dialog({
           autoOpen: false,
           closeOnEscape: true,
-          resizable: true,
+          buttons: {
+            "Ok":     function() { form.submit(); },
+            "Cancel": function() { form.dialog("close"); } 
+          },
           modal: true
         });
+        form.bind('dialogclose', function() {
+            currentForm = null;
+        });
         // HACK: jQuery UI's dialog does not support alsoResize
+        // nor does resizable support a jQuery object of several
+        // elements
+        // See: http://bugs.jqueryui.com/ticket/4666
         if (alsoResize) {
           form.parent().resizable('option', 'alsoResize',
               '#' + form.attr('id') + ', ' + alsoResize);
@@ -196,18 +202,16 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var showForm = function(form) {
-        if (this.currentForm && this.currentForm !== form) return false;
-        this.currentForm = form;
+        currentForm = form;
         form.dialog('open');
         return form;
       };
 
       var hideForm = function() {
-        if (!this.currentForm) return;
+        if (!currentForm) return;
         // fadeOut version:
-        // this.currentForm.fadeOut(function() { this.currentForm = null; });
-        this.currentForm.dialog('close');
-        this.currentForm = null;
+        // currentForm.fadeOut(function() { currentForm = null; });
+        currentForm.dialog('close');
       };
 
       var selectElementInTable = function(table, value) {
@@ -262,7 +266,6 @@ var VisualizerUI = (function($, window, undefined) {
             if (dirname) dirname += '/';
             _dir = dir + dirname;
             _doc = docname;
-            console.log(dirname)
           }
         } else {
           dispatcher.post('messages', [[['Invalid document name format', 'error', 2]]]);
@@ -355,18 +358,24 @@ var VisualizerUI = (function($, window, undefined) {
       $('#file_browser_button').click(showFileBrowser);
 
       var onKeyDown = function(evt) {
-        var code = evt.keyCode;
-        if (code === 27) { // Esc
-          hideForm();
+        var code = evt.which;
+
+        if (currentForm) {
+          if (code === $.ui.keyCode.ENTER) {
+            currentForm.trigger('submit');
+          }
+          return;
+        }
+
+        if (code === $.ui.keyCode.ESC) {
           dispatcher.post('messages', [false]);
-          return false;
-        } else if (code === 9) { // Tab
+        } else if (code === $.ui.keyCode.TAB) {
           showFileBrowser();
           return false;
-        } else if (!this.currentForm && code == 37) { // Left arrow
+        } else if (code == $.ui.keyCode.LEFT) {
           var pos;
           $.each(filesData.docs, function(docNo, docRow) {
-            if (docRow[1] == doc) {
+            if (docRow[1] === doc) {
               pos = docNo;
               return false;
             }
@@ -376,7 +385,7 @@ var VisualizerUI = (function($, window, undefined) {
             dispatcher.post('setDocument', [filesData.docs[pos - 1][1]]);
           }
           return false;
-        } else if (!this.currentForm && code == 39) { // Right arrow
+        } else if (code === $.ui.keyCode.RIGHT) {
           var pos;
           $.each(filesData.docs, function(docNo, docRow) {
             if (docRow[1] == doc) {
@@ -438,6 +447,9 @@ var VisualizerUI = (function($, window, undefined) {
           on('displayArcInfo', displayArcInfo).
           on('displaySentInfo', displaySentInfo).
           on('hideInfo', hideInfo).
+          on('showForm', showForm).
+          on('hideForm', hideForm).
+          on('initForm', initForm).
           on('dirLoaded', dirLoaded).
           on('current', gotCurrent).
           on('doneRendering', saveSVG).
@@ -445,13 +457,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('savedSVG', showSVGDownloadLinks).
           on('noFileSpecified', showFileBrowser).
           on('keydown', onKeyDown).
-          on('keypress', onKeyPress).
           on('mousemove', onMouseMove);
 
-      return {
-          showForm: showForm,
-          hideForm: hideForm
-      };
     };
 
     return VisualizerUI;

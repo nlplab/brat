@@ -3,8 +3,8 @@
 
 html {
   overflow-y: scroll;
-  font-family: 'Century Gothic', sans-serif;
-  font-size: 12px;
+  DISABLEfont-family: 'Century Gothic', sans-serif;
+  DISABLEfont-size: 12px;
 }
 
 #svg {
@@ -346,11 +346,7 @@ rect.shadow_EditHighlight {
 
 
 #span_form, #arc_form, #auth_form, #file_browser, #import_form {
-  z-index: 10;
   display: none;
-}
-#span_form_buttons, #arc_form_buttons, #auth_form_buttons, #import_form_buttons {
-  text-align: right;
 }
 #span_free_div, #arc_free_div {
   float: left;
@@ -502,6 +498,7 @@ fieldset {
   border-collapse: collapse;
   overflow: auto;
   width: 100%;
+  margin-top: 10px;
 }
 #document_select thead tr * {
   padding: 2px 5px;
@@ -509,18 +506,11 @@ fieldset {
 #document_select tbody tr * {
   padding: 0 5px;
 }
-#document_select thead {
-  background-color: #666666;
-  color: #ffffff;
-}
 #document_select tr {
   cursor: pointer;
 }
 #document_select tr * {
   white-space: nowrap;
-}
-#document_select tbody tr:hover {
-  background-color: #bbbbff;
 }
 #document_select tr.selected {
   background-color: #0000ff;
@@ -581,4 +571,10 @@ fieldset {
 }
 .rightalign {
   text-align: right;
+}
+
+.dialog input {
+  outline: 0;
+  border: 0;
+  width: 100%;
 }

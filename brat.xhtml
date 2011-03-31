@@ -5,7 +5,7 @@
 <html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>brat</title>
-    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/redmond/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript" src="js/lib/head.load.min.js"></script>
     <script type="text/javascript">
       head.js(
@@ -24,6 +24,8 @@
           'js/ajax.js',
           'js/visualizer.js',
           'js/visualizer_ui.js',
+          'js/annotator.js',
+          'js/annotator_ui.js',
           'js/spinner.js'
       );
       head.ready(function() {
@@ -32,6 +34,8 @@
           var ajax = new Ajax(dispatcher);
           var visualizer = new Visualizer(dispatcher, '#svg');
           var visualizerUI = new VisualizerUI(dispatcher);
+          var annotator = new Annotator(dispatcher, '#svg');
+          var annotatorUI = new AnnotatorUI(dispatcher);
           var spinner = new Spinner(dispatcher, '#spinner');
           dispatcher.post('init');
       });
@@ -43,7 +47,7 @@
   <body>
     <img id="spinner" src="spinner.gif"/>
     <div id="messages"/>
-    <div id="infopopup" class="shadow"/>
+    <div id="infopopup"/>
     <div id="header">
       <img id="logo" src="brat-logo.png"/>
       <div>
@@ -57,8 +61,8 @@
         <a id="download_svg_color">Color</a>
         <a id="download_svg_grayscale">Grayscale</a>
       </span>
-<!--
       <input id="auth_button" type="button" value="Login"/>
+<!--
       <input id="export_button" type="button" value="Export"/>
       <input id="import_button" type="button" value="Import"/>
       <input id="tag_button" type="button" value="Tag (NERsuite)"/>
@@ -69,8 +73,7 @@
 -->
     </div>
     <div id="svg"></div>
-    <!--div id="blind"></div-->
-    <form id="import_form" class="shadow">
+    <form id="import_form" class="dialog">
       <fieldset id="import_form_docid">
         <legend>Document ID</legend>
         <input id="import_docid" type="text"/>
@@ -89,7 +92,7 @@
         <input type="reset" value="Cancel"/>
       </fieldset>
     </form>
-    <form id="span_form" class="shadow">
+    <form id="span_form" class="dialog">
       <fieldset id="span_selected_fset">
         <legend>Selected Text</legend>
         <a target="brat_linked" id="span_highlight_link" href="#">Link</a>
@@ -114,7 +117,7 @@
         <input type="reset" value="Cancel"/>
       </fieldset>
     </form>
-    <form id="arc_form" class="shadow">
+    <form id="arc_form" class="dialog">
       <fieldset id="arc_origin_fset">
         <legend>From</legend>
         <a target="brat_linked" id="arc_highlight_link" href="#">Link</a>
@@ -135,34 +138,29 @@
         <input type="reset" value="Cancel"/>
       </fieldset>
     </form>
-    <form id="auth_form" class="shadow">
+    <form id="auth_form" class="dialog" title="Login">
       <fieldset>
         <legend>Username</legend>
-        <input id="auth_user"/>
+        <input id="auth_user" placeholder="Username"/>
       </fieldset>
       <fieldset>
         <legend>Password</legend>
-        <input id="auth_pass" type="password"/>
-      </fieldset>
-      <fieldset id="auth_form_buttons">
-        <legend>Submit</legend>
-        <input type="submit" value="OK"/>
-        <input type="reset" value="Cancel"/>
+        <input id="auth_pass" type="password" placeholder="Password"/>
       </fieldset>
     </form>
-    <form id="file_browser" class="shadow" title="Open">
-      <table id="filedir_inputs_table">
-        <tr><th>Dir:</th><td><input id="directory_input" readonly="readonly"/></td></tr>
-        <tr><th>File:</th><td><input id="document_input"/></td></tr>
+    <form id="file_browser" class="dialog" title="Open">
+      <fieldset>
+        <legend>Directory</legend>
+        <input id="directory_input" readonly="readonly" placeholder="Document"/>
+      </fieldset>
+      <fieldset>
+        <legend>Document</legend>
+        <input id="document_input" placeholder="Document"/>
+      </fieldset>
+      <table id="document_select" class="ui-widget">
+        <thead class="ui-widget-header"/>
+        <tbody class="ui-widget-content"/>
       </table>
-      <table id="document_select">
-        <thead/>
-        <tbody/>
-      </table>
-      <div id="file_buttons">
-        <input type="reset" value="Cancel" tabindex="-1"/>
-        <input type="submit" value="OK"/>
-      </div>
     </form>
   </body>
 </html>
