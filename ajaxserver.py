@@ -1041,6 +1041,7 @@ def serve(argv):
                 return
 
         if action == 'login':
+            auth_dict = { }
             user = params.getvalue('user')
             password = hashlib.sha512(params.getvalue('pass')).hexdigest()
 
@@ -1049,10 +1050,10 @@ def serve(argv):
                 Session.instance['user'] = user
                 display_message('Hello!')
             except InvalidAuthException:
+                auth_dict['exception'] = 'denied'
                 display_message('Incorrect login or password', 'error', 5)
 
             print 'Content-Type: application/json\n'
-            auth_dict = { }
             add_messages_to_json(auth_dict)
             print dumps(auth_dict, sort_keys=True, indent=2)
 

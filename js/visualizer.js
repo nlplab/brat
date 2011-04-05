@@ -34,6 +34,7 @@ var Visualizer = (function($, window, undefined) {
       var dir, doc, args;
       var abbrevs;
       var isRenderRequested;
+      var curlyY;
 
       var infoPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error'];
 
@@ -593,7 +594,7 @@ var Visualizer = (function($, window, undefined) {
           var rowIndex = 0;
           var reservations;
           var lastBoxChunkIndex = -1;
-          var curlyY = 0;
+          curlyY = 0;
 
           $.each(data.chunks, function(chunkNo, chunk) {
             reservations = new Array();

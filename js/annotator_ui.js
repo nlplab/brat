@@ -1,12 +1,38 @@
 var AnnotatorUI = (function($, window, undefined) {
     var AnnotatorUI = function(dispatcher) {
       var that = this;
+      var arcDragOrigin = null;
+      var arcDragOriginGroup = null;
+      var selectedRange = null;
+
+      that.user = null; // TODO autologin
 
       var onKeyPress = function(evt) {
         var char = evt.which;
       };
 
-      var onKeyPress = function(evt) {
+      var onMouseDown = function(evt) {
+        var target = $(evt.target);
+        // TODO
+      };
+
+      var onMouseUp = function(evt) {
+      };
+
+      var getUser = function() {
+        dispatcher.post('ajax', [{
+            action: 'getuser'
+          }, function(response) {
+            var auth_button = $('#auth_button');
+            if (response.user) {
+              that.user = response.user;
+              dispatcher.post('messages', [[['Welcome back, user "' + that.user + '"', 'info']]]);
+              auth_button.val('Logout');
+            } else {
+              auth_button.val('Login');
+            }
+          }
+        ]);
       };
 
       var authForm = $('#auth_form');
@@ -23,6 +49,7 @@ var AnnotatorUI = (function($, window, undefined) {
           function(response) {
               if (response.exception) {
                 dispatcher.post('showForm', [authForm]);
+                $('#auth_user').select().focus();
               } else {
                 that.user = user;
                 $('#auth_button').val('Logout');
@@ -47,7 +74,10 @@ var AnnotatorUI = (function($, window, undefined) {
       authForm.submit(authFormSubmit);
 
       dispatcher.
-        on('keypress', onKeyPress);
+        on('init', getUser).
+        on('keypress', onKeyPress).
+        on('mousedown', onMouseDown).
+        on('mouseup', onMouseUp);
     };
 
     return AnnotatorUI;
