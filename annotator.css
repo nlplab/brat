@@ -496,9 +496,9 @@ fieldset {
   border: 2px inset;
   background-color: #ffffff;
   border-collapse: collapse;
-  overflow: auto;
   width: 100%;
   margin-top: 10px;
+  overflow: scroll;
 }
 #document_select thead tr * {
   padding: 2px 5px;

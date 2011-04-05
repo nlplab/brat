@@ -178,16 +178,20 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
-      initForm = function(form, alsoResize) {
-        form.dialog({
-          autoOpen: false,
-          closeOnEscape: true,
-          buttons: {
-            "Ok":     function() { form.submit(); },
-            "Cancel": function() { form.dialog("close"); } 
-          },
-          modal: true
-        });
+      initForm = function(form, opts) {
+        opts = opts || {};
+        var alsoResize = opts.alsoResize;
+        delete opts.alsoResize;
+        opts = $.extend({
+            autoOpen: false,
+            closeOnEscape: true,
+            buttons: {
+              "Ok":     function() { form.submit(); },
+              "Cancel": function() { form.dialog("close"); } 
+            },
+            modal: true
+          }, opts);
+        form.dialog(opts);
         form.bind('dialogclose', function() {
             currentForm = null;
         });
@@ -232,7 +236,10 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var fileBrowser = $('#file_browser');
-      initForm(fileBrowser, '#document_select');
+      initForm(fileBrowser, {
+          alsoResize: '#document_select',
+          width: 500
+      });
       //fileBrowser.widget().resizable('option', 'alsoResize', '#document_select');
       $('#document_input').change(function(evt) {
         selectElementInTable('#document_select', $(this).val());
