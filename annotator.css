@@ -345,7 +345,7 @@ rect.shadow_EditHighlight {
 }
 
 
-#span_form, #arc_form, #auth_form, #file_browser, #import_form {
+.dialog {
   display: none;
 }
 #span_free_div, #arc_free_div {
@@ -577,4 +577,11 @@ fieldset {
   outline: 0;
   border: 0;
   width: 100%;
+}
+
+#waiter {
+  text-align: center;
+}
+#waiter img {
+  margin-top: 25px;
 }

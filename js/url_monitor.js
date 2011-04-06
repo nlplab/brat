@@ -80,7 +80,6 @@ var URLMonitor = (function($, window, undefined) {
         var args = $.deparam(argsStr);
 
         setDirectory(dir, doc, args);
-        console.log(reloadData);
         dispatcher.post('current', [that.dir, that.doc, that.args, reloadData]);
         reloadData = true;
       };

@@ -122,7 +122,6 @@ var AnnotatorUI = (function($, window, undefined) {
           keymap[$.ui.keyCode.DELETE] = null;
           $('#span_form input:radio:first')[0].checked = true;
         }
-        console.log(keymap);
         if (el = $('#span_mod_negation')[0]) {
           el.checked = span ? span.Negation : false;
         }
@@ -313,6 +312,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
         dispatcher.post('ajax', [spanOptions, 'edited']);
         spanForm.dialog('close');
+        $('#waiter').dialog('open');
       };
 
       dispatcher.post('initForm', [spanForm, {
@@ -328,9 +328,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }]);
 
       var spanFormSubmit = function(evt, typeRadio) {
-        console.log("A", typeRadio);
         typeRadio = typeRadio || $('#span_form input:radio:checked');
-        console.log("B", typeRadio);
         var type = typeRadio.val();
         spanForm.dialog('close');
         if (type) {
@@ -347,6 +345,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (el = $('#span_mod_speculation')[0]) {
             spanOptions.speculation = el.checked;
           }
+          $('#waiter').dialog('open');
           dispatcher.post('ajax', [spanOptions, 'edited']);
         } else {
           dispatcher.post('messages', [[['Error: No type selected', 'error']]]);
@@ -354,6 +353,16 @@ var AnnotatorUI = (function($, window, undefined) {
         return false;
       };
       spanForm.submit(spanFormSubmit);
+
+      var waiter = $('#waiter');
+      waiter.dialog({
+        closeOnEscape: false,
+        buttons: {},
+        modal: true,
+        open: function(evt, ui) {
+          $(evt.target).parent().find(".ui-dialog-titlebar-close").hide();
+        }
+      });
 
       dispatcher.
         on('renderData', rememberData).

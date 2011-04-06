@@ -435,13 +435,22 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var saveSVGTimer = null;
-      var saveSVG = function(css) {
+      var saveSVG = function() {
         clearTimeout(saveSVGTimer);
         saveSVGTimer = dispatcher.post(500, 'ajax', [{
           action: 'saveUserSVG',
           svg: $('#svg').html()
         }, 'savedSVG']);
       };
+
+      var onDoneRendering = function() {
+        saveSVG();
+        $('#waiter').dialog('close');
+      }
+
+      var onStartedRendering = function() {
+        $('#waiter').dialog('open');
+      }
 
       var showSVGDownloadLinks = function(data) {
         var params = {
@@ -479,7 +488,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('initForm', initForm).
           on('dirLoaded', dirLoaded).
           on('current', gotCurrent).
-          on('doneRendering', saveSVG).
+          on('doneRendering', onDoneRendering).
+          on('startedRendering', onStartedRendering).
           on('renderData', hideSVGDownloadLinks).
           on('savedSVG', showSVGDownloadLinks).
           on('noFileSpecified', showFileBrowser).
