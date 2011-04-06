@@ -2,7 +2,7 @@ var URLMonitor = (function($, window, undefined) {
     var URLMonitor = function(dispatcher) {
       var that = this;
 
-      var toRender = false;
+      var reloadData = true;
 
       that.args = {};
       that.doc = null;
@@ -80,12 +80,18 @@ var URLMonitor = (function($, window, undefined) {
         var args = $.deparam(argsStr);
 
         setDirectory(dir, doc, args);
-        dispatcher.post('current', [that.dir, that.doc, that.args]);
+        console.log(reloadData);
+        dispatcher.post('current', [that.dir, that.doc, that.args, reloadData]);
+        reloadData = true;
       };
 
       var forceUpdate = function() {
         $(window).trigger('hashchange');
       };
+
+      var preventReloadByURL = function() {
+        reloadData = false;
+      }
 
       var init = function() {
         $(window).bind('hashchange', updateState);
@@ -97,6 +103,7 @@ var URLMonitor = (function($, window, undefined) {
           on('setArguments', setArguments).
           on('setDocument', setDocument).
           on('setDirectory', setDirectory).
+          on('preventReloadByURL', preventReloadByURL).
           on('init', init);
     };
 

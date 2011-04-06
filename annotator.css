@@ -16,10 +16,10 @@ svg {
   width: 100%;
   height: 1px;
   border: 1px solid #7fa2ff;
+  font-size: 14px;
 }
 
 text {
-  font-size: 14px;
   font-family: serif;
 }
 
@@ -40,7 +40,7 @@ path {
 }
 
 .span text {
-  font-size: 75%;
+  font-size: 65%;
   text-anchor: middle;
   font-family: sans-serif;
   pointer-events: none;
@@ -151,7 +151,7 @@ rect.shadow_EditHighlight {
 
 .arcs text {
   text-anchor: middle;
-  font-size: 80%;
+  font-size: 70%;
   dominant-baseline: central;
   cursor: default;
 }
@@ -452,11 +452,11 @@ fieldset {
     margin-left: 20px;
 }
 .type_scroller {
-    background: #ccccd0;
-    border: 1px inset #ccccd0;
     overflow-y: scroll;
     min-height: 50px;
+    max-height: 300px;
 }
+
 #span_highlight_link, #arc_highlight_link {
   float: right;
 }
@@ -573,7 +573,7 @@ fieldset {
   text-align: right;
 }
 
-.dialog input {
+.dialog .borderless {
   outline: 0;
   border: 0;
   width: 100%;

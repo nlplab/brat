@@ -404,7 +404,7 @@ class Annotations(object):
         if suffix is None:
             suffix = ''
         #XXX: Arbitary constant!
-        for suggestion in (prefix + str(i) + suffix for i in xrange(1, 2**32)):
+        for suggestion in (prefix + str(i) + suffix for i in xrange(1, 2**15)):
             # This is getting more complicated by the minute, two checks since
             # the developers no longer know when it is an id or string.
             if suggestion not in self._ann_by_id:

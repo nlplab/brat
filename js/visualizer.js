@@ -1232,12 +1232,14 @@ var Visualizer = (function($, window, undefined) {
         }
       };
 
-      var gotCurrent = function(_dir, _doc, _args) {
+      var gotCurrent = function(_dir, _doc, _args, reloadData) {
         dir = _dir;
         doc = _doc;
         args = _args;
-        isRenderRequested = true;
-        triggerRender();
+        if (reloadData) {
+          isRenderRequested = true;
+          triggerRender();
+        }
       };
 
 

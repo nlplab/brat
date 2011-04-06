@@ -180,21 +180,39 @@ var VisualizerUI = (function($, window, undefined) {
 
       initForm = function(form, opts) {
         opts = opts || {};
+        var formId = form.attr('id');
+
+        // alsoResize is special
         var alsoResize = opts.alsoResize;
         delete opts.alsoResize;
+
+        // Always add OK and Cancel
+        var buttons = (opts.buttons || []).concat([
+            {
+              id: formId + "-ok",
+              text: "OK",
+              click: function() { form.submit(); }
+            },
+            {
+              id: formId + "-cancel",
+              text: "Cancel",
+              click: function() { form.dialog('close'); }
+            },
+          ]);
+        delete opts.buttons;
+
         opts = $.extend({
             autoOpen: false,
             closeOnEscape: true,
-            buttons: {
-              "Ok":     function() { form.submit(); },
-              "Cancel": function() { form.dialog("close"); } 
-            },
+            buttons: buttons,
             modal: true
           }, opts);
+
         form.dialog(opts);
         form.bind('dialogclose', function() {
             currentForm = null;
         });
+
         // HACK: jQuery UI's dialog does not support alsoResize
         // nor does resizable support a jQuery object of several
         // elements
@@ -416,8 +434,10 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
+      var saveSVGTimer = null;
       var saveSVG = function(css) {
-        dispatcher.post('ajax', [{
+        clearTimeout(saveSVGTimer);
+        saveSVGTimer = dispatcher.post(500, 'ajax', [{
           action: 'saveUserSVG',
           svg: $('#svg').html()
         }, 'savedSVG']);
