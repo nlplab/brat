@@ -33,9 +33,10 @@
           var urlMonitor = new URLMonitor(dispatcher);
           var ajax = new Ajax(dispatcher);
           var visualizer = new Visualizer(dispatcher, '#svg');
-          var visualizerUI = new VisualizerUI(dispatcher);
+          var svg = visualizer.svg;
+          var visualizerUI = new VisualizerUI(dispatcher, '#svg');
           var annotator = new Annotator(dispatcher, '#svg');
-          var annotatorUI = new AnnotatorUI(dispatcher);
+          var annotatorUI = new AnnotatorUI(dispatcher, svg);
           var spinner = new Spinner(dispatcher, '#spinner');
           dispatcher.post('init');
       });
@@ -121,13 +122,6 @@
       </fieldset>
 
       <div id="arc_roles"/>
-        
-      <fieldset id="arc_form_buttons">
-        <legend>Submit</legend>
-        <input id="del_arc_button" type="button" value="Delete"/>
-        <input type="submit" value="OK"/>
-        <input type="reset" value="Cancel"/>
-      </fieldset>
     </form>
     <form id="auth_form" class="dialog" title="Login">
       <fieldset>

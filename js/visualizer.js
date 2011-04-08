@@ -1362,7 +1362,7 @@ var Visualizer = (function($, window, undefined) {
       // create the svg wrapper
       svgContainer.svg({
           onLoad: function(_svg) {
-              svg = _svg;
+              that.svg = svg = _svg;
               svgElement = $(svg._svg);
               triggerRender();
           }

@@ -32,8 +32,18 @@ var Brat = (function(window, undefined) {
       return result;
     }
 
+    var realBBox = function(span) {
+      var box = span.rect.getBBox();
+      var chunkTranslation = span.chunk.translation;
+      var rowTranslation = span.chunk.row.translation;
+      box.x += chunkTranslation.x + rowTranslation.x;
+      box.y += chunkTranslation.y + rowTranslation.y;
+      return box;
+    }
+
     return {
-      formatTimeAgo: formatTimeAgo
+      formatTimeAgo: formatTimeAgo,
+      realBBox: realBBox
     };
     
 })(window);

@@ -1,17 +1,22 @@
 var AnnotatorUI = (function($, window, undefined) {
-    var AnnotatorUI = function(dispatcher) {
+    var AnnotatorUI = function(dispatcher, svg) {
       var that = this;
       var arcDragOrigin = null;
+      var arcDragOriginBox = null;
       var arcDragOriginGroup = null;
+      var arcDragArc = null;
       var selectedRange = null;
       var data = null;
       var spanOptions = null;
+      var arcOptions = null;
       var spanKeymap = null;
       var keymap = null;
       var dir = null;
       var doc = null;
 
       that.user = null;
+
+      var svgElement = $(svg._svg);
 
       var normalize = function(str) {
         return str.toLowerCase().replace(' ', '_');
@@ -29,7 +34,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var onDblClick = function(evt) {
-    if (that.user === null) return;
+        if (that.user === null) return;
         var target = $(evt.target);
         var id;
         // do we edit an arc?
@@ -41,12 +46,14 @@ var AnnotatorUI = (function($, window, undefined) {
           var type = target.attr('data-arc-role');
           var originSpan = data.spans[originSpanId];
           var targetSpan = data.spans[targetSpanId];
-          annotator.ajaxOptions = {
+          arcOptions = {
             action: 'arc',
             origin: originSpanId,
             target: targetSpanId,
             type: type,
             old: type,
+            directory: dir,
+            'document': doc
           };
           var eventDescId = target.attr('data-arc-ed');
           if (eventDescId) {
@@ -56,8 +63,8 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
           $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
-          var arcId = originSpanId + '--' + type + '--' + targetSpanId;
-          annotator.fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
+          var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
+          fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
           
         // if not, then do we edit a span?
         } else if (id = target.attr('data-span-id')) {
@@ -75,8 +82,42 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var onMouseDown = function(evt) {
+        if (!that.user || arcDragOrigin) return;
         var target = $(evt.target);
-        // TODO
+        var id;
+        // is it arc drag start?
+        if (id = target.attr('data-span-id')) {
+          window.getSelection().removeAllRanges();
+          svgPosition = svgElement.offset();
+          arcDragOrigin = id;
+          arcDragArc = svg.path(svg.createPath(), {
+            markerEnd: 'url(#dragArrow)',
+            'class': 'drag_stroke',
+            fill: 'none',
+          });
+          console.log(arcDragArc, svgPosition);
+          arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
+          arcDragOriginGroup.addClass('highlight');
+          arcDragOriginBox = Brat.realBBox(data.spans[arcDragOrigin]);
+          arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
+          return false;
+        }
+      };
+
+      var onMouseMove = function(evt) {
+        if (arcDragOrigin) {
+          window.getSelection().removeAllRanges();
+          var mx = evt.pageX - svgPosition.left;
+          var my = evt.pageY - svgPosition.top + 5; // TODO FIXME why +5?!?
+          var y = Math.min(arcDragOriginBox.y, my) - 50;
+          var dx = (arcDragOriginBox.center - mx) / 4;
+          var path = svg.createPath().
+            move(arcDragOriginBox.center, arcDragOriginBox.y).
+            curveC(arcDragOriginBox.center - dx, y,
+                mx + dx, y,
+                mx, my);
+          arcDragArc.setAttribute('d', path.path());
+        }
       };
 
       var adjustToCursor = function(evt, element) {
@@ -134,6 +175,89 @@ var AnnotatorUI = (function($, window, undefined) {
         adjustToCursor(evt, spanForm.parent());
       };
 
+      var arcFormSubmit = function(evt) {
+        var type = $('#arc_form input:radio:checked').val();
+        arcForm.dialog('close');
+
+        if (type) { // (if not cancelled)
+          arcOptions.type = type;
+          dispatcher.post('ajax', [arcOptions, 'edited']);
+        } else {
+          dispatcher.post('messages', [[['Error: No type selected', 'error']]]);
+        }
+        return false;
+      };
+
+      var fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId) {
+        dispatcher.post('ajax', [{
+            action: 'arctypes',
+            directory: dir,
+            origin: originType,
+            target: targetType,
+          }, 
+          function(jsonData) {
+            if (jsonData.empty && !arcType) {
+              // no valid choices
+              dispatcher.post('messages', [[["No choices for " + originType + " -> " + targetType, 'error']]]);
+            } else {
+              $('#arc_roles').html(jsonData.html);
+              keymap = jsonData.keymap;
+              if (arcId) {
+                $('#arc_highlight_link').attr('href', document.location + '/' + arcId).show(); // TODO incorrect
+                var el = $('#arc_' + normalize(arcType))[0];
+                if (el) {
+                  el.checked = true;
+                }
+              } else {
+                $('#arc_highlight_link').hide();
+                el = $('#arc_form input:radio:first')[0];
+                if (el) {
+                  el.checked = true;
+                }
+              }
+              var confirmMode = $('#confirm_mode')[0].checked;
+              if (!confirmMode) {
+                arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+              }
+              if (arcType) {
+                $('#arc_form_delete').show();
+                keymap[$.ui.keyCode.DELETE] = 'arc_form_delete';
+              } else {
+                $('#arc_form_delete').hide();
+              }
+
+              arcForm.dialog('open');
+              $('#arc_form input:submit').focus();
+              adjustToCursor(evt, arcForm.parent());
+            }
+          }]);
+      };
+
+      var deleteArc = function(evt) {
+        var confirmMode = $('#confirm_mode')[0].checked;
+        if (confirmMode && !confirm("Are you sure you want to delete this annotation?")) {
+          return;
+        }
+        var eventDataId = $(evt.target).attr('data-arc-ed');
+        arcForm.dialog('close');
+        arcOptions.action = 'unarc';
+        dispatcher.post('ajax', [arcOptions, 'edited']);
+      };
+
+      var arcForm = $('#arc_form');
+      dispatcher.post('initForm', [arcForm, {
+          width: 500,
+          buttons: [{
+            id: 'arc_form_delete',
+            text: "Delete",
+            click: deleteArc
+          }],
+          close: function(evt) {
+            keymap = null;
+          }
+        }]);
+      arcForm.submit(arcFormSubmit);
+
       var onMouseUp = function(evt) {
         if (that.user === null) return;
 
@@ -145,11 +269,13 @@ var AnnotatorUI = (function($, window, undefined) {
           if ((id = target.attr('data-span-id')) && arcDragOrigin != id) {
             var originSpan = data.spans[arcDragOrigin];
             var targetSpan = data.spans[id];
-            dispatcher.post('ajax', [{
-                action: 'arc',
-                origin: originSpan.id,
-                target: targetSpan.id,
-              }, 'edited']);
+            arcOptions = {
+              action: 'arc',
+              origin: originSpan.id,
+              target: targetSpan.id,
+              directory: dir,
+              'document': doc
+            };
             $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
             $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
             fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
@@ -194,7 +320,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
-      var getUser = function() {
+      var init = function() {
         dispatcher.post('ajax', [{
             action: 'getuser'
           }, function(response) {
@@ -367,13 +493,14 @@ var AnnotatorUI = (function($, window, undefined) {
       dispatcher.
         on('renderData', rememberData).
         on('dirLoaded', rememberSpanSettings).
-        on('init', getUser).
+        on('init', init).
         on('edited', edited).
         on('current', gotCurrent).
         on('keydown', onKeyDown).
         on('dblclick', onDblClick).
         on('mousedown', onMouseDown).
-        on('mouseup', onMouseUp);
+        on('mouseup', onMouseUp).
+        on('mousemove', onMouseMove);
     };
 
     return AnnotatorUI;
