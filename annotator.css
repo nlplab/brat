@@ -3,8 +3,6 @@
 
 html {
   overflow-y: scroll;
-  DISABLEfont-family: 'Century Gothic', sans-serif;
-  DISABLEfont-size: 12px;
 }
 
 #svg {
@@ -516,21 +514,9 @@ fieldset {
   background-color: #0000ff;
   color: #ffffff;
 }
-#filedir_inputs_table {
-  width: 100%;
-}
-#filedir_inputs_table input {
-  width: 100%;
-}
-#filedir_inputs_table th {
-  width: 50px;
-}
 #file_browser th {
   font-weight: normal;
   text-align: left;
-}
-#file_buttons {
-  text-align: right;
 }
 #import_text {
   border: 2px inset #dddde0;

@@ -472,6 +472,7 @@ var VisualizerUI = (function($, window, undefined) {
         dir = _dir;
         doc = _doc;
         args = _args;
+        fileBrowser.dialog('close');
         $('#document_name').text(dir + doc);
         $('#document_mtime').hide();
         hideSVGDownloadLinks();
