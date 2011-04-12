@@ -24,7 +24,7 @@ var Visualizer = (function($, window, undefined) {
       var editedSpanSize = 7;
       var editedArcSize = 3;
       var editedStroke = 7;
-      var rowPadding = 5;
+      var rowPadding = 2;
 
       // END OPTIONS
 
