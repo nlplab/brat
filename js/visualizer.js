@@ -24,6 +24,7 @@ var Visualizer = (function($, window, undefined) {
       var editedSpanSize = 7;
       var editedArcSize = 3;
       var editedStroke = 7;
+      var rowPadding = 5;
 
       // END OPTIONS
 
@@ -583,7 +584,7 @@ var Visualizer = (function($, window, undefined) {
               }); // tower
             }); // data.towers
 
-            var current = { x: margin.x + sentNumMargin, y: margin.y }; // TODO: we don't need some of this?
+            var current = { x: margin.x + sentNumMargin + rowPadding, y: margin.y }; // TODO: we don't need some of this?
             var rows = [];
             var spanHeights = [];
             var sentenceToggle = 0;
@@ -789,7 +790,7 @@ var Visualizer = (function($, window, undefined) {
                 row.arcs = svg.group(row.group, { 'class': 'arcs' });
                 // new row
                 rows.push(row);
-                current.x = margin.x + sentNumMargin +
+                current.x = margin.x + sentNumMargin + rowPadding +
                     (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
                 svg.remove(chunk.group);
                 row = new Row();
@@ -1092,6 +1093,7 @@ var Visualizer = (function($, window, undefined) {
               } // arc rows
             }); // arcs
 
+            // position the rows
             var y = margin.y;
             var sentNumGroup = svg.group({'class': 'sentnum'});
             var currentSent;
@@ -1106,19 +1108,20 @@ var Visualizer = (function($, window, undefined) {
               if (row.hasAnnotations) {
                 rowBox.height = -rowBox.y+rowSpacing;
               }
+              rowBox.height += rowPadding;
               svg.rect(backgroundGroup,
-                0, y + curlyY + textHeight, canvasWidth, rowBox.height + textHeight + 1, {
+                0, y + curlyY + textHeight,
+                canvasWidth, rowBox.height + textHeight + 1, {
                 'class': 'background' +
                     (data.editedSent && data.editedSent == currentSent ?
                      'Highlight' : row.backgroundIndex),
               });
               y += rowBox.height;
               y += textHeight;
-              row.textY = y;
+              row.textY = y - rowPadding;
               if (row.sentence) {
-                var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y, '' + row.sentence, {
-                    'data-sent': row.sentence,
-                  });
+                var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y - rowPadding,
+                    '' + row.sentence, { 'data-sent': row.sentence });
                 var sentInfo = data.sentInfo[row.sentence];
                 if (sentInfo) {
                   var box = text.getBBox();
@@ -1133,12 +1136,11 @@ var Visualizer = (function($, window, undefined) {
                       ry: shadowSize,
                       'data-sent': row.sentence,
                   });
-                  var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y, '' + row.sentence, {
-                    'data-sent': row.sentence,
-                  });
+                  var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y - rowPadding,
+                      '' + row.sentence, { 'data-sent': row.sentence });
                 }
               }
-              translate(row, 0, y);
+              translate(row, 0, y - rowPadding);
               y += margin.y;
             });
             y += margin.y;
