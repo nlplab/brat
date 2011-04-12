@@ -431,9 +431,8 @@ def downloadSVGForUser(user, document, version):
     dir = '/'.join([BASE_DIR, 'svg', 'user'])
     basename = dir + '/' + user
     svgPath = basename + '_' + version + '.svg'
-    print 'Content-Type: application/octet-stream'
-    print 'X-Test: ' + svgPath
-    print 'Content-Disposition: attachment; filename=' + document + '.svg\n'
+    print 'Content-Type: image/svg+xml'
+    print 'Content-Disposition: inline; filename=' + document + '.svg\n'
     print open(svgPath).read()
 
 
