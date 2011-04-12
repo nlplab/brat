@@ -65,14 +65,16 @@
       <input id="auth_button" type="button" value="Login"/>
 <!--
       <input id="export_button" type="button" value="Export"/>
+-->
       <input id="import_button" type="button" value="Import"/>
+<!--
       <input id="tag_button" type="button" value="Tag (NERsuite)"/>
 -->
       <a href="#" id="original_link" target="brat_search" style="display:none">Original document</a>
       <span style="float:right"><label for="confirm_mode">Confirm mode</label> <input id="confirm_mode" type="checkbox" value="true"/></span>
     </div>
     <div id="svg"></div>
-    <form id="import_form" class="dialog">
+    <form id="import_form" class="dialog" title="Import">
       <fieldset id="import_form_docid">
         <legend>Document ID</legend>
         <input id="import_docid" class="borderless"/>
@@ -84,11 +86,6 @@
       <fieldset id="import_form_text">
         <legend>Document text</legend>
         <textarea id="import_text" class="borderless"/>
-      </fieldset>
-      <fieldset id="import_form_buttons">
-        <legend>Submit</legend>
-        <input type="submit" value="OK"/>
-        <input type="reset" value="Cancel"/>
       </fieldset>
     </form>
     <form id="span_form" class="dialog" title="Span">
@@ -104,7 +101,7 @@
         <a target="brat_search" id="span_entregene" href="#">EntreGene</a>,
         <a target="brat_search" id="span_wikipedia" href="#">Wikipedia</a>,
         <a target="brat_search" id="span_google" href="#">Google</a>,
-	<a target="brat_search" id="span_alc" href="#">ALC</a>
+        <a target="brat_search" id="span_alc" href="#">ALC</a>
       </fieldset>
 
       <div id="span_types"/>

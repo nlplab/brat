@@ -47,9 +47,12 @@ def save_import(text, filename, relative_dir=None, data_dir=None):
     if relative_dir is None:
         dir_path = join_path(data_dir, DEFAULT_IMPORT_DIR)
     else:
+        # strip the leading slash
+        assert relative_dir[0] == '/'
+        relative_dir = relative_dir[1:]
+
         #XXX: These "security" measures can surely be fooled, too restrictive
-        if (relative_dir[0] == '/'
-                or relative_dir.count('../') or relative_dir == '..'):
+        if (relative_dir.count('../') or relative_dir == '..'):
             raise InvalidDirError(relative_dir)
         dir_path = join_path(data_dir, relative_dir)
 

@@ -229,11 +229,13 @@ var VisualizerUI = (function($, window, undefined) {
         return form;
       };
 
-      var hideForm = function() {
-        if (!currentForm) return;
+      var hideForm = function(form) {
+        if (form === undefined) form = currentForm;
+        if (!form) return;
         // fadeOut version:
-        // currentForm.fadeOut(function() { currentForm = null; });
-        currentForm.dialog('close');
+        // form.fadeOut(function() { currentForm = null; });
+        form.dialog('close');
+        if (form === currentForm) currentForm = null;
       };
 
       var selectElementInTable = function(table, value) {
@@ -256,6 +258,9 @@ var VisualizerUI = (function($, window, undefined) {
       var fileBrowser = $('#file_browser');
       initForm(fileBrowser, {
           alsoResize: '#document_select',
+          close: function(evt) {
+            $('#waiter').dialog('close');
+          },
           width: 500
       });
       //fileBrowser.widget().resizable('option', 'alsoResize', '#document_select');

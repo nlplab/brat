@@ -519,10 +519,7 @@ fieldset {
   text-align: left;
 }
 #import_text {
-  border: 2px inset #dddde0;
   font-family: inherit;
-  height: 150px;
-  width: 400px;
 }
 #import_title {
   width: 400px;

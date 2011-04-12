@@ -168,7 +168,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (el = $('#span_mod_speculation')[0]) {
           el.checked = span ? span.Speculation : false;
         }
-        $('#span_form').dialog('open');
+        dispatcher.post('showForm', [spanForm]);
         $('#span_form-ok').focus();
 
         adjustToCursor(evt, spanForm.parent());
@@ -176,7 +176,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var arcFormSubmit = function(evt) {
         var type = $('#arc_form input:radio:checked').val();
-        arcForm.dialog('close');
+        dispatcher.post('hideForm', [arcForm]);
 
         if (type) { // (if not cancelled)
           arcOptions.type = type;
@@ -225,7 +225,7 @@ var AnnotatorUI = (function($, window, undefined) {
                 $('#arc_form_delete').hide();
               }
 
-              arcForm.dialog('open');
+              dispatcher.post('showForm', [arcForm]);
               $('#arc_form input:submit').focus();
               adjustToCursor(evt, arcForm.parent());
             }
@@ -238,7 +238,7 @@ var AnnotatorUI = (function($, window, undefined) {
           return;
         }
         var eventDataId = $(evt.target).attr('data-arc-ed');
-        arcForm.dialog('close');
+        dispatcher.post('hideForm', [arcForm]);
         arcOptions.action = 'unarc';
         dispatcher.post('ajax', [arcOptions, 'edited']);
       };
@@ -436,7 +436,7 @@ var AnnotatorUI = (function($, window, undefined) {
           'document': doc,
         });
         dispatcher.post('ajax', [spanOptions, 'edited']);
-        spanForm.dialog('close');
+        dispatcher.post('hideForm', [spanForm]);
         $('#waiter').dialog('open');
       };
 
@@ -455,7 +455,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanFormSubmit = function(evt, typeRadio) {
         typeRadio = typeRadio || $('#span_form input:radio:checked');
         var type = typeRadio.val();
-        spanForm.dialog('close');
+        dispatcher.post('hideForm', [spanForm]);
         if (type) {
           $.extend(spanOptions, {
             action: 'span',
@@ -478,6 +478,37 @@ var AnnotatorUI = (function($, window, undefined) {
         return false;
       };
       spanForm.submit(spanFormSubmit);
+
+      var importForm = $('#import_form');
+      var importFormSubmit = function(evt) {
+        dispatcher.post('hideForm', [importForm]);
+        var _docid = $('#import_docid').val();
+        var _doctitle = $('#import_title').val();
+        var _doctext = $('#import_text').val();
+        var opts = {
+          action : 'import',
+          directory : dir,
+          docid  : _docid,
+          title : _doctitle,
+          text  : _doctext,
+        };
+        dispatcher.post('ajax', [opts, function(response) {
+          dispatcher.post('setDocument', [response.address]);
+        }]);
+        return false;
+      };
+      importForm.submit(importFormSubmit);
+      dispatcher.post('initForm', [importForm, {
+          width: 500,
+          alsoResize: '#import_text',
+          open: function(evt) {
+            keymap = {};
+          },
+        }]);
+      $('#import_button').click(function() {
+        dispatcher.post('showForm', [importForm]);
+      });
+      
 
       var waiter = $('#waiter');
       waiter.dialog({
