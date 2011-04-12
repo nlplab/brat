@@ -230,6 +230,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var hideForm = function(form) {
+        console.log("hide", form);
         if (form === undefined) form = currentForm;
         if (!form) return;
         // fadeOut version:
@@ -259,7 +260,9 @@ var VisualizerUI = (function($, window, undefined) {
       initForm(fileBrowser, {
           alsoResize: '#document_select',
           close: function(evt) {
-            $('#waiter').dialog('close');
+            if (!doc) {
+              $('#waiter').dialog('close');
+            }
           },
           width: 500
       });
@@ -304,9 +307,6 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('setDirectory', [_dir, _doc]);
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').html(''); // prevent a slowbug
-        if (_doc !== '') {
-          hideForm();
-        }
         return false;
       };
       fileBrowser.
@@ -455,6 +455,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var onStartedRendering = function() {
         $('#waiter').dialog('open');
+        hideForm(fileBrowser);
       }
 
       var showSVGDownloadLinks = function(data) {
@@ -477,7 +478,6 @@ var VisualizerUI = (function($, window, undefined) {
         dir = _dir;
         doc = _doc;
         args = _args;
-        fileBrowser.dialog('close');
         $('#document_name').text(dir + doc);
         $('#document_mtime').hide();
         hideSVGDownloadLinks();
