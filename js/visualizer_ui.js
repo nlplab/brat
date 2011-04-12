@@ -230,7 +230,6 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var hideForm = function(form) {
-        console.log("hide", form);
         if (form === undefined) form = currentForm;
         if (!form) return;
         // fadeOut version:
@@ -332,26 +331,28 @@ var VisualizerUI = (function($, window, undefined) {
           var dirSuffix = isDir ? '/' : '';
           html.push('<tr class="' + dirFile + '" data-value="'
               + name + dirSuffix + '"><th>' + name + dirSuffix + '</th>');
-          var len = doc.length - 1;
-          for (var i = 1; i < len; i++) {
-            var type = filesData.dochead[i][1];
-            var datum = doc[i + 1];
+          var len = filesData.dochead.length - 1;
+          for (var i = 0; i < len; i++) {
+            var type = filesData.dochead[i + 1][1];
+            var datum = doc[i + 2];
             // format rest according to "data type" specified in header
             var formatted = null;
-            var cssClass = 'rightalign';
+            var cssClass = null;
             if (!type) {
               console.error('Missing document list data type');
               formatted = datum;
+            } else if (datum === undefined) {
+              formatted = '';
             } else if (type === 'string') {
               formatted = datum;
-              cssClass = null;
             } else if (type === 'time') {
               formatted = Brat.formatTimeAgo(datum * 1000);
-              cssClass = null;
             } else if (type === 'float') {
               type = defaultFloatFormat;
+              cssClass = 'rightalign';
             } else if (type === 'int') {
               formatted = '' + datum;
+              cssClass = 'rightalign';
             }
             if (formatted === null) {
               var m = type.match(/^(.*?)(?:\/(right))?$/);
@@ -482,6 +483,55 @@ var VisualizerUI = (function($, window, undefined) {
         $('#document_mtime').hide();
         hideSVGDownloadLinks();
       };
+
+      var slideToggle = function(el, show) {
+        var el = $(el);
+        var height = el.data("cachedHeight");
+        var visible = el.is(":visible");
+        
+        if (show === undefined) show = !visible;
+        
+        if (show === visible) return false;
+        
+        if (!height) {
+          height = el.show().height();
+          el.data("cachedHeight", height);
+          if (!visible) el.hide().css({ height: 0 });
+        }
+
+        if (show) {
+          el.show().animate({ height: height }, { duration: 150 });
+        } else {
+          el.animate({ height: 0 }, { duration: 300, complete: function() {
+              el.hide();
+            }
+          });
+        }
+      }
+
+      var menuTimer = null;
+      $('#header').
+        mouseenter(function(evt) {
+          clearTimeout(menuTimer);
+          slideToggle($('#pulldown').stop(), true);
+        }).
+        mouseleave(function(evt) {
+          clearTimeout(menuTimer);
+          menuTimer = setTimeout(function() {
+            slideToggle($('#pulldown').stop(), false);
+          }, 500);
+        });
+
+      $('#confirm_mode').click(function(evt) {
+        var val = this.checked;
+        if (val) {
+          dispatcher.post('messages', [[['Confirm mode is now on', 'info']]]);
+        } else {
+          dispatcher.post('messages', [[['Confirm mode is now off', 'info']]]);
+        }
+      });
+
+      $('#pulldown').find('input').button();
 
       dispatcher.
           on('messages', displayMessages).

@@ -6,7 +6,7 @@ html {
 }
 
 #svg {
-  margin-top: 50px;
+  margin-top: 36px;
   margin-bottom: 100px;
 }
 
@@ -26,11 +26,27 @@ text {
   top: 0;
   left: 0;
   right: 0;
-  height: 40px;
-  padding: 2px 5px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #7fa2ff;
+  -moz-box-shadow: 5px 5px 5px #999999;
+  -webkit-box-shadow: 5px 5px 5px #999999;
+  box-shadow: 5px 5px 5px #999999;
+}
+#mainHeader {
+  font-size: 120%;
   overflow: hidden;
+  white-space: nowrap;
+}
+#pulldown {
+  display: none;
+  font-size: 80%;
+}
+#pulldown_padder {
+  padding: 10px;
+}
+#pulldown div + div {
+  margin-top: 10px;
+}
+#auth_button {
+  float: right;
 }
 
 path {
@@ -459,26 +475,23 @@ fieldset {
   float: right;
 }
 #document_ctime, #document_mtime {
-  margin-left: 10px;
   padding: 0 2px;
-  background-color: #dddddd;
-  border: 1px solid #999999;
-  display: none;
-}
-#blind {
-  z-index: 5;
+  REMOVEbackground-color: #dddddd;
+  REMOVEborder: 1px solid #999999;
   opacity: 0.5;
-  background-color: #000000;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  float: right;
+}
+#menu_explanation, #document_name {
+  margin-left: 10px;
+  display: inline-block;
+  overflow: hidden;
 }
 
 #logo {
   float:right;
   margin-left: 20px;
+  background-color: #ffffff;
+  padding: 0 0 0 2px;
 }
 
 #spinner {
@@ -511,8 +524,7 @@ fieldset {
   white-space: nowrap;
 }
 #document_select tr.selected {
-  background-color: #0000ff;
-  color: #ffffff;
+  background-color: #cccccc;
 }
 #file_browser th {
   font-weight: normal;
@@ -567,4 +579,12 @@ fieldset {
 }
 #waiter img {
   margin-top: 25px;
+}
+.unselectable {
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -o-user-select: none;
+   user-select: none;
+   cursor: default;
 }
