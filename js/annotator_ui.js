@@ -58,11 +58,11 @@ var AnnotatorUI = (function($, window, undefined) {
           var eventDescId = target.attr('data-arc-ed');
           if (eventDescId) {
             var eventDesc = data.eventDescs[eventDescId];
-            annotator.ajaxOptions['left'] = eventDesc.leftSpans.join(',');
-            annotator.ajaxOptions['right'] = eventDesc.rightSpans.join(',');
+            arcOptions['left'] = eventDesc.leftSpans.join(',');
+            arcOptions['right'] = eventDesc.rightSpans.join(',');
           }
-          $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
-          $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
+          $('#arc_origin').text(originSpan.type + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
+          $('#arc_target').text(targetSpan.type + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
           var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
           
@@ -91,11 +91,10 @@ var AnnotatorUI = (function($, window, undefined) {
           svgPosition = svgElement.offset();
           arcDragOrigin = id;
           arcDragArc = svg.path(svg.createPath(), {
-            markerEnd: 'url(#dragArrow)',
+            markerEnd: 'url(#drag_arrow)',
             'class': 'drag_stroke',
             fill: 'none',
           });
-          console.log(arcDragArc, svgPosition);
           arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
           arcDragOriginGroup.addClass('highlight');
           arcDragOriginBox = Brat.realBBox(data.spans[arcDragOrigin]);
@@ -489,6 +488,10 @@ var AnnotatorUI = (function($, window, undefined) {
           $(evt.target).parent().find(".ui-dialog-titlebar-close").hide();
         }
       });
+      // hide the waiter (Sampo said it's annoying)
+      // we don't elliminate it altogether because it still provides the
+      // overlay to prevent interaction
+      waiter.parent().css('opacity', '0');
 
       dispatcher.
         on('renderData', rememberData).
