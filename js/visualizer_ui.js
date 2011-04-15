@@ -246,7 +246,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
       }
       var chooseDocument = function(evt) {
-        var docname = $(evt.target).closest('tr').data('value');
+        var docname = $(evt.target).closest('tr').attr('data-value');
         $('#document_input').val(docname);
         selectElementInTable('#document_select', docname);
       }
