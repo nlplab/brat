@@ -28,7 +28,7 @@ INVALID_PY_JSON = '''
 {
   "messages": [
     [
-      "Incompatible Python version (%s), 2.7 or above is supported",
+      "Incompatible Python version (%s), 2.6 or above is supported",
       "error",
       -1
     ]
