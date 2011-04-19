@@ -166,7 +166,11 @@ def main(args):
         raise
     finally:
         # Save the session
-        Session.instance.close()
+        try:
+            Session.instance.close()
+        except:
+            # session not initialised
+            pass
     return -1
 
 if __name__ == '__main__':
