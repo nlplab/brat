@@ -435,6 +435,16 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
+      var resizeFunction = function(evt) {
+        dispatcher.post('renderData');
+      };
+
+      var resizerTimeout = null;
+      var onResize = function(evt) {
+        clearTimeout(resizerTimeout);
+        resizerTimeout = setTimeout(resizeFunction, 100); // TODO is 100ms okay?
+      };
+
       var dirLoaded = function(response) {
         if (response.exception) {
           dispatcher.post('setDirectory', ['/']);
@@ -555,7 +565,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('savedSVG', showSVGDownloadLinks).
           on('noFileSpecified', showFileBrowser).
           on('keydown', onKeyDown).
-          on('mousemove', onMouseMove);
+          on('mousemove', onMouseMove).
+          on('resize', onResize);
 
     };
 
