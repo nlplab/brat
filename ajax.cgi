@@ -16,8 +16,13 @@ Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-02-07
 '''
 
-from sys import version_info
 from cgi import escape
+from os.path import dirname
+from os.path import join as path_join
+from sys import path as sys_path
+from sys import version_info
+
+sys_path.append(path_join(dirname(__file__), 'lib/simplejson-2.1.5'))
 
 from message import add_messages_to_json, display_message
 
@@ -43,18 +48,18 @@ CONF_TEMPLATE_FNAME = 'config_template.py'
 
 def _miss_var_msg(var):
     #TODO: DOC!
-    return ('Missing variable "{var}" in {config}, make sure that you have '
+    return ('Missing variable "%s" in %s, make sure that you have '
             'not made any errors to your configurations and to start over '
-            'copy the template file {template} to {config} in your '
+            'copy the template file %s to %s in your '
             'installation directory and edit it to suit your environment'
-            ).format(var=var, config=CONF_FNAME, template=CONF_TEMPLATE_FNAME)
+            ) % (var, CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME)
 
 def _miss_config_msg():
     #TODO: DOC!
-    return ('Missing file {config} in the installation dir, if this is a new '
-            'installation copy the template file {template} to {config} in '
+    return ('Missing file %s in the installation dir, if this is a new '
+            'installation copy the template file %s to %s in '
             'your installation directory and edit it to suit your environment'
-            ).format(config=CONF_FNAME, template=CONF_TEMPLATE_FNAME)
+            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME)
 
 # TODO: This may belong in a helper module
 def _dumps(dic):
@@ -65,7 +70,7 @@ def _dumps(dic):
     Arguments:
     dic -- dictionary to convert into json
     '''
-    from json import dumps
+    from simplejson import dumps
     return dumps(dic, sort_keys=True, indent=2)
 
 def main(args):
@@ -159,9 +164,9 @@ def main(args):
             from time import time
             # Use the current time since epoch as an id for later log look-up
             error_msg = ('The server encountered a serious error, '
-                    'please contact the administrators at {0} '
-                    'and give the id #{1}'
-                    ).format(ADMIN_CONTACT_EMAIL, int(time()))
+                    'please contact the administrators at %s '
+                    'and give the id #%d'
+                    ) % (ADMIN_CONTACT_EMAIL, int(time()))
             print 'Content-Type: application/json\n'
             display_message(error_msg, type='error', duration=-1)
             print _dumps(add_messages_to_json({}))
@@ -169,7 +174,11 @@ def main(args):
         raise
     finally:
         # Save the session
-        Session.instance.close()
+        try:
+            Session.instance.close()
+        except AttributeError:
+            # XXX: Hack, most likely there was no session
+            pass
     return -1
 
 if __name__ == '__main__':

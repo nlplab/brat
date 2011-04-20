@@ -2,6 +2,8 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
+from __future__ import with_statement
+
 '''
 Functionality related to the annotation file format.
 
@@ -29,7 +31,7 @@ class AnnotationLineSyntaxError(Exception):
         self.line_num = line_num
 
     def __str__(self):
-        'Syntax error on line {0}: "{1}"'.format(line_num, line)
+        'Syntax error on line %d: "%s"' % (line_num, line)
 
 
 class AnnotationNotFoundError(Exception):
@@ -37,7 +39,7 @@ class AnnotationNotFoundError(Exception):
         self.id = id
 
     def __str__(self):
-        return 'Could not find an annotation with id: {0}'.format(self.id)
+        return 'Could not find an annotation with id: %s' % (self.id, )
 
 
 class AnnotationsIsReadOnly(Exception):
@@ -49,7 +51,7 @@ class DuplicateAnnotationIdError(Exception):
         self.id = id
 
     def __str__(self):
-        return 'Encountered a duplicate of id: {0}'.format(self.id)
+        return 'Encountered a duplicate of id: %s' % (self.id, )
 
 
 class InvalidIdError(Exception):
@@ -57,7 +59,7 @@ class InvalidIdError(Exception):
         self.id = id
         
     def __str__(self):
-        return 'Invalid id: {0}'.format(self.id)
+        return 'Invalid id: %s' % (self.id, )
 
 
 class DependingAnnotationDeleteError(Exception):
@@ -66,19 +68,19 @@ class DependingAnnotationDeleteError(Exception):
         self.dependants = dependants
 
     def __str__(self):
-        return '{0} can not be deleted due to depending annotations {1}'.format(
+        return '%s can not be deleted due to depending annotations %s' % (
                 self.target, ",".join([str(d) for d in self.dependants]))
 
     def html_error_str(self, response=None):
         return '''
         Annotation:
         <br/>
-        {0}
+        %s
         <br/>
         Has depending annotations attached to it:
         <br/>
-        {1}
-        '''.format(self.target, ",".join([str(d) for d in self.dependants]))
+        %s
+        ''' % (self.target, ",".join([str(d) for d in self.dependants]))
 
 
 def __split_annotation_id(id):
@@ -181,7 +183,7 @@ class Annotations(object):
         else:
             #XXX: Proper exception here, this is horrible
             assert False, ('could not find any plausible annotations '
-                    'for {0}').format(document)
+                    'for %s') % (document, )
 
         # Finally, parse the given annotation file
         self._parse_ann_file()
@@ -591,7 +593,7 @@ class Annotation(object):
         return self.tail
 
     def __repr__(self):
-        return '{0}("{1}")'.format(str(self.__class__), str(self))
+        return '%s("%s")' % (str(self.__class__), str(self))
     
     def get_deps(self):
         return (set(), set())
@@ -626,13 +628,13 @@ class EventAnnotation(IdedAnnotation):
         self.args = args
 
     def __str__(self):
-        return '{id}\t{type}:{trigger} {args}{tail}'.format(
-                id=self.id,
-                type=self.type,
-                trigger=self.trigger,
-                args=' '.join([':'.join(map(str, arg_tup))
+        return '%s\t%s:%s %s%s' % (
+                self.id,
+                self.type,
+                self.trigger,
+                ' '.join([':'.join(map(str, arg_tup))
                     for arg_tup in self.args]),
-                tail=self.tail
+                self.tail
                 )
 
     def get_deps(self):
@@ -657,10 +659,10 @@ class EquivAnnotation(TypedAnnotation):
         return other in self.entities
 
     def __str__(self):
-        return '*\t{type} {equivs}{tail}'.format(
-                type=self.type,
-                equivs=' '.join([str(e) for e in self.entities]),
-                tail=self.tail
+        return '*\t%s %s%s' % (
+                self.type,
+                ' '.join([str(e) for e in self.entities]),
+                self.tail
                 )
 
     def get_deps(self):
@@ -682,11 +684,11 @@ class ModifierAnnotation(IdedAnnotation):
         self.target = target
         
     def __str__(self):
-        return '{id}\t{type} {target}{tail}'.format(
-                id=self.id,
-                type=self.type,
-                target=self.target,
-                tail=self.tail
+        return '%s\t%s %s%s' % (
+                self.id,
+                self.type,
+                self.target,
+                self.tail
                 )
 
     def get_deps(self):
@@ -705,11 +707,11 @@ class OnelineCommentAnnotation(IdedAnnotation):
         self.target = target
         
     def __str__(self):
-        return '{id}\t{type} {target}{tail}'.format(
-                id=self.id,
-                type=self.type,
-                target=self.target,
-                tail=self.tail
+        return '%s\t%s %s%s' % (
+                self.id,
+                self.type,
+                self.target,
+                self.tail
                 )
 
     def get_deps(self):
@@ -726,12 +728,12 @@ class TextBoundAnnotation(IdedAnnotation):
         self.end = end
 
     def __str__(self):
-        return '{id}\t{type} {start} {end}{tail}'.format(
-                id=self.id,
-                type=self.type,
-                start=self.start,
-                end=self.end,
-                tail=self.tail
+        return '%s\t%s %s %s%s' % (
+                self.id,
+                self.type,
+                self.start,
+                self.end,
+                self.tail
                 )
 
 if __name__ == '__main__':

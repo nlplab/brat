@@ -2,6 +2,8 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
+from __future__ import with_statement
+
 '''
 Simple wrapper for GeniaSS and its post-processor by Sampo Pyysalo.
 
@@ -45,11 +47,11 @@ def sentence_split_file(txt_file_path, use_cache=False):
     with NamedTemporaryFile('r') as temp_file:
         with open('/dev/null', 'w') as null:
             # Use GeniaSS to generate an intermediate file
-            geniass_p = Popen(shlex_split('{0} {1} {2}'.format(GENIASS_PATH,
+            geniass_p = Popen(shlex_split('%s %s %s' % (GENIASS_PATH,
                 txt_file_path, temp_file.name)), stderr=null)
             geniass_p.wait()
             # Then post-process it to correct errors
-            geniass_post_p = Popen(shlex_split('{0} {1}'.format(
+            geniass_post_p = Popen(shlex_split('%s %s' % (
                 GENIASS_POST_PATH, temp_file.name)), stdout=PIPE)
             geniass_post_p.wait()
             ss_output = geniass_post_p.stdout.read()
