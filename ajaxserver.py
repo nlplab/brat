@@ -2,6 +2,8 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
+from __future__ import with_statement
+
 '''
 Ajax server called upon by the CGI to serve requests to the service.
 
@@ -12,18 +14,21 @@ Version:    2010-01-24
 '''
 
 #TODO: Move imports into their respective functions to boost load time
-from session import Session
 from cgi import FieldStorage
 from itertools import chain
-from json import dumps, loads
 from os import environ
 from os import listdir, makedirs, system
-from os.path import isdir, isfile, abspath
+from os.path import isdir, isfile, abspath, dirname
 from os.path import join as join_path
 from os.path import split as split_path
 from re import split, sub, match
+from session import Session
+from sys import path as sys_path
 import fileinput
 import hashlib
+
+sys_path.append(join_path(dirname(__file__), 'lib/simplejson-2.1.5'))
+from simplejson import dumps, loads
 
 from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationsIsReadOnly
 from annspec import span_type_keyboard_shortcuts
@@ -320,13 +325,13 @@ def enrich_json_with_data(j_dic, ann_obj):
                 )
 
     if ann_obj.failed_lines:
-        error_msg = 'Unable to parse the following line(s):<br/>{0}'.format(
+        error_msg = 'Unable to parse the following line(s):<br/>%s' % (
                 '\n<br/>\n'.join(
-                    ['{0}: {1}'.format(
+                    [('%s: %s' % (
                         # The line number is off by one
                         str(line_num + 1),
                         str(ann_obj[line_num])
-                        ).strip()
+                        )).strip()
                     for line_num in ann_obj.failed_lines])
                     )
         display_message(error_msg, type='error', duration=len(ann_obj.failed_lines) * 3)
@@ -517,7 +522,7 @@ class ModificationTracker(object):
         if self.__changed:
             changed_strs = []
             for before, after in self.__changed:
-                changed_strs.append('\t{0}\n<br/>\n\tInto:\n<br/>\t{1}'.format(before, after))
+                changed_strs.append('\t%s\n<br/>\n\tInto:\n<br/>\t%s' % (before, after))
             msg_str += ('Changed the following line(s):\n<br/>'
                     + '\n<br/>\n'.join([str(a) for a in changed_strs]))
         if self.__deleted:
@@ -1087,6 +1092,8 @@ def serve(argv):
             add_messages_to_json(import_dict)
             print dumps(import_dict, sort_keys=True, indent=2)
 
+        # XXX: Isn't this a directory action and thus belonging further down?
+        #           // Pontus
         elif action == 'runtagger':
             runtagger_dict = {}
             directory = params.getvalue('directory')
@@ -1144,6 +1151,45 @@ def serve(argv):
 
             elif action == 'ls':
                 documents(real_directory)
+
+            ### This is a quick hack!
+            elif action == 'getstatus':
+                with Annotations(join_path(real_directory, document),
+                        read_only=True) as ann:
+                    # XXX: Assume the last one is correct if we have more
+                    #       than one (which is a violation of protocol anyway)
+                    statuses = [c for c in ann.get_statuses()]
+                    if statuses:
+                        status = statuses[-1].target
+                    else:
+                        status = None
+                print 'Content-Type: application/json\n'
+                response = {'status': status}
+                add_messages_to_json(response)
+                print dumps(response, sort_keys=True, indent=2)
+
+            elif action == 'setstatus':
+                from annotation import OnelineCommentAnnotation
+
+                with Annotations(join_path(real_directory, document)) as ann:
+                    # Erase all old status annotations
+                    for status in ann.get_statuses():
+                        ann.del_annotation(status)
+                    
+                    new_status = params.getvalue('status') or None
+
+                    if new_status is not None:
+                        # XXX: This could work, not sure if it can induce a collision
+                        new_status_id = ann.get_new_id('#')
+                        ann.add_annotation(OnelineCommentAnnotation(
+                            new_status, new_status_id, 'STATUS', ''
+                            ))
+
+                print 'Content-Type: application/json\n'
+                response = {'status': new_status}
+                add_messages_to_json(response)
+                print dumps(response, sort_keys=True, indent=2)
+            ### End of quick hack!
 
             elif action == 'export':
                 export(directory, real_directory)

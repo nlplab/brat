@@ -45,7 +45,7 @@ Author:     Goran Topic <amadanmath at google's fine mail service>
 Version:    2011-03-11
 '''
 
-class Session:
+class Session(object):
     def __init__(self, name='sid', dir='sessions', path=None, domain=None, max_age=None):
         from Cookie import SimpleCookie
         from os import environ
@@ -97,11 +97,13 @@ class Session:
 
         # to protect against cookie-stealing JS, make our cookie
         # available only to the browser, and not to any scripts
-        self._cookie[name]['httponly'] = True
+        #XXX: Not available in Python 2.5
+        #self._cookie[name]['httponly'] = True
 
         # persist the session data
         self._shelf_file = join_path(dir, self.sid)
-        self._shelf = shelve.open(self._shelf_file, writeback=True)
+        # -1 signifies the highest available protocol version
+        self._shelf = shelve.open(self._shelf_file, protocol=-1, writeback=True)
 
         # send the headers
         print "Cache-Control: no-store, no-cache, must-revalidate"

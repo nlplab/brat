@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import with_statement
+
 '''
 Provides a stylish pythonic file-lock:
 
@@ -82,7 +84,7 @@ class FileLockTimeoutError(Exception):
         self.timeout = timeout
 
     def __str__(self):
-        return 'Timed out when trying to acquire lock, waited ({0})s'.format(
+        return 'Timed out when trying to acquire lock, waited (%d)s' % (
                 self.timeout)
 
 
@@ -94,7 +96,7 @@ def _pid_exists(pid):
     pid - Process id (PID) to check if it exists on the system
     '''
     # Not elegant, but it seems that it is the only way
-    ps = Popen("ps {0} | awk '{{print $1}}'".format(pid),
+    ps = Popen("ps %d | awk '{{print $1}}'" % (pid, ),
             shell=True, stdout=PIPE)
     ps.wait()
     return str(pid) in ps.stdout.read().split('\n')
@@ -139,7 +141,7 @@ def file_lock(path, wait=0.1, timeout=1,
                         # Stale lock-file
                         if pid_policy == PID_WARN:
                             print >> err_output, (
-                                    "Stale lock-file '{0}', deleting".format(
+                                    "Stale lock-file '%s', deleting" % (
                                         path))
                         remove(path)
                         continue
