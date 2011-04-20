@@ -391,6 +391,11 @@ var VisualizerUI = (function($, window, undefined) {
       var onKeyDown = function(evt) {
         var code = evt.which;
 
+        if (code === $.ui.keyCode.ESCAPE) {
+          dispatcher.post('messages', [false]);
+          return;
+        }
+
         if (currentForm) {
           if (code === $.ui.keyCode.ENTER) {
             currentForm.trigger('submit');
@@ -398,9 +403,7 @@ var VisualizerUI = (function($, window, undefined) {
           return;
         }
 
-        if (code === $.ui.keyCode.ESC) {
-          dispatcher.post('messages', [false]);
-        } else if (code === $.ui.keyCode.TAB) {
+        if (code === $.ui.keyCode.TAB) {
           showFileBrowser();
           return false;
         } else if (code == $.ui.keyCode.LEFT) {
