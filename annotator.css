@@ -487,11 +487,50 @@ fieldset {
   overflow: hidden;
 }
 
+/*
 #logo {
   float:right;
   margin-left: 20px;
   background-color: #ffffff;
   padding: 0 0 0 2px;
+}
+*/
+
+.logo {
+  font-family: 'Astloch', serif;
+  font-style: normal;
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0em;
+  word-spacing: 0em;
+  line-height: 1.2;
+  
+  font-weight: bold;
+}
+
+#mainlogo {
+  float: right;
+  cursor: pointer;
+  text-shadow: #000000 0 0 3px;
+  padding: 0 10px 0 20px;
+}
+
+#aboutlogo {
+  font-size: 42px;
+  text-align: center;
+  text-shadow: #888888 0 0 10px;
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#copyright {
+  margin-top: 10px;
+  font-size: 60%;
+}
+
+#logo:hover {
+  opacity: 0.8;
 }
 
 #spinner {
