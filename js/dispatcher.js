@@ -57,8 +57,10 @@ var Dispatcher = (function($, window, undefined) {
               }
               results.push(result);
             });
+/* DEBUG
           } else {
-            //console.warn('Message ' + message + ' has no subscribers.'); // DEBUG
+            console.warn('Message ' + message + ' has no subscribers.'); // DEBUG
+*/
           }
         }
         return results;

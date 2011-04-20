@@ -16,43 +16,50 @@ Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-02-07
 '''
 
-from sys import version_info
 from cgi import escape
+from os.path import dirname
+from os.path import join as path_join
+from sys import path as sys_path
+from sys import version_info
+
+sys_path.append(path_join(dirname(__file__), 'lib/simplejson-2.1.5'))
 
 from message import add_messages_to_json, display_message
 
 ### Constants
 # This handling of version_info is strictly for backwards compability
 PY_VER_STR = '%d.%d.%d-%s-%d' % tuple(version_info)
+REQUIRED_PY_VERSION_MAJOR = 2
+REQUIRED_PY_VERSION_MINOR = 5
 INVALID_PY_JSON = '''
 {
   "messages": [
     [
-      "Incompatible Python version (%s), 2.7 or above is supported",
+      "Incompatible Python version (%s), %d.%d or above is supported",
       "error",
       -1
     ]
   ]
 }
-''' % PY_VER_STR
+''' % (PY_VER_STR, REQUIRED_PY_VERSION_MAJOR, REQUIRED_PY_VERSION_MINOR)
 CONF_FNAME = 'config.py'
 CONF_TEMPLATE_FNAME = 'config_template.py'
 ###
 
 def _miss_var_msg(var):
     #TODO: DOC!
-    return ('Missing variable "{var}" in {config}, make sure that you have '
+    return ('Missing variable "%s" in %s, make sure that you have '
             'not made any errors to your configurations and to start over '
-            'copy the template file {template} to {config} in your '
+            'copy the template file %s to %s in your '
             'installation directory and edit it to suit your environment'
-            ).format(var=var, config=CONF_FNAME, template=CONF_TEMPLATE_FNAME)
+            ) % (var, CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME)
 
 def _miss_config_msg():
     #TODO: DOC!
-    return ('Missing file {config} in the installation dir, if this is a new '
-            'installation copy the template file {template} to {config} in '
+    return ('Missing file %s in the installation dir, if this is a new '
+            'installation copy the template file %s to %s in '
             'your installation directory and edit it to suit your environment'
-            ).format(config=CONF_FNAME, template=CONF_TEMPLATE_FNAME)
+            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME)
 
 # TODO: This may belong in a helper module
 def _dumps(dic):
@@ -63,13 +70,14 @@ def _dumps(dic):
     Arguments:
     dic -- dictionary to convert into json
     '''
-    from json import dumps
+    from simplejson import dumps
     return dumps(dic, sort_keys=True, indent=2)
 
 def main(args):
     # Check the Python version, if it is incompatible print a manually crafted
     # json error. This needs to be updated manually as the protocol changes.
-    if version_info[0] != 2 or version_info[1] < 6: # DEBUG return 6 to 7
+    if (version_info[0] != REQUIRED_PY_VERSION_MAJOR or 
+        version_info[1] < REQUIRED_PY_VERSION_MINOR):
         print 'Content-Type: application/json\n'
         print INVALID_PY_JSON
         return -1
@@ -156,9 +164,9 @@ def main(args):
             from time import time
             # Use the current time since epoch as an id for later log look-up
             error_msg = ('The server encountered a serious error, '
-                    'please contact the administrators at {0} '
-                    'and give the id #{1}'
-                    ).format(ADMIN_CONTACT_EMAIL, int(time()))
+                    'please contact the administrators at %s '
+                    'and give the id #%d'
+                    ) % (ADMIN_CONTACT_EMAIL, int(time()))
             print 'Content-Type: application/json\n'
             display_message(error_msg, type='error', duration=-1)
             print _dumps(add_messages_to_json({}))
@@ -168,7 +176,7 @@ def main(args):
         # Save the session
         try:
             Session.instance.close()
-        except:
+        except AttributeError:
             # session not initialised
             pass
     return -1

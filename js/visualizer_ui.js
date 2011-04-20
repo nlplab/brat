@@ -391,6 +391,11 @@ var VisualizerUI = (function($, window, undefined) {
       var onKeyDown = function(evt) {
         var code = evt.which;
 
+        if (code === $.ui.keyCode.ESCAPE) {
+          dispatcher.post('messages', [false]);
+          return;
+        }
+
         if (currentForm) {
           if (code === $.ui.keyCode.ENTER) {
             currentForm.trigger('submit');
@@ -398,9 +403,7 @@ var VisualizerUI = (function($, window, undefined) {
           return;
         }
 
-        if (code === $.ui.keyCode.ESC) {
-          dispatcher.post('messages', [false]);
-        } else if (code === $.ui.keyCode.TAB) {
+        if (code === $.ui.keyCode.TAB) {
           showFileBrowser();
           return false;
         } else if (code == $.ui.keyCode.LEFT) {
@@ -430,6 +433,16 @@ var VisualizerUI = (function($, window, undefined) {
           }
           return false;
         }
+      };
+
+      var resizeFunction = function(evt) {
+        dispatcher.post('renderData');
+      };
+
+      var resizerTimeout = null;
+      var onResize = function(evt) {
+        clearTimeout(resizerTimeout);
+        resizerTimeout = setTimeout(resizeFunction, 100); // TODO is 100ms okay?
       };
 
       var dirLoaded = function(response) {
@@ -532,6 +545,8 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       $('#pulldown').find('input').button();
+      var headerHeight = $('#mainHeader').height();
+      $('#svg').css('margin-top', headerHeight + 10);
 
       dispatcher.
           on('messages', displayMessages).
@@ -550,7 +565,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('savedSVG', showSVGDownloadLinks).
           on('noFileSpecified', showFileBrowser).
           on('keydown', onKeyDown).
-          on('mousemove', onMouseMove);
+          on('mousemove', onMouseMove).
+          on('resize', onResize);
 
     };
 

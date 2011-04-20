@@ -2,6 +2,8 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
+from __future__ import with_statement
+
 '''
 Merge BioNLP Shared Task annotation format into a single annotation file.
 
@@ -60,8 +62,8 @@ def main(args):
             if not argp.no_warn:
                 import sys
                 print >> sys.stderr, (
-                        'WARNING: invalid file suffix for {0}, ignoring'
-                        ).format(file_path)
+                        'WARNING: invalid file suffix for %s, ignoring'
+                        ) % (file_path, )
             continue
         
         dirname, basename = split_path(file_path)

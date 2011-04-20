@@ -516,7 +516,7 @@ var Visualizer = (function($, window, undefined) {
       var renderDataReal = function(_data) {
         try {
           svgContainer.show();
-          if (_data.document !== doc || _data.directory !== dir) return;
+          if (_data && (_data.document !== doc || _data.directory !== dir)) return;
           if (drawing) {
             redraw = true;
             return;
@@ -1192,7 +1192,7 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var renderData = function(_data) {
-        if (_data.exception) {
+        if (_data && _data.exception) {
           dispatcher.post('noFileSpecified');
         } else {
           dispatcher.post('startedRendering', [dir, doc, args]);
@@ -1359,6 +1359,9 @@ var Visualizer = (function($, window, undefined) {
       ]);
       registerHandlers($(document), [
           'keydown', 'keypress'
+      ]);
+      registerHandlers($(window), [
+          'resize'
       ]);
 
       // create the svg wrapper

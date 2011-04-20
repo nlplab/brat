@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import with_statement
+
 '''
 Back-up mechanisms for the data directory.
 
@@ -15,7 +17,7 @@ Version:    2011-02-22
 #       changed, if it has been changed it will not do a back-up although
 #       there is no existing back-up
 
-from os.path import getmtime, isfile, dirname, abspath, relpath, basename
+from os.path import getmtime, isfile, dirname, abspath, basename
 from os.path import join as join_path
 from shlex import split as split_shlex
 from datetime import datetime, timedelta
@@ -95,7 +97,7 @@ def _backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR)
     data_dir_parent = join_path(data_dir, '../')
 
     #TODO: Check the exit signals!
-    cmd = 'tar -c -z -f {0} -C {1} {2}'.format(backup_path,
+    cmd = 'tar -c -z -f %s -C %s %s' % (backup_path,
         data_dir_parent, _safe_dirname(data_dir))
     tar_p = Popen(split_shlex(cmd))
     tar_p.wait()
@@ -103,12 +105,12 @@ def _backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR)
     checksum_base = join_path(backup_dir, CHECKSUM_FILENAME)
     with open(checksum_base + '.' + 'MD5', 'a') as md5_file:
         # *NIX could have used m5sum instead
-        md5_cmd = 'md5sum {0}'.format(backup_filename)
+        md5_cmd = 'md5sum %s' % (backup_filename)
         md5_p = Popen(split_shlex(md5_cmd), stdout=md5_file, cwd=backup_dir)
         md5_p.wait()
 
     with open(checksum_base + '.' + 'SHA256', 'a') as sha256_file:
-        sha256_cmd = 'shasum -a 256 {0}'.format(backup_filename)
+        sha256_cmd = 'shasum -a 256 %s' % (backup_filename)
         sha256_p = Popen(split_shlex(sha256_cmd), stdout=sha256_file, cwd=backup_dir)
         sha256_p.wait()
 
