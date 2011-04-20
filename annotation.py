@@ -427,13 +427,13 @@ class Annotations(object):
         # when parsing to make sure we have the annotations to refer to.
 
         #XXX: Assumptions start here...
-        for ann_line_num, ann_line in enumerate(self._file_input, start=1):
+        for ann_line_num, ann_line in enumerate(self._file_input):
             try:
                 # ID processing
                 try:
                     id, id_tail = ann_line.split('\t', 1)
                 except ValueError:
-                    raise AnnotationLineSyntaxError(ann_line, ann_line_num)
+                    raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
 
                 pre = annotation_id_prefix(id)
 
@@ -454,7 +454,7 @@ class Annotations(object):
                     type, type_tail = data.split(None, 1)
                     # For now we can only handle Equivs
                     if type != 'Equiv':
-                        raise AnnotationLineSyntaxError(ann_line, ann_line_num)
+                        raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
                     equivs = type_tail.split(None)
                     self.add_annotation(
                             EquivAnnotation(type, equivs, data_tail),
@@ -473,7 +473,7 @@ class Annotations(object):
                         type, trigger = type_trigger.split(':')
                     except ValueError:
                         #XXX: Stupid event without a trigger, bacteria task
-                        raise AnnotationLineSyntaxError(ann_line, ann_line_num)
+                        raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
 
                     if type_trigger_tail is not None:
                         args = [tuple(arg.split(':'))
@@ -493,7 +493,7 @@ class Annotations(object):
                     type, start_str, end_str = data.split(None, 3)
                     # Abort if we have trailing values
                     if any((c.isspace() for c in end_str)):
-                        raise AnnotationLineSyntaxError(ann_line, ann_line_num)
+                        raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
                     start, end = (int(start_str), int(end_str))
                     self.add_annotation(TextBoundAnnotation(
                         start, end, id, type, data_tail), read=True)
@@ -501,12 +501,12 @@ class Annotations(object):
                     try:
                         type, target = data.split()
                     except ValueError:
-                        raise AnnotationLineSyntaxError(ann_line, ann_line_num)
+                        raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
                     self.add_annotation(OnelineCommentAnnotation(
                         target, id, type, data_tail
                         ), read=True)
                 else:
-                    raise AnnotationLineSyntaxError(ann_line, ann_line_num)
+                    raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
             except AnnotationLineSyntaxError, e:
                 # We could not parse the line, just add it as an unknown annotation
                 self.add_annotation(Annotation(e.line), read=True)
