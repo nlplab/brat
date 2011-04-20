@@ -547,6 +547,19 @@ var VisualizerUI = (function($, window, undefined) {
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();
       $('#svg').css('margin-top', headerHeight + 10);
+      aboutDialog = $('#about');
+      aboutDialog.dialog({
+            autoOpen: false,
+            closeOnEscape: true,
+            resizable: false,
+            modal: true,
+            open: function() {
+                aboutDialog.find('*').blur();
+              }
+          });
+      $('#mainlogo').click(function() {
+        showForm(aboutDialog);
+      });
 
       dispatcher.
           on('messages', displayMessages).
