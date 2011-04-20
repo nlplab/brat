@@ -5,59 +5,97 @@
 <html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>brat</title>
-    <script type="text/javascript" src="jquery-1.4.3.min.js"></script>
-    <script type="text/javascript" src="jquery.svg.min.js"></script>
-    <script type="text/javascript" src="jquery.svgdom.min.js"></script>
+    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/redmond/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="js/lib/head.load.min.js"></script>
+    <script type="text/javascript">
+      head.js(
+          // libraries
+          'js/lib/jquery.min.js',
+          'js/lib/jquery-ui.min.js',
+          'js/lib/jquery.svg.min.js',
+          'js/lib/jquery.svgdom.min.js',
+          'js/lib/jquery.ba-bbq.min.js',
+          'js/lib/jquery.sprintf.js',
+          // brat helpers
+          'js/brat.js',
+          // brat modules
+          'js/dispatcher.js',
+          'js/url_monitor.js',
+          'js/ajax.js',
+          'js/visualizer.js',
+          'js/visualizer_ui.js',
+          'js/annotator.js',
+          'js/annotator_ui.js',
+          'js/spinner.js'
+      );
+      head.ready(function() {
+          var dispatcher = new Dispatcher();
+          var urlMonitor = new URLMonitor(dispatcher);
+          var ajax = new Ajax(dispatcher);
+          var visualizer = new Visualizer(dispatcher, '#svg');
+          var svg = visualizer.svg;
+          var visualizerUI = new VisualizerUI(dispatcher, '#svg');
+          var annotator = new Annotator(dispatcher, '#svg');
+          var annotatorUI = new AnnotatorUI(dispatcher, svg);
+          var spinner = new Spinner(dispatcher, '#spinner');
+          dispatcher.post('init');
+      });
+
+    </script>
     <link rel="stylesheet" type="text/css" href="annotator.css"/>
-    <script type="text/javascript" src="annotator.js"></script>
     <link rel="shortcut icon" href="favicon.ico"/>
   </head>
   <body>
     <img id="spinner" src="spinner.gif"/>
     <div id="messages"/>
-    <div id="infopopup" class="shadow"/>
-    <form id="header">
+    <div id="infopopup"/>
+    <div id="header" class="ui-widget">
+<!--
       <img id="logo" src="brat-logo.png"/>
-      <div>
-        <span id="document_name"/>
-	<span id="document_mtime"/>
-	<!-- <span id="document_ctime"/> -->
+-->
+      <div id="mainHeader" class="ui-widget-header">
+        <div id="document_name"/>
+        <div id="document_mtime" class="unselectable"/>
+        <!-- <span id="document_ctime"/> -->
       </div>
-      <input id="file_browser_button" type="button" value="File (Tab)"/>
-      <input id="auth_button" type="button" value="Login"/>
-      <input id="export_button" type="button" value="Export"/>
-      <input id="import_button" type="button" value="Import"/>
-      <input id="tag_button" type="button" value="Tag (NERsuite)"/>
-      <a href="#" id="original_link" target="brat_search" style="display:none">Original document</a>
-      <span style="float:right"><label for="confirm_mode">Confirm mode</label> <input id="confirm_mode" type="checkbox" value="true"/></span>
-      <select id="status" style="float:right">
-        <option value="">--Select status--</option>
-        <option>Good</option>
-        <option>Bad</option>
-      </select>
-    </form>
+      <div id="pulldown" class="unselectable ui-widget-content">
+        <div id="pulldown_padder">
+          <div>
+            <input id="auth_button" type="button" value="Login"/>
+            <input id="file_browser_button" type="button" value="File" tabindex="-1" title="Open File Browser (Tab)"/>
+            <!-- <input id="export_button" type="button" value="Export"/> -->
+            <input id="import_button" type="button" value="Import" tabindex="-1" title="Import a new document into the current directory"/>
+            <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
+            <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
+          </div>
+          <div>
+            <a href="#" id="original_link" target="brat_search" style="display:none">Original document</a>
+            <span id="download_svg">
+              SVG download links:
+              <a id="download_svg_color" target="svg">Color</a> or
+              <a id="download_svg_grayscale" target="svg">Grayscale</a>
+            </span>
+            &nbsp;
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="svg"></div>
-    <div id="blind"></div>
-    <form id="import_form" class="shadow">
+    <form id="import_form" class="dialog" title="Import">
       <fieldset id="import_form_docid">
         <legend>Document ID</legend>
-        <input id="import_docid" type="text"/>
+        <input id="import_docid" class="borderless"/>
       </fieldset>
       <fieldset id="import_form_title">
         <legend>Document title</legend>
-        <input id="import_title"/>
+        <input id="import_title" class="borderless"/>
       </fieldset>
       <fieldset id="import_form_text">
         <legend>Document text</legend>
-        <textarea id="import_text"/>
-      </fieldset>
-      <fieldset id="import_form_buttons">
-        <legend>Submit</legend>
-        <input type="submit" value="OK"/>
-        <input type="reset" value="Cancel"/>
+        <textarea id="import_text" class="borderless"/>
       </fieldset>
     </form>
-    <form id="span_form" class="shadow">
+    <form id="span_form" class="dialog" title="Span">
       <fieldset id="span_selected_fset">
         <legend>Selected Text</legend>
         <a target="brat_linked" id="span_highlight_link" href="#">Link</a>
@@ -70,19 +108,12 @@
         <a target="brat_search" id="span_entregene" href="#">EntreGene</a>,
         <a target="brat_search" id="span_wikipedia" href="#">Wikipedia</a>,
         <a target="brat_search" id="span_google" href="#">Google</a>,
-	<a target="brat_search" id="span_alc" href="#">ALC</a>
+        <a target="brat_search" id="span_alc" href="#">ALC</a>
       </fieldset>
 
       <div id="span_types"/>
-        
-      <fieldset id="span_form_buttons">
-        <legend>Submit</legend>
-        <input id="del_span_button" type="button" value="Delete"/>
-        <input type="submit" value="OK"/>
-        <input type="reset" value="Cancel"/>
-      </fieldset>
     </form>
-    <form id="arc_form" class="shadow">
+    <form id="arc_form" class="dialog">
       <fieldset id="arc_origin_fset">
         <legend>From</legend>
         <a target="brat_linked" id="arc_highlight_link" href="#">Link</a>
@@ -95,50 +126,33 @@
       </fieldset>
 
       <div id="arc_roles"/>
-        
-      <fieldset id="arc_form_buttons">
-        <legend>Submit</legend>
-        <input id="del_arc_button" type="button" value="Delete"/>
-        <input type="submit" value="OK"/>
-        <input type="reset" value="Cancel"/>
-      </fieldset>
     </form>
-    <form id="auth_form" class="shadow">
+    <form id="auth_form" class="dialog" title="Login">
       <fieldset>
         <legend>Username</legend>
-        <input id="auth_user"/>
+        <input id="auth_user" placeholder="Username" class="borderless"/>
       </fieldset>
       <fieldset>
         <legend>Password</legend>
-        <input id="auth_pass" type="password"/>
-      </fieldset>
-      <fieldset id="auth_form_buttons">
-        <legend>Submit</legend>
-        <input type="submit" value="OK"/>
-        <input type="reset" value="Cancel"/>
+        <input id="auth_pass" type="password" placeholder="Password" class="borderless"/>
       </fieldset>
     </form>
-    <form id="file_browser" class="shadow">
-      <table id="filedir_inputs_table">
-        <tr><th>Directory:</th><td><input id="directory_input"/></td></tr>
-        <tr><th>File:</th><td><input id="document_input"/></td></tr>
+    <form id="file_browser" class="dialog" title="Open">
+      <fieldset>
+        <legend>Directory</legend>
+        <input id="directory_input" readonly="readonly" placeholder="Document" class="borderless"/>
+      </fieldset>
+      <fieldset>
+        <legend>Document</legend>
+        <input id="document_input" placeholder="Document" class="borderless"/>
+      </fieldset>
+      <table id="document_select" class="ui-widget">
+        <thead class="ui-widget-header"/>
+        <tbody class="ui-widget-content"/>
       </table>
-      <table id="directory_select" class="files">
-        <thead>
-          <tr>
-            <th>Directory</th>
-          </tr>
-        </thead>
-        <tbody/>
-      </table>
-      <table id="document_select" class="files">
-        <thead/>
-        <tbody/>
-      </table>
-      <div id="file_buttons">
-        <input type="reset" value="Cancel"/>
-        <input type="submit" value="OK"/>
-      </div>
     </form>
+    <div id="waiter" class="dialog" title="Please wait">
+      <img src="spinner.gif"/>
+    </div>
   </body>
 </html>

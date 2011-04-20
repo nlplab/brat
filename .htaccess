@@ -1,1 +1,2 @@
 Options +ExecCGI
+DirectoryIndex index.xhtml
