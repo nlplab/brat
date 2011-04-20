@@ -24,17 +24,19 @@ from message import add_messages_to_json, display_message
 ### Constants
 # This handling of version_info is strictly for backwards compability
 PY_VER_STR = '%d.%d.%d-%s-%d' % tuple(version_info)
+REQUIRED_PY_VERSION_MAJOR = 2
+REQUIRED_PY_VERSION_MINOR = 5
 INVALID_PY_JSON = '''
 {
   "messages": [
     [
-      "Incompatible Python version (%s), 2.6 or above is supported",
+      "Incompatible Python version (%s), %d.%d or above is supported",
       "error",
       -1
     ]
   ]
 }
-''' % PY_VER_STR
+''' % (PY_VER_STR, REQUIRED_PY_VERSION_MAJOR, REQUIRED_PY_VERSION_MINOR)
 CONF_FNAME = 'config.py'
 CONF_TEMPLATE_FNAME = 'config_template.py'
 ###
@@ -69,7 +71,8 @@ def _dumps(dic):
 def main(args):
     # Check the Python version, if it is incompatible print a manually crafted
     # json error. This needs to be updated manually as the protocol changes.
-    if version_info[0] != 2 or version_info[1] < 6: # DEBUG return 6 to 7
+    if (version_info[0] != REQUIRED_PY_VERSION_MAJOR or 
+        version_info[1] < REQUIRED_PY_VERSION_MINOR):
         print 'Content-Type: application/json\n'
         print INVALID_PY_JSON
         return -1

@@ -1087,6 +1087,8 @@ def serve(argv):
             add_messages_to_json(import_dict)
             print dumps(import_dict, sort_keys=True, indent=2)
 
+        # XXX: Isn't this a directory action and thus belonging further down?
+        #           // Pontus
         elif action == 'runtagger':
             runtagger_dict = {}
             directory = params.getvalue('directory')
@@ -1144,6 +1146,45 @@ def serve(argv):
 
             elif action == 'ls':
                 documents(real_directory)
+
+            ### This is a quick hack!
+            elif action == 'getstatus':
+                with Annotations(join_path(real_directory, document),
+                        read_only=True) as ann:
+                    # XXX: Assume the last one is correct if we have more
+                    #       than one (which is a violation of protocol anyway)
+                    statuses = [c for c in ann.get_statuses()]
+                    if statuses:
+                        status = statuses[-1].target
+                    else:
+                        status = None
+                print 'Content-Type: application/json\n'
+                response = {'status': status}
+                add_messages_to_json(response)
+                print dumps(response, sort_keys=True, indent=2)
+
+            elif action == 'setstatus':
+                from annotation import OnelineCommentAnnotation
+
+                with Annotations(join_path(real_directory, document)) as ann:
+                    # Erase all old status annotations
+                    for status in ann.get_statuses():
+                        ann.del_annotation(status)
+                    
+                    new_status = params.getvalue('status') or None
+
+                    if new_status is not None:
+                        # XXX: This could work, not sure if it can induce a collision
+                        new_status_id = ann.get_new_id('#')
+                        ann.add_annotation(OnelineCommentAnnotation(
+                            new_status, new_status_id, 'STATUS', ''
+                            ))
+
+                print 'Content-Type: application/json\n'
+                response = {'status': new_status}
+                add_messages_to_json(response)
+                print dumps(response, sort_keys=True, indent=2)
+            ### End of quick hack!
 
             elif action == 'export':
                 export(directory, real_directory)
