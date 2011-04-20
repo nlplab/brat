@@ -60,7 +60,7 @@ def main(args):
             if not argp.no_warn:
                 import sys
                 print >> sys.stderr, (
-                        'WARNING: invalid file suffix for {}, ignoring'
+                        'WARNING: invalid file suffix for {0}, ignoring'
                         ).format(file_path)
             continue
         

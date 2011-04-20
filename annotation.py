@@ -29,7 +29,7 @@ class AnnotationLineSyntaxError(Exception):
         self.line_num = line_num
 
     def __str__(self):
-        'Syntax error on line {}: "{}"'.format(line_num, line)
+        'Syntax error on line {0}: "{1}"'.format(line_num, line)
 
 
 class AnnotationNotFoundError(Exception):
@@ -37,7 +37,7 @@ class AnnotationNotFoundError(Exception):
         self.id = id
 
     def __str__(self):
-        return 'Could not find an annotation with id: {}'.format(self.id)
+        return 'Could not find an annotation with id: {0}'.format(self.id)
 
 
 class AnnotationsIsReadOnly(Exception):
@@ -49,7 +49,7 @@ class DuplicateAnnotationIdError(Exception):
         self.id = id
 
     def __str__(self):
-        return 'Encountered a duplicate of id: {}'.format(self.id)
+        return 'Encountered a duplicate of id: {0}'.format(self.id)
 
 
 class InvalidIdError(Exception):
@@ -57,7 +57,7 @@ class InvalidIdError(Exception):
         self.id = id
         
     def __str__(self):
-        return 'Invalid id: {}'.format(self.id)
+        return 'Invalid id: {0}'.format(self.id)
 
 
 class DependingAnnotationDeleteError(Exception):
@@ -66,18 +66,18 @@ class DependingAnnotationDeleteError(Exception):
         self.dependants = dependants
 
     def __str__(self):
-        return '{} can not be deleted due to depending annotations {}'.format(
+        return '{0} can not be deleted due to depending annotations {1}'.format(
                 self.target, ",".join([str(d) for d in self.dependants]))
 
     def html_error_str(self, response=None):
         return '''
         Annotation:
         <br/>
-        {}
+        {0}
         <br/>
         Has depending annotations attached to it:
         <br/>
-        {}
+        {1}
         '''.format(self.target, ",".join([str(d) for d in self.dependants]))
 
 
@@ -181,7 +181,7 @@ class Annotations(object):
         else:
             #XXX: Proper exception here, this is horrible
             assert False, ('could not find any plausible annotations '
-                    'for {}').format(document)
+                    'for {0}').format(document)
 
         # Finally, parse the given annotation file
         self._parse_ann_file()
@@ -411,7 +411,7 @@ class Annotations(object):
         if suffix is None:
             suffix = ''
         #XXX: Arbitary constant!
-        for suggestion in (prefix + str(i) + suffix for i in xrange(1, 2**32)):
+        for suggestion in (prefix + str(i) + suffix for i in xrange(1, 2**15)):
             # This is getting more complicated by the minute, two checks since
             # the developers no longer know when it is an id or string.
             if suggestion not in self._ann_by_id:
@@ -591,7 +591,7 @@ class Annotation(object):
         return self.tail
 
     def __repr__(self):
-        return '{}("{}")'.format(str(self.__class__), str(self))
+        return '{0}("{1}")'.format(str(self.__class__), str(self))
     
     def get_deps(self):
         return (set(), set())

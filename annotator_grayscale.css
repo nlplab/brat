@@ -3,21 +3,23 @@
 
 html {
   overflow-y: scroll;
+  font-family: 'Century Gothic', sans-serif;
+  font-size: 12px;
 }
 
 #svg {
-  margin-top: 36px;
+  margin-top: 50px;
   margin-bottom: 100px;
 }
 
 svg {
   width: 100%;
   height: 1px;
-  border: 1px solid #7fa2ff;
-  font-size: 14px;
+  border: 1px solid #a1a1a1;
 }
 
 text {
+  font-size: 14px;
   font-family: serif;
 }
 
@@ -26,27 +28,11 @@ text {
   top: 0;
   left: 0;
   right: 0;
-  -moz-box-shadow: 5px 5px 5px #999999;
-  -webkit-box-shadow: 5px 5px 5px #999999;
-  box-shadow: 5px 5px 5px #999999;
-}
-#mainHeader {
-  font-size: 120%;
+  height: 40px;
+  padding: 2px 5px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #a1a1a1;
   overflow: hidden;
-  white-space: nowrap;
-}
-#pulldown {
-  display: none;
-  font-size: 80%;
-}
-#pulldown_padder {
-  padding: 10px;
-}
-#pulldown div + div {
-  margin-top: 10px;
-}
-#auth_button {
-  float: right;
 }
 
 path {
@@ -54,7 +40,7 @@ path {
 }
 
 .span text {
-  font-size: 65%;
+  font-size: 75%;
   text-anchor: middle;
   font-family: sans-serif;
   pointer-events: none;
@@ -66,73 +52,73 @@ path {
 }
 
 .span rect.False_positive {
-  stroke: #ff0000;
+  stroke: #4c4c4c;
   stroke-width: 2;
 }
 #infopopup.info_False_positive {
-  background-color: #ff7777;
+  background-color: #9f9f9f;
 }
 
 .span rect.False_negative {
-  stroke: #ff0000;
+  stroke: #4c4c4c;
   fill: #ffffff;
   stroke-width: 2;
 }
 
 .shadow_AnnotationError {
-  fill: #ff0000;
+  fill: #4c4c4c;
 }
 .span rect.AnnotationError {
   stroke-width: 1;
 }
 #infopopup.info_AnnotationError {
-  background-color: #ff7777;
+  background-color: #9f9f9f;
 }
 
 .shadow_AnnotationWarning {
-  fill: #ff8800;
+  fill: #9c9c9c;
 }
 .span rect.AnnotationWarning {
   stroke-width: 1;
 }
 #infopopup.info_AnnotationWarning {
-  background-color: #ff9900;
+  background-color: #a6a6a6;
 }
 
 .shadow_AnnotationIncomplete {
   fill: #aaaaaa;
 }
 .span rect.AnnotationIncomplete {
-  stroke: #002200;
+  stroke: #141414;
   stroke-width: 0.5;
   fill: #ffffff;
 }
 #infopopup.info_AnnotationIncomplete {
-  background-color: #ffff77;
+  background-color: #f0f0f0;
 }
 
 .shadow_AnnotationUnconfirmed {
   fill: #eeeeee;
 }
 .span rect.AnnotationUnconfirmed {
-  stroke: #002200;
+  stroke: #141414;
   stroke-width: 0.5;
   opacity : 0.5;
 }
 #infopopup.info_AnnotationUnconfirmed {
-  background-color: #ddddff;
+  background-color: #e0e0e0;
 }
 
 .span rect.True_positive {
-  /* stroke: #007700; */
+  /* stroke: #464646; */
 }
 
 rect.shadow_EditHighlight {
-  fill: #ffff99;
-  stroke: #dddd66;
+  fill: #f3f3f3;
+  stroke: #cfcfcf;
 }
 .shadow_EditHighlight_arc {
-  stroke: #ffff99;
+  stroke: #f3f3f3;
 }
 
 .span path {
@@ -165,7 +151,7 @@ rect.shadow_EditHighlight {
 
 .arcs text {
   text-anchor: middle;
-  font-size: 70%;
+  font-size: 80%;
   dominant-baseline: central;
   cursor: default;
 }
@@ -182,16 +168,16 @@ rect.shadow_EditHighlight {
 
 .backgroundHighlight {
   stroke: none;
-  fill: #ffff99;
+  fill: #f3f3f3;
 }
 
 .background_entity {
-  fill: #7fa2ff;
+  fill: #a1a1a1;
   opacity: 0.25;
 }
 
 .background_trigger {
-  fill: #7fd67f;
+  fill: #b2b2b2;
   opacity: 0.25;
 }
 
@@ -206,84 +192,84 @@ rect.shadow_EditHighlight {
 }
 
 .span_default {
-  fill: #7fe67f;
+  fill: #bbbbbb;
 }
 
-.span_Exp { fill:#ff0000; }
+.span_Exp { fill:#4c4c4c; }
 
-.span_gene-or-gene-product    { fill: #7fa2ff; }
-.span_Protein                 { fill: #7fa2ff; }
-.span_Protein_family_or_group { fill: #7fa2ff; }
-.span_Protein_complex         { fill: #7fa2ff; }
-.span_Protein_molecule        { fill: #7fa2ff; }
-.span_RNA_molecule            { fill: #7fa2ff; }
-.span_DNA_molecule            { fill: #7fa2ff; }
-.span_DNA_family_or_group     { fill: #7fa2ff; }
+.span_gene-or-gene-product    { fill: #a1a1a1; }
+.span_Protein                 { fill: #a1a1a1; }
+.span_Protein_family_or_group { fill: #a1a1a1; }
+.span_Protein_complex         { fill: #a1a1a1; }
+.span_Protein_molecule        { fill: #a1a1a1; }
+.span_RNA_molecule            { fill: #a1a1a1; }
+.span_DNA_molecule            { fill: #a1a1a1; }
+.span_DNA_family_or_group     { fill: #a1a1a1; }
 
-.span_Chemical                { fill: #8fcfff; }
-.span_Carbohydrate            { fill: #8fcfff; }
-.span_Drug_or_compound        { fill: #8fcfff; }
-.span_Other_pharmaceutical_agent { fill: #8fcfff; }
+.span_Chemical                { fill: #c1c1c1; }
+.span_Carbohydrate            { fill: #c1c1c1; }
+.span_Drug_or_compound        { fill: #c1c1c1; }
+.span_Other_pharmaceutical_agent { fill: #c1c1c1; }
 
-.span_Gene_or_gene_product    { fill: #7fa2ff; }
+.span_Gene_or_gene_product    { fill: #a1a1a1; }
 
 .span_Lipid {
-  fill: #9fc2ff;
+  fill: #bebebe;
 }
 
-.span_Cell_natural            { fill: #cf9fff; }
-.span_Cell_cultured           { fill: #cf9fff; }
-.span_Virus                   { fill: #cf9fff; }
-.span_Organism                { fill: #cf9fff; }
-.span_Tissue                  { fill: #cf9fff; }
-.span_Cell_type               { fill: #cf9fff; }
+.span_Cell_natural            { fill: #b7b7b7; }
+.span_Cell_cultured           { fill: #b7b7b7; }
+.span_Virus                   { fill: #b7b7b7; }
+.span_Organism                { fill: #b7b7b7; }
+.span_Tissue                  { fill: #b7b7b7; }
+.span_Cell_type               { fill: #b7b7b7; }
 
-.span_Organic_compound_other  { fill: #9fc2ff; }
+.span_Organic_compound_other  { fill: #bebebe; }
 
-.span_Positive_regulation     { fill: #e0ff00; }
-.span_Catalysis               { fill: #e0ff00; }
-.span_Regulation              { fill: #ffff00; }
-.span_Negative_regulation     { fill: #ffe000; }
+.span_Positive_regulation     { fill: #d9d9d9; }
+.span_Catalysis               { fill: #d9d9d9; }
+.span_Regulation              { fill: #e2e2e2; }
+.span_Negative_regulation     { fill: #d0d0d0; }
 
-.span_Deacetylation     { fill: #18c59a; }
-.span_Deglycosylation   { fill: #18c59a; }
-.span_Dehydroxylation   { fill: #18c59a; }
-.span_Demethylation     { fill: #18c59a; }
-.span_Dephosphorylation { fill: #18c59a; }
-.span_Deubiquitination  { fill: #18c59a; }
-.span_DNA_demethylation { fill: #18c59a; }
-.span_Deacylation       { fill: #18c59a; }
-.span_Dealkylation      { fill: #18c59a; }
-.span_Depalmitoylation  { fill: #18c59a; }
-.span_Delipidation      { fill: #18c59a; }
-.span_Deprenylation     { fill: #18c59a; }
-.span_Deneddylation     { fill: #18c59a; }
-.span_Desumoylation     { fill: #18c59a; }
+.span_Deacetylation     { fill: #8c8c8c; }
+.span_Deglycosylation   { fill: #8c8c8c; }
+.span_Dehydroxylation   { fill: #8c8c8c; }
+.span_Demethylation     { fill: #8c8c8c; }
+.span_Dephosphorylation { fill: #8c8c8c; }
+.span_Deubiquitination  { fill: #8c8c8c; }
+.span_DNA_demethylation { fill: #8c8c8c; }
+.span_Deacylation       { fill: #8c8c8c; }
+.span_Dealkylation      { fill: #8c8c8c; }
+.span_Depalmitoylation  { fill: #8c8c8c; }
+.span_Delipidation      { fill: #8c8c8c; }
+.span_Deprenylation     { fill: #8c8c8c; }
+.span_Deneddylation     { fill: #8c8c8c; }
+.span_Desumoylation     { fill: #8c8c8c; }
 
-.span_Process           { fill: #9fe67f; }
+.span_Process           { fill: #c5c5c5; }
 
-.fill_scatter           { fill: #ff0000; }
-.stroke_scatter         { stroke: #ff0000; }
-.fill_coref             { fill: #ff0000; }
-.stroke_coref           { stroke: #ff0000; }
-.fill_Coref             { fill: #ff0000; }
-.stroke_Coref           { stroke: #ff0000; }
-.fill_Protein-Component { fill: #ff0000; }
-.stroke_Protein-Component { stroke: #ff0000; }
+.fill_scatter           { fill: #4c4c4c; }
+.stroke_scatter         { stroke: #4c4c4c; }
+.fill_coref             { fill: #4c4c4c; }
+.stroke_coref           { stroke: #4c4c4c; }
+.fill_Coref             { fill: #4c4c4c; }
+.stroke_Coref           { stroke: #4c4c4c; }
+.fill_Protein-Component { fill: #4c4c4c; }
+.stroke_Protein-Component { stroke: #4c4c4c; }
 
-.span_Entity                   { fill: #b4c8ff; }
-.span_DNA_domain_or_region     { fill: #b4c8ff; }
-.span_Protein_domain_or_region { fill: #b4c8ff; }
-.span_Amino_acid_monomer       { fill: #b4c8ff; }
-.span_Polynucleotide           { fill: #b4c8ff; }
+.span_Entity                   { fill: #c8c8c8; }
+.span_DNA_domain_or_region     { fill: #c8c8c8; }
+.span_Protein_domain_or_region { fill: #c8c8c8; }
+.span_Amino_acid_monomer       { fill: #c8c8c8; }
+.span_Polynucleotide           { fill: #c8c8c8; }
 
-.span_Two-component-system     { fill: #9999ff; }
-.span_Regulon-operon           { fill: #9999ff; }
+.span_Two-component-system     { fill: #a4a4a4; }
+.span_Regulon-operon           { fill: #a4a4a4; }
 
-.span_Experimental_method { fill: #ffff00; }
+.span_Experimental_method { fill: #e2e2e2; }
 
-.span_Other        { fill: #ff0000; }
-.span_UNCLASSIFIED { fill: #ff0000; }
+.span_Other        { fill: #4c4c4c; }
+.span_UNCLASSIFIED { fill: #4c4c4c; }
 
 .fill_theme    { fill:   #000000; }
 .stroke_theme  { stroke: #000000; }
@@ -301,38 +287,38 @@ rect.shadow_EditHighlight {
 .fill_Participant   { fill:   #000000; }
 .stroke_Participant { stroke: #000000; }
 
-.fill_cause    { fill:   #007700; }
-.stroke_cause  { stroke: #007700; }
-.fill_Cause    { fill:   #007700; }
-.stroke_Cause  { stroke: #007700; }
-.fill_Cause1   { fill:   #007700; }
-.stroke_Cause1 { stroke: #007700; }
-.fill_Cause2   { fill:   #007700; }
-.stroke_Cause2 { stroke: #007700; }
-.fill_Cause3   { fill:   #007700; }
-.stroke_Cause3 { stroke: #007700; }
-.fill_Cause4   { fill:   #007700; }
-.stroke_Cause4 { stroke: #007700; }
+.fill_cause    { fill:   #464646; }
+.stroke_cause  { stroke: #464646; }
+.fill_Cause    { fill:   #464646; }
+.stroke_Cause  { stroke: #464646; }
+.fill_Cause1   { fill:   #464646; }
+.stroke_Cause1 { stroke: #464646; }
+.fill_Cause2   { fill:   #464646; }
+.stroke_Cause2 { stroke: #464646; }
+.fill_Cause3   { fill:   #464646; }
+.stroke_Cause3 { stroke: #464646; }
+.fill_Cause4   { fill:   #464646; }
+.stroke_Cause4 { stroke: #464646; }
 
-.fill_Site     { fill:   #0000aa; }
-.stroke_Site   { stroke: #0000aa; }
-.fill_Site1    { fill:   #0000aa; }
-.stroke_Site1  { stroke: #0000aa; }
-.fill_Site2    { fill:   #0000aa; }
-.stroke_Site2  { stroke: #0000aa; }
-.fill_Site3    { fill:   #0000aa; }
-.stroke_Site3  { stroke: #0000aa; }
-.fill_Site4    { fill:   #0000aa; }
-.stroke_Site4  { stroke: #0000aa; }
+.fill_Site     { fill:   #121212; }
+.stroke_Site   { stroke: #121212; }
+.fill_Site1    { fill:   #121212; }
+.stroke_Site1  { stroke: #121212; }
+.fill_Site2    { fill:   #121212; }
+.stroke_Site2  { stroke: #121212; }
+.fill_Site3    { fill:   #121212; }
+.stroke_Site3  { stroke: #121212; }
+.fill_Site4    { fill:   #121212; }
+.stroke_Site4  { stroke: #121212; }
 
-.fill_CSite    { fill:   #0000aa; }
-.stroke_CSite  { stroke: #0000aa; }
+.fill_CSite    { fill:   #121212; }
+.stroke_CSite  { stroke: #121212; }
 
-.fill_ToLoc    { fill:   #0000cc; }
-.stroke_ToLoc  { stroke: #0000cc; }
+.fill_ToLoc    { fill:   #161616; }
+.stroke_ToLoc  { stroke: #161616; }
 
-.fill_AtLoc    { fill:   #0000cc; }
-.stroke_AtLoc  { stroke: #0000cc; }
+.fill_AtLoc    { fill:   #161616; }
+.stroke_AtLoc  { stroke: #161616; }
 
 .fill_Contextgene   { fill: #303030; }
 .stroke_Contextgene { stroke: #303030; }
@@ -359,8 +345,20 @@ rect.shadow_EditHighlight {
 }
 
 
-.dialog {
+#span_form, #arc_form, #auth_form, #file_browser, #import_form {
+  position: fixed;
+  background-color: #dddddd;
+  border: 2px outset #dddddd;
+  left: 50px;
+  top: 50px;
+  height: auto;
+  padding: 5px 10px;
+  z-index: 10;
   display: none;
+  min-width: 400px;
+}
+#span_form_buttons, #arc_form_buttons, #auth_form_buttons, #import_form_buttons {
+  text-align: right;
 }
 #span_free_div, #arc_free_div {
   float: left;
@@ -395,19 +393,19 @@ fieldset {
 }
 
 #messages > div.error {
-  background-color: #ff6666;
+  background-color: #939393;
   color: #000000;
 }
 #messages > div.warning {
-  background-color: #ff8800;
+  background-color: #9c9c9c;
   color: #000000;
 }
 #messages > div.info {
-  background-color: #66ff66;
+  background-color: #c0c0c0;
   color: #000000;
 }
 #messages > div.debug {
-  background-color: #ffff99;
+  background-color: #f3f3f3;
   color: #000000;
 }
 
@@ -466,32 +464,35 @@ fieldset {
     margin-left: 20px;
 }
 .type_scroller {
+    background: #cccccc;
+    border: 1px inset #cccccc;
     overflow-y: scroll;
     min-height: 50px;
-    max-height: 300px;
 }
-
 #span_highlight_link, #arc_highlight_link {
   float: right;
 }
 #document_ctime, #document_mtime {
-  padding: 0 2px;
-  REMOVEbackground-color: #dddddd;
-  REMOVEborder: 1px solid #999999;
-  opacity: 0.5;
-  float: right;
-}
-#menu_explanation, #document_name {
   margin-left: 10px;
-  display: inline-block;
-  overflow: hidden;
+  padding: 0 2px;
+  background-color: #dddddd;
+  border: 1px solid #999999;
+  display: none;
+}
+#blind {
+  z-index: 5;
+  opacity: 0.5;
+  background-color: #000000;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
 }
 
 #logo {
   float:right;
   margin-left: 20px;
-  background-color: #ffffff;
-  padding: 0 0 0 2px;
 }
 
 #spinner {
@@ -507,9 +508,8 @@ fieldset {
   border: 2px inset;
   background-color: #ffffff;
   border-collapse: collapse;
+  overflow: auto;
   width: 100%;
-  margin-top: 10px;
-  overflow: scroll;
 }
 #document_select thead tr * {
   padding: 2px 5px;
@@ -517,21 +517,44 @@ fieldset {
 #document_select tbody tr * {
   padding: 0 5px;
 }
+#document_select thead {
+  background-color: #666666;
+  color: #ffffff;
+}
 #document_select tr {
   cursor: pointer;
 }
 #document_select tr * {
   white-space: nowrap;
 }
+#document_select tbody tr:hover {
+  background-color: #c2c2c2;
+}
 #document_select tr.selected {
-  background-color: #cccccc;
+  background-color: #1c1c1c;
+  color: #ffffff;
+}
+#filedir_inputs_table {
+  width: 100%;
+}
+#filedir_inputs_table input {
+  width: 100%;
+}
+#filedir_inputs_table th {
+  width: 50px;
 }
 #file_browser th {
   font-weight: normal;
   text-align: left;
 }
+#file_buttons {
+  text-align: right;
+}
 #import_text {
+  border: 2px inset #dddddd;
   font-family: inherit;
+  height: 150px;
+  width: 400px;
 }
 #import_title {
   width: 400px;
@@ -559,32 +582,11 @@ fieldset {
 }
 
 .file {
-  color: #333366;
+  color: #383838;
 }
 .dir {
-  color: #336633;
+  color: #515151;
 }
 .rightalign {
   text-align: right;
-}
-
-.dialog .borderless {
-  outline: 0;
-  border: 0;
-  width: 100%;
-}
-
-#waiter {
-  text-align: center;
-}
-#waiter img {
-  margin-top: 25px;
-}
-.unselectable {
-   -moz-user-select: -moz-none;
-   -khtml-user-select: none;
-   -webkit-user-select: none;
-   -o-user-select: none;
-   user-select: none;
-   cursor: default;
 }

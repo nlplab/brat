@@ -224,9 +224,9 @@ var Annotator = function(containerElement, onStart) {
   };
 
   var mouseOut = function(evt) {
-      if (infoBoxVisible) {
-	  hideInfo();
-      }
+    if (infoBoxVisible) {
+      hideInfo();
+    }
     var target = $(evt.target);
     if (arcDragOrigin && arcDragOrigin != target.attr('data-span-id')) {
       target.parent().removeClass('highlight');
@@ -1817,9 +1817,6 @@ $(function() {
     form.css('display', 'none');
   };
 
-  var selectElement = function(table, element) {
-
-  }
   var chooseDocument = function(evt) {
     var _doc = $(evt.target).closest('tr').data('value');
     $('#document_input').val(_doc);

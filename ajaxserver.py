@@ -12,7 +12,7 @@ Version:    2010-01-24
 '''
 
 #TODO: Move imports into their respective functions to boost load time
-from Cookie import SimpleCookie
+from session import Session
 from cgi import FieldStorage
 from itertools import chain
 from json import dumps, loads
@@ -172,7 +172,6 @@ def documents(directory):
     try:
         basenames = [file[0:-4] for file in my_listdir(directory)
                      if file.endswith('txt')]
-        basenames.sort()
 
         doclist   = basenames[:]
         doclist_header = [("Document", "string")]
@@ -200,7 +199,7 @@ def documents(directory):
                 # (if I understand correctly) it should. Check
 #                 with Annotations(docname, read_only=True) as ann_obj:
                 from annotation import JOINED_ANN_FILE_SUFF
-                with Annotations(join(DATA_DIR, join(directory, file+"."+JOINED_ANN_FILE_SUFF)), read_only=True) as ann_obj:
+                with Annotations(join(DATA_DIR, join(directory, docname+"."+JOINED_ANN_FILE_SUFF)), read_only=True) as ann_obj:
                     tb_count = len([a for a in ann_obj.get_textbounds()])
                     event_count = len([a for a in ann_obj.get_events()])
                     docstats.append([tb_count, event_count])
@@ -211,14 +210,23 @@ def documents(directory):
 
         dirlist = [dir for dir in my_listdir(directory)
                 if isdir(join_path(directory, dir))]
-        dirlist.sort()
         # just in case, and for generality
         dirlist = [[dir] for dir in dirlist]
 
         if directory != DATA_DIR:
             parent = abspath(join_path(directory, '..'))[len(DATA_DIR) + 1:]
+            # to get consistent processing client-side, add explicitly to list
+            dirlist.append([".."])
         else:
             parent = None
+
+        # combine document and directory lists, adding a column
+        # differentiating files from directories (True for dir).
+        combolist = []
+        for i in dirlist:
+            combolist.append([True]+i)
+        for i in doclist:
+            combolist.append([False]+i)
 
         client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
         html = generate_textbound_type_html(directory, span_type_keyboard_shortcuts)
@@ -229,9 +237,8 @@ def documents(directory):
         abbrevs = projectconfig.get_abbreviations()
 
         response = {
-                'docs': doclist,
+                'docs': combolist,
                 'dochead' : doclist_header,
-                'dirs': dirlist,
                 'parent': parent,
                 'messages': [],
                 'keymap': client_keymap,
@@ -242,7 +249,7 @@ def documents(directory):
     except OSError, e:
         if e.errno == 2:
             display_message('Error: No such directory: ' + directory, 'error', -1)
-            response = {}
+            response = { 'exception': 'InvalidDirectory' }
         else:
             raise
 
@@ -313,9 +320,9 @@ def enrich_json_with_data(j_dic, ann_obj):
                 )
 
     if ann_obj.failed_lines:
-        error_msg = 'Unable to parse the following line(s):<br/>{}'.format(
+        error_msg = 'Unable to parse the following line(s):<br/>{0}'.format(
                 '\n<br/>\n'.join(
-                    ['{}: {}'.format(
+                    ['{0}: {1}'.format(
                         # The line number is off by one
                         str(line_num + 1),
                         str(ann_obj[line_num])
@@ -377,27 +384,57 @@ def document_json(docdir, docname):
     add_messages_to_json(j_dic)
     print dumps(j_dic, sort_keys=True, indent=2)
 
-def saveSVG(directory, document, svg):
-    dir = '/'.join([BASE_DIR, 'svg', directory])
-    if not isdir(dir):
-        makedirs(dir)
-    basename = dir + '/' + document
-    file = open(basename + '.svg', 'wb')
+def saveSVGReal(svgPath, cssPath, svg):
+    file = open(svgPath, 'wb')
     file.write('<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
     defs = svg.find('</defs>')
     if defs != -1:
-        css = open(BASE_DIR + '/annotator.css').read()
+        css = open(cssPath).read()
         css = '<style type="text/css"><![CDATA[' + css + ']]></style>'
         svg = svg[:defs] + css + svg[defs:]
         file.write(svg)
         file.close()
         # system('rsvg %s.svg %s.png' % (basename, basename))
-        # print 'Content-Type: application/json\n'
-        print 'Content-Type: text/plain\n'
-        print 'Saved as %s in %s' % (basename + '.svg', dir)
     else:
-        print 'Content-Type: text/plain'
-        print 'Status: 400 Bad Request\n'
+        display_message("Error: bad SVG!", "error", -1)
+
+def saveSVG(directory, document, svg):
+    dir = '/'.join([BASE_DIR, 'svg', directory])
+    if not isdir(dir):
+        makedirs(dir)
+    basename = dir + '/' + document
+    svgPath = basename + '.svg'
+    cssPath = BASE_DIR + '/annotator.css'
+    saveSVGReal(svgPath, cssPath, svg)
+
+    response = { }
+    print 'Content-Type: application/json\n'
+    add_messages_to_json(response)
+    print dumps(response, sort_keys=True, indent=2)
+
+def saveSVGForUser(user, svg):
+    dir = '/'.join([BASE_DIR, 'svg', 'user'])
+    if not isdir(dir):
+        makedirs(dir)
+    basename = dir + '/' + user
+
+    cssPath = BASE_DIR + '/annotator.css'
+    saveSVGReal(basename + '_color.svg', BASE_DIR + '/annotator.css', svg)
+    saveSVGReal(basename + '_grayscale.svg', BASE_DIR + '/annotator_grayscale.css', svg)
+
+    response = { }
+    print 'Content-Type: application/json\n'
+    add_messages_to_json(response)
+    print dumps(response, sort_keys=True, indent=2)
+
+def downloadSVGForUser(user, document, version):
+    dir = '/'.join([BASE_DIR, 'svg', 'user'])
+    basename = dir + '/' + user
+    svgPath = basename + '_' + version + '.svg'
+    print 'Content-Type: image/svg+xml'
+    print 'Content-Disposition: inline; filename=' + document + '.svg\n'
+    print open(svgPath).read()
+
 
 def arc_types_html(projectconfig, origin_type, target_type):
     response = { }
@@ -480,7 +517,7 @@ class ModificationTracker(object):
         if self.__changed:
             changed_strs = []
             for before, after in self.__changed:
-                changed_strs.append('\t{}\n<br/>\n\tInto:\n<br/>\t{}'.format(before, after))
+                changed_strs.append('\t{0}\n<br/>\n\tInto:\n<br/>\t{1}'.format(before, after))
             msg_str += ('Changed the following line(s):\n<br/>'
                     + '\n<br/>\n'.join([str(a) for a in changed_strs]))
         if self.__deleted:
@@ -986,14 +1023,9 @@ def serve(argv):
     backup()
 
     params = FieldStorage()
+    Session.instance = Session()
     
-    cookie = SimpleCookie()
-    if environ.has_key('HTTP_COOKIE'):
-        cookie.load(environ['HTTP_COOKIE'])
-    try:
-        creds = loads(cookie[COOKIE_ID].value)
-    except KeyError:
-        creds = {}
+    user = Session.instance.get('user')
 
     directory = params.getvalue('directory')
     document = params.getvalue('document')
@@ -1002,29 +1034,22 @@ def serve(argv):
 
     try:
         if action in EDIT_ACTIONS:
-            try:
-                authenticate(creds['user'], creds['password'])
-            except (InvalidAuthException, KeyError):
+            if not user:
                 print 'Content-Type: text/plain'
                 print 'Status: 403 Forbidden (auth)\n'
                 return
 
         if action == 'login':
-            creds = {
-                    'user': params.getvalue('user'),
-                    'password': hashlib.sha512(
-                        params.getvalue('pass')).hexdigest(),
-                    }
+            auth_dict = { }
+            user = params.getvalue('user')
+            password = hashlib.sha512(params.getvalue('pass')).hexdigest()
 
-            auth_dict = {}
             try:
-                authenticate(creds['user'], creds['password'])
-                auth_dict['user'] = creds['user']
-                cookie[COOKIE_ID] = dumps(creds)
-                # cookie[COOKIE_ID]['max-age'] = 15*60 # 15 minutes
-                print cookie
+                authenticate(user, password)
+                Session.instance['user'] = user
                 display_message('Hello!')
             except InvalidAuthException:
+                auth_dict['exception'] = 'denied'
                 display_message('Incorrect login or password', 'error', 5)
 
             print 'Content-Type: application/json\n'
@@ -1032,12 +1057,8 @@ def serve(argv):
             print dumps(auth_dict, sort_keys=True, indent=2)
 
         elif action == 'logout':
-            from datetime import datetime
-            cookie[COOKIE_ID]['expires'] = (
-                    datetime.fromtimestamp(0L).strftime(
-                        '%a, %d %b %Y %H:%M:%S UTC'))
+            Session.instance.invalidate()
             logout_dict = {}
-            print cookie
             print 'Content-Type: application/json\n'
             display_message('Bye!')
             add_messages_to_json(logout_dict)
@@ -1046,7 +1067,7 @@ def serve(argv):
         elif action == 'getuser':
             result = {}
             try:
-                result['user'] = creds['user']
+                result['user'] = Session.instance.get('user')
             except (KeyError):
                 display_message('Not logged in!', type='error', duration=3)
             print 'Content-Type: application/json\n'
@@ -1078,9 +1099,27 @@ def serve(argv):
             add_messages_to_json(runtagger_dict)
             print dumps(runtagger_dict, sort_keys=True, indent=2)
 
+        elif action == 'saveUserSVG':
+            # FIXME
+            # does not work for multiuser environment.
+            # I want sessions!
+            # otherwise, can't distinguish anonymous users.
+            saveSVGForUser(Session.instance.sid, params.getvalue('svg'))
+
+        elif action == 'downloadUserSVG':
+            # FIXME
+            # does not work for multiuser environment.
+            # I want sessions!
+            # otherwise, can't distinguish anonymous users.
+            downloadSVGForUser(Session.instance.sid,
+                    params.getvalue('document'),
+                    params.getvalue('version'))
+
         else:
             if directory is None:
                 directory = ''
+            else:
+                directory = directory.lstrip('/')
             real_directory = abspath(join_path(DATA_DIR, directory))
             data_abs = abspath(DATA_DIR)
             if not real_directory.startswith(data_abs):
@@ -1089,6 +1128,7 @@ def serve(argv):
                 # is there a better way to determine subdirectoricity than:
                 # dir.startswith(parent + '/') or dir == parent
                 # (also, Pontus doesn't like me using '/')
+                assert False, "DATA_DIR: " + DATA_DIR + "; data_abs: " + data_abs + "; real_directory: " + real_directory
                 raise SecurityViolationException()
 
             if action == 'spantypes':
@@ -1199,13 +1239,14 @@ def serve(argv):
                 except IOError, e:
                     #TODO: This is too general, should be caught at a higher level
                     # No such file or directory
+                    response = {}
                     if e.errno == 2:
                         display_message('Error: file not found', 'error', -1)
+                        response['exception'] = 'FileNotFound'
                     else:
                         display_message('Error: I/O error opening file', 'error', -1)
 
                     print 'Content-Type: application/json\n'
-                    response = {}
                     add_messages_to_json(response)
                     print dumps(response, sort_keys=True, indent=2)
 
