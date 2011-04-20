@@ -169,25 +169,30 @@ def fetch(real_directory, document):
         print "Content-Type: text/html\n"
         print "Status: 404 File Not Found\n"
 
+def get_stat_cache_by_dir(directory):
+    return join_path(directory, '.stats_cache')
+
 def documents(directory):
     # TODO: this function combines up unrelated functionality; split
 
     from htmlgen import generate_textbound_type_html, generate_client_keymap
     print 'Content-Type: application/json\n'
     try:
+        # Get the document names
         basenames = [file[0:-4] for file in my_listdir(directory)
                      if file.endswith('txt')]
 
         doclist   = basenames[:]
         doclist_header = [("Document", "string")]
 
+        # Then get the modification times
         from os.path import getmtime, join
         doclist_with_time = []
         for file in doclist:
             try:
                 from annotation import JOINED_ANN_FILE_SUFF
                 mtime = getmtime(join(DATA_DIR,
-                    join(directory, file+"."+JOINED_ANN_FILE_SUFF)))
+                    join(directory, file + "." + JOINED_ANN_FILE_SUFF)))
             except OSError:
                 # The file did not exist (or similar problem)
                 mtime = -1
@@ -195,21 +200,35 @@ def documents(directory):
         doclist = doclist_with_time
         doclist_header.append(("Modified", "time"))
 
-        # TODO: replace this costly hack with an implementation that
-        # caches statistics
-        docstats = []
-        for docname in basenames:
-            try:
-                # TODO: didn't work as Annotations(docname) although
-                # (if I understand correctly) it should. Check
-#                 with Annotations(docname, read_only=True) as ann_obj:
+        # Check if we have a cache of the costly satistics generation
+        from os.path import isfile
+        from cPickle import load as pickle_load
+        from cPickle import dump as pickle_dump
+        cache_file_path = get_stat_cache_by_dir(directory)
+        if not isfile(cache_file_path):
+            generate = True
+            docstats = []
+        else:
+            generate = False
+            with open(cache_file_path, 'rb') as cache_file:
+                docstats = pickle_load(cache_file)
+
+        if generate:
+            # Generate the document statistics from scratch
+            docstats = []
+            for docname in basenames:
                 from annotation import JOINED_ANN_FILE_SUFF
-                with Annotations(join(DATA_DIR, join(directory, docname+"."+JOINED_ANN_FILE_SUFF)), read_only=True) as ann_obj:
+                with Annotations(join(DATA_DIR,
+                        join(directory, docname)),
+                        read_only=True) as ann_obj:
                     tb_count = len([a for a in ann_obj.get_textbounds()])
                     event_count = len([a for a in ann_obj.get_events()])
                     docstats.append([tb_count, event_count])
-            except:
-                docstats.append(["(no stats)", "(no stats)"])
+
+            # Cache the statistics
+            with open(cache_file_path, 'wb') as cache_file:
+                pickle_dump(docstats, cache_file)
+                
         doclist = [doclist[i] + docstats[i] for i in range(len(doclist))]
         doclist_header += [("Textbounds", "int"), ("Events", "int")]
 
@@ -1088,6 +1107,11 @@ def serve(argv):
                 import_dict['address'] = params.getvalue('docid')
             except FileExistsError:
                 display_message('Cannot import: file exists', 'error', -1)
+
+            # Invalidate the stats cache
+            from os import unlink
+            unlink(get_stat_cache_by_dir(directory))
+
             print 'Content-Type: application/json\n'
             add_messages_to_json(import_dict)
             print dumps(import_dict, sort_keys=True, indent=2)
