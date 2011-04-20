@@ -532,6 +532,8 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       $('#pulldown').find('input').button();
+      var headerHeight = $('#mainHeader').height();
+      $('#svg').css('margin-top', headerHeight + 10);
 
       dispatcher.
           on('messages', displayMessages).

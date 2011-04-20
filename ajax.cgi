@@ -177,7 +177,7 @@ def main(args):
         try:
             Session.instance.close()
         except AttributeError:
-            # XXX: Hack, most likely there was no session
+            # session not initialised
             pass
     return -1
 
