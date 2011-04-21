@@ -7,27 +7,27 @@
     <title>brat</title>
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/redmond/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <link href="http://fonts.googleapis.com/css?family=Astloch:regular,bold" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript" src="js/lib/head.load.min.js"></script>
+    <script type="text/javascript" src="client/lib/head.load.min.js"></script>
     <script type="text/javascript">
       head.js(
           // libraries
-          'js/lib/jquery.min.js',
-          'js/lib/jquery-ui.min.js',
-          'js/lib/jquery.svg.min.js',
-          'js/lib/jquery.svgdom.min.js',
-          'js/lib/jquery.ba-bbq.min.js',
-          'js/lib/jquery.sprintf.js',
+          'client/lib/jquery.min.js',
+          'client/lib/jquery-ui.min.js',
+          'client/lib/jquery.svg.min.js',
+          'client/lib/jquery.svgdom.min.js',
+          'client/lib/jquery.ba-bbq.min.js',
+          'client/lib/jquery.sprintf.js',
           // brat helpers
-          'js/src/brat.js',
+          'client/src/brat.js',
           // brat modules
-          'js/src/dispatcher.js',
-          'js/src/url_monitor.js',
-          'js/src/ajax.js',
-          'js/src/visualizer.js',
-          'js/src/visualizer_ui.js',
-          'js/src/annotator.js',
-          'js/src/annotator_ui.js',
-          'js/src/spinner.js'
+          'client/src/dispatcher.js',
+          'client/src/url_monitor.js',
+          'client/src/ajax.js',
+          'client/src/visualizer.js',
+          'client/src/visualizer_ui.js',
+          'client/src/annotator.js',
+          'client/src/annotator_ui.js',
+          'client/src/spinner.js'
       );
       head.ready(function() {
           var dispatcher = new Dispatcher();
