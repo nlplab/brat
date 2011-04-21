@@ -57,10 +57,11 @@ def _miss_var_msg(var):
 
 def _miss_config_msg():
     #TODO: DOC!
-    return ('Missing file %s in the installation dir, if this is a new '
-            'installation copy the template file %s to %s in '
-            'your installation directory and edit it to suit your environment'
-            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME)
+    return ('Missing file %s in the installation dir. If this is a new '
+            'installation, copy the template file %s to %s in '
+            'your installation directory ("cp %s %s") and edit '
+            'it to suit your environment.'
+            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME, CONF_FNAME, CONF_TEMPLATE_FNAME)
 
 # TODO: This may belong in a helper module
 def _dumps(dic):
@@ -75,6 +76,12 @@ def _dumps(dic):
     return dumps(dic, sort_keys=True, indent=2)
 
 def main(args):
+    # NOTE: It is essential to parse the request before anything else, if
+    #       we fail with any kind of error this ensures us that the client
+    #       will get the response back.
+    # TODO: wrap this in try (not protected now)
+    params = FieldStorage()
+
     # Check the Python version, if it is incompatible print a manually crafted
     # json error. This needs to be updated manually as the protocol changes.
     if (version_info[0] != REQUIRED_PY_VERSION_MAJOR or 
@@ -132,11 +139,6 @@ def main(args):
     path.extend(orig_path)
 
     try:
-        # NOTE: It is essential to parse the request before anything else, if
-        #       we fail with any kind of error this ensures us that the client
-        #       will get the response back.
-        params = FieldStorage()
-
         # Initialise the session
         # TODO: pythonic way to make it available everywhere?
         # (in ajaxserver, I mean)
