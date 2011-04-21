@@ -16,13 +16,14 @@ Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-02-07
 '''
 
-from cgi import escape
+from cgi import escape, FieldStorage
 from os.path import dirname
 from os.path import join as path_join
 from sys import path as sys_path
 from sys import version_info
 
-sys_path.append(path_join(dirname(__file__), 'lib/simplejson-2.1.5'))
+sys_path.append(path_join(dirname(__file__), 'server/lib/simplejson-2.1.5'))
+sys_path.append(path_join(dirname(__file__), 'server/src'))
 
 from message import add_messages_to_json, display_message
 
@@ -56,10 +57,11 @@ def _miss_var_msg(var):
 
 def _miss_config_msg():
     #TODO: DOC!
-    return ('Missing file %s in the installation dir, if this is a new '
-            'installation copy the template file %s to %s in '
-            'your installation directory and edit it to suit your environment'
-            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME)
+    return ('Missing file %s in the installation dir. If this is a new '
+            'installation, copy the template file %s to %s in '
+            'your installation directory ("cp %s %s") and edit '
+            'it to suit your environment.'
+            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME, CONF_FNAME, CONF_TEMPLATE_FNAME)
 
 # TODO: This may belong in a helper module
 def _dumps(dic):
@@ -74,6 +76,12 @@ def _dumps(dic):
     return dumps(dic, sort_keys=True, indent=2)
 
 def main(args):
+    # NOTE: It is essential to parse the request before anything else, if
+    #       we fail with any kind of error this ensures us that the client
+    #       will get the response back.
+    # TODO: wrap this in try (not protected now)
+    params = FieldStorage()
+
     # Check the Python version, if it is incompatible print a manually crafted
     # json error. This needs to be updated manually as the protocol changes.
     if (version_info[0] != REQUIRED_PY_VERSION_MAJOR or 
@@ -139,9 +147,9 @@ def main(args):
 
         # Make the actual call to the server
         from ajaxserver import serve
-        return serve(args)
-    except Exception, e:
-        # Catches even an interpreter crash
+        return serve(params)
+    except BaseException, e:
+        # Catches even an interpreter crash and syntax error
         if DEBUG:
             # Send back the stacktrack as json
             from traceback import print_exc
@@ -153,12 +161,10 @@ def main(args):
             buf = StringIO()
             print_exc(file=buf)
             buf.seek(0)
-            print 'Content-Type: application/json\n'
             error_msg = '<br/>'.join((
                 'Server Python crash, stacktrace is:\n',
                 escape(buf.read()))).replace('\n', '\n<br/>\n')
             display_message(error_msg, type='error', duration=-1)
-            print _dumps(add_messages_to_json({}))
         else:
             # Give the user an error message
             from time import time
@@ -167,11 +173,12 @@ def main(args):
                     'please contact the administrators at %s '
                     'and give the id #%d'
                     ) % (ADMIN_CONTACT_EMAIL, int(time()))
-            print 'Content-Type: application/json\n'
             display_message(error_msg, type='error', duration=-1)
-            print _dumps(add_messages_to_json({}))
+
         # Allow the exception to fall through so it is logged by Apache
-        raise
+        print 'Content-Type: application/json\n'
+        print _dumps(add_messages_to_json({}))
+        raise 
     finally:
         # Save the session
         try:
@@ -179,7 +186,7 @@ def main(args):
         except AttributeError:
             # session not initialised
             pass
-    return -1
+    return 0
 
 if __name__ == '__main__':
     from sys import argv, exit

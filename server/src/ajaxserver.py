@@ -14,7 +14,6 @@ Version:    2010-01-24
 '''
 
 #TODO: Move imports into their respective functions to boost load time
-from cgi import FieldStorage
 from itertools import chain
 from os import environ
 from os import listdir, makedirs, system
@@ -131,7 +130,7 @@ def export(directory, real_directory):
 <html>
 <head>
 <title>%s - brat</title>
-<link rel="stylesheet" type="text/css" href="annotator.css"/>
+<link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
 <body id="export_page">
 <img id="logo" src="brat-logo.png"/>
@@ -176,7 +175,6 @@ def documents(directory):
     # TODO: this function combines up unrelated functionality; split
 
     from htmlgen import generate_textbound_type_html, generate_client_keymap
-    print 'Content-Type: application/json\n'
     try:
         # Get the document names
         basenames = [file[0:-4] for file in my_listdir(directory)
@@ -226,8 +224,11 @@ def documents(directory):
                     docstats.append([tb_count, event_count])
 
             # Cache the statistics
-            with open(cache_file_path, 'wb') as cache_file:
-                pickle_dump(docstats, cache_file)
+            try:
+                with open(cache_file_path, 'wb') as cache_file:
+                    pickle_dump(docstats, cache_file)
+            except IOError:
+                display_message("Warning: could not write statistics cache file (no write permission to data directory %s?)" % directory, type='warning')
                 
         doclist = [doclist[i] + docstats[i] for i in range(len(doclist))]
         doclist_header += [("Textbounds", "int"), ("Events", "int")]
@@ -278,6 +279,7 @@ def documents(directory):
             raise
 
     add_messages_to_json(response)
+    print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
 
 def _sentence_split(txt_file_path):
@@ -428,7 +430,7 @@ def saveSVG(directory, document, svg):
         makedirs(dir)
     basename = dir + '/' + document
     svgPath = basename + '.svg'
-    cssPath = BASE_DIR + '/annotator.css'
+    cssPath = BASE_DIR + '/style.css'
     saveSVGReal(svgPath, cssPath, svg)
 
     response = { }
@@ -442,9 +444,9 @@ def saveSVGForUser(user, svg):
         makedirs(dir)
     basename = dir + '/' + user
 
-    cssPath = BASE_DIR + '/annotator.css'
-    saveSVGReal(basename + '_color.svg', BASE_DIR + '/annotator.css', svg)
-    saveSVGReal(basename + '_grayscale.svg', BASE_DIR + '/annotator_grayscale.css', svg)
+    cssPath = BASE_DIR + '/style.css'
+    saveSVGReal(basename + '_color.svg', BASE_DIR + '/style.css', svg)
+    saveSVGReal(basename + '_grayscale.svg', BASE_DIR + '/style_grayscale.css', svg)
 
     response = { }
     print 'Content-Type: application/json\n'
@@ -1042,11 +1044,10 @@ def authenticate(login, password):
     if login not in USER_PASSWORD or password != hashlib.sha512(USER_PASSWORD[login]).hexdigest():
         raise InvalidAuthException()
 
-def serve(argv):
+def serve(params):
     # Check for back-ups
     backup()
 
-    params = FieldStorage()
     Session.instance = Session()
     
     user = Session.instance.get('user')
@@ -1055,6 +1056,8 @@ def serve(argv):
     document = params.getvalue('document')
 
     action = params.getvalue('action')
+
+    #assert False
 
     try:
         if action in EDIT_ACTIONS:

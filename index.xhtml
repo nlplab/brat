@@ -7,25 +7,25 @@
     <title>sestra</title>
     <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/redmond/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <link href="http://fonts.googleapis.com/css?family=Astloch:regular,bold" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript" src="js/lib/head.load.min.js"></script>
+    <script type="text/javascript" src="client/lib/head.load.min.js"></script>
     <script type="text/javascript">
       head.js(
           // libraries
-          'js/lib/jquery.min.js',
-          'js/lib/jquery-ui.min.js',
-          'js/lib/jquery.svg.min.js',
-          'js/lib/jquery.svgdom.min.js',
-          'js/lib/jquery.ba-bbq.min.js',
-          'js/lib/jquery.sprintf.js',
+          'client/lib/jquery.min.js',
+          'client/lib/jquery-ui.min.js',
+          'client/lib/jquery.svg.min.js',
+          'client/lib/jquery.svgdom.min.js',
+          'client/lib/jquery.ba-bbq.min.js',
+          'client/lib/jquery.sprintf.js',
           // brat helpers
-          'js/brat.js',
+          'client/src/brat.js',
           // brat modules
-          'js/dispatcher.js',
-          'js/url_monitor.js',
-          'js/ajax.js',
-          'js/visualizer.js',
-          'js/visualizer_ui.js',
-          'js/spinner.js'
+          'client/src/dispatcher.js',
+          'client/src/url_monitor.js',
+          'client/src/ajax.js',
+          'client/src/visualizer.js',
+          'client/src/visualizer_ui.js',
+          'client/src/spinner.js'
       );
       head.ready(function() {
           var dispatcher = new Dispatcher();
@@ -39,7 +39,7 @@
       });
 
     </script>
-    <link rel="stylesheet" type="text/css" href="annotator.css"/>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
     <link rel="shortcut icon" href="favicon.ico"/>
   </head>
   <body>
@@ -83,7 +83,7 @@
         <legend>Document</legend>
         <input id="document_input" placeholder="Document" class="borderless"/>
       </fieldset>
-      <table id="document_select" class="ui-widget">
+      <table id="document_select" class="ui-widget unselectable">
         <thead class="ui-widget-header"/>
         <tbody class="ui-widget-content"/>
       </table>

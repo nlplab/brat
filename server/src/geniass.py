@@ -24,10 +24,10 @@ from shlex import split as shlex_split
 ### Contants
 CACHE_SUFFIX = 'ss'
 # TODO: This goes in a config file?
-TOOLS_DIR = abspath(join(dirname(__file__), 'tools'))
-GENIASS_DIR_PATH = join(TOOLS_DIR, 'geniass')
+EXTERN_DIR = abspath(join(dirname(__file__), 'external'))
+GENIASS_DIR_PATH = join(EXTERN_DIR, 'geniass')
 GENIASS_PATH = join(GENIASS_DIR_PATH, 'run_geniass.sh')
-GENIASS_POST_PATH = join(TOOLS_DIR, 'geniass-postproc.pl')
+GENIASS_POST_PATH = join(EXTERN_DIR, 'geniass-postproc.pl')
 ###
 
 #XXX: Our current way of ignoring on non-R_OK and non-W_OK is really silent
