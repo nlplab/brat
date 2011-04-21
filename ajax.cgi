@@ -16,7 +16,7 @@ Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-02-07
 '''
 
-from cgi import escape
+from cgi import escape, FieldStorage
 from os.path import dirname
 from os.path import join as path_join
 from sys import path as sys_path
@@ -131,6 +131,11 @@ def main(args):
     path.extend(orig_path)
 
     try:
+        # NOTE: It is essential to parse the request before anything else, if
+        #       we fail with any kind of error this ensures us that the client
+        #       will get the response back.
+        params = FieldStorage()
+
         # Initialise the session
         # TODO: pythonic way to make it available everywhere?
         # (in ajaxserver, I mean)
@@ -139,7 +144,7 @@ def main(args):
 
         # Make the actual call to the server
         from ajaxserver import serve
-        return serve(args)
+        return serve(params)
     except BaseException, e:
         # Catches even an interpreter crash and syntax error
         if DEBUG:

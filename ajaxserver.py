@@ -14,7 +14,6 @@ Version:    2010-01-24
 '''
 
 #TODO: Move imports into their respective functions to boost load time
-from cgi import FieldStorage
 from itertools import chain
 from os import environ
 from os import listdir, makedirs, system
@@ -1045,11 +1044,10 @@ def authenticate(login, password):
     if login not in USER_PASSWORD or password != hashlib.sha512(USER_PASSWORD[login]).hexdigest():
         raise InvalidAuthException()
 
-def serve(argv):
+def serve(params):
     # Check for back-ups
     backup()
 
-    params = FieldStorage()
     Session.instance = Session()
     
     user = Session.instance.get('user')
@@ -1058,6 +1056,8 @@ def serve(argv):
     document = params.getvalue('document')
 
     action = params.getvalue('action')
+
+    #assert False
 
     try:
         if action in EDIT_ACTIONS:
