@@ -16,6 +16,8 @@ var URLMonitor = (function($, window, undefined) {
         uri += args;
         if (uri.length) uri = '#' + uri;
         window.location.hash = uri;
+        // if a form is open, it shouldn't be now.
+        dispatcher.post('hideForm');
       };
 
       var setArguments = function(args, dirChanging) {
