@@ -176,7 +176,6 @@ def documents(directory):
     # TODO: this function combines up unrelated functionality; split
 
     from htmlgen import generate_textbound_type_html, generate_client_keymap
-    print 'Content-Type: application/json\n'
     try:
         # Get the document names
         basenames = [file[0:-4] for file in my_listdir(directory)
@@ -226,8 +225,11 @@ def documents(directory):
                     docstats.append([tb_count, event_count])
 
             # Cache the statistics
-            with open(cache_file_path, 'wb') as cache_file:
-                pickle_dump(docstats, cache_file)
+            try:
+                with open(cache_file_path, 'wb') as cache_file:
+                    pickle_dump(docstats, cache_file)
+            except IOError:
+                display_message("Warning: could not write statistics cache file (no write permission to data directory %s?)" % directory, type='warning')
                 
         doclist = [doclist[i] + docstats[i] for i in range(len(doclist))]
         doclist_header += [("Textbounds", "int"), ("Events", "int")]
@@ -278,6 +280,7 @@ def documents(directory):
             raise
 
     add_messages_to_json(response)
+    print 'Content-Type: application/json\n'
     print dumps(response, sort_keys=True, indent=2)
 
 def _sentence_split(txt_file_path):

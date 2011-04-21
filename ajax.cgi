@@ -140,8 +140,8 @@ def main(args):
         # Make the actual call to the server
         from ajaxserver import serve
         return serve(args)
-    except Exception, e:
-        # Catches even an interpreter crash
+    except BaseException, e:
+        # Catches even an interpreter crash and syntax error
         if DEBUG:
             # Send back the stacktrack as json
             from traceback import print_exc
@@ -153,12 +153,10 @@ def main(args):
             buf = StringIO()
             print_exc(file=buf)
             buf.seek(0)
-            print 'Content-Type: application/json\n'
             error_msg = '<br/>'.join((
                 'Server Python crash, stacktrace is:\n',
                 escape(buf.read()))).replace('\n', '\n<br/>\n')
             display_message(error_msg, type='error', duration=-1)
-            print _dumps(add_messages_to_json({}))
         else:
             # Give the user an error message
             from time import time
@@ -167,11 +165,12 @@ def main(args):
                     'please contact the administrators at %s '
                     'and give the id #%d'
                     ) % (ADMIN_CONTACT_EMAIL, int(time()))
-            print 'Content-Type: application/json\n'
             display_message(error_msg, type='error', duration=-1)
-            print _dumps(add_messages_to_json({}))
+
         # Allow the exception to fall through so it is logged by Apache
-        raise
+        print 'Content-Type: application/json\n'
+        print _dumps(add_messages_to_json({}))
+        raise 
     finally:
         # Save the session
         try:
@@ -179,7 +178,7 @@ def main(args):
         except AttributeError:
             # session not initialised
             pass
-    return -1
+    return 0
 
 if __name__ == '__main__':
     from sys import argv, exit
