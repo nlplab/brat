@@ -22,7 +22,7 @@ from os.path import join as path_join
 from sys import path as sys_path
 from sys import version_info
 
-sys_path.append(path_join(dirname(__file__), 'lib/simplejson-2.1.5'))
+sys_path.append(path_join(dirname(__file__), 'server/lib/simplejson-2.1.5'))
 sys_path.append(path_join(dirname(__file__), 'server/src'))
 
 from message import add_messages_to_json, display_message
