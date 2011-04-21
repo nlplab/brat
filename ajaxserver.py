@@ -130,7 +130,7 @@ def export(directory, real_directory):
 <html>
 <head>
 <title>%s - brat</title>
-<link rel="stylesheet" type="text/css" href="annotator.css"/>
+<link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
 <body id="export_page">
 <img id="logo" src="brat-logo.png"/>
@@ -430,7 +430,7 @@ def saveSVG(directory, document, svg):
         makedirs(dir)
     basename = dir + '/' + document
     svgPath = basename + '.svg'
-    cssPath = BASE_DIR + '/annotator.css'
+    cssPath = BASE_DIR + '/style.css'
     saveSVGReal(svgPath, cssPath, svg)
 
     response = { }
@@ -444,9 +444,9 @@ def saveSVGForUser(user, svg):
         makedirs(dir)
     basename = dir + '/' + user
 
-    cssPath = BASE_DIR + '/annotator.css'
-    saveSVGReal(basename + '_color.svg', BASE_DIR + '/annotator.css', svg)
-    saveSVGReal(basename + '_grayscale.svg', BASE_DIR + '/annotator_grayscale.css', svg)
+    cssPath = BASE_DIR + '/style.css'
+    saveSVGReal(basename + '_color.svg', BASE_DIR + '/style.css', svg)
+    saveSVGReal(basename + '_grayscale.svg', BASE_DIR + '/style_grayscale.css', svg)
 
     response = { }
     print 'Content-Type: application/json\n'
