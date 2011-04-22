@@ -31,7 +31,7 @@ text {
   box-shadow: 5px 5px 5px #999999;
 }
 #mainHeader {
-  font-size: 120%;
+  font-size: 100%;
   overflow: hidden;
   white-space: nowrap;
 }
