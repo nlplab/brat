@@ -52,20 +52,7 @@ def get_directory_information(directory):
     doclist = base_names[:]
     doclist_header = [("Document", "string")]
 
-    # Then get the modification times
-    from os.path import getmtime, join
-    doclist_with_time = []
-    for file in doclist:
-        try:
-            from annotation import JOINED_ANN_FILE_SUFF
-            mtime = getmtime(join(DATA_DIR,
-                join(real_dir, file + "." + JOINED_ANN_FILE_SUFF)))
-        except OSError:
-            # The file did not exist (or similar problem)
-            mtime = -1
-        doclist_with_time.append([file, mtime])
-    doclist = doclist_with_time
-    doclist_header.append(("Modified", "time"))
+    doclist = [[x] for x in doclist]
 
     doc_stats = get_statistics(real_dir, base_names)
                 
