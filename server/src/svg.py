@@ -109,4 +109,4 @@ def retrieve_svg(document, version):
         print svg_file.read()
     print
     # Bail out with a hack since we violated the protocol
-    raise SuppressJSONError
+    raise NoPrintJSONError
