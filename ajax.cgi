@@ -3,7 +3,7 @@
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 '''
-Entry for cgi calls to the brat application. This is a simple wrapper that
+Entry for cgi calls to the application. This is a simple wrapper that
 only imports a bare minimum and ensures that the web-based UI gets a proper
 response even when the server crashes. If in debug mode it returns any errors
 that occur using the established messaging API.

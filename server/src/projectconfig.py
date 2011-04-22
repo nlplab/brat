@@ -4,8 +4,7 @@
 
 
 '''
-Per-project configuration functionality for
-Brat Rapid Annotation Tool (brat)
+Per-project configuration functionality
 '''
 
 import re

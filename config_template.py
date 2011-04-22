@@ -3,7 +3,7 @@
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 '''
-Configuration parameters for brat
+Configuration parameters
 
 Author:     Pontus Stenetorp
 Version:    2011-01-19
