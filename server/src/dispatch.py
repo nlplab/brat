@@ -12,7 +12,6 @@ Version:    2011-04-21
 from os.path import abspath
 from os.path import join as path_join
 
-from auth import login, logout, whoami, NotAuthorisedError
 from common import ProtocolError
 from config import DATA_DIR
 from document import get_directory_information, get_document
@@ -30,29 +29,7 @@ DISPATCHER = {
 
         'storeSVG': store_svg,
         'retrieveSVG': retrieve_svg,
-
-        'login': login,
-        'logout': logout,
-        'whoami': whoami,
         }
-
-# Actions that require authentication
-REQUIRES_AUTHENTICATION = set((
-    # Document functionality
-    #'importDocument',
-
-    # Editing functionality
-    #'createArc',
-    #'deleteArc',
-    #'createSpan',
-    #'deleteSpan',
-    #'setDocumentStatus',
-    ))
-
-# Sanity check
-for req_action in REQUIRES_AUTHENTICATION:
-    assert req_action in DISPATCHER, (
-            'redundant action in REQUIRES_AUTHENTICATION set')
 ###
 
 
@@ -124,10 +101,6 @@ def dispatch(params):
     if params.getvalue('directory') is not None:
         if not _directory_is_safe(params.getvalue('directory')):
             raise DirectorySecurityError
-
-    # Make sure that we are authenticated if we are to do certain actions
-    if action in REQUIRES_AUTHENTICATION and get_session()['user'] is None:
-        raise NotAuthorisedError(action)
 
     # Fetch the action function for this action (if any)
     try:
