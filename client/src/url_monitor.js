@@ -45,7 +45,7 @@ var URLMonitor = (function($, window, undefined) {
         that.dir = dir;
         if (oldDir !== dir) {
           dispatcher.post('ajax', [{
-              action: 'ls',
+              action: 'getDirectoryInformation',
               directory: dir
             }, 'dirLoaded', {
               directory: dir

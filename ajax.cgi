@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; -*-                                                                                    
+# -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; -*- 
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 '''
@@ -25,7 +25,9 @@ from sys import version_info
 sys_path.append(path_join(dirname(__file__), 'server/lib/simplejson-2.1.5'))
 sys_path.append(path_join(dirname(__file__), 'server/src'))
 
+from common import ProtocolError, NoPrintJSONError
 from message import add_messages_to_json, display_message
+from session import get_session
 
 ### Constants
 # This handling of version_info is strictly for backwards compability
@@ -63,25 +65,8 @@ def _miss_config_msg():
             'it to suit your environment.'
             ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME, CONF_FNAME, CONF_TEMPLATE_FNAME)
 
-# TODO: This may belong in a helper module
-def _dumps(dic):
-    '''
-    Create a json dumps string out of a dictionary. Used for consistent usage
-    within this file.
-
-    Arguments:
-    dic -- dictionary to convert into json
-    '''
-    from simplejson import dumps
-    return dumps(dic, sort_keys=True, indent=2)
-
+# TODO: Split up main or somehow make it more read-able
 def main(args):
-    # NOTE: It is essential to parse the request before anything else, if
-    #       we fail with any kind of error this ensures us that the client
-    #       will get the response back.
-    # TODO: wrap this in try (not protected now)
-    params = FieldStorage()
-
     # Check the Python version, if it is incompatible print a manually crafted
     # json error. This needs to be updated manually as the protocol changes.
     if (version_info[0] != REQUIRED_PY_VERSION_MAJOR or 
@@ -89,8 +74,15 @@ def main(args):
         print 'Content-Type: application/json\n'
         print INVALID_PY_JSON
         return -1
+
+    # NOTE: It is essential to parse the request before anything else, if
+    #       we fail with any kind of error this ensures us that the client
+    #       will get the response back.
+    # TODO: wrap this in try (not protected now)
+    params = FieldStorage()
     
-    # From now on we know we have access to _dumps
+    # From now on we know we have access to dumps
+    from jsonwrap import dumps
    
     # Do configuration checking and importing
     from sys import path
@@ -112,7 +104,7 @@ def main(args):
         print 'Content-Type: application/json\n'
         display_message(_miss_config_msg(),
             type='error', duration=-1)
-        print _dumps(add_messages_to_json({}))
+        print dumps(add_messages_to_json({}))
         raise
     # Try importing the config entries we need
     try:
@@ -122,7 +114,7 @@ def main(args):
         print 'Content-Type: application/json\n'
         display_message(_miss_var_msg('DEBUG'),
             type='error', duration=-1)
-        print _dumps(add_messages_to_json({}))
+        print dumps(add_messages_to_json({}))
         raise
     try:
         from config import ADMIN_CONTACT_EMAIL
@@ -131,7 +123,7 @@ def main(args):
         print 'Content-Type: application/json\n'
         display_message(_miss_var_msg('ADMIN_CONTACT_EMAIL'),
             type='error', duration=-1)
-        print _dumps(add_messages_to_json({}))
+        print dumps(add_messages_to_json({}))
         raise
     # Remove our entry to the path
     path.pop()
@@ -139,25 +131,35 @@ def main(args):
     path.extend(orig_path)
 
     try:
-        # Initialise the session
-        # TODO: pythonic way to make it available everywhere?
-        # (in ajaxserver, I mean)
-        from session import Session
-        Session()
+        try:
+            # Dispatch the request and get the corresponding json dictionary
+            from dispatch import dispatch
+            json_dic = dispatch(params)
+            # TODO: Possibly a check here that what we got back was dictionary:ish
 
-        # Make the actual call to the server
-        from ajaxserver import serve
-        return serve(params)
+            get_session().print_cookie()
+            
+            print 'Content-Type: application/json\n'
+            print dumps(add_messages_to_json(json_dic))
+        except ProtocolError, e:
+            # Internal exception, notify the client but don't log to stderr
+            json_dic = {}
+            e.json(json_dic)
+            print 'Content-Type: application/json\n'
+            print dumps(add_messages_to_json(json_dic))
+        except NoPrintJSONError:
+            pass # We are simply to exit and do nothing
     except BaseException, e:
         # Catches even an interpreter crash and syntax error
         if DEBUG:
-            # Send back the stacktrack as json
+            # Send back the stack-trace as json
             from traceback import print_exc
             try:
                 from cStringIO import StringIO
             except ImportError:
                 from StringIO import StringIO
 
+            # Getting the stack-trace requires a small trick
             buf = StringIO()
             print_exc(file=buf)
             buf.seek(0)
@@ -177,15 +179,8 @@ def main(args):
 
         # Allow the exception to fall through so it is logged by Apache
         print 'Content-Type: application/json\n'
-        print _dumps(add_messages_to_json({}))
+        print dumps(add_messages_to_json({}))
         raise 
-    finally:
-        # Save the session
-        try:
-            Session.instance.close()
-        except AttributeError:
-            # session not initialised
-            pass
     return 0
 
 if __name__ == '__main__':

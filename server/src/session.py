@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+# vim:set ft=python ts=4 sw=4 sts=4 autoindent:
+
+# TODO: Update the example usage
 '''
 Session handling class.
 
@@ -41,17 +46,23 @@ API:
 
     The session object will also be globally available as Session.instance.
 
-Author:     Goran Topic <amadanmath at google's fine mail service>
+Author:     Goran Topic         <goran is s u-tokyo ac jp>
+Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-03-11
 '''
 
+from Cookie import SimpleCookie, CookieError
+from atexit import register as atexit_register
+from datetime import datetime, timedelta
+from os import environ
+from os.path import join as path_join
+# TODO: Full imports
+import hashlib, shelve
+
+
+# TODO: Pythonista overlook
 class Session(object):
     def __init__(self, name='sid', dir='sessions', path=None, domain=None, max_age=None):
-        from Cookie import SimpleCookie
-        from os import environ
-        from os.path import join as join_path
-        from datetime import datetime, timedelta
-        import hashlib, shelve
 
         self._name = name
         now = datetime.utcnow();
@@ -97,14 +108,18 @@ class Session(object):
 
         # to protect against cookie-stealing JS, make our cookie
         # available only to the browser, and not to any scripts
-        #XXX: Not available in Python 2.5
-        #self._cookie[name]['httponly'] = True
+        try:
+            # This will not work for Python 2.5 and older
+            self._cookie[name]['httponly'] = True
+        except CookieError:
+            pass
 
         # persist the session data
-        self._shelf_file = join_path(dir, self.sid)
+        self._shelf_file = path_join(dir, self.sid)
         # -1 signifies the highest available protocol version
         self._shelf = shelve.open(self._shelf_file, protocol=-1, writeback=True)
 
+    def print_cookie(self):
         # send the headers
         print "Cache-Control: no-store, no-cache, must-revalidate"
         print self._cookie
@@ -139,3 +154,16 @@ class Session(object):
             return self._shelf[key]
         except KeyError:
             return default
+
+
+CURRENT_SESSION = None
+def get_session():
+    global CURRENT_SESSION
+    if CURRENT_SESSION is None:
+        CURRENT_SESSION = Session()
+    return CURRENT_SESSION
+
+# Make sure that we save the session on interpreter shutdown
+@atexit_register
+def _save_session():
+    get_session().close()
