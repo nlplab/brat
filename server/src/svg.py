@@ -13,6 +13,8 @@ Version:    2011-04-22
 # TODO: Can we verify somehow that what we are getting is actually an svg?
 # TODO: Limits to size? Or inherent from HTTP?
 
+from __future__ import with_statement
+
 from os.path import join as path_join
 from os.path import isfile
 

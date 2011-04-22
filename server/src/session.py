@@ -51,7 +51,7 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-03-11
 '''
 
-from Cookie import SimpleCookie
+from Cookie import SimpleCookie, CookieError
 from atexit import register as atexit_register
 from datetime import datetime, timedelta
 from os import environ
@@ -111,7 +111,7 @@ class Session(object):
         try:
             # This will not work for Python 2.5 and older
             self._cookie[name]['httponly'] = True
-        except AttributeError:
+        except CookieError:
             pass
 
         # persist the session data

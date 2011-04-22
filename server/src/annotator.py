@@ -11,6 +11,8 @@ Version:    2011-04-22
 
 # XXX: This module is messy, re-factor to be done
 
+from __future__ import with_statement
+
 from os.path import join as path_join
 from os.path import split as path_split
 
