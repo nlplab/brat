@@ -514,6 +514,7 @@ var Visualizer = (function($, window, undefined) {
       var redraw = false;
 
       var renderDataReal = function(_data) {
+        if (!_data && !data) return;
         try {
           svgContainer.show();
           if (_data && (_data.document !== doc || _data.directory !== dir)) return;

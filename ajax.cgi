@@ -22,6 +22,7 @@ from os.path import join as path_join
 from sys import path as sys_path
 from sys import version_info
 
+sys_path.append(path_join(dirname(__file__), 'server/lib/simplejson-2.1.5'))
 sys_path.append(path_join(dirname(__file__), 'server/src'))
 
 from common import ProtocolError, NoPrintJSONError
@@ -58,10 +59,11 @@ def _miss_var_msg(var):
 
 def _miss_config_msg():
     #TODO: DOC!
-    return ('Missing file %s in the installation dir, if this is a new '
-            'installation copy the template file %s to %s in '
-            'your installation directory and edit it to suit your environment'
-            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME)
+    return ('Missing file %s in the installation dir. If this is a new '
+            'installation, copy the template file %s to %s in '
+            'your installation directory ("cp %s %s") and edit '
+            'it to suit your environment.'
+            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME, CONF_FNAME, CONF_TEMPLATE_FNAME)
 
 # TODO: Split up main or somehow make it more read-able
 def main(args):
@@ -76,6 +78,7 @@ def main(args):
     # NOTE: It is essential to parse the request before anything else, if
     #       we fail with any kind of error this ensures us that the client
     #       will get the response back.
+    # TODO: wrap this in try (not protected now)
     params = FieldStorage()
     
     # From now on we know we have access to dumps
