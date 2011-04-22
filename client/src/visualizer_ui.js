@@ -346,7 +346,7 @@ var VisualizerUI = (function($, window, undefined) {
             } else if (type === 'string') {
               formatted = datum;
             } else if (type === 'time') {
-              formatted = Brat.formatTimeAgo(datum * 1000);
+              formatted = Utility.formatTimeAgo(datum * 1000);
             } else if (type === 'float') {
               type = defaultFloatFormat;
               cssClass = 'rightalign';

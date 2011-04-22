@@ -531,7 +531,7 @@ var Visualizer = (function($, window, undefined) {
             if (data.mtime) {
                 // we're getting seconds and need milliseconds
                 //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
-                $('#document_mtime').text("Last modified: " + Brat.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
+                $('#document_mtime').text("Last modified: " + Utility.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
             } else {
                 //$('#document_ctime').css("display", "none");
                 $('#document_mtime').css("display", "none");
