@@ -30,7 +30,6 @@ sys_path.append(join_path(dirname(__file__), 'lib/simplejson-2.1.5'))
 from simplejson import dumps, loads
 
 from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationsIsReadOnly
-from annspec import span_type_keyboard_shortcuts
 from backup import backup
 from projectconfig import ProjectConfiguration
 from verify_annotations import verify_annotation
@@ -253,8 +252,8 @@ def documents(directory):
         for i in doclist:
             combolist.append([False]+i)
 
-        client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
-        html = generate_textbound_type_html(directory, span_type_keyboard_shortcuts)
+        client_keymap = generate_client_keymap([])
+        html = generate_textbound_type_html(directory, [])
 
         # we need a ProjectConfiguration for the abbrevs here. This could be
         # shared with htmlgen, which also needs one.
