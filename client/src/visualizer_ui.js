@@ -553,6 +553,7 @@ var VisualizerUI = (function($, window, undefined) {
             closeOnEscape: true,
             resizable: false,
             modal: true,
+  	    width : 400,
             open: function() {
                 aboutDialog.find('*').blur();
               }
