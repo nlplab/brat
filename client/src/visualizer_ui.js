@@ -457,7 +457,7 @@ var VisualizerUI = (function($, window, undefined) {
       var saveSVG = function() {
         clearTimeout(saveSVGTimer);
         saveSVGTimer = dispatcher.post(500, 'ajax', [{
-          action: 'saveUserSVG',
+          action: 'storeSVG',
           svg: $('#svg').html()
         }, 'savedSVG']);
       };
@@ -474,12 +474,12 @@ var VisualizerUI = (function($, window, undefined) {
 
       var showSVGDownloadLinks = function(data) {
         var params = {
-            action: 'downloadUserSVG',
+            action: 'retrieveSVG',
             'document': doc,
-            version: 'color'
+            version: 'colour'
         };
         $('#download_svg_color').attr('href', 'ajax.cgi?' + $.param(params));
-        params['version'] = 'grayscale';
+        params['version'] = 'greyscale';
         $('#download_svg_grayscale').attr('href', 'ajax.cgi?' + $.param(params));
         $('#download_svg').show();
       };

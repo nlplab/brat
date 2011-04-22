@@ -11,10 +11,14 @@ Author:     Pontus Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-01-25
 '''
 
+# TODO: Major re-work, cleaning up and conforming with new server paradigm
+
 from os import utime
 from time import time
 
 from config import DATA_DIR
+from common import ProtocolError
+from message import display_message
 
 ### Constants
 # The only suffix we allow to write to, which is the joined annotation file
@@ -42,8 +46,15 @@ class AnnotationNotFoundError(Exception):
         return 'Could not find an annotation with id: %s' % (self.id, )
 
 
-class AnnotationsIsReadOnly(Exception):
-    pass
+class AnnotationsIsReadOnlyError(ProtocolError):
+    def __init__(self):
+        pass
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'annotationIsReadOnly'
+        # TODO: Display message here?
+        display_message('Annotation is in read only mode', 'error')
+        return json_dic
 
 
 class DuplicateAnnotationIdError(Exception):
@@ -226,7 +237,7 @@ class Annotations(object):
         #TODO: DOC!
         #TODO: Check read only
         if not read and self._read_only:
-            raise AnnotationsIsReadOnly
+            raise AnnotationsIsReadOnlyError
 
         # Equivs have to be merged with other equivs
         try:
@@ -293,7 +304,7 @@ class Annotations(object):
         #      invasive (direct modification of ModificationTracker.deleted)
         #TODO: DOC!
         if self._read_only:
-            raise AnnotationsIsReadOnly
+            raise AnnotationsIsReadOnlyError
 
         try:
             ann.id
@@ -573,11 +584,12 @@ class Annotations(object):
                             # time of the data dir when we write to it. This
                             # helps us to make back-ups
                             now = time()
-                            utime(DATA_DIR, (now, now))
+                            #XXX: Disabled for now!
+                            #utime(DATA_DIR, (now, now))
                     except Exception, e:
                         from message import display_message
                         import sys
-                        print >> sys.stderr, "Here"
+                        print >> sys.stderr, "Here", e
                         display_message('ERROR: Could not write changes!<br/>%s' % e, 'error', -1)
         return
 
@@ -676,7 +688,10 @@ class EquivAnnotation(TypedAnnotation):
         return (soft_deps, hard_deps)
 
     def reference_id(self):
-        return ["equiv", self.type, self.entities[0]]
+        if self.entities:
+            return ['equiv', self.type, self.entities[0]]
+        else:
+            return ['equiv', self.type, self.entities]
 
 class ModifierAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail):

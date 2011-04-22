@@ -1206,7 +1206,7 @@ var Visualizer = (function($, window, undefined) {
 
       var renderDocument = function() {
         dispatcher.post('ajax', [{
-            action: 'getdocument',
+            action: 'getDocument',
             directory: dir,
             'document': doc,
           }, 'renderData', {

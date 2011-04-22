@@ -260,12 +260,9 @@ if __name__ == '__main__':
             Test that the fake crash mechanism is working.
             '''
             pid = self._fake_crash_other_process()
-            print   'Foo'
             self.assertTrue(isfile(self._lock_file_path))
-            print   'Foo2'
             self.assertTrue(pid == int(
                 read(open(self._lock_file_path, O_RDONLY), 255)))#XXX: Close
-            print 'Foo 3'
 
         ###
         def test_pid_disallow(self):

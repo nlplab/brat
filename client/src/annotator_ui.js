@@ -47,7 +47,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var originSpan = data.spans[originSpanId];
           var targetSpan = data.spans[targetSpanId];
           arcOptions = {
-            action: 'arc',
+            action: 'createArc',
             origin: originSpanId,
             target: targetSpanId,
             type: type,
@@ -71,9 +71,9 @@ var AnnotatorUI = (function($, window, undefined) {
           window.getSelection().removeAllRanges();
           var span = data.spans[id];
           spanOptions = {
-            action: 'span',
-            from: span.from,
-            to: span.to,
+            action: 'createSpan',
+            start: span.from,
+            end: span.to,
             id: id,
           };
           var spanText = data.text.substring(span.from, span.to);
@@ -189,10 +189,10 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId) {
         dispatcher.post('ajax', [{
-            action: 'arctypes',
+            action: 'possibleArcTypes',
             directory: dir,
-            origin: originType,
-            target: targetType,
+            origin_type: originType,
+            target_type: targetType,
           }, 
           function(jsonData) {
             if (jsonData.empty && !arcType) {
@@ -239,7 +239,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         var eventDataId = $(evt.target).attr('data-arc-ed');
         dispatcher.post('hideForm', [arcForm]);
-        arcOptions.action = 'unarc';
+        arcOptions.action = 'deleteArc';
         dispatcher.post('ajax', [arcOptions, 'edited']);
       };
 
@@ -269,7 +269,7 @@ var AnnotatorUI = (function($, window, undefined) {
             var originSpan = data.spans[arcDragOrigin];
             var targetSpan = data.spans[id];
             arcOptions = {
-              action: 'arc',
+              action: 'createArc',
               origin: originSpan.id,
               target: targetSpan.id,
               directory: dir,
@@ -305,9 +305,9 @@ var AnnotatorUI = (function($, window, undefined) {
 
             if (selectedFrom === selectedTo) return; // simple click (zero-width span)
             spanOptions = {
-              action: 'span',
-              from: selectedFrom,
-              to: selectedTo
+              action: 'createSpan',
+              start: selectedFrom,
+              end: selectedTo
             };
             var spanText = data.text.substring(selectedFrom, selectedTo);
             if (spanText.indexOf("\n") != -1) {
@@ -321,7 +321,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var init = function() {
         dispatcher.post('ajax', [{
-            action: 'getuser'
+            action: 'whoami'
           }, function(response) {
             var auth_button = $('#auth_button');
             if (response.user) {
@@ -398,7 +398,7 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('ajax', [{
             action: 'login',
             user: user,
-            pass: password,
+            password: password,
           },
           function(response) {
               if (response.exception) {
@@ -431,7 +431,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var deleteSpan = function() {
         $.extend(spanOptions, {
-          action: 'unspan',
+          action: 'deleteSpan',
           directory: dir,
           'document': doc,
         });
@@ -458,7 +458,7 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('hideForm', [spanForm]);
         if (type) {
           $.extend(spanOptions, {
-            action: 'span',
+            action: 'createSpan',
             directory: dir,
             'document': doc,
             type: type
