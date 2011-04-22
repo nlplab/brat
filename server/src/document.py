@@ -19,7 +19,6 @@ from os.path import join as path_join
 from re import sub
 
 from annotation import Annotations, TEXT_FILE_SUFFIX
-from annspec import span_type_keyboard_shortcuts
 from config import DATA_DIR
 from htmlgen import generate_client_keymap, generate_textbound_type_html
 from projectconfig import ProjectConfiguration
@@ -94,8 +93,8 @@ def get_directory_information(directory):
     for i in doclist:
         combolist.append([False]+i)
 
-    client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
-    html = generate_textbound_type_html(real_dir, span_type_keyboard_shortcuts)
+    client_keymap = generate_client_keymap([])
+    html = generate_textbound_type_html(real_dir, [])
 
     # we need a ProjectConfiguration for the abbrevs here. This could be
     # shared with htmlgen, which also needs one.
