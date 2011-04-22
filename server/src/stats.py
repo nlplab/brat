@@ -17,6 +17,9 @@ from cPickle import load as pickle_load
 from cPickle import dump as pickle_dump
 
 from message import display_message
+from annotation import Annotations
+from os.path import join
+from config import DATA_DIR
 
 ### Constants
 STATS_CACHE_FILE_NAME = '.stats_cache'
@@ -26,7 +29,7 @@ def get_stat_cache_by_dir(directory):
     return path_join(directory, STATS_CACHE_FILE_NAME)
 
 # TODO: Quick hack, prettify and use some sort of csv format
-def get_statistics(directory, use_cache=True):
+def get_statistics(directory, base_names, use_cache=True):
     # Check if we have a cache of the costly satistics generation
     cache_file_path = get_stat_cache_by_dir(directory)
     if not isfile(cache_file_path):

@@ -12,8 +12,6 @@ Version:    2011-04-21
 from os.path import abspath
 from os.path import join as path_join
 
-from annotator import create_span, delete_span
-from annotator import create_arc, delete_arc, possible_arc_types
 from auth import login, logout, whoami, NotAuthorisedError
 from common import ProtocolError
 from config import DATA_DIR
@@ -36,12 +34,6 @@ DISPATCHER = {
         'login': login,
         'logout': logout,
         'whoami': whoami,
-
-        'createSpan': create_span,
-        'deleteSpan': delete_span,
-        'createArc': create_arc,
-        'deleteArc': delete_arc,
-        'possibleArcTypes': possible_arc_types,
         }
 
 # Actions that require authentication
