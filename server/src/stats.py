@@ -16,6 +16,8 @@ from os.path import join as path_join
 from cPickle import load as pickle_load
 from cPickle import dump as pickle_dump
 
+from annotation import Annotations
+from config import DATA_DIR
 from message import display_message
 
 ### Constants
@@ -26,7 +28,7 @@ def get_stat_cache_by_dir(directory):
     return path_join(directory, STATS_CACHE_FILE_NAME)
 
 # TODO: Quick hack, prettify and use some sort of csv format
-def get_statistics(directory, use_cache=True):
+def get_statistics(directory, base_names, use_cache=True):
     # Check if we have a cache of the costly satistics generation
     cache_file_path = get_stat_cache_by_dir(directory)
     if not isfile(cache_file_path):
@@ -42,8 +44,8 @@ def get_statistics(directory, use_cache=True):
         docstats = []
         for docname in base_names:
             from annotation import JOINED_ANN_FILE_SUFF
-            with Annotations(join(DATA_DIR,
-                    join(directory, docname)),
+            with Annotations(
+                    path_join(directory, docname),
                     read_only=True) as ann_obj:
                 tb_count = len([a for a in ann_obj.get_textbounds()])
                 event_count = len([a for a in ann_obj.get_events()])

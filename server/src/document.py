@@ -69,7 +69,7 @@ def get_directory_information(directory):
     doclist = doclist_with_time
     doclist_header.append(("Modified", "time"))
 
-    doc_stats = get_statistics(real_dir)
+    doc_stats = get_statistics(real_dir, base_names)
                 
     doclist = [doclist[i] + doc_stats[i] for i in range(len(doclist))]
     doclist_header += [("Textbounds", "int"), ("Events", "int")]

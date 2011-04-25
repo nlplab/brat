@@ -180,6 +180,10 @@ def create_span(directory, document, start, end, type, negation, speculation, id
     # if spanfrom and spanto present, new
     #XXX: Negation, speculation not done!
 
+    # Convert from types sent by JS
+    negation = negation == 'true'
+    speculation = speculation == 'true'
+
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
 
