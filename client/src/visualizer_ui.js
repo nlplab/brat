@@ -468,8 +468,8 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var onStartedRendering = function() {
-        $('#waiter').dialog('open');
         hideForm(fileBrowser);
+        $('#waiter').dialog('open');
       }
 
       var showSVGDownloadLinks = function(data) {

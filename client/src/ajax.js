@@ -23,7 +23,9 @@ var Ajax = (function($, window, undefined) {
             // if .exception is just Boolean true, do not process
             // the callback; if it is anything else, the
             // callback is responsible for handling it
-            if (response.exception !== true && callback) {
+            if (response.exception == true) {
+              $('#waiter').dialog('close');
+            } else if (callback) {
               if (merge) {
                 $.extend(response, merge);
               }
@@ -33,6 +35,7 @@ var Ajax = (function($, window, undefined) {
           },
           error: function(response, textStatus, errorThrown) {
             dispatcher.post('unspin');
+            $('#waiter').dialog('close');
             console.error(textStatus + ':', errorThrown, response);
           }
         });
