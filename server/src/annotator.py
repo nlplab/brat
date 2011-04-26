@@ -584,7 +584,9 @@ def delete_span(directory, document, id):
                 pass
         except DependingAnnotationDeleteError, e:
             display_message(e.html_error_str(), type='error', duration=3)
-            return {}
+            return {
+                    'exception': True,
+                    }
 
         #print 'Content-Type: application/json\n'
         if DEBUG:
