@@ -150,26 +150,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
     j_dic['mtime'] = ann_obj.ann_mtime
     j_dic['ctime'] = ann_obj.ann_ctime
 
-<<<<<<< HEAD
     # (no verification in visualizer, assume everything is OK.)
-=======
-    try:
-        # XXX avoid digging the directory from the ann_obj
-        if PERFORM_VERIFICATION:
-            import os
-            docdir = os.path.dirname(ann_obj._document)
-            projectconfig = ProjectConfiguration(docdir)
-            issues = verify_annotation(ann_obj, projectconfig)
-        else:
-            issues = []
-    except Exception, e:
-        # TODO add an issue about the failure?
-        issues = []
-        display_message('Error: verify_annotation() failed: %s' % e, 'error', -1)
-
-    for i in issues:
-        j_dic['comments'].append((str(i.ann_id), i.type, i.description))
->>>>>>> annattr
 
 def _enrich_json_with_base(j_dic):
     # TODO: Make the names here and the ones in the Annotations object conform
