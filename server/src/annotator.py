@@ -202,6 +202,7 @@ def create_span(directory, document, start, end, type,
         attributes = {}
     else:
         attributes =  json_loads(attributes)
+        display_message("purst" + str(attributes), "info", 10)
 
     for attr in attributes:
         # TODO: This is to be removed upon completed implementation
@@ -209,12 +210,12 @@ def create_span(directory, document, start, end, type,
                 'protocol not supporting general attributes')
 
     try:
-        negation = attributes['negation'] == 'true'
+        negation = attributes['negation']
     except KeyError:
         negation = False
 
     try:
-        speculation = attributes['speculation'] == 'true'
+        speculation = attributes['speculation']
     except KeyError:
         speculation = False
 
@@ -230,8 +231,10 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
     #XXX: Negation, speculation not done!
 
     # Convert from types sent by JS
-    negation = negation == 'true'
-    speculation = speculation == 'true'
+    if isinstance(negation, str):
+        negation = negation == 'true' 
+    if isinstance(speculation, str):
+        speculation = speculation == 'true'
 
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)

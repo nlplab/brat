@@ -23,6 +23,6 @@ def dumps(dic):
     return lib_dumps(dic, sort_keys=True, indent=2)
 
 def loads(s):
-    return lib_loads(dic)
+    return lib_loads(s)
 
 # TODO: Unittest that tries the import etc.

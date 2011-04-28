@@ -71,7 +71,7 @@ var AnnotatorUI = (function($, window, undefined) {
           window.getSelection().removeAllRanges();
           var span = data.spans[id];
           spanOptions = {
-            action: '_createSpan',
+            action: 'createSpan',
             start: span.from,
             end: span.to,
             id: id,
@@ -305,7 +305,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
             if (selectedFrom === selectedTo) return; // simple click (zero-width span)
             spanOptions = {
-              action: '_createSpan',
+              action: 'createSpan',
               start: selectedFrom,
               end: selectedTo
             };
@@ -458,18 +458,20 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('hideForm', [spanForm]);
         if (type) {
           $.extend(spanOptions, {
-            action: '_createSpan',
+            action: 'createSpan',
             directory: dir,
             'document': doc,
-            type: type
+            type: type,
           });
           var el;
+          var attributes = {};
           if (el = $('#span_mod_negation')[0]) {
-            spanOptions.negation = el.checked;
+            attributes.negation = el.checked;
           }
           if (el = $('#span_mod_speculation')[0]) {
-            spanOptions.speculation = el.checked;
+            attributes.speculation = el.checked;
           }
+          spanOptions.attributes = $.toJSON(attributes);
           $('#waiter').dialog('open');
           dispatcher.post('ajax', [spanOptions, 'edited']);
         } else {
