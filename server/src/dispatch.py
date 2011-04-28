@@ -12,7 +12,7 @@ Version:    2011-04-21
 from os.path import abspath
 from os.path import join as path_join
 
-from annotator import create_span, delete_span
+from annotator import create_span, delete_span, _create_span
 from annotator import create_arc, delete_arc, possible_arc_types
 from auth import login, logout, whoami, NotAuthorisedError
 from common import ProtocolError
@@ -37,6 +37,8 @@ DISPATCHER = {
         'logout': logout,
         'whoami': whoami,
 
+        # _createSpan is deprecated and is to be phased out
+        '_createSpan': _create_span,
         'createSpan': create_span,
         'deleteSpan': delete_span,
         'createArc': create_arc,

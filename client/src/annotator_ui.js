@@ -71,7 +71,7 @@ var AnnotatorUI = (function($, window, undefined) {
           window.getSelection().removeAllRanges();
           var span = data.spans[id];
           spanOptions = {
-            action: 'createSpan',
+            action: '_createSpan',
             start: span.from,
             end: span.to,
             id: id,
@@ -305,7 +305,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
             if (selectedFrom === selectedTo) return; // simple click (zero-width span)
             spanOptions = {
-              action: 'createSpan',
+              action: '_createSpan',
               start: selectedFrom,
               end: selectedTo
             };
@@ -458,7 +458,7 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('hideForm', [spanForm]);
         if (type) {
           $.extend(spanOptions, {
-            action: 'createSpan',
+            action: '_createSpan',
             directory: dir,
             'document': doc,
             type: type
