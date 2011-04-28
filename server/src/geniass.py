@@ -24,7 +24,7 @@ from shlex import split as shlex_split
 ### Contants
 CACHE_SUFFIX = 'ss'
 # TODO: This goes in a config file?
-EXTERN_DIR = abspath(join(dirname(__file__), 'external'))
+EXTERN_DIR = abspath(join(dirname(__file__), '..', '..', 'external'))
 GENIASS_DIR_PATH = join(EXTERN_DIR, 'geniass')
 GENIASS_PATH = join(GENIASS_DIR_PATH, 'run_geniass.sh')
 GENIASS_POST_PATH = join(EXTERN_DIR, 'geniass-postproc.pl')

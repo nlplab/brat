@@ -34,6 +34,7 @@ var Visualizer = (function($, window, undefined) {
       var data = null;
       var dir, doc, args;
       var abbrevs;
+      var abbrevsOn = true;
       var isRenderRequested;
       var curlyY;
 
@@ -153,8 +154,9 @@ var Visualizer = (function($, window, undefined) {
         });
         data.sentInfo = {};
 
-        $.each(data.infos, function(infoNo, info) {
+        $.each(data.comments, function(infoNo, info) {
           // TODO error handling
+          // TODO rename info into comments to reflect changes according to #115
           if (info[0] instanceof Array && info[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
             var sent = info[0][1];
             var text = info[2];
@@ -419,13 +421,15 @@ var Visualizer = (function($, window, undefined) {
             // Find the most appropriate abbreviation according to text
             // width
             span.abbrevText = span.type;
-            var abbrevIdx = 0;
-            var maxLength = (span.to - span.from) / 0.8;
-            while (span.abbrevText.length > maxLength &&
-                abbrevs[span.type] &&
-                abbrevs[span.type][abbrevIdx]) {
-              span.abbrevText = abbrevs[span.type][abbrevIdx];
-              abbrevIdx++;
+            if (abbrevsOn) {
+              var abbrevIdx = 0;
+              var maxLength = (span.to - span.from) / 0.8;
+              while (span.abbrevText.length > maxLength &&
+                  abbrevs[span.type] &&
+                  abbrevs[span.type][abbrevIdx]) {
+                span.abbrevText = abbrevs[span.type][abbrevIdx];
+                abbrevIdx++;
+              }
             }
 
             if (!spanAnnTexts[span.abbrevText]) {
@@ -445,6 +449,11 @@ var Visualizer = (function($, window, undefined) {
           lastSpan = span;
         });
       };
+
+      var resetData = function() {
+        setData(data);
+        renderData();
+      }
 
       var placeReservation = function(span, box, reservations) {
         var newSlot = {
@@ -975,13 +984,15 @@ var Visualizer = (function($, window, undefined) {
                 }
 
                 var abbrevText = arc.type;
-                var abbrevIdx = 0;
-                var maxLength = ((to - from) - (2 * arcSlant)) / 7;
-                while (abbrevText.length > maxLength &&
-                       abbrevs[arc.type] &&
-                       abbrevs[arc.type][abbrevIdx]) {
-                  abbrevText = abbrevs[arc.type][abbrevIdx];
-                  abbrevIdx++;
+                if (abbrevsOn) {
+                  var abbrevIdx = 0;
+                  var maxLength = ((to - from) - (2 * arcSlant)) / 7;
+                  while (abbrevText.length > maxLength &&
+                         abbrevs[arc.type] &&
+                         abbrevs[arc.type][abbrevIdx]) {
+                    abbrevText = abbrevs[arc.type][abbrevIdx];
+                    abbrevIdx++;
+                  }
                 }
 
                 var shadowGroup;
@@ -1341,6 +1352,10 @@ var Visualizer = (function($, window, undefined) {
         forceRedraw();
       };
 
+      var setAbbrevs = function(_abbrevsOn) {
+        abbrevsOn = _abbrevsOn;
+      }
+
       svgContainer = $(svgContainer).hide();
 
       // register event listeners
@@ -1378,6 +1393,8 @@ var Visualizer = (function($, window, undefined) {
           on('dirChanged', dirChanged).
           on('dirLoaded', dirLoaded).
           on('renderData', renderData).
+          on('resetData', resetData).
+          on('abbrevs', setAbbrevs).
           on('current', gotCurrent).
           on('mouseover', onMouseOver).
           on('mouseout', onMouseOut);

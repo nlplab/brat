@@ -468,8 +468,8 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var onStartedRendering = function() {
-        $('#waiter').dialog('open');
         hideForm(fileBrowser);
+        $('#waiter').dialog('open');
       }
 
       var showSVGDownloadLinks = function(data) {
@@ -542,6 +542,17 @@ var VisualizerUI = (function($, window, undefined) {
         } else {
           dispatcher.post('messages', [[['Confirm mode is now off', 'info']]]);
         }
+      });
+
+      $('#abbrev_mode').click(function(evt) {
+        var val = this.checked;
+        if (val) {
+          dispatcher.post('messages', [[['Abbreviations are now on', 'info']]]);
+        } else {
+          dispatcher.post('messages', [[['Abbreviations are now off', 'info']]]);
+        }
+        dispatcher.post('abbrevs', [val]);
+        dispatcher.post('resetData');
       });
 
       $('#pulldown').find('input').button();

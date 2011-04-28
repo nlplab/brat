@@ -179,7 +179,10 @@ def main(args):
 
         # Allow the exception to fall through so it is logged by Apache
         print 'Content-Type: application/json\n'
-        print dumps(add_messages_to_json({}))
+        json_dic = {
+                'exception': True,
+                }
+        print dumps(add_messages_to_json(json_dic))
         raise 
     return 0
 
