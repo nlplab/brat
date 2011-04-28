@@ -566,6 +566,9 @@ var VisualizerUI = (function($, window, undefined) {
             modal: true,
             open: function() {
                 aboutDialog.find('*').blur();
+              },
+            beforeClose: function() {
+                currentForm = null;
               }
           });
       $('#mainlogo').click(function() {
