@@ -477,7 +477,7 @@ class Annotations(object):
                         type_trigger, type_trigger_tail = (data[:type_delim],
                                 data[type_delim:])
                     except ValueError:
-                        type_trigger = data
+                        type_trigger = data.rstrip('\r\n')
                         type_trigger_tail = None
 
                     try:
@@ -525,7 +525,7 @@ class Annotations(object):
                 self.failed_lines.append(e.line_num - 1)
 
     def __str__(self):
-        s = '\n'.join(str(ann).rstrip('\n') for ann in self)
+        s = '\n'.join(str(ann).rstrip('\r\n') for ann in self)
         if not s:
             return ""
         else:
