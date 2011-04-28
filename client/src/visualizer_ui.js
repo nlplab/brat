@@ -567,6 +567,9 @@ var VisualizerUI = (function($, window, undefined) {
   	    width : 400,
             open: function() {
                 aboutDialog.find('*').blur();
+              },
+            beforeClose: function() {
+                currentForm = null;
               }
           });
       $('#mainlogo').click(function() {
