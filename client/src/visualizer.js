@@ -153,8 +153,9 @@ var Visualizer = (function($, window, undefined) {
         });
         data.sentInfo = {};
 
-        $.each(data.infos, function(infoNo, info) {
+        $.each(data.comments, function(infoNo, info) {
           // TODO error handling
+          // TODO rename info into comments to reflect changes according to #115
           if (info[0] instanceof Array && info[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
             var sent = info[0][1];
             var text = info[2];

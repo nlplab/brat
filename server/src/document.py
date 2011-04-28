@@ -151,7 +151,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
-        j_dic['infos'].append(
+        j_dic['comments'].append(
                 [com_ann.target, com_ann.type, com_ann.tail.strip()]
                 )
 
@@ -185,7 +185,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
         display_message('Error: verify_annotation() failed: %s' % e, 'error', -1)
 
     for i in issues:
-        j_dic['infos'].append((str(i.ann_id), i.type, i.description))
+        j_dic['comments'].append((str(i.ann_id), i.type, i.description))
 
 def _enrich_json_with_base(j_dic):
     # TODO: Make the names here and the ones in the Annotations object conform
@@ -196,7 +196,7 @@ def _enrich_json_with_base(j_dic):
     j_dic['triggers'] = []
     j_dic['modifications'] = []
     j_dic['equivs'] = []
-    j_dic['infos'] = []
+    j_dic['comments'] = []
 
 def _document_json_dict(document):
     #TODO: DOC!
