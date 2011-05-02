@@ -328,8 +328,10 @@ var AnnotatorUI = (function($, window, undefined) {
               that.user = response.user;
               dispatcher.post('messages', [[['Welcome back, user "' + that.user + '"', 'info']]]);
               auth_button.val('Logout');
+              $('.login').show();
             } else {
               auth_button.val('Login');
+              $('.login').hide();
             }
           }
         ]);
@@ -409,6 +411,7 @@ var AnnotatorUI = (function($, window, undefined) {
                 $('#auth_button').val('Logout');
                 $('#auth_user').val('');
                 $('#auth_pass').val('');
+                $('.login').show();
               }
           }]);
         return false;
@@ -420,6 +423,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }, function(response) {
             that.user = null;
             $('#auth_button').val('Login');
+            $('.login').hide();
           }]);
         } else {
           dispatcher.post('showForm', [authForm]);
@@ -525,6 +529,7 @@ var AnnotatorUI = (function($, window, undefined) {
       // we don't elliminate it altogether because it still provides the
       // overlay to prevent interaction
       waiter.parent().css('opacity', '0');
+      $('.login').hide();
 
       dispatcher.
         on('renderData', rememberData).
