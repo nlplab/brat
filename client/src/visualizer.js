@@ -113,13 +113,15 @@ var Visualizer = (function($, window, undefined) {
         var triggerHash = {};
         $.each(data.triggers, function(triggerNo, trigger) {
           triggerHash[trigger[0]] =
-              new Span(trigger[0], trigger[1], trigger[2], trigger[3], 'trigger');
+              [new Span(trigger[0], trigger[1], trigger[2], trigger[3], 'trigger'), []];
         });
         data.eventDescs = {};
         $.each(data.events, function(eventNo, eventRow) {
           var eventDesc = data.eventDescs[eventRow[0]] =
               new EventDesc(eventRow[0], eventRow[1], eventRow[2]);
-          var span = $.extend({}, triggerHash[eventDesc.triggerId]); // clone
+          var trigger = triggerHash[eventDesc.triggerId];
+          var span = $.extend({}, trigger[0]); // clone
+          trigger[1].push(span);
           span.incoming = []; // protect from shallow copy
           span.outgoing = [];
           span.id = eventDesc.id;
@@ -163,18 +165,26 @@ var Visualizer = (function($, window, undefined) {
               text = data.sentComment[sent].text + '<br/>' + text;
             }
             data.sentComment[sent] = { type: comment[1], text: text };
-          } else if (comment[0] in data.spans) {
-            var span = data.spans[comment[0]];
-            if (!span.comment) {
-              span.comment = { type: comment[1], text: comment[2] };
-            } else {
-              span.comment.type = comment[1];
-              span.comment.text += "<br/>" + comment[2];
-            }
-            // prioritize type setting when multiple comments are present
-            if (commentPriority(comment[1]) > commentPriority(span.shadowClass)) {
-              span.shadowClass = comment[1];
-            }
+          } else {
+            var trigger = triggerHash[comment[0]];
+            var commentSpans =
+                trigger
+                ? trigger[1]
+                : comment[0] in data.spans
+                  ? [data.spans[comment[0]]]
+                  : [];
+            $.each(commentSpans, function(spanId, span) {
+              if (!span.comment) {
+                span.comment = { type: comment[1], text: comment[2] };
+              } else {
+                span.comment.type = comment[1];
+                span.comment.text += "<br/>" + comment[2];
+              }
+              // prioritize type setting when multiple comments are present
+              if (commentPriority(comment[1]) > commentPriority(span.shadowClass)) {
+                span.shadowClass = comment[1];
+              }
+            });
           }
         });
 
@@ -1194,6 +1204,10 @@ var Visualizer = (function($, window, undefined) {
               clearSVG();
               drawing = false;
             } else {
+console.log("YO");
+try {
+console.log("ST:", stacktrace());
+} catch(xx) { console.error(xx); }
               console.error('FIXME Error during rendering: ', x); // FIXME
             }
           }
