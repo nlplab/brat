@@ -125,7 +125,6 @@ var Visualizer = (function($, window, undefined) {
           span.id = eventDesc.id;
           data.spans[eventDesc.id] = span;
         });
-        console.log(data.modifications);
         $.each(data.modifications, function(modNo, mod) {
           if (!data.spans[mod[2]]) {
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
