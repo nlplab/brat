@@ -123,58 +123,58 @@ var VisualizerUI = (function($, window, undefined) {
         element.css({ top: y, left: x });
       };
 
-      var infoPopup = $('#infopopup');
-      var infoDisplayed = false;
+      var commentPopup = $('#commentpopup');
+      var commentDisplayed = false;
 
-      var displayInfo = function(evt, target, info, infoText, infoType) {
+      var displayComment = function(evt, target, comment, commentText, commentType) {
         var idtype;
-        if (infoType) {
-          info += infoText;
-          idtype = 'info_' + infoType;
+        if (commentType) {
+          comment += commentText;
+          idtype = 'comment_' + commentType;
         }
-        infoPopup[0].className = idtype;
-        infoPopup.html(info);
-        adjustToCursor(evt, infoPopup, 10, true, true);
-        infoPopup.stop(true, true).fadeIn();
-        infoDisplayed = true;
+        commentPopup[0].className = idtype;
+        commentPopup.html(comment);
+        adjustToCursor(evt, commentPopup, 10, true, true);
+        commentPopup.stop(true, true).fadeIn();
+        commentDisplayed = true;
       };
 
-      var displaySpanInfo = function(
-          evt, target, spanId, spanType, mods, spanText, infoText, infoType) {
+      var displaySpanComment = function(
+          evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
-        var info = '<div><span class="info_id">' + spanId + '</span>' +
-          ' ' + '<span class="info_type">' + spanType + '</span>';
+        var comment = '<div><span class="comment_id">' + spanId + '</span>' +
+          ' ' + '<span class="comment_type">' + spanType + '</span>';
         if (mods.length) {
-          info += '<div>' + mods.join(', ') + '</div>';
+          comment += '<div>' + mods.join(', ') + '</div>';
         }
-        info += '</div>';
-        info += '<div>"' + spanText + '"</div>';
-        displayInfo(evt, target, info, infoText, infoType);
+        comment += '</div>';
+        comment += '<div>"' + spanText + '"</div>';
+        displayComment(evt, target, comment, commentText, commentType);
       };
 
-      var displayArcInfo = function(
+      var displayArcComment = function(
           evt, target, symmetric,
-          originSpanId, role, targetSpanId, infoText, infoType) {
-        var info = (symmetric
-          ? '<div class="info_arc">' + originSpanId + ' ' +
+          originSpanId, role, targetSpanId, commentText, commentType) {
+        var comment = (symmetric
+          ? '<div class="comment_arc">' + originSpanId + ' ' +
             target.attr('data-arc-role') + ' ' + targetSpanId +'</div>'
-          : '<div class="info_arc">' + originSpanId + ' &#8594; ' +
+          : '<div class="comment_arc">' + originSpanId + ' &#8594; ' +
             target.attr('data-arc-role') + ':' + targetSpanId +'</div>');
-        displayInfo(evt, target, info, infoText, infoType);
+        displayComment(evt, target, comment, commentText, commentType);
       };
 
-      var displaySentInfo = function(
-          evt, target, infoText, infoType) {
-        displayInfo(evt, target, '', infoText, infoType);
+      var displaySentComment = function(
+          evt, target, commentText, commentType) {
+        displayComment(evt, target, '', commentText, commentType);
       };
 
-      var hideInfo = function() {
-        infoPopup.stop(true, true).fadeOut(function() { infoDisplayed = false; });
+      var hideComment = function() {
+        commentPopup.stop(true, true).fadeOut(function() { commentDisplayed = false; });
       };
 
       var onMouseMove = function(evt) {
-        if (infoDisplayed) {
-          adjustToCursor(evt, infoPopup, 10, true, true);
+        if (commentDisplayed) {
+          adjustToCursor(evt, commentPopup, 10, true, true);
         }
       };
 
@@ -577,10 +577,10 @@ var VisualizerUI = (function($, window, undefined) {
 
       dispatcher.
           on('messages', displayMessages).
-          on('displaySpanInfo', displaySpanInfo).
-          on('displayArcInfo', displayArcInfo).
-          on('displaySentInfo', displaySentInfo).
-          on('hideInfo', hideInfo).
+          on('displaySpanComment', displaySpanComment).
+          on('displayArcComment', displayArcComment).
+          on('displaySentComment', displaySentComment).
+          on('hideComment', hideComment).
           on('showForm', showForm).
           on('hideForm', hideForm).
           on('initForm', initForm).

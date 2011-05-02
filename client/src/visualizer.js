@@ -38,7 +38,7 @@ var Visualizer = (function($, window, undefined) {
       var isRenderRequested;
       var curlyY;
 
-      var infoPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error'];
+      var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error'];
 
       this.arcDragOrigin = null; // TODO
 
@@ -86,11 +86,11 @@ var Visualizer = (function($, window, undefined) {
         return box;
       };
 
-      var infoPriority = function(infoClass) {
-        if (infoClass === undefined) return -1;
-        var len = infoPrioLevels.length;
+      var commentPriority = function(commentClass) {
+        if (commentClass === undefined) return -1;
+        var len = commentPrioLevels.length;
         for (var i = 0; i < len; i++) {
-          if (infoClass.indexOf(infoPrioLevels[i]) != -1) return i;
+          if (commentClass.indexOf(commentPrioLevels[i]) != -1) return i;
         }
         return 0;
       };
@@ -125,6 +125,7 @@ var Visualizer = (function($, window, undefined) {
           span.id = eventDesc.id;
           data.spans[eventDesc.id] = span;
         });
+        console.log(data.modifications);
         $.each(data.modifications, function(modNo, mod) {
           if (!data.spans[mod[2]]) {
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
@@ -152,29 +153,28 @@ var Visualizer = (function($, window, undefined) {
             eventDesc.rightSpans = equivSpans.slice(i);
           }
         });
-        data.sentInfo = {};
+        data.sentComment = {};
 
-        $.each(data.comments, function(infoNo, info) {
+        $.each(data.comments, function(commentNo, comment) {
           // TODO error handling
-          // TODO rename info into comments to reflect changes according to #115
-          if (info[0] instanceof Array && info[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
-            var sent = info[0][1];
-            var text = info[2];
-            if (data.sentInfo[sent]) {
-              text = data.sentInfo[sent].text + '<br/>' + text;
+          if (comment[0] instanceof Array && comment[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
+            var sent = comment[0][1];
+            var text = comment[2];
+            if (data.sentComment[sent]) {
+              text = data.sentComment[sent].text + '<br/>' + text;
             }
-            data.sentInfo[sent] = { type: info[1], text: text };
-          } else if (info[0] in data.spans) {
-            var span = data.spans[info[0]];
-            if (!span.info) {
-              span.info = { type: info[1], text: info[2] };
+            data.sentComment[sent] = { type: comment[1], text: text };
+          } else if (comment[0] in data.spans) {
+            var span = data.spans[comment[0]];
+            if (!span.comment) {
+              span.comment = { type: comment[1], text: comment[2] };
             } else {
-              span.info.type = info[1];
-              span.info.text += "<br/>" + info[2];
+              span.comment.type = comment[1];
+              span.comment.text += "<br/>" + comment[2];
             }
-            // prioritize type setting when multiple infos are present
-            if (infoPriority(info[1]) > infoPriority(span.shadowClass)) {
-              span.shadowClass = info[1];
+            // prioritize type setting when multiple comments are present
+            if (commentPriority(comment[1]) > commentPriority(span.shadowClass)) {
+              span.shadowClass = comment[1];
             }
           }
         });
@@ -658,7 +658,7 @@ var Visualizer = (function($, window, undefined) {
                 var rectClass = 'span_' + span.type + ' span_default';
 
                // attach e.g. "False_positive" into the type
-               if (span.info && span.info.type) { rectClass += ' '+span.info.type; }
+               if (span.comment && span.comment.type) { rectClass += ' '+span.comment.type; }
                var bx = xx - margin.x - boxTextMargin.x;
                var by = yy - margin.y;
                var bw = spanBox.width + 2 * margin.x + 2 * boxTextMargin.x;
@@ -1134,8 +1134,8 @@ var Visualizer = (function($, window, undefined) {
               if (row.sentence) {
                 var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y - rowPadding,
                     '' + row.sentence, { 'data-sent': row.sentence });
-                var sentInfo = data.sentInfo[row.sentence];
-                if (sentInfo) {
+                var sentComment = data.sentComment[row.sentence];
+                if (sentComment) {
                   var box = text.getBBox();
                   svg.remove(text);
                   shadowRect = svg.rect(sentNumGroup,
@@ -1143,7 +1143,7 @@ var Visualizer = (function($, window, undefined) {
                       box.width + 2 * shadowSize, box.height + 2 * shadowSize, {
 
                       filter: 'url(#Gaussian_Blur)',
-                      'class': "shadow_" + sentInfo.type,
+                      'class': "shadow_" + sentComment.type,
                       rx: shadowSize,
                       ry: shadowSize,
                       'data-sent': row.sentence,
@@ -1263,22 +1263,22 @@ var Visualizer = (function($, window, undefined) {
 
       // event handlers
 
-      var highlight, highlightArcs, highlightSpans, infoId;
+      var highlight, highlightArcs, highlightSpans, commentId;
 
       var onMouseOver = function(evt) {
         var target = $(evt.target);
         var id;
         if (id = target.attr('data-span-id')) {
-          infoId = id;
+          commentId = id;
           var span = data.spans[id];
           var mods = [];
           if (span.Negation) mods.push("Negated");
           if (span.Speculation) mods.push("Speculated");
-          dispatcher.post('displaySpanInfo', [
+          dispatcher.post('displaySpanComment', [
               evt, target, id, span.type, mods,
               data.text.substring(span.from, span.to),
-              span.info && span.info.text,
-              span.info && span.info.type]);
+              span.comment && span.comment.text,
+              span.comment && span.comment.type]);
           highlight = svg.rect(highlightGroup,
             span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
             span.curly.to + 2 - span.curly.from, span.curly.height + 2,
@@ -1315,8 +1315,8 @@ var Visualizer = (function($, window, undefined) {
           // TODO: remove special-case processing, introduce way to differentiate
           // symmetric relations in general
           var symmetric = role === "Equiv";
-          // NOTE: no infoText, infoType for now
-          dispatcher.post('displayArcInfo', [
+          // NOTE: no commentText, commentType for now
+          dispatcher.post('displayArcComment', [
               evt, target, symmetric, 
               originSpanId, role, targetSpanId]);
           highlightArcs = $(svgElement).
@@ -1327,19 +1327,19 @@ var Visualizer = (function($, window, undefined) {
               parent().
               addClass('highlight');
         } else if (id = target.attr('data-sent')) {
-          var info = data.sentInfo[id];
-          if (info) {
-          // NOTE: no infoText, infoType for now
-          dispatcher.post('displaySentInfo', [
-              evt, target, info]);
-            displaySentInfo(info.text, evt);
+          var comment = data.sentComment[id];
+          if (comment) {
+          // NOTE: no commentText, commentType for now
+          dispatcher.post('displaySentComment', [
+              evt, target, comment]);
+            displaySentComment(comment.text, evt);
           }
         }
       };
 
       var onMouseOut = function(evt) {
         var target = $(evt.target);
-        dispatcher.post('hideInfo');
+        dispatcher.post('hideComment');
         if (highlight) {
           svg.remove(highlight);
           highlight = undefined;
