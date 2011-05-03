@@ -30,6 +30,66 @@ GENIASS_PATH = join(GENIASS_DIR_PATH, 'run_geniass.sh')
 GENIASS_POST_PATH = join(EXTERN_DIR, 'geniass-postproc.pl')
 ###
 
+def align_sentence_split(txt, split_txt):
+    """
+    Given a text and a string that represents a sentence-split version
+    of the text, aligns the string with the text by adding or removing
+    space when necessary.  Returns the aligned string, or None if
+    alignment fails.
+    """
+
+    # TODO: verify for DOS newlines
+
+    aligned = ""
+    split_lines = [l.strip() for l in split_txt.replace('\r\n','\n').split('\n')]
+    split_lines = [l for l in split_lines if l != ""]
+    offset = 0
+    for li, l in enumerate(split_lines):
+        prevoffset = offset
+        while txt[offset].isspace():
+            offset += 1
+        if offset+len(l) > len(txt) or txt[offset:offset+len(l)] != l:
+            # mismatch
+            return None
+
+        # matches up to offset+len(l)
+        aligned += txt[prevoffset:offset+len(l)]
+        offset += len(l)
+
+        split_found = False
+        while offset < len(txt) and txt[offset].isspace():
+            aligned += txt[offset]
+            if txt[offset] == '\n':
+                split_found = True
+            offset += 1
+
+        if not split_found:
+            # split text has a split here, original doesn't; add by
+            # replacing a space by a newline if possible
+            if aligned[-1].isspace():
+                # TODO: unnecessarily inefficient, fix
+                aligned = aligned[:-1]+'\n'
+
+    # leftovers, if any
+    while offset != len(txt):
+        if not txt[offset].isspace():
+            return None
+        else:
+            aligned += txt[offset]
+            offset += 1
+
+    # invariants
+    assert len(aligned) == len(txt), "INTERNAL ERROR"
+    for i in range(len(txt)):
+        assert aligned[i] == txt[i] or aligned[i].isspace() and txt[i].isspace(), "INTERNAL ERROR"
+
+    return aligned
+
+def align_sentence_split_file(txt_file_path, split_txt):
+    with open(txt_file_path, 'r') as f:
+        txt = f.read()
+        return align_sentence_split(txt, split_txt)
+
 #XXX: Our current way of ignoring on non-R_OK and non-W_OK is really silent
 #       errors, we fail to complete the requested action.
 #TODO: Enable the cache by default?
@@ -56,6 +116,14 @@ def sentence_split_file(txt_file_path, use_cache=False):
             geniass_post_p.wait()
             ss_output = geniass_post_p.stdout.read()
 
+            # Finally, check alignment with original, realigning
+            # if necessary -- geniass loses extra sentence-terminal
+            # space.
+
+            ss_output = align_sentence_split_file(txt_file_path, ss_output)
+            if ss_output is None:
+                return None
+            
             # Save the output if we are to use a cache and may write
             if use_cache and access(dirname(ss_file_path), W_OK):
                 with open(ss_file_path, 'w') as ss_file:

@@ -221,6 +221,7 @@ def _sentence_split(txt_file_path):
         # fake an exception and fall into the heuristic. This happens for
         # linking errors among other things.
         if not ret:
+            display_message("Warning: sentence split failed (geniass not set up?)", type='warning')
             err = OSError()
             err.errno = 2
             raise err
