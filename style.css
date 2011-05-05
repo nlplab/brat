@@ -301,6 +301,9 @@ rect.shadow_EditHighlight {
 .fill_Participant   { fill:   #000000; }
 .stroke_Participant { stroke: #000000; }
 
+.fill_Product   { fill:   #000000; }
+.stroke_Product { stroke: #000000; }
+
 .fill_cause    { fill:   #007700; }
 .stroke_cause  { stroke: #007700; }
 .fill_Cause    { fill:   #007700; }
