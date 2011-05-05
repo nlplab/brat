@@ -54,9 +54,9 @@ path {
 }
 
 .span text {
-  font-size: 65%;
+  font-size: 9px;
   text-anchor: middle;
-  font-family: sans-serif;
+  font-family: 'PT Sans Caption', sans-serif;
   pointer-events: none;
 }
 
