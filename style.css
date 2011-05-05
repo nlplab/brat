@@ -164,8 +164,9 @@ rect.shadow_EditHighlight {
 }
 
 .arcs text {
+  font-family: 'PT Sans Caption', sans-serif;
+  font-size: 9px;
   text-anchor: middle;
-  font-size: 70%;
   dominant-baseline: central;
   cursor: default;
 }
