@@ -450,6 +450,7 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('setDirectory', ['/']);
         } else {
           filesData = response;
+          filesData.docs.sort(docSortFunction);	  
         }
       };
 
