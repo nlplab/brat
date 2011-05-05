@@ -3,7 +3,7 @@ var Visualizer = (function($, window, undefined) {
       var that = this;
 
       // OPTIONS
-
+      var replaceUnderscoresWithSpace = true; // for span texts
       var margin = { x: 2, y: 1 };
       var boxTextMargin = { x: 0, y: 0 };
       var space = 4;
@@ -428,6 +428,11 @@ var Visualizer = (function($, window, undefined) {
               span.abbrevText = abbrevs[span.type][abbrevIdx];
               abbrevIdx++;
             }
+
+	    // Replace underscores if requested
+	    if(replaceUnderscoresWithSpace) {
+		span.abbrevText = span.abbrevText.replace(/_/g,' ');
+	    }
 
             if (!spanAnnTexts[span.abbrevText]) {
               spanAnnTexts[span.abbrevText] = true;
