@@ -214,6 +214,8 @@ rect.shadow_EditHighlight {
 
 .span_Exp { fill:#ff0000; }
 
+.span_Sub-Process    { fill: #ff0000; }
+
 .span_gene-or-gene-product    { fill: #7fa2ff; }
 .span_Protein                 { fill: #7fa2ff; }
 .span_Protein_family_or_group { fill: #7fa2ff; }
