@@ -45,6 +45,12 @@ class AnnotationNotFoundError(Exception):
     def __str__(self):
         return 'Could not find an annotation with id: %s' % (self.id, )
 
+class AnnotationFileNotFoundError(Exception):
+    def __init__(self, fn):
+        self.fn = fn
+
+    def __str__(self):
+        return 'Could not find any annotations for %s' % (self.fn, )
 
 class AnnotationsIsReadOnlyError(ProtocolError):
     def __init__(self):
@@ -192,9 +198,7 @@ class Annotations(object):
             self._file_input = fileinput.input(input_files, mode='r')
             self._input_files = input_files
         else:
-            #XXX: Proper exception here, this is horrible
-            assert False, ('could not find any plausible annotations '
-                    'for %s') % (document, )
+            raise AnnotationFileNotFoundError(document)
 
         # Finally, parse the given annotation file
         self._parse_ann_file()

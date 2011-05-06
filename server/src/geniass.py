@@ -86,9 +86,13 @@ def align_sentence_split(txt, split_txt):
     return aligned
 
 def align_sentence_split_file(txt_file_path, split_txt):
-    with open(txt_file_path, 'r') as f:
-        txt = f.read()
-        return align_sentence_split(txt, split_txt)
+    try:
+        with open(txt_file_path, 'r') as f:
+            txt = f.read()
+            return align_sentence_split(txt, split_txt)
+    except IOError:
+        # TODO: make noise on fail?
+        return None
 
 #XXX: Our current way of ignoring on non-R_OK and non-W_OK is really silent
 #       errors, we fail to complete the requested action.

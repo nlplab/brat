@@ -18,7 +18,7 @@ from os.path import abspath, isabs, isdir
 from os.path import join as path_join
 from re import sub
 
-from annotation import Annotations, TEXT_FILE_SUFFIX
+from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationFileNotFoundError
 from annspec import span_type_keyboard_shortcuts
 from config import DATA_DIR
 from htmlgen import generate_client_keymap, generate_textbound_type_html
@@ -115,7 +115,12 @@ def get_directory_information(directory):
 
 #TODO: All this enrichment isn't a good idea, at some point we need an object
 def _enrich_json_with_text(j_dic, txt_file_path):
-    j_dic['text'] = _sentence_split(txt_file_path)
+    try:
+        j_dic['text'] = _sentence_split(txt_file_path)
+        return True
+    except IOError:
+        display_message("Error reading %s for sentence split" % txt_file_path, type='error')
+        return False
 
 def _enrich_json_with_data(j_dic, ann_obj):
     # We collect trigger ids to be able to link the textbound later on
@@ -241,7 +246,11 @@ def _sentence_split(txt_file_path):
 def get_document(directory, document):
     real_dir = real_directory(directory)
     doc_path = path_join(real_dir, document)
-    return _document_json_dict(doc_path)
+    try:
+        return _document_json_dict(doc_path)
+    except AnnotationFileNotFoundError, e:
+        display_message("Error: %s" % e, type='error')
+        return {}
 
 # From the old ajax server
 '''
