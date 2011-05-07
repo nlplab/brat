@@ -154,6 +154,7 @@ def __read_term_hierarchy(input):
     root_nodes    = []
     last_node_at_depth = {}
 
+    macros = {}
     for l in input:
         # skip empties and lines starting with '#'
         if l.strip() == '' or re.match(r'^\s*#', l):
@@ -166,6 +167,24 @@ def __read_term_hierarchy(input):
             root_nodes.append("SEPARATOR")
             continue
 
+        # interpret lines of the format <STR1>=STR2 as "macro"
+        # definitions, defining <STR1> as a placeholder that should be
+        # replaced with STR2 whevever it occurs.
+        m = re.match(r'^<([a-zA-Z_-]+)>=\s*(.*?)\s*$', l)
+        if m:
+            name, value = m.groups()
+            if name in ("ANY", "ENTITY", "RELATION", "EVENT", "NONE"):
+                display_message("Error: cannot redefine <%s> in configuration, it is a reserved name." % name)
+                # TODO: proper exception
+                assert False
+            else:
+                macros["<%s>" % name] = value
+            continue
+
+        # macro expansion
+        for n in macros:
+            l = l.replace(n, macros[n])
+        
         m = re.match(r'^(\s*)([^\t]+)(?:\t(.*))?$', l)
         assert m, "Error parsing line: '%s'" % l
         indent, terms, args = m.groups()
