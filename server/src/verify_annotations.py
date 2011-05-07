@@ -11,7 +11,6 @@ import os
 import re
 
 import annotation
-import annspec
 
 from projectconfig import ProjectConfiguration
 
@@ -89,6 +88,22 @@ def verify_equivs(ann_obj, projectconfig):
 
     return issues
 
+# XXX TODO: remove hard-coded spec, move into config system
+# Allowed nestings for physical entities.
+allowed_entity_nestings = {
+    'default'              : [],
+    'Two-component-system' : ['Protein'],
+    'Organism'             : ['Protein', 'Chemical', 'Two-component-system'],
+    'Regulon-operon'       : ['Protein'],
+    # AZ
+    'Pathway'              : ['Gene_or_gene_product'],
+    'Gene_or_gene_product' : ['Cell_type', 'Gene_or_gene_product'],
+    'Cell_type'            : ['Tissue', 'Drug_or_compound'],
+    'Drug_or_compound'     : ['Gene_or_gene_product', 'Cell_type', 'Tissue'],
+    'Other_pharmaceutical_agent'     : ['Gene_or_gene_product', 'Cell_type', 'Tissue'],
+    'Tissue'               : ['Tissue', 'Cell_type'],
+    }
+
 def verify_entity_overlap(ann_obj, projectconfig):
     issues = []
 
@@ -99,10 +114,10 @@ def verify_entity_overlap(ann_obj, projectconfig):
         if a1.start == a2.start and a1.end == a2.end:
             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s has identical span with %s %s" % (a1.type, a2.type, a2.id)))            
         elif contained_in_span(a1, a2):
-            if a1.type not in annspec.allowed_entity_nestings.get(a2.type, annspec.allowed_entity_nestings['default']):
+            if a1.type not in allowed_entity_nestings.get(a2.type, allowed_entity_nestings['default']):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in %s (%s)" % (a1.type, a2.type, a2.id)))
         elif contained_in_span(a2, a1):
-            if a2.type not in annspec.allowed_entity_nestings.get(a1.type, annspec.allowed_entity_nestings['default']):
+            if a2.type not in allowed_entity_nestings.get(a1.type, allowed_entity_nestings['default']):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain %s (%s)" % (a1.type, a2.type, a2.id)))
         else:
             # crossing boundaries; never allowed for physical entities.
