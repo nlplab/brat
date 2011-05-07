@@ -21,6 +21,7 @@ __entity_type_hierarchy_filename   = 'entity_types.conf'
 __relation_type_hierarchy_filename = 'relation_types.conf'
 __event_type_hierarchy_filename    = 'event_types.conf'
 __abbreviation_filename            = 'abbreviations.conf'
+__kb_shortcut_filename             = 'kb_shortcuts.conf'
 
 # fallback defaults if configs not found
 __default_entity_type_hierarchy = """
@@ -44,6 +45,10 @@ Protein : Pro, P
 Protein binding : Binding, Bind
 Gene expression : Expression, Exp
 Theme   : Th
+"""
+
+__default_kb_shortcuts = """
+P	Protein
 """
 
 def term_interface_form(t):
@@ -220,6 +225,22 @@ def __parse_abbreviations(abbrevstr, default, source):
         abbreviations = default
     return abbreviations
 
+def __parse_kb_shortcuts(shortcutstr, default, source):
+    try:
+        shortcuts = {}
+        for l in shortcutstr.split("\n"):
+            l = l.strip()
+            if l == "" or l[:1] == "#":
+                continue
+            key, type = re.split(r'[ \t]+', l)
+            # TODO: check dups?
+            shortcuts[key] = type
+    except:
+        # TODO: specific exception handling
+        display_message("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, "warning", 5)
+        shortcuts = default
+    return shortcuts
+
 def __read_first_in_directory_tree(directory, filename):
     # config will not be available command-line invocations;
     # in these cases search whole tree
@@ -274,6 +295,20 @@ def __get_abbreviations(directory, filename, default_abbrevs, min_abbrevs):
 
     abbreviations = __parse_abbreviations(abbrevstr, min_abbrevs, source)
     return abbreviations
+
+def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
+
+    shortcutstr, source = __read_first_in_directory_tree(directory, filename)
+
+    if shortcutstr is None:
+        shortcutstr = __read_or_default(filename, default_shortcuts)
+        if shortcutstr == default_shortcuts:
+            source = "[default kb_shortcuts]"
+        else:
+            source = filename
+
+    kb_shortcuts = __parse_kb_shortcuts(shortcutstr, min_shortcuts, source)
+    return kb_shortcuts
 
 # Configuration lookup specifications, each a triple (FILENAME,
 # HIERARCHY_STR, HIERARCHY). The directory path is searched for
@@ -339,6 +374,18 @@ def get_abbreviations(directory):
 
     return cache[directory]
 get_abbreviations.__cache = {}
+
+def get_kb_shortcuts(directory):
+    cache = get_kb_shortcuts.__cache
+    if directory not in cache:
+        a = __get_kb_shortcuts(directory,
+                                __kb_shortcut_filename,
+                                __default_kb_shortcuts,
+                               { "P" : "Positive_regulation" })
+        cache[directory] = a
+
+    return cache[directory]
+get_kb_shortcuts.__cache = {}
 
 def __collect_type_list(node, collected):
     if node == "SEPARATOR":
@@ -485,6 +532,9 @@ class ProjectConfiguration(object):
 
     def get_abbreviations(self):
         return get_abbreviations(self.directory)
+
+    def get_kb_shortcuts(self):
+        return get_kb_shortcuts(self.directory)
 
     def get_event_types(self):
         return [t.storage_term() for t in pc_get_event_type_list(self.directory)]

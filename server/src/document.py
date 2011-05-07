@@ -19,7 +19,6 @@ from os.path import join as path_join
 from re import sub
 
 from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationFileNotFoundError
-from annspec import span_type_keyboard_shortcuts
 from config import DATA_DIR
 from htmlgen import generate_client_keymap, generate_textbound_type_html
 from projectconfig import ProjectConfiguration
@@ -94,12 +93,14 @@ def get_directory_information(directory):
     for i in doclist:
         combolist.append([False]+i)
 
+    # we need a ProjectConfiguration for the kb shortcuts and abbrevs
+    # here. This could be shared with htmlgen, which also needs one.
+    projectconfig = ProjectConfiguration(real_dir)
+
+    span_type_keyboard_shortcuts = projectconfig.get_kb_shortcuts()
     client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
     html = generate_textbound_type_html(real_dir, span_type_keyboard_shortcuts)
 
-    # we need a ProjectConfiguration for the abbrevs here. This could be
-    # shared with htmlgen, which also needs one.
-    projectconfig = ProjectConfiguration(real_dir)
     abbrevs = projectconfig.get_abbreviations()
 
     json_dic = {
