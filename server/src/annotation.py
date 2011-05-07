@@ -16,7 +16,6 @@ Version:    2010-01-25
 from os import utime
 from time import time
 
-from config import DATA_DIR
 from common import ProtocolError
 from message import display_message
 

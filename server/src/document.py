@@ -176,11 +176,12 @@ def _enrich_json_with_data(j_dic, ann_obj):
     j_dic['ctime'] = ann_obj.ann_ctime
 
     try:
-        # XXX avoid digging the directory from the ann_obj
         if PERFORM_VERIFICATION:
+            # XXX avoid digging the directory from the ann_obj
             import os
             docdir = os.path.dirname(ann_obj._document)
             projectconfig = ProjectConfiguration(docdir)
+            from verify_annotations import verify_annotation
             issues = verify_annotation(ann_obj, projectconfig)
         else:
             issues = []
