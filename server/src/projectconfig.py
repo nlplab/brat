@@ -561,7 +561,7 @@ class ProjectConfiguration(object):
             display_message("Project configuration: unknown type %s. Configuration may be wrong." % from_ann, "warning")
             return []
         if to_ann == "<ANY>":
-            return unique_preserve_order([role for role, type in from_node.arguments] + [r.type for r in relations_from])
+            return unique_preserve_order([role for role, type in from_node.arguments] + [r.primary_term for r in relations_from])
 
         # specific hits
         if to_ann not in from_node.roles_by_type:
