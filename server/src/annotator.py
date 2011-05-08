@@ -23,15 +23,13 @@ from config import DEBUG
 from document import real_directory
 from message import display_message
 from projectconfig import ProjectConfiguration
+from htmlgen import generate_empty_fieldset, select_keyboard_shortcuts, generate_arc_type_html
 
-
-#def arc_types_html(projectconfig, origin_type, target_type):
 def possible_arc_types(directory, origin_type, target_type):
     real_dir = real_directory(directory)
     projectconfig = ProjectConfiguration(real_dir)
     response = {}
 
-    # TODO: this should likely go into htmlgen
     try:
         possible = projectconfig.arc_types_from_to(origin_type, target_type)
 
@@ -40,34 +38,18 @@ def possible_arc_types(directory, origin_type, target_type):
             display_message("Error selecting arc types!", "error", -1)
         elif possible == []:
             # nothing to select
-            response['html'] = "<fieldset><legend>Type</legend>(No valid arc types)</fieldset>"
+            response['html'] = generate_empty_fieldset()
             response['keymap'] = {}
             response['empty'] = True
         else:
             # pick hotkeys
-            key_taken = {}
-            key_for   = {}
-            response['keymap']  = { }
-            for p in possible:
-                for i in range(len(p)):
-                    if p[i].lower() not in key_taken:
-                        key_taken[p[i].lower()] = True
-                        key_for[p] = p[i].lower()
-                        response['keymap'][p[i].upper()] = "arc_"+p.lower()
-                        break
+            arc_kb_shortcuts = select_keyboard_shortcuts(possible)
+ 
+            response['keymap'] = {}
+            for k, p in arc_kb_shortcuts.items():
+                response['keymap'][k] = "arc_"+p.lower()
 
-            # generate input for each possible choice
-            inputs = []
-            for p in possible:
-                inputstr = '<input id="arc_%s" type="radio" name="arc_type" value="%s"/>' % (p.lower().replace(" ","_"),p)
-                if p not in key_for:
-                    inputstr += '<label for="arc_%s">%s</label>' % (p.lower().replace(" ","_"), p)
-                else:
-                    accesskey = key_for[p]
-                    key_offset= p.lower().find(accesskey)
-                    inputstr += '<label for="arc_%s">%s<span class="accesskey">%s</span>%s</label>' % (p.lower().replace(" ","_"), p[:key_offset], p[key_offset:key_offset+1], p[key_offset+1:])
-                inputs.append(inputstr)
-            response['html']  = '<fieldset><legend>Type</legend>' + '\n'.join(inputs) + '</fieldset>'
+            response['html']  = generate_arc_type_html(possible, arc_kb_shortcuts)
     except:
         display_message("Error selecting arc types!", "error", -1)
         raise
