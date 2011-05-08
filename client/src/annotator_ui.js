@@ -174,8 +174,9 @@ var AnnotatorUI = (function($, window, undefined) {
         adjustToCursor(evt, spanForm.parent());
       };
 
-      var arcFormSubmit = function(evt) {
-        var type = $('#arc_form input:radio:checked').val();
+      var arcFormSubmit = function(evt) {	
+	var typeRadio = $(evt.target) || $('#arc_form input:radio:checked');
+        var type = typeRadio.val();
         dispatcher.post('hideForm', [arcForm]);
 
         if (type) { // (if not cancelled)
