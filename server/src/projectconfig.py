@@ -438,6 +438,13 @@ def pc_get_event_type_list(directory):
     return cache[directory]
 pc_get_event_type_list.__cache = {}
 
+def pc_get_relation_type_list(directory):
+    cache = pc_get_relation_type_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_relation_type_hierarchy(directory))
+    return cache[directory]
+pc_get_relation_type_list.__cache = {}
+
 def pc_get_node_by_term(directory, term):
     cache = pc_get_node_by_term.__cache
     if directory not in cache:
@@ -451,6 +458,24 @@ def pc_get_node_by_term(directory, term):
 
     return cache[directory].get(term, None)
 pc_get_node_by_term.__cache = {}
+
+def pc_get_relations_by_arg1(directory, term):
+    cache = pc_get_relations_by_arg1.__cache
+    if directory not in cache:
+        cache[directory] = {}
+    rels = []
+    if term not in cache[directory]:
+        for r in pc_get_relation_type_list(directory):
+            arg1s = [a for a in r.arguments if a[0] == "Arg1"]
+            if len(arg1s) != 1:
+                display_message("Relation type %s lacking Arg1. Configuration may be wrong." % type, "warning")
+                continue
+            arg1 = arg1s[0]
+            if arg1[1] == "<ANY>" or arg1[1] == term:
+                rels.append(r)
+        cache[directory] = rels
+    return cache[directory]
+pc_get_relations_by_arg1.__cache = {}
 
 # fallback for missing or partial config: these are highly likely to
 # be entity (as opposed to an event or relation) types.
@@ -529,11 +554,14 @@ class ProjectConfiguration(object):
         """
 
         from_node = pc_get_node_by_term(self.directory, from_ann)
+
+        relations_from = pc_get_relations_by_arg1(self.directory, from_ann)
+
         if from_node is None:
             display_message("Project configuration: unknown type %s. Configuration may be wrong." % from_ann, "warning")
             return []
         if to_ann == "<ANY>":
-            return unique_preserve_order([role for role, type in from_node.arguments])
+            return unique_preserve_order([role for role, type in from_node.arguments] + [r.type for r in relations_from])
 
         # specific hits
         if to_ann not in from_node.roles_by_type:
@@ -546,6 +574,12 @@ class ProjectConfiguration(object):
             types += from_node.roles_by_type['<EVENT>']
         if self.is_physical_entity_type(to_ann) and '<ENTITY>' in from_node.roles_by_type:
             types += from_node.roles_by_type['<ENTITY>']
+
+        # relations
+        # TODO: handle generic '<ENTITY>' (like '<EVENT>' above)
+        for r in relations_from:
+            if to_ann in r.roles_by_type and "Arg2" in r.roles_by_type[to_ann]:
+                types.append(r.primary_term)
 
         return unique_preserve_order(types)
 
