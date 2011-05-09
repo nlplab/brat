@@ -13,7 +13,7 @@ Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-02-03
 '''
 
-from os.path import isfile, dirname, join, abspath
+from os.path import isfile, dirname, join, abspath, getmtime
 from os import access, R_OK, W_OK
 from subprocess import Popen, PIPE
 from tempfile import NamedTemporaryFile
@@ -38,8 +38,9 @@ GENIASS_POST_PATH = join(EXTERN_DIR, 'geniass-postproc.pl')
 def sentence_split_file(txt_file_path, use_cache=False):
     ss_file_path = txt_file_path + '.' + CACHE_SUFFIX 
     if use_cache:
-        # Read the cache if we are allowed to
-        if isfile(ss_file_path) and access(ss_file_path, R_OK):
+        # Read the cache if we are allowed to and it is not out-dated
+        if (isfile(ss_file_path) and access(ss_file_path, R_OK) and
+                (getmtime(ss_file_path) > getmtime(txt_file_path))):
             with open(ss_file_path, 'r') as ss_file:
                 return ss_file.read()
    
