@@ -17,19 +17,28 @@ from message import display_message
 class InvalidProjectConfigException(Exception):
     pass
 
-__event_type_hierarchy_filename  = 'event_types.conf'
-__entity_type_hierarchy_filename = 'entity_types.conf'
-__abbreviation_filename          = 'abbreviations.conf'
+__entity_type_hierarchy_filename   = 'entity_types.conf'
+__relation_type_hierarchy_filename = 'relation_types.conf'
+__event_type_hierarchy_filename    = 'event_types.conf'
+__abbreviation_filename            = 'abbreviations.conf'
+__kb_shortcut_filename             = 'kb_shortcuts.conf'
 
 # fallback defaults if configs not found
+__default_entity_type_hierarchy = """
+Protein
+Entity"""
+
 __default_event_type_hierarchy  = """
 !event
  GO:0005515 | protein binding	Theme+:Protein
  GO:0010467 | gene expression	Theme:Protein"""
 
-__default_entity_type_hierarchy = """
-Protein
-Entity"""
+__default_relation_type_hierarchy = """
+Equiv	Arg1:Protein, Arg2:Protein"""
+
+__default_attribute_type_hierarchy = """
+Affirmative	Arg:<EVENT>
+Sure	Arg:<EVENT>"""
 
 __default_abbreviations = """
 Protein : Pro, P
@@ -38,15 +47,9 @@ Gene expression : Expression, Exp
 Theme   : Th
 """
 
-# caches to avoid re-reading on every invocation of getters.
-# outside of ProjectConfiguration class to minimize reads
-# when multiple configs are in play.
-__directory_entity_type_hierarchy = {}
-__directory_event_type_hierarchy = {}
-__directory_entity_types = {}
-__directory_event_types = {}
-__directory_node_by_storage_term = {}
-__directory_abbreviations = {}
+__default_kb_shortcuts = """
+P	Protein
+"""
 
 def term_interface_form(t):
     """
@@ -97,6 +100,7 @@ class TypeHierarchyNode:
         # TODO: cleaner and more localized parsing
         self.arguments = []
         self.mandatory_arguments = []
+        self.multiple_allowed_arguments = []
         self.roles_by_type = {}
         for a in self.args:
             a = a.strip()
@@ -111,11 +115,19 @@ class TypeHierarchyNode:
             else:
                 mandatory_role = False
 
+            if role[-1:] in ("*", "+"):
+                multiple_allowed = True
+            else:
+                multiple_allowed = False
+
             if role[-1:] in ("?", "*", "+"):
                 role = role[:-1]
 
             if mandatory_role:
                 self.mandatory_arguments.append(role)
+
+            if multiple_allowed:
+                self.multiple_allowed_arguments.append(role)
 
             for atype in atypes.split("|"):
                 if atype.strip() == "":
@@ -142,6 +154,7 @@ def __read_term_hierarchy(input):
     root_nodes    = []
     last_node_at_depth = {}
 
+    macros = {}
     for l in input:
         # skip empties and lines starting with '#'
         if l.strip() == '' or re.match(r'^\s*#', l):
@@ -154,6 +167,24 @@ def __read_term_hierarchy(input):
             root_nodes.append("SEPARATOR")
             continue
 
+        # interpret lines of the format <STR1>=STR2 as "macro"
+        # definitions, defining <STR1> as a placeholder that should be
+        # replaced with STR2 whevever it occurs.
+        m = re.match(r'^<([a-zA-Z_-]+)>=\s*(.*?)\s*$', l)
+        if m:
+            name, value = m.groups()
+            if name in ("ANY", "ENTITY", "RELATION", "EVENT", "NONE"):
+                display_message("Error: cannot redefine <%s> in configuration, it is a reserved name." % name)
+                # TODO: proper exception
+                assert False
+            else:
+                macros["<%s>" % name] = value
+            continue
+
+        # macro expansion
+        for n in macros:
+            l = l.replace(n, macros[n])
+        
         m = re.match(r'^(\s*)([^\t]+)(?:\t(.*))?$', l)
         assert m, "Error parsing line: '%s'" % l
         indent, terms, args = m.groups()
@@ -213,8 +244,29 @@ def __parse_abbreviations(abbrevstr, default, source):
         abbreviations = default
     return abbreviations
 
+def __parse_kb_shortcuts(shortcutstr, default, source):
+    try:
+        shortcuts = {}
+        for l in shortcutstr.split("\n"):
+            l = l.strip()
+            if l == "" or l[:1] == "#":
+                continue
+            key, type = re.split(r'[ \t]+', l)
+            # TODO: check dups?
+            shortcuts[key] = type
+    except:
+        # TODO: specific exception handling
+        display_message("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, "warning", 5)
+        shortcuts = default
+    return shortcuts
+
 def __read_first_in_directory_tree(directory, filename):
-    from config import BASE_DIR
+    # config will not be available command-line invocations;
+    # in these cases search whole tree
+    try:
+        from config import BASE_DIR
+    except:
+        BASE_DIR = "/"
     from os.path import split, join
 
     source, result = None, None
@@ -263,42 +315,96 @@ def __get_abbreviations(directory, filename, default_abbrevs, min_abbrevs):
     abbreviations = __parse_abbreviations(abbrevstr, min_abbrevs, source)
     return abbreviations
 
+def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
+
+    shortcutstr, source = __read_first_in_directory_tree(directory, filename)
+
+    if shortcutstr is None:
+        shortcutstr = __read_or_default(filename, default_shortcuts)
+        if shortcutstr == default_shortcuts:
+            source = "[default kb_shortcuts]"
+        else:
+            source = filename
+
+    kb_shortcuts = __parse_kb_shortcuts(shortcutstr, min_shortcuts, source)
+    return kb_shortcuts
+
+# Configuration lookup specifications, each a triple (FILENAME,
+# HIERARCHY_STR, HIERARCHY). The directory path is searched for
+# FILENAME, and if none is found, the system falls attempts to parse
+# HIERARCHY_STR for the hierarchy; if that fails, HIERARCHY is used
+# directly.
+
+__entity_type_lookups = (
+    __entity_type_hierarchy_filename,
+    __default_entity_type_hierarchy,
+    [TypeHierarchyNode(["protein"], [])],
+)
+
+__relation_type_lookups = (
+    __relation_type_hierarchy_filename,
+    __default_relation_type_hierarchy,
+    [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein"])],
+)
+
+__event_type_lookups = (
+    __event_type_hierarchy_filename,
+    __default_event_type_hierarchy,
+    [TypeHierarchyNode(["event"], ["Theme:Protein"])],
+)
+
+def __get_type_hierarchy_with_cache(directory, cache, lookups):
+    if directory not in cache:
+        cache[directory] = __get_type_hierarchy(directory, *lookups)
+    return cache[directory]
+
+# Caching methods to avoid re-reading on every invocation of getters.
+# Outside of ProjectConfiguration class to minimize reads when
+# multiple configs are instantiated.
+
 def get_entity_type_hierarchy(directory):
-    global __directory_entity_type_hierarchy
+    cache, lookups = get_entity_type_hierarchy.__cache, __entity_type_lookups
+    return __get_type_hierarchy_with_cache(directory, cache, lookups)
+get_entity_type_hierarchy.__cache = {}
 
-    if directory not in __directory_entity_type_hierarchy:
-        h = __get_type_hierarchy(directory,
-                                 __entity_type_hierarchy_filename,
-                                 __default_entity_type_hierarchy,
-                                 [TypeHierarchyNode(["protein"], [])])
-        __directory_entity_type_hierarchy[directory] = h
+def get_relation_type_hierarchy(directory):
+    cache, lookups = get_relation_type_hierarchy.__cache, __relation_type_lookups
+    return __get_type_hierarchy_with_cache(directory, cache, lookups)
+get_relation_type_hierarchy.__cache = {}
 
-    return __directory_entity_type_hierarchy[directory]
-    
-     
 def get_event_type_hierarchy(directory):
-    global __directory_event_type_hierarchy
+    cache, lookups = get_event_type_hierarchy.__cache, __event_type_lookups
+    return __get_type_hierarchy_with_cache(directory, cache, lookups)
+get_event_type_hierarchy.__cache = {}
 
-    if directory not in __directory_event_type_hierarchy:
-        h =  __get_type_hierarchy(directory,
-                                  __event_type_hierarchy_filename,
-                                  __default_event_type_hierarchy,
-                                  [TypeHierarchyNode(["event"], ["Theme:Protein"])])
-        __directory_event_type_hierarchy[directory] = h
-
-    return __directory_event_type_hierarchy[directory]
+def get_attribute_type_hierarchy(directory):
+    cache, lookups = get_attribute_type_hierarchy.__cache, __attribute_type_lookups
+    return __get_type_hierarchy_with_cache(directory, cache, lookups)
+get_attribute_type_hierarchy.__cache = {}
 
 def get_abbreviations(directory):
-    global __directory_abbreviations
-
-    if directory not in __directory_abbreviations:
+    cache = get_abbreviations.__cache
+    if directory not in cache:
         a = __get_abbreviations(directory,
                                 __abbreviation_filename,
                                 __default_abbreviations,
                                 { "Protein" : [ "Pro", "P" ], "Theme" : [ "Th" ] })
-        __directory_abbreviations[directory] = a
+        cache[directory] = a
 
-    return __directory_abbreviations[directory]
+    return cache[directory]
+get_abbreviations.__cache = {}
+
+def get_kb_shortcuts(directory):
+    cache = get_kb_shortcuts.__cache
+    if directory not in cache:
+        a = __get_kb_shortcuts(directory,
+                                __kb_shortcut_filename,
+                                __default_kb_shortcuts,
+                               { "P" : "Positive_regulation" })
+        cache[directory] = a
+
+    return cache[directory]
+get_kb_shortcuts.__cache = {}
 
 def __collect_type_list(node, collected):
     if node == "SEPARATOR":
@@ -311,7 +417,7 @@ def __collect_type_list(node, collected):
 
     return collected
 
-def pc_get_type_list(directory, hierarchy):
+def __type_hierarchy_to_list(hierarchy):
     root_nodes = hierarchy
     types = []
     for n in root_nodes:
@@ -319,35 +425,57 @@ def pc_get_type_list(directory, hierarchy):
     return types
 
 def pc_get_entity_type_list(directory):
-    global __directory_entity_types
-
-    if directory not in __directory_entity_types:
-        __directory_entity_types[directory] = pc_get_type_list(directory, get_entity_type_hierarchy(directory))
-
-    return __directory_entity_types[directory]
+    cache = pc_get_entity_type_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_entity_type_hierarchy(directory))
+    return cache[directory]
+pc_get_entity_type_list.__cache = {}
 
 def pc_get_event_type_list(directory):
-    global __directory_event_types
+    cache = pc_get_event_type_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_event_type_hierarchy(directory))
+    return cache[directory]
+pc_get_event_type_list.__cache = {}
 
-    if directory not in __directory_event_types:
-        __directory_event_types[directory] = pc_get_type_list(directory, get_event_type_hierarchy(directory))
-
-    return __directory_event_types[directory]
+def pc_get_relation_type_list(directory):
+    cache = pc_get_relation_type_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_relation_type_hierarchy(directory))
+    return cache[directory]
+pc_get_relation_type_list.__cache = {}
 
 def pc_get_node_by_term(directory, term):
-    global __directory_node_by_storage_term
-
-    if directory not in __directory_node_by_storage_term:
-        __directory_node_by_storage_term[directory] = {}
+    cache = pc_get_node_by_term.__cache
+    if directory not in cache:
         d = {}
         for e in pc_get_entity_type_list(directory) + pc_get_event_type_list(directory):
             t = e.storage_term()
             if t in d:
                 display_message("Project configuration: interface term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_term(), e.storage_term()), "warning", 5)
             d[t] = e
-        __directory_node_by_storage_term[directory] = d
+        cache[directory] = d
 
-    return __directory_node_by_storage_term[directory].get(term, None)
+    return cache[directory].get(term, None)
+pc_get_node_by_term.__cache = {}
+
+def pc_get_relations_by_arg1(directory, term):
+    cache = pc_get_relations_by_arg1.__cache
+    if directory not in cache:
+        cache[directory] = {}
+    rels = []
+    if term not in cache[directory]:
+        for r in pc_get_relation_type_list(directory):
+            arg1s = [a for a in r.arguments if a[0] == "Arg1"]
+            if len(arg1s) != 1:
+                display_message("Relation type %s lacking Arg1. Configuration may be wrong." % type, "warning")
+                continue
+            arg1 = arg1s[0]
+            if arg1[1] == "<ANY>" or arg1[1] == term:
+                rels.append(r)
+        cache[directory] = rels
+    return cache[directory]
+pc_get_relations_by_arg1.__cache = {}
 
 # fallback for missing or partial config: these are highly likely to
 # be entity (as opposed to an event or relation) types.
@@ -376,12 +504,44 @@ very_likely_physical_entity_types = [
     'Other_pharmaceutical_agent',
     ]
 
+# helper
+def unique_preserve_order(iterable):
+    seen = set()
+    uniqued = []
+    for i in iterable:
+        if i not in seen:
+            seen.add(i)
+            uniqued.append(i)
+    return uniqued
+
 class ProjectConfiguration(object):
     def __init__(self, directory):
         # debugging
         if directory[:1] != "/":
             display_message("Warning: project config received relative directory, configuration may not be found.", "debug", -1)
         self.directory = directory
+
+    def mandatory_arguments(self, type):
+        """
+        Returns the mandatory arguments types that must be present for
+        an annotation of the given type.
+        """
+        node = pc_get_node_by_term(self.directory, type)
+        if node is None:
+            display_message("Project configuration: unknown type %s. Configuration may be wrong." % type, "warning")
+            return []
+        return node.mandatory_arguments
+
+    def multiple_allowed_arguments(self, type):
+        """
+        Returns the arguments types that are allowed to be filled more
+        than once for an annotation of the given type.
+        """
+        node = pc_get_node_by_term(self.directory, type)
+        if node is None:
+            display_message("Project configuration: unknown type %s. Configuration may be wrong." % type, "warning")
+            return []
+        return node.multiple_allowed_arguments
 
     def arc_types_from(self, from_ann):
         return self.arc_types_from_to(from_ann)
@@ -393,21 +553,15 @@ class ProjectConfiguration(object):
         If to_ann has the value \"<ANY>\", returns all possible arc types.
         """
 
-        def unique_preserve_order(iterable):
-            seen = set()
-            uniqued = []
-            for i in iterable:
-                if i not in seen:
-                    seen.add(i)
-                    uniqued.append(i)
-            return uniqued
-
         from_node = pc_get_node_by_term(self.directory, from_ann)
+
+        relations_from = pc_get_relations_by_arg1(self.directory, from_ann)
+
         if from_node is None:
             display_message("Project configuration: unknown type %s. Configuration may be wrong." % from_ann, "warning")
             return []
         if to_ann == "<ANY>":
-            return unique_preserve_order([role for role, type in from_node.arguments])
+            return unique_preserve_order([role for role, type in from_node.arguments] + [r.primary_term for r in relations_from])
 
         # specific hits
         if to_ann not in from_node.roles_by_type:
@@ -421,10 +575,19 @@ class ProjectConfiguration(object):
         if self.is_physical_entity_type(to_ann) and '<ENTITY>' in from_node.roles_by_type:
             types += from_node.roles_by_type['<ENTITY>']
 
+        # relations
+        # TODO: handle generic '<ENTITY>' (like '<EVENT>' above)
+        for r in relations_from:
+            if to_ann in r.roles_by_type and "Arg2" in r.roles_by_type[to_ann]:
+                types.append(r.primary_term)
+
         return unique_preserve_order(types)
 
     def get_abbreviations(self):
         return get_abbreviations(self.directory)
+
+    def get_kb_shortcuts(self):
+        return get_kb_shortcuts(self.directory)
 
     def get_event_types(self):
         return [t.storage_term() for t in pc_get_event_type_list(self.directory)]

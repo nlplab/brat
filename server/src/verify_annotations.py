@@ -4,13 +4,13 @@
 
 # Verification of BioNLP Shared Task - style annotations.
 
+from __future__ import with_statement
+
 import sys
 import os
 import re
-import argparse
 
 import annotation
-import annspec
 
 from projectconfig import ProjectConfiguration
 
@@ -33,10 +33,15 @@ class AnnotationIssue:
         if self.description is None:
             self.description = ""
 
+    def human_readable_str(self):
+        return "%s: %s\t%s" % (self.ann_id, self.type, self.description)
+
     def __str__(self):
         return "%s\t%s %s\t%s" % (self.id, self.type, self.ann_id, self.description)
 
 def argparser():
+    import argparse
+
     ap=argparse.ArgumentParser(description="Verify BioNLP Shared Task annotations.")
     ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
     ap.add_argument("files", metavar="FILE", nargs="+", help="Files to verify.")
@@ -83,6 +88,22 @@ def verify_equivs(ann_obj, projectconfig):
 
     return issues
 
+# XXX TODO: remove hard-coded spec, move into config system
+# Allowed nestings for physical entities.
+allowed_entity_nestings = {
+    'default'              : [],
+    'Two-component-system' : ['Protein'],
+    'Organism'             : ['Protein', 'Chemical', 'Two-component-system'],
+    'Regulon-operon'       : ['Protein'],
+    # AZ
+    'Pathway'              : ['Gene_or_gene_product'],
+    'Gene_or_gene_product' : ['Cell_type', 'Gene_or_gene_product'],
+    'Cell_type'            : ['Tissue', 'Drug_or_compound'],
+    'Drug_or_compound'     : ['Gene_or_gene_product', 'Cell_type', 'Tissue'],
+    'Other_pharmaceutical_agent'     : ['Gene_or_gene_product', 'Cell_type', 'Tissue'],
+    'Tissue'               : ['Tissue', 'Cell_type'],
+    }
+
 def verify_entity_overlap(ann_obj, projectconfig):
     issues = []
 
@@ -93,10 +114,10 @@ def verify_entity_overlap(ann_obj, projectconfig):
         if a1.start == a2.start and a1.end == a2.end:
             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s has identical span with %s %s" % (a1.type, a2.type, a2.id)))            
         elif contained_in_span(a1, a2):
-            if a1.type not in annspec.allowed_entity_nestings.get(a2.type, annspec.allowed_entity_nestings['default']):
+            if a1.type not in allowed_entity_nestings.get(a2.type, allowed_entity_nestings['default']):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in %s (%s)" % (a1.type, a2.type, a2.id)))
         elif contained_in_span(a2, a1):
-            if a2.type not in annspec.allowed_entity_nestings.get(a1.type, annspec.allowed_entity_nestings['default']):
+            if a2.type not in allowed_entity_nestings.get(a1.type, allowed_entity_nestings['default']):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain %s (%s)" % (a1.type, a2.type, a2.id)))
         else:
             # crossing boundaries; never allowed for physical entities.
@@ -193,9 +214,9 @@ def verify_annotation(ann_obj, projectconfig):
     # check for events missing mandatory arguments
     for e in ann_obj.get_events():
         found_nonum_args = event_nonum_args(e)
-        # TODO: don't hard-code what Themes are required for
-        if "Theme" not in found_nonum_args and e.type != "Process":
-            issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "Theme required for event"))
+        for m in projectconfig.mandatory_arguments(e.type):
+            if m not in found_nonum_args:
+                issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "%s required for event" % m))
 
     # check for events with disallowed arguments
     for e in ann_obj.get_events():
@@ -212,10 +233,10 @@ def verify_annotation(ann_obj, projectconfig):
 
     # check for events with disallowed argument counts
     for e in ann_obj.get_events():
+        multiple_allowed = projectconfig.multiple_allowed_arguments(e.type)
         found_nonum_args = event_nonum_args(e)
-        for a in found_nonum_args:
-            # TODO: don't hard-code what multiple arguments are allowed for
-            if len(found_nonum_args[a]) > 1 and not (e.type == "Binding" and a in ("Theme", "Site")):
+        for a in [m for m in found_nonum_args if len(found_nonum_args[m]) > 1]:
+            if a not in multiple_allowed:
                 issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take multiple %s arguments" % (e.type, a)))
     
     return issues
@@ -225,7 +246,23 @@ def main(argv=None):
         argv = sys.argv
     arg = argparser().parse_args(argv[1:])
 
-    print >> sys.stderr, "TODO: implement command-line invocation"
+    for fn in arg.files:
+        try:
+            projectconfig = ProjectConfiguration(os.path.dirname(fn))
+            # remove ".a2" suffix for Annotations to prompt parsing of
+            # .a1 also.
+            nosuff_fn = fn.replace(".a2","")
+            with annotation.Annotations(nosuff_fn) as ann_obj:
+                issues = verify_annotation(ann_obj, projectconfig)
+                for i in issues:
+                    print "%s:\t%s" % (fn, i.human_readable_str())
+        except annotation.AnnotationFileNotFoundError:
+            print >> sys.stderr, "%s:\tFailed check: file not found" % fn
+        except annotation.AnnotationNotFoundError, e:
+            print >> sys.stderr, "%s:\tFailed check: %s" % (fn, e)
+
+    if arg.verbose:
+        print >> sys.stderr, "Check complete."
 
 if __name__ == "__main__":
     sys.exit(main())

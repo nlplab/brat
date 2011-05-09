@@ -18,8 +18,7 @@ from os.path import abspath, isabs, isdir
 from os.path import join as path_join
 from re import sub
 
-from annotation import Annotations, TEXT_FILE_SUFFIX
-from annspec import span_type_keyboard_shortcuts
+from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationFileNotFoundError
 from config import DATA_DIR
 from htmlgen import generate_client_keymap, generate_textbound_type_html
 from projectconfig import ProjectConfiguration
@@ -94,12 +93,14 @@ def get_directory_information(directory):
     for i in doclist:
         combolist.append([False]+i)
 
+    # we need a ProjectConfiguration for the kb shortcuts and abbrevs
+    # here. This could be shared with htmlgen, which also needs one.
+    projectconfig = ProjectConfiguration(real_dir)
+
+    span_type_keyboard_shortcuts = projectconfig.get_kb_shortcuts()
     client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
     html = generate_textbound_type_html(real_dir, span_type_keyboard_shortcuts)
 
-    # we need a ProjectConfiguration for the abbrevs here. This could be
-    # shared with htmlgen, which also needs one.
-    projectconfig = ProjectConfiguration(real_dir)
     abbrevs = projectconfig.get_abbreviations()
 
     json_dic = {
@@ -115,7 +116,12 @@ def get_directory_information(directory):
 
 #TODO: All this enrichment isn't a good idea, at some point we need an object
 def _enrich_json_with_text(j_dic, txt_file_path):
-    j_dic['text'] = _sentence_split(txt_file_path)
+    try:
+        j_dic['text'] = _sentence_split(txt_file_path)
+        return True
+    except IOError:
+        display_message("Error reading %s for sentence split" % txt_file_path, type='error')
+        return False
 
 def _enrich_json_with_data(j_dic, ann_obj):
     # We collect trigger ids to be able to link the textbound later on
@@ -171,11 +177,12 @@ def _enrich_json_with_data(j_dic, ann_obj):
     j_dic['ctime'] = ann_obj.ann_ctime
 
     try:
-        # XXX avoid digging the directory from the ann_obj
         if PERFORM_VERIFICATION:
+            # XXX avoid digging the directory from the ann_obj
             import os
             docdir = os.path.dirname(ann_obj._document)
             projectconfig = ProjectConfiguration(docdir)
+            from verify_annotations import verify_annotation
             issues = verify_annotation(ann_obj, projectconfig)
         else:
             issues = []
@@ -221,6 +228,10 @@ def _sentence_split(txt_file_path):
         # fake an exception and fall into the heuristic. This happens for
         # linking errors among other things.
         if not ret:
+            # NOTE: this also happens for missing write permissions, as
+            # geniass assumes it can write a temporary into the directory
+            # where the .txt is found.
+            display_message("Warning: sentence split failed (geniass not set up, or no write permission to directory?)", type='warning')
             err = OSError()
             err.errno = 2
             raise err
@@ -237,7 +248,11 @@ def _sentence_split(txt_file_path):
 def get_document(directory, document):
     real_dir = real_directory(directory)
     doc_path = path_join(real_dir, document)
-    return _document_json_dict(doc_path)
+    try:
+        return _document_json_dict(doc_path)
+    except AnnotationFileNotFoundError, e:
+        display_message("Error: %s" % e, type='error')
+        return {}
 
 # From the old ajax server
 '''

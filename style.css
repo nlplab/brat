@@ -54,9 +54,10 @@ path {
 }
 
 .span text {
-  font-size: 65%;
+  font-size: 9px;
   text-anchor: middle;
-  font-family: sans-serif;
+  font-family: 'PT Sans Caption', sans-serif;
+  /* font-family: 'Anonymous Pro', monospace; */
   pointer-events: none;
 }
 
@@ -164,8 +165,10 @@ rect.shadow_EditHighlight {
 }
 
 .arcs text {
+  font-size: 9px;
   text-anchor: middle;
-  font-size: 70%;
+  font-family: 'PT Sans Caption', sans-serif;
+  /* font-family: 'Anonymous Pro', monospace; */
   dominant-baseline: central;
   cursor: default;
 }
@@ -210,6 +213,8 @@ rect.shadow_EditHighlight {
 }
 
 .span_Exp { fill:#ff0000; }
+
+.span_Sub-Process    { fill: #ff0000; }
 
 .span_gene-or-gene-product    { fill: #7fa2ff; }
 .span_Protein                 { fill: #7fa2ff; }
@@ -300,6 +305,9 @@ rect.shadow_EditHighlight {
 
 .fill_Participant   { fill:   #000000; }
 .stroke_Participant { stroke: #000000; }
+
+.fill_Product   { fill:   #000000; }
+.stroke_Product { stroke: #000000; }
 
 .fill_cause    { fill:   #007700; }
 .stroke_cause  { stroke: #007700; }

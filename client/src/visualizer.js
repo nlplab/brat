@@ -3,16 +3,16 @@ var Visualizer = (function($, window, undefined) {
       var that = this;
 
       // OPTIONS
-
+      var replaceUnderscoresWithSpace = true; // for span texts
       var margin = { x: 2, y: 1 };
-      var boxTextMargin = { x: 0, y: 0 };
+      var boxTextMargin = { x: 1, y: 1 }; // effect is inverse of "margin" for some reason
       var space = 4;
       var boxSpacing = 1;
       var curlyHeight = 4;
       var arcSpacing = 9; //10;
       var arcSlant = 15; //10;
-      var arcStartHeight = 19; //23; //25;
-      var arcHorizontalSpacing = 25;
+      var arcStartHeight = 20; //23; //25;
+      var arcHorizontalSpacing = 10; // min space boxes with connecting arc
       var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
       var dashArray = '3,3';
       var sentNumMargin = 20;
@@ -429,6 +429,11 @@ var Visualizer = (function($, window, undefined) {
               abbrevIdx++;
             }
 
+	    // Replace underscores if requested
+	    if(replaceUnderscoresWithSpace) {
+		span.abbrevText = span.abbrevText.replace(/_/g,' ');
+	    }
+
             if (!spanAnnTexts[span.abbrevText]) {
               spanAnnTexts[span.abbrevText] = true;
               data.spanAnnTexts.push(span.abbrevText);
@@ -642,18 +647,21 @@ var Visualizer = (function($, window, undefined) {
                 var xx = spanBox.x + x;
                 var yy = spanBox.y + y;
                 var hh = spanBox.height;
+		var ww = spanBox.width;
 
                 // text margin fine-tuning
                 yy += boxTextMargin.y;
                 hh -= 2*boxTextMargin.y;
+		xx += boxTextMargin.x;
+		ww -= 2*boxTextMargin.x;
                 
                 var rectClass = 'span_' + span.type + ' span_default';
 
                // attach e.g. "False_positive" into the type
                if (span.info && span.info.type) { rectClass += ' '+span.info.type; }
-               var bx = xx - margin.x - boxTextMargin.x;
+               var bx = xx - margin.x;
                var by = yy - margin.y;
-               var bw = spanBox.width + 2 * margin.x + 2 * boxTextMargin.x;
+               var bw = ww + 2 * margin.x;
                var bh = hh + 2 * margin.y;
                var shadowRect;
                var editedRect;

@@ -16,7 +16,6 @@ Version:    2010-01-25
 from os import utime
 from time import time
 
-from config import DATA_DIR
 from common import ProtocolError
 from message import display_message
 
@@ -45,6 +44,12 @@ class AnnotationNotFoundError(Exception):
     def __str__(self):
         return 'Could not find an annotation with id: %s' % (self.id, )
 
+class AnnotationFileNotFoundError(Exception):
+    def __init__(self, fn):
+        self.fn = fn
+
+    def __str__(self):
+        return 'Could not find any annotations for %s' % (self.fn, )
 
 class AnnotationsIsReadOnlyError(ProtocolError):
     def __init__(self):
@@ -192,9 +197,7 @@ class Annotations(object):
             self._file_input = fileinput.input(input_files, mode='r')
             self._input_files = input_files
         else:
-            #XXX: Proper exception here, this is horrible
-            assert False, ('could not find any plausible annotations '
-                    'for %s') % (document, )
+            raise AnnotationFileNotFoundError(document)
 
         # Finally, parse the given annotation file
         self._parse_ann_file()
@@ -477,7 +480,7 @@ class Annotations(object):
                         type_trigger, type_trigger_tail = (data[:type_delim],
                                 data[type_delim:])
                     except ValueError:
-                        type_trigger = data
+                        type_trigger = data.rstrip('\r\n')
                         type_trigger_tail = None
 
                     try:
@@ -525,7 +528,7 @@ class Annotations(object):
                 self.failed_lines.append(e.line_num - 1)
 
     def __str__(self):
-        s = '\n'.join(str(ann).rstrip('\n') for ann in self)
+        s = '\n'.join(str(ann).rstrip('\r\n') for ann in self)
         if not s:
             return ""
         else:

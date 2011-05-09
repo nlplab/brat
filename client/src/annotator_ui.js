@@ -174,8 +174,14 @@ var AnnotatorUI = (function($, window, undefined) {
         adjustToCursor(evt, spanForm.parent());
       };
 
-      var arcFormSubmit = function(evt) {
-        var type = $('#arc_form input:radio:checked').val();
+      var arcFormSubmitRadio = function(evt) {
+	  // TODO: check for confirm_mode?
+          arcFormSubmit(evt, $(evt.target));
+      }
+
+      var arcFormSubmit = function(evt, typeRadio) {	
+	typeRadio = typeRadio || $('#arc_form input:radio:checked');
+        var type = typeRadio.val();
         dispatcher.post('hideForm', [arcForm]);
 
         if (type) { // (if not cancelled)
@@ -216,7 +222,7 @@ var AnnotatorUI = (function($, window, undefined) {
               }
               var confirmMode = $('#confirm_mode')[0].checked;
               if (!confirmMode) {
-                arcForm.find('#arc_roles input:radio').click(arcFormSubmit);
+                arcForm.find('#arc_roles input:radio').click(arcFormSubmitRadio);
               }
               if (arcType) {
                 $('#arc_form_delete').show();
