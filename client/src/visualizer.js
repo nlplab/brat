@@ -604,6 +604,7 @@ var Visualizer = (function($, window, undefined) {
             var reservations;
             var lastBoxChunkIndex = -1;
             curlyY = 0;
+            var twoBarWidths; // HACK to avoid measuring space's width
 
             $.each(data.chunks, function(chunkNo, chunk) {
               reservations = new Array();
@@ -624,9 +625,15 @@ var Visualizer = (function($, window, undefined) {
                 // measure the text span
                 var xFrom = 0;
                 if (span.from != chunk.from) {
+                  // HACK to avoid measuring space's width
+                  if (!twoBarWidths) {
+                    var twoBars = svg.text(textGroup, 0, 0, '||');
+                    twoBarWidths = twoBars.getBBox().width;
+                    svg.remove(twoBars);
+                  }
                   var measureText = svg.text(textGroup, 0, 0,
-                    chunk.text.substr(0, span.from - chunk.from));
-                  xFrom = measureText.getBBox().width;
+                    '|' + chunk.text.substr(0, span.from - chunk.from) + '|');
+                  xFrom = measureText.getBBox().width - twoBarWidths;
                   svg.remove(measureText);
                 }
                 measureText = svg.text(textGroup, 0, 0,
