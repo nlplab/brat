@@ -120,6 +120,8 @@ var VisualizerUI = (function($, window, undefined) {
         if (!right) {
           x = evt.clientX - elementWidth - offset;
         }
+        if (y < 0) y = 0;
+        if (x < 0) x = 0;
         element.css({ top: y, left: x });
       };
 
