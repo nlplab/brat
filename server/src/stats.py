@@ -11,7 +11,8 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
 '''
 
-from os.path import isfile
+from os import listdir
+from os.path import isfile, getmtime
 from os.path import join as path_join
 from cPickle import load as pickle_load
 from cPickle import dump as pickle_dump
@@ -30,8 +31,20 @@ def get_stat_cache_by_dir(directory):
 # TODO: Quick hack, prettify and use some sort of csv format
 def get_statistics(directory, base_names, use_cache=True):
     # Check if we have a cache of the costly satistics generation
+    # Also, only use it if no file is newer than the cache itself
     cache_file_path = get_stat_cache_by_dir(directory)
-    if not isfile(cache_file_path):
+
+    try:
+        cache_mtime = getmtime(cache_file_path);
+    except OSError, e:
+        if e.errno == 2:
+            cache_mtime = -1;
+        else:
+            raise
+
+    if (not isfile(cache_file_path)
+            or any(True for f in listdir(directory)
+                if getmtime(path_join(directory, f)) > cache_mtime)):
         generate = True
         docstats = []
     else:
