@@ -16,16 +16,17 @@ Version:    2011-04-22
 from __future__ import with_statement
 
 from os.path import join as path_join
-from os.path import isfile
+from os.path import isfile, exists
+from os import mkdir
 
 from common import ProtocolError, NoPrintJSONError
-from config import BASE_DIR
+from config import BASE_DIR, WORK_DIR
 from message import display_message
 from session import get_session
 
 ### Constants
 # TODO: We really need a work directory
-SVG_DIR = path_join(BASE_DIR, 'svg')
+SVG_DIR = path_join(WORK_DIR, 'svg')
 # TODO: These constants most likely don't belong here
 CSS_PATH = path_join(BASE_DIR, 'style.css')
 GRAYSCALE_CSS_PATH = path_join(BASE_DIR, 'style_grayscale.css')
@@ -81,6 +82,10 @@ def _save_svg(svg, colour=True):
             display_message("Error: bad SVG!", "error", -1)
 
 def _svg_path(colour=True):
+    # Create the SVG_DIR if necessary
+    if not exists(SVG_DIR):
+        mkdir(SVG_DIR)
+
     base_path = path_join(SVG_DIR, get_session().sid)
     if colour:
         return base_path + '_colour.svg'
