@@ -44,12 +44,17 @@ class AnnotationNotFoundError(Exception):
     def __str__(self):
         return 'Could not find an annotation with id: %s' % (self.id, )
 
-class AnnotationFileNotFoundError(Exception):
+class AnnotationFileNotFoundError(ProtocolError):
     def __init__(self, fn):
         self.fn = fn
 
     def __str__(self):
         return 'Could not find any annotations for %s' % (self.fn, )
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'annotationFileNotFound'
+        return json_dic
+
 
 class AnnotationsIsReadOnlyError(ProtocolError):
     def __init__(self):

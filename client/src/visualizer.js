@@ -1210,6 +1210,9 @@ var Visualizer = (function($, window, undefined) {
 
       var renderData = function(_data) {
         if (_data && _data.exception) {
+          // XXX for now, all exceptions will result in noFileSpecified
+          // we could be more picky about exceptions, see about this
+          // later
           dispatcher.post('noFileSpecified');
         } else {
           dispatcher.post('startedRendering', [dir, doc, args]);

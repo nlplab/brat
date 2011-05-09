@@ -285,12 +285,14 @@ var AnnotatorUI = (function($, window, undefined) {
       arcForm.submit(arcFormSubmit);
 
       var stopArcDrag = function(target) {
-        arcDragOriginGroup.removeClass('highlight');
-        if (target) {
-          target.parent().removeClass('highlight');
+        if (arcDragOrigin) {
+          arcDragOriginGroup.removeClass('highlight');
+          if (target) {
+            target.parent().removeClass('highlight');
+          }
+          svg.remove(arcDragArc);
+          arcDragOrigin = null;
         }
-        svg.remove(arcDragArc);
-        arcDragOrigin = null;
       };
 
       var onMouseUp = function(evt) {
