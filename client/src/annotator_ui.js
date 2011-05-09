@@ -51,7 +51,7 @@ var AnnotatorUI = (function($, window, undefined) {
             origin: originSpanId,
             target: targetSpanId,
             type: type,
-            old: type,
+            old_type: type,
             directory: dir,
             'document': doc
           };
