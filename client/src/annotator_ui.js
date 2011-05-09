@@ -385,13 +385,21 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var edited = function(response) {
-        args.edited = response.edited;
-        data = response.annotations;
-        data.document = doc;
-        data.directory = dir;
-        dispatcher.post('preventReloadByURL');
-        dispatcher.post('setArguments', [args]);
-        dispatcher.post('renderData', [data]);
+        var x = response.exception;
+        if (x) {
+          if (x == 'annotationIsReadOnly') {
+            dispatcher.post('messages', [[["This document is read-only and can't be edited.", 'error']]]);
+          }
+          $('#waiter').dialog('close');
+        } else {
+          args.edited = response.edited;
+          data = response.annotations;
+          data.document = doc;
+          data.directory = dir;
+          dispatcher.post('preventReloadByURL');
+          dispatcher.post('setArguments', [args]);
+          dispatcher.post('renderData', [data]);
+        }
       };
 
 

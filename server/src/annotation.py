@@ -57,8 +57,6 @@ class AnnotationsIsReadOnlyError(ProtocolError):
 
     def json(self, json_dic):
         json_dic['exception'] = 'annotationIsReadOnly'
-        # TODO: Display message here?
-        display_message('Annotation is in read only mode', 'error')
         return json_dic
 
 
