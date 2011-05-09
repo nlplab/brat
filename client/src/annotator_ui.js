@@ -23,11 +23,17 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var onKeyDown = function(evt) {
+        var code = evt.which;
+
+        if (code === $.ui.keyCode.ESCAPE) {
+          stopArcDrag();
+          return;
+        }
+
         if (!keymap) return;
 
-        var key = evt.which;
-        var binding = keymap[key];
-        if (!binding) binding = keymap[String.fromCharCode(key)];
+        var binding = keymap[code];
+        if (!binding) binding = keymap[String.fromCharCode(code)];
         if (binding) {
           $('#' + binding).click();
         }
@@ -50,6 +56,7 @@ var AnnotatorUI = (function($, window, undefined) {
             action: 'createArc',
             origin: originSpanId,
             target: targetSpanId,
+            old_target: targetSpanId,
             type: type,
             old_type: type,
             directory: dir,
@@ -81,24 +88,29 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
+      var startArcDrag = function(originId) {
+        window.getSelection().removeAllRanges();
+        svgPosition = svgElement.offset();
+        arcDragOrigin = originId;
+        arcDragArc = svg.path(svg.createPath(), {
+          markerEnd: 'url(#drag_arrow)',
+          'class': 'drag_stroke',
+          fill: 'none',
+        });
+        arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
+        arcDragOriginGroup.addClass('highlight');
+        arcDragOriginBox = Brat.realBBox(data.spans[arcDragOrigin]);
+        arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
+      };
+
       var onMouseDown = function(evt) {
         if (!that.user || arcDragOrigin) return;
         var target = $(evt.target);
         var id;
         // is it arc drag start?
         if (id = target.attr('data-span-id')) {
-          window.getSelection().removeAllRanges();
-          svgPosition = svgElement.offset();
-          arcDragOrigin = id;
-          arcDragArc = svg.path(svg.createPath(), {
-            markerEnd: 'url(#drag_arrow)',
-            'class': 'drag_stroke',
-            fill: 'none',
-          });
-          arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
-          arcDragOriginGroup.addClass('highlight');
-          arcDragOriginBox = Brat.realBBox(data.spans[arcDragOrigin]);
-          arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
+          arcOptions = null;
+          startArcDrag(id);
           return false;
         }
       };
@@ -249,13 +261,22 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('ajax', [arcOptions, 'edited']);
       };
 
+      var reselectArc = function(evt) {
+        dispatcher.post('hideForm', [arcForm]);
+        startArcDrag(arcOptions.origin);
+      };
+
       var arcForm = $('#arc_form');
       dispatcher.post('initForm', [arcForm, {
           width: 500,
           buttons: [{
-            id: 'arc_form_delete',
-            text: "Delete",
-            click: deleteArc
+              id: 'arc_form_delete',
+              text: "Delete",
+              click: deleteArc
+            }, {
+              id: 'arc_form_reselect',
+              text: 'Reselect',
+              click: reselectArc
           }],
           close: function(evt) {
             keymap = null;
@@ -263,30 +284,41 @@ var AnnotatorUI = (function($, window, undefined) {
         }]);
       arcForm.submit(arcFormSubmit);
 
+      var stopArcDrag = function(target) {
+        arcDragOriginGroup.removeClass('highlight');
+        if (target) {
+          target.parent().removeClass('highlight');
+        }
+        svg.remove(arcDragArc);
+        arcDragOrigin = null;
+      };
+
       var onMouseUp = function(evt) {
         if (that.user === null) return;
 
         var target = $(evt.target);
         // is it arc drag end?
         if (arcDragOrigin) {
-          arcDragOriginGroup.removeClass('highlight');
-          target.parent().removeClass('highlight');
+          stopArcDrag(target);
           if ((id = target.attr('data-span-id')) && arcDragOrigin != id) {
             var originSpan = data.spans[arcDragOrigin];
             var targetSpan = data.spans[id];
-            arcOptions = {
-              action: 'createArc',
-              origin: originSpan.id,
-              target: targetSpan.id,
-              directory: dir,
-              'document': doc
-            };
-            $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
-            $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
-            fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
+            if (arcOptions && arcOptions.old_target) {
+              arcOptions.old_target = targetSpan.id;
+              dispatcher.post('ajax', [arcOptions, 'edited']);
+            } else {
+              arcOptions = {
+                action: 'createArc',
+                origin: originSpan.id,
+                target: targetSpan.id,
+                directory: dir,
+                'document': doc
+              };
+              $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
+              $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
+              fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
+            }
           }
-          svg.remove(arcDragArc);
-          arcDragOrigin = null;
         } else if (!evt.ctrlKey) {
           // if not, then is it span selection? (ctrl key cancels)
           var sel = window.getSelection();
