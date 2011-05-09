@@ -21,6 +21,7 @@ from document import get_directory_information, get_document
 from inspect import getargspec
 from itertools import izip
 from jsonwrap import dumps
+from logging import info as log_info
 from message import add_messages_to_json, display_message
 from svg import store_svg, retrieve_svg
 
@@ -123,6 +124,8 @@ def _directory_is_safe(dir_path):
 
 def dispatch(params):
     action = params.getvalue('action')
+
+    log_info('dispatcher handling action: %s' % (action, ));
     
     # Was an action supplied?
     if action is None:
@@ -170,5 +173,8 @@ def dispatch(params):
                 raise InvalidActionArgsError(action, arg_name)
 
         action_args.append(arg_val)
+
+    log_info('dispatcher will call %s(%s)' % (action,
+        ', '.join((repr(a) for a in action_args)), ))
 
     return action_fuction(*action_args)
