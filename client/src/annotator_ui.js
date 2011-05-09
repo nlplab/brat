@@ -484,6 +484,9 @@ var AnnotatorUI = (function($, window, undefined) {
           if (el = $('#span_mod_speculation')[0]) {
             spanOptions.speculation = el.checked;
           }
+          // unfocus all elements to prevent focus being kept after
+          // hiding them
+          spanForm.parent().find('*').blur();
           $('#waiter').dialog('open');
           dispatcher.post('ajax', [spanOptions, 'edited']);
         } else {
