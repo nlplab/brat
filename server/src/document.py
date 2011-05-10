@@ -248,11 +248,7 @@ def _sentence_split(txt_file_path):
 def get_document(directory, document):
     real_dir = real_directory(directory)
     doc_path = path_join(real_dir, document)
-    try:
-        return _document_json_dict(doc_path)
-    except AnnotationFileNotFoundError, e:
-        display_message("Error: %s" % e, type='error')
-        return {}
+    return _document_json_dict(doc_path)
 
 # From the old ajax server
 '''

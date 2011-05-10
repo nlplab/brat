@@ -604,6 +604,7 @@ var Visualizer = (function($, window, undefined) {
             var reservations;
             var lastBoxChunkIndex = -1;
             curlyY = 0;
+            var twoBarWidths; // HACK to avoid measuring space's width
 
             $.each(data.chunks, function(chunkNo, chunk) {
               reservations = new Array();
@@ -624,9 +625,15 @@ var Visualizer = (function($, window, undefined) {
                 // measure the text span
                 var xFrom = 0;
                 if (span.from != chunk.from) {
+                  // HACK to avoid measuring space's width
+                  if (!twoBarWidths) {
+                    var twoBars = svg.text(textGroup, 0, 0, '||');
+                    twoBarWidths = twoBars.getBBox().width;
+                    svg.remove(twoBars);
+                  }
                   var measureText = svg.text(textGroup, 0, 0,
-                    chunk.text.substr(0, span.from - chunk.from));
-                  xFrom = measureText.getBBox().width;
+                    '|' + chunk.text.substr(0, span.from - chunk.from) + '|');
+                  xFrom = measureText.getBBox().width - twoBarWidths;
                   svg.remove(measureText);
                 }
                 measureText = svg.text(textGroup, 0, 0,
@@ -1112,7 +1119,8 @@ var Visualizer = (function($, window, undefined) {
                 currentSent = row.sentence;
               }
               var rowBox = row.group.getBBox();
-              if (!rowBox) { // older Firefox bug
+              // Make it work on Firefox and Opera
+              if (!rowBox || rowBox.height == -Infinity) {
                 rowBox = { x: 0, y: 0, height: 0, width: 0 };
               }
               if (row.hasAnnotations) {
@@ -1203,6 +1211,9 @@ var Visualizer = (function($, window, undefined) {
 
       var renderData = function(_data) {
         if (_data && _data.exception) {
+          // XXX for now, all exceptions will result in noFileSpecified
+          // we could be more picky about exceptions, see about this
+          // later
           dispatcher.post('noFileSpecified');
         } else {
           dispatcher.post('startedRendering', [dir, doc, args]);

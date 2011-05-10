@@ -132,6 +132,13 @@ def main(args):
 
     try:
         try:
+            from logging import basicConfig as log_basic_config
+            from logging import INFO as LOG_LEVEL_INFO
+            from config import WORK_DIR
+            # Enable logging
+            log_basic_config(filename=path_join(WORK_DIR, 'server.log'),
+                    level=LOG_LEVEL_INFO)
+
             # Dispatch the request and get the corresponding json dictionary
             from dispatch import dispatch
             json_dic = dispatch(params)
