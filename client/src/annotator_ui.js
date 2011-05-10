@@ -301,9 +301,10 @@ var AnnotatorUI = (function($, window, undefined) {
         var target = $(evt.target);
         // is it arc drag end?
         if (arcDragOrigin) {
+          var origin = arcDragOrigin;
           stopArcDrag(target);
-          if ((id = target.attr('data-span-id')) && arcDragOrigin != id) {
-            var originSpan = data.spans[arcDragOrigin];
+          if ((id = target.attr('data-span-id')) && origin != id) {
+            var originSpan = data.spans[origin];
             var targetSpan = data.spans[id];
             if (arcOptions && arcOptions.old_target) {
               arcOptions.old_target = targetSpan.id;
@@ -393,7 +394,9 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var rememberData = function(_data) {
-        data = _data;
+        if (_data) {
+          data = _data;
+        }
       };
 
       var rememberSpanSettings = function(response) {

@@ -1119,7 +1119,8 @@ var Visualizer = (function($, window, undefined) {
                 currentSent = row.sentence;
               }
               var rowBox = row.group.getBBox();
-              if (!rowBox) { // older Firefox bug
+              // Make it work on Firefox and Opera
+              if (!rowBox || rowBox.height == -Infinity) {
                 rowBox = { x: 0, y: 0, height: 0, width: 0 };
               }
               if (row.hasAnnotations) {

@@ -252,7 +252,7 @@ var VisualizerUI = (function($, window, undefined) {
       }
       var chooseDocumentAndSubmit = function(evt) {
         chooseDocument(evt);
-        fileBrowserSubmit();
+        fileBrowserSubmit(evt);
       }
 
       var fileBrowser = $('#file_browser');
@@ -265,7 +265,6 @@ var VisualizerUI = (function($, window, undefined) {
           },
           width: 500
       });
-      //fileBrowser.widget().resizable('option', 'alsoResize', '#document_select');
       $('#document_input').change(function(evt) {
         selectElementInTable('#document_select', $(this).val());
       });
@@ -303,9 +302,9 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('messages', [[['Invalid document name format', 'error', 2]]]);
           $('#document_input').focus().select();
         }
-        dispatcher.post('setDirectory', [_dir, _doc]);
         docScroll = $('#document_select')[0].scrollTop;
-        fileBrowser.find('#document_select tbody').html(''); // prevent a slowbug
+        fileBrowser.find('#document_select tbody').empty();
+        dispatcher.post('setDirectory', [_dir, _doc]);
         return false;
       };
       fileBrowser.
