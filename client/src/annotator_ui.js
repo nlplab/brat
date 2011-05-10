@@ -187,12 +187,12 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var arcFormSubmitRadio = function(evt) {
-	  // TODO: check for confirm_mode?
+          // TODO: check for confirm_mode?
           arcFormSubmit(evt, $(evt.target));
       }
 
-      var arcFormSubmit = function(evt, typeRadio) {	
-	typeRadio = typeRadio || $('#arc_form input:radio:checked');
+      var arcFormSubmit = function(evt, typeRadio) {
+        typeRadio = typeRadio || $('#arc_form input:radio:checked');
         var type = typeRadio.val();
         dispatcher.post('hideForm', [arcForm]);
 
@@ -492,6 +492,8 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       dispatcher.post('initForm', [spanForm, {
+          // XXX big hack :) choosing the exact thing to contract/expand
+          alsoResize: '#span_types .type_scroller:last',
           width: 500,
           buttons: [{
             id: 'span_form_delete',
