@@ -191,8 +191,9 @@ var Visualizer = (function($, window, undefined) {
         // find chunk breaks
         var breaks = [[-1, false]];
         var pos = -1;
+        var sentNum = 0;
         while ((pos = data.text.indexOf('\n', pos + 1)) != -1) {
-          breaks.push([pos, true, true]);
+          breaks.push([pos, true, ++sentNum]);
         }
         pos = -1;
         while ((pos = data.text.indexOf(' ', pos + 1)) != -1) {
@@ -226,7 +227,7 @@ var Visualizer = (function($, window, undefined) {
                 lineBreak: breaks[breakNo][1],
                 index: chunkNo++,
                 spans: [],
-                newSentence: breaks[breakNo][2],
+                sentence: breaks[breakNo][2],
               });
           }
         }
@@ -585,7 +586,9 @@ var Visualizer = (function($, window, undefined) {
               });
             });
             var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
-            var textHeight = text.getBBox().height;
+            var measureBox = text.getBBox();
+            var textHeight = measureBox.height;
+            curlyY = measureBox.y;
 
             // measure annotations
             var dummySpan = svg.group({ 'class': 'span' });
@@ -620,7 +623,6 @@ var Visualizer = (function($, window, undefined) {
             var rowIndex = 0;
             var reservations;
             var lastBoxChunkIndex = -1;
-            curlyY = 0;
             var twoBarWidths; // HACK to avoid measuring space's width
 
             $.each(data.chunks, function(chunkNo, chunk) {
@@ -663,7 +665,6 @@ var Visualizer = (function($, window, undefined) {
                   to: xTo,
                   height: measureBox.height,
                 };
-                curlyY = measureBox.y,
                 svg.remove(measureText);
                 var x = (xFrom + xTo) / 2;
 
@@ -793,8 +794,6 @@ var Visualizer = (function($, window, undefined) {
                 hasAnnotations = true;
               }); // spans
 
-              if (chunk.newSentence) sentenceToggle = 1 - sentenceToggle;
-
               chunk.tspan = $('#' + 'chunk' + chunk.index);
 
               // positioning of the chunk
@@ -818,6 +817,19 @@ var Visualizer = (function($, window, undefined) {
                 if (spacing > 0) current.x += spacing;
               }
               var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
+
+              if (chunk.sentence) {
+                while (sentenceNumber < chunk.sentence) {
+                  sentenceNumber++;
+                  row.arcs = svg.group(row.group, { 'class': 'arcs' });
+                  rows.push(row);
+                  row = new Row();
+                  sentenceToggle = 1 - sentenceToggle;
+                  row.backgroundIndex = sentenceToggle;
+                  row.index = ++rowIndex;
+                }
+                sentenceToggle = 1 - sentenceToggle;
+              }
 
               if (chunk.lineBreak ||
                   current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
@@ -843,7 +855,10 @@ var Visualizer = (function($, window, undefined) {
                   });
               }
               if (hasAnnotations) row.hasAnnotations = true;
-              if (chunk.newSentence) row.sentence = ++sentenceNumber;
+
+              if (chunk.sentence) {
+                row.sentence = ++sentenceNumber;
+              }
 
               if (spacing > 0) {
                 // if we added a gap, center the intervening elements
@@ -1220,10 +1235,6 @@ var Visualizer = (function($, window, undefined) {
               clearSVG();
               drawing = false;
             } else {
-console.log("YO");
-try {
-console.log("ST:", stacktrace());
-} catch(xx) { console.error(xx); }
               console.error('FIXME Error during rendering: ', x); // FIXME
             }
           }
