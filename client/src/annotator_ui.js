@@ -13,6 +13,8 @@ var AnnotatorUI = (function($, window, undefined) {
       var keymap = null;
       var dir = null;
       var doc = null;
+      var reselectedSpan = null;
+      var editedSpan = null;
 
       that.user = null;
 
@@ -76,15 +78,15 @@ var AnnotatorUI = (function($, window, undefined) {
         // if not, then do we edit a span?
         } else if (id = target.attr('data-span-id')) {
           window.getSelection().removeAllRanges();
-          var span = data.spans[id];
+          editedSpan = data.spans[id];
           spanOptions = {
             action: 'createSpan',
-            start: span.from,
-            end: span.to,
+            start: editedSpan.from,
+            end: editedSpan.to,
             id: id,
           };
-          var spanText = data.text.substring(span.from, span.to);
-          fillSpanTypesAndDisplayForm(evt, spanText, span);
+          var spanText = data.text.substring(editedSpan.from, editedSpan.to);
+          fillSpanTypesAndDisplayForm(evt, spanText, editedSpan);
         }
       };
 
@@ -158,8 +160,6 @@ var AnnotatorUI = (function($, window, undefined) {
         if (span) {
           // FIXME was: document.location + '/' + span.id);
           $('#span_highlight_link').show().attr('href', 'FIXME');
-          $('#span_form_delete').show();
-          keymap[$.ui.keyCode.DELETE] = 'span_form_delete';
           var el = $('#span_' + normalize(span.type));
           if (el.length) {
             el[0].checked = true;
@@ -170,9 +170,14 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         } else {
           $('#span_highlight_link').hide();
-          $('#span_form_delete').hide();
-          keymap[$.ui.keyCode.DELETE] = null;
           $('#span_form input:radio:first')[0].checked = true;
+        }
+        if (span && !reselectedSpan) {
+          $('#span_form_reselect, #span_form_delete').show();
+          keymap[$.ui.keyCode.DELETE] = 'span_form_delete';
+        } else {
+          $('#span_form_reselect, #span_form_delete').hide();
+          keymap[$.ui.keyCode.DELETE] = null;
         }
         if (el = $('#span_mod_negation')[0]) {
           el.checked = span ? span.Negation : false;
@@ -344,17 +349,27 @@ var AnnotatorUI = (function($, window, undefined) {
             while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedFrom, 1)) !== -1) selectedFrom++;
             while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedTo - 1, 1)) !== -1) selectedTo--;
 
-            if (selectedFrom === selectedTo) return; // simple click (zero-width span)
-            spanOptions = {
-              action: 'createSpan',
-              start: selectedFrom,
-              end: selectedTo
-            };
+            if (selectedFrom === selectedTo) {
+              // simple click (zero-width span)
+              return; 
+            }
+            if (reselectedSpan) {
+              spanOptions.old_start = spanOptions.start;
+              spanOptions.old_end = spanOptions.end;
+            } else {
+              spanOptions = {
+                action: 'createSpan'
+              }
+            }
+            $.extend(spanOptions, {
+                start: selectedFrom,
+                end: selectedTo
+              });
             var spanText = data.text.substring(selectedFrom, selectedTo);
             if (spanText.indexOf("\n") != -1) {
               dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
             } else {
-              fillSpanTypesAndDisplayForm(evt, spanText);
+              fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
             }
           }
         }
@@ -495,17 +510,27 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#waiter').dialog('open');
       };
 
+      var reselectSpan = function() {
+        dispatcher.post('hideForm', [spanForm]);
+        reselectedSpan = editedSpan;
+      };
+
       dispatcher.post('initForm', [spanForm, {
           // XXX big hack :) choosing the exact thing to contract/expand
           alsoResize: '#span_types .type_scroller:last',
           width: 500,
           buttons: [{
-            id: 'span_form_delete',
-            text: "Delete",
-            click: deleteSpan
+              id: 'span_form_delete',
+              text: "Delete",
+              click: deleteSpan
+            }, {
+              id: 'span_form_reselect',
+              text: 'Reselect',
+              click: reselectSpan
           }],
           close: function(evt) {
             keymap = null;
+            reselectedSpan = null;
           }
         }]);
 
