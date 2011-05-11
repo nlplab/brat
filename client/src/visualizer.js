@@ -34,10 +34,11 @@ var Visualizer = (function($, window, undefined) {
       var data = null;
       var dir, doc, args;
       var abbrevs;
+      var abbrevsOn = true;
       var isRenderRequested;
       var curlyY;
 
-      var infoPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error'];
+      var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error'];
 
       this.arcDragOrigin = null; // TODO
 
@@ -85,11 +86,11 @@ var Visualizer = (function($, window, undefined) {
         return box;
       };
 
-      var infoPriority = function(infoClass) {
-        if (infoClass === undefined) return -1;
-        var len = infoPrioLevels.length;
+      var commentPriority = function(commentClass) {
+        if (commentClass === undefined) return -1;
+        var len = commentPrioLevels.length;
         for (var i = 0; i < len; i++) {
-          if (infoClass.indexOf(infoPrioLevels[i]) != -1) return i;
+          if (commentClass.indexOf(commentPrioLevels[i]) != -1) return i;
         }
         return 0;
       };
@@ -112,13 +113,15 @@ var Visualizer = (function($, window, undefined) {
         var triggerHash = {};
         $.each(data.triggers, function(triggerNo, trigger) {
           triggerHash[trigger[0]] =
-              new Span(trigger[0], trigger[1], trigger[2], trigger[3], 'trigger');
+              [new Span(trigger[0], trigger[1], trigger[2], trigger[3], 'trigger'), []];
         });
         data.eventDescs = {};
         $.each(data.events, function(eventNo, eventRow) {
           var eventDesc = data.eventDescs[eventRow[0]] =
               new EventDesc(eventRow[0], eventRow[1], eventRow[2]);
-          var span = $.extend({}, triggerHash[eventDesc.triggerId]); // clone
+          var trigger = triggerHash[eventDesc.triggerId];
+          var span = $.extend({}, trigger[0]); // clone
+          trigger[1].push(span);
           span.incoming = []; // protect from shallow copy
           span.outgoing = [];
           span.id = eventDesc.id;
@@ -151,30 +154,37 @@ var Visualizer = (function($, window, undefined) {
             eventDesc.rightSpans = equivSpans.slice(i);
           }
         });
-        data.sentInfo = {};
+        data.sentComment = {};
 
-        $.each(data.comments, function(infoNo, info) {
+        $.each(data.comments, function(commentNo, comment) {
           // TODO error handling
-          // TODO rename info into comments to reflect changes according to #115
-          if (info[0] instanceof Array && info[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
-            var sent = info[0][1];
-            var text = info[2];
-            if (data.sentInfo[sent]) {
-              text = data.sentInfo[sent].text + '<br/>' + text;
+          if (comment[0] instanceof Array && comment[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
+            var sent = comment[0][1];
+            var text = comment[2];
+            if (data.sentComment[sent]) {
+              text = data.sentComment[sent].text + '<br/>' + text;
             }
-            data.sentInfo[sent] = { type: info[1], text: text };
-          } else if (info[0] in data.spans) {
-            var span = data.spans[info[0]];
-            if (!span.info) {
-              span.info = { type: info[1], text: info[2] };
-            } else {
-              span.info.type = info[1];
-              span.info.text += "<br/>" + info[2];
-            }
-            // prioritize type setting when multiple infos are present
-            if (infoPriority(info[1]) > infoPriority(span.shadowClass)) {
-              span.shadowClass = info[1];
-            }
+            data.sentComment[sent] = { type: comment[1], text: text };
+          } else {
+            var trigger = triggerHash[comment[0]];
+            var commentSpans =
+                trigger
+                ? trigger[1]
+                : comment[0] in data.spans
+                  ? [data.spans[comment[0]]]
+                  : [];
+            $.each(commentSpans, function(spanId, span) {
+              if (!span.comment) {
+                span.comment = { type: comment[1], text: comment[2] };
+              } else {
+                span.comment.type = comment[1];
+                span.comment.text += "<br/>" + comment[2];
+              }
+              // prioritize type setting when multiple comments are present
+              if (commentPriority(comment[1]) > commentPriority(span.shadowClass)) {
+                span.shadowClass = comment[1];
+              }
+            });
           }
         });
 
@@ -420,13 +430,15 @@ var Visualizer = (function($, window, undefined) {
             // Find the most appropriate abbreviation according to text
             // width
             span.abbrevText = span.type;
-            var abbrevIdx = 0;
-            var maxLength = (span.to - span.from) / 0.8;
-            while (span.abbrevText.length > maxLength &&
-                abbrevs[span.type] &&
-                abbrevs[span.type][abbrevIdx]) {
-              span.abbrevText = abbrevs[span.type][abbrevIdx];
-              abbrevIdx++;
+            if (abbrevsOn) {
+              var abbrevIdx = 0;
+              var maxLength = (span.to - span.from) / 0.8;
+              while (span.abbrevText.length > maxLength &&
+                  abbrevs[span.type] &&
+                  abbrevs[span.type][abbrevIdx]) {
+                span.abbrevText = abbrevs[span.type][abbrevIdx];
+                abbrevIdx++;
+              }
             }
 
 	    // Replace underscores if requested
@@ -451,6 +463,11 @@ var Visualizer = (function($, window, undefined) {
           lastSpan = span;
         });
       };
+
+      var resetData = function() {
+        setData(data);
+        renderData();
+      }
 
       var placeReservation = function(span, box, reservations) {
         var newSlot = {
@@ -665,8 +682,8 @@ var Visualizer = (function($, window, undefined) {
                 var rectClass = 'span_' + span.type + ' span_default';
 
                // attach e.g. "False_positive" into the type
-               if (span.info && span.info.type) { rectClass += ' '+span.info.type; }
-               var bx = xx - margin.x;
+               if (span.comment && span.comment.type) { rectClass += ' '+span.comment.type; }
+               var bx = xx - margin.x - boxTextMargin.x;
                var by = yy - margin.y;
                var bw = ww + 2 * margin.x;
                var bh = hh + 2 * margin.y;
@@ -991,13 +1008,15 @@ var Visualizer = (function($, window, undefined) {
                 }
 
                 var abbrevText = arc.type;
-                var abbrevIdx = 0;
-                var maxLength = ((to - from) - (2 * arcSlant)) / 7;
-                while (abbrevText.length > maxLength &&
-                       abbrevs[arc.type] &&
-                       abbrevs[arc.type][abbrevIdx]) {
-                  abbrevText = abbrevs[arc.type][abbrevIdx];
-                  abbrevIdx++;
+                if (abbrevsOn) {
+                  var abbrevIdx = 0;
+                  var maxLength = ((to - from) - (2 * arcSlant)) / 7;
+                  while (abbrevText.length > maxLength &&
+                         abbrevs[arc.type] &&
+                         abbrevs[arc.type][abbrevIdx]) {
+                    abbrevText = abbrevs[arc.type][abbrevIdx];
+                    abbrevIdx++;
+                  }
                 }
 
                 var shadowGroup;
@@ -1140,8 +1159,8 @@ var Visualizer = (function($, window, undefined) {
               if (row.sentence) {
                 var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y - rowPadding,
                     '' + row.sentence, { 'data-sent': row.sentence });
-                var sentInfo = data.sentInfo[row.sentence];
-                if (sentInfo) {
+                var sentComment = data.sentComment[row.sentence];
+                if (sentComment) {
                   var box = text.getBBox();
                   svg.remove(text);
                   shadowRect = svg.rect(sentNumGroup,
@@ -1149,7 +1168,7 @@ var Visualizer = (function($, window, undefined) {
                       box.width + 2 * shadowSize, box.height + 2 * shadowSize, {
 
                       filter: 'url(#Gaussian_Blur)',
-                      'class': "shadow_" + sentInfo.type,
+                      'class': "shadow_" + sentComment.type,
                       rx: shadowSize,
                       ry: shadowSize,
                       'data-sent': row.sentence,
@@ -1201,6 +1220,10 @@ var Visualizer = (function($, window, undefined) {
               clearSVG();
               drawing = false;
             } else {
+console.log("YO");
+try {
+console.log("ST:", stacktrace());
+} catch(xx) { console.error(xx); }
               console.error('FIXME Error during rendering: ', x); // FIXME
             }
           }
@@ -1272,22 +1295,22 @@ var Visualizer = (function($, window, undefined) {
 
       // event handlers
 
-      var highlight, highlightArcs, highlightSpans, infoId;
+      var highlight, highlightArcs, highlightSpans, commentId;
 
       var onMouseOver = function(evt) {
         var target = $(evt.target);
         var id;
         if (id = target.attr('data-span-id')) {
-          infoId = id;
+          commentId = id;
           var span = data.spans[id];
           var mods = [];
           if (span.Negation) mods.push("Negated");
           if (span.Speculation) mods.push("Speculated");
-          dispatcher.post('displaySpanInfo', [
+          dispatcher.post('displaySpanComment', [
               evt, target, id, span.type, mods,
               data.text.substring(span.from, span.to),
-              span.info && span.info.text,
-              span.info && span.info.type]);
+              span.comment && span.comment.text,
+              span.comment && span.comment.type]);
           highlight = svg.rect(highlightGroup,
             span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
             span.curly.to + 2 - span.curly.from, span.curly.height + 2,
@@ -1324,8 +1347,8 @@ var Visualizer = (function($, window, undefined) {
           // TODO: remove special-case processing, introduce way to differentiate
           // symmetric relations in general
           var symmetric = role === "Equiv";
-          // NOTE: no infoText, infoType for now
-          dispatcher.post('displayArcInfo', [
+          // NOTE: no commentText, commentType for now
+          dispatcher.post('displayArcComment', [
               evt, target, symmetric, 
               originSpanId, role, targetSpanId]);
           highlightArcs = $(svgElement).
@@ -1336,19 +1359,19 @@ var Visualizer = (function($, window, undefined) {
               parent().
               addClass('highlight');
         } else if (id = target.attr('data-sent')) {
-          var info = data.sentInfo[id];
-          if (info) {
-          // NOTE: no infoText, infoType for now
-          dispatcher.post('displaySentInfo', [
-              evt, target, info]);
-            displaySentInfo(info.text, evt);
+          var comment = data.sentComment[id];
+          if (comment) {
+          // NOTE: no commentText, commentType for now
+          dispatcher.post('displaySentComment', [
+              evt, target, comment]);
+            displaySentComment(comment.text, evt);
           }
         }
       };
 
       var onMouseOut = function(evt) {
         var target = $(evt.target);
-        dispatcher.post('hideInfo');
+        dispatcher.post('hideComment');
         if (highlight) {
           svg.remove(highlight);
           highlight = undefined;
@@ -1360,6 +1383,10 @@ var Visualizer = (function($, window, undefined) {
         }
         forceRedraw();
       };
+
+      var setAbbrevs = function(_abbrevsOn) {
+        abbrevsOn = _abbrevsOn;
+      }
 
       svgContainer = $(svgContainer).hide();
 
@@ -1398,6 +1425,8 @@ var Visualizer = (function($, window, undefined) {
           on('dirChanged', dirChanged).
           on('dirLoaded', dirLoaded).
           on('renderData', renderData).
+          on('resetData', resetData).
+          on('abbrevs', setAbbrevs).
           on('current', gotCurrent).
           on('mouseover', onMouseOver).
           on('mouseout', onMouseOut);

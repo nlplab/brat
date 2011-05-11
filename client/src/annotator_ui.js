@@ -369,8 +369,10 @@ var AnnotatorUI = (function($, window, undefined) {
               that.user = response.user;
               dispatcher.post('messages', [[['Welcome back, user "' + that.user + '"', 'info']]]);
               auth_button.val('Logout');
+              $('.login').show();
             } else {
               auth_button.val('Login');
+              $('.login').hide();
             }
           }
         ]);
@@ -460,6 +462,7 @@ var AnnotatorUI = (function($, window, undefined) {
                 $('#auth_button').val('Logout');
                 $('#auth_user').val('');
                 $('#auth_pass').val('');
+                $('.login').show();
               }
           }]);
         return false;
@@ -471,6 +474,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }, function(response) {
             that.user = null;
             $('#auth_button').val('Login');
+            $('.login').hide();
           }]);
         } else {
           dispatcher.post('showForm', [authForm]);
@@ -514,18 +518,20 @@ var AnnotatorUI = (function($, window, undefined) {
             action: 'createSpan',
             directory: dir,
             'document': doc,
-            type: type
+            type: type,
           });
           var el;
+          var attributes = {};
           if (el = $('#span_mod_negation')[0]) {
-            spanOptions.negation = el.checked;
+            attributes.negation = el.checked;
           }
           if (el = $('#span_mod_speculation')[0]) {
-            spanOptions.speculation = el.checked;
+            attributes.speculation = el.checked;
           }
           // unfocus all elements to prevent focus being kept after
           // hiding them
           spanForm.parent().find('*').blur();
+          spanOptions.attributes = $.toJSON(attributes);
           $('#waiter').dialog('open');
           dispatcher.post('ajax', [spanOptions, 'edited']);
         } else {
@@ -579,6 +585,7 @@ var AnnotatorUI = (function($, window, undefined) {
       // we don't elliminate it altogether because it still provides the
       // overlay to prevent interaction
       waiter.parent().css('opacity', '0');
+      $('.login').hide();
 
       dispatcher.
         on('renderData', rememberData).

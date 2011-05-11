@@ -70,7 +70,7 @@ path {
   stroke: #ff0000;
   stroke-width: 2;
 }
-#infopopup.info_False_positive {
+#commentpopup.comment_False_positive {
   background-color: #ff7777;
 }
 
@@ -86,7 +86,7 @@ path {
 .span rect.AnnotationError {
   stroke-width: 1;
 }
-#infopopup.info_AnnotationError {
+#commentpopup.comment_AnnotationError {
   background-color: #ff7777;
 }
 
@@ -96,7 +96,7 @@ path {
 .span rect.AnnotationWarning {
   stroke-width: 1;
 }
-#infopopup.info_AnnotationWarning {
+#commentpopup.comment_AnnotationWarning {
   background-color: #ff9900;
 }
 
@@ -108,7 +108,7 @@ path {
   stroke-width: 0.5;
   fill: #ffffff;
 }
-#infopopup.info_AnnotationIncomplete {
+#commentpopup.comment_AnnotationIncomplete {
   background-color: #ffff77;
 }
 
@@ -120,7 +120,7 @@ path {
   stroke-width: 0.5;
   opacity : 0.5;
 }
-#infopopup.info_AnnotationUnconfirmed {
+#commentpopup.comment_AnnotationUnconfirmed {
   background-color: #ddddff;
 }
 
@@ -410,7 +410,7 @@ fieldset {
   background-color: #ff8800;
   color: #000000;
 }
-#messages > div.info {
+#messages > div.comment {
   background-color: #66ff66;
   color: #000000;
 }
@@ -424,7 +424,7 @@ fieldset {
   display: block;
 }
 
-#infopopup {
+#commentpopup {
   position: fixed;
   top: 0;
   left: 0;
@@ -440,13 +440,13 @@ fieldset {
   box-shadow: 5px 5px 5px #aaaaaa;
 }
 
-.info_id {
+.comment_id {
   font-weight: bold;
 }
-.info_type {
+.comment_type {
   font-weight: bold;
 }
-.info_arc {
+.comment_arc {
   font-weight: bold;
 }
 
