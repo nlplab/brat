@@ -204,7 +204,11 @@ def create_span(directory, document, start, end, type, negation, speculation, id
 
             if ann.type != type:
                 if projectconfig.type_category(ann.type) != projectconfig.type_category(type):
-                    display_message("Cannot convert %s (%s) into %s (%s)" % (ann.type, projectconfig.type_category(ann.type), type, projectconfig.type_category(type)), "error", -1)
+                    # TODO: Raise some sort of protocol error
+                    display_message("Cannot convert %s (%s) into %s (%s)"
+                            % (ann.type, projectconfig.type_category(ann.type),
+                                type, projectconfig.type_category(type)),
+                            "error", -1)
                     pass
                 else:
                     before = str(ann)
@@ -393,25 +397,24 @@ def create_span(directory, document, start, end, type, negation, speculation, id
            
 #TODO: Should determine which step to call next
 #def save_arc(directory, document, origin, target, type, old_type=None):
-def create_arc(directory, document, origin, target, type, old_type=None):
+def create_arc(directory, document, origin, target, type,
+        old_type=None, old_target=None):
     real_dir = real_directory(directory)
     mods = ModificationTracker()
 
     document = path_join(real_dir, document)
 
     with Annotations(document) as ann_obj:
-        origin, target = ann_obj.get_ann_by_id(origin), ann_obj.get_ann_by_id(target)
+        origin = ann_obj.get_ann_by_id(origin) 
+        target = ann_obj.get_ann_by_id(target)
 
         # Ugly check, but we really get no other information
         if type != 'Equiv':
             try:
                 arg_tup = (type, str(target.id))
-                if old_type is None:
-                    old_arg_tup = None
-                else:
-                    old_arg_tup = (old_type, str(target.id))
-
-                if old_arg_tup is None:
+                
+                # Is this an addition or an update?
+                if old_type is None and old_target is None:
                     if arg_tup not in origin.args:
                         before = str(origin)
                         origin.args.append(arg_tup)
@@ -420,6 +423,10 @@ def create_arc(directory, document, origin, target, type, old_type=None):
                         # It already existed as an arg, we were called to do nothing...
                         pass
                 else:
+                    # Construct how the old arg would have looked like
+                    old_arg_tup = (type if old_type is None else old_type,
+                            target if old_target is None else old_target)
+
                     if old_arg_tup in origin.args and arg_tup not in origin.args:
                         before = str(origin)
                         origin.args.remove(old_arg_tup)

@@ -307,7 +307,7 @@ var AnnotatorUI = (function($, window, undefined) {
             var originSpan = data.spans[origin];
             var targetSpan = data.spans[id];
             if (arcOptions && arcOptions.old_target) {
-              arcOptions.old_target = targetSpan.id;
+              arcOptions.target = targetSpan.id;
               dispatcher.post('ajax', [arcOptions, 'edited']);
             } else {
               arcOptions = {
