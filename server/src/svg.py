@@ -55,6 +55,15 @@ class NoSVGError(ProtocolError):
         return json_dic
 
 
+class CorruptSVGError(ProtocolError):
+    def __init__(self):
+        pass
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'corruptSVG'
+        return json_dic
+
+
 def _save_svg(svg, colour=True):
     if colour:
         css_path = CSS_PATH
@@ -77,9 +86,8 @@ def _save_svg(svg, colour=True):
             svg = svg[:defs] + css + svg[defs:]
             svg_file.write(svg)
         else:
-            # TODO: Always print this? Use an exception?
-            # XXX: When does this actually happen?
-            display_message("Error: bad SVG!", "error", -1)
+            # TODO: @amadanmath: When does this actually happen?
+            raise CorruptSVGError
 
 def _svg_path(colour=True):
     # Create the SVG_DIR if necessary
