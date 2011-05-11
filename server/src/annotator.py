@@ -184,7 +184,7 @@ def create_span(directory, document, start, end, type,
         attributes = {}
     else:
         attributes =  json_loads(attributes)
-        display_message("purst" + str(attributes), "info", 10)
+        #display_message("purst" + str(attributes), "info", 10)
 
     for attr in attributes:
         # TODO: This is to be removed upon completed implementation
