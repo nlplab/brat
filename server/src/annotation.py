@@ -533,7 +533,7 @@ class Annotations(object):
             end_str = end_str.rstrip()
             # Abort if we have trailing values, i.e. space-separated tail in end_str
             if any((c.isspace() for c in end_str)):
-                display_message("Error parsing textbound. (Using space instead of tab?)", "error")
+                #display_message("Error parsing textbound '%s\t%s'. (Using space instead of tab?)" % (id, data), "error")
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
             start, end = (int(start_str), int(end_str))
         except:
