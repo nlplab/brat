@@ -18,7 +18,7 @@ from os.path import abspath, isabs, isdir
 from os.path import join as path_join
 from re import sub
 
-from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationFileNotFoundError
+from annotation import TextAnnotations, TEXT_FILE_SUFFIX, AnnotationFileNotFoundError
 from config import DATA_DIR
 from htmlgen import generate_client_keymap, generate_textbound_type_html
 from projectconfig import ProjectConfiguration
@@ -215,7 +215,7 @@ def _document_json_dict(document):
     # Read in the textual data to make it ready to push
     _enrich_json_with_text(j_dic, document + '.' + TEXT_FILE_SUFFIX)
 
-    with Annotations(document) as ann_obj:
+    with TextAnnotations(document) as ann_obj:
         _enrich_json_with_data(j_dic, ann_obj)
 
     return j_dic
