@@ -367,7 +367,7 @@ var AnnotatorUI = (function($, window, undefined) {
             var auth_button = $('#auth_button');
             if (response.user) {
               that.user = response.user;
-              dispatcher.post('messages', [[['Welcome back, user "' + that.user + '"', 'info']]]);
+              dispatcher.post('messages', [[['Welcome back, user "' + that.user + '"', 'comment']]]);
               auth_button.val('Logout');
               $('.login').show();
             } else {

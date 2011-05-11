@@ -21,7 +21,7 @@ Version:    2011-02-22
 
 __pending_messages = []
 
-def display_message(s, type='info', duration=3):
+def display_message(s, type='comment', duration=3):
     global __pending_messages
     __pending_messages.append((s, type, duration))
 

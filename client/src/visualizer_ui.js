@@ -540,18 +540,18 @@ var VisualizerUI = (function($, window, undefined) {
       $('#confirm_mode').click(function(evt) {
         var val = this.checked;
         if (val) {
-          dispatcher.post('messages', [[['Confirm mode is now on', 'info']]]);
+          dispatcher.post('messages', [[['Confirm mode is now on', 'comment']]]);
         } else {
-          dispatcher.post('messages', [[['Confirm mode is now off', 'info']]]);
+          dispatcher.post('messages', [[['Confirm mode is now off', 'comment']]]);
         }
       });
 
       $('#abbrev_mode').click(function(evt) {
         var val = this.checked;
         if (val) {
-          dispatcher.post('messages', [[['Abbreviations are now on', 'info']]]);
+          dispatcher.post('messages', [[['Abbreviations are now on', 'comment']]]);
         } else {
-          dispatcher.post('messages', [[['Abbreviations are now off', 'info']]]);
+          dispatcher.post('messages', [[['Abbreviations are now off', 'comment']]]);
         }
         dispatcher.post('abbrevs', [val]);
         dispatcher.post('resetData');
