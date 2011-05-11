@@ -19,6 +19,7 @@ from os.path import join as path_join
 from re import sub
 
 from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationFileNotFoundError
+from common import ProtocolError
 from config import DATA_DIR
 from htmlgen import generate_client_keymap, generate_textbound_type_html
 from projectconfig import ProjectConfiguration
@@ -114,14 +115,21 @@ def get_directory_information(directory):
             }
     return json_dic
 
+class UnableToReadTextFile(ProtocolError):
+    def __init__(self, path):
+        self.path = path
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'unableToReadTextFile'
+        return json_dic
+
 #TODO: All this enrichment isn't a good idea, at some point we need an object
 def _enrich_json_with_text(j_dic, txt_file_path):
     try:
         j_dic['text'] = _sentence_split(txt_file_path)
         return True
     except IOError:
-        display_message("Error reading %s for sentence split" % txt_file_path, type='error')
-        return False
+        raise UnableToReadTextFile(txt_file_path)
 
 def _enrich_json_with_data(j_dic, ann_obj):
     # We collect trigger ids to be able to link the textbound later on
