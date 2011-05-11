@@ -61,7 +61,7 @@ def get_directory_information(directory):
             from annotation import JOINED_ANN_FILE_SUFF
             mtime = getmtime(join(DATA_DIR,
                 join(real_dir, file + "." + JOINED_ANN_FILE_SUFF)))
-        except OSError:
+        except:
             # The file did not exist (or similar problem)
             mtime = -1
         doclist_with_time.append([file, mtime])
