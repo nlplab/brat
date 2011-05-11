@@ -592,6 +592,9 @@ class ProjectConfiguration(object):
     def get_event_types(self):
         return [t.storage_term() for t in pc_get_event_type_list(self.directory)]
 
+    def get_relation_types(self):
+        return [t.storage_term() for t in pc_get_relation_type_list(self.directory)]        
+
     def get_entity_types(self):
         return [t.storage_term() for t in pc_get_entity_type_list(self.directory)]
 
