@@ -255,6 +255,9 @@ class Annotations(object):
     def get_modifers(self):
         return (a for a in self if isinstance(a, ModifierAnnotation))
 
+    def get_relations(self):
+        return (a for a in self if isinstance(a, BinaryRelationAnnotation))
+
     def get_oneline_comments(self):
         #XXX: The status exception is for the document status protocol
         #       which is yet to be formalised
@@ -487,7 +490,32 @@ class Annotations(object):
 
         return EventAnnotation(trigger, args, id, type, data_tail)
 
+    def _parse_relation_annotation(self, id, data, data_tail):
+        try:
+            type_delim = data.index(' ')
+            type, type_tail = (data[:type_delim], data[type_delim:])
+        except ValueError:
+            # cannot have a relation with just a type (contra event)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            
+        try:
+            args = [tuple(arg.split(':')) for arg in type_tail.split()]
+        except ValueError:
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+
+        if len(args) != 2:
+            display_message("Error parsing relation: must have exactly two arguments", "error")
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+
+        args.sort()
+        if args[0][0] != "Arg1" or args[1][0] != "Arg2":
+            display_message("Error parsing relation: arguments must be \"Arg1\" and \"Arg2\"", "error")
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+
+        return BinaryRelationAnnotation(id, type, args[0][1], args[1][1], data_tail)
+
     def _parse_equiv_annotation(self, id, data, data_tail):
+        # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
         if type != 'Equiv':
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
@@ -505,7 +533,7 @@ class Annotations(object):
             end_str = end_str.rstrip()
             # Abort if we have trailing values, i.e. space-separated tail in end_str
             if any((c.isspace() for c in end_str)):
-                display_message("Error parsing textbound. (Using space instead of tab?)", "error")
+                #display_message("Error parsing textbound '%s\t%s'. (Using space instead of tab?)" % (id, data), "error")
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
             start, end = (int(start_str), int(end_str))
         except:
@@ -563,8 +591,7 @@ class Annotations(object):
                 elif pre == '#':
                     new_ann = self._parse_comment_line(id, data, data_tail)
                 elif pre == 'R':
-                    # TODO: relations
-                    raise NotImplementedError
+                    new_ann = self._parse_relation_annotation(id, data, data_tail)
                 else:
                     raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
@@ -757,9 +784,10 @@ class UnparsedIdedAnnotation(Annotation):
     # duck-type instead of inheriting from IdedAnnotation as
     # that inherits from TypedAnnotation and we have no type
     def __init__(self, id, line):
+        # (this actually is the whole line, not just the id tail,
+        # although Annotation will assign it to self.tail)
+        Annotation.__init__(self, line)
         self.id = id
-        # (this is actually the whole line, not just the id tail)
-        self.tail = line
 
     def __str__(self):
         return self.tail
@@ -823,6 +851,7 @@ class EventAnnotation(IdedAnnotation):
         soft_deps, hard_deps = IdedAnnotation.get_deps(self)
         hard_deps.add(self.trigger)
         arg_ids = [arg_tup[1] for arg_tup in self.args]
+        # TODO: verify this logic, it's not entirely clear it's right
         if len(arg_ids) > 1:
             for arg in arg_ids:
                 soft_deps.add(arg)
@@ -984,6 +1013,39 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
                 self.text,
                 self.text_tail
                 )
+
+class BinaryRelationAnnotation(IdedAnnotation):
+    """
+    Represents a typed binary relation annotation. Relations are
+    assumed not to be symmetric (i.e are "directed"); for equivalence
+    relations, EquivAnnotation is likely to be more appropriate.
+    Unlike events, relations are not associated with text expressions
+    (triggers) stating them.
+
+    Represented in standoff as
+
+    ID\tTYPE Arg1:ID1 Arg2:ID2
+
+    Where "Arg1" and "Arg2" are literal strings.
+    """
+    def __init__(self, id, type, arg1, arg2, tail):
+        IdedAnnotation.__init__(self, id, type, tail)
+        self.arg1 = arg1
+        self.arg2 = arg2
+
+    def __str__(self):
+        return '%s\t%s Arg1:%s Arg2:%s%s' % (
+            self.id,
+            self.type,
+            self.arg1,
+            self.arg2,
+            self.tail
+            )
+    
+    def get_deps(self):
+        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
+        hard_deps.add(arg1)
+        hard_deps.add(arg2)
 
 if __name__ == '__main__':
     #TODO: Unit-testing

@@ -140,6 +140,11 @@ def _enrich_json_with_data(j_dic, ann_obj):
                 [str(event_ann.id), str(event_ann.trigger), event_ann.args]
                 )
 
+    for rel_ann in ann_obj.get_relations():
+        j_dic['relations'].append(
+            [str(rel_ann.id), str(rel_ann.type), rel_ann.arg1, rel_ann.arg2]
+            )
+
     for tb_ann in ann_obj.get_textbounds():
         j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
 
@@ -208,6 +213,7 @@ def _enrich_json_with_base(j_dic):
     j_dic['offset'] = 0
     j_dic['entities'] = []
     j_dic['events'] = []
+    j_dic['relations'] = []
     j_dic['triggers'] = []
     j_dic['modifications'] = []
     j_dic['equivs'] = []
