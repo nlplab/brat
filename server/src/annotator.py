@@ -446,13 +446,18 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
         mods_json['annotations'] = j_dic
 
         return mods_json
-           
+    
+from annotation import BinaryRelationAnnotation
+
 #TODO: Should determine which step to call next
 #def save_arc(directory, document, origin, target, type, old_type=None):
 def create_arc(directory, document, origin, target, type,
         old_type=None, old_target=None):
     real_dir = real_directory(directory)
     mods = ModificationTracker()
+
+    real_dir = real_directory(directory)
+    pconf = ProjectConfiguration(real_dir)
 
     document = path_join(real_dir, document)
 
@@ -461,7 +466,51 @@ def create_arc(directory, document, origin, target, type,
         target = ann_obj.get_ann_by_id(target)
 
         # Ugly check, but we really get no other information
-        if type != 'Equiv':
+        if type == 'Equiv':
+            # It is an Equiv
+            if old_type == "Equiv":
+                # "Change" from Equiv to Equiv is harmless
+                # TODO: some message needed?
+                pass
+            else:
+                assert old_type is None, 'attempting to change Equiv, not supported'
+                ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
+                ann_obj.add_annotation(ann)
+                mods.addition(ann)
+        elif type in pconf.get_relation_types():
+            if old_type is not None or old_target is not None:
+                # XXX: Dragons be here, not tested due to lack of UI
+                assert target.type in pconf.get_relation_types(), (
+                        'attempting to convert relation to non-relation')
+
+                sought_target = (old_target.id
+                        if old_target is not None else target.id)
+                sought_type = (old_type
+                        if old_type is not None else type)
+
+                # We are to change the type and/or target
+                found = None
+                for ann in ann_obj.get_relations():
+                    if ann.target == sought_target and ann.type == sought_type:
+                        found = ann
+                        break
+
+                # Did it exist and is changed?, otherwise we do nothing
+                if found is not None and (found.target != target.id
+                        or found.type != type):
+                    before = str(found)
+                    found.target = target.id
+                    found.type = type
+                    mods.change(before, found)
+            else:
+                # Create a new annotation
+
+                # TODO: Assign a suitable letter
+                new_id = ann_obj.get_new_id('R')
+                ann = BinaryRelationAnnotation(new_id, type, origin.id, target.id, '\t')
+                mods.addition(ann)
+                ann_obj.add_annotation(ann)
+        else:
             try:
                 arg_tup = (type, str(target.id))
                 
@@ -498,17 +547,6 @@ def create_arc(directory, document, origin, target, type,
                             origin.type,
                             ''
                             )
-                ann_obj.add_annotation(ann)
-                mods.addition(ann)
-        else:
-            # It is an Equiv
-            if old_type == "Equiv":
-                # "Change" from Equiv to Equiv is harmless
-                # TODO: some message needed?
-                pass
-            else:
-                assert old_type is None, 'attempting to change Equiv, not supported'
-                ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
                 ann_obj.add_annotation(ann)
                 mods.addition(ann)
 
