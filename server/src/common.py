@@ -22,3 +22,21 @@ class ProtocolError(Exception):
 # XXX: This is an ugly hack to circumvent protocol flaws
 class NoPrintJSONError(Exception):
     pass
+
+
+# TODO: We have issues using this in relation to our inspection
+#       in dispatch, can we make it work?
+# Wrapper to send a deprecation warning to the client if debug is set
+def deprecated_action(func):
+    from config import DEBUG
+    from functools import wraps
+    from message import display_message
+
+    @wraps(func)
+    def wrapper(*args, **kwds):
+        if DEBUG:
+            display_message(('Client sent "%s" action '
+                'which is marked as deprecated') % func.__name__,
+                    type='warning')
+        return func(*args, **kwds)
+    return wrapper

@@ -21,6 +21,7 @@ from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         EventAnnotation, ModifierAnnotation, EquivAnnotation)
 from config import DEBUG
 from document import real_directory
+from jsonwrap import loads as json_loads
 from message import display_message
 from projectconfig import ProjectConfiguration
 from htmlgen import generate_empty_fieldset, select_keyboard_shortcuts, generate_arc_type_html
@@ -154,8 +155,57 @@ def _json_from_ann_and_txt(ann_obj, txt_file_path):
     _enrich_json_with_data(j_dic, ann_obj)
     return j_dic
 
+### Attributes
+# XXX: Temporary solution until we make a config
+# XXX: We only support these two for now, don't adjust
+ATTRIBUTES = set((
+    'negation',
+    'speculation',
+    ))
+ATTRIBUTE_VALUES = {
+        'negation': set((
+            'true',
+            None,
+            )),
+        'speculation': set((
+            'true',
+            None,
+            )),
+        }
+for attr in ATTRIBUTES:
+    assert attr in ATTRIBUTE_VALUES
+###
+
+# NOTE: For now this converts into the old version for compability
+def create_span(directory, document, start, end, type,
+        attributes=None, id=None):
+    if attributes is None:
+        # NOTE: Defaults are to be added here
+        attributes = {}
+    else:
+        attributes =  json_loads(attributes)
+        display_message("purst" + str(attributes), "info", 10)
+
+    for attr in attributes:
+        # TODO: This is to be removed upon completed implementation
+        assert attr in set(('negation', 'speculation', )), (
+                'protocol not supporting general attributes')
+
+    try:
+        negation = attributes['negation']
+    except KeyError:
+        negation = False
+
+    try:
+        speculation = attributes['speculation']
+    except KeyError:
+        speculation = False
+
+    return _create_span(directory, document, start, end,
+            type, negation, speculation, id=id)
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def create_span(directory, document, start, end, type, negation, speculation, id=None):
+def _create_span(directory, document, start, end, type, negation, speculation, id=None):
 #def save_span(docdir, docname, start_str, end_str, type, negation, speculation, id):
     #TODO: Handle the case when negation and speculation both are positive
     # if id present: edit
@@ -163,8 +213,10 @@ def create_span(directory, document, start, end, type, negation, speculation, id
     #XXX: Negation, speculation not done!
 
     # Convert from types sent by JS
-    negation = negation == 'true'
-    speculation = speculation == 'true'
+    if isinstance(negation, str):
+        negation = negation == 'true' 
+    if isinstance(speculation, str):
+        speculation = speculation == 'true'
 
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
