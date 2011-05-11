@@ -34,8 +34,15 @@ class AnnotationLineSyntaxError(Exception):
         self.line_num = line_num
 
     def __str__(self):
-        'Syntax error on line %d: "%s"' % (line_num, line)
+        'Syntax error on line %d: "%s"' % (self.line_num, self.line)
 
+class IdedAnnotationLineSyntaxError(AnnotationLineSyntaxError):
+    def __init__(self, id, line, line_num):
+        AnnotationLineSyntaxError.__init__(self, line, line_num)
+        self.id = id
+
+    def __str__(self):
+        'Syntax error on line %d (id %s): "%s"' % (self.line_num, self.id, self.line)
 
 class AnnotationNotFoundError(Exception):
     def __init__(self, id):
@@ -55,6 +62,9 @@ class AnnotationFileNotFoundError(ProtocolError):
         json_dic['exception'] = 'annotationFileNotFound'
         return json_dic
 
+class AnnotationTextFileNotFoundError(AnnotationFileNotFoundError):
+    def __str__(self):
+        return 'Could not read text file for %s' % (self.fn, )
 
 class AnnotationsIsReadOnlyError(ProtocolError):
     def __init__(self):
@@ -119,42 +129,28 @@ def annotation_id_prefix(id):
 def annotation_id_number(id):
     return __split_annotation_id(id)[1]
 
-# We are NOT concerned with the conformity to the text file
 class Annotations(object):
+    """
+    Basic annotation storage. Not concerned with conformity of
+    annotations to text; can be created without access to the
+    text file to which the annotations apply.
+    """
+
     def get_document(self):
         return self._document
+    
+    def _select_input_files(self, document):
+        """
+        Given a document name (path), returns a list of the names of
+        specific annotation files relevant do the document, or the
+        empty list if none found. For example, given "1000", may
+        return ["1000.a1", "1000.a2"]. May set self._read_only flag to
+        True.
+        """
 
-    #TODO: DOC!
-    def __init__(self, document, read_only=False):
-        #TODO: DOC!
-        #TODO: Incorparate file locking! Is the destructor called upon inter crash?
-        from collections import defaultdict
-        from os.path import basename, isfile, getmtime, getctime
+        from os.path import isfile
         from os import access, W_OK
-        import fileinput
 
-        # we should remember this
-        self._document = document
-
-        
-        
-        self.failed_lines = []
-
-        ### Here be dragons, these objects need constant updating and syncing
-        # Annotation for each line of the file
-        self._lines = []
-        # Mapping between annotation objects and which line they occur on
-        # Range: [0, inf.) unlike [1, inf.) which is common for files
-        self._line_by_ann = {}
-        # Maximum id number used for each id prefix, to speed up id generation
-        #XXX: This is effectively broken by the introduction of id suffixes
-        self._max_id_num_by_prefix = defaultdict(lambda : 1)
-        # Annotation by id, not includid non-ided annotations 
-        self._ann_by_id = {}
-        ###
-
-        ## We use some heuristics to find the appropriate files
-        self._read_only = read_only
         try:
             # Do we have a valid suffix? If so, it is probably best to the file
             suff = document[document.rindex('.') + 1:]
@@ -195,12 +191,44 @@ class Annotations(object):
                         if isfile(sugg_path)]
                 self._read_only = True
 
-        # We then try to open the files we got using the heuristics
-        if input_files:
-            self._file_input = fileinput.input(input_files, mode='r')
-            self._input_files = input_files
-        else:
+        return input_files
+            
+    #TODO: DOC!
+    def __init__(self, document, read_only=False):
+        #TODO: DOC!
+        #TODO: Incorparate file locking! Is the destructor called upon inter crash?
+        from collections import defaultdict
+        from os.path import basename, getmtime, getctime
+        import fileinput
+
+        # we should remember this
+        self._document = document
+
+        self.failed_lines = []
+
+        ### Here be dragons, these objects need constant updating and syncing
+        # Annotation for each line of the file
+        self._lines = []
+        # Mapping between annotation objects and which line they occur on
+        # Range: [0, inf.) unlike [1, inf.) which is common for files
+        self._line_by_ann = {}
+        # Maximum id number used for each id prefix, to speed up id generation
+        #XXX: This is effectively broken by the introduction of id suffixes
+        self._max_id_num_by_prefix = defaultdict(lambda : 1)
+        # Annotation by id, not includid non-ided annotations 
+        self._ann_by_id = {}
+        ###
+
+        ## We use some heuristics to find the appropriate annotation files
+        self._read_only = read_only
+        input_files = self._select_input_files(document)
+
+        if not input_files:
             raise AnnotationFileNotFoundError(document)
+
+        # We then try to open the files we got using the heuristics
+        self._file_input = fileinput.input(input_files, mode='r')
+        self._input_files = input_files
 
         # Finally, parse the given annotation file
         self._parse_ann_file()
@@ -436,21 +464,76 @@ class Annotations(object):
             if suggestion not in self._ann_by_id:
                 return suggestion
 
+    def _parse_event_annotation(self, id, data, data_tail):
+        #XXX: A bit nasty, we require a single space
+        try:
+            type_delim = data.index(' ')
+            type_trigger, type_trigger_tail = (data[:type_delim], data[type_delim:])
+        except ValueError:
+            type_trigger = data.rstrip('\r\n')
+            type_trigger_tail = None
+
+        try:
+            type, trigger = type_trigger.split(':')
+        except ValueError:
+            # TODO: consider accepting events without triggers, e.g.
+            # BioNLP ST 2011 Bacteria task
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+
+        if type_trigger_tail is not None:
+            args = [tuple(arg.split(':')) for arg in type_trigger_tail.split()]
+        else:
+            args = []
+
+        return EventAnnotation(trigger, args, id, type, data_tail)
+
+    def _parse_equiv_annotation(self, id, data, data_tail):
+        type, type_tail = data.split(None, 1)
+        if type != 'Equiv':
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+        equivs = type_tail.split(None)
+        return EquivAnnotation(type, equivs, data_tail),
+
+    def _parse_modifier_annotation(self, id, data, data_tail):
+        type, target = data.split()
+        return ModifierAnnotation(target, id, type, data_tail)
+
+    def _split_textbound_data(self, id, data):
+        try:
+            type, start_str, end_str = data.split(None, 2)
+            # ignore trailing whitespace
+            end_str = end_str.rstrip()
+            # Abort if we have trailing values, i.e. space-separated tail in end_str
+            if any((c.isspace() for c in end_str)):
+                display_message("Error parsing textbound. (Using space instead of tab?)", "error")
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            start, end = (int(start_str), int(end_str))
+        except:
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            
+        return type, start, end
+
+    def _parse_textbound_annotation(self, id, data, data_tail):
+        type, start, end = self._split_textbound_data(id, data)
+        return TextBoundAnnotation(start, end, id, type, data_tail)
+
+    def _parse_comment_line(self, id, data_data_tail):
+        try:
+            type, target = data.split()
+        except ValueError:
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+        return OnelineCommentAnnotation(target, id, type, data_tail)
+    
     def _parse_ann_file(self):
         from itertools import takewhile
-        # If you knew the format, you would have used regexes...
-        #
-        # We use ids internally since otherwise we need to resolve a dep graph
-        # when parsing to make sure we have the annotations to refer to.
 
-        #XXX: Assumptions start here...
-        for ann_line_num, ann_line in enumerate(self._file_input):
+        for self.ann_line_num, self.ann_line in enumerate(self._file_input):
             try:
                 # ID processing
                 try:
-                    id, id_tail = ann_line.split('\t', 1)
+                    id, id_tail = self.ann_line.split('\t', 1)
                 except ValueError:
-                    raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
+                    raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1)
 
                 pre = annotation_id_prefix(id)
 
@@ -467,66 +550,35 @@ class Annotations(object):
                     # No tail at all, although it should have a \t
                     data_tail = ''
 
+                new_ann = None
+
                 if pre == '*':
-                    type, type_tail = data.split(None, 1)
-                    # For now we can only handle Equivs
-                    if type != 'Equiv':
-                        raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
-                    equivs = type_tail.split(None)
-                    self.add_annotation(
-                            EquivAnnotation(type, equivs, data_tail),
-                            read=True)
+                    new_ann = self._parse_equiv_annotation(id, data, data_tail)
                 elif pre == 'E':
-                    #XXX: A bit nasty, we require a single space
-                    try:
-                        type_delim = data.index(' ')
-                        type_trigger, type_trigger_tail = (data[:type_delim],
-                                data[type_delim:])
-                    except ValueError:
-                        type_trigger = data.rstrip('\r\n')
-                        type_trigger_tail = None
-
-                    try:
-                        type, trigger = type_trigger.split(':')
-                    except ValueError:
-                        #XXX: Stupid event without a trigger, bacteria task
-                        raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
-
-                    if type_trigger_tail is not None:
-                        args = [tuple(arg.split(':'))
-                                for arg in type_trigger_tail.split()]
-                    else:
-                        args = []
-
-                    self.add_annotation(EventAnnotation(
-                        trigger, args, id, type, data_tail), read=True)
-                elif pre == 'R':
-                    raise NotImplementedError
+                    new_ann = self._parse_event_annotation(id, data, data_tail)
                 elif pre == 'M':
-                    type, target = data.split()
-                    self.add_annotation(ModifierAnnotation(
-                        target, id, type, data_tail), read=True)
-                elif pre == 'T' or pre == 'W':
-                    type, start_str, end_str = data.split(None, 3)
-                    # Abort if we have trailing values
-                    if any((c.isspace() for c in end_str)):
-                        raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
-                    start, end = (int(start_str), int(end_str))
-                    self.add_annotation(TextBoundAnnotation(
-                        start, end, id, type, data_tail), read=True)
+                    new_ann = self._parse_modifier_annotation(id, data, data_tail)
+                elif pre == 'T':
+                    new_ann = self._parse_textbound_annotation(id, data, data_tail)
                 elif pre == '#':
-                    try:
-                        type, target = data.split()
-                    except ValueError:
-                        raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
-                    self.add_annotation(OnelineCommentAnnotation(
-                        target, id, type, data_tail
-                        ), read=True)
+                    new_ann = self._parse_comment_line(id, data, data_tail)
+                elif pre == 'R':
+                    # TODO: relations
+                    raise NotImplementedError
                 else:
-                    raise AnnotationLineSyntaxError(ann_line, ann_line_num+1)
+                    raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+
+                assert new_ann is not None, "INTERNAL ERROR"
+                self.add_annotation(new_ann, read=True)
+
+            except IdedAnnotationLineSyntaxError, e:
+                # Could parse an ID but not the whole line; add UnparsedIdedAnnotation
+                self.add_annotation(UnparsedIdedAnnotation(e.id, e.line), read=True)
+                self.failed_lines.append(e.line_num - 1)
+
             except AnnotationLineSyntaxError, e:
-                # We could not parse the line, just add it as an unknown annotation
-                self.add_annotation(Annotation(e.line), read=True)
+                # We could not parse even an ID on the line, just add it as an unknown annotation
+                self.add_annotation(UnknownAnnotation(e.line), read=True)
                 # NOTE: For access we start at line 0, not 1 as in here
                 self.failed_lines.append(e.line_num - 1)
 
@@ -594,21 +646,86 @@ class Annotations(object):
                             #utime(DATA_DIR, (now, now))
                     except Exception, e:
                         from message import display_message
-                        import sys
-                        print >> sys.stderr, "Here", e
-                        display_message('ERROR: Could not write changes!<br/>%s' % e, 'error', -1)
+                        display_message('ERROR writing changes: generated annotations cannot be read back in!<br/>(This is almost certainly a system error, please contact the developers.)<br/>%s' % e, 'error', -1)
+                        raise
         return
 
     def __in__(self, other):
         #XXX: You should do this one!
         pass
 
+class TextAnnotations(Annotations):
+    """
+    Text-bound annotation storage. Extends Annotations in assuming
+    access to text text to which the annotations apply and verifying
+    the correctness of text-bound annotations against the text.
+    """
+    def __init__(self, document, read_only=False):
+        # start by reading in the document text for textbounds.
+        document_text = self._read_document_text(document)
+        if not document_text:
+            raise AnnotationTextFileNotFoundError(document)
+        self._document_text = document_text
+
+        Annotations.__init__(self, document, read_only)            
+
+    def _parse_textbound_annotation(self, id, data, data_tail):
+        type, start, end = self._split_textbound_data(id, data)
+
+        # Verify annotation extent
+        if start > end:
+            display_message("Text-bound annotation start &gt; end", "error")
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+        if start < 0:
+            display_message("Text-bound annotation start &lt; 0.", "error")
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+        if end > len(self._document_text):
+            display_message("Text-bound annotation offset exceeds text length.", "error")
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+
+        # Require tail to be either empty or to begin with the text
+        # corresponding to the start:end span. If the tail is empty,
+        # force a fill with the corresponding text.
+        if data_tail.strip() == '':
+            display_message("Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.", "warning", duration=-1)
+            text = self._document_text[start:end]
+        elif data_tail[0] != '\t':
+            display_message("Text-bound annotation missing tab before text (expected format 'ID\\tTYPE START END\\tTEXT').", "error")
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+        elif end-start > len(data_tail)-1: # -1 for tab
+            display_message("Text-bound annotation text '%s' shorter than marked span %d:%d" % (data_tail[1:], start, end), "error")
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+        else:
+            text = data_tail[1:end-start+1] # shift 1 for tab
+            data_tail = data_tail[end-start+1:]
+            if text != self._document_text[start:end]:
+                display_message("Text-bound annotation text '%s' does not match marked span (%d:%d) text '%s' in document" % (text, start, end, self._document_text[start:end]), "error")
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            if data_tail != '' and not data_tail[0].isspace():
+                display_message("Text-bound annotation text '%s' not separated from rest of line ('%s') by space!" % (text, data_tail), "error")
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+
+        return TextBoundAnnotationWithText(start, end, id, type, text, data_tail)
+
+    def _read_document_text(self, document):
+        # TODO: this is too naive; document may be e.g. "PMID.a1",
+        # in which case the reasonable text file name guess is
+        # "PMID.txt", not "PMID.a1.txt"
+        textfn = document+"."+TEXT_FILE_SUFFIX
+        try:
+            with open(textfn, 'r') as f:
+                text = f.read()
+                return text
+        except:
+            display_message("Error reading document text from %s" % textfn, "error")
+        return None
+
 class Annotation(object):
     def __init__(self, tail):
         self.tail = tail
 
     def __str__(self):
-        return self.tail
+        raise NotImplementedError
 
     def __repr__(self):
         return '%s("%s")' % (str(self.__class__), str(self))
@@ -616,6 +733,33 @@ class Annotation(object):
     def get_deps(self):
         return (set(), set())
 
+class UnknownAnnotation(Annotation):
+    """
+    Represents a line of annotation that could not be parsed.
+    These are not discarded, but rather passed through unmodified.
+    """
+    def __init__(self, line):
+        Annotation.__init__(self, line)
+
+    def __str__(self):
+        return self.tail
+
+class UnparsedIdedAnnotation(Annotation):
+    """
+    Represents an annotation for which an ID could be read but the
+    rest of the line could not be parsed. This is separate from
+    UnknownAnnotation to allow IDs for unparsed annotations to be
+    "reserved".
+    """
+    # duck-type instead of inheriting from IdedAnnotation as
+    # that inherits from TypedAnnotation and we have no type
+    def __init__(self, id, line):
+        self.id = id
+        # (this is actually the whole line, not just the id tail)
+        self.tail = line
+
+    def __str__(self):
+        return self.tail
 
 class TypedAnnotation(Annotation):
     def __init__(self, type, tail):
@@ -624,7 +768,6 @@ class TypedAnnotation(Annotation):
 
     def __str__(self):
         raise NotImplementedError
-
 
 class IdedAnnotation(TypedAnnotation):
     def __init__(self, id, type, tail):
@@ -637,7 +780,6 @@ class IdedAnnotation(TypedAnnotation):
 
     def __str__(self):
         raise NotImplementedError
-
 
 class EventAnnotation(IdedAnnotation):
     def __init__(self, trigger, args, id, type, tail):
@@ -741,12 +883,24 @@ class OnelineCommentAnnotation(IdedAnnotation):
         return (soft_deps, hard_deps)
 
 
-# NOTE: The actual text goes into the tail
 class TextBoundAnnotation(IdedAnnotation):
+    """
+    Text-bound annotation base class. Does not assume ability to
+    access text.
+    """
+
     def __init__(self, start, end, id, type, tail):
+        # Note: if present, the text goes into tail
         IdedAnnotation.__init__(self, id, type, tail)
         self.start = start
         self.end = end
+
+    def get_text(self):
+        # If you're seeing this exception, you probably need a
+        # TextBoundAnnotationWithText. The underlying issue may be
+        # that you're creating an Annotations object instead of
+        # TextAnnotations.
+        raise NotImplementedError
 
     def __str__(self):
         return '%s\t%s %s %s%s' % (
@@ -755,6 +909,31 @@ class TextBoundAnnotation(IdedAnnotation):
                 self.start,
                 self.end,
                 self.tail
+                )
+
+class TextBoundAnnotationWithText(TextBoundAnnotation):
+    """
+    Text-bound annotation including explicit definition of
+    the referenced text.
+    """
+    def __init__(self, start, end, id, type, text, text_tail):
+        IdedAnnotation.__init__(self, id, type, '\t'+text+'\n'+text_tail)
+        self.start = start
+        self.end = end
+        self.text = text
+        self.text_tail = text_tail
+
+    def get_text(self):
+        return self.text
+
+    def __str__(self):
+        return '%s\t%s %s %s\t%s%s' % (
+                self.id,
+                self.type,
+                self.start,
+                self.end,
+                self.text,
+                self.text_tail
                 )
 
 if __name__ == '__main__':

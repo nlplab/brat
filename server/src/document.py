@@ -18,7 +18,7 @@ from os.path import abspath, isabs, isdir
 from os.path import join as path_join
 from re import sub
 
-from annotation import Annotations, TEXT_FILE_SUFFIX, AnnotationFileNotFoundError
+from annotation import TextAnnotations, TEXT_FILE_SUFFIX, AnnotationFileNotFoundError
 from common import ProtocolError
 from config import DATA_DIR
 from htmlgen import generate_client_keymap, generate_textbound_type_html
@@ -62,7 +62,7 @@ def get_directory_information(directory):
             from annotation import JOINED_ANN_FILE_SUFF
             mtime = getmtime(join(DATA_DIR,
                 join(real_dir, file + "." + JOINED_ANN_FILE_SUFF)))
-        except OSError:
+        except:
             # The file did not exist (or similar problem)
             mtime = -1
         doclist_with_time.append([file, mtime])
@@ -223,7 +223,7 @@ def _document_json_dict(document):
     # Read in the textual data to make it ready to push
     _enrich_json_with_text(j_dic, document + '.' + TEXT_FILE_SUFFIX)
 
-    with Annotations(document) as ann_obj:
+    with TextAnnotations(document) as ann_obj:
         _enrich_json_with_data(j_dic, ann_obj)
 
     return j_dic
@@ -257,62 +257,3 @@ def get_document(directory, document):
     real_dir = real_directory(directory)
     doc_path = path_join(real_dir, document)
     return _document_json_dict(doc_path)
-
-# From the old ajax server
-'''
-def export(directory, real_directory):
-    from urllib import quote
-    from cgi import escape
-
-    try:
-        doclist = [file[0:-4] for file in my_listdir(real_directory)
-                if file.endswith('txt')]
-        doclist.sort()
-
-        edir = escape(directory)
-        qdir = quote(directory)
-        print """Content-Type: text/html
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
-<html>
-<head>
-<title>%s - brat</title>
-<link rel="stylesheet" type="text/css" href="style.css"/>
-</head>
-<body id="export_page">
-<img id="logo" src="brat-logo.png"/>
-<div><strong>Documents in directory %s</strong></div>
-<table>
-""" % (edir, edir)
-        background = 0
-        for file in doclist:
-            efile = escape(file)
-            qfile = quote(file)
-
-            print """<tr class="background%d">
-<th>%s</th>
-<td><a href="ajax.cgi?action=fetch&amp;directory=%s&amp;document=%s.txt">Text</a></td>
-<td><a href="ajax.cgi?action=fetch&amp;directory=%s&amp;document=%s.ann">Annotations</a></td>
-</tr>
-""" % (background, efile, qdir, qfile, qdir, qfile)
-            background = 1-background
-
-        print """</table>
-</body>
-</html>
-"""
-
-    except OSError, x:
-        print "Content-Type: text/html"
-        print "Status: 404 File Not Found\n"
-
-def fetch(real_directory, document):
-    try:
-        print "Content-Type: text/plain\n"
-        with open(join_path(real_directory, document)) as f:
-            print f.read()
-    except OSError, x:
-        print "Content-Type: text/html\n"
-        print "Status: 404 File Not Found\n"
-'''

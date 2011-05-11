@@ -54,15 +54,19 @@ def get_statistics(directory, base_names, use_cache=True):
 
     if generate:
         # Generate the document statistics from scratch
+        from annotation import JOINED_ANN_FILE_SUFF
         docstats = []
         for docname in base_names:
-            from annotation import JOINED_ANN_FILE_SUFF
-            with Annotations(
+            try:
+                with Annotations(
                     path_join(directory, docname),
                     read_only=True) as ann_obj:
-                tb_count = len([a for a in ann_obj.get_textbounds()])
-                event_count = len([a for a in ann_obj.get_events()])
-                docstats.append([tb_count, event_count])
+                    tb_count = len([a for a in ann_obj.get_textbounds()])
+                    event_count = len([a for a in ann_obj.get_events()])
+                    docstats.append([tb_count, event_count])
+            except:
+                # pass exceptions silently, just marking stats missing
+                docstats.append([-1,-1])
 
         # Cache the statistics
         try:
