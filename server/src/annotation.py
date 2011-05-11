@@ -721,6 +721,9 @@ class TextAnnotations(Annotations):
         return None
 
 class Annotation(object):
+    """
+    Base class for all annotations.
+    """
     def __init__(self, tail):
         self.tail = tail
 
@@ -762,6 +765,9 @@ class UnparsedIdedAnnotation(Annotation):
         return self.tail
 
 class TypedAnnotation(Annotation):
+    """
+    Base class for all annotations with a type.
+    """
     def __init__(self, type, tail):
         Annotation.__init__(self, tail)
         self.type = type
@@ -770,6 +776,9 @@ class TypedAnnotation(Annotation):
         raise NotImplementedError
 
 class IdedAnnotation(TypedAnnotation):
+    """
+    Base class for all annotations with an ID.
+    """
     def __init__(self, id, type, tail):
         TypedAnnotation.__init__(self, type, tail)
         self.id = id
@@ -782,6 +791,19 @@ class IdedAnnotation(TypedAnnotation):
         raise NotImplementedError
 
 class EventAnnotation(IdedAnnotation):
+    """
+    Represents an event annotation. Events are typed annotations that
+    are associated with a specific text expression stating the event
+    (TRIGGER, identifying a TextBoundAnnotation) and have an arbitrary
+    number of arguments, each of which is represented as a ROLE:PARTID
+    pair, where ROLE is a string identifying the role (e.g. "Theme",
+    "Cause") and PARTID the ID of another annotation participating in
+    the event.
+
+    Represented in standoff as
+
+    ID\tTYPE:TRIGGER [ROLE1:PART1 ROLE2:PART2 ...]
+    """
     def __init__(self, trigger, args, id, type, tail):
         IdedAnnotation.__init__(self, id, type, tail)
         self.trigger = trigger
@@ -811,6 +833,16 @@ class EventAnnotation(IdedAnnotation):
 
 
 class EquivAnnotation(TypedAnnotation):
+    """
+    Represents an equivalence group annotation. Equivs define a set of
+    other annotations (normally TextBoundAnnotation) to be equivalent.
+
+    Represented in standoff as
+    
+    *\tEquiv ID1 ID2 [...]
+
+    Where "*" is the literal asterisk character.
+    """
     def __init__(self, type, entities, tail):
         TypedAnnotation.__init__(self, type, tail)
         self.entities = entities
@@ -885,8 +917,17 @@ class OnelineCommentAnnotation(IdedAnnotation):
 
 class TextBoundAnnotation(IdedAnnotation):
     """
-    Text-bound annotation base class. Does not assume ability to
-    access text.
+    Represents a text-bound annotation. Text-bound annotations
+    identify a specific span of text and assign it a type.  This base
+    class does not assume ability to access text; use
+    TextBoundAnnotationWithText for that.
+
+    Represented in standoff as
+    
+    ID\tTYPE START END
+
+    Where START and END are positive integer offsets identifying the
+    span of the annotation in text.
     """
 
     def __init__(self, start, end, id, type, tail):
@@ -913,8 +954,16 @@ class TextBoundAnnotation(IdedAnnotation):
 
 class TextBoundAnnotationWithText(TextBoundAnnotation):
     """
-    Text-bound annotation including explicit definition of
-    the referenced text.
+    Represents a text-bound annotation. Text-bound annotations
+    identify a specific span of text and assign it a type.  This class
+    assume that the referenced text is included in the annotation.
+
+    Represented in standoff as
+
+    ID\tTYPE START END\tTEXT
+
+    Where START and END are positive integer offsets identifying the
+    span of the annotation in text and TEXT is the corresponding text.
     """
     def __init__(self, start, end, id, type, text, text_tail):
         IdedAnnotation.__init__(self, id, type, '\t'+text+'\n'+text_tail)
