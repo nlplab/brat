@@ -520,7 +520,7 @@ class Annotations(object):
         if type != 'Equiv':
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
         equivs = type_tail.split(None)
-        return EquivAnnotation(type, equivs, data_tail),
+        return EquivAnnotation(type, equivs, data_tail)
 
     def _parse_modifier_annotation(self, id, data, data_tail):
         type, target = data.split()
