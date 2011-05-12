@@ -204,6 +204,10 @@ def create_span(directory, document, start, end, type,
     return _create_span(directory, document, start, end,
             type, negation, speculation, id=id)
 
+from logging import info as log_info
+from annotation import TextBoundAnnotationWithText, TextAnnotations
+from annotation import TextBoundAnnotation
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def _create_span(directory, document, start, end, type, negation, speculation, id=None):
 #def save_span(docdir, docname, start_str, end_str, type, negation, speculation, id):
@@ -227,7 +231,7 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
 
     working_directory = path_split(document)[0]
 
-    with Annotations(document) as ann_obj:
+    with TextAnnotations(document) as ann_obj:
         mods = ModificationTracker()
 
         if id is not None:
@@ -236,20 +240,34 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
             
             # Hack to support event annotations
             try:
-                if int(start) != ann.start or int(end) != ann.end:
-                    # This scenario has been discussed and changing the span inevitably
-                    # leads to the text span being out of sync since we can't for sure
-                    # determine where in the data format the text (if at all) it is
-                    # stored. For now we will fail loudly here.
-                    error_msg = 'unable to change the span of an existing annotation'
-                    display_message(error_msg, type='error', duration=3)
-                    # Not sure if we only get an internal server error or the data
-                    # will actually reach the client to be displayed.
-                    assert False, error
-                    
-                    # Span changes are as of yet unsupported
-                    #ann.start = start
-                    #ann.end = end
+                if isinstance(ann, EventAnnotation):
+                    # We should actually modify the trigger
+                    to_edit_span = ann_obj.get_ann_by_id(ann.trigger)
+                else:
+                    to_edit_span = ann
+
+                if (int(start) != to_edit_span.start
+                        or int(end) != to_edit_span.end):
+                    if not isinstance(to_edit_span, TextBoundAnnotation):
+                        # This scenario has been discussed and changing the span inevitably
+                        # leads to the text span being out of sync since we can't for sure
+                        # determine where in the data format the text (if at all) it is
+                        # stored. For now we will fail loudly here.
+                        error_msg = ('unable to change the span of an existing annotation'
+                                '(annotation: %s)' % repr(to_edit_span))
+                        display_message(error_msg, type='error', duration=3)
+                        # Not sure if we only get an internal server error or the data
+                        # will actually reach the client to be displayed.
+                        assert False, error_msg
+                    else:
+                        # TODO: Log modification too?
+                        before = str(to_edit_span)
+                        #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
+                        to_edit_span.start = int(start)
+                        to_edit_span.end = int(end)
+                        to_edit_span.text = ann_obj._document_text[to_edit_span.start:to_edit_span.end]
+                        #log_info('Span altered')
+                        mods.change(before, to_edit_span)
             except AttributeError:
                  # It is most likely an event annotion
                 pass

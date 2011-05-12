@@ -13,6 +13,7 @@ Version:    2010-01-25
 
 # TODO: Major re-work, cleaning up and conforming with new server paradigm
 
+from logging import info as log_info
 from os import utime
 from time import time
 
@@ -1005,6 +1006,7 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
         return self.text
 
     def __str__(self):
+        #log_info('TextBoundAnnotationWithText: __str__: "%s"' % self.text)
         return '%s\t%s %s %s\t%s%s' % (
                 self.id,
                 self.type,
