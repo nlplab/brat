@@ -479,11 +479,11 @@ def create_arc(directory, document, origin, target, type,
                 mods.addition(ann)
         elif type in pconf.get_relation_types():
             if old_type is not None or old_target is not None:
-                # XXX: Dragons be here, not tested due to lack of UI
-                assert target.type in pconf.get_relation_types(), (
-                        'attempting to convert relation to non-relation')
+                assert type in pconf.get_relation_types(), (
+                        ('attempting to convert relation to non-relation "%s" ' % (target.type, )) +
+                        ('(legit types: %s)' % (str(pconf.get_relation_types()), )))
 
-                sought_target = (old_target.id
+                sought_target = (old_target
                         if old_target is not None else target.id)
                 sought_type = (old_type
                         if old_type is not None else type)
@@ -491,15 +491,15 @@ def create_arc(directory, document, origin, target, type,
                 # We are to change the type and/or target
                 found = None
                 for ann in ann_obj.get_relations():
-                    if ann.target == sought_target and ann.type == sought_type:
+                    if ann.arg2 == sought_target and ann.type == sought_type:
                         found = ann
                         break
 
                 # Did it exist and is changed?, otherwise we do nothing
-                if found is not None and (found.target != target.id
+                if found is not None and (found.arg2 != target.id
                         or found.type != type):
                     before = str(found)
-                    found.target = target.id
+                    found.arg2 = target.id
                     found.type = type
                     mods.change(before, found)
             else:
@@ -601,13 +601,7 @@ def delete_arc(directory, document, origin, target, type):
 
         except AttributeError:
             pconf = ProjectConfiguration(real_dir)
-            if type in pconf.get_relation_types():
-                for ann in ann_obj.get_relations():
-                    if ann.type == type and ann.arg1 == origin and ann.arg2 == target:
-                        ann_obj.del_annotation(ann)
-                        mods.deletion(ann)
-                        break
-            else:
+            if type == 'Equiv':
                 # It is an equiv then?
                 #XXX: Slow hack! Should have a better accessor! O(eq_ann)
                 for eq_ann in ann_obj.get_equivs():
@@ -632,6 +626,14 @@ def delete_arc(directory, document, origin, target, type):
                             display_message(e.json_error_response(), type='error', duration=3)
                             #print dumps(add_messages_to_json({}))
                             return {}
+            elif type in pconf.get_relation_types():
+                for ann in ann_obj.get_relations():
+                    if ann.type == type and ann.arg1 == origin and ann.arg2 == target:
+                        ann_obj.del_annotation(ann)
+                        mods.deletion(ann)
+                        break
+            else:
+                assert False, 'unknown annotation'
 
         if DEBUG:
             mods_json = mods.json_response()
