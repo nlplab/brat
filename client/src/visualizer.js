@@ -1104,7 +1104,7 @@ var Visualizer = (function($, window, undefined) {
                 svg.path(arcGroup, path, {
                     markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
                     'class': 'stroke_' + arc.type,
-                    'strokeDashArray': (arc.equiv || arc.relation) ? dashArray : undefined,
+                    'strokeDashArray': arc.equiv ? dashArray : undefined,
                 });
                 if (arc.edited) {
                   svg.path(shadowGroup, path, {
@@ -1138,7 +1138,7 @@ var Visualizer = (function($, window, undefined) {
                 svg.path(arcGroup, path, {
                     markerEnd: leftToRight && !arc.equiv ? 'url(#' + arrows[arc.type] + ')' : undefined,
                     'class': 'stroke_' + arc.type,
-                    'strokeDashArray': (arc.equiv || arc.relation) ? dashArray : undefined,
+                    'strokeDashArray': arc.equiv ? dashArray : undefined,
                 });
                 if (arc.edited) {
                   svg.path(shadowGroup, path, {
