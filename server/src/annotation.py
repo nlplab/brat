@@ -1044,8 +1044,9 @@ class BinaryRelationAnnotation(IdedAnnotation):
     
     def get_deps(self):
         soft_deps, hard_deps = IdedAnnotation.get_deps(self)
-        hard_deps.add(arg1)
-        hard_deps.add(arg2)
+        hard_deps.add(self.arg1)
+        hard_deps.add(self.arg2)
+        return soft_deps, hard_deps
 
 if __name__ == '__main__':
     #TODO: Unit-testing

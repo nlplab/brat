@@ -352,6 +352,10 @@ rect.shadow_EditHighlight {
   stroke: #303030;
 }
 
+/* relations */
+.fill_Location   { fill:   #000000; }
+.stroke_Location { stroke: #000000; }
+
 .fill_Equiv {
   fill: black; /* TODO */
 }

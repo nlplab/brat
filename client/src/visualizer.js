@@ -61,14 +61,18 @@ var Visualizer = (function($, window, undefined) {
         this.generalType = generalType;
       };
 
-      var EventDesc = function(id, triggerId, roles, equiv) {
+      var EventDesc = function(id, triggerId, roles, klass) {
         this.id = id;
         this.triggerId = triggerId;
         var roleList = this.roles = [];
         $.each(roles, function(roleNo, role) {
           roleList.push({ type: role[0], targetId: role[1] });
         });
-        if (equiv) this.equiv = true;
+        if (klass == "equiv") {
+          this.equiv = true;
+        } else if (klass == "relation") {
+          this.relation = true;
+        }
       };
 
       var Row = function() {
@@ -149,10 +153,14 @@ var Visualizer = (function($, window, undefined) {
           var len = equivSpans.length;
           for (var i = 1; i < len; i++) {
             var eventDesc = data.eventDescs[equiv[0] + '*' + i] =
-                new EventDesc(equivSpans[i - 1], equivSpans[i - 1], [[equiv[1], equivSpans[i]]], true);
+                new EventDesc(equivSpans[i - 1], equivSpans[i - 1], [[equiv[1], equivSpans[i]]], 'equiv');
             eventDesc.leftSpans = equivSpans.slice(0, i);
             eventDesc.rightSpans = equivSpans.slice(i);
           }
+        });
+        $.each(data.relations, function(relNo, rel) {
+          data.eventDescs[rel[0]] =
+              new EventDesc(rel[2], rel[2], [[rel[1], rel[3]]], 'relation');
         });
         data.sentComment = {};
 
@@ -253,6 +261,7 @@ var Visualizer = (function($, window, undefined) {
         data.arcs = [];
         $.each(data.eventDescs, function(eventNo, eventDesc) {
           var dist = 0;
+          console.log(eventDesc); // HERE
           var origin = data.spans[eventDesc.id];
           if (!origin.chunk) {
             // TODO: include missing trigger ID in error message
@@ -279,6 +288,8 @@ var Visualizer = (function($, window, undefined) {
               arc.equiv = true;
               eventDesc.equivArc = arc;
               arc.eventDescId = eventNo;
+            } else if (eventDesc.relation) {
+              arc.relation = true;
             }
             origin.totalDist += dist;
             origin.numArcs++;
@@ -1093,7 +1104,7 @@ var Visualizer = (function($, window, undefined) {
                 svg.path(arcGroup, path, {
                     markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
                     'class': 'stroke_' + arc.type,
-                    'strokeDashArray': arc.equiv ? dashArray : undefined,
+                    'strokeDashArray': (arc.equiv || arc.relation) ? dashArray : undefined,
                 });
                 if (arc.edited) {
                   svg.path(shadowGroup, path, {
@@ -1127,7 +1138,7 @@ var Visualizer = (function($, window, undefined) {
                 svg.path(arcGroup, path, {
                     markerEnd: leftToRight && !arc.equiv ? 'url(#' + arrows[arc.type] + ')' : undefined,
                     'class': 'stroke_' + arc.type,
-                    'strokeDashArray': arc.equiv ? dashArray : undefined,
+                    'strokeDashArray': (arc.equiv || arc.relation) ? dashArray : undefined,
                 });
                 if (arc.edited) {
                   svg.path(shadowGroup, path, {

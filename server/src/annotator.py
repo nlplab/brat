@@ -600,30 +600,38 @@ def delete_arc(directory, document, origin, target, type):
                 pass
 
         except AttributeError:
-            # It is an equiv then?
-            #XXX: Slow hack! Should have a better accessor! O(eq_ann)
-            for eq_ann in ann_obj.get_equivs():
-                # We don't assume that the ids only occur in one Equiv, we
-                # keep on going since the data "could" be corrupted
-                if (str(origin) in eq_ann.entities
-                        and str(target) in eq_ann.entities):
-                    before = str(eq_ann)
-                    eq_ann.entities.remove(str(origin))
-                    eq_ann.entities.remove(str(target))
-                    mods.change(before, eq_ann)
+            pconf = ProjectConfiguration(real_dir)
+            if type in pconf.get_relation_types():
+                for ann in ann_obj.get_relations():
+                    if ann.type == type and ann.arg1 == origin and ann.arg2 == target:
+                        ann_obj.del_annotation(ann)
+                        mods.deletion(ann)
+                        break
+            else:
+                # It is an equiv then?
+                #XXX: Slow hack! Should have a better accessor! O(eq_ann)
+                for eq_ann in ann_obj.get_equivs():
+                    # We don't assume that the ids only occur in one Equiv, we
+                    # keep on going since the data "could" be corrupted
+                    if (str(origin) in eq_ann.entities
+                            and str(target) in eq_ann.entities):
+                        before = str(eq_ann)
+                        eq_ann.entities.remove(str(origin))
+                        eq_ann.entities.remove(str(target))
+                        mods.change(before, eq_ann)
 
-                if len(eq_ann.entities) < 2:
-                    # We need to delete this one
-                    try:
-                        ann_obj.del_annotation(eq_ann)
-                        mods.deletion(eq_ann)
-                    except DependingAnnotationDeleteError, e:
-                        #TODO: This should never happen, dep on equiv
-                        #print 'Content-Type: application/json\n'
-                        # TODO: Proper exception here!
-                        display_message(e.json_error_response(), type='error', duration=3)
-                        #print dumps(add_messages_to_json({}))
-                        return {}
+                    if len(eq_ann.entities) < 2:
+                        # We need to delete this one
+                        try:
+                            ann_obj.del_annotation(eq_ann)
+                            mods.deletion(eq_ann)
+                        except DependingAnnotationDeleteError, e:
+                            #TODO: This should never happen, dep on equiv
+                            #print 'Content-Type: application/json\n'
+                            # TODO: Proper exception here!
+                            display_message(e.json_error_response(), type='error', duration=3)
+                            #print dumps(add_messages_to_json({}))
+                            return {}
 
         if DEBUG:
             mods_json = mods.json_response()
