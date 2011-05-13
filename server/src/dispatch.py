@@ -12,11 +12,12 @@ Version:    2011-04-21
 from os.path import abspath
 from os.path import join as path_join
 
-from annotator import create_span, delete_span
 from annotator import create_arc, delete_arc, possible_arc_types
+from annotator import create_span, delete_span
 from auth import login, logout, whoami, NotAuthorisedError
 from common import ProtocolError
 from config import DATA_DIR
+from docimport import save_import
 from document import get_directory_information, get_document
 from inspect import getargspec
 from itertools import izip
@@ -24,12 +25,14 @@ from jsonwrap import dumps
 from logging import info as log_info
 from message import add_messages_to_json, display_message
 from svg import store_svg, retrieve_svg
+from session import get_session
 
 ### Constants
 # Function call-backs
 DISPATCHER = {
         'getDirectoryInformation': get_directory_information,
         'getDocument': get_document,
+        'importDocument': save_import,
 
         'storeSVG': store_svg,
         'retrieveSVG': retrieve_svg,
@@ -48,13 +51,13 @@ DISPATCHER = {
 # Actions that require authentication
 REQUIRES_AUTHENTICATION = set((
     # Document functionality
-    #'importDocument',
+    'importDocument',
 
     # Editing functionality
-    #'createArc',
-    #'deleteArc',
-    #'createSpan',
-    #'deleteSpan',
+    'createArc',
+    'deleteArc',
+    'createSpan',
+    'deleteSpan',
     #'setDocumentStatus',
     ))
 
@@ -122,8 +125,10 @@ def _directory_is_safe(dir_path):
     # Make a simple test that the directory is inside the data directory
     return abspath(path_join(DATA_DIR, dir_path[1:])).startswith(DATA_DIR)
 
-def dispatch(params):
+def dispatch(params, client_ip, client_hostname):
     action = params.getvalue('action')
+    log_info(dir(params))
+    log_info(str(params))
 
     log_info('dispatcher handling action: %s' % (action, ));
     
@@ -138,12 +143,15 @@ def dispatch(params):
 
     # Make sure that we are authenticated if we are to do certain actions
     if action in REQUIRES_AUTHENTICATION and get_session()['user'] is None:
+        log_info('Authorization failure for "%s" with hostname "%s"'
+                % (client_ip, client_hostname))
         raise NotAuthorisedError(action)
 
     # Fetch the action function for this action (if any)
     try:
         action_fuction = DISPATCHER[action]
     except KeyError:
+        log_info('Invalid action "%s"' % action)
         raise InvalidActionError(action)
 
     # Determine what arguments the action function expects

@@ -575,7 +575,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var _doctitle = $('#import_title').val();
         var _doctext = $('#import_text').val();
         var opts = {
-          action : 'import',
+          action : 'importDocument',
           directory : dir,
           docid  : _docid,
           title : _doctitle,
