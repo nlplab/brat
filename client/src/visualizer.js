@@ -6,7 +6,12 @@ var Visualizer = (function($, window, undefined) {
       var replaceUnderscoresWithSpace = true; // for span texts
       var margin = { x: 2, y: 1 };
       var boxTextMargin = { x: 0, y: 1 }; // effect is inverse of "margin" for some reason
-      var space = 4;
+      var spaceWidths = {
+        ' ': 5,
+        '\u200b': 0,
+        '\u3000': 10,
+        '\n': 0
+      };
       var boxSpacing = 1;
       var curlyHeight = 4;
       var arcSpacing = 9; //10;
@@ -214,25 +219,27 @@ var Visualizer = (function($, window, undefined) {
         });
 
         // find chunk breaks
-        var breaks = [[-1, false]];
-        var pos = -1;
+        var breaks = [[-1, ' ']];
         var sentNum = 0;
-        while ((pos = data.text.indexOf('\n', pos + 1)) != -1) {
-          breaks.push([pos, true, ++sentNum]);
-        }
-        pos = -1;
-        while ((pos = data.text.indexOf(' ', pos + 1)) != -1) {
-          var wordBreak = true;
-          // possible word break: see if it belongs to any spans
-          $.each(data.spans, function(spanNo, span) {
-            if (span.from <= pos + data.offset && pos + data.offset < span.to) {
-              // it does; no word break
-              wordBreak = false;
-              return false;
+        $.each(spaceWidths, function(char, width) {
+          var pos = -1;
+          while ((pos = data.text.indexOf(char, pos + 1)) != -1) {
+            if (char === '\n') {
+              breaks.push([pos, char, ++sentNum]);
+            } else {
+              var wordBreak = true;
+              // possible word break: see if it belongs to any spans
+              $.each(data.spans, function(spanNo, span) {
+                if (span.from <= pos + data.offset && pos + data.offset < span.to) {
+                  // it does; no word break
+                  wordBreak = false;
+                  return false;
+                }
+              });
+              if (wordBreak) breaks.push([pos, char]);
             }
-          });
-          if (wordBreak) breaks.push([pos, false]);
-        }
+          }
+        });
         breaks.sort(function(a, b) { return a[0] - b[0] });
 
         // split text into chunks
@@ -249,7 +256,8 @@ var Visualizer = (function($, window, undefined) {
                 text: data.text.substring(from, to),
                 from: from + data.offset,
                 to: to + data.offset,
-                lineBreak: breaks[breakNo][1],
+                lineBreak: breaks[breakNo][1] == '\n',
+                space: breaks[breakNo + 1][1],
                 index: chunkNo++,
                 spans: [],
                 sentence: breaks[breakNo][2],
@@ -902,7 +910,7 @@ var Visualizer = (function($, window, undefined) {
               translate(chunk, current.x + boxX, 0);
               chunk.textX = current.x - textBox.x + boxX;
 
-              current.x += space + boxWidth;
+              current.x += spaceWidths[chunk.space] + boxWidth;
             }); // chunks
 
             // finish the last row

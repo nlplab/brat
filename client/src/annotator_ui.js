@@ -445,6 +445,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (x == 'annotationIsReadOnly') {
             dispatcher.post('messages', [[["This document is read-only and can't be edited.", 'error']]]);
           }
+          reselectedSpan = null;
           $('#waiter').dialog('close');
         } else {
           args.edited = response.edited;

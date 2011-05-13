@@ -10,6 +10,7 @@ Brat Rapid Annotation Tool (brat)
 
 import re
 
+from annotation import open_textfile
 from message import display_message
 
 # TODO: replace with reading a proper ontology.
@@ -235,7 +236,7 @@ def __read_term_hierarchy(input):
 
 def __read_or_default(filename, default):
     try:
-        f = open(filename, 'r')
+        f = open_textfile(filename, 'r')
         r = f.read()
         f.close()
         return r
