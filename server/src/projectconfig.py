@@ -113,7 +113,7 @@ class TypeHierarchyNode:
         self.__primary_term = normalize_to_storage_form(self.terms[0])
         # TODO: this might not be the ideal place to put this warning
         if self.__primary_term != self.terms[0]:
-            display_message("Note: in configuration, term '%s' is not appropriate for storage, using '%s' instead. (Revise configuration file to get rid of this message. Terms other than the first are not subject to this restriction.)" % (self.terms[0], self.__primary_term), "warning", -1)
+            display_message("Note: in configuration, term '%s' is not appropriate for storage (should match '^[a-zA-Z0-9_-]*$'), using '%s' instead. (Revise configuration file to get rid of this message. Terms other than the first are not subject to this restriction.)" % (self.terms[0], self.__primary_term), "warning", -1)
             pass
 
         # TODO: cleaner and more localized parsing
@@ -257,7 +257,7 @@ def __parse_labels(labelstr, default, source):
                 storage_form, others = fields[0], fields[1:]
                 normsf = normalize_to_storage_form(storage_form)
                 if normsf != storage_form:
-                    display_message("Note: first field '%s' is not a valid storage form in label configuration (should match '^[a-zA-Z0-9_-]$'; using '%s' instead): '%s'" % (storage_form, normsf, l), "warning", -1)
+                    display_message("Note: first field '%s' is not a valid storage form in label configuration (should match '^[a-zA-Z0-9_-]*$'; using '%s' instead): '%s'" % (storage_form, normsf, l), "warning", -1)
                     storage_form = normsf
                     
                 if storage_form in labels:
@@ -500,12 +500,13 @@ def get_relations_by_arg1(directory, term):
     if term not in cache[directory]:
         for r in get_relation_type_list(directory):
             arg1s = [a for a in r.arguments if a[0] == "Arg1"]
-            if len(arg1s) != 1:
+            if len(arg1s) == 0:
                 display_message("Relation type %s lacking Arg1. Configuration may be wrong." % r.storage_form(), "warning")
                 continue
-            arg1 = arg1s[0]
-            if arg1[1] == "<ANY>" or arg1[1] == term:
-                rels.append(r)
+            for dummy, type in arg1s:
+                # TODO: "wildcards" other than <ANY>
+                if type == "<ANY>" or type == term:
+                    rels.append(r)
         cache[directory] = rels
     return cache[directory]
 get_relations_by_arg1.__cache = {}
