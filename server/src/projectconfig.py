@@ -51,6 +51,10 @@ __default_kb_shortcuts = """
 P	Protein
 """
 
+# Reserved "macros" with special meanings in configuration.
+reserved_macro_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE"]
+reserved_macro_string = ["<%s>" % n for n in reserved_macro_name]
+
 def normalize_to_storage_form(t):
     """
     Given a label, returns a form of the term that can be used for
@@ -125,7 +129,7 @@ class TypeHierarchyNode:
             a = a.strip()
             m = re.match(r'^(.*?):(.*)$', a)
             if not m:
-                display_message("Failed to parse argument %s (args: %s)" % (a, args), "debug", -1)
+                display_message("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), "warning", 5)
                 raise InvalidProjectConfigException
             role, atypes = m.groups()
 
@@ -150,6 +154,11 @@ class TypeHierarchyNode:
 
             for atype in atypes.split("|"):
                 if atype.strip() == "":
+                    display_message("Project configuration: error parsing: empty type for argument '%s'." % a, "warning", 5)
+                    raise InvalidProjectConfigException
+                
+                if atype not in reserved_macro_string and normalize_to_storage_form(atype) != atype:
+                    display_message("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, "warning", 5)
                     raise InvalidProjectConfigException
 
                 self.arguments.append((role, atype))
@@ -187,7 +196,7 @@ def __read_term_hierarchy(input):
         m = re.match(r'^<([a-zA-Z_-]+)>=\s*(.*?)\s*$', l)
         if m:
             name, value = m.groups()
-            if name in ("ANY", "ENTITY", "RELATION", "EVENT", "NONE"):
+            if name in reserved_macro_name:
                 display_message("Error: cannot redefine <%s> in configuration, it is a reserved name." % name)
                 # TODO: proper exception
                 assert False
