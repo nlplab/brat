@@ -52,11 +52,11 @@ def get_statistics(directory, base_names, use_cache=True):
     else:
         generate = False
         try:
-            with open_textfile(cache_file_path, 'rb') as cache_file:
+            with open(cache_file_path, 'rb') as cache_file:
                 docstats = pickle_load(cache_file)
         except UnpicklingError:
             # Corrupt data, re-generate
-            display_message('Warning: stats cache was corrupted; regenerating', 'warning', -1)
+            display_message('Warning: stats cache %s was corrupted; regenerating' % cache_file_path, 'warning', -1)
             generate = True
         except EOFError:
             # Corrupt data, re-generate
