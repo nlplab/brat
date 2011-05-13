@@ -20,10 +20,6 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var svgElement = $(svg._svg);
 
-      var normalize = function(str) {
-        return str.toLowerCase().replace(' ', '_');
-      }
-
       var onKeyDown = function(evt) {
         var code = evt.which;
 
@@ -160,7 +156,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (span) {
           // FIXME was: document.location + '/' + span.id);
           $('#span_highlight_link').show().attr('href', 'FIXME');
-          var el = $('#span_' + normalize(span.type));
+          var el = $('#span_' + span.type);
           if (el.length) {
             el[0].checked = true;
           } else {
@@ -231,7 +227,7 @@ var AnnotatorUI = (function($, window, undefined) {
               keymap = jsonData.keymap;
               if (arcId) {
                 $('#arc_highlight_link').attr('href', document.location + '/' + arcId).show(); // TODO incorrect
-                var el = $('#arc_' + normalize(arcType))[0];
+                var el = $('#arc_' + arcType)[0];
                 if (el) {
                   el.checked = true;
                 }
