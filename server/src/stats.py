@@ -16,6 +16,7 @@ from os.path import isfile, getmtime
 from os.path import join as path_join
 from cPickle import load as pickle_load
 from cPickle import dump as pickle_dump
+from cPickle import UnpicklingError
 
 from annotation import Annotations, open_textfile
 from config import DATA_DIR
@@ -52,6 +53,10 @@ def get_statistics(directory, base_names, use_cache=True):
         try:
             with open_textfile(cache_file_path, 'rb') as cache_file:
                 docstats = pickle_load(cache_file)
+        except UnpicklingError:
+            # Corrupt data, re-generate
+            display_message("Warning: stats cache was corrupted; regenerating", "warning", -1)
+            generate = True
         except EOFError:
             # Corrupt data, re-generate
             generate = True
