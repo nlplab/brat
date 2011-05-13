@@ -17,6 +17,7 @@ Version:    2010-02-07
 '''
 
 from cgi import escape, FieldStorage
+from os import environ
 from os.path import dirname
 from os.path import join as path_join
 from sys import path as sys_path
@@ -141,7 +142,13 @@ def main(args):
 
             # Dispatch the request and get the corresponding json dictionary
             from dispatch import dispatch
-            json_dic = dispatch(params)
+            client_ip = environ['REMOTE_ADDR']
+            try:
+                client_hostname = environ['REMOTE_HOST']
+            except KeyError:
+                client_hostname = None
+
+            json_dic = dispatch(params, client_ip, client_hostname)
             # TODO: Possibly a check here that what we got back was dictionary:ish
 
             get_session().print_cookie()
