@@ -252,7 +252,7 @@ def main(argv=None):
             # remove ".a2" suffix for Annotations to prompt parsing of
             # .a1 also.
             nosuff_fn = fn.replace(".a2","")
-            with annotation.Annotations(nosuff_fn) as ann_obj:
+            with annotation.TextAnnotations(nosuff_fn) as ann_obj:
                 issues = verify_annotation(ann_obj, projectconfig)
                 for i in issues:
                     print "%s:\t%s" % (fn, i.human_readable_str())

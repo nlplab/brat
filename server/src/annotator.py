@@ -17,7 +17,7 @@ from os.path import join as path_join
 from os.path import split as path_split
 
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
-        Annotations, DependingAnnotationDeleteError, TextBoundAnnotation,
+        TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, ModifierAnnotation, EquivAnnotation, open_textfile)
 from config import DEBUG
 from document import real_directory
@@ -123,7 +123,7 @@ def confirm_span(docdir, docname, span_id):
 
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    with Annotations(document) as ann_obj:
+    with TextAnnotations(document) as ann_obj:
         mods = ModificationTracker()
 
         # find AnnotationUnconfirmed comments that refer
@@ -205,8 +205,7 @@ def create_span(directory, document, start, end, type,
             type, negation, speculation, id=id)
 
 from logging import info as log_info
-from annotation import TextBoundAnnotationWithText, TextAnnotations
-from annotation import TextBoundAnnotation
+from annotation import TextBoundAnnotation, TextBoundAnnotationWithText
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def _create_span(directory, document, start, end, type, negation, speculation, id=None):
@@ -478,7 +477,7 @@ def create_arc(directory, document, origin, target, type,
 
     document = path_join(real_dir, document)
 
-    with Annotations(document) as ann_obj:
+    with TextAnnotations(document) as ann_obj:
         origin = ann_obj.get_ann_by_id(origin) 
         target = ann_obj.get_ann_by_id(target)
 
@@ -586,7 +585,7 @@ def delete_arc(directory, document, origin, target, type):
 
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    with Annotations(document) as ann_obj:
+    with TextAnnotations(document) as ann_obj:
         mods = ModificationTracker()
 
         # This can be an event or an equiv
@@ -669,7 +668,7 @@ def delete_span(directory, document, id):
     
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    with Annotations(document) as ann_obj:
+    with TextAnnotations(document) as ann_obj:
         mods = ModificationTracker()
         
         #TODO: Handle a failure to find it
@@ -708,7 +707,7 @@ def delete_span(directory, document, id):
 def set_status(directory, document, status=None):
     real_dir = real_directory(directory) 
 
-    with Annotations(path_join(real_dir, document)) as ann:
+    with TextAnnotations(path_join(real_dir, document)) as ann:
         # Erase all old status annotations
         for status in ann.get_statuses():
             ann.del_annotation(status)
@@ -726,7 +725,7 @@ def set_status(directory, document, status=None):
     return json_dic
 
 def get_status(directory, document):
-    with Annotations(path_join(real_directory, document),
+    with TextAnnotations(path_join(real_directory, document),
             read_only=True) as ann:
 
         # XXX: Assume the last one is correct if we have more
