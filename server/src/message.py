@@ -25,6 +25,12 @@ def display_message(s, type='comment', duration=3):
     global __pending_messages
     __pending_messages.append((s, type, duration))
 
+def output_messages(o):
+    global __pending_messages
+    for m, c, d in __pending_messages:
+        print >> o, c, ":", m
+    __pending_messages = []
+
 def add_messages_to_json(json_dict):
     global __pending_messages
 
