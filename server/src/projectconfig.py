@@ -20,7 +20,7 @@ class InvalidProjectConfigException(Exception):
 __entity_type_hierarchy_filename   = 'entity_types.conf'
 __relation_type_hierarchy_filename = 'relation_types.conf'
 __event_type_hierarchy_filename    = 'event_types.conf'
-__abbreviation_filename            = 'abbreviations.conf'
+__label_filename                   = 'labels.conf'
 __kb_shortcut_filename             = 'kb_shortcuts.conf'
 
 # fallback defaults if configs not found
@@ -40,43 +40,57 @@ __default_attribute_type_hierarchy = """
 Affirmative	Arg:<EVENT>
 Sure	Arg:<EVENT>"""
 
-__default_abbreviations = """
-Protein : Pro, P
-Protein binding : Binding, Bind
-Gene expression : Expression, Exp
-Theme   : Th
+__default_labels = """
+Protein\tProtein\tPro\tP
+Protein_binding\tProtein binding\tBinding\tBind
+Gene_expression\tGene_expression\tExpression\tExp
+Theme\tTheme\tTh
 """
 
 __default_kb_shortcuts = """
 P	Protein
 """
 
-def term_interface_form(t):
+def normalize_to_storage_form(t):
     """
-    Returns a form of the term suitable for display to user.
+    Given a label, returns a form of the term that can be used for
+    disk storage. For example, space can be replaced with underscores
+    to allow use with space-separated formats.
     """
+    if t not in normalize_to_storage_form.__cache:
+        # conservative implementation: replace any space with
+        # underscore, replace unicode accented characters with
+        # non-accented equivalents, remove others, and finally replace
+        # all characters not in [a-zA-Z0-9_-] with underscores.
 
-    # abbreviated form of the ontology term for display
-    # to annotators, e.g. "protein phosphorylation"
-    # -> "Phosphorylation"
-    if re.match(r'^protein [a-z]*ation', t):
-        # cut away initial "protein"
-        t = re.sub(r'^protein ', '', t)
-        t = t[0].upper()+t[1:]
-        return t
-    else:
-        return t[0].upper()+t[1:]
+        import re
+        import unicodedata
 
-def term_storage_form(t):
-    """
-    Returns a form of the the given term suitable for storage in standoff format.
-    """
-    return term_interface_form(t).replace(" ","_")
+        n = t.replace(" ", "_")
+        if isinstance(n, unicode):
+            ascii = unicodedata.normalize('NFKD', n).encode('ascii', 'ignore')
+        n  = re.sub(r'[^a-zA-Z0-9_-]', '_', n)
 
+        normalize_to_storage_form.__cache[t] = n
+
+    return normalize_to_storage_form.__cache[t]
+normalize_to_storage_form.__cache = {}
 
 class TypeHierarchyNode:
     """
-    Represents a node in a simple hierarchical ontology.
+    Represents a node in a simple hierarchical ontology. 
+
+    Each node is associated with a set of terms, one of which (the
+    storage_form) matches the way in which the type denoted by the
+    node is referenced to in data stored on dist and in client-server
+    communications. This term is guaranteed to be in "storage form" as
+    defined by normalize_to_storage_form().
+
+    Each node may be associated with one or more "arguments", which
+    are key:value pairs. These determine various characteristics of
+    the node, but their interpretation depends on the hierarchy the
+    node occupies: for example, for events the arugments correspond to
+    event arguments.
     """
     def __init__(self, terms, args):
         self.terms, self.args = terms, args
@@ -93,9 +107,14 @@ class TypeHierarchyNode:
                 self.unused = True
         self.children = []
 
-        # by convention, the last of the listed terms is used
-        # as the primary term
-        self.primary_term = self.terms[-1]
+        # The first of the listed terms is used as the primary term for
+        # storage. Due to format restrictions, this form must not have
+        # e.g. space or other forms.
+        self.__primary_term = normalize_to_storage_form(self.terms[0])
+        # TODO: this might not be the ideal place to put this warning
+        if self.__primary_term != self.terms[0]:
+            display_message("Note: in configuration, term '%s' is not appropriate for storage, using '%s' instead. (Revise configuration file to get rid of this message. Terms other than the first are not subject to this restriction.)" % (self.terms[0], self.__primary_term), "warning", -1)
+            pass
 
         # TODO: cleaner and more localized parsing
         self.arguments = []
@@ -132,7 +151,6 @@ class TypeHierarchyNode:
             for atype in atypes.split("|"):
                 if atype.strip() == "":
                     raise InvalidProjectConfigException
-                atype = term_storage_form(atype)
 
                 self.arguments.append((role, atype))
 
@@ -140,15 +158,11 @@ class TypeHierarchyNode:
                     self.roles_by_type[atype] = []
                 self.roles_by_type[atype].append(role)
 
-    def __norm(self, t):
-        return t.lower().replace(" ", "_")
-
-    def storage_term(self):
-        return term_storage_form(self.primary_term)
-
-    def interface_term(self):
-        return term_interface_form(self.primary_term)
-
+    def storage_form(self):
+        """
+        Returns the form of the term used for storage serverside.
+        """
+        return self.__primary_term
 
 def __read_term_hierarchy(input):
     root_nodes    = []
@@ -229,20 +243,33 @@ def __parse_term_hierarchy(hierarchy, default, source):
         root_nodes = default
     return root_nodes
 
-def __parse_abbreviations(abbrevstr, default, source):
+def __parse_labels(labelstr, default, source):
     try:
-        abbreviations = {}
-        for l in abbrevstr.split("\n"):
-            l = l.strip()
+        labels = {}
+        for l in labelstr.split("\n"):
+            l = l.rstrip()
             if l == "" or l[:1] == "#":
                 continue
-            full, abbrevs = l.split(":")
-            abbreviations[full.strip()] = [a.strip() for a in abbrevs.split(",")]
+            fields = l.split("\t")
+            if len(fields) < 2:
+                display_message("Note: failed to parse line in label configuration (ignoring; format is tab-separated, STORAGE_FORM\\tDISPLAY_FORM[\\tABBREV1\\tABBREV2...]): '%s'" % l, "warning", -1)
+            else:
+                storage_form, others = fields[0], fields[1:]
+                normsf = normalize_to_storage_form(storage_form)
+                if normsf != storage_form:
+                    display_message("Note: first field '%s' is not a valid storage form in label configuration (should match '^[a-zA-Z0-9_-]$'; using '%s' instead): '%s'" % (storage_form, normsf, l), "warning", -1)
+                    storage_form = normsf
+                    
+                if storage_form in labels:
+                    display_message("Note: '%s' defined multiple times in label configuration (only using last definition)'" % storage_form, "warning", -1)
+
+                labels[storage_form] = others
     except:
         # TODO: specific exception handling
-        display_message("Project configuration: error parsing abbreviations from %s. Configuration may be wrong." % source, "warning", 5)
-        abbreviations = default
-    return abbreviations
+        display_message("Project configuration: error parsing labels from %s. Configuration may be wrong." % source, "warning", 5)
+        labels = default
+
+    return labels
 
 def __parse_kb_shortcuts(shortcutstr, default, source):
     try:
@@ -301,19 +328,19 @@ def __get_type_hierarchy(directory, filename, default_hierarchy, min_hierarchy):
 
     return root_nodes
 
-def __get_abbreviations(directory, filename, default_abbrevs, min_abbrevs):
+def __get_labels(directory, filename, default_labels, min_labels):
 
-    abbrevstr, source = __read_first_in_directory_tree(directory, filename)
+    labelstr, source = __read_first_in_directory_tree(directory, filename)
 
-    if abbrevstr is None:
-        abbrevstr = __read_or_default(filename, default_abbrevs)
-        if abbrevstr == default_abbrevs:
-            source = "[default abbreviations]"
+    if labelstr is None:
+        labelstr = __read_or_default(filename, default_labels)
+        if labelstr == default_labels:
+            source = "[default labels]"
         else:
             source = filename
 
-    abbreviations = __parse_abbreviations(abbrevstr, min_abbrevs, source)
-    return abbreviations
+    labels = __parse_labels(labelstr, min_labels, source)
+    return labels
 
 def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 
@@ -382,17 +409,19 @@ def get_attribute_type_hierarchy(directory):
     return __get_type_hierarchy_with_cache(directory, cache, lookups)
 get_attribute_type_hierarchy.__cache = {}
 
-def get_abbreviations(directory):
-    cache = get_abbreviations.__cache
+def get_labels(directory):
+    cache = get_labels.__cache
     if directory not in cache:
-        a = __get_abbreviations(directory,
-                                __abbreviation_filename,
-                                __default_abbreviations,
-                                { "Protein" : [ "Pro", "P" ], "Theme" : [ "Th" ] })
+        a = __get_labels(directory,
+                         __label_filename,
+                         __default_labels,
+                         { "Protein" : [ "Protein", "Pro", "P" ], 
+                           "Theme" : [ "Theme", "Th" ] }
+                         )
         cache[directory] = a
 
     return cache[directory]
-get_abbreviations.__cache = {}
+get_labels.__cache = {}
 
 def get_kb_shortcuts(directory):
     cache = get_kb_shortcuts.__cache
@@ -424,58 +453,71 @@ def __type_hierarchy_to_list(hierarchy):
         __collect_type_list(n, types)
     return types
 
-def pc_get_entity_type_list(directory):
-    cache = pc_get_entity_type_list.__cache
+# TODO: it's not clear it makes sense for all of these methods to have
+# their own caches; this seems a bit like a case of premature
+# optimization to me. Consider simplifying.
+
+def get_entity_type_list(directory):
+    cache = get_entity_type_list.__cache
     if directory not in cache:
         cache[directory] = __type_hierarchy_to_list(get_entity_type_hierarchy(directory))
     return cache[directory]
-pc_get_entity_type_list.__cache = {}
+get_entity_type_list.__cache = {}
 
-def pc_get_event_type_list(directory):
-    cache = pc_get_event_type_list.__cache
+def get_event_type_list(directory):
+    cache = get_event_type_list.__cache
     if directory not in cache:
         cache[directory] = __type_hierarchy_to_list(get_event_type_hierarchy(directory))
     return cache[directory]
-pc_get_event_type_list.__cache = {}
+get_event_type_list.__cache = {}
 
-def pc_get_relation_type_list(directory):
-    cache = pc_get_relation_type_list.__cache
+def get_relation_type_list(directory):
+    cache = get_relation_type_list.__cache
     if directory not in cache:
         cache[directory] = __type_hierarchy_to_list(get_relation_type_hierarchy(directory))
     return cache[directory]
-pc_get_relation_type_list.__cache = {}
+get_relation_type_list.__cache = {}
 
-def pc_get_node_by_term(directory, term):
-    cache = pc_get_node_by_term.__cache
+def get_node_by_storage_form(directory, term):
+    cache = get_node_by_storage_form.__cache
     if directory not in cache:
         d = {}
-        for e in pc_get_entity_type_list(directory) + pc_get_event_type_list(directory):
-            t = e.storage_term()
+        for e in get_entity_type_list(directory) + get_event_type_list(directory):
+            t = e.storage_form()
             if t in d:
-                display_message("Project configuration: interface term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_term(), e.storage_term()), "warning", 5)
+                display_message("Project configuration: interface term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), "warning", 5)
             d[t] = e
         cache[directory] = d
 
     return cache[directory].get(term, None)
-pc_get_node_by_term.__cache = {}
+get_node_by_storage_form.__cache = {}
 
-def pc_get_relations_by_arg1(directory, term):
-    cache = pc_get_relations_by_arg1.__cache
+def get_relations_by_arg1(directory, term):
+    cache = get_relations_by_arg1.__cache
     if directory not in cache:
         cache[directory] = {}
     rels = []
     if term not in cache[directory]:
-        for r in pc_get_relation_type_list(directory):
+        for r in get_relation_type_list(directory):
             arg1s = [a for a in r.arguments if a[0] == "Arg1"]
             if len(arg1s) != 1:
-                display_message("Relation type %s lacking Arg1. Configuration may be wrong." % type, "warning")
+                display_message("Relation type %s lacking Arg1. Configuration may be wrong." % r.storage_form(), "warning")
                 continue
             arg1 = arg1s[0]
             if arg1[1] == "<ANY>" or arg1[1] == term:
                 rels.append(r)
         cache[directory] = rels
     return cache[directory]
-pc_get_relations_by_arg1.__cache = {}
+get_relations_by_arg1.__cache = {}
+
+def get_labels_by_storage_form(directory, term):
+    cache = get_labels_by_storage_form.__cache
+    if directory not in cache:
+        cache[directory] = {}
+        for l, labels in get_labels(directory).items():
+            cache[directory][l] = labels
+    return cache[directory].get(term, None)
+get_labels_by_storage_form.__cache = {}
 
 # fallback for missing or partial config: these are highly likely to
 # be entity (as opposed to an event or relation) types.
@@ -504,7 +546,7 @@ very_likely_physical_entity_types = [
     'Other_pharmaceutical_agent',
     ]
 
-# helper
+# helper; doesn't really belong here
 def unique_preserve_order(iterable):
     seen = set()
     uniqued = []
@@ -526,7 +568,7 @@ class ProjectConfiguration(object):
         Returns the mandatory arguments types that must be present for
         an annotation of the given type.
         """
-        node = pc_get_node_by_term(self.directory, type)
+        node = get_node_by_storage_form(self.directory, type)
         if node is None:
             display_message("Project configuration: unknown type %s. Configuration may be wrong." % type, "warning")
             return []
@@ -537,7 +579,7 @@ class ProjectConfiguration(object):
         Returns the arguments types that are allowed to be filled more
         than once for an annotation of the given type.
         """
-        node = pc_get_node_by_term(self.directory, type)
+        node = get_node_by_storage_form(self.directory, type)
         if node is None:
             display_message("Project configuration: unknown type %s. Configuration may be wrong." % type, "warning")
             return []
@@ -553,21 +595,24 @@ class ProjectConfiguration(object):
         If to_ann has the value \"<ANY>\", returns all possible arc types.
         """
 
-        from_node = pc_get_node_by_term(self.directory, from_ann)
+        from_node = get_node_by_storage_form(self.directory, from_ann)
 
-        relations_from = pc_get_relations_by_arg1(self.directory, from_ann)
+        relations_from = get_relations_by_arg1(self.directory, from_ann)
 
         if from_node is None:
             display_message("Project configuration: unknown type %s. Configuration may be wrong." % from_ann, "warning")
             return []
         if to_ann == "<ANY>":
-            return unique_preserve_order([role for role, type in from_node.arguments] + [r.primary_term for r in relations_from])
+            return unique_preserve_order([role for role, type in from_node.arguments] + [r.storage_form() for r in relations_from])
 
         # specific hits
-        if to_ann not in from_node.roles_by_type:
-            types = []
-        else:
+        if to_ann in from_node.roles_by_type:
             types = from_node.roles_by_type[to_ann]
+        else:
+            types = []
+
+        if "<ANY>" in from_node.roles_by_type:
+            types += from_node.roles_by_type["<ANY>"]
 
         # generic arguments
         if self.is_event_type(to_ann) and '<EVENT>' in from_node.roles_by_type:
@@ -579,24 +624,41 @@ class ProjectConfiguration(object):
         # TODO: handle generic '<ENTITY>' (like '<EVENT>' above)
         for r in relations_from:
             if to_ann in r.roles_by_type and "Arg2" in r.roles_by_type[to_ann]:
-                types.append(r.primary_term)
+                types.append(r.storage_form())
 
         return unique_preserve_order(types)
 
-    def get_abbreviations(self):
-        return get_abbreviations(self.directory)
+    def get_labels(self):
+        return get_labels(self.directory)
 
     def get_kb_shortcuts(self):
         return get_kb_shortcuts(self.directory)
 
     def get_event_types(self):
-        return [t.storage_term() for t in pc_get_event_type_list(self.directory)]
+        return [t.storage_form() for t in get_event_type_list(self.directory)]
 
     def get_relation_types(self):
-        return [t.storage_term() for t in pc_get_relation_type_list(self.directory)]        
+        return [t.storage_form() for t in get_relation_type_list(self.directory)]        
 
     def get_entity_types(self):
-        return [t.storage_term() for t in pc_get_entity_type_list(self.directory)]
+        return [t.storage_form() for t in get_entity_type_list(self.directory)]
+
+    def get_entity_type_hierarchy(self):
+        return get_entity_type_hierarchy(self.directory)
+
+    def get_event_type_hierarchy(self):
+        return get_event_type_hierarchy(self.directory)
+
+    def preferred_display_form(self, t):
+        """
+        Given a storage form label, returns the preferred display form
+        as defined by the label configuration (labels.conf)
+        """
+        labels = get_labels_by_storage_form(self.directory, t)
+        if labels is None or len(labels) < 1:
+            return t
+        else:
+            return labels[0]
 
     def is_physical_entity_type(self, t):
         # TODO: remove this temporary hack

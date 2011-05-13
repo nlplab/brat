@@ -70,8 +70,8 @@ var AnnotatorUI = (function($, window, undefined) {
             arcOptions['left'] = eventDesc.leftSpans.join(',');
             arcOptions['right'] = eventDesc.rightSpans.join(',');
           }
-          $('#arc_origin').text(originSpan.type + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
-          $('#arc_target').text(targetSpan.type + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
+          $('#arc_origin').text(Visualizer.displayForm(originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
+          $('#arc_target').text(Visualizer.displayForm(targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
           var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
           
@@ -220,7 +220,12 @@ var AnnotatorUI = (function($, window, undefined) {
           function(jsonData) {
             if (jsonData.empty && !arcType) {
               // no valid choices
-              dispatcher.post('messages', [[["No choices for " + originType + " -> " + targetType, 'error']]]);
+		dispatcher.post('messages', 
+				[[["No choices for " + 
+				   Visualizer.displayForm(originType) +
+				   " -> " + 
+				   Visualizer.displayForm(targetType),
+				   'warning']]]);
             } else {
               $('#arc_roles').html(jsonData.html);
               keymap = jsonData.keymap;
@@ -322,8 +327,8 @@ var AnnotatorUI = (function($, window, undefined) {
                 directory: dir,
                 'document': doc
               };
-              $('#arc_origin').text(originSpan.type+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
-              $('#arc_target').text(targetSpan.type+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
+              $('#arc_origin').text(Visualizer.displayForm(originSpan.type)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
+              $('#arc_target').text(Visualizer.displayForm(targetSpan.type)+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
               fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
             }
           }
@@ -425,9 +430,9 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#span_types').html('Error displaying form');
         }
         spanKeymap = response.keymap;
-        // TODO: consider separating span and arc abbreviations
-        spanAbbrevs = response.abbrevs;
-        arcAbbrevs = response.abbrevs;
+        // TODO: consider separating span and arc labels
+        spanLabels = response.labels;
+        arcLabels = response.labels;
         spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
       };

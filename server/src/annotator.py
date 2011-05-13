@@ -28,11 +28,11 @@ from htmlgen import generate_empty_fieldset, select_keyboard_shortcuts, generate
 
 def possible_arc_types(directory, origin_type, target_type):
     real_dir = real_directory(directory)
-    projectconfig = ProjectConfiguration(real_dir)
+    projectconf = ProjectConfiguration(real_dir)
     response = {}
 
     try:
-        possible = projectconfig.arc_types_from_to(origin_type, target_type)
+        possible = projectconf.arc_types_from_to(origin_type, target_type)
 
         # TODO: proper error handling
         if possible is None:
@@ -50,7 +50,7 @@ def possible_arc_types(directory, origin_type, target_type):
             for k, p in arc_kb_shortcuts.items():
                 response['keymap'][k] = "arc_"+p.lower()
 
-            response['html']  = generate_arc_type_html(possible, arc_kb_shortcuts)
+            response['html']  = generate_arc_type_html(projectconf, possible, arc_kb_shortcuts)
     except:
         display_message("Error selecting arc types!", "error", -1)
         raise
@@ -221,7 +221,7 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
 
-    projectconfig = ProjectConfiguration(real_dir)
+    projectconf = ProjectConfiguration(real_dir)
 
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
@@ -255,11 +255,11 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
                 pass
 
             if ann.type != type:
-                if projectconfig.type_category(ann.type) != projectconfig.type_category(type):
+                if projectconf.type_category(ann.type) != projectconf.type_category(type):
                     # TODO: Raise some sort of protocol error
                     display_message("Cannot convert %s (%s) into %s (%s)"
-                            % (ann.type, projectconfig.type_category(ann.type),
-                                type, projectconfig.type_category(type)),
+                            % (ann.type, projectconf.type_category(ann.type),
+                                type, projectconf.type_category(type)),
                             "error", -1)
                     pass
                 else:
@@ -397,7 +397,7 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
                 ann = found
 
             if ann is not None:
-                if projectconfig.is_physical_entity_type(type):
+                if projectconf.is_physical_entity_type(type):
                     # TODO: alert that negation / speculation are ignored if set
                     pass
                 else:
@@ -457,7 +457,7 @@ def create_arc(directory, document, origin, target, type,
     mods = ModificationTracker()
 
     real_dir = real_directory(directory)
-    pconf = ProjectConfiguration(real_dir)
+    projectconf = ProjectConfiguration(real_dir)
 
     document = path_join(real_dir, document)
 
@@ -477,10 +477,10 @@ def create_arc(directory, document, origin, target, type,
                 ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
                 ann_obj.add_annotation(ann)
                 mods.addition(ann)
-        elif type in pconf.get_relation_types():
+        elif type in projectconf.get_relation_types():
             if old_type is not None or old_target is not None:
                 # XXX: Dragons be here, not tested due to lack of UI
-                assert target.type in pconf.get_relation_types(), (
+                assert target.type in projectconf.get_relation_types(), (
                         'attempting to convert relation to non-relation')
 
                 sought_target = (old_target.id
@@ -600,8 +600,8 @@ def delete_arc(directory, document, origin, target, type):
                 pass
 
         except AttributeError:
-            pconf = ProjectConfiguration(real_dir)
-            if type in pconf.get_relation_types():
+            projectconf = ProjectConfiguration(real_dir)
+            if type in projectconf.get_relation_types():
                 for ann in ann_obj.get_relations():
                     if ann.type == type and ann.arg1 == origin and ann.arg2 == target:
                         ann_obj.del_annotation(ann)

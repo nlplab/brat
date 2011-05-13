@@ -144,8 +144,7 @@ var VisualizerUI = (function($, window, undefined) {
       var displaySpanComment = function(
           evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
-        var comment = '<div><span class="comment_id">' + spanId + '</span>' +
-          ' ' + '<span class="comment_type">' + spanType + '</span>';
+        var comment = '<div><span class="comment_id">' + spanId + '</span>' + ' ' + '<span class="comment_type">' + Visualizer.displayForm(spanType) + '</span>';
         if (mods.length) {
           comment += '<div>' + mods.join(', ') + '</div>';
         }
@@ -159,9 +158,9 @@ var VisualizerUI = (function($, window, undefined) {
           originSpanId, role, targetSpanId, commentText, commentType) {
         var comment = (symmetric
           ? '<div class="comment_arc">' + originSpanId + ' ' +
-            target.attr('data-arc-role') + ' ' + targetSpanId +'</div>'
+	    Visualizer.displayForm(target.attr('data-arc-role')) + ' ' + targetSpanId +'</div>'
           : '<div class="comment_arc">' + originSpanId + ' &#8594; ' +
-            target.attr('data-arc-role') + ':' + targetSpanId +'</div>');
+	    Visualizer.displayForm(target.attr('data-arc-role')) + ':' + targetSpanId +'</div>');
         displayComment(evt, target, comment, commentText, commentType);
       };
 

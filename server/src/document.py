@@ -96,13 +96,13 @@ def get_directory_information(directory):
 
     # we need a ProjectConfiguration for the kb shortcuts and abbrevs
     # here. This could be shared with htmlgen, which also needs one.
-    projectconfig = ProjectConfiguration(real_dir)
+    projectconf = ProjectConfiguration(real_dir)
 
-    span_type_keyboard_shortcuts = projectconfig.get_kb_shortcuts()
+    span_type_keyboard_shortcuts = projectconf.get_kb_shortcuts()
     client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
-    html = generate_textbound_type_html(real_dir, span_type_keyboard_shortcuts)
+    html = generate_textbound_type_html(projectconf, span_type_keyboard_shortcuts)
 
-    abbrevs = projectconfig.get_abbreviations()
+    labels = projectconf.get_labels()
 
     json_dic = {
             'docs': combolist,
@@ -110,7 +110,7 @@ def get_directory_information(directory):
             'parent': parent,
             'messages': [],
             'keymap': client_keymap,
-            'abbrevs': abbrevs,
+            'labels': labels,
             'html': html,
             }
     return json_dic
@@ -194,9 +194,9 @@ def _enrich_json_with_data(j_dic, ann_obj):
             # XXX avoid digging the directory from the ann_obj
             import os
             docdir = os.path.dirname(ann_obj._document)
-            projectconfig = ProjectConfiguration(docdir)
+            projectconf = ProjectConfiguration(docdir)
             from verify_annotations import verify_annotation
-            issues = verify_annotation(ann_obj, projectconfig)
+            issues = verify_annotation(ann_obj, projectconf)
         else:
             issues = []
     except Exception, e:

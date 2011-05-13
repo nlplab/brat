@@ -216,6 +216,10 @@ rect.shadow_EditHighlight {
 
 .span_Sub-Process    { fill: #ff0000; }
 
+.span_Gene                    { fill: #7fa2ff; }
+.span_Patient                 { fill: #bfafff; }
+.span_Body-part               { fill: #b4c8ff; }
+
 .span_gene-or-gene-product    { fill: #7fa2ff; }
 .span_Protein                 { fill: #7fa2ff; }
 .span_Protein_family_or_group { fill: #7fa2ff; }
@@ -355,6 +359,12 @@ rect.shadow_EditHighlight {
 /* relations */
 .fill_Location   { fill:   #000000; }
 .stroke_Location { stroke: #000000; }
+
+.fill_has   { fill:   #000000; }
+.stroke_has { stroke: #000000; }
+
+.fill_relatedTo   { fill:   #000000; }
+.stroke_relatedTo { stroke: #000000; }
 
 .fill_Equiv {
   fill: black; /* TODO */

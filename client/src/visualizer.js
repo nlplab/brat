@@ -5,7 +5,7 @@ var Visualizer = (function($, window, undefined) {
       // OPTIONS
       var replaceUnderscoresWithSpace = true; // for span texts
       var margin = { x: 2, y: 1 };
-      var boxTextMargin = { x: 1, y: 1 }; // effect is inverse of "margin" for some reason
+      var boxTextMargin = { x: 0, y: 1 }; // effect is inverse of "margin" for some reason
       var space = 4;
       var boxSpacing = 1;
       var curlyHeight = 4;
@@ -33,7 +33,7 @@ var Visualizer = (function($, window, undefined) {
       var svgElement;
       var data = null;
       var dir, doc, args;
-      var abbrevs;
+      var labels;
       var abbrevsOn = true;
       var isRenderRequested;
       var curlyY;
@@ -48,6 +48,23 @@ var Visualizer = (function($, window, undefined) {
         svgElement.css('margin-bottom', 1);
         setTimeout(function() { svgElement.css('margin-bottom', 0); }, 0);
       }
+
+      var displayForm = function(label) {
+	  // Returns the preferred full display form for the given label,
+	  // i.e. the first in the label set (if defined)
+	  var labelText;
+	  if (labels[label] && labels[label][0]) {
+	      return labels[label][0];
+	  } else {
+	      return label;
+	  }
+      }
+      // TODO XXX Goran: I need to make this function accessible to
+      // AnnotatorUI and others; does this way make sense?
+      // TODO: "displayForm" is a bit of an unfortunate name in GUI
+      // code, change? (the intended meaning is "the form of the term
+      // that is used for display").
+      Visualizer.displayForm = displayForm;
 
       var Span = function(id, type, from, to, generalType) {
         this.id = id;
@@ -261,7 +278,6 @@ var Visualizer = (function($, window, undefined) {
         data.arcs = [];
         $.each(data.eventDescs, function(eventNo, eventDesc) {
           var dist = 0;
-          console.log(eventDesc); // HERE
           var origin = data.spans[eventDesc.id];
           if (!origin.chunk) {
             // TODO: include missing trigger ID in error message
@@ -439,28 +455,27 @@ var Visualizer = (function($, window, undefined) {
             }
             data.towers[span.towerId].push(span);
 
-            // Find the most appropriate abbreviation according to text
-            // width
-            span.abbrevText = span.type;
+	    span.labelText = displayForm(span.type);
+            // Find the most appropriate label according to text width
             if (abbrevsOn) {
-              var abbrevIdx = 0;
+	      var labelIdx = 1; // first abbrev
               var maxLength = (span.to - span.from) / 0.8;
-              while (span.abbrevText.length > maxLength &&
-                  abbrevs[span.type] &&
-                  abbrevs[span.type][abbrevIdx]) {
-                span.abbrevText = abbrevs[span.type][abbrevIdx];
-                abbrevIdx++;
+              while (span.labelText.length > maxLength &&
+                  labels[span.type] &&
+                  labels[span.type][labelIdx]) {
+                span.labelText = labels[span.type][labelIdx];
+                labelIdx++;
               }
             }
 
 	    // Replace underscores if requested
 	    if(replaceUnderscoresWithSpace) {
-		span.abbrevText = span.abbrevText.replace(/_/g,' ');
+		span.labelText = span.labelText.replace(/_/g,' ');
 	    }
 
-            if (!spanAnnTexts[span.abbrevText]) {
-              spanAnnTexts[span.abbrevText] = true;
-              data.spanAnnTexts.push(span.abbrevText);
+            if (!spanAnnTexts[span.labelText]) {
+              spanAnnTexts[span.labelText] = true;
+              data.spanAnnTexts.push(span.labelText);
             }
           }); // chunk.spans
         }); // chunks
@@ -614,7 +629,7 @@ var Visualizer = (function($, window, undefined) {
             $.each(data.towers, function(towerNo, tower) {
               var biggestBox = { width: 0 };
               $.each(tower, function(spanNo, span) {
-                var annBox = spanAnnBoxes[span.abbrevText];
+                var annBox = spanAnnBoxes[span.labelText];
                 if (annBox.width > biggestBox.width) biggestBox = annBox;
               }); // tower
               $.each(tower, function(spanNo, span) {
@@ -755,7 +770,7 @@ var Visualizer = (function($, window, undefined) {
                       line(xx, yy + hh + margin.y - yAdjust),
                       { 'class': 'negation' });
                 }
-                var spanText = svg.text(span.group, x, y - yAdjust, span.abbrevText);
+                var spanText = svg.text(span.group, x, y - yAdjust, span.labelText);
 
                 // Make curlies to show the span
                 if (span.drawCurly) {
@@ -1033,15 +1048,15 @@ var Visualizer = (function($, window, undefined) {
                   to = canvasWidth - 2 * margin.y;
                 }
 
-                var abbrevText = arc.type;
+		var labelText = displayForm(arc.type)
                 if (abbrevsOn) {
-                  var abbrevIdx = 0;
+		  var labelIdx = 1; // first abbreviation
                   var maxLength = ((to - from) - (2 * arcSlant)) / 7;
-                  while (abbrevText.length > maxLength &&
-                         abbrevs[arc.type] &&
-                         abbrevs[arc.type][abbrevIdx]) {
-                    abbrevText = abbrevs[arc.type][abbrevIdx];
-                    abbrevIdx++;
+                  while (labelText.length > maxLength &&
+                         labels[arc.type] &&
+                         labels[arc.type][labelIdx]) {
+                    labelText = labels[arc.type][labelIdx];
+                    labelIdx++;
                   }
                 }
 
@@ -1056,7 +1071,7 @@ var Visualizer = (function($, window, undefined) {
                 if (arc.equiv) {
                   options['data-arc-ed'] = arc.eventDescId;
                 }
-                var text = svg.text(arcGroup, (from + to) / 2, -height, abbrevText, options);
+                var text = svg.text(arcGroup, (from + to) / 2, -height, labelText, options);
                 var textBox = text.getBBox();
                 if (arc.edited) {
                   svg.rect(shadowGroup,
@@ -1298,7 +1313,7 @@ var Visualizer = (function($, window, undefined) {
 
       var dirLoaded = function(response) {
         if (!response.exception) {
-          abbrevs = response.abbrevs;
+          labels = response.labels;
           isDirLoaded = true;
           triggerRender();
         }

@@ -9,46 +9,45 @@ Server-side HTML generation-related functionality for
 Brat Rapid Annotation Tool (brat)
 '''
 
-from cgi import escape as cgi_escape
-
-from projectconfig import get_entity_type_hierarchy, get_event_type_hierarchy
-
 def escape(s):
+    from cgi import escape as cgi_escape
     return cgi_escape(s).replace('"', '&quot;');
 
-def __generate_input_and_label(t, keymap, indent, disabled, prefix):
+def __generate_input_and_label(t, dt, keymap, indent, disabled, prefix):
     l = []
-    nst = t.replace(" ","_")
+    # TODO: remove check once debugged; the storage form t should not
+    # require any sort of escaping
+    assert " " not in t, "INTERNAL ERROR: space in storage form"
     if not disabled:
         dstr = ""
     else:
         dstr = ' disabled="disabled"'
-    s  = indent+'    <input id="%s%s" type="radio" name="%stype" value="%s" %s/>' % (prefix, escape(nst.lower()), prefix, escape(nst), dstr)
-    s += '<label for="%s%s">' % (prefix, escape(nst.lower()))
+    s  = indent+'    <input id="%s%s" type="radio" name="%stype" value="%s" %s/>' % (prefix, t, prefix, t, dstr)
+    s += '<label for="%s%s">' % (prefix, t)
 
-    # TODO: saner case/space-vs-underscore-insensitive processing
-    kmt = t.lower().replace(" ", "_")
-    if kmt not in keymap or kmt.find(keymap[kmt].lower()) == -1:
-        s += '%s</label>' % escape(t)
+    if t not in keymap or dt.lower().find(keymap[t].lower()) == -1:
+        s += '%s</label>' % escape(dt)
     else:
-        accesskey = keymap[kmt].lower()
-        key_offset= kmt.find(accesskey)
-        s += '%s<span class="accesskey">%s</span>%s</label>' % (escape(t[:key_offset]), escape(t[key_offset:key_offset+1]), escape(t[key_offset+1:]))
+        accesskey = keymap[t].lower()
+        key_offset= dt.lower().find(accesskey)
+        s += '%s<span class="accesskey">%s</span>%s</label>' % (escape(dt[:key_offset]), escape(dt[key_offset:key_offset+1]), escape(dt[key_offset+1:]))
     l.append(s)
     return l
 
-def __generate_span_input_and_label(t, keymap, indent, disabled):
-    return __generate_input_and_label(t, keymap, indent, disabled, "span_")
+def __generate_span_input_and_label(t, dt, keymap, indent, disabled):
+    return __generate_input_and_label(t, dt, keymap, indent, disabled, "span_")
 
-def __generate_arc_input_and_label(t, keymap):
-    return __generate_input_and_label(t, keymap, "", False, "arc_")
+def __generate_arc_input_and_label(t, dt, keymap):
+    return __generate_input_and_label(t, dt, keymap, "", False, "arc_")
 
-def __generate_node_html_lines(node, keymap, depth=0):
+def __generate_node_html_lines(node, keymap, projectconf, depth=0):
     # TODO: make this less exceptional, avoid magic values
     if node == "SEPARATOR":
         return ["<hr/>"]
 
-    t = node.interface_term()
+    t  = node.storage_form()
+    dt = projectconf.preferred_display_form(t)
+
     # for debugging
     indent = " "*6*depth
     lines = []
@@ -56,7 +55,7 @@ def __generate_node_html_lines(node, keymap, depth=0):
         # simple item
         lines.append(indent+'<div class="item">')
         lines.append(indent+'  <div class="item_content">')
-        lines += __generate_span_input_and_label(t, keymap, indent, node.unused)
+        lines += __generate_span_input_and_label(t, dt, keymap, indent, node.unused)
         lines.append(indent+'  </div>')
         lines.append(indent+'</div>')
     else:
@@ -64,11 +63,11 @@ def __generate_node_html_lines(node, keymap, depth=0):
         lines.append(indent+'<div class="item">')
         lines.append(indent+'  <div class="collapser open"></div>')
         lines.append(indent+'  <div class="item_content">')
-        lines += __generate_span_input_and_label(t, keymap, indent, node.unused)
+        lines += __generate_span_input_and_label(t, dt, keymap, indent, node.unused)
         lines.append(indent+'    <div class="collapsible open">')
 
         for n in node.children:
-             lines += __generate_node_html_lines(n, keymap, depth+1)
+             lines += __generate_node_html_lines(n, keymap, projectconf, depth+1)
 
         lines.append(indent+'    </div>')
         lines.append(indent+'  </div>')
@@ -76,19 +75,19 @@ def __generate_node_html_lines(node, keymap, depth=0):
 
     return lines
 
-def __generate_term_hierarchy_html(root_nodes, type_key_map):
+def __generate_term_hierarchy_html(root_nodes, type_key_map, projectconf):
     all_lines = []
     for n in root_nodes:
-        all_lines += __generate_node_html_lines(n, type_key_map)
+        all_lines += __generate_node_html_lines(n, type_key_map, projectconf)
     return "\n".join(all_lines)
 
-def generate_entity_type_html(directory, type_key_map):
-    hierarchy = get_entity_type_hierarchy(directory)
-    return __generate_term_hierarchy_html(hierarchy, type_key_map)
+def generate_entity_type_html(projectconf, type_key_map):
+    hierarchy = projectconf.get_entity_type_hierarchy()
+    return __generate_term_hierarchy_html(hierarchy, type_key_map, projectconf)
                                           
-def generate_event_type_html(directory, type_key_map):
-    hierarchy = get_event_type_hierarchy(directory)
-    return __generate_term_hierarchy_html(hierarchy, type_key_map)
+def generate_event_type_html(projectconf, type_key_map):
+    hierarchy = projectconf.get_event_type_hierarchy()
+    return __generate_term_hierarchy_html(hierarchy, type_key_map, projectconf)
 
 def generate_client_keymap(keyboard_shortcuts):
     client_keymap = {}
@@ -135,13 +134,13 @@ def kb_shortcuts_to_keymap(keyboard_shortcuts):
         type_to_key_map[keyboard_shortcuts[k].lower().replace(" ", "_")] = k.lower()
     return type_to_key_map
 
-def generate_arc_type_html(types, keyboard_shortcuts):
+def generate_arc_type_html(projectconf, types, keyboard_shortcuts):
     keymap = kb_shortcuts_to_keymap(keyboard_shortcuts)
     return ("<fieldset><legend>Type</legend>" + 
-            "\n".join(["\n".join(__generate_arc_input_and_label(t, keymap)) for t in types]) +
+            "\n".join(["\n".join(__generate_arc_input_and_label(t, projectconf.preferred_display_form(t), keymap)) for t in types]) +
             "</fieldset>")
 
-def generate_textbound_type_html(directory, keyboard_shortcuts):
+def generate_textbound_type_html(projectconf, keyboard_shortcuts):
     keymap = kb_shortcuts_to_keymap(keyboard_shortcuts)
 
     return """<fieldset>
@@ -149,7 +148,7 @@ def generate_textbound_type_html(directory, keyboard_shortcuts):
 <fieldset>
 <legend>Type</legend>
 <div class="type_scroller">
-""" + generate_entity_type_html(directory, keymap) + """
+""" + generate_entity_type_html(projectconf, keymap) + """
 </div>
 </fieldset>
 </fieldset>
@@ -158,7 +157,7 @@ def generate_textbound_type_html(directory, keyboard_shortcuts):
 <fieldset>
 <legend>Type</legend>
 <div class="type_scroller">
-""" + generate_event_type_html(directory, keymap) + """</div>
+""" + generate_event_type_html(projectconf, keymap) + """</div>
 </fieldset>
 <fieldset id="span_mod_fset">
 <legend>Modifications</legend>
