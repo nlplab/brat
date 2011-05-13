@@ -92,9 +92,7 @@ def generate_event_type_html(projectconf, type_key_map):
 def generate_client_keymap(keyboard_shortcuts):
     client_keymap = {}
     for k in keyboard_shortcuts:
-        # Note: all keymap processing is case-insensitive and treats space
-        # and underscore ("_") interchangeably
-        client_keymap[k] = 'span_'+keyboard_shortcuts[k].lower().replace(" ", "_")
+        client_keymap[k] = 'span_'+keyboard_shortcuts[k]
     return client_keymap
 
 def select_keyboard_shortcuts(strings):

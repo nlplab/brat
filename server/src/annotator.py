@@ -48,7 +48,7 @@ def possible_arc_types(directory, origin_type, target_type):
  
             response['keymap'] = {}
             for k, p in arc_kb_shortcuts.items():
-                response['keymap'][k] = "arc_"+p.lower()
+                response['keymap'][k] = "arc_"+p
 
             response['html']  = generate_arc_type_html(projectconf, possible, arc_kb_shortcuts)
     except:
