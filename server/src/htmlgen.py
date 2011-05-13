@@ -52,9 +52,6 @@ def __generate_node_html_lines(node, keymap, projectconf, depth=0):
     t  = node.storage_form()
     dt = projectconf.preferred_display_form(t)
 
-    import sys
-    print >> sys.stderr, t, dt, keymap
-
     # for debugging
     indent = " "*6*depth
     lines = []
