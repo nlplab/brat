@@ -11,12 +11,13 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
 '''
 
+from cPickle import UnpicklingError
+from cPickle import dump as pickle_dump
+from cPickle import load as pickle_load
+from logging import info as log_info
 from os import listdir
 from os.path import isfile, getmtime
 from os.path import join as path_join
-from cPickle import load as pickle_load
-from cPickle import dump as pickle_dump
-from cPickle import UnpicklingError
 
 from annotation import Annotations, open_textfile
 from config import DATA_DIR
@@ -55,7 +56,7 @@ def get_statistics(directory, base_names, use_cache=True):
                 docstats = pickle_load(cache_file)
         except UnpicklingError:
             # Corrupt data, re-generate
-            display_message("Warning: stats cache was corrupted; regenerating", "warning", -1)
+            display_message('Warning: stats cache was corrupted; regenerating', 'warning', -1)
             generate = True
         except EOFError:
             # Corrupt data, re-generate
@@ -67,15 +68,15 @@ def get_statistics(directory, base_names, use_cache=True):
         docstats = []
         for docname in base_names:
             try:
-                with Annotations(
-                    path_join(directory, docname),
-                    read_only=True) as ann_obj:
+                with Annotations(path_join(directory, docname), 
+                        read_only=True) as ann_obj:
                     tb_count = len([a for a in ann_obj.get_textbounds()])
                     event_count = len([a for a in ann_obj.get_events()])
                     docstats.append([tb_count, event_count])
-            except:
-                # pass exceptions silently, just marking stats missing
-                docstats.append([-1,-1])
+            except Exception, e:
+                log_info('Received "%s" when trying to generate stats' % e)
+                # Pass exceptions silently, just marking stats missing
+                docstats.append([-1, -1])
 
         # Cache the statistics
         try:
