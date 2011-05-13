@@ -401,14 +401,11 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
                 new_id = ann_obj.get_new_id('T') #XXX: Cons
                 # Get the text span
                 with open_textfile(txt_file_path, 'r') as txt_file:
-                    # XXX: We can't do seeks with unicode!
-                    #txt_file.seek(start)
-                    #text = txt_file.read(end - start)
-                    text = txt_file.read()[end:start]
-                        
+                    text = txt_file.read()[start:end]
+
                 #TODO: Data tail should be optional
                 if '\n' not in text:
-                    ann = TextBoundAnnotation(start, end, new_id, type, '\t' + text)
+                    ann = TextBoundAnnotationWithText(start, end, new_id, type, text)
                     ann_obj.add_annotation(ann)
                     mods.addition(ann)
                 else:

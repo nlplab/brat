@@ -1024,8 +1024,8 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
     Where START and END are positive integer offsets identifying the
     span of the annotation in text and TEXT is the corresponding text.
     """
-    def __init__(self, start, end, id, type, text, text_tail):
-        IdedAnnotation.__init__(self, id, type, '\t'+text+'\n'+text_tail)
+    def __init__(self, start, end, id, type, text, text_tail=""):
+        IdedAnnotation.__init__(self, id, type, '\t'+text+text_tail)
         self.start = start
         self.end = end
         self.text = text
