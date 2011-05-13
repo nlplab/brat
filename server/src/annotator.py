@@ -18,7 +18,7 @@ from os.path import split as path_split
 
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         Annotations, DependingAnnotationDeleteError, TextBoundAnnotation,
-        EventAnnotation, ModifierAnnotation, EquivAnnotation)
+        EventAnnotation, ModifierAnnotation, EquivAnnotation, open_textfile)
 from config import DEBUG
 from document import real_directory
 from jsonwrap import loads as json_loads
@@ -86,16 +86,16 @@ class ModificationTracker(object):
         msg_str = ''
         if self.__added:
             msg_str += ('Added the following line(s):\n<br/>'
-                    + '\n<br/>\n'.join([str(a) for a in self.__added]))
+                    + '\n<br/>\n'.join([unicode(a) for a in self.__added]))
         if self.__changed:
             changed_strs = []
             for before, after in self.__changed:
                 changed_strs.append('\t%s\n<br/>\n\tInto:\n<br/>\t%s' % (before, after))
             msg_str += ('Changed the following line(s):\n<br/>'
-                    + '\n<br/>\n'.join([str(a) for a in changed_strs]))
+                    + '\n<br/>\n'.join([unicode(a) for a in changed_strs]))
         if self.__deleted:
             msg_str += ('Deleted the following line(s):\n<br/>'
-                    + '\n<br/>\n'.join([str(a) for a in self.__deleted]))
+                    + '\n<br/>\n'.join([unicode(a) for a in self.__deleted]))
         if msg_str:
             display_message(msg_str, duration=3*len(self))
         else:
@@ -189,7 +189,7 @@ def create_span(directory, document, start, end, type,
     for attr in attributes:
         # TODO: This is to be removed upon completed implementation
         assert attr in set(('negation', 'speculation', )), (
-                'protocol not supporting general attributes')
+                'protocol not supporting general attribute "%s"' % attr)
 
     try:
         negation = attributes['negation']
@@ -261,7 +261,7 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
                         assert False, error_msg
                     else:
                         # TODO: Log modification too?
-                        before = str(to_edit_span)
+                        before = unicode(to_edit_span)
                         #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
                         to_edit_span.start = int(start)
                         to_edit_span.end = int(end)
@@ -281,7 +281,7 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
                             "error", -1)
                     pass
                 else:
-                    before = str(ann)
+                    before = unicode(ann)
                     ann.type = type
 
                     # Try to propagate the type change
@@ -305,7 +305,7 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
                                 # And we will change the type
                                 new_ann_trig.type = ann.type
                                 # Update the old annotation to use this trigger
-                                ann.trigger = str(new_ann_trig.id)
+                                ann.trigger = unicode(new_ann_trig.id)
                                 ann_obj.add_annotation(new_ann_trig)
                                 mods.addition(new_ann_trig)
                             else:
@@ -323,13 +323,13 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
                                     # Just change the trigger type since we are the
                                     # only users
 
-                                    before = str(ann_trig)
+                                    before = unicode(ann_trig)
                                     ann_trig.type = ann.type
                                     mods.change(before, ann_trig)
                                 else:
                                     # Attach the new trigger THEN delete
                                     # or the dep will hit you
-                                    ann.trigger = str(found.id)
+                                    ann.trigger = unicode(found.id)
                                     ann_obj.del_annotation(ann_trig)
                                     mods.deletion(ann_trig)
                     except AttributeError:
@@ -343,7 +343,7 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
             seen_neg = None
             for other_ann in ann_obj:
                 try:
-                    if other_ann.target == str(ann.id):
+                    if other_ann.target == unicode(ann.id):
                         if other_ann.type == 'Speculation': #XXX: Cons
                             seen_spec = other_ann
                         if other_ann.type == 'Negation': #XXX: Cons
@@ -353,13 +353,13 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
             # Is the attribute set and none existing? Add.
             if speculation and seen_spec is None:
                 spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                spec_mod = ModifierAnnotation(str(ann.id), str(spec_mod_id),
+                spec_mod = ModifierAnnotation(unicode(ann.id), unicode(spec_mod_id),
                         'Speculation', '') #XXX: Cons
                 ann_obj.add_annotation(spec_mod)
                 mods.addition(spec_mod)
             if negation and seen_neg is None:
                 neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                neg_mod = ModifierAnnotation(str(ann.id), str(neg_mod_id),
+                neg_mod = ModifierAnnotation(unicode(ann.id), unicode(neg_mod_id),
                         'Negation', '') #XXX: Cons
                 ann_obj.add_annotation(neg_mod)
                 mods.addition(neg_mod)
@@ -400,9 +400,11 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
                 # Get a new ID
                 new_id = ann_obj.get_new_id('T') #XXX: Cons
                 # Get the text span
-                with open(txt_file_path, 'r') as txt_file:
-                    txt_file.seek(start)
-                    text = txt_file.read(end - start)
+                with open_textfile(txt_file_path, 'r') as txt_file:
+                    # XXX: We can't do seeks with unicode!
+                    #txt_file.seek(start)
+                    #text = txt_file.read(end - start)
+                    text = txt_file.read()[end:start]
                         
                 #TODO: Data tail should be optional
                 if '\n' not in text:
@@ -421,7 +423,7 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
                 else:
                     # Create the event also
                     new_event_id = ann_obj.get_new_id('E') #XXX: Cons
-                    event = EventAnnotation(ann.id, [], str(new_event_id), type, '')
+                    event = EventAnnotation(ann.id, [], unicode(new_event_id), type, '')
                     ann_obj.add_annotation(event)
                     mods.addition(event)
 
@@ -430,16 +432,16 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
 
                     if speculation:
                         spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                        spec_mod = ModifierAnnotation(str(new_event_id),
-                                str(spec_mod_id), 'Speculation', '') #XXX: Cons
+                        spec_mod = ModifierAnnotation(unicode(new_event_id),
+                                unicode(spec_mod_id), 'Speculation', '') #XXX: Cons
                         ann_obj.add_annotation(spec_mod)
                         mods.addition(spec_mod)
                     else:
                         neg_mod = None
                     if negation:
                         neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                        neg_mod = ModifierAnnotation(str(new_event_id),
-                                str(neg_mod_id), 'Negation', '') #XXX: Cons
+                        neg_mod = ModifierAnnotation(unicode(new_event_id),
+                                unicode(neg_mod_id), 'Negation', '') #XXX: Cons
                         ann_obj.add_annotation(neg_mod)
                         mods.addition(neg_mod)
                     else:
@@ -492,14 +494,14 @@ def create_arc(directory, document, origin, target, type,
                 pass
             else:
                 assert old_type is None, 'attempting to change Equiv, not supported'
-                ann = EquivAnnotation(type, [str(origin.id), str(target.id)], '')
+                ann = EquivAnnotation(type, [unicode(origin.id), unicode(target.id)], '')
                 ann_obj.add_annotation(ann)
                 mods.addition(ann)
         elif type in pconf.get_relation_types():
             if old_type is not None or old_target is not None:
                 assert type in pconf.get_relation_types(), (
                         ('attempting to convert relation to non-relation "%s" ' % (target.type, )) +
-                        ('(legit types: %s)' % (str(pconf.get_relation_types()), )))
+                        ('(legit types: %s)' % (unicode(pconf.get_relation_types()), )))
 
                 sought_target = (old_target
                         if old_target is not None else target.id)
@@ -516,7 +518,7 @@ def create_arc(directory, document, origin, target, type,
                 # Did it exist and is changed?, otherwise we do nothing
                 if found is not None and (found.arg2 != target.id
                         or found.type != type):
-                    before = str(found)
+                    before = unicode(found)
                     found.arg2 = target.id
                     found.type = type
                     mods.change(before, found)
@@ -530,12 +532,12 @@ def create_arc(directory, document, origin, target, type,
                 ann_obj.add_annotation(ann)
         else:
             try:
-                arg_tup = (type, str(target.id))
+                arg_tup = (type, unicode(target.id))
                 
                 # Is this an addition or an update?
                 if old_type is None and old_target is None:
                     if arg_tup not in origin.args:
-                        before = str(origin)
+                        before = unicode(origin)
                         origin.args.append(arg_tup)
                         mods.change(before, origin)
                     else:
@@ -547,7 +549,7 @@ def create_arc(directory, document, origin, target, type,
                             target if old_target is None else old_target)
 
                     if old_arg_tup in origin.args and arg_tup not in origin.args:
-                        before = str(origin)
+                        before = unicode(origin)
                         origin.args.remove(old_arg_tup)
                         origin.args.append(arg_tup)
                         mods.change(before, origin)
@@ -595,9 +597,9 @@ def delete_arc(directory, document, origin, target, type):
         try:
             event_ann = ann_obj.get_ann_by_id(origin)
             # Try if it is an event
-            arg_tup = (type, str(target))
+            arg_tup = (type, unicode(target))
             if arg_tup in event_ann.args:
-                before = str(event_ann)
+                before = unicode(event_ann)
                 event_ann.args.remove(arg_tup)
                 mods.change(before, event_ann)
 
@@ -625,11 +627,11 @@ def delete_arc(directory, document, origin, target, type):
                 for eq_ann in ann_obj.get_equivs():
                     # We don't assume that the ids only occur in one Equiv, we
                     # keep on going since the data "could" be corrupted
-                    if (str(origin) in eq_ann.entities
-                            and str(target) in eq_ann.entities):
-                        before = str(eq_ann)
-                        eq_ann.entities.remove(str(origin))
-                        eq_ann.entities.remove(str(target))
+                    if (unicode(origin) in eq_ann.entities
+                            and unicode(target) in eq_ann.entities):
+                        before = unicode(eq_ann)
+                        eq_ann.entities.remove(unicode(origin))
+                        eq_ann.entities.remove(unicode(target))
                         mods.change(before, eq_ann)
 
                     if len(eq_ann.entities) < 2:

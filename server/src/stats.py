@@ -17,7 +17,7 @@ from os.path import join as path_join
 from cPickle import load as pickle_load
 from cPickle import dump as pickle_dump
 
-from annotation import Annotations
+from annotation import Annotations, open_textfile
 from config import DATA_DIR
 from message import display_message
 
@@ -49,8 +49,12 @@ def get_statistics(directory, base_names, use_cache=True):
         docstats = []
     else:
         generate = False
-        with open(cache_file_path, 'rb') as cache_file:
-            docstats = pickle_load(cache_file)
+        try:
+            with open_textfile(cache_file_path, 'rb') as cache_file:
+                docstats = pickle_load(cache_file)
+        except EOFError:
+            # Corrupt data, re-generate
+            generate = True
 
     if generate:
         # Generate the document statistics from scratch

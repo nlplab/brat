@@ -18,7 +18,8 @@ from os.path import abspath, isabs, isdir
 from os.path import join as path_join
 from re import sub
 
-from annotation import TextAnnotations, TEXT_FILE_SUFFIX, AnnotationFileNotFoundError
+from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
+        AnnotationFileNotFoundError, open_textfile)
 from common import ProtocolError
 from config import DATA_DIR
 from htmlgen import generate_client_keymap, generate_textbound_type_html
@@ -137,23 +138,23 @@ def _enrich_json_with_data(j_dic, ann_obj):
     for event_ann in ann_obj.get_events():
         trigger_ids.add(event_ann.trigger)
         j_dic['events'].append(
-                [str(event_ann.id), str(event_ann.trigger), event_ann.args]
+                [unicode(event_ann.id), unicode(event_ann.trigger), event_ann.args]
                 )
 
     for rel_ann in ann_obj.get_relations():
         j_dic['relations'].append(
-            [str(rel_ann.id), str(rel_ann.type), rel_ann.arg1, rel_ann.arg2]
+            [unicode(rel_ann.id), unicode(rel_ann.type), rel_ann.arg1, rel_ann.arg2]
             )
 
     for tb_ann in ann_obj.get_textbounds():
-        j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
+        j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
 
         # If we spotted it in the previous pass as a trigger for an
         # event or if the type is known to be an event type, we add it
         # as a json trigger.
         # TODO: proper handling of disconnected triggers. Currently
         # these will be erroneously passed as 'entities'
-        if str(tb_ann.id) in trigger_ids:
+        if unicode(tb_ann.id) in trigger_ids:
             j_dic['triggers'].append(j_tb)
         else: 
             j_dic['entities'].append(j_tb)
@@ -166,7 +167,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
 
     for mod_ann in ann_obj.get_modifers():
         j_dic['modifications'].append(
-                [str(mod_ann.id), mod_ann.type, mod_ann.target]
+                [unicode(mod_ann.id), mod_ann.type, mod_ann.target]
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
@@ -179,8 +180,8 @@ def _enrich_json_with_data(j_dic, ann_obj):
                 '\n<br/>\n'.join(
                     [('%s: %s' % (
                         # The line number is off by one
-                        str(line_num + 1),
-                        str(ann_obj[line_num])
+                        unicode(line_num + 1),
+                        unicode(ann_obj[line_num])
                         )).strip()
                     for line_num in ann_obj.failed_lines])
                     )
@@ -205,7 +206,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
         display_message('Error: verify_annotation() failed: %s' % e, 'error', -1)
 
     for i in issues:
-        j_dic['comments'].append((str(i.ann_id), i.type, i.description))
+        j_dic['comments'].append((unicode(i.ann_id), i.type, i.description))
 
 def _enrich_json_with_base(j_dic):
     # TODO: Make the names here and the ones in the Annotations object conform
@@ -254,7 +255,7 @@ def _sentence_split(txt_file_path):
         # If the file is not found we do an ugly fall-back, this is far
         # too general of an exception handling at the moment.
         if e.errno == 2:
-            with open(txt_file_path, 'r') as txt_file:
+            with open_textfile(txt_file_path, 'r') as txt_file:
                 return sub(r'(\. *) ([A-Z])',r'\1\n\2', txt_file.read())
         else:
             raise

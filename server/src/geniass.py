@@ -19,6 +19,8 @@ from subprocess import Popen, PIPE
 from tempfile import NamedTemporaryFile
 from shlex import split as shlex_split
 
+from annotation import open_textfile
+
 #XXX: We assume that we are allowed to pollute the file directory with caches
 
 ### Contants
@@ -87,7 +89,7 @@ def align_sentence_split(txt, split_txt):
 
 def align_sentence_split_file(txt_file_path, split_txt):
     try:
-        with open(txt_file_path, 'r') as f:
+        with open_textfile(txt_file_path, 'r') as f:
             txt = f.read()
             return align_sentence_split(txt, split_txt)
     except IOError:
@@ -105,7 +107,7 @@ def sentence_split_file(txt_file_path, use_cache=False):
         # Read the cache if we are allowed to and it is not out-dated
         if (isfile(ss_file_path) and access(ss_file_path, R_OK) and
                 (getmtime(ss_file_path) > getmtime(txt_file_path))):
-            with open(ss_file_path, 'r') as ss_file:
+            with open_textfile(ss_file_path, 'r') as ss_file:
                 return ss_file.read()
    
     # Get a temporary file to which GeniaSS can write output
@@ -131,7 +133,7 @@ def sentence_split_file(txt_file_path, use_cache=False):
             
             # Save the output if we are to use a cache and may write
             if use_cache and access(dirname(ss_file_path), W_OK):
-                with open(ss_file_path, 'w') as ss_file:
+                with open_textfile(ss_file_path, 'w') as ss_file:
                     ss_file.write(ss_output)
 
             return ss_output
@@ -177,7 +179,7 @@ if __name__ == '__main__':
             # Two cached calls return the same data
             first_call = sentence_split_file(self.tmp_file_path, use_cache=True)
             # Modify the data
-            with open(self.tmp_file_path, 'w') as tmp_file:
+            with open_textfile(self.tmp_file_path, 'w') as tmp_file:
                 tmp_file.write(str(randint(0, 4711)))
             self.assertEqual(first_call,
                     sentence_split_file(self.tmp_file_path, use_cache=True))
@@ -190,9 +192,9 @@ if __name__ == '__main__':
         def test_no_read(self):
             # Create and read a fake cache file
             fake_cache_path = self.tmp_file_path + CACHE_SUFFIX
-            with open(fake_cache_path, 'w') as fake_cache:
+            with open_textfile(fake_cache_path, 'w') as fake_cache:
                 fake_cache.write(str(randint(0, 4711)))
-            with open(fake_cache_path, 'r') as fake_cache:
+            with open_textfile(fake_cache_path, 'r') as fake_cache:
                 fake_cache_data = fake_cache.read()
             # Make sure that we don't have read permissions to the cache
             old_perm = stat(fake_cache_path)[0]
@@ -203,7 +205,7 @@ if __name__ == '__main__':
             # Restore the permissions
             chmod(fake_cache_path, old_perm)
             # Assert that the file is unchanged
-            with open(fake_cache_path, 'r') as fake_cache:
+            with open_textfile(fake_cache_path, 'r') as fake_cache:
                 self.assertEqual(fake_cache_data, fake_cache.read())
 
         def test_no_write(self):
