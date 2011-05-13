@@ -25,11 +25,15 @@ def __generate_input_and_label(t, dt, keymap, indent, disabled, prefix):
     s  = indent+'    <input id="%s%s" type="radio" name="%stype" value="%s" %s/>' % (prefix, t, prefix, t, dstr)
     s += '<label for="%s%s">' % (prefix, t)
 
-    if t not in keymap or dt.lower().find(keymap[t].lower()) == -1:
-        s += '%s</label>' % escape(dt)
+    if t in keymap:
+        # -1 if not found (i.e. key unrelated to string)
+        key_offset= dt.lower().find(keymap[t].lower())
     else:
-        accesskey = keymap[t].lower()
-        key_offset= dt.lower().find(accesskey)
+        key_offset = -1
+
+    if key_offset == -1:
+        s += '%s</label>' % escape(dt)
+    else:        
         s += '%s<span class="accesskey">%s</span>%s</label>' % (escape(dt[:key_offset]), escape(dt[key_offset:key_offset+1]), escape(dt[key_offset+1:]))
     l.append(s)
     return l
@@ -47,6 +51,9 @@ def __generate_node_html_lines(node, keymap, projectconf, depth=0):
 
     t  = node.storage_form()
     dt = projectconf.preferred_display_form(t)
+
+    import sys
+    print >> sys.stderr, t, dt, keymap
 
     # for debugging
     indent = " "*6*depth
@@ -124,12 +131,9 @@ def kb_shortcuts_to_keymap(keyboard_shortcuts):
     string), returns the inverse mapping, processed for the
     generate_*_html functions.
     """
-
-    # Note: all keymap processing is case-insensitive and treats space
-    # and underscore ("_") interchangeably
     type_to_key_map = {}
     for k in keyboard_shortcuts:
-        type_to_key_map[keyboard_shortcuts[k].lower().replace(" ", "_")] = k.lower()
+        type_to_key_map[keyboard_shortcuts[k]] = k
     return type_to_key_map
 
 def generate_arc_type_html(projectconf, types, keyboard_shortcuts):
