@@ -170,6 +170,11 @@ def generate_textbound_type_html(projectconf, keyboard_shortcuts):
 """
 
 if __name__ == '__main__':
+    import sys
+    import message
+    from projectconfig import ProjectConfiguration
+    
+
     # debugging
     keymap = {
         'P': 'Protein',
@@ -195,4 +200,6 @@ if __name__ == '__main__':
     for k in keymap:
         reverse_keymap[keymap[k]] = k
 
-    print generate_event_type_html(".", reverse_keymap)
+    print generate_event_type_html(ProjectConfiguration("."), reverse_keymap)
+
+    message.output_messages(sys.stdout)
