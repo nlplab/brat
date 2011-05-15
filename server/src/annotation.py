@@ -552,7 +552,7 @@ class Annotations(object):
         type, start, end = self._split_textbound_data(id, data)
         return TextBoundAnnotation(start, end, id, type, data_tail)
 
-    def _parse_comment_line(self, id, data_data_tail):
+    def _parse_comment_line(self, id, data, data_tail):
         try:
             type, target = data.split()
         except ValueError:
