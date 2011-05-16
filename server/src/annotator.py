@@ -207,8 +207,226 @@ def create_span(directory, document, start, end, type,
 from logging import info as log_info
 from annotation import TextBoundAnnotation, TextBoundAnnotationWithText
 
+def _edit_span(ann_obj, mods, id, start, end, projectconf, speculation,
+        negation, type):
+    #TODO: Handle failure to find!
+    ann = ann_obj.get_ann_by_id(id)
+
+    # Hack to support event annotations
+    try:
+        if isinstance(ann, EventAnnotation):
+            # We should actually modify the trigger
+            to_edit_span = ann_obj.get_ann_by_id(ann.trigger)
+        else:
+            to_edit_span = ann
+
+        if (int(start) != to_edit_span.start
+                or int(end) != to_edit_span.end):
+            if not isinstance(to_edit_span, TextBoundAnnotation):
+                # This scenario has been discussed and changing the span inevitably
+                # leads to the text span being out of sync since we can't for sure
+                # determine where in the data format the text (if at all) it is
+                # stored. For now we will fail loudly here.
+                error_msg = ('unable to change the span of an existing annotation'
+                        '(annotation: %s)' % repr(to_edit_span))
+                display_message(error_msg, type='error', duration=3)
+                # Not sure if we only get an internal server error or the data
+                # will actually reach the client to be displayed.
+                assert False, error_msg
+            else:
+                # TODO: Log modification too?
+                before = unicode(to_edit_span)
+                #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
+                to_edit_span.start = int(start)
+                to_edit_span.end = int(end)
+                to_edit_span.text = ann_obj._document_text[to_edit_span.start:to_edit_span.end]
+                #log_info('Span altered')
+                mods.change(before, to_edit_span)
+    except AttributeError:
+         # It is most likely an event annotion
+        pass
+
+    if ann.type != type:
+        if projectconf.type_category(ann.type) != projectconf.type_category(type):
+            # TODO: Raise some sort of protocol error
+            display_message("Cannot convert %s (%s) into %s (%s)"
+                    % (ann.type, projectconf.type_category(ann.type),
+                        type, projectconf.type_category(type)),
+                    "error", -1)
+            pass
+        else:
+            before = unicode(ann)
+            ann.type = type
+
+            # Try to propagate the type change
+            try:
+                #XXX: We don't take into consideration other anns with the
+                # same trigger here!
+                ann_trig = ann_obj.get_ann_by_id(ann.trigger)
+                if ann_trig.type != ann.type:
+                    # At this stage we need to determine if someone else
+                    # is using the same trigger
+                    if any((event_ann
+                        for event_ann in ann_obj.get_events()
+                        if (event_ann.trigger == ann.trigger
+                                and event_ann != ann))):
+                        # Someone else is using it, create a new one
+                        from copy import copy
+                        # A shallow copy should be enough
+                        new_ann_trig = copy(ann_trig)
+                        # It needs a new id
+                        new_ann_trig.id = ann_obj.get_new_id('T')
+                        # And we will change the type
+                        new_ann_trig.type = ann.type
+                        # Update the old annotation to use this trigger
+                        ann.trigger = unicode(new_ann_trig.id)
+                        ann_obj.add_annotation(new_ann_trig)
+                        mods.addition(new_ann_trig)
+                    else:
+                        # Okay, we own the current trigger, but does an
+                        # identical to our sought one already exist?
+                        found = None
+                        for tb_ann in ann_obj.get_textbounds():
+                            if (tb_ann.start == ann_trig.start
+                                    and tb_ann.end == ann_trig.end
+                                    and tb_ann.type == ann.type):
+                                found = tb_ann
+                                break
+
+                        if found is None:
+                            # Just change the trigger type since we are the
+                            # only users
+
+                            before = unicode(ann_trig)
+                            ann_trig.type = ann.type
+                            mods.change(before, ann_trig)
+                        else:
+                            # Attach the new trigger THEN delete
+                            # or the dep will hit you
+                            ann.trigger = unicode(found.id)
+                            ann_obj.del_annotation(ann_trig)
+                            mods.deletion(ann_trig)
+            except AttributeError:
+                # It was most likely a TextBound entity
+                pass
+
+            # Finally remember the change
+            mods.change(before, ann)
+    # Here we assume that there is at most one of each in the file, this can be wrong
+    seen_spec = None
+    seen_neg = None
+    for other_ann in ann_obj:
+        try:
+            if other_ann.target == unicode(ann.id):
+                if other_ann.type == 'Speculation': #XXX: Cons
+                    seen_spec = other_ann
+                if other_ann.type == 'Negation': #XXX: Cons
+                    seen_neg = other_ann
+        except AttributeError:
+            pass
+    # Is the attribute set and none existing? Add.
+    if speculation and seen_spec is None:
+        spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+        spec_mod = ModifierAnnotation(unicode(ann.id), unicode(spec_mod_id),
+                'Speculation', '') #XXX: Cons
+        ann_obj.add_annotation(spec_mod)
+        mods.addition(spec_mod)
+    if negation and seen_neg is None:
+        neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+        neg_mod = ModifierAnnotation(unicode(ann.id), unicode(neg_mod_id),
+                'Negation', '') #XXX: Cons
+        ann_obj.add_annotation(neg_mod)
+        mods.addition(neg_mod)
+    # Is the attribute unset and one existing? Erase.
+    if not speculation and seen_spec is not None:
+        try:
+            ann_obj.del_annotation(seen_spec)
+            mods.deletion(seen_spec)
+        except DependingAnnotationDeleteError:
+            assert False, 'Dependant attached to speculation'
+    if not negation and seen_neg is not None:
+        try:
+            ann_obj.del_annotation(seen_neg)
+            mods.deletion(seen_neg)
+        except DependingAnnotationDeleteError:
+            assert False, 'Dependant attached to negation'
+
+    return ann
+
+def __create_span(ann_obj, mods, type, start, end, txt_file_path,
+        projectconf, speculation, negation):
+    # TODO: Rip this out!
+    start = int(start)
+    end = int(end)
+
+    # Before we add a new trigger, does it already exist?
+    found = None
+    for tb_ann in ann_obj.get_textbounds():
+        try:
+            if (tb_ann.start == start and tb_ann.end == end
+                    and tb_ann.type == type):
+                found = tb_ann
+                break
+        except AttributeError:
+            # Not a trigger then
+            pass
+
+    if found is None:
+        # Get a new ID
+        new_id = ann_obj.get_new_id('T') #XXX: Cons
+        # Get the text span
+        with open_textfile(txt_file_path, 'r') as txt_file:
+            text = txt_file.read()[start:end]
+
+        #TODO: Data tail should be optional
+        if '\n' not in text:
+            ann = TextBoundAnnotationWithText(start, end, new_id, type, text)
+            ann_obj.add_annotation(ann)
+            mods.addition(ann)
+        else:
+            ann = None
+    else:
+        ann = found
+
+    if ann is not None:
+        if projectconf.is_physical_entity_type(type):
+            # TODO: alert that negation / speculation are ignored if set
+            pass
+        else:
+            # Create the event also
+            new_event_id = ann_obj.get_new_id('E') #XXX: Cons
+            event = EventAnnotation(ann.id, [], unicode(new_event_id), type, '')
+            ann_obj.add_annotation(event)
+            mods.addition(event)
+
+            # TODO: use an existing identical textbound for the trigger
+            # if one exists, don't dup            
+
+            if speculation:
+                spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                spec_mod = ModifierAnnotation(unicode(new_event_id),
+                        unicode(spec_mod_id), 'Speculation', '') #XXX: Cons
+                ann_obj.add_annotation(spec_mod)
+                mods.addition(spec_mod)
+            else:
+                neg_mod = None
+            if negation:
+                neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
+                neg_mod = ModifierAnnotation(unicode(new_event_id),
+                        unicode(neg_mod_id), 'Negation', '') #XXX: Cons
+                ann_obj.add_annotation(neg_mod)
+                mods.addition(neg_mod)
+            else:
+                neg_mod = None
+    else:
+        # We got a newline in the span, don't take any action
+        pass
+
+    return ann
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def _create_span(directory, document, start, end, type, negation, speculation, id=None):
+def _create_span(directory, document, start, end, type, negation, speculation,
+        id=None, comment=None):
 #def save_span(docdir, docname, start_str, end_str, type, negation, speculation, id):
     #TODO: Handle the case when negation and speculation both are positive
     # if id present: edit
@@ -234,217 +452,13 @@ def _create_span(directory, document, start, end, type, negation, speculation, i
         mods = ModificationTracker()
 
         if id is not None:
-            #TODO: Handle failure to find!
-            ann = ann_obj.get_ann_by_id(id)
-            
-            # Hack to support event annotations
-            try:
-                if isinstance(ann, EventAnnotation):
-                    # We should actually modify the trigger
-                    to_edit_span = ann_obj.get_ann_by_id(ann.trigger)
-                else:
-                    to_edit_span = ann
-
-                if (int(start) != to_edit_span.start
-                        or int(end) != to_edit_span.end):
-                    if not isinstance(to_edit_span, TextBoundAnnotation):
-                        # This scenario has been discussed and changing the span inevitably
-                        # leads to the text span being out of sync since we can't for sure
-                        # determine where in the data format the text (if at all) it is
-                        # stored. For now we will fail loudly here.
-                        error_msg = ('unable to change the span of an existing annotation'
-                                '(annotation: %s)' % repr(to_edit_span))
-                        display_message(error_msg, type='error', duration=3)
-                        # Not sure if we only get an internal server error or the data
-                        # will actually reach the client to be displayed.
-                        assert False, error_msg
-                    else:
-                        # TODO: Log modification too?
-                        before = unicode(to_edit_span)
-                        #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
-                        to_edit_span.start = int(start)
-                        to_edit_span.end = int(end)
-                        to_edit_span.text = ann_obj._document_text[to_edit_span.start:to_edit_span.end]
-                        #log_info('Span altered')
-                        mods.change(before, to_edit_span)
-            except AttributeError:
-                 # It is most likely an event annotion
-                pass
-
-            if ann.type != type:
-                if projectconf.type_category(ann.type) != projectconf.type_category(type):
-                    # TODO: Raise some sort of protocol error
-                    display_message("Cannot convert %s (%s) into %s (%s)"
-                            % (ann.type, projectconf.type_category(ann.type),
-                                type, projectconf.type_category(type)),
-                            "error", -1)
-                    pass
-                else:
-                    before = unicode(ann)
-                    ann.type = type
-
-                    # Try to propagate the type change
-                    try:
-                        #XXX: We don't take into consideration other anns with the
-                        # same trigger here!
-                        ann_trig = ann_obj.get_ann_by_id(ann.trigger)
-                        if ann_trig.type != ann.type:
-                            # At this stage we need to determine if someone else
-                            # is using the same trigger
-                            if any((event_ann
-                                for event_ann in ann_obj.get_events()
-                                if (event_ann.trigger == ann.trigger
-                                        and event_ann != ann))):
-                                # Someone else is using it, create a new one
-                                from copy import copy
-                                # A shallow copy should be enough
-                                new_ann_trig = copy(ann_trig)
-                                # It needs a new id
-                                new_ann_trig.id = ann_obj.get_new_id('T')
-                                # And we will change the type
-                                new_ann_trig.type = ann.type
-                                # Update the old annotation to use this trigger
-                                ann.trigger = unicode(new_ann_trig.id)
-                                ann_obj.add_annotation(new_ann_trig)
-                                mods.addition(new_ann_trig)
-                            else:
-                                # Okay, we own the current trigger, but does an
-                                # identical to our sought one already exist?
-                                found = None
-                                for tb_ann in ann_obj.get_textbounds():
-                                    if (tb_ann.start == ann_trig.start
-                                            and tb_ann.end == ann_trig.end
-                                            and tb_ann.type == ann.type):
-                                        found = tb_ann
-                                        break
-
-                                if found is None:
-                                    # Just change the trigger type since we are the
-                                    # only users
-
-                                    before = unicode(ann_trig)
-                                    ann_trig.type = ann.type
-                                    mods.change(before, ann_trig)
-                                else:
-                                    # Attach the new trigger THEN delete
-                                    # or the dep will hit you
-                                    ann.trigger = unicode(found.id)
-                                    ann_obj.del_annotation(ann_trig)
-                                    mods.deletion(ann_trig)
-                    except AttributeError:
-                        # It was most likely a TextBound entity
-                        pass
-
-                    # Finally remember the change
-                    mods.change(before, ann)
-            # Here we assume that there is at most one of each in the file, this can be wrong
-            seen_spec = None
-            seen_neg = None
-            for other_ann in ann_obj:
-                try:
-                    if other_ann.target == unicode(ann.id):
-                        if other_ann.type == 'Speculation': #XXX: Cons
-                            seen_spec = other_ann
-                        if other_ann.type == 'Negation': #XXX: Cons
-                            seen_neg = other_ann
-                except AttributeError:
-                    pass
-            # Is the attribute set and none existing? Add.
-            if speculation and seen_spec is None:
-                spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                spec_mod = ModifierAnnotation(unicode(ann.id), unicode(spec_mod_id),
-                        'Speculation', '') #XXX: Cons
-                ann_obj.add_annotation(spec_mod)
-                mods.addition(spec_mod)
-            if negation and seen_neg is None:
-                neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                neg_mod = ModifierAnnotation(unicode(ann.id), unicode(neg_mod_id),
-                        'Negation', '') #XXX: Cons
-                ann_obj.add_annotation(neg_mod)
-                mods.addition(neg_mod)
-            # Is the attribute unset and one existing? Erase.
-            if not speculation and seen_spec is not None:
-                try:
-                    ann_obj.del_annotation(seen_spec)
-                    mods.deletion(seen_spec)
-                except DependingAnnotationDeleteError:
-                    assert False, 'Dependant attached to speculation'
-            if not negation and seen_neg is not None:
-                try:
-                    ann_obj.del_annotation(seen_neg)
-                    mods.deletion(seen_neg)
-                except DependingAnnotationDeleteError:
-                    assert False, 'Dependant attached to negation'
-
-            # It could be the case that the span is involved in event(s), if so, 
-            # the type of that event is changed
-            #TODO:
+            # We are to edit an existing annotation
+            ann = _edit_span(ann_obj, mods, id, start, end, projectconf,
+                    speculation, negation, type)
         else:
-            start = int(start)
-            end = int(end)
-
-            # Before we add a new trigger, does it already exist?
-            found = None
-            for tb_ann in ann_obj.get_textbounds():
-                try:
-                    if (tb_ann.start == start and tb_ann.end == end
-                            and tb_ann.type == type):
-                        found = tb_ann
-                        break
-                except AttributeError:
-                    # Not a trigger then
-                    pass
-
-            if found is None:
-                # Get a new ID
-                new_id = ann_obj.get_new_id('T') #XXX: Cons
-                # Get the text span
-                with open_textfile(txt_file_path, 'r') as txt_file:
-                    text = txt_file.read()[start:end]
-
-                #TODO: Data tail should be optional
-                if '\n' not in text:
-                    ann = TextBoundAnnotationWithText(start, end, new_id, type, text)
-                    ann_obj.add_annotation(ann)
-                    mods.addition(ann)
-                else:
-                    ann = None
-            else:
-                ann = found
-
-            if ann is not None:
-                if projectconf.is_physical_entity_type(type):
-                    # TODO: alert that negation / speculation are ignored if set
-                    pass
-                else:
-                    # Create the event also
-                    new_event_id = ann_obj.get_new_id('E') #XXX: Cons
-                    event = EventAnnotation(ann.id, [], unicode(new_event_id), type, '')
-                    ann_obj.add_annotation(event)
-                    mods.addition(event)
-
-                    # TODO: use an existing identical textbound for the trigger
-                    # if one exists, don't dup            
-
-                    if speculation:
-                        spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                        spec_mod = ModifierAnnotation(unicode(new_event_id),
-                                unicode(spec_mod_id), 'Speculation', '') #XXX: Cons
-                        ann_obj.add_annotation(spec_mod)
-                        mods.addition(spec_mod)
-                    else:
-                        neg_mod = None
-                    if negation:
-                        neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                        neg_mod = ModifierAnnotation(unicode(new_event_id),
-                                unicode(neg_mod_id), 'Negation', '') #XXX: Cons
-                        ann_obj.add_annotation(neg_mod)
-                        mods.addition(neg_mod)
-                    else:
-                        neg_mod = None
-            else:
-                # We got a newline in the span, don't take any action
-                pass
+            # We are to create a new annotation
+            ann = __create_span(ann_obj, mods, type, start, end, txt_file_path,
+                    projectconf, speculation, negation)
 
         if ann is not None:
             if DEBUG:
