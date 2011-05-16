@@ -164,6 +164,12 @@ var AnnotatorUI = (function($, window, undefined) {
               radio.checked = false;
             });
           }
+	  // annotator comments
+	  if (span.annotatorNotes) {
+	    $('#span_notes').val(span.annotatorNotes);
+	  } else {
+	    $('#span_notes').val('');
+	  }
         } else {
           $('#span_highlight_link').hide();
           $('#span_form input:radio:first')[0].checked = true;
@@ -546,6 +552,7 @@ var AnnotatorUI = (function($, window, undefined) {
             directory: dir,
             'document': doc,
             type: type,
+            comment: $('#span_notes').val()
           });
           var el;
           var attributes = {};

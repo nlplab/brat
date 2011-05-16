@@ -210,6 +210,10 @@ var Visualizer = (function($, window, undefined) {
                 span.comment.type = comment[1];
                 span.comment.text += "<br/>" + comment[2];
               }
+	      // partially duplicate marking of annotator note comments
+	      if (comment[1] == "AnnotatorNotes") {
+		  span.annotatorNotes = comment[2];
+	      }
               // prioritize type setting when multiple comments are present
               if (commentPriority(comment[1]) > commentPriority(span.shadowClass)) {
                 span.shadowClass = comment[1];
