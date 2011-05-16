@@ -178,7 +178,7 @@ for attr in ATTRIBUTES:
 
 # NOTE: For now this converts into the old version for compability
 def create_span(directory, document, start, end, type,
-        attributes=None, id=None):
+        attributes=None, id=None, comment=None):
     if attributes is None:
         # NOTE: Defaults are to be added here
         attributes = {}
@@ -202,7 +202,7 @@ def create_span(directory, document, start, end, type,
         speculation = False
 
     return _create_span(directory, document, start, end,
-            type, negation, speculation, id=id)
+            type, negation, speculation, id=id, comment=comment)
 
 from logging import info as log_info
 from annotation import TextBoundAnnotation, TextBoundAnnotationWithText
@@ -470,6 +470,42 @@ def _create_span(directory, document, start, end, type, negation, speculation,
             mods_json = {}
             display_message('Text span contained new-line, rejected',
                     type='error', duration=3)
+
+        # Handle annotation comments
+        if ann is not None:
+            # We are only interested in id;ed comments
+            try:
+                ann.id
+                has_id = True
+            except AttributeError:
+                has_id = False
+
+            if has_id:
+                # Check if there is already an annotation comment
+                for comment in ann_obj.get_oneline_comments():
+                    if (comment.type == 'AnnotatorsComment'
+                            and comment.target == id):
+                        found = comment
+                        break
+                else:
+                    found = None
+
+                if comment:
+                    if found is not None:
+                        # Change the comment
+                        found.tail = comment
+                    else:
+                        # Create a new comment
+                        ann_obj.add_annotation(
+                                OnelineCommentAnnotation(
+                                    ann.id, ann_obj.get_new_id('#'),
+                                    'AnnotatorsComment', comment)
+                                )
+                else:
+                    # We are to erase the annotation
+                    if found is not None:
+                        ann_obj.del_annotation(comment)
+
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
         j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
