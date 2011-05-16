@@ -1,11 +1,6 @@
 # Don't ever commit your settings
 config.py
 
-# vim remenants
-*.swp
-*.swo
-*~
-
 # Python remenants
 *.pyc
 *.pyo
