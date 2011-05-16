@@ -32,4 +32,4 @@ mkdir -p ${MECAB_LOCAL_DIR}
 
 # Build Python bindings
 ( cd ${MECAB_PYTHON_DIR} && env PATH="${PATH}:${MECAB_LOCAL_DIR}/bin" \
-    python setup.py build_ext --inplace )
+    python setup.py build_ext --inplace --rpath ${MECAB_LOCAL_DIR}/lib )
