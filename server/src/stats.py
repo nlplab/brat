@@ -46,7 +46,9 @@ def get_statistics(directory, base_names, use_cache=True):
 
     if (not isfile(cache_file_path)
             or any(True for f in listdir(directory)
-                if getmtime(path_join(directory, f)) > cache_mtime)):
+                if (getmtime(path_join(directory, f)) > cache_mtime)
+                # Ignore hidden files
+                and not f.startswith('.'))):
         generate = True
         docstats = []
     else:
