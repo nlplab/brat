@@ -378,6 +378,7 @@ var AnnotatorUI = (function($, window, undefined) {
             var spanText = data.text.substring(selectedFrom, selectedTo);
             if (spanText.indexOf("\n") != -1) {
               dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
+              reselectedSpan = null;
             } else {
               fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
             }
