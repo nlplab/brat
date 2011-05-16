@@ -166,16 +166,16 @@ var AnnotatorUI = (function($, window, undefined) {
               radio.checked = false;
             });
           }
-	  // annotator comments
-	  if (span.annotatorNotes) {
-	    $('#span_notes').val(span.annotatorNotes);
-	  } else {
-	    $('#span_notes').val('');
-	  }
+          // annotator comments
+          if (span.annotatorNotes) {
+            $('#span_notes').val(span.annotatorNotes);
+          } else {
+            $('#span_notes').val('');
+          }
         } else {
           $('#span_highlight_link').hide();
           $('#span_form input:radio:first')[0].checked = true;
-	  $('#span_notes').val('');
+          $('#span_notes').val('');
         }
         if (span && !reselectedSpan) {
           $('#span_form_reselect, #span_form_delete').show();
@@ -429,6 +429,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var rememberSpanSettings = function(response) {
         try {
+          // XXX formatting
+          //'<div class="span_wrapper"><fieldset><legend>Left</legend><div class="span_types">Foo</div></fieldset></div><div class="span_wrapper"><fieldset><legend>Right</legend><div class="span_types">Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo</div></fieldset></div>';
           $('#span_types').html(response.html).find('.type_scroller').addClass('ui-widget');
         } catch (x) {
           escaped = response.html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -454,6 +456,8 @@ var AnnotatorUI = (function($, window, undefined) {
         if (x) {
           if (x == 'annotationIsReadOnly') {
             dispatcher.post('messages', [[["This document is read-only and can't be edited.", 'error']]]);
+          } else {
+            dispatcher.message('unknownError', [x]);
           }
           reselectedSpan = null;
           $('#waiter').dialog('close');
@@ -528,6 +532,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       dispatcher.post('initForm', [spanForm, {
+          // alsoResize: '#span_types', // DEBUG preparation for generated spans
           // XXX big hack :) choosing the exact thing to contract/expand
           alsoResize: '#span_types .type_scroller:last',
           width: 500,

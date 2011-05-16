@@ -476,6 +476,10 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var showSVGDownloadLinks = function(data) {
+        if (data && data.exception == 'corruptSVG') {
+          dispatcher.post('messages', [[['Cannot save SVG: corrupt', 'error']]]);
+          return;
+        }
         var params = {
             action: 'retrieveSVG',
             'document': doc,
@@ -578,6 +582,21 @@ var VisualizerUI = (function($, window, undefined) {
         showForm(aboutDialog);
       });
 
+      var showUnableToReadTextFile = function() {
+        dispatcher.post('messages', [[['Unable to read the text file.', 'error']]]);
+        showFileBrowser();
+      };
+
+      var showAnnotationFileNotFound = function() {
+        dispatcher.post('messages', [[['Annotation file not found.', 'error']]]);
+        showFileBrowser();
+      };
+
+      var showUnknownError = function(exception) {
+        dispatcher.post('messages', [[['Unknown error: ' + exception, 'error']]]);
+        showFileBrowser();
+      };
+
       dispatcher.
           on('messages', displayMessages).
           on('displaySpanComment', displaySpanComment).
@@ -593,7 +612,10 @@ var VisualizerUI = (function($, window, undefined) {
           on('startedRendering', onStartedRendering).
           on('renderData', hideSVGDownloadLinks).
           on('savedSVG', showSVGDownloadLinks).
-          on('noFileSpecified', showFileBrowser).
+          on('renderError:noFileSpecified', showFileBrowser).
+          on('renderError:annotationFileNotFound', showAnnotationFileNotFound).
+          on('renderError:unableToReadTextFile', showUnableToReadTextFile).
+          on('unknownError', showUnknownError).
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
           on('resize', onResize);

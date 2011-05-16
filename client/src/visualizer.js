@@ -1283,12 +1283,17 @@ var Visualizer = (function($, window, undefined) {
         }
       };
 
+      var renderErrors = {
+        unableToReadTextFile: true,
+        annotationFileNotFound: true
+      };
       var renderData = function(_data) {
         if (_data && _data.exception) {
-          // XXX for now, all exceptions will result in noFileSpecified
-          // we could be more picky about exceptions, see about this
-          // later
-          dispatcher.post('noFileSpecified');
+          if (renderErrors[_data.exception]) {
+            dispatcher.post('renderError:' + _data.exception);
+          } else {
+            dispatcher.post('unknownError', [_data.exception]);
+          }
         } else {
           dispatcher.post('startedRendering', [dir, doc, args]);
           dispatcher.post('spin');
@@ -1316,7 +1321,7 @@ var Visualizer = (function($, window, undefined) {
           if (doc.length) {
             renderDocument();
           } else {
-            dispatcher.post(0, 'noFileSpecified');
+            dispatcher.post(0, 'renderError:noFileSpecified');
           }
         }
       };

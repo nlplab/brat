@@ -491,11 +491,41 @@ fieldset {
 #span_form .collapsible {
     margin-left: 20px;
 }
-.type_scroller {
+.type_scroller { /* TODO remove */
     overflow-y: scroll;
     min-height: 50px;
     max-height: 300px;
 }
+
+
+/* XXX preparation for generated span form later
+ * (mind the crippled comments!)
+#span_types {
+  height: 100px;
+}
+#span_types div.span_wrapper {
+  width: 50%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+}
+#span_types fieldset {
+  height: 100%;
+}
+#span_types div.span_types {
+  overflow-y: auto;
+  width: 100%;
+  height: 100%;
+}
+
+/ HACK to display <legend> properly /
+  #span_types {
+    margin-bottom: 2.5em;
+  }
+  #span_types fieldset {
+    padding-bottom: 2em;
+  }
+/ end HACK */
 
 #span_highlight_link, #arc_highlight_link {
   float: right;
@@ -530,7 +560,7 @@ fieldset {
   letter-spacing: 0em;
   word-spacing: 0em;
   line-height: 1.2;
-  
+
   font-weight: bold;
 }
 
