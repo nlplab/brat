@@ -502,24 +502,34 @@ def get_node_by_storage_form(directory, term):
     return cache[directory].get(term, None)
 get_node_by_storage_form.__cache = {}
 
-def get_relations_by_arg1(directory, term):
-    cache = get_relations_by_arg1.__cache
-    if directory not in cache:
-        cache[directory] = {}
+def __directory_relations_by_arg_type(directory, arg, atype):
     rels = []
-    if term not in cache[directory]:
-        for r in get_relation_type_list(directory):
-            arg1s = [a for a in r.arguments if a[0] == "Arg1"]
-            if len(arg1s) == 0:
-                display_message("Relation type %s lacking Arg1. Configuration may be wrong." % r.storage_form(), "warning")
-                continue
-            for dummy, type in arg1s:
-                # TODO: "wildcards" other than <ANY>
-                if type == "<ANY>" or type == term:
-                    rels.append(r)
-        cache[directory] = rels
-    return cache[directory]
+    for r in get_relation_type_list(directory):
+        args = [a for a in r.arguments if a[0] == arg]
+        if len(args) == 0:
+            display_message("Relation type %s lacking %s. Configuration may be wrong." % (r.storage_form(), arg), "warning")
+            continue
+        for dummy, type in args:
+            # TODO: "wildcards" other than <ANY>
+            if type == "<ANY>" or type == atype:
+                rels.append(r)
+    return rels
+
+def get_relations_by_arg1(directory, atype):
+    cache = get_relations_by_arg1.__cache
+    cache[directory] = cache.get(directory, {})
+    if atype not in cache[directory]:
+        cache[directory][atype] = __directory_relations_by_arg_type(directory, "Arg1", atype)
+    return cache[directory][atype]
 get_relations_by_arg1.__cache = {}
+
+def get_relations_by_arg2(directory, atype):
+    cache = get_relations_by_arg2.__cache
+    cache[directory] = cache.get(directory, {})
+    if atype not in cache[directory]:
+        cache[directory][atype] = __directory_relations_by_arg_type(directory, "Arg2", atype)
+    return cache[directory][atype]
+get_relations_by_arg2.__cache = {}
 
 def get_labels_by_storage_form(directory, term):
     cache = get_labels_by_storage_form.__cache
@@ -576,7 +586,7 @@ class ProjectConfiguration(object):
 
     def mandatory_arguments(self, type):
         """
-        Returns the mandatory arguments types that must be present for
+        Returns the mandatory argument types that must be present for
         an annotation of the given type.
         """
         node = get_node_by_storage_form(self.directory, type)
@@ -587,7 +597,7 @@ class ProjectConfiguration(object):
 
     def multiple_allowed_arguments(self, type):
         """
-        Returns the arguments types that are allowed to be filled more
+        Returns the argument types that are allowed to be filled more
         than once for an annotation of the given type.
         """
         node = get_node_by_storage_form(self.directory, type)
@@ -598,6 +608,37 @@ class ProjectConfiguration(object):
 
     def arc_types_from(self, from_ann):
         return self.arc_types_from_to(from_ann)
+
+    def relation_types_from(self, from_ann):
+        """
+        Returns the possible relation types that can have an
+        annotation of the given type as their arg1.
+        """
+        return [r.storage_form() for r in get_relations_by_arg1(self.directory, from_ann)]
+
+    def relation_types_to(self, to_ann):
+        """
+        Returns the possible relation types that can have an
+        annotation of the given type as their arg2.
+        """
+        return [r.storage_form() for r in get_relations_by_arg2(self.directory, to_ann)]
+
+    def relation_types_from_to(self, from_ann, to_ann):
+        """
+        Returns the possible relation types that can have the
+        given arg1 and arg2.
+        """
+        types = []
+        for r in get_relations_by_arg1(self.directory, from_ann):
+            arg2s = [a for a in r.arguments if a[0] == "Arg2"]
+            if len(arg2s) == 0:
+                display_message("Relation type %s lacking Arg2. Configuration may be wrong." % r.storage_form(), "warning")
+                continue
+            for dummy, type in arg2s:
+                # TODO: "wildcards" other than <ANY>
+                if type == "<ANY>" or type == to_ann:
+                    types.append(r.storage_form())
+        return types
 
     def arc_types_from_to(self, from_ann, to_ann="<ANY>"):
         """
@@ -675,11 +716,13 @@ class ProjectConfiguration(object):
         # TODO: remove this temporary hack
         if t in very_likely_physical_entity_types:
             return True
-
         return t in self.get_entity_types()
 
     def is_event_type(self, t):
         return t in self.get_event_types()
+
+    def is_relation_type(self, t):
+        return t is self.get_relation_types()
 
     def type_category(self, t):
         """
@@ -691,6 +734,8 @@ class ProjectConfiguration(object):
             return "PHYSICAL"
         elif self.is_event_type(t):
             return "EVENT"
+        elif self.is_relation_type(t):
+            return "RELATION"
         else:
             # TODO:
             return "OTHER"

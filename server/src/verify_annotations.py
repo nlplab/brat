@@ -130,6 +130,7 @@ def verify_annotation_types(ann_obj, projectconfig):
 
     event_types = projectconfig.get_event_types()
     textbound_types = event_types + projectconfig.get_entity_types()
+    relation_types = projectconfig.get_relation_types()
 
     for e in ann_obj.get_events():
         if e.type not in event_types:
@@ -138,6 +139,10 @@ def verify_annotation_types(ann_obj, projectconfig):
     for t in ann_obj.get_textbounds():
         if t.type not in textbound_types:
             issues.append(AnnotationIssue(t.id, AnnotationError, "Error: %s is not a known textbound type (check configuration?)" % t.type))
+
+    for r in ann_obj.get_relations():
+        if r.type not in relation_types:
+            issues.append(AnnotationIssue(t.id, AnnotationError, "Error: %s is not a known relation type (check configuration?)" % r.type))
 
     return issues
 
@@ -180,6 +185,19 @@ def verify_triggers(ann_obj, projectconfig):
 
     return issues
 
+def verify_relations(ann_obj, projectconfig):
+    issues = []
+
+    for r in ann_obj.get_relations():
+        # check for disallowed argument types
+        a1 = ann_obj.get_ann_by_id(r.arg1)
+        a2 = ann_obj.get_ann_by_id(r.arg2)
+        reltypes = projectconfig.relation_types_from_to(a1.type, a2.type)
+        if r.type not in reltypes:
+            issues.append(AnnotationIssue(r.id, AnnotationError, "Error: %s relation not allowed between %s and %s" % (r.type, a1.type, a2.type)))
+
+    return issues
+
 def verify_annotation(ann_obj, projectconfig):
     """
     Verifies the correctness of a given AnnotationFile.
@@ -194,6 +212,8 @@ def verify_annotation(ann_obj, projectconfig):
     issues += verify_entity_overlap(ann_obj, projectconfig)
 
     issues += verify_triggers(ann_obj, projectconfig)
+
+    issues += verify_relations(ann_obj, projectconfig)
 
     # various event type checks
 
