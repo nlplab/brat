@@ -212,39 +212,36 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, speculation,
     #TODO: Handle failure to find!
     ann = ann_obj.get_ann_by_id(id)
 
-    # Hack to support event annotations
-    try:
-        if isinstance(ann, EventAnnotation):
-            # We should actually modify the trigger
-            to_edit_span = ann_obj.get_ann_by_id(ann.trigger)
-        else:
-            to_edit_span = ann
+    if isinstance(ann, EventAnnotation):
+        # We should actually modify the trigger
+        tb_ann = ann_obj.get_ann_by_id(ann.trigger)
+        e_ann = ann
+    else:
+        tb_ann = ann
+        e_ann = None
 
-        if (int(start) != to_edit_span.start
-                or int(end) != to_edit_span.end):
-            if not isinstance(to_edit_span, TextBoundAnnotation):
-                # This scenario has been discussed and changing the span inevitably
-                # leads to the text span being out of sync since we can't for sure
-                # determine where in the data format the text (if at all) it is
-                # stored. For now we will fail loudly here.
-                error_msg = ('unable to change the span of an existing annotation'
-                        '(annotation: %s)' % repr(to_edit_span))
-                display_message(error_msg, type='error', duration=3)
-                # Not sure if we only get an internal server error or the data
-                # will actually reach the client to be displayed.
-                assert False, error_msg
-            else:
-                # TODO: Log modification too?
-                before = unicode(to_edit_span)
-                #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
-                to_edit_span.start = int(start)
-                to_edit_span.end = int(end)
-                to_edit_span.text = ann_obj._document_text[to_edit_span.start:to_edit_span.end]
-                #log_info('Span altered')
-                mods.change(before, to_edit_span)
-    except AttributeError:
-         # It is most likely an event annotion
-        pass
+    if (int(start) != tb_ann.start
+            or int(end) != tb_ann.end):
+        if not isinstance(tb_ann, TextBoundAnnotation):
+            # This scenario has been discussed and changing the span inevitably
+            # leads to the text span being out of sync since we can't for sure
+            # determine where in the data format the text (if at all) it is
+            # stored. For now we will fail loudly here.
+            error_msg = ('unable to change the span of an existing annotation'
+                    '(annotation: %s)' % repr(tb_ann))
+            display_message(error_msg, type='error', duration=3)
+            # Not sure if we only get an internal server error or the data
+            # will actually reach the client to be displayed.
+            assert False, error_msg
+        else:
+            # TODO: Log modification too?
+            before = unicode(tb_ann)
+            #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
+            tb_ann.start = int(start)
+            tb_ann.end = int(end)
+            tb_ann.text = ann_obj._document_text[tb_ann.start:tb_ann.end]
+            #log_info('Span altered')
+            mods.change(before, tb_ann)
 
     if ann.type != type:
         if projectconf.type_category(ann.type) != projectconf.type_category(type):
@@ -351,7 +348,7 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, speculation,
         except DependingAnnotationDeleteError:
             assert False, 'Dependant attached to negation'
 
-    return ann
+    return tb_ann, e_ann
 
 def __create_span(ann_obj, mods, type, start, end, txt_file_path,
         projectconf, speculation, negation):
@@ -391,7 +388,7 @@ def __create_span(ann_obj, mods, type, start, end, txt_file_path,
     if ann is not None:
         if projectconf.is_physical_entity_type(type):
             # TODO: alert that negation / speculation are ignored if set
-            pass
+            event = None
         else:
             # Create the event also
             new_event_id = ann_obj.get_new_id('E') #XXX: Cons
@@ -420,9 +417,9 @@ def __create_span(ann_obj, mods, type, start, end, txt_file_path,
                 neg_mod = None
     else:
         # We got a newline in the span, don't take any action
-        pass
+        event = None
 
-    return ann
+    return ann, event
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def _create_span(directory, document, start, end, type, negation, speculation,
@@ -453,14 +450,14 @@ def _create_span(directory, document, start, end, type, negation, speculation,
 
         if id is not None:
             # We are to edit an existing annotation
-            ann = _edit_span(ann_obj, mods, id, start, end, projectconf,
+            tb_ann, e_ann = _edit_span(ann_obj, mods, id, start, end, projectconf,
                     speculation, negation, type)
         else:
             # We are to create a new annotation
-            ann = __create_span(ann_obj, mods, type, start, end, txt_file_path,
+            tb_ann, e_ann = __create_span(ann_obj, mods, type, start, end, txt_file_path,
                     projectconf, speculation, negation)
 
-        if ann is not None:
+        if tb_ann is not None:
             if DEBUG:
                 mods_json = mods.json_response()
             else:
@@ -472,20 +469,26 @@ def _create_span(directory, document, start, end, type, negation, speculation,
                     type='error', duration=3)
 
         # Handle annotation comments
-        if ann is not None:
+        if tb_ann is not None:
+            # If this is an event, we want to attach the comment to it
+            if e_ann is not None:
+                comment_on = e_ann
+            else:
+                comment_on = tb_ann
+
             # We are only interested in id;ed comments
             try:
-                ann.id
+                comment_on.id
                 has_id = True
             except AttributeError:
                 has_id = False
 
             if has_id:
                 # Check if there is already an annotation comment
-                for comment in ann_obj.get_oneline_comments():
-                    if (comment.type == 'AnnotatorsComment'
-                            and comment.target == id):
-                        found = comment
+                for com_ann in ann_obj.get_oneline_comments():
+                    if (com_ann.type == 'AnnotatorNotes'
+                            and com_ann.target == comment_on.id):
+                        found = com_ann
                         break
                 else:
                     found = None
@@ -493,18 +496,20 @@ def _create_span(directory, document, start, end, type, negation, speculation,
                 if comment:
                     if found is not None:
                         # Change the comment
-                        found.tail = comment
+                        # XXX: Note the ugly tab, it is for parsing the tail
+                        found.tail = '\t' + comment
                     else:
                         # Create a new comment
                         ann_obj.add_annotation(
                                 OnelineCommentAnnotation(
-                                    ann.id, ann_obj.get_new_id('#'),
-                                    'AnnotatorsComment', comment)
+                                    comment_on.id, ann_obj.get_new_id('#'),
+                                    # XXX: Note the ugly tab
+                                    'AnnotatorNotes', '\t' + comment)
                                 )
                 else:
                     # We are to erase the annotation
                     if found is not None:
-                        ann_obj.del_annotation(comment)
+                        ann_obj.del_annotation(found)
 
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
