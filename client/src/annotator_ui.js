@@ -173,6 +173,7 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           $('#span_highlight_link').hide();
           $('#span_form input:radio:first')[0].checked = true;
+	  $('#span_notes').val('');
         }
         if (span && !reselectedSpan) {
           $('#span_form_reselect, #span_form_delete').show();
