@@ -1,3 +1,5 @@
+// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
+// vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var Visualizer = (function($, window, undefined) {
     var Visualizer = function(dispatcher, svgContainer) {
       var that = this;

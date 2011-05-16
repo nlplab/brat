@@ -1,3 +1,5 @@
+// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
+// vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var AnnotatorUI = (function($, window, undefined) {
     var AnnotatorUI = function(dispatcher, svg) {
       var that = this;
@@ -574,6 +576,11 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         return false;
       };
+      $('#span_notes').focus(function () {
+          keymap = null; 
+        }).blur(function () {
+          keymap = spanKeymap; 
+        });
       spanForm.submit(spanFormSubmit);
 
       var importForm = $('#import_form');
