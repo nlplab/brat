@@ -27,6 +27,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
         if (code === $.ui.keyCode.ESCAPE) {
           stopArcDrag();
+          reselectedSpan = null;
+          svgElement.removeClass('reselect');
           return;
         }
 
@@ -278,6 +280,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var reselectArc = function(evt) {
         dispatcher.post('hideForm', [arcForm]);
+        svgElement.addClass('reselect');
         startArcDrag(arcOptions.origin);
       };
 
@@ -307,6 +310,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           svg.remove(arcDragArc);
           arcDragOrigin = null;
+          svgElement.removeClass('reselect');
         }
       };
 
@@ -379,6 +383,7 @@ var AnnotatorUI = (function($, window, undefined) {
             if (spanText.indexOf("\n") != -1) {
               dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
               reselectedSpan = null;
+              svgElement.removeClass('reselect');
             } else {
               fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
             }
@@ -460,6 +465,7 @@ var AnnotatorUI = (function($, window, undefined) {
             dispatcher.message('unknownError', [x]);
           }
           reselectedSpan = null;
+          svgElement.removeClass('reselect');
           $('#waiter').dialog('close');
         } else {
           args.edited = response.edited;
@@ -528,6 +534,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var reselectSpan = function() {
         dispatcher.post('hideForm', [spanForm]);
+        svgElement.addClass('reselect');
         reselectedSpan = editedSpan;
       };
 
@@ -548,6 +555,7 @@ var AnnotatorUI = (function($, window, undefined) {
           close: function(evt) {
             keymap = null;
             reselectedSpan = null;
+            svgElement.removeClass('reselect');
           }
         }]);
 

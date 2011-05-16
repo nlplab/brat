@@ -16,6 +16,9 @@ svg {
   border: 1px solid #7fa2ff;
   font-size: 14px;
 }
+svg.reselect {
+  border: 1px solid #ff3333;
+}
 
 text {
   font-family: serif;
