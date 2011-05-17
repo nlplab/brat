@@ -759,6 +759,127 @@ def delete_span(directory, document, id):
         mods_json["annotations"] = j_dic
         return mods_json
 
+from common import ProtocolError
+
+class AnnotationSplitError(ProtocolError):
+    def __init__(self, message):
+        self.message = message
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'annotationSplitError'
+        display_message(self.message, 'error')
+        return json_dic
+
+def split_span(directory, document, args, id):
+    real_dir = real_directory(directory)
+    document = path_join(real_dir, document)
+    # TODO don't know how to pass an array directly, so doing extra catenate and split
+    tosplit_args = args.split('|')
+    
+    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+
+    with TextAnnotations(document) as ann_obj:
+        mods = ModificationTracker()
+        
+        ann = ann_obj.get_ann_by_id(id)
+
+        # currently only allowing splits for events
+        if not isinstance(ann, EventAnnotation):
+            raise AnnotationSplitError("Cannot split an annotation of type %s" % ann.type)
+
+        # group event arguments into ones that will be split on and
+        # ones that will not, placing the former into a dict keyed by
+        # the argument without trailing numbers (e.g. "Theme1" ->
+        # "Theme") and the latter in a straight list.
+        split_args = {}
+        nonsplit_args = []
+        import re
+        for arg, aid in ann.args:
+            m = re.match(r'^(.*?)\d*$', arg)
+            if m:
+                arg = m.group(1)
+            if arg in tosplit_args:
+                if arg not in split_args:
+                    split_args[arg] = []
+                split_args[arg].append(aid)
+            else:
+                nonsplit_args.append((arg, aid))
+
+        # verify that split is possible
+        for a in tosplit_args:
+            acount = len(split_args.get(a,[]))
+            if acount < 2:
+                raise AnnotationSplitError("Cannot split %s on %s: only %d %s arguments (need two or more)" % (ann.id, a, acount, a))
+
+        # create all combinations of the args on which to split
+        argument_combos = [[]]
+        for a in tosplit_args:
+            new_combos = []
+            for aid in split_args[a]:
+                for c in argument_combos:
+                    new_combos.append(c + [(a, aid)])
+            argument_combos = new_combos
+
+        # create the new events (first combo will use the existing event)
+        from copy import deepcopy
+        new_events = []
+        for i, arg_combo in enumerate(argument_combos):
+            # tweak args
+            if i == 0:
+                ann.args = nonsplit_args[:] + arg_combo
+            else:
+                newann = deepcopy(ann)
+                newann.id = ann_obj.get_new_id("E") # TODO: avoid hard-coding ID prefix
+                newann.args = nonsplit_args[:] + arg_combo
+                ann_obj.add_annotation(newann)
+                new_events.append(newann)
+
+        # then, go through all the annotations referencing the original
+        # event, and create appropriate copies
+        for a in ann_obj:
+            soft_deps, hard_deps = a.get_deps()
+            refs = soft_deps | hard_deps
+            if ann.id in refs:
+                # Referenced; make duplicates appropriately
+
+                if isinstance(a, EventAnnotation):
+                    # go through args and make copies for referencing
+                    new_args = []
+                    for arg, aid in a.args:
+                        if aid == ann.id:
+                            for newe in new_events:
+                                new_args.append((arg, newe.id))
+                    a.args.extend(new_args)
+
+                elif isinstance(a, ModifierAnnotation):
+                    for newe in new_events:
+                        newmod = deepcopy(a)
+                        newmod.target = newe.id
+                        newmod.id = ann_obj.get_new_id("M") # TODO: avoid hard-coding ID prefix
+                        ann_obj.add_annotation(newmod)
+
+                elif isinstance(a, BinaryRelationAnnotation):
+                    # TODO
+                    raise AnnotationSplitError("Cannot adjust annotation referencing split: not implemented for relations! (WARNING: annotations may be in inconsistent state, please reload!) (Please complain to the developers to fix this!)")
+
+                elif isinstance(a, OnelineCommentAnnotation):
+                    # TODO
+                    raise AnnotationSplitError("Cannot adjust annotation referencing split: not implemented for comments! (WARNING: annotations may be in inconsistent state, please reload!) (Please complain to the developers to fix this!)")
+
+                else:
+                    raise AnnotationSplitError("Cannot adjust annotation referencing split: not implemented for %s! (Please complain to the lazy developers to fix this!)" % a.__class__)
+
+        #print 'Content-Type: application/json\n'
+        if DEBUG:
+            mods_json = mods.json_response()
+        else:
+            mods_json = {}
+        # save a roundtrip and send the annotations also
+        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+        j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
+        mods_json["annotations"] = j_dic
+        return mods_json
+
 def set_status(directory, document, status=None):
     real_dir = real_directory(directory) 
 

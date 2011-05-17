@@ -538,6 +538,29 @@ var AnnotatorUI = (function($, window, undefined) {
         reselectedSpan = editedSpan;
       };
 
+      var splitSpanOnArgs = function(args) {
+          $.extend(spanOptions, {
+                  action: 'splitSpan',
+                  // TODO XXX dunno how to get an array across, so catenating
+                  'args': args.join('|'),
+                  directory: dir,
+                  'document': doc,
+              });
+          dispatcher.post('ajax', [spanOptions, 'edited']);
+      }
+
+      var splitSpanOnThemeSite = function() {
+          splitSpanOnArgs(['Theme', 'Site']);
+      }
+
+      var splitSpanOnTheme = function() {
+          splitSpanOnArgs(['Theme']);
+      }
+
+      var splitSpanOnSite = function() {
+          splitSpanOnArgs(['Site']);
+      }
+
       dispatcher.post('initForm', [spanForm, {
           // alsoResize: '#span_types', // DEBUG preparation for generated spans
           // XXX big hack :) choosing the exact thing to contract/expand
@@ -551,6 +574,18 @@ var AnnotatorUI = (function($, window, undefined) {
               id: 'span_form_reselect',
               text: 'Reselect',
               click: reselectSpan
+            }, {
+              id: 'span_form_split_theme',
+              text: 'Split on Theme',
+              click: splitSpanOnTheme
+            }, {
+              id: 'span_form_split_site',
+              text: 'Split on Site',
+              click: splitSpanOnSite
+            }, {
+              id: 'span_form_split_site',
+              text: 'Split on Theme x Site',
+              click: splitSpanOnThemeSite
           }],
           close: function(evt) {
             keymap = null;
