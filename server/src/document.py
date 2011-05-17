@@ -96,7 +96,7 @@ def get_directory_information(directory):
         combolist.append([False]+i)
 
     # we need a ProjectConfiguration for the kb shortcuts and abbrevs
-    # here. This could be shared with htmlgen, which also needs one.
+    # here.
     projectconf = ProjectConfiguration(real_dir)
 
     span_type_keyboard_shortcuts = projectconf.get_kb_shortcuts()

@@ -93,6 +93,16 @@ def generate_event_type_html(projectconf, type_key_map):
     hierarchy = projectconf.get_event_type_hierarchy()
     return __generate_term_hierarchy_html(hierarchy, type_key_map, projectconf)
 
+def generate_event_attribute_html(projectconf, type_key_map):
+    # TODO: proper checks of which attributes go with events;
+    # currently assuming all are OK.
+    lines = []
+    for t in projectconf.get_attribute_types():
+        lines.append("""<input id="span_mod_%s" type="checkbox" value="%s"/>""" % (t,t))
+        # TODO: mark accesskey as in __generate_input_and_label
+        lines.append("""<label for="span_mod_%s">%s</label>""" % (t,t))
+    return "\n".join(lines)
+
 def generate_client_keymap(keyboard_shortcuts):
     client_keymap = {}
     for k in keyboard_shortcuts:
@@ -156,14 +166,12 @@ def generate_textbound_type_html(projectconf, keyboard_shortcuts):
 <fieldset>
 <legend>Type</legend>
 <div class="type_scroller">
-""" + generate_event_type_html(projectconf, keymap) + """</div>
+""" + generate_event_type_html(projectconf, keymap) + """
+</div>
 </fieldset>
 <fieldset id="span_mod_fset">
-<legend>Modifications</legend>
-<input id="span_mod_negation" type="checkbox" value="Negation"/>
-<label for="span_mod_negation"><span class="accesskey">N</span>egation</label>
-<input id="span_mod_speculation" type="checkbox" value="Speculation"/>
-<label for="span_mod_speculation"><span class="accesskey">S</span>peculation</label>
+<legend>Attributes</legend>
+""" + generate_event_attribute_html(projectconf, keymap) + """
 </fieldset>
 </fieldset>
 """
