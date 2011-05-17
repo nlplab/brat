@@ -45,7 +45,7 @@ var Visualizer = (function($, window, undefined) {
       var isRenderRequested;
       var curlyY;
 
-      var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error'];
+      var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
 
       this.arcDragOrigin = null; // TODO
 

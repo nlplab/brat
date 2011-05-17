@@ -14,6 +14,7 @@ from os.path import join as path_join
 
 from annotator import create_arc, delete_arc, possible_arc_types
 from annotator import create_span, delete_span
+from annotator import split_span
 from auth import login, logout, whoami, NotAuthorisedError
 from common import ProtocolError
 from config import DATA_DIR
@@ -43,6 +44,8 @@ DISPATCHER = {
 
         'createSpan': create_span,
         'deleteSpan': delete_span,
+        'splitSpan' : split_span,
+
         'createArc': create_arc,
         'deleteArc': delete_arc,
         'possibleArcTypes': possible_arc_types,
@@ -58,6 +61,7 @@ REQUIRES_AUTHENTICATION = set((
     'deleteArc',
     'createSpan',
     'deleteSpan',
+    'splitSpan',
     #'setDocumentStatus',
     ))
 
