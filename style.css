@@ -103,6 +103,13 @@ path {
   background-color: #ff9900;
 }
 
+.shadow_AnnotatorNotes {
+  fill: #00cc00;
+}
+#commentpopup.comment_AnnotatorNotes {
+  background-color: #00cc00;
+}
+
 .shadow_AnnotationIncomplete {
   fill: #aaaaaa;
 }
