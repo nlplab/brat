@@ -18,11 +18,12 @@ from message import display_message
 class InvalidProjectConfigException(Exception):
     pass
 
-__entity_type_hierarchy_filename   = 'entity_types.conf'
-__relation_type_hierarchy_filename = 'relation_types.conf'
-__event_type_hierarchy_filename    = 'event_types.conf'
-__label_filename                   = 'labels.conf'
-__kb_shortcut_filename             = 'kb_shortcuts.conf'
+__entity_type_hierarchy_filename    = 'entity_types.conf'
+__relation_type_hierarchy_filename  = 'relation_types.conf'
+__event_type_hierarchy_filename     = 'event_types.conf'
+__attribute_type_hierarchy_filename = 'attributes.conf'
+__label_filename                    = 'labels.conf'
+__kb_shortcut_filename              = 'kb_shortcuts.conf'
 
 # fallback defaults if configs not found
 __default_entity_type_hierarchy = """
@@ -375,7 +376,7 @@ def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 __entity_type_lookups = (
     __entity_type_hierarchy_filename,
     __default_entity_type_hierarchy,
-    [TypeHierarchyNode(["protein"], [])],
+    [TypeHierarchyNode(["Protein"], [])],
 )
 
 __relation_type_lookups = (
@@ -387,7 +388,13 @@ __relation_type_lookups = (
 __event_type_lookups = (
     __event_type_hierarchy_filename,
     __default_event_type_hierarchy,
-    [TypeHierarchyNode(["event"], ["Theme:Protein"])],
+    [TypeHierarchyNode(["Event"], ["Theme:Protein"])],
+)
+
+__attribute_type_lookups = (
+    __attribute_type_hierarchy_filename,
+    __default_attribute_type_hierarchy,
+    [TypeHierarchyNode(["Negation"], ["Arg:<EVENT>"])],
 )
 
 def __get_type_hierarchy_with_cache(directory, cache, lookups):
@@ -487,6 +494,13 @@ def get_relation_type_list(directory):
         cache[directory] = __type_hierarchy_to_list(get_relation_type_hierarchy(directory))
     return cache[directory]
 get_relation_type_list.__cache = {}
+
+def get_attribute_type_list(directory):
+    cache = get_attribute_type_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_attribute_type_hierarchy(directory))
+    return cache[directory]
+get_attribute_type_list.__cache = {}    
 
 def get_node_by_storage_form(directory, term):
     cache = get_node_by_storage_form.__cache
@@ -685,6 +699,9 @@ class ProjectConfiguration(object):
 
     def get_kb_shortcuts(self):
         return get_kb_shortcuts(self.directory)
+
+    def get_attribute_types(self):
+        return [t.storage_form() for t in get_attribute_type_list(self.directory)]
 
     def get_event_types(self):
         return [t.storage_form() for t in get_event_type_list(self.directory)]
