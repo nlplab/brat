@@ -777,7 +777,7 @@ def split_span(directory, document, args, id):
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
     # TODO don't know how to pass an array directly, so doing extra catenate and split
-    tosplit_args = args.split('|')
+    tosplit_args = json_loads(args)
     
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 

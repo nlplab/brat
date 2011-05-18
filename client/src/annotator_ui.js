@@ -17,6 +17,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var doc = null;
       var reselectedSpan = null;
       var editedSpan = null;
+      var repeatingArcTypes = [];
 
       that.user = null;
 
@@ -87,6 +88,7 @@ var AnnotatorUI = (function($, window, undefined) {
             action: 'createSpan',
             start: editedSpan.from,
             end: editedSpan.to,
+            type: editedSpan.type,
             id: id,
           };
           var spanText = data.text.substring(editedSpan.from, editedSpan.to);
@@ -178,10 +180,25 @@ var AnnotatorUI = (function($, window, undefined) {
           } else {
             $('#span_notes').val('');
           }
+
+          // count the repeating arc types
+          var arcTypeCount = {};
+          repeatingArcTypes = [];
+          $.each(span.outgoing, function(arcNo, arc) {
+            if ((arcTypeCount[arc.type] = (arcTypeCount[arc.type] || 0) + 1) == 2) {
+              repeatingArcTypes.push(arc.type);
+            }
+          });
+          if (repeatingArcTypes.length) {
+            $('#span_form_split').show();
+          } else {
+            $('#span_form_split').hide();
+          }
         } else {
           $('#span_highlight_link').hide();
           $('#span_form input:radio:first')[0].checked = true;
           $('#span_notes').val('');
+          $('#span_form_split').hide();
         }
         if (span && !reselectedSpan) {
           $('#span_form_reselect, #span_form_delete').show();
@@ -212,12 +229,8 @@ var AnnotatorUI = (function($, window, undefined) {
         var type = typeRadio.val();
         dispatcher.post('hideForm', [arcForm]);
 
-        if (type) { // (if not cancelled)
-          arcOptions.type = type;
-          dispatcher.post('ajax', [arcOptions, 'edited']);
-        } else {
-          dispatcher.post('messages', [[['Error: No type selected', 'error']]]);
-        }
+        arcOptions.type = type;
+        dispatcher.post('ajax', [arcOptions, 'edited']);
         return false;
       };
 
@@ -542,6 +555,48 @@ var AnnotatorUI = (function($, window, undefined) {
         reselectedSpan = editedSpan;
       };
 
+      var splitForm = $('#split_form');
+      splitForm.submit(function(evt) {
+        var splitRoles = [];
+        $('#split_roles input:checked').each(function() {
+          splitRoles.push($(this).val());
+        });
+        $.extend(spanOptions, {
+            action: 'splitSpan',
+            'args': $.toJSON(splitRoles),
+            directory: dir,
+            'document': doc,
+          });
+        dispatcher.post('hideForm', [splitForm]);
+        dispatcher.post('ajax', [spanOptions, 'edited']);
+        return false;
+      });
+      dispatcher.post('initForm', [splitForm, {
+          alsoResize: '.scroll_fset',
+          width: 400
+        }]);
+      var splitSpan = function() {
+        dispatcher.post('hideForm', [spanForm]);
+        var $roles = $('#split_roles').empty();
+        var numRoles = repeatingArcTypes.length;
+        var roles = $.each(repeatingArcTypes, function() {
+          var $role = $('<input id="split_on_' + Util.escapeQuotes(this) +
+            '" type="checkbox" name="' + Util.escapeQuotes(this) +
+            '" value="' + Util.escapeQuotes(this) + '"/>');
+          if (numRoles == 1) {
+            // a single role will be selected automatically
+            $role.click();
+          }
+          var $label = $('<label for="split_on_' + Util.escapeQuotes(this) +
+            '">' + Util.escapeQuotes(this) + '</label>');
+          $roles.append($role).append($label);
+        });
+        var $roleButtons = $roles.find('input').button();
+        
+        dispatcher.post('showForm', [splitForm]);
+      };
+
+      // XXX delete later
       var splitSpanOnArgs = function(args) {
           $.extend(spanOptions, {
                   action: 'splitSpan',
@@ -569,7 +624,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // alsoResize: '#span_types', // DEBUG preparation for generated spans
           // XXX big hack :) choosing the exact thing to contract/expand
           alsoResize: '#span_types .type_scroller:last',
-          width: 500,
+          width: 700,
           buttons: [{
               id: 'span_form_delete',
               text: "Delete",
@@ -579,17 +634,9 @@ var AnnotatorUI = (function($, window, undefined) {
               text: 'Reselect',
               click: reselectSpan
             }, {
-              id: 'span_form_split_theme',
-              text: 'Split on Theme',
-              click: splitSpanOnTheme
-            }, {
-              id: 'span_form_split_site',
-              text: 'Split on Site',
-              click: splitSpanOnSite
-            }, {
-              id: 'span_form_split_site',
-              text: 'Split on Theme x Site',
-              click: splitSpanOnThemeSite
+              id: 'span_form_split',
+              text: 'Split',
+              click: splitSpan
           }],
           close: function(evt) {
             keymap = null;
@@ -602,31 +649,27 @@ var AnnotatorUI = (function($, window, undefined) {
         typeRadio = typeRadio || $('#span_form input:radio:checked');
         var type = typeRadio.val();
         dispatcher.post('hideForm', [spanForm]);
-        if (type) {
-          $.extend(spanOptions, {
-            action: 'createSpan',
-            directory: dir,
-            'document': doc,
-            type: type,
-            comment: $('#span_notes').val()
-          });
-          var el;
-          var attributes = {};
-          if (el = $('#span_mod_negation')[0]) {
-            attributes.negation = el.checked;
-          }
-          if (el = $('#span_mod_speculation')[0]) {
-            attributes.speculation = el.checked;
-          }
-          // unfocus all elements to prevent focus being kept after
-          // hiding them
-          spanForm.parent().find('*').blur();
-          spanOptions.attributes = $.toJSON(attributes);
-          $('#waiter').dialog('open');
-          dispatcher.post('ajax', [spanOptions, 'edited']);
-        } else {
-          dispatcher.post('messages', [[['Error: No type selected', 'error']]]);
+        $.extend(spanOptions, {
+          action: 'createSpan',
+          directory: dir,
+          'document': doc,
+          type: type,
+          comment: $('#span_notes').val()
+        });
+        var el;
+        var attributes = {};
+        if (el = $('#span_mod_negation')[0]) {
+          attributes.negation = el.checked;
         }
+        if (el = $('#span_mod_speculation')[0]) {
+          attributes.speculation = el.checked;
+        }
+        // unfocus all elements to prevent focus being kept after
+        // hiding them
+        spanForm.parent().find('*').blur();
+        spanOptions.attributes = $.toJSON(attributes);
+        $('#waiter').dialog('open');
+        dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;
       };
       $('#span_notes').focus(function () {

@@ -47,9 +47,15 @@ var Util = (function(window, undefined) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    var escapeQuotes = function(str) {
+      // we only use double quotes for HTML attributes
+      return str.replace(/"/g,'&quot;');
+    }
+
     return {
       formatTimeAgo: formatTimeAgo,
       realBBox: realBBox,
+      escapeQuotes: escapeQuotes,
       escapeHTML: escapeHTML
     };
 
