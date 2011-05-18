@@ -284,4 +284,5 @@ def main(argv=None):
         print >> sys.stderr, "Check complete."
 
 if __name__ == "__main__":
+    import sys
     sys.exit(main())
