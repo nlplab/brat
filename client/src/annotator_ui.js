@@ -22,6 +22,10 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var svgElement = $(svg._svg);
 
+      var hideForm = function() {
+        keymap = null;
+      };
+
       var onKeyDown = function(evt) {
         var code = evt.which;
 
@@ -681,6 +685,7 @@ var AnnotatorUI = (function($, window, undefined) {
       dispatcher.
         on('renderData', rememberData).
         on('dirLoaded', rememberSpanSettings).
+        on('hideForm', hideForm).
         on('init', init).
         on('edited', edited).
         on('current', gotCurrent).
