@@ -207,10 +207,10 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#span_form_reselect, #span_form_delete').hide();
           keymap[$.ui.keyCode.DELETE] = null;
         }
-        if (el = $('#span_mod_negation')[0]) {
+        if (el = $('#span_mod_Negation')[0]) {
           el.checked = span ? span.Negation : false;
         }
-        if (el = $('#span_mod_speculation')[0]) {
+        if (el = $('#span_mod_Speculation')[0]) {
           el.checked = span ? span.Speculation : false;
         }
         dispatcher.post('showForm', [spanForm]);
@@ -658,10 +658,10 @@ var AnnotatorUI = (function($, window, undefined) {
         });
         var el;
         var attributes = {};
-        if (el = $('#span_mod_negation')[0]) {
+        if (el = $('#span_mod_Negation')[0]) {
           attributes.negation = el.checked;
         }
-        if (el = $('#span_mod_speculation')[0]) {
+        if (el = $('#span_mod_Speculation')[0]) {
           attributes.speculation = el.checked;
         }
         // unfocus all elements to prevent focus being kept after
