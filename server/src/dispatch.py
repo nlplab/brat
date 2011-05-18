@@ -189,4 +189,8 @@ def dispatch(params, client_ip, client_hostname):
     log_info('dispatcher will call %s(%s)' % (action,
         ', '.join((repr(a) for a in action_args)), ))
 
-    return action_fuction(*action_args)
+    json_dic = action_fuction(*action_args)
+
+    # Assign which action that was performed to the json_dic
+    json_dic['action'] = action
+    return json_dic
