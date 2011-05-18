@@ -133,7 +133,7 @@ var VisualizerUI = (function($, window, undefined) {
       var displayComment = function(evt, target, comment, commentText, commentType) {
         var idtype;
         if (commentType) {
-          comment += commentText;
+          comment += Util.escapeHTML(commentText);
           idtype = 'comment_' + commentType;
         }
         commentPopup[0].className = idtype;
@@ -146,23 +146,26 @@ var VisualizerUI = (function($, window, undefined) {
       var displaySpanComment = function(
           evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
-        var comment = '<div><span class="comment_id">' + spanId + '</span>' + ' ' + '<span class="comment_type">' + Visualizer.displayForm(spanType) + '</span>';
+          var comment = '<div><span class="comment_id">' + Util.escapeHTML(spanId) + '</span>' +
+            ' ' + '<span class="comment_type">' + Util.escapeHTML(Visualizer.displayForm(spanType)) + '</span>';
         if (mods.length) {
-          comment += '<div>' + mods.join(', ') + '</div>';
+          comment += '<div>' + Util.escapeHTML(mods.join(', ')) + '</div>';
         }
         comment += '</div>';
-        comment += '<div>"' + spanText + '"</div>';
+        comment += '<div>"' + Util.escapeHTML(spanText) + '"</div>';
         displayComment(evt, target, comment, commentText, commentType);
       };
 
       var displayArcComment = function(
           evt, target, symmetric,
           originSpanId, role, targetSpanId, commentText, commentType) {
-        var comment = (symmetric
-          ? '<div class="comment_arc">' + originSpanId + ' ' +
-	    Visualizer.displayForm(target.attr('data-arc-role')) + ' ' + targetSpanId +'</div>'
-          : '<div class="comment_arc">' + originSpanId + ' &#8594; ' +
-	    Visualizer.displayForm(target.attr('data-arc-role')) + ':' + targetSpanId +'</div>');
+        var comment = '<div class="comment_arc">' + (symmetric
+            ? Util.escapeHTML(originSpanId + ' ' +
+              Visualizer.displayForm(target.attr('data-arc-role')) + ' ' + targetSpanId)
+            : Util.escapeHTML(originSpanId) + ' &#8594; ' +
+              Util.escapeHTML(Visualizer.displayForm(target.attr('data-arc-role')) + ':' + targetSpanId))
+          + '</div>';
+        console.log(comment);
         displayComment(evt, target, comment, commentText, commentType);
       };
 
@@ -348,7 +351,7 @@ var VisualizerUI = (function($, window, undefined) {
             } else if (type === 'string') {
               formatted = datum;
             } else if (type === 'time') {
-              formatted = Brat.formatTimeAgo(datum * 1000);
+              formatted = Util.formatTimeAgo(datum * 1000);
             } else if (type === 'float') {
               type = defaultFloatFormat;
               cssClass = 'rightalign';

@@ -101,7 +101,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
         arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
         arcDragOriginGroup.addClass('highlight');
-        arcDragOriginBox = Brat.realBBox(data.spans[arcDragOrigin]);
+        arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin]);
         arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
       };
 
