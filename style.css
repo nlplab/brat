@@ -308,6 +308,11 @@ rect.shadow_EditHighlight {
 .span_Experimental_method { fill: #ffff00; }
 
 .span_Other        { fill: #ff0000; }
+.span_Not_sure     { fill: #ff0000; }
+.span_Other_entity        { fill: #ff0000; }
+.span_Not_sure_entity     { fill: #ff0000; }
+.span_Other_event        { fill: #ff0000; }
+.span_Not_sure_event     { fill: #ff0000; }
 .span_UNCLASSIFIED { fill: #ff0000; }
 
 .fill_theme    { fill:   #000000; }
