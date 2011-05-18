@@ -17,6 +17,7 @@ Version:    2010-02-07
 '''
 
 from cgi import escape, FieldStorage
+from logging import info as log_info
 from os import environ
 from os.path import dirname
 from os.path import join as path_join
@@ -156,15 +157,20 @@ def main(args):
             # TODO: Possibly a check here that what we got back was dictionary:ish
 
             get_session().print_cookie()
-            
-            print 'Content-Type: application/json\n'
-            print dumps(add_messages_to_json(json_dic))
+        
+            # TODO: Generically catch all responses in order to log them
+            server_response = ('Content-Type: application/json\n\n' +
+                    dumps(add_messages_to_json(json_dic)))
+            log_info('Server Response:\n' + server_response)
+            print  server_response
         except ProtocolError, e:
             # Internal exception, notify the client but don't log to stderr
             json_dic = {}
             e.json(json_dic)
-            print 'Content-Type: application/json\n'
-            print dumps(add_messages_to_json(json_dic))
+            server_response = ('Content-Type: application/json\n\n' +
+                    dumps(add_messages_to_json(json_dic)))
+            log_info('Server Response:\n' + server_response)
+            print  server_response
         except NoPrintJSONError:
             pass # We are simply to exit and do nothing
     except BaseException, e:

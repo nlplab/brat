@@ -751,7 +751,7 @@ class TextAnnotations(Annotations):
                 #log_info(text.__class__.__name__)
                 display_message((u"Text-bound annotation text '%s' does not "
                     u"match marked span (%d:%d) text '%s' in document") % (
-                        '', #text,
+                        text,
                         start,
                         end,
                         self._document_text[start:end], 
