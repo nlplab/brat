@@ -78,7 +78,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#arc_target').text(Visualizer.displayForm(targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
           var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
-          
+
         // if not, then do we edit a span?
         } else if (id = target.attr('data-span-id')) {
           window.getSelection().removeAllRanges();
@@ -227,16 +227,16 @@ var AnnotatorUI = (function($, window, undefined) {
             directory: dir,
             origin_type: originType,
             target_type: targetType,
-          }, 
+          },
           function(jsonData) {
             if (jsonData.empty && !arcType) {
               // no valid choices
-		dispatcher.post('messages', 
-				[[["No choices for " + 
-				   Visualizer.displayForm(originType) +
-				   " -> " + 
-				   Visualizer.displayForm(targetType),
-				   'warning']]]);
+              dispatcher.post('messages',
+                [[["No choices for " +
+                   Visualizer.displayForm(originType) +
+                   " -> " +
+                   Visualizer.displayForm(targetType),
+                   'warning']]]);
             } else {
               $('#arc_roles').html(jsonData.html);
               keymap = jsonData.keymap;
@@ -369,7 +369,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
             if (selectedFrom === selectedTo) {
               // simple click (zero-width span)
-              return; 
+              return;
             }
             if (reselectedSpan) {
               spanOptions.old_start = spanOptions.start;
@@ -630,9 +630,9 @@ var AnnotatorUI = (function($, window, undefined) {
         return false;
       };
       $('#span_notes').focus(function () {
-          keymap = null; 
+          keymap = null;
         }).blur(function () {
-          keymap = spanKeymap; 
+          keymap = spanKeymap;
         });
       spanForm.submit(spanFormSubmit);
 
@@ -665,7 +665,7 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#import_button').click(function() {
         dispatcher.post('showForm', [importForm]);
       });
-      
+
 
       var waiter = $('#waiter');
       waiter.dialog({

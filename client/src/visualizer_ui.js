@@ -455,7 +455,7 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('setDirectory', ['/']);
         } else {
           filesData = response;
-          filesData.docs.sort(docSortFunction);	  
+          filesData.docs.sort(docSortFunction);
         }
       };
 
@@ -511,11 +511,11 @@ var VisualizerUI = (function($, window, undefined) {
         var el = $(el);
         var height = el.data("cachedHeight");
         var visible = el.is(":visible");
-        
+
         if (show === undefined) show = !visible;
-        
+
         if (show === visible) return false;
-        
+
         if (!height) {
           height = el.show().height();
           el.data("cachedHeight", height);

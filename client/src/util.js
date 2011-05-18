@@ -52,5 +52,5 @@ var Util = (function(window, undefined) {
       realBBox: realBBox,
       escapeHTML: escapeHTML
     };
-    
+
 })(window);

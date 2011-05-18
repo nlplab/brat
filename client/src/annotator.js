@@ -5,6 +5,6 @@ var Annotator = (function($, window, undefined) {
       var that = this;
 
     };
-    
+
     return Annotator;
 })(jQuery, window);
