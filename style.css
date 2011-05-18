@@ -712,26 +712,14 @@ fieldset {
   src: local('Allerta'), url('static/fonts/Allerta-Medium.ttf') format('truetype');
 }
 @font-face {
-  font-family: 'PT Sans';
+  font-family: 'PT Sans Caption';
   font-style: normal;
   font-weight: normal;
-  src: local('PT Sans'), local('PTSans-Regular'), url('static/fonts/PT_Sans-Web-Regular.ttf') format('truetype');
+  src: local('PT Sans Caption'), local('PTSans-Caption'), url('static/fonts/PT_Sans-Caption-Web-Regular.ttf') format('truetype');
 }
 @font-face {
-  font-family: 'PT Sans';
-  font-style: italic;
-  font-weight: bold;
-  src: local('PT Sans Bold Italic'), local('PTSans-BoldItalic'), url('static/fonts/PT_Sans-Web-BoldItalic.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'PT Sans';
+  font-family: 'PT Sans Caption';
   font-style: normal;
   font-weight: bold;
-  src: local('PT Sans Bold'), local('PTSans-Bold'), url('static/fonts/PT_Sans-Web-Bold.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'PT Sans';
-  font-style: italic;
-  font-weight: normal;
-  src: local('PT Sans Italic'), local('PTSans-Italic'), url('static/fonts/PT_Sans-Web-Italic.ttf') format('truetype');
+  src: local('PT Sans Caption Bold'), local('PTSans-CaptionBold'), url('static/fonts/PT_Sans-Caption-Web-Bold.ttf') format('truetype');
 }
