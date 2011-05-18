@@ -268,9 +268,9 @@ def main(argv=None):
     for fn in arg.files:
         try:
             projectconfig = ProjectConfiguration(os.path.dirname(fn))
-            # remove ".a2" suffix for Annotations to prompt parsing of
-            # .a1 also.
-            nosuff_fn = fn.replace(".a2","")
+            # remove ".a2" or ".rel" suffixes for Annotations to prompt
+            # parsing of .a1 also.
+            nosuff_fn = fn.replace(".a2","").replace(".rel","")
             with annotation.TextAnnotations(nosuff_fn) as ann_obj:
                 issues = verify_annotation(ann_obj, projectconfig)
                 for i in issues:
