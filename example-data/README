@@ -1,0 +1,6 @@
+This directory contains example datasets compatible with brat.
+
+Unpack these in your DATA directory and set permissions appropriately
+to visualize. Note that to edit datasets distributed as separate .a1
+and .a2 files (or similar), you will first need to run tools/merge.py
+to create a merged .ann file.
