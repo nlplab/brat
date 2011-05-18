@@ -1063,7 +1063,7 @@ var Visualizer = (function($, window, undefined) {
                 }
 
 		var labelText = displayForm(arc.type)
-                if (abbrevsOn) {
+                if (abbrevsOn && !ufoCatcher) {
 		  var labelIdx = 1; // first abbreviation
                   var maxLength = ((to - from) - (2 * arcSlant)) / 7;
                   while (labelText.length > maxLength &&
