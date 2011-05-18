@@ -457,17 +457,6 @@ def _create_span(directory, document, start, end, type, negation, speculation,
             tb_ann, e_ann = __create_span(ann_obj, mods, type, start, end, txt_file_path,
                     projectconf, speculation, negation)
 
-        if tb_ann is not None:
-            if DEBUG:
-                mods_json = mods.json_response()
-            else:
-                mods_json = {}
-        else:
-            # Hack, we had a new-line in the span
-            mods_json = {}
-            display_message('Text span contained new-line, rejected',
-                    type='error', duration=3)
-
         # Handle annotation comments
         if tb_ann is not None:
             # If this is an event, we want to attach the comment to it
@@ -497,19 +486,33 @@ def _create_span(directory, document, start, end, type, negation, speculation,
                     if found is not None:
                         # Change the comment
                         # XXX: Note the ugly tab, it is for parsing the tail
+                        before = unicode(found)
                         found.tail = '\t' + comment
+                        mods.change(before, found)
                     else:
                         # Create a new comment
-                        ann_obj.add_annotation(
-                                OnelineCommentAnnotation(
-                                    comment_on.id, ann_obj.get_new_id('#'),
-                                    # XXX: Note the ugly tab
-                                    'AnnotatorNotes', '\t' + comment)
-                                )
+                        new_comment = OnelineCommentAnnotation(
+                                comment_on.id, ann_obj.get_new_id('#'),
+                                # XXX: Note the ugly tab
+                                'AnnotatorNotes', '\t' + comment)
+                        ann_obj.add_annotation(new_comment)
+                        mods.addition(new_comment)
                 else:
                     # We are to erase the annotation
                     if found is not None:
                         ann_obj.del_annotation(found)
+                        mods.deletion(found)
+
+        if tb_ann is not None:
+            if DEBUG:
+                mods_json = mods.json_response()
+            else:
+                mods_json = {}
+        else:
+            # Hack, we had a new-line in the span
+            mods_json = {}
+            display_message('Text span contained new-line, rejected',
+                    type='error', duration=3)
 
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
