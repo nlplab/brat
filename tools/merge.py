@@ -77,8 +77,7 @@ def main(args):
             with open(ann_file_path, 'r') as ann_file:
                 for line in ann_file:
                     lines.append(line)
-        # It is nice to have them sorted, but don't rely on it
-        lines.sort(key=keynat)
+
         with open(id + '.' + MERGED_SUFFIX, 'w') as merged_ann_file:
             for line in lines:
                 merged_ann_file.write(line)
