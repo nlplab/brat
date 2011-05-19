@@ -31,7 +31,8 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
             items.append(item)
     return items
 
-from projectconfig import ProjectConfiguration, get_labels_by_storage_form
+from projectconfig import (ProjectConfiguration, get_labels_by_storage_form,
+        get_attribute_type_hierarchy)
 
 def get_span_types(directory):
     project_conf = ProjectConfiguration(directory)
@@ -46,8 +47,13 @@ def get_span_types(directory):
     entity_hierarchy = project_conf.get_entity_type_hierarchy()
     entity_types = _get_subtypes_for_type(entity_hierarchy,
             project_conf, hotkey_by_type, directory)
+    
+    #attribute_hierarchy = get_attribute_type_hierarchy(directory)
+    #print attribute_hierarchy
+    #entity_types = _get_subtypes_for_type(attribute_hierarchy,
+    #        project_conf, hotkey_by_type, directory)
 
-    return event_types, entity_types
+    return event_types, entity_types#, attribute_hierarchy
 
 def escape(s):
     from cgi import escape as cgi_escape
@@ -216,7 +222,8 @@ def generate_textbound_type_html(projectconf, keyboard_shortcuts):
 </fieldset>
 """
 
-if __name__ == '__main__':
+# XXX: Disabled
+if False and __name__ == '__main__':
     import sys
     import message
     from projectconfig import ProjectConfiguration
@@ -251,10 +258,8 @@ if __name__ == '__main__':
 
     message.output_messages(sys.stdout)
 
-'''
 if __name__ == '__main__':
     from projectconfig import ProjectConfiguration
     from jsonwrap import dumps
     directory = '/home/ninjin/public_html/brat/brat_test_data/genia'
-    print dumps(get_span_types(directory))
-'''
+    print dumps(get_span_types(directory)[2])

@@ -121,17 +121,19 @@ open_textfile = partial(codecs_open, errors='strict', encoding='utf8')
 
 def __split_annotation_id(id):
     import re
-    m = re.match(r'^([A-Za-z]|#)([0-9]+)(.*?)$', id)
+    m = re.match(r'^([A-Za-z]+|#)([0-9]+)(.*?)$', id)
     if m is None:
         raise InvalidIdError(id)
     pre, num_str, suf = m.groups()
     return pre, num_str, suf
 
+from itertools import takewhile
+
 def annotation_id_prefix(id):
-    try:
-        return id[0]
-    except:
+    pre = ''.join(c for c in takewhile(lambda x : not x.isdigit(), id))
+    if not pre:
         raise InvalidIdError(id)
+    return pre
 
 def annotation_id_number(id):
     return __split_annotation_id(id)[1]
@@ -252,6 +254,9 @@ class Annotations(object):
 
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
+    
+    def get_attributes(self):
+        return (a for a in self if isinstance(a, AttributeAnnotation))
 
     def get_equivs(self):
         return (a for a in self if isinstance(a, EquivAnnotation))
@@ -278,6 +283,7 @@ class Annotations(object):
     # TODO: getters for other categories of annotations
     #TODO: Remove read and use an internal and external version instead
     def add_annotation(self, ann, read=False):
+        #log_info(u'Will add: ' + unicode(ann).rstrip('\n') + ' ' + unicode(type(ann)))
         #TODO: DOC!
         #TODO: Check read only
         if not read and self._read_only:
@@ -474,6 +480,26 @@ class Annotations(object):
             if suggestion not in self._ann_by_id:
                 return suggestion
 
+    # XXX: This syntax is subject to change
+    def _parse_attribute_annotation(self, id, data, data_tail):
+        import re
+
+        match = re.match(r'(.+?)@(.+?) (.+?)$', data)
+        if match is None:
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line,
+                    self.ann_line_num + 1)
+
+        value, _type, target = match.groups()
+
+        # Verify that the ID is indeed valid
+        try:
+            annotation_id_number(target)
+        except InvalidIdError:
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line,
+                    self.ann_line_num + 1)
+
+        return AttributeAnnotation(target, id, _type, '', value)
+
     def _parse_event_annotation(self, id, data, data_tail):
         #XXX: A bit nasty, we require a single space
         try:
@@ -496,6 +522,7 @@ class Annotations(object):
             args = []
 
         return EventAnnotation(trigger, args, id, type, data_tail)
+
 
     def _parse_relation_annotation(self, id, data, data_tail):
         try:
@@ -521,11 +548,11 @@ class Annotations(object):
 
         return BinaryRelationAnnotation(id, type, args[0][1], args[1][1], data_tail)
 
-    def _parse_equiv_annotation(self, id, data, data_tail):
+    def _parse_equiv_annotation(self, data, data_tail):
         # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
         if type != 'Equiv':
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1)
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail)
 
@@ -592,18 +619,32 @@ class Annotations(object):
 
                         new_ann = None
 
+                        #log_info('Will evaluate prefix: ' + pre)
+
                         if pre == '*':
-                            new_ann = self._parse_equiv_annotation(id, data, data_tail)
+                            new_ann = self._parse_equiv_annotation(
+                                    data, data_tail)
                         elif pre == 'E':
-                            new_ann = self._parse_event_annotation(id, data, data_tail)
+                            new_ann = self._parse_event_annotation(
+                                    id, data, data_tail)
                         elif pre == 'M':
-                            new_ann = self._parse_modifier_annotation(id, data, data_tail)
-                        elif pre == 'T':
-                            new_ann = self._parse_textbound_annotation(id, data, data_tail)
+                            new_ann = self._parse_modifier_annotation(
+                                    id, data, data_tail)
+
+                        # XXX: This syntax is subject to change, limit to only T?
+                        elif pre.startswith('T'):
+                            new_ann = self._parse_textbound_annotation(
+                                    id, data, data_tail)
                         elif pre == '#':
-                            new_ann = self._parse_comment_line(id, data, data_tail)
+                            new_ann = self._parse_comment_line(
+                                    id, data, data_tail)
                         elif pre == 'R':
-                            new_ann = self._parse_relation_annotation(id, data, data_tail)
+                            new_ann = self._parse_relation_annotation(
+                                    id, data, data_tail)
+                        # XXX: This syntax is subject to change
+                        elif pre.startswith('M'):
+                            new_ann = self._parse_attribute_annotation(
+                                    id, data, data_tail)
                         else:
                             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
@@ -940,6 +981,33 @@ class ModifierAnnotation(IdedAnnotation):
     def __str__(self):
         return u'%s\t%s %s%s' % (
                 self.id,
+                self.type,
+                self.target,
+                self.tail
+                )
+
+    def get_deps(self):
+        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
+        hard_deps.add(self.target)
+        return (soft_deps, hard_deps)
+
+    def reference_id(self):
+        # TODO: can't currently ID modifier in isolation; return
+        # reference to modified instead
+        return [self.target]
+
+# XXX: The current syntax is according to the Meta-Knowledge Corpus
+# Future suggestion: "${ID}\t${TYPE} ${VALUE} ${TARGET}"
+class AttributeAnnotation(IdedAnnotation):
+    def __init__(self, target, id, type, tail, value):
+        IdedAnnotation.__init__(self, id, type, tail)
+        self.target = target
+        self.value = value
+        
+    def __str__(self):
+        return u'%s\t%s@%s %s%s' % (
+                self.id,
+                self.value,
                 self.type,
                 self.target,
                 self.tail
