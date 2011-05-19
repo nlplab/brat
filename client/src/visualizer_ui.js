@@ -165,7 +165,6 @@ var VisualizerUI = (function($, window, undefined) {
             : Util.escapeHTML(originSpanId) + ' &#8594; ' +
               Util.escapeHTML(Visualizer.displayForm(target.attr('data-arc-role')) + ':' + targetSpanId))
           + '</div>';
-        console.log(comment);
         displayComment(evt, target, comment, commentText, commentType);
       };
 
