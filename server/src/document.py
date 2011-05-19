@@ -22,7 +22,7 @@ from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         AnnotationFileNotFoundError, open_textfile)
 from common import ProtocolError
 from config import DATA_DIR
-from htmlgen import generate_client_keymap, generate_textbound_type_html
+from htmlgen import generate_client_keymap, generate_textbound_type_html, get_span_types
 from projectconfig import ProjectConfiguration
 from stats import get_statistics
 from message import display_message
