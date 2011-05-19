@@ -449,17 +449,54 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
+      var addSpanTypesToDivInner = function($parent, types) {
+        $.each(types, function(typeNo, type) {
+          if (type === null) {
+            $parent.append('<hr/>');
+          } else {
+            var $input = $('<input type="radio" name="span_type"/>').
+              attr('id', 'span_' + type.type).
+              attr('value', type.name);
+            var $label = $('<label/>').
+              attr('for', 'span_' + type.type).
+              text(type.name);
+            var $collapsible = $('<div class="collapsible open"/>');
+            var $content = $('<div class="item_content"/>').
+              append($input).
+              append($label).
+              append($collapsible);
+            var $collapser = $('<div class="collapser open"/>');
+            var $div = $('<div class="item"/>');
+            if (type.children.length) {
+              $div.append($collapser)
+            }
+            $div.append($content);
+            addSpanTypesToDivInner($collapsible, type.children);
+            $parent.append($div);
+          }
+        });
+      };
+      var addSpanTypesToDiv = function($top, types, heading) {
+        $scroller = $('<div class="scroller"/>');
+        $legend = $('<legend/>').text(heading);
+        $fieldset = $('<fieldset/>').append($legend).append($scroller);
+        $top.append($fieldset);
+        addSpanTypesToDivInner($scroller, types);
+      };
+
       var rememberSpanSettings = function(response) {
-        try {
-          // XXX formatting
-          //'<div class="span_wrapper"><fieldset><legend>Left</legend><div class="span_types">Foo</div></fieldset></div><div class="span_wrapper"><fieldset><legend>Right</legend><div class="span_types">Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo</div></fieldset></div>';
-          $('#span_types').html(response.html).find('.type_scroller').addClass('ui-widget');
-        } catch (x) {
-          escaped = response.html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-          dispatcher.post('messages', [[['Error: failed to display span form; received HTML:<br/>' + escaped, 'error']]]);
-          $('#span_types').html('Error displaying form');
-        }
-        spanKeymap = response.keymap;
+        // XXX formatting
+        //'<div class="span_wrapper"><fieldset><legend>Left</legend><div class="span_types">Foo</div></fieldset></div><div class="span_wrapper"><fieldset><legend>Right</legend><div class="span_types">Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo</div></fieldset></div>';
+        // $('#span_types').html(response.html).find('.type_scroller').addClass('ui-widget');
+
+        spanKeymap = {};
+
+        $entities = $('<div id="entity_types" class="scroll_wrapper_half"/>');
+        addSpanTypesToDiv($entities, response.entity_types, 'Entities');
+        $events = $('<div id="event_types" class="scroll_wrapper_half"/>');
+        addSpanTypesToDiv($events, response.event_types, 'Events');
+        $('#span_types').empty().append($entities).append($events);
+
         // TODO: consider separating span and arc labels
         spanLabels = response.labels;
         arcLabels = response.labels;
@@ -621,9 +658,7 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       dispatcher.post('initForm', [spanForm, {
-          // alsoResize: '#span_types', // DEBUG preparation for generated spans
-          // XXX big hack :) choosing the exact thing to contract/expand
-          alsoResize: '#span_types .type_scroller:last',
+          alsoResize: '#span_types',
           width: 700,
           buttons: [{
               id: 'span_form_delete',
