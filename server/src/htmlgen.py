@@ -9,6 +9,46 @@ Server-side HTML generation-related functionality for
 Brat Rapid Annotation Tool (brat)
 '''
 
+# TODO: DOC:
+def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
+    items = []
+    for node in nodes:
+        if node == 'SEPARATOR':
+            items.append(None)
+        else:
+            item = {}
+            _type = node.storage_form() 
+            item['name'] = project_conf.preferred_display_form(_type)
+            item['type'] = _type
+            item['unused'] = node.unused
+            item['labels'] = get_labels_by_storage_form(directory, _type)
+            try:
+                item['hotkey'] = hotkey_by_type[_type]
+            except KeyError:
+                pass
+            item['children'] = _get_subtypes_for_type(node.children,
+                    project_conf, hotkey_by_type, directory)
+            items.append(item)
+    return items
+
+from projectconfig import ProjectConfiguration, get_labels_by_storage_form
+
+def get_span_types(directory):
+    project_conf = ProjectConfiguration(directory)
+
+    keymap = project_conf.get_kb_shortcuts()
+    hotkey_by_type = dict((v, k) for k, v in keymap.iteritems())
+
+    event_hierarchy = project_conf.get_event_type_hierarchy()
+    event_types = _get_subtypes_for_type(event_hierarchy,
+            project_conf, hotkey_by_type, directory)
+
+    entity_hierarchy = project_conf.get_entity_type_hierarchy()
+    entity_types = _get_subtypes_for_type(entity_hierarchy,
+            project_conf, hotkey_by_type, directory)
+
+    return event_types, entity_types
+
 def escape(s):
     from cgi import escape as cgi_escape
     return cgi_escape(s).replace('"', '&quot;');
@@ -210,3 +250,11 @@ if __name__ == '__main__':
     print generate_event_type_html(ProjectConfiguration("."), reverse_keymap)
 
     message.output_messages(sys.stdout)
+
+'''
+if __name__ == '__main__':
+    from projectconfig import ProjectConfiguration
+    from jsonwrap import dumps
+    directory = '/home/ninjin/public_html/brat/brat_test_data/genia'
+    print dumps(get_span_types(directory))
+'''
