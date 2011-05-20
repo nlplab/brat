@@ -149,7 +149,7 @@ var VisualizerUI = (function($, window, undefined) {
           evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
           var comment = '<div><span class="comment_id">' + Util.escapeHTML(spanId) + '</span>' +
-            ' ' + '<span class="comment_type">' + Util.escapeHTML(Util.displayForm(spanType, spanTypes[spanType].labels)) + '</span>';
+            ' ' + '<span class="comment_type">' + Util.escapeHTML(Util.spanDisplayForm(spanTypes, spanType)) + '</span>';
         if (mods.length) {
           comment += '<div>' + Util.escapeHTML(mods.join(', ')) + '</div>';
         }
@@ -164,9 +164,9 @@ var VisualizerUI = (function($, window, undefined) {
         var arcRole = target.attr('data-arc-role');
         var comment = '<div class="comment_arc">' + (symmetric
             ? Util.escapeHTML(originSpanId + ' ' +
-              Util.displayForm(arcRole, spanTypes[data.spans[originSpanId].type].arguments[arcRole]) + ' ' + targetSpanId)
+              Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ' ' + targetSpanId)
             : Util.escapeHTML(originSpanId) + ' &#8594; ' +
-              Util.escapeHTML(Util.displayForm(arcRole, spanTypes[data.spans[originSpanId].type].arguments[arcRole]) + ':' + targetSpanId))
+              Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ':' + targetSpanId))
           + '</div>';
         displayComment(evt, target, comment, commentText, commentType);
       };
@@ -473,6 +473,7 @@ var VisualizerUI = (function($, window, undefined) {
         spanTypes = {};
         loadSpanTypes(response.entity_types);
         loadSpanTypes(response.event_types);
+        loadSpanTypes(response.relation_types);
         dispatcher.post('spanTypesLoaded', [spanTypes]);
       };
 

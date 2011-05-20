@@ -52,20 +52,33 @@ var Util = (function(window, undefined) {
       return str.replace(/"/g,'&quot;');
     }
 
-    var displayForm = function(label, labels) {
-      // Returns the preferred full display form for the given label,
-      // i.e. the first in the label set (if defined)
-      if (labels[label] && labels[label][0]) {
-        return labels[label][0];
-      } else {
-        return label;
-      }
+    var getSpanLabels = function(spanTypes, spanType) {
+      var type = spanTypes[spanType];
+      return type && type.labels || [];
+    }
+
+    var spanDisplayForm = function(spanTypes, spanType) {
+      var labels = getSpanLabels(spanTypes, spanType);
+      return labels[0] || spanType;
+    }
+
+    var getArcLabels = function(spanTypes, spanType, arctype) {
+      var type = spanTypes[spanType];
+      return type && type.arguments && type.arguments[arcType] && type.arguments[arcType][0] || [];
+    }
+
+    var arcDisplayForm = function(spanTypes, spanType, arcType) {
+      var labels = getArcLabels(spanTypes, spanType, arcType);
+      return labels[0] || arcType;
     }
 
     return {
       formatTimeAgo: formatTimeAgo,
       realBBox: realBBox,
-      displayForm: displayForm,
+      getSpanLabels: getSpanLabels,
+      spanDisplayForm: spanDisplayForm,
+      getArcLabels: getArcLabels,
+      arcDisplayForm: arcDisplayForm,
       escapeQuotes: escapeQuotes,
       escapeHTML: escapeHTML
     };

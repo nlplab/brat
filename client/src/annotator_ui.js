@@ -76,8 +76,8 @@ var AnnotatorUI = (function($, window, undefined) {
             arcOptions['left'] = eventDesc.leftSpans.join(',');
             arcOptions['right'] = eventDesc.rightSpans.join(',');
           }
-          $('#arc_origin').text(Util.displayForm(originSpan.type, spanTypes[originSpanId].labels) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
-          $('#arc_target').text(Util.displayForm(targetSpan.type, spanTypes[targetSpanId].labels) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
+          $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
+          $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
           var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
 
@@ -247,9 +247,9 @@ var AnnotatorUI = (function($, window, undefined) {
               // no valid choices
               dispatcher.post('messages',
                 [[["No choices for " +
-                   Util.displayForm(originType, spanTypes[originType].labels) +
+                   Util.spanDisplayForm(spanTypes, originType) +
                    " -> " +
-                   Util.displayForm(targetType, spanTypes[targetType].labels),
+                   Util.spanDisplayForm(spanTypes, targetType),
                    'warning']]]);
             } else {
               $('#arc_roles').html(jsonData.html);
@@ -354,8 +354,8 @@ var AnnotatorUI = (function($, window, undefined) {
                 directory: dir,
                 'document': doc
               };
-              $('#arc_origin').text(Util.displayForm(originSpan.type, spanTypes[originSpan.id].labels)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
-              $('#arc_target').text(Util.displayForm(targetSpan.type, spanTypes[targetSpan.id].labels)+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
+              $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
+              $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type)+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
               fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
             }
           }
@@ -455,12 +455,13 @@ var AnnotatorUI = (function($, window, undefined) {
           if (type === null) {
             $parent.append('<hr/>');
           } else {
+            var name = type.name;
             var $input = $('<input type="radio" name="span_type"/>').
               attr('id', 'span_' + type.type).
               attr('value', type.type);
             var $label = $('<label/>').
               attr('for', 'span_' + type.type).
-              text(type.name);
+              text(name);
             var $collapsible = $('<div class="collapsible open"/>');
             var $content = $('<div class="item_content"/>').
               append($input).
@@ -476,6 +477,12 @@ var AnnotatorUI = (function($, window, undefined) {
             $parent.append($div);
             if (type.hotkey) {
               spanKeymap[type.hotkey] = 'span_' + type.type;
+              var name = $label.html();
+              name = name.replace(new RegExp("(&[^;]*?)?" + type.hotkey),
+                function($0, $1) {
+                  return $1 ? $0 : '<span class="accesskey">' + Util.escapeHTML(type.hotkey) + '</span>';
+                });
+              $label.html(name);
             }
           }
         });

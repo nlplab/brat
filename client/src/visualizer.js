@@ -452,15 +452,15 @@ var Visualizer = (function($, window, undefined) {
             }
             data.towers[span.towerId].push(span);
 
-            var spanLabels = spanTypes[span.type].labels;
-            span.labelText = Util.displayForm(span.type, spanLabels);
+            var spanLabels = Util.getSpanLabels(spanTypes, span.type);
+            span.labelText = Util.spanDisplayForm(spanTypes, span.type);
             // Find the most appropriate label according to text width
             if (abbrevsOn && spanLabels) {
               var labelIdx = 1; // first abbrev
               var maxLength = (span.to - span.from) / 0.8;
               while (span.labelText.length > maxLength &&
                   spanLabels[labelIdx]) {
-                span.labelText = spanTypes[span.type].labels[labelIdx];
+                span.labelText = spanLabels[labelIdx];
                 labelIdx++;
               }
             }
@@ -1045,8 +1045,8 @@ var Visualizer = (function($, window, undefined) {
                   to = canvasWidth - 2 * margin.y;
                 }
 
-                var arcLabels = spanTypes[data.spans[arc.origin].type].arguments[arc.type];
-                var labelText = Util.displayForm(arc.type, arcLabels)
+                var arcLabels = Util.getArcLabels(spanTypes, arc.origin, arc.type);
+                var labelText = Util.arcDisplayForm(spanTypes, arc.origin, arc.type);
                 if (abbrevsOn && !ufoCatcher && arcLabels) {
                   var labelIdx = 1; // first abbreviation
                   var maxLength = ((to - from) - (2 * arcSlant)) / 7;
