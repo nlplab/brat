@@ -62,9 +62,9 @@ var Util = (function(window, undefined) {
       return labels[0] || spanType;
     }
 
-    var getArcLabels = function(spanTypes, spanType, arctype) {
+    var getArcLabels = function(spanTypes, spanType, arcType) {
       var type = spanTypes[spanType];
-      return type && type.arguments && type.arguments[arcType] && type.arguments[arcType][0] || [];
+      return type && type.arguments && type.arguments[arcType] || [];
     }
 
     var arcDisplayForm = function(spanTypes, spanType, arcType) {
