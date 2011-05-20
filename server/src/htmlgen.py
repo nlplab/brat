@@ -29,6 +29,25 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
             except KeyError:
                 pass
 
+            for relation in project_conf.relation_types_from(_type):
+                try:
+                    item['relations']
+                except KeyError:
+                    item['relations'] = {}
+
+                item['relations'][relation] = (
+                        get_labels_by_storage_form(directory, relation))
+
+                if item['relations'][relation] is None:
+                    del item['relations'][relation]
+                    
+            try:
+                # Erase the entry it had no arguments
+                if not item['relations']:
+                    del item['relations']
+            except KeyError:
+                pass
+
             for argument, _ in node.arguments:
                 try:
                     item['arguments']
@@ -357,5 +376,5 @@ if False and __name__ == '__main__':
 if __name__ == '__main__':
     from projectconfig import ProjectConfiguration
     from jsonwrap import dumps
-    directory = '/home/ninjin/public_html/brat/brat_test_data/genia'
+    directory = '/home/ninjin/public_html/brat/brat_test_data/epi'
     print dumps(get_span_types(directory))
