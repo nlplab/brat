@@ -57,14 +57,14 @@ var Visualizer = (function($, window, undefined) {
       }
 
       var displayForm = function(label) {
-	  // Returns the preferred full display form for the given label,
-	  // i.e. the first in the label set (if defined)
-	  var labelText;
-	  if (labels[label] && labels[label][0]) {
-	      return labels[label][0];
-	  } else {
-	      return label;
-	  }
+        // Returns the preferred full display form for the given label,
+        // i.e. the first in the label set (if defined)
+        var labelText;
+        if (labels[label] && labels[label][0]) {
+          return labels[label][0];
+        } else {
+          return label;
+        }
       }
       // TODO XXX Goran: I need to make this function accessible to
       // AnnotatorUI and others; does this way make sense?
@@ -212,10 +212,10 @@ var Visualizer = (function($, window, undefined) {
                 span.comment.type = comment[1];
                 span.comment.text += "<br/>" + comment[2];
               }
-	      // partially duplicate marking of annotator note comments
-	      if (comment[1] == "AnnotatorNotes") {
-		  span.annotatorNotes = comment[2];
-	      }
+              // partially duplicate marking of annotator note comments
+              if (comment[1] == "AnnotatorNotes") {
+                span.annotatorNotes = comment[2];
+              }
               // prioritize type setting when multiple comments are present
               if (commentPriority(comment[1]) > commentPriority(span.shadowClass)) {
                 span.shadowClass = comment[1];
@@ -287,7 +287,7 @@ var Visualizer = (function($, window, undefined) {
             }
           }
         }
-       
+
         // assign arcs to spans; calculate arc distances
         data.arcs = [];
         $.each(data.eventDescs, function(eventNo, eventDesc) {
@@ -416,7 +416,7 @@ var Visualizer = (function($, window, undefined) {
           tmp = ad - bd;
           if(a.numArcs == 0 && b.numArcs == 0) {
               tmp = -tmp;
-          } 
+          }
           if (tmp) {
             return tmp < 0 ? 1 : -1;
           }
@@ -432,7 +432,7 @@ var Visualizer = (function($, window, undefined) {
           } else if (a.type > b.type) {
             return 1;
           }
-          
+
           return 0;
         };
 
@@ -469,10 +469,10 @@ var Visualizer = (function($, window, undefined) {
             }
             data.towers[span.towerId].push(span);
 
-	    span.labelText = displayForm(span.type);
+            span.labelText = displayForm(span.type);
             // Find the most appropriate label according to text width
             if (abbrevsOn) {
-	      var labelIdx = 1; // first abbrev
+              var labelIdx = 1; // first abbrev
               var maxLength = (span.to - span.from) / 0.8;
               while (span.labelText.length > maxLength &&
                   labels[span.type] &&
@@ -482,10 +482,10 @@ var Visualizer = (function($, window, undefined) {
               }
             }
 
-	    // Replace underscores if requested
-	    if(replaceUnderscoresWithSpace) {
-		span.labelText = span.labelText.replace(/_/g,' ');
-	    }
+            // Replace underscores if requested
+            if(replaceUnderscoresWithSpace) {
+              span.labelText = span.labelText.replace(/_/g,' ');
+            }
 
             if (!spanAnnTexts[span.labelText]) {
               spanAnnTexts[span.labelText] = true;
@@ -522,7 +522,7 @@ var Visualizer = (function($, window, undefined) {
         // http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/SharedTask/goran/visual/annotator.xhtml#miwa-genia-dev/9794389
         // (again, it would be solved by individual box reservations instead
         // of row-based)
-        
+
         // overlapping curly check: TODO delete or uncomment
         /*
         if (span.drawCurly) {
@@ -559,7 +559,7 @@ var Visualizer = (function($, window, undefined) {
               return reservation.height;
             }
           }
-          height += newSlot.height + boxSpacing; 
+          height += newSlot.height + boxSpacing;
         }
         reservations.push({
           ranges: [newSlot],
@@ -595,7 +595,7 @@ var Visualizer = (function($, window, undefined) {
             if (data.mtime) {
                 // we're getting seconds and need milliseconds
                 //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
-                $('#document_mtime').text("Last modified: " + Brat.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
+                $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
             } else {
                 //$('#document_ctime').css("display", "none");
                 $('#document_mtime').css("display", "none");
@@ -612,7 +612,7 @@ var Visualizer = (function($, window, undefined) {
             svgElement.
                 attr('width', canvasWidth).
                 append('<!-- document: ' + commentName + ' -->');
-            
+
             // set up the text element, find out font height
             var backgroundGroup = svg.group({ 'class': 'background' });
             highlightGroup = svg.group({ 'class': 'highlight' });
@@ -712,14 +712,14 @@ var Visualizer = (function($, window, undefined) {
                 var xx = spanBox.x + x;
                 var yy = spanBox.y + y;
                 var hh = spanBox.height;
-		var ww = spanBox.width;
+                var ww = spanBox.width;
 
                 // text margin fine-tuning
                 yy += boxTextMargin.y;
                 hh -= 2*boxTextMargin.y;
-		xx += boxTextMargin.x;
-		ww -= 2*boxTextMargin.x;
-                
+                xx += boxTextMargin.x;
+                ww -= 2*boxTextMargin.x;
+
                 var rectClass = 'span_' + span.type + ' span_default';
 
                // attach e.g. "False_positive" into the type
@@ -1049,7 +1049,7 @@ var Visualizer = (function($, window, undefined) {
                     'data-to': arc.target
                 });
                 var from, to;
-                
+
                 if (rowIndex == leftRow) {
                   from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
                 } else {
@@ -1062,9 +1062,9 @@ var Visualizer = (function($, window, undefined) {
                   to = canvasWidth - 2 * margin.y;
                 }
 
-		var labelText = displayForm(arc.type)
+                var labelText = displayForm(arc.type)
                 if (abbrevsOn && !ufoCatcher) {
-		  var labelIdx = 1; // first abbreviation
+                  var labelIdx = 1; // first abbreviation
                   var maxLength = ((to - from) - (2 * arcSlant)) / 7;
                   while (labelText.length > maxLength &&
                          labels[arc.type] &&
@@ -1245,7 +1245,7 @@ var Visualizer = (function($, window, undefined) {
                 });
                 // chunk backgrounds
                 if (chunk.spans.length) {
-                  var spansFrom, spansTo, spansType;	 
+                  var spansFrom, spansTo, spansType;
                   $.each(chunk.spans, function(spanNo, span) {
                     if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
                     if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
@@ -1325,7 +1325,7 @@ var Visualizer = (function($, window, undefined) {
           }
         }
       };
-      
+
       var dirChanged = function() {
         isDirLoaded = false;
       };
@@ -1405,7 +1405,7 @@ var Visualizer = (function($, window, undefined) {
           var symmetric = role === "Equiv";
           // NOTE: no commentText, commentType for now
           dispatcher.post('displayArcComment', [
-              evt, target, symmetric, 
+              evt, target, symmetric,
               originSpanId, role, targetSpanId]);
           highlightArcs = $(svgElement).
               find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').

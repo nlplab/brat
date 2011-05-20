@@ -515,34 +515,33 @@ fieldset {
 }
 
 
-/* XXX preparation for generated span form later
- * (mind the crippled comments!)
-#span_types {
-  height: 100px;
+/* XXX preparation for generated span form later */
+.scroll_fset {
+  height: 200px;
 }
-#span_types div.span_wrapper {
+#span_types.scroll_fset fieldset > .span_wrapper {
   width: 50%;
   height: 100%;
   display: inline-block;
   vertical-align: top;
 }
-#span_types fieldset {
+.scroll_fset fieldset {
   height: 100%;
 }
-#span_types div.span_types {
+.scroll_fset div.span_types {
   overflow-y: auto;
   width: 100%;
   height: 100%;
 }
 
-/ HACK to display <legend> properly /
-  #span_types {
+/* HACK to display <legend> properly */
+  .scroll_fset {
     margin-bottom: 2.5em;
   }
-  #span_types fieldset {
+  .scroll_fset fieldset {
     padding-bottom: 2em;
   }
-/ end HACK */
+/* end HACK */
 
 #span_highlight_link, #arc_highlight_link {
   float: right;

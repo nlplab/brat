@@ -1,6 +1,6 @@
 // -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
-var Brat = (function(window, undefined) {
+var Util = (function(window, undefined) {
 
     var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -43,9 +43,20 @@ var Brat = (function(window, undefined) {
       return box;
     }
 
+    var escapeHTML = function(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    var escapeQuotes = function(str) {
+      // we only use double quotes for HTML attributes
+      return str.replace(/"/g,'&quot;');
+    }
+
     return {
       formatTimeAgo: formatTimeAgo,
-      realBBox: realBBox
+      realBBox: realBBox,
+      escapeQuotes: escapeQuotes,
+      escapeHTML: escapeHTML
     };
-    
+
 })(window);
