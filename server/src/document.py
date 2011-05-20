@@ -33,6 +33,11 @@ try:
 except ImportError:
     PERFORM_VERIFICATION = False
 
+try:
+    from config import JAPANESE
+except ImportError:
+    JAPANESE = False
+
 def real_directory(directory):
     assert isabs(directory), 'directory "%s" is not absolute' % directory
     return path_join(DATA_DIR, directory[1:])
@@ -127,10 +132,50 @@ class UnableToReadTextFile(ProtocolError):
 #TODO: All this enrichment isn't a good idea, at some point we need an object
 def _enrich_json_with_text(j_dic, txt_file_path):
     try:
-        j_dic['text'] = _sentence_split(txt_file_path)
-        return True
+        with open_textfile(txt_file_path) as txt_file:
+            text = txt_file.read()
     except IOError:
         raise UnableToReadTextFile(txt_file_path)
+
+    j_dic['text'] = text
+    
+    from logging import info as log_info
+
+    if JAPANESE:
+        from ssplit import jp_sentence_boundary_gen
+        offsets = [o for o in jp_sentence_boundary_gen(text)]
+        log_info('offsets: ' + str(offsets))
+        j_dic['sentence_offsets'] = offsets
+    else:
+        from ssplit import en_sentence_boundary_gen
+        offsets = [o for o in en_sentence_boundary_gen(text)]
+        log_info('offsets: ' + str(offsets))
+        j_dic['sentence_offsets'] = offsets
+
+    ###
+    # XXX: We do not yet support offsets on the client-side
+    #       Remove this backwards compatible hack later on
+    
+    last_end = 0
+    lines = []
+    log_info('s_offsets: ' + str(j_dic['sentence_offsets']))
+    for _, end in j_dic['sentence_offsets']:
+        log_info('end value: ' + str(end))
+        lines.append(text[last_end:end])
+        last_end = end
+    if last_end != len(text):
+        # This is most likely not a sentence but is included for checking
+        lines.append(text[last_end:])
+        last_end += len(lines[-1])
+
+    log_info(u'lines after offsets: ' + unicode(lines))
+
+    assert last_end == len(text), '%s != %s' % (last_end, len(text))
+
+    #j_dic['text'] = '\n'.join(lines)
+    ###
+
+    return True
 
 def _enrich_json_with_data(j_dic, ann_obj):
     # We collect trigger ids to be able to link the textbound later on
@@ -234,31 +279,6 @@ def _document_json_dict(document):
         _enrich_json_with_data(j_dic, ann_obj)
 
     return j_dic
-
-def _sentence_split(txt_file_path):
-    from geniass import sentence_split_file
-    try:
-        ret = sentence_split_file(txt_file_path, use_cache=True)
-        # This ought to be the hack of the month, if we got nothing back,
-        # fake an exception and fall into the heuristic. This happens for
-        # linking errors among other things.
-        if not ret:
-            # NOTE: this also happens for missing write permissions, as
-            # geniass assumes it can write a temporary into the directory
-            # where the .txt is found.
-            display_message("Warning: sentence split failed (geniass not set up, or no write permission to directory?)", type='warning')
-            err = OSError()
-            err.errno = 2
-            raise err
-        return ret
-    except OSError, e:
-        # If the file is not found we do an ugly fall-back, this is far
-        # too general of an exception handling at the moment.
-        if e.errno == 2:
-            with open_textfile(txt_file_path, 'r') as txt_file:
-                return sub(r'(\. *) ([A-Z])',r'\1\n\2', txt_file.read())
-        else:
-            raise
 
 def get_document(directory, document):
     real_dir = real_directory(directory)

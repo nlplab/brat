@@ -41,4 +41,9 @@ from logging import INFO
 LOG_LEVEL = info
 '''
 
+# If the source data is in Japanese enable word segmentation
+'''
+JAPANESE = True
+'''
+
 assert DATA_DIR != BACKUP_DIR
