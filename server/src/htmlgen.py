@@ -10,7 +10,8 @@ Server-side HTML generation-related functionality for
 Brat Rapid Annotation Tool (brat)
 '''
 
-# TODO: DOC:
+from itertools import chain
+
 def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
     items = []
     for node in nodes:
@@ -29,43 +30,17 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
             except KeyError:
                 pass
 
-            for relation in project_conf.relation_types_from(_type):
-                try:
-                    item['relations']
-                except KeyError:
-                    item['relations'] = {}
+            arcs = {}
+            for arc in chain(project_conf.relation_types_from(_type),
+                    (a for a, _ in node.arguments)):
+                arc_labels = get_labels_by_storage_form(directory, arc)
 
-                item['relations'][relation] = (
-                        get_labels_by_storage_form(directory, relation))
-
-                if item['relations'][relation] is None:
-                    del item['relations'][relation]
+                if arc_labels is not None:
+                    arcs[arc] = arc_labels
                     
-            try:
-                # Erase the entry it had no arguments
-                if not item['relations']:
-                    del item['relations']
-            except KeyError:
-                pass
-
-            for argument, _ in node.arguments:
-                try:
-                    item['arguments']
-                except KeyError:
-                    item['arguments'] = {}
-
-                item['arguments'][argument] = (
-                    get_labels_by_storage_form(directory, argument))
-
-                if item['arguments'][argument] is None:
-                    del item['arguments'][argument]
-
-            try:
-                # Erase the entry it had no arguments
-                if not item['arguments']:
-                    del item['arguments']
-            except KeyError:
-                pass
+            # If we found any arcs, attach them
+            if arcs:
+                item['arcs'] = arcs
 
             item['children'] = _get_subtypes_for_type(node.children,
                     project_conf, hotkey_by_type, directory)
