@@ -23,10 +23,12 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
             item['type'] = _type
             item['unused'] = node.unused
             item['labels'] = get_labels_by_storage_form(directory, _type)
+
             try:
                 item['hotkey'] = hotkey_by_type[_type]
             except KeyError:
                 pass
+
             for argument, _ in node.arguments:
                 try:
                     item['arguments']
@@ -35,6 +37,16 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
 
                 item['arguments'][argument] = (
                     get_labels_by_storage_form(directory, argument))
+
+                if item['arguments'][argument] is None:
+                    del item['arguments'][argument]
+
+            try:
+                # Erase the entry it had no arguments
+                if not item['arguments']:
+                    del item['arguments']
+            except KeyError:
+                pass
 
             item['children'] = _get_subtypes_for_type(node.children,
                     project_conf, hotkey_by_type, directory)
