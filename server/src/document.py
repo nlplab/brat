@@ -105,7 +105,7 @@ def get_directory_information(directory):
 
     labels = projectconf.get_labels()
 
-    event_types, entity_types = get_span_types(real_dir)
+    event_types, entity_types, attribute_types = get_span_types(real_dir)
 
     json_dic = {
             'docs': combolist,
@@ -117,6 +117,7 @@ def get_directory_information(directory):
             'html': html,
             'event_types': event_types,
             'entity_types': entity_types,
+            'attribute_types': attribute_types,
             }
     return json_dic
 

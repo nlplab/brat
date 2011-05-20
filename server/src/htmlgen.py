@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+# coding=utf-8
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
-# vim:set ft=python ts=4 sw=4 sts=4 autoindent:
+# vim:set ft=python ts=4 sw=4 sts=4 fileencoding=utf-8 autoindent:
 
 from __future__ import with_statement
 
@@ -26,6 +27,15 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                 item['hotkey'] = hotkey_by_type[_type]
             except KeyError:
                 pass
+            for argument, _ in node.arguments:
+                try:
+                    item['arguments']
+                except KeyError:
+                    item['arguments'] = {}
+
+                item['arguments'][argument] = (
+                    get_labels_by_storage_form(directory, argument))
+
             item['children'] = _get_subtypes_for_type(node.children,
                     project_conf, hotkey_by_type, directory)
             items.append(item)
@@ -47,13 +57,82 @@ def get_span_types(directory):
     entity_hierarchy = project_conf.get_entity_type_hierarchy()
     entity_types = _get_subtypes_for_type(entity_hierarchy,
             project_conf, hotkey_by_type, directory)
-    
-    #attribute_hierarchy = get_attribute_type_hierarchy(directory)
-    #print attribute_hierarchy
-    #entity_types = _get_subtypes_for_type(attribute_hierarchy,
-    #        project_conf, hotkey_by_type, directory)
+   
+    # XXX: Temporary hack until the configurations support values
+    attribute_types = [
+            {
+                'name': 'Negation',
+                'type': 'Negation',
+                'labels': ['Negation', ],
+                'unused': False,
+                },
+            {
+                'name': 'Speculation',
+                'type': 'Speculation',
+                'labels': ['Speculation', ],
+                'unused': False,
+                },
+            # Hard-coded Meta-Knowledge types
+            # Characters picked by: http://unicode.bloople.net/
+            {
+                'name': 'Knowledge Type',
+                'type': 'Knowledge_type',
+                'labels': ['Knowledge Type', ],
+                'values': {
+                    'Investigation': u'𝛩',
+                    'Analysis': u'ⓘ',
+                    'Observation': u'𝀟',
+                    'Gen-Fact': u'⣣',
+                    'Gen-Method': u'⩭',
+                    'Gen-Other': u'ⵀ',
+                    },
+                'unused': True,
+                },
+            {
+                'name': 'Certainty Level',
+                'type': 'Certainty_level',
+                'labels': ['Certainty Level', ],
+                'values': {
+                    'L1': u'ᾥ',
+                    'L2': u'⏃',
+                    'L3': u'ଌ',
+                    },
+                'unused': True,
+                },
+            {
+                'name': 'Polarity',
+                'type': 'Polarity',
+                'labels': ['Polarity', ],
+                'values': {
+                    'Negative': u'𝟚',
+                    'Positive': u'🁹',
+                    },
+                'unused': True,
+                },
+            {
+                'name': 'Manner',
+                'type': 'Manner',
+                'labels': ['Manner', ],
+                'values': {
+                    'High': u'Ձ',
+                    'Low': u'ኖ',
+                    'Neutral': u'𝞷',
+                    },
+                'unused': True,
+                },
+            {
+                'name': 'Source',
+                'type': 'Source',
+                'labels': ['Source', ],
+                'values': {
+                    'Other': u'⍋',
+                    'Current': u'𝞌',
+                    },
+                'unused': True,
+                },
+            ]
 
-    return event_types, entity_types#, attribute_hierarchy
+    return event_types, entity_types, attribute_types
 
 def escape(s):
     from cgi import escape as cgi_escape
@@ -262,4 +341,4 @@ if __name__ == '__main__':
     from projectconfig import ProjectConfiguration
     from jsonwrap import dumps
     directory = '/home/ninjin/public_html/brat/brat_test_data/genia'
-    print dumps(get_span_types(directory)[2])
+    print dumps(get_span_types(directory))
