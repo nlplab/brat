@@ -18,6 +18,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var reselectedSpan = null;
       var editedSpan = null;
       var repeatingArcTypes = [];
+      var spanTypes = null;
 
       that.user = null;
 
@@ -75,8 +76,8 @@ var AnnotatorUI = (function($, window, undefined) {
             arcOptions['left'] = eventDesc.leftSpans.join(',');
             arcOptions['right'] = eventDesc.rightSpans.join(',');
           }
-          $('#arc_origin').text(Visualizer.displayForm(originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
-          $('#arc_target').text(Visualizer.displayForm(targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
+          $('#arc_origin').text(Util.displayForm(originSpan.type, spanTypes[originSpanId].labels) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
+          $('#arc_target').text(Util.displayForm(targetSpan.type, spanTypes[targetSpanId].labels) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
           var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
 
@@ -246,9 +247,9 @@ var AnnotatorUI = (function($, window, undefined) {
               // no valid choices
               dispatcher.post('messages',
                 [[["No choices for " +
-                   Visualizer.displayForm(originType) +
+                   Util.displayForm(originType, spanTypes[originType].labels) +
                    " -> " +
-                   Visualizer.displayForm(targetType),
+                   Util.displayForm(targetType, spanTypes[targetType].labels),
                    'warning']]]);
             } else {
               $('#arc_roles').html(jsonData.html);
@@ -353,8 +354,8 @@ var AnnotatorUI = (function($, window, undefined) {
                 directory: dir,
                 'document': doc
               };
-              $('#arc_origin').text(Visualizer.displayForm(originSpan.type)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
-              $('#arc_target').text(Visualizer.displayForm(targetSpan.type)+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
+              $('#arc_origin').text(Util.displayForm(originSpan.type, spanTypes[originSpan.id].labels)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
+              $('#arc_target').text(Util.displayForm(targetSpan.type, spanTypes[targetSpan.id].labels)+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
               fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
             }
           }
@@ -456,7 +457,7 @@ var AnnotatorUI = (function($, window, undefined) {
           } else {
             var $input = $('<input type="radio" name="span_type"/>').
               attr('id', 'span_' + type.type).
-              attr('value', type.name);
+              attr('value', type.type);
             var $label = $('<label/>').
               attr('for', 'span_' + type.type).
               text(type.name);
@@ -473,6 +474,9 @@ var AnnotatorUI = (function($, window, undefined) {
             $div.append($content);
             addSpanTypesToDivInner($collapsible, type.children);
             $parent.append($div);
+            if (type.hotkey) {
+              spanKeymap[type.hotkey] = 'span_' + type.type;
+            }
           }
         });
       };
@@ -497,11 +501,12 @@ var AnnotatorUI = (function($, window, undefined) {
         addSpanTypesToDiv($events, response.event_types, 'Events');
         $('#span_types').empty().append($entities).append($events);
 
-        // TODO: consider separating span and arc labels
-        spanLabels = response.labels;
-        arcLabels = response.labels;
         spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
+      };
+
+      var spanTypesLoaded = function(_spanTypes) {
+        spanTypes = _spanTypes;
       };
 
       var gotCurrent = function(_dir, _doc, _args) {
@@ -763,6 +768,7 @@ var AnnotatorUI = (function($, window, undefined) {
       dispatcher.
         on('renderData', rememberData).
         on('dirLoaded', rememberSpanSettings).
+        on('spanTypesLoaded', spanTypesLoaded).
         on('hideForm', hideForm).
         on('init', init).
         on('edited', edited).

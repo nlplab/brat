@@ -52,9 +52,20 @@ var Util = (function(window, undefined) {
       return str.replace(/"/g,'&quot;');
     }
 
+    var displayForm = function(label, labels) {
+      // Returns the preferred full display form for the given label,
+      // i.e. the first in the label set (if defined)
+      if (labels[label] && labels[label][0]) {
+        return labels[label][0];
+      } else {
+        return label;
+      }
+    }
+
     return {
       formatTimeAgo: formatTimeAgo,
       realBBox: realBBox,
+      displayForm: displayForm,
       escapeQuotes: escapeQuotes,
       escapeHTML: escapeHTML
     };

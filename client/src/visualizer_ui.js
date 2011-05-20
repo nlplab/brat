@@ -10,6 +10,8 @@ var VisualizerUI = (function($, window, undefined) {
 
       var filesData = null;
       var currentForm;
+      var spanTypes = null;
+      var data = null;
       var dir, doc, args;
       var dirScroll;
       var docScroll;
@@ -147,7 +149,7 @@ var VisualizerUI = (function($, window, undefined) {
           evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
           var comment = '<div><span class="comment_id">' + Util.escapeHTML(spanId) + '</span>' +
-            ' ' + '<span class="comment_type">' + Util.escapeHTML(Visualizer.displayForm(spanType)) + '</span>';
+            ' ' + '<span class="comment_type">' + Util.escapeHTML(Util.displayForm(spanType, spanTypes[spanType].labels)) + '</span>';
         if (mods.length) {
           comment += '<div>' + Util.escapeHTML(mods.join(', ')) + '</div>';
         }
@@ -159,11 +161,12 @@ var VisualizerUI = (function($, window, undefined) {
       var displayArcComment = function(
           evt, target, symmetric,
           originSpanId, role, targetSpanId, commentText, commentType) {
+        var arcRole = target.attr('data-arc-role');
         var comment = '<div class="comment_arc">' + (symmetric
             ? Util.escapeHTML(originSpanId + ' ' +
-              Visualizer.displayForm(target.attr('data-arc-role')) + ' ' + targetSpanId)
+              Util.displayForm(arcRole, spanTypes[data.spans[originSpanId].type].arguments[arcRole]) + ' ' + targetSpanId)
             : Util.escapeHTML(originSpanId) + ' &#8594; ' +
-              Util.escapeHTML(Visualizer.displayForm(target.attr('data-arc-role')) + ':' + targetSpanId))
+              Util.escapeHTML(Util.displayForm(arcRole, spanTypes[data.spans[originSpanId].type].arguments[arcRole]) + ':' + targetSpanId))
           + '</div>';
         displayComment(evt, target, comment, commentText, commentType);
       };
@@ -449,6 +452,17 @@ var VisualizerUI = (function($, window, undefined) {
         resizerTimeout = setTimeout(resizeFunction, 100); // TODO is 100ms okay?
       };
 
+      var loadSpanTypes = function(types) {
+        $.each(types, function(typeNo, type) {
+          if (type) {
+            spanTypes[type.type] = type;
+            if (type.children.length) {
+              loadSpanTypes(type.children);
+            }
+          }
+        });
+      }
+
       var dirLoaded = function(response) {
         if (response.exception) {
           dispatcher.post('setDirectory', ['/']);
@@ -456,6 +470,10 @@ var VisualizerUI = (function($, window, undefined) {
           filesData = response;
           filesData.docs.sort(docSortFunction);
         }
+        spanTypes = {};
+        loadSpanTypes(response.entity_types);
+        loadSpanTypes(response.event_types);
+        dispatcher.post('spanTypesLoaded', [spanTypes]);
       };
 
       var saveSVGTimer = null;
@@ -496,6 +514,13 @@ var VisualizerUI = (function($, window, undefined) {
       var hideSVGDownloadLinks = function() {
         $('#download_svg').hide();
       };
+
+      var onRenderData = function(_data) {
+        if (_data) {
+          data = _data;
+        }
+        hideSVGDownloadLinks();
+      }
 
       var gotCurrent = function(_dir, _doc, _args) {
         dir = _dir;
@@ -598,6 +623,8 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('messages', [[['Unknown error: ' + exception, 'error']]]);
         showFileBrowser();
       };
+      
+
 
       dispatcher.
           on('messages', displayMessages).
@@ -612,7 +639,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('current', gotCurrent).
           on('doneRendering', onDoneRendering).
           on('startedRendering', onStartedRendering).
-          on('renderData', hideSVGDownloadLinks).
+          on('renderData', onRenderData).
           on('savedSVG', showSVGDownloadLinks).
           on('renderError:noFileSpecified', showFileBrowser).
           on('renderError:annotationFileNotFound', showAnnotationFileNotFound).

@@ -40,7 +40,7 @@ var Visualizer = (function($, window, undefined) {
       var svgElement;
       var data = null;
       var dir, doc, args;
-      var labels;
+      var spanTypes;
       var abbrevsOn = true;
       var isRenderRequested;
       var curlyY;
@@ -55,23 +55,6 @@ var Visualizer = (function($, window, undefined) {
         svgElement.css('margin-bottom', 1);
         setTimeout(function() { svgElement.css('margin-bottom', 0); }, 0);
       }
-
-      var displayForm = function(label) {
-        // Returns the preferred full display form for the given label,
-        // i.e. the first in the label set (if defined)
-        var labelText;
-        if (labels[label] && labels[label][0]) {
-          return labels[label][0];
-        } else {
-          return label;
-        }
-      }
-      // TODO XXX Goran: I need to make this function accessible to
-      // AnnotatorUI and others; does this way make sense?
-      // TODO: "displayForm" is a bit of an unfortunate name in GUI
-      // code, change? (the intended meaning is "the form of the term
-      // that is used for display").
-      Visualizer.displayForm = displayForm;
 
       var Span = function(id, type, from, to, generalType) {
         this.id = id;
@@ -469,15 +452,15 @@ var Visualizer = (function($, window, undefined) {
             }
             data.towers[span.towerId].push(span);
 
-            span.labelText = displayForm(span.type);
+            var spanLabels = spanTypes[span.type].labels;
+            span.labelText = Util.displayForm(span.type, spanLabels);
             // Find the most appropriate label according to text width
-            if (abbrevsOn) {
+            if (abbrevsOn && spanLabels) {
               var labelIdx = 1; // first abbrev
               var maxLength = (span.to - span.from) / 0.8;
               while (span.labelText.length > maxLength &&
-                  labels[span.type] &&
-                  labels[span.type][labelIdx]) {
-                span.labelText = labels[span.type][labelIdx];
+                  spanLabels[labelIdx]) {
+                span.labelText = spanTypes[span.type].labels[labelIdx];
                 labelIdx++;
               }
             }
@@ -1062,14 +1045,14 @@ var Visualizer = (function($, window, undefined) {
                   to = canvasWidth - 2 * margin.y;
                 }
 
-                var labelText = displayForm(arc.type)
-                if (abbrevsOn && !ufoCatcher) {
+                var arcLabels = spanTypes[data.spans[arc.origin].type].arguments[arc.type];
+                var labelText = Util.displayForm(arc.type, arcLabels)
+                if (abbrevsOn && !ufoCatcher && arcLabels) {
                   var labelIdx = 1; // first abbreviation
                   var maxLength = ((to - from) - (2 * arcSlant)) / 7;
                   while (labelText.length > maxLength &&
-                         labels[arc.type] &&
-                         labels[arc.type][labelIdx]) {
-                    labelText = labels[arc.type][labelIdx];
+                         arcLabels[labelIdx]) {
+                    labelText = arcLabels[labelIdx];
                     labelIdx++;
                   }
                 }
@@ -1330,14 +1313,6 @@ var Visualizer = (function($, window, undefined) {
         isDirLoaded = false;
       };
 
-      var dirLoaded = function(response) {
-        if (!response.exception) {
-          labels = response.labels;
-          isDirLoaded = true;
-          triggerRender();
-        }
-      };
-
       var gotCurrent = function(_dir, _doc, _args, reloadData) {
         dir = _dir;
         doc = _doc;
@@ -1477,9 +1452,18 @@ var Visualizer = (function($, window, undefined) {
           }
       });
 
+      var spanTypesLoaded = function(_spanTypes) {
+        spanTypes = _spanTypes;
+        isDirLoaded = true;
+        triggerRender();
+      };
+
+
+
+
       dispatcher.
           on('dirChanged', dirChanged).
-          on('dirLoaded', dirLoaded).
+          on('spanTypesLoaded', spanTypesLoaded).
           on('renderData', renderData).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
