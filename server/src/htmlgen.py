@@ -132,7 +132,12 @@ def get_span_types(directory):
                 },
             ]
 
-    return event_types, entity_types, attribute_types
+    from projectconfig import get_relation_type_hierarchy
+    relation_hierarchy = get_relation_type_hierarchy(directory)
+    relation_types = _get_subtypes_for_type(relation_hierarchy,
+            project_conf, hotkey_by_type, directory)
+
+    return event_types, entity_types, attribute_types, relation_types
 
 def escape(s):
     from cgi import escape as cgi_escape
