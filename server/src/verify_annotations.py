@@ -130,7 +130,7 @@ def verify_annotation_types(ann_obj, projectconfig):
 
     for r in ann_obj.get_relations():
         if r.type not in relation_types:
-            issues.append(AnnotationIssue(t.id, AnnotationError, "Error: %s is not a known relation type (check configuration?)" % r.type))
+            issues.append(AnnotationIssue(r.id, AnnotationError, "Error: %s is not a known relation type (check configuration?)" % r.type))
 
     return issues
 
