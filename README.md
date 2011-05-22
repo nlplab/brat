@@ -5,7 +5,7 @@
 originally constructed for
 [BioNLP'11 Shared Task](https://sites.google.com/site/bionlpst/) data.
 
-Currently brat is under heavy development but is used by the
+Currently brat is under heavy development but is used by
 [Genia](http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/) for ongoing annotation
 efforts. brat aims to provide an intuitive and fast way to create text-bound 
 and relational annotations.
