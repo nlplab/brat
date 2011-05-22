@@ -5,14 +5,14 @@
 originally constructed for
 [BioNLP'11 Shared Task](https://sites.google.com/site/bionlpst/) data.
 
-Currently brat is under heavy development but is used to annotated data by the
-[Genia](http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/) group at the University
-of Tokyo. brat aims to provide an intuitive and fast way to create text-bound
+Currently brat is under heavy development but is used by the
+[Genia](http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/) for ongoing annotation
+efforts. brat aims to provide an intuitive and fast way to create text-bound 
 and relational annotations.
 
-It also aims to overcome short-comings with previous annotation tools such as:
+It also aims to overcome short-comings of previous annotation tools such as:
 
-* De-centralisation of configurations and data, causing syncronisation issues
+* De-centralisation of configurations and data, causing synchronisation issues
 * Split between annotations and related text
 * Complexity of set-up for annotators
 * Etc.
@@ -37,7 +37,7 @@ This section describes how to install brat and third-party dependencies.
 ## WARNING ##
 
 Since brat (and this document) is very much under development the information
-on this document may not be up to date. If not, bash the developers ASAP.
+on this document may not be up to date. If it isn't, bash the developers ASAP.
 
 ## brat ##
 
@@ -49,12 +49,12 @@ Enter the brat directory:
 
     cd brat
 
-When running brat it needs to write data to several directories, let's create
-them.
+When running brat it needs to read and write data to several directories,
+let's create them.
 
     mkdir data work
 
-We now need to set the permissions of these directories so that they can be
+We now need to set the permissions of the directories so that they can be
 read and written by Apache. The command-line below is likely to give you the
 Apache 2 group if you have Apache currently running. If not, see the "Finding
 Your Apache 2 Group" section of this document:
@@ -104,7 +104,7 @@ create the annotation files (`.ann`) as below.
 
 ## Third-party Stuff ##
 
-This part largely focuses on Ubuntu, but use your \*NIX-foo to turn it into what
+This part largely focuses on Ubuntu, but use your \*NIX-fu to turn it into what
 you need if you don't have the misfortune to have the
 "Brown Lunix Distribution".
 
