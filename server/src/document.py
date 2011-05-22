@@ -171,9 +171,21 @@ def _enrich_json_with_data(j_dic, ann_obj):
                     + [e for e in eq_ann.entities])
                 )
 
+    # XXX: To be replaced by attributes
     for mod_ann in ann_obj.get_modifers():
         j_dic['modifications'].append(
                 [unicode(mod_ann.id), mod_ann.type, mod_ann.target]
+                )
+
+    # Sending modifications as attributes to remain backwards compatible
+    for mod_ann in ann_obj.get_modifers():
+        j_dic['attributes'].append(
+                [unicode(mod_ann.id), mod_ann.type, mod_ann.target, True]
+                )
+
+    for att_ann in ann_obj.get_attributes():
+        j_dic['attributes'].append(
+                [unicode(att_ann.id), att_ann.type, att_ann.target, att_ann.value]
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
@@ -223,6 +235,7 @@ def _enrich_json_with_base(j_dic):
     j_dic['relations'] = []
     j_dic['triggers'] = []
     j_dic['modifications'] = []
+    j_dic['attributes'] = []
     j_dic['equivs'] = []
     j_dic['comments'] = []
 
