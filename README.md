@@ -108,13 +108,6 @@ This part largely focuses on Ubuntu, but use your \*NIX-foo to turn it into what
 you need if you don't have the misfortune to have the
 "Brown Lunix Distribution".
 
-### git ###
-
-Hopefully you are lucky enough a sensible OS and can get it through a package
-manager:
-
-    sudo apt-get install git
-
 ### Apache 2 ###
 
 Install apache2, maybe you have a package manager.
@@ -175,22 +168,6 @@ something that at least looks like `apache` or `www-data`:
 
 On a Mac, Apache configuration is quite different, and Aptitude is not
 available.
-
-### Getting Git ###
-
-A binary package is available from
-[here](http://code.google.com/p/git-osx-installer/downloads/list). Alternately,
-you can get it through a package manager:
-[Homebrew](https://github.com/mxcl/homebrew/wiki/installation) or
-[MacPorts](http://www.macports.org/install.php). You will need XCode (from your
-Mac OS X disk, or from [Apple](http://developer.apple.com/xcode/).
-Then you can use one of these commands to install Git:
-
-    brew install git
-
-or
-
-    port install git
 
 ### Setting up Apache ###
 
