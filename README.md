@@ -19,8 +19,8 @@ It also aims to overcome short-comings of previous annotation tools such as:
 
 brat does this by:
 
-* Data and configurations on a central web server ("put all your eggs in one
-basket and guard the damn basket")
+* Data and configurations on a central web server (as Mark Twain said:
+"Put all your eggs in one basket, and then guard that basket!")
 * Present text as it would appear to a reader and maintain annotations close
 to the text
 * Zero set-up for annotators, leave configurations and server/data maintainence
