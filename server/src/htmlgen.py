@@ -71,7 +71,7 @@ def get_span_types(directory):
             {
                 'name': 'Negation',
                 'type': 'Negation',
-                'value': {
+                'values': {
                     'Negation': {
                         'dasharray': '3,3',
                         },
@@ -82,7 +82,7 @@ def get_span_types(directory):
             {
                 'name': 'Speculation',
                 'type': 'Speculation',
-                'value': {
+                'values': {
                     'Speculation': {
                         'box': u'crossed',
                     },
