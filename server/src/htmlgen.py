@@ -10,6 +10,8 @@ Server-side HTML generation-related functionality for
 Brat Rapid Annotation Tool (brat)
 '''
 
+# TODO: This module is largely deprecated and is to be deleted.
+
 from itertools import chain
 
 def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
@@ -63,15 +65,16 @@ def get_span_types(directory):
     entity_hierarchy = project_conf.get_entity_type_hierarchy()
     entity_types = _get_subtypes_for_type(entity_hierarchy,
             project_conf, hotkey_by_type, directory)
-   
+  
     # XXX: Temporary hack until the configurations support values
     attribute_types = [
             {
                 'name': 'Negation',
                 'type': 'Negation',
                 'value': {
-                    # TODO: Agree on protocol here
-                    True: u'box-crossed',
+                    'Negation': {
+                        'dasharray': '3,3',
+                        },
                     },
                 'labels': ['Negation', ],
                 'unused': False,
@@ -80,25 +83,39 @@ def get_span_types(directory):
                 'name': 'Speculation',
                 'type': 'Speculation',
                 'value': {
-                    # TODO: Agree on protocol here
-                    True: u'border-dotted',
+                    'Speculation': {
+                        'box': u'crossed',
                     },
+                },
                 'labels': ['Speculation', ],
                 'unused': False,
                 },
             # Hard-coded Meta-Knowledge types
             # Characters picked by: http://unicode.bloople.net/
+            # TODO: Assign sensible characters
             {
                 'name': 'Knowledge Type',
                 'type': 'Knowledge_type',
                 'labels': ['Knowledge Type', ],
                 'values': {
-                    'Investigation': u'𝛩',
-                    'Analysis': u'ⓘ',
-                    'Observation': u'𝀟',
-                    'Gen-Fact': u'⣣',
-                    'Gen-Method': u'⩭',
-                    'Gen-Other': u'ⵀ',
+                    'Investigation': {
+                        'glyph': u'𝛩',
+                        },
+                    'Analysis': {
+                        'glyph': u'ⓘ',
+                        },
+                    'Observation': {
+                        'glyph': u'𝀟',
+                        },
+                    'Gen-Fact': {
+                        'glyph': u'⣣',
+                        },
+                    'Gen-Method': {
+                        'glyph': u'⇃',
+                        },
+                    'Gen-Other': {
+                        'glyph': u'ⵀ',
+                        },
                     },
                 'unused': True,
                 },
@@ -107,9 +124,15 @@ def get_span_types(directory):
                 'type': 'Certainty_level',
                 'labels': ['Certainty Level', ],
                 'values': {
-                    'L1': u'ᾥ',
-                    'L2': u'⏃',
-                    'L3': u'ଌ',
+                    'L1': {
+                        'glyph': u'ᾥ',
+                        },
+                    'L2': {
+                        'glyph': u'⏃',
+                        },
+                    'L3': {
+                        'glyph': u'ଌ',
+                        },
                     },
                 'unused': True,
                 },
@@ -118,8 +141,12 @@ def get_span_types(directory):
                 'type': 'Polarity',
                 'labels': ['Polarity', ],
                 'values': {
-                    'Negative': u'𝟚',
-                    'Positive': u'🁹',
+                    'Negative': {
+                        'glyph': u'𝟚',
+                        },
+                    'Positive': {
+                        'glyph': u'🁹',
+                        },
                     },
                 'unused': True,
                 },
@@ -128,9 +155,15 @@ def get_span_types(directory):
                 'type': 'Manner',
                 'labels': ['Manner', ],
                 'values': {
-                    'High': u'Ձ',
-                    'Low': u'ኖ',
-                    'Neutral': u'𝞷',
+                    'High': {
+                        'glyph': u'Ձ',
+                        },
+                    'Low': {
+                        'glyph': u'ኖ',
+                        },
+                    'Neutral': {
+                        'glyph': u'𝞷',
+                        },
                     },
                 'unused': True,
                 },
@@ -139,8 +172,12 @@ def get_span_types(directory):
                 'type': 'Source',
                 'labels': ['Source', ],
                 'values': {
-                    'Other': u'⍋',
-                    'Current': u'𝞌',
+                    'Other': {
+                        'glyph': u'⍋',
+                        },
+                    'Current': {
+                        'glyph': u'𝞌',
+                        },
                     },
                 'unused': True,
                 },
