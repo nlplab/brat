@@ -65,6 +65,7 @@ var Visualizer = (function($, window, undefined) {
         this.to = parseInt(to);
         this.outgoing = [];
         this.incoming = [];
+        this.attributes = {};
         this.attributeText = [];
         this.attributeList = []; // for glyphs, other repeatable attributes
         this.attributeMerge = {}; // for box, cross, etc. that are span-global
@@ -140,6 +141,7 @@ var Visualizer = (function($, window, undefined) {
           trigger[1].push(span);
           span.incoming = []; // protect from shallow copy
           span.outgoing = [];
+          span.attributes = {};
           span.attributeText = [];
           span.attributeList = [];
           span.attributeMerge = {};
@@ -191,6 +193,7 @@ var Visualizer = (function($, window, undefined) {
           var attrText = attrType.bool ? attrType.name : (attrType.name + ': ' + attr[3]);
           span.attributeText.push(attrText);
           span.attributeList.push(attrValue);
+          span.attributes[attr[1]] = attr[3];
           $.extend(span.attributeMerge, attrValue);
         });
 

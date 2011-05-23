@@ -19,6 +19,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var editedSpan = null;
       var repeatingArcTypes = [];
       var spanTypes = null;
+      var attributeTypes = null;
 
       that.user = null;
 
@@ -208,12 +209,15 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#span_form_reselect, #span_form_delete').hide();
           keymap[$.ui.keyCode.DELETE] = null;
         }
-        if (el = $('#span_mod_Negation')[0]) {
-          el.checked = span ? span.Negation : false;
-        }
-        if (el = $('#span_mod_Speculation')[0]) {
-          el.checked = span ? span.Speculation : false;
-        }
+        $.each(attributeTypes, function(attrNo, attr) {
+          $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+          if (attr.bool) {
+            $input[0].checked = span.attributes[attr.type];
+            $input.button('refresh');
+          } else {
+            $input.val(span.attributes[attr.type] || '').change();
+          }
+        });
         dispatcher.post('showForm', [spanForm]);
         $('#span_form-ok').focus();
 
@@ -495,6 +499,14 @@ var AnnotatorUI = (function($, window, undefined) {
         addSpanTypesToDivInner($scroller, types);
       };
 
+      var onAttributeChange = function(evt) {
+        if (evt.target.selectedIndex) {
+          $input.addClass('ui-state-active');
+        } else {
+          $input.removeClass('ui-state-active');
+        }
+      }
+
       var rememberSpanSettings = function(response) {
         // XXX formatting
         //'<div class="span_wrapper"><fieldset><legend>Left</legend><div class="span_types">Foo</div></fieldset></div><div class="span_wrapper"><fieldset><legend>Right</legend><div class="span_types">Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo</div></fieldset></div>';
@@ -508,12 +520,37 @@ var AnnotatorUI = (function($, window, undefined) {
         addSpanTypesToDiv($events, response.event_types, 'Events');
         $('#span_types').empty().append($entities).append($events);
 
+        var $attrs = $('#span_attributes div.scroller');
+        $.each(attributeTypes, function(attrNo, attr) {
+          var escapedType = Util.escapeQuotes(attr.type);
+          if (attr.bool) {
+            var escapedName = Util.escapeQuotes(attr.name);
+            var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
+            var $label = $('<label for="span_attr_' + escapedType + '">' + escapedName + '</label>');
+            $attrs.append($input).append($label);
+            $input.button();
+          } else {
+            var $div = $('<div class="ui-button ui-button-text-only"/>');
+            var $select = $('<select id="span_attr_' + escapedType + '" class="ui-widget ui-state-default ui-button-text"/>');
+            var $option = $('<option value=""/>').text(attr.name + ': ?');
+            $select.append($option);
+            $.each(attr.values, function(valType, value) {
+              $option = $('<option value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + valType);
+              $select.append($option);
+            });
+            $div.append($select);
+            $attrs.append($div);
+            $select.change(onAttributeChange);
+          }
+        });
+
         spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
       };
 
-      var spanTypesLoaded = function(_spanTypes) {
+      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
         spanTypes = _spanTypes;
+        attributeTypes = _attributeTypes;
       };
 
       var gotCurrent = function(_dir, _doc, _args) {
@@ -645,33 +682,9 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('showForm', [splitForm]);
       };
 
-      // XXX delete later
-      var splitSpanOnArgs = function(args) {
-          $.extend(spanOptions, {
-                  action: 'splitSpan',
-                  // TODO XXX dunno how to get an array across, so catenating
-                  'args': args.join('|'),
-                  directory: dir,
-                  'document': doc,
-              });
-          dispatcher.post('ajax', [spanOptions, 'edited']);
-      }
-
-      var splitSpanOnThemeSite = function() {
-          splitSpanOnArgs(['Theme', 'Site']);
-      }
-
-      var splitSpanOnTheme = function() {
-          splitSpanOnArgs(['Theme']);
-      }
-
-      var splitSpanOnSite = function() {
-          splitSpanOnArgs(['Site']);
-      }
-
       dispatcher.post('initForm', [spanForm, {
           alsoResize: '#span_types',
-          width: 700,
+          width: 760,
           buttons: [{
               id: 'span_form_delete',
               text: "Delete",
@@ -703,14 +716,16 @@ var AnnotatorUI = (function($, window, undefined) {
           type: type,
           comment: $('#span_notes').val()
         });
-        var el;
+
         var attributes = {};
-        if (el = $('#span_mod_Negation')[0]) {
-          attributes.negation = el.checked;
-        }
-        if (el = $('#span_mod_Speculation')[0]) {
-          attributes.speculation = el.checked;
-        }
+        $.each(attributeTypes, function(attrNo, attr) {
+          var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+          if (attr.bool) {
+            attributes[attr.type] = $input[0].checked;
+          } else if ($input[0].selectedIndex) {
+            attributes[attr.type] = $input.val();
+          }
+        });
         // unfocus all elements to prevent focus being kept after
         // hiding them
         spanForm.parent().find('*').blur();
@@ -775,7 +790,7 @@ var AnnotatorUI = (function($, window, undefined) {
       dispatcher.
         on('renderData', rememberData).
         on('dirLoaded', rememberSpanSettings).
-        on('spanTypesLoaded', spanTypesLoaded).
+        on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
         on('hideForm', hideForm).
         on('init', init).
         on('edited', edited).

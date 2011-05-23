@@ -540,6 +540,10 @@ fieldset {
   height: 100%;
 }
 
+#span_attributes {
+  height: 87px;
+}
+
 #span_highlight_link, #arc_highlight_link {
   float: right;
 }
