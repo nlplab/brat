@@ -44,6 +44,8 @@ var Visualizer = (function($, window, undefined) {
       var abbrevsOn = true;
       var isRenderRequested;
       var curlyY;
+      var attributeTypes = null;
+      var spanTypes = null;
 
       var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
 
@@ -63,6 +65,9 @@ var Visualizer = (function($, window, undefined) {
         this.to = parseInt(to);
         this.outgoing = [];
         this.incoming = [];
+        this.attributeText = [];
+        this.attributeList = []; // for glyphs, other repeatable attributes
+        this.attributeMerge = {}; // for box, cross, etc. that are span-global
         this.totalDist = 0;
         this.numArcs = 0;
         this.generalType = generalType;
@@ -135,9 +140,14 @@ var Visualizer = (function($, window, undefined) {
           trigger[1].push(span);
           span.incoming = []; // protect from shallow copy
           span.outgoing = [];
+          span.attributeText = [];
+          span.attributeList = [];
+          span.attributeMerge = {};
           span.id = eventDesc.id;
           data.spans[eventDesc.id] = span;
         });
+
+        // XXX modifications: delete later
         $.each(data.modifications, function(modNo, mod) {
           if (!data.spans[mod[2]]) {
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
@@ -145,6 +155,7 @@ var Visualizer = (function($, window, undefined) {
           }
           data.spans[mod[2]][mod[1]] = true;
         });
+
         $.each(data.equivs, function(equivNo, equiv) {
           equiv[0] = "*" + equivNo;
           var equivSpans = equiv.slice(2);
@@ -169,8 +180,21 @@ var Visualizer = (function($, window, undefined) {
           data.eventDescs[rel[0]] =
               new EventDesc(rel[2], rel[2], [[rel[1], rel[3]]], 'relation');
         });
-        data.sentComment = {};
 
+        // attributes
+        $.each(data.attributes, function(attrNo, attr) {
+          var attrType = attributeTypes[attr[1]];
+          if (!attrType) return; // undefined effect
+
+          var attrValue = attrType.values[attrType.bool || attr[3]];
+          var span = data.spans[attr[2]];
+          var attrText = attrType.bool ? attrType.name : (attrType.name + ': ' + attr[3]);
+          span.attributeText.push(attrText);
+          span.attributeList.push(attrValue);
+          $.extend(span.attributeMerge, attrValue);
+        });
+
+        data.sentComment = {};
         $.each(data.comments, function(commentNo, comment) {
           // TODO error handling
           if (comment[0] instanceof Array && comment[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
@@ -470,9 +494,25 @@ var Visualizer = (function($, window, undefined) {
               span.labelText = span.labelText.replace(/_/g,' ');
             }
 
-            if (!spanAnnTexts[span.labelText]) {
-              spanAnnTexts[span.labelText] = true;
-              data.spanAnnTexts.push(span.labelText);
+            var text = span.labelText;
+            var prefix = '';
+            var postfix = '';
+            $.each(span.attributeList, function(attrNo, attr) {
+              if (attr.glyph) {
+                if (attr.position == "left") {
+                  prefix = attr.glyph + ' ' + prefix;
+                } else { // XXX right is implied - maybe change
+                  postfix += attr.glyph;
+                }
+              }
+            });
+            if (prefix !== '') text = prefix + ' ' + text;
+            if (postfix !== '') text += ' ' + postfix;
+            span.glyphedLabelText = text;
+
+            if (!spanAnnTexts[text]) {
+              spanAnnTexts[text] = true;
+              data.spanAnnTexts.push(text);
             }
           }); // chunk.spans
         }); // chunks
@@ -626,7 +666,7 @@ var Visualizer = (function($, window, undefined) {
             $.each(data.towers, function(towerNo, tower) {
               var biggestBox = { width: 0 };
               $.each(tower, function(spanNo, span) {
-                var annBox = spanAnnBoxes[span.labelText];
+                var annBox = spanAnnBoxes[span.glyphedLabelText];
                 if (annBox.width > biggestBox.width) biggestBox = annBox;
               }); // tower
               $.each(tower, function(spanNo, span) {
@@ -741,7 +781,7 @@ var Visualizer = (function($, window, undefined) {
                    rx: margin.x,
                    ry: margin.y,
                    'data-span-id': span.id,
-                   'strokeDashArray': span.Speculation ? dashArray : undefined,
+                   'strokeDashArray': span.attributeMerge.dasharray
                  });
                 var rectBox = span.rect.getBBox();
 
@@ -756,18 +796,18 @@ var Visualizer = (function($, window, undefined) {
                 if (editedRect) {
                     $(editedRect).attr('y', yy - editedSpanSize - margin.y - yAdjust);
                 }
-                if (span.Negation) {
+                if (span.attributeMerge.box === "crossed") {
                   svg.path(span.group, svg.createPath().
                       move(xx, yy - margin.y - yAdjust).
                       line(xx + spanBox.width,
                         yy + hh + margin.y - yAdjust),
-                      { 'class': 'negation' });
+                      { 'class': 'negation' }); // XXX annspec: class
                   svg.path(span.group, svg.createPath().
                       move(xx + spanBox.width, yy - margin.y - yAdjust).
                       line(xx, yy + hh + margin.y - yAdjust),
-                      { 'class': 'negation' });
+                      { 'class': 'negation' }); // XXX annspec: class
                 }
-                var spanText = svg.text(span.group, x, y - yAdjust, span.labelText);
+                var spanText = svg.text(span.group, x, y - yAdjust, span.glyphedLabelText);
 
                 // Make curlies to show the span
                 if (span.drawCurly) {
@@ -1335,11 +1375,8 @@ var Visualizer = (function($, window, undefined) {
         if (id = target.attr('data-span-id')) {
           commentId = id;
           var span = data.spans[id];
-          var mods = [];
-          if (span.Negation) mods.push("Negated");
-          if (span.Speculation) mods.push("Speculated");
           dispatcher.post('displaySpanComment', [
-              evt, target, id, span.type, mods,
+              evt, target, id, span.type, span.attributeText,
               data.text.substring(span.from, span.to),
               span.comment && span.comment.text,
               span.comment && span.comment.type]);
@@ -1453,10 +1490,44 @@ var Visualizer = (function($, window, undefined) {
           }
       });
 
-      var spanTypesLoaded = function(_spanTypes) {
-        spanTypes = _spanTypes;
-        isDirLoaded = true;
-        triggerRender();
+      var loadSpanTypes = function(types) {
+        $.each(types, function(typeNo, type) {
+          if (type) {
+            spanTypes[type.type] = type;
+            if (type.children.length) {
+              loadSpanTypes(type.children);
+            }
+          }
+        });
+      }
+
+      var dirLoaded = function(response) {
+        if (!response.exception) {
+          attributeTypes = {};
+          $.each(response.attribute_types, function(aTypeNo, aType) {
+            attributeTypes[aType.type] = aType;
+            // count the values; if only one, it's a boolean attribute
+            var values = [];
+            for (var i in aType.values) {
+              if (aType.values.hasOwnProperty(i)) {
+                values.push(i);
+              }
+            }
+            if (values.length == 1) {
+              aType.bool = values[0];
+            }
+          });
+
+          spanTypes = {};
+          loadSpanTypes(response.entity_types);
+          loadSpanTypes(response.event_types);
+          loadSpanTypes(response.relation_types);
+
+          dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
+
+          isDirLoaded = true;
+          triggerRender();
+        }
       };
 
 
@@ -1464,7 +1535,7 @@ var Visualizer = (function($, window, undefined) {
 
       dispatcher.
           on('dirChanged', dirChanged).
-          on('spanTypesLoaded', spanTypesLoaded).
+          on('dirLoaded', dirLoaded).
           on('renderData', renderData).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).

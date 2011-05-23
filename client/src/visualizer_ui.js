@@ -11,6 +11,7 @@ var VisualizerUI = (function($, window, undefined) {
       var filesData = null;
       var currentForm;
       var spanTypes = null;
+      var attributeTypes = null;
       var data = null;
       var dir, doc, args;
       var dirScroll;
@@ -452,17 +453,6 @@ var VisualizerUI = (function($, window, undefined) {
         resizerTimeout = setTimeout(resizeFunction, 100); // TODO is 100ms okay?
       };
 
-      var loadSpanTypes = function(types) {
-        $.each(types, function(typeNo, type) {
-          if (type) {
-            spanTypes[type.type] = type;
-            if (type.children.length) {
-              loadSpanTypes(type.children);
-            }
-          }
-        });
-      }
-
       var dirLoaded = function(response) {
         if (response.exception) {
           dispatcher.post('setDirectory', ['/']);
@@ -470,11 +460,6 @@ var VisualizerUI = (function($, window, undefined) {
           filesData = response;
           filesData.docs.sort(docSortFunction);
         }
-        spanTypes = {};
-        loadSpanTypes(response.entity_types);
-        loadSpanTypes(response.event_types);
-        loadSpanTypes(response.relation_types);
-        dispatcher.post('spanTypesLoaded', [spanTypes]);
       };
 
       var saveSVGTimer = null;
@@ -624,6 +609,11 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('messages', [[['Unknown error: ' + exception, 'error']]]);
         showFileBrowser();
       };
+
+      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
+        spanTypes = _spanTypes;
+        attributeTypes = _attributeTypes;
+      };
       
 
 
@@ -637,6 +627,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('hideForm', hideForm).
           on('initForm', initForm).
           on('dirLoaded', dirLoaded).
+          on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('current', gotCurrent).
           on('doneRendering', onDoneRendering).
           on('startedRendering', onStartedRendering).
