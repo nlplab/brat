@@ -143,37 +143,24 @@ def _enrich_json_with_text(j_dic, txt_file_path):
 
     if JAPANESE:
         from ssplit import jp_sentence_boundary_gen
-        offsets = [o for o in jp_sentence_boundary_gen(text)]
-        log_info('offsets: ' + str(offsets))
-        j_dic['sentence_offsets'] = offsets
+        from tokenise import jp_token_boundary_gen
+
+        sentence_offsets = [o for o in jp_sentence_boundary_gen(text)]
+        #log_info('offsets: ' + str(offsets))
+        j_dic['sentence_offsets'] = sentence_offsets
+
+        token_offsets = [o for o in jp_token_boundary_gen(text)]
+        j_dic['token_offsets'] = token_offsets
     else:
         from ssplit import en_sentence_boundary_gen
-        offsets = [o for o in en_sentence_boundary_gen(text)]
-        log_info('offsets: ' + str(offsets))
-        j_dic['sentence_offsets'] = offsets
+        from tokenise import en_token_boundary_gen
 
-    ###
-    # XXX: We do not yet support offsets on the client-side
-    #       Remove this backwards compatible hack later on
-    
-    last_end = 0
-    lines = []
-    log_info('s_offsets: ' + str(j_dic['sentence_offsets']))
-    for _, end in j_dic['sentence_offsets']:
-        log_info('end value: ' + str(end))
-        lines.append(text[last_end:end])
-        last_end = end
-    if last_end != len(text):
-        # This is most likely not a sentence but is included for checking
-        lines.append(text[last_end:])
-        last_end += len(lines[-1])
-
-    log_info(u'lines after offsets: ' + unicode(lines))
-
-    assert last_end == len(text), '%s != %s' % (last_end, len(text))
-
-    #j_dic['text'] = '\n'.join(lines)
-    ###
+        sentence_offsets = [o for o in en_sentence_boundary_gen(text)]
+        #log_info('offsets: ' + str(sentence_offsets))
+        j_dic['sentence_offsets'] = sentence_offsets
+        
+        token_offsets = [o for o in en_token_boundary_gen(text)]
+        j_dic['token_offsets'] = token_offsets
 
     return True
 

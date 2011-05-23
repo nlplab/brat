@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 '''
-Python re-write of Sampo Pyysalo's GeniaSS sentence split refiner and some
-convenience functions. Also a primitive Japanese sentence splitter.
+Primitive sentente splitting using Sampo Pyysalo's GeniaSS sentence split
+refiner. Also a primitive Japanese sentence splitter.
 
 Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-05-09
@@ -11,86 +11,50 @@ Version:    2011-05-09
 
 from re import compile as re_compile
 from re import DOTALL
+from os.path import join as path_join
+from os.path import dirname
+from subprocess import Popen, PIPE
+from shlex import split as shlex_split
 
 ### Constants
 # Require a leading non-whitespace, end on delimiter and space
 # or newline followed by non-whitespace
-EN_SENTENCE_END_REGEX = re_compile(r'\S.*?(:?(?:\.|!|\?)(?=\s+)|(?=\n+\S))', DOTALL)
-JP_SENTENCE_END_REGEX = re_compile(ur'\S.*?[。！？]+(:?(?![。！？])|(?=\n+\S))')
+EN_SENTENCE_END_REGEX = re_compile(
+    r'\S.*?(:?(?:\.|!|\?)(?=\s+)|(?=\n+\S))', DOTALL)
+JP_SENTENCE_END_REGEX = re_compile(
+    ur'\S.*?[。！？]+(:?(?![。！？])|(?=\n+\S))', DOTALL)
 
-# From the GeniaSS refiner
-QMARK_BREAK_REGEX = re_compile(r'\b([a-z]+\?) ([A-Z][a-z]+)\b')
-# TODO: Shouldn't there be a + after the space?
-DOT_BREAK_REGEX = re_compile(r'\b([a-z]+ \.) ([A-Z][a-z]+)\b')
+GENIASS_POSTPROC_PL_PATH = path_join(dirname(__file__), '../../external',
+        'geniass-postproc.pl')
 ###
 
-# Mandatory Deep Purple refence: Pythonbringer by De-(Perl)ped
-def _refine_split(sentences):
-    raise NotImplementedError # TODO:
-    for s in sentences:
-        # Breaks are sometimes missing after question marks, "safe" cases
-        s = QMARK_BREAK_REGEX.sub('\1\n\2', s)
-        # Breaks are sometimes missing after dots, "safe" cases
-        s = DOT_BREAK_REGEX.sub('\1\n\2', s)
+# TODO: Convert the Perl script into Python
+# TO USE: Mandatory Deep Purple refence: Pythonbringer by De-(Perl)ped
+def _refine_split(offsets, original_text):
+    # GeniaSS operates per line, so let's create lines from our offsets
+    # We replace internal newlines with spaces not to confuse GeniaSS
+    new_text = '\n'.join((original_text[o[0]:o[1]].replace('\n', ' ')
+            for o in offsets))
+    
+    ss_p = Popen(shlex_split(GENIASS_POSTPROC_PL_PATH), stdin=PIPE,
+            stdout=PIPE, stderr=PIPE)
+    output, errors = ss_p.communicate(new_text)
 
-        # No breaks producing lines only containing sentence-ending punctuation
-        for ns in s.split('\n'):
-            yield ns
+    # Align the texts and see where our offsets don't match
+    old_offsets = offsets[::-1]
+    new_offsets = []
+    for refined_sentence in output.split('\n'):
+        new_offset = old_offsets.pop()
+        # Merge the offsets if we have received a corrected split
+        while new_offset[1] - new_offset[0] < len(refined_sentence) - 1:
+            _, next_end = old_offsets.pop()
+            new_offset = (new_offset[0], next_end)
+        new_offsets.append(new_offset)
+    return new_offsets
 
-# TODO: This could probably be turned into a nice regex, but we are in a hurry
 def _sentence_boundary_gen(text, regex):
     for match in regex.finditer(text):
         yield match.span()
-    raise StopIteration
-    '''
-    # XXX: OLD!
-    last_end = 0
-    # Find all sentence endings
-    for match in regex.finditer(text):
-        m_text = match.group()
-        ls_text = m_text.lstrip()
-        rs_text = m_text.rstrip()
-
-        # Have we lost any size due to leading white space?
-        if len(ls_text) != len(m_text):
-            l_offset = len(m_text) - len(ls_text)
-        else:
-            l_offset = 0
-
-        if len(rs_text) != len(m_text):
-            r_offset = len(m_text) - len(rs_text)
-        else:
-            r_offset = 0
-
-        start = last_end + l_offset
-        end = start + len(m_text) - r_offset - l_offset
-
-        yield (start, end)
-
-        last_end = match.end()
-
-    # Are there any non-space tokens left?
-    m_text = text[last_end:]
-    if m_text.strip():
-        ls_text = m_text.lstrip()
-        rs_text = m_text.rstrip()
-
-        # Have we lost any size due to leading white space?
-        if len(ls_text) != len(m_text):
-            l_offset = len(m_text) - len(ls_text)
-        else:
-            l_offset = 0
-
-        if len(rs_text) != len(m_text):
-            r_offset = len(m_text) - len(rs_text)
-        else:
-            r_offset = 0
-
-        start = last_end + l_offset
-        end = start + len(m_text) - l_offset - r_offset
-
-        yield (start, end)
-    '''
 
 def jp_sentence_boundary_gen(text):
     for o in _sentence_boundary_gen(text, JP_SENTENCE_END_REGEX):
@@ -99,7 +63,8 @@ def jp_sentence_boundary_gen(text):
 # TODO: The regular expression is too crude, plug in the refine
 #       script as well so that we can have reasonable splits.
 def en_sentence_boundary_gen(text):
-    for o in _sentence_boundary_gen(text, EN_SENTENCE_END_REGEX):
+    for o in _refine_split([_o for _o in _sentence_boundary_gen(
+                text, EN_SENTENCE_END_REGEX)], text):
         yield o
 
 if __name__ == '__main__':
@@ -120,7 +85,7 @@ if __name__ == '__main__':
                     text = txt_file.read()
                 print '# Original text:'
                 print text.replace('\n', '\\n')
-                offsets = [o for o in jp_sentence_boundary_gen(text)]
+                offsets = [o for o in en_sentence_boundary_gen(text)]
                 print '# Offsets:'
                 print offsets
                 print '# Sentences:'
