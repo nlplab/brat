@@ -69,12 +69,20 @@ def get_span_types(directory):
             {
                 'name': 'Negation',
                 'type': 'Negation',
+                'value': {
+                    # TODO: Agree on protocol here
+                    True: u'box-crossed',
+                    },
                 'labels': ['Negation', ],
                 'unused': False,
                 },
             {
                 'name': 'Speculation',
                 'type': 'Speculation',
+                'value': {
+                    # TODO: Agree on protocol here
+                    True: u'border-dotted',
+                    },
                 'labels': ['Speculation', ],
                 'unused': False,
                 },
