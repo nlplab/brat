@@ -68,6 +68,7 @@ var Visualizer = (function($, window, undefined) {
         this.attributes = {};
         this.attributeText = [];
         this.attributeCues = {};
+        this.attributeCueFor = {};
         this.attributeMerge = {}; // for box, cross, etc. that are span-global
         this.totalDist = 0;
         this.numArcs = 0;
@@ -144,6 +145,7 @@ var Visualizer = (function($, window, undefined) {
           span.attributes = {};
           span.attributeText = [];
           span.attributeCues = {};
+          span.attributeCueFor = {};
           span.attributeMerge = {};
           span.id = eventDesc.id;
           data.spans[eventDesc.id] = span;
@@ -195,10 +197,11 @@ var Visualizer = (function($, window, undefined) {
           var attrText = attrType.bool ? attrType.name : (attrType.name + ': ' + valText);
           span.attributeText.push(attrText);
           span.attributes[attr[1]] = attr[3];
-          if (attr[4]) {
+          if (attr[4]) { // cue
             span.attributeCues[attr[1]] = attr[4];
-            // XXX can one span be cue to several attributes? modify if yes
-            // data.spans[attr[4]].cueFor[data.spans[1]] = attr[2];
+            var cueSpan = data.spans[attr[4]];
+            cueSpan.attributeCueFor[data.spans[1]] = attr[2];
+            cueSpan.cue = 'CUE'; // special css type
           }
           $.extend(span.attributeMerge, attrValue);
         });
@@ -786,7 +789,7 @@ var Visualizer = (function($, window, undefined) {
                 xx += boxTextMargin.x;
                 ww -= 2*boxTextMargin.x;
 
-                var rectClass = 'span_' + span.type + ' span_default';
+                var rectClass = 'span_' + (span.cue || span.type) + ' span_default';
 
                // attach e.g. "False_positive" into the type
                if (span.comment && span.comment.type) { rectClass += ' '+span.comment.type; }

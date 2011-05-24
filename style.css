@@ -232,6 +232,9 @@ rect.shadow_EditHighlight {
 .span_default {
   fill: #7fe67f;
 }
+.span_CUE {
+  fill: #eeeeeel
+}
 
 .span_Exp { fill:#ff0000; }
 
