@@ -840,11 +840,11 @@ var Visualizer = (function($, window, undefined) {
                       move(xx, yy - margin.y - yAdjust).
                       line(xx + spanBox.width,
                         yy + hh + margin.y - yAdjust),
-                      { 'class': 'negation' }); // XXX annspec: class
+                      { 'class': 'boxcross' });
                   svg.path(span.group, svg.createPath().
                       move(xx + spanBox.width, yy - margin.y - yAdjust).
                       line(xx, yy + hh + margin.y - yAdjust),
-                      { 'class': 'negation' }); // XXX annspec: class
+                      { 'class': 'boxcross' });
                 }
                 var spanText = svg.text(span.group, x, y - yAdjust, data.spanAnnTexts[span.glyphedLabelText]);
 

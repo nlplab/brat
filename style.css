@@ -158,7 +158,7 @@ rect.shadow_EditHighlight {
   stroke: grey;
 }
 
-.span path.negation {
+.span path.boxcross {
   stroke: black;
   opacity: 0.5;
 }
