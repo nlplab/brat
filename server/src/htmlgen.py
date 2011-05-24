@@ -145,11 +145,11 @@ def get_span_types(directory):
                 'labels': ['Polarity', ],
                 'values': {
                     'Negative': {
-                        'glyph': u'',
+                        'glyph': u'✕',
                         'position': 'left',
                         },
                     'Positive': {
-                        'glyph': u'',
+                        'glyph': u'✓',
                         'position': 'left',
                         },
                     },
@@ -178,10 +178,10 @@ def get_span_types(directory):
                 'labels': ['Source', ],
                 'values': {
                     'Other': {
-                        'glyph': u'⤻',
+                        'glyph': u'⇗',
                         },
                     'Current': {
-                        'glyph': u'⤺',
+                        'glyph': u'⇙',
                         },
                     },
                 'unused': True,
