@@ -184,8 +184,15 @@ def _enrich_json_with_data(j_dic, ann_obj):
                 )
 
     for att_ann in ann_obj.get_attributes():
+        # XXX: Hack to support Meta-knowledge
+        if ':' in att_ann.type:
+            _type, cue = att_ann.type.split(':')
+        else:
+            _type = att_ann.type
+            cue = None
+
         j_dic['attributes'].append(
-                [unicode(att_ann.id), att_ann.type, att_ann.target, att_ann.value]
+                [unicode(att_ann.id), _type, att_ann.target, att_ann.value, cue]
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
