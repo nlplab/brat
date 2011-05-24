@@ -501,9 +501,9 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var onAttributeChange = function(evt) {
         if (evt.target.selectedIndex) {
-          $input.addClass('ui-state-active');
+          $(evt.target).addClass('ui-state-active');
         } else {
-          $input.removeClass('ui-state-active');
+          $(evt.target).removeClass('ui-state-active');
         }
       }
 
@@ -535,7 +535,7 @@ var AnnotatorUI = (function($, window, undefined) {
             var $option = $('<option value=""/>').text(attr.name + ': ?');
             $select.append($option);
             $.each(attr.values, function(valType, value) {
-              $option = $('<option value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + valType);
+              $option = $('<option value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + (value.name || valType));
               $select.append($option);
             });
             $div.append($select);

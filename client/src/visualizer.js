@@ -190,7 +190,9 @@ var Visualizer = (function($, window, undefined) {
 
           var attrValue = attrType.values[attrType.bool || attr[3]];
           var span = data.spans[attr[2]];
-          var attrText = attrType.bool ? attrType.name : (attrType.name + ': ' + attr[3]);
+          var attrVal = attrType.values[attr[3]];
+          var valText = (attrVal && attrVal.name) || attr[3];
+          var attrText = attrType.bool ? attrType.name : (attrType.name + ': ' + valText);
           span.attributeText.push(attrText);
           span.attributeList.push(attrValue);
           span.attributes[attr[1]] = attr[3];
