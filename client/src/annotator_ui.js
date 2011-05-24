@@ -142,8 +142,8 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var adjustToCursor = function(evt, element) {
-        var screenHeight = $(window).height() - 15; // TODO HACK - no idea why -15 is needed
-        var screenWidth = $(window).width();
+        var screenHeight = $(window).height() - 8; // TODO HACK - no idea why -8 is needed
+        var screenWidth = $(window).width() - 8;
         var elementHeight = element.height();
         var elementWidth = element.width();
         var y = Math.min(evt.clientY, screenHeight - elementHeight);

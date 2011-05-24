@@ -676,6 +676,9 @@ fieldset {
 .ui-icon-gripsmall-diagonal-se {
   margin: 0 -3px -3px 0;
 }
+.ui-dialog {
+  position: fixed;
+}
 
 .file {
   color: #333366;
