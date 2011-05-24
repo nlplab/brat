@@ -18,8 +18,12 @@ from codecs import open as codecs_open
 from functools import partial
 from os import utime
 from time import time
+from os.path import join as path_join
+from os.path import basename
 
 from common import ProtocolError
+from config import WORK_DIR
+from filelock import file_lock
 from message import display_message
 
 ### Constants
@@ -661,7 +665,14 @@ class Annotations(object):
                 old_str = old_ann_file.read()
 
             # Was it changed?
-            if out_str != old_str:
+            if out_str == old_str:
+                # Then just return
+                return
+            
+            # Protect the write so we don't corrupt the file
+            with file_lock(path_join(WORK_DIR,
+                    basename(self._input_files[0].replace('/', '_')))
+                    ) as lock_file:
                 #from tempfile import NamedTemporaryFile
                 from tempfile import mkstemp
                 # TODO: XXX: Is copyfile really atomic?
@@ -697,7 +708,7 @@ class Annotations(object):
                 finally:
                     from os import remove
                     remove(tmp_fname)
-        return
+            return
 
     def __in__(self, other):
         #XXX: You should do this one!
