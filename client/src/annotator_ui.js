@@ -724,6 +724,8 @@ var AnnotatorUI = (function($, window, undefined) {
             attributes[attr.type] = $input[0].checked;
           } else if ($input[0].selectedIndex) {
             attributes[attr.type] = $input.val();
+          } else {
+            attributes[attr.type] = null;
           }
         });
         // unfocus all elements to prevent focus being kept after
