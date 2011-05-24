@@ -532,10 +532,10 @@ var AnnotatorUI = (function($, window, undefined) {
           } else {
             var $div = $('<div class="ui-button ui-button-text-only"/>');
             var $select = $('<select id="span_attr_' + escapedType + '" class="ui-widget ui-state-default ui-button-text"/>');
-            var $option = $('<option value=""/>').text(attr.name + ': ?');
+            var $option = $('<option class="ui-state-default" value=""/>').text(attr.name + ': ?');
             $select.append($option);
             $.each(attr.values, function(valType, value) {
-              $option = $('<option value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + (value.name || valType));
+              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + (value.name || valType));
               $select.append($option);
             });
             $div.append($select);
