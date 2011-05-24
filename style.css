@@ -287,10 +287,10 @@ rect.shadow_EditHighlight {
 
 .fill_scatter           { fill: #ff0000; }
 .stroke_scatter         { stroke: #ff0000; }
-.fill_coref             { fill: #ff0000; }
-.stroke_coref           { stroke: #ff0000; }
-.fill_Coref             { fill: #ff0000; }
-.stroke_Coref           { stroke: #ff0000; }
+.fill_coref             { fill: #000000; }
+.stroke_coref           { stroke: #000000; }
+.fill_Coref             { fill: #000000; }
+.stroke_Coref           { stroke: #000000; }
 .fill_Protein-Component { fill: #000077; }
 .stroke_Protein-Component { stroke: #000077; }
 .fill_Subunit-Complex   { fill: #000000; }
