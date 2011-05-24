@@ -161,13 +161,13 @@ def get_span_types(directory):
                 'labels': ['Manner', ],
                 'values': {
                     'High': {
-                        'glyph': u'⤊',
+                        'glyph': u'↑',
                         },
                     'Low': {
-                        'glyph': u'⤋',
+                        'glyph': u'↓',
                         },
                     'Neutral': {
-                        'glyph': u'≡',
+                        'glyph': u'↔',
                         },
                     },
                 'unused': True,
