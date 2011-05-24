@@ -14,7 +14,8 @@ svg {
   width: 100%;
   height: 1px;
   border: 1px solid #7fa2ff;
-  font-size: 14px;
+  font-size: 15px;
+  /* font-size: 14px; */
 }
 svg.reselect {
   border: 1px solid #ff3333;
@@ -57,7 +58,8 @@ path {
 }
 
 .span text {
-  font-size: 9px;
+  font-size: 10px;
+  /* font-size: 9px; */
   text-anchor: middle;
   font-family: 'PT Sans Caption', sans-serif;
   /* font-family: 'Anonymous Pro', monospace; */
@@ -71,6 +73,8 @@ path {
 
 .glyph {
   fill: #444444;
+  font-family: sans-serif;
+  font-weight: bold;
 }
 .attribute_warning {
   stroke: red;

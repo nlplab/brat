@@ -95,43 +95,46 @@ def get_span_types(directory):
             # TODO: Assign sensible characters
             {
                 'name': 'Knowledge Type',
-                'type': 'Knowledge_type',
+                'type': 'KT',
                 'labels': ['Knowledge Type', ],
                 'values': {
                     'Investigation': {
-                        'glyph': u'𝛩',
+                        'glyph': u'Ⓘ',
                         },
                     'Analysis': {
-                        'glyph': u'ⓘ',
+                        'glyph': u'Ⓐ',
                         },
                     'Observation': {
-                        'glyph': u'𝀟',
+                        'glyph': u'Ⓞ',
                         },
                     'Gen-Fact': {
-                        'glyph': u'⣣',
+                        'glyph': u'Ⓕ',
                         },
                     'Gen-Method': {
-                        'glyph': u'⇃',
+                        'glyph': u'Ⓜ',
                         },
                     'Gen-Other': {
-                        'glyph': u'ⵀ',
+                        'glyph': u'Ⓣ',
                         },
                     },
                 'unused': True,
                 },
             {
                 'name': 'Certainty Level',
-                'type': 'Certainty_level',
+                'type': 'CL',
                 'labels': ['Certainty Level', ],
                 'values': {
                     'L1': {
-                        'glyph': u'ᾥ',
+                        'glyph': u'➊',
+                        'position': 'left',
                         },
                     'L2': {
-                        'glyph': u'⏃',
+                        'glyph': u'➋',
+                        'position': 'left',
                         },
                     'L3': {
-                        'glyph': u'ଌ',
+                        'glyph': u'➌',
+                        'position': 'left',
                         },
                     },
                 'unused': True,
@@ -142,10 +145,12 @@ def get_span_types(directory):
                 'labels': ['Polarity', ],
                 'values': {
                     'Negative': {
-                        'glyph': u'𝟚',
+                        'glyph': u'',
+                        'position': 'left',
                         },
                     'Positive': {
-                        'glyph': u'🁹',
+                        'glyph': u'',
+                        'position': 'left',
                         },
                     },
                 'unused': True,
@@ -156,13 +161,13 @@ def get_span_types(directory):
                 'labels': ['Manner', ],
                 'values': {
                     'High': {
-                        'glyph': u'Ձ',
+                        'glyph': u'⤊',
                         },
                     'Low': {
-                        'glyph': u'ኖ',
+                        'glyph': u'⤋',
                         },
                     'Neutral': {
-                        'glyph': u'𝞷',
+                        'glyph': u'≡',
                         },
                     },
                 'unused': True,
@@ -173,10 +178,10 @@ def get_span_types(directory):
                 'labels': ['Source', ],
                 'values': {
                     'Other': {
-                        'glyph': u'⍋',
+                        'glyph': u'⤻',
                         },
                     'Current': {
-                        'glyph': u'𝞌',
+                        'glyph': u'⤺',
                         },
                     },
                 'unused': True,
