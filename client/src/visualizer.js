@@ -406,7 +406,7 @@ var Visualizer = (function($, window, undefined) {
         }); // sortedSpans
 
         var spanAnnTexts = {};
-        data.spanAnnTexts = [];
+        data.spanAnnTexts = {};
         data.towers = {};
 
         var sortComparator = function(a, b) {
@@ -499,25 +499,59 @@ var Visualizer = (function($, window, undefined) {
               span.labelText = span.labelText.replace(/_/g,' ');
             }
 
-            var text = span.labelText;
+            var svgtext = svg.createText();
+            var postfixArray = [];
             var prefix = '';
             var postfix = '';
-            $.each(span.attributeList, function(attrNo, attr) {
-              if (attr.glyph) {
-                if (attr.position == "left") {
-                  prefix = attr.glyph + ' ' + prefix;
+            var warning = false;
+            $.each(span.attributes, function(attrType, valType) {
+              var attr = attributeTypes[attrType];
+              if (!attr) {
+                // non-existent type
+                warning = true;
+                return;
+              }
+              var val = attr.values[attr.bool || valType];
+              if (!val) {
+                // non-existent value
+                warning = true;
+                return;
+              }
+              if (val.glyph) {
+                if (val.position == "left") {
+                  prefix = val.glyph + prefix;
+                  var css = 'glyph';
+                  if (attr.css) css += ' glyph_' + Util.escapeQuotes(attr.css);
+                  svgtext.span(val.glyph, { 'class': css });
                 } else { // XXX right is implied - maybe change
-                  postfix += attr.glyph;
+                  postfixArray.push([attr, val]);
+                  postfix += val.glyph;
                 }
               }
             });
-            if (prefix !== '') text = prefix + ' ' + text;
-            if (postfix !== '') text += ' ' + postfix;
+            var text = span.labelText;
+            if (prefix !== '') {
+              text = prefix + ' ' + text;
+              svgtext.string(' ');
+            }
+            svgtext.string(span.labelText);
+            if (postfixArray.length) {
+              text += ' ' + postfix;
+              svgtext.string(' ');
+              $.each(postfixArray, function(elNo, el) {
+                var css = 'glyph';
+                if (el[0].css) css += ' glyph_' + Util.escapeQuotes(el[0].css);
+                svgtext.span(el[1].glyph, { 'class': css });
+              });
+            }
+            if (warning) {
+              svgtext.span("#", { 'class': 'glyph attribute_warning' });
+            }
             span.glyphedLabelText = text;
 
             if (!spanAnnTexts[text]) {
               spanAnnTexts[text] = true;
-              data.spanAnnTexts.push(text);
+              data.spanAnnTexts[text] = svgtext;
             }
           }); // chunk.spans
         }); // chunks
@@ -661,8 +695,8 @@ var Visualizer = (function($, window, undefined) {
             // measure annotations
             var dummySpan = svg.group({ 'class': 'span' });
             var spanAnnBoxes = {};
-            $.each(data.spanAnnTexts, function(textNo, text) {
-              var spanText = svg.text(dummySpan, 0, 0, text);
+            $.each(data.spanAnnTexts, function(text, svgtext) {
+              var spanText = svg.text(dummySpan, 0, 0, svgtext);
               spanAnnBoxes[text] = spanText.getBBox();
             }); // data.spanAnnTexts
             svg.remove(dummySpan);
@@ -812,7 +846,7 @@ var Visualizer = (function($, window, undefined) {
                       line(xx, yy + hh + margin.y - yAdjust),
                       { 'class': 'negation' }); // XXX annspec: class
                 }
-                var spanText = svg.text(span.group, x, y - yAdjust, span.glyphedLabelText);
+                var spanText = svg.text(span.group, x, y - yAdjust, data.spanAnnTexts[span.glyphedLabelText]);
 
                 // Make curlies to show the span
                 if (span.drawCurly) {

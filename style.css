@@ -69,6 +69,13 @@ path {
   stroke-width: 0.75;
 }
 
+.glyph {
+  fill: #444444;
+}
+.attribute_warning {
+  stroke: red;
+}
+
 .span rect.False_positive {
   stroke: #ff0000;
   stroke-width: 2;
