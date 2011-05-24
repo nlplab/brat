@@ -67,7 +67,7 @@ var Visualizer = (function($, window, undefined) {
         this.incoming = [];
         this.attributes = {};
         this.attributeText = [];
-        this.attributeList = []; // for glyphs, other repeatable attributes
+        this.attributeCues = {};
         this.attributeMerge = {}; // for box, cross, etc. that are span-global
         this.totalDist = 0;
         this.numArcs = 0;
@@ -143,7 +143,7 @@ var Visualizer = (function($, window, undefined) {
           span.outgoing = [];
           span.attributes = {};
           span.attributeText = [];
-          span.attributeList = [];
+          span.attributeCues = {};
           span.attributeMerge = {};
           span.id = eventDesc.id;
           data.spans[eventDesc.id] = span;
@@ -194,8 +194,12 @@ var Visualizer = (function($, window, undefined) {
           var valText = (attrVal && attrVal.name) || attr[3];
           var attrText = attrType.bool ? attrType.name : (attrType.name + ': ' + valText);
           span.attributeText.push(attrText);
-          span.attributeList.push(attrValue);
           span.attributes[attr[1]] = attr[3];
+          if (attr[4]) {
+            span.attributeCues[attr[1]] = attr[4];
+            // XXX can one span be cue to several attributes? modify if yes
+            // data.spans[attr[4]].cueFor[data.spans[1]] = attr[2];
+          }
           $.extend(span.attributeMerge, attrValue);
         });
 
