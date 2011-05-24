@@ -36,5 +36,5 @@ ADMIN_CONTACT_EMAIL = CHANGE_ME
 # If you are developing you may want to turn on extensive server logging
 '''
 from logging import INFO
-LOG_LEVEL = info
+LOG_LEVEL = INFO
 '''
