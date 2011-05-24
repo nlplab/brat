@@ -73,12 +73,14 @@ def get_statistics(directory, base_names, use_cache=True):
                 with Annotations(path_join(directory, docname), 
                         read_only=True) as ann_obj:
                     tb_count = len([a for a in ann_obj.get_textbounds()])
+                    rel_count = (len([a for a in ann_obj.get_relations()]) +
+                                 len([a for a in ann_obj.get_equivs()]))
                     event_count = len([a for a in ann_obj.get_events()])
-                    docstats.append([tb_count, event_count])
+                    docstats.append([tb_count, rel_count, event_count])
             except Exception, e:
                 log_info('Received "%s" when trying to generate stats' % e)
                 # Pass exceptions silently, just marking stats missing
-                docstats.append([-1, -1])
+                docstats.append([-1, -1, -1])
 
         # Cache the statistics
         try:

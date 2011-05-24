@@ -73,7 +73,7 @@ def get_directory_information(directory):
     doc_stats = get_statistics(real_dir, base_names)
                 
     doclist = [doclist[i] + doc_stats[i] for i in range(len(doclist))]
-    doclist_header += [("Textbounds", "int"), ("Events", "int")]
+    doclist_header += [("Textbounds", "int"), ("Relations", "int"), ("Events", "int")]
 
     dirlist = [dir for dir in _listdir(real_dir)
             if isdir(path_join(real_dir, dir))]
