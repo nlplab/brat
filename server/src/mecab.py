@@ -45,11 +45,14 @@ def token_offsets_gen(text):
     # Wakati inserts spaces, but only after non-space tokens.
     # We find these iteratively and then allow additional spaces to be treated
     # as seperate tokens.
+
+    # XXX: MeCab rapes newlines by removing them, we need to align ourselves
     last_end = 0
     for tok in (m.group(1) for m in WAKATI_REGEX.finditer(parse)):
-        tok_len = len(tok)
-        yield [last_end, last_end + tok_len]
-        last_end += tok_len
+        start = text.find(tok, last_end)
+        end = start + len(tok)
+        yield [start, end]
+        last_end = end
 
 if __name__ == '__main__':
     # Minor test: Is it a duck? Maybe?
