@@ -121,7 +121,7 @@ open_textfile = partial(codecs_open, errors='strict', encoding='utf8')
 
 def __split_annotation_id(id):
     import re
-    m = re.match(r'^([A-Za-z]|#)([0-9]+)(.*?)$', id)
+    m = re.match(r'^([A-Za-z]+|#)([0-9]+)(.*?)$', id)
     if m is None:
         raise InvalidIdError(id)
     pre, num_str, suf = m.groups()
