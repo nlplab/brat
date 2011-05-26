@@ -38,7 +38,18 @@ def _refine_split(offsets, original_text):
     
     ss_p = Popen(shlex_split(GENIASS_POSTPROC_PL_PATH), stdin=PIPE,
             stdout=PIPE, stderr=PIPE)
-    output, errors = ss_p.communicate(new_text)
+
+    #log_info('ENCODING: ' + new_text.replace('\n', '\\n'))
+    #log_info('ENCODING: ' + str(type(new_text)))
+
+    ss_p.stdin.write(new_text.encode('utf-8'))
+    ss_p.stdin.close()
+    ss_p.wait()
+    output, errors = (ss_p.stdout.read().decode('utf-8'),
+            ss_p.stderr.read().decode('utf-8'))
+
+    #output, errors = ss_p.communicate(new_text)
+    #output, errors = output.decode('utf-8'), errors.decode('utf-8')
 
     # Align the texts and see where our offsets don't match
     old_offsets = offsets[::-1]

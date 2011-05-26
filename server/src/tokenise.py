@@ -36,12 +36,18 @@ def en_token_boundary_gen(text):
     # Call the external script
     tok_p = Popen(shlex_split(GTB_TOKENIZE_PL_PATH), stdin=PIPE,
             stdout=PIPE, stderr=PIPE)
-    output, errors = tok_p.communicate(text)
+
+    tok_p.stdin.write(text.encode('utf-8'))
+    tok_p.stdin.close()
+    tok_p.wait()
+    output, errors = (tok_p.stdout.read().decode('utf-8'),
+            tok_p.stderr.read().decode('utf-8'))
+    #output, errors = tok_p.communicate(text)
 
     # TODO: Check errors!
 
     # Decode our output, we assume utf-8 as this is our internal format
-    output = output.decode('utf-8')
+    #output = output.decode('utf-8')
 
     # Then align the now tokenised data to get the offsets
     tokens = output.split()
