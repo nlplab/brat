@@ -222,6 +222,30 @@ rect.shadow_EditHighlight {
   fill: #7fe67f;
 }
 
+/* BEGIN: For Japanese Modality Annotations */
+
+/* "Entities" */
+.span_FUTURE                  { fill: #7fa2ff; }
+.span_NON_FUTURE              { fill: #bfafff; }
+.span_MODAL_PRED              { fill: #b4c8ff; }
+
+/* "Events" */
+.span_EPISTEMIC_1_99          { fill: #7fb6af; }
+.span_FACTIVE                 { fill: #afd6cf; }
+.span_HEARSAY                 { fill: #ef7f7f; }
+.span_OTHER_EPISTEMIC_1_99    { fill: #efefff; }
+.span_ZERO_MODAL              { fill: #8fcfff; }
+
+/* "Roles" */
+.fill_SCOPE                   { fill:   #000000; }
+.stroke_SCOPE                 { stroke: #000000; }
+.fill_PREDICATE               { fill:   #000000; }
+.stroke_PREDICATE             { stroke: #000000; }
+.fill_REF_ID                  { fill:   #000000; }
+.stroke_REF_ID                { stroke: #000000; }
+
+/* END: For Japanese Modality Annotations */
+
 .span_Exp { fill:#ff0000; }
 
 .span_Sub-Process    { fill: #ff0000; }
