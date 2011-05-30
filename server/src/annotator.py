@@ -18,7 +18,8 @@ from os.path import split as path_split
 
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
-        EventAnnotation, ModifierAnnotation, EquivAnnotation, open_textfile)
+        EventAnnotation, ModifierAnnotation, EquivAnnotation, open_textfile,
+        AnnotationsIsReadOnlyError)
 from config import DEBUG
 from document import real_directory
 from jsonwrap import loads as json_loads
@@ -536,6 +537,10 @@ def create_arc(directory, document, origin, target, type,
     document = path_join(real_dir, document)
 
     with TextAnnotations(document) as ann_obj:
+        # Dirty hack to bail as quick as possible if read-only
+        if ann_obj._read_only:
+            raise AnnotationsIsReadOnlyError
+
         origin = ann_obj.get_ann_by_id(origin) 
         target = ann_obj.get_ann_by_id(target)
 
