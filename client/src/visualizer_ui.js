@@ -133,7 +133,7 @@ var VisualizerUI = (function($, window, undefined) {
       var displayComment = function(evt, target, comment, commentText, commentType) {
         var idtype;
         if (commentType) {
-          comment += Util.escapeHTML(commentText);
+          comment += Util.escapeHTMLwithNewlines(commentText);
           idtype = 'comment_' + commentType;
         }
         commentPopup[0].className = idtype;

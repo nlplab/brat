@@ -210,7 +210,7 @@ var Visualizer = (function($, window, undefined) {
                 span.comment = { type: comment[1], text: comment[2] };
               } else {
                 span.comment.type = comment[1];
-                span.comment.text += "<br/>" + comment[2];
+                span.comment.text += "\n" + comment[2];
               }
               // partially duplicate marking of annotator note comments
               if (comment[1] == "AnnotatorNotes") {

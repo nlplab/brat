@@ -47,6 +47,10 @@ var Util = (function(window, undefined) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    var escapeHTMLwithNewlines = function(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/,'<br/>');
+    }
+
     var escapeQuotes = function(str) {
       // we only use double quotes for HTML attributes
       return str.replace(/"/g,'&quot;');
@@ -56,7 +60,8 @@ var Util = (function(window, undefined) {
       formatTimeAgo: formatTimeAgo,
       realBBox: realBBox,
       escapeQuotes: escapeQuotes,
-      escapeHTML: escapeHTML
+      escapeHTML: escapeHTML,
+      escapeHTMLwithNewlines: escapeHTMLwithNewlines
     };
 
 })(window);
