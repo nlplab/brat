@@ -91,7 +91,7 @@ class ModificationTracker(object):
         if self.__changed:
             changed_strs = []
             for before, after in self.__changed:
-                changed_strs.append('\t%s\n\tInto:\n\t%s' % (before, after))
+                changed_strs.append('\t%s\n\tInto:\n\t%s' % (unicode(before).rstrip(), unicode(after).rstrip()))
             msg_str += ('Changed the following line(s):\n'
                     + '\n'.join([unicode(a).rstrip() for a in changed_strs]))
         if self.__deleted:
