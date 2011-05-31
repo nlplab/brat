@@ -93,8 +93,8 @@ class TypeHierarchyNode:
     defined by normalize_to_storage_form().
 
     Each node may be associated with one or more "arguments", which
-    are key:value pairs. These determine various characteristics of
-    the node, but their interpretation depends on the hierarchy the
+    are (multivalued) key:value pairs. These determine various characteristics 
+    of the node, but their interpretation depends on the hierarchy the
     node occupies: for example, for events the arguments correspond to
     event arguments.
     """
@@ -123,36 +123,43 @@ class TypeHierarchyNode:
             pass
 
         # TODO: cleaner and more localized parsing
-        self.arguments = []
+        self.arguments = {}
+        self.arg_list = []
         self.mandatory_arguments = []
         self.multiple_allowed_arguments = []
-        self.roles_by_type = {}
+        self.keys_by_type = {}
         for a in self.args:
             a = a.strip()
             m = re.match(r'^(.*?):(.*)$', a)
             if not m:
                 Messager.warning("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), 5)
                 raise InvalidProjectConfigException
-            role, atypes = m.groups()
+            key, atypes = m.groups()
 
-            if role[-1:] not in ("?", "*"):
-                mandatory_role = True
+            if key[-1:] not in ("?", "*"):
+                mandatory_key = True
             else:
-                mandatory_role = False
+                mandatory_key = False
 
-            if role[-1:] in ("*", "+"):
+            if key[-1:] in ("*", "+"):
                 multiple_allowed = True
             else:
                 multiple_allowed = False
 
-            if role[-1:] in ("?", "*", "+"):
-                role = role[:-1]
+            if key[-1:] in ("?", "*", "+"):
+                key = key[:-1]
 
-            if mandatory_role:
-                self.mandatory_arguments.append(role)
+            if key in self.arguments:
+                Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
+                raise InvalidProjectConfigException
+
+            self.arg_list.append(key)
+            
+            if mandatory_key:
+                self.mandatory_arguments.append(key)
 
             if multiple_allowed:
-                self.multiple_allowed_arguments.append(role)
+                self.multiple_allowed_arguments.append(key)
 
             for atype in atypes.split("|"):
                 if atype.strip() == "":
@@ -163,11 +170,13 @@ class TypeHierarchyNode:
                     Messager.warning("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, 5)
                     raise InvalidProjectConfigException
 
-                self.arguments.append((role, atype))
+                if key not in self.arguments:
+                    self.arguments[key] = []
+                self.arguments[key].append(atype)
 
-                if atype not in self.roles_by_type:
-                    self.roles_by_type[atype] = []
-                self.roles_by_type[atype].append(role)
+                if atype not in self.keys_by_type:
+                    self.keys_by_type[atype] = []
+                self.keys_by_type[atype].append(key)
 
     def storage_form(self):
         """
@@ -520,20 +529,17 @@ def __directory_relations_by_arg_num(directory, num, atype):
     assert num >= 0 and num < 2, "INTERNAL ERROR"
 
     rels = []
-    for r in get_relation_type_list(directory):
-        args = []
-        for a, dummy in r.arguments:
-            if a not in args:
-                args.append(a)
 
-        if len(args) != 2:
+    for r in get_relation_type_list(directory):
+        if len(r.arg_list) != 2:
             Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(args), ",".join(args)))
-            
-        types = [a[1] for a in r.arguments if a[0] == args[num]]
-        for type in types:
-            # TODO: "wildcards" other than <ANY>
-            if type == "<ANY>" or atype == "<ANY>" or type == atype:
-                rels.append(r)
+        else:
+            types = r.arguments[r.arg_list[num]]
+            for type in types:
+                # TODO: "wildcards" other than <ANY>
+                if type == "<ANY>" or atype == "<ANY>" or type == atype:
+                    rels.append(r)
+
     return rels
 
 def get_relations_by_arg1(directory, atype):
@@ -669,28 +675,25 @@ class ProjectConfiguration(object):
 
         from_node = get_node_by_storage_form(self.directory, from_ann)
 
-        relations_from = get_relations_by_arg1(self.directory, from_ann)
-
         if from_node is None:
             Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % from_ann)
             return []
+
         if to_ann == "<ANY>":
-            return unique_preserve_order([role for role, type in from_node.arguments] + [r.storage_form() for r in relations_from])
+            relations_from = get_relations_by_arg1(self.directory, from_ann)
+            return unique_preserve_order([role for role in from_node.arguments] + [r.storage_form() for r in relations_from])
 
         # specific hits
-        if to_ann in from_node.roles_by_type:
-            types = from_node.roles_by_type[to_ann]
-        else:
-            types = []
+        types = from_node.keys_by_type.get(to_ann, [])
 
-        if "<ANY>" in from_node.roles_by_type:
-            types += from_node.roles_by_type["<ANY>"]
+        if "<ANY>" in from_node.keys_by_type:
+            types += from_node.keys_by_type["<ANY>"]
 
         # generic arguments
-        if self.is_event_type(to_ann) and '<EVENT>' in from_node.roles_by_type:
-            types += from_node.roles_by_type['<EVENT>']
-        if self.is_physical_entity_type(to_ann) and '<ENTITY>' in from_node.roles_by_type:
-            types += from_node.roles_by_type['<ENTITY>']
+        if self.is_event_type(to_ann) and '<EVENT>' in from_node.keys_by_type:
+            types += from_node.keys_by_type['<EVENT>']
+        if self.is_physical_entity_type(to_ann) and '<ENTITY>' in from_node.keys_by_type:
+            types += from_node.keys_by_type['<ENTITY>']
 
         # relations
         types.extend(self.relation_types_from_to(from_ann, to_ann))
@@ -711,6 +714,12 @@ class ProjectConfiguration(object):
 
     def get_relation_types(self):
         return [t.storage_form() for t in get_relation_type_list(self.directory)]        
+
+    def get_relation_by_type(self, type):
+        for r in get_relation_type_list(self.directory):
+            if r.storage_form() == type:
+                return r
+        return None
 
     def get_entity_types(self):
         return [t.storage_form() for t in get_entity_type_list(self.directory)]

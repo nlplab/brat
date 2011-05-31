@@ -588,7 +588,10 @@ def create_arc(directory, document, origin, target, type,
 
                 # TODO: Assign a suitable letter
                 new_id = ann_obj.get_new_id('R')
-                ann = BinaryRelationAnnotation(new_id, type, origin.id, target.id, '\t')
+                rel = projectconf.get_relation_by_type(type)
+                assert rel is not None and len(rel.arg_list) == 2
+                a1l, a2l = rel.arg_list
+                ann = BinaryRelationAnnotation(new_id, type, a1l, origin.id, a2l, target.id, '\t')
                 mods.addition(ann)
                 ann_obj.add_annotation(ann)
         else:
