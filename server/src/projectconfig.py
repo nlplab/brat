@@ -88,7 +88,7 @@ class TypeHierarchyNode:
 
     Each node is associated with a set of terms, one of which (the
     storage_form) matches the way in which the type denoted by the
-    node is referenced to in data stored on dist and in client-server
+    node is referenced to in data stored on disk and in client-server
     communications. This term is guaranteed to be in "storage form" as
     defined by normalize_to_storage_form().
 
