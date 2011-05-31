@@ -223,6 +223,10 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, speculation,
     if (int(start) != tb_ann.start
             or int(end) != tb_ann.end):
         if not isinstance(tb_ann, TextBoundAnnotation):
+            # TODO XXX: the following comment is no longer valid 
+            # (possibly related code also) since the introduction of
+            # TextBoundAnnotationWithText. Check.
+
             # This scenario has been discussed and changing the span inevitably
             # leads to the text span being out of sync since we can't for sure
             # determine where in the data format the text (if at all) it is
