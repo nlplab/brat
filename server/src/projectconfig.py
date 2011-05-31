@@ -516,16 +516,23 @@ def get_node_by_storage_form(directory, term):
     return cache[directory].get(term, None)
 get_node_by_storage_form.__cache = {}
 
-def __directory_relations_by_arg_type(directory, arg, atype):
+def __directory_relations_by_arg_num(directory, num, atype):
+    assert num >= 0 and num < 2, "INTERNAL ERROR"
+
     rels = []
     for r in get_relation_type_list(directory):
-        args = [a for a in r.arguments if a[0] == arg]
-        if len(args) == 0:
-            Messager.warning("Relation type %s lacking %s. Configuration may be wrong." % (r.storage_form(), arg))
-            continue
-        for dummy, type in args:
+        args = []
+        for a, dummy in r.arguments:
+            if a not in args:
+                args.append(a)
+
+        if len(args) != 2:
+            Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(args), ",".join(args)))
+            
+        types = [a[1] for a in r.arguments if a[0] == args[num]]
+        for type in types:
             # TODO: "wildcards" other than <ANY>
-            if type == "<ANY>" or type == atype:
+            if type == "<ANY>" or atype == "<ANY>" or type == atype:
                 rels.append(r)
     return rels
 
@@ -533,7 +540,7 @@ def get_relations_by_arg1(directory, atype):
     cache = get_relations_by_arg1.__cache
     cache[directory] = cache.get(directory, {})
     if atype not in cache[directory]:
-        cache[directory][atype] = __directory_relations_by_arg_type(directory, "Arg1", atype)
+        cache[directory][atype] = __directory_relations_by_arg_num(directory, 0, atype)
     return cache[directory][atype]
 get_relations_by_arg1.__cache = {}
 
@@ -541,7 +548,7 @@ def get_relations_by_arg2(directory, atype):
     cache = get_relations_by_arg2.__cache
     cache[directory] = cache.get(directory, {})
     if atype not in cache[directory]:
-        cache[directory][atype] = __directory_relations_by_arg_type(directory, "Arg2", atype)
+        cache[directory][atype] = __directory_relations_by_arg_num(directory, 1, atype)
     return cache[directory][atype]
 get_relations_by_arg2.__cache = {}
 
@@ -643,15 +650,14 @@ class ProjectConfiguration(object):
         given arg1 and arg2.
         """
         types = []
-        for r in get_relations_by_arg1(self.directory, from_ann):
-            arg2s = [a for a in r.arguments if a[0] == "Arg2"]
-            if len(arg2s) == 0:
-                Messager.warning("Relation type %s lacking Arg2. Configuration may be wrong." % r.storage_form())
-                continue
-            for dummy, type in arg2s:
-                # TODO: "wildcards" other than <ANY>
-                if type == "<ANY>" or type == to_ann:
-                    types.append(r.storage_form())
+
+        t1r = get_relations_by_arg1(self.directory, from_ann)
+        t2r = get_relations_by_arg2(self.directory, to_ann)
+
+        for r in t1r:
+            if r in t2r:
+                types.append(r.storage_form())
+
         return types
 
     def arc_types_from_to(self, from_ann, to_ann="<ANY>"):
@@ -687,10 +693,7 @@ class ProjectConfiguration(object):
             types += from_node.roles_by_type['<ENTITY>']
 
         # relations
-        # TODO: handle generic '<ENTITY>' (like '<EVENT>' above)
-        for r in relations_from:
-            if to_ann in r.roles_by_type and "Arg2" in r.roles_by_type[to_ann]:
-                types.append(r.storage_form())
+        types.extend(self.relation_types_from_to(from_ann, to_ann))
 
         return unique_preserve_order(types)
 
