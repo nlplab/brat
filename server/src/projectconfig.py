@@ -369,7 +369,7 @@ def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 
 # Configuration lookup specifications, each a triple (FILENAME,
 # HIERARCHY_STR, HIERARCHY). The directory path is searched for
-# FILENAME, and if none is found, the system falls attempts to parse
+# FILENAME, and if none is found, the system attempts to parse
 # HIERARCHY_STR for the hierarchy; if that fails, HIERARCHY is used
 # directly.
 
