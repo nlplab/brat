@@ -514,11 +514,14 @@ class Annotations(object):
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         args.sort()
-        if args[0][0] != "Arg1" or args[1][0] != "Arg2":
-            Messager.error('Error parsing relation: arguments must be "Arg1" and "Arg2"')
+        if args[0][0] == args[1][0]:
+            Messager.error('Error parsing relation: arguments must not be identical')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
-        return BinaryRelationAnnotation(id, type, args[0][1], args[1][1], data_tail)
+        return BinaryRelationAnnotation(id, type,
+                                        args[0][0], args[0][1],
+                                        args[1][0], args[1][1],
+                                        data_tail)
 
     def _parse_equiv_annotation(self, id, data, data_tail):
         # TODO: this will split on any space, which is likely not correct
@@ -1060,20 +1063,24 @@ class BinaryRelationAnnotation(IdedAnnotation):
 
     Represented in standoff as
 
-    ID\tTYPE Arg1:ID1 Arg2:ID2
+    ID\tTYPE ARG1:ID1 ARG2:ID2
 
-    Where "Arg1" and "Arg2" are literal strings.
+    Where ARG1 and ARG2 are arbitrary (but not identical) labels.
     """
-    def __init__(self, id, type, arg1, arg2, tail):
+    def __init__(self, id, type, arg1l, arg1, arg2l, arg2, tail):
         IdedAnnotation.__init__(self, id, type, tail)
-        self.arg1 = arg1
-        self.arg2 = arg2
+        self.arg1l = arg1l
+        self.arg1  = arg1
+        self.arg2l = arg2l
+        self.arg2  = arg2
 
     def __str__(self):
-        return u'%s\t%s Arg1:%s Arg2:%s%s' % (
+        return u'%s\t%s %s:%s %s:%s%s' % (
             self.id,
             self.type,
+            self.arg1l,
             self.arg1,
+            self.arg2l,
             self.arg2,
             self.tail
             )
