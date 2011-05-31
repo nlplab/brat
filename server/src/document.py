@@ -25,7 +25,7 @@ from config import DATA_DIR
 from htmlgen import generate_client_keymap, generate_textbound_type_html
 from projectconfig import ProjectConfiguration
 from stats import get_statistics
-from message import display_message
+from message import Messager
 
 # Temporary catch while we phase in this part
 try:
@@ -176,16 +176,16 @@ def _enrich_json_with_data(j_dic, ann_obj):
                 )
 
     if ann_obj.failed_lines:
-        error_msg = 'Unable to parse the following line(s):<br/>%s' % (
-                '\n<br/>\n'.join(
-                    [('%s: %s' % (
-                        # The line number is off by one
-                        unicode(line_num + 1),
-                        unicode(ann_obj[line_num])
-                        )).strip()
-                    for line_num in ann_obj.failed_lines])
-                    )
-        display_message(error_msg, type='error', duration=len(ann_obj.failed_lines) * 3)
+        error_msg = 'Unable to parse the following line(s):\n%s' % (
+                '\n'.join(
+                [('%s: %s' % (
+                            # The line number is off by one
+                            unicode(line_num + 1),
+                            unicode(ann_obj[line_num])
+                            )).strip()
+                 for line_num in ann_obj.failed_lines])
+                )
+        Messager.error(error_msg, duration=len(ann_obj.failed_lines) * 3)
 
     j_dic['mtime'] = ann_obj.ann_mtime
     j_dic['ctime'] = ann_obj.ann_ctime
@@ -203,7 +203,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
     except Exception, e:
         # TODO add an issue about the failure?
         issues = []
-        display_message('Error: verify_annotation() failed: %s' % e, 'error', -1)
+        Messager.error('Error: verify_annotation() failed: %s' % e, -1)
 
     for i in issues:
         j_dic['comments'].append((unicode(i.ann_id), i.type, i.description))
@@ -246,7 +246,7 @@ def _sentence_split(txt_file_path):
             # NOTE: this also happens for missing write permissions, as
             # geniass assumes it can write a temporary into the directory
             # where the .txt is found.
-            display_message("Warning: sentence split failed (geniass not set up, or no write permission to directory?)", type='warning')
+            Messager.warning("Sentence split failed (geniass not set up, or no write permission to directory?)")
             err = OSError()
             err.errno = 2
             raise err

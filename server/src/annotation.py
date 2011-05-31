@@ -24,7 +24,7 @@ from os.path import basename
 from common import ProtocolError
 from config import WORK_DIR
 from filelock import file_lock
-from message import display_message
+from message import Messager
 
 ### Constants
 # The only suffix we allow to write to, which is the joined annotation file
@@ -106,18 +106,13 @@ class DependingAnnotationDeleteError(Exception):
 
     def __str__(self):
         return u'%s can not be deleted due to depending annotations %s' % (
-                self.target, ",".join([unicode(d) for d in self.dependants]))
+                unicode(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
 
     def html_error_str(self, response=None):
-        return u'''
-        Annotation:
-        <br/>
+        return u'''Annotation:
         %s
-        <br/>
         Has depending annotations attached to it:
-        <br/>
-        %s
-        ''' % (self.target, ",".join([unicode(d) for d in self.dependants]))
+        %s''' % (unicode(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
 
 # Open function that enforces strict, utf-8
 # TODO: Could have another wrapping layer raising an appropriate ProtocolError
@@ -515,12 +510,12 @@ class Annotations(object):
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         if len(args) != 2:
-            display_message("Error parsing relation: must have exactly two arguments", "error")
+            Messager.error('Error parsing relation: must have exactly two arguments')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         args.sort()
         if args[0][0] != "Arg1" or args[1][0] != "Arg2":
-            display_message("Error parsing relation: arguments must be \"Arg1\" and \"Arg2\"", "error")
+            Messager.error('Error parsing relation: arguments must be "Arg1" and "Arg2"')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         return BinaryRelationAnnotation(id, type, args[0][1], args[1][1], data_tail)
@@ -544,7 +539,7 @@ class Annotations(object):
             end_str = end_str.rstrip()
             # Abort if we have trailing values, i.e. space-separated tail in end_str
             if any((c.isspace() for c in end_str)):
-                #display_message("Error parsing textbound '%s\t%s'. (Using space instead of tab?)" % (id, data), "error")
+                #Messager.error('Error parsing textbound "%s\t%s". (Using space instead of tab?)' % (id, data))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
             start, end = (int(start_str), int(end_str))
         except:
@@ -702,8 +697,8 @@ class Annotations(object):
                                 #XXX: Disabled for now!
                                 #utime(DATA_DIR, (now, now))
                         except Exception, e:
-                            from message import display_message
-                            display_message('ERROR writing changes: generated annotations cannot be read back in!<br/>(This is almost certainly a system error, please contact the developers.)<br/>%s' % e, 'error', -1)
+                            from message import Messager
+                            Messager.error('ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' % e, -1)
                             raise
                 finally:
                     from os import remove
@@ -734,43 +729,42 @@ class TextAnnotations(Annotations):
 
         # Verify annotation extent
         if start > end:
-            display_message("Text-bound annotation start &gt; end", "error")
+            Messager.error('Text-bound annotation start > end.')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
         if start < 0:
-            display_message("Text-bound annotation start &lt; 0.", "error")
+            Messager.error('Text-bound annotation start < 0.')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
         if end > len(self._document_text):
-            display_message("Text-bound annotation offset exceeds text length.", "error")
+            Messager.error('Text-bound annotation offset exceeds text length.')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         # Require tail to be either empty or to begin with the text
         # corresponding to the start:end span. If the tail is empty,
         # force a fill with the corresponding text.
         if data_tail.strip() == '':
-            display_message(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.", "warning", duration=-1)
+            Messager.warning(u'Text-bound annotation missing text (expected format "ID\\tTYPE START END\\tTEXT"). Filling from reference text. NOTE: This changes annotations on disk unless read-only.', duration=-1)
             text = self._document_text[start:end]
         elif data_tail[0] != '\t':
-            display_message("Text-bound annotation missing tab before text (expected format 'ID\\tTYPE START END\\tTEXT').", "error")
+            Messager.error('Text-bound annotation missing tab before text (expected format "ID\\tTYPE START END\\tTEXT").')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
         elif end-start > len(data_tail)-1: # -1 for tab
-            display_message("Text-bound annotation text '%s' shorter than marked span %d:%d" % (data_tail[1:], start, end), "error")
+            Messager.error('Text-bound annotation text "%s" shorter than marked span %d:%d' % (data_tail[1:], start, end))
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
         else:
             text = data_tail[1:end-start+1] # shift 1 for tab
             data_tail = data_tail[end-start+1:]
             if text != self._document_text[start:end]:
                 #log_info(text.__class__.__name__)
-                display_message((u"Text-bound annotation text '%s' does not "
-                    u"match marked span (%d:%d) text '%s' in document") % (
+                Messager.error((u'Text-bound annotation text "%s" does not '
+                                u'match marked span (%d:%d) text "%s" in document') % (
                         text,
                         start,
                         end,
                         self._document_text[start:end], 
-                        ),
-                    "error")
+                        ))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
             if data_tail != '' and not data_tail[0].isspace():
-                display_message(u"Text-bound annotation text '%s' not separated from rest of line ('%s') by space!" % (text, data_tail), "error")
+                Messager.error(u'Text-bound annotation text "%s" not separated from rest of line ("%s") by space!' % (text, data_tail))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         return TextBoundAnnotationWithText(start, end, id, type, text, data_tail)
@@ -785,7 +779,7 @@ class TextAnnotations(Annotations):
                 text = f.read()
                 return text
         except:
-            display_message("Error reading document text from %s" % textfn, "error")
+            Messager.error('Error reading document text from %s' % textfn)
         return None
 
 class Annotation(object):

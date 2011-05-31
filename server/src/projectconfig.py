@@ -11,7 +11,7 @@ Brat Rapid Annotation Tool (brat)
 import re
 
 from annotation import open_textfile
-from message import display_message
+from message import Messager
 
 # TODO: replace with reading a proper ontology.
 
@@ -102,7 +102,7 @@ class TypeHierarchyNode:
         self.terms, self.args = terms, args
 
         if len(terms) == 0 or len([t for t in terms if t == ""]) != 0:
-            display_message("Empty term in type configuration" % (a, args), "debug", -1)
+            Messager.debug("Empty term in type configuration" % (a, args), duration=-1)
             raise InvalidProjectConfigException
 
         # unused if any of the terms marked with "!"
@@ -119,7 +119,7 @@ class TypeHierarchyNode:
         self.__primary_term = normalize_to_storage_form(self.terms[0])
         # TODO: this might not be the ideal place to put this warning
         if self.__primary_term != self.terms[0]:
-            display_message("Note: in configuration, term '%s' is not appropriate for storage (should match '^[a-zA-Z0-9_-]*$'), using '%s' instead. (Revise configuration file to get rid of this message. Terms other than the first are not subject to this restriction.)" % (self.terms[0], self.__primary_term), "warning", -1)
+            Messager.warning("Note: in configuration, term '%s' is not appropriate for storage (should match '^[a-zA-Z0-9_-]*$'), using '%s' instead. (Revise configuration file to get rid of this message. Terms other than the first are not subject to this restriction.)" % (self.terms[0], self.__primary_term), -1)
             pass
 
         # TODO: cleaner and more localized parsing
@@ -131,7 +131,7 @@ class TypeHierarchyNode:
             a = a.strip()
             m = re.match(r'^(.*?):(.*)$', a)
             if not m:
-                display_message("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), "warning", 5)
+                Messager.warning("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), 5)
                 raise InvalidProjectConfigException
             role, atypes = m.groups()
 
@@ -156,11 +156,11 @@ class TypeHierarchyNode:
 
             for atype in atypes.split("|"):
                 if atype.strip() == "":
-                    display_message("Project configuration: error parsing: empty type for argument '%s'." % a, "warning", 5)
+                    Messager.warning("Project configuration: error parsing: empty type for argument '%s'." % a, 5)
                     raise InvalidProjectConfigException
                 
                 if atype not in reserved_macro_string and normalize_to_storage_form(atype) != atype:
-                    display_message("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, "warning", 5)
+                    Messager.warning("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, 5)
                     raise InvalidProjectConfigException
 
                 self.arguments.append((role, atype))
@@ -199,7 +199,7 @@ def __read_term_hierarchy(input):
         if m:
             name, value = m.groups()
             if name in reserved_macro_name:
-                display_message("Error: cannot redefine <%s> in configuration, it is a reserved name." % name)
+                Messager.error("Cannot redefine <%s> in configuration, it is a reserved name." % name)
                 # TODO: proper exception
                 assert False
             else:
@@ -250,7 +250,7 @@ def __parse_term_hierarchy(hierarchy, default, source):
         root_nodes = __read_term_hierarchy(hierarchy.split("\n"))
     except:
         # TODO: specific exception handling
-        display_message("Project configuration: error parsing types from %s. Configuration may be wrong." % source, "warning", 5)
+        Messager.warning("Project configuration: error parsing types from %s. Configuration may be wrong." % source, 5)
         root_nodes = default
     return root_nodes
 
@@ -263,21 +263,21 @@ def __parse_labels(labelstr, default, source):
                 continue
             fields = l.split("\t")
             if len(fields) < 2:
-                display_message("Note: failed to parse line in label configuration (ignoring; format is tab-separated, STORAGE_FORM\\tDISPLAY_FORM[\\tABBREV1\\tABBREV2...]): '%s'" % l, "warning", -1)
+                Messager.warning("Note: failed to parse line in label configuration (ignoring; format is tab-separated, STORAGE_FORM\\tDISPLAY_FORM[\\tABBREV1\\tABBREV2...]): '%s'" % l, -1)
             else:
                 storage_form, others = fields[0], fields[1:]
                 normsf = normalize_to_storage_form(storage_form)
                 if normsf != storage_form:
-                    display_message("Note: first field '%s' is not a valid storage form in label configuration (should match '^[a-zA-Z0-9_-]*$'; using '%s' instead): '%s'" % (storage_form, normsf, l), "warning", -1)
+                    Messager.warning("Note: first field '%s' is not a valid storage form in label configuration (should match '^[a-zA-Z0-9_-]*$'; using '%s' instead): '%s'" % (storage_form, normsf, l), -1)
                     storage_form = normsf
                     
                 if storage_form in labels:
-                    display_message("Note: '%s' defined multiple times in label configuration (only using last definition)'" % storage_form, "warning", -1)
+                    Messager.warning("Note: '%s' defined multiple times in label configuration (only using last definition)'" % storage_form, -1)
 
                 labels[storage_form] = others
     except:
         # TODO: specific exception handling
-        display_message("Project configuration: error parsing labels from %s. Configuration may be wrong." % source, "warning", 5)
+        Messager.warning("Project configuration: error parsing labels from %s. Configuration may be wrong." % source, 5)
         labels = default
 
     return labels
@@ -294,7 +294,7 @@ def __parse_kb_shortcuts(shortcutstr, default, source):
             shortcuts[key] = type
     except:
         # TODO: specific exception handling
-        display_message("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, "warning", 5)
+        Messager.warning("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, 5)
         shortcuts = default
     return shortcuts
 
@@ -509,7 +509,7 @@ def get_node_by_storage_form(directory, term):
         for e in get_entity_type_list(directory) + get_event_type_list(directory):
             t = e.storage_form()
             if t in d:
-                display_message("Project configuration: interface term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), "warning", 5)
+                Messager.warning("Project configuration: interface term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), 5)
             d[t] = e
         cache[directory] = d
 
@@ -521,7 +521,7 @@ def __directory_relations_by_arg_type(directory, arg, atype):
     for r in get_relation_type_list(directory):
         args = [a for a in r.arguments if a[0] == arg]
         if len(args) == 0:
-            display_message("Relation type %s lacking %s. Configuration may be wrong." % (r.storage_form(), arg), "warning")
+            Messager.warning("Relation type %s lacking %s. Configuration may be wrong." % (r.storage_form(), arg))
             continue
         for dummy, type in args:
             # TODO: "wildcards" other than <ANY>
@@ -595,7 +595,7 @@ class ProjectConfiguration(object):
     def __init__(self, directory):
         # debugging
         if directory[:1] != "/":
-            display_message("Warning: project config received relative directory, configuration may not be found.", "debug", -1)
+            Messager.debug("Project config received relative directory, configuration may not be found.", duration=-1)
         self.directory = directory
 
     def mandatory_arguments(self, type):
@@ -605,7 +605,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, type)
         if node is None:
-            display_message("Project configuration: unknown type %s. Configuration may be wrong." % type, "warning")
+            Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % type)
             return []
         return node.mandatory_arguments
 
@@ -616,7 +616,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, type)
         if node is None:
-            display_message("Project configuration: unknown type %s. Configuration may be wrong." % type, "warning")
+            Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % type)
             return []
         return node.multiple_allowed_arguments
 
@@ -646,7 +646,7 @@ class ProjectConfiguration(object):
         for r in get_relations_by_arg1(self.directory, from_ann):
             arg2s = [a for a in r.arguments if a[0] == "Arg2"]
             if len(arg2s) == 0:
-                display_message("Relation type %s lacking Arg2. Configuration may be wrong." % r.storage_form(), "warning")
+                Messager.warning("Relation type %s lacking Arg2. Configuration may be wrong." % r.storage_form())
                 continue
             for dummy, type in arg2s:
                 # TODO: "wildcards" other than <ANY>
@@ -666,7 +666,7 @@ class ProjectConfiguration(object):
         relations_from = get_relations_by_arg1(self.directory, from_ann)
 
         if from_node is None:
-            display_message("Project configuration: unknown type %s. Configuration may be wrong." % from_ann, "warning")
+            Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % from_ann)
             return []
         if to_ann == "<ANY>":
             return unique_preserve_order([role for role, type in from_node.arguments] + [r.storage_form() for r in relations_from])

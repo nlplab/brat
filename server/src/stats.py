@@ -21,7 +21,7 @@ from os.path import join as path_join
 
 from annotation import Annotations, open_textfile
 from config import DATA_DIR
-from message import display_message
+from message import Messager
 
 ### Constants
 STATS_CACHE_FILE_NAME = '.stats_cache'
@@ -58,7 +58,7 @@ def get_statistics(directory, base_names, use_cache=True):
                 docstats = pickle_load(cache_file)
         except UnpicklingError:
             # Corrupt data, re-generate
-            display_message('Warning: stats cache %s was corrupted; regenerating' % cache_file_path, 'warning', -1)
+            Messager.warning('Warning: stats cache %s was corrupted; regenerating' % cache_file_path, -1)
             generate = True
         except EOFError:
             # Corrupt data, re-generate
@@ -87,7 +87,7 @@ def get_statistics(directory, base_names, use_cache=True):
             with open(cache_file_path, 'wb') as cache_file:
                 pickle_dump(docstats, cache_file)
         except IOError:
-            display_message("Warning: could not write statistics cache file (no write permission to data directory %s?)" % directory, type='warning')
+            Messager.warning("Could not write statistics cache file (no write permission to data directory %s?)" % directory)
     return docstats
 
 # TODO: Testing!

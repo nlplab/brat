@@ -9,6 +9,7 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
 '''
 
+from message import Messager
 
 class ProtocolError(Exception):
     def __init__(self):
@@ -30,13 +31,12 @@ class NoPrintJSONError(Exception):
 def deprecated_action(func):
     from config import DEBUG
     from functools import wraps
-    from message import display_message
+    from message import Messager
 
     @wraps(func)
     def wrapper(*args, **kwds):
         if DEBUG:
-            display_message(('Client sent "%s" action '
-                'which is marked as deprecated') % func.__name__,
-                    type='warning')
+            Messager.warning(('Client sent "%s" action '
+                              'which is marked as deprecated') % func.__name__,)
         return func(*args, **kwds)
     return wrapper
