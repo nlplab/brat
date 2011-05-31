@@ -95,7 +95,7 @@ class TypeHierarchyNode:
     Each node may be associated with one or more "arguments", which
     are key:value pairs. These determine various characteristics of
     the node, but their interpretation depends on the hierarchy the
-    node occupies: for example, for events the arugments correspond to
+    node occupies: for example, for events the arguments correspond to
     event arguments.
     """
     def __init__(self, terms, args):
