@@ -44,26 +44,30 @@ def get_statistics(directory, base_names, use_cache=True):
         else:
             raise
 
-    if (not isfile(cache_file_path)
-            or any(True for f in listdir(directory)
-                if (getmtime(path_join(directory, f)) > cache_mtime)
-                # Ignore hidden files
-                and not f.startswith('.'))):
+    try:
+        if (not isfile(cache_file_path)
+                or any(True for f in listdir(directory)
+                    if (getmtime(path_join(directory, f)) > cache_mtime)
+                    # Ignore hidden files
+                    and not f.startswith('.'))):
+            generate = True
+            docstats = []
+        else:
+            generate = False
+            try:
+                with open(cache_file_path, 'rb') as cache_file:
+                    docstats = pickle_load(cache_file)
+            except UnpicklingError:
+                # Corrupt data, re-generate
+                Messager.warning('Stats cache %s was corrupted; regenerating' % cache_file_path, -1)
+                generate = True
+            except EOFError:
+                # Corrupt data, re-generate
+                generate = True
+    except OSError, e:
+        Messager.warning('Failed checking file modification times for stats cache check; regenerating')
         generate = True
-        docstats = []
-    else:
-        generate = False
-        try:
-            with open(cache_file_path, 'rb') as cache_file:
-                docstats = pickle_load(cache_file)
-        except UnpicklingError:
-            # Corrupt data, re-generate
-            Messager.warning('Warning: stats cache %s was corrupted; regenerating' % cache_file_path, -1)
-            generate = True
-        except EOFError:
-            # Corrupt data, re-generate
-            generate = True
-
+            
     if generate:
         # Generate the document statistics from scratch
         from annotation import JOINED_ANN_FILE_SUFF
