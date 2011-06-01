@@ -24,7 +24,55 @@ from document import real_directory
 from jsonwrap import loads as json_loads
 from message import display_message
 from projectconfig import ProjectConfiguration
-from htmlgen import generate_empty_fieldset, select_keyboard_shortcuts, generate_arc_type_html
+
+# TODO: remove once HTML generation done clientside
+def generate_empty_fieldset():
+    return "<fieldset><legend>Type</legend>(No valid arc types)</fieldset>"
+
+# TODO: remove once HTML generation done clientside
+def escape(s):
+    from cgi import escape as cgi_escape
+    return cgi_escape(s).replace('"', '&quot;');
+
+# TODO: remove once HTML generation done clientside
+def __generate_input_and_label(t, dt, keymap, indent, disabled, prefix):
+    l = []
+    # TODO: remove check once debugged; the storage form t should not
+    # require any sort of escaping
+    assert " " not in t, "INTERNAL ERROR: space in storage form"
+    if not disabled:
+        dstr = ""
+    else:
+        dstr = ' disabled="disabled"'
+    s  = indent+'    <input id="%s%s" type="radio" name="%stype" value="%s" %s/>' % (prefix, t, prefix, t, dstr)
+    s += '<label for="%s%s">' % (prefix, t)
+
+    if t in keymap:
+        # -1 if not found (i.e. key unrelated to string)
+        key_offset= dt.lower().find(keymap[t].lower())
+    else:
+        key_offset = -1
+
+    if key_offset == -1:
+        s += '%s</label>' % escape(dt)
+    else:        
+        s += '%s<span class="accesskey">%s</span>%s</label>' % (escape(dt[:key_offset]), escape(dt[key_offset:key_offset+1]), escape(dt[key_offset+1:]))
+    l.append(s)
+    return l
+
+# TODO: remove once HTML generation done clientside
+def __generate_arc_input_and_label(t, dt, keymap):
+    return __generate_input_and_label(t, dt, keymap, "", False, "arc_")
+
+# TODO: remove once HTML generation done clientside
+def generate_arc_type_html(projectconf, types, keyboard_shortcuts):
+    # XXX TODO: intentionally breaking this; KB shortcuts
+    # should no longer be sent here. Remove code
+    # once clientside generation done.
+    keymap = {} #kb_shortcuts_to_keymap(keyboard_shortcuts)
+    return ("<fieldset><legend>Type</legend>" + 
+            "\n".join(["\n".join(__generate_arc_input_and_label(t, projectconf.preferred_display_form(t), keymap)) for t in types]) +
+            "</fieldset>")
 
 def possible_arc_types(directory, origin_type, target_type):
     real_dir = real_directory(directory)
@@ -43,8 +91,10 @@ def possible_arc_types(directory, origin_type, target_type):
             response['keymap'] = {}
             response['empty'] = True
         else:
-            # pick hotkeys
-            arc_kb_shortcuts = select_keyboard_shortcuts(possible)
+            # XXX TODO: intentionally breaking this; KB shortcuts
+            # should no longer be sent here. Remove 'keymap' and
+            # 'html' args once clientside generation done.
+            arc_kb_shortcuts = {} #select_keyboard_shortcuts(possible)
  
             response['keymap'] = {}
             for k, p in arc_kb_shortcuts.items():
