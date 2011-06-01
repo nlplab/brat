@@ -5,7 +5,6 @@ var Visualizer = (function($, window, undefined) {
       var that = this;
 
       // OPTIONS
-      var replaceUnderscoresWithSpace = true; // for span texts
       var margin = { x: 2, y: 1 };
       var boxTextMargin = { x: 0, y: 1 }; // effect is inverse of "margin" for some reason
       var spaceWidths = {
@@ -480,11 +479,6 @@ var Visualizer = (function($, window, undefined) {
                 span.labelText = labels[span.type][labelIdx];
                 labelIdx++;
               }
-            }
-
-            // Replace underscores if requested
-            if(replaceUnderscoresWithSpace) {
-              span.labelText = span.labelText.replace(/_/g,' ');
             }
 
             if (!spanAnnTexts[span.labelText]) {
