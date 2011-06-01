@@ -48,7 +48,7 @@ var Util = (function(window, undefined) {
     }
 
     var escapeHTMLwithNewlines = function(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/,'<br/>');
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
     }
 
     var escapeQuotes = function(str) {
