@@ -95,16 +95,6 @@ def get_directory_information(directory):
     for i in doclist:
         combolist.append([False]+i)
 
-    # we need a ProjectConfiguration for the kb shortcuts and abbrevs
-    # here.
-    projectconf = ProjectConfiguration(real_dir)
-
-    span_type_keyboard_shortcuts = projectconf.get_kb_shortcuts()
-    client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
-    html = generate_textbound_type_html(projectconf, span_type_keyboard_shortcuts)
-
-    labels = projectconf.get_labels()
-
     event_types, entity_types, attribute_types, relation_types = get_span_types(real_dir)
 
     json_dic = {
@@ -112,9 +102,6 @@ def get_directory_information(directory):
             'dochead' : doclist_header,
             'parent': parent,
             'messages': [],
-            'keymap': client_keymap,
-            'labels': labels,
-            'html': html,
             'event_types': event_types,
             'entity_types': entity_types,
             'attribute_types': attribute_types,
