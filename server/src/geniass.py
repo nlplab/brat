@@ -121,7 +121,7 @@ def sentence_split_file(txt_file_path, use_cache=False):
             geniass_post_p = Popen(shlex_split('%s %s' % (
                 GENIASS_POST_PATH, temp_file.name)), stdout=PIPE)
             geniass_post_p.wait()
-            ss_output = geniass_post_p.stdout.read()
+            ss_output = geniass_post_p.stdout.read().decode('utf-8')
 
             # Finally, check alignment with original, realigning
             # if necessary -- geniass loses extra sentence-terminal

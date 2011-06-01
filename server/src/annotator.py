@@ -18,11 +18,12 @@ from os.path import split as path_split
 
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
-        EventAnnotation, ModifierAnnotation, EquivAnnotation, open_textfile)
+        EventAnnotation, ModifierAnnotation, EquivAnnotation, open_textfile,
+        AnnotationsIsReadOnlyError)
 from config import DEBUG
 from document import real_directory
 from jsonwrap import loads as json_loads
-from message import display_message
+from message import Messager
 from projectconfig import ProjectConfiguration
 
 # TODO: remove once HTML generation done clientside
@@ -84,7 +85,7 @@ def possible_arc_types(directory, origin_type, target_type):
 
         # TODO: proper error handling
         if possible is None:
-            display_message("Error selecting arc types!", "error", -1)
+            Messager.error('Error selecting arc types!', -1)
         elif possible == []:
             # nothing to select
             response['html'] = generate_empty_fieldset()
@@ -102,7 +103,7 @@ def possible_arc_types(directory, origin_type, target_type):
 
             response['html']  = generate_arc_type_html(projectconf, possible, arc_kb_shortcuts)
     except:
-        display_message("Error selecting arc types!", "error", -1)
+        Messager.error('Error selecting arc types!', -1)
         raise
     
     return response
@@ -135,21 +136,21 @@ class ModificationTracker(object):
         # debugging
         msg_str = ''
         if self.__added:
-            msg_str += ('Added the following line(s):\n<br/>'
-                    + '\n<br/>\n'.join([unicode(a) for a in self.__added]))
+            msg_str += ('Added the following line(s):\n'
+                    + '\n'.join([unicode(a).rstrip() for a in self.__added]))
         if self.__changed:
             changed_strs = []
             for before, after in self.__changed:
-                changed_strs.append('\t%s\n<br/>\n\tInto:\n<br/>\t%s' % (before, after))
-            msg_str += ('Changed the following line(s):\n<br/>'
-                    + '\n<br/>\n'.join([unicode(a) for a in changed_strs]))
+                changed_strs.append('\t%s\n\tInto:\n\t%s' % (unicode(before).rstrip(), unicode(after).rstrip()))
+            msg_str += ('Changed the following line(s):\n'
+                    + '\n'.join([unicode(a).rstrip() for a in changed_strs]))
         if self.__deleted:
-            msg_str += ('Deleted the following line(s):\n<br/>'
-                    + '\n<br/>\n'.join([unicode(a) for a in self.__deleted]))
+            msg_str += ('Deleted the following line(s):\n'
+                    + '\n'.join([unicode(a).rstrip() for a in self.__deleted]))
         if msg_str:
-            display_message(msg_str, duration=3*len(self))
+            Messager.info(msg_str, duration=3*len(self))
         else:
-            display_message('No changes made')
+            Messager.info('No changes made')
 
         # highlighting
         response['edited'] = []
@@ -234,7 +235,6 @@ def create_span(directory, document, start, end, type,
         attributes = {}
     else:
         attributes =  json_loads(attributes)
-        #display_message("purst" + str(attributes), "info", 10)
 
     for attr in attributes:
         # TODO: This is to be removed upon completed implementation
@@ -273,13 +273,17 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, speculation,
     if (int(start) != tb_ann.start
             or int(end) != tb_ann.end):
         if not isinstance(tb_ann, TextBoundAnnotation):
+            # TODO XXX: the following comment is no longer valid 
+            # (possibly related code also) since the introduction of
+            # TextBoundAnnotationWithText. Check.
+
             # This scenario has been discussed and changing the span inevitably
             # leads to the text span being out of sync since we can't for sure
             # determine where in the data format the text (if at all) it is
             # stored. For now we will fail loudly here.
             error_msg = ('unable to change the span of an existing annotation'
                     '(annotation: %s)' % repr(tb_ann))
-            display_message(error_msg, type='error', duration=3)
+            Messager.error(error_msg)
             # Not sure if we only get an internal server error or the data
             # will actually reach the client to be displayed.
             assert False, error_msg
@@ -296,10 +300,10 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, speculation,
     if ann.type != type:
         if projectconf.type_category(ann.type) != projectconf.type_category(type):
             # TODO: Raise some sort of protocol error
-            display_message("Cannot convert %s (%s) into %s (%s)"
+            Messager.error("Cannot convert %s (%s) into %s (%s)"
                     % (ann.type, projectconf.type_category(ann.type),
                         type, projectconf.type_category(type)),
-                    "error", -1)
+                           duration=-1)
             pass
         else:
             before = unicode(ann)
@@ -561,8 +565,7 @@ def _create_span(directory, document, start, end, type, negation, speculation,
         else:
             # Hack, we had a new-line in the span
             mods_json = {}
-            display_message('Text span contained new-line, rejected',
-                    type='error', duration=3)
+            Messager.error('Text span contained new-line, rejected', duration=3)
 
         # save a roundtrip and send the annotations also
         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
@@ -586,6 +589,10 @@ def create_arc(directory, document, origin, target, type,
     document = path_join(real_dir, document)
 
     with TextAnnotations(document) as ann_obj:
+        # Dirty hack to bail as quick as possible if read-only
+        if ann_obj._read_only:
+            raise AnnotationsIsReadOnlyError
+
         origin = ann_obj.get_ann_by_id(origin) 
         target = ann_obj.get_ann_by_id(target)
 
@@ -631,7 +638,10 @@ def create_arc(directory, document, origin, target, type,
 
                 # TODO: Assign a suitable letter
                 new_id = ann_obj.get_new_id('R')
-                ann = BinaryRelationAnnotation(new_id, type, origin.id, target.id, '\t')
+                rel = projectconf.get_relation_by_type(type)
+                assert rel is not None and len(rel.arg_list) == 2
+                a1l, a2l = rel.arg_list
+                ann = BinaryRelationAnnotation(new_id, type, a1l, origin.id, a2l, target.id, '\t')
                 mods.addition(ann)
                 ann_obj.add_annotation(ann)
         else:
@@ -747,8 +757,7 @@ def delete_arc(directory, document, origin, target, type):
                             #TODO: This should never happen, dep on equiv
                             #print 'Content-Type: application/json\n'
                             # TODO: Proper exception here!
-                            display_message(e.json_error_response(), type='error', duration=3)
-                            #print dumps(add_messages_to_json({}))
+                            Messager.error(e.json_error_response())
                             return {}
             elif type in projectconf.get_relation_types():
                 for ann in ann_obj.get_relations():
@@ -796,7 +805,7 @@ def delete_span(directory, document, id):
             except AttributeError:
                 pass
         except DependingAnnotationDeleteError, e:
-            display_message(e.html_error_str(), type='error', duration=3)
+            Messager.error(e.html_error_str())
             return {
                     'exception': True,
                     }
@@ -820,7 +829,7 @@ class AnnotationSplitError(ProtocolError):
 
     def json(self, json_dic):
         json_dic['exception'] = 'annotationSplitError'
-        display_message(self.message, 'error')
+        Messager.error(self.message)
         return json_dic
 
 def split_span(directory, document, args, id):

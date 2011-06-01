@@ -9,6 +9,8 @@ Author:     Pontus Stenetorp
 Version:    2011-04-
 '''
 
+from message import Messager
+
 # XXX: Just ripped out of the old ajax server
 
 # XXX TODO: replace this quick ugly hack with an invocation through
@@ -21,7 +23,7 @@ def tag_file(directory, document):
     try:
         os.system(tagger_cmd)
     except Exception, e:
-        display_message("Error: failed to run tagger. Please contact the administrator(s).", "error", -1)
+        Messager.error("Failed to run tagger. Please contact the administrator(s).", duration=-1)
         from sys import stderr
         print >> stderr, e
         return
@@ -46,7 +48,7 @@ def tag_file(directory, document):
             next_comment_id += 1
         f.close()
     except Exception, e:
-        display_message("Error: failed to read tagger output. Please contact the administrator(s).", "error", -1)
+        Messager.error("Failed to read tagger output. Please contact the administrator(s).", duration=-1)
         from sys import stderr
         print >> stderr, e
         return
@@ -60,7 +62,7 @@ def tag_file(directory, document):
             f.write(l)
         f.close()
     except Exception, e:
-        display_message("Error: failed to store tagger output. Please contact the administrator(s).", "error", -1)
+        Messager.error("Failed to store tagger output. Please contact the administrator(s).", duration=-1)
         from sys import stderr
         print >> stderr, e
         return

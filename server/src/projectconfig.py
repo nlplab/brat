@@ -11,7 +11,7 @@ Brat Rapid Annotation Tool (brat)
 import re
 
 from annotation import open_textfile
-from message import display_message
+from message import Messager
 
 # TODO: replace with reading a proper ontology.
 
@@ -88,21 +88,21 @@ class TypeHierarchyNode:
 
     Each node is associated with a set of terms, one of which (the
     storage_form) matches the way in which the type denoted by the
-    node is referenced to in data stored on dist and in client-server
+    node is referenced to in data stored on disk and in client-server
     communications. This term is guaranteed to be in "storage form" as
     defined by normalize_to_storage_form().
 
     Each node may be associated with one or more "arguments", which
-    are key:value pairs. These determine various characteristics of
-    the node, but their interpretation depends on the hierarchy the
-    node occupies: for example, for events the arugments correspond to
+    are (multivalued) key:value pairs. These determine various characteristics 
+    of the node, but their interpretation depends on the hierarchy the
+    node occupies: for example, for events the arguments correspond to
     event arguments.
     """
     def __init__(self, terms, args):
         self.terms, self.args = terms, args
 
         if len(terms) == 0 or len([t for t in terms if t == ""]) != 0:
-            display_message("Empty term in type configuration" % (a, args), "debug", -1)
+            Messager.debug("Empty term in type configuration" % (a, args), duration=-1)
             raise InvalidProjectConfigException
 
         # unused if any of the terms marked with "!"
@@ -119,57 +119,66 @@ class TypeHierarchyNode:
         self.__primary_term = normalize_to_storage_form(self.terms[0])
         # TODO: this might not be the ideal place to put this warning
         if self.__primary_term != self.terms[0]:
-            display_message("Note: in configuration, term '%s' is not appropriate for storage (should match '^[a-zA-Z0-9_-]*$'), using '%s' instead. (Revise configuration file to get rid of this message. Terms other than the first are not subject to this restriction.)" % (self.terms[0], self.__primary_term), "warning", -1)
+            Messager.warning("Note: in configuration, term '%s' is not appropriate for storage (should match '^[a-zA-Z0-9_-]*$'), using '%s' instead. (Revise configuration file to get rid of this message. Terms other than the first are not subject to this restriction.)" % (self.terms[0], self.__primary_term), -1)
             pass
 
         # TODO: cleaner and more localized parsing
-        self.arguments = []
+        self.arguments = {}
+        self.arg_list = []
         self.mandatory_arguments = []
         self.multiple_allowed_arguments = []
-        self.roles_by_type = {}
+        self.keys_by_type = {}
         for a in self.args:
             a = a.strip()
             m = re.match(r'^(.*?):(.*)$', a)
             if not m:
-                display_message("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), "warning", 5)
+                Messager.warning("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), 5)
                 raise InvalidProjectConfigException
-            role, atypes = m.groups()
+            key, atypes = m.groups()
 
-            if role[-1:] not in ("?", "*"):
-                mandatory_role = True
+            if key[-1:] not in ("?", "*"):
+                mandatory_key = True
             else:
-                mandatory_role = False
+                mandatory_key = False
 
-            if role[-1:] in ("*", "+"):
+            if key[-1:] in ("*", "+"):
                 multiple_allowed = True
             else:
                 multiple_allowed = False
 
-            if role[-1:] in ("?", "*", "+"):
-                role = role[:-1]
+            if key[-1:] in ("?", "*", "+"):
+                key = key[:-1]
 
-            if mandatory_role:
-                self.mandatory_arguments.append(role)
+            if key in self.arguments:
+                Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
+                raise InvalidProjectConfigException
+
+            self.arg_list.append(key)
+            
+            if mandatory_key:
+                self.mandatory_arguments.append(key)
 
             if multiple_allowed:
-                self.multiple_allowed_arguments.append(role)
+                self.multiple_allowed_arguments.append(key)
 
             for atype in atypes.split("|"):
                 if atype.strip() == "":
-                    display_message("Project configuration: error parsing: empty type for argument '%s'." % a, "warning", 5)
+                    Messager.warning("Project configuration: error parsing: empty type for argument '%s'." % a, 5)
                     raise InvalidProjectConfigException
 
                 # Check disabled; need to support arbitrary UTF values for attributes.conf.
                 # TODO: consider checking for similar for appropriate confs.
 #                 if atype not in reserved_macro_string and normalize_to_storage_form(atype) != atype:
-#                     display_message("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, "warning", 5)
+#                     Messager.warning("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, 5)
 #                     raise InvalidProjectConfigException
 
-                self.arguments.append((role, atype))
+                if key not in self.arguments:
+                    self.arguments[key] = []
+                self.arguments[key].append(atype)
 
-                if atype not in self.roles_by_type:
-                    self.roles_by_type[atype] = []
-                self.roles_by_type[atype].append(role)
+                if atype not in self.keys_by_type:
+                    self.keys_by_type[atype] = []
+                self.keys_by_type[atype].append(key)
 
     def storage_form(self):
         """
@@ -201,7 +210,7 @@ def __read_term_hierarchy(input):
         if m:
             name, value = m.groups()
             if name in reserved_macro_name:
-                display_message("Error: cannot redefine <%s> in configuration, it is a reserved name." % name)
+                Messager.error("Cannot redefine <%s> in configuration, it is a reserved name." % name)
                 # TODO: proper exception
                 assert False
             else:
@@ -252,7 +261,7 @@ def __parse_term_hierarchy(hierarchy, default, source):
         root_nodes = __read_term_hierarchy(hierarchy.split("\n"))
     except:
         # TODO: specific exception handling
-        display_message("Project configuration: error parsing types from %s. Configuration may be wrong." % source, "warning", 5)
+        Messager.warning("Project configuration: error parsing types from %s. Configuration may be wrong." % source, 5)
         root_nodes = default
     return root_nodes
 
@@ -265,21 +274,21 @@ def __parse_labels(labelstr, default, source):
                 continue
             fields = l.split("\t")
             if len(fields) < 2:
-                display_message("Note: failed to parse line in label configuration (ignoring; format is tab-separated, STORAGE_FORM\\tDISPLAY_FORM[\\tABBREV1\\tABBREV2...]): '%s'" % l, "warning", -1)
+                Messager.warning("Note: failed to parse line in label configuration (ignoring; format is tab-separated, STORAGE_FORM\\tDISPLAY_FORM[\\tABBREV1\\tABBREV2...]): '%s'" % l, -1)
             else:
                 storage_form, others = fields[0], fields[1:]
                 normsf = normalize_to_storage_form(storage_form)
                 if normsf != storage_form:
-                    display_message("Note: first field '%s' is not a valid storage form in label configuration (should match '^[a-zA-Z0-9_-]*$'; using '%s' instead): '%s'" % (storage_form, normsf, l), "warning", -1)
+                    Messager.warning("Note: first field '%s' is not a valid storage form in label configuration (should match '^[a-zA-Z0-9_-]*$'; using '%s' instead): '%s'" % (storage_form, normsf, l), -1)
                     storage_form = normsf
                     
                 if storage_form in labels:
-                    display_message("Note: '%s' defined multiple times in label configuration (only using last definition)'" % storage_form, "warning", -1)
+                    Messager.warning("Note: '%s' defined multiple times in label configuration (only using last definition)'" % storage_form, -1)
 
                 labels[storage_form] = others
     except:
         # TODO: specific exception handling
-        display_message("Project configuration: error parsing labels from %s. Configuration may be wrong." % source, "warning", 5)
+        Messager.warning("Project configuration: error parsing labels from %s. Configuration may be wrong." % source, 5)
         labels = default
 
     return labels
@@ -296,7 +305,7 @@ def __parse_kb_shortcuts(shortcutstr, default, source):
             shortcuts[key] = type
     except:
         # TODO: specific exception handling
-        display_message("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, "warning", 5)
+        Messager.warning("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, 5)
         shortcuts = default
     return shortcuts
 
@@ -371,7 +380,7 @@ def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 
 # Configuration lookup specifications, each a triple (FILENAME,
 # HIERARCHY_STR, HIERARCHY). The directory path is searched for
-# FILENAME, and if none is found, the system falls attempts to parse
+# FILENAME, and if none is found, the system attempts to parse
 # HIERARCHY_STR for the hierarchy; if that fails, HIERARCHY is used
 # directly.
 
@@ -511,31 +520,35 @@ def get_node_by_storage_form(directory, term):
         for e in get_entity_type_list(directory) + get_event_type_list(directory):
             t = e.storage_form()
             if t in d:
-                display_message("Project configuration: interface term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), "warning", 5)
+                Messager.warning("Project configuration: interface term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), 5)
             d[t] = e
         cache[directory] = d
 
     return cache[directory].get(term, None)
 get_node_by_storage_form.__cache = {}
 
-def __directory_relations_by_arg_type(directory, arg, atype):
+def __directory_relations_by_arg_num(directory, num, atype):
+    assert num >= 0 and num < 2, "INTERNAL ERROR"
+
     rels = []
+
     for r in get_relation_type_list(directory):
-        args = [a for a in r.arguments if a[0] == arg]
-        if len(args) == 0:
-            display_message("Relation type %s lacking %s. Configuration may be wrong." % (r.storage_form(), arg), "warning")
-            continue
-        for dummy, type in args:
-            # TODO: "wildcards" other than <ANY>
-            if type == "<ANY>" or type == atype:
-                rels.append(r)
+        if len(r.arg_list) != 2:
+            Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(args), ",".join(args)))
+        else:
+            types = r.arguments[r.arg_list[num]]
+            for type in types:
+                # TODO: "wildcards" other than <ANY>
+                if type == "<ANY>" or atype == "<ANY>" or type == atype:
+                    rels.append(r)
+
     return rels
 
 def get_relations_by_arg1(directory, atype):
     cache = get_relations_by_arg1.__cache
     cache[directory] = cache.get(directory, {})
     if atype not in cache[directory]:
-        cache[directory][atype] = __directory_relations_by_arg_type(directory, "Arg1", atype)
+        cache[directory][atype] = __directory_relations_by_arg_num(directory, 0, atype)
     return cache[directory][atype]
 get_relations_by_arg1.__cache = {}
 
@@ -543,7 +556,7 @@ def get_relations_by_arg2(directory, atype):
     cache = get_relations_by_arg2.__cache
     cache[directory] = cache.get(directory, {})
     if atype not in cache[directory]:
-        cache[directory][atype] = __directory_relations_by_arg_type(directory, "Arg2", atype)
+        cache[directory][atype] = __directory_relations_by_arg_num(directory, 1, atype)
     return cache[directory][atype]
 get_relations_by_arg2.__cache = {}
 
@@ -597,7 +610,7 @@ class ProjectConfiguration(object):
     def __init__(self, directory):
         # debugging
         if directory[:1] != "/":
-            display_message("Warning: project config received relative directory, configuration may not be found.", "debug", -1)
+            Messager.debug("Project config received relative directory, configuration may not be found.", duration=-1)
         self.directory = directory
 
     def mandatory_arguments(self, type):
@@ -607,7 +620,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, type)
         if node is None:
-            display_message("Project configuration: unknown type %s. Configuration may be wrong." % type, "warning")
+            Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % type)
             return []
         return node.mandatory_arguments
 
@@ -618,7 +631,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, type)
         if node is None:
-            display_message("Project configuration: unknown type %s. Configuration may be wrong." % type, "warning")
+            Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % type)
             return []
         return node.multiple_allowed_arguments
 
@@ -645,15 +658,14 @@ class ProjectConfiguration(object):
         given arg1 and arg2.
         """
         types = []
-        for r in get_relations_by_arg1(self.directory, from_ann):
-            arg2s = [a for a in r.arguments if a[0] == "Arg2"]
-            if len(arg2s) == 0:
-                display_message("Relation type %s lacking Arg2. Configuration may be wrong." % r.storage_form(), "warning")
-                continue
-            for dummy, type in arg2s:
-                # TODO: "wildcards" other than <ANY>
-                if type == "<ANY>" or type == to_ann:
-                    types.append(r.storage_form())
+
+        t1r = get_relations_by_arg1(self.directory, from_ann)
+        t2r = get_relations_by_arg2(self.directory, to_ann)
+
+        for r in t1r:
+            if r in t2r:
+                types.append(r.storage_form())
+
         return types
 
     def arc_types_from_to(self, from_ann, to_ann="<ANY>"):
@@ -665,34 +677,28 @@ class ProjectConfiguration(object):
 
         from_node = get_node_by_storage_form(self.directory, from_ann)
 
-        relations_from = get_relations_by_arg1(self.directory, from_ann)
-
         if from_node is None:
-            display_message("Project configuration: unknown type %s. Configuration may be wrong." % from_ann, "warning")
+            Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % from_ann)
             return []
+
         if to_ann == "<ANY>":
-            return unique_preserve_order([role for role, type in from_node.arguments] + [r.storage_form() for r in relations_from])
+            relations_from = get_relations_by_arg1(self.directory, from_ann)
+            return unique_preserve_order([role for role in from_node.arguments] + [r.storage_form() for r in relations_from])
 
         # specific hits
-        if to_ann in from_node.roles_by_type:
-            types = from_node.roles_by_type[to_ann]
-        else:
-            types = []
+        types = from_node.keys_by_type.get(to_ann, [])
 
-        if "<ANY>" in from_node.roles_by_type:
-            types += from_node.roles_by_type["<ANY>"]
+        if "<ANY>" in from_node.keys_by_type:
+            types += from_node.keys_by_type["<ANY>"]
 
         # generic arguments
-        if self.is_event_type(to_ann) and '<EVENT>' in from_node.roles_by_type:
-            types += from_node.roles_by_type['<EVENT>']
-        if self.is_physical_entity_type(to_ann) and '<ENTITY>' in from_node.roles_by_type:
-            types += from_node.roles_by_type['<ENTITY>']
+        if self.is_event_type(to_ann) and '<EVENT>' in from_node.keys_by_type:
+            types += from_node.keys_by_type['<EVENT>']
+        if self.is_physical_entity_type(to_ann) and '<ENTITY>' in from_node.keys_by_type:
+            types += from_node.keys_by_type['<ENTITY>']
 
         # relations
-        # TODO: handle generic '<ENTITY>' (like '<EVENT>' above)
-        for r in relations_from:
-            if to_ann in r.roles_by_type and "Arg2" in r.roles_by_type[to_ann]:
-                types.append(r.storage_form())
+        types.extend(self.relation_types_from_to(from_ann, to_ann))
 
         return unique_preserve_order(types)
 
@@ -710,6 +716,12 @@ class ProjectConfiguration(object):
 
     def get_relation_types(self):
         return [t.storage_form() for t in get_relation_type_list(self.directory)]        
+
+    def get_relation_by_type(self, type):
+        for r in get_relation_type_list(self.directory):
+            if r.storage_form() == type:
+                return r
+        return None
 
     def get_entity_types(self):
         return [t.storage_form() for t in get_entity_type_list(self.directory)]

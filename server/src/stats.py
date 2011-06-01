@@ -21,7 +21,7 @@ from os.path import join as path_join
 
 from annotation import Annotations, open_textfile
 from config import DATA_DIR
-from message import display_message
+from message import Messager
 
 ### Constants
 STATS_CACHE_FILE_NAME = '.stats_cache'
@@ -44,26 +44,30 @@ def get_statistics(directory, base_names, use_cache=True):
         else:
             raise
 
-    if (not isfile(cache_file_path)
-            or any(True for f in listdir(directory)
-                if (getmtime(path_join(directory, f)) > cache_mtime)
-                # Ignore hidden files
-                and not f.startswith('.'))):
+    try:
+        if (not isfile(cache_file_path)
+                or any(True for f in listdir(directory)
+                    if (getmtime(path_join(directory, f)) > cache_mtime)
+                    # Ignore hidden files
+                    and not f.startswith('.'))):
+            generate = True
+            docstats = []
+        else:
+            generate = False
+            try:
+                with open(cache_file_path, 'rb') as cache_file:
+                    docstats = pickle_load(cache_file)
+            except UnpicklingError:
+                # Corrupt data, re-generate
+                Messager.warning('Stats cache %s was corrupted; regenerating' % cache_file_path, -1)
+                generate = True
+            except EOFError:
+                # Corrupt data, re-generate
+                generate = True
+    except OSError, e:
+        Messager.warning('Failed checking file modification times for stats cache check; regenerating')
         generate = True
-        docstats = []
-    else:
-        generate = False
-        try:
-            with open(cache_file_path, 'rb') as cache_file:
-                docstats = pickle_load(cache_file)
-        except UnpicklingError:
-            # Corrupt data, re-generate
-            display_message('Warning: stats cache %s was corrupted; regenerating' % cache_file_path, 'warning', -1)
-            generate = True
-        except EOFError:
-            # Corrupt data, re-generate
-            generate = True
-
+            
     if generate:
         # Generate the document statistics from scratch
         from annotation import JOINED_ANN_FILE_SUFF
@@ -73,19 +77,21 @@ def get_statistics(directory, base_names, use_cache=True):
                 with Annotations(path_join(directory, docname), 
                         read_only=True) as ann_obj:
                     tb_count = len([a for a in ann_obj.get_textbounds()])
+                    rel_count = (len([a for a in ann_obj.get_relations()]) +
+                                 len([a for a in ann_obj.get_equivs()]))
                     event_count = len([a for a in ann_obj.get_events()])
-                    docstats.append([tb_count, event_count])
+                    docstats.append([tb_count, rel_count, event_count])
             except Exception, e:
                 log_info('Received "%s" when trying to generate stats' % e)
                 # Pass exceptions silently, just marking stats missing
-                docstats.append([-1, -1])
+                docstats.append([-1, -1, -1])
 
         # Cache the statistics
         try:
             with open(cache_file_path, 'wb') as cache_file:
                 pickle_dump(docstats, cache_file)
         except IOError:
-            display_message("Warning: could not write statistics cache file (no write permission to data directory %s?)" % directory, type='warning')
+            Messager.warning("Could not write statistics cache file (no write permission to data directory %s?)" % directory)
     return docstats
 
 # TODO: Testing!

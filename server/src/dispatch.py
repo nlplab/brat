@@ -24,7 +24,7 @@ from inspect import getargspec
 from itertools import izip
 from jsonwrap import dumps
 from logging import info as log_info
-from message import add_messages_to_json, display_message
+from message import Messager
 from svg import store_svg, retrieve_svg
 from session import get_session
 
@@ -79,7 +79,7 @@ class NoActionError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'noAction'
         # TODO: Only if debug is enabled
-        display_message('Client sent no action for request', 'error')
+        Messager.error('Client sent no action for request')
         return json_dic
 
 
@@ -90,8 +90,7 @@ class InvalidActionError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'invalidAction',
         # TODO: Only if debug is enabled
-        display_message('Client sent an invalid action "%s"'
-                % self.attempted_action, 'error')
+        Messager.error('Client sent an invalid action "%s"' % self.attempted_action)
         return json_dic
 
 
@@ -103,9 +102,7 @@ class InvalidActionArgsError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'invalidActionArgs',
         # TODO: Only if debug is enabled
-        display_message(('Client did not supply argument "%s" '
-            'for action "%s"')
-                % (self.missing_arg, self.attempted_action), 'error')
+        Messager.error('Client did not supply argument "%s" for action "%s"' % (self.missing_arg, self.attempted_action))
         return json_dic
 
 
@@ -116,7 +113,7 @@ class DirectorySecurityError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'directorySecurity',
         # TODO: Only if debug is enabled
-        display_message('Client sent request for bad directory', 'error')
+        Messager.error('Client sent request for bad directory')
         return json_dic
 
 

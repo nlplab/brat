@@ -5,7 +5,6 @@ var Visualizer = (function($, window, undefined) {
       var that = this;
 
       // OPTIONS
-      var replaceUnderscoresWithSpace = true; // for span texts
       var margin = { x: 2, y: 1 };
       var boxTextMargin = { x: 0, y: 1 }; // effect is inverse of "margin" for some reason
       var spaceWidths = {
@@ -229,7 +228,7 @@ var Visualizer = (function($, window, undefined) {
                 span.comment = { type: comment[1], text: comment[2] };
               } else {
                 span.comment.type = comment[1];
-                span.comment.text += "<br/>" + comment[2];
+                span.comment.text += "\n" + comment[2];
               }
               // partially duplicate marking of annotator note comments
               if (comment[1] == "AnnotatorNotes") {
@@ -499,11 +498,6 @@ var Visualizer = (function($, window, undefined) {
                 span.labelText = spanLabels[labelIdx];
                 labelIdx++;
               }
-            }
-
-            // Replace underscores if requested
-            if(replaceUnderscoresWithSpace) {
-              span.labelText = span.labelText.replace(/_/g,' ');
             }
 
             var svgtext = svg.createText();

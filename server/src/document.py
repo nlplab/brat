@@ -24,7 +24,7 @@ from common import ProtocolError
 from config import DATA_DIR
 from projectconfig import ProjectConfiguration, get_labels_by_storage_form
 from stats import get_statistics
-from message import display_message
+from message import Messager
 
 # Temporary catch while we phase in this part
 try:
@@ -54,8 +54,7 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                 pass
 
             arcs = {}
-            for arc in chain(project_conf.relation_types_from(_type),
-                    (a for a, _ in node.arguments)):
+            for arc in chain(project_conf.relation_types_from(_type), node.arguments.keys()):
                 arc_labels = get_labels_by_storage_form(directory, arc)
 
                 if arc_labels is not None:
@@ -87,18 +86,19 @@ def _get_attribute_type_info(nodes, project_conf, directory):
             # process "special" <GLYPH-POS> argument, specifying where
             # to place the glyph
             glyph_pos = None
-            for k,v in node.arguments:
+            for k in node.arguments:
                 # TODO: remove magic value
                 if k == '<GLYPH-POS>':
-                    if v not in ('left', 'right'):
-                        display_message('Configuration error: "%s" is not a valid glyph position for %s' % (v,_type), 'warning')
-                    else:
-                        glyph_pos = v
+                    for v in node.arguments[k]:
+                        if v not in ('left', 'right'):
+                            display_message('Configuration error: "%s" is not a valid glyph position for %s' % (v,_type), 'warning')
+                        else:
+                            glyph_pos = v
 
             # TODO: "special" <DEFAULT> argument
             
             # check if there are any (normal) "arguments"
-            args = [(k,v) for k,v in node.arguments if k != "Arg" and not match(r'^<.*>$', k)]
+            args = [k for k in node.arguments if k != "Arg" and not match(r'^<.*>$', k)]
             if len(args) == 0:
                 # no, assume binary and mark accordingly
                 # TODO: get rid of special cases, grab style from config
@@ -109,10 +109,11 @@ def _get_attribute_type_info(nodes, project_conf, directory):
             else:
                 # has normal arguments, use these as possible values
                 item['values'] = {}
-                for k,v in args:
-                    item['values'][k] = { 'glyph':v }
-                    if glyph_pos is not None:
-                        item['values'][k]['position'] = glyph_pos
+                for k in args:
+                    for v in node.arguments[k]:
+                        item['values'][k] = { 'glyph':v }
+                        if glyph_pos is not None:
+                            item['values'][k]['position'] = glyph_pos
 
             items.append(item)
     return items
@@ -181,7 +182,7 @@ def get_directory_information(directory):
     doc_stats = get_statistics(real_dir, base_names)
                 
     doclist = [doclist[i] + doc_stats[i] for i in range(len(doclist))]
-    doclist_header += [("Textbounds", "int"), ("Events", "int")]
+    doclist_header += [("Textbounds", "int"), ("Relations", "int"), ("Events", "int")]
 
     dirlist = [dir for dir in _listdir(real_dir)
             if isdir(path_join(real_dir, dir))]
@@ -296,16 +297,16 @@ def _enrich_json_with_data(j_dic, ann_obj):
                 )
 
     if ann_obj.failed_lines:
-        error_msg = 'Unable to parse the following line(s):<br/>%s' % (
-                '\n<br/>\n'.join(
-                    [('%s: %s' % (
-                        # The line number is off by one
-                        unicode(line_num + 1),
-                        unicode(ann_obj[line_num])
-                        )).strip()
-                    for line_num in ann_obj.failed_lines])
-                    )
-        display_message(error_msg, type='error', duration=len(ann_obj.failed_lines) * 3)
+        error_msg = 'Unable to parse the following line(s):\n%s' % (
+                '\n'.join(
+                [('%s: %s' % (
+                            # The line number is off by one
+                            unicode(line_num + 1),
+                            unicode(ann_obj[line_num])
+                            )).strip()
+                 for line_num in ann_obj.failed_lines])
+                )
+        Messager.error(error_msg, duration=len(ann_obj.failed_lines) * 3)
 
     j_dic['mtime'] = ann_obj.ann_mtime
     j_dic['ctime'] = ann_obj.ann_ctime
@@ -323,7 +324,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
     except Exception, e:
         # TODO add an issue about the failure?
         issues = []
-        display_message('Error: verify_annotation() failed: %s' % e, 'error', -1)
+        Messager.error('Error: verify_annotation() failed: %s' % e, -1)
 
     for i in issues:
         j_dic['comments'].append((unicode(i.ann_id), i.type, i.description))
@@ -367,7 +368,7 @@ def _sentence_split(txt_file_path):
             # NOTE: this also happens for missing write permissions, as
             # geniass assumes it can write a temporary into the directory
             # where the .txt is found.
-            display_message("Warning: sentence split failed (geniass not set up, or no write permission to directory?)", type='warning')
+            Messager.warning("Sentence split failed (geniass not set up, or no write permission to directory?)")
             err = OSError()
             err.errno = 2
             raise err
