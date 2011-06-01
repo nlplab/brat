@@ -84,9 +84,19 @@ def _get_attribute_type_info(nodes, project_conf, directory):
             item['unused'] = node.unused
             item['labels'] = get_labels_by_storage_form(directory, _type)
 
-            # TODO: process "special" arguments (like <DEFAULT> and <GLYPH-POS>)
-            glyph_pos = "left" # should read from <GLYPH-POS>
+            # process "special" <GLYPH-POS> argument, specifying where
+            # to place the glyph
+            glyph_pos = None
+            for k,v in node.arguments:
+                # TODO: remove magic value
+                if k == '<GLYPH-POS>':
+                    if v not in ('left', 'right'):
+                        display_message('Configuration error: "%s" is not a valid glyph position for %s' % (v,_type), 'warning')
+                    else:
+                        glyph_pos = v
 
+            # TODO: "special" <DEFAULT> argument
+            
             # check if there are any (normal) "arguments"
             args = [(k,v) for k,v in node.arguments if k != "Arg" and not match(r'^<.*>$', k)]
             if len(args) == 0:
@@ -100,7 +110,10 @@ def _get_attribute_type_info(nodes, project_conf, directory):
                 # has normal arguments, use these as possible values
                 item['values'] = {}
                 for k,v in args:
-                    item['values'][k] = { 'glyph':v, 'position':glyph_pos }
+                    item['values'][k] = { 'glyph':v }
+                    if glyph_pos is not None:
+                        item['values'][k]['position'] = glyph_pos
+
             items.append(item)
     return items
 
