@@ -16,7 +16,7 @@ Version:    2011-04-21
 from os import listdir
 from os.path import abspath, isabs, isdir
 from os.path import join as path_join
-from re import sub
+from re import match,sub
 
 from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         AnnotationFileNotFoundError, open_textfile)
@@ -70,6 +70,40 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
             items.append(item)
     return items
 
+# TODO: this may not be a good spot for this
+def _get_attribute_type_info(nodes, project_conf, directory):
+    items = []
+    for node in nodes:
+        if node == 'SEPARATOR':
+            continue
+        else:
+            item = {}
+            _type = node.storage_form() 
+            item['name'] = project_conf.preferred_display_form(_type)
+            item['type'] = _type
+            item['unused'] = node.unused
+            item['labels'] = get_labels_by_storage_form(directory, _type)
+
+            # TODO: process "special" arguments (like <DEFAULT> and <GLYPH-POS>)
+            glyph_pos = "left" # should read from <GLYPH-POS>
+
+            # check if there are any (normal) "arguments"
+            args = [(k,v) for k,v in node.arguments if k != "Arg" and not match(r'^<.*>$', k)]
+            if len(args) == 0:
+                # no, assume binary and mark accordingly
+                # TODO: get rid of special cases, grab style from config
+                if _type == 'Negation':
+                    item['values'] = { _type : { 'box': u'crossed' } }
+                else:
+                    item['values'] = { _type : { 'dasharray': '3,3' } }
+            else:
+                # has normal arguments, use these as possible values
+                item['values'] = {}
+                for k,v in args:
+                    item['values'][k] = { 'glyph':v, 'position':glyph_pos }
+            items.append(item)
+    return items
+
 # TODO: this is not a good spot for this
 def get_span_types(directory):
     project_conf = ProjectConfiguration(directory)
@@ -84,131 +118,11 @@ def get_span_types(directory):
     entity_hierarchy = project_conf.get_entity_type_hierarchy()
     entity_types = _get_subtypes_for_type(entity_hierarchy,
             project_conf, hotkey_by_type, directory)
-  
-    # XXX: Temporary hack until the configurations support values
-    attribute_types = [
-            {
-                'name': 'Negation',
-                'type': 'Negation',
-                'values': {
-                    'Negation': {
-                        'box': u'crossed',
-                        },
-                    },
-                'labels': ['Negation', ],
-                'unused': False,
-                },
-            {
-                'name': 'Speculation',
-                'type': 'Speculation',
-                'values': {
-                    'Speculation': {
-                        'dasharray': '3,3',
-                        },
-                    },
-                'labels': ['Speculation', ],
-                'unused': False,
-                },
-            # Hard-coded Meta-Knowledge types
-            # Characters picked by: http://unicode.bloople.net/
-            # TODO: Assign sensible characters
-            {
-                'name': 'Knowledge Type',
-                'type': 'KT',
-                'labels': ['Knowledge Type', ],
-                'values': {
-                    'Investigation': {
-                        'glyph': u'Ⓘ',
-                        },
-                    'Analysis': {
-                        'glyph': u'Ⓐ',
-                        },
-                    'Observation': {
-                        'glyph': u'Ⓞ',
-                        },
-                    'Gen-Fact': {
-                        'glyph': u'Ⓕ',
-                        },
-                    'Gen-Method': {
-                        'glyph': u'Ⓜ',
-                        },
-                    'Gen-Other': {
-                        'glyph': u'Ⓣ',
-                        },
-                    },
-                'unused': True,
-                },
-            {
-                'name': 'Certainty Level',
-                'type': 'CL',
-                'labels': ['Certainty Level', ],
-                'values': {
-                    'L1': {
-                        'glyph': u'➊',
-                        'position': 'left',
-                        },
-                    'L2': {
-                        'glyph': u'➋',
-                        'position': 'left',
-                        },
-                    'L3': {
-                        'glyph': u'➌',
-                        'position': 'left',
-                        },
-                    },
-                'unused': True,
-                },
-            {
-                'name': 'Polarity',
-                'type': 'Polarity',
-                'labels': ['Polarity', ],
-                'values': {
-                    'Negative': {
-                        'glyph': u'✕',
-                        'position': 'left',
-                        },
-                    'Positive': {
-                        'glyph': u'✓',
-                        'position': 'left',
-                        },
-                    },
-                'unused': True,
-                },
-            {
-                'name': 'Manner',
-                'type': 'Manner',
-                'labels': ['Manner', ],
-                'values': {
-                    'High': {
-                        'glyph': u'↑',
-                        },
-                    'Low': {
-                        'glyph': u'↓',
-                        },
-                    'Neutral': {
-                        'glyph': u'↔',
-                        },
-                    },
-                'unused': True,
-                },
-            {
-                'name': 'Source',
-                'type': 'Source',
-                'labels': ['Source', ],
-                'values': {
-                    'Other': {
-                        'glyph': u'⇗',
-                        },
-                    'Current': {
-                        'glyph': u'⇙',
-                        },
-                    },
-                'unused': True,
-                },
-            ]
 
-    from projectconfig import get_relation_type_hierarchy
-    relation_hierarchy = get_relation_type_hierarchy(directory)
+    attribute_hierarchy = project_conf.get_attribute_type_hierarchy()
+    attribute_types = _get_attribute_type_info(attribute_hierarchy, project_conf, directory)
+
+    relation_hierarchy = project_conf.get_relation_type_hierarchy()
     relation_types = _get_subtypes_for_type(relation_hierarchy,
             project_conf, hotkey_by_type, directory)
 

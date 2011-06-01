@@ -39,8 +39,8 @@ __default_relation_type_hierarchy = """
 Equiv	Arg1:Protein, Arg2:Protein"""
 
 __default_attribute_type_hierarchy = """
-Affirmative	Arg:<EVENT>
-Sure	Arg:<EVENT>"""
+Negation	Arg:<EVENT>
+Speculation	Arg:<EVENT>"""
 
 __default_labels = """
 Protein\tProtein\tPro\tP
@@ -158,10 +158,12 @@ class TypeHierarchyNode:
                 if atype.strip() == "":
                     display_message("Project configuration: error parsing: empty type for argument '%s'." % a, "warning", 5)
                     raise InvalidProjectConfigException
-                
-                if atype not in reserved_macro_string and normalize_to_storage_form(atype) != atype:
-                    display_message("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, "warning", 5)
-                    raise InvalidProjectConfigException
+
+                # Check disabled; need to support arbitrary UTF values for attributes.conf.
+                # TODO: consider checking for similar for appropriate confs.
+#                 if atype not in reserved_macro_string and normalize_to_storage_form(atype) != atype:
+#                     display_message("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, "warning", 5)
+#                     raise InvalidProjectConfigException
 
                 self.arguments.append((role, atype))
 
@@ -715,8 +717,14 @@ class ProjectConfiguration(object):
     def get_entity_type_hierarchy(self):
         return get_entity_type_hierarchy(self.directory)
 
+    def get_relation_type_hierarchy(self):
+        return get_relation_type_hierarchy(self.directory)
+
     def get_event_type_hierarchy(self):
         return get_event_type_hierarchy(self.directory)
+
+    def get_attribute_type_hierarchy(self):
+        return get_attribute_type_hierarchy(self.directory)
 
     def preferred_display_form(self, t):
         """
