@@ -71,6 +71,9 @@ def contained_in_span(a1, a2):
 def verify_equivs(ann_obj, projectconf):
     issues = []
 
+    # TODO: get rid of hard-coded type label
+    EQUIV_TYPE = "Equiv"
+
     # shortcut
     def disp(s):
         return projectconf.preferred_display_form(s)
@@ -79,15 +82,31 @@ def verify_equivs(ann_obj, projectconf):
         # get the equivalent annotations
         equiv_anns = [ann_obj.get_ann_by_id(eid) for eid in eq.entities]
 
-        # all the types of the Equivalent entities have to match
+        # all pairs of entity types in the Equiv group must be allowed
+        # to have an Equiv. Create type-level pairs to avoid N^2
+        # search where N=entities.
         eq_type = {}
         for e in equiv_anns:
-            eq_type[disp(e.type)] = True
-        if len(eq_type) != 1:
-            # more than one type
-            # TODO: mark this error on the Eq relation, not the entities
-            for e in equiv_anns:
-                issues.append(AnnotationIssue(e.id, AnnotationError, "Equiv relation involving entities of more than one type (%s)" % (", ".join(eq_type.keys()))))
+            eq_type[e.type] = True
+        type_pairs = []
+        for t1 in eq_type:
+            for t2 in eq_type:
+                type_pairs.append((t1,t2))
+
+        # do avoid marking both (a1,a2) and (a2,a1), remember what's
+        # already included
+        marked = {}
+
+        for t1, t2 in type_pairs:
+            reltypes = projectconf.relation_types_from_to(t1, t2)
+            if EQUIV_TYPE not in reltypes:
+                # Avoid redundant output
+                if (t2,t1) in marked:
+                    continue
+                # TODO: mark this error on the Eq relation, not the entities
+                for e in equiv_anns:
+                    issues.append(AnnotationIssue(e.id, AnnotationError, "Equiv relation not allowed between %s and %s" % (disp(t1), disp(t2))))
+                marked[(t1,t2)] = True
 
     return issues
 
