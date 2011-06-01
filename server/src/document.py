@@ -22,8 +22,7 @@ from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         AnnotationFileNotFoundError, open_textfile)
 from common import ProtocolError
 from config import DATA_DIR
-from htmlgen import generate_client_keymap, generate_textbound_type_html, get_span_types
-from projectconfig import ProjectConfiguration
+from projectconfig import ProjectConfiguration, get_labels_by_storage_form
 from stats import get_statistics
 from message import display_message
 
@@ -32,6 +31,188 @@ try:
     from config import PERFORM_VERIFICATION
 except ImportError:
     PERFORM_VERIFICATION = False
+
+# TODO: this is not a good spot for this
+from itertools import chain
+
+def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
+    items = []
+    for node in nodes:
+        if node == 'SEPARATOR':
+            items.append(None)
+        else:
+            item = {}
+            _type = node.storage_form() 
+            item['name'] = project_conf.preferred_display_form(_type)
+            item['type'] = _type
+            item['unused'] = node.unused
+            item['labels'] = get_labels_by_storage_form(directory, _type)
+
+            try:
+                item['hotkey'] = hotkey_by_type[_type]
+            except KeyError:
+                pass
+
+            arcs = {}
+            for arc in chain(project_conf.relation_types_from(_type),
+                    (a for a, _ in node.arguments)):
+                arc_labels = get_labels_by_storage_form(directory, arc)
+
+                if arc_labels is not None:
+                    arcs[arc] = arc_labels
+                    
+            # If we found any arcs, attach them
+            if arcs:
+                item['arcs'] = arcs
+
+            item['children'] = _get_subtypes_for_type(node.children,
+                    project_conf, hotkey_by_type, directory)
+            items.append(item)
+    return items
+
+# TODO: this is not a good spot for this
+def get_span_types(directory):
+    project_conf = ProjectConfiguration(directory)
+
+    keymap = project_conf.get_kb_shortcuts()
+    hotkey_by_type = dict((v, k) for k, v in keymap.iteritems())
+
+    event_hierarchy = project_conf.get_event_type_hierarchy()
+    event_types = _get_subtypes_for_type(event_hierarchy,
+            project_conf, hotkey_by_type, directory)
+
+    entity_hierarchy = project_conf.get_entity_type_hierarchy()
+    entity_types = _get_subtypes_for_type(entity_hierarchy,
+            project_conf, hotkey_by_type, directory)
+  
+    # XXX: Temporary hack until the configurations support values
+    attribute_types = [
+            {
+                'name': 'Negation',
+                'type': 'Negation',
+                'values': {
+                    'Negation': {
+                        'box': u'crossed',
+                        },
+                    },
+                'labels': ['Negation', ],
+                'unused': False,
+                },
+            {
+                'name': 'Speculation',
+                'type': 'Speculation',
+                'values': {
+                    'Speculation': {
+                        'dasharray': '3,3',
+                        },
+                    },
+                'labels': ['Speculation', ],
+                'unused': False,
+                },
+            # Hard-coded Meta-Knowledge types
+            # Characters picked by: http://unicode.bloople.net/
+            # TODO: Assign sensible characters
+            {
+                'name': 'Knowledge Type',
+                'type': 'KT',
+                'labels': ['Knowledge Type', ],
+                'values': {
+                    'Investigation': {
+                        'glyph': u'Ⓘ',
+                        },
+                    'Analysis': {
+                        'glyph': u'Ⓐ',
+                        },
+                    'Observation': {
+                        'glyph': u'Ⓞ',
+                        },
+                    'Gen-Fact': {
+                        'glyph': u'Ⓕ',
+                        },
+                    'Gen-Method': {
+                        'glyph': u'Ⓜ',
+                        },
+                    'Gen-Other': {
+                        'glyph': u'Ⓣ',
+                        },
+                    },
+                'unused': True,
+                },
+            {
+                'name': 'Certainty Level',
+                'type': 'CL',
+                'labels': ['Certainty Level', ],
+                'values': {
+                    'L1': {
+                        'glyph': u'➊',
+                        'position': 'left',
+                        },
+                    'L2': {
+                        'glyph': u'➋',
+                        'position': 'left',
+                        },
+                    'L3': {
+                        'glyph': u'➌',
+                        'position': 'left',
+                        },
+                    },
+                'unused': True,
+                },
+            {
+                'name': 'Polarity',
+                'type': 'Polarity',
+                'labels': ['Polarity', ],
+                'values': {
+                    'Negative': {
+                        'glyph': u'✕',
+                        'position': 'left',
+                        },
+                    'Positive': {
+                        'glyph': u'✓',
+                        'position': 'left',
+                        },
+                    },
+                'unused': True,
+                },
+            {
+                'name': 'Manner',
+                'type': 'Manner',
+                'labels': ['Manner', ],
+                'values': {
+                    'High': {
+                        'glyph': u'↑',
+                        },
+                    'Low': {
+                        'glyph': u'↓',
+                        },
+                    'Neutral': {
+                        'glyph': u'↔',
+                        },
+                    },
+                'unused': True,
+                },
+            {
+                'name': 'Source',
+                'type': 'Source',
+                'labels': ['Source', ],
+                'values': {
+                    'Other': {
+                        'glyph': u'⇗',
+                        },
+                    'Current': {
+                        'glyph': u'⇙',
+                        },
+                    },
+                'unused': True,
+                },
+            ]
+
+    from projectconfig import get_relation_type_hierarchy
+    relation_hierarchy = get_relation_type_hierarchy(directory)
+    relation_types = _get_subtypes_for_type(relation_hierarchy,
+            project_conf, hotkey_by_type, directory)
+
+    return event_types, entity_types, attribute_types, relation_types
 
 def real_directory(directory):
     assert isabs(directory), 'directory "%s" is not absolute' % directory
