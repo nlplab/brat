@@ -426,7 +426,7 @@ var Visualizer = (function($, window, undefined) {
           var bd = b.to - b.from;
           tmp = ad - bd;
           if(a.numArcs == 0 && b.numArcs == 0) {
-              tmp = -tmp;
+            tmp = -tmp;
           } 
           if (tmp) {
             return tmp < 0 ? 1 : -1;
@@ -602,12 +602,12 @@ var Visualizer = (function($, window, undefined) {
         if (_data) setData(_data);
 
         if (data.mtime) {
-            // we're getting seconds and need milliseconds
-            //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
-            $('#document_mtime').text("Last modified: " + Brat.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
+          // we're getting seconds and need milliseconds
+          //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
+          $('#document_mtime').text("Last modified: " + Brat.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
         } else {
-            //$('#document_ctime').css("display", "none");
-            $('#document_mtime').css("display", "none");
+          //$('#document_ctime').css("display", "none");
+          $('#document_mtime').css("display", "none");
         }
 
         svg.clear(true);
@@ -734,44 +734,44 @@ var Visualizer = (function($, window, undefined) {
             
             var rectClass = 'span_' + span.type + ' span_default';
 
-           // attach e.g. "False_positive" into the type
-           if (span.comment && span.comment.type) { rectClass += ' '+span.comment.type; }
-           var bx = xx - margin.x - boxTextMargin.x;
-           var by = yy - margin.y;
-           var bw = ww + 2 * margin.x;
-           var bh = hh + 2 * margin.y;
-           var shadowRect;
-           var editedRect;
-           if (span.edited) {
-               editedRect = svg.rect(span.group,
-                   bx - editedSpanSize, by - editedSpanSize,
-                   bw + 2 * editedSpanSize, bh + 2 * editedSpanSize, {
-
-                   // filter: 'url(#Gaussian_Blur)',
-                   'class': "shadow_EditHighlight",
-                   rx: editedSpanSize,
-                   ry: editedSpanSize,
-               });
-           }
-           if (span.shadowClass) {
-               shadowRect = svg.rect(span.group,
-                   bx - shadowSize, by - shadowSize,
-                   bw + 2 * shadowSize, bh + 2 * shadowSize, {
-
-                   filter: 'url(#Gaussian_Blur)',
-                   'class': "shadow_" + span.shadowClass,
-                   rx: shadowSize,
-                   ry: shadowSize,
-               });
-           }
-           span.rect = svg.rect(span.group,
-               bx, by, bw, bh, {
-               'class': rectClass,
-               rx: margin.x,
-               ry: margin.y,
-               'data-span-id': span.id,
-               'strokeDashArray': span.Speculation ? dashArray : undefined,
-             });
+            // attach e.g. "False_positive" into the type
+            if (span.comment && span.comment.type) { rectClass += ' '+span.comment.type; }
+            var bx = xx - margin.x - boxTextMargin.x;
+            var by = yy - margin.y;
+            var bw = ww + 2 * margin.x;
+            var bh = hh + 2 * margin.y;
+            var shadowRect;
+            var editedRect;
+            if (span.edited) {
+              editedRect = svg.rect(span.group,
+                  bx - editedSpanSize, by - editedSpanSize,
+                  bw + 2 * editedSpanSize, bh + 2 * editedSpanSize, {
+ 
+                  // filter: 'url(#Gaussian_Blur)',
+                  'class': "shadow_EditHighlight",
+                  rx: editedSpanSize,
+                  ry: editedSpanSize,
+              });
+            }
+            if (span.shadowClass) {
+              shadowRect = svg.rect(span.group,
+                  bx - shadowSize, by - shadowSize,
+                  bw + 2 * shadowSize, bh + 2 * shadowSize, {
+ 
+                  filter: 'url(#Gaussian_Blur)',
+                  'class': "shadow_" + span.shadowClass,
+                  rx: shadowSize,
+                  ry: shadowSize,
+              });
+            }
+            span.rect = svg.rect(span.group,
+                bx, by, bw, bh, {
+                'class': rectClass,
+                rx: margin.x,
+                ry: margin.y,
+                'data-span-id': span.id,
+                'strokeDashArray': span.Speculation ? dashArray : undefined,
+              });
             var rectBox = span.rect.getBBox();
 
             var yAdjust = placeReservation(span, rectBox, reservations);
@@ -780,10 +780,10 @@ var Visualizer = (function($, window, undefined) {
             spanHeights[span.lineIndex * 2] = span.height;
             $(span.rect).attr('y', yy - margin.y - yAdjust);
             if (shadowRect) {
-                $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
+              $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
             }
             if (editedRect) {
-                $(editedRect).attr('y', yy - editedSpanSize - margin.y - yAdjust);
+              $(editedRect).attr('y', yy - editedSpanSize - margin.y - yAdjust);
             }
             if (span.Negation) {
               svg.path(span.group, svg.createPath().
@@ -1131,24 +1131,24 @@ var Visualizer = (function($, window, undefined) {
             var path;
             path = svg.createPath().move(textStart, -height);
             if (rowIndex == leftRow) {
-                var cornerx = from + ufoCatcherMod * arcSlant;
-                // for normal cases, should not be past textStart even if narrow
-                if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
-                if (smoothArcCurves) {
-                    var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                    line = path.line(cornerx, -height).
-                        curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
-                } else {
-                    path.line(cornerx, -height).
-                        line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
-                }
+              var cornerx = from + ufoCatcherMod * arcSlant;
+              // for normal cases, should not be past textStart even if narrow
+              if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
+              if (smoothArcCurves) {
+                var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
+                line = path.line(cornerx, -height).
+                    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+              } else {
+                path.line(cornerx, -height).
+                    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+              }
             } else {
-                path.line(from, -height);
+              path.line(from, -height);
             }
             svg.path(arcGroup, path, {
-                markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
-                'class': 'stroke_' + arc.type,
-                'strokeDashArray': arc.equiv ? dashArray : undefined,
+              markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
+              'class': 'stroke_' + arc.type,
+              'strokeDashArray': arc.equiv ? dashArray : undefined,
             });
             if (arc.edited) {
               svg.path(shadowGroup, path, {
@@ -1164,18 +1164,18 @@ var Visualizer = (function($, window, undefined) {
             }
             path = svg.createPath().move(textEnd, -height);
             if (rowIndex == rightRow) {
-                // TODO: duplicates above in part, make funcs
-                var cornerx  = to - ufoCatcherMod * arcSlant;
-                // for normal cases, should not be past textEnd even if narrow
-                if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
-                if (smoothArcCurves) {
-                    var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-                    path.line(cornerx, -height).
-                        curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
-                } else {
-                    path.line(cornerx, -height).
-                        line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
-                }
+              // TODO: duplicates above in part, make funcs
+              var cornerx  = to - ufoCatcherMod * arcSlant;
+              // for normal cases, should not be past textEnd even if narrow
+              if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
+              if (smoothArcCurves) {
+                var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
+                path.line(cornerx, -height).
+                    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+              } else {
+                path.line(cornerx, -height).
+                    line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+              }
             } else {
               path.line(to, -height);
             }
