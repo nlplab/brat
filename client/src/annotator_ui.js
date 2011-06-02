@@ -212,7 +212,9 @@ var AnnotatorUI = (function($, window, undefined) {
         $.each(attributeTypes, function(attrNo, attr) {
           $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
           if (span) {
-            if (attr.bool) {
+            if (attr.unused) {
+              $input.val(span.attributes[attr.type] || '');
+            } else if (attr.bool) {
               $input[0].checked = span.attributes[attr.type];
               $input.button('refresh');
             } else {
@@ -510,10 +512,6 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var rememberSpanSettings = function(response) {
-        // XXX formatting
-        //'<div class="span_wrapper"><fieldset><legend>Left</legend><div class="span_types">Foo</div></fieldset></div><div class="span_wrapper"><fieldset><legend>Right</legend><div class="span_types">Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo</div></fieldset></div>';
-        // $('#span_types').html(response.html).find('.type_scroller').addClass('ui-widget');
-
         spanKeymap = {};
 
         $entities = $('<div id="entity_types" class="scroll_wrapper_half"/>');
@@ -522,10 +520,13 @@ var AnnotatorUI = (function($, window, undefined) {
         addSpanTypesToDiv($events, response.event_types, 'Events');
         $('#span_types').empty().append($entities).append($events);
 
-        var $attrs = $('#span_attributes div.scroller');
+        var $attrs = $('#span_attributes div.scroller').empty();
         $.each(attributeTypes, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
-          if (attr.bool) {
+          if (attr.unused) {
+            var $input = $('<input type="hidden" id="span_attr_' + escapedType + '" value=""/>');
+            $attrs.append($input);
+          } else if (attr.bool) {
             var escapedName = Util.escapeQuotes(attr.name);
             var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
             var $label = $('<label for="span_attr_' + escapedType + '">' + escapedName + '</label>');
