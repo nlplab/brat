@@ -1,7 +1,9 @@
 // -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
+
+
 var Visualizer = (function($, window, undefined) {
-    var Visualizer = function(dispatcher, svgContainer) {
+    var Visualizer = function(dispatcher, $svgDiv) {
       var that = this;
 
       // OPTIONS
@@ -37,7 +39,7 @@ var Visualizer = (function($, window, undefined) {
 
 
       var svg;
-      var svgElement;
+      var $svg;
       var data = null;
       var dir, doc, args;
       var labels;
@@ -52,8 +54,8 @@ var Visualizer = (function($, window, undefined) {
       // due to silly Chrome bug, I have to make it pay attention
       var forceRedraw = function() {
         if (!$.browser.chrome) return; // not needed
-        svgElement.css('margin-bottom', 1);
-        setTimeout(function() { svgElement.css('margin-bottom', 0); }, 0);
+        $svg.css('margin-bottom', 1);
+        setTimeout(function() { $svg.css('margin-bottom', 0); }, 0);
       }
 
       var displayForm = function(label) {
@@ -125,7 +127,7 @@ var Visualizer = (function($, window, undefined) {
 
       var clearSVG = function() {
         svg.clear();
-        svgContainer.hide();
+        $svgDiv.hide();
       };
 
       var setData = function(_data) {
@@ -574,13 +576,24 @@ var Visualizer = (function($, window, undefined) {
         element.translation = { x: x, y: y };
       };
 
+      var showMtime = function() {
+        if (data.mtime) {
+            // we're getting seconds and need milliseconds
+            //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
+            $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
+        } else {
+            //$('#document_ctime').css("display", "none");
+            $('#document_mtime').css("display", "none");
+        }
+      };
+      
       var drawing = false;
       var redraw = false;
 
       var renderDataReal = function(_data) {
         if (!_data && !data) return;
         try {
-          svgContainer.show();
+          $svgDiv.show();
           if (_data && (_data.document !== doc || _data.directory !== dir)) return;
           if (drawing) {
             redraw = true;
@@ -591,40 +604,55 @@ var Visualizer = (function($, window, undefined) {
 
           try {
             if (_data) setData(_data);
-
-            if (data.mtime) {
-                // we're getting seconds and need milliseconds
-                //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
-                $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
-            } else {
-                //$('#document_ctime').css("display", "none");
-                $('#document_mtime').css("display", "none");
-            }
+            showMtime();
 
             svg.clear(true);
-            var defs = svg.defs();
-            var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
-            svg.add(defs, filter);
             if (!data || data.length == 0) return;
-            canvasWidth = that.forceWidth || svgContainer.width();
-            svgElement.width(canvasWidth);
+            canvasWidth = that.forceWidth || $svgDiv.width();
+            $svg.width(canvasWidth);
+            $svg.height(200); // XXX DEBUG
+            var $topGroup = svg.group('top');
+            var $defs = svg.defs();
             var commentName = (dir + '/' + doc).replace('--', '-\\-');
-            svgElement.
+            $svg.
                 attr('width', canvasWidth).
                 append('<!-- document: ' + commentName + ' -->');
 
-            // set up the text element, find out font height
-            var backgroundGroup = svg.group({ 'class': 'background' });
-            highlightGroup = svg.group({ 'class': 'highlight' });
-            var textGroup = svg.group({ 'class': 'text' });
-            var textSpans = svg.createText();
+            var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
+            svg.add($defs, $blurFilter);
+
+
+            var $backgroundGroup = svg.group({ class: 'background' });
+            var $editedGroup = svg.group({ class: 'edited' });
+            var $highlightGroup = svg.group({ class: 'highlight' });
+            var $textGroup = svg.group({ class: 'text' });
+            svg.add($topGroup, $backgroundGroup);
+            svg.add($topGroup, $editedGroup);
+            svg.add($topGroup, $highlightGroup);
+            svg.add($topGroup, $textGroup);
+
+            // make some text elements, find out the dimensions
+            var $textMeasureGroup = svg.group();
+            var $measuringTexts = {};
             $.each(data.chunks, function(chunkNo, chunk) {
               chunk.row = undefined; // reset
-              textSpans.span(chunk.text + ' ', {
-                  id: 'chunk' + chunk.index,
-                  'data-chunk-id': chunk.index,
-              });
+              // create a measuring text if needed
+              if (!$measuringTexts[chunk.text]) {
+                var $text = svg.text(20, 20, chunk.text);
+                $measuringTexts[chunk.text] = $text;
+                svg.add($textMeasureGroup, $text);
+              }
             });
+            $.each($measuringTexts, function(text, $text) {
+              console.log(text, $text);
+              spanAnnBoxes[text] = $text[0].getBBox();
+              console.log(text, spanAnnBoxes[text].width);
+            });
+
+            console.log($topGroup);
+            return; // XXX SO FAR
+
+
             var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
             var measureBox = text.getBBox();
             var textHeight = measureBox.height;
@@ -1263,7 +1291,7 @@ var Visualizer = (function($, window, undefined) {
               line(sentNumMargin, y));
             // resize the SVG
             $(svg._svg).attr('height', y).css('height', y);
-            svgContainer.attr('height', y).css('height', y);
+            $svgDiv.attr('height', y).css('height', y);
 
             drawing = false;
             if (redraw) {
@@ -1375,7 +1403,7 @@ var Visualizer = (function($, window, undefined) {
           if (that.arcDragOrigin) {
             target.parent().addClass('highlight');
           } else {
-            highlightArcs = svgElement.
+            highlightArcs = $svg.
                 find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
                 addClass('highlight');
             var spans = {};
@@ -1390,7 +1418,7 @@ var Visualizer = (function($, window, undefined) {
             $.each(spans, function(spanId, dummy) {
                 spanIds.push('rect[data-span-id="' + spanId + '"]');
             });
-            highlightSpans = svgElement.
+            highlightSpans = $svg.
                 find(spanIds.join(', ')).
                 parent().
                 addClass('highlight');
@@ -1407,10 +1435,10 @@ var Visualizer = (function($, window, undefined) {
           dispatcher.post('displayArcComment', [
               evt, target, symmetric,
               originSpanId, role, targetSpanId]);
-          highlightArcs = $(svgElement).
+          highlightArcs = $($svg).
               find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
               addClass('highlight');
-          highlightSpans = $(svgElement).
+          highlightSpans = $($svg).
               find('rect[data-span-id="' + originSpanId + '"], rect[data-span-id="' + targetSpanId + '"]').
               parent().
               addClass('highlight');
@@ -1444,7 +1472,7 @@ var Visualizer = (function($, window, undefined) {
         abbrevsOn = _abbrevsOn;
       }
 
-      svgContainer = $(svgContainer).hide();
+      $svgDiv = $($svgDiv).hide();
 
       // register event listeners
       var registerHandlers = function(element, events) {
@@ -1456,7 +1484,7 @@ var Visualizer = (function($, window, undefined) {
             );
         });
       };
-      registerHandlers(svgContainer, [
+      registerHandlers($svgDiv, [
           'mouseover', 'mouseout', 'mousemove',
           'mouseup', 'mousedown',
           'dblclick', 'click'
@@ -1469,10 +1497,31 @@ var Visualizer = (function($, window, undefined) {
       ]);
 
       // create the svg wrapper
-      svgContainer.svg({
+      $svgDiv.svg({
           onLoad: function(_svg) {
               that.svg = svg = _svg;
-              svgElement = $(svg._svg);
+              $svg = $(svg._svg);
+
+              // XXX HACK to allow off-DOM SVG element creation
+              // we need to replace the jQuery SVG's _makeNode function
+              // with a modified one.
+              // Be aware of potential breakage upon jQuery SVG upgrade.
+              svg._makeNode = function(parent, name, settings) {
+                  // COMMENTED OUT: parent = parent || this._svg;
+                  var node = this._svg.ownerDocument.createElementNS($.svg.svgNS, name);
+                  for (var name in settings) {
+                    var value = settings[name];
+                    if (value != null && value != null && 
+                        (typeof value != 'string' || value != '')) {
+                      node.setAttribute($.svg._attrNames[name] || name, value);
+                    }
+                  }
+                  // ADDED IN:
+                  if (parent)
+                    parent.appendChild(node);
+                  return node;
+                };
+
               triggerRender();
           }
       });
