@@ -18,29 +18,57 @@ from message import Messager
 class InvalidProjectConfigException(Exception):
     pass
 
-__entity_type_hierarchy_filename    = 'entity_types.conf'
-__relation_type_hierarchy_filename  = 'relation_types.conf'
-__event_type_hierarchy_filename     = 'event_types.conf'
-__attribute_type_hierarchy_filename = 'attributes.conf'
+# config section name constants
+ENTITY_SECTION    = "entities"
+RELATION_SECTION  = "relations"
+EVENT_SECTION     = "events"
+ATTRIBUTE_SECTION = "attributes"
+
+expected_configuration_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTION, ATTRIBUTE_SECTION)
+
+__annotation_config_filename        = "annotation.conf"
+# TODO: deprecated; remove once integrated config is debugged.
+# __entity_type_hierarchy_filename    = 'entity_types.conf'
+# __relation_type_hierarchy_filename  = 'relation_types.conf'
+# __event_type_hierarchy_filename     = 'event_types.conf'
+# __attribute_type_hierarchy_filename = 'attributes.conf'
 __label_filename                    = 'labels.conf'
 __kb_shortcut_filename              = 'kb_shortcuts.conf'
 
-# fallback defaults if configs not found
-__default_entity_type_hierarchy = """
+# fallback defaults if config files not found
+__default_configuration = """
+[entities]
 Protein
-Entity"""
 
-__default_event_type_hierarchy  = """
-!event
- GO:0005515 | protein binding	Theme+:Protein
- GO:0010467 | gene expression	Theme:Protein"""
+[relations]
+Equiv	Arg1:Protein, Arg2:Protein
 
-__default_relation_type_hierarchy = """
-Equiv	Arg1:Protein, Arg2:Protein"""
+[events]
+Binding|GO:0005515	Theme+:Protein
+Gene_expression|GO:0010467	Theme:Protein
 
-__default_attribute_type_hierarchy = """
+[attributes]
 Negation	Arg:<EVENT>
-Speculation	Arg:<EVENT>"""
+Speculation	Arg:<EVENT>
+"""
+
+# fallback defaults if configs not found
+# TODO: deprecated; remove once integrated config is debugged.
+# __default_entity_type_hierarchy = """
+# Protein
+# Entity"""
+
+# __default_event_type_hierarchy  = """
+# !event
+#  Binding|GO:0005515	Theme+:Protein
+#  Gene_expression|GO:0010467	Theme:Protein"""
+
+# __default_relation_type_hierarchy = """
+# Equiv	Arg1:Protein, Arg2:Protein"""
+
+# __default_attribute_type_hierarchy = """
+# Negation	Arg:<EVENT>
+# Speculation	Arg:<EVENT>"""
 
 __default_labels = """
 Protein\tProtein\tPro\tP
@@ -256,15 +284,6 @@ def __read_or_default(filename, default):
         # TODO: specific exception handling and reporting
         return default
 
-def __parse_term_hierarchy(hierarchy, default, source):
-    try:
-        root_nodes = __read_term_hierarchy(hierarchy.split("\n"))
-    except:
-        # TODO: specific exception handling
-        Messager.warning("Project configuration: error parsing types from %s. Configuration may be wrong." % source, 5)
-        root_nodes = default
-    return root_nodes
-
 def __parse_labels(labelstr, default, source):
     try:
         labels = {}
@@ -332,23 +351,99 @@ def __read_first_in_directory_tree(directory, filename):
 
     return (result, source)
 
-def __get_type_hierarchy(directory, filename, default_hierarchy, min_hierarchy):
+# TODO: deprecated; remove once integrated config is debugged.
+# def __get_type_hierarchy(directory, filename, default_hierarchy, min_hierarchy):
 
-    type_hierarchy, source = __read_first_in_directory_tree(directory, filename)
+#     type_hierarchy, source = __read_first_in_directory_tree(directory, filename)
 
-    if type_hierarchy is None:
-        # didn't get one; try default dir and fall back to the default
-        # hierarchy
-        type_hierarchy = __read_or_default(filename, default_hierarchy)
-        if type_hierarchy == default_hierarchy:
-            source = "[default hierarchy]"
-        else:
-            source = filename
+#     if type_hierarchy is None:
+#         # didn't get one; try default dir and fall back to the default
+#         # hierarchy
+#         type_hierarchy = __read_or_default(filename, default_hierarchy)
+#         if type_hierarchy == default_hierarchy:
+#             source = "[default hierarchy]"
+#         else:
+#             source = filename
         
-    # try to parse what we got, fall back to minimal hierarchy
-    root_nodes = __parse_term_hierarchy(type_hierarchy, min_hierarchy, source)
+#     # try to parse what we got, fall back to minimal hierarchy
+#     try:
+#         root_nodes = __read_term_hierarchy(type_hierarchy.split("\n"))
+#     except:
+#         # TODO: specific exception handling
+#         Messager.warning("Project configuration: error parsing types from %s. Configuration may be wrong." % source, 5)
+#         root_nodes = min_hierarchy
 
-    return root_nodes
+#     return root_nodes
+
+def __parse_configs(configstr, source):
+    # top-level config structure is a set of term hierarchies
+    # separated by lines consisting of "[SECTION]" where SECTION is
+    # e.g.  "entities", "relations", etc.
+
+    # start by splitting config file lines by section
+
+    section = "general"
+    section_lines = { section: [] }
+    for ln, l in enumerate(configstr.split("\n")):
+        m = re.match(r'^\s*\[(.*)\]\s*$', l)
+        if m:
+            section = m.group(1)
+            if section not in expected_configuration_sections:
+                Messager.warning("Project configuration: unexpected section [%s] in %s. Ignoring contents." % (section, source), 5)
+            if section not in section_lines:
+                section_lines[section] = []
+        else:
+            section_lines[section].append(l)
+
+    # attempt to parse lines in each section as a term hierarchy
+    configs = {}
+    for s, sl in section_lines.items():
+        try:
+            configs[s] = __read_term_hierarchy(sl)
+        except:
+            Messager.warning("Project configuration: error parsing section [%s] in %s." % (s, source), 5)
+            raise
+
+    # verify that expected sections are present; replace with empty if not.
+    for s in expected_configuration_sections:
+        if s not in configs:
+            Messager.warning("Project configuration: missing section [%s] in %s. Configuration may be wrong." % (s, source), 5)
+            configs[s] = []
+
+    return configs
+
+# final fallback for configuration; a minimal known-good config
+__minimal_configuration = {
+    ENTITY_SECTION    : [TypeHierarchyNode(["Protein"], [])],
+    RELATION_SECTION  : [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein"])],
+    EVENT_SECTION     : [TypeHierarchyNode(["Event"], ["Theme:Protein"])],
+    ATTRIBUTE_SECTION : [TypeHierarchyNode(["Negation"], ["Arg:<EVENT>"])],
+    }
+            
+def get_configs(directory, filename):
+    if (directory, filename) not in get_configs.__cache:
+        configstr, source =  __read_first_in_directory_tree(directory, filename)
+
+        if configstr is None:
+            # didn't get one; try default dir and fall back to the default
+            configstr = __read_or_default(filename, __default_configuration)
+            if configstr == __default_configuration:                
+                Messager.info("Project configuration: no configuration file (%s) found, using default." % filename, 5)
+                source = "[default]"
+            else:
+                source = filename
+
+        # try to parse what was found, fall back to minimal config
+        try: 
+            configs = __parse_configs(configstr, source)        
+        except:
+            Messager.warning("Project configuration: Falling back to minimal default. Configuration is likely wrong." % (s, source), 5)
+            configs = __minimal_configuration
+
+        get_configs.__cache[(directory, filename)] = configs
+
+    return get_configs.__cache[(directory, filename)]
+get_configs.__cache = {}
 
 def __get_labels(directory, filename, default_labels, min_labels):
 
@@ -384,58 +479,76 @@ def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 # HIERARCHY_STR for the hierarchy; if that fails, HIERARCHY is used
 # directly.
 
-__entity_type_lookups = (
-    __entity_type_hierarchy_filename,
-    __default_entity_type_hierarchy,
-    [TypeHierarchyNode(["Protein"], [])],
-)
+# TODO: deprecated; remove once integrated config is debugged.
+# __entity_type_lookups = (
+#     __entity_type_hierarchy_filename,
+#     __default_entity_type_hierarchy,
+#     [TypeHierarchyNode(["Protein"], [])],
+# )
 
-__relation_type_lookups = (
-    __relation_type_hierarchy_filename,
-    __default_relation_type_hierarchy,
-    [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein"])],
-)
+# __relation_type_lookups = (
+#     __relation_type_hierarchy_filename,
+#     __default_relation_type_hierarchy,
+#     [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein"])],
+# )
 
-__event_type_lookups = (
-    __event_type_hierarchy_filename,
-    __default_event_type_hierarchy,
-    [TypeHierarchyNode(["Event"], ["Theme:Protein"])],
-)
+# __event_type_lookups = (
+#     __event_type_hierarchy_filename,
+#     __default_event_type_hierarchy,
+#     [TypeHierarchyNode(["Event"], ["Theme:Protein"])],
+# )
 
-__attribute_type_lookups = (
-    __attribute_type_hierarchy_filename,
-    __default_attribute_type_hierarchy,
-    [TypeHierarchyNode(["Negation"], ["Arg:<EVENT>"])],
-)
+# __attribute_type_lookups = (
+#     __attribute_type_hierarchy_filename,
+#     __default_attribute_type_hierarchy,
+#     [TypeHierarchyNode(["Negation"], ["Arg:<EVENT>"])],
+# )
 
-def __get_type_hierarchy_with_cache(directory, cache, lookups):
-    if directory not in cache:
-        cache[directory] = __get_type_hierarchy(directory, *lookups)
-    return cache[directory]
+# TODO: deprecated; remove once integrated config is debugged.
+# def __get_type_hierarchy_with_cache(directory, cache, lookups):
+#     if directory not in cache:
+#         cache[directory] = __get_type_hierarchy(directory, *lookups)
+#     return cache[directory]
 
 # Caching methods to avoid re-reading on every invocation of getters.
 # Outside of ProjectConfiguration class to minimize reads when
 # multiple configs are instantiated.
 
-def get_entity_type_hierarchy(directory):
-    cache, lookups = get_entity_type_hierarchy.__cache, __entity_type_lookups
-    return __get_type_hierarchy_with_cache(directory, cache, lookups)
-get_entity_type_hierarchy.__cache = {}
+# TODO: deprecated; remove once integrated config is debugged.
+# def get_entity_type_hierarchy(directory):
+#     cache, lookups = get_entity_type_hierarchy.__cache, __entity_type_lookups
+#     return __get_type_hierarchy_with_cache(directory, cache, lookups)
+# get_entity_type_hierarchy.__cache = {}
 
-def get_relation_type_hierarchy(directory):
-    cache, lookups = get_relation_type_hierarchy.__cache, __relation_type_lookups
-    return __get_type_hierarchy_with_cache(directory, cache, lookups)
-get_relation_type_hierarchy.__cache = {}
+# TODO: deprecated; remove once integrated config is debugged.
+# def get_relation_type_hierarchy(directory):
+#     cache, lookups = get_relation_type_hierarchy.__cache, __relation_type_lookups
+#     return __get_type_hierarchy_with_cache(directory, cache, lookups)
+# get_relation_type_hierarchy.__cache = {}
 
-def get_event_type_hierarchy(directory):
-    cache, lookups = get_event_type_hierarchy.__cache, __event_type_lookups
-    return __get_type_hierarchy_with_cache(directory, cache, lookups)
-get_event_type_hierarchy.__cache = {}
+# TODO: deprecated; remove once integrated config is debugged.
+# def get_event_type_hierarchy(directory):
+#     cache, lookups = get_event_type_hierarchy.__cache, __event_type_lookups
+#     return __get_type_hierarchy_with_cache(directory, cache, lookups)
+# get_event_type_hierarchy.__cache = {}
 
-def get_attribute_type_hierarchy(directory):
-    cache, lookups = get_attribute_type_hierarchy.__cache, __attribute_type_lookups
-    return __get_type_hierarchy_with_cache(directory, cache, lookups)
-get_attribute_type_hierarchy.__cache = {}
+# TODO: deprecated; remove once integrated config is debugged.
+# def get_attribute_type_hierarchy(directory):
+#     cache, lookups = get_attribute_type_hierarchy.__cache, __attribute_type_lookups
+#     return __get_type_hierarchy_with_cache(directory, cache, lookups)
+# get_attribute_type_hierarchy.__cache = {}
+
+def get_entity_type_hierarchy(directory):    
+    return get_configs(directory, __annotation_config_filename)[ENTITY_SECTION]
+
+def get_relation_type_hierarchy(directory):    
+    return get_configs(directory, __annotation_config_filename)[RELATION_SECTION]
+
+def get_event_type_hierarchy(directory):    
+    return get_configs(directory, __annotation_config_filename)[EVENT_SECTION]
+
+def get_attribute_type_hierarchy(directory):    
+    return get_configs(directory, __annotation_config_filename)[ATTRIBUTE_SECTION]
 
 def get_labels(directory):
     cache = get_labels.__cache
@@ -597,6 +710,7 @@ very_likely_physical_entity_types = [
     ]
 
 # helper; doesn't really belong here
+# TODO: shouldn't we have an utils.py or something for stuff like this? 
 def unique_preserve_order(iterable):
     seen = set()
     uniqued = []
