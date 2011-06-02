@@ -211,11 +211,13 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         $.each(attributeTypes, function(attrNo, attr) {
           $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
-          if (attr.bool) {
-            $input[0].checked = span.attributes[attr.type];
-            $input.button('refresh');
-          } else {
-            $input.val(span.attributes[attr.type] || '').change();
+          if (span) {
+            if (attr.bool) {
+              $input[0].checked = span.attributes[attr.type];
+              $input.button('refresh');
+            } else {
+              $input.val(span.attributes[attr.type] || '').change();
+            }
           }
         });
         dispatcher.post('showForm', [spanForm]);
