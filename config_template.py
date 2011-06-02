@@ -38,3 +38,10 @@ ADMIN_CONTACT_EMAIL = CHANGE_ME
 from logging import INFO
 LOG_LEVEL = INFO
 '''
+
+# If the source data is in Japanese enable word segmentation
+'''
+JAPANESE = True
+'''
+
+assert DATA_DIR != BACKUP_DIR

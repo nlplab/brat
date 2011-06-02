@@ -120,7 +120,7 @@ open_textfile = partial(codecs_open, errors='strict', encoding='utf8')
 
 def __split_annotation_id(id):
     import re
-    m = re.match(r'^([A-Za-z]|#)([0-9]+)(.*?)$', id)
+    m = re.match(r'^([A-Za-z]+|#)([0-9]+)(.*?)$', id)
     if m is None:
         raise InvalidIdError(id)
     pre, num_str, suf = m.groups()
@@ -744,8 +744,8 @@ class TextAnnotations(Annotations):
         # Require tail to be either empty or to begin with the text
         # corresponding to the start:end span. If the tail is empty,
         # force a fill with the corresponding text.
-        if data_tail.strip() == '':
-            Messager.warning(u'Text-bound annotation missing text (expected format "ID\\tTYPE START END\\tTEXT"). Filling from reference text. NOTE: This changes annotations on disk unless read-only.', duration=-1)
+        if data_tail.strip() == '' and end - start > 0:
+            display_message(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.", "warning", duration=-1)
             text = self._document_text[start:end]
         elif data_tail[0] != '\t':
             Messager.error('Text-bound annotation missing tab before text (expected format "ID\\tTYPE START END\\tTEXT").')

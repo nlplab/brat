@@ -223,52 +223,63 @@ var Visualizer = (function($, window, undefined) {
           }
         });
 
-        // find chunk breaks
-        var breaks = [[-1, ' ']];
-        var sentNum = 0;
-        $.each(spaceWidths, function(char, width) {
-          var pos = -1;
-          while ((pos = data.text.indexOf(char, pos + 1)) != -1) {
-            if (char === '\n') {
-              breaks.push([pos, char, ++sentNum]);
-            } else {
-              var wordBreak = true;
-              // possible word break: see if it belongs to any spans
-              $.each(data.spans, function(spanNo, span) {
-                if (span.from <= pos + data.offset && pos + data.offset < span.to) {
-                  // it does; no word break
-                  wordBreak = false;
-                  return false;
-                }
-              });
-              if (wordBreak) breaks.push([pos, char]);
+        data.chunks = [];
+        var lastTo = 0;
+        var firstFrom = null;
+        var chunkNo = 0;
+        var inSpan;
+        var space;
+        var chunk = null;
+        $.each(data.token_offsets, function() {
+          var from = this[0];
+          var to = this[1];
+          if (firstFrom === null) firstFrom = from;
+          inSpan = false;
+          $.each(data.spans, function(spanNo, span) {
+            if (span.from < to && to < span.to) {
+              // it does; no word break
+              inSpan = true;
+              return false;
             }
+          });
+          if (inSpan) return;
+          space = data.text.substring(lastTo, firstFrom);
+          var text = data.text.substring(firstFrom, to);
+          if (chunk) chunk.nextSpace = space;
+          chunk = {
+              text: text,
+              space: space,
+              from: firstFrom,
+              to: to,
+              index: chunkNo++,
+              spans: [],
+            };
+          data.chunks.push(chunk);
+          lastTo = to;
+          firstFrom = null;
+        });
+        var numChunks = chunkNo;
+
+        chunkNo = 0;
+        var sentenceNo = 0;
+        var pastFirst = false;
+        $.each(data.sentence_offsets, function() {
+          var from = this[0];
+          var to = this[0];
+          var chunk;
+          while (chunkNo < numChunks && (chunk = data.chunks[chunkNo]).from < from) {
+            chunkNo++;
+          }
+          chunkNo++;
+          if (pastFirst) {
+            var numNL = chunk.space.split("\n").length - 1;
+            if (!numNL) numNL = 1;
+            sentenceNo += numNL;
+            chunk.sentence = sentenceNo;
+          } else {
+            pastFirst = true;
           }
         });
-        breaks.sort(function(a, b) { return a[0] - b[0] });
-
-        // split text into chunks
-        // format: data.chunks[chunk] = [text, from, to, lineBreak, [spans]]
-        data.chunks = [];
-        var numBreaks = breaks.length;
-        breaks.push([data.text.length, false]);
-        var chunkNo = 0;
-        for (var breakNo = 0; breakNo < numBreaks; breakNo++) {
-          var from = breaks[breakNo][0] + 1;
-          var to = breaks[breakNo + 1][0];
-          if (from != to) {
-            data.chunks.push({
-                text: data.text.substring(from, to),
-                from: from + data.offset,
-                to: to + data.offset,
-                lineBreak: breaks[breakNo][1] == '\n',
-                space: breaks[breakNo + 1][1],
-                index: chunkNo++,
-                spans: [],
-                sentence: breaks[breakNo][2],
-              });
-          }
-        }
 
         // assign spans to appropriate chunks
         // and copy spans to sortedSpans array
@@ -414,8 +425,8 @@ var Visualizer = (function($, window, undefined) {
           var bd = b.to - b.from;
           tmp = ad - bd;
           if(a.numArcs == 0 && b.numArcs == 0) {
-              tmp = -tmp;
-          }
+            tmp = -tmp;
+          } 
           if (tmp) {
             return tmp < 0 ? 1 : -1;
           }
@@ -461,7 +472,7 @@ var Visualizer = (function($, window, undefined) {
           chunk.spans.sort(sortComparator); // sort
           $.each(chunk.spans, function(spanNo, span) {
             span.chunk = chunk;
-            span.text = chunk.text.substring(span.from, span.to);
+            span.text = chunk.text.substring(span.from - chunk.from, span.to - chunk.to); // XXX used anywhere?
             if (!data.towers[span.towerId]) {
               data.towers[span.towerId] = [];
               span.drawCurly = true;
@@ -573,17 +584,15 @@ var Visualizer = (function($, window, undefined) {
 
       var renderDataReal = function(_data) {
         if (!_data && !data) return;
-        try {
         svgContainer.show();
-        if (_data && (_data.document !== doc || _data.directory !== dir)) return;
-        if (drawing) {
+        if ((_data && (_data.document !== doc || _data.directory !== dir)) || drawing) {
           redraw = true;
+          dispatcher.post('doneRendering', [dir, doc, args]);
           return;
         }
         redraw = false;
         drawing = true;
 
-        try {
         if (_data) setData(_data);
 
         if (data.mtime) {
@@ -599,14 +608,17 @@ var Visualizer = (function($, window, undefined) {
         var defs = svg.defs();
         var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
         svg.add(defs, filter);
-        if (!data || data.length == 0) return;
+        if (!data || data.length == 0) {
+          dispatcher.post('doneRendering', [dir, doc, args]);
+          return;
+        }
         canvasWidth = that.forceWidth || svgContainer.width();
         svgElement.width(canvasWidth);
         var commentName = (dir + '/' + doc).replace('--', '-\\-');
         svgElement.
             attr('width', canvasWidth).
             append('<!-- document: ' + commentName + ' -->');
-
+        
         // set up the text element, find out font height
         var backgroundGroup = svg.group({ 'class': 'background' });
         highlightGroup = svg.group({ 'class': 'highlight' });
@@ -713,7 +725,7 @@ var Visualizer = (function($, window, undefined) {
             hh -= 2*boxTextMargin.y;
             xx += boxTextMargin.x;
             ww -= 2*boxTextMargin.x;
-
+            
             var rectClass = 'span_' + span.type + ' span_default';
 
             // attach e.g. "False_positive" into the type
@@ -725,26 +737,26 @@ var Visualizer = (function($, window, undefined) {
             var shadowRect;
             var editedRect;
             if (span.edited) {
-                editedRect = svg.rect(span.group,
-                    bx - editedSpanSize, by - editedSpanSize,
-                    bw + 2 * editedSpanSize, bh + 2 * editedSpanSize, {
-
-                    // filter: 'url(#Gaussian_Blur)',
-                    'class': "shadow_EditHighlight",
-                    rx: editedSpanSize,
-                    ry: editedSpanSize,
-                });
+              editedRect = svg.rect(span.group,
+                  bx - editedSpanSize, by - editedSpanSize,
+                  bw + 2 * editedSpanSize, bh + 2 * editedSpanSize, {
+ 
+                  // filter: 'url(#Gaussian_Blur)',
+                  'class': "shadow_EditHighlight",
+                  rx: editedSpanSize,
+                  ry: editedSpanSize,
+              });
             }
             if (span.shadowClass) {
-                shadowRect = svg.rect(span.group,
-                    bx - shadowSize, by - shadowSize,
-                    bw + 2 * shadowSize, bh + 2 * shadowSize, {
-
-                    filter: 'url(#Gaussian_Blur)',
-                    'class': "shadow_" + span.shadowClass,
-                    rx: shadowSize,
-                    ry: shadowSize,
-                });
+              shadowRect = svg.rect(span.group,
+                  bx - shadowSize, by - shadowSize,
+                  bw + 2 * shadowSize, bh + 2 * shadowSize, {
+ 
+                  filter: 'url(#Gaussian_Blur)',
+                  'class': "shadow_" + span.shadowClass,
+                  rx: shadowSize,
+                  ry: shadowSize,
+              });
             }
             span.rect = svg.rect(span.group,
                 bx, by, bw, bh, {
@@ -762,10 +774,10 @@ var Visualizer = (function($, window, undefined) {
             spanHeights[span.lineIndex * 2] = span.height;
             $(span.rect).attr('y', yy - margin.y - yAdjust);
             if (shadowRect) {
-                $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
+              $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
             }
             if (editedRect) {
-                $(editedRect).attr('y', yy - editedSpanSize - margin.y - yAdjust);
+              $(editedRect).attr('y', yy - editedSpanSize - margin.y - yAdjust);
             }
             if (span.Negation) {
               svg.path(span.group, svg.createPath().
@@ -865,7 +877,7 @@ var Visualizer = (function($, window, undefined) {
             sentenceToggle = 1 - sentenceToggle;
           }
 
-          if (chunk.lineBreak ||
+          if (chunk.sentence ||
               current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
             // new row
@@ -910,7 +922,10 @@ var Visualizer = (function($, window, undefined) {
           translate(chunk, current.x + boxX, 0);
           chunk.textX = current.x - textBox.x + boxX;
 
-          current.x += spaceWidths[chunk.space] + boxWidth;
+          var spaceWidth = 0;
+          var spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
+          for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
+          current.x += spaceWidth + boxWidth;
         }); // chunks
 
         // finish the last row
@@ -1043,7 +1058,7 @@ var Visualizer = (function($, window, undefined) {
                 'data-to': arc.target
             });
             var from, to;
-
+            
             if (rowIndex == leftRow) {
               from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
             } else {
@@ -1125,9 +1140,9 @@ var Visualizer = (function($, window, undefined) {
               path.line(from, -height);
             }
             svg.path(arcGroup, path, {
-                markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
-                'class': 'stroke_' + arc.type,
-                'strokeDashArray': arc.equiv ? dashArray : undefined,
+              markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
+              'class': 'stroke_' + arc.type,
+              'strokeDashArray': arc.equiv ? dashArray : undefined,
             });
             if (arc.edited) {
               svg.path(shadowGroup, path, {
@@ -1264,17 +1279,7 @@ var Visualizer = (function($, window, undefined) {
           redraw = false;
           renderDataReal();
         }
-        } catch(x) {
-          if (x === 'BadDocumentError') {
-            clearSVG();
-            drawing = false;
-          } else {
-            console.error('FIXME Error during rendering: ', x); // FIXME
-          }
-        }
-        } finally {
-          dispatcher.post('doneRendering', [dir, doc, args]);
-        }
+        dispatcher.post('doneRendering', [dir, doc, args]);
       };
 
       var renderErrors = {
