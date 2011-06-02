@@ -27,11 +27,6 @@ ATTRIBUTE_SECTION = "attributes"
 expected_configuration_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTION, ATTRIBUTE_SECTION)
 
 __annotation_config_filename        = "annotation.conf"
-# TODO: deprecated; remove once integrated config is debugged.
-# __entity_type_hierarchy_filename    = 'entity_types.conf'
-# __relation_type_hierarchy_filename  = 'relation_types.conf'
-# __event_type_hierarchy_filename     = 'event_types.conf'
-# __attribute_type_hierarchy_filename = 'attributes.conf'
 __label_filename                    = 'labels.conf'
 __kb_shortcut_filename              = 'kb_shortcuts.conf'
 
@@ -44,31 +39,13 @@ Protein
 Equiv	Arg1:Protein, Arg2:Protein
 
 [events]
-Binding|GO:0005515	Theme+:Protein
+Protein_binding|GO:0005515	Theme+:Protein
 Gene_expression|GO:0010467	Theme:Protein
 
 [attributes]
 Negation	Arg:<EVENT>
 Speculation	Arg:<EVENT>
 """
-
-# fallback defaults if configs not found
-# TODO: deprecated; remove once integrated config is debugged.
-# __default_entity_type_hierarchy = """
-# Protein
-# Entity"""
-
-# __default_event_type_hierarchy  = """
-# !event
-#  Binding|GO:0005515	Theme+:Protein
-#  Gene_expression|GO:0010467	Theme:Protein"""
-
-# __default_relation_type_hierarchy = """
-# Equiv	Arg1:Protein, Arg2:Protein"""
-
-# __default_attribute_type_hierarchy = """
-# Negation	Arg:<EVENT>
-# Speculation	Arg:<EVENT>"""
 
 __default_labels = """
 Protein\tProtein\tPro\tP
@@ -351,30 +328,6 @@ def __read_first_in_directory_tree(directory, filename):
 
     return (result, source)
 
-# TODO: deprecated; remove once integrated config is debugged.
-# def __get_type_hierarchy(directory, filename, default_hierarchy, min_hierarchy):
-
-#     type_hierarchy, source = __read_first_in_directory_tree(directory, filename)
-
-#     if type_hierarchy is None:
-#         # didn't get one; try default dir and fall back to the default
-#         # hierarchy
-#         type_hierarchy = __read_or_default(filename, default_hierarchy)
-#         if type_hierarchy == default_hierarchy:
-#             source = "[default hierarchy]"
-#         else:
-#             source = filename
-        
-#     # try to parse what we got, fall back to minimal hierarchy
-#     try:
-#         root_nodes = __read_term_hierarchy(type_hierarchy.split("\n"))
-#     except:
-#         # TODO: specific exception handling
-#         Messager.warning("Project configuration: error parsing types from %s. Configuration may be wrong." % source, 5)
-#         root_nodes = min_hierarchy
-
-#     return root_nodes
-
 def __parse_configs(configstr, source):
     # top-level config structure is a set of term hierarchies
     # separated by lines consisting of "[SECTION]" where SECTION is
@@ -472,71 +425,6 @@ def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 
     kb_shortcuts = __parse_kb_shortcuts(shortcutstr, min_shortcuts, source)
     return kb_shortcuts
-
-# Configuration lookup specifications, each a triple (FILENAME,
-# HIERARCHY_STR, HIERARCHY). The directory path is searched for
-# FILENAME, and if none is found, the system attempts to parse
-# HIERARCHY_STR for the hierarchy; if that fails, HIERARCHY is used
-# directly.
-
-# TODO: deprecated; remove once integrated config is debugged.
-# __entity_type_lookups = (
-#     __entity_type_hierarchy_filename,
-#     __default_entity_type_hierarchy,
-#     [TypeHierarchyNode(["Protein"], [])],
-# )
-
-# __relation_type_lookups = (
-#     __relation_type_hierarchy_filename,
-#     __default_relation_type_hierarchy,
-#     [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein"])],
-# )
-
-# __event_type_lookups = (
-#     __event_type_hierarchy_filename,
-#     __default_event_type_hierarchy,
-#     [TypeHierarchyNode(["Event"], ["Theme:Protein"])],
-# )
-
-# __attribute_type_lookups = (
-#     __attribute_type_hierarchy_filename,
-#     __default_attribute_type_hierarchy,
-#     [TypeHierarchyNode(["Negation"], ["Arg:<EVENT>"])],
-# )
-
-# TODO: deprecated; remove once integrated config is debugged.
-# def __get_type_hierarchy_with_cache(directory, cache, lookups):
-#     if directory not in cache:
-#         cache[directory] = __get_type_hierarchy(directory, *lookups)
-#     return cache[directory]
-
-# Caching methods to avoid re-reading on every invocation of getters.
-# Outside of ProjectConfiguration class to minimize reads when
-# multiple configs are instantiated.
-
-# TODO: deprecated; remove once integrated config is debugged.
-# def get_entity_type_hierarchy(directory):
-#     cache, lookups = get_entity_type_hierarchy.__cache, __entity_type_lookups
-#     return __get_type_hierarchy_with_cache(directory, cache, lookups)
-# get_entity_type_hierarchy.__cache = {}
-
-# TODO: deprecated; remove once integrated config is debugged.
-# def get_relation_type_hierarchy(directory):
-#     cache, lookups = get_relation_type_hierarchy.__cache, __relation_type_lookups
-#     return __get_type_hierarchy_with_cache(directory, cache, lookups)
-# get_relation_type_hierarchy.__cache = {}
-
-# TODO: deprecated; remove once integrated config is debugged.
-# def get_event_type_hierarchy(directory):
-#     cache, lookups = get_event_type_hierarchy.__cache, __event_type_lookups
-#     return __get_type_hierarchy_with_cache(directory, cache, lookups)
-# get_event_type_hierarchy.__cache = {}
-
-# TODO: deprecated; remove once integrated config is debugged.
-# def get_attribute_type_hierarchy(directory):
-#     cache, lookups = get_attribute_type_hierarchy.__cache, __attribute_type_lookups
-#     return __get_type_hierarchy_with_cache(directory, cache, lookups)
-# get_attribute_type_hierarchy.__cache = {}
 
 def get_entity_type_hierarchy(directory):    
     return get_configs(directory, __annotation_config_filename)[ENTITY_SECTION]
