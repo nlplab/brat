@@ -18,7 +18,7 @@ from os.path import split as path_split
 
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
-        EventAnnotation, ModifierAnnotation, EquivAnnotation, open_textfile,
+        EventAnnotation, EquivAnnotation, open_textfile,
         AnnotationsIsReadOnlyError, AttributeAnnotation)
 from config import DEBUG
 from document import real_directory
@@ -369,28 +369,32 @@ def _create_span(ann_obj, mods, type, start, end, txt_file_path,
 
 def _set_attributes(ann_obj, ann, attributes, mods):
     # Find existing attributes (if any)
-    existing_attrs = set((a for a in ann_obj.get_attributes()
-            if a.target == ann.target))
+    existing_attr_anns = set((a for a in ann_obj.get_attributes()
+            if a.target == ann.id))
 
-    for existing_attr in existing_attrs:
-        if existing_attr.type not in attributes:
+    log_info('ATTR: %s' %(existing_attr_anns, ))
+
+    for existing_attr_ann in existing_attr_anns:
+        if existing_attr_ann.type not in attributes:
             # Delete attributes that were un-set existed previously
-            ann_obj.del_annotation(existing_attr)
-            mods.deletion(existing_attr)
+            ann_obj.del_annotation(existing_attr_ann)
+            mods.deletion(existing_attr_ann)
         else:
             # If the value of the attribute is different, alter it
-            new_value = attributes[existing_attr.type]
-            if existing_attr.value != new_value:
-                before = unicode(existing_attr)
-                existing_attr.value = new_value
-                mods.change(before, existing_attr)
+            new_value = attributes[existing_attr_ann.type]
+            log_info('ATTR: "%s" "%s"' % (new_value, existing_attr_ann.value))
+            if existing_attr_ann.value != new_value:
+                before = unicode(existing_attr_ann)
+                existing_attr_ann.value = new_value
+                mods.change(before, existing_attr_ann)
 
     # The remaining annotations are new and should be created
     for attr_type, attr_val in attributes.iteritems():
-        new_attr = AttributeAnnotation(ann.id, ann_obj.get_new_id('A'),
-                attr_type, '', attr_val)
-        ann_obj.add_annotation(new_attr)
-        mods.addition(new_attr)
+        if attr_type not in set((a.type for a in existing_attr_anns)):
+            new_attr = AttributeAnnotation(ann.id, ann_obj.get_new_id('A'),
+                    attr_type, '', attr_val)
+            ann_obj.add_annotation(new_attr)
+            mods.addition(new_attr)
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def create_span(directory, document, start, end, type, attributes=None, id=None, comment=None):
@@ -399,6 +403,18 @@ def create_span(directory, document, start, end, type, attributes=None, id=None,
     else:
         # TODO: Catch parse failures here
         _attributes =  json_loads(attributes)
+
+        ### XXX: Hack since the client is sending back False and True as values...
+        # These are __not__ to be sent, they violate the protocol
+        for _del in [k for k, v in _attributes.items() if v == False]:
+            del _attributes[_del]
+
+        # These are to be old-style modifiers without values
+        for _revalue in [k for k, v in _attributes.items() if v == True]:
+            _attributes[_revalue] = True
+        ###
+
+    log_info('ATTR: %s' %(_attributes, ))
 
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
@@ -830,11 +846,11 @@ def split_span(directory, document, args, id):
                                 new_args.append((arg, newe.id))
                     a.args.extend(new_args)
 
-                elif isinstance(a, ModifierAnnotation):
+                elif isinstance(a, AttributeAnnotation):
                     for newe in new_events:
                         newmod = deepcopy(a)
                         newmod.target = newe.id
-                        newmod.id = ann_obj.get_new_id("M") # TODO: avoid hard-coding ID prefix
+                        newmod.id = ann_obj.get_new_id("A") # TODO: avoid hard-coding ID prefix
                         ann_obj.add_annotation(newmod)
 
                 elif isinstance(a, BinaryRelationAnnotation):
