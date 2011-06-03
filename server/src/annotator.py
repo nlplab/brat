@@ -19,7 +19,7 @@ from os.path import split as path_split
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, ModifierAnnotation, EquivAnnotation, open_textfile,
-        AnnotationsIsReadOnlyError)
+        AnnotationsIsReadOnlyError, AttributeAnnotation)
 from config import DEBUG
 from document import real_directory
 from jsonwrap import loads as json_loads
@@ -206,59 +206,10 @@ def _json_from_ann_and_txt(ann_obj, txt_file_path):
     _enrich_json_with_data(j_dic, ann_obj)
     return j_dic
 
-### Attributes
-# XXX: Temporary solution until we make a config
-# XXX: We only support these two for now, don't adjust
-ATTRIBUTES = set((
-    'negation',
-    'speculation',
-    ))
-ATTRIBUTE_VALUES = {
-        'negation': set((
-            'true',
-            None,
-            )),
-        'speculation': set((
-            'true',
-            None,
-            )),
-        }
-for attr in ATTRIBUTES:
-    assert attr in ATTRIBUTE_VALUES
-###
-
-# NOTE: For now this converts into the old version for compability
-def create_span(directory, document, start, end, type,
-        attributes=None, id=None, comment=None):
-    if attributes is None:
-        # NOTE: Defaults are to be added here
-        attributes = {}
-    else:
-        attributes =  json_loads(attributes)
-
-    for attr in attributes:
-        # TODO: This is to be removed upon completed implementation
-        assert attr in set(('negation', 'speculation', )), (
-                'protocol not supporting general attribute "%s"' % attr)
-
-    try:
-        negation = attributes['negation']
-    except KeyError:
-        negation = False
-
-    try:
-        speculation = attributes['speculation']
-    except KeyError:
-        speculation = False
-
-    return _create_span(directory, document, start, end,
-            type, negation, speculation, id=id, comment=comment)
-
 from logging import info as log_info
 from annotation import TextBoundAnnotation, TextBoundAnnotationWithText
 
-def _edit_span(ann_obj, mods, id, start, end, projectconf, speculation,
-        negation, type):
+def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type):
     #TODO: Handle failure to find!
     ann = ann_obj.get_ann_by_id(id)
 
@@ -363,49 +314,10 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, speculation,
 
             # Finally remember the change
             mods.change(before, ann)
-    # Here we assume that there is at most one of each in the file, this can be wrong
-    seen_spec = None
-    seen_neg = None
-    for other_ann in ann_obj:
-        try:
-            if other_ann.target == unicode(ann.id):
-                if other_ann.type == 'Speculation': #XXX: Cons
-                    seen_spec = other_ann
-                if other_ann.type == 'Negation': #XXX: Cons
-                    seen_neg = other_ann
-        except AttributeError:
-            pass
-    # Is the attribute set and none existing? Add.
-    if speculation and seen_spec is None:
-        spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-        spec_mod = ModifierAnnotation(unicode(ann.id), unicode(spec_mod_id),
-                'Speculation', '') #XXX: Cons
-        ann_obj.add_annotation(spec_mod)
-        mods.addition(spec_mod)
-    if negation and seen_neg is None:
-        neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-        neg_mod = ModifierAnnotation(unicode(ann.id), unicode(neg_mod_id),
-                'Negation', '') #XXX: Cons
-        ann_obj.add_annotation(neg_mod)
-        mods.addition(neg_mod)
-    # Is the attribute unset and one existing? Erase.
-    if not speculation and seen_spec is not None:
-        try:
-            ann_obj.del_annotation(seen_spec)
-            mods.deletion(seen_spec)
-        except DependingAnnotationDeleteError:
-            assert False, 'Dependant attached to speculation'
-    if not negation and seen_neg is not None:
-        try:
-            ann_obj.del_annotation(seen_neg)
-            mods.deletion(seen_neg)
-        except DependingAnnotationDeleteError:
-            assert False, 'Dependant attached to negation'
-
     return tb_ann, e_ann
 
-def __create_span(ann_obj, mods, type, start, end, txt_file_path,
-        projectconf, speculation, negation):
+def _create_span(ann_obj, mods, type, start, end, txt_file_path,
+        projectconf, attributes):
     # TODO: Rip this out!
     start = int(start)
     end = int(end)
@@ -449,46 +361,44 @@ def __create_span(ann_obj, mods, type, start, end, txt_file_path,
             event = EventAnnotation(ann.id, [], unicode(new_event_id), type, '')
             ann_obj.add_annotation(event)
             mods.addition(event)
-
-            # TODO: use an existing identical textbound for the trigger
-            # if one exists, don't dup            
-
-            if speculation:
-                spec_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                spec_mod = ModifierAnnotation(unicode(new_event_id),
-                        unicode(spec_mod_id), 'Speculation', '') #XXX: Cons
-                ann_obj.add_annotation(spec_mod)
-                mods.addition(spec_mod)
-            else:
-                neg_mod = None
-            if negation:
-                neg_mod_id = ann_obj.get_new_id('M') #XXX: Cons
-                neg_mod = ModifierAnnotation(unicode(new_event_id),
-                        unicode(neg_mod_id), 'Negation', '') #XXX: Cons
-                ann_obj.add_annotation(neg_mod)
-                mods.addition(neg_mod)
-            else:
-                neg_mod = None
     else:
         # We got a newline in the span, don't take any action
         event = None
 
     return ann, event
 
-#TODO: ONLY determine what action to take! Delegate to Annotations!
-def _create_span(directory, document, start, end, type, negation, speculation,
-        id=None, comment=None):
-#def save_span(docdir, docname, start_str, end_str, type, negation, speculation, id):
-    #TODO: Handle the case when negation and speculation both are positive
-    # if id present: edit
-    # if spanfrom and spanto present, new
-    #XXX: Negation, speculation not done!
+def _set_attributes(ann_obj, ann, attributes, mods):
+    # Find existing attributes (if any)
+    existing_attrs = set((a for a in ann_obj.get_attributes()
+            if a.target == ann.target))
 
-    # Convert from types sent by JS
-    if isinstance(negation, str):
-        negation = negation == 'true' 
-    if isinstance(speculation, str):
-        speculation = speculation == 'true'
+    for existing_attr in existing_attrs:
+        if existing_attr.type not in attributes:
+            # Delete attributes that were un-set existed previously
+            ann_obj.del_annotation(existing_attr)
+            mods.deletion(existing_attr)
+        else:
+            # If the value of the attribute is different, alter it
+            new_value = attributes[existing_attr.type]
+            if existing_attr.value != new_value:
+                before = unicode(existing_attr)
+                existing_attr.value = new_value
+                mods.change(before, existing_attr)
+
+    # The remaining annotations are new and should be created
+    for attr_type, attr_val in attributes.iteritems():
+        new_attr = AttributeAnnotation(ann.id, ann_obj.get_new_id('A'),
+                attr_type, '', attr_val)
+        ann_obj.add_annotation(new_attr)
+        mods.addition(new_attr)
+
+#TODO: ONLY determine what action to take! Delegate to Annotations!
+def create_span(directory, document, start, end, type, attributes=None, id=None, comment=None):
+    if attributes is None:
+        _attributes = {}
+    else:
+        # TODO: Catch parse failures here
+        _attributes =  json_loads(attributes)
 
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
@@ -505,11 +415,18 @@ def _create_span(directory, document, start, end, type, negation, speculation,
         if id is not None:
             # We are to edit an existing annotation
             tb_ann, e_ann = _edit_span(ann_obj, mods, id, start, end, projectconf,
-                    speculation, negation, type)
+                    _attributes, type)
         else:
             # We are to create a new annotation
-            tb_ann, e_ann = __create_span(ann_obj, mods, type, start, end, txt_file_path,
-                    projectconf, speculation, negation)
+            tb_ann, e_ann = _create_span(ann_obj, mods, type, start, end, txt_file_path,
+                    projectconf, _attributes)
+
+        # Set annotation attributes
+        if e_ann is not None:
+            # Assign attributes to the event, not the trigger
+            _set_attributes(ann_obj, e_ann, _attributes, mods)
+        else:
+            _set_attributes(ann_obj, tb_ann, _attributes, mods)
 
         # Handle annotation comments
         if tb_ann is not None:
