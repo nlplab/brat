@@ -372,7 +372,7 @@ def _set_attributes(ann_obj, ann, attributes, mods):
     existing_attr_anns = set((a for a in ann_obj.get_attributes()
             if a.target == ann.id))
 
-    log_info('ATTR: %s' %(existing_attr_anns, ))
+    #log_info('ATTR: %s' %(existing_attr_anns, ))
 
     for existing_attr_ann in existing_attr_anns:
         if existing_attr_ann.type not in attributes:
@@ -382,7 +382,7 @@ def _set_attributes(ann_obj, ann, attributes, mods):
         else:
             # If the value of the attribute is different, alter it
             new_value = attributes[existing_attr_ann.type]
-            log_info('ATTR: "%s" "%s"' % (new_value, existing_attr_ann.value))
+            #log_info('ATTR: "%s" "%s"' % (new_value, existing_attr_ann.value))
             if existing_attr_ann.value != new_value:
                 before = unicode(existing_attr_ann)
                 existing_attr_ann.value = new_value
@@ -414,7 +414,7 @@ def create_span(directory, document, start, end, type, attributes=None, id=None,
             _attributes[_revalue] = True
         ###
 
-    log_info('ATTR: %s' %(_attributes, ))
+    #log_info('ATTR: %s' %(_attributes, ))
 
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
