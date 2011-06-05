@@ -23,6 +23,11 @@ from annotation import Annotations, open_textfile
 from config import DATA_DIR
 from message import Messager
 
+try:
+    from config import PERFORM_VERIFICATION
+except ImportError:
+    PERFORM_VERIFICATION = False
+
 ### Constants
 STATS_CACHE_FILE_NAME = '.stats_cache'
 ###
@@ -67,6 +72,11 @@ def get_statistics(directory, base_names, use_cache=True):
     except OSError, e:
         Messager.warning('Failed checking file modification times for stats cache check; regenerating')
         generate = True
+
+    # "header" and types
+    stat_types = [("Textbounds", "int"), ("Relations", "int"), ("Events", "int")]
+    if PERFORM_VERIFICATION:
+        stat_types.append(("Issues", "int"))
             
     if generate:
         # Generate the document statistics from scratch
@@ -80,11 +90,25 @@ def get_statistics(directory, base_names, use_cache=True):
                     rel_count = (len([a for a in ann_obj.get_relations()]) +
                                  len([a for a in ann_obj.get_equivs()]))
                     event_count = len([a for a in ann_obj.get_events()])
-                    docstats.append([tb_count, rel_count, event_count])
+
+                    if not PERFORM_VERIFICATION:
+                        docstats.append([tb_count, rel_count, event_count])
+                    else:
+                        # verify and include verification issue count
+                        try:
+                            from projectconfig import ProjectConfiguration
+                            projectconf = ProjectConfiguration(directory)
+                            from verify_annotations import verify_annotation
+                            issues = verify_annotation(ann_obj, projectconf)
+                            issue_count = len(issues)
+                        except:
+                            # TODO: error reporting
+                            issue_count = -1
+                        docstats.append([tb_count, rel_count, event_count, issue_count])
             except Exception, e:
                 log_info('Received "%s" when trying to generate stats' % e)
                 # Pass exceptions silently, just marking stats missing
-                docstats.append([-1, -1, -1])
+                docstats.append([-1] * len(stat_types))
 
         # Cache the statistics
         try:
@@ -92,6 +116,7 @@ def get_statistics(directory, base_names, use_cache=True):
                 pickle_dump(docstats, cache_file)
         except IOError:
             Messager.warning("Could not write statistics cache file (no write permission to data directory %s?)" % directory)
-    return docstats
+
+    return stat_types, docstats
 
 # TODO: Testing!

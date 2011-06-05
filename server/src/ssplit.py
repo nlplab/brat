@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import with_statement
+
 '''
 Primitive sentente splitting using Sampo Pyysalo's GeniaSS sentence split
 refiner. Also a primitive Japanese sentence splitter.

@@ -27,7 +27,6 @@ from projectconfig import ProjectConfiguration
 from stats import get_statistics
 from message import Messager
 
-# Temporary catch while we phase in this part
 try:
     from config import PERFORM_VERIFICATION
 except ImportError:
@@ -75,10 +74,10 @@ def get_directory_information(directory):
     doclist = doclist_with_time
     doclist_header.append(("Modified", "time"))
 
-    doc_stats = get_statistics(real_dir, base_names)
+    stats_types, doc_stats = get_statistics(real_dir, base_names)
                 
     doclist = [doclist[i] + doc_stats[i] for i in range(len(doclist))]
-    doclist_header += [("Textbounds", "int"), ("Relations", "int"), ("Events", "int")]
+    doclist_header += stats_types
 
     dirlist = [dir for dir in _listdir(real_dir)
             if isdir(path_join(real_dir, dir))]
