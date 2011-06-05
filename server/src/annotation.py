@@ -22,7 +22,6 @@ from os.path import join as path_join
 from os.path import basename
 
 from common import ProtocolError
-from config import WORK_DIR
 from filelock import file_lock
 from message import Messager
 
@@ -666,6 +665,8 @@ class Annotations(object):
             if out_str == old_str:
                 # Then just return
                 return
+
+            from config import WORK_DIR
             
             # Protect the write so we don't corrupt the file
             with file_lock(path_join(WORK_DIR,
