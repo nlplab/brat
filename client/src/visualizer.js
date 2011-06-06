@@ -656,12 +656,12 @@ var Visualizer = (function($, window, undefined) {
         if (_data) setData(_data);
 
         if (data.mtime) {
-            // we're getting seconds and need milliseconds
-            //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
-            $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
+          // we're getting seconds and need milliseconds
+          //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
+          $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
         } else {
-            //$('#document_ctime').css("display", "none");
-            $('#document_mtime').css("display", "none");
+          //$('#document_ctime').css("display", "none");
+          $('#document_mtime').css("display", "none");
         }
 
         svg.clear(true);
@@ -1180,19 +1180,19 @@ var Visualizer = (function($, window, undefined) {
             var path;
             path = svg.createPath().move(textStart, -height);
             if (rowIndex == leftRow) {
-                var cornerx = from + ufoCatcherMod * arcSlant;
-                // for normal cases, should not be past textStart even if narrow
-                if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
-                if (smoothArcCurves) {
-                    var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                    line = path.line(cornerx, -height).
-                        curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
-                } else {
-                    path.line(cornerx, -height).
-                        line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
-                }
+              var cornerx = from + ufoCatcherMod * arcSlant;
+              // for normal cases, should not be past textStart even if narrow
+              if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
+              if (smoothArcCurves) {
+                var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
+                line = path.line(cornerx, -height).
+                    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+              } else {
+                path.line(cornerx, -height).
+                    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+              }
             } else {
-                path.line(from, -height);
+              path.line(from, -height);
             }
             svg.path(arcGroup, path, {
                 markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
@@ -1213,18 +1213,18 @@ var Visualizer = (function($, window, undefined) {
             }
             path = svg.createPath().move(textEnd, -height);
             if (rowIndex == rightRow) {
-                // TODO: duplicates above in part, make funcs
-                var cornerx  = to - ufoCatcherMod * arcSlant;
-                // for normal cases, should not be past textEnd even if narrow
-                if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
-                if (smoothArcCurves) {
-                    var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-                    path.line(cornerx, -height).
-                        curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
-                } else {
-                    path.line(cornerx, -height).
-                        line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
-                }
+              // TODO: duplicates above in part, make funcs
+              var cornerx  = to - ufoCatcherMod * arcSlant;
+              // for normal cases, should not be past textEnd even if narrow
+              if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
+              if (smoothArcCurves) {
+                var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
+                path.line(cornerx, -height).
+                    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+              } else {
+                path.line(cornerx, -height).
+                    line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+              }
             } else {
               path.line(to, -height);
             }
