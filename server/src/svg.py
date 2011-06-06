@@ -21,7 +21,7 @@ from os import mkdir
 
 from common import ProtocolError, NoPrintJSONError
 from config import BASE_DIR, WORK_DIR
-from message import display_message
+from message import Messager
 from session import get_session
 
 ### Constants
@@ -39,8 +39,7 @@ class UnknownSVGVersionError(ProtocolError):
 
     def json(self, json_dic):
         json_dic['exception'] = 'unknownSVGVersion'
-        display_message('Version "%s" is not a valid version'
-                % self.unknown_version, 'error')
+        Messager.error('Version "%s" is not a valid version' % self.unknown_version)
         return json_dic
 
 

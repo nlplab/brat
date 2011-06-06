@@ -13,7 +13,7 @@ from hashlib import sha512
 
 from common import ProtocolError
 from config import USER_PASSWORD
-from message import display_message
+from message import Messager
 from session import get_session
 
 
@@ -25,8 +25,7 @@ class NotAuthorisedError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'notAuthorised'
         # TODO: Really send this message?
-        display_message('Login required to perform "%s"'
-                % self.attempted_action, 'error', 5)
+        Message.error('Login required to perform "%s"' % self.attempted_action, duration=5)
         return json_dic
 
 
@@ -37,7 +36,7 @@ class InvalidAuthError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'invalidAuth'
         # TODO: Really send this message?
-        display_message('Incorrect login and/or password', 'error', 5)
+        Messager.error('Incorrect login and/or password', 5)
         return json_dic
 
 
@@ -54,13 +53,13 @@ def login(user, password):
         raise InvalidAuthError
 
     get_session()['user'] = user
-    display_message('Hello!')
+    Messager.info('Hello!')
     return {}
 
 def logout():
     get_session().invalidate()
     # TODO: Really send this message?
-    display_message('Bye!')
+    Messager.info('Bye!')
     return {}
 
 def whoami():
@@ -69,7 +68,7 @@ def whoami():
         json_dic['user'] = get_session().get('user')
     except KeyError:
         # TODO: Really send this message?
-        display_message('Not logged in!', type='error', duration=3)
+        Messager.error('Not logged in!', duration=3)
     return json_dic
 
 # TODO: Unittesting

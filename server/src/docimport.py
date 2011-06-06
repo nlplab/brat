@@ -80,7 +80,7 @@ def save_import(title, text, docid, directory=None):
             raise FileExistsError(path)
 
     with open(txt_path, 'w') as txt_file:
-        txt_file.write(text)
+        txt_file.write(title + '\n' + text)
 
     # Touch the ann file so that we can edit the file later
     with open(ann_path, 'w') as _:

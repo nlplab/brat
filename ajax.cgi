@@ -16,7 +16,7 @@ Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-02-07
 '''
 
-from cgi import escape, FieldStorage
+from cgi import FieldStorage
 from logging import info as log_info
 from os import environ
 from os.path import dirname
@@ -28,7 +28,7 @@ sys_path.append(path_join(dirname(__file__), 'server/lib/simplejson-2.1.5'))
 sys_path.append(path_join(dirname(__file__), 'server/src'))
 
 from common import ProtocolError, NoPrintJSONError
-from message import add_messages_to_json, display_message
+from message import Messager
 from session import get_session
 
 ### Constants
@@ -104,9 +104,8 @@ def main(args):
     except ImportError:
         path.extend(orig_path)
         print 'Content-Type: application/json\n'
-        display_message(_miss_config_msg(),
-            type='error', duration=-1)
-        print dumps(add_messages_to_json({}))
+        Messager.error(_miss_config_msg(), duration=-1)
+        print dumps(Messager.output_json({}))
         raise
     # Try importing the config entries we need
     try:
@@ -114,18 +113,16 @@ def main(args):
     except ImportError:
         path.extend(orig_path)
         print 'Content-Type: application/json\n'
-        display_message(_miss_var_msg('DEBUG'),
-            type='error', duration=-1)
-        print dumps(add_messages_to_json({}))
+        Messager.error(_miss_var_msg('DEBUG'), duration=-1)
+        print dumps(Messager.output_json({}))
         raise
     try:
         from config import ADMIN_CONTACT_EMAIL
     except ImportError:
         path.extend(orig_path)
         print 'Content-Type: application/json\n'
-        display_message(_miss_var_msg('ADMIN_CONTACT_EMAIL'),
-            type='error', duration=-1)
-        print dumps(add_messages_to_json({}))
+        Messager.error(_miss_var_msg('ADMIN_CONTACT_EMAIL'), duration=-1)
+        print dumps(Messager.output_json({}))
         raise
     # Remove our entry to the path
     path.pop()
@@ -160,7 +157,7 @@ def main(args):
         
             # TODO: Generically catch all responses in order to log them
             server_response = ('Content-Type: application/json\n\n' +
-                    dumps(add_messages_to_json(json_dic)))
+                    dumps(Messager.output_json(json_dic)))
             log_info('Server Response:\n' + server_response)
             print  server_response
         except ProtocolError, e:
@@ -168,7 +165,7 @@ def main(args):
             json_dic = {}
             e.json(json_dic)
             server_response = ('Content-Type: application/json\n\n' +
-                    dumps(add_messages_to_json(json_dic)))
+                    dumps(Messager.output_json(json_dic)))
             log_info('Server Response:\n' + server_response)
             print  server_response
         except NoPrintJSONError:
@@ -187,10 +184,8 @@ def main(args):
             buf = StringIO()
             print_exc(file=buf)
             buf.seek(0)
-            error_msg = '<br/>'.join((
-                'Server Python crash, stacktrace is:\n',
-                escape(buf.read()))).replace('\n', '\n<br/>\n')
-            display_message(error_msg, type='error', duration=-1)
+            error_msg = '\n'.join(('Server Python crash, stacktrace is:\n', buf.read()))
+            Messager.error(error_msg, duration=-1)
         else:
             # Give the user an error message
             from time import time
@@ -199,14 +194,14 @@ def main(args):
                     'please contact the administrators at %s '
                     'and give the id #%d'
                     ) % (ADMIN_CONTACT_EMAIL, int(time()))
-            display_message(error_msg, type='error', duration=-1)
+            Messager.error(error_msg, duration=-1)
 
         # Allow the exception to fall through so it is logged by Apache
         print 'Content-Type: application/json\n'
         json_dic = {
                 'exception': True,
                 }
-        print dumps(add_messages_to_json(json_dic))
+        print dumps(Messager.output_json(json_dic))
         raise 
     return 0
 

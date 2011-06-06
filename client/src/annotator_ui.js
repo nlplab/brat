@@ -18,6 +18,8 @@ var AnnotatorUI = (function($, window, undefined) {
       var reselectedSpan = null;
       var editedSpan = null;
       var repeatingArcTypes = [];
+      var spanTypes = null;
+      var attributeTypes = null;
 
       that.user = null;
 
@@ -75,8 +77,8 @@ var AnnotatorUI = (function($, window, undefined) {
             arcOptions['left'] = eventDesc.leftSpans.join(',');
             arcOptions['right'] = eventDesc.rightSpans.join(',');
           }
-          $('#arc_origin').text(Visualizer.displayForm(originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
-          $('#arc_target').text(Visualizer.displayForm(targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
+          $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
+          $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
           var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
 
@@ -140,8 +142,8 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var adjustToCursor = function(evt, element) {
-        var screenHeight = $(window).height() - 15; // TODO HACK - no idea why -15 is needed
-        var screenWidth = $(window).width();
+        var screenHeight = $(window).height() - 8; // TODO HACK - no idea why -8 is needed
+        var screenWidth = $(window).width() - 8;
         var elementHeight = element.height();
         var elementWidth = element.width();
         var y = Math.min(evt.clientY, screenHeight - elementHeight);
@@ -207,12 +209,19 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#span_form_reselect, #span_form_delete').hide();
           keymap[$.ui.keyCode.DELETE] = null;
         }
-        if (el = $('#span_mod_Negation')[0]) {
-          el.checked = span ? span.Negation : false;
-        }
-        if (el = $('#span_mod_Speculation')[0]) {
-          el.checked = span ? span.Speculation : false;
-        }
+        $.each(attributeTypes, function(attrNo, attr) {
+          $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+          if (span) {
+            if (attr.unused) {
+              $input.val(span.attributes[attr.type] || '');
+            } else if (attr.bool) {
+              $input[0].checked = span.attributes[attr.type];
+              $input.button('refresh');
+            } else {
+              $input.val(span.attributes[attr.type] || '').change();
+            }
+          }
+        });
         dispatcher.post('showForm', [spanForm]);
         $('#span_form-ok').focus();
 
@@ -246,9 +255,9 @@ var AnnotatorUI = (function($, window, undefined) {
               // no valid choices
               dispatcher.post('messages',
                 [[["No choices for " +
-                   Visualizer.displayForm(originType) +
+                   Util.spanDisplayForm(spanTypes, originType) +
                    " -> " +
-                   Visualizer.displayForm(targetType),
+                   Util.spanDisplayForm(spanTypes, targetType),
                    'warning']]]);
             } else {
               $('#arc_roles').html(jsonData.html);
@@ -353,8 +362,8 @@ var AnnotatorUI = (function($, window, undefined) {
                 directory: dir,
                 'document': doc
               };
-              $('#arc_origin').text(Visualizer.displayForm(originSpan.type)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
-              $('#arc_target').text(Visualizer.displayForm(targetSpan.type)+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
+              $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
+              $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type)+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
               fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
             }
           }
@@ -449,22 +458,102 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
-      var rememberSpanSettings = function(response) {
-        try {
-          // XXX formatting
-          //'<div class="span_wrapper"><fieldset><legend>Left</legend><div class="span_types">Foo</div></fieldset></div><div class="span_wrapper"><fieldset><legend>Right</legend><div class="span_types">Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo<br/>Foo</div></fieldset></div>';
-          $('#span_types').html(response.html).find('.type_scroller').addClass('ui-widget');
-        } catch (x) {
-          escaped = response.html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-          dispatcher.post('messages', [[['Error: failed to display span form; received HTML:<br/>' + escaped, 'error']]]);
-          $('#span_types').html('Error displaying form');
+      var addSpanTypesToDivInner = function($parent, types) {
+        $.each(types, function(typeNo, type) {
+          if (type === null) {
+            $parent.append('<hr/>');
+          } else {
+            var name = type.name;
+            var $input = $('<input type="radio" name="span_type"/>').
+              attr('id', 'span_' + type.type).
+              attr('value', type.type);
+            var $label = $('<label/>').
+              attr('for', 'span_' + type.type).
+              text(name);
+            var $collapsible = $('<div class="collapsible open"/>');
+            var $content = $('<div class="item_content"/>').
+              append($input).
+              append($label).
+              append($collapsible);
+            var $collapser = $('<div class="collapser open"/>');
+            var $div = $('<div class="item"/>');
+            if (type.children.length) {
+              $div.append($collapser)
+            }
+            $div.append($content);
+            addSpanTypesToDivInner($collapsible, type.children);
+            $parent.append($div);
+            if (type.hotkey) {
+              spanKeymap[type.hotkey] = 'span_' + type.type;
+              var name = $label.html();
+              name = name.replace(new RegExp("(&[^;]*?)?" + type.hotkey),
+                function($0, $1) {
+                  return $1 ? $0 : '<span class="accesskey">' + Util.escapeHTML(type.hotkey) + '</span>';
+                });
+              $label.html(name);
+            }
+          }
+        });
+      };
+      var addSpanTypesToDiv = function($top, types, heading) {
+        $scroller = $('<div class="scroller"/>');
+        $legend = $('<legend/>').text(heading);
+        $fieldset = $('<fieldset/>').append($legend).append($scroller);
+        $top.append($fieldset);
+        addSpanTypesToDivInner($scroller, types);
+      };
+
+      var onAttributeChange = function(evt) {
+        if (evt.target.selectedIndex) {
+          $(evt.target).addClass('ui-state-active');
+        } else {
+          $(evt.target).removeClass('ui-state-active');
         }
-        spanKeymap = response.keymap;
-        // TODO: consider separating span and arc labels
-        spanLabels = response.labels;
-        arcLabels = response.labels;
+      }
+
+      var rememberSpanSettings = function(response) {
+        spanKeymap = {};
+
+        $entities = $('<div id="entity_types" class="scroll_wrapper_half"/>');
+        addSpanTypesToDiv($entities, response.entity_types, 'Entities');
+        $events = $('<div id="event_types" class="scroll_wrapper_half"/>');
+        addSpanTypesToDiv($events, response.event_types, 'Events');
+        $('#span_types').empty().append($entities).append($events);
+
+        var $attrs = $('#span_attributes div.scroller').empty();
+        $.each(attributeTypes, function(attrNo, attr) {
+          var escapedType = Util.escapeQuotes(attr.type);
+          if (attr.unused) {
+            var $input = $('<input type="hidden" id="span_attr_' + escapedType + '" value=""/>');
+            $attrs.append($input);
+          } else if (attr.bool) {
+            var escapedName = Util.escapeQuotes(attr.name);
+            var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
+            var $label = $('<label for="span_attr_' + escapedType + '">' + escapedName + '</label>');
+            $attrs.append($input).append($label);
+            $input.button();
+          } else {
+            var $div = $('<div class="ui-button ui-button-text-only"/>');
+            var $select = $('<select id="span_attr_' + escapedType + '" class="ui-widget ui-state-default ui-button-text"/>');
+            var $option = $('<option class="ui-state-default" value=""/>').text(attr.name + ': ?');
+            $select.append($option);
+            $.each(attr.values, function(valType, value) {
+              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + (value.name || valType));
+              $select.append($option);
+            });
+            $div.append($select);
+            $attrs.append($div);
+            $select.change(onAttributeChange);
+          }
+        });
+
         spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
+      };
+
+      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
+        spanTypes = _spanTypes;
+        attributeTypes = _attributeTypes;
       };
 
       var gotCurrent = function(_dir, _doc, _args) {
@@ -596,35 +685,9 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('showForm', [splitForm]);
       };
 
-      // XXX delete later
-      var splitSpanOnArgs = function(args) {
-          $.extend(spanOptions, {
-                  action: 'splitSpan',
-                  // TODO XXX dunno how to get an array across, so catenating
-                  'args': args.join('|'),
-                  directory: dir,
-                  'document': doc,
-              });
-          dispatcher.post('ajax', [spanOptions, 'edited']);
-      }
-
-      var splitSpanOnThemeSite = function() {
-          splitSpanOnArgs(['Theme', 'Site']);
-      }
-
-      var splitSpanOnTheme = function() {
-          splitSpanOnArgs(['Theme']);
-      }
-
-      var splitSpanOnSite = function() {
-          splitSpanOnArgs(['Site']);
-      }
-
       dispatcher.post('initForm', [spanForm, {
-          // alsoResize: '#span_types', // DEBUG preparation for generated spans
-          // XXX big hack :) choosing the exact thing to contract/expand
-          alsoResize: '#span_types .type_scroller:last',
-          width: 700,
+          alsoResize: '#span_types',
+          width: 760,
           buttons: [{
               id: 'span_form_delete',
               text: "Delete",
@@ -656,14 +719,18 @@ var AnnotatorUI = (function($, window, undefined) {
           type: type,
           comment: $('#span_notes').val()
         });
-        var el;
+
         var attributes = {};
-        if (el = $('#span_mod_Negation')[0]) {
-          attributes.negation = el.checked;
-        }
-        if (el = $('#span_mod_Speculation')[0]) {
-          attributes.speculation = el.checked;
-        }
+        $.each(attributeTypes, function(attrNo, attr) {
+          var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+          if (attr.bool) {
+            attributes[attr.type] = $input[0].checked;
+          } else if ($input[0].selectedIndex) {
+            attributes[attr.type] = $input.val();
+          } else {
+            attributes[attr.type] = null;
+          }
+        });
         // unfocus all elements to prevent focus being kept after
         // hiding them
         spanForm.parent().find('*').blur();
@@ -728,6 +795,7 @@ var AnnotatorUI = (function($, window, undefined) {
       dispatcher.
         on('renderData', rememberData).
         on('dirLoaded', rememberSpanSettings).
+        on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
         on('hideForm', hideForm).
         on('init', init).
         on('edited', edited).

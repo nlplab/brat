@@ -10,6 +10,11 @@ var Visualizer = (function($, window, undefined) {
       this.to = parseInt(to);
       this.outgoing = [];
       this.incoming = [];
+      this.attributes = {};
+      this.attributeText = [];
+      this.attributeCues = {};
+      this.attributeCueFor = {};
+      this.attributeMerge = {}; // for box, cross, etc. that are span-global
       this.totalDist = 0;
       this.numArcs = 0;
       this.generalType = generalType;
@@ -40,7 +45,6 @@ var Visualizer = (function($, window, undefined) {
       var that = this;
 
       // OPTIONS
-      var replaceUnderscoresWithSpace = true; // for span texts
       var margin = { x: 2, y: 1 };
       var boxTextMargin = { x: 0, y: 1 }; // effect is inverse of "margin" for some reason
       var spaceWidths = {
@@ -75,10 +79,12 @@ var Visualizer = (function($, window, undefined) {
       var $svg;
       var data = null;
       var dir, doc, args;
-      var labels;
+      var spanTypes;
       var abbrevsOn = true;
       var isRenderRequested;
       var curlyY;
+      var attributeTypes = null;
+      var spanTypes = null;
 
       var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
 
@@ -154,9 +160,16 @@ var Visualizer = (function($, window, undefined) {
           trigger[1].push(span);
           span.incoming = []; // protect from shallow copy
           span.outgoing = [];
+          span.attributes = {};
+          span.attributeText = [];
+          span.attributeCues = {};
+          span.attributeCueFor = {};
+          span.attributeMerge = {};
           span.id = eventDesc.id;
           data.spans[eventDesc.id] = span;
         });
+
+        // XXX modifications: delete later
         $.each(data.modifications, function(modNo, mod) {
           if (!data.spans[mod[2]]) {
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
@@ -164,6 +177,7 @@ var Visualizer = (function($, window, undefined) {
           }
           data.spans[mod[2]][mod[1]] = true;
         });
+
         $.each(data.equivs, function(equivNo, equiv) {
           equiv[0] = "*" + equivNo;
           var equivSpans = equiv.slice(2);
@@ -188,8 +202,29 @@ var Visualizer = (function($, window, undefined) {
           data.eventDescs[rel[0]] =
               new EventDesc(rel[2], rel[2], [[rel[1], rel[3]]], 'relation');
         });
-        data.sentComment = {};
 
+        // attributes
+        $.each(data.attributes, function(attrNo, attr) {
+          var attrType = attributeTypes[attr[1]];
+          if (!attrType) return; // undefined effect
+
+          var attrValue = attrType.values[attrType.bool || attr[3]];
+          var span = data.spans[attr[2]];
+          var attrVal = attrType.values[attr[3]];
+          var valText = (attrVal && attrVal.name) || attr[3];
+          var attrText = attrType.bool ? attrType.name : (attrType.name + ': ' + valText);
+          span.attributeText.push(attrText);
+          span.attributes[attr[1]] = attr[3];
+          if (attr[4]) { // cue
+            span.attributeCues[attr[1]] = attr[4];
+            var cueSpan = data.spans[attr[4]];
+            cueSpan.attributeCueFor[data.spans[1]] = attr[2];
+            cueSpan.cue = 'CUE'; // special css type
+          }
+          $.extend(span.attributeMerge, attrValue);
+        });
+
+        data.sentComment = {};
         $.each(data.comments, function(commentNo, comment) {
           // TODO error handling
           if (comment[0] instanceof Array && comment[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
@@ -212,7 +247,7 @@ var Visualizer = (function($, window, undefined) {
                 span.comment = { type: comment[1], text: comment[2] };
               } else {
                 span.comment.type = comment[1];
-                span.comment.text += "<br/>" + comment[2];
+                span.comment.text += "\n" + comment[2];
               }
               // partially duplicate marking of annotator note comments
               if (comment[1] == "AnnotatorNotes") {
@@ -226,52 +261,63 @@ var Visualizer = (function($, window, undefined) {
           }
         });
 
-        // find chunk breaks
-        var breaks = [[-1, ' ']];
-        var sentNum = 0;
-        $.each(spaceWidths, function(char, width) {
-          var pos = -1;
-          while ((pos = data.text.indexOf(char, pos + 1)) != -1) {
-            if (char === '\n') {
-              breaks.push([pos, char, ++sentNum]);
-            } else {
-              var wordBreak = true;
-              // possible word break: see if it belongs to any spans
-              $.each(data.spans, function(spanNo, span) {
-                if (span.from <= pos + data.offset && pos + data.offset < span.to) {
-                  // it does; no word break
-                  wordBreak = false;
-                  return false;
-                }
-              });
-              if (wordBreak) breaks.push([pos, char]);
+        data.chunks = [];
+        var lastTo = 0;
+        var firstFrom = null;
+        var chunkNo = 0;
+        var inSpan;
+        var space;
+        var chunk = null;
+        $.each(data.token_offsets, function() {
+          var from = this[0];
+          var to = this[1];
+          if (firstFrom === null) firstFrom = from;
+          inSpan = false;
+          $.each(data.spans, function(spanNo, span) {
+            if (span.from < to && to < span.to) {
+              // it does; no word break
+              inSpan = true;
+              return false;
             }
+          });
+          if (inSpan) return;
+          space = data.text.substring(lastTo, firstFrom);
+          var text = data.text.substring(firstFrom, to);
+          if (chunk) chunk.nextSpace = space;
+          chunk = {
+              text: text,
+              space: space,
+              from: firstFrom,
+              to: to,
+              index: chunkNo++,
+              spans: [],
+            };
+          data.chunks.push(chunk);
+          lastTo = to;
+          firstFrom = null;
+        });
+        var numChunks = chunkNo;
+
+        chunkNo = 0;
+        var sentenceNo = 0;
+        var pastFirst = false;
+        $.each(data.sentence_offsets, function() {
+          var from = this[0];
+          var to = this[0];
+          var chunk;
+          while (chunkNo < numChunks && (chunk = data.chunks[chunkNo]).from < from) {
+            chunkNo++;
+          }
+          chunkNo++;
+          if (pastFirst) {
+            var numNL = chunk.space.split("\n").length - 1;
+            if (!numNL) numNL = 1;
+            sentenceNo += numNL;
+            chunk.sentence = sentenceNo;
+          } else {
+            pastFirst = true;
           }
         });
-        breaks.sort(function(a, b) { return a[0] - b[0] });
-
-        // split text into chunks
-        // format: data.chunks[chunk] = [text, from, to, lineBreak, [spans]]
-        data.chunks = [];
-        var numBreaks = breaks.length;
-        breaks.push([data.text.length, false]);
-        var chunkNo = 0;
-        for (var breakNo = 0; breakNo < numBreaks; breakNo++) {
-          var from = breaks[breakNo][0] + 1;
-          var to = breaks[breakNo + 1][0];
-          if (from != to) {
-            data.chunks.push({
-                text: data.text.substring(from, to),
-                from: from + data.offset,
-                to: to + data.offset,
-                lineBreak: breaks[breakNo][1] == '\n',
-                space: breaks[breakNo + 1][1],
-                index: chunkNo++,
-                spans: [],
-                sentence: breaks[breakNo][2],
-              });
-          }
-        }
 
         // assign spans to appropriate chunks
         // and copy spans to sortedSpans array
@@ -396,7 +442,7 @@ var Visualizer = (function($, window, undefined) {
         }); // sortedSpans
 
         var spanAnnTexts = {};
-        data.spanAnnTexts = [];
+        data.spanAnnTexts = {};
         data.towers = {};
 
         var sortComparator = function(a, b) {
@@ -417,8 +463,8 @@ var Visualizer = (function($, window, undefined) {
           var bd = b.to - b.from;
           tmp = ad - bd;
           if(a.numArcs == 0 && b.numArcs == 0) {
-              tmp = -tmp;
-          }
+            tmp = -tmp;
+          } 
           if (tmp) {
             return tmp < 0 ? 1 : -1;
           }
@@ -464,34 +510,79 @@ var Visualizer = (function($, window, undefined) {
           chunk.spans.sort(sortComparator); // sort
           $.each(chunk.spans, function(spanNo, span) {
             span.chunk = chunk;
-            span.text = chunk.text.substring(span.from, span.to);
+            span.text = chunk.text.substring(span.from - chunk.from, span.to - chunk.to); // XXX used anywhere?
             if (!data.towers[span.towerId]) {
               data.towers[span.towerId] = [];
               span.drawCurly = true;
             }
             data.towers[span.towerId].push(span);
 
-            span.labelText = displayForm(span.type);
+            var spanLabels = Util.getSpanLabels(spanTypes, span.type);
+            span.labelText = Util.spanDisplayForm(spanTypes, span.type);
             // Find the most appropriate label according to text width
-            if (abbrevsOn) {
+            if (abbrevsOn && spanLabels) {
               var labelIdx = 1; // first abbrev
               var maxLength = (span.to - span.from) / 0.8;
               while (span.labelText.length > maxLength &&
-                  labels[span.type] &&
-                  labels[span.type][labelIdx]) {
-                span.labelText = labels[span.type][labelIdx];
+                  spanLabels[labelIdx]) {
+                span.labelText = spanLabels[labelIdx];
                 labelIdx++;
               }
             }
 
-            // Replace underscores if requested
-            if(replaceUnderscoresWithSpace) {
-              span.labelText = span.labelText.replace(/_/g,' ');
+            var svgtext = svg.createText();
+            var postfixArray = [];
+            var prefix = '';
+            var postfix = '';
+            var warning = false;
+            $.each(span.attributes, function(attrType, valType) {
+              var attr = attributeTypes[attrType];
+              if (!attr) {
+                // non-existent type
+                warning = true;
+                return;
+              }
+              var val = attr.values[attr.bool || valType];
+              if (!val) {
+                // non-existent value
+                warning = true;
+                return;
+              }
+              if (val.glyph) {
+                if (val.position == "left") {
+                  prefix = val.glyph + prefix;
+                  var css = 'glyph';
+                  if (attr.css) css += ' glyph_' + Util.escapeQuotes(attr.css);
+                  svgtext.span(val.glyph, { 'class': css });
+                } else { // XXX right is implied - maybe change
+                  postfixArray.push([attr, val]);
+                  postfix += val.glyph;
+                }
+              }
+            });
+            var text = span.labelText;
+            if (prefix !== '') {
+              text = prefix + ' ' + text;
+              svgtext.string(' ');
             }
+            svgtext.string(span.labelText);
+            if (postfixArray.length) {
+              text += ' ' + postfix;
+              svgtext.string(' ');
+              $.each(postfixArray, function(elNo, el) {
+                var css = 'glyph';
+                if (el[0].css) css += ' glyph_' + Util.escapeQuotes(el[0].css);
+                svgtext.span(el[1].glyph, { 'class': css });
+              });
+            }
+            if (warning) {
+              svgtext.span("#", { 'class': 'glyph attribute_warning' });
+            }
+            span.glyphedLabelText = text;
 
-            if (!spanAnnTexts[span.labelText]) {
-              spanAnnTexts[span.labelText] = true;
-              data.spanAnnTexts.push(span.labelText);
+            if (!spanAnnTexts[text]) {
+              spanAnnTexts[text] = true;
+              data.spanAnnTexts[text] = svgtext;
             }
           }); // chunk.spans
         }); // chunks
@@ -625,17 +716,15 @@ var Visualizer = (function($, window, undefined) {
 
       var renderDataReal = function(_data) {
         if (!_data && !data) return;
-        try {
         $svgDiv.show();
-        if (_data && (_data.document !== doc || _data.directory !== dir)) return;
-        if (drawing) {
+        if ((_data && (_data.document !== doc || _data.directory !== dir)) || drawing) {
           redraw = true;
+          dispatcher.post('doneRendering', [dir, doc, args]);
           return;
         }
         redraw = false;
         drawing = true;
 
-        try {
         if (_data) setData(_data);
         showMtime();
 
@@ -675,7 +764,7 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
         $.each(data.towers, function(towerNo, tower) {
           var biggestBox = { width: 0 };
           $.each(tower, function(spanNo, span) {
-            var annBox = spanAnnBoxes[span.labelText];
+            var annBox = spanAnnBoxes[span.glyphedLabelText];
             if (annBox.width > biggestBox.width) biggestBox = annBox;
           }); // tower
           $.each(tower, function(spanNo, span) {
@@ -751,47 +840,47 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
             hh -= 2*boxTextMargin.y;
             xx += boxTextMargin.x;
             ww -= 2*boxTextMargin.x;
+            
+            var rectClass = 'span_' + (span.cue || span.type) + ' span_default';
 
-            var rectClass = 'span_' + span.type + ' span_default';
-
-           // attach e.g. "False_positive" into the type
-           if (span.comment && span.comment.type) { rectClass += ' '+span.comment.type; }
-           var bx = xx - margin.x - boxTextMargin.x;
-           var by = yy - margin.y;
-           var bw = ww + 2 * margin.x;
-           var bh = hh + 2 * margin.y;
-           var shadowRect;
-           var editedRect;
-           if (span.edited) {
-               editedRect = svg.rect(span.group,
-                   bx - editedSpanSize, by - editedSpanSize,
-                   bw + 2 * editedSpanSize, bh + 2 * editedSpanSize, {
-
-                   // filter: 'url(#Gaussian_Blur)',
-                   'class': "shadow_EditHighlight",
-                   rx: editedSpanSize,
-                   ry: editedSpanSize,
-               });
-           }
-           if (span.shadowClass) {
-               shadowRect = svg.rect(span.group,
-                   bx - shadowSize, by - shadowSize,
-                   bw + 2 * shadowSize, bh + 2 * shadowSize, {
-
-                   filter: 'url(#Gaussian_Blur)',
-                   'class': "shadow_" + span.shadowClass,
-                   rx: shadowSize,
-                   ry: shadowSize,
-               });
-           }
-           span.rect = svg.rect(span.group,
-               bx, by, bw, bh, {
-               'class': rectClass,
-               rx: margin.x,
-               ry: margin.y,
-               'data-span-id': span.id,
-               'strokeDashArray': span.Speculation ? dashArray : undefined,
-             });
+            // attach e.g. "False_positive" into the type
+            if (span.comment && span.comment.type) { rectClass += ' '+span.comment.type; }
+            var bx = xx - margin.x - boxTextMargin.x;
+            var by = yy - margin.y;
+            var bw = ww + 2 * margin.x;
+            var bh = hh + 2 * margin.y;
+            var shadowRect;
+            var editedRect;
+            if (span.edited) {
+              editedRect = svg.rect(span.group,
+                  bx - editedSpanSize, by - editedSpanSize,
+                  bw + 2 * editedSpanSize, bh + 2 * editedSpanSize, {
+ 
+                  // filter: 'url(#Gaussian_Blur)',
+                  'class': "shadow_EditHighlight",
+                  rx: editedSpanSize,
+                  ry: editedSpanSize,
+              });
+            }
+            if (span.shadowClass) {
+              shadowRect = svg.rect(span.group,
+                  bx - shadowSize, by - shadowSize,
+                  bw + 2 * shadowSize, bh + 2 * shadowSize, {
+ 
+                  filter: 'url(#Gaussian_Blur)',
+                  'class': "shadow_" + span.shadowClass,
+                  rx: shadowSize,
+                  ry: shadowSize,
+              });
+            }
+            span.rect = svg.rect(span.group,
+                bx, by, bw, bh, {
+                'class': rectClass,
+                rx: margin.x,
+                ry: margin.y,
+                'data-span-id': span.id,
+                'strokeDashArray': span.attributeMerge.dasharray
+              });
             var rectBox = span.rect.getBBox();
 
             var yAdjust = placeReservation(span, rectBox, reservations);
@@ -800,23 +889,23 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
             spanHeights[span.lineIndex * 2] = span.height;
             $(span.rect).attr('y', yy - margin.y - yAdjust);
             if (shadowRect) {
-                $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
+              $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
             }
             if (editedRect) {
-                $(editedRect).attr('y', yy - editedSpanSize - margin.y - yAdjust);
+              $(editedRect).attr('y', yy - editedSpanSize - margin.y - yAdjust);
             }
             if (span.Negation) {
               svg.path(span.group, svg.createPath().
                   move(xx, yy - margin.y - yAdjust).
                   line(xx + spanBox.width,
                     yy + hh + margin.y - yAdjust),
-                  { 'class': 'negation' });
+                  { 'class': 'boxcross' });
               svg.path(span.group, svg.createPath().
                   move(xx + spanBox.width, yy - margin.y - yAdjust).
                   line(xx, yy + hh + margin.y - yAdjust),
-                  { 'class': 'negation' });
+                  { 'class': 'boxcross' });
             }
-            var spanText = svg.text(span.group, x, y - yAdjust, span.labelText);
+            var spanText = svg.text(span.group, x, y - yAdjust, data.spanAnnTexts[span.glyphedLabelText]);
 
             // Make curlies to show the span
             if (span.drawCurly) {
@@ -903,7 +992,7 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
             sentenceToggle = 1 - sentenceToggle;
           }
 
-          if (chunk.lineBreak ||
+          if (chunk.sentence ||
               current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
             // new row
@@ -948,7 +1037,10 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
           translate(chunk, current.x + boxX, 0);
           chunk.textX = current.x - textBox.x + boxX;
 
-          current.x += spaceWidths[chunk.space] + boxWidth;
+          var spaceWidth = 0;
+          var spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
+          for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
+          current.x += spaceWidth + boxWidth;
         }); // chunks
 
         // finish the last row
@@ -1081,7 +1173,7 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
                 'data-to': arc.target
             });
             var from, to;
-
+            
             if (rowIndex == leftRow) {
               from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
             } else {
@@ -1094,14 +1186,15 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
               to = canvasWidth - 2 * margin.y;
             }
 
-            var labelText = displayForm(arc.type)
-            if (abbrevsOn && !ufoCatcher) {
+            var originType = data.spans[arc.origin].type;
+            var arcLabels = Util.getArcLabels(spanTypes, originType, arc.type);
+            var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type);
+            if (abbrevsOn && !ufoCatcher && arcLabels) {
               var labelIdx = 1; // first abbreviation
               var maxLength = ((to - from) - (2 * arcSlant)) / 7;
               while (labelText.length > maxLength &&
-                     labels[arc.type] &&
-                     labels[arc.type][labelIdx]) {
-                labelText = labels[arc.type][labelIdx];
+                     arcLabels[labelIdx]) {
+                labelText = arcLabels[labelIdx];
                 labelIdx++;
               }
             }
@@ -1148,24 +1241,24 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
             var path;
             path = svg.createPath().move(textStart, -height);
             if (rowIndex == leftRow) {
-                var cornerx = from + ufoCatcherMod * arcSlant;
-                // for normal cases, should not be past textStart even if narrow
-                if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
-                if (smoothArcCurves) {
-                    var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                    line = path.line(cornerx, -height).
-                        curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
-                } else {
-                    path.line(cornerx, -height).
-                        line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
-                }
+              var cornerx = from + ufoCatcherMod * arcSlant;
+              // for normal cases, should not be past textStart even if narrow
+              if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
+              if (smoothArcCurves) {
+                var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
+                line = path.line(cornerx, -height).
+                    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+              } else {
+                path.line(cornerx, -height).
+                    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+              }
             } else {
-                path.line(from, -height);
+              path.line(from, -height);
             }
             svg.path(arcGroup, path, {
-                markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
-                'class': 'stroke_' + arc.type,
-                'strokeDashArray': arc.equiv ? dashArray : undefined,
+              markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
+              'class': 'stroke_' + arc.type,
+              'strokeDashArray': arc.equiv ? dashArray : undefined,
             });
             if (arc.edited) {
               svg.path(shadowGroup, path, {
@@ -1181,18 +1274,18 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
             }
             path = svg.createPath().move(textEnd, -height);
             if (rowIndex == rightRow) {
-                // TODO: duplicates above in part, make funcs
-                var cornerx  = to - ufoCatcherMod * arcSlant;
-                // for normal cases, should not be past textEnd even if narrow
-                if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
-                if (smoothArcCurves) {
-                    var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-                    path.line(cornerx, -height).
-                        curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
-                } else {
-                    path.line(cornerx, -height).
-                        line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
-                }
+              // TODO: duplicates above in part, make funcs
+              var cornerx  = to - ufoCatcherMod * arcSlant;
+              // for normal cases, should not be past textEnd even if narrow
+              if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
+              if (smoothArcCurves) {
+                var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
+                path.line(cornerx, -height).
+                    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+              } else {
+                path.line(cornerx, -height).
+                    line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+              }
             } else {
               path.line(to, -height);
             }
@@ -1295,24 +1388,14 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
           line(sentNumMargin, y));
         // resize the SVG
         $(svg._svg).attr('height', y).css('height', y);
-        $svgDiv.attr('height', y).css('height', y);
+        svgContainer.attr('height', y).css('height', y);
 
         drawing = false;
         if (redraw) {
           redraw = false;
           renderDataReal();
         }
-        } catch(x) {
-          if (x === 'BadDocumentError') {
-            clearSVG();
-            drawing = false;
-          } else {
-            console.error('FIXME Error during rendering: ', x); // FIXME
-          }
-        }
-        } finally {
-          dispatcher.post('doneRendering', [dir, doc, args]);
-        }
+        dispatcher.post('doneRendering', [dir, doc, args]);
       };
 
       var renderErrors = {
@@ -1362,14 +1445,6 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
         isDirLoaded = false;
       };
 
-      var dirLoaded = function(response) {
-        if (!response.exception) {
-          labels = response.labels;
-          isDirLoaded = true;
-          triggerRender();
-        }
-      };
-
       var gotCurrent = function(_dir, _doc, _args, reloadData) {
         dir = _dir;
         doc = _doc;
@@ -1391,11 +1466,8 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
         if (id = target.attr('data-span-id')) {
           commentId = id;
           var span = data.spans[id];
-          var mods = [];
-          if (span.Negation) mods.push("Negated");
-          if (span.Speculation) mods.push("Speculated");
           dispatcher.post('displaySpanComment', [
-              evt, target, id, span.type, mods,
+              evt, target, id, span.type, span.attributeText,
               data.text.substring(span.from, span.to),
               span.comment && span.comment.text,
               span.comment && span.comment.type]);
@@ -1532,6 +1604,49 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
               triggerRender();
           }
       });
+
+      var loadSpanTypes = function(types) {
+        $.each(types, function(typeNo, type) {
+          if (type) {
+            spanTypes[type.type] = type;
+            if (type.children.length) {
+              loadSpanTypes(type.children);
+            }
+          }
+        });
+      }
+
+      var dirLoaded = function(response) {
+        if (!response.exception) {
+          attributeTypes = {};
+          $.each(response.attribute_types, function(aTypeNo, aType) {
+            attributeTypes[aType.type] = aType;
+            // count the values; if only one, it's a boolean attribute
+            var values = [];
+            for (var i in aType.values) {
+              if (aType.values.hasOwnProperty(i)) {
+                values.push(i);
+              }
+            }
+            if (values.length == 1) {
+              aType.bool = values[0];
+            }
+          });
+
+          spanTypes = {};
+          loadSpanTypes(response.entity_types);
+          loadSpanTypes(response.event_types);
+          loadSpanTypes(response.relation_types);
+
+          dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
+
+          isDirLoaded = true;
+          triggerRender();
+        }
+      };
+
+
+
 
       dispatcher.
           on('dirChanged', dirChanged).

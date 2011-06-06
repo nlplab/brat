@@ -22,9 +22,8 @@ from os.path import join as path_join
 from os.path import basename
 
 from common import ProtocolError
-from config import WORK_DIR
 from filelock import file_lock
-from message import display_message
+from message import Messager
 
 ### Constants
 # The only suffix we allow to write to, which is the joined annotation file
@@ -106,18 +105,13 @@ class DependingAnnotationDeleteError(Exception):
 
     def __str__(self):
         return u'%s can not be deleted due to depending annotations %s' % (
-                self.target, ",".join([unicode(d) for d in self.dependants]))
+                unicode(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
 
     def html_error_str(self, response=None):
-        return u'''
-        Annotation:
-        <br/>
+        return u'''Annotation:
         %s
-        <br/>
         Has depending annotations attached to it:
-        <br/>
-        %s
-        ''' % (self.target, ",".join([unicode(d) for d in self.dependants]))
+        %s''' % (unicode(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
 
 # Open function that enforces strict, utf-8
 # TODO: Could have another wrapping layer raising an appropriate ProtocolError
@@ -125,17 +119,19 @@ open_textfile = partial(codecs_open, errors='strict', encoding='utf8')
 
 def __split_annotation_id(id):
     import re
-    m = re.match(r'^([A-Za-z]|#)([0-9]+)(.*?)$', id)
+    m = re.match(r'^([A-Za-z]+|#)([0-9]+)(.*?)$', id)
     if m is None:
         raise InvalidIdError(id)
     pre, num_str, suf = m.groups()
     return pre, num_str, suf
 
+from itertools import takewhile
+
 def annotation_id_prefix(id):
-    try:
-        return id[0]
-    except:
+    pre = ''.join(c for c in takewhile(lambda x : not x.isdigit(), id))
+    if not pre:
         raise InvalidIdError(id)
+    return pre
 
 def annotation_id_number(id):
     return __split_annotation_id(id)[1]
@@ -256,15 +252,15 @@ class Annotations(object):
 
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
+    
+    def get_attributes(self):
+        return (a for a in self if isinstance(a, AttributeAnnotation))
 
     def get_equivs(self):
         return (a for a in self if isinstance(a, EquivAnnotation))
 
     def get_textbounds(self):
         return (a for a in self if isinstance(a, TextBoundAnnotation))
-
-    def get_modifers(self):
-        return (a for a in self if isinstance(a, ModifierAnnotation))
 
     def get_relations(self):
         return (a for a in self if isinstance(a, BinaryRelationAnnotation))
@@ -282,6 +278,7 @@ class Annotations(object):
     # TODO: getters for other categories of annotations
     #TODO: Remove read and use an internal and external version instead
     def add_annotation(self, ann, read=False):
+        #log_info(u'Will add: ' + unicode(ann).rstrip('\n') + ' ' + unicode(type(ann)))
         #TODO: DOC!
         #TODO: Check read only
         if not read and self._read_only:
@@ -374,20 +371,20 @@ class Annotations(object):
             if unicode(ann.id) in soft_deps | hard_deps:
                 ann_deps.append(other_ann)
               
-        # If all depending are ModifierAnnotations or EquivAnnotations,
+        # If all depending are AttributeAnnotations or EquivAnnotations,
         # delete all modifiers recursively (without confirmation) and remove
         # the annotation id from the equivs (and remove the equiv if there is
         # only one id left in the equiv)
-        # Note: this assumes ModifierAnnotations cannot have
+        # Note: this assumes AttributeAnnotations cannot have
         # other dependencies depending on them, nor can EquivAnnotations
         if all((False for d in ann_deps if (
-            not isinstance(d, ModifierAnnotation)
+            not isinstance(d, AttributeAnnotation)
             and not isinstance(d, EquivAnnotation)
             and not isinstance(d, OnelineCommentAnnotation)
             ))):
 
             for d in ann_deps:
-                if isinstance(d, ModifierAnnotation):
+                if isinstance(d, AttributeAnnotation):
                     if tracker is not None:
                         tracker.deletion(d)
                     self._atomic_del_annotation(d)
@@ -478,6 +475,33 @@ class Annotations(object):
             if suggestion not in self._ann_by_id:
                 return suggestion
 
+    # XXX: This syntax is subject to change
+    def _parse_attribute_annotation(self, id, data, data_tail):
+        import re
+
+        match = re.match(r'(.+?) (.+?) (.+?)$', data)
+        if match is None:
+            # Is it an old format without value?
+            match = re.match(r'(.+?) (.+?)$', data)
+
+            if match is None:
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line,
+                        self.ann_line_num + 1)
+                
+            _type, target = match.groups()
+            value = True
+        else:
+            _type, target, value = match.groups()
+
+        # Verify that the ID is indeed valid
+        try:
+            annotation_id_number(target)
+        except InvalidIdError:
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line,
+                    self.ann_line_num + 1)
+
+        return AttributeAnnotation(target, id, _type, '', value)
+
     def _parse_event_annotation(self, id, data, data_tail):
         #XXX: A bit nasty, we require a single space
         try:
@@ -501,6 +525,7 @@ class Annotations(object):
 
         return EventAnnotation(trigger, args, id, type, data_tail)
 
+
     def _parse_relation_annotation(self, id, data, data_tail):
         try:
             type_delim = data.index(' ')
@@ -515,27 +540,31 @@ class Annotations(object):
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         if len(args) != 2:
-            display_message("Error parsing relation: must have exactly two arguments", "error")
+            Messager.error('Error parsing relation: must have exactly two arguments')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         args.sort()
-        if args[0][0] != "Arg1" or args[1][0] != "Arg2":
-            display_message("Error parsing relation: arguments must be \"Arg1\" and \"Arg2\"", "error")
+        if args[0][0] == args[1][0]:
+            Messager.error('Error parsing relation: arguments must not be identical')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
-        return BinaryRelationAnnotation(id, type, args[0][1], args[1][1], data_tail)
+        return BinaryRelationAnnotation(id, type,
+                                        args[0][0], args[0][1],
+                                        args[1][0], args[1][1],
+                                        data_tail)
 
-    def _parse_equiv_annotation(self, id, data, data_tail):
+    def _parse_equiv_annotation(self, data, data_tail):
         # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
         if type != 'Equiv':
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1)
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail)
 
+    # Parse an old modifier annotation for back-wards compability
     def _parse_modifier_annotation(self, id, data, data_tail):
         type, target = data.split()
-        return ModifierAnnotation(target, id, type, data_tail)
+        return AttributeAnnotation(target, id, type, data_tail, True)
 
     def _split_textbound_data(self, id, data):
         try:
@@ -544,7 +573,7 @@ class Annotations(object):
             end_str = end_str.rstrip()
             # Abort if we have trailing values, i.e. space-separated tail in end_str
             if any((c.isspace() for c in end_str)):
-                #display_message("Error parsing textbound '%s\t%s'. (Using space instead of tab?)" % (id, data), "error")
+                #Messager.error('Error parsing textbound "%s\t%s". (Using space instead of tab?)' % (id, data))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
             start, end = (int(start_str), int(end_str))
         except:
@@ -596,18 +625,31 @@ class Annotations(object):
 
                         new_ann = None
 
+                        #log_info('Will evaluate prefix: ' + pre)
+
                         if pre == '*':
-                            new_ann = self._parse_equiv_annotation(id, data, data_tail)
+                            new_ann = self._parse_equiv_annotation(
+                                    data, data_tail)
                         elif pre == 'E':
-                            new_ann = self._parse_event_annotation(id, data, data_tail)
+                            new_ann = self._parse_event_annotation(
+                                    id, data, data_tail)
                         elif pre == 'M':
-                            new_ann = self._parse_modifier_annotation(id, data, data_tail)
-                        elif pre == 'T':
-                            new_ann = self._parse_textbound_annotation(id, data, data_tail)
+                            new_ann = self._parse_modifier_annotation(
+                                    id, data, data_tail)
+
+                        # XXX: This syntax is subject to change, limit to only T?
+                        elif pre.startswith('T'):
+                            new_ann = self._parse_textbound_annotation(
+                                    id, data, data_tail)
                         elif pre == '#':
-                            new_ann = self._parse_comment_line(id, data, data_tail)
+                            new_ann = self._parse_comment_line(
+                                    id, data, data_tail)
                         elif pre == 'R':
-                            new_ann = self._parse_relation_annotation(id, data, data_tail)
+                            new_ann = self._parse_relation_annotation(
+                                    id, data, data_tail)
+                        elif pre.startswith('A'):
+                            new_ann = self._parse_attribute_annotation(
+                                    id, data, data_tail)
                         else:
                             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
@@ -668,6 +710,8 @@ class Annotations(object):
             if out_str == old_str:
                 # Then just return
                 return
+
+            from config import WORK_DIR
             
             # Protect the write so we don't corrupt the file
             with file_lock(path_join(WORK_DIR,
@@ -702,8 +746,8 @@ class Annotations(object):
                                 #XXX: Disabled for now!
                                 #utime(DATA_DIR, (now, now))
                         except Exception, e:
-                            from message import display_message
-                            display_message('ERROR writing changes: generated annotations cannot be read back in!<br/>(This is almost certainly a system error, please contact the developers.)<br/>%s' % e, 'error', -1)
+                            from message import Messager
+                            Messager.error('ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' % e, -1)
                             raise
                 finally:
                     from os import remove
@@ -734,43 +778,42 @@ class TextAnnotations(Annotations):
 
         # Verify annotation extent
         if start > end:
-            display_message("Text-bound annotation start &gt; end", "error")
+            Messager.error('Text-bound annotation start > end.')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
         if start < 0:
-            display_message("Text-bound annotation start &lt; 0.", "error")
+            Messager.error('Text-bound annotation start < 0.')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
         if end > len(self._document_text):
-            display_message("Text-bound annotation offset exceeds text length.", "error")
+            Messager.error('Text-bound annotation offset exceeds text length.')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         # Require tail to be either empty or to begin with the text
         # corresponding to the start:end span. If the tail is empty,
         # force a fill with the corresponding text.
-        if data_tail.strip() == '':
+        if data_tail.strip() == '' and end - start > 0:
             display_message(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.", "warning", duration=-1)
             text = self._document_text[start:end]
         elif data_tail[0] != '\t':
-            display_message("Text-bound annotation missing tab before text (expected format 'ID\\tTYPE START END\\tTEXT').", "error")
+            Messager.error('Text-bound annotation missing tab before text (expected format "ID\\tTYPE START END\\tTEXT").')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
         elif end-start > len(data_tail)-1: # -1 for tab
-            display_message("Text-bound annotation text '%s' shorter than marked span %d:%d" % (data_tail[1:], start, end), "error")
+            Messager.error('Text-bound annotation text "%s" shorter than marked span %d:%d' % (data_tail[1:], start, end))
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
         else:
             text = data_tail[1:end-start+1] # shift 1 for tab
             data_tail = data_tail[end-start+1:]
             if text != self._document_text[start:end]:
                 #log_info(text.__class__.__name__)
-                display_message((u"Text-bound annotation text '%s' does not "
-                    u"match marked span (%d:%d) text '%s' in document") % (
+                Messager.error((u'Text-bound annotation text "%s" does not '
+                                u'match marked span (%d:%d) text "%s" in document') % (
                         text,
                         start,
                         end,
                         self._document_text[start:end], 
-                        ),
-                    "error")
+                        ))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
             if data_tail != '' and not data_tail[0].isspace():
-                display_message(u"Text-bound annotation text '%s' not separated from rest of line ('%s') by space!" % (text, data_tail), "error")
+                Messager.error(u'Text-bound annotation text "%s" not separated from rest of line ("%s") by space!' % (text, data_tail))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
         return TextBoundAnnotationWithText(start, end, id, type, text, data_tail)
@@ -785,7 +828,7 @@ class TextAnnotations(Annotations):
                 text = f.read()
                 return text
         except:
-            display_message("Error reading document text from %s" % textfn, "error")
+            Messager.error('Error reading document text from %s' % textfn)
         return None
 
 class Annotation(object):
@@ -943,17 +986,20 @@ class EquivAnnotation(TypedAnnotation):
         else:
             return ['equiv', self.type, self.entities]
 
-class ModifierAnnotation(IdedAnnotation):
-    def __init__(self, target, id, type, tail):
+class AttributeAnnotation(IdedAnnotation):
+    def __init__(self, target, id, type, tail, value):
         IdedAnnotation.__init__(self, id, type, tail)
         self.target = target
+        self.value = value
         
     def __str__(self):
-        return u'%s\t%s %s%s' % (
+        return u'%s\t%s %s%s%s' % (
                 self.id,
                 self.type,
                 self.target,
-                self.tail
+                # We hack in old modifiers with this trick using bools
+                ' ' + unicode(self.value) if self.value != True else '',
+                self.tail,
                 )
 
     def get_deps(self):
@@ -1066,20 +1112,24 @@ class BinaryRelationAnnotation(IdedAnnotation):
 
     Represented in standoff as
 
-    ID\tTYPE Arg1:ID1 Arg2:ID2
+    ID\tTYPE ARG1:ID1 ARG2:ID2
 
-    Where "Arg1" and "Arg2" are literal strings.
+    Where ARG1 and ARG2 are arbitrary (but not identical) labels.
     """
-    def __init__(self, id, type, arg1, arg2, tail):
+    def __init__(self, id, type, arg1l, arg1, arg2l, arg2, tail):
         IdedAnnotation.__init__(self, id, type, tail)
-        self.arg1 = arg1
-        self.arg2 = arg2
+        self.arg1l = arg1l
+        self.arg1  = arg1
+        self.arg2l = arg2l
+        self.arg2  = arg2
 
     def __str__(self):
-        return u'%s\t%s Arg1:%s Arg2:%s%s' % (
+        return u'%s\t%s %s:%s %s:%s%s' % (
             self.id,
             self.type,
+            self.arg1l,
             self.arg1,
+            self.arg2l,
             self.arg2,
             self.tail
             )
