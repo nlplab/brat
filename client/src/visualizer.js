@@ -216,27 +216,31 @@ var Visualizer = (function($, window, undefined) {
             }
             data.sentComment[sent] = { type: comment[1], text: text };
           } else {
-            var trigger = triggerHash[comment[0]];
-            var commentSpans =
+            var id = comment[0];
+            var trigger = triggerHash[id];
+            var eventDesc = data.eventDescs[id];
+            var commentEntities =
                 trigger
                 ? trigger[1]
-                : comment[0] in data.spans
-                  ? [data.spans[comment[0]]]
-                  : [];
-            $.each(commentSpans, function(spanId, span) {
-              if (!span.comment) {
-                span.comment = { type: comment[1], text: comment[2] };
+                : id in data.spans
+                  ? [data.spans[id]]
+                  : id in data.eventDescs
+                    ? [data.eventDescs[id]]
+                    : [];
+            $.each(commentEntities, function(entityId, entity) {
+              if (!entity.comment) {
+                entity.comment = { type: comment[1], text: comment[2] };
               } else {
-                span.comment.type = comment[1];
-                span.comment.text += "\n" + comment[2];
+                entity.comment.type = comment[1];
+                entity.comment.text += "\n" + comment[2];
               }
               // partially duplicate marking of annotator note comments
               if (comment[1] == "AnnotatorNotes") {
-                span.annotatorNotes = comment[2];
+                entity.annotatorNotes = comment[2];
               }
               // prioritize type setting when multiple comments are present
-              if (commentPriority(comment[1]) > commentPriority(span.shadowClass)) {
-                span.shadowClass = comment[1];
+              if (commentPriority(comment[1]) > commentPriority(entity.shadowClass)) {
+                entity.shadowClass = comment[1];
               }
             });
           }
@@ -342,6 +346,7 @@ var Visualizer = (function($, window, undefined) {
               dist: dist,
               type: role.type,
               jumpHeight: 0,
+              shadowClass: eventDesc.shadowClass,
             };
             if (eventDesc.equiv) {
               arc.equiv = true;
@@ -349,6 +354,7 @@ var Visualizer = (function($, window, undefined) {
               arc.eventDescId = eventNo;
             } else if (eventDesc.relation) {
               arc.relation = true;
+              arc.eventDescId = eventNo;
             }
             origin.totalDist += dist;
             origin.numArcs++;
@@ -1148,10 +1154,9 @@ var Visualizer = (function($, window, undefined) {
               'data-arc-role': arc.type,
               'data-arc-origin': arc.origin,
               'data-arc-target': arc.target,
+              'data-arc-id': arc.id,
+              'data-arc-ed': arc.eventDescId,
             };
-            if (arc.equiv) {
-              options['data-arc-ed'] = arc.eventDescId;
-            }
             var text = svg.text(arcGroup, (from + to) / 2, -height, labelText, options);
             var textBox = text.getBBox();
             if (arc.edited) {
@@ -1459,9 +1464,18 @@ var Visualizer = (function($, window, undefined) {
           // symmetric relations in general
           var symmetric = role === "Equiv";
           // NOTE: no commentText, commentType for now
+          var arcEventDescId = target.attr('data-arc-ed');
+          var commentText;
+          var commentType;
+          if (arcEventDescId) {
+            var comment = data.eventDescs[arcEventDescId].comment;
+            commentText = comment.text;
+            commentType = comment.type;
+          }
           dispatcher.post('displayArcComment', [
               evt, target, symmetric,
-              originSpanId, role, targetSpanId]);
+              originSpanId, role, targetSpanId,
+              commentText, commentType]);
           highlightArcs = $(svgElement).
               find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
               addClass('highlight');

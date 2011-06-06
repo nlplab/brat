@@ -163,12 +163,12 @@ var VisualizerUI = (function($, window, undefined) {
           evt, target, symmetric,
           originSpanId, role, targetSpanId, commentText, commentType) {
         var arcRole = target.attr('data-arc-role');
-        var comment = '<div class="comment_arc">' + (symmetric
+        var comment = '<div class="comment_id">' + (symmetric
             ? Util.escapeHTML(originSpanId + ' ' +
               Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ' ' + targetSpanId)
             : Util.escapeHTML(originSpanId) + ' &#8594; ' +
-              Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ':' + targetSpanId))
-          + '</div>';
+            Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ':' + targetSpanId))
+            + '</div>';
         displayComment(evt, target, comment, commentText, commentType);
       };
 
