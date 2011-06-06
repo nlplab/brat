@@ -55,9 +55,10 @@
       <img id="logo" src="brat-logo.png"/>
 -->
       <div id="mainHeader" class="ui-widget-header">
-        <div id="document_name"/>
         <div id="mainlogo" class="logo unselectable">brat</div>
-        <div id="document_mtime" class="unselectable"/>
+        <div id="document_name">
+          <input readonly="readonly" class="ui-widget-header"/>
+        </div>
         <!-- <span id="document_ctime"/> -->
       </div>
       <div id="pulldown" class="unselectable ui-widget-content">
@@ -71,6 +72,7 @@
             <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
             <span><input id="abbrev_mode" type="checkbox" value="true" checked="checked"/><label for="abbrev_mode" title="Toggle the abbreviation mode">Abbreviations</label></span>
           </div>
+          <div id="document_mtime" class="unselectable"/>
           <div>
             <a href="#" id="original_link" target="brat_search" style="display:none">Original document</a>
             <span id="download_svg">

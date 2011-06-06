@@ -11,7 +11,7 @@ var Visualizer = (function($, window, undefined) {
         ' ': 5,
         '\u200b': 0,
         '\u3000': 10,
-        '\n': 0
+        '\n': 5
       };
       var boxSpacing = 1;
       var curlyHeight = 4;
@@ -663,15 +663,6 @@ var Visualizer = (function($, window, undefined) {
         drawing = true;
 
         if (_data) setData(_data);
-
-        if (data.mtime) {
-          // we're getting seconds and need milliseconds
-          //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
-          $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
-        } else {
-          //$('#document_ctime').css("display", "none");
-          $('#document_mtime').css("display", "none");
-        }
 
         svg.clear(true);
         var defs = svg.defs();
