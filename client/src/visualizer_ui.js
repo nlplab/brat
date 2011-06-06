@@ -10,6 +10,9 @@ var VisualizerUI = (function($, window, undefined) {
 
       var filesData = null;
       var currentForm;
+      var spanTypes = null;
+      var attributeTypes = null;
+      var data = null;
       var dir, doc, args;
       var dirScroll;
       var docScroll;
@@ -147,7 +150,7 @@ var VisualizerUI = (function($, window, undefined) {
           evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
           var comment = '<div><span class="comment_id">' + Util.escapeHTML(spanId) + '</span>' +
-            ' ' + '<span class="comment_type">' + Util.escapeHTML(Visualizer.displayForm(spanType)) + '</span>';
+            ' ' + '<span class="comment_type">' + Util.escapeHTML(Util.spanDisplayForm(spanTypes, spanType)) + '</span>';
         if (mods.length) {
           comment += '<div>' + Util.escapeHTML(mods.join(', ')) + '</div>';
         }
@@ -159,11 +162,12 @@ var VisualizerUI = (function($, window, undefined) {
       var displayArcComment = function(
           evt, target, symmetric,
           originSpanId, role, targetSpanId, commentText, commentType) {
+        var arcRole = target.attr('data-arc-role');
         var comment = '<div class="comment_arc">' + (symmetric
             ? Util.escapeHTML(originSpanId + ' ' +
-              Visualizer.displayForm(target.attr('data-arc-role')) + ' ' + targetSpanId)
+              Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ' ' + targetSpanId)
             : Util.escapeHTML(originSpanId) + ' &#8594; ' +
-              Util.escapeHTML(Visualizer.displayForm(target.attr('data-arc-role')) + ':' + targetSpanId))
+              Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ':' + targetSpanId))
           + '</div>';
         displayComment(evt, target, comment, commentText, commentType);
       };
@@ -497,6 +501,13 @@ var VisualizerUI = (function($, window, undefined) {
         $('#download_svg').hide();
       };
 
+      var onRenderData = function(_data) {
+        if (_data) {
+          data = _data;
+        }
+        hideSVGDownloadLinks();
+      }
+
       var gotCurrent = function(_dir, _doc, _args) {
         dir = _dir;
         doc = _doc;
@@ -599,6 +610,13 @@ var VisualizerUI = (function($, window, undefined) {
         showFileBrowser();
       };
 
+      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
+        spanTypes = _spanTypes;
+        attributeTypes = _attributeTypes;
+      };
+      
+
+
       dispatcher.
           on('messages', displayMessages).
           on('displaySpanComment', displaySpanComment).
@@ -609,10 +627,11 @@ var VisualizerUI = (function($, window, undefined) {
           on('hideForm', hideForm).
           on('initForm', initForm).
           on('dirLoaded', dirLoaded).
+          on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('current', gotCurrent).
           on('doneRendering', onDoneRendering).
           on('startedRendering', onStartedRendering).
-          on('renderData', hideSVGDownloadLinks).
+          on('renderData', onRenderData).
           on('savedSVG', showSVGDownloadLinks).
           on('renderError:noFileSpecified', showFileBrowser).
           on('renderError:annotationFileNotFound', showAnnotationFileNotFound).

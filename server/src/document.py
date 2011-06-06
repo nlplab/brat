@@ -16,14 +16,13 @@ Version:    2011-04-21
 from os import listdir
 from os.path import abspath, isabs, isdir
 from os.path import join as path_join
-from re import sub
+from re import match,sub
 
 from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         AnnotationFileNotFoundError, open_textfile)
 from common import ProtocolError
 from config import DATA_DIR
-from htmlgen import generate_client_keymap, generate_textbound_type_html
-from projectconfig import ProjectConfiguration
+from projectconfig import ProjectConfiguration, get_labels_by_storage_form
 from stats import get_statistics
 from message import Messager
 
@@ -36,6 +35,116 @@ try:
     from config import JAPANESE
 except ImportError:
     JAPANESE = False
+
+# TODO: this is not a good spot for this
+from itertools import chain
+
+def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
+    items = []
+    for node in nodes:
+        if node == 'SEPARATOR':
+            items.append(None)
+        else:
+            item = {}
+            _type = node.storage_form() 
+            item['name'] = project_conf.preferred_display_form(_type)
+            item['type'] = _type
+            item['unused'] = node.unused
+            item['labels'] = get_labels_by_storage_form(directory, _type)
+
+            try:
+                item['hotkey'] = hotkey_by_type[_type]
+            except KeyError:
+                pass
+
+            arcs = {}
+            for arc in chain(project_conf.relation_types_from(_type), node.arguments.keys()):
+                arc_labels = get_labels_by_storage_form(directory, arc)
+
+                if arc_labels is not None:
+                    arcs[arc] = arc_labels
+                    
+            # If we found any arcs, attach them
+            if arcs:
+                item['arcs'] = arcs
+
+            item['children'] = _get_subtypes_for_type(node.children,
+                    project_conf, hotkey_by_type, directory)
+            items.append(item)
+    return items
+
+# TODO: this may not be a good spot for this
+def _get_attribute_type_info(nodes, project_conf, directory):
+    items = []
+    for node in nodes:
+        if node == 'SEPARATOR':
+            continue
+        else:
+            item = {}
+            _type = node.storage_form() 
+            item['name'] = project_conf.preferred_display_form(_type)
+            item['type'] = _type
+            item['unused'] = node.unused
+            item['labels'] = get_labels_by_storage_form(directory, _type)
+
+            # process "special" <GLYPH-POS> argument, specifying where
+            # to place the glyph
+            glyph_pos = None
+            for k in node.arguments:
+                # TODO: remove magic value
+                if k == '<GLYPH-POS>':
+                    for v in node.arguments[k]:
+                        if v not in ('left', 'right'):
+                            display_message('Configuration error: "%s" is not a valid glyph position for %s' % (v,_type), 'warning')
+                        else:
+                            glyph_pos = v
+
+            # TODO: "special" <DEFAULT> argument
+            
+            # check if there are any (normal) "arguments"
+            args = [k for k in node.arguments if k != "Arg" and not match(r'^<.*>$', k)]
+            if len(args) == 0:
+                # no, assume binary and mark accordingly
+                # TODO: get rid of special cases, grab style from config
+                if _type == 'Negation':
+                    item['values'] = { _type : { 'box': u'crossed' } }
+                else:
+                    item['values'] = { _type : { 'dasharray': '3,3' } }
+            else:
+                # has normal arguments, use these as possible values
+                item['values'] = {}
+                for k in args:
+                    for v in node.arguments[k]:
+                        item['values'][k] = { 'glyph':v }
+                        if glyph_pos is not None:
+                            item['values'][k]['position'] = glyph_pos
+
+            items.append(item)
+    return items
+
+# TODO: this is not a good spot for this
+def get_span_types(directory):
+    project_conf = ProjectConfiguration(directory)
+
+    keymap = project_conf.get_kb_shortcuts()
+    hotkey_by_type = dict((v, k) for k, v in keymap.iteritems())
+
+    event_hierarchy = project_conf.get_event_type_hierarchy()
+    event_types = _get_subtypes_for_type(event_hierarchy,
+            project_conf, hotkey_by_type, directory)
+
+    entity_hierarchy = project_conf.get_entity_type_hierarchy()
+    entity_types = _get_subtypes_for_type(entity_hierarchy,
+            project_conf, hotkey_by_type, directory)
+
+    attribute_hierarchy = project_conf.get_attribute_type_hierarchy()
+    attribute_types = _get_attribute_type_info(attribute_hierarchy, project_conf, directory)
+
+    relation_hierarchy = project_conf.get_relation_type_hierarchy()
+    relation_types = _get_subtypes_for_type(relation_hierarchy,
+            project_conf, hotkey_by_type, directory)
+
+    return event_types, entity_types, attribute_types, relation_types
 
 def real_directory(directory):
     assert isabs(directory), 'directory "%s" is not absolute' % directory
@@ -99,24 +208,17 @@ def get_directory_information(directory):
     for i in doclist:
         combolist.append([False]+i)
 
-    # we need a ProjectConfiguration for the kb shortcuts and abbrevs
-    # here.
-    projectconf = ProjectConfiguration(real_dir)
-
-    span_type_keyboard_shortcuts = projectconf.get_kb_shortcuts()
-    client_keymap = generate_client_keymap(span_type_keyboard_shortcuts)
-    html = generate_textbound_type_html(projectconf, span_type_keyboard_shortcuts)
-
-    labels = projectconf.get_labels()
+    event_types, entity_types, attribute_types, relation_types = get_span_types(real_dir)
 
     json_dic = {
             'docs': combolist,
             'dochead' : doclist_header,
             'parent': parent,
             'messages': [],
-            'keymap': client_keymap,
-            'labels': labels,
-            'html': html,
+            'event_types': event_types,
+            'entity_types': entity_types,
+            'attribute_types': attribute_types,
+            'relation_types': relation_types,
             }
     return json_dic
 
@@ -196,9 +298,9 @@ def _enrich_json_with_data(j_dic, ann_obj):
                     + [e for e in eq_ann.entities])
                 )
 
-    for mod_ann in ann_obj.get_modifers():
-        j_dic['modifications'].append(
-                [unicode(mod_ann.id), mod_ann.type, mod_ann.target]
+    for att_ann in ann_obj.get_attributes():
+        j_dic['attributes'].append(
+                [unicode(att_ann.id), att_ann.type, att_ann.target, att_ann.value]
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
@@ -248,6 +350,7 @@ def _enrich_json_with_base(j_dic):
     j_dic['relations'] = []
     j_dic['triggers'] = []
     j_dic['modifications'] = []
+    j_dic['attributes'] = []
     j_dic['equivs'] = []
     j_dic['comments'] = []
 

@@ -125,11 +125,13 @@ def __split_annotation_id(id):
     pre, num_str, suf = m.groups()
     return pre, num_str, suf
 
+from itertools import takewhile
+
 def annotation_id_prefix(id):
-    try:
-        return id[0]
-    except:
+    pre = ''.join(c for c in takewhile(lambda x : not x.isdigit(), id))
+    if not pre:
         raise InvalidIdError(id)
+    return pre
 
 def annotation_id_number(id):
     return __split_annotation_id(id)[1]
@@ -250,15 +252,15 @@ class Annotations(object):
 
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
+    
+    def get_attributes(self):
+        return (a for a in self if isinstance(a, AttributeAnnotation))
 
     def get_equivs(self):
         return (a for a in self if isinstance(a, EquivAnnotation))
 
     def get_textbounds(self):
         return (a for a in self if isinstance(a, TextBoundAnnotation))
-
-    def get_modifers(self):
-        return (a for a in self if isinstance(a, ModifierAnnotation))
 
     def get_relations(self):
         return (a for a in self if isinstance(a, BinaryRelationAnnotation))
@@ -276,6 +278,7 @@ class Annotations(object):
     # TODO: getters for other categories of annotations
     #TODO: Remove read and use an internal and external version instead
     def add_annotation(self, ann, read=False):
+        #log_info(u'Will add: ' + unicode(ann).rstrip('\n') + ' ' + unicode(type(ann)))
         #TODO: DOC!
         #TODO: Check read only
         if not read and self._read_only:
@@ -368,20 +371,20 @@ class Annotations(object):
             if unicode(ann.id) in soft_deps | hard_deps:
                 ann_deps.append(other_ann)
               
-        # If all depending are ModifierAnnotations or EquivAnnotations,
+        # If all depending are AttributeAnnotations or EquivAnnotations,
         # delete all modifiers recursively (without confirmation) and remove
         # the annotation id from the equivs (and remove the equiv if there is
         # only one id left in the equiv)
-        # Note: this assumes ModifierAnnotations cannot have
+        # Note: this assumes AttributeAnnotations cannot have
         # other dependencies depending on them, nor can EquivAnnotations
         if all((False for d in ann_deps if (
-            not isinstance(d, ModifierAnnotation)
+            not isinstance(d, AttributeAnnotation)
             and not isinstance(d, EquivAnnotation)
             and not isinstance(d, OnelineCommentAnnotation)
             ))):
 
             for d in ann_deps:
-                if isinstance(d, ModifierAnnotation):
+                if isinstance(d, AttributeAnnotation):
                     if tracker is not None:
                         tracker.deletion(d)
                     self._atomic_del_annotation(d)
@@ -472,6 +475,33 @@ class Annotations(object):
             if suggestion not in self._ann_by_id:
                 return suggestion
 
+    # XXX: This syntax is subject to change
+    def _parse_attribute_annotation(self, id, data, data_tail):
+        import re
+
+        match = re.match(r'(.+?) (.+?) (.+?)$', data)
+        if match is None:
+            # Is it an old format without value?
+            match = re.match(r'(.+?) (.+?)$', data)
+
+            if match is None:
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line,
+                        self.ann_line_num + 1)
+                
+            _type, target = match.groups()
+            value = True
+        else:
+            _type, target, value = match.groups()
+
+        # Verify that the ID is indeed valid
+        try:
+            annotation_id_number(target)
+        except InvalidIdError:
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line,
+                    self.ann_line_num + 1)
+
+        return AttributeAnnotation(target, id, _type, '', value)
+
     def _parse_event_annotation(self, id, data, data_tail):
         #XXX: A bit nasty, we require a single space
         try:
@@ -494,6 +524,7 @@ class Annotations(object):
             args = []
 
         return EventAnnotation(trigger, args, id, type, data_tail)
+
 
     def _parse_relation_annotation(self, id, data, data_tail):
         try:
@@ -522,17 +553,18 @@ class Annotations(object):
                                         args[1][0], args[1][1],
                                         data_tail)
 
-    def _parse_equiv_annotation(self, id, data, data_tail):
+    def _parse_equiv_annotation(self, data, data_tail):
         # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
         if type != 'Equiv':
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1)
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail)
 
+    # Parse an old modifier annotation for back-wards compability
     def _parse_modifier_annotation(self, id, data, data_tail):
         type, target = data.split()
-        return ModifierAnnotation(target, id, type, data_tail)
+        return AttributeAnnotation(target, id, type, data_tail, True)
 
     def _split_textbound_data(self, id, data):
         try:
@@ -593,18 +625,31 @@ class Annotations(object):
 
                         new_ann = None
 
+                        #log_info('Will evaluate prefix: ' + pre)
+
                         if pre == '*':
-                            new_ann = self._parse_equiv_annotation(id, data, data_tail)
+                            new_ann = self._parse_equiv_annotation(
+                                    data, data_tail)
                         elif pre == 'E':
-                            new_ann = self._parse_event_annotation(id, data, data_tail)
+                            new_ann = self._parse_event_annotation(
+                                    id, data, data_tail)
                         elif pre == 'M':
-                            new_ann = self._parse_modifier_annotation(id, data, data_tail)
-                        elif pre == 'T':
-                            new_ann = self._parse_textbound_annotation(id, data, data_tail)
+                            new_ann = self._parse_modifier_annotation(
+                                    id, data, data_tail)
+
+                        # XXX: This syntax is subject to change, limit to only T?
+                        elif pre.startswith('T'):
+                            new_ann = self._parse_textbound_annotation(
+                                    id, data, data_tail)
                         elif pre == '#':
-                            new_ann = self._parse_comment_line(id, data, data_tail)
+                            new_ann = self._parse_comment_line(
+                                    id, data, data_tail)
                         elif pre == 'R':
-                            new_ann = self._parse_relation_annotation(id, data, data_tail)
+                            new_ann = self._parse_relation_annotation(
+                                    id, data, data_tail)
+                        elif pre.startswith('A'):
+                            new_ann = self._parse_attribute_annotation(
+                                    id, data, data_tail)
                         else:
                             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
@@ -941,17 +986,20 @@ class EquivAnnotation(TypedAnnotation):
         else:
             return ['equiv', self.type, self.entities]
 
-class ModifierAnnotation(IdedAnnotation):
-    def __init__(self, target, id, type, tail):
+class AttributeAnnotation(IdedAnnotation):
+    def __init__(self, target, id, type, tail, value):
         IdedAnnotation.__init__(self, id, type, tail)
         self.target = target
+        self.value = value
         
     def __str__(self):
-        return u'%s\t%s %s%s' % (
+        return u'%s\t%s %s%s%s' % (
                 self.id,
                 self.type,
                 self.target,
-                self.tail
+                # We hack in old modifiers with this trick using bools
+                ' ' + unicode(self.value) if self.value != True else '',
+                self.tail,
                 )
 
     def get_deps(self):

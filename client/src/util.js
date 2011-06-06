@@ -56,9 +56,33 @@ var Util = (function(window, undefined) {
       return str.replace(/"/g,'&quot;');
     }
 
+    var getSpanLabels = function(spanTypes, spanType) {
+      var type = spanTypes[spanType];
+      return type && type.labels || [];
+    }
+
+    var spanDisplayForm = function(spanTypes, spanType) {
+      var labels = getSpanLabels(spanTypes, spanType);
+      return labels[0] || spanType;
+    }
+
+    var getArcLabels = function(spanTypes, spanType, arcType) {
+      var type = spanTypes[spanType];
+      return type && type.arcs && type.arcs[arcType] || [];
+    }
+
+    var arcDisplayForm = function(spanTypes, spanType, arcType) {
+      var labels = getArcLabels(spanTypes, spanType, arcType);
+      return labels[0] || arcType;
+    }
+
     return {
       formatTimeAgo: formatTimeAgo,
       realBBox: realBBox,
+      getSpanLabels: getSpanLabels,
+      spanDisplayForm: spanDisplayForm,
+      getArcLabels: getArcLabels,
+      arcDisplayForm: arcDisplayForm,
       escapeQuotes: escapeQuotes,
       escapeHTML: escapeHTML,
       escapeHTMLwithNewlines: escapeHTMLwithNewlines
