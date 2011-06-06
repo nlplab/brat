@@ -263,9 +263,6 @@ class Annotations(object):
     def get_textbounds(self):
         return (a for a in self if isinstance(a, TextBoundAnnotation))
 
-    def get_modifers(self):
-        return (a for a in self if isinstance(a, ModifierAnnotation))
-
     def get_relations(self):
         return (a for a in self if isinstance(a, BinaryRelationAnnotation))
 
@@ -375,20 +372,20 @@ class Annotations(object):
             if unicode(ann.id) in soft_deps | hard_deps:
                 ann_deps.append(other_ann)
               
-        # If all depending are ModifierAnnotations or EquivAnnotations,
+        # If all depending are AttributeAnnotations or EquivAnnotations,
         # delete all modifiers recursively (without confirmation) and remove
         # the annotation id from the equivs (and remove the equiv if there is
         # only one id left in the equiv)
-        # Note: this assumes ModifierAnnotations cannot have
+        # Note: this assumes AttributeAnnotations cannot have
         # other dependencies depending on them, nor can EquivAnnotations
         if all((False for d in ann_deps if (
-            not isinstance(d, ModifierAnnotation)
+            not isinstance(d, AttributeAnnotation)
             and not isinstance(d, EquivAnnotation)
             and not isinstance(d, OnelineCommentAnnotation)
             ))):
 
             for d in ann_deps:
-                if isinstance(d, ModifierAnnotation):
+                if isinstance(d, AttributeAnnotation):
                     if tracker is not None:
                         tracker.deletion(d)
                     self._atomic_del_annotation(d)
@@ -483,12 +480,19 @@ class Annotations(object):
     def _parse_attribute_annotation(self, id, data, data_tail):
         import re
 
-        match = re.match(r'(.+?)@(.+?) (.+?)$', data)
+        match = re.match(r'(.+?) (.+?) (.+?)$', data)
         if match is None:
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line,
-                    self.ann_line_num + 1)
+            # Is it an old format without value?
+            match = re.match(r'(.+?) (.+?)$', data)
 
-        value, _type, target = match.groups()
+            if match is None:
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line,
+                        self.ann_line_num + 1)
+                
+            _type, target = match.groups()
+            value = True
+        else:
+            _type, target, value = match.groups()
 
         # Verify that the ID is indeed valid
         try:
@@ -558,9 +562,10 @@ class Annotations(object):
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail)
 
+    # Parse an old modifier annotation for back-wards compability
     def _parse_modifier_annotation(self, id, data, data_tail):
         type, target = data.split()
-        return ModifierAnnotation(target, id, type, data_tail)
+        return AttributeAnnotation(target, id, type, data_tail, True)
 
     def _split_textbound_data(self, id, data):
         try:
@@ -643,8 +648,7 @@ class Annotations(object):
                         elif pre == 'R':
                             new_ann = self._parse_relation_annotation(
                                     id, data, data_tail)
-                        # XXX: This syntax is subject to change
-                        elif pre.startswith('M'):
+                        elif pre.startswith('A'):
                             new_ann = self._parse_attribute_annotation(
                                     id, data, data_tail)
                         else:
@@ -981,31 +985,6 @@ class EquivAnnotation(TypedAnnotation):
         else:
             return ['equiv', self.type, self.entities]
 
-class ModifierAnnotation(IdedAnnotation):
-    def __init__(self, target, id, type, tail):
-        IdedAnnotation.__init__(self, id, type, tail)
-        self.target = target
-        
-    def __str__(self):
-        return u'%s\t%s %s%s' % (
-                self.id,
-                self.type,
-                self.target,
-                self.tail
-                )
-
-    def get_deps(self):
-        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
-        hard_deps.add(self.target)
-        return (soft_deps, hard_deps)
-
-    def reference_id(self):
-        # TODO: can't currently ID modifier in isolation; return
-        # reference to modified instead
-        return [self.target]
-
-# XXX: The current syntax is according to the Meta-Knowledge Corpus
-# Future suggestion: "${ID}\t${TYPE} ${VALUE} ${TARGET}"
 class AttributeAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail, value):
         IdedAnnotation.__init__(self, id, type, tail)
@@ -1013,12 +992,13 @@ class AttributeAnnotation(IdedAnnotation):
         self.value = value
         
     def __str__(self):
-        return u'%s\t%s@%s %s%s' % (
+        return u'%s\t%s %s%s%s' % (
                 self.id,
-                self.value,
                 self.type,
                 self.target,
-                self.tail
+                # We hack in old modifiers with this trick using bools
+                ' ' + unicode(self.value) if self.value != True else '',
+                self.tail,
                 )
 
     def get_deps(self):

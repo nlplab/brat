@@ -267,28 +267,9 @@ def _enrich_json_with_data(j_dic, ann_obj):
                     + [e for e in eq_ann.entities])
                 )
 
-    # XXX: To be replaced by attributes
-    for mod_ann in ann_obj.get_modifers():
-        j_dic['modifications'].append(
-                [unicode(mod_ann.id), mod_ann.type, mod_ann.target]
-                )
-
-    # Sending modifications as attributes to remain backwards compatible
-    for mod_ann in ann_obj.get_modifers():
-        j_dic['attributes'].append(
-                [unicode(mod_ann.id), mod_ann.type, mod_ann.target, True]
-                )
-
     for att_ann in ann_obj.get_attributes():
-        # XXX: Hack to support Meta-knowledge
-        if ':' in att_ann.type:
-            _type, cue = att_ann.type.split(':')
-        else:
-            _type = att_ann.type
-            cue = None
-
         j_dic['attributes'].append(
-                [unicode(att_ann.id), _type, att_ann.target, att_ann.value, cue]
+                [unicode(att_ann.id), att_ann.type, att_ann.target, att_ann.value]
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
