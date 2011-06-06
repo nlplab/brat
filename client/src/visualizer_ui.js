@@ -631,7 +631,8 @@ var VisualizerUI = (function($, window, undefined) {
         attributeTypes = _attributeTypes;
       };
       
-
+      // hide anything requiring login, just in case
+      $('.login').hide();
 
       dispatcher.
           on('messages', displayMessages).

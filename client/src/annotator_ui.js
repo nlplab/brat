@@ -760,7 +760,7 @@ var AnnotatorUI = (function($, window, undefined) {
           text  : _doctext,
         };
         dispatcher.post('ajax', [opts, function(response) {
-          dispatcher.post('setDocument', [response.address]);
+          dispatcher.post('setDocument', [response.document]);
         }]);
         return false;
       };
@@ -777,6 +777,7 @@ var AnnotatorUI = (function($, window, undefined) {
       });
 
 
+
       var waiter = $('#waiter');
       waiter.dialog({
         closeOnEscape: false,
@@ -790,7 +791,6 @@ var AnnotatorUI = (function($, window, undefined) {
       // we don't elliminate it altogether because it still provides the
       // overlay to prevent interaction
       waiter.parent().css('opacity', '0');
-      $('.login').hide();
 
       dispatcher.
         on('renderData', rememberData).
