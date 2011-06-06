@@ -3,6 +3,39 @@
 
 
 var Visualizer = (function($, window, undefined) {
+    var Span = function(id, type, from, to, generalType) {
+      this.id = id;
+      this.type = type;
+      this.from = parseInt(from);
+      this.to = parseInt(to);
+      this.outgoing = [];
+      this.incoming = [];
+      this.totalDist = 0;
+      this.numArcs = 0;
+      this.generalType = generalType;
+    };
+
+    var EventDesc = function(id, triggerId, roles, klass) {
+      this.id = id;
+      this.triggerId = triggerId;
+      var roleList = this.roles = [];
+      $.each(roles, function(roleNo, role) {
+        roleList.push({ type: role[0], targetId: role[1] });
+      });
+      if (klass == "equiv") {
+        this.equiv = true;
+      } else if (klass == "relation") {
+        this.relation = true;
+      }
+    };
+
+    var Row = function() {
+      this.group = svg.group();
+      this.background = svg.group(this.group);
+      this.chunks = [];
+      this.hasAnnotations = 0;
+    };
+
     var Visualizer = function(dispatcher, $svgDiv) {
       var that = this;
 
@@ -74,39 +107,6 @@ var Visualizer = (function($, window, undefined) {
       // code, change? (the intended meaning is "the form of the term
       // that is used for display").
       Visualizer.displayForm = displayForm;
-
-      var Span = function(id, type, from, to, generalType) {
-        this.id = id;
-        this.type = type;
-        this.from = parseInt(from);
-        this.to = parseInt(to);
-        this.outgoing = [];
-        this.incoming = [];
-        this.totalDist = 0;
-        this.numArcs = 0;
-        this.generalType = generalType;
-      };
-
-      var EventDesc = function(id, triggerId, roles, klass) {
-        this.id = id;
-        this.triggerId = triggerId;
-        var roleList = this.roles = [];
-        $.each(roles, function(roleNo, role) {
-          roleList.push({ type: role[0], targetId: role[1] });
-        });
-        if (klass == "equiv") {
-          this.equiv = true;
-        } else if (klass == "relation") {
-          this.relation = true;
-        }
-      };
-
-      var Row = function() {
-        this.group = svg.group();
-        this.background = svg.group(this.group);
-        this.chunks = [];
-        this.hasAnnotations = 0;
-      };
 
       var rowBBox = function(span) {
         var box = span.rect.getBBox();
@@ -587,6 +587,39 @@ var Visualizer = (function($, window, undefined) {
         }
       };
       
+      var getTextMeasurements = function(textsHash, options) {
+        // make some text elements, find out the dimensions
+        var textMeasureGroup = svg.group(options);
+
+        $.each(textsHash, function(text, dummy) {
+          svg.text(textMeasureGroup, 20, 20, text);
+        });
+
+        // measuring goes on here
+        var widths = {};
+        $(textMeasureGroup).find('text').each(function() {
+          var text = $(this).text();
+          widths[text] = this.getComputedTextLength();
+        });
+        var bbox = textMeasureGroup.getBBox();
+        svg.remove(textMeasureGroup);
+
+        return {
+          widths: widths,
+          height: bbox.height,
+          x: bbox.x,
+          y: bbox.y,
+        };
+      };
+
+      var addHeaderAndDefs = function() {
+        var commentName = (dir + '/' + doc).replace('--', '-\\-');
+        $svg.append('<!-- document: ' + commentName + ' -->');
+        var $defs = svg.defs();
+        var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
+        svg.add($defs, $blurFilter);
+      }
+
       var drawing = false;
       var redraw = false;
 
@@ -606,66 +639,37 @@ var Visualizer = (function($, window, undefined) {
             if (_data) setData(_data);
             showMtime();
 
+            // clear the SVG
             svg.clear(true);
             if (!data || data.length == 0) return;
+
+            // establish the width according to the enclosing element
             canvasWidth = that.forceWidth || $svgDiv.width();
-            $svg.width(canvasWidth);
-            $svg.height(200); // XXX DEBUG
-            var $topGroup = svg.group('top');
-            var $defs = svg.defs();
-            var commentName = (dir + '/' + doc).replace('--', '-\\-');
             $svg.
-                attr('width', canvasWidth).
-                append('<!-- document: ' + commentName + ' -->');
+                width(canvasWidth).
+                attr('width', canvasWidth);
 
-            var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
-            svg.add($defs, $blurFilter);
-
+            addHeaderAndDefs();
 
             var $backgroundGroup = svg.group({ class: 'background' });
-            var $editedGroup = svg.group({ class: 'edited' });
+            var $glowGroup = svg.group({ class: 'glow' });
             var $highlightGroup = svg.group({ class: 'highlight' });
             var $textGroup = svg.group({ class: 'text' });
-            svg.add($topGroup, $backgroundGroup);
-            svg.add($topGroup, $editedGroup);
-            svg.add($topGroup, $highlightGroup);
-            svg.add($topGroup, $textGroup);
 
-            // make some text elements, find out the dimensions
-            var $textMeasureGroup = svg.group();
-            var $measuringTexts = {};
+var profileStart = new Date();
+            // get the span text sizes
+            var spanTexts = {}; // set of span texts
             $.each(data.chunks, function(chunkNo, chunk) {
               chunk.row = undefined; // reset
-              // create a measuring text if needed
-              if (!$measuringTexts[chunk.text]) {
-                var $text = svg.text(20, 20, chunk.text);
-                $measuringTexts[chunk.text] = $text;
-                svg.add($textMeasureGroup, $text);
-              }
+              spanTexts[chunk.text] = true;
             });
-            $.each($measuringTexts, function(text, $text) {
-              console.log(text, $text);
-              spanAnnBoxes[text] = $text[0].getBBox();
-              console.log(text, spanAnnBoxes[text].width);
-            });
+            var spanSizes = getTextMeasurements(spanTexts);
+var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profileStart.getMilliseconds(); console.log("profile:", profileStart, profileEnd, profile); // alert("profile:" + profile);
 
-            console.log($topGroup);
             return; // XXX SO FAR
 
-
-            var text = svg.text(textGroup, 0, 0, textSpans, {'class': 'text'});
-            var measureBox = text.getBBox();
-            var textHeight = measureBox.height;
-            curlyY = measureBox.y;
-
-            // measure annotations
-            var dummySpan = svg.group({ 'class': 'span' });
-            var spanAnnBoxes = {};
-            $.each(data.spanAnnTexts, function(textNo, text) {
-              var spanText = svg.text(dummySpan, 0, 0, text);
-              spanAnnBoxes[text] = spanText.getBBox();
-            }); // data.spanAnnTexts
-            svg.remove(dummySpan);
+            // var textHeight = measureBox.height; // XXX => spanSizes.height
+            // curlyY = measureBox.y; // XXX => spanSizes.y
 
             // find biggest annotation in each tower
             $.each(data.towers, function(towerNo, tower) {
@@ -1502,6 +1506,8 @@ var Visualizer = (function($, window, undefined) {
               that.svg = svg = _svg;
               $svg = $(svg._svg);
 
+              /* XXX HACK REMOVED - not efficient?
+
               // XXX HACK to allow off-DOM SVG element creation
               // we need to replace the jQuery SVG's _makeNode function
               // with a modified one.
@@ -1521,6 +1527,7 @@ var Visualizer = (function($, window, undefined) {
                     parent.appendChild(node);
                   return node;
                 };
+              */
 
               triggerRender();
           }
