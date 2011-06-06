@@ -34,7 +34,7 @@ var Visualizer = (function($, window, undefined) {
       }
     };
 
-    var Row = function() {
+    var Row = function(svg) {
       this.group = svg.group();
       this.background = svg.group(this.group);
       this.chunks = [];
@@ -51,7 +51,7 @@ var Visualizer = (function($, window, undefined) {
         ' ': 5,
         '\u200b': 0,
         '\u3000': 10,
-        '\n': 0
+        '\n': 5
       };
       var boxSpacing = 1;
       var curlyHeight = 4;
@@ -235,27 +235,31 @@ var Visualizer = (function($, window, undefined) {
             }
             data.sentComment[sent] = { type: comment[1], text: text };
           } else {
-            var trigger = triggerHash[comment[0]];
-            var commentSpans =
+            var id = comment[0];
+            var trigger = triggerHash[id];
+            var eventDesc = data.eventDescs[id];
+            var commentEntities =
                 trigger
                 ? trigger[1]
-                : comment[0] in data.spans
-                  ? [data.spans[comment[0]]]
-                  : [];
-            $.each(commentSpans, function(spanId, span) {
-              if (!span.comment) {
-                span.comment = { type: comment[1], text: comment[2] };
+                : id in data.spans
+                  ? [data.spans[id]]
+                  : id in data.eventDescs
+                    ? [data.eventDescs[id]]
+                    : [];
+            $.each(commentEntities, function(entityId, entity) {
+              if (!entity.comment) {
+                entity.comment = { type: comment[1], text: comment[2] };
               } else {
-                span.comment.type = comment[1];
-                span.comment.text += "\n" + comment[2];
+                entity.comment.type = comment[1];
+                entity.comment.text += "\n" + comment[2];
               }
               // partially duplicate marking of annotator note comments
               if (comment[1] == "AnnotatorNotes") {
-                span.annotatorNotes = comment[2];
+                entity.annotatorNotes = comment[2];
               }
               // prioritize type setting when multiple comments are present
-              if (commentPriority(comment[1]) > commentPriority(span.shadowClass)) {
-                span.shadowClass = comment[1];
+              if (commentPriority(comment[1]) > commentPriority(entity.shadowClass)) {
+                entity.shadowClass = comment[1];
               }
             });
           }
@@ -361,6 +365,7 @@ var Visualizer = (function($, window, undefined) {
               dist: dist,
               type: role.type,
               jumpHeight: 0,
+              shadowClass: eventDesc.shadowClass,
             };
             if (eventDesc.equiv) {
               arc.equiv = true;
@@ -368,6 +373,7 @@ var Visualizer = (function($, window, undefined) {
               arc.eventDescId = eventNo;
             } else if (eventDesc.relation) {
               arc.relation = true;
+              arc.eventDescId = eventNo;
             }
             origin.totalDist += dist;
             origin.numArcs++;
@@ -678,19 +684,33 @@ var Visualizer = (function($, window, undefined) {
         }
       };
       
-      var getTextMeasurements = function(textsHash, options) {
+      var addHeaderAndDefs = function() {
+        var commentName = (dir + '/' + doc).replace('--', '-\\-');
+        $svg.append('<!-- document: ' + commentName + ' -->');
+        var $defs = svg.defs();
+        var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
+        svg.add($defs, $blurFilter);
+      }
+
+      var getTextMeasurements = function(textsHash, options, callback) {
         // make some text elements, find out the dimensions
         var textMeasureGroup = svg.group(options);
 
-        $.each(textsHash, function(text, dummy) {
-          svg.text(textMeasureGroup, 20, 20, text);
+        $.each(textsHash, function(text, objects) {
+          svg.text(textMeasureGroup, 0, 0, text);
         });
 
         // measuring goes on here
         var widths = {};
-        $(textMeasureGroup).find('text').each(function() {
-          var text = $(this).text();
+        $(textMeasureGroup).find('text').each(function(svgTextNo, svgText) {
+          var text = $(svgText).text();
           widths[text] = this.getComputedTextLength();
+
+          if (callback) {
+            $.each(textsHash[text], function(text, object) {
+              callback(object, svgText);
+            });
+          }
         });
         var bbox = textMeasureGroup.getBBox();
         svg.remove(textMeasureGroup);
@@ -703,13 +723,60 @@ var Visualizer = (function($, window, undefined) {
         };
       };
 
-      var addHeaderAndDefs = function() {
-        var commentName = (dir + '/' + doc).replace('--', '-\\-');
-        $svg.append('<!-- document: ' + commentName + ' -->');
-        var $defs = svg.defs();
-        var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
-        svg.add($defs, $blurFilter);
-      }
+      var getAllTextMeasurements = function() {
+        // get the span text sizes
+        var chunkTexts = {}; // set of span texts
+        $.each(data.chunks, function(chunkNo, chunk) {
+          chunk.row = undefined; // reset
+          if (!(chunk.text in chunkTexts)) chunkTexts[chunk.text] = []
+
+          // here we also need all the spans that are contained in
+          // chunks with this text, because we need to know the position
+          // of the span text within the respective chunk text
+          chunkTexts[chunk.text] = chunkTexts[chunk.text].concat(chunk.spans);
+        });
+        var textSizes = getTextMeasurements(
+          chunkTexts,
+          undefined,
+          function(span, text) {
+            // measure the span text position in pixels
+            var startPos = text.getStartPositionOfChar(span.from - span.chunk.from);
+            var endPos = text.getEndPositionOfChar(span.to - span.chunk.from - 1);
+            span.curly = {
+              from: startPos.x,
+              to: endPos.x
+            };
+          });
+
+        // get the span annotation text sizes
+        var spanTexts = {};
+        $.each(data.spans, function(spanNo, span) {
+          spanTexts[span.glyphedLabelText] = true;
+        });
+        var spanSizes = getTextMeasurements(spanTexts, {'class': 'span'});
+        return {
+          texts: textSizes,
+          spans: spanSizes
+        };
+
+        // XXX NOTE
+        // var textHeight = measureBox.height; // => sizes.texts.height
+        // curlyY = measureBox.y;              // => sizes.texts.y
+      };
+
+      var adjustTowerAnnotationSizes = function(sizes) {
+        // find biggest annotation in each tower
+        $.each(data.towers, function(towerNo, tower) {
+          var maxWidth = 0;
+          $.each(tower, function(spanNo, span) {
+            var width = sizes.spans.widths[span.glyphedLabelText];
+            if (width > maxWidth) maxWidth = width;
+          }); // tower
+          $.each(tower, function(spanNo, span) {
+            span.width = maxWidth;
+          }); // tower
+        }); // data.towers
+      };
 
       var drawing = false;
       var redraw = false;
@@ -734,50 +801,25 @@ var Visualizer = (function($, window, undefined) {
 
         // establish the width according to the enclosing element
         canvasWidth = that.forceWidth || $svgDiv.width();
-        $svg.
-            width(canvasWidth).
-            attr('width', canvasWidth);
 
         addHeaderAndDefs();
 
-        var $backgroundGroup = svg.group({ class: 'background' });
-        var $glowGroup = svg.group({ class: 'glow' });
-        var $highlightGroup = svg.group({ class: 'highlight' });
-        var $textGroup = svg.group({ class: 'text' });
+        var backgroundGroup = svg.group({ class: 'background' });
+        var glowGroup = svg.group({ class: 'glow' });
+        var highlightGroup = svg.group({ class: 'highlight' });
+        var textGroup = svg.group({ class: 'text' });
+
+        var sizes = getAllTextMeasurements();
+        adjustTowerAnnotationSizes(sizes);
 
 var profileStart = new Date();
-        // get the span text sizes
-        var spanTexts = {}; // set of span texts
-        $.each(data.chunks, function(chunkNo, chunk) {
-          chunk.row = undefined; // reset
-          spanTexts[chunk.text] = true;
-        });
-        var spanSizes = getTextMeasurements(spanTexts);
-var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profileStart.getMilliseconds(); console.log("profile:", profileStart, profileEnd, profile); // alert("profile:" + profile);
-
-        return; // XXX SO FAR
-
-        // var textHeight = measureBox.height; // XXX => spanSizes.height
-        // curlyY = measureBox.y; // XXX => spanSizes.y
-
-        // find biggest annotation in each tower
-        $.each(data.towers, function(towerNo, tower) {
-          var biggestBox = { width: 0 };
-          $.each(tower, function(spanNo, span) {
-            var annBox = spanAnnBoxes[span.glyphedLabelText];
-            if (annBox.width > biggestBox.width) biggestBox = annBox;
-          }); // tower
-          $.each(tower, function(spanNo, span) {
-            span.annBox = biggestBox;
-          }); // tower
-        }); // data.towers
 
         var current = { x: margin.x + sentNumMargin + rowPadding, y: margin.y }; // TODO: we don't need some of this?
         var rows = [];
         var spanHeights = [];
         var sentenceToggle = 0;
         var sentenceNumber = 0;
-        var row = new Row();
+        var row = new Row(svg);
         row.sentence = ++sentenceNumber;
         row.backgroundIndex = sentenceToggle;
         row.index = 0;
@@ -802,38 +844,14 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
               id: 'span_' + span.id,
             });
 
-            // measure the text span
-            var xFrom = 0;
-            if (span.from != chunk.from) {
-              // HACK to avoid measuring space's width
-              if (!twoBarWidths) {
-                var twoBars = svg.text(textGroup, 0, 0, '||');
-                twoBarWidths = twoBars.getBBox().width;
-                svg.remove(twoBars);
-              }
-              var measureText = svg.text(textGroup, 0, 0,
-                '|' + chunk.text.substr(0, span.from - chunk.from) + '|');
-              xFrom = measureText.getBBox().width - twoBarWidths;
-              svg.remove(measureText);
-            }
-            measureText = svg.text(textGroup, 0, 0,
-              chunk.text.substr(0, span.to - chunk.from));
-            var measureBox = measureText.getBBox();
-            if (!y) y = -textHeight - curlyHeight;
-            var xTo = measureBox.width;
-            span.curly = {
-              from: xFrom,
-              to: xTo,
-              height: measureBox.height,
-            };
-            svg.remove(measureText);
-            var x = (xFrom + xTo) / 2;
+            if (!y) y = -sizes.texts.height - curlyHeight;
+            var x = (span.curly.from + span.curly.to) / 2;
 
-            var spanBox = span.annBox;
-            var xx = spanBox.x + x;
-            var yy = spanBox.y + y;
-            var hh = spanBox.height;
-            var ww = spanBox.width;
+            // XXX is it maybe sizes.texts?
+            var xx = x + sizes.spans.x;
+            var yy = y + sizes.spans.y;
+            var hh = sizes.spans.height;
+            var ww = sizes.spans.widths[span.glyphedLabelText];
 
             // text margin fine-tuning
             yy += boxTextMargin.y;
@@ -911,13 +929,13 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
             if (span.drawCurly) {
               var bottom = yy + hh + margin.y - yAdjust;
               svg.path(span.group, svg.createPath()
-                  .move(xFrom, bottom + curlyHeight)
-                  .curveC(xFrom, bottom,
+                  .move(span.curly.from, bottom + curlyHeight)
+                  .curveC(span.curly.from, bottom,
                     x, bottom + curlyHeight,
                     x, bottom)
                   .curveC(x, bottom + curlyHeight,
-                    xTo, bottom,
-                    xTo, bottom + curlyHeight),
+                    span.curly.to, bottom,
+                    span.curly.to, bottom + curlyHeight),
                 {
               });
             }
@@ -984,7 +1002,7 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
               sentenceNumber++;
               row.arcs = svg.group(row.group, { 'class': 'arcs' });
               rows.push(row);
-              row = new Row();
+              row = new Row(svg);
               sentenceToggle = 1 - sentenceToggle;
               row.backgroundIndex = sentenceToggle;
               row.index = ++rowIndex;
@@ -1000,7 +1018,7 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
             current.x = margin.x + sentNumMargin + rowPadding +
                 (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
             svg.remove(chunk.group);
-            row = new Row();
+            row = new Row(svg);
             row.backgroundIndex = sentenceToggle;
             lastBoxChunkIndex = chunk.index - 1;
             row.index = ++rowIndex;
@@ -1042,6 +1060,9 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
           for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
           current.x += spaceWidth + boxWidth;
         }); // chunks
+
+var profileEnd = new Date(); var profile = profileEnd - profileStart; console.log("profile:", profile); // alert("profile:" + profile);
+return; // XXX SO FAR
 
         // finish the last row
         row.arcs = svg.group(row.group, { 'class': 'arcs' });
@@ -1206,10 +1227,9 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
               'data-arc-role': arc.type,
               'data-arc-origin': arc.origin,
               'data-arc-target': arc.target,
+              'data-arc-id': arc.id,
+              'data-arc-ed': arc.eventDescId,
             };
-            if (arc.equiv) {
-              options['data-arc-ed'] = arc.eventDescId;
-            }
             var text = svg.text(arcGroup, (from + to) / 2, -height, labelText, options);
             var textBox = text.getBBox();
             if (arc.edited) {
@@ -1378,7 +1398,7 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
               });
               svg.rect(highlightGroup,
                 chunk.textX + spansFrom - 1, chunk.row.textY + curlyY - 1,
-                spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
+                spansTo - spansFrom + 2, sizes.spans.height + 2,
                 { 'class': 'span_default span_' + spansType, opacity:0.15 });
             }
         });
@@ -1387,8 +1407,17 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
           move(sentNumMargin, 0).
           line(sentNumMargin, y));
         // resize the SVG
-        $(svg._svg).attr('height', y).css('height', y);
-        svgContainer.attr('height', y).css('height', y);
+        svgElement.height(y);
+        svgContainer.height(y);
+        // XXX HACK for now to allow us to see wide spans (#204)
+        // looks awful, should be better with pre-measured spans
+        // (coming in the newvis branch)
+        // since now everything except the too-wide spans stops at the
+        // canvasWidth boundary
+        var svgBox = svgElement[0].getBBox();
+        if (svgBox.width > canvasWidth) canvasWidth = svgBox.width;
+        svgElement.width(canvasWidth);
+
 
         drawing = false;
         if (redraw) {
@@ -1473,7 +1502,7 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
               span.comment && span.comment.type]);
           highlight = svg.rect(highlightGroup,
             span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
-            span.curly.to + 2 - span.curly.from, span.curly.height + 2,
+            span.curly.to + 2 - span.curly.from, sizes.spans.height + 2,
             { 'class': 'span_default span_' + span.type });
 
           if (that.arcDragOrigin) {
@@ -1508,10 +1537,19 @@ var profileEnd = new Date(); var profile = profileEnd.getMilliseconds() - profil
           // symmetric relations in general
           var symmetric = role === "Equiv";
           // NOTE: no commentText, commentType for now
+          var arcEventDescId = target.attr('data-arc-ed');
+          var commentText;
+          var commentType;
+          if (arcEventDescId) {
+            var comment = data.eventDescs[arcEventDescId].comment;
+            commentText = comment.text;
+            commentType = comment.type;
+          }
           dispatcher.post('displayArcComment', [
               evt, target, symmetric,
-              originSpanId, role, targetSpanId]);
-          highlightArcs = $($svg).
+              originSpanId, role, targetSpanId,
+              commentText, commentType]);
+          highlightArcs = $(svgElement).
               find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
               addClass('highlight');
           highlightSpans = $($svg).

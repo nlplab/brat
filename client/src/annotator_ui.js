@@ -7,7 +7,6 @@ var AnnotatorUI = (function($, window, undefined) {
       var arcDragOriginBox = null;
       var arcDragOriginGroup = null;
       var arcDragArc = null;
-      var selectedRange = null;
       var data = null;
       var spanOptions = null;
       var arcOptions = null;
@@ -370,9 +369,6 @@ var AnnotatorUI = (function($, window, undefined) {
         } else if (!evt.ctrlKey) {
           // if not, then is it span selection? (ctrl key cancels)
           var sel = window.getSelection();
-          if (sel.rangeCount) {
-            selectedRange = sel.getRangeAt(0);
-          }
           var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
           var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
           if (chunkIndexFrom !== undefined && chunkIndexTo !== undefined) {
@@ -389,7 +385,8 @@ var AnnotatorUI = (function($, window, undefined) {
             while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedFrom, 1)) !== -1) selectedFrom++;
             while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedTo - 1, 1)) !== -1) selectedTo--;
 
-            if (selectedFrom === selectedTo) {
+            // shift+click allows zero-width spans
+            if (selectedFrom === selectedTo && !evt.shiftKey) {
               // simple click (zero-width span)
               return;
             }
@@ -727,8 +724,6 @@ var AnnotatorUI = (function($, window, undefined) {
             attributes[attr.type] = $input[0].checked;
           } else if ($input[0].selectedIndex) {
             attributes[attr.type] = $input.val();
-          } else {
-            attributes[attr.type] = null;
           }
         });
         // unfocus all elements to prevent focus being kept after
@@ -760,7 +755,7 @@ var AnnotatorUI = (function($, window, undefined) {
           text  : _doctext,
         };
         dispatcher.post('ajax', [opts, function(response) {
-          dispatcher.post('setDocument', [response.address]);
+          dispatcher.post('setDocument', [response.document]);
         }]);
         return false;
       };
@@ -777,6 +772,7 @@ var AnnotatorUI = (function($, window, undefined) {
       });
 
 
+
       var waiter = $('#waiter');
       waiter.dialog({
         closeOnEscape: false,
@@ -790,7 +786,6 @@ var AnnotatorUI = (function($, window, undefined) {
       // we don't elliminate it altogether because it still provides the
       // overlay to prevent interaction
       waiter.parent().css('opacity', '0');
-      $('.login').hide();
 
       dispatcher.
         on('renderData', rememberData).

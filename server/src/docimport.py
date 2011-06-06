@@ -86,7 +86,7 @@ def save_import(title, text, docid, directory=None):
     with open(ann_path, 'w') as _:
         pass
 
-    return {}
+    return { 'document': docid }
 
 if __name__ == '__main__':
     # TODO: Update these to conform with the new API

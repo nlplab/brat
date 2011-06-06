@@ -519,9 +519,6 @@ fieldset {
 .comment_type {
   font-weight: bold;
 }
-.comment_arc {
-  font-weight: bold;
-}
 
 #span_form .collapser {
     float: left;
@@ -590,6 +587,7 @@ fieldset {
 #span_highlight_link, #arc_highlight_link {
   float: right;
 }
+/*
 #document_ctime, #document_mtime {
   padding: 0 2px;
   REMOVEbackground-color: #dddddd;
@@ -597,10 +595,19 @@ fieldset {
   opacity: 0.5;
   float: right;
 }
-#menu_explanation, #document_name {
+*/
+#menu_explanation {
   margin-left: 10px;
   display: inline-block;
   overflow: hidden;
+}
+#document_name {
+  margin-right: 100px;
+}
+#document_name input {
+  width: 100%;
+  background: inherit;
+  border: none;
 }
 
 /*
