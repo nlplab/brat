@@ -673,11 +673,8 @@ var Visualizer = (function($, window, undefined) {
           return;
         }
         canvasWidth = that.forceWidth || svgContainer.width();
-        svgElement.width(canvasWidth);
         var commentName = (dir + '/' + doc).replace('--', '-\\-');
-        svgElement.
-            attr('width', canvasWidth).
-            append('<!-- document: ' + commentName + ' -->');
+        svgElement.append('<!-- document: ' + commentName + ' -->');
         
         // set up the text element, find out font height
         var backgroundGroup = svg.group({ 'class': 'background' });
@@ -1332,8 +1329,17 @@ var Visualizer = (function($, window, undefined) {
           move(sentNumMargin, 0).
           line(sentNumMargin, y));
         // resize the SVG
-        $(svg._svg).attr('height', y).css('height', y);
-        svgContainer.attr('height', y).css('height', y);
+        svgElement.height(y);
+        svgContainer.height(y);
+        // XXX HACK for now to allow us to see wide spans (#204)
+        // looks awful, should be better with pre-measured spans
+        // (coming in the newvis branch)
+        // since now everything except the too-wide spans stops at the
+        // canvasWidth boundary
+        var svgBox = svgElement[0].getBBox();
+        if (svgBox.width > canvasWidth) canvasWidth = svgBox.width;
+        svgElement.width(canvasWidth);
+
 
         drawing = false;
         if (redraw) {
