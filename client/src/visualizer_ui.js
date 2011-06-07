@@ -163,12 +163,12 @@ var VisualizerUI = (function($, window, undefined) {
           evt, target, symmetric,
           originSpanId, role, targetSpanId, commentText, commentType) {
         var arcRole = target.attr('data-arc-role');
-        var comment = '<div class="comment_arc">' + (symmetric
+        var comment = '<div class="comment_id">' + (symmetric
             ? Util.escapeHTML(originSpanId + ' ' +
               Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ' ' + targetSpanId)
             : Util.escapeHTML(originSpanId) + ' &#8594; ' +
-              Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ':' + targetSpanId))
-          + '</div>';
+            Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole) + ':' + targetSpanId))
+            + '</div>';
         displayComment(evt, target, comment, commentText, commentType);
       };
 
@@ -506,13 +506,29 @@ var VisualizerUI = (function($, window, undefined) {
           data = _data;
         }
         hideSVGDownloadLinks();
+
+        if (data.mtime) {
+          // we're getting seconds and need milliseconds
+          //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
+          $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).show();
+        } else {
+          //$('#document_ctime').css("display", "none");
+          $('#document_mtime').hide();
+        }
       }
 
       var gotCurrent = function(_dir, _doc, _args) {
         dir = _dir;
         doc = _doc;
         args = _args;
-        $('#document_name').text(dir + doc);
+
+        $docName = $('#document_name input').val(dir + doc);
+        var docName = $docName[0];
+        // TODO do this on resize, as well
+        // scroll the document name to the right, so the name is visible
+        // (even if the directory isn't, fully)
+        docName.scrollLeft = docName.scrollWidth;
+
         $('#document_mtime').hide();
         hideSVGDownloadLinks();
       };
@@ -615,7 +631,8 @@ var VisualizerUI = (function($, window, undefined) {
         attributeTypes = _attributeTypes;
       };
       
-
+      // hide anything requiring login, just in case
+      $('.login').hide();
 
       dispatcher.
           on('messages', displayMessages).

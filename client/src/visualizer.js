@@ -11,7 +11,7 @@ var Visualizer = (function($, window, undefined) {
         ' ': 5,
         '\u200b': 0,
         '\u3000': 10,
-        '\n': 0
+        '\n': 5
       };
       var boxSpacing = 1;
       var curlyHeight = 4;
@@ -216,27 +216,31 @@ var Visualizer = (function($, window, undefined) {
             }
             data.sentComment[sent] = { type: comment[1], text: text };
           } else {
-            var trigger = triggerHash[comment[0]];
-            var commentSpans =
+            var id = comment[0];
+            var trigger = triggerHash[id];
+            var eventDesc = data.eventDescs[id];
+            var commentEntities =
                 trigger
                 ? trigger[1]
-                : comment[0] in data.spans
-                  ? [data.spans[comment[0]]]
-                  : [];
-            $.each(commentSpans, function(spanId, span) {
-              if (!span.comment) {
-                span.comment = { type: comment[1], text: comment[2] };
+                : id in data.spans
+                  ? [data.spans[id]]
+                  : id in data.eventDescs
+                    ? [data.eventDescs[id]]
+                    : [];
+            $.each(commentEntities, function(entityId, entity) {
+              if (!entity.comment) {
+                entity.comment = { type: comment[1], text: comment[2] };
               } else {
-                span.comment.type = comment[1];
-                span.comment.text += "\n" + comment[2];
+                entity.comment.type = comment[1];
+                entity.comment.text += "\n" + comment[2];
               }
               // partially duplicate marking of annotator note comments
               if (comment[1] == "AnnotatorNotes") {
-                span.annotatorNotes = comment[2];
+                entity.annotatorNotes = comment[2];
               }
               // prioritize type setting when multiple comments are present
-              if (commentPriority(comment[1]) > commentPriority(span.shadowClass)) {
-                span.shadowClass = comment[1];
+              if (commentPriority(comment[1]) > commentPriority(entity.shadowClass)) {
+                entity.shadowClass = comment[1];
               }
             });
           }
@@ -342,6 +346,7 @@ var Visualizer = (function($, window, undefined) {
               dist: dist,
               type: role.type,
               jumpHeight: 0,
+              shadowClass: eventDesc.shadowClass,
             };
             if (eventDesc.equiv) {
               arc.equiv = true;
@@ -349,6 +354,7 @@ var Visualizer = (function($, window, undefined) {
               arc.eventDescId = eventNo;
             } else if (eventDesc.relation) {
               arc.relation = true;
+              arc.eventDescId = eventNo;
             }
             origin.totalDist += dist;
             origin.numArcs++;
@@ -664,15 +670,6 @@ var Visualizer = (function($, window, undefined) {
 
         if (_data) setData(_data);
 
-        if (data.mtime) {
-          // we're getting seconds and need milliseconds
-          //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
-          $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).css("display", "inline");
-        } else {
-          //$('#document_ctime').css("display", "none");
-          $('#document_mtime').css("display", "none");
-        }
-
         svg.clear(true);
         var defs = svg.defs();
         var filter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
@@ -682,11 +679,8 @@ var Visualizer = (function($, window, undefined) {
           return;
         }
         canvasWidth = that.forceWidth || svgContainer.width();
-        svgElement.width(canvasWidth);
         var commentName = (dir + '/' + doc).replace('--', '-\\-');
-        svgElement.
-            attr('width', canvasWidth).
-            append('<!-- document: ' + commentName + ' -->');
+        svgElement.append('<!-- document: ' + commentName + ' -->');
         
         // set up the text element, find out font height
         var backgroundGroup = svg.group({ 'class': 'background' });
@@ -1160,10 +1154,9 @@ var Visualizer = (function($, window, undefined) {
               'data-arc-role': arc.type,
               'data-arc-origin': arc.origin,
               'data-arc-target': arc.target,
+              'data-arc-id': arc.id,
+              'data-arc-ed': arc.eventDescId,
             };
-            if (arc.equiv) {
-              options['data-arc-ed'] = arc.eventDescId;
-            }
             var text = svg.text(arcGroup, (from + to) / 2, -height, labelText, options);
             var textBox = text.getBBox();
             if (arc.edited) {
@@ -1341,8 +1334,17 @@ var Visualizer = (function($, window, undefined) {
           move(sentNumMargin, 0).
           line(sentNumMargin, y));
         // resize the SVG
-        $(svg._svg).attr('height', y).css('height', y);
-        svgContainer.attr('height', y).css('height', y);
+        svgElement.height(y);
+        svgContainer.height(y);
+        // XXX HACK for now to allow us to see wide spans (#204)
+        // looks awful, should be better with pre-measured spans
+        // (coming in the newvis branch)
+        // since now everything except the too-wide spans stops at the
+        // canvasWidth boundary
+        var svgBox = svgElement[0].getBBox();
+        if (svgBox.width > canvasWidth) canvasWidth = svgBox.width;
+        svgElement.width(canvasWidth);
+
 
         drawing = false;
         if (redraw) {
@@ -1462,9 +1464,18 @@ var Visualizer = (function($, window, undefined) {
           // symmetric relations in general
           var symmetric = role === "Equiv";
           // NOTE: no commentText, commentType for now
+          var arcEventDescId = target.attr('data-arc-ed');
+          var commentText;
+          var commentType;
+          if (arcEventDescId) {
+            var comment = data.eventDescs[arcEventDescId].comment;
+            commentText = comment.text;
+            commentType = comment.type;
+          }
           dispatcher.post('displayArcComment', [
               evt, target, symmetric,
-              originSpanId, role, targetSpanId]);
+              originSpanId, role, targetSpanId,
+              commentText, commentType]);
           highlightArcs = $(svgElement).
               find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
               addClass('highlight');
