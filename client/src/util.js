@@ -78,26 +78,38 @@ var Util = (function(window, undefined) {
 
     var profiles = {};
     var profileStarts = {};
+    var profileOn = false;
+    var profileEnable = function(on) {
+      if (on === undefined) on = true;
+      profileOn = on;
+    }; // profileEnable
     var profileClear = function() {
+      if (!profileOn) return;
       profiles = {};
       profileStarts = {};
-    } // profileClear
+    }; // profileClear
     var profileStart = function(label) {
+      if (!profileOn) return;
       profileStarts[label] = new Date();
-    } // profileStart
+    }; // profileStart
     var profileEnd = function(label) {
+      if (!profileOn) return;
       var profileElapsed = new Date() - profileStarts[label]
       if (!profiles[label]) profiles[label] = 0;
       profiles[label] += profileElapsed;
-    } // profileEnd
+    }; // profileEnd
     var profileReport = function() {
-      console.log("------");
-      $.each(profiles, function(label, time) {
-        console.log("profile " + label, time);
-      });
-    } // profileReport
+      if (!profileOn) return;
+      if (window.console) {
+        $.each(profiles, function(label, time) {
+          console.log("profile " + label, time);
+        });
+        console.log("-------");
+      }
+    }; // profileReport
 
     return {
+      profileEnable: profileEnable,
       profileClear: profileClear,
       profileStart: profileStart,
       profileEnd: profileEnd,

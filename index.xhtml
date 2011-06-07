@@ -39,6 +39,7 @@
           var annotator = new Annotator(dispatcher, '#svg');
           var annotatorUI = new AnnotatorUI(dispatcher, svg);
           var spinner = new Spinner(dispatcher, '#spinner');
+          Util.profileEnable();
           dispatcher.post('init');
       });
 

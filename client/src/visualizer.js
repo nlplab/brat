@@ -740,11 +740,19 @@ var Visualizer = (function($, window, undefined) {
           undefined,
           function(span, text) {
             // measure the span text position in pixels
-            var startPos = text.getStartPositionOfChar(span.from - span.chunk.from);
-            var endPos = text.getEndPositionOfChar(span.to - span.chunk.from - 1);
+            var firstChar = span.from - span.chunk.from;
+            if (firstChar < 0) {
+              firstChar = 0;
+              console.warn("Span", span.text, "in chunk", span.chunk.text, "has strange offsets. FIXME");
+            }
+            var startPos = text.getStartPositionOfChar(firstChar).x;
+            var lastChar = span.to - span.chunk.from - 1;
+            var endPos = (lastChar < 0)
+              ? startPos
+              : text.getEndPositionOfChar(lastChar).x;
             span.curly = {
-              from: startPos.x,
-              to: endPos.x
+              from: startPos,
+              to: endPos
             };
           });
 
@@ -770,6 +778,7 @@ var Visualizer = (function($, window, undefined) {
         var arcTexts = {};
         $.each(data.arcs, function(arcNo, arc) {
           var labels = Util.getArcLabels(spanTypes, data.spans[arc.origin].type, arc.type);
+          if (!labels.length) labels = [arc.type];
           $.each(labels, function(labelNo, label) {
             arcTexts[label] = true;
           });
@@ -796,7 +805,11 @@ var Visualizer = (function($, window, undefined) {
       var redraw = false;
 
       var renderDataReal = function(_data) {
+
 Util.profileClear();
+Util.profileStart('render');
+Util.profileStart('init');
+
         if (!_data && !data) return;
         $svgDiv.show();
         if ((_data && (_data.document !== doc || _data.directory !== dir)) || drawing) {
@@ -824,12 +837,19 @@ Util.profileClear();
         highlightGroup = svg.group({ class: 'highlight' });
         var textGroup = svg.group({ class: 'text' });
 
+Util.profileEnd('init');
 Util.profileStart('measures');
+
         var sizes = getTextAndSpanTextMeasurements();
         data.sizes = sizes;
         adjustTowerAnnotationSizes();
+        var maxTextWidth = 0;
+        $.each(sizes.texts.widths, function(text, width) {
+          if (width > maxTextWidth) maxTextWidth = width;
+        });
 
 Util.profileEnd('measures');
+Util.profileStart('chunks');
 
         var current = { x: margin.x + sentNumMargin + rowPadding, y: margin.y }; // TODO: we don't need some of this?
         var rows = [];
@@ -844,8 +864,6 @@ Util.profileEnd('measures');
         var reservations;
         var lastBoxChunkIndex = -1;
         var twoBarWidths; // HACK to avoid measuring space's width
-
-Util.profileStart('chunks');
 
         $.each(data.chunks, function(chunkNo, chunk) {
           reservations = new Array();
@@ -1097,6 +1115,7 @@ Util.profileStart('chunks');
         rows.push(row);
 
 Util.profileEnd('chunks');
+Util.profileStart('arcsPrep');
 
         var arrows = {};
 
@@ -1104,8 +1123,6 @@ Util.profileEnd('chunks');
         for (var i = 0; i < len; i++) {
           if (!spanHeights[i] || spanHeights[i] < arcStartHeight) spanHeights[i] = arcStartHeight;
         }
-
-Util.profileStart('arcsPrep');
 
         // find out how high the arcs have to go
         $.each(data.arcs, function(arcNo, arc) {
@@ -1424,6 +1441,7 @@ Util.profileStart('rows');
           y += margin.y;
         });
         y += margin.y;
+
 Util.profileEnd('rows');
 Util.profileStart('chunkFinish');
 
@@ -1448,7 +1466,9 @@ Util.profileStart('chunkFinish');
                 { 'class': 'span_default span_' + spansType, opacity:0.15 });
             }
         });
+
 Util.profileEnd('chunkFinish');
+Util.profileStart('finish');
 
         svg.path(sentNumGroup, svg.createPath().
           move(sentNumMargin, 0).
@@ -1461,9 +1481,13 @@ Util.profileEnd('chunkFinish');
         // (coming in the newvis branch)
         // since now everything except the too-wide spans stops at the
         // canvasWidth boundary
-        var svgBox = $svg[0].getBBox();
-        if (svgBox.width > canvasWidth) canvasWidth = svgBox.width;
+        var width = maxTextWidth + sentNumMargin + 2 * margin.x + 1;
+        if (width > canvasWidth) canvasWidth = width;
         $svg.width(canvasWidth);
+
+Util.profileEnd('finish');
+Util.profileEnd('render');
+Util.profileReport();
 
 
         drawing = false;
@@ -1471,7 +1495,6 @@ Util.profileEnd('chunkFinish');
           redraw = false;
           renderDataReal();
         }
-Util.profileReport();
         dispatcher.post('doneRendering', [dir, doc, args]);
       };
 
