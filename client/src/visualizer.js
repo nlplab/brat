@@ -516,7 +516,7 @@ var Visualizer = (function($, window, undefined) {
           chunk.spans.sort(sortComparator); // sort
           $.each(chunk.spans, function(spanNo, span) {
             span.chunk = chunk;
-            span.text = chunk.text.substring(span.from - chunk.from, span.to - chunk.to); // XXX used anywhere?
+            span.text = chunk.text.substring(span.from - chunk.from, span.to - chunk.from); // XXX used anywhere?
             if (!data.towers[span.towerId]) {
               data.towers[span.towerId] = [];
               span.drawCurly = true;
@@ -921,11 +921,6 @@ Util.profileStart('chunks');
               chunkTo = Math.max(bx + bw + shadowSize, chunkTo);
               spanHeight = Math.max(bh + 2 * shadowSize, spanHeight);
             }
-            if (!(span.shadowClass || span.edited)) {
-              chunkFrom = Math.min(bx, chunkFrom);
-              chunkTo = Math.max(bx + bw, chunkTo);
-              spanHeight = Math.max(bh, spanHeight);
-            }
             span.rect = svg.rect(span.group,
                 bx, by, bw, bh, {
                 'class': rectClass,
@@ -934,6 +929,11 @@ Util.profileStart('chunks');
                 'data-span-id': span.id,
                 'strokeDashArray': span.attributeMerge.dasharray,
               });
+            if (!(span.shadowClass || span.edited)) {
+              chunkFrom = Math.min(bx, chunkFrom);
+              chunkTo = Math.max(bx + bw, chunkTo);
+              spanHeight = Math.max(bh, spanHeight);
+            }
 
             var yAdjust = placeReservation(span, bx, bw, bh, reservations);
             // this is monotonous due to sort:
