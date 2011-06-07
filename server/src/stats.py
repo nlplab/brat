@@ -22,6 +22,7 @@ from os.path import join as path_join
 from annotation import Annotations, open_textfile
 from config import DATA_DIR
 from message import Messager
+from projectconfig import get_config_path
 
 try:
     from config import PERFORM_VERIFICATION
@@ -51,10 +52,13 @@ def get_statistics(directory, base_names, use_cache=True):
 
     try:
         if (not isfile(cache_file_path)
+                # Any file has changed in the dir since the cache was generated
                 or any(True for f in listdir(directory)
-                    if (getmtime(path_join(directory, f)) > cache_mtime)
+                    if (getmtime(path_join(directory, f)) > cache_mtime
                     # Ignore hidden files
-                    and not f.startswith('.'))):
+                    and not f.startswith('.')))
+                # The configuration is newer than the cache
+                or getmtime(get_config_path(directory)) > cache_mtime):
             generate = True
             docstats = []
         else:
@@ -81,6 +85,7 @@ def get_statistics(directory, base_names, use_cache=True):
     if generate:
         # Generate the document statistics from scratch
         from annotation import JOINED_ANN_FILE_SUFF
+        log_info('generating statistics for "%s"' % directory)
         docstats = []
         for docname in base_names:
             try:
