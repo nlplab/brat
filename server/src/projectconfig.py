@@ -390,7 +390,7 @@ def get_configs(directory, filename):
         try: 
             configs = __parse_configs(configstr, source)        
         except:
-            Messager.warning("Project configuration: Falling back to minimal default. Configuration is likely wrong." % (s, source), 5)
+            Messager.warning("Project configuration: Falling back to minimal default. Configuration is likely wrong.", 5)
             configs = __minimal_configuration
 
         get_configs.__cache[(directory, filename)] = configs
