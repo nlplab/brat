@@ -76,7 +76,32 @@ var Util = (function(window, undefined) {
       return labels[0] || arcType;
     }
 
+    var profiles = {};
+    var profileStarts = {};
+    var profileClear = function() {
+      profiles = {};
+      profileStarts = {};
+    } // profileClear
+    var profileStart = function(label) {
+      profileStarts[label] = new Date();
+    } // profileStart
+    var profileEnd = function(label) {
+      var profileElapsed = new Date() - profileStarts[label]
+      if (!profiles[label]) profiles[label] = 0;
+      profiles[label] += profileElapsed;
+    } // profileEnd
+    var profileReport = function() {
+      console.log("------");
+      $.each(profiles, function(label, time) {
+        console.log("profile " + label, time);
+      });
+    } // profileReport
+
     return {
+      profileClear: profileClear,
+      profileStart: profileStart,
+      profileEnd: profileEnd,
+      profileReport: profileReport,
       formatTimeAgo: formatTimeAgo,
       realBBox: realBBox,
       getSpanLabels: getSpanLabels,
