@@ -305,6 +305,9 @@ def __parse_kb_shortcuts(shortcutstr, default, source):
         shortcuts = default
     return shortcuts
 
+def get_config_path(directory):
+    return __read_first_in_directory_tree(directory, __annotation_config_filename)[1]
+
 def __read_first_in_directory_tree(directory, filename):
     # config will not be available command-line invocations;
     # in these cases search whole tree
