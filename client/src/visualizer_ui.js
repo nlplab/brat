@@ -206,7 +206,7 @@ var VisualizerUI = (function($, window, undefined) {
               id: formId + "-cancel",
               text: "Cancel",
               click: function() { form.dialog('close'); }
-            },
+            }
           ]);
         delete opts.buttons;
 

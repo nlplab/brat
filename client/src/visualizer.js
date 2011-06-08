@@ -1579,7 +1579,6 @@ var Visualizer = (function($, window, undefined) {
           spanTypes = {};
           loadSpanTypes(response.entity_types);
           loadSpanTypes(response.event_types);
-          loadSpanTypes(response.relation_types);
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
 

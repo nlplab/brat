@@ -245,53 +245,74 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId) {
-        dispatcher.post('ajax', [{
-            action: 'possibleArcTypes',
-            directory: dir,
-            origin_type: originType,
-            target_type: targetType,
-          },
-          function(jsonData) {
-            if (jsonData.empty && !arcType) {
-              // no valid choices
-              dispatcher.post('messages',
-                [[["No choices for " +
-                   Util.spanDisplayForm(spanTypes, originType) +
-                   " -> " +
-                   Util.spanDisplayForm(spanTypes, targetType),
-                   'warning']]]);
-            } else {
-              $('#arc_roles').html(jsonData.html);
-              keymap = jsonData.keymap;
-              if (arcId) {
-                $('#arc_highlight_link').attr('href', document.location + '/' + arcId).show(); // TODO incorrect
-                var el = $('#arc_' + arcType)[0];
-                if (el) {
-                  el.checked = true;
-                }
-              } else {
-                $('#arc_highlight_link').hide();
-                el = $('#arc_form input:radio:first')[0];
-                if (el) {
-                  el.checked = true;
-                }
-              }
-              var confirmMode = $('#confirm_mode')[0].checked;
-              if (!confirmMode) {
-                arcForm.find('#arc_roles input:radio').click(arcFormSubmitRadio);
-              }
-              if (arcType) {
-                $('#arc_form_delete').show();
-                keymap[$.ui.keyCode.DELETE] = 'arc_form_delete';
-              } else {
-                $('#arc_form_delete').hide();
-              }
+        var noArcs = true;
+        keymap = {};
 
-              dispatcher.post('showForm', [arcForm]);
-              $('#arc_form input:submit').focus();
-              adjustToCursor(evt, arcForm.parent());
+        if (spanTypes[originType]) {
+          var arcTypes = spanTypes[originType].arcs;
+          var $scroller = $('#arc_roles .scroller').empty();
+
+          // lay them out into the form
+          $.each(arcTypes, function(arcTypeName, arcDesc) {
+            var displayName = arcDesc.labels[0] || arcTypeName;
+            if (arcDesc.hotkey) {
+              keymap[arcDesc.hotkeys] = '#arc_' + arcTypeName;
             }
-          }]);
+            var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
+            var $label = $('<label for="arc_' + arcTypeName + '"/>').text(displayName);
+            var $div = $('<div/>').append($checkbox).append($label);
+            $scroller.append($div);
+
+            noArcs = false;
+          });
+        }
+
+        if (noArcs) {
+          if (arcId) {
+            // let the user delete or whatever, even on bad config
+            var $checkbox = $('<input id="arc_' + arcType + '" type="hidden" name="arc_type" value="' + arcType + '"/>');
+            $scroller.append($checkbox);
+          } else {
+            // can't make a new arc
+            dispatcher.post('messages',
+              [[["No choices for " +
+                 Util.spanDisplayForm(spanTypes, originType) +
+                 " -> " +
+                 Util.spanDisplayForm(spanTypes, targetType),
+                 'warning']]]);
+            return;
+          }
+        }
+
+        if (arcId) {
+          // something was selected
+          $('#arc_highlight_link').attr('href', document.location + '/' + arcId).show(); // TODO incorrect
+          var el = $('#arc_' + arcType)[0];
+          if (el) {
+            el.checked = true;
+          }
+
+          $('#arc_form_delete').show();
+          keymap[$.ui.keyCode.DELETE] = 'arc_form_delete';
+        } else {
+          // new arc
+          $('#arc_highlight_link').hide();
+          el = $('#arc_form input:radio:first')[0];
+          if (el) {
+            el.checked = true;
+          }
+
+          $('#arc_form_delete').hide();
+        }
+
+        var confirmMode = $('#confirm_mode')[0].checked;
+        if (!confirmMode) {
+          arcForm.find('#arc_roles input:radio').click(arcFormSubmitRadio);
+        }
+
+        dispatcher.post('showForm', [arcForm]);
+        $('#arc_form input:submit').focus();
+        adjustToCursor(evt, arcForm.parent());
       };
 
       var deleteArc = function(evt) {
@@ -322,7 +343,8 @@ var AnnotatorUI = (function($, window, undefined) {
               id: 'arc_form_reselect',
               text: 'Reselect',
               click: reselectArc
-          }],
+            }],
+          alsoResize: '#arc_roles',
           close: function(evt) {
             keymap = null;
           }
