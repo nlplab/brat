@@ -649,6 +649,10 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanForm = $('#span_form');
 
       var deleteSpan = function() {
+        var confirmMode = $('#confirm_mode')[0].checked;
+        if (confirmMode && !confirm("Are you sure you want to delete this annotation?")) {
+          return;
+        }
         $.extend(spanOptions, {
           action: 'deleteSpan',
           directory: dir,
