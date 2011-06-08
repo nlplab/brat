@@ -58,11 +58,17 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                 pass
 
             arcs = {}
+            # Note: for client, relations are represented as "arcs"
+            # attached to "spans" corresponding to entity annotations.
             for arc in chain(project_conf.relation_types_from(_type), node.arguments.keys()):
                 arc_labels = get_labels_by_storage_form(directory, arc)
 
                 if arc_labels is not None:
-                    arcs[arc] = arc_labels
+                    arcs[arc] = {}
+                    arcs[arc]['labels'] = arc_labels if arc_labels is not None else [arc]
+                    arcs[arc]['hotkey'] = None
+                    arcs[arc]['color'] = '#000000'
+                    arcs[arc]['dashArray'] = '3,3'
                     
             # If we found any arcs, attach them
             if arcs:
