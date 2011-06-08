@@ -24,11 +24,17 @@ RELATION_SECTION  = "relations"
 EVENT_SECTION     = "events"
 ATTRIBUTE_SECTION = "attributes"
 
-expected_configuration_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTION, ATTRIBUTE_SECTION)
+__expected_configuration_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTION, ATTRIBUTE_SECTION)
 
-__annotation_config_filename        = "annotation.conf"
-__label_filename                    = 'labels.conf'
-__kb_shortcut_filename              = 'kb_shortcuts.conf'
+# visual config section name constants
+LABEL_SECTION     = "labels"
+DRAWING_SECTION   = "drawing"
+
+__expected_visual_sections = (LABEL_SECTION, DRAWING_SECTION)
+
+__annotation_config_filename  = "annotation.conf"
+__visual_config_filename      = 'visual.conf'
+__kb_shortcut_filename        = 'kb_shortcuts.conf'
 
 # fallback defaults if config files not found
 __default_configuration = """
@@ -47,11 +53,13 @@ Negation	Arg:<EVENT>
 Speculation	Arg:<EVENT>
 """
 
-__default_labels = """
-Protein\tProtein\tPro\tP
-Protein_binding\tProtein binding\tBinding\tBind
-Gene_expression\tGene_expression\tExpression\tExp
-Theme\tTheme\tTh
+__default_visual = """
+Protein | Protein | Pro | P
+Protein_binding | Protein binding | Binding | Bind
+Gene_expression | Gene_expression | Expression | Exp
+Theme | Theme | Th
+
+<DEFAULT>	Color:black
 """
 
 __default_kb_shortcuts = """
@@ -89,7 +97,7 @@ normalize_to_storage_form.__cache = {}
 
 class TypeHierarchyNode:
     """
-    Represents a node in a simple hierarchical ontology. 
+    Represents a node in a simple (possibly flat) hierarchy. 
 
     Each node is associated with a set of terms, one of which (the
     storage_form) matches the way in which the type denoted by the
@@ -103,11 +111,11 @@ class TypeHierarchyNode:
     node occupies: for example, for events the arguments correspond to
     event arguments.
     """
-    def __init__(self, terms, args):
+    def __init__(self, terms, args=[]):
         self.terms, self.args = terms, args
 
         if len(terms) == 0 or len([t for t in terms if t == ""]) != 0:
-            Messager.debug("Empty term in type configuration" % (a, args), duration=-1)
+            Messager.debug("Empty term in configuration" % (a, args), duration=-1)
             raise InvalidProjectConfigException
 
         # unused if any of the terms marked with "!"
@@ -125,7 +133,7 @@ class TypeHierarchyNode:
         # TODO: this might not be the ideal place to put this warning
         if self.__primary_term != self.terms[0]:
             Messager.warning("Note: in configuration, term '%s' is not appropriate for storage (should match '^[a-zA-Z0-9_-]*$'), using '%s' instead. (Revise configuration file to get rid of this message. Terms other than the first are not subject to this restriction.)" % (self.terms[0], self.__primary_term), -1)
-            pass
+            self.terms[0] = self.__primary_term
 
         # TODO: cleaner and more localized parsing
         self.arguments = {}
@@ -331,7 +339,7 @@ def __read_first_in_directory_tree(directory, filename):
 
     return (result, source)
 
-def __parse_configs(configstr, source):
+def __parse_configs(configstr, source, expected_sections):
     # top-level config structure is a set of term hierarchies
     # separated by lines consisting of "[SECTION]" where SECTION is
     # e.g.  "entities", "relations", etc.
@@ -344,7 +352,7 @@ def __parse_configs(configstr, source):
         m = re.match(r'^\s*\[(.*)\]\s*$', l)
         if m:
             section = m.group(1)
-            if section not in expected_configuration_sections:
+            if section not in expected_sections:
                 Messager.warning("Project configuration: unexpected section [%s] in %s. Ignoring contents." % (section, source), 5)
             if section not in section_lines:
                 section_lines[section] = []
@@ -361,29 +369,21 @@ def __parse_configs(configstr, source):
             raise
 
     # verify that expected sections are present; replace with empty if not.
-    for s in expected_configuration_sections:
+    for s in expected_sections:
         if s not in configs:
             Messager.warning("Project configuration: missing section [%s] in %s. Configuration may be wrong." % (s, source), 5)
             configs[s] = []
 
     return configs
-
-# final fallback for configuration; a minimal known-good config
-__minimal_configuration = {
-    ENTITY_SECTION    : [TypeHierarchyNode(["Protein"], [])],
-    RELATION_SECTION  : [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein"])],
-    EVENT_SECTION     : [TypeHierarchyNode(["Event"], ["Theme:Protein"])],
-    ATTRIBUTE_SECTION : [TypeHierarchyNode(["Negation"], ["Arg:<EVENT>"])],
-    }
             
-def get_configs(directory, filename):
+def get_configs(directory, filename, defaultstr, minconf, sections):
     if (directory, filename) not in get_configs.__cache:
         configstr, source =  __read_first_in_directory_tree(directory, filename)
 
         if configstr is None:
             # didn't get one; try default dir and fall back to the default
-            configstr = __read_or_default(filename, __default_configuration)
-            if configstr == __default_configuration:                
+            configstr = __read_or_default(filename, defaultstr)
+            if configstr == defaultstr:                
                 Messager.info("Project configuration: no configuration file (%s) found, using default." % filename, 5)
                 source = "[default]"
             else:
@@ -391,29 +391,29 @@ def get_configs(directory, filename):
 
         # try to parse what was found, fall back to minimal config
         try: 
-            configs = __parse_configs(configstr, source)        
+            configs = __parse_configs(configstr, source, sections)        
         except:
             Messager.warning("Project configuration: Falling back to minimal default. Configuration is likely wrong." % (s, source), 5)
-            configs = __minimal_configuration
+            configs = minconf
 
         get_configs.__cache[(directory, filename)] = configs
 
     return get_configs.__cache[(directory, filename)]
 get_configs.__cache = {}
 
-def __get_labels(directory, filename, default_labels, min_labels):
+# def __get_labels(directory, filename, default_visual, min_labels):
 
-    labelstr, source = __read_first_in_directory_tree(directory, filename)
+#     labelstr, source = __read_first_in_directory_tree(directory, filename)
 
-    if labelstr is None:
-        labelstr = __read_or_default(filename, default_labels)
-        if labelstr == default_labels:
-            source = "[default labels]"
-        else:
-            source = filename
+#     if labelstr is None:
+#         labelstr = __read_or_default(filename, default_visual)
+#         if labelstr == default_visual:
+#             source = "[default labels]"
+#         else:
+#             source = filename
 
-    labels = __parse_labels(labelstr, min_labels, source)
-    return labels
+#     labels = __parse_labels(labelstr, min_labels, source)
+#     return labels
 
 def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 
@@ -429,31 +429,73 @@ def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
     kb_shortcuts = __parse_kb_shortcuts(shortcutstr, min_shortcuts, source)
     return kb_shortcuts
 
+# final fallback for configuration; a minimal known-good config
+__minimal_configuration = {
+    ENTITY_SECTION    : [TypeHierarchyNode(["Protein"])],
+    RELATION_SECTION  : [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein"])],
+    EVENT_SECTION     : [TypeHierarchyNode(["Event"], ["Theme:Protein"])],
+    ATTRIBUTE_SECTION : [TypeHierarchyNode(["Negation"], ["Arg:<EVENT>"])],
+    }
+
+def get_annotation_configs(directory):
+    return get_configs(directory, 
+                       __annotation_config_filename, 
+                       __default_configuration,
+                       __minimal_configuration,
+                       __expected_configuration_sections)
+
+# final fallback for visual configuration; minimal known-good config
+__minimal_visual = {
+    LABEL_SECTION     : [TypeHierarchyNode(["Protein", "Pro", "P"]),
+                         TypeHierarchyNode(["Equiv", "Eq"]),
+                         TypeHierarchyNode(["Event", "Ev"])],
+    DRAWING_SECTION   : [TypeHierarchyNode(["DEFAULT"], ["Color:black"])],
+    }
+
+def get_visual_configs(directory):
+    return get_configs(directory,
+                       __visual_config_filename,
+                       __default_visual,
+                       __minimal_visual,
+                       __expected_visual_sections)
+
 def get_entity_type_hierarchy(directory):    
-    return get_configs(directory, __annotation_config_filename)[ENTITY_SECTION]
+    return get_annotation_configs(directory)[ENTITY_SECTION]
 
 def get_relation_type_hierarchy(directory):    
-    return get_configs(directory, __annotation_config_filename)[RELATION_SECTION]
+    return get_annotation_configs(directory)[RELATION_SECTION]
 
 def get_event_type_hierarchy(directory):    
-    return get_configs(directory, __annotation_config_filename)[EVENT_SECTION]
+    return get_annotation_configs(directory)[EVENT_SECTION]
 
 def get_attribute_type_hierarchy(directory):    
-    return get_configs(directory, __annotation_config_filename)[ATTRIBUTE_SECTION]
+    return get_annotation_configs(directory)[ATTRIBUTE_SECTION]
 
 def get_labels(directory):
     cache = get_labels.__cache
     if directory not in cache:
-        a = __get_labels(directory,
-                         __label_filename,
-                         __default_labels,
-                         { "Protein" : [ "Protein", "Pro", "P" ], 
-                           "Theme" : [ "Theme", "Th" ] }
-                         )
-        cache[directory] = a
-
+        l = {}
+        for t in get_visual_configs(directory)[LABEL_SECTION]:
+            if t.storage_form() in l:
+                Messager.warning("In configuration, labels for '%s' defined more than once. Only using the last set." % t.storage_form(), -1)
+            l[t.storage_form()] = t.terms
+        cache[directory] = l
     return cache[directory]
 get_labels.__cache = {}
+
+# def get_labels(directory):
+#     cache = get_labels.__cache
+#     if directory not in cache:
+#         a = __get_labels(directory,
+#                          __visual_config_filename,
+#                          __default_visual,
+#                          { "Protein" : [ "Protein", "Pro", "P" ], 
+#                            "Theme" : [ "Theme", "Th" ] }
+#                          )
+#         cache[directory] = a
+
+#     return cache[directory]
+# get_labels.__cache = {}
 
 def get_kb_shortcuts(directory):
     cache = get_kb_shortcuts.__cache
