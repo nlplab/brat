@@ -692,9 +692,6 @@ fieldset {
 #import_text {
   font-family: inherit;
 }
-#import_title {
-  width: 400px;
-}
 #export_page div {
   margin: 5px 5px 5px 5px;
   font-size: 14px;
