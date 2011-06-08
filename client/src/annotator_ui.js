@@ -771,6 +771,10 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('showForm', [importForm]);
       });
 
+      var preventDefault = function(evt) {
+        evt.preventDefault();
+      };
+
 
 
       var waiter = $('#waiter');
@@ -797,6 +801,7 @@ var AnnotatorUI = (function($, window, undefined) {
         on('current', gotCurrent).
         on('keydown', onKeyDown).
         on('dblclick', onDblClick).
+        on('dragstart', preventDefault).
         on('mousedown', onMouseDown).
         on('mouseup', onMouseUp).
         on('mousemove', onMouseMove);

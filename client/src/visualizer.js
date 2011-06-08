@@ -82,6 +82,8 @@ var Visualizer = (function($, window, undefined) {
       var spanTypes;
       var abbrevsOn = true;
       var isRenderRequested;
+      var isDirLoaded = false;
+      var areFontsLoaded = false;
       var attributeTypes = null;
       var spanTypes = null;
       var highlightGroup;
@@ -1672,6 +1674,7 @@ Util.profileReport();
       registerHandlers($svgDiv, [
           'mouseover', 'mouseout', 'mousemove',
           'mouseup', 'mousedown',
+          'dragstart',
           'dblclick', 'click'
       ]);
       registerHandlers($(document), [
@@ -1753,6 +1756,41 @@ Util.profileReport();
           triggerRender();
         }
       };
+
+      var fontTestString = 'abbcccddddeeeeeffffffggggggghhhhhhhhiiiiiiiiijjjjjjjjjjkkkkkkkkkkkllllllllllllmmmmmmmmmmmmmnnnnnnnnnnnnnnoooooooooooooooppppppppppppppppqqqqqqqqqqqqqqqqqrrrrrrrrrrrrrrrrrrsssssssssssssssssssttttttttttttttttttttuuuuuuuuuuuuuuuuuuuuuvvvvvvvvvvvvvvvvvvvvvvwwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyzzzzzzzzzzzzzzzzzzzzzzzzzz';
+      var waitUntilFontsLoaded = function(fonts) {
+        var $fontsTester = $('<div style="font-size: 72px; width: 1px"/>');
+        $('body').append($fontsTester);
+        
+        var waitUntilFontsLoadedInner = function() {
+          var allLoaded = true;
+          $.each(fonts, function(fontNo, font) {
+            var $newDiv = $('<div style="font-family: ' + font + '; overflow: scroll"/>').text(fontTestString);
+            var $serifDiv = $('<div style="font-family: serif"/>').text(fontTestString);
+            $fontsTester.append($newDiv, $serifDiv);
+            var newWidth = $newDiv[0].scrollWidth;
+            var serifWidth = $serifDiv[0].scrollWidth;
+            if (newWidth == serifWidth) {
+              allLoaded = false;
+              return false;
+            }
+          });
+          if (allLoaded) {
+            areFontsLoaded = true;
+            triggerRender();
+          } else {
+            setTimeout(function() { waitUntilFontsLoaded(fonts); }, 100);
+          }
+        };
+
+        waitUntilFontsLoadedInner();
+        $fontsTester.remove();
+      }
+
+      waitUntilFontsLoaded([
+        'Astloch',
+        'PT Sans Caption'
+      ]);
 
 
 
