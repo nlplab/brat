@@ -20,7 +20,6 @@ var Visualizer = (function($, window, undefined) {
       var arcStartHeight = 19; //23; //25;
       var arcHorizontalSpacing = 10; // min space boxes with connecting arc
       var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
-      var dashArray = '3,3';
       var sentNumMargin = 20;
       var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
       var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
@@ -1080,6 +1079,12 @@ var Visualizer = (function($, window, undefined) {
             left = targetSpan;
             right = originSpan;
           }
+
+          var spanDesc = spanTypes[originSpan.type];
+          var arcDesc = spanDesc && spanDesc.arcs[arc.type];
+          var color = arcDesc && arcDesc.color || '#000000';
+          var dashArray = arcDesc && arcDesc.dashArray;
+
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
           var leftRow = left.chunk.row.index;
@@ -1150,7 +1155,7 @@ var Visualizer = (function($, window, undefined) {
             var shadowGroup;
             if (arc.shadowClass || arc.edited) shadowGroup = svg.group(arcGroup);
             var options = {
-              'class': 'fill_' + arc.type,
+              'fill': color,
               'data-arc-role': arc.type,
               'data-arc-origin': arc.origin,
               'data-arc-target': arc.target,
@@ -1204,8 +1209,8 @@ var Visualizer = (function($, window, undefined) {
             }
             svg.path(arcGroup, path, {
               markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
-              'class': 'stroke_' + arc.type,
-              'strokeDashArray': arc.equiv ? dashArray : undefined,
+              'stroke': color,
+              'strokeDashArray': dashArray,
             });
             if (arc.edited) {
               svg.path(shadowGroup, path, {
@@ -1238,8 +1243,8 @@ var Visualizer = (function($, window, undefined) {
             }
             svg.path(arcGroup, path, {
                 markerEnd: leftToRight && !arc.equiv ? 'url(#' + arrows[arc.type] + ')' : undefined,
-                'class': 'stroke_' + arc.type,
-                'strokeDashArray': arc.equiv ? dashArray : undefined,
+                'stroke': color,
+                'strokeDashArray': dashArray,
             });
             if (arc.edited) {
               svg.path(shadowGroup, path, {
