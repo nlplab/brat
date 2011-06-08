@@ -1533,7 +1533,7 @@ Util.profileReport();
       };
 
       var triggerRender = function() {
-        if (svg && isRenderRequested && isDirLoaded) {
+        if (svg && isRenderRequested && isDirLoaded && areFontsLoaded) {
           isRenderRequested = false;
           if (doc.length) {
             renderDocument();
@@ -1759,31 +1759,36 @@ Util.profileReport();
 
       var fontTestString = 'abbcccddddeeeeeffffffggggggghhhhhhhhiiiiiiiiijjjjjjjjjjkkkkkkkkkkkllllllllllllmmmmmmmmmmmmmnnnnnnnnnnnnnnoooooooooooooooppppppppppppppppqqqqqqqqqqqqqqqqqrrrrrrrrrrrrrrrrrrsssssssssssssssssssttttttttttttttttttttuuuuuuuuuuuuuuuuuuuuuvvvvvvvvvvvvvvvvvvvvvvwwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyzzzzzzzzzzzzzzzzzzzzzzzzzz';
       var waitUntilFontsLoaded = function(fonts) {
+        var interval = 50;
+        var maxTime = 1000; // max wait 1s for fonts
         var $fontsTester = $('<div style="font-size: 72px; width: 1px"/>');
         $('body').append($fontsTester);
+        var $serifDiv = $('<div style="font-family: serif"/>').text(fontTestString);
+        $.each(fonts, function(fontNo, font) {
+          var $newDiv = $('<div style="font-family: ' + font + '; overflow: scroll"/>').text(fontTestString);
+          $fontsTester.append($newDiv, $serifDiv);
+        });
         
-        var waitUntilFontsLoadedInner = function() {
+        var waitUntilFontsLoadedInner = function(fonts, remainingTime, interval) {
           var allLoaded = true;
-          $.each(fonts, function(fontNo, font) {
-            var $newDiv = $('<div style="font-family: ' + font + '; overflow: scroll"/>').text(fontTestString);
-            var $serifDiv = $('<div style="font-family: serif"/>').text(fontTestString);
-            $fontsTester.append($newDiv, $serifDiv);
-            var newWidth = $newDiv[0].scrollWidth;
+          $fontsTester.each(function() {
+            var newWidth = this.scrollWidth;
             var serifWidth = $serifDiv[0].scrollWidth;
             if (newWidth == serifWidth) {
               allLoaded = false;
               return false;
             }
           });
-          if (allLoaded) {
+          allLoaded = false;
+          if (allLoaded || remainingTime <= 0) {
             areFontsLoaded = true;
             triggerRender();
           } else {
-            setTimeout(function() { waitUntilFontsLoaded(fonts); }, 100);
+            setTimeout(function() { waitUntilFontsLoadedInner(fonts, remainingTime - interval, interval); }, interval);
           }
         };
 
-        waitUntilFontsLoadedInner();
+        waitUntilFontsLoadedInner(fonts, maxTime, interval);
         $fontsTester.remove();
       }
 
