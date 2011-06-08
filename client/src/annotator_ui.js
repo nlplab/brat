@@ -73,8 +73,10 @@ var AnnotatorUI = (function($, window, undefined) {
           var eventDescId = target.attr('data-arc-ed');
           if (eventDescId) {
             var eventDesc = data.eventDescs[eventDescId];
-            arcOptions['left'] = eventDesc.leftSpans.join(',');
-            arcOptions['right'] = eventDesc.rightSpans.join(',');
+            if (eventDesc.equiv) {
+              arcOptions['left'] = eventDesc.leftSpans.join(',');
+              arcOptions['right'] = eventDesc.rightSpans.join(',');
+            }
           }
           $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
           $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
