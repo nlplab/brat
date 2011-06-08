@@ -1611,12 +1611,14 @@ Util.profileReport();
           var symmetric = role === "Equiv";
           // NOTE: no commentText, commentType for now
           var arcEventDescId = target.attr('data-arc-ed');
-          var commentText;
-          var commentType;
+          var commentText = '';
+          var commentType = '';
           if (arcEventDescId) {
             var comment = data.eventDescs[arcEventDescId].comment;
-            commentText = comment.text;
-            commentType = comment.type;
+            if (comment) {
+              commentText = comment.text;
+              commentType = comment.type;
+            }
           }
           dispatcher.post('displayArcComment', [
               evt, target, symmetric,
