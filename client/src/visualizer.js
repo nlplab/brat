@@ -99,23 +99,6 @@ var Visualizer = (function($, window, undefined) {
         setTimeout(function() { $svg.css('margin-bottom', 0); }, 0);
       }
 
-      var displayForm = function(label) {
-        // Returns the preferred full display form for the given label,
-        // i.e. the first in the label set (if defined)
-        var labelText;
-        if (labels[label] && labels[label][0]) {
-          return labels[label][0];
-        } else {
-          return label;
-        }
-      }
-      // TODO XXX Goran: I need to make this function accessible to
-      // AnnotatorUI and others; does this way make sense?
-      // TODO: "displayForm" is a bit of an unfortunate name in GUI
-      // code, change? (the intended meaning is "the form of the term
-      // that is used for display").
-      Visualizer.displayForm = displayForm;
-
       var rowBBox = function(span) {
         var box = span.rect.getBBox();
         var chunkTranslation = span.chunk.translation;
