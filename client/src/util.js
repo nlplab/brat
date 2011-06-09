@@ -4,6 +4,10 @@ var Util = (function(window, undefined) {
 
     var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+    var cmp = function(a,b) {
+        return a < b ? -1 : a > b ? 1 : 0;
+    }
+
     var unitAgo = function(n, unit) {
       if (n == 1) return "" + n + " " + unit + " ago";
       return "" + n + " " + unit + "s ago";
@@ -86,7 +90,8 @@ var Util = (function(window, undefined) {
       arcDisplayForm: arcDisplayForm,
       escapeQuotes: escapeQuotes,
       escapeHTML: escapeHTML,
-      escapeHTMLwithNewlines: escapeHTMLwithNewlines
+      escapeHTMLwithNewlines: escapeHTMLwithNewlines,
+      cmp: cmp
     };
 
 })(window);
