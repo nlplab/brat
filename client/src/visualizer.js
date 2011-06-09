@@ -1404,8 +1404,6 @@ var Visualizer = (function($, window, undefined) {
                 }
                 yShrink *= nestingAdjustStepSize;
 
-                console.log(yShrink);
-
                 svg.rect(highlightGroup,
                   chunk.textX + span.curly.from - 1, chunk.row.textY + curlyY - 1 + yShrink,
                   span.curly.to - span.curly.from + 2, span.curly.height + 2 - 2*yShrink,
