@@ -30,7 +30,8 @@ var Visualizer = (function($, window, undefined) {
       var editedArcSize = 3;
       var editedStroke = 7;
       var rowPadding = 2;
-
+      var nestingAdjustStepSize = 2; // size of height adjust for nested/nesting spans
+      
       // END OPTIONS
 
 
@@ -1345,14 +1346,80 @@ var Visualizer = (function($, window, undefined) {
                 spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
                 { 'span': 'span_default span_' + spansType, opacity:0.15 });
               */
-              $.each(chunk.spans, function(spanNo, span) {
+
+              // For clean-looking verlapping span highlight, avoid using
+              // opacity and instead calculate a lighter color and lay out
+              // highlight boxes in nesting order.
+
+              // Sort via indices to avoid messing with assumptions about
+              // span order
+              var orderedIdx = [];
+              for (var i=chunk.spans.length-1; i>=0; i--) {
+                  orderedIdx.push(i);
+              }
+              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[a].from, chunk.spans[b].from) });
+
+              // Detect overlapping pairs and mark entity nesting
+              // height/depth (number of nested/nesting entities).
+              // Note: for identical spans and "crossing" annotations,
+              // the span starting first becomes the outer span.
+              var overlapping = [];
+              var openSpans = [];
+              for(var i=0; i<orderedIdx.length; i++) {
+                  var current = chunk.spans[orderedIdx[i]];
+                  current.nestingHeight = 0;
+                  current.nestingDepth = 0;
+                  var stillOpen = [];
+                  for(var o=0; o<openSpans.length; o++) {
+                      if(openSpans[o].to > current.from) {
+                          stillOpen.push(openSpans[o]);
+                      }
+                  }
+                  openSpans = stillOpen;
+                  for(var o=0; o<openSpans.length; o++) {
+                      openSpans[o].nestingHeight++;
+                  }
+                  current.nestingDepth=openSpans.length;
+                  openSpans.push(current);
+              }
+
+              // Re-order by nesting depth
+              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[a].nestingDepth, chunk.spans[b].nestingDepth) });
+
+              // And draw in order
+
+              for(var i=0; i<chunk.spans.length; i++) {
+                var span=chunk.spans[orderedIdx[i]];
                 var spanDesc = spanTypes[span.type];
                 var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
+
+                // Tweak for nesting depth/height. Recognize just three
+                // levels for now: normal, nested, and nesting, where
+                // nested+nesting yields normal.
+                var yShrink = 0;
+                if(span.nestingDepth > 0 && span.nestingHeight == 0) {
+                    yShrink = 1;
+                } else if(span.nestingDepth == 0 && span.nestingHeight > 0) {
+                    yShrink = -1;
+                }
+                yShrink *= nestingAdjustStepSize;
+
+                console.log(yShrink);
+
                 svg.rect(highlightGroup,
-                  chunk.textX + span.curly.from - 1, chunk.row.textY + curlyY - 1,
-                  span.curly.to - span.curly.from + 2, span.curly.height + 2,
-                  { fill: bgColor, opacity:0.15 });
-              });
+                  chunk.textX + span.curly.from - 1, chunk.row.textY + curlyY - 1 + yShrink,
+                  span.curly.to - span.curly.from + 2, span.curly.height + 2 - 2*yShrink,
+                         { fill: bgColor, opacity:1 });
+              }
+
+//               $.each(chunk.spans, function(spanNo, span) {
+//                 var spanDesc = spanTypes[span.type];
+//                 var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
+//                 svg.rect(highlightGroup,
+//                   chunk.textX + span.curly.from - 1, chunk.row.textY + curlyY - 1,
+//                   span.curly.to - span.curly.from + 2, span.curly.height + 2,
+//                   { fill: bgColor, opacity:1 });
+//               });
             }
         });
 
