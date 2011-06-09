@@ -405,12 +405,8 @@ rect.shadow_EditHighlight {
 .fill_Contextgene   { fill: #303030; }
 .stroke_Contextgene { stroke: #303030; }
 
-.fill_Sidechain {
-  fill: #303030;
-}
-.stroke_Sidechain {
-  stroke: #303030;
-}
+.fill_Sidechain { fill: #303030; }
+.stroke_Sidechain { stroke: #303030; }
 
 /* relations */
 .fill_Location   { fill:   #000000; }
@@ -422,11 +418,8 @@ rect.shadow_EditHighlight {
 .fill_relatedTo   { fill:   #af0000; }
 .stroke_relatedTo { stroke: #af0000; }
 
-.fill_Equiv {
-  fill: black; /* TODO */
-}
-.stroke_Equiv {
-  stroke: black; /* TODO */
+.fill_Equiv { fill: black; }
+.stroke_Equiv { stroke: black; }
 }
 
 .drag_stroke {
