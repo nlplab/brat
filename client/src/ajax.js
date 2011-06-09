@@ -13,13 +13,11 @@ var Ajax = (function($, window, undefined) {
           data: data,
           type: 'POST',
           success: function(response) {
-/* TODO Commented out until
- * server-side complies
             if (response.action !== data.action) {
               console.error('Action ' + data.action +
                 ' returned the results of action ' + response.action);
+              response.exception = true;
             }
-*/
             dispatcher.post('messages', [response.messages]);
 
             // if .exception is just Boolean true, do not process
