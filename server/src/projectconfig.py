@@ -272,33 +272,34 @@ def __read_or_default(filename, default):
         # TODO: specific exception handling and reporting
         return default
 
-def __parse_labels(labelstr, default, source):
-    try:
-        labels = {}
-        for l in labelstr.split("\n"):
-            l = l.rstrip()
-            if l == "" or l[:1] == "#":
-                continue
-            fields = l.split("\t")
-            if len(fields) < 2:
-                Messager.warning("Note: failed to parse line in label configuration (ignoring; format is tab-separated, STORAGE_FORM\\tDISPLAY_FORM[\\tABBREV1\\tABBREV2...]): '%s'" % l, -1)
-            else:
-                storage_form, others = fields[0], fields[1:]
-                normsf = normalize_to_storage_form(storage_form)
-                if normsf != storage_form:
-                    Messager.warning("Note: first field '%s' is not a valid storage form in label configuration (should match '^[a-zA-Z0-9_-]*$'; using '%s' instead): '%s'" % (storage_form, normsf, l), -1)
-                    storage_form = normsf
+# depracated; verify working and remove
+# def __parse_labels(labelstr, default, source):
+#     try:
+#         labels = {}
+#         for l in labelstr.split("\n"):
+#             l = l.rstrip()
+#             if l == "" or l[:1] == "#":
+#                 continue
+#             fields = l.split("\t")
+#             if len(fields) < 2:
+#                 Messager.warning("Note: failed to parse line in label configuration (ignoring; format is tab-separated, STORAGE_FORM\\tDISPLAY_FORM[\\tABBREV1\\tABBREV2...]): '%s'" % l, -1)
+#             else:
+#                 storage_form, others = fields[0], fields[1:]
+#                 normsf = normalize_to_storage_form(storage_form)
+#                 if normsf != storage_form:
+#                     Messager.warning("Note: first field '%s' is not a valid storage form in label configuration (should match '^[a-zA-Z0-9_-]*$'; using '%s' instead): '%s'" % (storage_form, normsf, l), -1)
+#                     storage_form = normsf
                     
-                if storage_form in labels:
-                    Messager.warning("Note: '%s' defined multiple times in label configuration (only using last definition)'" % storage_form, -1)
+#                 if storage_form in labels:
+#                     Messager.warning("Note: '%s' defined multiple times in label configuration (only using last definition)'" % storage_form, -1)
 
-                labels[storage_form] = others
-    except:
-        # TODO: specific exception handling
-        Messager.warning("Project configuration: error parsing labels from %s. Configuration may be wrong." % source, 5)
-        labels = default
+#                 labels[storage_form] = others
+#     except:
+#         # TODO: specific exception handling
+#         Messager.warning("Project configuration: error parsing labels from %s. Configuration may be wrong." % source, 5)
+#         labels = default
 
-    return labels
+#     return labels
 
 def __parse_kb_shortcuts(shortcutstr, default, source):
     try:
@@ -404,6 +405,7 @@ def get_configs(directory, filename, defaultstr, minconf, sections):
     return get_configs.__cache[(directory, filename)]
 get_configs.__cache = {}
 
+# depracated; verify working and remove
 # def __get_labels(directory, filename, default_visual, min_labels):
 
 #     labelstr, source = __read_first_in_directory_tree(directory, filename)
@@ -491,6 +493,7 @@ get_labels.__cache = {}
 def get_drawing_config(directory):
     return get_visual_configs(directory)[DRAWING_SECTION]
 
+# depracated; verify working and remove
 # def get_labels(directory):
 #     cache = get_labels.__cache
 #     if directory not in cache:
