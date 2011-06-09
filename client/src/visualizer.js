@@ -100,7 +100,8 @@ var Visualizer = (function($, window, undefined) {
       }
 
       var rowBBox = function(span) {
-        var box = span.rect.getBBox();
+        var box = $.extend({}, span.rectBox); // clone
+        console.log(span.chunk);
         var chunkTranslation = span.chunk.translation;
         box.x += chunkTranslation.x;
         box.y += chunkTranslation.y;
@@ -932,6 +933,7 @@ Util.profileStart('chunks');
                 'data-span-id': span.id,
                 'strokeDashArray': span.attributeMerge.dasharray,
               });
+            span.rectBox = { x: bx, y: by, width: bw, height: bh };
             if (!(span.shadowClass || span.edited)) {
               chunkFrom = Math.min(bx, chunkFrom);
               chunkTo = Math.max(bx + bw, chunkTo);
