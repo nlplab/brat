@@ -54,12 +54,15 @@ Speculation	Arg:<EVENT>
 """
 
 __default_visual = """
+[labels]
 Protein | Protein | Pro | P
 Protein_binding | Protein binding | Binding | Bind
 Gene_expression | Gene_expression | Expression | Exp
 Theme | Theme | Th
 
-<DEFAULT>	Color:black
+[drawing]
+SPAN_DEFAULT	fgColor:black, bgColor:white, borderColor:black
+ARC_DEFAULT	color:block
 """
 
 __default_kb_shortcuts = """
@@ -449,7 +452,8 @@ __minimal_visual = {
     LABEL_SECTION     : [TypeHierarchyNode(["Protein", "Pro", "P"]),
                          TypeHierarchyNode(["Equiv", "Eq"]),
                          TypeHierarchyNode(["Event", "Ev"])],
-    DRAWING_SECTION   : [TypeHierarchyNode(["DEFAULT"], ["Color:black"])],
+    DRAWING_SECTION   : [TypeHierarchyNode(["SPAN_DEFAULT"], ["fgColor:black", "bgColor:white"]),
+                         TypeHierarchyNode(["ARC_DEFAULT"], ["color:black"])],
     }
 
 def get_visual_configs(directory):
@@ -471,6 +475,7 @@ def get_event_type_hierarchy(directory):
 def get_attribute_type_hierarchy(directory):    
     return get_annotation_configs(directory)[ATTRIBUTE_SECTION]
 
+# TODO: too much caching?
 def get_labels(directory):
     cache = get_labels.__cache
     if directory not in cache:
@@ -482,6 +487,9 @@ def get_labels(directory):
         cache[directory] = l
     return cache[directory]
 get_labels.__cache = {}
+
+def get_drawing_config(directory):
+    return get_visual_configs(directory)[DRAWING_SECTION]
 
 # def get_labels(directory):
 #     cache = get_labels.__cache
@@ -566,12 +574,47 @@ def get_node_by_storage_form(directory, term):
         for e in get_entity_type_list(directory) + get_event_type_list(directory):
             t = e.storage_form()
             if t in d:
-                Messager.warning("Project configuration: interface term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), 5)
+                # TODO: does this make sense?
+                Messager.warning("Project configuration: term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), 5)
             d[t] = e
         cache[directory] = d
 
     return cache[directory].get(term, None)
 get_node_by_storage_form.__cache = {}
+
+def get_drawing_config_by_storage_form(directory, term):
+    cache = get_drawing_config_by_storage_form.__cache
+    if directory not in cache:
+        d = {}
+        for n in get_drawing_config(directory):
+            t = n.storage_form()
+            if t in d:
+                # TODO: does this make sense?
+                Messager.warning("Project configuration: term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), 5)
+            d[t] = {}
+            for a in n.arguments:
+                if len(n.arguments[a]) != 1:
+                    Messager.warning("Project configuration: expected single value for %s argument %s, got '%s'. Configuration may be wrong." % (t, a, "|".join(n.arguments[a])))
+                else:
+                    d[t][a] = n.arguments[a][0]
+
+        # TODO: hack to get around inability to have commas in values;
+        # fix original issue instead
+        for t in d:
+            for k in d[t]:
+                d[t][k] = d[t][k].replace("-", ",")
+                
+        # propagate defaults (TODO: get rid of magic "DEFAULT" values)
+        default_keys = ["SPAN_DEFAULT", "ARC_DEFAULT"]
+        for default_dict in [d.get(dk, {}) for dk in default_keys]:
+            for k in default_dict:
+                for t in d:
+                    d[t][k] = d[t].get(k, default_dict[k])
+
+        cache[directory] = d
+
+    return cache[directory].get(term, None)
+get_drawing_config_by_storage_form.__cache = {}    
 
 def __directory_relations_by_arg_num(directory, num, atype):
     assert num >= 0 and num < 2, "INTERNAL ERROR"
@@ -765,10 +808,14 @@ class ProjectConfiguration(object):
         return [t.storage_form() for t in get_relation_type_list(self.directory)]        
 
     def get_relation_by_type(self, type):
+        # TODO: dict storage
         for r in get_relation_type_list(self.directory):
             if r.storage_form() == type:
                 return r
         return None
+
+    def get_drawing_config_by_type(self, type):
+        return get_drawing_config_by_storage_form(self.directory, type)
 
     def get_entity_types(self):
         return [t.storage_form() for t in get_entity_type_list(self.directory)]
