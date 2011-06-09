@@ -518,8 +518,7 @@ def get_node_by_storage_form(directory, term):
         for e in get_entity_type_list(directory) + get_event_type_list(directory):
             t = e.storage_form()
             if t in d:
-                # TODO: does this make sense?
-                Messager.warning("Project configuration: term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), 5)
+                Messager.warning("Project configuration: term %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
             d[t] = e
         cache[directory] = d
 
@@ -533,8 +532,7 @@ def get_drawing_config_by_storage_form(directory, term):
         for n in get_drawing_config(directory):
             t = n.storage_form()
             if t in d:
-                # TODO: does this make sense?
-                Messager.warning("Project configuration: term %s matches multiple types (incl. '%s' and '%s'). Configuration may be wrong." % (t, d[t].storage_form(), e.storage_form()), 5)
+                Messager.warning("Project configuration: term %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
             d[t] = {}
             for a in n.arguments:
                 if len(n.arguments[a]) != 1:
