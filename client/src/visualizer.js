@@ -1421,7 +1421,6 @@ var Visualizer = (function($, window, undefined) {
         if (id = target.attr('data-span-id')) {
           commentId = id;
           var span = data.spans[id];
-          console.log(span.attributeText);
           dispatcher.post('displaySpanComment', [
               evt, target, id, span.type, span.attributeText,
               data.text.substring(span.from, span.to),
