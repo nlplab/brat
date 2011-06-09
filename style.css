@@ -229,11 +229,8 @@ rect.shadow_EditHighlight {
   stroke-width: 1px;
 }
 
-.span_default {
-  fill: #7fe67f;
-}
-.span_CUE {
-  fill: #eeeeeel
+.span_cue {
+  fill: #eeeeeel !important;
 }
 
 /* BEGIN: For Japanese Modality Annotations */
@@ -695,9 +692,6 @@ fieldset {
 }
 #import_text {
   font-family: inherit;
-}
-#import_title {
-  width: 400px;
 }
 #export_page div {
   margin: 5px 5px 5px 5px;

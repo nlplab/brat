@@ -20,7 +20,6 @@ var Visualizer = (function($, window, undefined) {
       var arcStartHeight = 19; //23; //25;
       var arcHorizontalSpacing = 10; // min space boxes with connecting arc
       var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
-      var dashArray = '3,3';
       var sentNumMargin = 20;
       var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
       var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
@@ -745,6 +744,11 @@ var Visualizer = (function($, window, undefined) {
           var hasAnnotations;
 
           $.each(chunk.spans, function(spanNo, span) {
+            var spanDesc = spanTypes[span.type];
+            var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
+            var fgColor = spanDesc && spanDesc.fgColor || '#000000';
+            var borderColor = spanDesc && spanDesc.borderColor || '#000000';
+
             span.group = svg.group(chunk.group, {
               'class': 'span',
               id: 'span_' + span.id,
@@ -789,7 +793,7 @@ var Visualizer = (function($, window, undefined) {
             xx += boxTextMargin.x;
             ww -= 2*boxTextMargin.x;
             
-            var rectClass = 'span_' + (span.cue || span.type) + ' span_default';
+            var rectClass = span.cue ? 'span_cue' : undefined;
 
             // attach e.g. "False_positive" into the type
             if (span.comment && span.comment.type) { rectClass += ' '+span.comment.type; }
@@ -814,7 +818,7 @@ var Visualizer = (function($, window, undefined) {
               shadowRect = svg.rect(span.group,
                   bx - shadowSize, by - shadowSize,
                   bw + 2 * shadowSize, bh + 2 * shadowSize, {
- 
+
                   filter: 'url(#Gaussian_Blur)',
                   'class': "shadow_" + span.shadowClass,
                   rx: shadowSize,
@@ -823,7 +827,10 @@ var Visualizer = (function($, window, undefined) {
             }
             span.rect = svg.rect(span.group,
                 bx, by, bw, bh, {
+
                 'class': rectClass,
+                fill: bgColor,
+                stroke: borderColor,
                 rx: margin.x,
                 ry: margin.y,
                 'data-span-id': span.id,
@@ -853,7 +860,7 @@ var Visualizer = (function($, window, undefined) {
                   line(xx, yy + hh + margin.y - yAdjust),
                   { 'class': 'boxcross' });
             }
-            var spanText = svg.text(span.group, x, y - yAdjust, data.spanAnnTexts[span.glyphedLabelText]);
+            var spanText = svg.text(span.group, x, y - yAdjust, data.spanAnnTexts[span.glyphedLabelText], { fill: fgColor });
 
             // Make curlies to show the span
             if (span.drawCurly) {
@@ -867,6 +874,7 @@ var Visualizer = (function($, window, undefined) {
                     xTo, bottom,
                     xTo, bottom + curlyHeight),
                 {
+                  'class': 'curly'
               });
             }
 
@@ -1080,6 +1088,12 @@ var Visualizer = (function($, window, undefined) {
             left = targetSpan;
             right = originSpan;
           }
+
+          var spanDesc = spanTypes[originSpan.type];
+          var arcDesc = spanDesc && spanDesc.arcs[arc.type];
+          var color = arcDesc && arcDesc.color || '#000000';
+          var dashArray = arcDesc && arcDesc.dashArray;
+
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
           var leftRow = left.chunk.row.index;
@@ -1150,7 +1164,7 @@ var Visualizer = (function($, window, undefined) {
             var shadowGroup;
             if (arc.shadowClass || arc.edited) shadowGroup = svg.group(arcGroup);
             var options = {
-              'class': 'fill_' + arc.type,
+              'fill': color,
               'data-arc-role': arc.type,
               'data-arc-origin': arc.origin,
               'data-arc-target': arc.target,
@@ -1204,8 +1218,8 @@ var Visualizer = (function($, window, undefined) {
             }
             svg.path(arcGroup, path, {
               markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
-              'class': 'stroke_' + arc.type,
-              'strokeDashArray': arc.equiv ? dashArray : undefined,
+              'stroke': color,
+              'strokeDashArray': dashArray,
             });
             if (arc.edited) {
               svg.path(shadowGroup, path, {
@@ -1238,8 +1252,8 @@ var Visualizer = (function($, window, undefined) {
             }
             svg.path(arcGroup, path, {
                 markerEnd: leftToRight && !arc.equiv ? 'url(#' + arrows[arc.type] + ')' : undefined,
-                'class': 'stroke_' + arc.type,
-                'strokeDashArray': arc.equiv ? dashArray : undefined,
+                'stroke': color,
+                'strokeDashArray': dashArray,
             });
             if (arc.edited) {
               svg.path(shadowGroup, path, {
@@ -1317,6 +1331,9 @@ var Visualizer = (function($, window, undefined) {
             });
             // chunk backgrounds
             if (chunk.spans.length) {
+              /*
+              // XXX check logic here against the requirements for the
+              // issue #52
               var spansFrom, spansTo, spansType;
               $.each(chunk.spans, function(spanNo, span) {
                 if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
@@ -1326,7 +1343,16 @@ var Visualizer = (function($, window, undefined) {
               svg.rect(highlightGroup,
                 chunk.textX + spansFrom - 1, chunk.row.textY + curlyY - 1,
                 spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
-                { 'class': 'span_default span_' + spansType, opacity:0.15 });
+                { 'span': 'span_default span_' + spansType, opacity:0.15 });
+              */
+              $.each(chunk.spans, function(spanNo, span) {
+                var spanDesc = spanTypes[span.type];
+                var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
+                svg.rect(highlightGroup,
+                  chunk.textX + span.curly.from - 1, chunk.row.textY + curlyY - 1,
+                  span.curly.to - span.curly.from + 2, span.curly.height + 2,
+                  { fill: bgColor, opacity:0.15 });
+              });
             }
         });
 
@@ -1427,10 +1453,13 @@ var Visualizer = (function($, window, undefined) {
               data.text.substring(span.from, span.to),
               span.comment && span.comment.text,
               span.comment && span.comment.type]);
+
+          var spanDesc = spanTypes[span.type];
+          var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
           highlight = svg.rect(highlightGroup,
             span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
             span.curly.to + 2 - span.curly.from, span.curly.height + 2,
-            { 'class': 'span_default span_' + span.type });
+            { 'fill': bgColor });
 
           if (that.arcDragOrigin) {
             target.parent().addClass('highlight');
@@ -1579,7 +1608,6 @@ var Visualizer = (function($, window, undefined) {
           spanTypes = {};
           loadSpanTypes(response.entity_types);
           loadSpanTypes(response.event_types);
-          loadSpanTypes(response.relation_types);
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
 
