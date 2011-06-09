@@ -187,13 +187,12 @@ var Visualizer = (function($, window, undefined) {
         // attributes
         $.each(data.attributes, function(attrNo, attr) {
           var attrType = attributeTypes[attr[1]];
-          if (!attrType) return; // undefined effect
-
-          var attrValue = attrType.values[attrType.bool || attr[3]];
+          var attrValue = attrType && attrType.values[attrType.bool || attr[3]];
           var span = data.spans[attr[2]];
-          var attrVal = attrType.values[attr[3]];
-          var valText = (attrVal && attrVal.name) || attr[3];
-          var attrText = attrType.bool ? attrType.name : (attrType.name + ': ' + valText);
+          var valText = (attrValue && attrValue.name) || attr[3];
+          var attrText = attrType
+            ? (attrType.bool ? attrType.name : (attrType.name + ': ' + valText))
+            : (attr[3] == true ? attr[1] : attr[1] + ': ' + attr[3]);
           span.attributeText.push(attrText);
           span.attributes[attr[1]] = attr[3];
           if (attr[4]) { // cue
@@ -1422,6 +1421,7 @@ var Visualizer = (function($, window, undefined) {
         if (id = target.attr('data-span-id')) {
           commentId = id;
           var span = data.spans[id];
+          console.log(span.attributeText);
           dispatcher.post('displaySpanComment', [
               evt, target, id, span.type, span.attributeText,
               data.text.substring(span.from, span.to),
