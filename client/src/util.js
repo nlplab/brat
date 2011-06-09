@@ -57,7 +57,7 @@ var Util = (function(window, undefined) {
 
     var escapeQuotes = function(str) {
       // we only use double quotes for HTML attributes
-      return str.replace(/"/g,'&quot;');
+      return str.replace(/\"/g,'&quot;');
     }
 
     var getSpanLabels = function(spanTypes, spanType) {
