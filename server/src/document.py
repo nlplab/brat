@@ -77,7 +77,11 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                 if arc_labels is not None:
                     arcs[arc] = {}
                     arcs[arc]['labels'] = arc_labels if arc_labels is not None else [arc]
-                    arcs[arc]['hotkey'] = None
+
+                    try:
+                        arcs[arc]['hotkey'] = hotkey_by_type[arc]
+                    except KeyError:
+                        pass
 
                     # TODO: avoid magic values
                     arc_drawing_conf = project_conf.get_drawing_config_by_type(arc)
