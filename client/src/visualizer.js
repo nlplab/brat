@@ -30,7 +30,8 @@ var Visualizer = (function($, window, undefined) {
       var editedArcSize = 3;
       var editedStroke = 7;
       var rowPadding = 2;
-      var nestingAdjustStepSize = 2; // size of height adjust for nested/nesting spans
+      var nestingAdjustYStepSize = 2; // size of height adjust for nested/nesting spans
+      var nestingAdjustXStepSize = 1; // size of height adjust for nested/nesting spans
       
       // END OPTIONS
 
@@ -1396,18 +1397,20 @@ var Visualizer = (function($, window, undefined) {
                 // Tweak for nesting depth/height. Recognize just three
                 // levels for now: normal, nested, and nesting, where
                 // nested+nesting yields normal.
-                var yShrink = 0;
+                var shrink = 0;
                 if(span.nestingDepth > 0 && span.nestingHeight == 0) {
-                    yShrink = 1;
+                    shrink = 1;
                 } else if(span.nestingDepth == 0 && span.nestingHeight > 0) {
-                    yShrink = -1;
+                    shrink = -1;
                 }
-                yShrink *= nestingAdjustStepSize;
-
+                var yShrink = shrink * nestingAdjustYStepSize;
+                var xShrink = shrink * nestingAdjustXStepSize;
+                // bit lighter
+                lightBgColor = Util.lightenColor(bgColor, 0.8);
                 svg.rect(highlightGroup,
-                  chunk.textX + span.curly.from - 1, chunk.row.textY + curlyY - 1 + yShrink,
-                  span.curly.to - span.curly.from + 2, span.curly.height + 2 - 2*yShrink,
-                         { fill: bgColor, opacity:1 });
+                  chunk.textX + span.curly.from - 1 + xShrink, chunk.row.textY + curlyY - 1 + yShrink,
+                  span.curly.to - span.curly.from + 2 - 2*xShrink, span.curly.height + 2 - 2*yShrink,
+                         { fill: lightBgColor, opacity:1 });
               }
 
 //               $.each(chunk.spans, function(spanNo, span) {
