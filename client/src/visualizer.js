@@ -187,13 +187,12 @@ var Visualizer = (function($, window, undefined) {
         // attributes
         $.each(data.attributes, function(attrNo, attr) {
           var attrType = attributeTypes[attr[1]];
-          if (!attrType) return; // undefined effect
-
-          var attrValue = attrType.values[attrType.bool || attr[3]];
+          var attrValue = attrType && attrType.values[attrType.bool || attr[3]];
           var span = data.spans[attr[2]];
-          var attrVal = attrType.values[attr[3]];
-          var valText = (attrVal && attrVal.name) || attr[3];
-          var attrText = attrType.bool ? attrType.name : (attrType.name + ': ' + valText);
+          var valText = (attrValue && attrValue.name) || attr[3];
+          var attrText = attrType
+            ? (attrType.bool ? attrType.name : (attrType.name + ': ' + valText))
+            : (attr[3] == true ? attr[1] : attr[1] + ': ' + attr[3]);
           span.attributeText.push(attrText);
           span.attributes[attr[1]] = attr[3];
           if (attr[4]) { // cue
@@ -1465,12 +1464,14 @@ var Visualizer = (function($, window, undefined) {
           var symmetric = role === "Equiv";
           // NOTE: no commentText, commentType for now
           var arcEventDescId = target.attr('data-arc-ed');
-          var commentText;
-          var commentType;
+          var commentText = '';
+          var commentType = '';
           if (arcEventDescId) {
             var comment = data.eventDescs[arcEventDescId].comment;
-            commentText = comment.text;
-            commentType = comment.type;
+            if (comment) {
+              commentText = comment.text;
+              commentType = comment.type;
+            }
           }
           dispatcher.post('displayArcComment', [
               evt, target, symmetric,

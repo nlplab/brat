@@ -73,8 +73,10 @@ var AnnotatorUI = (function($, window, undefined) {
           var eventDescId = target.attr('data-arc-ed');
           if (eventDescId) {
             var eventDesc = data.eventDescs[eventDescId];
-            arcOptions['left'] = eventDesc.leftSpans.join(',');
-            arcOptions['right'] = eventDesc.rightSpans.join(',');
+            if (eventDesc.equiv) {
+              arcOptions['left'] = eventDesc.leftSpans.join(',');
+              arcOptions['right'] = eventDesc.rightSpans.join(',');
+            }
           }
           $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
           $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
@@ -390,6 +392,7 @@ var AnnotatorUI = (function($, window, undefined) {
               // simple click (zero-width span)
               return;
             }
+
             if (reselectedSpan) {
               spanOptions.old_start = spanOptions.start;
               spanOptions.old_end = spanOptions.end;
@@ -398,16 +401,30 @@ var AnnotatorUI = (function($, window, undefined) {
                 action: 'createSpan'
               }
             }
+
             $.extend(spanOptions, {
                 start: selectedFrom,
                 end: selectedTo
               });
-            var spanText = data.text.substring(selectedFrom, selectedTo);
-            if (spanText.indexOf("\n") != -1) {
+
+            var crossSentence = true;
+            $.each(data.sentence_offsets, function(sentNo, startEnd) {
+              if (selectedTo <= startEnd[1]) {
+                // this is the sentence
+
+                if (selectedFrom >= startEnd[0]) {
+                  crossSentence = false;
+                }
+                return false;
+              }
+            });
+
+            if (crossSentence) {
               dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
               reselectedSpan = null;
               svgElement.removeClass('reselect');
             } else {
+              var spanText = data.text.substring(selectedFrom, selectedTo);
               fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
             }
           }
