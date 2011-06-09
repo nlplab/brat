@@ -50,8 +50,19 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
+            # TODO: use project_conf
             item['labels'] = get_labels_by_storage_form(directory, _type)
 
+            # TODO: avoid magic values
+            span_drawing_conf = project_conf.get_drawing_config_by_type(_type) 
+            if span_drawing_conf is None:
+                span_drawing_conf = project_conf.get_drawing_config_by_type("SPAN_DEFAULT")
+            if span_drawing_conf is None:
+                span_drawing_conf = {}
+            for k in ('fgColor', 'bgColor', 'borderColor'):
+                if k in span_drawing_conf:
+                    item[k] = span_drawing_conf[k]
+            
             try:
                 item['hotkey'] = hotkey_by_type[_type]
             except KeyError:
@@ -67,8 +78,16 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                     arcs[arc] = {}
                     arcs[arc]['labels'] = arc_labels if arc_labels is not None else [arc]
                     arcs[arc]['hotkey'] = None
-                    arcs[arc]['color'] = '#000000'
-                    arcs[arc]['dashArray'] = '3,3'
+
+                    # TODO: avoid magic values
+                    arc_drawing_conf = project_conf.get_drawing_config_by_type(arc)
+                    if arc_drawing_conf is None:
+                        arc_drawing_conf = project_conf.get_drawing_config_by_type("ARC_DEFAULT")
+                    if arc_drawing_conf is None:
+                        arc_drawing_conf = {}
+                    for k in ('color', 'dashArray'):
+                        if k in arc_drawing_conf:
+                            arcs[arc][k] = arc_drawing_conf[k]                    
                     
             # If we found any arcs, attach them
             if arcs:
