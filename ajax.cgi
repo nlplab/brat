@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!\Python26\python.exe
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; -*- 
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
@@ -202,7 +202,7 @@ def main(args):
                 'exception': True,
                 }
         print dumps(Messager.output_json(json_dic))
-        raise 
+        raise
     return 0
 
 if __name__ == '__main__':
