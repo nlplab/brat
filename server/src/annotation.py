@@ -239,7 +239,12 @@ class Annotations(object):
         self._input_files = input_files
 
         # Finally, parse the given annotation file
-        self._parse_ann_file()
+        try:
+            self._parse_ann_file()
+        except UnicodeDecodeError:
+            Messager.error('Encoding error reading annotation file: nonstandard encoding or binary?', -1)
+            # TODO: more specific exception
+            raise AnnotationFileNotFoundError(document)
 
         #XXX: Hack to get the timestamps after parsing
         if (len(self._input_files) == 1 and
