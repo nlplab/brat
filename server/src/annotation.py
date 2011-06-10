@@ -36,16 +36,17 @@ TEXT_FILE_SUFFIX = 'txt'
 
 
 class AnnotationLineSyntaxError(Exception):
-    def __init__(self, line, line_num):
+    def __init__(self, line, line_num, filepath):
         self.line = line
         self.line_num = line_num
+        self.filepath = filepath
 
     def __str__(self):
         u'Syntax error on line %d: "%s"' % (self.line_num, self.line)
 
 class IdedAnnotationLineSyntaxError(AnnotationLineSyntaxError):
-    def __init__(self, id, line, line_num):
-        AnnotationLineSyntaxError.__init__(self, line, line_num)
+    def __init__(self, id, line, line_num, filepath):
+        AnnotationLineSyntaxError.__init__(self, line, line_num, filepath)
         self.id = id
 
     def __str__(self):
@@ -486,7 +487,7 @@ class Annotations(object):
 
             if match is None:
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line,
-                        self.ann_line_num + 1)
+                        self.ann_line_num + 1, input_file_path)
                 
             _type, target = match.groups()
             value = True
@@ -498,9 +499,9 @@ class Annotations(object):
             annotation_id_number(target)
         except InvalidIdError:
             raise IdedAnnotationLineSyntaxError(id, self.ann_line,
-                    self.ann_line_num + 1)
+                    self.ann_line_num + 1, input_file_path)
 
-        return AttributeAnnotation(target, id, _type, '', value)
+        return AttributeAnnotation(target, id, _type, '', value, source_id=input_file_path)
 
     def _parse_event_annotation(self, id, data, data_tail, input_file_path):
         #XXX: A bit nasty, we require a single space
@@ -516,7 +517,7 @@ class Annotations(object):
         except ValueError:
             # TODO: consider accepting events without triggers, e.g.
             # BioNLP ST 2011 Bacteria task
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
         if type_trigger_tail is not None:
             args = [tuple(arg.split(':')) for arg in type_trigger_tail.split()]
@@ -532,21 +533,21 @@ class Annotations(object):
             type, type_tail = (data[:type_delim], data[type_delim:])
         except ValueError:
             # cannot have a relation with just a type (contra event)
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
             
         try:
             args = [tuple(arg.split(':')) for arg in type_tail.split()]
         except ValueError:
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
         if len(args) != 2:
             Messager.error('Error parsing relation: must have exactly two arguments')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
         args.sort()
         if args[0][0] == args[1][0]:
             Messager.error('Error parsing relation: arguments must not be identical')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
         return BinaryRelationAnnotation(id, type,
                                         args[0][0], args[0][1],
@@ -557,7 +558,7 @@ class Annotations(object):
         # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
         if type != 'Equiv':
-            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1)
+            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1, input_file_path)
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail)
 
@@ -574,10 +575,10 @@ class Annotations(object):
             # Abort if we have trailing values, i.e. space-separated tail in end_str
             if any((c.isspace() for c in end_str)):
                 #Messager.error('Error parsing textbound "%s\t%s". (Using space instead of tab?)' % (id, data))
-                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
             start, end = (int(start_str), int(end_str))
         except:
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
             
         return type, start, end
 
@@ -589,7 +590,7 @@ class Annotations(object):
         try:
             type, target = data.split()
         except ValueError:
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
         return OnelineCommentAnnotation(target, id, type, data_tail)
     
     def _parse_ann_file(self):
@@ -606,7 +607,7 @@ class Annotations(object):
                         try:
                             id, id_tail = self.ann_line.split('\t', 1)
                         except ValueError:
-                            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1, source_id=input_file_path)
+                            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1, input_file_path)
 
                         pre = annotation_id_prefix(id)
 
@@ -651,19 +652,19 @@ class Annotations(object):
                             new_ann = self._parse_attribute_annotation(
                                     id, data, data_tail, input_file_path)
                         else:
-                            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+                            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
                         assert new_ann is not None, "INTERNAL ERROR"
                         self.add_annotation(new_ann, read=True)
 
                     except IdedAnnotationLineSyntaxError, e:
                         # Could parse an ID but not the whole line; add UnparsedIdedAnnotation
-                        self.add_annotation(UnparsedIdedAnnotation(e.id, e.line), read=True)
+                        self.add_annotation(UnparsedIdedAnnotation(e.id, e.line, source_id=e.filepath), read=True)
                         self.failed_lines.append(e.line_num - 1)
 
                     except AnnotationLineSyntaxError, e:
                         # We could not parse even an ID on the line, just add it as an unknown annotation
-                        self.add_annotation(UnknownAnnotation(e.line), read=True)
+                        self.add_annotation(UnknownAnnotation(e.line, source_id=filepath), read=True)
                         # NOTE: For access we start at line 0, not 1 as in here
                         self.failed_lines.append(e.line_num - 1)
 
@@ -779,13 +780,13 @@ class TextAnnotations(Annotations):
         # Verify annotation extent
         if start > end:
             Messager.error('Text-bound annotation start > end.')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
         if start < 0:
             Messager.error('Text-bound annotation start < 0.')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
         if end > len(self._document_text):
             Messager.error('Text-bound annotation offset exceeds text length.')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
         # Require tail to be either empty or to begin with the text
         # corresponding to the start:end span. If the tail is empty,
@@ -795,10 +796,10 @@ class TextAnnotations(Annotations):
             text = self._document_text[start:end]
         elif data_tail[0] != '\t':
             Messager.error('Text-bound annotation missing tab before text (expected format "ID\\tTYPE START END\\tTEXT").')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
         elif end-start > len(data_tail)-1: # -1 for tab
             Messager.error('Text-bound annotation text "%s" shorter than marked span %d:%d' % (data_tail[1:], start, end))
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
         else:
             text = data_tail[1:end-start+1] # shift 1 for tab
             data_tail = data_tail[end-start+1:]
@@ -811,10 +812,10 @@ class TextAnnotations(Annotations):
                         end,
                         self._document_text[start:end], 
                         ))
-                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
             if data_tail != '' and not data_tail[0].isspace():
                 Messager.error(u'Text-bound annotation text "%s" not separated from rest of line ("%s") by space!' % (text, data_tail))
-                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
         return TextBoundAnnotationWithText(start, end, id, type, text, data_tail)
 
