@@ -16,6 +16,15 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-05-31
 '''
 
+import re
+
+# for cleaning up control chars from a string, from 
+# http://stackoverflow.com/questions/92438/stripping-non-printable-characters-from-a-string-in-python
+__control_chars = ''.join(map(unichr, range(0,32) + range(127,160)))
+__control_char_re = re.compile('[%s]' % re.escape(__control_chars))
+def remove_control_chars(s):
+    return __control_char_re.sub('', s)
+
 class Messager:
     __pending_messages = []
 
@@ -44,12 +53,23 @@ class Messager:
     def output_json(json_dict):
         try:
             return Messager.__output_json(json_dict)
-        except:
-            json_dict['messages'] = [['Messager error adding messages to json (internal error in message.py, please contact administrator)','error', -1]]
+        except Exception, e:
+            # TODO: do we want to always give the exception?
+            json_dict['messages'] = [['Messager error adding messages to json (internal error in message.py, please contact administrator): %s' % str(e),'error', -1]]
             return json_dict
     output_json = staticmethod(output_json)
 
     def __output_json(json_dict):
+        # clean up messages by removing possible control characters
+        # that may cause trouble clientside
+        cleaned_messages = []
+        for s, t, r in Messager.__pending_messages:
+            cs = remove_control_chars(s)
+            if cs != s:
+                s = cs + u'[NOTE: SOME NONPRINTABLE CHARACTERS REMOVED FROM MESSAGE]'
+            cleaned_messages.append((s,t,r))
+        Messager.__pending_messages = cleaned_messages
+        
         # protect against non-unicode inputs
         convertable_messages = []
         for m in Messager.__pending_messages:
