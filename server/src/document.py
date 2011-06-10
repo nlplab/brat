@@ -237,6 +237,9 @@ def _enrich_json_with_text(j_dic, txt_file_path):
             text = txt_file.read()
     except IOError:
         raise UnableToReadTextFile(txt_file_path)
+    except UnicodeDecodeError:
+        Messager.error('Error reading text file: nonstandard encoding or binary?', -1)
+        raise UnableToReadTextFile(txt_file_path)
 
     j_dic['text'] = text
     
