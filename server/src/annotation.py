@@ -835,8 +835,9 @@ class Annotation(object):
     """
     Base class for all annotations.
     """
-    def __init__(self, tail):
+    def __init__(self, tail, source_id=None):
         self.tail = tail
+        self.source_id = source_id
 
     def __str__(self):
         raise NotImplementedError
@@ -852,8 +853,8 @@ class UnknownAnnotation(Annotation):
     Represents a line of annotation that could not be parsed.
     These are not discarded, but rather passed through unmodified.
     """
-    def __init__(self, line):
-        Annotation.__init__(self, line)
+    def __init__(self, line, source_id=None):
+        Annotation.__init__(self, line, source_id=source_id)
 
     def __str__(self):
         return self.tail
@@ -867,10 +868,10 @@ class UnparsedIdedAnnotation(Annotation):
     """
     # duck-type instead of inheriting from IdedAnnotation as
     # that inherits from TypedAnnotation and we have no type
-    def __init__(self, id, line):
+    def __init__(self, id, line, source_id=None):
         # (this actually is the whole line, not just the id tail,
         # although Annotation will assign it to self.tail)
-        Annotation.__init__(self, line)
+        Annotation.__init__(self, line, source_id=source_id)
         self.id = id
 
     def __str__(self):
@@ -880,8 +881,8 @@ class TypedAnnotation(Annotation):
     """
     Base class for all annotations with a type.
     """
-    def __init__(self, type, tail):
-        Annotation.__init__(self, tail)
+    def __init__(self, type, tail, source_id=None):
+        Annotation.__init__(self, tail, source_id=source_id)
         self.type = type
 
     def __str__(self):
@@ -891,8 +892,8 @@ class IdedAnnotation(TypedAnnotation):
     """
     Base class for all annotations with an ID.
     """
-    def __init__(self, id, type, tail):
-        TypedAnnotation.__init__(self, type, tail)
+    def __init__(self, id, type, tail, source_id=None):
+        TypedAnnotation.__init__(self, type, tail, source_id=source_id)
         self.id = id
 
     def reference_id(self):
@@ -916,8 +917,8 @@ class EventAnnotation(IdedAnnotation):
 
     ID\tTYPE:TRIGGER [ROLE1:PART1 ROLE2:PART2 ...]
     """
-    def __init__(self, trigger, args, id, type, tail):
-        IdedAnnotation.__init__(self, id, type, tail)
+    def __init__(self, trigger, args, id, type, tail, source_id=None):
+        IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.trigger = trigger
         self.args = args
 
@@ -956,8 +957,8 @@ class EquivAnnotation(TypedAnnotation):
 
     Where "*" is the literal asterisk character.
     """
-    def __init__(self, type, entities, tail):
-        TypedAnnotation.__init__(self, type, tail)
+    def __init__(self, type, entities, tail, source_id=None):
+        TypedAnnotation.__init__(self, type, tail, source_id=source_id)
         self.entities = entities
 
     def __in__(self, other):
@@ -987,8 +988,8 @@ class EquivAnnotation(TypedAnnotation):
             return ['equiv', self.type, self.entities]
 
 class AttributeAnnotation(IdedAnnotation):
-    def __init__(self, target, id, type, tail, value):
-        IdedAnnotation.__init__(self, id, type, tail)
+    def __init__(self, target, id, type, tail, value, source_id=None):
+        IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.target = target
         self.value = value
         
@@ -1013,8 +1014,8 @@ class AttributeAnnotation(IdedAnnotation):
         return [self.target]
 
 class OnelineCommentAnnotation(IdedAnnotation):
-    def __init__(self, target, id, type, tail):
-        IdedAnnotation.__init__(self, id, type, tail)
+    def __init__(self, target, id, type, tail, source_id=None):
+        IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.target = target
         
     def __str__(self):
@@ -1046,9 +1047,9 @@ class TextBoundAnnotation(IdedAnnotation):
     span of the annotation in text.
     """
 
-    def __init__(self, start, end, id, type, tail):
+    def __init__(self, start, end, id, type, tail, source_id=None):
         # Note: if present, the text goes into tail
-        IdedAnnotation.__init__(self, id, type, tail)
+        IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.start = start
         self.end = end
 
@@ -1081,8 +1082,8 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
     Where START and END are positive integer offsets identifying the
     span of the annotation in text and TEXT is the corresponding text.
     """
-    def __init__(self, start, end, id, type, text, text_tail=""):
-        IdedAnnotation.__init__(self, id, type, '\t'+text+text_tail)
+    def __init__(self, start, end, id, type, text, text_tail="", source_id=None):
+        IdedAnnotation.__init__(self, id, type, '\t'+text+text_tail, source_id=source_id)
         self.start = start
         self.end = end
         self.text = text
@@ -1116,8 +1117,8 @@ class BinaryRelationAnnotation(IdedAnnotation):
 
     Where ARG1 and ARG2 are arbitrary (but not identical) labels.
     """
-    def __init__(self, id, type, arg1l, arg1, arg2l, arg2, tail):
-        IdedAnnotation.__init__(self, id, type, tail)
+    def __init__(self, id, type, arg1l, arg1, arg2l, arg2, tail, source_id=None):
+        IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.arg1l = arg1l
         self.arg1  = arg1
         self.arg2l = arg2l
