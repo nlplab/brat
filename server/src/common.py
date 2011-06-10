@@ -9,8 +9,6 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
 '''
 
-from message import Messager
-
 class ProtocolError(Exception):
     def __init__(self):
         raise NotImplementedError, 'abstract method'

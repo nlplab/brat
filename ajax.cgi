@@ -28,7 +28,7 @@ sys_path.append(path_join(dirname(__file__), 'server/lib/simplejson-2.1.5'))
 sys_path.append(path_join(dirname(__file__), 'server/src'))
 
 from common import ProtocolError, NoPrintJSONError
-from message import Messager
+
 from session import get_session
 
 ### Constants
@@ -85,6 +85,9 @@ def main(args):
     
     # From now on we know we have access to dumps
     from jsonwrap import dumps
+
+    # And messaging
+    from message import Messager
    
     # Do configuration checking and importing
     from sys import path
