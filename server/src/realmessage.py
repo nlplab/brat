@@ -42,6 +42,14 @@ class Messager:
     output = staticmethod(output)
 
     def output_json(json_dict):
+        try:
+            return __output_json(json_dict)
+        except:
+            json_dict['messages'] = [['Messager error adding messages to json (internal error in message.py, please contact administrator)','error', -1]]
+            return json_dict
+    output_json = staticmethod(output_json)
+
+    def __output_json(json_dict):
         # protect against non-unicode inputs
         convertable_messages = []
         for m in Messager.__pending_messages:
@@ -72,7 +80,7 @@ class Messager:
         json_dict['messages'] += merged_messages
         Messager.__pending_messages = []
         return json_dict
-    output_json = staticmethod(output_json)
+    __output_json = staticmethod(output_json)
 
     def __escape(msg):
         from cgi import escape
