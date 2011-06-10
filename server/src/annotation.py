@@ -524,7 +524,7 @@ class Annotations(object):
         else:
             args = []
 
-        return EventAnnotation(trigger, args, id, type, data_tail)
+        return EventAnnotation(trigger, args, id, type, data_tail, source_id=input_file_path)
 
 
     def _parse_relation_annotation(self, id, data, data_tail, input_file_path):
@@ -552,7 +552,7 @@ class Annotations(object):
         return BinaryRelationAnnotation(id, type,
                                         args[0][0], args[0][1],
                                         args[1][0], args[1][1],
-                                        data_tail)
+                                        data_tail, source_id=input_file_path)
 
     def _parse_equiv_annotation(self, data, data_tail, input_file_path):
         # TODO: this will split on any space, which is likely not correct
@@ -560,12 +560,12 @@ class Annotations(object):
         if type != 'Equiv':
             raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1, input_file_path)
         equivs = type_tail.split(None)
-        return EquivAnnotation(type, equivs, data_tail)
+        return EquivAnnotation(type, equivs, data_tail, source_id=input_file_path)
 
     # Parse an old modifier annotation for back-wards compability
     def _parse_modifier_annotation(self, id, data, data_tail, input_file_path):
         type, target = data.split()
-        return AttributeAnnotation(target, id, type, data_tail, True)
+        return AttributeAnnotation(target, id, type, data_tail, True, source_id=input_file_path)
 
     def _split_textbound_data(self, id, data):
         try:
@@ -584,14 +584,14 @@ class Annotations(object):
 
     def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
         type, start, end = self._split_textbound_data(id, data)
-        return TextBoundAnnotation(start, end, id, type, data_tail)
+        return TextBoundAnnotation(start, end, id, type, data_tail, source_id=input_file_path)
 
     def _parse_comment_line(self, id, data, data_tail, input_file_path):
         try:
             type, target = data.split()
         except ValueError:
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-        return OnelineCommentAnnotation(target, id, type, data_tail)
+        return OnelineCommentAnnotation(target, id, type, data_tail, source_id=input_file_path)
     
     def _parse_ann_file(self):
         from itertools import takewhile
@@ -817,7 +817,7 @@ class TextAnnotations(Annotations):
                 Messager.error(u'Text-bound annotation text "%s" not separated from rest of line ("%s") by space!' % (text, data_tail))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
-        return TextBoundAnnotationWithText(start, end, id, type, text, data_tail)
+        return TextBoundAnnotationWithText(start, end, id, type, text, data_tail, source_id=input_file_path)
 
     def _read_document_text(self, document):
         # TODO: this is too naive; document may be e.g. "PMID.a1",
