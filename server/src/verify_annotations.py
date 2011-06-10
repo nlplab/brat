@@ -6,9 +6,6 @@
 
 from __future__ import with_statement
 
-import os
-import re
-
 import annotation
 
 from projectconfig import ProjectConfiguration
@@ -222,6 +219,8 @@ def verify_relations(ann_obj, projectconf):
     return issues
 
 def verify_annotation(ann_obj, projectconf):
+    import re
+
     """
     Verifies the correctness of a given AnnotationFile.
     Returns a list of AnnotationIssues.
@@ -288,6 +287,9 @@ def verify_annotation(ann_obj, projectconf):
     return issues
 
 def main(argv=None):
+    import sys
+    import os
+
     if argv is None:
         argv = sys.argv
     arg = argparser().parse_args(argv[1:])
