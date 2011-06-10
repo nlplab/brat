@@ -476,7 +476,7 @@ class Annotations(object):
                 return suggestion
 
     # XXX: This syntax is subject to change
-    def _parse_attribute_annotation(self, id, data, data_tail):
+    def _parse_attribute_annotation(self, id, data, data_tail, input_file_path):
         import re
 
         match = re.match(r'(.+?) (.+?) (.+?)$', data)
@@ -502,7 +502,7 @@ class Annotations(object):
 
         return AttributeAnnotation(target, id, _type, '', value)
 
-    def _parse_event_annotation(self, id, data, data_tail):
+    def _parse_event_annotation(self, id, data, data_tail, input_file_path):
         #XXX: A bit nasty, we require a single space
         try:
             type_delim = data.index(' ')
@@ -526,7 +526,7 @@ class Annotations(object):
         return EventAnnotation(trigger, args, id, type, data_tail)
 
 
-    def _parse_relation_annotation(self, id, data, data_tail):
+    def _parse_relation_annotation(self, id, data, data_tail, input_file_path):
         try:
             type_delim = data.index(' ')
             type, type_tail = (data[:type_delim], data[type_delim:])
@@ -553,7 +553,7 @@ class Annotations(object):
                                         args[1][0], args[1][1],
                                         data_tail)
 
-    def _parse_equiv_annotation(self, data, data_tail):
+    def _parse_equiv_annotation(self, data, data_tail, input_file_path):
         # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
         if type != 'Equiv':
@@ -562,7 +562,7 @@ class Annotations(object):
         return EquivAnnotation(type, equivs, data_tail)
 
     # Parse an old modifier annotation for back-wards compability
-    def _parse_modifier_annotation(self, id, data, data_tail):
+    def _parse_modifier_annotation(self, id, data, data_tail, input_file_path):
         type, target = data.split()
         return AttributeAnnotation(target, id, type, data_tail, True)
 
@@ -581,11 +581,11 @@ class Annotations(object):
             
         return type, start, end
 
-    def _parse_textbound_annotation(self, id, data, data_tail):
+    def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
         type, start, end = self._split_textbound_data(id, data)
         return TextBoundAnnotation(start, end, id, type, data_tail)
 
-    def _parse_comment_line(self, id, data, data_tail):
+    def _parse_comment_line(self, id, data, data_tail, input_file_path):
         try:
             type, target = data.split()
         except ValueError:
@@ -606,7 +606,7 @@ class Annotations(object):
                         try:
                             id, id_tail = self.ann_line.split('\t', 1)
                         except ValueError:
-                            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1)
+                            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1, source_id=input_file_path)
 
                         pre = annotation_id_prefix(id)
 
@@ -629,27 +629,27 @@ class Annotations(object):
 
                         if pre == '*':
                             new_ann = self._parse_equiv_annotation(
-                                    data, data_tail)
+                                    data, data_tail, input_file_path)
                         elif pre == 'E':
                             new_ann = self._parse_event_annotation(
-                                    id, data, data_tail)
+                                    id, data, data_tail, input_file_path)
                         elif pre == 'M':
                             new_ann = self._parse_modifier_annotation(
-                                    id, data, data_tail)
+                                    id, data, data_tail, input_file_path)
 
                         # XXX: This syntax is subject to change, limit to only T?
                         elif pre.startswith('T'):
                             new_ann = self._parse_textbound_annotation(
-                                    id, data, data_tail)
+                                    id, data, data_tail, input_file_path)
                         elif pre == '#':
                             new_ann = self._parse_comment_line(
-                                    id, data, data_tail)
+                                    id, data, data_tail, input_file_path)
                         elif pre == 'R':
                             new_ann = self._parse_relation_annotation(
-                                    id, data, data_tail)
+                                    id, data, data_tail, input_file_path)
                         elif pre.startswith('A'):
                             new_ann = self._parse_attribute_annotation(
-                                    id, data, data_tail)
+                                    id, data, data_tail, input_file_path)
                         else:
                             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1)
 
@@ -773,7 +773,7 @@ class TextAnnotations(Annotations):
 
         Annotations.__init__(self, document, read_only) 
 
-    def _parse_textbound_annotation(self, id, data, data_tail):
+    def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
         type, start, end = self._split_textbound_data(id, data)
 
         # Verify annotation extent
