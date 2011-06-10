@@ -42,6 +42,16 @@ class Messager:
     output = staticmethod(output)
 
     def output_json(json_dict):
+        # protect against non-unicode inputs
+        convertable_messages = []
+        for m in Messager.__pending_messages:
+            try:
+                encoded = m[0].encode("UTF-8")
+                convertable_messages.append(m)
+            except:
+                convertable_messages.append((u'[ERROR: MESSAGE WITH BROKEN ENCODING OMITTED]', 'error', -1))
+        Messager.__pending_messages = convertable_messages
+
         # to avoid crowding the interface, combine messages with identical content
         msgcount = {}
         for m in Messager.__pending_messages:

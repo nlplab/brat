@@ -202,7 +202,7 @@ def main(args):
                 'exception': True,
                 }
         print dumps(Messager.output_json(json_dic))
-        raise 
+        raise
     return 0
 
 if __name__ == '__main__':
