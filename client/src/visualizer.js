@@ -7,6 +7,7 @@ var Visualizer = (function($, window, undefined) {
       // OPTIONS
       var margin = { x: 2, y: 1 };
       var boxTextMargin = { x: 0, y: 1 }; // effect is inverse of "margin" for some reason
+      var highlightRounding = { x: 3, y:3 }; // rx, ry for highlight boxes
       var spaceWidths = {
         ' ': 5,
         '\u200b': 0,
@@ -1333,27 +1334,6 @@ var Visualizer = (function($, window, undefined) {
             });
             // chunk backgrounds
             if (chunk.spans.length) {
-              /*
-              // XXX check logic here against the requirements for the
-              // issue #52
-              var spansFrom, spansTo, spansType;
-              $.each(chunk.spans, function(spanNo, span) {
-                if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
-                if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
-                if (span.generalType == 'trigger' || !spansType) spansType = span.type;
-              });
-              svg.rect(highlightGroup,
-                chunk.textX + spansFrom - 1, chunk.row.textY + curlyY - 1,
-                spansTo - spansFrom + 2, chunk.spans[0].curly.height + 2,
-                { 'span': 'span_default span_' + spansType, opacity:0.15 });
-              */
-
-              // For clean-looking verlapping span highlight, avoid using
-              // opacity and instead calculate a lighter color and lay out
-              // highlight boxes in nesting order.
-
-              // Sort via indices to avoid messing with assumptions about
-              // span order
               var orderedIdx = [];
               for (var i=chunk.spans.length-1; i>=0; i--) {
                   orderedIdx.push(i);
@@ -1396,7 +1376,9 @@ var Visualizer = (function($, window, undefined) {
 
                 // Tweak for nesting depth/height. Recognize just three
                 // levels for now: normal, nested, and nesting, where
-                // nested+nesting yields normal.
+                // nested+nesting yields normal. (Possible tweak to
+                // try out: don't shrink for depth 1 as the nesting 
+                // highlight will grow anyway [check nestingDepth > 1])
                 var shrink = 0;
                 if(span.nestingDepth > 0 && span.nestingHeight == 0) {
                     shrink = 1;
@@ -1406,21 +1388,21 @@ var Visualizer = (function($, window, undefined) {
                 var yShrink = shrink * nestingAdjustYStepSize;
                 var xShrink = shrink * nestingAdjustXStepSize;
                 // bit lighter
-                lightBgColor = Util.lightenColor(bgColor, 0.8);
+                var lightBgColor = Util.lightenColor(bgColor, 0.8);
+                // store to have same mouseover highlight without recalc
+                span.highlightPos = { x:chunk.textX + span.curly.from - 1 + xShrink, 
+                                      y:chunk.row.textY + curlyY - 1 + yShrink,
+                                      w:span.curly.to - span.curly.from + 2 - 2*xShrink, 
+                                      h:span.curly.height + 2 - 2*yShrink,
+                };
                 svg.rect(highlightGroup,
-                  chunk.textX + span.curly.from - 1 + xShrink, chunk.row.textY + curlyY - 1 + yShrink,
-                  span.curly.to - span.curly.from + 2 - 2*xShrink, span.curly.height + 2 - 2*yShrink,
-                         { fill: lightBgColor, opacity:1 });
+                         span.highlightPos.x, span.highlightPos.y,
+                         span.highlightPos.w, span.highlightPos.h,
+                         { fill: lightBgColor, //opacity:1,
+                           rx: highlightRounding.x,
+                           ry: highlightRounding.y,
+                         });
               }
-
-//               $.each(chunk.spans, function(spanNo, span) {
-//                 var spanDesc = spanTypes[span.type];
-//                 var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
-//                 svg.rect(highlightGroup,
-//                   chunk.textX + span.curly.from - 1, chunk.row.textY + curlyY - 1,
-//                   span.curly.to - span.curly.from + 2, span.curly.height + 2,
-//                   { fill: bgColor, opacity:1 });
-//               });
             }
         });
 
@@ -1525,9 +1507,12 @@ var Visualizer = (function($, window, undefined) {
           var spanDesc = spanTypes[span.type];
           var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
           highlight = svg.rect(highlightGroup,
-            span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + curlyY - 1,
-            span.curly.to + 2 - span.curly.from, span.curly.height + 2,
-            { 'fill': bgColor });
+                               span.highlightPos.x, span.highlightPos.y,
+                               span.highlightPos.w, span.highlightPos.h,
+                               { 'fill': bgColor, opacity:0.75,
+                                 rx: highlightRounding.x,
+                                 ry: highlightRounding.y,
+                               });
 
           if (that.arcDragOrigin) {
             target.parent().addClass('highlight');
