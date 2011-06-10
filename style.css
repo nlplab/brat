@@ -334,6 +334,9 @@ rect.shadow_EditHighlight {
 .fill_Subunit-Complex   { fill: #000000; }
 .stroke_Subunit-Complex { stroke: #000000; }
 
+.fill_frag   { fill: #000000; }
+.stroke_frag { stroke: #000000; }
+
 .span_Entity                   { fill: #b4c8ff; }
 .span_DNA_domain_or_region     { fill: #b4c8ff; }
 .span_Protein_domain_or_region { fill: #b4c8ff; }
