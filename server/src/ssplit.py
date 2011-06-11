@@ -26,32 +26,36 @@ EN_SENTENCE_END_REGEX = re_compile(
 JP_SENTENCE_END_REGEX = re_compile(
     ur'\S.*?[。！？]+(:?(?![。！？])|(?=\n+\S))', DOTALL)
 
-GENIASS_POSTPROC_PL_PATH = path_join(dirname(__file__), '../../external',
-        'geniass-postproc.pl')
+# Doing away with external postprocessor
+# GENIASS_POSTPROC_PL_PATH = path_join(dirname(__file__), '../../external',
+#         'geniass-postproc.pl')
 ###
 
-# TODO: Convert the Perl script into Python
-# TO USE: Mandatory Deep Purple refence: Pythonbringer by De-(Perl)ped
 def _refine_split(offsets, original_text):
-    # GeniaSS operates per line, so let's create lines from our offsets
-    # We replace internal newlines with spaces not to confuse GeniaSS
+    # Postprocessor expects newlines, so add. Also, replace
+    # sentence-internal newlines with spaces not to confuse it.
     new_text = '\n'.join((original_text[o[0]:o[1]].replace('\n', ' ')
             for o in offsets))
     
-    ss_p = Popen(shlex_split(GENIASS_POSTPROC_PL_PATH), stdin=PIPE,
-            stdout=PIPE, stderr=PIPE)
+    # Doing away with external postprocessor
+#     ss_p = Popen(shlex_split(GENIASS_POSTPROC_PL_PATH), stdin=PIPE,
+#             stdout=PIPE, stderr=PIPE)
 
-    #log_info('ENCODING: ' + new_text.replace('\n', '\\n'))
-    #log_info('ENCODING: ' + str(type(new_text)))
+#     #log_info('ENCODING: ' + new_text.replace('\n', '\\n'))
+#     #log_info('ENCODING: ' + str(type(new_text)))
 
-    ss_p.stdin.write(new_text.encode('utf-8'))
-    ss_p.stdin.close()
-    ss_p.wait()
-    output, errors = (ss_p.stdout.read().decode('utf-8'),
-            ss_p.stderr.read().decode('utf-8'))
+#     ss_p.stdin.write(new_text.encode('utf-8'))
+#     ss_p.stdin.close()
+#     ss_p.wait()
+#     output, errors = (ss_p.stdout.read().decode('utf-8'),
+#             ss_p.stderr.read().decode('utf-8'))
 
     #output, errors = ss_p.communicate(new_text)
     #output, errors = output.decode('utf-8'), errors.decode('utf-8')
+
+    from sspostproc import refine_split
+
+    output = refine_split(new_text)
 
     # Align the texts and see where our offsets don't match
     old_offsets = offsets[::-1]
