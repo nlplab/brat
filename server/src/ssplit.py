@@ -21,14 +21,9 @@ from shlex import split as shlex_split
 ### Constants
 # Require a leading non-whitespace, end on delimiter and space
 # or newline followed by non-whitespace
-EN_SENTENCE_END_REGEX = re_compile(
-    r'\S.*?(:?(?:\.|!|\?)(?=\s+)|(?=\n+\S))', DOTALL)
-JP_SENTENCE_END_REGEX = re_compile(
-    ur'\S.*?[。！？]+(:?(?![。！？])|(?=\n+\S))', DOTALL)
-
-# Doing away with external postprocessor
-# GENIASS_POSTPROC_PL_PATH = path_join(dirname(__file__), '../../external',
-#         'geniass-postproc.pl')
+# TODO XXX The last alternative group appears to have wrong grouping, check
+EN_SENTENCE_END_REGEX = re_compile( r'\S.*?(:?(?:\.|!|\?)(?=\s+)|(?=\n+\S))', DOTALL)
+JP_SENTENCE_END_REGEX = re_compile(ur'\S.*?[。！？]+(:?(?![。！？])|(?=\n+\S))', DOTALL)
 ###
 
 def _refine_split(offsets, original_text):
@@ -36,25 +31,8 @@ def _refine_split(offsets, original_text):
     # sentence-internal newlines with spaces not to confuse it.
     new_text = '\n'.join((original_text[o[0]:o[1]].replace('\n', ' ')
             for o in offsets))
-    
-    # Doing away with external postprocessor
-#     ss_p = Popen(shlex_split(GENIASS_POSTPROC_PL_PATH), stdin=PIPE,
-#             stdout=PIPE, stderr=PIPE)
-
-#     #log_info('ENCODING: ' + new_text.replace('\n', '\\n'))
-#     #log_info('ENCODING: ' + str(type(new_text)))
-
-#     ss_p.stdin.write(new_text.encode('utf-8'))
-#     ss_p.stdin.close()
-#     ss_p.wait()
-#     output, errors = (ss_p.stdout.read().decode('utf-8'),
-#             ss_p.stderr.read().decode('utf-8'))
-
-    #output, errors = ss_p.communicate(new_text)
-    #output, errors = output.decode('utf-8'), errors.decode('utf-8')
 
     from sspostproc import refine_split
-
     output = refine_split(new_text)
 
     # Align the texts and see where our offsets don't match
@@ -132,6 +110,7 @@ if __name__ == '__main__':
         assert ret == ans, '%s != %s' % (ret, ans)
         print 'Succesful!'
 
+        # TODO XXX: remove tests that assume local filesystem structure
         with open('/home/ninjin/public_html/brat/brat_test_data/epi/PMID-18573876.txt', 'r') as _file:
             sentence = _file.read()
 
