@@ -297,8 +297,10 @@ def __parse_kb_shortcuts(shortcutstr, default, source):
             if l == "" or l[:1] == "#":
                 continue
             key, type = re.split(r'[ \t]+', l)
-            # TODO: check dups?
-            shortcuts[key] = type
+            if key in shortcuts:
+                Messager.warning("Project configuration: keyboard shortcut for '%s' defined multiple times. Ignoring all but first ('%s')" % (key, shortcuts[key]))
+            else:
+                shortcuts[key] = type
     except:
         # TODO: specific exception handling
         Messager.warning("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, 5)
