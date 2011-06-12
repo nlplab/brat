@@ -33,8 +33,8 @@ def jp_token_boundary_gen(text):
     from mecab import token_offsets_gen
     for o in token_offsets_gen(text):
         yield o
-       
-def en_token_boundary_gen(text):
+
+def en_token_boundary_gen_external(text):
     # Call the external script
     tok_p = Popen(shlex_split(GTB_TOKENIZE_PL_PATH), stdin=PIPE,
             stdout=PIPE, stderr=PIPE)
@@ -55,6 +55,14 @@ def en_token_boundary_gen(text):
     tokens = output.split()
     for o in _token_boundaries_by_alignment(tokens, text):
         yield o
+
+def en_token_boundary_gen_simple(text):
+    tokens = text.split()
+    for o in _token_boundaries_by_alignment(tokens, text):
+        yield o
+
+def en_token_boundary_gen(text):
+    return en_token_boundary_gen_simple(text)
 
 if __name__ == '__main__':
     from sys import argv
