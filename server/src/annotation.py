@@ -756,8 +756,12 @@ class Annotations(object):
                             Messager.error('ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' % e, -1)
                             raise
                 finally:
-                    from os import remove
-                    remove(tmp_fname)
+                    try:
+                        from os import remove
+                        remove(tmp_fname)
+                    except Exception, e:
+                        from message import Messager
+                        Messager.error("Error removing temporary file '%s'" % tmp_fname)
             return
 
     def __in__(self, other):
