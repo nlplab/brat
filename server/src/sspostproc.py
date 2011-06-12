@@ -14,6 +14,11 @@ DEBUG = True
 
 __initial = []
 
+# TODO: some cases that heuristics could be improved on
+# - no split inside matched quotes
+# - "quoted." New sentence
+# - 1 mg .\nkg(-1) .
+
 # breaks sometimes missing after "?", "safe" cases
 __initial.append((re.compile(r'\b([a-z]+\?) ([A-Z][a-z]+)\b'), r'\1\n\2'))
 # breaks sometimes missing after "." separated with extra space, "safe" cases
@@ -45,7 +50,17 @@ __final = []
 # no break after periods followed by a non-uppercase "normal word"
 # (i.e. token with only lowercase alpha and dashes, with a minimum
 # length of initial lowercase alpha).
-__final.append((re.compile(r'\.\n([a-z]{3}[a-z-]{0,}[ \.\:\,])'), r'. \1'))
+__final.append((re.compile(r'\.\n([a-z]{3}[a-z-]{0,}[ \.\:\,\;])'), r'. \1'))
+
+# no break in likely species names with abbreviated genus (e.g.
+# "S. cerevisiae"). Differs from above in being more liberal about
+# separation from following text.
+__final.append((re.compile(r'\b([A-Z]\.)\n([a-z]{3,})\b'), r'\1 \2'))
+
+# no break in likely person names with abbreviated middle name
+# (e.g. "Anton P. Chekhov", "A. P. Chekhov"). Note: Won't do
+# "A. Chekhov" as it yields too many false positives.
+__final.append((re.compile(r'\b((?:[A-Z]\.|[A-Z][a-z]{3,}) [A-Z]\.)\n([A-Z][a-z]{3,})\b'), r'\1 \2'))
 
 # no break before CC ..
 __final.append((re.compile(r'\n((?:and|or|but|nor|yet) )'), r' \1'))
@@ -61,6 +76,8 @@ __final.append((re.compile(r'\b(i\.)\n(v\.)'), r'\1 \2'))
 # no sentence break after specific abbreviations
 __final.append((re.compile(r'\b(e\. ?g\.|i\. ?e\.|i\. ?v\.|vs\.|cf\.|Dr\.|Mr\.|Ms\.|Mrs\.)\n'), r'\1 '))
 
+# or others taking a number after the abbrev
+__final.append((re.compile(r'\b([Aa]pprox\.|[Nn]o\.)\n(\d+)'), r'\1 \2'))
 
 def refine_split(s):
     """
