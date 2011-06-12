@@ -613,9 +613,9 @@ def unique_preserve_order(iterable):
 
 class ProjectConfiguration(object):
     def __init__(self, directory):
-        # debugging
-        if directory[:1] != "/":
-            Messager.debug("Project config received relative directory, configuration may not be found.", duration=-1)
+        # debugging (note: latter test for windows paths)
+        if directory[:1] != "/" and not re.search(r'^[a-zA-Z]:\\', directory):
+            Messager.debug("Project config received relative directory ('%s'), configuration may not be found." % directory, duration=-1)
         self.directory = directory
 
     def mandatory_arguments(self, type):
