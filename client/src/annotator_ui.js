@@ -788,6 +788,34 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('showForm', [importForm]);
       });
 
+      // TODO: this should probably be in visualizer_ui instead
+      var searchForm = $('#search_form');
+      var searchFormSubmit = function(evt) {
+        dispatcher.post('hideForm', [searchForm]);
+        var _searchtype= $('#search_type').val();
+        var _searchtext = $('#search_text').val();
+        var opts = {
+          action : 'search',
+          directory : dir,
+          type : _searchtype,
+          text : _searchtext,
+        };
+        dispatcher.post('ajax', [opts, function(response) {
+          console.log("TODO: reaction to search response");
+        }]);
+        return false;
+      };
+      searchForm.submit(searchFormSubmit);
+      dispatcher.post('initForm', [searchForm, {
+          width: 500,
+          alsoResize: '#search_text',
+          open: function(evt) {
+            keymap = {};
+          },
+        }]);
+      $('#search_button').click(function() {
+        dispatcher.post('showForm', [searchForm]);
+      });
 
 
       var waiter = $('#waiter');

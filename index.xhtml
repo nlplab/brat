@@ -67,6 +67,7 @@
             <input id="auth_button" type="button" value="Login"/>
             <input id="file_browser_button" type="button" value="File" tabindex="-1" title="Open File Browser (Tab)"/>
             <!-- <input id="export_button" type="button" value="Export"/> -->
+            <input id="search_button" type="button" class="login" value="Search" tabindex="-1" title="Search annotations in current collection"/>
             <input id="import_button" type="button" class="login" value="Import" tabindex="-1" title="Import a new document into the current directory"/>
             <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
             <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
@@ -98,6 +99,16 @@
       <fieldset id="import_form_text">
         <legend>Document text</legend>
         <textarea id="import_text" class="borderless"/>
+      </fieldset>
+    </form>
+    <form id="search_form" class="dialog" title="Search">
+      <fieldset id="search_form_type">
+        <legend>Annotation type</legend>
+        <input id="search_type" class="borderless"/>
+      </fieldset>
+      <fieldset id="search_form_text">
+        <legend>Annotated text</legend>
+        <textarea id="search_text" class="borderless"/>
       </fieldset>
     </form>
     <form id="span_form" class="dialog" title="Span">
