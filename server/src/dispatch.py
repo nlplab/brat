@@ -26,6 +26,7 @@ from jsonwrap import dumps
 from logging import info as log_info
 from message import Messager
 from svg import store_svg, retrieve_svg
+from search import search_collection
 from session import get_session
 
 ### Constants
@@ -49,6 +50,8 @@ DISPATCHER = {
         'createArc': create_arc,
         'deleteArc': delete_arc,
         'possibleArcTypes': possible_arc_types,
+
+        'searchCollection' : search_collection,
         }
 
 # Actions that require authentication

@@ -795,13 +795,13 @@ var AnnotatorUI = (function($, window, undefined) {
         var _searchtype= $('#search_type').val();
         var _searchtext = $('#search_text').val();
         var opts = {
-          action : 'search',
+          action : 'searchCollection',
           directory : dir,
           type : _searchtype,
           text : _searchtext,
         };
         dispatcher.post('ajax', [opts, function(response) {
-          console.log("TODO: reaction to search response");
+          dispatcher.post('showSearchResults', response.results);
         }]);
         return false;
       };

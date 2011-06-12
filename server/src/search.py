@@ -7,7 +7,10 @@
 
 from __future__ import with_statement
 
+import re
 import annotation
+
+from message import Messager
 
 class SearchMatchSet(object):
     """
@@ -28,6 +31,49 @@ class SearchMatchSet(object):
 
     def __len__(self):
         return len(self.__matches)
+
+def __filenames_to_annotations(filenames):
+    """
+    Given file names, returns corresponding Annotations objects.
+    """
+    
+    # TODO: error output should be done via messager to allow
+    # both command-line and GUI invocations
+
+    anns = []
+    for fn in filenames:
+        try:
+            # remove suffixes for Annotations to prompt parsing of .a1
+            # also.
+            nosuff_fn = fn.replace(".ann","").replace(".a2","").replace(".rel","")
+            ann_obj = annotation.TextAnnotations(nosuff_fn, read_only=True)
+            anns.append(ann_obj)
+        except annotation.AnnotationFileNotFoundError:
+            print >> sys.stderr, "%s:\tFailed: file not found" % fn
+        except annotation.AnnotationNotFoundError, e:
+            print >> sys.stderr, "%s:\tFailed: %s" % (fn, e)
+
+    if len(anns) != len(filenames):
+        print >> sys.stderr, "Note: only checking %d/%d given files" % (len(anns), len(filenames))
+
+    return anns
+
+def __directory_to_annotations(directory):
+    """
+    Given a directory, returns Annotations objects for contained files.
+    """
+
+    # TODO: put this shared functionality in a more reasonable place
+    from document import real_directory,_listdir
+    from os.path import join as path_join
+
+    real_dir = real_directory(directory)
+    # Get the document names
+    base_names = [fn[0:-4] for fn in _listdir(real_dir) if fn.endswith('txt')]
+
+    filenames = [path_join(real_dir, bn) for bn in base_names]
+
+    return __filenames_to_annotations(filenames)
 
 def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[]):
     """
@@ -94,35 +140,93 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[]):
 
     return match_sets
 
-def check_file_consistency(filenames, restrict_types=[], ignore_types=[]):
+def search_for_text(ann_objs, text, restrict_types=[], ignore_types=[]):
+    """
+    Searches for the given text in the given Annotations
+    objects.  Returns a SearchMatchSet objects.
+    """
+
+    # treat uniformly
+    if restrict_types is None:
+        restrict_types = []
+    if ignore_types is None:
+        ignore_types = []
+
+    matches = SearchMatchSet("Textbound matching '%s'" % text)
+    
+    for ann_obj in ann_objs:
+        for t in ann_obj.get_textbounds():
+            if t.type in ignore_types:
+                continue
+            if restrict_types != [] and t.type not in restrict_types:
+                continue
+            if t.text == text:
+                matches.add_match(ann_obj, t)
+
+    return matches
+
+def search_annotations(ann_objs, type, text):
+    restrict_types = []
+    if type is not None and type != "":
+        restrict_types.append(type)
+
+    # Old attempt, confirm unnecessary and remove
+#     # TODO: more comprehensive search, not just textbounds
+#     for t in ann_obj.get_textbounds():
+#         if t.type == type:
+#             # TODO: regexs
+#             if text == t.text:
+#                 # TODO XXX debugging
+#                 #matches.add_match(ann_obj.get_document(), t.id)
+#                 Messager.info("search_annotations: match %s %s in %s %s" % (text, type, ann_obj.get_document(), t.id))
+
+#     return matches
+
+    return search_for_text(ann_objs, text, restrict_types=restrict_types)
+
+
+def search_collection(directory, type, text):
+    ann_objs = __directory_to_annotations(directory)
+
+    # Old attempt, confirm unnecessary and remove
+#     matches = SearchMatchSet("Type %s containing text %s" % (type, text))
+
+#     for ann_obj in anns:
+#         m = search_annotations(ann_obj, type, text)
+#         # TODO: need a way to extend SearchMatchSet with another
+#         for ao, a in m.get_matches():
+#             matches.add_match(ao, a)
+
+    matches = search_annotations(ann_objs, type, text)
+
+    response = {}
+
+    response['results'] = []
+    for ann_obj, ann in matches.get_matches():
+        # TODO: remove once response is being read
+        Messager.info("Match in %s %s" % (ann_obj.get_document(), ann.id))
+        # TODO: note, debugging currently, ann_obj and ann are strings
+        #response['results'].append((ann_obj.get_document(), ann.id))
+        
+    return response
+
+def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[]):
+    """
+    Searches for the given text in the given set of files.
+    """
+
+    anns = __filenames_to_annotations(filenames)
+
+    return search_for_text(anns, text, restrict_types=[], ignore_types=[])
+
+def check_files_consistency(filenames, restrict_types=[], ignore_types=[]):
     """
     Searches for inconsistent annotations in the given set of files.
     """
-    anns = []
-    for fn in filenames:
-        try:
-            # remove suffixes for Annotations to prompt parsing of .a1
-            # also.
-            nosuff_fn = fn.replace(".ann","").replace(".a2","").replace(".rel","")
-            ann_obj = annotation.TextAnnotations(nosuff_fn)
-            anns.append(ann_obj)
-        except annotation.AnnotationFileNotFoundError:
-            print >> sys.stderr, "%s:\tFailed: file not found" % fn
-        except annotation.AnnotationNotFoundError, e:
-            print >> sys.stderr, "%s:\tFailed: %s" % (fn, e)
 
-    if len(anns) != len(filenames):
-        print >> sys.stderr, "Note: only checking %d/%d given files" % (len(anns), len(filenames))
+    anns = __filenames_to_annotations(filenames)
 
     return check_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types)
-
-def output_file_consistency(filenames, out, restrict_types=[], ignore_types=[]):
-    for ms in check_file_consistency(filenames, restrict_types=restrict_types, ignore_types=ignore_types):
-        print >> out, ms.criterion
-        for ann_obj, ann in ms.get_matches():
-            # TODO: get rid of "edited" hack to point to a document ("%5B0%5D%5B%5D"="[0][]")
-            # TODO: get rid of specific URL hack and similar
-            print >> out, "\thttp://localhost/brat/#/%s?edited%%5B0%%5D%%5B%%5D=%s (%s)" % (ann_obj.get_document().replace("data/",""), ann.id, str(ann).rstrip())
 
 def argparser():
     import argparse
@@ -132,6 +236,7 @@ def argparser():
     ap.add_argument("-c", "--consistency", default=False, action="store_true", help="Search for inconsistent annotations.")
     ap.add_argument("-r", "--restrict", metavar="TYPE", nargs="+", help="Restrict to given types.")
     ap.add_argument("-i", "--ignore", metavar="TYPE", nargs="+", help="Ignore given types.")
+    ap.add_argument("-t", "--text", metavar="TEXT", help="Search for textbound matching text.")
     ap.add_argument("files", metavar="FILE", nargs="+", help="Files to verify.")
     return ap
 
@@ -143,12 +248,24 @@ def main(argv=None):
         argv = sys.argv
     arg = argparser().parse_args(argv[1:])
 
-    if arg.consistency:
-        output_file_consistency(arg.files, sys.stdout, restrict_types=arg.restrict,
-                                ignore_types=arg.ignore)
+    if arg.text:
+        matches = [search_files_for_text(arg.files, arg.text,
+                                         restrict_types=arg.restrict,
+                                         ignore_types=arg.ignore)]
+    elif arg.consistency:
+        matches = check_files_consistency(arg.files,
+                                          restrict_types=arg.restrict,
+                                          ignore_types=arg.ignore)
     else:
-        print >> sys.stderr, "Sorry, only supporting consistency check (-c) at the moment."
-        
+        print >> sys.stderr, "Please specify action (-h for help)"
+        return 1
+
+    for m in matches:
+        print m.criterion
+        for ann_obj, ann in m.get_matches():
+            # TODO: get rid of "edited" hack to point to a document ("%5B0%5D%5B%5D"="[0][]")
+            # TODO: get rid of specific URL hack and similar
+            print "\thttp://localhost/brat/#/%s?edited%%5B0%%5D%%5B%%5D=%s (%s)" % (ann_obj.get_document().replace("data/",""), ann.id, str(ann).rstrip())
 
 if __name__ == "__main__":
     import sys
