@@ -235,7 +235,10 @@ def format_results(matches):
     for the client, returning a dictionary with the results in the
     expected format.
     """
-    from document import relative_directory
+    # decided to give filename only, remove this bit if the decision
+    # sticks
+#     from document import relative_directory
+    from os.path import basename
 
     # the search response format is built similarly to that of the
     # directory listing.
@@ -249,8 +252,9 @@ def format_results(matches):
     for ann_obj, ann in matches.get_matches():
         # NOTE: first "True" is to match format with directory listing,
         # second entry is non-listed "pointer" to annotation
-        reld = relative_directory(ann_obj.get_document())
-        response['items'].append([True, { 'edited' : [ann.id] }, reld, ann.id, ann.type])
+#         reld = relative_directory(ann_obj.get_document())
+        fn = basename(ann_obj.get_document())
+        response['items'].append([True, { 'edited' : [ann.id] }, fn, ann.id, ann.type])
     return response
 
 def search_collection(directory, type, text):
