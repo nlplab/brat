@@ -1524,18 +1524,6 @@ Util.profileStart('chunkFinish');
                            ry: highlightRounding.y,
                          });
               }
-// =======
-//               var spansFrom, spansTo, spansType;
-//               $.each(chunk.spans, function(spanNo, span) {
-//                 if (spansFrom == undefined || spansFrom > span.curly.from) spansFrom = span.curly.from;
-//                 if (spansTo == undefined || spansTo < span.curly.to) spansTo = span.curly.to;
-//                 if (span.generalType == 'trigger' || !spansType) spansType = span.type;
-//               });
-//               svg.rect(highlightGroup,
-//                 chunk.textX + spansFrom - 1, chunk.row.textY + sizes.texts.y + 1,
-//                 spansTo - spansFrom + 2, sizes.spans.height + 2,
-//                 { 'class': 'span_default span_' + spansType, opacity:0.15 });
-// >>>>>>> newvis:client/src/visualizer.js
             }
         });
 
@@ -1653,11 +1641,6 @@ Util.profileReport();
                                  rx: highlightRounding.x,
                                  ry: highlightRounding.y,
                                });
-// =======
-//             span.chunk.textX + span.curly.from - 1, span.chunk.row.textY + data.sizes.texts.y + 1,
-//             span.curly.to + 2 - span.curly.from, data.sizes.spans.height + 2,
-//             { 'class': 'span_default span_' + span.type });
-// >>>>>>> newvis:client/src/visualizer.js
 
           if (that.arcDragOrigin) {
             target.parent().addClass('highlight');
