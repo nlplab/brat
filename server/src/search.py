@@ -32,6 +32,25 @@ class SearchMatchSet(object):
     def __len__(self):
         return len(self.__matches)
 
+class TextMatch(object):
+    """
+    Represents a text span matching a query.
+    """
+    def __init__(self, start, end, text):
+        self.start = start
+        self.end = end
+        self.text = text
+        # TODO: temporary "fake ID" to make other bits of code happy, remove
+        # once no longer necessary
+        self.id = ""
+
+    def get_text(self):
+        return self.text
+
+    def __str__(self):
+        # Format like textbound, but w/o ID or type
+        return u'%d %d\t%s' % (self.start, self.end, self.text)
+
 def __filenames_to_annotations(filenames):
     """
     Given file names, returns corresponding Annotations objects.
@@ -81,11 +100,9 @@ def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[]):
     disagree in type in given Annotations objects.
     """
 
-    # treat uniformly
-    if restrict_types is None:
-        restrict_types = []
-    if ignore_types is None:
-        ignore_types = []
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
 
     matches = SearchMatchSet("Text marked with different types")
 
@@ -140,19 +157,17 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[]):
 
     return match_sets
 
-def search_for_text(ann_objs, text, restrict_types=[], ignore_types=[]):
+def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[]):
     """
-    Searches for the given text in the given Annotations
-    objects.  Returns a SearchMatchSet objects.
+    Searches for the given text in the Textbound annotations in the
+    given Annotations objects.  Returns a SearchMatchSet object.
     """
-
-    # treat uniformly
-    if restrict_types is None:
-        restrict_types = []
-    if ignore_types is None:
-        ignore_types = []
 
     matches = SearchMatchSet("Textbound matching '%s'" % text)
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
     
     for ann_obj in ann_objs:
         for t in ann_obj.get_textbounds():
@@ -160,44 +175,72 @@ def search_for_text(ann_objs, text, restrict_types=[], ignore_types=[]):
                 continue
             if restrict_types != [] and t.type not in restrict_types:
                 continue
-            if t.text == text:
+            # TODO: make options for "text included" vs. "text matches"
+            if text in t.text:
                 matches.add_match(ann_obj, t)
 
     return matches
 
-def search_annotations(ann_objs, type, text):
+def search_text(ann_objs, text, restrict_types=[], ignore_types=[]):
+    """
+    Searches for the given text in the document texts of the given
+    Annotations objects.  Returns a SearchMatchSet object.
+    """
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
+
+    description = "Text matching '%s'" % text
+    if restrict_types != []:
+        description = description + ' (embedded in %s)' % (",".join(restrict_types))
+    if ignore_types != []:
+        description = description + ' (not embedded in %s)' % ",".join(ignore_types)
+    matches = SearchMatchSet(description)
+
+    for ann_obj in ann_objs:
+        doctext = ann_obj.get_document_text()
+
+        for m in re.finditer(r'\b('+text+r')\b', doctext):
+            # only need to care about embedding annotations if there's
+            # some annotation-based restriction
+            #if restrict_types == [] and ignore_types == []:
+            # TODO: _extremely_ naive and slow way to find embedding
+            # annotations.  Use some reasonable data structure
+            # instead.
+            embedding = []
+            for t in ann_obj.get_textbounds():
+                if t.start <= m.start() and t.end >= m.end():
+                    embedding.append(t)
+
+            # Note interpretation of ignore_types here: if the text span
+            # is embedded in one or more of the ignore_types, the match is
+            # ignored.
+            if len([e for e in embedding if e.type in ignore_types]) != 0:
+                continue
+
+            if restrict_types != [] and len([e for e in embedding if e.type in restrict_types]) == 0:
+                continue
+
+            # TODO: need a clean, standard way of identifying a text span
+            # that does not involve an annotation; this is a bit of a hack
+            tm = TextMatch(m.start(), m.end(), m.group())
+            matches.add_match(ann_obj, tm)
+
+    return matches
+
+def search_collection(directory, type, text):
+    # TODO: this function is much too restricted in what it can do.
+    # Despite the name, it can currently only search textbound
+    # entitities. Extend its capabilities.
+
+    ann_objs = __directory_to_annotations(directory)
+
     restrict_types = []
     if type is not None and type != "":
         restrict_types.append(type)
 
-    # Old attempt, confirm unnecessary and remove
-#     # TODO: more comprehensive search, not just textbounds
-#     for t in ann_obj.get_textbounds():
-#         if t.type == type:
-#             # TODO: regexs
-#             if text == t.text:
-#                 # TODO XXX debugging
-#                 #matches.add_match(ann_obj.get_document(), t.id)
-#                 Messager.info("search_annotations: match %s %s in %s %s" % (text, type, ann_obj.get_document(), t.id))
-
-#     return matches
-
-    return search_for_text(ann_objs, text, restrict_types=restrict_types)
-
-
-def search_collection(directory, type, text):
-    ann_objs = __directory_to_annotations(directory)
-
-    # Old attempt, confirm unnecessary and remove
-#     matches = SearchMatchSet("Type %s containing text %s" % (type, text))
-
-#     for ann_obj in anns:
-#         m = search_annotations(ann_obj, type, text)
-#         # TODO: need a way to extend SearchMatchSet with another
-#         for ao, a in m.get_matches():
-#             matches.add_match(ao, a)
-
-    matches = search_annotations(ann_objs, type, text)
+    matches = search_textbound(ann_objs, text, restrict_types=restrict_types)
 
     response = {}
 
@@ -214,18 +257,22 @@ def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[]):
     """
     Searches for the given text in the given set of files.
     """
-
     anns = __filenames_to_annotations(filenames)
+    return search_text(anns, text, restrict_types=restrict_types, ignore_types=ignore_types)
 
-    return search_for_text(anns, text, restrict_types=[], ignore_types=[])
+def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=[]):
+    """
+    Searches for the given text in textbound annotations in the given
+    set of files.
+    """
+    anns = __filenames_to_annotations(filenames)
+    return search_textbound(anns, text, restrict_types=restrict_types, ignore_types=ignore_types)
 
 def check_files_consistency(filenames, restrict_types=[], ignore_types=[]):
     """
     Searches for inconsistent annotations in the given set of files.
     """
-
     anns = __filenames_to_annotations(filenames)
-
     return check_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types)
 
 def argparser():
@@ -236,7 +283,8 @@ def argparser():
     ap.add_argument("-c", "--consistency", default=False, action="store_true", help="Search for inconsistent annotations.")
     ap.add_argument("-r", "--restrict", metavar="TYPE", nargs="+", help="Restrict to given types.")
     ap.add_argument("-i", "--ignore", metavar="TYPE", nargs="+", help="Ignore given types.")
-    ap.add_argument("-t", "--text", metavar="TEXT", help="Search for textbound matching text.")
+    ap.add_argument("-t", "--text", metavar="TEXT", help="Search for matching text.")
+    ap.add_argument("-b", "--textbound", metavar="TEXT", help="Search for textbound matching text.")
     ap.add_argument("files", metavar="FILE", nargs="+", help="Files to verify.")
     return ap
 
@@ -248,10 +296,15 @@ def main(argv=None):
         argv = sys.argv
     arg = argparser().parse_args(argv[1:])
 
+    # TODO: allow multiple searches
     if arg.text:
         matches = [search_files_for_text(arg.files, arg.text,
                                          restrict_types=arg.restrict,
                                          ignore_types=arg.ignore)]
+    elif arg.textbound:
+        matches = [search_files_for_textbound(arg.files, arg.textbound,
+                                              restrict_types=arg.restrict,
+                                              ignore_types=arg.ignore)]
     elif arg.consistency:
         matches = check_files_consistency(arg.files,
                                           restrict_types=arg.restrict,

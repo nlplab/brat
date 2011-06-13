@@ -828,6 +828,9 @@ class TextAnnotations(Annotations):
 
         return TextBoundAnnotationWithText(start, end, id, type, text, data_tail, source_id=input_file_path)
 
+    def get_document_text(self):
+        return self._document_text
+
     def _read_document_text(self, document):
         # TODO: this is too naive; document may be e.g. "PMID.a1",
         # in which case the reasonable text file name guess is
