@@ -16,6 +16,7 @@ from subprocess import Popen, PIPE
 from shlex import split as shlex_split
 
 ### Constants
+EN_TOKENIZATION = "simple" # or "internal" or "simple" (sorry, lazy)
 GTB_TOKENIZE_PL_PATH = path_join(dirname(__file__), '../../external/',
         'GTB-tokenize.pl')
 ###
@@ -56,13 +57,24 @@ def en_token_boundary_gen_external(text):
     for o in _token_boundaries_by_alignment(tokens, text):
         yield o
 
+def en_token_boundary_gen_internal(text):
+    from gtbtokenize import tokenize
+    tokens = tokenize(text).split()
+    for o in _token_boundaries_by_alignment(tokens, text):
+        yield o
+
 def en_token_boundary_gen_simple(text):
     tokens = text.split()
     for o in _token_boundaries_by_alignment(tokens, text):
         yield o
 
 def en_token_boundary_gen(text):
-    return en_token_boundary_gen_simple(text)
+    if EN_TOKENIZATION == "external":
+        return en_token_boundary_gen_simple(text)
+    elif EN_TOKENIZATION == "internal":
+        return en_token_boundary_gen_internal(text)
+    else:
+        return en_token_boundary_gen_simple(text)
 
 if __name__ == '__main__':
     from sys import argv

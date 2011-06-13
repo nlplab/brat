@@ -209,7 +209,7 @@ def tokenize(s, ptb_escaping=False, use_single_quotes_only=False,
     # TODO: this isn't this difficult ... rewrite nicely
     s = re.sub(r'^', ' ', s)
     m = re.match(r'^(.*?) *(\n*)$', s)
-    assert m, "INTERNAL ERROR" # should always match
+    assert m, "INTERNAL ERROR on '%s'" % s# should always match
     s, s_end = m.groups()    
     s = re.sub(r'$', ' ', s)
 
