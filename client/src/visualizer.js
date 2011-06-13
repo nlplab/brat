@@ -973,7 +973,7 @@ Util.profileStart('chunks');
 
             // Make curlies to show the span
             if (span.drawCurly) {
-              var bottom = yy + hh + margin.y - yAdjust;
+              var bottom = yy + hh + margin.y - yAdjust + 1;
               svg.path(span.group, svg.createPath()
                   .move(span.curly.from, bottom + curlyHeight)
                   .curveC(span.curly.from, bottom,
