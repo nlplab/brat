@@ -61,12 +61,14 @@ while(<>) {
 
     s/\.\.\./ ... /g;
 
-    # To avoid breaking names of chemicals, complexes and similar,
-    # only add space to special chars if there's already space on
-    # at least one side.
+    # To avoid breaking names of chemicals, protein complexes and
+    # similar, only add space to related special chars if there's
+    # already space on at least one side.
 
     s/([,;:@#]) / $1 /g;
     s/ ([,;:@#])/ $1 /g;
+
+    # always separated
 
     s/\$/ \$ /g;
     s/\%/ \% /g;
@@ -86,7 +88,7 @@ while(<>) {
     s/((?:=\/)?<+(?:\/=|--+>?)?)/ $1 /g;
     s/((?:<?--+|=\/)?>+(?:\/=)?)/ $1 /g;
     
-    # break dashes, not breaking up "arrows"
+    # separate dashes, not breaking up "arrows"
     s/(<?--+\>?)/ $1 /g;
 
     # parens only separated when there's space around a balanced
@@ -132,7 +134,7 @@ while(<>) {
     } while($escaped);
 
     # Remaining brackets are not token-internal and should be
-    # surrounded by space.
+    # separated
     s/\(/ -LRB- /g;
     s/\)/ -RRB- /g;
     s/\[/ -LSB- /g;
@@ -153,12 +155,13 @@ while(<>) {
 	s/\"/ \" /g;
 	    
     }
-  
+
+    # initial single quotes always separated
     s/ (\'+)/ $1 /g;
-    # rough heuristic to avoid breaking up 3' and 5'
+    # final with the exception of 3' and 5' (rough heuristic)
     s/(?<![35'])(\'+) / $1 /g;
 
-    # This more frequently disagrees than agrees with GTB
+    # This more frequently disagreed than agreed with GTB
 #     # Separate slashes preceded by space (can arise from
 #     # e.g. splitting "p65(RelA)/p50"
 #     s/ \// \/ /g;
@@ -212,6 +215,7 @@ while(<>) {
 	    # sides of the bracket. Note that this won't work
 	    # for sentence-final brackets unless there's extra
 	    # terminal space.
+	    # TODO: won't this fail on ' -LRB- -LRB- '?
 	    s/ -LRB- / \( /g;
 	    s/ -RRB- / \) /g;
 	    s/ -LSB- / \[ /g;
