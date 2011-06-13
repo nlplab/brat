@@ -505,6 +505,7 @@ var VisualizerUI = (function($, window, undefined) {
         if (_data) {
           data = _data;
         }
+        if (!data) return;
         hideSVGDownloadLinks();
 
         if (data.mtime) {

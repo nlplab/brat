@@ -815,35 +815,21 @@ var AnnotatorUI = (function($, window, undefined) {
         importForm.find('input:text, textarea').val('');
       });
 
-      // TODO: this should probably be in visualizer_ui instead
-      var searchForm = $('#search_form');
-      var searchFormSubmit = function(evt) {
-        dispatcher.post('hideForm', [searchForm]);
-        var _searchtype= $('#search_type').val();
-        var _searchtext = $('#search_text').val();
-        var opts = {
-          action : 'searchCollection',
-          directory : dir,
-          type : _searchtype,
-          text : _searchtext,
-        };
-        dispatcher.post('ajax', [opts, function(response) {
-          dispatcher.post('showSearchResults', response.results);
-        }]);
-        return false;
+      var preventDefault = function(evt) {
+        evt.preventDefault();
       };
-      searchForm.submit(searchFormSubmit);
-      dispatcher.post('initForm', [searchForm, {
-          width: 500,
-          alsoResize: '#search_text',
-          open: function(evt) {
-            keymap = {};
-          },
-        }]);
-      $('#search_button').click(function() {
-        dispatcher.post('showForm', [searchForm]);
-      });
 
+//       searchForm.submit(searchFormSubmit);
+//       dispatcher.post('initForm', [searchForm, {
+//           width: 500,
+//           alsoResize: '#search_text',
+//           open: function(evt) {
+//             keymap = {};
+//           },
+//         }]);
+//       $('#search_button').click(function() {
+//         dispatcher.post('showForm', [searchForm]);
+//       });
 
       var waiter = $('#waiter');
       waiter.dialog({
@@ -869,6 +855,7 @@ var AnnotatorUI = (function($, window, undefined) {
         on('current', gotCurrent).
         on('keydown', onKeyDown).
         on('dblclick', onDblClick).
+        on('dragstart', preventDefault).
         on('mousedown', onMouseDown).
         on('mouseup', onMouseUp).
         on('mousemove', onMouseMove);

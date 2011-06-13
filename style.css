@@ -61,7 +61,7 @@ path {
   font-size: 10px;
   /* font-size: 9px; */
   text-anchor: middle;
-  font-family: 'PT Sans Caption', sans-serif;
+  font-family: 'PT Sans Caption', serif;
   /* font-family: 'Anonymous Pro', monospace; */
   pointer-events: none;
 }
@@ -156,6 +156,10 @@ rect.shadow_EditHighlight {
   stroke: #ffff99;
 }
 
+.blur {
+  filter: url(#Gaussian_Blur);
+}
+
 .span path {
   fill: none;
   stroke: grey;
@@ -187,7 +191,7 @@ rect.shadow_EditHighlight {
 .arcs text {
   font-size: 9px;
   text-anchor: middle;
-  font-family: 'PT Sans Caption', sans-serif;
+  font-family: 'PT Sans Caption', serif;
   /* font-family: 'Anonymous Pro', monospace; */
   dominant-baseline: central;
   cursor: default;
@@ -406,7 +410,6 @@ fieldset {
 }
 #document_name input {
   width: 100%;
-  background: inherit;
   border: none;
 }
 
