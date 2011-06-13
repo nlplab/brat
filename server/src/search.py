@@ -26,6 +26,7 @@ class SearchMatchSet(object):
     def add_match(self, ann_obj, ann):
         self.__matches.append((ann_obj, ann))
 
+    # TODO: would be better with an iterator
     def get_matches(self):
         return self.__matches
 
@@ -81,7 +82,6 @@ def __directory_to_annotations(directory):
     """
     Given a directory, returns Annotations objects for contained files.
     """
-
     # TODO: put this shared functionality in a more reasonable place
     from document import real_directory,_listdir
     from os.path import join as path_join
@@ -229,6 +229,30 @@ def search_text(ann_objs, text, restrict_types=[], ignore_types=[]):
 
     return matches
 
+def format_results(matches):
+    """
+    Given matches to a search (a SearchMatchSet), formats the results
+    for the client, returning a dictionary with the results in the
+    expected format.
+    """
+    from document import relative_directory
+
+    # the search response format is built similarly to that of the
+    # directory listing.
+
+    response = {}
+
+    # header for search result browser
+    response['itemhead'] = ['Document', 'Annotation', 'Type']
+    
+    response['items'] = []
+    for ann_obj, ann in matches.get_matches():
+        # NOTE: first "True" is to match format with directory listing,
+        # second entry is non-listed "pointer" to annotation
+        reld = relative_directory(ann_obj.get_document())
+        response['items'].append([True, { 'edited' : [ann.id] }, reld, ann.id, ann.type])
+    return response
+
 def search_collection(directory, type, text):
     # TODO: this function is much too restricted in what it can do.
     # Despite the name, it can currently only search textbound
@@ -241,17 +265,8 @@ def search_collection(directory, type, text):
         restrict_types.append(type)
 
     matches = search_textbound(ann_objs, text, restrict_types=restrict_types)
-
-    response = {}
-
-    response['results'] = []
-    for ann_obj, ann in matches.get_matches():
-        # TODO: remove once response is being read
-        Messager.info("Match in %s %s" % (ann_obj.get_document(), ann.id))
-        # TODO: note, debugging currently, ann_obj and ann are strings
-        #response['results'].append((ann_obj.get_document(), ann.id))
         
-    return response
+    return format_results(matches)
 
 def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[]):
     """
@@ -322,4 +337,4 @@ def main(argv=None):
 
 if __name__ == "__main__":
     import sys
-    sys.exit(main())
+    sys.exit(main(sys.argv))

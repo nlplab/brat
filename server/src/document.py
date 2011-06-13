@@ -150,6 +150,12 @@ def real_directory(directory):
     assert isabs(directory), 'directory "%s" is not absolute' % directory
     return path_join(DATA_DIR, directory[1:])
 
+def relative_directory(directory):
+    # inverse of real_directory
+    assert isabs(directory), 'directory "%s" is not absolute' % directory
+    assert directory.startswith(DATA_DIR), 'directory "%s" not under DATA_DIR'
+    return directory[len(DATA_DIR):]
+
 def _is_hidden(file_name):
     return file_name.startswith('hidden_') or file_name.startswith('.')
 
