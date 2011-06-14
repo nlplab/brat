@@ -26,8 +26,9 @@ from jsonwrap import dumps
 from logging import info as log_info
 from message import Messager
 from svg import store_svg, retrieve_svg
-from search import search_collection
 from session import get_session
+from search import search_text, search_entity, search_event, search_relation
+
 
 ### Constants
 # Function call-backs
@@ -51,7 +52,10 @@ DISPATCHER = {
         'deleteArc': delete_arc,
         'possibleArcTypes': possible_arc_types,
 
-        'searchCollection' : search_collection,
+        'searchText'     : search_text,
+        'searchEntity'   : search_entity,
+        'searchEvent'    : search_event,
+        'searchRelation' : search_relation,
         }
 
 # Actions that require authentication
