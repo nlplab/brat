@@ -685,9 +685,12 @@ var Visualizer = (function($, window, undefined) {
         // make some text elements, find out the dimensions
         var textMeasureGroup = svg.group(options);
 
-        $.each(textsHash, function(text, objects) {
-          svg.text(textMeasureGroup, 0, 0, text);
-        });
+        // changed from $.each because of #264 ('length' can appear)
+        for (var text in textsHash) {
+          if (textsHash.hasOwnProperty(text)) {
+            svg.text(textMeasureGroup, 0, 0, text);
+          }
+        }
 
         // measuring goes on here
         var widths = {};
