@@ -92,6 +92,16 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                     for k in ('color', 'dashArray'):
                         if k in arc_drawing_conf:
                             arcs[arc][k] = arc_drawing_conf[k]                    
+
+                    # Client needs also possible arc 'targets',
+                    # defined as the set of types (entity or event) that
+                    # the arc can connect to
+                    targets = []
+                    # TODO: should include this functionality in projectconf
+                    for ttype in project_conf.get_entity_types() + project_conf.get_event_types():
+                        if arc in project_conf.arc_types_from_to(_type, ttype):
+                            targets.append(ttype)
+                    arcs['targets'] = targets
                     
             # If we found any arcs, attach them
             if arcs:
