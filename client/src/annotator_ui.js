@@ -1,7 +1,7 @@
 // -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var AnnotatorUI = (function($, window, undefined) {
-    var AnnotatorUI = function(dispatcher, svgId) {
+    var AnnotatorUI = function(dispatcher, svg) {
       var that = this;
       var arcDragOrigin = null;
       var arcDragOriginBox = null;
@@ -22,8 +22,8 @@ var AnnotatorUI = (function($, window, undefined) {
       var searchActive = false;
 
       that.user = null;
-      var svg = $('#' + svgId);
       var svgElement = $(svg._svg);
+      var svgId = svgElement.parent().attr('id');
 
       var hideForm = function() {
         keymap = null;

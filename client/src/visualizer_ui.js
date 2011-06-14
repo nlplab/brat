@@ -1,7 +1,7 @@
 // -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var VisualizerUI = (function($, window, undefined) {
-    var VisualizerUI = function(dispatcher, svgId) {
+    var VisualizerUI = function(dispatcher, svg) {
       var that = this;
 
       var messagePostOutFadeDelay = 1000;
@@ -16,6 +16,9 @@ var VisualizerUI = (function($, window, undefined) {
       var dir, doc, args;
       var dirScroll;
       var docScroll;
+
+      var svgElement = $(svg._svg);
+      var svgId = svgElement.parent().attr('id');
 
       var sortOrder = [1, 1]; // column (0..), sort order (1, -1)
       var docSortFunction = function(a, b) {
