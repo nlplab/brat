@@ -660,7 +660,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, type)
         if node is None:
-            Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % type)
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
             return []
         return node.mandatory_arguments
 
@@ -671,7 +671,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, type)
         if node is None:
-            Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % type)
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
             return []
         return node.multiple_allowed_arguments
 
@@ -718,7 +718,7 @@ class ProjectConfiguration(object):
         from_node = get_node_by_storage_form(self.directory, from_ann)
 
         if from_node is None:
-            Messager.warning("Project configuration: unknown type %s. Configuration may be wrong." % from_ann)
+            Messager.warning("Project configuration: unknown textbound/event type %s. Configuration may be wrong." % from_ann)
             return []
 
         if to_ann == "<ANY>":
@@ -755,7 +755,7 @@ class ProjectConfiguration(object):
         return [t.storage_form() for t in get_event_type_list(self.directory)]
 
     def get_relation_types(self):
-        return [t.storage_form() for t in get_relation_type_list(self.directory)]        
+        return [t.storage_form() for t in get_relation_type_list(self.directory)]
 
     def get_relation_by_type(self, type):
         # TODO: dict storage
@@ -803,7 +803,7 @@ class ProjectConfiguration(object):
         return t in self.get_event_types()
 
     def is_relation_type(self, t):
-        return t is self.get_relation_types()
+        return t in self.get_relation_types()
 
     def type_category(self, t):
         """
