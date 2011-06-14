@@ -103,7 +103,6 @@ var Visualizer = (function($, window, undefined) {
 
       var rowBBox = function(span) {
         var box = $.extend({}, span.rectBox); // clone
-        console.log(span.chunk);
         var chunkTranslation = span.chunk.translation;
         box.x += chunkTranslation.x;
         box.y += chunkTranslation.y;

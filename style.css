@@ -538,6 +538,9 @@ fieldset {
   border: 0;
   width: 100%;
 }
+.fullwidth {
+  width: 100%;
+}
 
 #waiter {
   text-align: center;

@@ -68,7 +68,10 @@
             <input id="auth_button" type="button" value="Login"/>
             <input id="file_browser_button" type="button" value="File" tabindex="-1" title="Open File Browser (Tab)"/>
             <!-- <input id="export_button" type="button" value="Export"/> -->
+            <!--
             <input id="search_button" type="button" class="login" value="Search" tabindex="-1" title="Search annotations in current collection"/>
+            -->
+            <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search annotations in current collection">Search</label>
             <input id="import_button" type="button" class="login" value="Import" tabindex="-1" title="Import a new document into the current directory"/>
             <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
             <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
@@ -103,14 +106,74 @@
       </fieldset>
     </form>
     <form id="search_form" class="dialog" title="Search">
-      <fieldset id="search_form_type">
-        <legend>Annotation type</legend>
-        <input id="search_type" class="borderless"/>
-      </fieldset>
-      <fieldset id="search_form_text">
-        <legend>Annotated text</legend>
-        <textarea id="search_text" class="borderless"/>
-      </fieldset>
+      <div id="search_tabs">
+        <ul>
+          <li><a href="#search_tab_entity">Entity</a></li>
+          <li><a href="#search_tab_event">Event</a></li>
+          <li><a href="#search_tab_relation">Relation</a></li>
+        </ul>
+        <div id="search_tab_entity">
+          <table class="fullwidth">
+            <tr>
+              <td>Type</td>
+              <td>
+                <select id="search_form_entity_type"/>
+              </td>
+            </tr>
+            <tr>
+              <td>Text</td>
+              <td>
+                <input id="search_form_entity_text" class="fullwidth"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div id="search_tab_event">
+          <table class="fullwidth">
+            <tr>
+              <td>Type</td>
+              <td colspan="2">
+                <select id="search_form_event_type"/>
+              </td>
+            </tr>
+            <tr>
+              <td>Trigger</td>
+              <td colspan="2">
+                <input id="search_form_event_trigger" class="fullwidth"/>
+              </td>
+            </tr>
+            <tbody id="search_form_event_roles"/>
+          </table>
+        </div>
+        <div id="search_tab_relation">
+          <table class="fullwidth">
+            <tr>
+              <td>Type</td>
+              <td>
+                <select id="search_form_relation_type" class="fullwidth"/>
+              </td>
+            </tr>
+            <tr>
+              <td>Arg1</td>
+              <td>
+                <select id="search_form_relation_arg1_type" class="fullwidth"/>
+              </td>
+              <td>
+                <input id="search_form_relation_arg1_text" class="fullwidth"/>
+              </td>
+            </tr>
+            <tr>
+              <td>Arg2</td>
+              <td>
+               <select id="search_form_relation_arg2_type" class="fullwidth"/>
+              </td>
+              <td>
+                <input id="search_form_relation_arg2_text" class="fullwidth"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
     </form>
     <form id="span_form" class="dialog" title="Span">
       <fieldset id="span_selected_fset">

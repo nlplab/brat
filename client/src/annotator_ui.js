@@ -19,6 +19,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var repeatingArcTypes = [];
       var spanTypes = null;
       var attributeTypes = null;
+      var searchActive = false;
 
       that.user = null;
 
@@ -547,6 +548,19 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
+      // XXX If search form goes into visualizer_ui.js, this goes too
+      var addSpanTypesToSelect = function($select, types) {
+        $.each(types, function(typeNo, type) {
+          if (type !== null) {
+            var $option = $('<option value="' + Util.escapeQuotes(type.type) + '"/>').text(type.name);
+            $select.append($option);
+            if (type.children) {
+              addSpanTypesToSelect($select, type.children);
+            }
+          }
+        });
+      };
+
       var rememberSpanSettings = function(response) {
         spanKeymap = {};
 
@@ -585,6 +599,11 @@ var AnnotatorUI = (function($, window, undefined) {
 
         spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
+
+        // XXX If search form goes into visualizer_ui.js, this goes too
+        addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
+        addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
+        addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
       };
 
       var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
@@ -815,21 +834,169 @@ var AnnotatorUI = (function($, window, undefined) {
         importForm.find('input:text, textarea').val('');
       });
 
+
+      // TODO: this should probably be in visualizer_ui instead
+
+      // when event role changes, event types do as well
+      var searchEventRoles = [];
+      var searchEventRoleChanged = function(evt) {
+        var $type = $(this).parent().next().children('select');
+        var type = $type.val();
+        $type.empty();
+        var role = $(this).val();
+        var origin = $('#search_form_event_type').val();
+        var eventType = spanTypes[origin];
+        var arcType = eventType && eventType.arcs && eventType.arcs[role];
+        var targets = arcType && arcType.targets || [];
+        $.each(targets, function(targetNo, target) {
+          var spanType = spanTypes[target];
+          var spanName = spanType.name || spanType.labels[0] || target;
+          var option = '<option value="' + Util.escapeQuotes(target) + '">' + Util.escapeHTML(spanName) + '</option>'
+          $type.append(option);
+        });
+        // return the type to the same value, if possible
+        $type.val(type);
+      };
+      $('#search_form_event_roles .search_event_role select').
+        live('change', searchEventRoleChanged);
+      // adding new role rows
+      var addEmptySearchEventRole = function() {
+        var $roles = $('#search_form_event_roles');
+        var rowNo = $roles.children().length;
+        var $role = $('<select class="fullwidth"/>');
+        $.each(searchEventRoles, function(arcTypePairNo, arcTypePair) {
+          var option = '<option value="' + Util.escapeQuotes(arcTypePair[0]) + '">' + Util.escapeHTML(arcTypePair[1]) + '</option>'
+          $role.append(option);
+        });
+        var $type = $('<select class="fullwidth"/>');
+        var $text = $('<input class="fullwidth"/>');
+        var button = $('<input type="button"/>');
+        var rowButton = $('<td/>').append(button);
+        if (rowNo) {
+          rowButton.addClass('search_event_role_del');
+          button.val('\u2013'); // n-dash
+        } else {
+          rowButton.addClass('search_event_role_add');
+          button.val('+');
+        }
+        var $tr = $('<tr/>').
+          append($('<td class="search_event_role"/>').append($role)).
+          append($('<td class="search_event_type"/>').append($type)).
+          append($('<td class="search_event_text"/>').append($text)).
+          append(rowButton);
+        $roles.append($tr);
+        $role.trigger('change');
+      };
+      // deleting role rows
+      var delSearchEventRole = function(evt) {
+        $row = $(this).closest('tr');
+        $row.remove();
+      }
+      $('#search_form_event_roles .search_event_role_add input').
+        live('click', addEmptySearchEventRole);
+      $('#search_form_event_roles .search_event_role_del input').
+        live('click', delSearchEventRole);
+
+      // When event type changes, the event roles do as well
+      // Also, put in one empty role row
+      $('#search_form_event_type').change(function(evt) {
+        var $roles = $('#search_form_event_roles').empty();
+        searchEventRoles = [];
+        var eventType = spanTypes[$(this).val()];
+        var arcTypes = eventType && eventType.arcs || [];
+        $.each(arcTypes, function(arcTypeType, arcType) {
+          var arcTypeName = arcType.labels && arcType.labels[0] || arcTypeType;
+          searchEventRoles.push([arcTypeType, arcTypeName]);
+        });
+        addEmptySearchEventRole();
+      });
+      // when relation changes, change choices of arg1 type
+      $('#search_form_relation_type').change(function(evt) {
+        var relTypeType = $(this).val();
+        var $arg1 = $('#search_form_relation_arg1_type').empty();
+        var $arg2 = $('#search_form_relation_arg2_type').empty();
+        $.each(spanTypes, function(spanTypeType, spanType) {
+          if (spanType.arcs) {
+            $.each(spanType.arcs, function(arcTypeType, arcType) {
+              if (arcTypeType === relTypeType) {
+                var spanName = spanType.name;
+                var option = '<option value="' + Util.escapeQuotes(spanTypeType) + '">' + Util.escapeHTML(spanName) + '</option>'
+                $arg1.append(option);
+              }
+            });
+          }
+        });
+        $('#search_form_relation_arg1_type').change();
+      });
+      // when arg1 type changes, change choices of arg2 type
+      $('#search_form_relation_arg1_type').change(function(evt) {
+        var $arg2 = $('#search_form_relation_arg2_type').empty();
+        var relType = $('#search_form_relation_type').val();
+        var arg1Type = spanTypes[$(this).val()];
+        var arcType = arg1Type && arg1Type.arcs && arg1Type.arcs[relType];
+        if (arcType && arcType.targets) {
+          $.each(arcType.targets, function(spanTypeNo, spanTypeType) {
+            var spanName = Util.spanDisplayForm(spanTypes, spanTypeType);
+            var option = '<option value="' + Util.escapeQuotes(spanTypeType) + '">' + Util.escapeHTML(spanName) + '</option>'
+            $arg2.append(option);
+          });
+        }
+      });
+      $('#search_tabs').tabs();
+      var searchForm = $('#search_form');
+      var searchFormSubmit = function(evt) {
+        // activeTab: 0 = Entity, 1 = Event, 2 = Relation
+        var activeTab = $('#search_tabs').tabs('option', 'selected');
+        dispatcher.post('hideForm', [searchForm]);
+        var tabName = ['entity', 'event', 'relation'][activeTab];
+        var opts = {
+          action : 'searchCollection',
+          directory : dir,
+          // TODO the search form got complex :)
+        };
+        dispatcher.post('ajax', [opts, function(response) {
+          dispatcher.post('showSearchResults', response.results); // TODO
+          searchActive = true;
+          updateSearchButton();
+        }]);
+        return false;
+      };
+      searchForm.submit(searchFormSubmit);
+      dispatcher.post('initForm', [searchForm, {
+          width: 500,
+          alsoResize: '#search_tabs',
+          open: function(evt) {
+            keymap = {};
+          },
+          buttons: [{
+            id: 'search_form_clear',
+            text: "Clear",
+            click: function(evt) {
+              searchActive = false;
+              updateSearchButton();
+              // TODO get the directory again
+              dispatcher.post('hideForm', [searchForm]);
+            },
+          }],
+        }]);
+      $('#search_button').click(function(evt) {
+        this.checked = searchActive;
+        updateSearchButton();
+        $('#search_form_event_type').change();
+        $('#search_form_relation_type').change();
+        dispatcher.post('showForm', [searchForm]);
+      });
+
+      var updateSearchButton = function() {
+        $searchButton = $('#search_button');
+        $searchButton[0].checked = searchActive;
+        $searchButton.button('refresh');
+      }
+
+
       var preventDefault = function(evt) {
         evt.preventDefault();
-      };
-
-//       searchForm.submit(searchFormSubmit);
-//       dispatcher.post('initForm', [searchForm, {
-//           width: 500,
-//           alsoResize: '#search_text',
-//           open: function(evt) {
-//             keymap = {};
-//           },
-//         }]);
-//       $('#search_button').click(function() {
-//         dispatcher.post('showForm', [searchForm]);
-//       });
+      }
 
       var waiter = $('#waiter');
       waiter.dialog({
