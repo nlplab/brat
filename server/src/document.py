@@ -68,40 +68,43 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
             except KeyError:
                 pass
 
-            arcs = {}
+            arcs = []
             # Note: for client, relations are represented as "arcs"
             # attached to "spans" corresponding to entity annotations.
             for arc in chain(project_conf.relation_types_from(_type), node.arguments.keys()):
+                curr_arc = {}
+                curr_arc['type'] = arc
+
                 arc_labels = get_labels_by_storage_form(directory, arc)
-
                 if arc_labels is not None:
-                    arcs[arc] = {}
-                    arcs[arc]['labels'] = arc_labels if arc_labels is not None else [arc]
+                    curr_arc['labels'] = arc_labels if arc_labels is not None else [arc]
 
-                    try:
-                        arcs[arc]['hotkey'] = hotkey_by_type[arc]
-                    except KeyError:
-                        pass
+                try:
+                    curr_arc['hotkey'] = hotkey_by_type[arc]
+                except KeyError:
+                    pass
+                
+                # TODO: avoid magic values
+                arc_drawing_conf = project_conf.get_drawing_config_by_type(arc)
+                if arc_drawing_conf is None:
+                    arc_drawing_conf = project_conf.get_drawing_config_by_type("ARC_DEFAULT")
+                if arc_drawing_conf is None:
+                    arc_drawing_conf = {}
+                for k in ('color', 'dashArray'):
+                    if k in arc_drawing_conf:
+                        curr_arc[k] = arc_drawing_conf[k]                    
 
-                    # TODO: avoid magic values
-                    arc_drawing_conf = project_conf.get_drawing_config_by_type(arc)
-                    if arc_drawing_conf is None:
-                        arc_drawing_conf = project_conf.get_drawing_config_by_type("ARC_DEFAULT")
-                    if arc_drawing_conf is None:
-                        arc_drawing_conf = {}
-                    for k in ('color', 'dashArray'):
-                        if k in arc_drawing_conf:
-                            arcs[arc][k] = arc_drawing_conf[k]                    
+                # Client needs also possible arc 'targets',
+                # defined as the set of types (entity or event) that
+                # the arc can connect to
+                targets = []
+                # TODO: should include this functionality in projectconf
+                for ttype in project_conf.get_entity_types() + project_conf.get_event_types():
+                    if arc in project_conf.arc_types_from_to(_type, ttype):
+                        targets.append(ttype)
+                curr_arc['targets'] = targets
 
-                    # Client needs also possible arc 'targets',
-                    # defined as the set of types (entity or event) that
-                    # the arc can connect to
-                    targets = []
-                    # TODO: should include this functionality in projectconf
-                    for ttype in project_conf.get_entity_types() + project_conf.get_event_types():
-                        if arc in project_conf.arc_types_from_to(_type, ttype):
-                            targets.append(ttype)
-                    arcs['targets'] = targets
+                arcs.append(curr_arc)
                     
             # If we found any arcs, attach them
             if arcs:
