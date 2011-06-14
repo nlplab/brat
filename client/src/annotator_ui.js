@@ -254,8 +254,9 @@ var AnnotatorUI = (function($, window, undefined) {
           var $scroller = $('#arc_roles .scroller').empty();
 
           // lay them out into the form
-          $.each(arcTypes, function(arcTypeName, arcDesc) {
+          $.each(arcTypes, function(arcTypeNo, arcDesc) {
             if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
+              var arcTypeName = arcDesc.type;
               var displayName = arcDesc.labels[0] || arcTypeName;
               if (arcDesc.hotkey) {
                 keymap[arcDesc.hotkey] = '#arc_' + arcTypeName;
@@ -848,7 +849,14 @@ var AnnotatorUI = (function($, window, undefined) {
         var role = $(this).val();
         var origin = $('#search_form_event_type').val();
         var eventType = spanTypes[origin];
-        var arcType = eventType && eventType.arcs && eventType.arcs[role];
+        var arcTypes = eventType && eventType.arcs || [];
+        var arcType = null;
+        $.each(arcTypes, function(arcNo, arcDesc) {
+          if (arcDesc.type == role) {
+            arcType = arcDesc;
+            return false;
+          }
+        });
         var targets = arcType && arcType.targets || [];
         $.each(targets, function(targetNo, target) {
           var spanType = spanTypes[target];
@@ -906,9 +914,9 @@ var AnnotatorUI = (function($, window, undefined) {
         searchEventRoles = [];
         var eventType = spanTypes[$(this).val()];
         var arcTypes = eventType && eventType.arcs || [];
-        $.each(arcTypes, function(arcTypeType, arcType) {
-          var arcTypeName = arcType.labels && arcType.labels[0] || arcTypeType;
-          searchEventRoles.push([arcTypeType, arcTypeName]);
+        $.each(arcTypes, function(arcTypeNo, arcType) {
+          var arcTypeName = arcType.labels && arcType.labels[0] || arcType.type;
+          searchEventRoles.push([arcType.type, arcTypeName]);
         });
         addEmptySearchEventRole();
       });
@@ -919,8 +927,8 @@ var AnnotatorUI = (function($, window, undefined) {
         var $arg2 = $('#search_form_relation_arg2_type').empty();
         $.each(spanTypes, function(spanTypeType, spanType) {
           if (spanType.arcs) {
-            $.each(spanType.arcs, function(arcTypeType, arcType) {
-              if (arcTypeType === relTypeType) {
+            $.each(spanType.arcs, function(arcTypeNo, arcType) {
+              if (arcType.type === relTypeType) {
                 var spanName = spanType.name;
                 var option = '<option value="' + Util.escapeQuotes(spanTypeType) + '">' + Util.escapeHTML(spanName) + '</option>'
                 $arg1.append(option);
@@ -935,7 +943,14 @@ var AnnotatorUI = (function($, window, undefined) {
         var $arg2 = $('#search_form_relation_arg2_type').empty();
         var relType = $('#search_form_relation_type').val();
         var arg1Type = spanTypes[$(this).val()];
-        var arcType = arg1Type && arg1Type.arcs && arg1Type.arcs[relType];
+        var arcTypes = arg1Type && arg1Type.arcs;
+        var arctype = null;
+        $.each(arcTypes, function(arcNo, arcDesc) {
+          if (arcDesc.type == relType) {
+            arcType = arcDesc;
+            return false;
+          }
+        });
         if (arcType && arcType.targets) {
           $.each(arcType.targets, function(spanTypeNo, spanTypeType) {
             var spanName = Util.spanDisplayForm(spanTypes, spanTypeType);
