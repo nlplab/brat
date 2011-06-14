@@ -829,11 +829,16 @@ Util.profileStart('measures');
 
         var sizes = getTextAndSpanTextMeasurements();
         data.sizes = sizes;
+
         adjustTowerAnnotationSizes();
         var maxTextWidth = 0;
         $.each(sizes.texts.widths, function(text, width) {
           if (width > maxTextWidth) maxTextWidth = width;
         });
+
+        var width = maxTextWidth + sentNumMargin + 2 * margin.x + 1;
+        if (width > canvasWidth) canvasWidth = width;
+        $svg.width(canvasWidth);
 
 Util.profileEnd('measures');
 Util.profileStart('chunks');
@@ -1536,14 +1541,6 @@ Util.profileStart('finish');
         // resize the SVG
         $svg.height(y);
         $svgDiv.height(y);
-        // XXX HACK for now to allow us to see wide spans (#204)
-        // looks awful, should be better with pre-measured spans
-        // (coming in the newvis branch)
-        // since now everything except the too-wide spans stops at the
-        // canvasWidth boundary
-        var width = maxTextWidth + sentNumMargin + 2 * margin.x + 1;
-        if (width > canvasWidth) canvasWidth = width;
-        $svg.width(canvasWidth);
 
 Util.profileEnd('finish');
 Util.profileEnd('render');
