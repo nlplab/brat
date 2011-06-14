@@ -41,7 +41,8 @@ var Visualizer = (function($, window, undefined) {
       this.hasAnnotations = 0;
     };
 
-    var Visualizer = function(dispatcher, $svgDiv) {
+    var Visualizer = function(dispatcher, svgId) {
+      var $svgDiv = $('#' + svgId);
       var that = this;
 
       // OPTIONS

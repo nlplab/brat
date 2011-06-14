@@ -25,7 +25,6 @@
           'client/src/ajax.js',
           'client/src/visualizer.js',
           'client/src/visualizer_ui.js',
-          'client/src/annotator.js',
           'client/src/annotator_ui.js',
           'client/src/spinner.js'
       );
@@ -33,11 +32,10 @@
           var dispatcher = new Dispatcher();
           var urlMonitor = new URLMonitor(dispatcher);
           var ajax = new Ajax(dispatcher);
-          var visualizer = new Visualizer(dispatcher, '#svg');
+          var visualizer = new Visualizer(dispatcher, 'svg');
           var svg = visualizer.svg;
-          var visualizerUI = new VisualizerUI(dispatcher, '#svg');
-          var annotator = new Annotator(dispatcher, '#svg');
-          var annotatorUI = new AnnotatorUI(dispatcher, svg);
+          var visualizerUI = new VisualizerUI(dispatcher, 'svg');
+          var annotatorUI = new AnnotatorUI(dispatcher, 'svg');
           var spinner = new Spinner(dispatcher, '#spinner');
           Util.profileEnable();
           dispatcher.post('init');
