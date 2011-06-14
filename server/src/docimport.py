@@ -79,6 +79,11 @@ def save_import(title, text, docid, directory=None):
         if isfile(path):
             raise FileExistsError(path)
 
+    # Make sure we have a valid POSIX text file, i.e. that the
+    # file ends in a newline.
+    if text != "" and text[-1] != '\n':
+        text = text + '\n'
+
     with open(txt_path, 'w') as txt_file:
         txt_file.write(title + '\n' + text)
 
