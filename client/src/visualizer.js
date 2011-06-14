@@ -1503,11 +1503,11 @@ Util.profileStart('chunkFinish');
 
                 // Tweak for nesting depth/height. Recognize just three
                 // levels for now: normal, nested, and nesting, where
-                // nested+nesting yields normal. (Possible tweak to
-                // try out: don't shrink for depth 1 as the nesting 
+                // nested+nesting yields normal. (Currently testing
+                // minor tweak: don't shrink for depth 1 as the nesting 
                 // highlight will grow anyway [check nestingDepth > 1])
                 var shrink = 0;
-                if(span.nestingDepth > 0 && span.nestingHeight == 0) {
+                if(span.nestingDepth > 1 && span.nestingHeight == 0) {
                     shrink = 1;
                 } else if(span.nestingDepth == 0 && span.nestingHeight > 0) {
                     shrink = -1;
