@@ -950,12 +950,40 @@ var AnnotatorUI = (function($, window, undefined) {
         // activeTab: 0 = Entity, 1 = Event, 2 = Relation
         var activeTab = $('#search_tabs').tabs('option', 'selected');
         dispatcher.post('hideForm', [searchForm]);
-        var tabName = ['entity', 'event', 'relation'][activeTab];
+        var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
         var opts = {
-          action : 'searchCollection',
+          action : action,
           directory : dir,
           // TODO the search form got complex :)
         };
+        switch (action) {
+          case 'searchText':
+            opts.text = $('#search_form_text_text').val();
+            break;
+          case 'searchEntity':
+            opts.type = $('#search_form_entity_type').val();
+            opts.text = $('#search_form_entity_text').val();
+            break;
+          case 'searchEvent':
+            opts.type = $('#search_form_event_type').val();
+            opts.trigger = $('#search_form_event_trigger').val();
+            var roles = [];
+            $('#search_form_event_roles tr').each(function() {
+              var role = {};
+              role.role = $(this).find('.search_event_role select').val();
+              role.type = $(this).find('.search_event_type select').val();
+              role.text = $(this).find('.search_event_text input').val();
+              roles.push(role);
+            });
+            opts.roles = $.toJSON(roles);
+            break;
+          case 'searchRelation':
+            opts.type = $('#search_form_relation_type').val();
+            opts.arg1 = $('#search_form_relation_arg1_type').val();
+            opts.arg2 = $('#search_form_relation_arg2_type').val();
+            break;
+        }
+        console.log(opts);
         dispatcher.post('ajax', [opts, function(response) {
           dispatcher.post('showSearchResults', response.results); // TODO
           searchActive = true;
