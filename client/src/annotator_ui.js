@@ -255,16 +255,18 @@ var AnnotatorUI = (function($, window, undefined) {
 
           // lay them out into the form
           $.each(arcTypes, function(arcTypeName, arcDesc) {
-            var displayName = arcDesc.labels[0] || arcTypeName;
-            if (arcDesc.hotkey) {
-              keymap[arcDesc.hotkeys] = '#arc_' + arcTypeName;
-            }
-            var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
-            var $label = $('<label for="arc_' + arcTypeName + '"/>').text(displayName);
-            var $div = $('<div/>').append($checkbox).append($label);
-            $scroller.append($div);
+            if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
+              var displayName = arcDesc.labels[0] || arcTypeName;
+              if (arcDesc.hotkey) {
+                keymap[arcDesc.hotkeys] = '#arc_' + arcTypeName;
+              }
+              var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
+              var $label = $('<label for="arc_' + arcTypeName + '"/>').text(displayName);
+              var $div = $('<div/>').append($checkbox).append($label);
+              $scroller.append($div);
 
-            noArcs = false;
+              noArcs = false;
+            }
           });
         }
 
