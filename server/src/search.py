@@ -257,11 +257,14 @@ def format_results(matches):
         response['items'].append([True, { 'edited' : [ann.id] }, fn, ann.id, ann.type])
     return response
 
-def search_collection(directory, type, text):
-    # TODO: this function is much too restricted in what it can do.
-    # Despite the name, it can currently only search textbound
-    # entitities. Extend its capabilities.
+### per-directory interface functions (brat) ###
 
+def search_text(directory, text):
+    # TODO: not implemented yet
+    Messager.warning('Text search not implemented yet, sorry!')
+    return format_results(SearchMatchSet('empty'))
+
+def search_entity(directory, type, text):
     ann_objs = __directory_to_annotations(directory)
 
     restrict_types = []
@@ -271,6 +274,18 @@ def search_collection(directory, type, text):
     matches = search_textbound(ann_objs, text, restrict_types=restrict_types)
         
     return format_results(matches)
+
+def search_event(directory, type, trigger):
+    # TODO: not implemented yet
+    Messager.warning('Event search not implemented yet, sorry!')
+    return format_results(SearchMatchSet('empty'))
+
+def search_relation(directory, type, arg1, arg2):
+    # TODO: not implemented yet
+    Messager.warning('Relation search not implemented yet, sorry!')
+    return format_results(SearchMatchSet('empty'))
+
+### filename list interface functions (e.g. command line) ###
 
 def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[]):
     """

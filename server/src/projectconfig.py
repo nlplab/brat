@@ -443,7 +443,8 @@ def get_labels(directory):
         for t in get_visual_configs(directory)[LABEL_SECTION]:
             if t.storage_form() in l:
                 Messager.warning("In configuration, labels for '%s' defined more than once. Only using the last set." % t.storage_form(), -1)
-            l[t.storage_form()] = t.terms
+            # first is storage for, rest are labels.
+            l[t.storage_form()] = t.terms[1:]
         cache[directory] = l
     return cache[directory]
 get_labels.__cache = {}
