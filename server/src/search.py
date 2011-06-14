@@ -12,6 +12,9 @@ import annotation
 
 from message import Messager
 
+# TODO: nested_types restriction not consistently enforced in
+# searches.
+
 class SearchMatchSet(object):
     """
     Represents a set of matches to a search. Each match is represented
@@ -103,6 +106,7 @@ def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[]):
     # treat None and empty list uniformly
     restrict_types = [] if restrict_types is None else restrict_types
     ignore_types   = [] if ignore_types is None else ignore_types
+    nested_types   = [] if nested_types is None else nested_types
 
     matches = SearchMatchSet("Text marked with different types")
 
@@ -142,7 +146,7 @@ def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[]):
 
     return matches
 
-def check_consistency(ann_objs, restrict_types=[], ignore_types=[]):
+def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for inconsistent annotations in given Annotations
     objects.  Returns a list of SearchMatchSet objects, one for each
@@ -151,23 +155,29 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[]):
 
     match_sets = []
 
-    m = eq_text_neq_type_spans(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types)
+    m = eq_text_neq_type_spans(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
     if len(m) != 0:
         match_sets.append(m)
 
     return match_sets
 
-def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[]):
+def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for the given text in the Textbound annotations in the
     given Annotations objects.  Returns a SearchMatchSet object.
     """
 
-    matches = SearchMatchSet("Textbound matching '%s'" % text)
-
     # treat None and empty list uniformly
     restrict_types = [] if restrict_types is None else restrict_types
     ignore_types   = [] if ignore_types is None else ignore_types
+    nested_types   = [] if nested_types is None else nested_types
+
+    description = "Textbound containing text '%s'" % text
+    if restrict_types != []:
+        description = description + ' (of type %s)' % (",".join(restrict_types))
+    if restrict_types != []:
+        description = description + ' (nesting annotation of type %s)' % (",".join(nested_types))
+    matches = SearchMatchSet(description)
     
     for ann_obj in ann_objs:
         for t in ann_obj.get_textbounds():
@@ -176,12 +186,19 @@ def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[]):
             if restrict_types != [] and t.type not in restrict_types:
                 continue
             # TODO: make options for "text included" vs. "text matches"
-            if text in t.text:
-                matches.add_match(ann_obj, t)
+            # TODO: remove temporary hack giving special status to "*"
+            if text != None and text != "" and text != "*" and text not in t.text:
+                continue
+            if nested_types != []:
+                # TODO: massively inefficient
+                nested = [x for x in ann_obj.get_textbounds() if x != t and x.start >= t.start and x.end <= t.end]
+                if len([x for x in nested if x.type in nested_types]) == 0:
+                    continue
+            matches.add_match(ann_obj, t)
 
     return matches
 
-def search_text(ann_objs, text, restrict_types=[], ignore_types=[]):
+def search_text(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for the given text in the document texts of the given
     Annotations objects.  Returns a SearchMatchSet object.
@@ -190,12 +207,13 @@ def search_text(ann_objs, text, restrict_types=[], ignore_types=[]):
     # treat None and empty list uniformly
     restrict_types = [] if restrict_types is None else restrict_types
     ignore_types   = [] if ignore_types is None else ignore_types
+    nested_types   = [] if nested_types is None else nested_types
 
     description = "Text matching '%s'" % text
     if restrict_types != []:
         description = description + ' (embedded in %s)' % (",".join(restrict_types))
     if ignore_types != []:
-        description = description + ' (not embedded in %s)' % ",".join(ignore_types)
+        description = description + ' (not embedded in %s)' % ",".join(ignore_types)    
     matches = SearchMatchSet(description)
 
     for ann_obj in ann_objs:
@@ -287,27 +305,27 @@ def search_relation(directory, type, arg1, arg2):
 
 ### filename list interface functions (e.g. command line) ###
 
-def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[]):
+def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for the given text in the given set of files.
     """
     anns = __filenames_to_annotations(filenames)
-    return search_text(anns, text, restrict_types=restrict_types, ignore_types=ignore_types)
+    return search_text(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
-def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=[]):
+def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for the given text in textbound annotations in the given
     set of files.
     """
     anns = __filenames_to_annotations(filenames)
-    return search_textbound(anns, text, restrict_types=restrict_types, ignore_types=ignore_types)
+    return search_textbound(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
-def check_files_consistency(filenames, restrict_types=[], ignore_types=[]):
+def check_files_consistency(filenames, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for inconsistent annotations in the given set of files.
     """
     anns = __filenames_to_annotations(filenames)
-    return check_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types)
+    return check_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
 def argparser():
     import argparse
@@ -315,10 +333,11 @@ def argparser():
     ap=argparse.ArgumentParser(description="Search BioNLP Shared Task annotations.")
     ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
     ap.add_argument("-c", "--consistency", default=False, action="store_true", help="Search for inconsistent annotations.")
-    ap.add_argument("-r", "--restrict", metavar="TYPE", nargs="+", help="Restrict to given types.")
-    ap.add_argument("-i", "--ignore", metavar="TYPE", nargs="+", help="Ignore given types.")
     ap.add_argument("-t", "--text", metavar="TEXT", help="Search for matching text.")
     ap.add_argument("-b", "--textbound", metavar="TEXT", help="Search for textbound matching text.")
+    ap.add_argument("-r", "--restrict", metavar="TYPE", nargs="+", help="Restrict to given types.")
+    ap.add_argument("-i", "--ignore", metavar="TYPE", nargs="+", help="Ignore given types.")
+    ap.add_argument("-n", "--nested", metavar="TYPE", nargs="+", help="Require type to be nested.")
     ap.add_argument("files", metavar="FILE", nargs="+", help="Files to verify.")
     return ap
 
@@ -331,18 +350,21 @@ def main(argv=None):
     arg = argparser().parse_args(argv[1:])
 
     # TODO: allow multiple searches
-    if arg.text:
-        matches = [search_files_for_text(arg.files, arg.text,
-                                         restrict_types=arg.restrict,
-                                         ignore_types=arg.ignore)]
-    elif arg.textbound:
+    if arg.textbound is not None:
         matches = [search_files_for_textbound(arg.files, arg.textbound,
                                               restrict_types=arg.restrict,
-                                              ignore_types=arg.ignore)]
-    elif arg.consistency:
+                                              ignore_types=arg.ignore,
+                                              nested_types=arg.nested)]
+    elif arg.text is not None:
+        matches = [search_files_for_text(arg.files, arg.text,
+                                         restrict_types=arg.restrict,
+                                         ignore_types=arg.ignore,
+                                         nested_types=arg.nested)]
+    elif arg.consistency is not None:
         matches = check_files_consistency(arg.files,
                                           restrict_types=arg.restrict,
-                                          ignore_types=arg.ignore)
+                                          ignore_types=arg.ignore,
+                                          nested_types=arg.nested)
     else:
         print >> sys.stderr, "Please specify action (-h for help)"
         return 1
