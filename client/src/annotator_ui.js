@@ -962,7 +962,7 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#search_tabs').tabs();
       var searchForm = $('#search_form');
       var searchFormSubmit = function(evt) {
-        // activeTab: 0 = Entity, 1 = Event, 2 = Relation
+        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
         var activeTab = $('#search_tabs').tabs('option', 'selected');
         dispatcher.post('hideForm', [searchForm]);
         var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
@@ -998,9 +998,8 @@ var AnnotatorUI = (function($, window, undefined) {
             opts.arg2 = $('#search_form_relation_arg2_type').val();
             break;
         }
-        console.log(opts);
         dispatcher.post('ajax', [opts, function(response) {
-          dispatcher.post('showSearchResults', response.results); // TODO
+          dispatcher.post('searchResultsReceived', [response]); // TODO
           searchActive = true;
           updateSearchButton();
         }]);

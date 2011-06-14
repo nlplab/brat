@@ -8,7 +8,8 @@ var VisualizerUI = (function($, window, undefined) {
       var messageDefaultFadeDelay = 3000;
       var defaultFloatFormat = '%.1f/right';
 
-      var filesData = null;
+      var dirData = null; // always directory content
+      var filesData = null; // can be search results when available
       var currentForm;
       var spanTypes = null;
       var attributeTypes = null;
@@ -461,7 +462,20 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('setDirectory', ['/']);
         } else {
           filesData = response;
+          dirData = response; // 'backup'
           filesData.docs.sort(docSortFunction);
+        }
+      };
+
+      var searchResultsReceived = function(response) {
+        if (response.exception) {
+            ; // TODO: reasonable reaction
+        } else {
+          filesData = response;
+           // TODO: backup file browser sort order during search
+          sortOrder = [1, 1]; // reset
+          filesData.docs.sort(docSortFunction);
+          showFileBrowser();
         }
       };
 
@@ -660,8 +674,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('unknownError', showUnknownError).
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
-          on('resize', onResize);
-
+          on('resize', onResize).
+          on('searchResultsReceived', searchResultsReceived);
     };
 
     return VisualizerUI;

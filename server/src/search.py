@@ -263,16 +263,23 @@ def format_results(matches):
 
     response = {}
 
+    # TODO: rename 'docs' and 'dochead' something like
+    # 'items' and 'itemhead'
+
     # header for search result browser
-    response['itemhead'] = ['Document', 'Annotation', 'Type']
+    response['dochead'] = [('Document', 'string'), 
+                           ('Annotation', 'string'), 
+                           ('Type', 'string')]
     
-    response['items'] = []
+    response['docs'] = []
     for ann_obj, ann in matches.get_matches():
-        # NOTE: first "True" is to match format with directory listing,
-        # second entry is non-listed "pointer" to annotation
-#         reld = relative_directory(ann_obj.get_document())
+        # NOTE: first "False" is to match format with directory
+        # listing (where the flag marks "is a directory"), second entry
+        # is non-listed "pointer" to annotation reld =
+        # relative_directory(ann_obj.get_document())
         fn = basename(ann_obj.get_document())
-        response['items'].append([True, { 'edited' : [ann.id] }, fn, ann.id, ann.type])
+        response['docs'].append([False, fn, ann.id, ann.type])
+        #response['items'].append([True, { 'edited' : [ann.id] }, fn, ann.id, ann.type])
     return response
 
 ### per-directory interface functions (brat) ###
@@ -291,7 +298,10 @@ def search_entity(directory, type, text):
 
     matches = search_textbound(ann_objs, text, restrict_types=restrict_types)
         
-    return format_results(matches)
+    results = format_results(matches)
+    results['directory'] = directory # required by protocol
+    
+    return results
 
 def search_event(directory, type, trigger):
     # TODO: not implemented yet
