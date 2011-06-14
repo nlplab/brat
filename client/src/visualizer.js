@@ -890,7 +890,7 @@ Util.profileStart('chunks');
             // XXX is it maybe sizes.texts?
             var yy = y + sizes.spans.y;
             var hh = sizes.spans.height;
-            var ww = sizes.spans.widths[span.glyphedLabelText];
+            var ww = span.width;
             var xx = x - ww / 2;
 
             // text margin fine-tuning

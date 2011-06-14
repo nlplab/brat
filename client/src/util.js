@@ -72,7 +72,7 @@ var Util = (function(window, undefined) {
 
     var getArcLabels = function(spanTypes, spanType, arcType) {
       var type = spanTypes[spanType];
-      var arcTypes = type && type.arcs;
+      var arcTypes = type && type.arcs || [];
       var arcDesc = null;
       $.each(arcTypes, function(arcno, arcDescI) {
         if (arcDescI.type == arcType) {
