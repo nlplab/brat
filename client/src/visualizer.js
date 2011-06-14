@@ -946,7 +946,6 @@ Util.profileStart('chunks');
                 'data-span-id': span.id,
                 'strokeDashArray': span.attributeMerge.dasharray,
               });
-            span.rectBox = { x: bx, y: by, width: bw, height: bh };
             if (!(span.shadowClass || span.edited)) {
               chunkFrom = Math.min(bx, chunkFrom);
               chunkTo = Math.max(bx + bw, chunkTo);
@@ -954,6 +953,7 @@ Util.profileStart('chunks');
             }
 
             var yAdjust = placeReservation(span, bx, bw, bh, reservations);
+            span.rectBox = { x: bx, y: by - yAdjust, width: bw, height: bh };
             // this is monotonous due to sort:
             span.height = yAdjust + hh + 3 * margin.y + curlyHeight + arcSpacing;
             spanHeights[span.lineIndex * 2] = span.height;
