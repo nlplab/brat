@@ -69,6 +69,10 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                 pass
 
             arcs = []
+            # TODO: this whole bit makes very little sense for relations,
+            # which are already "arcs" in the UI sense. This bit of the
+            # protocol should be cleaned up. See issue #237.
+
             # Note: for client, relations are represented as "arcs"
             # attached to "spans" corresponding to entity annotations.
             for arc in chain(project_conf.relation_types_from(_type), node.arguments.keys()):
@@ -76,8 +80,7 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                 curr_arc['type'] = arc
 
                 arc_labels = get_labels_by_storage_form(directory, arc)
-                if arc_labels is not None:
-                    curr_arc['labels'] = arc_labels if arc_labels is not None else [arc]
+                curr_arc['labels'] = arc_labels if arc_labels is not None else [arc]
 
                 try:
                     curr_arc['hotkey'] = hotkey_by_type[arc]
@@ -97,11 +100,17 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                 # Client needs also possible arc 'targets',
                 # defined as the set of types (entity or event) that
                 # the arc can connect to
-                targets = []
-                # TODO: should include this functionality in projectconf
-                for ttype in project_conf.get_entity_types() + project_conf.get_event_types():
-                    if arc in project_conf.arc_types_from_to(_type, ttype):
-                        targets.append(ttype)
+
+                # This bit doesn't make sense for relations, which are
+                # already "arcs" (see comment above). TODO cleanup.
+                if project_conf.is_relation_type(_type):
+                    targets = []
+                else:
+                    targets = []
+                    # TODO: should include this functionality in projectconf
+                    for ttype in project_conf.get_entity_types() + project_conf.get_event_types():
+                        if arc in project_conf.arc_types_from_to(_type, ttype):
+                            targets.append(ttype)
                 curr_arc['targets'] = targets
 
                 arcs.append(curr_arc)
