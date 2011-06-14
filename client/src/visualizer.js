@@ -51,6 +51,7 @@ var Visualizer = (function($, window, undefined) {
       var highlightRounding = { x: 3, y:3 }; // rx, ry for highlight boxes
       var spaceWidths = {
         ' ': 5,
+        '\u00a0': 5,
         '\u200b': 0,
         '\u3000': 10,
         '\n': 5
