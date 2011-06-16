@@ -1215,11 +1215,13 @@ Util.profileStart('arcs');
           // TODO: might make more sense to reformat this as dict instead
           // of searching through the list every type
           var arcDesc;
-          $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
-                  if (arcDescIter.type == arc.type) {
-                      arcDesc = arcDescIter;
-                  }
-              });
+          if (spanDesc) {
+              $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
+                      if (arcDescIter.type == arc.type) {
+                          arcDesc = arcDescIter;
+                      }
+                  });            
+          }
           var color = arcDesc && arcDesc.color || '#000000';
           var dashArray = arcDesc && arcDesc.dashArray;
 
