@@ -1215,7 +1215,7 @@ Util.profileStart('arcs');
           // TODO: might make more sense to reformat this as dict instead
           // of searching through the list every type
           var arcDesc;
-          if (spanDesc) {
+          if (spanDesc && spanDesc.arcs) {
               $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
                       if (arcDescIter.type == arc.type) {
                           arcDesc = arcDescIter;
