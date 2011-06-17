@@ -88,6 +88,15 @@ var Util = (function(window, undefined) {
       return labels[0] || arcType;
     }
 
+    // TODO: there should be a better way to do this (some lib?)
+    var objectToUrlStr = function(o) {
+      a = [];
+      $.each(o, function(key,value) {
+        a.push(key+"="+encodeURIComponent(value));
+      });
+      return a.join("&");
+    }
+
     // color name RGB list, converted from
     // http://www.w3schools.com/html/html_colornames.asp
     // with perl as
@@ -394,6 +403,7 @@ var Util = (function(window, undefined) {
       rgbToHsl: rgbToHsl,
       hslToRgb: hslToRgb,
       lightenColor: lightenColor,
+      objectToUrlStr: objectToUrlStr,
     };
 
 })(window);

@@ -273,13 +273,11 @@ def format_results(matches):
     
     response['docs'] = []
     for ann_obj, ann in matches.get_matches():
-        # NOTE: first "False" is to match format with directory
-        # listing (where the flag marks "is a directory"), second entry
-        # is non-listed "pointer" to annotation reld =
-        # relative_directory(ann_obj.get_document())
+        # First value ("a") signals that the item points to a specific
+        # annotation, not a collection (directory) or document.
+        # second entry is non-listed "pointer" to annotation
         fn = basename(ann_obj.get_document())
-        response['docs'].append([False, fn, ann.id, ann.type])
-        #response['items'].append([True, { 'edited' : [ann.id] }, fn, ann.id, ann.type])
+        response['docs'].append(["a", { 'focus' : ann.id }, fn, ann.id, ann.type])
     return response
 
 ### per-directory interface functions (brat) ###

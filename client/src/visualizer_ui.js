@@ -338,15 +338,20 @@ var VisualizerUI = (function($, window, undefined) {
         filesData.docs.sort(docSortFunction);
         $.each(filesData.docs, function(docNo, doc) {
           var isDir = doc[0] == "c"; // "collection"
-          var name = doc[1];
+          // second column is optional annotation-specific pointer,
+          // used (at least) for search results
+          if (doc[1]) { console.log(Util.objectToUrlStr(doc[1])); }
+          var annp = doc[1] ? ('?' + Util.objectToUrlStr(doc[1])) : '';
+          var name = doc[2];
           var dirFile = isDir ? 'dir' : 'file';
           var dirSuffix = isDir ? '/' : '';
           html.push('<tr class="' + dirFile + '" data-value="'
-              + name + dirSuffix + '"><th>' + name + dirSuffix + '</th>');
+                    + name + dirSuffix + annp + '"><th>'
+                    + name + dirSuffix + '</th>');
           var len = filesData.dochead.length - 1;
           for (var i = 0; i < len; i++) {
             var type = filesData.dochead[i + 1][1];
-            var datum = doc[i + 2];
+            var datum = doc[i + 3];
             // format rest according to "data type" specified in header
             var formatted = null;
             var cssClass = null;

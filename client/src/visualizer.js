@@ -373,7 +373,16 @@ var Visualizer = (function($, window, undefined) {
           }); // roles
         }); // eventDescs
 
-        // last edited highlighting
+        // highlighting
+
+        // Note: making "focus" an alias for a single-entity
+        // "edited" marking in cases where "edited" is not defined.
+        // TODO: unify the "focus" and "edited" mechanisms.
+        if (!args.edited && args.focus) {
+          console.log("FOCUS!");
+          args.edited = [[args.focus]];
+        }
+
         if (args.edited) {
           $.each(args.edited, function(editedNo, edited) {
             if (edited[0] == 'sent') {
