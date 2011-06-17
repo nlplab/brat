@@ -264,14 +264,15 @@ def get_directory_information(directory):
         parent = None
 
     # combine document and directory lists, adding a column
-    # differentiating files from directories. The values filled here
-    # are "c" for "collection" (i.e. directory) and "d" for
-    # "document".
+    # differentiating files from directories and an unused column (can
+    # point to a specific annotation) required by the protocol.  The
+    # values filled here for the first are "c" for "collection"
+    # (i.e. directory) and "d" for "document".
     combolist = []
     for i in dirlist:
-        combolist.append(["c"]+i)
+        combolist.append(["c", None]+i)
     for i in doclist:
-        combolist.append(["d"]+i)
+        combolist.append(["d", None]+i)
 
     event_types, entity_types, attribute_types, relation_types = get_span_types(real_dir)
 
