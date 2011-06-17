@@ -337,7 +337,7 @@ var VisualizerUI = (function($, window, undefined) {
         html = [];
         filesData.docs.sort(docSortFunction);
         $.each(filesData.docs, function(docNo, doc) {
-          var isDir = doc[0];
+          var isDir = doc[0] == "c"; // "collection"
           var name = doc[1];
           var dirFile = isDir ? 'dir' : 'file';
           var dirSuffix = isDir ? '/' : '';

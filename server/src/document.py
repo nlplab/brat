@@ -19,7 +19,9 @@ from os.path import join as path_join
 from re import match,sub
 
 from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
-        AnnotationFileNotFoundError, open_textfile)
+        AnnotationFileNotFoundError, 
+        AnnotationCollectionNotFoundError, 
+        open_textfile)
 from common import ProtocolError
 from config import DATA_DIR
 from projectconfig import ProjectConfiguration, get_labels_by_storage_form
@@ -211,8 +213,12 @@ def _is_hidden(file_name):
     return file_name.startswith('hidden_') or file_name.startswith('.')
 
 def _listdir(directory):
-    return listdir(directory)
-    return [f for f in listdir(directory) if not _is_hidden(f)]
+    #return listdir(directory)
+    try:
+        return [f for f in listdir(directory) if not _is_hidden(f)]
+    except OSError, e:
+        Messager.error("Error listing %s: %s" % (directory, e))
+        raise AnnotationCollectionNotFoundError(directory)
 
 # TODO: This is not the prettiest of functions
 def get_directory_information(directory):
@@ -258,12 +264,14 @@ def get_directory_information(directory):
         parent = None
 
     # combine document and directory lists, adding a column
-    # differentiating files from directories (True for dir).
+    # differentiating files from directories. The values filled here
+    # are "c" for "collection" (i.e. directory) and "d" for
+    # "document".
     combolist = []
     for i in dirlist:
-        combolist.append([True]+i)
+        combolist.append(["c"]+i)
     for i in doclist:
-        combolist.append([False]+i)
+        combolist.append(["d"]+i)
 
     event_types, entity_types, attribute_types, relation_types = get_span_types(real_dir)
 
