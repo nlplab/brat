@@ -425,27 +425,29 @@ var VisualizerUI = (function($, window, undefined) {
         } else if (code == $.ui.keyCode.LEFT) {
           var pos;
           $.each(filesData.docs, function(docNo, docRow) {
-            if (docRow[1] === doc) {
+            if (docRow[2] === doc) {
               pos = docNo;
               return false;
             }
           });
-          if (pos > 0 && !filesData.docs[pos - 1][0]) {
-            // not at the start, and the previous is not a directory
-            dispatcher.post('setDocument', [filesData.docs[pos - 1][1]]);
+          if (pos > 0 && filesData.docs[pos - 1][0] != "c") {
+            // not at the start, and the previous is not a collection (dir)
+            dispatcher.post('setDocument', [filesData.docs[pos - 1][2]]);
           }
           return false;
         } else if (code === $.ui.keyCode.RIGHT) {
           var pos;
           $.each(filesData.docs, function(docNo, docRow) {
-            if (docRow[1] == doc) {
+            // TODO: check (with author) if asymmetry in use of '===' 
+            // above and '==' here is intentional
+            if (docRow[2] == doc) {
               pos = docNo;
               return false;
             }
           });
           if (pos < filesData.docs.length - 1) {
             // not at the end
-            dispatcher.post('setDocument', [filesData.docs[pos + 1][1]]);
+            dispatcher.post('setDocument', [filesData.docs[pos + 1][2]]);
           }
           return false;
         }
