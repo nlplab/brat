@@ -340,7 +340,6 @@ var VisualizerUI = (function($, window, undefined) {
           var isDir = doc[0] == "c"; // "collection"
           // second column is optional annotation-specific pointer,
           // used (at least) for search results
-          if (doc[1]) { console.log(Util.objectToUrlStr(doc[1])); }
           var annp = doc[1] ? ('?' + Util.objectToUrlStr(doc[1])) : '';
           var name = doc[2];
           var dirFile = isDir ? 'dir' : 'file';
