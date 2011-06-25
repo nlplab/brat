@@ -277,8 +277,8 @@ def get_directory_information(directory):
     event_types, entity_types, attribute_types, relation_types = get_span_types(real_dir)
 
     json_dic = {
-            'docs': combolist,
-            'dochead' : doclist_header,
+            'items': combolist,
+            'header' : doclist_header,
             'parent': parent,
             'messages': [],
             'event_types': event_types,

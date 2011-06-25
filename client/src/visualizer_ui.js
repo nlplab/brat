@@ -9,7 +9,7 @@ var VisualizerUI = (function($, window, undefined) {
       var defaultFloatFormat = '%.1f/right';
 
       var dirData = null; // always directory content
-      var filesData = null; // can be search results when available
+      var selectorData = null; // can be search results when available
       var currentForm;
       var spanTypes = null;
       var attributeTypes = null;
@@ -50,7 +50,7 @@ var VisualizerUI = (function($, window, undefined) {
           $(th).click(function() {
               if (sort[0] === thNo + 1) sort[1] = -sort[1];
               else {
-                var type = filesData.dochead[thNo][1];
+                var type = selectorData.header[thNo][1];
                 var ascending = type === "string";
                 sort[0] = thNo + 1;
                 sort[1] = ascending ? 1 : -1;
@@ -324,19 +324,19 @@ var VisualizerUI = (function($, window, undefined) {
           submit(fileBrowserSubmit).
           bind('reset', hideForm);
       var showFileBrowser = function() {
-        if (!(filesData && showForm(fileBrowser))) return false;
+        if (!(selectorData && showForm(fileBrowser))) return false;
 
         var html = ['<tr>'];
         var tbody;
-        $.each(filesData.dochead, function(headNo, head) {
+        $.each(selectorData.header, function(headNo, head) {
           html.push('<th>' + head[0] + '</th>');
         });
         html.push('</tr>');
         $('#document_select thead').html(html.join(''));
 
         html = [];
-        filesData.docs.sort(docSortFunction);
-        $.each(filesData.docs, function(docNo, doc) {
+        selectorData.items.sort(docSortFunction);
+        $.each(selectorData.items, function(docNo, doc) {
           var isDir = doc[0] == "c"; // "collection"
           // second column is optional annotation-specific pointer,
           // used (at least) for search results
@@ -347,9 +347,9 @@ var VisualizerUI = (function($, window, undefined) {
           html.push('<tr class="' + dirFile + '" data-value="'
                     + name + dirSuffix + annp + '"><th>'
                     + name + dirSuffix + '</th>');
-          var len = filesData.dochead.length - 1;
+          var len = selectorData.header.length - 1;
           for (var i = 0; i < len; i++) {
-            var type = filesData.dochead[i + 1][1];
+            var type = selectorData.header[i + 1][1];
             var datum = doc[i + 3];
             // format rest according to "data type" specified in header
             var formatted = null;
@@ -391,9 +391,9 @@ var VisualizerUI = (function($, window, undefined) {
             makeSortChangeFunction(sortOrder, th, thNo);
         });
 
-        $('#directory_input').val(filesData.directory);
+        $('#directory_input').val(selectorData.directory);
         $('#document_input').val(doc);
-        var curdir = filesData.directory;
+        var curdir = selectorData.directory;
         var pos = curdir.lastIndexOf('/');
         if (pos != -1) curdir = curdir.substring(pos + 1);
         selectElementInTable($('#directory_select'), curdir);
@@ -424,20 +424,20 @@ var VisualizerUI = (function($, window, undefined) {
           return false;
         } else if (code == $.ui.keyCode.LEFT) {
           var pos;
-          $.each(filesData.docs, function(docNo, docRow) {
+          $.each(selectorData.items, function(docNo, docRow) {
             if (docRow[2] === doc) {
               pos = docNo;
               return false;
             }
           });
-          if (pos > 0 && filesData.docs[pos - 1][0] != "c") {
+          if (pos > 0 && selectorData.items[pos - 1][0] != "c") {
             // not at the start, and the previous is not a collection (dir)
-            dispatcher.post('setDocument', [filesData.docs[pos - 1][2]]);
+            dispatcher.post('setDocument', [selectorData.items[pos - 1][2]]);
           }
           return false;
         } else if (code === $.ui.keyCode.RIGHT) {
           var pos;
-          $.each(filesData.docs, function(docNo, docRow) {
+          $.each(selectorData.items, function(docNo, docRow) {
             // TODO: check (with author) if asymmetry in use of '===' 
             // above and '==' here is intentional
             if (docRow[2] == doc) {
@@ -445,9 +445,9 @@ var VisualizerUI = (function($, window, undefined) {
               return false;
             }
           });
-          if (pos < filesData.docs.length - 1) {
+          if (pos < selectorData.items.length - 1) {
             // not at the end
-            dispatcher.post('setDocument', [filesData.docs[pos + 1][2]]);
+            dispatcher.post('setDocument', [selectorData.items[pos + 1][2]]);
           }
           return false;
         }
@@ -467,9 +467,9 @@ var VisualizerUI = (function($, window, undefined) {
         if (response.exception) {
           dispatcher.post('setDirectory', ['/']);
         } else {
-          filesData = response;
+          selectorData = response;
           dirData = response; // 'backup'
-          filesData.docs.sort(docSortFunction);
+          selectorData.items.sort(docSortFunction);
         }
       };
 
@@ -477,10 +477,10 @@ var VisualizerUI = (function($, window, undefined) {
         if (response.exception) {
             ; // TODO: reasonable reaction
         } else {
-          filesData = response;
+          selectorData = response;
            // TODO: backup file browser sort order during search
           sortOrder = [1, 1]; // reset
-          filesData.docs.sort(docSortFunction);
+          selectorData.items.sort(docSortFunction);
           showFileBrowser();
         }
       };

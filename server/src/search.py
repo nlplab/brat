@@ -263,21 +263,20 @@ def format_results(matches):
 
     response = {}
 
-    # TODO: rename 'docs' and 'dochead' something like
-    # 'items' and 'itemhead'
-
-    # header for search result browser
-    response['dochead'] = [('Document', 'string'), 
-                           ('Annotation', 'string'), 
-                           ('Type', 'string')]
+    # fill in header for search result browser
+    response['header'] = [('Document', 'string'), 
+                          ('Annotation', 'string'), 
+                          ('Type', 'string')]
     
-    response['docs'] = []
+    # fill in content
+    items = []
     for ann_obj, ann in matches.get_matches():
         # First value ("a") signals that the item points to a specific
         # annotation, not a collection (directory) or document.
         # second entry is non-listed "pointer" to annotation
         fn = basename(ann_obj.get_document())
-        response['docs'].append(["a", { 'focus' : ann.id }, fn, ann.id, ann.type])
+        items.append(["a", { 'focus' : ann.id }, fn, ann.id, ann.type])
+    response['items'] = items
     return response
 
 ### per-directory interface functions (brat) ###
