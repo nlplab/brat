@@ -432,7 +432,9 @@ var VisualizerUI = (function($, window, undefined) {
           });
           if (pos > 0 && selectorData.items[pos - 1][0] != "c") {
             // not at the start, and the previous is not a collection (dir)
-            dispatcher.post('setDocument', [selectorData.items[pos - 1][2]]);
+            var newPos = pos - 1;
+            dispatcher.post('setDocument', [selectorData.items[newPos][2],
+                                            selectorData.items[newPos][1]]);
           }
           return false;
         } else if (code === $.ui.keyCode.RIGHT) {
@@ -447,7 +449,9 @@ var VisualizerUI = (function($, window, undefined) {
           });
           if (pos < selectorData.items.length - 1) {
             // not at the end
-            dispatcher.post('setDocument', [selectorData.items[pos + 1][2]]);
+            var newPos = pos + 1;
+            dispatcher.post('setDocument', [selectorData.items[newPos][2],
+                                            selectorData.items[newPos][1]]);
           }
           return false;
         }

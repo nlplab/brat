@@ -379,7 +379,6 @@ var Visualizer = (function($, window, undefined) {
         // "edited" marking in cases where "edited" is not defined.
         // TODO: unify the "focus" and "edited" mechanisms.
         if (!args.edited && args.focus) {
-          console.log("FOCUS!");
           args.edited = [[args.focus]];
         }
 
@@ -743,7 +742,7 @@ var Visualizer = (function($, window, undefined) {
             var firstChar = span.from - span.chunk.from;
             if (firstChar < 0) {
               firstChar = 0;
-              console.warn("Span", span.text, "in chunk", span.chunk.text, "has strange offsets. FIXME");
+              console.warn("DEBUG: Span", span.text, "in chunk", span.chunk.text, "has strange offsets. FIXME");
             }
             var startPos = text.getStartPositionOfChar(firstChar).x;
             var lastChar = span.to - span.chunk.from - 1;
