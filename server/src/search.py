@@ -281,12 +281,15 @@ def format_results(matches):
 
 ### per-directory interface functions (brat) ###
 
-def search_text(directory, text):
+def search_text(collection, text):
     # TODO: not implemented yet
+    directory = collection
     Messager.warning('Text search not implemented yet, sorry!')
     return format_results(SearchMatchSet('empty'))
 
-def search_entity(directory, type, text):
+def search_entity(collection, type, text):
+    directory = collection
+
     ann_objs = __directory_to_annotations(directory)
 
     restrict_types = []
@@ -296,17 +299,20 @@ def search_entity(directory, type, text):
     matches = search_textbound(ann_objs, text, restrict_types=restrict_types)
         
     results = format_results(matches)
-    results['directory'] = directory # required by protocol
+    results['collection'] = directory
     
     return results
 
-def search_event(directory, type, trigger):
+def search_event(collection, type, trigger):
+    directory = collection
+
     # TODO: not implemented yet
     Messager.warning('Event search not implemented yet, sorry!')
     return format_results(SearchMatchSet('empty'))
 
-def search_relation(directory, type, arg1, arg2):
+def search_relation(collection, type, arg1, arg2):
     # TODO: not implemented yet
+    directory = collection
     Messager.warning('Relation search not implemented yet, sorry!')
     return format_results(SearchMatchSet('empty'))
 

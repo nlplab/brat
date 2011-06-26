@@ -12,7 +12,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var arcOptions = null;
       var spanKeymap = null;
       var keymap = null;
-      var dir = null;
+      var coll = null;
       var doc = null;
       var reselectedSpan = null;
       var editedSpan = null;
@@ -68,7 +68,7 @@ var AnnotatorUI = (function($, window, undefined) {
             old_target: targetSpanId,
             type: type,
             old_type: type,
-            directory: dir,
+            collection: coll,
             'document': doc
           };
           var eventDescId = target.attr('data-arc-ed');
@@ -386,7 +386,7 @@ var AnnotatorUI = (function($, window, undefined) {
                 action: 'createArc',
                 origin: originSpan.id,
                 target: targetSpan.id,
-                directory: dir,
+                collection: coll,
                 'document': doc
               };
               $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
@@ -614,8 +614,8 @@ var AnnotatorUI = (function($, window, undefined) {
         attributeTypes = _attributeTypes;
       };
 
-      var gotCurrent = function(_dir, _doc, _args) {
-        dir = _dir;
+      var gotCurrent = function(_coll, _doc, _args) {
+        coll = _coll;
         doc = _doc;
         args = _args;
       };
@@ -635,7 +635,7 @@ var AnnotatorUI = (function($, window, undefined) {
           args.edited = response.edited;
           data = response.annotations;
           data.document = doc;
-          data.directory = dir;
+          data.collection = coll;
           dispatcher.post('preventReloadByURL');
           dispatcher.post('setArguments', [args]);
           dispatcher.post('renderData', [data]);
@@ -692,7 +692,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         $.extend(spanOptions, {
           action: 'deleteSpan',
-          directory: dir,
+          collection: coll,
           'document': doc,
         });
         dispatcher.post('ajax', [spanOptions, 'edited']);
@@ -715,7 +715,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $.extend(spanOptions, {
             action: 'splitSpan',
             'args': $.toJSON(splitRoles),
-            directory: dir,
+            collection: coll,
             'document': doc,
           });
         dispatcher.post('hideForm', [splitForm]);
@@ -776,7 +776,7 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('hideForm', [spanForm]);
         $.extend(spanOptions, {
           action: 'createSpan',
-          directory: dir,
+          collection: coll,
           'document': doc,
           type: type,
           comment: $('#span_notes').val()
@@ -814,7 +814,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var _doctext = $('#import_text').val();
         var opts = {
           action : 'importDocument',
-          directory : dir,
+          collection : coll,
           docid  : _docid,
           title : _doctitle,
           text  : _doctext,
@@ -968,7 +968,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
         var opts = {
           action : action,
-          directory : dir,
+          collection : coll,
           // TODO the search form got complex :)
         };
         switch (action) {
@@ -1018,7 +1018,7 @@ var AnnotatorUI = (function($, window, undefined) {
             click: function(evt) {
               searchActive = false;
               updateSearchButton();
-              // TODO get the directory again
+              // TODO get the collection again
               dispatcher.post('hideForm', [searchForm]);
             },
           }],
@@ -1058,7 +1058,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       dispatcher.
         on('renderData', rememberData).
-        on('dirLoaded', rememberSpanSettings).
+        on('collectionLoaded', rememberSpanSettings).
         on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
         on('hideForm', hideForm).
         on('init', init).

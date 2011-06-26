@@ -221,7 +221,9 @@ def _listdir(directory):
         raise AnnotationCollectionNotFoundError(directory)
 
 # TODO: This is not the prettiest of functions
-def get_directory_information(directory):
+def get_directory_information(collection):
+    directory = collection
+
     real_dir = real_directory(directory)
 
     # Get the document names
@@ -444,7 +446,8 @@ def _document_json_dict(document):
 
     return j_dic
 
-def get_document(directory, document):
+def get_document(collection, document):
+    directory = collection
     real_dir = real_directory(directory)
     doc_path = path_join(real_dir, document)
     return _document_json_dict(doc_path)

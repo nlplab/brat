@@ -82,11 +82,11 @@ var Visualizer = (function($, window, undefined) {
       var svg;
       var $svg;
       var data = null;
-      var dir, doc, args;
+      var coll, doc, args;
       var spanTypes;
       var abbrevsOn = true;
       var isRenderRequested;
-      var isDirLoaded = false;
+      var isCollectionLoaded = false;
       var areFontsLoaded = false;
       var attributeTypes = null;
       var spanTypes = null;
@@ -682,7 +682,7 @@ var Visualizer = (function($, window, undefined) {
       };
       
       var addHeaderAndDefs = function() {
-        var commentName = (dir + '/' + doc).replace('--', '-\\-');
+        var commentName = (coll + '/' + doc).replace('--', '-\\-');
         $svg.append('<!-- document: ' + commentName + ' -->');
         var defs = svg.defs();
         var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
@@ -812,9 +812,9 @@ Util.profileStart('init');
 
         if (!_data && !data) return;
         $svgDiv.show();
-        if ((_data && (_data.document !== doc || _data.directory !== dir)) || drawing) {
+        if ((_data && (_data.document !== doc || _data.collection !== coll)) || drawing) {
           redraw = true;
-          dispatcher.post('doneRendering', [dir, doc, args]);
+          dispatcher.post('doneRendering', [coll, doc, args]);
           return;
         }
         redraw = false;
@@ -1574,7 +1574,7 @@ Util.profileReport();
           redraw = false;
           renderDataReal();
         }
-        dispatcher.post('doneRendering', [dir, doc, args]);
+        dispatcher.post('doneRendering', [coll, doc, args]);
       };
 
       var renderErrors = {
@@ -1589,7 +1589,7 @@ Util.profileReport();
             dispatcher.post('unknownError', [_data.exception]);
           }
         } else {
-          dispatcher.post('startedRendering', [dir, doc, args]);
+          dispatcher.post('startedRendering', [coll, doc, args]);
           dispatcher.post('spin');
           setTimeout(function() {
               renderDataReal(_data);
@@ -1601,16 +1601,16 @@ Util.profileReport();
       var renderDocument = function() {
         dispatcher.post('ajax', [{
             action: 'getDocument',
-            directory: dir,
+            collection: coll,
             'document': doc,
           }, 'renderData', {
-            directory: dir,
+            collection: coll,
             'document': doc
           }]);
       };
 
       var triggerRender = function() {
-        if (svg && isRenderRequested && isDirLoaded && areFontsLoaded) {
+        if (svg && isRenderRequested && isCollectionLoaded && areFontsLoaded) {
           isRenderRequested = false;
           if (doc.length) {
             renderDocument();
@@ -1620,13 +1620,13 @@ Util.profileReport();
         }
       };
 
-      var dirChanged = function() {
-        isDirLoaded = false;
+      var collectionChanged = function() {
+        isCollectionLoaded = false;
       };
 
-      var gotCurrent = function(_dir, _doc, _args, reloadData) {
-        dir = _dir;
-        doc = _doc;
+      var gotCurrent = function(_coll, _doc, _args, reloadData) {
+        coll = _coll;
+        doc  = _doc;
         args = _args;
         if (reloadData) {
           isRenderRequested = true;
@@ -1813,7 +1813,7 @@ Util.profileReport();
         });
       }
 
-      var dirLoaded = function(response) {
+      var collectionLoaded = function(response) {
         if (!response.exception) {
           attributeTypes = {};
           $.each(response.attribute_types, function(aTypeNo, aType) {
@@ -1836,7 +1836,7 @@ Util.profileReport();
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
 
-          isDirLoaded = true;
+          isCollectionLoaded = true;
           triggerRender();
         }
       };
@@ -1885,8 +1885,8 @@ Util.profileReport();
 
 
       dispatcher.
-          on('dirChanged', dirChanged).
-          on('dirLoaded', dirLoaded).
+          on('collectionChanged', collectionChanged).
+          on('collectionLoaded', collectionLoaded).
           on('renderData', renderData).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).

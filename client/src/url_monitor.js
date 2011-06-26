@@ -8,10 +8,10 @@ var URLMonitor = (function($, window, undefined) {
 
       that.args = {};
       that.doc = null;
-      that.dir = null;
+      that.coll = null;
 
       var updateURL = function() {
-        var uri = that.dir + that.doc;
+        var uri = that.coll + that.doc;
         // TODO only allowed args?
         var args = $.param(that.args);
         if (args.length) args = '?' + args;
@@ -22,7 +22,7 @@ var URLMonitor = (function($, window, undefined) {
         dispatcher.post('hideForm');
       };
 
-      var setArguments = function(args, dirChanging) {
+      var setArguments = function(args, collChanging) {
         var oldArgs = that.args || {};
         that.args = args || {};
         var oldArgStr = $.param(oldArgs);
@@ -42,17 +42,17 @@ var URLMonitor = (function($, window, undefined) {
         setArguments(args || {}, true);
       };
 
-      var setDirectory = function(dir, doc, args) {
-        var oldDir = that.dir;
-        that.dir = dir;
-        if (oldDir !== dir) {
+      var setCollection = function(coll, doc, args) {
+        var oldColl = that.coll;
+        that.coll = coll;
+        if (oldColl !== coll) {
           dispatcher.post('ajax', [{
-              action: 'getDirectoryInformation',
-              directory: dir
-            }, 'dirLoaded', {
-              directory: dir
+              action: 'getCollectionInformation',
+              collection: coll
+            }, 'collectionLoaded', {
+              collection: coll
             }]);
-          dispatcher.post('dirChanged', [dir, oldDir]);
+          dispatcher.post('collectionChanged', [coll, oldColl]);
         }
         setDocument(doc || '', args);
       }
@@ -62,29 +62,29 @@ var URLMonitor = (function($, window, undefined) {
         if (hash.length) {
           hash = hash.substr(1);
         }
-        var oldDir = that.dir;
+        var oldColl = that.coll;
 
         var pathAndArgs = hash.split('?');
         var path = pathAndArgs[0] || '';
         var argsStr = pathAndArgs[1] || '';
-        var dir;
+        var coll;
         var slashPos = path.lastIndexOf('/');
         if (slashPos === -1) {
-          dir = '/';
+          coll = '/';
         } else {
-          dir = path.substr(0, slashPos + 1);
-          if (dir[dir.length - 1] !== '/') {
-            dir += '/';
+          coll = path.substr(0, slashPos + 1);
+          if (coll[coll.length - 1] !== '/') {
+            coll += '/';
           }
-          if (dir[0] !== '/') {
-            dir = '/' + dir;
+          if (coll[0] !== '/') {
+            coll = '/' + coll;
           }
         }
         var doc = path.substr(slashPos + 1);
         var args = $.deparam(argsStr);
 
-        setDirectory(dir, doc, args);
-        dispatcher.post('current', [that.dir, that.doc, that.args, reloadData]);
+        setCollection(coll, doc, args);
+        dispatcher.post('current', [that.coll, that.doc, that.args, reloadData]);
         reloadData = true;
       };
 
@@ -105,7 +105,7 @@ var URLMonitor = (function($, window, undefined) {
           on('forceUpdate', forceUpdate).
           on('setArguments', setArguments).
           on('setDocument', setDocument).
-          on('setDirectory', setDirectory).
+          on('setCollection', setCollection).
           on('preventReloadByURL', preventReloadByURL).
           on('init', init);
     };

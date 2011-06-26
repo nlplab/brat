@@ -70,7 +70,7 @@
             <input id="search_button" type="button" class="login" value="Search" tabindex="-1" title="Search annotations in current collection"/>
             -->
             <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search annotations in current collection">Search</label>
-            <input id="import_button" type="button" class="login" value="Import" tabindex="-1" title="Import a new document into the current directory"/>
+            <input id="import_button" type="button" class="login" value="Import" tabindex="-1" title="Import a new document into the current collection"/>
             <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
             <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
             <span><input id="abbrev_mode" type="checkbox" value="true" checked="checked"/><label for="abbrev_mode" title="Toggle the abbreviation mode">Abbreviations</label></span>
@@ -251,8 +251,8 @@
     </form>
     <form id="file_browser" class="dialog" title="Open">
       <fieldset>
-        <legend>Directory</legend>
-        <input id="directory_input" readonly="readonly" placeholder="Document" class="borderless"/>
+        <legend>Collection</legend>
+        <input id="collection_input" readonly="readonly" placeholder="Document" class="borderless"/>
       </fieldset>
       <fieldset>
         <legend>Document</legend>
