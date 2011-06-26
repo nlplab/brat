@@ -1018,7 +1018,7 @@ var AnnotatorUI = (function($, window, undefined) {
             click: function(evt) {
               searchActive = false;
               updateSearchButton();
-              // TODO get the collection again
+              dispatcher.post('clearSearch');
               dispatcher.post('hideForm', [searchForm]);
             },
           }],

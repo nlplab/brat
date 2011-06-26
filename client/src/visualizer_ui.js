@@ -491,6 +491,14 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
+      var clearSearch = function() {
+        // back off to document collection
+        selectorData = documentListing;
+        sortOrder = [1, 1]; // reset
+        selectorData.items.sort(docSortFunction);
+        showFileBrowser();
+      }
+
       var saveSVGTimer = null;
       var saveSVG = function() {
         clearTimeout(saveSVGTimer);
@@ -687,7 +695,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
           on('resize', onResize).
-          on('searchResultsReceived', searchResultsReceived);
+          on('searchResultsReceived', searchResultsReceived).
+          on('clearSearch', clearSearch);
     };
 
     return VisualizerUI;
