@@ -8,7 +8,7 @@ var VisualizerUI = (function($, window, undefined) {
       var messageDefaultFadeDelay = 3000;
       var defaultFloatFormat = '%.1f/right';
 
-      var documentListing = null; // always documents
+      var documentListing = null; // always documents of current collection
       var selectorData = null; // can be search results when available
       var currentForm;
       var spanTypes = null;
@@ -48,11 +48,13 @@ var VisualizerUI = (function($, window, undefined) {
 
       var makeSortChangeFunction = function(sort, th, thNo) {
           $(th).click(function() {
-              if (sort[0] === thNo + 1) sort[1] = -sort[1];
+              // TODO: avoid magic numbers in access to the selector
+              // data (column 0 is type, 1 is args, rest is data)
+              if (sort[0] === thNo + 2) sort[1] = -sort[1];
               else {
                 var type = selectorData.header[thNo][1];
                 var ascending = type === "string";
-                sort[0] = thNo + 1;
+                sort[0] = thNo + 2;
                 sort[1] = ascending ? 1 : -1;
               }
               showFileBrowser(); // resort
