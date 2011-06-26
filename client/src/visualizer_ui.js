@@ -270,7 +270,7 @@ var VisualizerUI = (function($, window, undefined) {
         fileBrowserSubmit(evt);
       }
 
-      var fileBrowser = $('#file_browser');
+      var fileBrowser = $('#collection_browser');
       initForm(fileBrowser, {
           alsoResize: '#document_select',
           close: function(evt) {
@@ -404,7 +404,7 @@ var VisualizerUI = (function($, window, undefined) {
           $('#document_input').focus().select();
         }, 0);
       };
-      $('#file_browser_button').click(showFileBrowser);
+      $('#collection_browser_button').click(showFileBrowser);
 
       var onKeyDown = function(evt) {
         var code = evt.which;
