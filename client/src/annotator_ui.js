@@ -999,9 +999,15 @@ var AnnotatorUI = (function($, window, undefined) {
             break;
         }
         dispatcher.post('ajax', [opts, function(response) {
-          dispatcher.post('searchResultsReceived', [response]); // TODO
-          searchActive = true;
-          updateSearchButton();
+          if(response && response.items && response.items.length == 0) {
+            // TODO: might consider having this message come from the
+            // server instead
+            dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
+          } else {
+            dispatcher.post('searchResultsReceived', [response]);
+            searchActive = true;
+            updateSearchButton();
+          }
         }]);
         return false;
       };
