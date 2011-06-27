@@ -1193,19 +1193,6 @@ Util.profileStart('arcs');
         $.each(data.arcs, function(arcNo, arc) {
           roleClass = 'role_' + arc.type;
 
-          if (!arrows[arc.type]) {
-            var arrowId = 'arrow_' + arc.type;
-            var arrowhead = svg.marker(defs, arrowId,
-              5, 2.5, 5, 5, 'auto',
-              {
-                markerUnits: 'strokeWidth',
-                'class': 'fill_' + arc.type,
-              });
-            svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
-
-            arrows[arc.type] = arrowId;
-          }
-
           var originSpan = data.spans[arc.origin];
           var targetSpan = data.spans[arc.target];
 
@@ -1237,6 +1224,19 @@ Util.profileStart('arcs');
           var rightBox = rowBBox(right);
           var leftRow = left.chunk.row.index;
           var rightRow = right.chunk.row.index;
+
+          if (!arrows[arc.type]) {
+            var arrowId = 'arrow_' + arc.type;
+            var arrowhead = svg.marker(defs, arrowId,
+              5, 2.5, 5, 5, 'auto',
+              {
+                markerUnits: 'strokeWidth',
+                'fill': color,
+              });
+            svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+
+            arrows[arc.type] = arrowId;
+          }
 
           // find the next height
           var height = 0;

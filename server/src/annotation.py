@@ -19,7 +19,7 @@ from functools import partial
 from os import utime
 from time import time
 from os.path import join as path_join
-from os.path import basename
+from os.path import basename, splitext
 
 from common import ProtocolError
 from filelock import file_lock
@@ -787,13 +787,24 @@ class TextAnnotations(Annotations):
     the correctness of text-bound annotations against the text.
     """
     def __init__(self, document, read_only=False):
-        # start by reading in the document text for textbounds.
-        document_text = self._read_document_text(document)
+        # First read the text or the Annotations can't verify the annotations
+        if document.endswith('.txt'):
+            textfile_path = document
+        else:
+            # Do we have an extension?
+            _, file_ext = splitext(document)
+            if not file_ext:
+                textfile_path = document
+            else:
+                textfile_path = document[:len(document) - len(file_ext)]
+
+        document_text = self._read_document_text(textfile_path)
+        # TODO: Will fire for blank text files, not desireable
         if not document_text:
             raise AnnotationTextFileNotFoundError(document)
         self._document_text = document_text
-
-        Annotations.__init__(self, document, read_only) 
+        
+        Annotations.__init__(self, document, read_only)
 
     def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
         type, start, end = self._split_textbound_data(id, data)
