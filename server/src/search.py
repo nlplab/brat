@@ -97,7 +97,7 @@ def __directory_to_annotations(directory):
 
     return __filenames_to_annotations(filenames)
 
-def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[]):
+def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for annotated spans that match in string content but
     disagree in type in given Annotations objects.
@@ -107,6 +107,8 @@ def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[]):
     restrict_types = [] if restrict_types is None else restrict_types
     ignore_types   = [] if ignore_types is None else ignore_types
     nested_types   = [] if nested_types is None else nested_types
+
+    # TODO: nested_types constratins not applied
 
     matches = SearchMatchSet("Text marked with different types")
 
