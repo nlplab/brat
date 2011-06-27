@@ -484,7 +484,6 @@ var VisualizerUI = (function($, window, undefined) {
             ; // TODO: reasonable reaction
         } else {
           selectorData = response;
-           // TODO: backup file browser sort order during search
           sortOrder = [1, 1]; // reset
           selectorData.items.sort(docSortFunction);
           showFileBrowser();
