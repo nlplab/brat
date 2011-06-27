@@ -40,10 +40,11 @@ class TextMatch(object):
     """
     Represents a text span matching a query.
     """
-    def __init__(self, start, end, text):
+    def __init__(self, start, end, text, sentence=None):
         self.start = start
         self.end = end
         self.text = text
+        self.sentence = sentence
         # TODO: temporary "fake ID" to make other bits of code happy, remove
         # once no longer necessary
         self.id = ""
@@ -97,6 +98,58 @@ def __directory_to_annotations(directory):
 
     return __filenames_to_annotations(filenames)
 
+def _get_text_type_ann_map(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+    """
+    Helper function for search. Given annotations, returns a
+    dict-of-dicts, outer key annotation text, inner type, values
+    annotation objects.
+    """
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
+    nested_types   = [] if nested_types is None else nested_types
+
+    text_type_ann_map = {}
+    for ann_obj in ann_objs:
+        for t in ann_obj.get_textbounds():
+            if t.type in ignore_types:
+                continue
+
+            if t.text not in text_type_ann_map:
+                text_type_ann_map[t.text] = {}
+            if t.type not in text_type_ann_map[t.text]:
+                text_type_ann_map[t.text][t.type] = []
+            text_type_ann_map[t.text][t.type].append((ann_obj,t))
+
+    return text_type_ann_map
+
+def _get_offset_ann_map(ann_objs, restrict_types=[], ignore_types=[]):
+    """
+    Helper function for search. Given annotations, returns a dict
+    mapping offsets in text into the set of annotations spanning each
+    offset.
+    """
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
+
+    offset_ann_map = {}
+    for ann_obj in ann_objs:
+        for t in ann_obj.get_textbounds():
+            if t.type in ignore_types:
+                continue
+            if restrict_types != [] and t.type not in restrict_types:
+                continue
+
+            for o in range(t.start, t.end):
+                if o not in offset_ann_map:
+                    offset_ann_map[o] = set()
+                offset_ann_map[o].add(t)
+
+    return offset_ann_map
+
 def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for annotated spans that match in string content but
@@ -108,24 +161,11 @@ def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[], nested_
     ignore_types   = [] if ignore_types is None else ignore_types
     nested_types   = [] if nested_types is None else nested_types
 
-    # TODO: nested_types constratins not applied
+    # TODO: nested_types constraints not applied
 
     matches = SearchMatchSet("Text marked with different types")
 
-    # Dict-of-dicts, outer key annotation text, inner type,
-    # values annotation objects.
-    text_type_ann_map = {}
-    
-    for ann_obj in ann_objs:
-        for t in ann_obj.get_textbounds():
-            if t.type in ignore_types:
-                continue
-
-            if t.text not in text_type_ann_map:
-                text_type_ann_map[t.text] = {}
-            if t.type not in text_type_ann_map[t.text]:
-                text_type_ann_map[t.text][t.type] = []
-            text_type_ann_map[t.text][t.type].append((ann_obj,t))
+    text_type_ann_map = _get_text_type_ann_map(ann_objs, restrict_types, ignore_types, nested_types)
     
     for text in text_type_ann_map:
         if len(text_type_ann_map[text]) < 2:
@@ -148,6 +188,170 @@ def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[], nested_
 
     return matches
 
+def _get_offset_sentence_map(s):
+    """
+    Helper, sentence-splits and returns a mapping from character
+    offsets to sentence number.
+    """
+    from ssplit import en_sentence_boundary_gen
+
+    m = {} # TODO: why is this a dict and not an array?
+    sprev, snum = 0, 1 # note: sentences indexed from 1
+    for sstart, send in en_sentence_boundary_gen(s):
+        # if there are extra newlines (i.e. more than one) in between
+        # the previous end and the current start, those need to be
+        # added to the sentence number
+        snum += max(0,len([nl for nl in s[sprev:sstart] if nl == "\n"]) - 1)
+        for o in range(sprev, send):
+            m[o] = snum
+        sprev = send
+        snum += 1
+    return m
+
+def _split_and_tokenize(s):
+    """
+    Helper, sentence-splits and tokenizes, returns array comparable to
+    what you would get from re.split(r'(\s+)', s).
+    """
+    from ssplit import en_sentence_boundary_gen
+    from tokenise import en_token_boundary_gen
+
+    tokens = []
+
+    sprev = 0
+    for sstart, send in en_sentence_boundary_gen(s):
+        if sprev != sstart:
+            # between-sentence space
+            tokens.append(s[sprev:sstart])
+        stext = s[sstart:send]
+        tprev = sstart
+        for tstart, tend in en_token_boundary_gen(stext):
+            if tprev != tstart:
+                # between-token space
+                tokens.append(s[sstart+tprev:sstart+tstart])
+            tokens.append(s[sstart+tstart:sstart+tend])
+            tprev = tend
+        sprev = send
+
+    if sprev != len(s):
+        # document-final space
+        tokens.append(s[sprev:])
+
+    assert "".join(tokens) == s, "INTERNAL ERROR\n'%s'\n'%s'" % ("".join(tokens),s)
+
+    return tokens
+        
+def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+    """
+    Searches for spans that match in string content but are not all
+    marked.
+    """
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
+    nested_types   = [] if nested_types is None else nested_types
+
+    # TODO: check that constraints are properly applied
+
+    matches = SearchMatchSet("Text marked partially")
+
+    text_type_ann_map = _get_text_type_ann_map(ann_objs, restrict_types, ignore_types, nested_types)
+
+    max_length_tagged = max([len(s) for s in text_type_ann_map])
+
+    # TODO: faster and less hacky way to detect missing annotations
+    text_untagged_map = {}
+    for ann_obj in ann_objs:
+        doctext = ann_obj.get_document_text()
+
+        # TODO: proper tokenization.
+        # NOTE: this will include space.
+        #tokens = re.split(r'(\s+)', doctext)
+        tokens = _split_and_tokenize(doctext)
+
+        # document-specific map
+        offset_ann_map = _get_offset_ann_map([ann_obj])
+
+        # this one too
+        sentence_num = _get_offset_sentence_map(doctext)
+
+        start_offset = 0
+        for start in range(len(tokens)):
+            for end in range(start, len(tokens)):
+                s = "".join(tokens[start:end])                
+                end_offset = start_offset + len(s)
+
+                if len(s) > max_length_tagged:
+                    # can't hit longer strings, none tagged
+                    break
+
+                if s not in text_type_ann_map:
+                    # consistently untagged
+                    continue
+
+                # Some matching is tagged; this is considered
+                # inconsistent (for this check) if the current span
+                # has no fully covering tagging. Note that type
+                # matching is not considered here.
+                start_spanning = offset_ann_map.get(start_offset, set())
+                end_spanning = offset_ann_map.get(end_offset-1, set()) # NOTE: -1 needed, see _get_offset_ann_map()
+                if len(start_spanning & end_spanning) == 0:
+                    if s not in text_untagged_map:
+                        text_untagged_map[s] = []
+                    text_untagged_map[s].append((ann_obj, start_offset, end_offset, s, sentence_num[start_offset]))
+
+            start_offset += len(tokens[start])
+
+    # form match objects, grouping by text
+    for text in text_untagged_map:
+        assert text in text_type_ann_map, "INTERNAL ERROR"
+
+        # collect tagged and untagged cases for "compressing" output
+        # in cases where one is much more common than the other
+        tagged   = []
+        untagged = []
+
+        for type in text_type_ann_map[text]:
+            for ann_obj, ann in text_type_ann_map[text][type]:
+                #matches.add_match(ann_obj, ann)
+                tagged.append((ann_obj, ann))
+
+        for ann_obj, start, end, s, snum in text_untagged_map[text]:
+            # TODO: need a clean, standard way of identifying a text span
+            # that does not involve an annotation; this is a bit of a hack
+            tm = TextMatch(start, end, s, snum)
+            #matches.add_match(ann_obj, tm)
+            untagged.append((ann_obj, tm))
+
+        # decide how to output depending on relative frequency
+        freq_ratio_cutoff = 3
+        cutoff_limit = 5
+
+        if (len(tagged) > freq_ratio_cutoff * len(untagged) and 
+            len(tagged) > cutoff_limit):
+            # cut off all but cutoff_limit from tagged
+            for ann_obj, m in tagged[:cutoff_limit]:
+                matches.add_match(ann_obj, m)
+            for ann_obj, m in untagged:
+                matches.add_match(ann_obj, m)
+            print "(note: omitting %d instances of tagged '%s')" % (len(tagged)-cutoff_limit, text)
+        elif (len(untagged) > freq_ratio_cutoff * len(tagged) and
+              len(untagged) > cutoff_limit):
+            # cut off all but cutoff_limit from tagged
+            for ann_obj, m in tagged:
+                matches.add_match(ann_obj, m)
+            for ann_obj, m in untagged[:cutoff_limit]:
+                matches.add_match(ann_obj, m)
+            print "(note: omitting %d instances of untagged '%s')" % (len(untagged)-cutoff_limit, text)
+        else:
+            # include all
+            for ann_obj, m in tagged + untagged:
+                matches.add_match(ann_obj, m)
+            
+    
+    return matches
+
 def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for inconsistent annotations in given Annotations
@@ -157,7 +361,12 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types
 
     match_sets = []
 
-    m = eq_text_neq_type_spans(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+    print >> sys.stderr, "NOTE: TEMPORARILY SWITCHING OFF TYPE AGREEMENT CHECKING!"
+#     m = eq_text_neq_type_spans(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+#     if len(m) != 0:
+#         match_sets.append(m)
+
+    m = eq_text_partially_marked(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
     if len(m) != 0:
         match_sets.append(m)
 
@@ -389,7 +598,22 @@ def main(argv=None):
         for ann_obj, ann in m.get_matches():
             # TODO: get rid of "edited" hack to point to a document ("%5B0%5D%5B%5D"="[0][]")
             # TODO: get rid of specific URL hack and similar
-            print "\thttp://localhost/brat/#/%s?edited%%5B0%%5D%%5B%%5D=%s (%s)" % (ann_obj.get_document().replace("data/",""), ann.id, str(ann).rstrip())
+            try:
+                if ann.id not in (None, ""):
+                    refstr = "?edited%%5B0%%5D%%5B%%5D=%s" % ann.id
+                elif ann.sentence is not None:
+                    # generate sentence reference
+                    refstr = "?edited%%5B0%%5D%%5B%%5D=sent&edited%%5B0%%5D%%5B%%5D=%d" % ann.sentence
+                else:
+                    refstr = ""
+            except:
+                refstr = ""
+                raise
+            print "\thttp://localhost/brat/#/%s%s (%s)" % (ann_obj.get_document().replace("data/",""), refstr, str(ann).rstrip())
+    # TODO: reminder for temporary thing done for consistency revision
+    print "#" * 78
+    print "TODO: remove ~smp from output strings!!"
+    print "#" * 78
 
 if __name__ == "__main__":
     import sys
