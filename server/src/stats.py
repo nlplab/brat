@@ -119,8 +119,8 @@ def get_statistics(directory, base_names, use_cache=True):
         try:
             with open(cache_file_path, 'wb') as cache_file:
                 pickle_dump(docstats, cache_file)
-        except IOError:
-            Messager.warning("Could not write statistics cache file (no write permission to data directory %s?)" % directory)
+        except IOError, e:
+            Messager.warning("Could not write statistics cache file to directory %s: %s" % (directory, e))
 
     return stat_types, docstats
 
