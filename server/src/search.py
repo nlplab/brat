@@ -386,11 +386,13 @@ def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_
     description = "Textbound containing text '%s'" % text
     if restrict_types != []:
         description = description + ' (of type %s)' % (",".join(restrict_types))
-    if restrict_types != []:
+    if nested_types != []:
         description = description + ' (nesting annotation of type %s)' % (",".join(nested_types))
     matches = SearchMatchSet(description)
     
     for ann_obj in ann_objs:
+        # collect per-document (ann_obj) for sorting
+        ann_matches = []
         for t in ann_obj.get_textbounds():
             if t.type in ignore_types:
                 continue
@@ -405,6 +407,14 @@ def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_
                 nested = [x for x in ann_obj.get_textbounds() if x != t and x.start >= t.start and x.end <= t.end]
                 if len([x for x in nested if x.type in nested_types]) == 0:
                     continue
+
+            ann_matches.append(t)
+
+        # sort by start offset
+        ann_matches.sort(lambda a,b: cmp((a.start,-a.end),(b.start,-b.end)))
+
+        # add to overall collection
+        for t in ann_matches:
             matches.add_match(ann_obj, t)
 
     return matches
@@ -610,10 +620,6 @@ def main(argv=None):
                 refstr = ""
                 raise
             print "\thttp://localhost/brat/#/%s%s (%s)" % (ann_obj.get_document().replace("data/",""), refstr, str(ann).rstrip())
-    # TODO: reminder for temporary thing done for consistency revision
-    print "#" * 78
-    print "TODO: remove ~smp from output strings!!"
-    print "#" * 78
 
 if __name__ == "__main__":
     import sys
