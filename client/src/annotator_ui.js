@@ -847,7 +847,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }]);
       $('#import_button').click(function() {
         dispatcher.post('showForm', [importForm]);
-        importForm.find('input:text, textarea').val('');
+        importForm.find('input, textarea').val('');
       });
 
 
