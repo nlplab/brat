@@ -364,6 +364,12 @@ fieldset {
   display: inline-block;
   vertical-align: top;
 }
+#span_types.scroll_fset div.scroll_wrapper_full {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+}
 .scroll_fset fieldset {
   height: 100%;
   overflow-x: hidden;

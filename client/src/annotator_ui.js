@@ -566,39 +566,52 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var rememberSpanSettings = function(response) {
         spanKeymap = {};
+        
+        // hide event "half" of box if not defined (assume entities always defined)
+        if (response.event_types.length == 0) {
+          var $entities = $('<div id="entity_types" class="scroll_wrapper_full"/>');
+          addSpanTypesToDiv($entities, response.entity_types, 'Entities');
+          $('#span_types').empty().append($entities);
+        } else {
+          var $entities = $('<div id="entity_types" class="scroll_wrapper_half"/>');
+          addSpanTypesToDiv($entities, response.entity_types, 'Entities');
+          var $events = $('<div id="event_types" class="scroll_wrapper_half"/>');
+          addSpanTypesToDiv($events, response.event_types, 'Events');
+          $('#span_types').empty().append($entities).append($events);
+        }
 
-        $entities = $('<div id="entity_types" class="scroll_wrapper_half"/>');
-        addSpanTypesToDiv($entities, response.entity_types, 'Entities');
-        $events = $('<div id="event_types" class="scroll_wrapper_half"/>');
-        addSpanTypesToDiv($events, response.event_types, 'Events');
-        $('#span_types').empty().append($entities).append($events);
-
+        // hide event attributes box if not defined
         var $attrs = $('#span_attributes div.scroller').empty();
-        $.each(attributeTypes, function(attrNo, attr) {
-          var escapedType = Util.escapeQuotes(attr.type);
-          if (attr.unused) {
-            var $input = $('<input type="hidden" id="span_attr_' + escapedType + '" value=""/>');
-            $attrs.append($input);
-          } else if (attr.bool) {
-            var escapedName = Util.escapeQuotes(attr.name);
-            var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
-            var $label = $('<label for="span_attr_' + escapedType + '">' + escapedName + '</label>');
-            $attrs.append($input).append($label);
-            $input.button();
-          } else {
-            var $div = $('<div class="ui-button ui-button-text-only"/>');
-            var $select = $('<select id="span_attr_' + escapedType + '" class="ui-widget ui-state-default ui-button-text"/>');
-            var $option = $('<option class="ui-state-default" value=""/>').text(attr.name + ': ?');
-            $select.append($option);
-            $.each(attr.values, function(valType, value) {
-              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + (value.name || valType));
+        if (!$.isEmptyObject(attributeTypes)) {
+          $.each(attributeTypes, function(attrNo, attr) {
+            var escapedType = Util.escapeQuotes(attr.type);
+            if (attr.unused) {
+              var $input = $('<input type="hidden" id="span_attr_' + escapedType + '" value=""/>');
+              $attrs.append($input);
+            } else if (attr.bool) {
+              var escapedName = Util.escapeQuotes(attr.name);
+              var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
+              var $label = $('<label for="span_attr_' + escapedType + '">' + escapedName + '</label>');
+              $attrs.append($input).append($label);
+              $input.button();
+            } else {
+              var $div = $('<div class="ui-button ui-button-text-only"/>');
+              var $select = $('<select id="span_attr_' + escapedType + '" class="ui-widget ui-state-default ui-button-text"/>');
+              var $option = $('<option class="ui-state-default" value=""/>').text(attr.name + ': ?');
               $select.append($option);
-            });
-            $div.append($select);
-            $attrs.append($div);
-            $select.change(onAttributeChange);
-          }
-        });
+              $.each(attr.values, function(valType, value) {
+                $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + (value.name || valType));
+                $select.append($option);
+              });
+              $div.append($select);
+              $attrs.append($div);
+              $select.change(onAttributeChange);
+            }
+          });
+          $('#span_attributes').show();
+        } else {
+          $('#span_attributes').hide();
+        }
 
         spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
