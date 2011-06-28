@@ -70,6 +70,18 @@ class AnnotationFileNotFoundError(ProtocolError):
         json_dic['exception'] = 'annotationFileNotFound'
         return json_dic
 
+class AnnotationCollectionNotFoundError(ProtocolError):
+    def __init__(self, cn):
+        self.cn = cn
+
+    def __str__(self):
+        return u'Error accessing collection %s' % (self.cn, )
+
+    def json(self, json_dic):
+        # TODO: more specific error?
+        json_dic['exception'] = 'annotationFileNotFound'
+        return json_dic
+
 class AnnotationTextFileNotFoundError(AnnotationFileNotFoundError):
     def __str__(self):
         return u'Could not read text file for %s' % (self.fn, )

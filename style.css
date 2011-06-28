@@ -491,7 +491,7 @@ fieldset {
 #document_select tr.selected {
   background-color: #cccccc;
 }
-#file_browser th {
+#collection_browser th {
   font-weight: normal;
   text-align: left;
 }

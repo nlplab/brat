@@ -17,6 +17,7 @@ var Ajax = (function($, window, undefined) {
               console.error('Action ' + data.action +
                 ' returned the results of action ' + response.action);
               response.exception = true;
+              dispatcher.post('messages', [[['Protocol error: Action' + data.action + ' returned the results of action ' + response.action, 'error']]]);
             }
             dispatcher.post('messages', [response.messages]);
 

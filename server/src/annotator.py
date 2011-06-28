@@ -75,7 +75,9 @@ def generate_arc_type_html(projectconf, types, keyboard_shortcuts):
             "\n".join(["\n".join(__generate_arc_input_and_label(t, projectconf.preferred_display_form(t), keymap)) for t in types]) +
             "</fieldset>")
 
-def possible_arc_types(directory, origin_type, target_type):
+def possible_arc_types(collection, origin_type, target_type):
+    directory = collection
+    
     real_dir = real_directory(directory)
     projectconf = ProjectConfiguration(real_dir)
     response = {}
@@ -397,7 +399,9 @@ def _set_attributes(ann_obj, ann, attributes, mods):
             mods.addition(new_attr)
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def create_span(directory, document, start, end, type, attributes=None, id=None, comment=None):
+def create_span(collection, document, start, end, type, attributes=None, id=None, comment=None):
+    directory = collection
+
     if attributes is None:
         _attributes = {}
     else:
@@ -511,8 +515,10 @@ from annotation import BinaryRelationAnnotation
 
 #TODO: Should determine which step to call next
 #def save_arc(directory, document, origin, target, type, old_type=None):
-def create_arc(directory, document, origin, target, type,
+def create_arc(collection, document, origin, target, type,
         old_type=None, old_target=None):
+    directory = collection
+
     real_dir = real_directory(directory)
     mods = ModificationTracker()
 
@@ -630,7 +636,9 @@ def create_arc(directory, document, origin, target, type,
         return mods_json
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def delete_arc(directory, document, origin, target, type):
+def delete_arc(collection, document, origin, target, type):
+    directory = collection
+
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
 
@@ -712,7 +720,9 @@ def delete_arc(directory, document, origin, target, type):
         return mods_json
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def delete_span(directory, document, id):
+def delete_span(collection, document, id):
+    directory = collection
+
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
     
@@ -765,7 +775,9 @@ class AnnotationSplitError(ProtocolError):
         Messager.error(self.message)
         return json_dic
 
-def split_span(directory, document, args, id):
+def split_span(collection, document, args, id):
+    directory = collection
+
     real_dir = real_directory(directory)
     document = path_join(real_dir, document)
     # TODO don't know how to pass an array directly, so doing extra catenate and split

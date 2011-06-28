@@ -33,7 +33,7 @@ from search import search_text, search_entity, search_event, search_relation
 ### Constants
 # Function call-backs
 DISPATCHER = {
-        'getDirectoryInformation': get_directory_information,
+        'getCollectionInformation': get_directory_information,
         'getDocument': get_document,
         'importDocument': save_import,
 
@@ -114,13 +114,13 @@ class InvalidActionArgsError(ProtocolError):
 
 
 class DirectorySecurityError(ProtocolError):
-    def __init__(self):
-        pass
+    def __init__(self, requested):
+        self.requested = requested
 
     def json(self, json_dic):
         json_dic['exception'] = 'directorySecurity',
         # TODO: Only if debug is enabled
-        Messager.error('Client sent request for bad directory')
+        Messager.error('Client sent request for bad directory: ' + self.requested)
         return json_dic
 
 
@@ -144,10 +144,10 @@ def dispatch(params, client_ip, client_hostname):
     if action is None:
         raise NoActionError
 
-    # If we got a directory, check it for security
-    if params.getvalue('directory') is not None:
-        if not _directory_is_safe(params.getvalue('directory')):
-            raise DirectorySecurityError
+    # If we got a directory (collection), check it for security
+    if params.getvalue('collection') is not None:
+        if not _directory_is_safe(params.getvalue('collection')):
+            raise DirectorySecurityError(params.getvalue('collection'))
 
     # Make sure that we are authenticated if we are to do certain actions
     if action in REQUIRES_AUTHENTICATION and get_session()['user'] is None:

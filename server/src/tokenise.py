@@ -16,7 +16,7 @@ from subprocess import Popen, PIPE
 from shlex import split as shlex_split
 
 ### Constants
-EN_TOKENIZATION = "simple" # or "internal" or "simple" (sorry, lazy)
+EN_TOKENIZATION = "internal" # alternatives internal/external/simple
 GTB_TOKENIZE_PL_PATH = path_join(dirname(__file__), '../../external/',
         'GTB-tokenize.pl')
 ###
@@ -93,7 +93,8 @@ if __name__ == '__main__':
                 text = txt_file.read()
             print '# Original text:'
             print text.replace('\n', '\\n')
-            offsets = [o for o in jp_token_boundary_gen(text)]
+            #offsets = [o for o in jp_token_boundary_gen(text)]
+            offsets = [o for o in en_token_boundary_gen(text)]
             print '# Offsets:'
             print offsets
             print '# Tokens:'

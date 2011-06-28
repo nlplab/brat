@@ -8,13 +8,14 @@ var VisualizerUI = (function($, window, undefined) {
       var messageDefaultFadeDelay = 3000;
       var defaultFloatFormat = '%.1f/right';
 
-      var filesData = null;
+      var documentListing = null; // always documents of current collection
+      var selectorData = null; // can be search results when available
       var currentForm;
       var spanTypes = null;
       var attributeTypes = null;
       var data = null;
-      var dir, doc, args;
-      var dirScroll;
+      var coll, doc, args;
+      var collScroll;
       var docScroll;
 
       var svgElement = $(svg._svg);
@@ -22,11 +23,11 @@ var VisualizerUI = (function($, window, undefined) {
 
       var sortOrder = [1, 1]; // column (0..), sort order (1, -1)
       var docSortFunction = function(a, b) {
-          // parent dir at the top
+          // parent at the top
           if (a[1] === '..') return -1;
           if (b[1] === '..') return 1;
 
-          // then other directories
+          // then other collections
           var aa = a[0];
           var bb = b[0];
           if (aa !== bb) return aa ? -1 : 1;
@@ -38,7 +39,7 @@ var VisualizerUI = (function($, window, undefined) {
           if (aa != bb) return (aa < bb) ? -sortOrder[1] : sortOrder[1];
 
           // prevent random shuffles on columns with duplicate values
-          // (alphabetical order of filenames)
+          // (alphabetical order of documents)
           aa = a[1];
           bb = b[1];
           if (aa != bb) return (aa < bb) ? -1 : 1;
@@ -47,11 +48,13 @@ var VisualizerUI = (function($, window, undefined) {
 
       var makeSortChangeFunction = function(sort, th, thNo) {
           $(th).click(function() {
-              if (sort[0] === thNo + 1) sort[1] = -sort[1];
+              // TODO: avoid magic numbers in access to the selector
+              // data (column 0 is type, 1 is args, rest is data)
+              if (sort[0] === thNo + 2) sort[1] = -sort[1];
               else {
-                var type = filesData.dochead[thNo][1];
+                var type = selectorData.header[thNo][1];
                 var ascending = type === "string";
-                sort[0] = thNo + 1;
+                sort[0] = thNo + 2;
                 sort[1] = ascending ? 1 : -1;
               }
               showFileBrowser(); // resort
@@ -267,7 +270,7 @@ var VisualizerUI = (function($, window, undefined) {
         fileBrowserSubmit(evt);
       }
 
-      var fileBrowser = $('#file_browser');
+      var fileBrowser = $('#collection_browser');
       initForm(fileBrowser, {
           alsoResize: '#document_select',
           close: function(evt) {
@@ -281,33 +284,33 @@ var VisualizerUI = (function($, window, undefined) {
         selectElementInTable('#document_select', $(this).val());
       });
       var fileBrowserSubmit = function(evt) {
-        var _dir, _doc, found;
+        var _coll, _doc, found;
         var input = $('#document_input').
             val().
             replace(/\/?\\s+$/, '').
             replace(/^\s+/, '');
         if (input.substr(0, 2) === '..') {
           // ..
-          var pos = dir.substr(0, dir.length - 1).lastIndexOf('/');
+          var pos = coll.substr(0, coll.length - 1).lastIndexOf('/');
           if (pos === -1) {
-            dispatcher.post('messages', [[['At the top directory', 'error', 2]]]);
+            dispatcher.post('messages', [[['At the root', 'error', 2]]]);
             $('#document_input').focus().select();
             return false;
           } else {
-            _dir = dir.substr(0, pos + 1);
+            _coll = coll.substr(0, pos + 1);
             _doc = '';
           }
         } else if (found = input.match(/^(\/?)((?:[^\/]+\/)*)([^\/]*)$/)) {
           var abs = found[1];
-          var dirname = found[2].substr(0, found[2].length - 1);
+          var collname = found[2].substr(0, found[2].length - 1);
           var docname = found[3];
           if (abs) {
-            _dir = abs + dirname;
-            if (_dir.length < 2) dir += '/';
+            _coll = abs + collname;
+            if (_coll.length < 2) coll += '/';
             _doc = docname;
           } else {
-            if (dirname) dirname += '/';
-            _dir = dir + dirname;
+            if (collname) collname += '/';
+            _coll = coll + collname;
             _doc = docname;
           }
         } else {
@@ -316,36 +319,40 @@ var VisualizerUI = (function($, window, undefined) {
         }
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').empty();
-        dispatcher.post('setDirectory', [_dir, _doc]);
+        dispatcher.post('setCollection', [_coll, _doc]);
         return false;
       };
       fileBrowser.
           submit(fileBrowserSubmit).
           bind('reset', hideForm);
       var showFileBrowser = function() {
-        if (!(filesData && showForm(fileBrowser))) return false;
+        if (!(selectorData && showForm(fileBrowser))) return false;
 
         var html = ['<tr>'];
         var tbody;
-        $.each(filesData.dochead, function(headNo, head) {
+        $.each(selectorData.header, function(headNo, head) {
           html.push('<th>' + head[0] + '</th>');
         });
         html.push('</tr>');
         $('#document_select thead').html(html.join(''));
 
         html = [];
-        filesData.docs.sort(docSortFunction);
-        $.each(filesData.docs, function(docNo, doc) {
-          var isDir = doc[0];
-          var name = doc[1];
-          var dirFile = isDir ? 'dir' : 'file';
-          var dirSuffix = isDir ? '/' : '';
-          html.push('<tr class="' + dirFile + '" data-value="'
-              + name + dirSuffix + '"><th>' + name + dirSuffix + '</th>');
-          var len = filesData.dochead.length - 1;
+        selectorData.items.sort(docSortFunction);
+        $.each(selectorData.items, function(docNo, doc) {
+          var isColl = doc[0] == "c"; // "collection"
+          // second column is optional annotation-specific pointer,
+          // used (at least) for search results
+          var annp = doc[1] ? ('?' + Util.objectToUrlStr(doc[1])) : '';
+          var name = doc[2];
+          var collFile = isColl ? 'dir' : 'file';
+          var collSuffix = isColl ? '/' : '';
+          html.push('<tr class="' + collFile + '" data-value="'
+                    + name + collSuffix + annp + '"><th>'
+                    + name + collSuffix + '</th>');
+          var len = selectorData.header.length - 1;
           for (var i = 0; i < len; i++) {
-            var type = filesData.dochead[i + 1][1];
-            var datum = doc[i + 2];
+            var type = selectorData.header[i + 1][1];
+            var datum = doc[i + 3];
             // format rest according to "data type" specified in header
             var formatted = null;
             var cssClass = null;
@@ -386,18 +393,18 @@ var VisualizerUI = (function($, window, undefined) {
             makeSortChangeFunction(sortOrder, th, thNo);
         });
 
-        $('#directory_input').val(filesData.directory);
+        $('#collection_input').val(selectorData.collection);
         $('#document_input').val(doc);
-        var curdir = filesData.directory;
-        var pos = curdir.lastIndexOf('/');
-        if (pos != -1) curdir = curdir.substring(pos + 1);
-        selectElementInTable($('#directory_select'), curdir);
+        var curcoll = selectorData.collection;
+        var pos = curcoll.lastIndexOf('/');
+        if (pos != -1) curcoll = curcoll.substring(pos + 1);
+        selectElementInTable($('#collection_select'), curcoll);
         selectElementInTable($('#document_select'), doc);
         setTimeout(function() {
           $('#document_input').focus().select();
         }, 0);
       };
-      $('#file_browser_button').click(showFileBrowser);
+      $('#collection_browser_button').click(showFileBrowser);
 
       var onKeyDown = function(evt) {
         var code = evt.which;
@@ -419,28 +426,34 @@ var VisualizerUI = (function($, window, undefined) {
           return false;
         } else if (code == $.ui.keyCode.LEFT) {
           var pos;
-          $.each(filesData.docs, function(docNo, docRow) {
-            if (docRow[1] === doc) {
+          $.each(selectorData.items, function(docNo, docRow) {
+            if (docRow[2] === doc) {
               pos = docNo;
               return false;
             }
           });
-          if (pos > 0 && !filesData.docs[pos - 1][0]) {
-            // not at the start, and the previous is not a directory
-            dispatcher.post('setDocument', [filesData.docs[pos - 1][1]]);
+          if (pos > 0 && selectorData.items[pos - 1][0] != "c") {
+            // not at the start, and the previous is not a collection (dir)
+            var newPos = pos - 1;
+            dispatcher.post('setDocument', [selectorData.items[newPos][2],
+                                            selectorData.items[newPos][1]]);
           }
           return false;
         } else if (code === $.ui.keyCode.RIGHT) {
           var pos;
-          $.each(filesData.docs, function(docNo, docRow) {
-            if (docRow[1] == doc) {
+          $.each(selectorData.items, function(docNo, docRow) {
+            // TODO: check (with author) if asymmetry in use of '===' 
+            // above and '==' here is intentional
+            if (docRow[2] == doc) {
               pos = docNo;
               return false;
             }
           });
-          if (pos < filesData.docs.length - 1) {
+          if (pos < selectorData.items.length - 1) {
             // not at the end
-            dispatcher.post('setDocument', [filesData.docs[pos + 1][1]]);
+            var newPos = pos + 1;
+            dispatcher.post('setDocument', [selectorData.items[newPos][2],
+                                            selectorData.items[newPos][1]]);
           }
           return false;
         }
@@ -456,14 +469,35 @@ var VisualizerUI = (function($, window, undefined) {
         resizerTimeout = setTimeout(resizeFunction, 100); // TODO is 100ms okay?
       };
 
-      var dirLoaded = function(response) {
+      var collectionLoaded = function(response) {
         if (response.exception) {
-          dispatcher.post('setDirectory', ['/']);
+          dispatcher.post('setCollection', ['/']);
         } else {
-          filesData = response;
-          filesData.docs.sort(docSortFunction);
+          selectorData = response;
+          documentListing = response; // 'backup'
+          selectorData.items.sort(docSortFunction);
         }
       };
+
+      var searchResultsReceived = function(response) {
+        if (response.exception) {
+            ; // TODO: reasonable reaction
+        } else {
+          selectorData = response;
+           // TODO: backup file browser sort order during search
+          sortOrder = [1, 1]; // reset
+          selectorData.items.sort(docSortFunction);
+          showFileBrowser();
+        }
+      };
+
+      var clearSearch = function() {
+        // back off to document collection
+        selectorData = documentListing;
+        sortOrder = [1, 1]; // reset
+        selectorData.items.sort(docSortFunction);
+        showFileBrowser();
+      }
 
       var saveSVGTimer = null;
       var saveSVG = function() {
@@ -521,16 +555,16 @@ var VisualizerUI = (function($, window, undefined) {
         }
       }
 
-      var gotCurrent = function(_dir, _doc, _args) {
-        dir = _dir;
+      var gotCurrent = function(_coll, _doc, _args) {
+        coll = _coll;
         doc = _doc;
         args = _args;
 
-        $docName = $('#document_name input').val(dir + doc);
+        $docName = $('#document_name input').val(coll + doc);
         var docName = $docName[0];
         // TODO do this on resize, as well
         // scroll the document name to the right, so the name is visible
-        // (even if the directory isn't, fully)
+        // (even if the collection name isn't, fully)
         docName.scrollLeft = docName.scrollWidth;
 
         $('#document_mtime').hide();
@@ -647,7 +681,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('showForm', showForm).
           on('hideForm', hideForm).
           on('initForm', initForm).
-          on('dirLoaded', dirLoaded).
+          on('collectionLoaded', collectionLoaded).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('current', gotCurrent).
           on('doneRendering', onDoneRendering).
@@ -660,8 +694,9 @@ var VisualizerUI = (function($, window, undefined) {
           on('unknownError', showUnknownError).
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
-          on('resize', onResize);
-
+          on('resize', onResize).
+          on('searchResultsReceived', searchResultsReceived).
+          on('clearSearch', clearSearch);
     };
 
     return VisualizerUI;

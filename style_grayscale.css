@@ -345,7 +345,7 @@ rect.shadow_EditHighlight {
 }
 
 
-#span_form, #arc_form, #auth_form, #file_browser, #import_form {
+#span_form, #arc_form, #auth_form, #collection_browser, #import_form {
   position: fixed;
   background-color: #dddddd;
   border: 2px outset #dddddd;
@@ -543,11 +543,11 @@ fieldset {
 #filedir_inputs_table th {
   width: 50px;
 }
-#file_browser th {
+#collection_browser th {
   font-weight: normal;
   text-align: left;
 }
-#file_buttons {
+#collection_buttons {
   text-align: right;
 }
 #import_text {

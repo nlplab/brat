@@ -50,10 +50,12 @@ class NoWritePermissionError(ProtocolError):
 
 
 #TODO: Chop this function up
-def save_import(title, text, docid, directory=None):
+def save_import(title, text, docid, collection=None):
     '''
     TODO: DOC:
     '''
+
+    directory = collection
 
     if directory is None:
         dir_path = DATA_DIR
