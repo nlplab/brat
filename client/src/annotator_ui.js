@@ -626,8 +626,11 @@ var AnnotatorUI = (function($, window, undefined) {
         spanForm.find('.collapser').click(collapseHandler);
 
         // TODO: If search form goes into visualizer_ui.js, this goes too
+        $('#search_form_entity_type').empty();
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
+        $('#search_form_event_type').empty();
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
+        $('#search_form_relation_type').empty();
         addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
       };
 
