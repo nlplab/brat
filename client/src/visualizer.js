@@ -378,12 +378,14 @@ var Visualizer = (function($, window, undefined) {
         // Note: making "focus" an alias for a single-entity
         // "edited" marking in cases where "edited" is not defined.
         // TODO: unify the "focus" and "edited" mechanisms.
-        if (!args.edited && args.focus) {
-          args.edited = [[args.focus]];
+        var argsEdited = args.edited;
+
+        if (!argsEdited && args.focus) {
+          argsEdited = [[args.focus]];
         }
 
-        if (args.edited) {
-          $.each(args.edited, function(editedNo, edited) {
+        if (argsEdited) {
+          $.each(argsEdited, function(editedNo, edited) {
             if (edited[0] == 'sent') {
               data.editedSent = edited[1];
             } else if (edited[0] == 'equiv') { // [equiv, Equiv, T1]

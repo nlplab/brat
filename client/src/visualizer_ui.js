@@ -342,7 +342,7 @@ var VisualizerUI = (function($, window, undefined) {
           var isColl = doc[0] == "c"; // "collection"
           // second column is optional annotation-specific pointer,
           // used (at least) for search results
-          var annp = doc[1] ? ('?' + Util.objectToUrlStr(doc[1])) : '';
+          var annp = doc[1] ? ('?' + $.param(doc[1])) : '';
           var name = doc[2];
           var collFile = isColl ? 'dir' : 'file';
           var collSuffix = isColl ? '/' : '';
@@ -406,6 +406,26 @@ var VisualizerUI = (function($, window, undefined) {
       };
       $('#collection_browser_button').click(showFileBrowser);
 
+      var currentSelectorPosition = function() {
+        var pos;
+        $.each(selectorData.items, function(docNo, docRow) {
+          if (docRow[2] == doc) {
+            // args may have changed, so lacking a perfect match return
+            // last matching document as best guess
+            pos = docNo;
+            // check for perfect match
+            // TODO: use proper object equality (e.g. underscore.js
+            // isEqual) instead of $.param() hack
+            if ((!docRow[1] && !args) || 
+                ($.param(docRow[1] || '') == $.param(args || ''))) {
+              pos = docNo;
+              return false;
+            }
+          }
+        });
+        return pos;
+      }
+
       var onKeyDown = function(evt) {
         var code = evt.which;
 
@@ -425,13 +445,7 @@ var VisualizerUI = (function($, window, undefined) {
           showFileBrowser();
           return false;
         } else if (code == $.ui.keyCode.LEFT) {
-          var pos;
-          $.each(selectorData.items, function(docNo, docRow) {
-            if (docRow[2] === doc) {
-              pos = docNo;
-              return false;
-            }
-          });
+          var pos = currentSelectorPosition();
           if (pos > 0 && selectorData.items[pos - 1][0] != "c") {
             // not at the start, and the previous is not a collection (dir)
             var newPos = pos - 1;
@@ -440,15 +454,7 @@ var VisualizerUI = (function($, window, undefined) {
           }
           return false;
         } else if (code === $.ui.keyCode.RIGHT) {
-          var pos;
-          $.each(selectorData.items, function(docNo, docRow) {
-            // TODO: check (with author) if asymmetry in use of '===' 
-            // above and '==' here is intentional
-            if (docRow[2] == doc) {
-              pos = docNo;
-              return false;
-            }
-          });
+          var pos = currentSelectorPosition();
           if (pos < selectorData.items.length - 1) {
             // not at the end
             var newPos = pos + 1;

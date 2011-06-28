@@ -88,7 +88,8 @@ var Util = (function(window, undefined) {
       return labels[0] || arcType;
     }
 
-    // TODO: there should be a better way to do this (some lib?)
+    // TODO: switching to use of $.param(), this function should
+    // be deprecated and removed.
     var objectToUrlStr = function(o) {
       a = [];
       $.each(o, function(key,value) {

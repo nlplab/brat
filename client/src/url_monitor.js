@@ -6,14 +6,14 @@ var URLMonitor = (function($, window, undefined) {
 
       var reloadData = true;
 
-      that.args = {};
+      that.args = null;
       that.doc = null;
       that.coll = null;
 
       var updateURL = function() {
         var uri = that.coll + that.doc;
         // TODO only allowed args?
-        var args = $.param(that.args);
+        var args = that.args === null ? '' : $.param(that.args);
         if (args.length) args = '?' + args;
         uri += args;
         if (uri.length) uri = '#' + uri;
@@ -23,8 +23,8 @@ var URLMonitor = (function($, window, undefined) {
       };
 
       var setArguments = function(args, collChanging) {
-        var oldArgs = that.args || {};
-        that.args = args || {};
+        var oldArgs = that.args === null ? '' : that.args;
+        that.args = args === null ? '' : args;
         var oldArgStr = $.param(oldArgs);
         var argStr = $.param(that.args);
         if (oldArgStr !== argStr) {
@@ -39,7 +39,7 @@ var URLMonitor = (function($, window, undefined) {
         if (oldDoc !== doc) {
           dispatcher.post('docChanged', [doc, oldDoc]);
         }
-        setArguments(args || {}, true);
+        setArguments(args || '', true);
       };
 
       var setCollection = function(coll, doc, args) {
@@ -82,6 +82,13 @@ var URLMonitor = (function($, window, undefined) {
         }
         var doc = path.substr(slashPos + 1);
         var args = $.deparam(argsStr);
+        // deparam() gives {} for any empty, using null internally for
+        // ease of comparison. (BTW what kind of language doesn't
+        // provide an inbuilt mechanism for checking for an empty
+        // primitive??)
+        if ($.isEmptyObject(args)) {
+          args = null;
+        }
 
         setCollection(coll, doc, args);
         dispatcher.post('current', [that.coll, that.doc, that.args, reloadData]);
