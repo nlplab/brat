@@ -45,6 +45,16 @@ def _refine_split(offsets, original_text):
             _, next_end = old_offsets.pop()
             new_offset = (new_offset[0], next_end)
         new_offsets.append(new_offset)
+
+    # protect against missing document-final newline causing the last
+    # sentence to fall out of offset scope
+    if len(new_offsets) != 0 and new_offsets[-1][1] != len(original_text)-1:
+        start = new_offsets[-1][1]+1
+        while start < len(original_text) and original_text[start].isspace():
+            start += 1
+        if start < len(original_text)-1:
+            new_offsets.append((start, len(original_text)-1))
+
     return new_offsets
 
 def _sentence_boundary_gen(text, regex):
