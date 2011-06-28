@@ -555,10 +555,19 @@ var AnnotatorUI = (function($, window, undefined) {
       var addSpanTypesToSelect = function($select, types) {
         $.each(types, function(typeNo, type) {
           if (type !== null) {
-            var $option = $('<option value="' + Util.escapeQuotes(type.type) + '"/>').text(type.name);
-            $select.append($option);
-            if (type.children) {
-              addSpanTypesToSelect($select, type.children);
+            // protect against introducing the same thing twice
+            // TODO: unnecessarily slow implementation, do better
+            var previously_included = false;
+            $select.children("option[text='"+type.name+"']").each(function(optNo, opt) {
+              previously_included = true;
+            });
+
+            if (!previously_included) {
+              var $option = $('<option value="' + Util.escapeQuotes(type.type) + '"/>').text(type.name);
+              $select.append($option);
+              if (type.children) {
+                addSpanTypesToSelect($select, type.children);
+              }
             }
           }
         });
@@ -616,7 +625,7 @@ var AnnotatorUI = (function($, window, undefined) {
         spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
 
-        // XXX If search form goes into visualizer_ui.js, this goes too
+        // TODO: If search form goes into visualizer_ui.js, this goes too
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
         addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
