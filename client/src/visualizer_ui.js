@@ -24,8 +24,8 @@ var VisualizerUI = (function($, window, undefined) {
       var sortOrder = [1, 1]; // column (0..), sort order (1, -1)
       var docSortFunction = function(a, b) {
           // parent at the top
-          if (a[1] === '..') return -1;
-          if (b[1] === '..') return 1;
+          if (a[2] === '..') return -1;
+          if (b[2] === '..') return 1;
 
           // then other collections
           var aa = a[0];
@@ -40,8 +40,8 @@ var VisualizerUI = (function($, window, undefined) {
 
           // prevent random shuffles on columns with duplicate values
           // (alphabetical order of documents)
-          aa = a[1];
-          bb = b[1];
+          aa = a[2];
+          bb = b[2];
           if (aa != bb) return (aa < bb) ? -1 : 1;
           return 0;
       };
