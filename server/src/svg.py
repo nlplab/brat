@@ -37,9 +37,11 @@ class UnknownSVGVersionError(ProtocolError):
     def __init__(self, unknown_version):
         self.unknown_version = unknown_version
 
+    def __str__(self):
+        return 'Version "%s" is not a valid version' % self.unknown_version
+
     def json(self, json_dic):
         json_dic['exception'] = 'unknownSVGVersion'
-        Messager.error('Version "%s" is not a valid version' % self.unknown_version)
         return json_dic
 
 
@@ -47,16 +49,20 @@ class NoSVGError(ProtocolError):
     def __init__(self, version):
         self.version = version
 
+    def __str__(self):
+        return 'SVG with version "%s" does not exist "%s"' % (self.version, )
+
     def json(self, json_dic):
         json_dic['exception'] = 'noSVG'
-        directory('SVG with version "%s" does not exist "%s"'
-                % (self.version, ), 'error')
         return json_dic
 
 
 class CorruptSVGError(ProtocolError):
     def __init__(self):
         pass
+
+    def __str__(self):
+        return 'Corrupt SVG'
 
     def json(self, json_dic):
         json_dic['exception'] = 'corruptSVG'

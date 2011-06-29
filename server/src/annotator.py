@@ -528,9 +528,12 @@ def create_arc(collection, document, origin, target, type,
     document = path_join(real_dir, document)
 
     with TextAnnotations(document) as ann_obj:
-        # Dirty hack to bail as quick as possible if read-only
+        # Dirty hack to bail as quick as possible if read-only 
+
+        # TODO: why only here? The checking of readonly should be
+        # consistent across the different editing functions.
         if ann_obj._read_only:
-            raise AnnotationsIsReadOnlyError
+            raise AnnotationsIsReadOnlyError(ann_obj.get_document())
 
         origin = ann_obj.get_ann_by_id(origin) 
         target = ann_obj.get_ann_by_id(target)
@@ -769,6 +772,9 @@ from common import ProtocolError
 class AnnotationSplitError(ProtocolError):
     def __init__(self, message):
         self.message = message
+
+    def __str__(self):
+        return self.message
 
     def json(self, json_dic):
         json_dic['exception'] = 'annotationSplitError'

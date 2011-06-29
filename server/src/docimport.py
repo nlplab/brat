@@ -26,6 +26,9 @@ class InvalidDirError(ProtocolError):
     def __init__(self, path):
         self.path = path
 
+    def __str__(self):
+        return 'Invalid directory'
+
     def json(self, json_dic):
         json_dic['exception'] = 'invalidDirError'
         return json_dic
@@ -35,6 +38,9 @@ class FileExistsError(ProtocolError):
     def __init__(self, path):
         self.path = path
 
+    def __str__(self):
+        return 'File exists: %s' % self.path
+
     def json(self, json_dic):
         json_dic['exception'] = 'fileExistsError'
         return json_dic
@@ -43,6 +49,9 @@ class FileExistsError(ProtocolError):
 class NoWritePermissionError(ProtocolError):
     def __init__(self, path):
         self.path = path
+
+    def __str__(self):
+        return 'No write permission to %s' % self.path
 
     def json(self, json_dic):
         json_dic['exception'] = 'noWritePermissionError'

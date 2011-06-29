@@ -22,21 +22,22 @@ class NotAuthorisedError(ProtocolError):
     def __init__(self, attempted_action):
         self.attempted_action = attempted_action
 
+    def __str__(self):
+        return 'Login required to perform "%s"' % self.attempted_action
+
     def json(self, json_dic):
         json_dic['exception'] = 'notAuthorised'
-        # TODO: Really send this message?
-        Message.error('Login required to perform "%s"' % self.attempted_action, duration=5)
         return json_dic
-
 
 class InvalidAuthError(ProtocolError):
     def __init__(self):
         pass
 
+    def __str__(self):
+        return 'Incorrect login and/or password'
+
     def json(self, json_dic):
         json_dic['exception'] = 'invalidAuth'
-        # TODO: Really send this message?
-        Messager.error('Incorrect login and/or password', 5)
         return json_dic
 
 

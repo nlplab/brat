@@ -83,10 +83,11 @@ class NoActionError(ProtocolError):
     def __init__(self):
         pass
 
+    def __str__(self):
+        return 'Client sent no action for request'
+
     def json(self, json_dic):
         json_dic['exception'] = 'noAction'
-        # TODO: Only if debug is enabled
-        Messager.error('Client sent no action for request')
         return json_dic
 
 
@@ -94,10 +95,11 @@ class InvalidActionError(ProtocolError):
     def __init__(self, attempted_action):
         self.attempted_action = attempted_action
 
+    def __str__(self):
+        return 'Client sent an invalid action "%s"' % self.attempted_action
+
     def json(self, json_dic):
         json_dic['exception'] = 'invalidAction',
-        # TODO: Only if debug is enabled
-        Messager.error('Client sent an invalid action "%s"' % self.attempted_action)
         return json_dic
 
 
@@ -106,10 +108,11 @@ class InvalidActionArgsError(ProtocolError):
         self.attempted_action = attempted_action
         self.missing_arg = missing_arg
 
+    def __str__(self):
+        return 'Client did not supply argument "%s" for action "%s"' % (self.missing_arg, self.attempted_action)
+
     def json(self, json_dic):
         json_dic['exception'] = 'invalidActionArgs',
-        # TODO: Only if debug is enabled
-        Messager.error('Client did not supply argument "%s" for action "%s"' % (self.missing_arg, self.attempted_action))
         return json_dic
 
 
@@ -117,10 +120,11 @@ class DirectorySecurityError(ProtocolError):
     def __init__(self, requested):
         self.requested = requested
 
+    def __str__(self):
+        return 'Client sent request for bad directory: ' + self.requested
+
     def json(self, json_dic):
         json_dic['exception'] = 'directorySecurity',
-        # TODO: Only if debug is enabled
-        Messager.error('Client sent request for bad directory: ' + self.requested)
         return json_dic
 
 

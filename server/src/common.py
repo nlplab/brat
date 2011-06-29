@@ -13,6 +13,14 @@ class ProtocolError(Exception):
     def __init__(self):
         raise NotImplementedError, 'abstract method'
 
+    def __str__(self):
+        # TODO: just adding __str__ to ProtocolError, not all
+        # currently support it, so falling back on this assumption
+        # about how to make a (nearly) human-readable string. Once
+        # __str__ added to all ProtocolErrors, raise
+        # NotImplementedError instead.
+        return 'ProtocolError: %s (TODO: __str__() method)' % self.__class__
+
     def json(self, json_dic):
         raise NotImplementedError, 'abstract method'
 

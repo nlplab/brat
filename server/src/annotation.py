@@ -87,8 +87,11 @@ class AnnotationTextFileNotFoundError(AnnotationFileNotFoundError):
         return u'Could not read text file for %s' % (self.fn, )
 
 class AnnotationsIsReadOnlyError(ProtocolError):
-    def __init__(self):
-        pass
+    def __init__(self, fn):
+        self.fn = fn
+
+    def __str__(self):
+        return u'Annotations read-only for %s' % (self.fn, )
 
     def json(self, json_dic):
         json_dic['exception'] = 'annotationIsReadOnly'
@@ -309,7 +312,7 @@ class Annotations(object):
         #TODO: DOC!
         #TODO: Check read only
         if not read and self._read_only:
-            raise AnnotationsIsReadOnlyError
+            raise AnnotationsIsReadOnlyError(self.get_document())
 
         # Equivs have to be merged with other equivs
         try:
@@ -376,7 +379,7 @@ class Annotations(object):
         #      invasive (direct modification of ModificationTracker.deleted)
         #TODO: DOC!
         if self._read_only:
-            raise AnnotationsIsReadOnlyError
+            raise AnnotationsIsReadOnlyError(self.get_document())
 
         try:
             ann.id

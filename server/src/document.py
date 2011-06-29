@@ -294,6 +294,9 @@ class UnableToReadTextFile(ProtocolError):
     def __init__(self, path):
         self.path = path
 
+    def __str__(self):
+        return 'Unable to read text file %s' % self.path
+
     def json(self, json_dic):
         json_dic['exception'] = 'unableToReadTextFile'
         return json_dic
