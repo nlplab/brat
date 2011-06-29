@@ -681,7 +681,7 @@ class Annotations(object):
 
                     except AnnotationLineSyntaxError, e:
                         # We could not parse even an ID on the line, just add it as an unknown annotation
-                        self.add_annotation(UnknownAnnotation(e.line, source_id=filepath), read=True)
+                        self.add_annotation(UnknownAnnotation(e.line, source_id=e.filepath), read=True)
                         # NOTE: For access we start at line 0, not 1 as in here
                         self.failed_lines.append(e.line_num - 1)
 
