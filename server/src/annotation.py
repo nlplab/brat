@@ -153,6 +153,10 @@ def annotation_id_number(id):
     return __split_annotation_id(id)[1]
 
 def is_valid_id(id):
+    # special case: '*' is acceptable as an "ID"
+    if id == '*':
+        return True
+
     try:
         # currently accepting any ID that can be split.
         # TODO: consider further constraints 
