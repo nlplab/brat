@@ -37,6 +37,10 @@ def _refine_split(offsets, original_text):
 
     # Align the texts and see where our offsets don't match
     old_offsets = offsets[::-1]
+    # Protect against edge case of single-line docs missing
+    # sentence-terminal newline
+    if len(old_offsets) == 0:
+        old_offsets.append((0,len(original_text)))
     new_offsets = []
     for refined_sentence in output.split('\n'):
         new_offset = old_offsets.pop()
