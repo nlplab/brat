@@ -436,7 +436,14 @@ var VisualizerUI = (function($, window, undefined) {
 
         if (currentForm) {
           if (code === $.ui.keyCode.ENTER) {
-            currentForm.trigger('submit');
+            // don't trigger submit in textareas to allow multiline text
+            // entry
+              console.log(evt.target.nodeName);
+              // NOTE: spec seems to require this to be upper-case,
+              // but at least chrome 8.0.552.215 returns lowercased
+              if (evt.target.nodeName.toUpperCase() != 'TEXTAREA') {
+                currentForm.trigger('submit');
+              }
           }
           return;
         }
