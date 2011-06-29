@@ -149,6 +149,15 @@ def annotation_id_prefix(id):
 def annotation_id_number(id):
     return __split_annotation_id(id)[1]
 
+def is_valid_id(id):
+    try:
+        # currently accepting any ID that can be split.
+        # TODO: consider further constraints 
+        __split_annotation_id(id)[1]
+        return True
+    except InvalidIdError:
+        return False
+
 class Annotations(object):
     """
     Basic annotation storage. Not concerned with conformity of
@@ -630,6 +639,12 @@ class Annotations(object):
 
                         if id in self._ann_by_id and pre != '*':
                             raise DuplicateAnnotationIdError(id)
+
+                        # if the ID is not valid, need to fail with
+                        # AnnotationLineSyntaxError (not
+                        # IdedAnnotationLineSyntaxError).
+                        if not is_valid_id(id):
+                            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1, input_file_path)
 
                         # Cases for lines
                         try:
