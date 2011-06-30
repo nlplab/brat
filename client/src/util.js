@@ -343,14 +343,22 @@ var Util = (function(window, undefined) {
         return [r * 255, g * 255, b * 255];
     }
 
+    var lightenColorCache = {};
+
     // given color string and 0<=adjust<=1, returns color string
     // lighter by the amount, the larger the lighter.
     var lightenColor = function(colorstr, adjust) {
+      if (!(colorstr in lightenColorCache)) {
+        lightenColorCache[colorstr] = {}
+      }
+      if (!(adjust in lightenColorCache[colorstr])) {
         var rgb = strToRgb(colorstr);
         var hsl = rgbToHsl(rgb);
         hsl[2] = 1.0 - ((1.0-hsl[2])*(1.0-adjust));
         var lightRgb = hslToRgb(hsl);
-        return rgbToStr(lightRgb);
+        lightenColorCache[colorstr][adjust] = rgbToStr(lightRgb);
+      }
+      return lightenColorCache[colorstr][adjust];
     }
 
     var profiles = {};
