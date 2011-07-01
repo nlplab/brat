@@ -567,10 +567,14 @@ def __directory_relations_by_arg_num(directory, num, atype):
     rels = []
 
     for r in get_relation_type_list(directory):
-        # "Special" nesting relation ignore in regular relation listings
-        # TODO: avoid magic string value
-        if r.storage_form() == "ENTITY-NESTING":
-            continue
+        # TODO: this "fix" avoiding display to user was breaking
+        # verifier checking on whether nestings were allowed, i.e.
+        # making the whole thing completely useless. Refix in some
+        # other way.
+#         # "Special" nesting relation ignored in regular relation
+#         # listings TODO: avoid magic string value
+#         if r.storage_form() == "ENTITY-NESTING":
+#             continue
 
         if len(r.arg_list) != 2:
             Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(r.arg_list)))
