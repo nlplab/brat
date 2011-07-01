@@ -600,7 +600,7 @@ class Annotations(object):
         type, target = data.split()
         return AttributeAnnotation(target, id, type, data_tail, True, source_id=input_file_path)
 
-    def _split_textbound_data(self, id, data):
+    def _split_textbound_data(self, id, data, input_file_path):
         try:
             type, start_str, end_str = data.split(None, 2)
             # ignore trailing whitespace
@@ -616,7 +616,7 @@ class Annotations(object):
         return type, start, end
 
     def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
-        type, start, end = self._split_textbound_data(id, data)
+        type, start, end = self._split_textbound_data(id, data, input_file_path)
         return TextBoundAnnotation(start, end, id, type, data_tail, source_id=input_file_path)
 
     def _parse_comment_line(self, id, data, data_tail, input_file_path):
@@ -829,7 +829,7 @@ class TextAnnotations(Annotations):
         Annotations.__init__(self, document, read_only)
 
     def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
-        type, start, end = self._split_textbound_data(id, data)
+        type, start, end = self._split_textbound_data(id, data, input_file_path)
 
         # Verify annotation extent
         if start > end:
