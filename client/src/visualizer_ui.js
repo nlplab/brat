@@ -33,9 +33,9 @@ var VisualizerUI = (function($, window, undefined) {
           if (b[2] === '..') return 1;
 
           // then other collections
-          var aa = a[0];
-          var bb = b[0];
-          if (aa !== bb) return aa ? -1 : 1;
+          var aIsColl = a[0] == "c";
+          var bIsColl = b[0] == "c";
+          if (aIsColl !== bIsColl) return aIsColl ? -1 : 1;
 
           // desired column in the desired order
           var col = sortOrder[0];
