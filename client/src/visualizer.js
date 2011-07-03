@@ -807,7 +807,7 @@ var Visualizer = (function($, window, undefined) {
 
       var renderDataReal = function(_data) {
 
-Util.profileClear();
+Util.profileEnd('beforerender');
 Util.profileStart('render');
 Util.profileStart('init');
 
@@ -1614,6 +1614,10 @@ Util.profileReport();
         if (svg && isRenderRequested && isCollectionLoaded && areFontsLoaded) {
           isRenderRequested = false;
           if (doc.length) {
+
+Util.profileClear();
+Util.profileStart('beforerender');
+
             renderDocument();
           } else {
             dispatcher.post(0, 'renderError:noFileSpecified');
