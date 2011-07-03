@@ -26,7 +26,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START collection browser sorting - related */
 
-      var sortOrder = [1, 1]; // column (0..), sort order (1, -1)
+      var sortOrder = [2, 1]; // column (0..), sort order (1, -1)
       var docSortFunction = function(a, b) {
           // parent at the top
           if (a[2] === '..') return -1;
@@ -775,7 +775,7 @@ var VisualizerUI = (function($, window, undefined) {
             ; // TODO: reasonable reaction
         } else {
           selectorData = response;
-          sortOrder = [1, 1]; // reset
+          sortOrder = [2, 1]; // reset
           selectorData.items.sort(docSortFunction);
           showFileBrowser();
         }
@@ -784,7 +784,7 @@ var VisualizerUI = (function($, window, undefined) {
       var clearSearch = function() {
         // back off to document collection
         selectorData = documentListing;
-        sortOrder = [1, 1]; // reset
+        sortOrder = [2, 1]; // reset
         selectorData.items.sort(docSortFunction);
         showFileBrowser();
       }
