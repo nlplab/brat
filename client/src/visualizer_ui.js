@@ -9,7 +9,8 @@ var VisualizerUI = (function($, window, undefined) {
       var defaultFloatFormat = '%.1f/right';
 
       var documentListing = null; // always documents of current collection
-      var selectorData = null; // can be search results when available
+      var selectorData = null;    // can be search results when available
+
       var currentForm;
       var spanTypes = null;
       var attributeTypes = null;
@@ -20,6 +21,9 @@ var VisualizerUI = (function($, window, undefined) {
 
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
+
+
+      /* START collection browser sorting - related */
 
       var sortOrder = [1, 1]; // column (0..), sort order (1, -1)
       var docSortFunction = function(a, b) {
@@ -60,6 +64,11 @@ var VisualizerUI = (function($, window, undefined) {
               showFileBrowser(); // resort
           });
       }
+
+      /* END collection browser sorting - related */
+
+
+      /* START message display - related */
 
       var messageContainer = $('#messages');
       var displayMessages = foo = function(msgs) {
@@ -107,6 +116,11 @@ var VisualizerUI = (function($, window, undefined) {
           });
         }
       };
+
+      /* END message display - related */
+
+
+      /* START comment popup - related */
 
       var adjustToCursor = function(evt, element, offset, top, right) {
         // get the real width, without wrapping
@@ -193,6 +207,11 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
+      /* END comment popup - related */
+
+
+      /* START form management - related */
+
       initForm = function(form, opts) {
         opts = opts || {};
         var formId = form.attr('id');
@@ -253,6 +272,11 @@ var VisualizerUI = (function($, window, undefined) {
         if (form === currentForm) currentForm = null;
       };
 
+      /* END form management - related */
+
+
+      /* START collection browser - related */
+
       var selectElementInTable = function(table, value) {
         table = $(table);
         table.find('tr').removeClass('selected');
@@ -260,11 +284,13 @@ var VisualizerUI = (function($, window, undefined) {
           table.find('tr[data-value="' + value + '"]').addClass('selected');
         }
       }
+
       var chooseDocument = function(evt) {
         var docname = $(evt.target).closest('tr').attr('data-value');
         $('#document_input').val(docname);
         selectElementInTable('#document_select', docname);
       }
+
       var chooseDocumentAndSubmit = function(evt) {
         chooseDocument(evt);
         fileBrowserSubmit(evt);
@@ -283,6 +309,7 @@ var VisualizerUI = (function($, window, undefined) {
       $('#document_input').change(function(evt) {
         selectElementInTable('#document_select', $(this).val());
       });
+
       var fileBrowserSubmit = function(evt) {
         var _coll, _doc, found;
         var input = $('#document_input').
@@ -325,6 +352,7 @@ var VisualizerUI = (function($, window, undefined) {
       fileBrowser.
           submit(fileBrowserSubmit).
           bind('reset', hideForm);
+
       var showFileBrowser = function() {
         if (!(selectorData && showForm(fileBrowser))) return false;
 
@@ -403,7 +431,7 @@ var VisualizerUI = (function($, window, undefined) {
         setTimeout(function() {
           $('#document_input').focus().select();
         }, 0);
-      };
+      }; // end showFileBrowser()
       $('#collection_browser_button').click(showFileBrowser);
 
       var currentSelectorPosition = function() {
@@ -425,6 +453,8 @@ var VisualizerUI = (function($, window, undefined) {
         });
         return pos;
       }
+
+      /* END collection browser - related */
 
       var onKeyDown = function(evt) {
         var code = evt.which;
