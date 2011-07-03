@@ -807,7 +807,7 @@ var Visualizer = (function($, window, undefined) {
 
       var renderDataReal = function(_data) {
 
-Util.profileEnd('beforerender');
+Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
 
@@ -1583,6 +1583,7 @@ Util.profileReport();
         annotationFileNotFound: true
       };
       var renderData = function(_data) {
+        Util.profileEnd('invoke getDocument');
         if (_data && _data.exception) {
           if (renderErrors[_data.exception]) {
             dispatcher.post('renderError:' + _data.exception);
@@ -1600,6 +1601,7 @@ Util.profileReport();
       };
 
       var renderDocument = function() {
+        Util.profileStart('invoke getDocument');
         dispatcher.post('ajax', [{
             action: 'getDocument',
             collection: coll,
@@ -1616,7 +1618,7 @@ Util.profileReport();
           if (doc.length) {
 
 Util.profileClear();
-Util.profileStart('beforerender');
+Util.profileStart('before render');
 
             renderDocument();
           } else {
