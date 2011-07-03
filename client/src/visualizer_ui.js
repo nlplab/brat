@@ -62,6 +62,7 @@ var VisualizerUI = (function($, window, undefined) {
                 sort[0] = thNo + 2;
                 sort[1] = ascending ? 1 : -1;
               }
+              selectorData.items.sort(docSortFunction);
               showFileBrowser(); // resort
           });
       }
@@ -366,7 +367,10 @@ var VisualizerUI = (function($, window, undefined) {
         $('#document_select thead').html(html.join(''));
 
         html = [];
-        selectorData.items.sort(docSortFunction);
+        // NOTE: we seem to have some excessive sorting going on;
+        // disabling this as a test. If everything works, just remove
+        // the following commented-out line (and this comment):
+        //selectorData.items.sort(docSortFunction);
         $.each(selectorData.items, function(docNo, doc) {
           var isColl = doc[0] == "c"; // "collection"
           // second column is optional annotation-specific pointer,
@@ -776,7 +780,9 @@ var VisualizerUI = (function($, window, undefined) {
         } else {
           selectorData = response;
           sortOrder = [2, 1]; // reset
-          selectorData.items.sort(docSortFunction);
+          // NOTE: don't sort, allowing order in which
+          // responses are given to be used as default
+          //selectorData.items.sort(docSortFunction);
           showFileBrowser();
         }
       };
@@ -784,6 +790,8 @@ var VisualizerUI = (function($, window, undefined) {
       var clearSearch = function() {
         // back off to document collection
         selectorData = documentListing;
+        // TODO: it would be better to revert to previous sort order
+        // rather than the default
         sortOrder = [2, 1]; // reset
         selectorData.items.sort(docSortFunction);
         showFileBrowser();
