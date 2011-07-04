@@ -20,7 +20,7 @@ from os.path import isfile, getmtime
 from os.path import join as path_join
 
 from annotation import Annotations, open_textfile
-from config import DATA_DIR
+from config import DATA_DIR, BASE_DIR
 from message import Messager
 from projectconfig import get_config_path
 
@@ -35,6 +35,10 @@ STATS_CACHE_FILE_NAME = '.stats_cache'
 
 def get_stat_cache_by_dir(directory):
     return path_join(directory, STATS_CACHE_FILE_NAME)
+
+# TODO: Move this to a util module
+def get_config_py_path():
+    return path_join(BASE_DIR, 'config.py')
 
 # TODO: Quick hack, prettify and use some sort of csv format
 def get_statistics(directory, base_names, use_cache=True):
@@ -52,6 +56,8 @@ def get_statistics(directory, base_names, use_cache=True):
 
     try:
         if (not isfile(cache_file_path)
+                # Has config.py been changed?
+                or getmtime(get_config_py_path()) > cache_mtime
                 # Any file has changed in the dir since the cache was generated
                 or any(True for f in listdir(directory)
                     if (getmtime(path_join(directory, f)) > cache_mtime
