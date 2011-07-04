@@ -44,6 +44,7 @@ class AnnotationLineSyntaxError(Exception):
     def __str__(self):
         u'Syntax error on line %d: "%s"' % (self.line_num, self.line)
 
+
 class IdedAnnotationLineSyntaxError(AnnotationLineSyntaxError):
     def __init__(self, id, line, line_num, filepath):
         AnnotationLineSyntaxError.__init__(self, line, line_num, filepath)
@@ -52,12 +53,14 @@ class IdedAnnotationLineSyntaxError(AnnotationLineSyntaxError):
     def __str__(self):
         u'Syntax error on line %d (id %s): "%s"' % (self.line_num, self.id, self.line)
 
+
 class AnnotationNotFoundError(Exception):
     def __init__(self, id):
         self.id = id
 
     def __str__(self):
         return u'Could not find an annotation with id: %s' % (self.id, )
+
 
 class AnnotationFileNotFoundError(ProtocolError):
     def __init__(self, fn):
@@ -70,6 +73,7 @@ class AnnotationFileNotFoundError(ProtocolError):
         json_dic['exception'] = 'annotationFileNotFound'
         return json_dic
 
+
 class AnnotationCollectionNotFoundError(ProtocolError):
     def __init__(self, cn):
         self.cn = cn
@@ -81,10 +85,52 @@ class AnnotationCollectionNotFoundError(ProtocolError):
         # TODO: more specific error?
         json_dic['exception'] = 'annotationFileNotFound'
         return json_dic
+   
+
+class EventWithoutTriggerError(ProtocolError):
+    def __init__(self, event):
+        self.event = event
+
+    def __str__(self):
+        return u'Event "%s" lacks a trigger' % (self.event, )
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'eventWithoutTrigger'
+        return json_dic
+   
+
+class EventWithNonTriggerError(ProtocolError):
+    def __init__(self, event, non_trigger):
+        self.event = event
+        self.non_trigger = non_trigger
+
+    def __str__(self):
+        return u'Non-trigger "%s" used by "%s" as trigger' % (
+                self.non_trigger, self.event, )
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'eventWithNonTrigger'
+        return json_dic
+
+
+class TriggerReferenceError(ProtocolError):
+    def __init__(self, trigger, referencer):
+        self.trigger = trigger
+        self.referencer = referencer
+
+    def __str__(self):
+        return u'Trigger "%s" referenced by non-event "%s"' % (self.trigger,
+                self.referencer, )
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'triggerReference'
+        return json_dic
+
 
 class AnnotationTextFileNotFoundError(AnnotationFileNotFoundError):
     def __str__(self):
         return u'Could not read text file for %s' % (self.fn, )
+
 
 class AnnotationsIsReadOnlyError(ProtocolError):
     def __init__(self, fn):
@@ -129,6 +175,7 @@ class DependingAnnotationDeleteError(Exception):
         Has depending annotations attached to it:
         %s''' % (unicode(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
 
+
 # Open function that enforces strict, utf-8
 # TODO: Could have another wrapping layer raising an appropriate ProtocolError
 open_textfile = partial(codecs_open, errors='strict', encoding='utf8')
@@ -164,6 +211,7 @@ def is_valid_id(id):
         return True
     except InvalidIdError:
         return False
+
 
 class Annotations(object):
     """
@@ -269,8 +317,12 @@ class Annotations(object):
         # Finally, parse the given annotation file
         try:
             self._parse_ann_file()
+        
+            # Sanity checking that can only be done post-parse
+            self._sanity()
         except UnicodeDecodeError:
-            Messager.error('Encoding error reading annotation file: nonstandard encoding or binary?', -1)
+            Messager.error('Encoding error reading annotation file: '
+                    'nonstandard encoding or binary?', -1)
             # TODO: more specific exception
             raise AnnotationFileNotFoundError(document)
 
@@ -284,6 +336,31 @@ class Annotations(object):
             self.ann_mtime = 0
             self.ann_ctime = 0
 
+    def _sanity(self):
+        # Beware, we ONLY do format checking, leave your semantics hat at home
+
+        # Check that each event has a trigger
+        for e_ann in self.get_events():
+            try:
+                tr_ann = self.get_ann_by_id(e_ann.trigger)
+
+                # If the annotation is not text-bound or of different type
+                if (not isinstance(tr_ann, TextBoundAnnotation) or
+                        tr_ann.type != e_ann.type):
+                    raise EventWithNonTriggerError(e_ann, tr_ann)
+            except AnnotationNotFoundError:
+                raise EventWithoutTriggerError(e_ann)
+
+        # Check that every trigger is only referenced by events
+        for tr_ann in self.get_triggers():
+            for ann in (a for a in self if a is not tr_ann):
+                # We can't really know how to access all ID;s held by an
+                # annotation so we hook ourselves into the dependencies
+                soft_deps, hard_deps = ann.get_deps()
+                if tr_ann.id in soft_deps or tr_ann.id in hard_deps:
+                    if not isinstance(ann, EventAnnotation):
+                        raise TriggerReferenceError(tr_ann, ann)
+        
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
     
@@ -308,6 +385,10 @@ class Annotations(object):
     def get_statuses(self):
         return (a for a in self if isinstance(a, OnelineCommentAnnotation)
                 and a.type == 'STATUS')
+
+    def get_triggers(self):
+        # Triggers are text-bounds referenced by events
+        return (self.get_ann_by_id(e.trigger) for e in self.get_events())
 
     # TODO: getters for other categories of annotations
     #TODO: Remove read and use an internal and external version instead
@@ -801,6 +882,7 @@ class Annotations(object):
     def __in__(self, other):
         #XXX: You should do this one!
         pass
+
 
 class TextAnnotations(Annotations):
     """
