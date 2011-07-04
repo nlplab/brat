@@ -4,26 +4,39 @@
 from __future__ import with_statement
 
 '''
-Primitive sentente splitting using Sampo Pyysalo's GeniaSS sentence split
-refiner. Also a primitive Japanese sentence splitter.
+Primitive sentence splitting using Sampo Pyysalo's GeniaSS sentence split
+refiner. Also a primitive Japanese sentence splitter without refinement.
 
 Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-05-09
 '''
 
 from re import compile as re_compile
-from re import DOTALL
+from re import DOTALL, VERBOSE
 from os.path import join as path_join
 from os.path import dirname
 from subprocess import Popen, PIPE
 from shlex import split as shlex_split
 
 ### Constants
-# Require a leading non-whitespace, end on delimiter and space
-# or newline followed by non-whitespace
-# TODO XXX The last alternative group appears to have wrong grouping, check
-EN_SENTENCE_END_REGEX = re_compile( r'\S.*?(:?(?:\.|!|\?)(?=\s+)|(?=\n+\S))', DOTALL)
-JP_SENTENCE_END_REGEX = re_compile(ur'\S.*?[。！？]+(:?(?![。！？])|(?=\n+\S))', DOTALL)
+SENTENCE_END_REGEX = re_compile(ur'''
+        # Require a leading non-whitespace character for the sentence
+        \S
+        # Then, anything goes, but don't be greedy
+        .*?
+        # Anchor the sentence at...
+        (:?
+            # One (or multiple) terminal character(s)
+            #   followed by one (or multiple) whitespace
+            (:?(\.|!|\?|。|！|？)+(?=\s+))
+        | # Or...
+            # Newlines, to respect file formatting
+            (:?(?=\n+))
+        | # Or...
+            # End-of-file, excluding whitespaces before it
+            (:?(?=\s*$))
+        )
+    ''', DOTALL | VERBOSE)
 ###
 
 def _refine_split(offsets, original_text):
@@ -40,7 +53,7 @@ def _refine_split(offsets, original_text):
     # Protect against edge case of single-line docs missing
     # sentence-terminal newline
     if len(old_offsets) == 0:
-        old_offsets.append((0,len(original_text)))
+        old_offsets.append((0, len(original_text)))
     new_offsets = []
     for refined_sentence in output.split('\n'):
         new_offset = old_offsets.pop()
@@ -66,14 +79,14 @@ def _sentence_boundary_gen(text, regex):
         yield match.span()
 
 def jp_sentence_boundary_gen(text):
-    for o in _sentence_boundary_gen(text, JP_SENTENCE_END_REGEX):
+    # TODO: We need to "refine" the split to avoid violating parentheses etc.
+    #       This pretty much means writing a new refine script.
+    for o in _sentence_boundary_gen(text, SENTENCE_END_REGEX):
         yield o
        
-# TODO: The regular expression is too crude, plug in the refine
-#       script as well so that we can have reasonable splits.
 def en_sentence_boundary_gen(text):
     for o in _refine_split([_o for _o in _sentence_boundary_gen(
-                text, EN_SENTENCE_END_REGEX)], text):
+                text, SENTENCE_END_REGEX)], text):
         yield o
 
 if __name__ == '__main__':
