@@ -561,20 +561,16 @@ def get_drawing_config_by_storage_form(directory, term):
     return cache[directory].get(term, None)
 get_drawing_config_by_storage_form.__cache = {}    
 
-def __directory_relations_by_arg_num(directory, num, atype):
+def __directory_relations_by_arg_num(directory, num, atype, include_special=False):
     assert num >= 0 and num < 2, "INTERNAL ERROR"
 
     rels = []
 
     for r in get_relation_type_list(directory):
-        # TODO: this "fix" avoiding display to user was breaking
-        # verifier checking on whether nestings were allowed, i.e.
-        # making the whole thing completely useless. Refix in some
-        # other way.
-#         # "Special" nesting relation ignored in regular relation
-#         # listings TODO: avoid magic string value
-#         if r.storage_form() == "ENTITY-NESTING":
-#             continue
+        # "Special" nesting relation ignored unless specifically
+        # requested
+        if r.storage_form() == "ENTITY-NESTING" and not include_special:
+            continue
 
         if len(r.arg_list) != 2:
             Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(r.arg_list)))
@@ -587,20 +583,20 @@ def __directory_relations_by_arg_num(directory, num, atype):
 
     return rels
 
-def get_relations_by_arg1(directory, atype):
+def get_relations_by_arg1(directory, atype, include_special=False):
     cache = get_relations_by_arg1.__cache
     cache[directory] = cache.get(directory, {})
-    if atype not in cache[directory]:
-        cache[directory][atype] = __directory_relations_by_arg_num(directory, 0, atype)
-    return cache[directory][atype]
+    if (atype, include_special) not in cache[directory]:
+        cache[directory][(atype, include_special)] = __directory_relations_by_arg_num(directory, 0, atype, include_special)
+    return cache[directory][(atype, include_special)]
 get_relations_by_arg1.__cache = {}
 
-def get_relations_by_arg2(directory, atype):
+def get_relations_by_arg2(directory, atype, include_special=False):
     cache = get_relations_by_arg2.__cache
     cache[directory] = cache.get(directory, {})
-    if atype not in cache[directory]:
-        cache[directory][atype] = __directory_relations_by_arg_num(directory, 1, atype)
-    return cache[directory][atype]
+    if (atype, include_special) not in cache[directory]:
+        cache[directory][(atype, include_special)] = __directory_relations_by_arg_num(directory, 1, atype, include_special)
+    return cache[directory][(atype, include_special)]
 get_relations_by_arg2.__cache = {}
 
 def get_labels_by_storage_form(directory, term):
@@ -682,29 +678,29 @@ class ProjectConfiguration(object):
     def arc_types_from(self, from_ann):
         return self.arc_types_from_to(from_ann)
 
-    def relation_types_from(self, from_ann):
+    def relation_types_from(self, from_ann, include_special=False):
         """
         Returns the possible relation types that can have an
         annotation of the given type as their arg1.
         """
-        return [r.storage_form() for r in get_relations_by_arg1(self.directory, from_ann)]
+        return [r.storage_form() for r in get_relations_by_arg1(self.directory, from_ann, include_special)]
 
-    def relation_types_to(self, to_ann):
+    def relation_types_to(self, to_ann, include_special=False):
         """
         Returns the possible relation types that can have an
         annotation of the given type as their arg2.
         """
-        return [r.storage_form() for r in get_relations_by_arg2(self.directory, to_ann)]
+        return [r.storage_form() for r in get_relations_by_arg2(self.directory, to_ann, include_special)]
 
-    def relation_types_from_to(self, from_ann, to_ann):
+    def relation_types_from_to(self, from_ann, to_ann, include_special=False):
         """
         Returns the possible relation types that can have the
         given arg1 and arg2.
         """
         types = []
 
-        t1r = get_relations_by_arg1(self.directory, from_ann)
-        t2r = get_relations_by_arg2(self.directory, to_ann)
+        t1r = get_relations_by_arg1(self.directory, from_ann, include_special)
+        t2r = get_relations_by_arg2(self.directory, to_ann, include_special)
 
         for r in t1r:
             if r in t2r:
@@ -712,7 +708,7 @@ class ProjectConfiguration(object):
 
         return types
 
-    def arc_types_from_to(self, from_ann, to_ann="<ANY>"):
+    def arc_types_from_to(self, from_ann, to_ann="<ANY>", include_special=False):
         """
         Returns the possible arc types that can connect an annotation
         of type from_ann to an annotation of type to_ann.
@@ -726,7 +722,7 @@ class ProjectConfiguration(object):
             return []
 
         if to_ann == "<ANY>":
-            relations_from = get_relations_by_arg1(self.directory, from_ann)
+            relations_from = get_relations_by_arg1(self.directory, from_ann, include_special)
             return unique_preserve_order([role for role in from_node.arguments] + [r.storage_form() for r in relations_from])
 
         # specific hits

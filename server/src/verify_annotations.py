@@ -125,10 +125,10 @@ def verify_entity_overlap(ann_obj, projectconf):
         if a1.start == a2.start and a1.end == a2.end:
             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s has identical span with %s %s" % (disp(a1.type), disp(a2.type), a2.id)))            
         elif contained_in_span(a1, a2):
-            if nesting_relation not in projectconf.relation_types_from_to(a1.type, a2.type):
+            if nesting_relation not in projectconf.relation_types_from_to(a1.type, a2.type, include_special=True):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in %s (%s)" % (disp(a1.type), disp(a2.type), a2.id)))
         elif contained_in_span(a2, a1):
-            if nesting_relation not in projectconf.relation_types_from_to(a2.type, a1.type):
+            if nesting_relation not in projectconf.relation_types_from_to(a2.type, a1.type, include_special=True):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain %s (%s)" % (disp(a1.type), disp(a2.type), a2.id)))
         else:
             # crossing boundaries; never allowed for physical entities.
