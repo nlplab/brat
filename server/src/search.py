@@ -29,6 +29,9 @@ class SearchMatchSet(object):
     def add_match(self, ann_obj, ann):
         self.__matches.append((ann_obj, ann))
 
+    def sort_matches(self):
+        self.__matches.sort(lambda a,b: cmp(a[0],b[0]))
+
     # TODO: would be better with an iterator
     def get_matches(self):
         return self.__matches
@@ -415,7 +418,10 @@ def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_
 
         # add to overall collection
         for t in ann_matches:
-            matches.add_match(ann_obj, t)
+            matches.add_match(ann_obj, t)    
+
+    # sort by document name for output
+    matches.sort_matches()
 
     return matches
 
