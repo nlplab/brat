@@ -441,6 +441,7 @@ fieldset {
 }
 
 #mainlogo {
+  font-size: 1.2em;
   float: right;
   cursor: pointer;
   text-shadow: #000000 0 0 3px;
