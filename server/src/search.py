@@ -30,7 +30,8 @@ class SearchMatchSet(object):
         self.__matches.append((ann_obj, ann))
 
     def sort_matches(self):
-        self.__matches.sort(lambda a,b: cmp(a[0],b[0]))
+        # sort by document name
+        self.__matches.sort(lambda a,b: cmp(a[0].get_document(),b[0].get_document()))
 
     # TODO: would be better with an iterator
     def get_matches(self):
