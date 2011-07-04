@@ -45,3 +45,9 @@ JAPANESE = True
 '''
 
 assert DATA_DIR != BACKUP_DIR
+
+# If tokenization other than whitespace is desired, this can be used
+'''
+WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION = range(3)
+TOKENIZATION = PTBLIKE_TOKENIZATION
+'''

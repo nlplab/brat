@@ -21,6 +21,12 @@ GTB_TOKENIZE_PL_PATH = path_join(dirname(__file__), '../../external/',
         'GTB-tokenize.pl')
 ###
 
+try:
+    from config import TOKENIZATION, WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION
+except ImportError:
+    WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION = range(3)
+    TOKENIZATION = None
+
 def _token_boundaries_by_alignment(tokens, original_text):
     curr_pos = 0
     for tok in tokens:
@@ -31,6 +37,10 @@ def _token_boundaries_by_alignment(tokens, original_text):
         curr_pos = end_pos
 
 def jp_token_boundary_gen(text):
+    # TODO: consider honoring WHITESPACE_TOKENIZATION for japanese also
+    if TOKENIZATION is not None and TOKENIZATION != JAPANESE_TOKENIZATION:
+        from message import Messager
+        Messager.warning("Ignoring unexpected TOKENIZATION specification for Japanese.")
     from mecab import token_offsets_gen
     for o in token_offsets_gen(text):
         yield o
@@ -69,11 +79,16 @@ def en_token_boundary_gen_simple(text):
         yield o
 
 def en_token_boundary_gen(text):
-    if EN_TOKENIZATION == "external":
-        return en_token_boundary_gen_simple(text)
-    elif EN_TOKENIZATION == "internal":
-        return en_token_boundary_gen_internal(text)
+    if TOKENIZATION is None or TOKENIZATION == WHITESPACE_TOKENIZATION:
+        return en_token_boundary_gen_simple(text)        
+    elif TOKENIZATION == PTBLIKE_TOKENIZATION:
+        if EN_TOKENIZATION == "external":
+            return en_token_boundary_gen_external(text)
+        elif EN_TOKENIZATION == "internal":
+            return en_token_boundary_gen_internal(text)
     else:
+        from message import Messager
+        Messager.warning("Unrecognized Engligh tokenization options for English, reverting to simple tokenization.")
         return en_token_boundary_gen_simple(text)
 
 if __name__ == '__main__':
