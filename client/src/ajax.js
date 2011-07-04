@@ -13,7 +13,8 @@ var Ajax = (function($, window, undefined) {
           data: data,
           type: 'POST',
           success: function(response) {
-            if (response.action !== data.action) {
+            // If no exception is set, verify the server results
+            if (response.exception == undefined && response.action !== data.action) {
               console.error('Action ' + data.action +
                 ' returned the results of action ' + response.action);
               response.exception = true;
