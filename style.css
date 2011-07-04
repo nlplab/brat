@@ -330,10 +330,10 @@ fieldset {
     width: 16px;
     margin-top: 3px;
     cursor: hand;
-    background: url('expand_icon.gif') no-repeat;
+    background: url('static/img/expand_icon.gif') no-repeat;
 }
 #span_form .collapser.open {
-    background: url('collapse_icon.gif') no-repeat;
+    background: url('static/img/collapse_icon.gif') no-repeat;
 }
 #span_form .collapsible.open {
     display: block;
