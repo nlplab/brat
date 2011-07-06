@@ -361,6 +361,30 @@ var Util = (function(window, undefined) {
       return lightenColorCache[colorstr][adjust];
     }
 
+    // Partially stolen from: http://documentcloud.github.com/underscore/
+    // MIT-License
+    // TODO: Mention in LICENSE.md
+    var isEqual = function(a, b) {
+      // Check object identity.
+      if (a === b) return true;
+      // Different types?
+      var atype = typeof(a), btype = typeof(b);
+      if (atype != btype) return false;
+      // Basic equality test (watch out for coercions).
+      if (a == b) return true;
+      // One is falsy and the other truthy.
+      if ((!a && b) || (a && !b)) return false;
+      // If a is not an object by this point, we can't handle it.
+      if (atype !== 'object') return false;
+      // Check for different array lengths before comparing contents.
+      if (a.length && (a.length !== b.length)) return false;
+      // Nothing else worked, deep compare the contents.
+      for (var key in b) if (!(key in a)) return false;
+      // Recursive comparison of contents.
+      for (var key in a) if (!(key in b) || !isEqual(a[key], b[key])) return false;
+      return true;
+    };
+
     var profiles = {};
     var profileStarts = {};
     var profileOn = false;
@@ -413,6 +437,7 @@ var Util = (function(window, undefined) {
       hslToRgb: hslToRgb,
       lightenColor: lightenColor,
       objectToUrlStr: objectToUrlStr,
+      isEqual: isEqual,
     };
 
 })(window);
