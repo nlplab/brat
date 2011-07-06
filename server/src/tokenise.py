@@ -4,7 +4,7 @@
 from __future__ import with_statement
 
 '''
-Tokenisation using external software.
+Tokenisation related functionality.
 
 Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-05-23
@@ -15,16 +15,12 @@ from os.path import dirname
 from subprocess import Popen, PIPE
 from shlex import split as shlex_split
 
-### Constants
-EN_TOKENIZATION = "internal" # alternatives internal/external/simple
-GTB_TOKENIZE_PL_PATH = path_join(dirname(__file__), '../../external/',
-        'GTB-tokenize.pl')
-###
-
 try:
-    from config import TOKENIZATION, WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION
+    from config import (TOKENIZATION, WHITESPACE_TOKENIZATION,
+            PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION)
 except ImportError:
-    WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION = range(3)
+    (WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION,
+            JAPANESE_TOKENIZATION) = range(3)
     TOKENIZATION = None
 
 def _token_boundaries_by_alignment(tokens, original_text):
@@ -40,34 +36,13 @@ def jp_token_boundary_gen(text):
     # TODO: consider honoring WHITESPACE_TOKENIZATION for japanese also
     if TOKENIZATION is not None and TOKENIZATION != JAPANESE_TOKENIZATION:
         from message import Messager
-        Messager.warning("Ignoring unexpected TOKENIZATION specification for Japanese.")
+        Messager.warning('Ignoring unexpected TOKENIZATION '
+                'specification for Japanese.')
     from mecab import token_offsets_gen
     for o in token_offsets_gen(text):
         yield o
 
-def en_token_boundary_gen_external(text):
-    # Call the external script
-    tok_p = Popen(shlex_split(GTB_TOKENIZE_PL_PATH), stdin=PIPE,
-            stdout=PIPE, stderr=PIPE)
-
-    tok_p.stdin.write(text.encode('utf-8'))
-    tok_p.stdin.close()
-    tok_p.wait()
-    output, errors = (tok_p.stdout.read().decode('utf-8'),
-            tok_p.stderr.read().decode('utf-8'))
-    #output, errors = tok_p.communicate(text)
-
-    # TODO: Check errors!
-
-    # Decode our output, we assume utf-8 as this is our internal format
-    #output = output.decode('utf-8')
-
-    # Then align the now tokenised data to get the offsets
-    tokens = output.split()
-    for o in _token_boundaries_by_alignment(tokens, text):
-        yield o
-
-def en_token_boundary_gen_internal(text):
+def en_token_boundary_gen_gtb(text):
     from gtbtokenize import tokenize
     tokens = tokenize(text).split()
     for o in _token_boundaries_by_alignment(tokens, text):
@@ -82,13 +57,11 @@ def en_token_boundary_gen(text):
     if TOKENIZATION is None or TOKENIZATION == WHITESPACE_TOKENIZATION:
         return en_token_boundary_gen_simple(text)        
     elif TOKENIZATION == PTBLIKE_TOKENIZATION:
-        if EN_TOKENIZATION == "external":
-            return en_token_boundary_gen_external(text)
-        elif EN_TOKENIZATION == "internal":
-            return en_token_boundary_gen_internal(text)
+        return en_token_boundary_gen_gtb(text)
     else:
         from message import Messager
-        Messager.warning("Unrecognized Engligh tokenization options for English, reverting to simple tokenization.")
+        Messager.warning('Unrecognized Engligh tokenization options '
+                'for English, reverting to simple tokenization.')
         return en_token_boundary_gen_simple(text)
 
 if __name__ == '__main__':
