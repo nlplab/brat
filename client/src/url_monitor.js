@@ -22,7 +22,7 @@ var URLMonitor = (function($, window, undefined) {
         dispatcher.post('hideForm');
       };
 
-      var setArguments = function(args, collChanging) {
+      var setArguments = function(args) {
         var oldArgs = that.args === null ? '' : that.args;
         that.args = args === null ? '' : args;
         var oldArgStr = $.param(oldArgs);
@@ -39,7 +39,7 @@ var URLMonitor = (function($, window, undefined) {
         if (oldDoc !== doc) {
           dispatcher.post('docChanged', [doc, oldDoc]);
         }
-        setArguments(args || '', true);
+        setArguments(args || '');
       };
 
       var setCollection = function(coll, doc, args) {
