@@ -1260,6 +1260,9 @@ Util.profileStart('arcs');
             if (spanHeights[i] < height) spanHeights[i] = height;
           }
 
+          // Adjust the height to align with pixels when rendered
+          height += 0.5
+
           var chunkReverse = false;
           var ufoCatcher = originSpan.chunk.index == targetSpan.chunk.index;
           if (ufoCatcher) {
