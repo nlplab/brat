@@ -167,8 +167,9 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#span_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
         $('#span_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
         if (span) {
-          // FIXME was: document.location + '/' + span.id);
-          $('#span_highlight_link').show().attr('href', 'FIXME');
+          var urlHash = URLHash.parse(window.location.hash);
+          urlHash.setArgument('edited', [[span.id]]);
+          $('#span_highlight_link').show().attr('href', urlHash.getHash());
           var el = $('#span_' + span.type);
           if (el.length) {
             el[0].checked = true;
