@@ -188,11 +188,13 @@ rect.shadow_EditHighlight {
 }
 
 .arcs path {
+  stroke: #989898;
   fill: none;
-  opacity: 0.5;
+  stroke-width: 1;
 }
 
 .arcs .highlight path {
+  stroke: #000000;
   stroke-width: 1.5;
   opacity: 1;
 }
