@@ -80,35 +80,52 @@ path {
 }
 
 .span rect.False_positive {
-  stroke: #ff0000;
+  stroke: #ff4141;
   stroke-width: 2;
 }
+
+.shadow_False_positive {
+  fill: #ff4141;
+}
+
 #commentpopup.comment_False_positive {
-  background-color: #ff7777;
+  background-color: #ff4141;
 }
 
 .span rect.False_negative {
-  stroke: #ff0000;
+  stroke: #c20000;
   fill: #ffffff;
   stroke-width: 2;
+}
+
+.shadow_False_negative {
+  fill: #c20000;
+}
+
+#commentpopup.comment_False_negative {
+  background-color: #c20000;
+}
+
+.span rect.AnnotationError {
+  stroke-width: 1;
 }
 
 .shadow_AnnotationError {
   fill: #ff0000;
 }
-.span rect.AnnotationError {
-  stroke-width: 1;
-}
+
 #commentpopup.comment_AnnotationError {
   background-color: #ff7777;
+}
+
+.span rect.AnnotationWarning {
+  stroke-width: 1;
 }
 
 .shadow_AnnotationWarning {
   fill: #ff8800;
 }
-.span rect.AnnotationWarning {
-  stroke-width: 1;
-}
+
 #commentpopup.comment_AnnotationWarning {
   background-color: #ff9900;
 }
