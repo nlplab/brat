@@ -494,7 +494,8 @@ def format_results(matches):
     # fill in header for search result browser
     response['header'] = [('Document', 'string'), 
                           ('Annotation', 'string'), 
-                          ('Type', 'string')]
+                          ('Type', 'string'),
+                          ('Text', 'string')]
     
     # fill in content
     items = []
@@ -503,7 +504,7 @@ def format_results(matches):
         # annotation, not a collection (directory) or document.
         # second entry is non-listed "pointer" to annotation
         fn = basename(ann_obj.get_document())
-        items.append(["a", { 'focus' : ann.id }, fn, ann.id, ann.type])
+        items.append(["a", { 'focus' : ann.id }, fn, ann.id, ann.type, ann.text])
     response['items'] = items
     return response
 
