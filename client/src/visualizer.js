@@ -1712,6 +1712,9 @@ Util.profileStart('before render');
               commentText = comment.text;
               commentType = comment.type;
             }
+            if (commentText == '') {
+              commentText = comment.type;
+            }
           }
           dispatcher.post('displayArcComment', [
               evt, target, symmetric,
