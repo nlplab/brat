@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
-# Grammar for the brat stand-off format:
-#
-# https://github.com/TsujiiLaboratory/brat/wiki/Annotation-Data-Format
-#
-# Author:   Pontus Stenetorp    <pontus stenetorp se>
-# Version:  2011-07-11
+'''
+Grammar for the brat stand-off format:
+
+https://github.com/TsujiiLaboratory/brat/wiki/Annotation-Data-Format
+
+Author:   Pontus Stenetorp    <pontus stenetorp se>
+Version:  2011-07-11
+'''
 
 import ply.yacc as yacc
 

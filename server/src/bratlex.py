@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
-# Tokenisation for the brat stand-off format:
-#
-# https://github.com/TsujiiLaboratory/brat/wiki/Annotation-Data-Format
-# 
-# Author:  Pontus Stenetorp    <pontus stenetorp se>
-# Version: 2011-07-11
+'''
+Tokenisation for the brat stand-off format:
+
+https://github.com/TsujiiLaboratory/brat/wiki/Annotation-Data-Format
+
+Author:  Pontus Stenetorp    <pontus stenetorp se>
+Version: 2011-07-11
+'''
 
 # TODO: Require inital characters for ID;s for specific lines
 
