@@ -387,7 +387,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
     ignore_types   = [] if ignore_types is None else ignore_types
     nested_types   = [] if nested_types is None else nested_types
 
-    description = "Textbound containing text '%s'" % text
+    description = "Textbounds containing text '%s'" % text
     if restrict_types != []:
         description = description + ' (of type %s)' % (",".join(restrict_types))
     if nested_types != []:
@@ -426,6 +426,49 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
 
     return matches
 
+def search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=[], ignore_types=[]):
+    """
+    Searches the given Annotations objects for relation annotations
+    matching the given specification. Returns a SearchMatchSet object.
+    """
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
+
+    # TODO: include args in description
+    description = "Relations"
+    if restrict_types != []:
+        description = description + ' (of type %s)' % (",".join(restrict_types))
+    matches = SearchMatchSet(description)
+    
+    for ann_obj in ann_objs:
+        # collect per-document (ann_obj) for sorting
+        ann_matches = []
+        
+        # TODO: Equivs also
+        for r in ann_obj.get_relations():
+            if r.type in ignore_types:
+                continue
+            if restrict_types != [] and r.type not in restrict_types:
+                continue
+
+            # TODO: argument constraints
+
+            ann_matches.append(r)
+
+        # TODO: sort, e.g. by offset of participant occurring first
+        #ann_matches.sort(lambda a,b: cmp(???))
+
+        # add to overall collection
+        for r in ann_matches:
+            matches.add_match(ann_obj, r)
+
+    # sort by document name for output
+    matches.sort_matches()
+
+    return matches
+
 def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignore_types=[]):
     """
     Searches the given Annotations objects for Event annotations
@@ -436,6 +479,7 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
     restrict_types = [] if restrict_types is None else restrict_types
     ignore_types   = [] if ignore_types is None else ignore_types
 
+    # TODO: include args in description
     description = "Event triggered by text containing '%s'" % trigger_text
     if restrict_types != []:
         description = description + ' (of type %s)' % (",".join(restrict_types))
@@ -620,10 +664,20 @@ def search_event(collection, type, trigger, args):
     return results
 
 def search_relation(collection, type, arg1, arg2):
-    # TODO: not implemented yet
     directory = collection
-    Messager.warning('Relation search not implemented yet, sorry!')
-    return format_results(SearchMatchSet('empty'))
+
+    ann_objs = __directory_to_annotations(directory)
+
+    restrict_types = []
+    if type is not None and type != "":
+        restrict_types.append(type)
+
+    matches = search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=restrict_types)
+
+    results = format_results(matches)
+    results['collection'] = directory
+    
+    return results
 
 ### filename list interface functions (e.g. command line) ###
 
