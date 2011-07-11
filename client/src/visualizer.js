@@ -1711,6 +1711,10 @@ Util.profileStart('before render');
             if (comment) {
               commentText = comment.text;
               commentType = comment.type;
+              if (commentText == '' && commentType) {
+                  // default to type if missing text
+                  commentText = commentType;
+              }
             }
           }
           dispatcher.post('displayArcComment', [

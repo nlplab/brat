@@ -376,7 +376,7 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types
 
     return match_sets
 
-def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
+def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for the given text in the Textbound annotations in the
     given Annotations objects.  Returns a SearchMatchSet object.
@@ -387,7 +387,7 @@ def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_
     ignore_types   = [] if ignore_types is None else ignore_types
     nested_types   = [] if nested_types is None else nested_types
 
-    description = "Textbound containing text '%s'" % text
+    description = "Textbounds containing text '%s'" % text
     if restrict_types != []:
         description = description + ' (of type %s)' % (",".join(restrict_types))
     if nested_types != []:
@@ -426,7 +426,106 @@ def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_
 
     return matches
 
-def search_text(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
+def search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=[], ignore_types=[]):
+    """
+    Searches the given Annotations objects for relation annotations
+    matching the given specification. Returns a SearchMatchSet object.
+    """
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
+
+    # TODO: include args in description
+    description = "Relations"
+    if restrict_types != []:
+        description = description + ' (of type %s)' % (",".join(restrict_types))
+    matches = SearchMatchSet(description)
+    
+    for ann_obj in ann_objs:
+        # collect per-document (ann_obj) for sorting
+        ann_matches = []
+        
+        # TODO: Equivs also
+        for r in ann_obj.get_relations():
+            if r.type in ignore_types:
+                continue
+            if restrict_types != [] and r.type not in restrict_types:
+                continue
+
+            # TODO: argument constraints
+
+            ann_matches.append(r)
+
+        # TODO: sort, e.g. by offset of participant occurring first
+        #ann_matches.sort(lambda a,b: cmp(???))
+
+        # add to overall collection
+        for r in ann_matches:
+            matches.add_match(ann_obj, r)
+
+    # sort by document name for output
+    matches.sort_matches()
+
+    return matches
+
+def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignore_types=[]):
+    """
+    Searches the given Annotations objects for Event annotations
+    matching the given specification. Returns a SearchMatchSet object.
+    """
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
+
+    # TODO: include args in description
+    description = "Event triggered by text containing '%s'" % trigger_text
+    if restrict_types != []:
+        description = description + ' (of type %s)' % (",".join(restrict_types))
+    matches = SearchMatchSet(description)
+    
+    for ann_obj in ann_objs:
+        # collect per-document (ann_obj) for sorting
+        ann_matches = []
+
+        for e in ann_obj.get_events():
+            if e.type in ignore_types:
+                continue
+            if restrict_types != [] and e.type not in restrict_types:
+                continue
+
+            try:
+                t_ann = ann_obj.get_ann_by_id(e.trigger)
+            except:
+                # TODO: specific exception
+                Messager.error('Failed to retrieve trigger annotation %s, skipping event %s in search' % (e.trigger, e.id))
+
+            # TODO: make options for "text included" vs. "text matches"
+            # TODO: remove temporary hack giving special status to "*"
+            if (trigger_text != None and trigger_text != "" and 
+                trigger_text != "*" and trigger_text not in t_ann.text):
+                continue
+
+            # TODO: argument constraints
+            if len(args) != 0:
+                Messager.warning('NOTE: ignoring event argument constraints in search (not implemented yet, sorry!)')
+
+            ann_matches.append((t_ann, e))
+
+        # sort by trigger start offset
+        ann_matches.sort(lambda a,b: cmp((a[0].start,-a[0].end),(b[0].start,-b[0].end)))
+
+        # add to overall collection
+        for t_obj, e in ann_matches:
+            matches.add_match(ann_obj, e)
+
+    # sort by document name for output
+    matches.sort_matches()
+
+    return matches
+
+def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for the given text in the document texts of the given
     Annotations objects.  Returns a SearchMatchSet object.
@@ -455,9 +554,11 @@ def search_text(ann_objs, text, restrict_types=[], ignore_types=[], nested_types
             # annotations.  Use some reasonable data structure
             # instead.
             embedding = []
-            for t in ann_obj.get_textbounds():
-                if t.start <= m.start() and t.end >= m.end():
-                    embedding.append(t)
+            # if there are no type restrictions, we can skip this bit
+            if restrict_types != [] or ignore_types != []:
+                for t in ann_obj.get_textbounds():
+                    if t.start <= m.start() and t.end >= m.end():
+                        embedding.append(t)
 
             # Note interpretation of ignore_types here: if the text span
             # is embedded in one or more of the ignore_types, the match is
@@ -493,10 +594,33 @@ def format_results(matches):
 
     # fill in header for search result browser
     response['header'] = [('Document', 'string'), 
-                          ('Annotation', 'string'), 
-                          ('Type', 'string'),
-                          ('Text', 'string')]
-    
+                          ('Annotation', 'string')]
+
+    # determine which additional fields can be shown; depends on the
+    # type of the results
+
+    # TODO: this is much uglier than necessary, revise
+    include_type = True
+    try:
+        for ann_obj, ann in matches.get_matches():
+            ann.type
+    except AttributeError:
+        include_type = False
+
+    include_text = True
+    try:
+        for ann_obj, ann in matches.get_matches():
+            ann.text
+    except AttributeError:
+        include_text = False
+        
+
+    if include_type:
+        response['header'].append(('Type', 'string'))
+
+    if include_text:
+        response['header'].append(('Text', 'string'))
+
     # fill in content
     items = []
     for ann_obj, ann in matches.get_matches():
@@ -504,17 +628,27 @@ def format_results(matches):
         # annotation, not a collection (directory) or document.
         # second entry is non-listed "pointer" to annotation
         fn = basename(ann_obj.get_document())
-        items.append(["a", { 'focus' : ann.id }, fn, ann.id, ann.type, ann.text])
+        items.append(["a", { 'focus' : ann.id }, fn, ann.id])
+        if include_type:
+            items[-1].append(ann.type)
+        if include_text:
+            items[-1].append(ann.text)
     response['items'] = items
     return response
 
 ### per-directory interface functions (brat) ###
 
 def search_text(collection, text):
-    # TODO: not implemented yet
     directory = collection
-    Messager.warning('Text search not implemented yet, sorry!')
-    return format_results(SearchMatchSet('empty'))
+
+    ann_objs = __directory_to_annotations(directory)
+
+    matches = search_anns_for_text(ann_objs, text)
+        
+    results = format_results(matches)
+    results['collection'] = directory
+    
+    return results
 
 def search_entity(collection, type, text):
     directory = collection
@@ -525,25 +659,44 @@ def search_entity(collection, type, text):
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_textbound(ann_objs, text, restrict_types=restrict_types)
+    matches = search_anns_for_textbound(ann_objs, text, restrict_types=restrict_types)
         
     results = format_results(matches)
     results['collection'] = directory
     
     return results
 
-def search_event(collection, type, trigger):
+def search_event(collection, type, trigger, args):
     directory = collection
 
-    # TODO: not implemented yet
-    Messager.warning('Event search not implemented yet, sorry!')
-    return format_results(SearchMatchSet('empty'))
+    ann_objs = __directory_to_annotations(directory)
+
+    restrict_types = []
+    if type is not None and type != "":
+        restrict_types.append(type)
+
+    matches = search_anns_for_event(ann_objs, trigger, args, restrict_types=restrict_types)
+
+    results = format_results(matches)
+    results['collection'] = directory
+    
+    return results
 
 def search_relation(collection, type, arg1, arg2):
-    # TODO: not implemented yet
     directory = collection
-    Messager.warning('Relation search not implemented yet, sorry!')
-    return format_results(SearchMatchSet('empty'))
+
+    ann_objs = __directory_to_annotations(directory)
+
+    restrict_types = []
+    if type is not None and type != "":
+        restrict_types.append(type)
+
+    matches = search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=restrict_types)
+
+    results = format_results(matches)
+    results['collection'] = directory
+    
+    return results
 
 ### filename list interface functions (e.g. command line) ###
 
@@ -552,7 +705,7 @@ def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[], n
     Searches for the given text in the given set of files.
     """
     anns = __filenames_to_annotations(filenames)
-    return search_text(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+    return search_anns_for_text(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
 def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=[], nested_types=[]):
     """
@@ -560,7 +713,9 @@ def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=
     set of files.
     """
     anns = __filenames_to_annotations(filenames)
-    return search_textbound(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+    return search_anns_for_textbound(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+
+# TODO: filename list interface functions for event and relation search
 
 def check_files_consistency(filenames, restrict_types=[], ignore_types=[], nested_types=[]):
     """

@@ -231,16 +231,6 @@ rect.shadow_EditHighlight {
   fill: #ffff99;
 }
 
-.background_entity {
-  fill: #7fa2ff;
-  opacity: 0.25;
-}
-
-.background_trigger {
-  fill: #7fd67f;
-  opacity: 0.25;
-}
-
 .sentnum text {
   fill: #999999;
   text-anchor: end;
