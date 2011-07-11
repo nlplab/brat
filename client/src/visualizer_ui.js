@@ -642,15 +642,15 @@ var VisualizerUI = (function($, window, undefined) {
           case 'searchEvent':
             opts.type = $('#search_form_event_type').val();
             opts.trigger = $('#search_form_event_trigger').val();
-            var roles = [];
+            var eargs = [];
             $('#search_form_event_roles tr').each(function() {
-              var role = {};
-              role.role = $(this).find('.search_event_role select').val();
-              role.type = $(this).find('.search_event_type select').val();
-              role.text = $(this).find('.search_event_text input').val();
-              roles.push(role);
+              var earg = {};
+              earg.role = $(this).find('.search_event_role select').val();
+              earg.type = $(this).find('.search_event_type select').val();
+              earg.text = $(this).find('.search_event_text input').val();
+              eargs.push(earg);
             });
-            opts.roles = $.toJSON(roles);
+            opts.args = $.toJSON(eargs);
             break;
           case 'searchRelation':
             opts.type = $('#search_form_relation_type').val();

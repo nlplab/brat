@@ -376,7 +376,7 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types
 
     return match_sets
 
-def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
+def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for the given text in the Textbound annotations in the
     given Annotations objects.  Returns a SearchMatchSet object.
@@ -420,6 +420,61 @@ def search_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_
         # add to overall collection
         for t in ann_matches:
             matches.add_match(ann_obj, t)    
+
+    # sort by document name for output
+    matches.sort_matches()
+
+    return matches
+
+def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignore_types=[]):
+    """
+    Searches the given Annotations objects for Event annotations
+    matching the given specification. Returns a SearchMatchSet object.
+    """
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
+
+    description = "Event triggered by text containing '%s'" % trigger_text
+    if restrict_types != []:
+        description = description + ' (of type %s)' % (",".join(restrict_types))
+    matches = SearchMatchSet(description)
+    
+    for ann_obj in ann_objs:
+        # collect per-document (ann_obj) for sorting
+        ann_matches = []
+
+        for e in ann_obj.get_events():
+            if e.type in ignore_types:
+                continue
+            if restrict_types != [] and e.type not in restrict_types:
+                continue
+
+            try:
+                t_ann = ann_obj.get_ann_by_id(e.trigger)
+            except:
+                # TODO: specific exception
+                Messager.error('Failed to retrieve trigger annotation %s, skipping event %s in search' % (e.trigger, e.id))
+
+            # TODO: make options for "text included" vs. "text matches"
+            # TODO: remove temporary hack giving special status to "*"
+            if (trigger_text != None and trigger_text != "" and 
+                trigger_text != "*" and trigger_text not in t_ann.text):
+                continue
+
+            # TODO: argument constraints
+            if len(args) != 0:
+                Messager.warning('NOTE: ignoring event argument constraints in search (not implemented yet, sorry!)')
+
+            ann_matches.append((t_ann, e))
+
+        # sort by trigger start offset
+        ann_matches.sort(lambda a,b: cmp((a[0].start,-a[0].end),(b[0].start,-b[0].end)))
+
+        # add to overall collection
+        for t_obj, e in ann_matches:
+            matches.add_match(ann_obj, e)
 
     # sort by document name for output
     matches.sort_matches()
@@ -494,9 +549,23 @@ def format_results(matches):
     # fill in header for search result browser
     response['header'] = [('Document', 'string'), 
                           ('Annotation', 'string'), 
-                          ('Type', 'string'),
-                          ('Text', 'string')]
-    
+                          ('Type', 'string')]
+
+    # determine which additional fields can be shown; depends on the
+    # type of the results
+
+    # TODO: bit ugly, this
+    include_text = True
+    try:
+        for ann_obj, ann in matches.get_matches():
+            ann.text
+    except AttributeError:
+        include_text = False
+        
+
+    if include_text:
+        response['header'].append(('Text', 'string'))
+
     # fill in content
     items = []
     for ann_obj, ann in matches.get_matches():
@@ -504,7 +573,9 @@ def format_results(matches):
         # annotation, not a collection (directory) or document.
         # second entry is non-listed "pointer" to annotation
         fn = basename(ann_obj.get_document())
-        items.append(["a", { 'focus' : ann.id }, fn, ann.id, ann.type, ann.text])
+        items.append(["a", { 'focus' : ann.id }, fn, ann.id, ann.type])
+        if include_text:
+            items[-1].append(ann.text)
     response['items'] = items
     return response
 
@@ -525,19 +596,28 @@ def search_entity(collection, type, text):
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_textbound(ann_objs, text, restrict_types=restrict_types)
+    matches = search_anns_for_textbound(ann_objs, text, restrict_types=restrict_types)
         
     results = format_results(matches)
     results['collection'] = directory
     
     return results
 
-def search_event(collection, type, trigger):
+def search_event(collection, type, trigger, args):
     directory = collection
 
-    # TODO: not implemented yet
-    Messager.warning('Event search not implemented yet, sorry!')
-    return format_results(SearchMatchSet('empty'))
+    ann_objs = __directory_to_annotations(directory)
+
+    restrict_types = []
+    if type is not None and type != "":
+        restrict_types.append(type)
+
+    matches = search_anns_for_event(ann_objs, trigger, args, restrict_types=restrict_types)
+
+    results = format_results(matches)
+    results['collection'] = directory
+    
+    return results
 
 def search_relation(collection, type, arg1, arg2):
     # TODO: not implemented yet
@@ -560,7 +640,7 @@ def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=
     set of files.
     """
     anns = __filenames_to_annotations(filenames)
-    return search_textbound(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+    return search_anns_for_textbound(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
 def check_files_consistency(filenames, restrict_types=[], ignore_types=[], nested_types=[]):
     """
