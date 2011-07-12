@@ -224,10 +224,15 @@ var AnnotatorUI = (function($, window, undefined) {
             }
           }
         });
-        dispatcher.post('showForm', [spanForm]);
-        $('#span_form-ok').focus();
+        var confirmMode = $('#confirm_mode')[0].checked;
+        if (reselectedSpan && !confirmMode) {
+          spanForm.submit();
+        } else {
+          dispatcher.post('showForm', [spanForm]);
+          $('#span_form-ok').focus();
 
-        adjustToCursor(evt, spanForm.parent());
+          adjustToCursor(evt, spanForm.parent());
+        }
       };
 
       var arcFormSubmitRadio = function(evt) {
