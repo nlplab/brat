@@ -24,4 +24,5 @@ msc {
     Server->Client      [label="Collection Information"];
     Client->Server      [label="whoami"];
     Server->Client      [label="Username or `null`"];
+    ...;
 }
