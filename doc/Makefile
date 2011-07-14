@@ -17,8 +17,8 @@ ${CLIENT_SERVER_INIT}.pdf: ${CLIENT_SERVER_INIT}.svg
 	inkscape -z --file="${CLIENT_SERVER_INIT}.svg" \
 		--export-pdf="${CLIENT_SERVER_INIT}.pdf"
 
-${CLIENT_SERVER_INIT}.png: ${CLIENT_SERVER_INIT}.pdf
-	inkscape -z --file="${CLIENT_SERVER_INIT}.pdf" \
+${CLIENT_SERVER_INIT}.png: ${CLIENT_SERVER_INIT}.svg
+	inkscape -z --file="${CLIENT_SERVER_INIT}.svg" \
 		--export-png="${CLIENT_SERVER_INIT}.png" \
 		--export-width=${EXPORT_WIDTH}
 
