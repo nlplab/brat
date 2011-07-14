@@ -9,6 +9,7 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
 '''
 
+
 class ProtocolError(Exception):
     def __init__(self):
         raise NotImplementedError, 'abstract method'
@@ -29,6 +30,11 @@ class ProtocolError(Exception):
 # XXX: This is an ugly hack to circumvent protocol flaws
 class NoPrintJSONError(Exception):
     pass
+
+
+class NotImplementedError(ProtocolError):
+    def json(self, json_dic):
+        json_dic['exception'] = 'notImplemented'
 
 
 # TODO: We have issues using this in relation to our inspection
