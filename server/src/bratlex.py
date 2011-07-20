@@ -11,7 +11,17 @@ Version: 2011-07-11
 
 # TODO: Require inital characters for ID;s for specific lines
 
-import ply.lex as lex
+try:
+    import ply.lex as lex
+except ImportError:
+    # We need to add ply to path
+    from sys import path as sys_path
+    from os.path import join as path_join
+    from os.path import dirname
+
+    sys_path.append(path_join(dirname(__file__), '../lib/ply-3.4'))
+
+    import ply.lex as lex
 
 tokens = (
         # Primitives
@@ -25,6 +35,9 @@ tokens = (
         'ID',
         'INTEGER',
         'TYPE',
+
+        # Identifiers
+        ''
 
         # Special-case for freetext
         'FREETEXT',

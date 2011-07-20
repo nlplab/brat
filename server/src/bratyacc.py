@@ -9,7 +9,17 @@ Author:   Pontus Stenetorp    <pontus stenetorp se>
 Version:  2011-07-11
 '''
 
-import ply.yacc as yacc
+try:
+    import ply.yacc as yacc
+except ImportError:
+    # We need to add ply to path
+    from sys import path as sys_path
+    from os.path import join as path_join
+    from os.path import dirname
+
+    sys_path.append(path_join(dirname(__file__), '../lib/ply-3.4'))
+
+    import ply.yacc as yacc
 
 from bratlex import tokens
 
