@@ -44,7 +44,10 @@ LOG_LEVEL = INFO
 JAPANESE = True
 '''
 
-assert DATA_DIR != BACKUP_DIR
+try:
+    assert DATA_DIR != BACKUP_DIR
+except NameError:
+    pass # BACKUP_DIR most likely not defined
 
 # If tokenization other than whitespace is desired, this can be used
 '''
