@@ -5,11 +5,13 @@ Tokenisation for the brat stand-off format:
 
 https://github.com/TsujiiLaboratory/brat/wiki/Annotation-Data-Format
 
+Example, test tokenisation on a collection:
+
+    find . -name '*.ann' | parallel cat | ./bratlex.py
+
 Author:  Pontus Stenetorp    <pontus stenetorp se>
 Version: 2011-07-11
 '''
-
-# TODO: Require inital characters for ID;s for specific lines
 
 try:
     import ply.lex as lex
@@ -31,13 +33,16 @@ tokens = (
         'TAB',
         'WILDCARD',
 
+        # Identifiers
+        'COMMENT_ID',
+        'EVENT_ID',
+        'MODIFIER_ID',
+        'RELATION_ID',
+        'TEXT_BOUND_ID',
+
         # Values
-        'ID',
         'INTEGER',
         'TYPE',
-
-        # Identifiers
-        ''
 
         # Special-case for freetext
         'FREETEXT',
@@ -50,6 +55,26 @@ states = (
 t_COLON     = r':'
 t_SPACE     = r'\ '
 t_WILDCARD  = r'\*'
+
+def t_COMMENT_ID(t):
+    r'\#[0-9]+'
+    return t
+
+def t_EVENT_ID(t):
+    r'E[0-9]+'
+    return t
+
+def t_MODIFIER_ID(t):
+    r'M[0-9]+'
+    return t
+
+def t_RELATION_ID(t):
+    r'R[0-9]+'
+    return t
+
+def t_TEXT_BOUND_ID(t):
+    r'T[0-9]+'
+    return t
 
 def t_NEWLINE(t):
     r'\n'
@@ -67,9 +92,6 @@ def t_TAB(t):
         t.lexer.begin('freetext')
     return t
 
-def t_ID(t):
-    r'(T|E|M|R|\#)[0-9]+'
-    return t
 
 def t_INTEGER(t):
     r'\d+'

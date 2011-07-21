@@ -5,6 +5,10 @@ Grammar for the brat stand-off format:
 
 https://github.com/TsujiiLaboratory/brat/wiki/Annotation-Data-Format
 
+Example, test grammar on a collection:
+
+    find . -name '*.ann' | parallel cat | ./bratyacc.py
+
 Author:   Pontus Stenetorp    <pontus stenetorp se>
 Version:  2011-07-11
 '''
@@ -24,6 +28,7 @@ except ImportError:
 from bratlex import tokens
 
 # TODO: Recurse all the way to a file
+# TODO: Comment annotation
 
 def p_annotation_line(p):
     '''
@@ -40,6 +45,7 @@ def p_annotation(p):
                 | modifier
                 | equiv
                 | relation
+                | comment
     '''
     p[0] = p[1]
     return p
@@ -74,7 +80,7 @@ def p_equiv_members(p):
 
 def p_equiv_member(p):
     '''
-    equiv_member : ID
+    equiv_member : id
     '''
     p[0] = '%s' % (p[1], )
     return p
@@ -85,11 +91,11 @@ def p_textbound(p):
                 |  textbound_core
     '''
     p[0] = p[1]
-    return p[0]
+    return p
 
 def p_textbound_core(p):
     '''
-    textbound_core : ID TAB TYPE SPACE INTEGER SPACE INTEGER
+    textbound_core : TEXT_BOUND_ID TAB TYPE SPACE INTEGER SPACE INTEGER
     '''
     p[0] = '%s\t%s %d %d' % (p[1], p[3], p[5], p[7], )
     return p
@@ -99,6 +105,13 @@ def p_textbound_freetext(p):
     textbound_freetext : textbound_core TAB FREETEXT
     '''
     p[0] = '%s\t%s' % (p[1], p[3], )
+    return p
+
+def p_comment(p):
+    '''
+    comment : COMMENT_ID TAB TYPE SPACE id
+    '''
+    p[0] = '%s\t%s %s' % (p[1], p[3], p[5])
     return p
 
 def p_event(p):
@@ -120,7 +133,7 @@ def p_event(p):
 
 def p_event_core(p):
     '''
-    event_core : ID TAB TYPE COLON ID
+    event_core : EVENT_ID TAB TYPE COLON id
     '''
     p[0] = '%s\t%s:%s' % (p[1], p[3], p[5], )
     return p
@@ -131,25 +144,29 @@ def p_event_arguments(p):
                     | event_argument
     '''
     p[0] = '%s' % (p[1], )
+    try:
+        p[0] += ' ' + p[3]
+    except IndexError:
+        pass
     return p
 
 def p_event_argument(p):
     '''
-    event_argument : argument COLON ID
+    event_argument : argument COLON id
     '''
-    p[1] = '%s:%s' % (p[1], p[3], )
+    p[0] = '%s:%s' % (p[1], p[3], )
     return p
 
 def p_modifier(p):
     '''
-    modifier : ID TAB TYPE SPACE ID
+    modifier : MODIFIER_ID TAB TYPE SPACE id
     '''
     p[0] = '%s\t%s %s' % (p[1], p[3], p[5], )
     return p
 
 def p_relation(p):
     '''
-    relation : ID TAB TYPE SPACE argument COLON ID SPACE argument COLON ID
+    relation : RELATION_ID TAB TYPE SPACE argument COLON id SPACE argument COLON id
     '''
     # TODO: Should probably require only one of each argument type
     p[0] = '%s\t%s %s:%s %s:%s' % (p[1], p[3], p[5], p[7], p[9], p[11], )
@@ -162,9 +179,21 @@ def p_argument(p):
     '''
     p[0] = p[1]
     try:
-        p[0] += p[3]
+        p[0] += str(p[2])
     except IndexError:
         pass
+    return p
+
+# Generic id
+def p_id(p):
+    '''
+    id  : TEXT_BOUND_ID
+        | EVENT_ID
+        | RELATION_ID
+        | MODIFIER_ID
+        | COMMENT_ID
+    '''
+    p[0] = p[1]
     return p
 
 def p_error(p):
@@ -178,4 +207,6 @@ if __name__ == '__main__':
     for line in stdin:
         print 'Input: "%s"' % line.rstrip('\n')
         result = parser.parse(line)
+        assert result == line, ('"%s" != "%s"' % (result, line)
+                ).replace('\n', '\\n')
         print result,
