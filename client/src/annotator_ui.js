@@ -213,15 +213,14 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         $.each(attributeTypes, function(attrNo, attr) {
           $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
-          if (span) {
-            if (attr.unused) {
-              $input.val(span.attributes[attr.type] || '');
-            } else if (attr.bool) {
-              $input[0].checked = span.attributes[attr.type];
-              $input.button('refresh');
-            } else {
-              $input.val(span.attributes[attr.type] || '').change();
-            }
+          var val = span && span.attributes[attr.type];
+          if (attr.unused) {
+            $input.val(val || '');
+          } else if (attr.bool) {
+            $input[0].checked = val;
+            $input.button('refresh');
+          } else {
+            $input.val(val || '').change();
           }
         });
         var confirmMode = $('#confirm_mode')[0].checked;
