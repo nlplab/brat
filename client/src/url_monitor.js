@@ -113,8 +113,8 @@ var URLHash = (function($, window, undefined) {
 
       getHash: function() {
         var url_hash = this.collection + this.document;
+        var url_args = param(this.arguments);
 
-        var url_args = this.arguments === null ? '' : $.param(this.arguments);
         if (url_args.length) {
           url_hash += '?' + url_args;
         }
@@ -125,6 +125,44 @@ var URLHash = (function($, window, undefined) {
 
         return url_hash;
       },
+    };
+
+    var equalsRE = /^([^=]+)=(.*)$/;
+
+    var deparam = function(str) {
+      var args = str.split('&');
+      var len = args.length;
+      if (!len) return null;
+      var result = {};
+      for (var i = 0; i < len; i++) {
+        var parts = args[i].match(equalsRE);
+        if (parts.length != 3) break;
+        var val = [];
+        var arr = parts[2].split(',');
+        var sublen = arr.length;
+        for (var j = 0; j < sublen; j++) {
+          val.push(arr[j].split('-'));
+        }
+        result[parts[1]] = val;
+      }
+      return result;
+    };
+
+    var param = function(args) {
+      if (!args) return '';
+      var vals = [];
+      for (var key in args) {
+        if (args.hasOwnProperty(key)) {
+          var val = args[key];
+          var len = val.length;
+          var arr = [];
+          for (var i = 0; i < len; i++) {
+            arr.push(val[i].join('-'));
+          }
+          vals.push(key + '=' + arr.join(','));
+        }
+      }
+      return vals.join('&');
     };
 
     // TODO: Document and conform variables to the rest of the object
@@ -151,14 +189,7 @@ var URLHash = (function($, window, undefined) {
         }
       }
       var doc = path.substr(slashPos + 1);
-      var args = $.deparam(argsStr) || {};
-      // deparam() gives {} for any empty, using null internally for
-      // ease of comparison. (BTW what kind of language doesn't
-      // provide an inbuilt mechanism for checking for an empty
-      // primitive??)
-      if ($.isEmptyObject(args)) {
-        args = null;
-      }
+      var args = deparam(argsStr);
       return new URLHash(coll, doc, args);
     };
 
