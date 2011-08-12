@@ -51,7 +51,6 @@ var OfflineAjax = (function($, window, undefined) {
         var scr = document.createElement('script');
         scr.onload = function(evt) {
           jsonp.messages = [];
-          jsonp.action = data.action;
           if (merge) {
             $.extend(jsonp, merge);
           }
