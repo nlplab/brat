@@ -154,6 +154,7 @@ var URLHash = (function($, window, undefined) {
       for (var key in args) {
         if (args.hasOwnProperty(key)) {
           var val = args[key];
+          if (val == undefined) continue;
           var len = val.length;
           var arr = [];
           for (var i = 0; i < len; i++) {
