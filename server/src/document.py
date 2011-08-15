@@ -10,6 +10,7 @@ from __future__ import with_statement
 Document handling functionality.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
+            Illes Solt          <solt tmit bme hu>
 Version:    2011-04-21
 '''
 
@@ -27,6 +28,7 @@ from config import DATA_DIR
 from projectconfig import ProjectConfiguration, get_labels_by_storage_form
 from stats import get_statistics
 from message import Messager
+from auth import can_read, AccessDeniedError
 
 try:
     from config import PERFORM_VERIFICATION
@@ -199,6 +201,10 @@ def get_span_types(directory):
 
     return event_types, entity_types, attribute_types, relation_types
 
+def assert_can_read(doc_path):
+    if not can_read(doc_path):
+        raise AccessDeniedError # Permission denied by access control
+
 def real_directory(directory):
     assert isabs(directory), 'directory "%s" is not absolute' % directory
     return path_join(DATA_DIR, directory[1:])
@@ -215,7 +221,9 @@ def _is_hidden(file_name):
 def _listdir(directory):
     #return listdir(directory)
     try:
-        return [f for f in listdir(directory) if not _is_hidden(f)]
+        assert_can_read(directory)
+        return [f for f in listdir(directory) if not _is_hidden(f)
+                and can_read(path_join(directory, f))]
     except OSError, e:
         Messager.error("Error listing %s: %s" % (directory, e))
         raise AnnotationCollectionNotFoundError(directory)
@@ -225,7 +233,9 @@ def get_directory_information(collection):
     directory = collection
 
     real_dir = real_directory(directory)
-
+    
+    assert_can_read(real_dir)
+    
     # Get the document names
     base_names = [fn[0:-4] for fn in _listdir(real_dir)
             if fn.endswith('txt')]
