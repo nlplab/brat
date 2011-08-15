@@ -10,6 +10,7 @@ from __future__ import with_statement
 Document handling functionality.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
+            Illes Solt          <solt tmit bme hu>
 Version:    2011-04-21
 '''
 
@@ -26,12 +27,18 @@ from htmlgen import generate_client_keymap, generate_textbound_type_html
 from projectconfig import ProjectConfiguration
 from stats import get_statistics
 from message import display_message
+from auth import can_read
 
 # Temporary catch while we phase in this part
 try:
     from config import PERFORM_VERIFICATION
 except ImportError:
     PERFORM_VERIFICATION = False
+
+def assert_can_read(doc_path):
+    if not can_read(doc_path):
+        display_message('Error: permission denied to access "%s"' % (doc_path), 'error', -1)
+        raise IOError # permission denied by access control
 
 def real_directory(directory):
     assert isabs(directory), 'directory "%s" is not absolute' % directory
@@ -41,13 +48,16 @@ def _is_hidden(file_name):
     return file_name.startswith('hidden_') or file_name.startswith('.')
 
 def _listdir(directory):
-    return listdir(directory)
-    return [f for f in listdir(directory) if not _is_hidden(f)]
+    #return listdir(directory)
+    assert_can_read(directory)
+    return [f for f in listdir(directory) if not _is_hidden(f) and can_read(path_join(directory, f)) ]
 
 # TODO: This is not the prettiest of functions
 def get_directory_information(directory):
     real_dir = real_directory(directory)
-
+    
+    assert_can_read(real_dir)
+    
     # Get the document names
     base_names = [fn[0:-4] for fn in _listdir(real_dir)
             if fn.endswith('txt')]
@@ -236,6 +246,7 @@ def _document_json_dict(document):
     return j_dic
 
 def _sentence_split(txt_file_path):
+    assert_can_read(txt_file_path)
     from geniass import sentence_split_file
     try:
         ret = sentence_split_file(txt_file_path, use_cache=True)
@@ -259,6 +270,7 @@ def _sentence_split(txt_file_path):
                 return sub(r'(\. *) ([A-Z])',r'\1\n\2', txt_file.read())
         else:
             raise
+
 
 def get_document(directory, document):
     real_dir = real_directory(directory)

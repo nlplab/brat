@@ -6,9 +6,15 @@
 '''
 Per-project configuration functionality for
 Brat Rapid Annotation Tool (brat)
+
+Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
+            Illes Solt          <solt tmit bme hu>
+Version:    2011-08-15
 '''
 
 import re
+import robotparser # TODO reduce scope
+import urlparse # TODO reduce scope
 
 from annotation import open_textfile
 from message import display_message
@@ -24,6 +30,7 @@ __event_type_hierarchy_filename     = 'event_types.conf'
 __attribute_type_hierarchy_filename = 'attributes.conf'
 __label_filename                    = 'labels.conf'
 __kb_shortcut_filename              = 'kb_shortcuts.conf'
+__access_control_filename           = 'acl.conf'
 
 # fallback defaults if configs not found
 __default_entity_type_hierarchy = """
@@ -52,6 +59,16 @@ Theme\tTheme\tTh
 __default_kb_shortcuts = """
 P	Protein
 """
+
+__default_access_control = """
+User-agent: *
+Allow: /
+Disallow: /hidden/
+
+User-agent: guest
+Disallow: /confidential/
+"""
+
 
 # Reserved "macros" with special meanings in configuration.
 reserved_macro_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE"]
@@ -297,6 +314,17 @@ def __parse_kb_shortcuts(shortcutstr, default, source):
         display_message("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, "warning", 5)
         shortcuts = default
     return shortcuts
+    
+def __parse_access_control(acstr, source):
+    try:
+        parser = robotparser.RobotFileParser()
+        parser.parse(acstr.split("\n"))
+    except:
+        # TODO: specific exception handling
+        display_message("Project configuration: error parsing access control rules from %s. Configuration may be wrong." % source, "warning", 5)
+        parser = None
+    return parser
+    
 
 def __read_first_in_directory_tree(directory, filename):
     # config will not be available command-line invocations;
@@ -352,6 +380,20 @@ def __get_labels(directory, filename, default_labels, min_labels):
 
     labels = __parse_labels(labelstr, min_labels, source)
     return labels
+
+def __get_access_control(directory, filename, default_rules):
+
+    acstr, source = __read_first_in_directory_tree(directory, filename)
+
+    if acstr is None:
+        acstr = default_rules # TODO read or default isntead of default
+        if acstr == default_rules:
+            source = "[default rules]"
+        else:
+            source = filename
+    ac_oracle = __parse_access_control(acstr, source)
+    return ac_oracle
+
 
 def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 
@@ -439,6 +481,18 @@ def get_labels(directory):
 
     return cache[directory]
 get_labels.__cache = {}
+
+def get_access_control(directory):
+    cache = get_access_control.__cache
+    if directory not in cache:
+        a = __get_access_control(directory,
+                         __access_control_filename,
+                         __default_access_control)
+        cache[directory] = a
+
+    return cache[directory]
+get_access_control.__cache = {}
+
 
 def get_kb_shortcuts(directory):
     cache = get_kb_shortcuts.__cache
@@ -699,6 +753,9 @@ class ProjectConfiguration(object):
 
     def get_kb_shortcuts(self):
         return get_kb_shortcuts(self.directory)
+
+    def get_access_control(self):
+        return get_access_control(self.directory)
 
     def get_attribute_types(self):
         return [t.storage_form() for t in get_attribute_type_list(self.directory)]
