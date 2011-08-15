@@ -3,18 +3,41 @@
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 '''
-Authentication mechanisms.
+Authentication and authorization mechanisms.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
+            Illes Solt          <solt tmit bme hu>
 Version:    2011-04-21
 '''
 
 from hashlib import sha512
+from os.path import dirname, join as path_join, isdir
+
+try:
+    from os.path import relpath
+except ImportError:
+    # workaround for missing relpath in 2.5, following code from the 
+    # BareNecessities package, License: MIT, Author: James Gardner
+    # TODO: remove need for relpath instead
+    from os.path import abspath, sep, pardir, commonprefix
+    def relpath(path, start):
+        """Return a relative version of a path"""
+        if not path:
+            raise ValueError("no path specified")
+        start_list = abspath(start).split(sep)
+        path_list = abspath(path).split(sep)
+        # Work out how much of the filepath is shared by start and path.
+        i = len(commonprefix([start_list, path_list]))
+        rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
+        if not rel_list:
+            return path
+        return path_join(*rel_list)
 
 from common import ProtocolError
-from config import USER_PASSWORD
+from config import USER_PASSWORD, DATA_DIR
 from message import Messager
 from session import get_session
+from projectconfig import ProjectConfiguration
 
 
 # To raise if the authority to carry out an operation is lacking
@@ -28,6 +51,22 @@ class NotAuthorisedError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'notAuthorised'
         return json_dic
+
+
+# File/data access denial
+class AccessDeniedError(ProtocolError):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return 'Access Denied'
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'accessDenied'
+        # TODO: Client should be responsible here
+        Messager.error('Access Denied')
+        return json_dic
+
 
 class InvalidAuthError(ProtocolError):
     def __init__(self):
@@ -43,8 +82,9 @@ class InvalidAuthError(ProtocolError):
 
 def _is_authenticated(user, password):
     # TODO: Replace with a database back-end
-    return (user not in USER_PASSWORD or
-            password != _password_hash(USER_PASSWORD[user]))
+    return (user in USER_PASSWORD and
+            password == USER_PASSWORD[user])
+            #password == _password_hash(USER_PASSWORD[user]))
 
 def _password_hash(password):
     return sha512(password).hexdigest()
@@ -71,5 +111,28 @@ def whoami():
         # TODO: Really send this message?
         Messager.error('Not logged in!', duration=3)
     return json_dic
+
+def can_read(real_path):
+    try:
+        user = get_session().get('user')
+    except KeyError:
+        user = None
+
+    if user is None:
+        user = 'guest'
+
+    data_path = path_join('/', relpath(real_path, DATA_DIR))
+    # add trailing slash to directories, required to comply to robots.txt
+    if isdir(real_path):
+        data_path = '%s/' % ( data_path )
+        
+    real_dir = dirname(real_path)
+    robotparser = ProjectConfiguration(real_dir).get_access_control()
+    if robotparser is None:
+        return True # default allow
+
+    #display_message('Path: %s, dir: %s, user: %s, ' % (data_path, real_dir, user), type='error', duration=-1)
+
+    return robotparser.can_fetch(user, data_path)
 
 # TODO: Unittesting

@@ -514,7 +514,8 @@ var Visualizer = (function($, window, undefined) {
           chunk.spans.sort(sortComparator); // sort
           $.each(chunk.spans, function(spanNo, span) {
             span.chunk = chunk;
-            span.text = chunk.text.substring(span.from - chunk.from, span.to - chunk.from); // XXX used anywhere?
+            // TODO: span.text is useful, but this is a weird place to init it ...
+            span.text = chunk.text.substring(span.from - chunk.from, span.to - chunk.from);
             if (!data.towers[span.towerId]) {
               data.towers[span.towerId] = [];
               span.drawCurly = true;
