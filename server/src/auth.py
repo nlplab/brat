@@ -13,14 +13,11 @@ Version:    2011-04-21
 from hashlib import sha512
 from os.path import dirname, relpath, join as path_join, isdir
 
-
 from common import ProtocolError
 from config import USER_PASSWORD, DATA_DIR
 from message import display_message
 from session import get_session
 from projectconfig import ProjectConfiguration
-
-
 
 
 # To raise if the authority to carry out an operation is lacking
@@ -33,6 +30,18 @@ class NotAuthorisedError(ProtocolError):
         # TODO: Really send this message?
         display_message('Login required to perform "%s"'
                 % self.attempted_action, 'error', 5)
+        return json_dic
+
+
+# File/data access denial
+class AccessDeniedError(ProtocolError):
+    def __init__(self):
+        pass
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'accessDenied'
+        # TODO: Really send this message?
+        display_message('Access Denied', 'error', 5)
         return json_dic
 
 

@@ -27,7 +27,7 @@ from htmlgen import generate_client_keymap, generate_textbound_type_html
 from projectconfig import ProjectConfiguration
 from stats import get_statistics
 from message import display_message
-from auth import can_read
+from auth import can_read, AccessDeniedError
 
 # Temporary catch while we phase in this part
 try:
@@ -37,8 +37,7 @@ except ImportError:
 
 def assert_can_read(doc_path):
     if not can_read(doc_path):
-        display_message('Error: permission denied to access "%s"' % (doc_path), 'error', -1)
-        raise IOError # permission denied by access control
+        raise AccessDeniedError # Permission denied by access control
 
 def real_directory(directory):
     assert isabs(directory), 'directory "%s" is not absolute' % directory
