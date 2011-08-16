@@ -1732,10 +1732,8 @@ Util.profileStart('before render');
         } else if (id = target.attr('data-sent')) {
           var comment = data.sentComment[id];
           if (comment) {
-          // NOTE: no commentText, commentType for now
-          dispatcher.post('displaySentComment', [
-              evt, target, comment]);
-            displaySentComment(comment.text, evt);
+            // NOTE: no commentText, commentType for now
+            dispatcher.post('displaySentComment', [evt, target, comment.text, comment.type]);
           }
         }
       };
