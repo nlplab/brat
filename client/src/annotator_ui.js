@@ -81,7 +81,8 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
           $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
           var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
-          fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
+          var arcAnnotatorNotes = ''; // TODO fill from info to be provided by server
+          fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId, arcAnnotatorNotes);
 
         // if not, then do we edit a span?
         } else if (id = target.attr('data-span-id')) {
@@ -245,11 +246,12 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('hideForm', [arcForm]);
 
         arcOptions.type = type;
+        arcOptions.comment = $('#arc_notes').val();
         dispatcher.post('ajax', [arcOptions, 'edited']);
         return false;
       };
 
-      var fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId) {
+      var fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId, arcAnnotatorNotes) {
         var noArcs = true;
         keymap = {};
 
@@ -316,6 +318,12 @@ var AnnotatorUI = (function($, window, undefined) {
         var confirmMode = $('#confirm_mode')[0].checked;
         if (!confirmMode) {
           arcForm.find('#arc_roles input:radio').click(arcFormSubmitRadio);
+        }
+
+        if (arcAnnotatorNotes) {
+          $('#arc_notes').val(arcAnnotatorNotes);
+        } else {
+          $('#arc_notes').val('');
         }
 
         dispatcher.post('showForm', [arcForm]);
