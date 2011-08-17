@@ -14,13 +14,21 @@ Author:     Pontus Stenetorp
 Version:    2011-01-17
 '''
 
-from argparse import ArgumentParser
 from collections import defaultdict
 from os.path import join as join_path
 from os.path import split as split_path
 from shlex import split as shlex_split
 from sys import stderr, stdin
 from subprocess import Popen, PIPE
+
+try:
+    from argparse import ArgumentParser
+except ImportError:
+    from os.path import basename
+    from sys import path as sys_path
+    # We are most likely on an old Python and need to use our internal version
+    sys_path.append(join_path(basename(__file__), '../server/lib'))
+    from argparse import ArgumentParser
 
 ### Constants
 #TODO: Add to options?
