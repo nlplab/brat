@@ -7,7 +7,15 @@
 
 import sys
 import os
-import argparse
+
+try:
+    import argparse
+except ImportError:
+    from os.path import basename
+    from sys import path as sys_path
+    # We are most likely on an old Python and need to use our internal version
+    sys_path.append(join_path(basename(__file__), '../server/lib'))
+    import argparse
 
 # Filename extensions that should be considered in selecting files to
 # process.

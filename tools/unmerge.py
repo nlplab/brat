@@ -11,9 +11,17 @@ Author:     Sampo Pyysalo
 Version:    2011-02-24
 '''
 
-import argparse
 import sys
 import re
+
+try:
+    import argparse
+except ImportError:
+    from os.path import basename
+    from sys import path as sys_path
+    # We are most likely on an old Python and need to use our internal version
+    sys_path.append(join_path(basename(__file__), '../server/lib'))
+    import argparse
 
 # if True, performs extra checking to assure that the input and output
 # contain the same data. This costs a bit of execution time.
