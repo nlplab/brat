@@ -41,7 +41,10 @@ class NotImplementedError(ProtocolError):
 #       in dispatch, can we make it work?
 # Wrapper to send a deprecation warning to the client if debug is set
 def deprecated_action(func):
-    from config import DEBUG
+    try:
+        from config import DEBUG
+    except ImportError:
+        DEBUG = False
     from functools import wraps
     from message import Messager
 

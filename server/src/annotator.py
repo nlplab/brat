@@ -20,7 +20,10 @@ from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, EquivAnnotation, open_textfile,
         AnnotationsIsReadOnlyError, AttributeAnnotation)
-from config import DEBUG
+try:
+    from config import DEBUG
+except ImportError:
+    DEBUG = False
 from document import real_directory
 from jsonwrap import loads as json_loads
 from message import Messager
