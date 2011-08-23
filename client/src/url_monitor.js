@@ -154,7 +154,10 @@ var URLHash = (function($, window, undefined) {
       for (var key in args) {
         if (args.hasOwnProperty(key)) {
           var val = args[key];
-          if (val == undefined) continue;
+          if (val == undefined) {
+            console.log('Error: received argument', key, 'with value', val);
+            continue;
+          }
           var len = val.length;
           var arr = [];
           for (var i = 0; i < len; i++) {

@@ -639,7 +639,11 @@ var AnnotatorUI = (function($, window, undefined) {
           svgElement.removeClass('reselect');
           $('#waiter').dialog('close');
         } else {
-          args.edited = response.edited;
+          if (response.edited == undefined) {
+            console.log('Warning: server response to edit has', response.edited, 'value for "edited"');
+          } else {
+            args.edited = response.edited;
+          }
           data = response.annotations;
           data.document = doc;
           data.collection = coll;
