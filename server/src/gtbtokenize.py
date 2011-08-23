@@ -20,7 +20,7 @@ import re
 
 INPUT_ENCODING = "UTF-8"
 OUTPUT_ENCODING = "UTF-8"
-DEBUG = True
+DEBUG_GTB_TOKENIZATION = True
 
 # Penn treebank bracket escapes (others excluded)
 PTB_ESCAPES = [('(', '-LRB-'),
@@ -201,7 +201,7 @@ def tokenize(s, ptb_escaping=False, use_single_quotes_only=False,
     hopefully self-explanatory.
     """
 
-    if DEBUG:
+    if DEBUG_GTB_TOKENIZATION:
         orig = s
 
     # Core tokenization needs starting and ending space and no newline;
@@ -256,7 +256,7 @@ def tokenize(s, ptb_escaping=False, use_single_quotes_only=False,
     s = re.sub(r' +$', '', s)
 
     # Only do final comparison in debug mode.
-    if DEBUG:
+    if DEBUG_GTB_TOKENIZATION:
         # revised must match original when whitespace, quotes (etc.)
         # and escapes are ignored
         # TODO: clean this up

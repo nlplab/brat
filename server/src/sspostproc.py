@@ -10,7 +10,7 @@ import re
 
 INPUT_ENCODING = "UTF-8"
 OUTPUT_ENCODING = "UTF-8"
-DEBUG = True
+DEBUG_SS_POSTPROCESSING = True
 
 __initial = []
 
@@ -86,7 +86,7 @@ def refine_split(s):
     sentence splitting errors.
     """
 
-    if DEBUG:
+    if DEBUG_SS_POSTPROCESSING:
         orig = s
 
     for r, t in __initial:
@@ -102,7 +102,7 @@ def refine_split(s):
         s = r.sub(t, s)
 
     # Only do final comparison in debug mode.
-    if DEBUG:
+    if DEBUG_SS_POSTPROCESSING:
         # revised must match original when differences in space<->newline
         # substitutions are ignored
         r1 = orig.replace('\n', ' ')
