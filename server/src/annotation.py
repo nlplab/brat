@@ -928,7 +928,7 @@ class TextAnnotations(Annotations):
         # corresponding to the start:end span. If the tail is empty,
         # force a fill with the corresponding text.
         if data_tail.strip() == '' and end - start > 0:
-            display_message(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.", "warning", duration=-1)
+            Messager.error(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.", "warning")
             text = self._document_text[start:end]
         elif data_tail[0] != '\t':
             Messager.error('Text-bound annotation missing tab before text (expected format "ID\\tTYPE START END\\tTEXT").')
