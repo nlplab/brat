@@ -66,7 +66,7 @@ Your Apache 2 Group" section of this document:
 Then simply change the group of the directories (change `${YOUR_APACHE_GROUP}`
 into the output you got above) and set the correct permissions:
 
-    sudo chgrp -R ${YOUR_APACHE_GROUP} data sessions svg
+    sudo chgrp -R ${YOUR_APACHE_GROUP} data work
     chmod -R g+rwx data work
 
 If you can't succeed with the above or you are not concerned with security (say
@@ -145,8 +145,8 @@ Find out what the Apache group name is, it is usually `apache` or `www-data`;
 it can be found in `apache2.conf` or `httpd.conf` under `/etc/apache2/` or
 `/etc/httpd/`. Let's assume it's www-data. Then:
 
-    sudo chgrp -R www-data data sessions svg
-    chmod -R g+rwx data sessions svg
+    sudo chgrp -R www-data data work
+    chmod -R g+rwx data work
 
 Actually, due to the joy of Linux segmentation you can find the group
 elsewhere as well. Here is a small heuristic that works on at least two
