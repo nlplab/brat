@@ -613,13 +613,22 @@ def format_results(matches):
             ann.text
     except AttributeError:
         include_text = False
-        
+
+    include_trigger_text = True
+    try:
+        for ann_obj, ann in matches.get_matches():
+            ann.trigger
+    except AttributeError:
+        include_trigger_text = False
 
     if include_type:
         response['header'].append(('Type', 'string'))
 
     if include_text:
         response['header'].append(('Text', 'string'))
+
+    if include_trigger_text:
+        response['header'].append(('Trigger text', 'string'))
 
     # fill in content
     items = []
@@ -633,6 +642,12 @@ def format_results(matches):
             items[-1].append(ann.type)
         if include_text:
             items[-1].append(ann.text)
+        if include_trigger_text:
+            try:
+                items[-1].append(ann_obj.get_ann_by_id(ann.trigger).text)
+            except:
+                # TODO: specific exception
+                items[-1].append("(ERROR)")
     response['items'] = items
     return response
 
