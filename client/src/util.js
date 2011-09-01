@@ -413,7 +413,7 @@ var Util = (function(window, undefined) {
         if (args.hasOwnProperty(key)) {
           var val = args[key];
           if (val == undefined) {
-            console.log('Error: received argument', key, 'with value', val);
+            console.error('Error: received argument', key, 'with value', val);
             continue;
           }
           // values normally expected to be arrays, but some callers screw
@@ -426,13 +426,13 @@ var Util = (function(window, undefined) {
                 arr.push(val[i].join('-'));
               } else {
                 // non-array argument; this is an error from the caller
-                console.log('param: Error: received non-array-in-array argument', key, '[', i, ']', ':', val[i], '(fix caller)');
+                console.error('param: Error: received non-array-in-array argument', key, '[', i, ']', ':', val[i], '(fix caller)');
               }
             }
             vals.push(key + '=' + arr.join(','));
           } else {
             // non-array argument; this is an error from the caller
-            console.log('param: Error: received non-array argument', key, ':', val, '(fix caller)');
+            console.error('param: Error: received non-array argument', key, ':', val, '(fix caller)');
           }
         }
       }
