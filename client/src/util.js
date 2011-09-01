@@ -422,14 +422,17 @@ var Util = (function(window, undefined) {
             var len = val.length;
             var arr = [];
             for (var i = 0; i < len; i++) {
-              arr.push(val[i].join('-'));
+              if ($.isArray(val[i])) {
+                arr.push(val[i].join('-'));
+              } else {
+                // non-array argument; this is an error from the caller
+                console.log('param: Error: received non-array-in-array argument', key, '[', i, ']', ':', val[i], '(fix caller)');
+              }
             }
             vals.push(key + '=' + arr.join(','));
           } else {
             // non-array argument; this is an error from the caller
-            console.log('param: Warning: received non-array argument', key, ':', val, '(fix caller)');
-            // do something anyway (bit risky)
-            vals.push(key + '=' + val);
+            console.log('param: Error: received non-array argument', key, ':', val, '(fix caller)');
           }
         }
       }
