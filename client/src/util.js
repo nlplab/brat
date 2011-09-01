@@ -426,10 +426,8 @@ var Util = (function(window, undefined) {
             }
             vals.push(key + '=' + arr.join(','));
           } else {
-            // non-array argument; this is an error from the caller (I think), but
-            // currently relying on this functionality in search result browsing
-            // so won't complain
-//             console.log('param: Warning: received non-array argument', key, ':', val, '(fix caller)');
+            // non-array argument; this is an error from the caller
+            console.log('param: Warning: received non-array argument', key, ':', val, '(fix caller)');
             // do something anyway (bit risky)
             vals.push(key + '=' + val);
           }
