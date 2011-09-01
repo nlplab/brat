@@ -378,11 +378,7 @@ var Visualizer = (function($, window, undefined) {
         // Note: making "focus" an alias for "edited" when "edited" is
         // not defined.  TODO: unify the "focus" and "edited"
         // mechanisms.
-        var argsEdited = args.edited;
-
-        if (!argsEdited && args.focus) {
-          argsEdited = args.focus;
-        }
+        var argsEdited = args.edited || args.focus;
 
         if (argsEdited) {
           $.each(argsEdited, function(editedNo, edited) {
