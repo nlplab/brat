@@ -385,6 +385,59 @@ var Util = (function(window, undefined) {
       return true;
     };
 
+    var equalsRE = /^([^=]+)=(.*)$/;
+
+    var deparam = function(str) {
+      var args = str.split('&');
+      var len = args.length;
+      if (!len) return null;
+      var result = {};
+      for (var i = 0; i < len; i++) {
+        var parts = args[i].match(equalsRE);
+        if (!parts || parts.length != 3) break;
+        var val = [];
+        var arr = parts[2].split(',');
+        var sublen = arr.length;
+        for (var j = 0; j < sublen; j++) {
+          val.push(arr[j].split('-'));
+        }
+        result[parts[1]] = val;
+      }
+      return result;
+    };
+
+    var param = function(args) {
+      if (!args) return '';
+      var vals = [];
+      for (var key in args) {
+        if (args.hasOwnProperty(key)) {
+          var val = args[key];
+          if (val == undefined) {
+            console.log('Error: received argument', key, 'with value', val);
+            continue;
+          }
+          // values normally expected to be arrays, but some callers screw
+          // up, so check
+          if ($.isArray(val)) {
+            var len = val.length;
+            var arr = [];
+            for (var i = 0; i < len; i++) {
+              arr.push(val[i].join('-'));
+            }
+            vals.push(key + '=' + arr.join(','));
+          } else {
+            // non-array argument; this is an error from the caller (I think), but
+            // currently relying on this functionality in search result browsing
+            // so won't complain
+//             console.log('param: Warning: received non-array argument', key, ':', val, '(fix caller)');
+            // do something anyway (bit risky)
+            vals.push(key + '=' + val);
+          }
+        }
+      }
+      return vals.join('&');
+    };
+
     var profiles = {};
     var profileStarts = {};
     var profileOn = false;
@@ -438,6 +491,8 @@ var Util = (function(window, undefined) {
       lightenColor: lightenColor,
       objectToUrlStr: objectToUrlStr,
       isEqual: isEqual,
+      param: param,
+      deparam: deparam,
     };
 
 })(window);

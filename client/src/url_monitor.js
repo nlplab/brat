@@ -113,7 +113,7 @@ var URLHash = (function($, window, undefined) {
 
       getHash: function() {
         var url_hash = this.collection + this.document;
-        var url_args = param(this.arguments);
+        var url_args = Util.param(this.arguments);
 
         if (url_args.length) {
           url_hash += '?' + url_args;
@@ -125,57 +125,6 @@ var URLHash = (function($, window, undefined) {
 
         return url_hash;
       },
-    };
-
-    var equalsRE = /^([^=]+)=(.*)$/;
-
-    var deparam = function(str) {
-      var args = str.split('&');
-      var len = args.length;
-      if (!len) return null;
-      var result = {};
-      for (var i = 0; i < len; i++) {
-        var parts = args[i].match(equalsRE);
-        if (!parts || parts.length != 3) break;
-        var val = [];
-        var arr = parts[2].split(',');
-        var sublen = arr.length;
-        for (var j = 0; j < sublen; j++) {
-          val.push(arr[j].split('-'));
-        }
-        result[parts[1]] = val;
-      }
-      return result;
-    };
-
-    var param = function(args) {
-      if (!args) return '';
-      var vals = [];
-      for (var key in args) {
-        if (args.hasOwnProperty(key)) {
-          var val = args[key];
-          if (val == undefined) {
-            console.log('Error: received argument', key, 'with value', val);
-            continue;
-          }
-          // values normally expected to be arrays, but some callers screw
-          // up, so check
-          if ($.isArray(val)) {
-            var len = val.length;
-            var arr = [];
-            for (var i = 0; i < len; i++) {
-              arr.push(val[i].join('-'));
-            }
-            vals.push(key + '=' + arr.join(','));
-          } else {
-            // non-array argument; this is an error from the caller
-            console.log('param: Warning: received non-array argument', key, ':', val, '(fix caller)');
-            // do something anyway (bit risky)
-            vals.push(key + '=' + val);
-          }
-        }
-      }
-      return vals.join('&');
     };
 
     // TODO: Document and conform variables to the rest of the object
@@ -202,7 +151,7 @@ var URLHash = (function($, window, undefined) {
         }
       }
       var doc = path.substr(slashPos + 1);
-      var args = deparam(argsStr);
+      var args = Util.deparam(argsStr);
       return new URLHash(coll, doc, args);
     };
 
