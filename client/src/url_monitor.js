@@ -158,12 +158,21 @@ var URLHash = (function($, window, undefined) {
             console.log('Error: received argument', key, 'with value', val);
             continue;
           }
-          var len = val.length;
-          var arr = [];
-          for (var i = 0; i < len; i++) {
-            arr.push(val[i].join('-'));
+          // values normally expected to be arrays, but some callers screw
+          // up, so check
+          if ($.isArray(val)) {
+            var len = val.length;
+            var arr = [];
+            for (var i = 0; i < len; i++) {
+              arr.push(val[i].join('-'));
+            }
+            vals.push(key + '=' + arr.join(','));
+          } else {
+            // non-array argument; this is an error from the caller
+            console.log('param: Warning: received non-array argument', key, ':', val, '(fix caller)');
+            // do something anyway (bit risky)
+            vals.push(key + '=' + val);
           }
-          vals.push(key + '=' + arr.join(','));
         }
       }
       return vals.join('&');
