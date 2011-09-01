@@ -637,7 +637,7 @@ def format_results(matches):
         # annotation, not a collection (directory) or document.
         # second entry is non-listed "pointer" to annotation
         fn = basename(ann_obj.get_document())
-        items.append(["a", { 'focus' : ann.id }, fn, ann.id])
+        items.append(["a", { 'edited' : [[ann.id]] }, fn, ann.id])
         if include_type:
             items[-1].append(ann.type)
         if include_text:
