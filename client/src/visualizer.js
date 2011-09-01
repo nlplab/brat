@@ -375,13 +375,13 @@ var Visualizer = (function($, window, undefined) {
 
         // highlighting
 
-        // Note: making "focus" an alias for a single-entity
-        // "edited" marking in cases where "edited" is not defined.
-        // TODO: unify the "focus" and "edited" mechanisms.
+        // Note: making "focus" an alias for "edited" when "edited" is
+        // not defined.  TODO: unify the "focus" and "edited"
+        // mechanisms.
         var argsEdited = args.edited;
 
         if (!argsEdited && args.focus) {
-          argsEdited = [[args.focus]];
+          argsEdited = args.focus;
         }
 
         if (argsEdited) {
