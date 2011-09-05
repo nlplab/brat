@@ -1580,7 +1580,8 @@ Util.profileReport();
 
       var renderErrors = {
         unableToReadTextFile: true,
-        annotationFileNotFound: true
+        annotationFileNotFound: true,
+        isDirectoryError: true
       };
       var renderData = function(_data) {
         Util.profileEnd('invoke getDocument');

@@ -311,6 +311,17 @@ class UnableToReadTextFile(ProtocolError):
         json_dic['exception'] = 'unableToReadTextFile'
         return json_dic
 
+class IsDirectoryError(ProtocolError):
+    def __init__(self, path):
+        self.path = path
+
+    def __str__(self):
+        return 'Requested "document" is directory (append "/"): %s' % self.path
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'isDirectoryError'
+        return json_dic
+
 #TODO: All this enrichment isn't a good idea, at some point we need an object
 def _enrich_json_with_text(j_dic, txt_file_path):
     try:
@@ -448,6 +459,10 @@ def _enrich_json_with_base(j_dic):
 
 def _document_json_dict(document):
     #TODO: DOC!
+
+    # pointing at directory instead of document?
+    if isdir(document):
+        raise IsDirectoryError(document)
 
     j_dic = {}
     _enrich_json_with_base(j_dic)
