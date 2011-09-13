@@ -319,7 +319,7 @@ var VisualizerUI = (function($, window, undefined) {
         var _coll, _doc, found;
         var input = $('#document_input').
             val().
-            replace(/\/?\\s+$/, '').
+            replace(/\/?\s+$/, '').
             replace(/^\s+/, '');
         if (input.substr(0, 2) === '..') {
           // ..
