@@ -929,6 +929,14 @@ Util.profileStart('chunks');
                   rx: editedSpanSize,
                   ry: editedSpanSize,
               });
+              var animation = svg.other(editedRect, 'animate', {
+                attributeName: 'fill',
+                values: 'lime;yellow;lime',
+                dur: '2s',
+                repeatCount: 'indefinite',
+                begin: 'indefinite'
+              });
+              animation.beginElement();
               chunkFrom = Math.min(bx - editedSpanSize, chunkFrom);
               chunkTo = Math.max(bx + bw + editedSpanSize, chunkTo);
               spanHeight = Math.max(bh + 2 * editedSpanSize, spanHeight);
