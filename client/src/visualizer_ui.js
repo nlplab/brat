@@ -316,7 +316,7 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       var fileBrowserSubmit = function(evt) {
-        var _coll, _doc, found;
+        var _coll, _doc, _args, found;
         var input = $('#document_input').
             val().
             replace(/\/?\s+$/, '').
@@ -332,10 +332,11 @@ var VisualizerUI = (function($, window, undefined) {
             _coll = coll.substr(0, pos + 1);
             _doc = '';
           }
-        } else if (found = input.match(/^(\/?)((?:[^\/]+\/)*)([^\/]*)$/)) {
+        } else if (found = input.match(/^(\/?)((?:[^\/]*\/)*)([^\/?]*)(?:\?(.*))?$/)) {
           var abs = found[1];
           var collname = found[2].substr(0, found[2].length - 1);
           var docname = found[3];
+          var args = found[4];
           if (abs) {
             _coll = abs + collname;
             if (_coll.length < 2) coll += '/';
@@ -345,13 +346,18 @@ var VisualizerUI = (function($, window, undefined) {
             _coll = coll + collname;
             _doc = docname;
           }
+          if (args) {
+              _args = Util.deparam(args);
+          } else {
+              _args = {};
+          }
         } else {
           dispatcher.post('messages', [[['Invalid document name format', 'error', 2]]]);
           $('#document_input').focus().select();
         }
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').empty();
-        dispatcher.post('setCollection', [_coll, _doc]);
+        dispatcher.post('setCollection', [_coll, _doc, _args]);
         return false;
       };
       fileBrowser.
