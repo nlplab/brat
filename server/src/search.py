@@ -12,6 +12,14 @@ import annotation
 
 from message import Messager
 
+DEFAULT_EMPTY_STRING = "***"
+
+REPORT_SEARCH_TIMINGS = False
+
+if REPORT_SEARCH_TIMINGS:
+    from sys import stderr
+    from datetime import datetime
+
 # TODO: nested_types restriction not consistently enforced in
 # searches.
 
@@ -68,6 +76,10 @@ def __filenames_to_annotations(filenames):
     # TODO: error output should be done via messager to allow
     # both command-line and GUI invocations
 
+    global REPORT_SEARCH_TIMINGS
+    if REPORT_SEARCH_TIMINGS:
+        process_start = datetime.now()
+
     anns = []
     for fn in filenames:
         try:
@@ -83,6 +95,10 @@ def __filenames_to_annotations(filenames):
 
     if len(anns) != len(filenames):
         print >> sys.stderr, "Note: only checking %d/%d given files" % (len(anns), len(filenames))
+
+    if REPORT_SEARCH_TIMINGS:
+        process_delta = datetime.now() - process_start
+        print >> stderr, "filenames_to_annotations: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
 
     return anns
 
@@ -382,6 +398,10 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
     given Annotations objects.  Returns a SearchMatchSet object.
     """
 
+    global REPORT_SEARCH_TIMINGS
+    if REPORT_SEARCH_TIMINGS:
+        process_start = datetime.now()
+
     # treat None and empty list uniformly
     restrict_types = [] if restrict_types is None else restrict_types
     ignore_types   = [] if ignore_types is None else ignore_types
@@ -404,7 +424,8 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
                 continue
             # TODO: make options for "text included" vs. "text matches"
             # TODO: remove temporary hack giving special status to "*"
-            if text != None and text != "" and text != "*" and text not in t.text:
+            if (text != None and text != "" and 
+                text != DEFAULT_EMPTY_STRING and text not in t.text):
                 continue
             if nested_types != []:
                 # TODO: massively inefficient
@@ -424,6 +445,10 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
     # sort by document name for output
     matches.sort_matches()
 
+    if REPORT_SEARCH_TIMINGS:
+        process_delta = datetime.now() - process_start
+        print >> stderr, "search_anns_for_textbound: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+
     return matches
 
 def search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=[], ignore_types=[]):
@@ -431,6 +456,10 @@ def search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=[], ignore_typ
     Searches the given Annotations objects for relation annotations
     matching the given specification. Returns a SearchMatchSet object.
     """
+
+    global REPORT_SEARCH_TIMINGS
+    if REPORT_SEARCH_TIMINGS:
+        process_start = datetime.now()
 
     # treat None and empty list uniformly
     restrict_types = [] if restrict_types is None else restrict_types
@@ -467,6 +496,10 @@ def search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=[], ignore_typ
     # sort by document name for output
     matches.sort_matches()
 
+    if REPORT_SEARCH_TIMINGS:
+        process_delta = datetime.now() - process_start
+        print >> stderr, "search_anns_for_relation: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+
     return matches
 
 def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignore_types=[]):
@@ -474,6 +507,10 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
     Searches the given Annotations objects for Event annotations
     matching the given specification. Returns a SearchMatchSet object.
     """
+
+    global REPORT_SEARCH_TIMINGS
+    if REPORT_SEARCH_TIMINGS:
+        process_start = datetime.now()
 
     # treat None and empty list uniformly
     restrict_types = [] if restrict_types is None else restrict_types
@@ -523,6 +560,10 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
     # sort by document name for output
     matches.sort_matches()
 
+    if REPORT_SEARCH_TIMINGS:
+        process_delta = datetime.now() - process_start
+        print >> stderr, "search_anns_for_event: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+
     return matches
 
 def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
@@ -530,6 +571,10 @@ def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nes
     Searches for the given text in the document texts of the given
     Annotations objects.  Returns a SearchMatchSet object.
     """
+
+    global REPORT_SEARCH_TIMINGS
+    if REPORT_SEARCH_TIMINGS:
+        process_start = datetime.now()
 
     # treat None and empty list uniformly
     restrict_types = [] if restrict_types is None else restrict_types
@@ -573,6 +618,10 @@ def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nes
             # that does not involve an annotation; this is a bit of a hack
             tm = TextMatch(m.start(), m.end(), m.group())
             matches.add_match(ann_obj, tm)
+
+    if REPORT_SEARCH_TIMINGS:
+        process_delta = datetime.now() - process_start
+        print >> stderr, "search_anns_for_text: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
 
     return matches
 
@@ -665,7 +714,7 @@ def search_text(collection, text):
     
     return results
 
-def search_entity(collection, type, text):
+def search_entity(collection, type, text=DEFAULT_EMPTY_STRING):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
