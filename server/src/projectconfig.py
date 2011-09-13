@@ -839,13 +839,16 @@ class ProjectConfiguration(object):
     def get_relation_types(self):
         return [t.storage_form() for t in get_relation_type_list(self.directory)]
 
-    def get_relation_by_type(self, type):
+    def get_relation_by_type(self, _type):
         # TODO: dict storage
         for r in get_relation_type_list(self.directory):
-            if r.storage_form() == type:
+            if r.storage_form() == _type:
                 return r
         return None
 
+    def get_labels_by_type(self, _type):
+        return get_labels_by_storage_form(self.directory, _type)
+    
     def get_drawing_config_by_type(self, type):
         return get_drawing_config_by_storage_form(self.directory, type)
 

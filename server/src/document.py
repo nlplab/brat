@@ -25,7 +25,7 @@ from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         open_textfile)
 from common import ProtocolError
 from config import DATA_DIR
-from projectconfig import ProjectConfiguration, get_labels_by_storage_form, SEPARATOR_STR
+from projectconfig import ProjectConfiguration, SEPARATOR_STR
 from stats import get_statistics
 from message import Messager
 from auth import can_read, AccessDeniedError
@@ -43,7 +43,7 @@ except ImportError:
 # TODO: this is not a good spot for this
 from itertools import chain
 
-def _fill_type_configuration(nodes, project_conf, hotkey_by_type, directory):
+def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
     items = []
     for node in nodes:
         if node == SEPARATOR_STR:
@@ -55,7 +55,7 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, directory):
             item['type'] = _type
             item['unused'] = node.unused
             # TODO: use project_conf
-            item['labels'] = get_labels_by_storage_form(directory, _type)
+            item['labels'] = project_conf.get_labels_by_type(_type)
             item['attributes'] = project_conf.attributes_for(_type)
 
             # TODO: avoid magic values
@@ -84,7 +84,7 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, directory):
                 curr_arc = {}
                 curr_arc['type'] = arc
 
-                arc_labels = get_labels_by_storage_form(directory, arc)
+                arc_labels = project_conf.get_labels_by_type(arc)
                 curr_arc['labels'] = arc_labels if arc_labels is not None else [arc]
 
                 try:
@@ -125,12 +125,12 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, directory):
                 item['arcs'] = arcs
 
             item['children'] = _fill_type_configuration(node.children,
-                    project_conf, hotkey_by_type, directory)
+                    project_conf, hotkey_by_type)
             items.append(item)
     return items
 
 # TODO: this may not be a good spot for this
-def _fill_attribute_configuration(nodes, project_conf, directory):
+def _fill_attribute_configuration(nodes, project_conf):
     items = []
     for node in nodes:
         if node == SEPARATOR_STR:
@@ -141,7 +141,7 @@ def _fill_attribute_configuration(nodes, project_conf, directory):
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
-            item['labels'] = get_labels_by_storage_form(directory, _type)
+            item['labels'] = project_conf.get_labels_by_type(_type)
 
             # process "special" <GLYPH-POS> argument, specifying where
             # to place the glyph
@@ -187,18 +187,18 @@ def get_span_types(directory):
 
     event_hierarchy = project_conf.get_event_type_hierarchy()
     event_types = _fill_type_configuration(event_hierarchy,
-            project_conf, hotkey_by_type, directory)
+            project_conf, hotkey_by_type)
 
     entity_hierarchy = project_conf.get_entity_type_hierarchy()
     entity_types = _fill_type_configuration(entity_hierarchy,
-            project_conf, hotkey_by_type, directory)
+            project_conf, hotkey_by_type)
 
     attribute_hierarchy = project_conf.get_attribute_type_hierarchy()
-    attribute_types = _fill_attribute_configuration(attribute_hierarchy, project_conf, directory)
+    attribute_types = _fill_attribute_configuration(attribute_hierarchy, project_conf)
 
     relation_hierarchy = project_conf.get_relation_type_hierarchy()
     relation_types = _fill_type_configuration(relation_hierarchy,
-            project_conf, hotkey_by_type, directory)
+            project_conf, hotkey_by_type)
 
     return event_types, entity_types, attribute_types, relation_types
 
