@@ -44,6 +44,10 @@ __annotation_config_filename  = "annotation.conf"
 __visual_config_filename      = 'visual.conf'
 __kb_shortcut_filename        = 'kb_shortcuts.conf'
 
+# visual config attribute name lists
+SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
+ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray']
+
 # fallback defaults if config files not found
 __default_configuration = """
 [entities]
@@ -86,10 +90,12 @@ User-agent: guest
 Disallow: /confidential/
 """
 
-
 # Reserved "macros" with special meanings in configuration.
 reserved_macro_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE"]
 reserved_macro_string = ["<%s>" % n for n in reserved_macro_name]
+
+# Magic string to use to represent a separator in a config
+SEPARATOR_STR = "SEPARATOR"
 
 def normalize_to_storage_form(t):
     """
@@ -234,7 +240,7 @@ def __read_term_hierarchy(input):
         # for display
         if re.match(r'^\s*-+\s*$', l):
             # TODO: proper placeholder and placing
-            root_nodes.append("SEPARATOR")
+            root_nodes.append(SEPARATOR_STR)
             continue
 
         # interpret lines of the format <STR1>=STR2 as "macro"
@@ -519,7 +525,7 @@ def get_kb_shortcuts(directory):
 get_kb_shortcuts.__cache = {}
 
 def __collect_type_list(node, collected):
-    if node == "SEPARATOR":
+    if node == SEPARATOR_STR:
         return collected
 
     collected.append(node)
@@ -796,6 +802,29 @@ class ProjectConfiguration(object):
 
         return unique_preserve_order(types)
 
+    def attributes_for(self, ann_type):
+        """
+        Returs a list of the possible attribute types for an
+        annotation of the given type.
+        """
+        attrs = []
+        for attr in get_attribute_type_list(self.directory):
+            if attr == SEPARATOR_STR:
+                continue
+            
+            if 'Arg' not in attr.arguments:
+                Messager.warning("Project configuration: config error: attribute '%s' lacks 'Arg:' specification." % attr.storage_form())
+                continue
+
+            types = attr.arguments['Arg']
+
+            if ((ann_type in types) or
+                (self.is_event_type(ann_type) and '<EVENT>' in types) or
+                (self.is_physical_entity_type(ann_type) and '<ENTITY>' in types)):
+                attrs.append(attr.storage_form())
+
+        return attrs
+
     def get_labels(self):
         return get_labels(self.directory)
 
@@ -814,13 +843,16 @@ class ProjectConfiguration(object):
     def get_relation_types(self):
         return [t.storage_form() for t in get_relation_type_list(self.directory)]
 
-    def get_relation_by_type(self, type):
+    def get_relation_by_type(self, _type):
         # TODO: dict storage
         for r in get_relation_type_list(self.directory):
-            if r.storage_form() == type:
+            if r.storage_form() == _type:
                 return r
         return None
 
+    def get_labels_by_type(self, _type):
+        return get_labels_by_storage_form(self.directory, _type)
+    
     def get_drawing_config_by_type(self, type):
         return get_drawing_config_by_storage_form(self.directory, type)
 

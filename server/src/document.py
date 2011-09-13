@@ -25,7 +25,7 @@ from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         open_textfile)
 from common import ProtocolError
 from config import DATA_DIR
-from projectconfig import ProjectConfiguration, get_labels_by_storage_form
+from projectconfig import ProjectConfiguration, SEPARATOR_STR, SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES
 from stats import get_statistics
 from message import Messager
 from auth import can_read, AccessDeniedError
@@ -43,10 +43,10 @@ except ImportError:
 # TODO: this is not a good spot for this
 from itertools import chain
 
-def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
+def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
     items = []
     for node in nodes:
-        if node == 'SEPARATOR':
+        if node == SEPARATOR_STR:
             items.append(None)
         else:
             item = {}
@@ -55,7 +55,8 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
             item['type'] = _type
             item['unused'] = node.unused
             # TODO: use project_conf
-            item['labels'] = get_labels_by_storage_form(directory, _type)
+            item['labels'] = project_conf.get_labels_by_type(_type)
+            item['attributes'] = project_conf.attributes_for(_type)
 
             # TODO: avoid magic values
             span_drawing_conf = project_conf.get_drawing_config_by_type(_type) 
@@ -63,7 +64,7 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                 span_drawing_conf = project_conf.get_drawing_config_by_type("SPAN_DEFAULT")
             if span_drawing_conf is None:
                 span_drawing_conf = {}
-            for k in ('fgColor', 'bgColor', 'borderColor'):
+            for k in SPAN_DRAWING_ATTRIBUTES:
                 if k in span_drawing_conf:
                     item[k] = span_drawing_conf[k]
             
@@ -83,7 +84,7 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                 curr_arc = {}
                 curr_arc['type'] = arc
 
-                arc_labels = get_labels_by_storage_form(directory, arc)
+                arc_labels = project_conf.get_labels_by_type(arc)
                 curr_arc['labels'] = arc_labels if arc_labels is not None else [arc]
 
                 try:
@@ -97,7 +98,7 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
                     arc_drawing_conf = project_conf.get_drawing_config_by_type("ARC_DEFAULT")
                 if arc_drawing_conf is None:
                     arc_drawing_conf = {}
-                for k in ('color', 'dashArray'):
+                for k in ARC_DRAWING_ATTRIBUTES:
                     if k in arc_drawing_conf:
                         curr_arc[k] = arc_drawing_conf[k]                    
 
@@ -123,16 +124,16 @@ def _get_subtypes_for_type(nodes, project_conf, hotkey_by_type, directory):
             if arcs:
                 item['arcs'] = arcs
 
-            item['children'] = _get_subtypes_for_type(node.children,
-                    project_conf, hotkey_by_type, directory)
+            item['children'] = _fill_type_configuration(node.children,
+                    project_conf, hotkey_by_type)
             items.append(item)
     return items
 
 # TODO: this may not be a good spot for this
-def _get_attribute_type_info(nodes, project_conf, directory):
+def _fill_attribute_configuration(nodes, project_conf):
     items = []
     for node in nodes:
-        if node == 'SEPARATOR':
+        if node == SEPARATOR_STR:
             continue
         else:
             item = {}
@@ -140,7 +141,7 @@ def _get_attribute_type_info(nodes, project_conf, directory):
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
-            item['labels'] = get_labels_by_storage_form(directory, _type)
+            item['labels'] = project_conf.get_labels_by_type(_type)
 
             # process "special" <GLYPH-POS> argument, specifying where
             # to place the glyph
@@ -185,19 +186,19 @@ def get_span_types(directory):
     hotkey_by_type = dict((v, k) for k, v in keymap.iteritems())
 
     event_hierarchy = project_conf.get_event_type_hierarchy()
-    event_types = _get_subtypes_for_type(event_hierarchy,
-            project_conf, hotkey_by_type, directory)
+    event_types = _fill_type_configuration(event_hierarchy,
+            project_conf, hotkey_by_type)
 
     entity_hierarchy = project_conf.get_entity_type_hierarchy()
-    entity_types = _get_subtypes_for_type(entity_hierarchy,
-            project_conf, hotkey_by_type, directory)
+    entity_types = _fill_type_configuration(entity_hierarchy,
+            project_conf, hotkey_by_type)
 
     attribute_hierarchy = project_conf.get_attribute_type_hierarchy()
-    attribute_types = _get_attribute_type_info(attribute_hierarchy, project_conf, directory)
+    attribute_types = _fill_attribute_configuration(attribute_hierarchy, project_conf)
 
     relation_hierarchy = project_conf.get_relation_type_hierarchy()
-    relation_types = _get_subtypes_for_type(relation_hierarchy,
-            project_conf, hotkey_by_type, directory)
+    relation_types = _fill_type_configuration(relation_hierarchy,
+            project_conf, hotkey_by_type)
 
     return event_types, entity_types, attribute_types, relation_types
 
