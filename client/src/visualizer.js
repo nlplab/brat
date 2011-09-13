@@ -75,6 +75,10 @@ var Visualizer = (function($, window, undefined) {
       var rowPadding = 2;
       var nestingAdjustYStepSize = 2; // size of height adjust for nested/nesting spans
       var nestingAdjustXStepSize = 1; // size of height adjust for nested/nesting spans
+
+      var highlightSpanSequence = 'yellow;green;yellow';
+      var highlightArcSequence = 'yellow;lime;yellow';
+      var highlightDuration = '2s';
       
       // END OPTIONS
 
@@ -931,8 +935,8 @@ Util.profileStart('chunks');
               });
               var animation = svg.other(editedRect, 'animate', {
                 attributeName: 'fill',
-                values: 'lime;yellow;lime',
-                dur: '2s',
+                values: highlightSpanSequence,
+                dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
               });
@@ -1329,7 +1333,7 @@ Util.profileStart('arcs');
               height: sizes.arcs.height,
             }
             if (arc.edited) {
-              svg.rect(shadowGroup,
+              var editedRect = svg.rect(shadowGroup,
                   textBox.x - editedArcSize, textBox.y - editedArcSize,
                   textBox.width + 2 * editedArcSize, textBox.height + 2 * editedArcSize, {
                     // filter: 'url(#Gaussian_Blur)',
@@ -1337,6 +1341,14 @@ Util.profileStart('arcs');
                     rx: editedArcSize,
                     ry: editedArcSize,
               });
+              var animation = svg.other(editedRect, 'animate', {
+                attributeName: 'fill',
+                values: highlightArcSequence,
+                dur: highlightDuration,
+                repeatCount: 'indefinite',
+                begin: 'indefinite'
+              });
+              animation.beginElement();
             }
             if (arc.shadowClass) {
               svg.rect(shadowGroup,
@@ -1380,6 +1392,14 @@ Util.profileStart('arcs');
                   'class': 'shadow_EditHighlight_arc',
                   strokeWidth: editedStroke,
               });
+              var animation = svg.other(editedRect, 'animate', {
+                attributeName: 'fill',
+                values: highlightArcSequence,
+                dur: highlightDuration,
+                repeatCount: 'indefinite',
+                begin: 'indefinite'
+              });
+              animation.beginElement();
             }
             if (arc.shadowClass) {
               svg.path(shadowGroup, path, {
