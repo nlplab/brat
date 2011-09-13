@@ -44,6 +44,10 @@ __annotation_config_filename  = "annotation.conf"
 __visual_config_filename      = 'visual.conf'
 __kb_shortcut_filename        = 'kb_shortcuts.conf'
 
+# visual config attribute name lists
+SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
+ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray']
+
 # fallback defaults if config files not found
 __default_configuration = """
 [entities]
