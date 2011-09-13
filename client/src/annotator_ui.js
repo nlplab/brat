@@ -647,8 +647,12 @@ var AnnotatorUI = (function($, window, undefined) {
           data = response.annotations;
           data.document = doc;
           data.collection = coll;
-          dispatcher.post('preventReloadByURL');
+          // this "prevent" is to protect against reloading (from the
+          // server) the very data that we just received as part of the
+          // response to the edit.
+          dispatcher.post('preventReloadByURL', [true]);
           dispatcher.post('setArguments', [args]);
+          dispatcher.post('preventReloadByURL', [false]);
           dispatcher.post('renderData', [data]);
         }
       };

@@ -28,7 +28,6 @@ var URLMonitor = (function($, window, undefined) {
           that.url_hash.setDocument(doc);
           dispatcher.post('docChanged', [doc, oldDoc]);
         }
-
         setArguments(args || null);
       };
 
@@ -62,8 +61,8 @@ var URLMonitor = (function($, window, undefined) {
         $(window).trigger('hashchange');
       };
 
-      var preventReloadByURL = function() {
-        reloadData = false;
+      var preventReloadByURL = function(prevent) {
+        reloadData = !prevent;
       }
 
       var init = function() {
