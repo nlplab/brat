@@ -212,7 +212,6 @@ def _json_from_ann(ann_obj):
     # avoid reading text file if the given ann_obj already holds it
     try:
         doctext = ann_obj.get_document_text()
-        Messager.info("Saved a read!!")
     except AttributeError:
         # no such luck
         doctext = None
