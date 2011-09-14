@@ -519,7 +519,10 @@ var AnnotatorUI = (function($, window, undefined) {
             var $input = $('<input type="radio" name="span_type"/>').
               attr('id', 'span_' + type.type).
               attr('value', type.type);
-            var $label = $('<label/>').
+            // use a light version of the span color as BG
+            var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
+            spanBgColor = Util.lightenColor(spanBgColor, 0.5);
+            var $label = $('<label style="background-color: '+spanBgColor+'"/>').
               attr('for', 'span_' + type.type).
               text(name);
             var $collapsible = $('<div class="collapsible open"/>');
