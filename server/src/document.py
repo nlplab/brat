@@ -361,15 +361,20 @@ class IsDirectoryError(ProtocolError):
         return json_dic
 
 #TODO: All this enrichment isn't a good idea, at some point we need an object
-def _enrich_json_with_text(j_dic, txt_file_path):
-    try:
-        with open_textfile(txt_file_path) as txt_file:
-            text = txt_file.read()
-    except IOError:
-        raise UnableToReadTextFile(txt_file_path)
-    except UnicodeDecodeError:
-        Messager.error('Error reading text file: nonstandard encoding or binary?', -1)
-        raise UnableToReadTextFile(txt_file_path)
+def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
+    if raw_text is not None:
+        # looks like somebody read this already; nice
+        text = raw_text
+    else:
+        # need to read raw text
+        try:
+            with open_textfile(txt_file_path) as txt_file:
+                text = txt_file.read()
+        except IOError:
+            raise UnableToReadTextFile(txt_file_path)
+        except UnicodeDecodeError:
+            Messager.error('Error reading text file: nonstandard encoding or binary?', -1)
+            raise UnableToReadTextFile(txt_file_path)
 
     # TODO XXX huge hack, sorry, the client currently crashing on
     # chrome for two or more consecutive space, so replace every

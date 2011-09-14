@@ -209,7 +209,14 @@ def _json_from_ann(ann_obj):
     from document import (_enrich_json_with_data, _enrich_json_with_base,
             _enrich_json_with_text)
     _enrich_json_with_base(j_dic)
-    _enrich_json_with_text(j_dic, txt_file_path)
+    # avoid reading text file if the given ann_obj already holds it
+    try:
+        doctext = ann_obj.get_document_text()
+        Messager.info("Saved a read!!")
+    except AttributeError:
+        # no such luck
+        doctext = None
+    _enrich_json_with_text(j_dic, txt_file_path, doctext)
     _enrich_json_with_data(j_dic, ann_obj)
     return j_dic
 
