@@ -21,9 +21,9 @@ from re import match,sub
 
 from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         AnnotationFileNotFoundError, 
-        AnnotationCollectionNotFoundError, 
+        AnnotationCollectionNotFoundError,
         open_textfile)
-from common import ProtocolError
+from common import ProtocolError, CollectionNotAccessibleError
 from config import DATA_DIR
 from projectconfig import ProjectConfiguration, SEPARATOR_STR, SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES
 from stats import get_statistics
@@ -295,7 +295,11 @@ def get_directory_information(collection):
     doclist = doclist_with_time
     doclist_header.append(("Modified", "time"))
 
-    stats_types, doc_stats = get_statistics(real_dir, base_names)
+    try:
+        stats_types, doc_stats = get_statistics(real_dir, base_names)
+    except OSError:
+        # something like missing access permissions?
+        raise CollectionNotAccessibleError
                 
     doclist = [doclist[i] + doc_stats[i] for i in range(len(doclist))]
     doclist_header += stats_types
