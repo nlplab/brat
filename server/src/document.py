@@ -178,12 +178,42 @@ def _fill_attribute_configuration(nodes, project_conf):
             items.append(item)
     return items
 
+def _fill_visual_configuration(types, project_conf):
+    # similar to _fill_type_configuration, but for types for which
+    # full annotation configuration was not found but some visual
+    # configuration can be filled.
+
+    # TODO: duplicates parts of _fill_type_configuration; combine?
+    items = []
+    for _type in types:
+        item = {}
+        item['name'] = project_conf.preferred_display_form(_type)
+        item['type'] = _type
+        item['unused'] = True
+        item['labels'] = project_conf.get_labels_by_type(_type)
+
+        drawing_conf = project_conf.get_drawing_config_by_type(_type) 
+        if drawing_conf is None:
+            drawing_conf = {}
+        # just plug in everything found, whether for a span or arc
+        for k in chain(SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES):
+            if k in drawing_conf:
+                item[k] = drawing_conf[k]
+
+        # TODO: anything else?
+
+        items.append(item)
+
+    return items
+
 # TODO: this is not a good spot for this
 def get_span_types(directory):
     project_conf = ProjectConfiguration(directory)
 
     keymap = project_conf.get_kb_shortcuts()
     hotkey_by_type = dict((v, k) for k, v in keymap.iteritems())
+
+    # fill config for nodes for which annotation is configured
 
     event_hierarchy = project_conf.get_event_type_hierarchy()
     event_types = _fill_type_configuration(event_hierarchy,
@@ -200,7 +230,13 @@ def get_span_types(directory):
     relation_types = _fill_type_configuration(relation_hierarchy,
             project_conf, hotkey_by_type)
 
-    return event_types, entity_types, attribute_types, relation_types
+    # make visual config available also for nodes for which there is
+    # no annotation config
+    unconfigured = [l for l in project_conf.get_labels() if 
+                    not project_conf.is_configured_type(l)]
+    unconf_types = _fill_visual_configuration(unconfigured, project_conf)
+
+    return event_types, entity_types, attribute_types, relation_types, unconf_types
 
 def assert_can_read(doc_path):
     if not can_read(doc_path):
@@ -287,7 +323,7 @@ def get_directory_information(collection):
     for i in doclist:
         combolist.append(["d", None]+i)
 
-    event_types, entity_types, attribute_types, relation_types = get_span_types(real_dir)
+    event_types, entity_types, attribute_types, relation_types, unconf_types = get_span_types(real_dir)
 
     json_dic = {
             'items': combolist,
@@ -298,6 +334,7 @@ def get_directory_information(collection):
             'entity_types': entity_types,
             'attribute_types': attribute_types,
             'relation_types': relation_types,
+            'unconfigured_types': unconf_types,
             }
     return json_dic
 
