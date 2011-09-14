@@ -112,7 +112,7 @@ def whoami():
         Messager.error('Not logged in!', duration=3)
     return json_dic
 
-def can_read(real_path):
+def allowed_to_read(real_path):
     try:
         user = get_session().get('user')
     except KeyError:

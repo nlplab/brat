@@ -28,7 +28,7 @@ from config import DATA_DIR
 from projectconfig import ProjectConfiguration, SEPARATOR_STR, SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES
 from stats import get_statistics
 from message import Messager
-from auth import can_read, AccessDeniedError
+from auth import allowed_to_read, AccessDeniedError
 
 try:
     from config import PERFORM_VERIFICATION
@@ -238,8 +238,8 @@ def get_span_types(directory):
 
     return event_types, entity_types, attribute_types, relation_types, unconf_types
 
-def assert_can_read(doc_path):
-    if not can_read(doc_path):
+def assert_allowed_to_read(doc_path):
+    if not allowed_to_read(doc_path):
         raise AccessDeniedError # Permission denied by access control
 
 def real_directory(directory):
@@ -258,9 +258,9 @@ def _is_hidden(file_name):
 def _listdir(directory):
     #return listdir(directory)
     try:
-        assert_can_read(directory)
+        assert_allowed_to_read(directory)
         return [f for f in listdir(directory) if not _is_hidden(f)
-                and can_read(path_join(directory, f))]
+                and allowed_to_read(path_join(directory, f))]
     except OSError, e:
         Messager.error("Error listing %s: %s" % (directory, e))
         raise AnnotationCollectionNotFoundError(directory)
@@ -271,7 +271,7 @@ def get_directory_information(collection):
 
     real_dir = real_directory(directory)
     
-    assert_can_read(real_dir)
+    assert_allowed_to_read(real_dir)
     
     # Get the document names
     base_names = [fn[0:-4] for fn in _listdir(real_dir)
