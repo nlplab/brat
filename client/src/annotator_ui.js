@@ -568,6 +568,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var rememberSpanSettings = function(response) {
         spanKeymap = {};
+
+        // TODO: check for exceptions in response
         
         // hide event "half" of box if not defined (assume entities always defined)
         if (response.event_types.length == 0) {
@@ -636,7 +638,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (x == 'annotationIsReadOnly') {
             dispatcher.post('messages', [[["This document is read-only and can't be edited.", 'error']]]);
           } else {
-            dispatcher.message('unknownError', [x]);
+            dispatcher.post('messages', [[['Unknown error '+x, 'error']]]);
           }
           reselectedSpan = null;
           svgElement.removeClass('reselect');
@@ -842,7 +844,7 @@ var AnnotatorUI = (function($, window, undefined) {
             if (x == 'fileExistsError') {
               dispatcher.post('messages', [[["A file with the given name exists. Please give a different name to the file to import.", 'error']]]);
             } else {
-              dispatcher.message('unknownError', [x]);
+              dispatcher.post('messages', [[['Unknown error: ' + response.exception, 'error']]]);
             }
           } else {
             dispatcher.post('hideForm', [importForm]);

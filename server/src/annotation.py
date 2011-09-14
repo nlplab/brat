@@ -83,7 +83,7 @@ class AnnotationCollectionNotFoundError(ProtocolError):
 
     def json(self, json_dic):
         # TODO: more specific error?
-        json_dic['exception'] = 'annotationFileNotFound'
+        json_dic['exception'] = 'annotationCollectionNotFound'
         return json_dic
    
 
