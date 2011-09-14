@@ -69,7 +69,7 @@ __default_visual = """
 [labels]
 Protein | Protein | Pro | P
 Protein_binding | Protein binding | Binding | Bind
-Gene_expression | Gene_expression | Expression | Exp
+Gene_expression | Gene expression | Expression | Exp
 Theme | Theme | Th
 
 [drawing]
