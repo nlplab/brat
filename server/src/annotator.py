@@ -259,7 +259,7 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type):
             Messager.error("Cannot convert %s (%s) into %s (%s)"
                     % (ann.type, projectconf.type_category(ann.type),
                         type, projectconf.type_category(type)),
-                           duration=-1)
+                           duration=10)
             pass
         else:
             before = unicode(ann)
