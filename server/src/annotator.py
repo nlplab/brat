@@ -139,23 +139,24 @@ class ModificationTracker(object):
             response = {}
 
         # debugging
-        msg_str = ''
-        if self.__added:
-            msg_str += ('Added the following line(s):\n'
-                    + '\n'.join([unicode(a).rstrip() for a in self.__added]))
-        if self.__changed:
-            changed_strs = []
-            for before, after in self.__changed:
-                changed_strs.append('\t%s\n\tInto:\n\t%s' % (unicode(before).rstrip(), unicode(after).rstrip()))
-            msg_str += ('Changed the following line(s):\n'
-                    + '\n'.join([unicode(a).rstrip() for a in changed_strs]))
-        if self.__deleted:
-            msg_str += ('Deleted the following line(s):\n'
-                    + '\n'.join([unicode(a).rstrip() for a in self.__deleted]))
-        if msg_str:
-            Messager.info(msg_str, duration=3*len(self))
-        else:
-            Messager.info('No changes made')
+        if DEBUG:
+            msg_str = ''
+            if self.__added:
+                msg_str += ('Added the following line(s):\n'
+                        + '\n'.join([unicode(a).rstrip() for a in self.__added]))
+            if self.__changed:
+                changed_strs = []
+                for before, after in self.__changed:
+                    changed_strs.append('\t%s\n\tInto:\n\t%s' % (unicode(before).rstrip(), unicode(after).rstrip()))
+                msg_str += ('Changed the following line(s):\n'
+                        + '\n'.join([unicode(a).rstrip() for a in changed_strs]))
+            if self.__deleted:
+                msg_str += ('Deleted the following line(s):\n'
+                        + '\n'.join([unicode(a).rstrip() for a in self.__deleted]))
+            if msg_str:
+                Messager.info(msg_str, duration=3*len(self))
+            else:
+                Messager.info('No changes made')
 
         # highlighting
         response['edited'] = []
@@ -174,32 +175,30 @@ class ModificationTracker(object):
 
         return response
 
-def confirm_span(docdir, docname, span_id):
-    document = path_join(docdir, docname)
+# TODO: revive the "unconfirmed annotation" functionality;
+# the following currently unused bit may help
+# def confirm_span(docdir, docname, span_id):
+#     document = path_join(docdir, docname)
 
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+#     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    with TextAnnotations(document) as ann_obj:
-        mods = ModificationTracker()
+#     with TextAnnotations(document) as ann_obj:
+#         mods = ModificationTracker()
 
-        # find AnnotationUnconfirmed comments that refer
-        # to the span and remove them
-        # TODO: error checking
-        for ann in ann_obj.get_oneline_comments():
-            if ann.type == "AnnotationUnconfirmed" and ann.target == span_id:
-                ann_obj.del_annotation(ann, mods)
+#         # find AnnotationUnconfirmed comments that refer
+#         # to the span and remove them
+#         # TODO: error checking
+#         for ann in ann_obj.get_oneline_comments():
+#             if ann.type == "AnnotationUnconfirmed" and ann.target == span_id:
+#                 ann_obj.del_annotation(ann, mods)
 
-        print 'Content-Type: application/json\n'
-        if DEBUG:
-            mods_json = mods.json_response()
-        else:
-            mods_json = {}
-        # save a roundtrip and send the annotations also
-        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-        j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
-        mods_json["annotations"] = j_dic
-        add_messages_to_json(mods_json)
-        print dumps(mods_json)
+#         mods_json = mods.json_response()
+#         # save a roundtrip and send the annotations also
+#         txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+#         j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
+#         mods_json["annotations"] = j_dic
+#         add_messages_to_json(mods_json)
+#         print dumps(mods_json)
 
 # Hack for the round-trip
 def _json_from_ann_and_txt(ann_obj, txt_file_path):
