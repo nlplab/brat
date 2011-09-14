@@ -826,7 +826,6 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var importForm = $('#import_form');
       var importFormSubmit = function(evt) {
-        dispatcher.post('hideForm', [importForm]);
         var _docid = $('#import_docid').val();
         var _doctitle = $('#import_title').val();
         var _doctext = $('#import_text').val();
@@ -838,7 +837,17 @@ var AnnotatorUI = (function($, window, undefined) {
           text  : _doctext,
         };
         dispatcher.post('ajax', [opts, function(response) {
-          dispatcher.post('setDocument', [response.document]);
+          var x = response.exception;
+          if (x) {
+            if (x == 'fileExistsError') {
+              dispatcher.post('messages', [[["A file with the given name exists. Please give a different name to the file to import.", 'error']]]);
+            } else {
+              dispatcher.message('unknownError', [x]);
+            }
+          } else {
+            dispatcher.post('hideForm', [importForm]);
+            dispatcher.post('setDocument', [response.document]);
+          }
         }]);
         return false;
       };
