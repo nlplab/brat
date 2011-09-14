@@ -73,8 +73,9 @@ Gene_expression | Gene expression | Expression | Exp
 Theme | Theme | Th
 
 [drawing]
-SPAN_DEFAULT	fgColor:black, bgColor:white, borderColor:black
-ARC_DEFAULT	color:block
+Protein	bgColor:#7fa2ff
+SPAN_DEFAULT	fgColor:black, bgColor:lightgreen, borderColor:black
+ARC_DEFAULT	color:black
 """
 
 __default_kb_shortcuts = """
