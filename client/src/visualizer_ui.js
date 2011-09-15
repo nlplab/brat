@@ -27,6 +27,7 @@ var VisualizerUI = (function($, window, undefined) {
       /* START collection browser sorting - related */
 
       var sortOrder = [2, 1]; // column (0..), sort order (1, -1)
+      var collectionSortOrder; // holds previous sort while search is active
       var docSortFunction = function(a, b) {
           // parent at the top
           if (a[2] === '..') return -1;
@@ -446,7 +447,9 @@ var VisualizerUI = (function($, window, undefined) {
           $('#document_input').focus().select();
         }, 0);
       }; // end showFileBrowser()
-      $('#collection_browser_button').click(showFileBrowser);
+      $('#collection_browser_button').click(function(evt) {
+        dispatcher.post('clearSearch');
+      });
 
       var currentSelectorPosition = function() {
         var pos;
@@ -672,6 +675,9 @@ var VisualizerUI = (function($, window, undefined) {
             // server instead
             dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
           } else {
+            if (!searchActive) {
+              collectionSortOrder = sortOrder;
+            }
             dispatcher.post('searchResultsReceived', [response]);
             searchActive = true;
             updateSearchButton();
@@ -692,10 +698,7 @@ var VisualizerUI = (function($, window, undefined) {
             id: 'search_form_clear',
             text: "Clear",
             click: function(evt) {
-              searchActive = false;
-              updateSearchButton();
               dispatcher.post('clearSearch');
-              dispatcher.post('hideForm', [searchForm]);
             },
           }],
       });
@@ -796,12 +799,17 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var clearSearch = function() {
+        dispatcher.post('hideForm', [searchForm]);
+
         // back off to document collection
-        selectorData = documentListing;
-        // TODO: it would be better to revert to previous sort order
-        // rather than the default
-        sortOrder = [2, 1]; // reset
-        selectorData.items.sort(docSortFunction);
+        if (searchActive) {
+          selectorData = documentListing;
+          sortOrder = collectionSortOrder;
+          selectorData.items.sort(docSortFunction);
+          searchActive = false;
+          updateSearchButton();
+        }
+
         showFileBrowser();
       }
 
