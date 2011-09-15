@@ -358,7 +358,7 @@ class IsDirectoryError(ProtocolError):
         self.path = path
 
     def __str__(self):
-        return 'Requested "document" is directory (append "/"): %s' % self.path
+        return ''
 
     def json(self, json_dic):
         json_dic['exception'] = 'isDirectoryError'

@@ -846,7 +846,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var onRenderData = function(_data) {
-        if (_data) {
+        if (_data && !_data.exception) {
           data = _data;
         }
         if (!data) return;
@@ -971,6 +971,11 @@ var VisualizerUI = (function($, window, undefined) {
         showFileBrowser();
       };
 
+      var reloadDirectoryWithSlash = function(data) {
+        var collection = data.collection + data.document + '/';
+        dispatcher.post('setCollection', [collection, '', data.arguments]);
+      };
+
       var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
         spanTypes = _spanTypes;
         attributeTypes = _attributeTypes;
@@ -998,6 +1003,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('renderError:noFileSpecified', showFileBrowser).
           on('renderError:annotationFileNotFound', showAnnotationFileNotFound).
           on('renderError:unableToReadTextFile', showUnableToReadTextFile).
+          on('renderError:isDirectoryError', reloadDirectoryWithSlash).
           on('unknownError', showUnknownError).
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
