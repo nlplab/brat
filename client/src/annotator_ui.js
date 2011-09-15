@@ -505,7 +505,7 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var rememberData = function(_data) {
-        if (_data) {
+        if (_data && !_data.exception) {
           data = _data;
         }
       };

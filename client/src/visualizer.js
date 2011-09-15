@@ -1614,7 +1614,7 @@ Util.profileReport();
         Util.profileEnd('invoke getDocument');
         if (_data && _data.exception) {
           if (renderErrors[_data.exception]) {
-            dispatcher.post('renderError:' + _data.exception);
+            dispatcher.post('renderError:' + _data.exception, [_data]);
           } else {
             dispatcher.post('unknownError', [_data.exception]);
           }
