@@ -455,11 +455,10 @@ var VisualizerUI = (function($, window, undefined) {
             // args may have changed, so lacking a perfect match return
             // last matching document as best guess
             pos = docNo;
-            // check for perfect match
-            // TODO: use proper object equality (e.g. underscore.js
-            // isEqual) instead of param() hack
-            if ((!docRow[1] && !args) || 
-                (Util.param(docRow[1] || '') == Util.param(args || ''))) {
+            // check whether 'focus' agrees; the rest of the args are
+            // irrelevant for determining position.
+            var collectionArgs = docRow[1] || {};
+            if (Util.isEqual(collectionArgs.focus, args.focus)) {
               pos = docNo;
               return false;
             }
