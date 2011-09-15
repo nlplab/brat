@@ -418,6 +418,16 @@ var Visualizer = (function($, window, undefined) {
                 } else { // span
                   span.edited = true;
                 }
+              } else {
+                var eventDesc = data.eventDescs[edited[0]];
+                if (eventDesc) { // relation
+                  var relArc = eventDesc.roles[0];
+                  $.each(data.spans[eventDesc.triggerId].outgoing, function(arcNo, arc) {
+                    if (arc.target == relArc.targetId && arc.type == relArc.type) {
+                      arc.edited = true;
+                    }
+                  });
+                }
               }
             }
           });
