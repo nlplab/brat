@@ -1480,7 +1480,6 @@ Util.profileStart('rows');
                 ($.inArray(currentSent, data.editedSent) != -1 ?
                  'Highlight' : row.backgroundIndex),
           });
-          console.log(data.editedSent);
           y += rowBox.height;
           y += sizes.texts.height;
           row.textY = y - rowPadding;
