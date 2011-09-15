@@ -193,6 +193,9 @@ def _fill_visual_configuration(types, project_conf):
         item['labels'] = project_conf.get_labels_by_type(_type)
 
         drawing_conf = project_conf.get_drawing_config_by_type(_type) 
+        # not sure if this is a good default, but let's try
+        if drawing_conf is None:
+            drawing_conf = project_conf.get_drawing_config_by_type("SPAN_DEFAULT")
         if drawing_conf is None:
             drawing_conf = {}
         # just plug in everything found, whether for a span or arc
