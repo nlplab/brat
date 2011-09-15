@@ -260,7 +260,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var $scroller = $('#arc_roles .scroller').empty();
 
           // lay them out into the form
-          $.each(arcTypes, function(arcTypeNo, arcDesc) {
+          $.each(arcTypes || [], function(arcTypeNo, arcDesc) {
             if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
               var arcTypeName = arcDesc.type;
               var displayName = arcDesc.labels[0] || arcTypeName;
