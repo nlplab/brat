@@ -1797,7 +1797,7 @@ Util.profileStart('before render');
         $.each(events, function(eventNo, eventName) {
             element.bind(eventName,
               function(evt) {
-                dispatcher.post(eventName, [evt]);
+                dispatcher.post(eventName, [evt], 'all');
               }
             );
         });

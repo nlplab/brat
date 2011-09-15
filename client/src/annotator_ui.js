@@ -203,7 +203,14 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         } else {
           $('#span_highlight_link').hide();
-          $('#span_form input:radio:first')[0].checked = true;
+          var firstRadio = $('#span_form input:radio:first')[0];
+          if (firstRadio) {
+            firstRadio.checked = true;
+          } else {
+            dispatcher.post('hideForm', [spanForm]);
+            dispatcher.post('messages', [[['No valid span types defined', 'error']]]);
+            return;
+          }
           $('#span_notes').val('');
           $('#span_form_split').hide();
           showAllAttributes = true;
@@ -345,7 +352,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         dispatcher.post('showForm', [arcForm]);
-        $('#arc_form input:submit').focus();
+        $('#arc_form-ok').focus();
         adjustToCursor(evt, arcForm.parent());
       };
 
