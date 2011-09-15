@@ -19,6 +19,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var repeatingArcTypes = [];
       var spanTypes = null;
       var attributeTypes = null;
+      var showValidAttributes; // callback function
 
       that.user = null;
       var svgElement = $(svg._svg);
@@ -167,6 +168,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#span_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
         $('#span_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
         $('#span_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
+        var showAllAttributes = false;
         if (span) {
           var urlHash = URLHash.parse(window.location.hash);
           urlHash.setArgument('edited', [[span.id]]);
@@ -204,6 +206,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#span_form input:radio:first')[0].checked = true;
           $('#span_notes').val('');
           $('#span_form_split').hide();
+          showAllAttributes = true;
         }
         if (span && !reselectedSpan) {
           $('#span_form_reselect, #span_form_delete').show();
@@ -224,6 +227,21 @@ var AnnotatorUI = (function($, window, undefined) {
             $input.val(val || '').change();
           }
         });
+        showValidAttributes = function() {
+          var type = $('#span_form input:radio:checked').val();
+          var validAttrs = type ? spanTypes[type].attributes : [];
+          $.each(attributeTypes, function(attrNo, attr) {
+            var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+            var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
+            if (showAttr) {
+              $input.button('widget').show();
+            } else {
+              $input.button('widget').hide();
+            }
+          });
+          showAllAttributes = false;
+        }
+        showValidAttributes();
         var confirmMode = $('#confirm_mode')[0].checked;
         if (reselectedSpan && !confirmMode) {
           spanForm.submit();
@@ -498,6 +516,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanFormSubmitRadio = function(evt) {
         var confirmMode = $('#confirm_mode')[0].checked;
         if (confirmMode) {
+          showValidAttributes();
           $('#span_form-ok').focus();
         } else {
           spanFormSubmit(evt, $(evt.target));
