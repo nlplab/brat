@@ -379,17 +379,17 @@ var Visualizer = (function($, window, undefined) {
 
         // highlighting
 
-        // Note: making "focus" an alias for "edited" when "edited" is
-        // not defined.  TODO: unify the "focus" and "edited"
-        // mechanisms.
-        var argsEdited = args.edited || args.focus;
+        // merge edited and focus fields in arguments
+        // edited: set by editing process
+        // focus: set by search process
+        var argsEdited = (args.edited || []).concat(args.focus || []);
 
+        data.editedSent = null;
         if (argsEdited) {
           $.each(argsEdited, function(editedNo, edited) {
             if (edited[0] == 'sent') {
               data.editedSent = edited[1];
             } else if (edited[0] == 'equiv') { // [equiv, Equiv, T1]
-              data.editedSent = null;
               $.each(data.equivs, function(equivNo, equiv) {
                 if (equiv[1] == edited[1]) {
                   var len = equiv.length;
@@ -407,7 +407,6 @@ var Visualizer = (function($, window, undefined) {
                 }
               });
             } else {
-              data.editedSent = null;
               var span = data.spans[edited[0]];
               if (span) {
                 if (edited.length == 3) { // arc
