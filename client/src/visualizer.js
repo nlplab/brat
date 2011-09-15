@@ -1842,8 +1842,9 @@ Util.profileStart('before render');
         $.each(types, function(typeNo, type) {
           if (type) {
             spanTypes[type.type] = type;
-            if (type.children.length) {
-              loadSpanTypes(type.children);
+            var children = type.children;
+            if (children && children.length) {
+              loadSpanTypes(children);
             }
           }
         });
@@ -1869,6 +1870,8 @@ Util.profileStart('before render');
           spanTypes = {};
           loadSpanTypes(response.entity_types);
           loadSpanTypes(response.event_types);
+          loadSpanTypes(response.unconfigured_types);
+          console.log(spanTypes);
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
 
