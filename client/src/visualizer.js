@@ -1871,7 +1871,6 @@ Util.profileStart('before render');
           loadSpanTypes(response.entity_types);
           loadSpanTypes(response.event_types);
           loadSpanTypes(response.unconfigured_types);
-          console.log(spanTypes);
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
 
