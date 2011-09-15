@@ -384,11 +384,11 @@ var Visualizer = (function($, window, undefined) {
         // focus: set by search process
         var argsEdited = (args.edited || []).concat(args.focus || []);
 
-        data.editedSent = null;
+        data.editedSent = [];
         if (argsEdited) {
           $.each(argsEdited, function(editedNo, edited) {
             if (edited[0] == 'sent') {
-              data.editedSent = edited[1];
+              data.editedSent.push(parseInt(edited[1], 10));
             } else if (edited[0] == 'equiv') { // [equiv, Equiv, T1]
               $.each(data.equivs, function(equivNo, equiv) {
                 if (equiv[1] == edited[1]) {
@@ -1467,9 +1467,10 @@ Util.profileStart('rows');
             0, y + sizes.texts.y + sizes.texts.height,
             canvasWidth, rowBox.height + sizes.texts.height + 1, {
             'class': 'background' +
-                (data.editedSent && data.editedSent == currentSent ?
+                ($.inArray(currentSent, data.editedSent) != -1 ?
                  'Highlight' : row.backgroundIndex),
           });
+          console.log(data.editedSent);
           y += rowBox.height;
           y += sizes.texts.height;
           row.textY = y - rowPadding;
