@@ -139,23 +139,24 @@ class ModificationTracker(object):
             response = {}
 
         # debugging
-        msg_str = ''
-        if self.__added:
-            msg_str += ('Added the following line(s):\n'
-                    + '\n'.join([unicode(a).rstrip() for a in self.__added]))
-        if self.__changed:
-            changed_strs = []
-            for before, after in self.__changed:
-                changed_strs.append('\t%s\n\tInto:\n\t%s' % (unicode(before).rstrip(), unicode(after).rstrip()))
-            msg_str += ('Changed the following line(s):\n'
-                    + '\n'.join([unicode(a).rstrip() for a in changed_strs]))
-        if self.__deleted:
-            msg_str += ('Deleted the following line(s):\n'
-                    + '\n'.join([unicode(a).rstrip() for a in self.__deleted]))
-        if msg_str:
-            Messager.info(msg_str, duration=3*len(self))
-        else:
-            Messager.info('No changes made')
+        if DEBUG:
+            msg_str = ''
+            if self.__added:
+                msg_str += ('Added the following line(s):\n'
+                        + '\n'.join([unicode(a).rstrip() for a in self.__added]))
+            if self.__changed:
+                changed_strs = []
+                for before, after in self.__changed:
+                    changed_strs.append('\t%s\n\tInto:\n\t%s' % (unicode(before).rstrip(), unicode(after).rstrip()))
+                msg_str += ('Changed the following line(s):\n'
+                        + '\n'.join([unicode(a).rstrip() for a in changed_strs]))
+            if self.__deleted:
+                msg_str += ('Deleted the following line(s):\n'
+                        + '\n'.join([unicode(a).rstrip() for a in self.__deleted]))
+            if msg_str:
+                Messager.info(msg_str, duration=3*len(self))
+            else:
+                Messager.info('No changes made')
 
         # highlighting
         response['edited'] = []
@@ -174,40 +175,47 @@ class ModificationTracker(object):
 
         return response
 
-def confirm_span(docdir, docname, span_id):
-    document = path_join(docdir, docname)
+# TODO: revive the "unconfirmed annotation" functionality;
+# the following currently unused bit may help
+# def confirm_span(docdir, docname, span_id):
+#     document = path_join(docdir, docname)
 
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+#     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    with TextAnnotations(document) as ann_obj:
-        mods = ModificationTracker()
+#     with TextAnnotations(document) as ann_obj:
+#         mods = ModificationTracker()
 
-        # find AnnotationUnconfirmed comments that refer
-        # to the span and remove them
-        # TODO: error checking
-        for ann in ann_obj.get_oneline_comments():
-            if ann.type == "AnnotationUnconfirmed" and ann.target == span_id:
-                ann_obj.del_annotation(ann, mods)
+#         # find AnnotationUnconfirmed comments that refer
+#         # to the span and remove them
+#         # TODO: error checking
+#         for ann in ann_obj.get_oneline_comments():
+#             if ann.type == "AnnotationUnconfirmed" and ann.target == span_id:
+#                 ann_obj.del_annotation(ann, mods)
 
-        print 'Content-Type: application/json\n'
-        if DEBUG:
-            mods_json = mods.json_response()
-        else:
-            mods_json = {}
-        # save a roundtrip and send the annotations also
-        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-        j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
-        mods_json["annotations"] = j_dic
-        add_messages_to_json(mods_json)
-        print dumps(mods_json)
+#         mods_json = mods.json_response()
+#         # save a roundtrip and send the annotations also
+#         j_dic = _json_from_ann(ann_obj)
+#         mods_json['annotations'] = j_dic
+#         add_messages_to_json(mods_json)
+#         print dumps(mods_json)
 
-# Hack for the round-trip
-def _json_from_ann_and_txt(ann_obj, txt_file_path):
+def _json_from_ann(ann_obj):
+    # Returns json with ann_obj contents and the relevant text.  Used
+    # for saving a round-trip when modifying annotations by attaching
+    # the latest annotation data into the response to the edit
+    # request.
     j_dic = {}
+    txt_file_path = ann_obj.get_document() + '.' + TEXT_FILE_SUFFIX
     from document import (_enrich_json_with_data, _enrich_json_with_base,
             _enrich_json_with_text)
     _enrich_json_with_base(j_dic)
-    _enrich_json_with_text(j_dic, txt_file_path)
+    # avoid reading text file if the given ann_obj already holds it
+    try:
+        doctext = ann_obj.get_document_text()
+    except AttributeError:
+        # no such luck
+        doctext = None
+    _enrich_json_with_text(j_dic, txt_file_path, doctext)
     _enrich_json_with_data(j_dic, ann_obj)
     return j_dic
 
@@ -259,7 +267,7 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type):
             Messager.error("Cannot convert %s (%s) into %s (%s)"
                     % (ann.type, projectconf.type_category(ann.type),
                         type, projectconf.type_category(type)),
-                           duration=-1)
+                           duration=10)
             pass
         else:
             before = unicode(ann)
@@ -498,20 +506,13 @@ def create_span(collection, document, start, end, type, attributes=None, id=None
                         mods.deletion(found)
 
         if tb_ann is not None:
-            if DEBUG:
-                mods_json = mods.json_response()
-            else:
-                mods_json = {}
+            mods_json = mods.json_response()
         else:
             # Hack, we had a new-line in the span
             mods_json = {}
             Messager.error('Text span contained new-line, rejected', duration=3)
 
-        # save a roundtrip and send the annotations also
-        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-        j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
-        mods_json['annotations'] = j_dic
-
+        mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
     
 from annotation import BinaryRelationAnnotation
@@ -629,16 +630,8 @@ def create_arc(collection, document, origin, target, type,
                 ann_obj.add_annotation(ann)
                 mods.addition(ann)
 
-        if DEBUG:
-            mods_json = mods.json_response()
-        else:
-            mods_json = {}
-
-        # Hack since we don't have the actual text, should use a factory?
-        txt_file_path = ann_obj.get_document() + '.' + TEXT_FILE_SUFFIX
-        j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
-
-        mods_json['annotations'] = j_dic
+        mods_json = mods.json_response()
+        mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
@@ -715,14 +708,8 @@ def delete_arc(collection, document, origin, target, type):
             else:
                 assert False, 'unknown annotation'
 
-        if DEBUG:
-            mods_json = mods.json_response()
-        else:
-            mods_json = {}
-        # save a roundtrip and send the annotations also
-        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-        j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
-        mods_json['annotations'] = j_dic
+        mods_json = mods.json_response()
+        mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
@@ -759,15 +746,8 @@ def delete_span(collection, document, id):
                     'exception': True,
                     }
 
-        #print 'Content-Type: application/json\n'
-        if DEBUG:
-            mods_json = mods.json_response()
-        else:
-            mods_json = {}
-        # save a roundtrip and send the annotations also
-        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-        j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
-        mods_json["annotations"] = j_dic
+        mods_json = mods.json_response()
+        mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
 
 from common import ProtocolError
@@ -885,15 +865,8 @@ def split_span(collection, document, args, id):
                 else:
                     raise AnnotationSplitError("Cannot adjust annotation referencing split: not implemented for %s! (Please complain to the lazy developers to fix this!)" % a.__class__)
 
-        #print 'Content-Type: application/json\n'
-        if DEBUG:
-            mods_json = mods.json_response()
-        else:
-            mods_json = {}
-        # save a roundtrip and send the annotations also
-        txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-        j_dic = _json_from_ann_and_txt(ann_obj, txt_file_path)
-        mods_json["annotations"] = j_dic
+        mods_json = mods.json_response()
+        mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
 
 def set_status(directory, document, status=None):

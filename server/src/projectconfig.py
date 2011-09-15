@@ -69,12 +69,13 @@ __default_visual = """
 [labels]
 Protein | Protein | Pro | P
 Protein_binding | Protein binding | Binding | Bind
-Gene_expression | Gene_expression | Expression | Exp
+Gene_expression | Gene expression | Expression | Exp
 Theme | Theme | Th
 
 [drawing]
-SPAN_DEFAULT	fgColor:black, bgColor:white, borderColor:black
-ARC_DEFAULT	color:block
+Protein	bgColor:#7fa2ff
+SPAN_DEFAULT	fgColor:black, bgColor:lightgreen, borderColor:black
+ARC_DEFAULT	color:black
 """
 
 __default_kb_shortcuts = """
@@ -893,6 +894,11 @@ class ProjectConfiguration(object):
 
     def is_relation_type(self, t):
         return t in self.get_relation_types()
+
+    def is_configured_type(self, t):
+        return (t in self.get_entity_types() or
+                t in self.get_event_types() or
+                t in self.get_relation_types())
 
     def type_category(self, t):
         """

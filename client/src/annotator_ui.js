@@ -519,7 +519,10 @@ var AnnotatorUI = (function($, window, undefined) {
             var $input = $('<input type="radio" name="span_type"/>').
               attr('id', 'span_' + type.type).
               attr('value', type.type);
-            var $label = $('<label/>').
+            // use a light version of the span color as BG
+            var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
+            spanBgColor = Util.lightenColor(spanBgColor, 0.5);
+            var $label = $('<label style="background-color: '+spanBgColor+'"/>').
               attr('for', 'span_' + type.type).
               text(name);
             var $collapsible = $('<div class="collapsible open"/>');
@@ -565,6 +568,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var rememberSpanSettings = function(response) {
         spanKeymap = {};
+
+        // TODO: check for exceptions in response
         
         // hide event "half" of box if not defined (assume entities always defined)
         if (response.event_types.length == 0) {
@@ -633,7 +638,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (x == 'annotationIsReadOnly') {
             dispatcher.post('messages', [[["This document is read-only and can't be edited.", 'error']]]);
           } else {
-            dispatcher.message('unknownError', [x]);
+            dispatcher.post('messages', [[['Unknown error '+x, 'error']]]);
           }
           reselectedSpan = null;
           svgElement.removeClass('reselect');
@@ -823,7 +828,6 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var importForm = $('#import_form');
       var importFormSubmit = function(evt) {
-        dispatcher.post('hideForm', [importForm]);
         var _docid = $('#import_docid').val();
         var _doctitle = $('#import_title').val();
         var _doctext = $('#import_text').val();
@@ -835,7 +839,17 @@ var AnnotatorUI = (function($, window, undefined) {
           text  : _doctext,
         };
         dispatcher.post('ajax', [opts, function(response) {
-          dispatcher.post('setDocument', [response.document]);
+          var x = response.exception;
+          if (x) {
+            if (x == 'fileExistsError') {
+              dispatcher.post('messages', [[["A file with the given name exists. Please give a different name to the file to import.", 'error']]]);
+            } else {
+              dispatcher.post('messages', [[['Unknown error: ' + response.exception, 'error']]]);
+            }
+          } else {
+            dispatcher.post('hideForm', [importForm]);
+            dispatcher.post('setDocument', [response.document]);
+          }
         }]);
         return false;
       };

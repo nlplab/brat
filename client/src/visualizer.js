@@ -1874,6 +1874,15 @@ Util.profileStart('before render');
 
           isCollectionLoaded = true;
           triggerRender();
+        } else {
+          // exception on collection load
+          if (response.exception == 'annotationCollectionNotFound' ||
+              response.exception == 'collectionNotAccessible') {
+            // TODO: revert to last "known good" collection.
+            ;
+          } else {
+              dispatcher.post('messages', [[['Unknown error: ' + response.exception, 'error']]]);
+          }
         }
       };
 

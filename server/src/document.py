@@ -21,14 +21,14 @@ from re import match,sub
 
 from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         AnnotationFileNotFoundError, 
-        AnnotationCollectionNotFoundError, 
+        AnnotationCollectionNotFoundError,
         open_textfile)
-from common import ProtocolError
+from common import ProtocolError, CollectionNotAccessibleError
 from config import DATA_DIR
 from projectconfig import ProjectConfiguration, SEPARATOR_STR, SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES
 from stats import get_statistics
 from message import Messager
-from auth import can_read, AccessDeniedError
+from auth import allowed_to_read, AccessDeniedError
 
 try:
     from config import PERFORM_VERIFICATION
@@ -178,12 +178,42 @@ def _fill_attribute_configuration(nodes, project_conf):
             items.append(item)
     return items
 
+def _fill_visual_configuration(types, project_conf):
+    # similar to _fill_type_configuration, but for types for which
+    # full annotation configuration was not found but some visual
+    # configuration can be filled.
+
+    # TODO: duplicates parts of _fill_type_configuration; combine?
+    items = []
+    for _type in types:
+        item = {}
+        item['name'] = project_conf.preferred_display_form(_type)
+        item['type'] = _type
+        item['unused'] = True
+        item['labels'] = project_conf.get_labels_by_type(_type)
+
+        drawing_conf = project_conf.get_drawing_config_by_type(_type) 
+        if drawing_conf is None:
+            drawing_conf = {}
+        # just plug in everything found, whether for a span or arc
+        for k in chain(SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES):
+            if k in drawing_conf:
+                item[k] = drawing_conf[k]
+
+        # TODO: anything else?
+
+        items.append(item)
+
+    return items
+
 # TODO: this is not a good spot for this
 def get_span_types(directory):
     project_conf = ProjectConfiguration(directory)
 
     keymap = project_conf.get_kb_shortcuts()
     hotkey_by_type = dict((v, k) for k, v in keymap.iteritems())
+
+    # fill config for nodes for which annotation is configured
 
     event_hierarchy = project_conf.get_event_type_hierarchy()
     event_types = _fill_type_configuration(event_hierarchy,
@@ -200,10 +230,16 @@ def get_span_types(directory):
     relation_types = _fill_type_configuration(relation_hierarchy,
             project_conf, hotkey_by_type)
 
-    return event_types, entity_types, attribute_types, relation_types
+    # make visual config available also for nodes for which there is
+    # no annotation config
+    unconfigured = [l for l in project_conf.get_labels() if 
+                    not project_conf.is_configured_type(l)]
+    unconf_types = _fill_visual_configuration(unconfigured, project_conf)
 
-def assert_can_read(doc_path):
-    if not can_read(doc_path):
+    return event_types, entity_types, attribute_types, relation_types, unconf_types
+
+def assert_allowed_to_read(doc_path):
+    if not allowed_to_read(doc_path):
         raise AccessDeniedError # Permission denied by access control
 
 def real_directory(directory):
@@ -222,9 +258,9 @@ def _is_hidden(file_name):
 def _listdir(directory):
     #return listdir(directory)
     try:
-        assert_can_read(directory)
+        assert_allowed_to_read(directory)
         return [f for f in listdir(directory) if not _is_hidden(f)
-                and can_read(path_join(directory, f))]
+                and allowed_to_read(path_join(directory, f))]
     except OSError, e:
         Messager.error("Error listing %s: %s" % (directory, e))
         raise AnnotationCollectionNotFoundError(directory)
@@ -235,7 +271,7 @@ def get_directory_information(collection):
 
     real_dir = real_directory(directory)
     
-    assert_can_read(real_dir)
+    assert_allowed_to_read(real_dir)
     
     # Get the document names
     base_names = [fn[0:-4] for fn in _listdir(real_dir)
@@ -259,7 +295,11 @@ def get_directory_information(collection):
     doclist = doclist_with_time
     doclist_header.append(("Modified", "time"))
 
-    stats_types, doc_stats = get_statistics(real_dir, base_names)
+    try:
+        stats_types, doc_stats = get_statistics(real_dir, base_names)
+    except OSError:
+        # something like missing access permissions?
+        raise CollectionNotAccessibleError
                 
     doclist = [doclist[i] + doc_stats[i] for i in range(len(doclist))]
     doclist_header += stats_types
@@ -287,7 +327,7 @@ def get_directory_information(collection):
     for i in doclist:
         combolist.append(["d", None]+i)
 
-    event_types, entity_types, attribute_types, relation_types = get_span_types(real_dir)
+    event_types, entity_types, attribute_types, relation_types, unconf_types = get_span_types(real_dir)
 
     json_dic = {
             'items': combolist,
@@ -298,6 +338,7 @@ def get_directory_information(collection):
             'entity_types': entity_types,
             'attribute_types': attribute_types,
             'relation_types': relation_types,
+            'unconfigured_types': unconf_types,
             }
     return json_dic
 
@@ -324,15 +365,20 @@ class IsDirectoryError(ProtocolError):
         return json_dic
 
 #TODO: All this enrichment isn't a good idea, at some point we need an object
-def _enrich_json_with_text(j_dic, txt_file_path):
-    try:
-        with open_textfile(txt_file_path) as txt_file:
-            text = txt_file.read()
-    except IOError:
-        raise UnableToReadTextFile(txt_file_path)
-    except UnicodeDecodeError:
-        Messager.error('Error reading text file: nonstandard encoding or binary?', -1)
-        raise UnableToReadTextFile(txt_file_path)
+def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
+    if raw_text is not None:
+        # looks like somebody read this already; nice
+        text = raw_text
+    else:
+        # need to read raw text
+        try:
+            with open_textfile(txt_file_path) as txt_file:
+                text = txt_file.read()
+        except IOError:
+            raise UnableToReadTextFile(txt_file_path)
+        except UnicodeDecodeError:
+            Messager.error('Error reading text file: nonstandard encoding or binary?', -1)
+            raise UnableToReadTextFile(txt_file_path)
 
     # TODO XXX huge hack, sorry, the client currently crashing on
     # chrome for two or more consecutive space, so replace every

@@ -12,7 +12,7 @@ Version:    2011-04-21
 
 class ProtocolError(Exception):
     def __init__(self):
-        raise NotImplementedError, 'abstract method'
+        pass
 
     def __str__(self):
         # TODO: just adding __str__ to ProtocolError, not all
@@ -36,6 +36,12 @@ class NotImplementedError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'notImplemented'
 
+class CollectionNotAccessibleError(ProtocolError):
+    def json(self, json_dic):
+        json_dic['exception'] = 'collectionNotAccessible'
+
+    def __str__(self):
+        return 'Error: collection not accessible'
 
 # TODO: We have issues using this in relation to our inspection
 #       in dispatch, can we make it work?
