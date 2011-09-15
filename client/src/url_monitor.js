@@ -61,8 +61,8 @@ var URLMonitor = (function($, window, undefined) {
         $(window).trigger('hashchange');
       };
 
-      var preventReloadByURL = function(prevent) {
-        reloadData = !prevent;
+      var preventReloadByURL = function() {
+        reloadData = false;
       }
 
       var init = function() {
