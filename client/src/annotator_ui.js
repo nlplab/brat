@@ -345,7 +345,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         dispatcher.post('showForm', [arcForm]);
-        $('#arc_form input:submit').focus();
+        $('#arc_form-ok').focus();
         adjustToCursor(evt, arcForm.parent());
       };
 
