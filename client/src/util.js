@@ -385,7 +385,7 @@ var Util = (function(window, undefined) {
       return true;
     };
 
-    var equalsRE = /^([^=]+)=(.*)$/;
+    var equalsRE = /^([^=]+)=(.*)$/; // key=value
 
     var deparam = function(str) {
       var args = str.split('&');
@@ -399,7 +399,7 @@ var Util = (function(window, undefined) {
         var arr = parts[2].split(',');
         var sublen = arr.length;
         for (var j = 0; j < sublen; j++) {
-          val.push(arr[j].split('-'));
+          val.push(arr[j].split('~'));
         }
         result[parts[1]] = val;
       }
@@ -423,7 +423,7 @@ var Util = (function(window, undefined) {
             var arr = [];
             for (var i = 0; i < len; i++) {
               if ($.isArray(val[i])) {
-                arr.push(val[i].join('-'));
+                arr.push(val[i].join('~'));
               } else {
                 // non-array argument; this is an error from the caller
                 console.error('param: Error: received non-array-in-array argument', key, '[', i, ']', ':', val[i], '(fix caller)');
