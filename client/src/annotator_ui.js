@@ -522,9 +522,15 @@ var AnnotatorUI = (function($, window, undefined) {
             // use a light version of the span color as BG
             var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
             spanBgColor = Util.lightenColor(spanBgColor, 0.5);
-            var $label = $('<label style="background-color: '+spanBgColor+'"/>').
+            var $label = $('<label/>').
               attr('for', 'span_' + type.type).
               text(name);
+            if (type.unused) {
+              $input.attr('disabled', 'disabled');
+              $label.css('font-weight', 'bold');
+            } else {
+              $label.css('background-color', spanBgColor);
+            }
             var $collapsible = $('<div class="collapsible open"/>');
             var $content = $('<div class="item_content"/>').
               append($input).
