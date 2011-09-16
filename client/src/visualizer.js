@@ -385,10 +385,13 @@ var Visualizer = (function($, window, undefined) {
         var argsEdited = (args.edited || []).concat(args.focus || []);
 
         data.editedSent = [];
+        editedText = [];
         if (argsEdited) {
           $.each(argsEdited, function(editedNo, edited) {
             if (edited[0] == 'sent') {
               data.editedSent.push(parseInt(edited[1], 10));
+            } else if (edited[0] == 'text') {
+              editedText.push([edited[1], edited[2]]);
             } else if (edited[0] == 'equiv') { // [equiv, Equiv, T1]
               $.each(data.equivs, function(equivNo, equiv) {
                 if (equiv[1] == edited[1]) {
@@ -521,6 +524,10 @@ var Visualizer = (function($, window, undefined) {
           // now resolve first-order dependencies between sort orders but not
           // second-order or higher.
           chunk.spans.sort(sortComparator); // sort
+
+          chunk.editedTextStart = [];
+          chunk.editedTextEnd = [];
+
           $.each(chunk.spans, function(spanNo, span) {
             span.chunk = chunk;
             // TODO: span.text is useful, but this is a weird place to init it ...
@@ -600,6 +607,29 @@ var Visualizer = (function($, window, undefined) {
             }
           }); // chunk.spans
         }); // chunks
+
+        var numChunks = data.chunks.length;
+        $.each(editedText, function(textNo, textPos) {
+          var from = textPos[0];
+          var to = textPos[1];
+          var i = 0;
+          while (i < numChunks) {
+            var chunk = data.chunks[i];
+            if (from <= chunk.to) {
+              chunk.editedTextStart.push([textNo, true, from - chunk.from]);
+              break;
+            }
+            i++;
+          }
+          while (i < numChunks) {
+            var chunk = data.chunks[i];
+            if (to <= chunk.to) {
+              chunk.editedTextEnd.push([textNo, false, to - chunk.from]);
+              break
+            }
+            i++;
+          }
+        });
 
         var realSpanNo = -1;
         var lastSpan;
@@ -740,31 +770,43 @@ var Visualizer = (function($, window, undefined) {
         $.each(data.chunks, function(chunkNo, chunk) {
           chunk.row = undefined; // reset
           if (!(chunk.text in chunkTexts)) chunkTexts[chunk.text] = []
+          var chunkText = chunkTexts[chunk.text];
 
           // here we also need all the spans that are contained in
           // chunks with this text, because we need to know the position
           // of the span text within the respective chunk text
-          chunkTexts[chunk.text] = chunkTexts[chunk.text].concat(chunk.spans);
+          chunkText.push.apply(chunkText, chunk.spans);
+          // and also the editedText boundaries
+          chunkText.push.apply(chunkText, chunk.editedTextStart);
+          chunkText.push.apply(chunkText, chunk.editedTextEnd);
         });
         var textSizes = getTextMeasurements(
           chunkTexts,
           undefined,
           function(span, text) {
-            // measure the span text position in pixels
-            var firstChar = span.from - span.chunk.from;
-            if (firstChar < 0) {
-              firstChar = 0;
-              console.warn("DEBUG: Span", span.text, "in chunk", span.chunk.text, "has strange offsets. FIXME");
+            if (span.text !== undefined) { // it's a span!
+              // measure the span text position in pixels
+              var firstChar = span.from - span.chunk.from;
+              if (firstChar < 0) {
+                firstChar = 0;
+                console.warn("DEBUG: Span", span.text, "in chunk", span.chunk.text, "has strange offsets. FIXME");
+              }
+              var startPos = text.getStartPositionOfChar(firstChar).x;
+              var lastChar = span.to - span.chunk.from - 1;
+              var endPos = (lastChar < 0)
+                ? startPos
+                : text.getEndPositionOfChar(lastChar).x;
+              span.curly = {
+                from: startPos,
+                to: endPos
+              };
+            } else { // it's editedText [id, start?, char#, offset]
+              if (span[1] || span[2] == 0) { // start
+                span[3] = text.getStartPositionOfChar(span[2]).x;
+              } else {
+                span[3] = text.getEndPositionOfChar(span[2] - 1).x;
+              }
             }
-            var startPos = text.getStartPositionOfChar(firstChar).x;
-            var lastChar = span.to - span.chunk.from - 1;
-            var endPos = (lastChar < 0)
-              ? startPos
-              : text.getEndPositionOfChar(lastChar).x;
-            span.curly = {
-              from: startPos,
-              to: endPos
-            };
           });
 
         // get the span annotation text sizes
@@ -880,6 +922,8 @@ Util.profileStart('chunks');
         var reservations;
         var lastBoxChunkIndex = -1;
         var twoBarWidths; // HACK to avoid measuring space's width
+        var openTextHighlights = {};
+        var textEditedRows = [];
 
         $.each(data.chunks, function(chunkNo, chunk) {
           reservations = new Array();
@@ -1078,6 +1122,12 @@ Util.profileStart('chunks');
           }
           var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
+          // open text highlights
+          $.each(chunk.editedTextStart, function(textNo, textDesc) {
+            textDesc[3] += current.x + boxX;
+            openTextHighlights[textDesc[0]] = textDesc;
+          });
+
           if (chunk.sentence) {
             while (sentenceNumber < chunk.sentence) {
               sentenceNumber++;
@@ -1093,11 +1143,21 @@ Util.profileStart('chunks');
 
           if (chunk.sentence ||
               current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
+            // the chunk does not fit
+            var lastX = current.x;
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
-            // new row
-            rows.push(row);
             current.x = margin.x + sentNumMargin + rowPadding +
                 (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
+
+            // break the text highlights
+            $.each(openTextHighlights, function(textId, textDesc) {
+              textEditedRows.push([row, textDesc[3], lastX + boxX]);
+              textDesc[3] = current.x;
+            });
+
+            // new row
+            rows.push(row);
+
             svg.remove(chunk.group);
             row = new Row(svg);
             row.backgroundIndex = sentenceToggle;
@@ -1113,7 +1173,17 @@ Util.profileStart('chunks');
               each(function(index, element) {
                   chunk.spans[index].rect = element;
               });
+
           }
+
+          // close text highlights
+          $.each(chunk.editedTextEnd, function(textNo, textDesc) {
+            textDesc[3] += current.x + boxX;
+            var startDesc = openTextHighlights[textDesc[0]];
+            delete openTextHighlights[textDesc[0]];
+            textEditedRows.push([row, startDesc[3], textDesc[3]]);
+          });
+
           if (hasAnnotations) row.hasAnnotations = true;
 
           if (chunk.sentence) {
@@ -1591,6 +1661,14 @@ Util.profileStart('chunkFinish');
               }
             }
         });
+
+        // draw the editedText
+        $.each(textEditedRows, function(textRowNo, textRowDesc) { // row, from, to
+          // TODO: style nicely
+          svg.rect(glowGroup,
+              textRowDesc[1], textRowDesc[0].textY, textRowDesc[2] - textRowDesc[1], 3);
+        });
+
 
 Util.profileEnd('chunkFinish');
 Util.profileStart('finish');
