@@ -1165,7 +1165,9 @@ Util.profileStart('chunks');
 
             // break the text highlights
             $.each(openTextHighlights, function(textId, textDesc) {
-              textEditedRows.push([row, textDesc[3], lastX + boxX]);
+              if (textDesc[3] != lastX) {
+                textEditedRows.push([row, textDesc[3], lastX + boxX]);
+              }
               textDesc[3] = current.x;
             });
 
@@ -1676,7 +1678,7 @@ Util.profileStart('chunkFinish');
 
         // draw the editedText
         $.each(textEditedRows, function(textRowNo, textRowDesc) { // row, from, to
-          var textHighlight = svg.rect(glowGroup,
+          var textHighlight = svg.rect(highlightGroup,
               textRowDesc[1] - 2, textRowDesc[0].textY - sizes.spans.height,
               textRowDesc[2] - textRowDesc[1] + 4, sizes.spans.height + 4,
               { fill: 'yellow' } // TODO: put into css file, as default - turn into class
