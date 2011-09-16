@@ -46,7 +46,7 @@ __kb_shortcut_filename        = 'kb_shortcuts.conf'
 
 # visual config attribute name lists
 SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
-ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray']
+ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead', 'arrowTail']
 
 # fallback defaults if config files not found
 __default_configuration = """
