@@ -182,11 +182,7 @@ var AnnotatorUI = (function($, window, undefined) {
             });
           }
           // annotator comments
-          if (span.annotatorNotes) {
-            $('#span_notes').val(span.annotatorNotes);
-          } else {
-            $('#span_notes').val('');
-          }
+          $('#span_notes').val(span.annotatorNotes || '');
 
           // count the repeating arc types
           var arcTypeCount = {};
@@ -503,9 +499,11 @@ var AnnotatorUI = (function($, window, undefined) {
               that.user = response.user;
               dispatcher.post('messages', [[['Welcome back, user "' + that.user + '"', 'comment']]]);
               auth_button.val('Logout');
+              dispatcher.post('user', [that.user]);
               $('.login').show();
             } else {
               auth_button.val('Login');
+              dispatcher.post('user', [null]);
               $('.login').hide();
             }
           }
@@ -715,6 +713,7 @@ var AnnotatorUI = (function($, window, undefined) {
                 $('#auth_user').val('');
                 $('#auth_pass').val('');
                 $('.login').show();
+                dispatcher.post('user', [user]);
               }
           }]);
         return false;
@@ -727,6 +726,7 @@ var AnnotatorUI = (function($, window, undefined) {
             that.user = null;
             $('#auth_button').val('Login');
             $('.login').hide();
+            dispatcher.post('user', [null]);
           }]);
         } else {
           dispatcher.post('showForm', [authForm]);

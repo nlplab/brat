@@ -19,6 +19,7 @@ var VisualizerUI = (function($, window, undefined) {
       var coll, doc, args;
       var collScroll;
       var docScroll;
+      var user = null;
 
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
@@ -134,6 +135,7 @@ var VisualizerUI = (function($, window, undefined) {
         var elementHeight = element.height() + 22;
         var elementWidth = element.width() + 22;
         var x, y;
+        offset = offset || 0;
         if (top) {
           y = evt.clientY - elementHeight - offset;
           if (y < 0) top = false;
@@ -963,6 +965,38 @@ var VisualizerUI = (function($, window, undefined) {
         showForm(aboutDialog);
       });
 
+      // TODO: copy from annotator_ui; DRY it up
+      var viewspanForm = $('#viewspan_form');
+      var onDblClick = function(evt) {
+        if (user) return;
+        var target = $(evt.target);
+        var id;
+        if (id = target.attr('data-span-id')) {
+          window.getSelection().removeAllRanges();
+          var span = data.spans[id];
+          var spanText = data.text.substring(span.from, span.to);
+          $('#viewspan_selected').text(spanText);
+          var encodedText = encodeURIComponent(spanText);
+          // TODO: DRY it off (it is almost-copy of annotator_ui)
+          $('#viewspan_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
+          $('#viewspan_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
+          $('#viewspan_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
+          $('#viewspan_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
+          $('#viewspan_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
+
+          // annotator comments
+          $('#viewspan_notes').val(span.annotatorNotes || '');
+          dispatcher.post('showForm', [viewspanForm]);
+          adjustToCursor(evt, viewspanForm.parent());
+        }
+      };
+
+      var init = function() {
+        dispatcher.post('initForm', [viewspanForm, {
+            width: 760
+          }]);
+      };
+
       var showUnableToReadTextFile = function() {
         dispatcher.post('messages', [[['Unable to read the text file.', 'error']]]);
         showFileBrowser();
@@ -987,11 +1021,16 @@ var VisualizerUI = (function($, window, undefined) {
         spanTypes = _spanTypes;
         attributeTypes = _attributeTypes;
       };
+
+      var userReceived = function(_user) {
+        user = _user;
+      };
       
       // hide anything requiring login, just in case
       $('.login').hide();
 
       dispatcher.
+          on('init', init).
           on('messages', displayMessages).
           on('displaySpanComment', displaySpanComment).
           on('displayArcComment', displayArcComment).
@@ -1014,6 +1053,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('unknownError', showUnknownError).
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
+          on('dblclick', onDblClick).
+          on('user', userReceived).
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch);
