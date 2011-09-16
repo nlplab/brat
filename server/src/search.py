@@ -59,7 +59,7 @@ class TextMatch(object):
         self.sentence = sentence
         # TODO: temporary "fake ID" to make other bits of code happy, remove
         # once no longer necessary
-        self.id = ""
+        self.id = "%s~%s" % (self.start, self.end)
 
     def get_text(self):
         return self.text

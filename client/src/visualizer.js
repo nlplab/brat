@@ -391,8 +391,6 @@ var Visualizer = (function($, window, undefined) {
           $.each(argsEdited, function(editedNo, edited) {
             if (edited[0] == 'sent') {
               data.editedSent.push(parseInt(edited[1], 10));
-            } else if (edited[0] == 'text') {
-              editedText.push([parseInt(edited[1], 10), parseInt(edited[2], 10)]);
             } else if (edited[0] == 'equiv') { // [equiv, Equiv, T1]
               $.each(data.equivs, function(equivNo, equiv) {
                 if (equiv[1] == edited[1]) {
@@ -410,6 +408,8 @@ var Visualizer = (function($, window, undefined) {
                   }
                 }
               });
+            } else if (edited.length == 2) {
+              editedText.push([parseInt(edited[0], 10), parseInt(edited[1], 10)]);
             } else {
               var span = data.spans[edited[0]];
               if (span) {
@@ -1677,8 +1677,8 @@ Util.profileStart('chunkFinish');
         // draw the editedText
         $.each(textEditedRows, function(textRowNo, textRowDesc) { // row, from, to
           var textHighlight = svg.rect(glowGroup,
-              textRowDesc[1], textRowDesc[0].textY - sizes.spans.height + 1,
-              textRowDesc[2] - textRowDesc[1], sizes.spans.height + 2,
+              textRowDesc[1] - 2, textRowDesc[0].textY - sizes.spans.height,
+              textRowDesc[2] - textRowDesc[1] + 4, sizes.spans.height + 4,
               { fill: 'yellow' } // TODO: put into css file, as default - turn into class
           );
           svg.other(textHighlight, 'animate', {
