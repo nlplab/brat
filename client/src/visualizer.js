@@ -78,6 +78,7 @@ var Visualizer = (function($, window, undefined) {
 
       var highlightSpanSequence = 'yellow;green;yellow';
       var highlightArcSequence = 'yellow;lime;yellow';
+      var highlightTextSequence = 'yellow;lime;yellow';
       var highlightDuration = '2s';
       
       // END OPTIONS
@@ -391,7 +392,7 @@ var Visualizer = (function($, window, undefined) {
             if (edited[0] == 'sent') {
               data.editedSent.push(parseInt(edited[1], 10));
             } else if (edited[0] == 'text') {
-              editedText.push([edited[1], edited[2]]);
+              editedText.push([parseInt(edited[1], 10), parseInt(edited[2], 10)]);
             } else if (edited[0] == 'equiv') { // [equiv, Equiv, T1]
               $.each(data.equivs, function(equivNo, equiv) {
                 if (equiv[1] == edited[1]) {
@@ -612,22 +613,38 @@ var Visualizer = (function($, window, undefined) {
         $.each(editedText, function(textNo, textPos) {
           var from = textPos[0];
           var to = textPos[1];
+          if (from < 0) from = 0;
+          if (to < 0) to = 0;
+          if (to >= data.text.length) to = data.text.length - 1;
+          if (from > to) from = to;
           var i = 0;
           while (i < numChunks) {
             var chunk = data.chunks[i];
             if (from <= chunk.to) {
               chunk.editedTextStart.push([textNo, true, from - chunk.from]);
+              console.log(chunk.editedTextStart);
               break;
             }
             i++;
+          }
+          if (i == numChunks) {
+            dispatcher.post('messages', [[['Wrong text offset', 'error']]]);
+            return;
           }
           while (i < numChunks) {
             var chunk = data.chunks[i];
             if (to <= chunk.to) {
               chunk.editedTextEnd.push([textNo, false, to - chunk.from]);
+              console.log(chunk.editedTextEnd);
               break
             }
             i++;
+          }
+          if (i == numChunks) {
+            dispatcher.post('messages', [[['Wrong text offset', 'error']]]);
+            var chunk = data.chunks[data.chunks.length - 1];
+            chunk.editedTextEnd.push([textNo, false, chunk.text.length]);
+            return;
           }
         });
 
@@ -986,14 +1003,13 @@ Util.profileStart('chunks');
                   rx: editedSpanSize,
                   ry: editedSpanSize,
               });
-              var animation = svg.other(editedRect, 'animate', {
+              svg.other(editedRect, 'animate', {
                 attributeName: 'fill',
                 values: highlightSpanSequence,
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
               });
-              animation.beginElement();
               chunkFrom = Math.min(bx - editedSpanSize, chunkFrom);
               chunkTo = Math.max(bx + bw + editedSpanSize, chunkTo);
               spanHeight = Math.max(bh + 2 * editedSpanSize, spanHeight);
@@ -1420,14 +1436,13 @@ Util.profileStart('arcs');
                     rx: editedArcSize,
                     ry: editedArcSize,
               });
-              var animation = svg.other(editedRect, 'animate', {
+              svg.other(editedRect, 'animate', {
                 attributeName: 'fill',
                 values: highlightArcSequence,
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
               });
-              animation.beginElement();
             }
             if (arc.shadowClass) {
               svg.rect(shadowGroup,
@@ -1471,14 +1486,13 @@ Util.profileStart('arcs');
                   'class': 'shadow_EditHighlight_arc',
                   strokeWidth: editedStroke,
               });
-              var animation = svg.other(editedRect, 'animate', {
+              svg.other(editedRect, 'animate', {
                 attributeName: 'fill',
                 values: highlightArcSequence,
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
               });
-              animation.beginElement();
             }
             if (arc.shadowClass) {
               svg.path(shadowGroup, path, {
@@ -1664,9 +1678,18 @@ Util.profileStart('chunkFinish');
 
         // draw the editedText
         $.each(textEditedRows, function(textRowNo, textRowDesc) { // row, from, to
-          // TODO: style nicely
-          svg.rect(glowGroup,
-              textRowDesc[1], textRowDesc[0].textY, textRowDesc[2] - textRowDesc[1], 3);
+          var textHighlight = svg.rect(glowGroup,
+              textRowDesc[1], textRowDesc[0].textY - sizes.spans.height + 1,
+              textRowDesc[2] - textRowDesc[1], sizes.spans.height + 2,
+              { fill: 'yellow' } // TODO: put into css file, as default - turn into class
+          );
+          svg.other(textHighlight, 'animate', {
+            attributeName: 'fill',
+            values: highlightTextSequence,
+            dur: highlightDuration,
+            repeatCount: 'indefinite',
+            begin: 'indefinite'
+          });
         });
 
 
@@ -1690,6 +1713,9 @@ Util.profileReport();
           redraw = false;
           renderDataReal();
         }
+        $svg.find('animate').each(function() {
+          this.beginElement();
+        });
         dispatcher.post('doneRendering', [coll, doc, args]);
       };
 
