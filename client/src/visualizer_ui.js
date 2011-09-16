@@ -268,6 +268,7 @@ var VisualizerUI = (function($, window, undefined) {
         // as suggested in http://stackoverflow.com/questions/2657076/jquery-ui-dialog-fixed-positioning
         form.parent().css({position:"fixed"});
         form.dialog('open');
+        slideToggle($('#pulldown').stop(), false);
         return form;
       };
 
