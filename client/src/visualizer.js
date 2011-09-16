@@ -622,7 +622,6 @@ var Visualizer = (function($, window, undefined) {
             var chunk = data.chunks[i];
             if (from <= chunk.to) {
               chunk.editedTextStart.push([textNo, true, from - chunk.from]);
-              console.log(chunk.editedTextStart);
               break;
             }
             i++;
@@ -635,7 +634,6 @@ var Visualizer = (function($, window, undefined) {
             var chunk = data.chunks[i];
             if (to <= chunk.to) {
               chunk.editedTextEnd.push([textNo, false, to - chunk.from]);
-              console.log(chunk.editedTextEnd);
               break
             }
             i++;
