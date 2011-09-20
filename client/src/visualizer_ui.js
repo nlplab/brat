@@ -484,6 +484,7 @@ var VisualizerUI = (function($, window, undefined) {
         if (!included['']) {
           included[''] = true;
           root = true;
+          $select.empty();
         }
         $.each(types, function(typeNo, type) {
           if (type !== null) {
