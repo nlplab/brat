@@ -675,8 +675,10 @@ var VisualizerUI = (function($, window, undefined) {
             break;
           case 'searchRelation':
             opts.type = $('#search_form_relation_type').val() || null;
-            opts.arg1 = $('#search_form_relation_arg1_type').val();
-            opts.arg2 = $('#search_form_relation_arg2_type').val();
+            opts.arg1 = $('#search_form_relation_arg1_text').val();
+            opts.arg1type = $('#search_form_relation_arg1_type').val() || null;
+            opts.arg2 = $('#search_form_relation_arg2_text').val();
+            opts.arg2type = $('#search_form_relation_arg2_type').val() || null;
             break;
         }
         dispatcher.post('ajax', [opts, function(response) {
