@@ -859,9 +859,11 @@ def split_span(collection, document, args, id):
                     raise AnnotationSplitError("Cannot adjust annotation referencing split: not implemented for relations! (WARNING: annotations may be in inconsistent state, please reload!) (Please complain to the developers to fix this!)")
 
                 elif isinstance(a, OnelineCommentAnnotation):
-                    # TODO
-                    raise AnnotationSplitError("Cannot adjust annotation referencing split: not implemented for comments! (WARNING: annotations may be in inconsistent state, please reload!) (Please complain to the developers to fix this!)")
-
+                    for newe in new_events:
+                        newcomm = deepcopy(a)
+                        newcomm.target = newe.id
+                        newcomm.id = ann_obj.get_new_id("#") # TODO: avoid hard-coding ID prefix
+                        ann_obj.add_annotation(newcomm)
                 else:
                     raise AnnotationSplitError("Cannot adjust annotation referencing split: not implemented for %s! (Please complain to the lazy developers to fix this!)" % a.__class__)
 
