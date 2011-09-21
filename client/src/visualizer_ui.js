@@ -658,28 +658,28 @@ var VisualizerUI = (function($, window, undefined) {
             opts.text = $('#search_form_text_text').val();
             break;
           case 'searchEntity':
-            opts.type = $('#search_form_entity_type').val() || null;
+            opts.type = $('#search_form_entity_type').val() || '';
             opts.text = $('#search_form_entity_text').val();
             break;
           case 'searchEvent':
-            opts.type = $('#search_form_event_type').val() || null;
+            opts.type = $('#search_form_event_type').val() || '';
             opts.trigger = $('#search_form_event_trigger').val();
             var eargs = [];
             $('#search_form_event_roles tr').each(function() {
               var earg = {};
-              earg.role = $(this).find('.search_event_role select').val() || null;
-              earg.type = $(this).find('.search_event_type select').val() || null;
+              earg.role = $(this).find('.search_event_role select').val() || '';
+              earg.type = $(this).find('.search_event_type select').val() || '';
               earg.text = $(this).find('.search_event_text input').val();
               eargs.push(earg);
             });
             opts.args = $.toJSON(eargs);
             break;
           case 'searchRelation':
-            opts.type = $('#search_form_relation_type').val() || null;
+            opts.type = $('#search_form_relation_type').val() || '';
             opts.arg1 = $('#search_form_relation_arg1_text').val();
-            opts.arg1type = $('#search_form_relation_arg1_type').val() || null;
+            opts.arg1type = $('#search_form_relation_arg1_type').val() || '';
             opts.arg2 = $('#search_form_relation_arg2_text').val();
-            opts.arg2type = $('#search_form_relation_arg2_type').val() || null;
+            opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
             break;
         }
         dispatcher.post('ajax', [opts, function(response) {
