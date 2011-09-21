@@ -555,9 +555,32 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
                 trigger_text not in t_ann.text):
                 continue
 
-            # TODO: argument constraints
-            if len(args) != 0:
-                Messager.warning('NOTE: ignoring event argument constraints in search (not implemented yet, sorry!)')
+            # argument constraints
+            missing_match = False
+            for arg in args:
+                for s in ('role', 'type', 'text'):
+                    assert s in arg, "Error: missing mandatory field '%s' in event search" % s
+                found_match = False
+                for role, aid in e.args:
+                    if arg['role'] is not None and arg['role'] != '' and arg['role'] != role:
+                        # mismatch on role
+                        continue
+                    arg_ent = ann_obj.get_ann_by_id(aid)
+                    if (arg['type'] is not None and arg['type'] != '' and 
+                        arg['type'] != arg_ent.type):
+                        # mismatch on type
+                        continue
+                    if (arg['text'] is not None and arg['text'] != '' and
+                        arg['text'] not in arg_ent.get_text()):
+                        # mismatch on text
+                        continue
+                    found_match = True
+                    break
+                if not found_match:
+                    missing_match = True
+                    break
+            if missing_match:
+                continue
 
             ann_matches.append((t_ann, e))
 
@@ -749,6 +772,12 @@ def search_event(collection, type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
     restrict_types = []
     if type is not None and type != "":
         restrict_types.append(type)
+
+    # to get around lack of JSON object parsing in dispatcher, parse
+    # args here. 
+    # TODO: parse JSON in dispatcher; this is far from the right place to do this..
+    from jsonwrap import loads
+    args = loads(args)
 
     matches = search_anns_for_event(ann_objs, trigger, args, restrict_types=restrict_types)
 
