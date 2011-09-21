@@ -51,6 +51,14 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
         else:
             item = {}
             _type = node.storage_form() 
+
+            # This isn't really a great place to put this, but we need
+            # to block this magic value from getting to the client.
+            # TODO: resolve cleanly, preferably by not storing this with
+            # other relations at all.
+            if _type == "ENTITY-NESTING":
+                continue
+
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
