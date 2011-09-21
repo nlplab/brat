@@ -19,6 +19,7 @@ var VisualizerUI = (function($, window, undefined) {
       var coll, doc, args;
       var collScroll;
       var docScroll;
+      var user = null;
 
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
@@ -134,6 +135,7 @@ var VisualizerUI = (function($, window, undefined) {
         var elementHeight = element.height() + 22;
         var elementWidth = element.width() + 22;
         var x, y;
+        offset = offset || 0;
         if (top) {
           y = evt.clientY - elementHeight - offset;
           if (y < 0) top = false;
@@ -266,6 +268,7 @@ var VisualizerUI = (function($, window, undefined) {
         // as suggested in http://stackoverflow.com/questions/2657076/jquery-ui-dialog-fixed-positioning
         form.parent().css({position:"fixed"});
         form.dialog('open');
+        slideToggle($('#pulldown').stop(), false);
         return form;
       };
 
@@ -475,33 +478,34 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START search - related */
 
-      var addSpanTypesToSelect = function($select, types) {
+      var addSpanTypesToSelect = function($select, types, included) {
+        if (!included) included = {};
+        var root = false;
+        if (!included['']) {
+          included[''] = true;
+          root = true;
+          $select.empty();
+        }
         $.each(types, function(typeNo, type) {
           if (type !== null) {
-            // protect against introducing the same thing twice
-            // TODO: unnecessarily slow implementation, do better
-            var previously_included = false;
-            $select.children("option[text='"+type.name+"']").each(function(optNo, opt) {
-              previously_included = true;
-            });
-
-            if (!previously_included) {
+            if (!included[type.name]) {
+              included[type.name] = true;
               var $option = $('<option value="' + Util.escapeQuotes(type.type) + '"/>').text(type.name);
               $select.append($option);
               if (type.children) {
-                addSpanTypesToSelect($select, type.children);
+                addSpanTypesToSelect($select, type.children, included);
               }
             }
           }
         });
+        if (root) {
+          $select.append('<option value="">- Any -</option>');
+        }
       };
 
       var setupSearchTypes = function(response) {
-        $('#search_form_entity_type').empty();
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
-        $('#search_form_event_type').empty();
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
-        $('#search_form_relation_type').empty();
         addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
       }
 
@@ -529,8 +533,11 @@ var VisualizerUI = (function($, window, undefined) {
           var option = '<option value="' + Util.escapeQuotes(target) + '">' + Util.escapeHTML(spanName) + '</option>'
           $type.append(option);
         });
+        $type.append('<option value="">- Any -</option>');
         // return the type to the same value, if possible
-        $type.val(type);
+        if (type) {
+          $type.val(type);
+        }
       };
 
       $('#search_form_event_roles .search_event_role select').live('change', searchEventRoleChanged);
@@ -544,6 +551,7 @@ var VisualizerUI = (function($, window, undefined) {
           var option = '<option value="' + Util.escapeQuotes(arcTypePair[0]) + '">' + Util.escapeHTML(arcTypePair[1]) + '</option>'
           $role.append(option);
         });
+        $role.append('<option value="">- Any -</option>');
         var $type = $('<select class="fullwidth"/>');
         var $text = $('<input class="fullwidth"/>');
         var button = $('<input type="button"/>');
@@ -592,7 +600,8 @@ var VisualizerUI = (function($, window, undefined) {
         var relTypeType = $(this).val();
         var $arg1 = $('#search_form_relation_arg1_type').empty();
         var $arg2 = $('#search_form_relation_arg2_type').empty();
-        $.each(spanTypes, function(spanTypeType, spanType) {
+        $.each(spanTypes,
+          function(spanTypeType, spanType) {
           if (spanType.arcs) {
             $.each(spanType.arcs, function(arcTypeNo, arcType) {
               if (arcType.type === relTypeType) {
@@ -603,6 +612,7 @@ var VisualizerUI = (function($, window, undefined) {
             });
           }
         });
+        $arg1.append('<option value="">- Any -</option>');
         $('#search_form_relation_arg1_type').change();
       });
 
@@ -611,8 +621,8 @@ var VisualizerUI = (function($, window, undefined) {
         var $arg2 = $('#search_form_relation_arg2_type').empty();
         var relType = $('#search_form_relation_type').val();
         var arg1Type = spanTypes[$(this).val()];
-        var arcTypes = arg1Type && arg1Type.arcs;
-        var arctype = null;
+        var arcTypes = arg1Type && arg1Type.arcs || [];
+        var arcType = null;
         $.each(arcTypes, function(arcNo, arcDesc) {
           if (arcDesc.type == relType) {
             arcType = arcDesc;
@@ -626,6 +636,7 @@ var VisualizerUI = (function($, window, undefined) {
             $arg2.append(option);
           });
         }
+        $arg2.append('<option value="">- Any -</option>');
       });
 
       $('#search_tabs').tabs();
@@ -647,26 +658,28 @@ var VisualizerUI = (function($, window, undefined) {
             opts.text = $('#search_form_text_text').val();
             break;
           case 'searchEntity':
-            opts.type = $('#search_form_entity_type').val();
+            opts.type = $('#search_form_entity_type').val() || null;
             opts.text = $('#search_form_entity_text').val();
             break;
           case 'searchEvent':
-            opts.type = $('#search_form_event_type').val();
+            opts.type = $('#search_form_event_type').val() || null;
             opts.trigger = $('#search_form_event_trigger').val();
             var eargs = [];
             $('#search_form_event_roles tr').each(function() {
               var earg = {};
-              earg.role = $(this).find('.search_event_role select').val();
-              earg.type = $(this).find('.search_event_type select').val();
+              earg.role = $(this).find('.search_event_role select').val() || null;
+              earg.type = $(this).find('.search_event_type select').val() || null;
               earg.text = $(this).find('.search_event_text input').val();
               eargs.push(earg);
             });
             opts.args = $.toJSON(eargs);
             break;
           case 'searchRelation':
-            opts.type = $('#search_form_relation_type').val();
-            opts.arg1 = $('#search_form_relation_arg1_type').val();
-            opts.arg2 = $('#search_form_relation_arg2_type').val();
+            opts.type = $('#search_form_relation_type').val() || null;
+            opts.arg1 = $('#search_form_relation_arg1_text').val();
+            opts.arg1type = $('#search_form_relation_arg1_type').val() || null;
+            opts.arg2 = $('#search_form_relation_arg2_text').val();
+            opts.arg2type = $('#search_form_relation_arg2_type').val() || null;
             break;
         }
         dispatcher.post('ajax', [opts, function(response) {
@@ -963,6 +976,38 @@ var VisualizerUI = (function($, window, undefined) {
         showForm(aboutDialog);
       });
 
+      // TODO: copy from annotator_ui; DRY it up
+      var viewspanForm = $('#viewspan_form');
+      var onDblClick = function(evt) {
+        if (user) return;
+        var target = $(evt.target);
+        var id;
+        if (id = target.attr('data-span-id')) {
+          window.getSelection().removeAllRanges();
+          var span = data.spans[id];
+          var spanText = data.text.substring(span.from, span.to);
+          $('#viewspan_selected').text(spanText);
+          var encodedText = encodeURIComponent(spanText);
+          // TODO: DRY it off (it is almost-copy of annotator_ui)
+          $('#viewspan_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
+          $('#viewspan_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
+          $('#viewspan_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
+          $('#viewspan_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
+          $('#viewspan_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
+
+          // annotator comments
+          $('#viewspan_notes').val(span.annotatorNotes || '');
+          dispatcher.post('showForm', [viewspanForm]);
+          adjustToCursor(evt, viewspanForm.parent());
+        }
+      };
+
+      var init = function() {
+        dispatcher.post('initForm', [viewspanForm, {
+            width: 760
+          }]);
+      };
+
       var showUnableToReadTextFile = function() {
         dispatcher.post('messages', [[['Unable to read the text file.', 'error']]]);
         showFileBrowser();
@@ -987,11 +1032,16 @@ var VisualizerUI = (function($, window, undefined) {
         spanTypes = _spanTypes;
         attributeTypes = _attributeTypes;
       };
+
+      var userReceived = function(_user) {
+        user = _user;
+      };
       
       // hide anything requiring login, just in case
       $('.login').hide();
 
       dispatcher.
+          on('init', init).
           on('messages', displayMessages).
           on('displaySpanComment', displaySpanComment).
           on('displayArcComment', displayArcComment).
@@ -1014,6 +1064,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('unknownError', showUnknownError).
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
+          on('dblclick', onDblClick).
+          on('user', userReceived).
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch);

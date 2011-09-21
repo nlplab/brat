@@ -869,6 +869,33 @@ var Visualizer = (function($, window, undefined) {
         }); // data.towers
       };
 
+      var makeArrow = function(defs, spec) {
+        var parsedSpec = spec.split(',');
+        var type = parsedSpec[0];
+        if (type == 'none') return;
+
+        var size = parsedSpec[1];
+        var color = parsedSpec[2];
+        if (!color) {
+          color = size;
+          size = 5;
+        }
+        var arrowId = 'arrow_' + spec.replace(/,/g, '_');
+
+        var arrow;
+        if (type == 'triangle') {
+          arrow = svg.marker(defs, arrowId,
+            size, size / 2, size, size, 'auto',
+            {
+              markerUnits: 'strokeWidth',
+              'fill': color,
+            });
+          svg.polyline(arrow, [[0, 0], [size, size / 2], [0, size], [size / 25, size / 2]]);
+        }
+        return arrowId;
+      }
+
+
       var drawing = false;
       var redraw = false;
 
@@ -1165,7 +1192,9 @@ Util.profileStart('chunks');
 
             // break the text highlights
             $.each(openTextHighlights, function(textId, textDesc) {
-              textEditedRows.push([row, textDesc[3], lastX + boxX]);
+              if (textDesc[3] != lastX) {
+                textEditedRows.push([row, textDesc[3], lastX + boxX]);
+              }
               textDesc[3] = current.x;
             });
 
@@ -1322,24 +1351,23 @@ Util.profileStart('arcs');
                   });            
           }
           var color = arcDesc && arcDesc.color || '#000000';
+          var hashlessColor = color.replace('#', '');
           var dashArray = arcDesc && arcDesc.dashArray;
+          var arrowHead = (arcDesc && arcDesc.arrowHead || 'triangle,5') + ',' + hashlessColor;
+          var arrowTail = (arcDesc && arcDesc.arrowTail || 'triangle,5') + ',' + hashlessColor;
 
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
           var leftRow = left.chunk.row.index;
           var rightRow = right.chunk.row.index;
 
-          if (!arrows[arc.type]) {
-            var arrowId = 'arrow_' + arc.type;
-            var arrowhead = svg.marker(defs, arrowId,
-              5, 2.5, 5, 5, 'auto',
-              {
-                markerUnits: 'strokeWidth',
-                'fill': color,
-              });
-            svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
-
-            arrows[arc.type] = arrowId;
+          if (!arrows[arrowHead]) {
+            var arrow = makeArrow(defs, arrowHead);
+            if (arrow) arrows[arrowHead] = arrow;
+          }
+          if (!arrows[arrowTail]) {
+            var arrow = makeArrow(defs, arrowTail);
+            if (arrow) arrows[arrowTail] = arrow;
           }
 
           // find the next height
@@ -1474,9 +1502,11 @@ Util.profileStart('arcs');
             } else {
               path.line(from, -height);
             }
+            var hashlessColor = color.replace('#', '');
+            var arrowType = arrows[(leftToRight ? arcDesc.arrowTail : arcDesc.arrowHead) + ',' + hashlessColor];
             svg.path(arcGroup, path, {
-              markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
-              'stroke': color,
+              markerEnd: arrowType && ('url(#' + arrowType + ')'),
+              style: 'stroke: ' + color,
               'strokeDashArray': dashArray,
             });
             if (arc.edited) {
@@ -1515,9 +1545,10 @@ Util.profileStart('arcs');
             } else {
               path.line(to, -height);
             }
+            var arrowType = arrows[(leftToRight ? arcDesc.arrowHead : arcDesc.arrowTail) + ',' + hashlessColor];
             svg.path(arcGroup, path, {
-                markerEnd: leftToRight && !arc.equiv ? 'url(#' + arrows[arc.type] + ')' : undefined,
-                'stroke': color,
+                markerEnd: arrowType && ('url(#' + arrowType + ')'),
+                style: 'stroke: ' + color,
                 'strokeDashArray': dashArray,
             });
             if (arc.edited) {
@@ -1676,7 +1707,7 @@ Util.profileStart('chunkFinish');
 
         // draw the editedText
         $.each(textEditedRows, function(textRowNo, textRowDesc) { // row, from, to
-          var textHighlight = svg.rect(glowGroup,
+          var textHighlight = svg.rect(highlightGroup,
               textRowDesc[1] - 2, textRowDesc[0].textY - sizes.spans.height,
               textRowDesc[2] - textRowDesc[1] + 4, sizes.spans.height + 4,
               { fill: 'yellow' } // TODO: put into css file, as default - turn into class
