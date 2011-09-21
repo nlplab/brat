@@ -450,7 +450,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
 
     return matches
 
-def search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=[], ignore_types=[]):
+def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=[], ignore_types=[]):
     """
     Searches the given Annotations objects for relation annotations
     matching the given specification. Returns a SearchMatchSet object.
@@ -481,8 +481,20 @@ def search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=[], ignore_typ
             if restrict_types != [] and r.type not in restrict_types:
                 continue
 
-            # TODO: argument constraints
-
+            # argument constraints
+            if arg1 is not None or arg1type is not None:
+                arg1ent = ann_obj.get_ann_by_id(r.arg1)
+                if arg1 is not None and arg1 not in arg1ent.get_text():
+                    continue
+                if arg1type is not None and arg1type != arg1ent.type:
+                    continue
+            if arg2 is not None or arg2type is not None:
+                arg2ent = ann_obj.get_ann_by_id(r.arg2)
+                if arg2 is not None and arg2 not in arg2ent.get_text():
+                    continue
+                if arg2type is not None and arg2type != arg2.type:
+                    continue
+                
             ann_matches.append(r)
 
         # TODO: sort, e.g. by offset of participant occurring first
@@ -745,7 +757,7 @@ def search_event(collection, type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
     
     return results
 
-def search_relation(collection, type=None, arg1=None, arg2=None):
+def search_relation(collection, type=None, arg1=None, arg1type=None, arg2=None, arg2type=None):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
@@ -754,7 +766,7 @@ def search_relation(collection, type=None, arg1=None, arg2=None):
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=restrict_types)
+    matches = search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=restrict_types)
 
     results = format_results(matches)
     results['collection'] = directory
