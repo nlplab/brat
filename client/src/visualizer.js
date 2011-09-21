@@ -1503,7 +1503,7 @@ Util.profileStart('arcs');
               path.line(from, -height);
             }
             var hashlessColor = color.replace('#', '');
-            var arrowType = arrows[(leftToRight ? arcDesc.arrowTail : arcDesc.arrowHead) + ',' + hashlessColor];
+            var arrowType = arcDesc && arcDesc.arrowHead ? (arrows[(leftToRight ? arcDesc.arrowTail : arcDesc.arrowHead) + ',' + hashlessColor]) : 'triangle,5,' +  hashlessColor;
             svg.path(arcGroup, path, {
               markerEnd: arrowType && ('url(#' + arrowType + ')'),
               style: 'stroke: ' + color,
@@ -1545,7 +1545,7 @@ Util.profileStart('arcs');
             } else {
               path.line(to, -height);
             }
-            var arrowType = arrows[(leftToRight ? arcDesc.arrowHead : arcDesc.arrowTail) + ',' + hashlessColor];
+            var arrowType = arcDesc && arcDesc.arrowTail ? (arrows[(leftToRight ? arcDesc.arrowHead : arcDesc.arrowTail) + ',' + hashlessColor]) : 'triangle,5,' +  hashlessColor;
             svg.path(arcGroup, path, {
                 markerEnd: arrowType && ('url(#' + arrowType + ')'),
                 style: 'stroke: ' + color,
