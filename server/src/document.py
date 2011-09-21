@@ -25,7 +25,9 @@ from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         open_textfile)
 from common import ProtocolError, CollectionNotAccessibleError
 from config import DATA_DIR
-from projectconfig import ProjectConfiguration, SEPARATOR_STR, SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES
+from projectconfig import (ProjectConfiguration, SEPARATOR_STR, 
+        SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
+        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -66,10 +68,9 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
             item['labels'] = project_conf.get_labels_by_type(_type)
             item['attributes'] = project_conf.attributes_for(_type)
 
-            # TODO: avoid magic values
             span_drawing_conf = project_conf.get_drawing_config_by_type(_type) 
             if span_drawing_conf is None:
-                span_drawing_conf = project_conf.get_drawing_config_by_type("SPAN_DEFAULT")
+                span_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_SPAN_DEFAULT)
             if span_drawing_conf is None:
                 span_drawing_conf = {}
             for k in SPAN_DRAWING_ATTRIBUTES:
@@ -103,7 +104,7 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                 # TODO: avoid magic values
                 arc_drawing_conf = project_conf.get_drawing_config_by_type(arc)
                 if arc_drawing_conf is None:
-                    arc_drawing_conf = project_conf.get_drawing_config_by_type("ARC_DEFAULT")
+                    arc_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ARC_DEFAULT)
                 if arc_drawing_conf is None:
                     arc_drawing_conf = {}
                 for k in ARC_DRAWING_ATTRIBUTES:
@@ -203,7 +204,7 @@ def _fill_visual_configuration(types, project_conf):
         drawing_conf = project_conf.get_drawing_config_by_type(_type) 
         # not sure if this is a good default, but let's try
         if drawing_conf is None:
-            drawing_conf = project_conf.get_drawing_config_by_type("SPAN_DEFAULT")
+            drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_SPAN_DEFAULT)
         if drawing_conf is None:
             drawing_conf = {}
         # just plug in everything found, whether for a span or arc
@@ -242,9 +243,11 @@ def get_span_types(directory):
             project_conf, hotkey_by_type)
 
     # make visual config available also for nodes for which there is
-    # no annotation config
+    # no annotation config ...
     unconfigured = [l for l in project_conf.get_labels() if 
                     not project_conf.is_configured_type(l)]
+    # ... and include the defaults.
+    unconfigured += [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
     unconf_types = _fill_visual_configuration(unconfigured, project_conf)
 
     return event_types, entity_types, attribute_types, relation_types, unconf_types

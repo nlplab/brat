@@ -44,6 +44,10 @@ __annotation_config_filename  = "annotation.conf"
 __visual_config_filename      = 'visual.conf'
 __kb_shortcut_filename        = 'kb_shortcuts.conf'
 
+# visual config default value names
+VISUAL_SPAN_DEFAULT = "SPAN_DEFAULT"
+VISUAL_ARC_DEFAULT  = "ARC_DEFAULT"
+
 # visual config attribute name lists
 SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
 ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead', 'arrowTail']
@@ -462,8 +466,8 @@ __minimal_visual = {
     LABEL_SECTION     : [TypeHierarchyNode(["Protein", "Pro", "P"]),
                          TypeHierarchyNode(["Equiv", "Eq"]),
                          TypeHierarchyNode(["Event", "Ev"])],
-    DRAWING_SECTION   : [TypeHierarchyNode(["SPAN_DEFAULT"], ["fgColor:black", "bgColor:white"]),
-                         TypeHierarchyNode(["ARC_DEFAULT"], ["color:black"])],
+    DRAWING_SECTION   : [TypeHierarchyNode([VISUAL_SPAN_DEFAULT], ["fgColor:black", "bgColor:white"]),
+                         TypeHierarchyNode([VISUAL_ARC_DEFAULT], ["color:black"])],
     }
 
 def get_visual_configs(directory):
@@ -611,7 +615,7 @@ def get_drawing_config_by_storage_form(directory, term):
                 d[t][k] = d[t][k].replace("-", ",")
                 
         # propagate defaults (TODO: get rid of magic "DEFAULT" values)
-        default_keys = ["SPAN_DEFAULT", "ARC_DEFAULT"]
+        default_keys = [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
         for default_dict in [d.get(dk, {}) for dk in default_keys]:
             for k in default_dict:
                 for t in d:
