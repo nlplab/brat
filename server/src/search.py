@@ -423,7 +423,6 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
             if restrict_types != [] and t.type not in restrict_types:
                 continue
             # TODO: make options for "text included" vs. "text matches"
-            # TODO: remove temporary hack giving special status to "*"
             if (text != None and text != "" and 
                 text != DEFAULT_EMPTY_STRING and text not in t.text):
                 continue
@@ -539,9 +538,9 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
                 Messager.error('Failed to retrieve trigger annotation %s, skipping event %s in search' % (e.trigger, e.id))
 
             # TODO: make options for "text included" vs. "text matches"
-            # TODO: remove temporary hack giving special status to "*"
             if (trigger_text != None and trigger_text != "" and 
-                trigger_text != "*" and trigger_text not in t_ann.text):
+                trigger_text != DEFAULT_EMPTY_STRING and 
+                trigger_text not in t_ann.text):
                 continue
 
             # TODO: argument constraints
@@ -714,7 +713,7 @@ def search_text(collection, text):
     
     return results
 
-def search_entity(collection, type, text=DEFAULT_EMPTY_STRING):
+def search_entity(collection, type=None, text=DEFAULT_EMPTY_STRING):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
@@ -730,7 +729,7 @@ def search_entity(collection, type, text=DEFAULT_EMPTY_STRING):
     
     return results
 
-def search_event(collection, type, trigger, args):
+def search_event(collection, type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
@@ -746,7 +745,7 @@ def search_event(collection, type, trigger, args):
     
     return results
 
-def search_relation(collection, type, arg1, arg2):
+def search_relation(collection, type=None, arg1=None, arg2=None):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
