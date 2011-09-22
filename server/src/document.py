@@ -343,6 +343,14 @@ def get_directory_information(collection):
 
     event_types, entity_types, attribute_types, relation_types, unconf_types = get_span_types(real_dir)
 
+    # read in README (if any) to send as a description of the
+    # collection
+    try:
+        with open_textfile(path_join(real_dir, "README")) as txt_file:
+            readme_text = txt_file.read()
+    except IOError:
+        readme_text = None
+
     json_dic = {
             'items': combolist,
             'header' : doclist_header,
@@ -353,6 +361,7 @@ def get_directory_information(collection):
             'attribute_types': attribute_types,
             'relation_types': relation_types,
             'unconfigured_types': unconf_types,
+            'description': readme_text,
             }
     return json_dic
 
