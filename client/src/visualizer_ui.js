@@ -27,6 +27,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START collection browser sorting - related */
 
+      var lastGoodCollection = '/';
       var sortOrder = [2, 1]; // column (0..), sort order (1, -1)
       var collectionSortOrder; // holds previous sort while search is active
       var docSortFunction = function(a, b) {
@@ -789,8 +790,17 @@ var VisualizerUI = (function($, window, undefined) {
 
       var collectionLoaded = function(response) {
         if (response.exception) {
-          dispatcher.post('setCollection', ['/']);
+          if (response.exception == 'annotationCollectionNotFound' ||
+              response.exception == 'collectionNotAccessible') {
+              // revert to last good
+              dispatcher.post('setCollection', [lastGoodCollection]);
+          } else {
+              dispatcher.post('messages', [[['Unknown error: ' + response.exception, 'error']]]);
+              dispatcher.post('setCollection', ['/']);
+          }
         } else {
+          console.log('loaded', response.collection);
+          lastGoodCollection = response.collection;
           selectorData = response;
           documentListing = response; // 'backup'
           selectorData.items.sort(docSortFunction);
