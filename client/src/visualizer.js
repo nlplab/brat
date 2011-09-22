@@ -986,6 +986,12 @@ Util.profileStart('chunks');
             var fgColor = spanDesc && spanDesc.fgColor || '#000000';
             var borderColor = spanDesc && spanDesc.borderColor || '#000000';
 
+            // special case: if the border 'color' value is 'darken',
+            // then just darken the BG color a bit for the border.
+            if (borderColor == 'darken') {
+                borderColor = Util.adjustColorLightness(bgColor, -0.5);
+            }
+            
             span.group = svg.group(chunk.group, {
               'class': 'span',
             });
