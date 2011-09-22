@@ -284,10 +284,14 @@ var Util = (function(window, undefined) {
 
     var rgbToStr = function(rgb) {
         // TODO: there has to be a better way, even in JS
-        return ('#' + 
-                Math.floor(rgb[0]).toString(16) + 
-                Math.floor(rgb[1]).toString(16) + 
-                Math.floor(rgb[2]).toString(16));
+        var r = Math.floor(rgb[0]).toString(16);
+        var g = Math.floor(rgb[1]).toString(16);
+        var b = Math.floor(rgb[2]).toString(16);
+        // pad
+        r = r.length < 2 ? '0' + r : r;
+        g = g.length < 2 ? '0' + g : g;
+        b = b.length < 2 ? '0' + b : b;        
+        return ('#'+r+g+b);
     }
     
     // Functions rgbToHsl and hslToRgb originally from 
