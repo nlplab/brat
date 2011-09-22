@@ -545,7 +545,7 @@ var AnnotatorUI = (function($, window, undefined) {
               attr('value', type.type);
             // use a light version of the span color as BG
             var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
-            spanBgColor = Util.lightenColor(spanBgColor, 0.5);
+            spanBgColor = Util.adjustColorLightness(spanBgColor, 0.2);
             var $label = $('<label/>').
               attr('for', 'span_' + type.type).
               text(name);

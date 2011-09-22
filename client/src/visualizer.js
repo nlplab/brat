@@ -1694,7 +1694,7 @@ Util.profileStart('chunkFinish');
                 var yShrink = shrink * nestingAdjustYStepSize;
                 var xShrink = shrink * nestingAdjustXStepSize;
                 // bit lighter
-                var lightBgColor = Util.lightenColor(bgColor, 0.8);
+                var lightBgColor = Util.adjustColorLightness(bgColor, 0.8);
                 // store to have same mouseover highlight without recalc
                 span.highlightPos = { x:chunk.textX + span.curly.from - 1 + xShrink, 
                                       y:chunk.row.textY + sizes.texts.y + 1 + yShrink, // XXX TODO: why +1??

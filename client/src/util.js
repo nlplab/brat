@@ -347,22 +347,28 @@ var Util = (function(window, undefined) {
         return [r * 255, g * 255, b * 255];
     }
 
-    var lightenColorCache = {};
+    var adjustLightnessCache = {};
 
-    // given color string and 0<=adjust<=1, returns color string
-    // lighter by the amount, the larger the lighter.
-    var lightenColor = function(colorstr, adjust) {
-      if (!(colorstr in lightenColorCache)) {
-        lightenColorCache[colorstr] = {}
+    // given color string and -1<=adjust<=1, returns color string
+    // where lightness (in the HSL sense) is adjusted by the given
+    // amount, the larger the lighter: -1 gives black, 1 white, and 0
+    // the given color.
+    var adjustColorLightness = function(colorstr, adjust) {
+      if (!(colorstr in adjustLightnessCache)) {
+        adjustLightnessCache[colorstr] = {}
       }
-      if (!(adjust in lightenColorCache[colorstr])) {
+      if (!(adjust in adjustLightnessCache[colorstr])) {
         var rgb = strToRgb(colorstr);
         var hsl = rgbToHsl(rgb);
-        hsl[2] = 1.0 - ((1.0-hsl[2])*(1.0-adjust));
+        if (adjust > 0.0) {
+          hsl[2] = 1.0 - ((1.0-hsl[2])*(1.0-adjust));
+        } else {
+          hsl[2] = (1.0+adjust)*hsl[2];
+        }
         var lightRgb = hslToRgb(hsl);
-        lightenColorCache[colorstr][adjust] = rgbToStr(lightRgb);
+        adjustLightnessCache[colorstr][adjust] = rgbToStr(lightRgb);
       }
-      return lightenColorCache[colorstr][adjust];
+      return adjustLightnessCache[colorstr][adjust];
     }
 
     // Partially stolen from: http://documentcloud.github.com/underscore/
@@ -493,7 +499,7 @@ var Util = (function(window, undefined) {
       cmp: cmp,
       rgbToHsl: rgbToHsl,
       hslToRgb: hslToRgb,
-      lightenColor: lightenColor,
+      adjustColorLightness: adjustColorLightness,
       objectToUrlStr: objectToUrlStr,
       isEqual: isEqual,
       param: param,
