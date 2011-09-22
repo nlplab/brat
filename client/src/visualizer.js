@@ -988,7 +988,6 @@ Util.profileStart('chunks');
 
             span.group = svg.group(chunk.group, {
               'class': 'span',
-              id: 'span_' + span.id,
             });
 
             var spanHeight = 0;
