@@ -989,7 +989,7 @@ Util.profileStart('chunks');
             // special case: if the border 'color' value is 'darken',
             // then just darken the BG color a bit for the border.
             if (borderColor == 'darken') {
-                borderColor = Util.adjustColorLightness(bgColor, -0.5);
+                borderColor = Util.adjustColorLightness(bgColor, -0.6);
             }
             
             span.group = svg.group(chunk.group, {
