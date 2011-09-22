@@ -1514,6 +1514,7 @@ Util.profileStart('arcs');
               svg.path(shadowGroup, path, {
                   'class': 'shadow_EditHighlight_arc',
                   strokeWidth: editedStroke,
+                  'strokeDashArray': dashArray,
               });
               svg.other(editedRect, 'animate', {
                 attributeName: 'fill',
@@ -1527,6 +1528,7 @@ Util.profileStart('arcs');
               svg.path(shadowGroup, path, {
                   'class': 'shadow_' + arc.shadowClass,
                   strokeWidth: shadowStroke,
+                  'strokeDashArray': dashArray,
               });
             }
             path = svg.createPath().move(textEnd, -height);
@@ -1558,12 +1560,14 @@ Util.profileStart('arcs');
               svg.path(shadowGroup, path, {
                   'class': 'shadow_EditHighlight_arc',
                   strokeWidth: editedStroke,
+                  'strokeDashArray': dashArray,
               });
             }
             if (shadowGroup) {
               svg.path(shadowGroup, path, {
                   'class': 'shadow_' + arc.shadowClass,
                   strokeWidth: shadowStroke,
+                  'strokeDashArray': dashArray,
               });
             }
           } // arc rows
