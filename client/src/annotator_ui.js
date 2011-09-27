@@ -290,13 +290,27 @@ var AnnotatorUI = (function($, window, undefined) {
             if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
               var arcTypeName = arcDesc.type;
               var displayName = arcDesc.labels[0] || arcTypeName;
-              if (arcDesc.hotkey) {
-                keymap[arcDesc.hotkey] = '#arc_' + arcTypeName;
-              }
               var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label for="arc_' + arcTypeName + '"/>').text(displayName);
               var $div = $('<div/>').append($checkbox).append($label);
               $scroller.append($div);
+              if (arcDesc.hotkey) {
+                keymap[arcDesc.hotkey] = '#arc_' + arcTypeName;
+                var name = $label.html();
+                var replace = true;
+                name = name.replace(new RegExp("(&[^;]*?)?(" + arcDesc.hotkey + ")", 'gi'),
+                  function(all, entity, letter) {
+                    if (replace && !entity) {
+                      replace = false;
+                      var hotkey = arcDesc.hotkey.toLowerCase() == letter
+                          ? arcDesc.hotkey.toLowerCase()
+                          : arcDesc.hotkey.toUpperCase();
+                      return '<span class="accesskey">' + Util.escapeHTML(hotkey) + '</span>';
+                    }
+                    return all;
+                  });
+                $label.html(name);
+              }
 
               noArcs = false;
             }
