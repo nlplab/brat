@@ -992,9 +992,9 @@ Util.profileStart('chunks');
 
           $.each(chunk.spans, function(spanNo, span) {
             var spanDesc = spanTypes[span.type];
-            var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
-            var fgColor = spanDesc && spanDesc.fgColor || '#000000';
-            var borderColor = spanDesc && spanDesc.borderColor || '#000000';
+            var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.bgColor || '#ffffff';
+            var fgColor = spanDesc && spanDesc.fgColor || spanTypes.SPAN_DEFAULT.fgColor || '#000000';
+            var borderColor = spanDesc && spanDesc.borderColor || spanTypes.SPAN_DEFAULT.borderColor || '#000000';
 
             // special case: if the border 'color' value is 'darken',
             // then just darken the BG color a bit for the border.
@@ -1366,11 +1366,11 @@ Util.profileStart('arcs');
                       }
                   });            
           }
-          var color = arcDesc && arcDesc.color || '#000000';
+          var color = arcDesc && arcDesc.color || spanTypes.ARC_DEFAULT.color || '#000000';
           var hashlessColor = color.replace('#', '');
           var dashArray = arcDesc && arcDesc.dashArray;
-          var arrowHead = (arcDesc && arcDesc.arrowHead || 'triangle,5') + ',' + hashlessColor;
-          var arrowTail = (arcDesc && arcDesc.arrowTail || 'triangle,5') + ',' + hashlessColor;
+          var arrowHead = (arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5') + ',' + hashlessColor;
+          var arrowTail = (arcDesc && arcDesc.arrowTail || spanTypes.ARC_DEFAULT.arrowTail || 'triangle,5') + ',' + hashlessColor;
 
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
@@ -1527,8 +1527,8 @@ Util.profileStart('arcs');
             }
             var hashlessColor = color.replace('#', '');
             var arrowType = arrows[(leftToRight ?
-                arcDesc && arcDesc.arrowTail || 'none' :
-                arcDesc && arcDesc.arrowHead || 'triangle,5') + ',' + hashlessColor];
+                arcDesc && arcDesc.arrowTail || spanTypes.ARC_DEFAULT.arrowTail || 'none' :
+                arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
               markerEnd: arrowType && ('url(#' + arrowType + ')'),
               style: 'stroke: ' + color,
@@ -1574,8 +1574,8 @@ Util.profileStart('arcs');
               path.line(to, -height);
             }
             var arrowType = arrows[(leftToRight ?
-                arcDesc && arcDesc.arrowHead || 'triangle,5' :
-                arcDesc && arcDesc.arrowTail || 'none') + ',' + hashlessColor];
+                arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5' :
+                arcDesc && arcDesc.arrowTail || spanTypes.ARC_DEFAULT.arrowTail || 'none') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
                 markerEnd: arrowType && ('url(#' + arrowType + ')'),
                 style: 'stroke: ' + color,
@@ -1708,7 +1708,7 @@ Util.profileStart('chunkFinish');
               for(var i=0; i<chunk.spans.length; i++) {
                 var span=chunk.spans[orderedIdx[i]];
                 var spanDesc = spanTypes[span.type];
-                var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
+                var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.bgColor || '#ffffff';
 
                 // Tweak for nesting depth/height. Recognize just three
                 // levels for now: normal, nested, and nesting, where
@@ -1867,7 +1867,7 @@ Util.profileStart('before render');
               span.comment && span.comment.type]);
 
           var spanDesc = spanTypes[span.type];
-          var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
+          var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.bgColor || '#ffffff';
           highlight = svg.rect(highlightGroup,
                                span.highlightPos.x, span.highlightPos.y,
                                span.highlightPos.w, span.highlightPos.h,

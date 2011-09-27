@@ -233,18 +233,25 @@ var VisualizerUI = (function($, window, undefined) {
         delete opts.alsoResize;
 
         // Always add OK and Cancel
-        var buttons = (opts.buttons || []).concat([
-            {
+        var buttons = (opts.buttons || []);
+        if (opts.no_ok) {
+          delete opts.no_ok;
+        } else {
+          buttons.push({
               id: formId + "-ok",
               text: "OK",
               click: function() { form.submit(); }
-            },
-            {
+            });
+        }
+        if (opts.no_cancel) {
+          delete opts.no_cancel;
+        } else {
+          buttons.push({
               id: formId + "-cancel",
               text: "Cancel",
               click: function() { form.dialog('close'); }
-            }
-          ]);
+            });
+        }
         delete opts.buttons;
 
         opts = $.extend({
@@ -1008,6 +1015,15 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       // TODO: copy from annotator_ui; DRY it up
+      var adjustFormToCursor = function(evt, element) {
+        var screenHeight = $(window).height() - 8; // TODO HACK - no idea why -8 is needed
+        var screenWidth = $(window).width() - 8;
+        var elementHeight = element.height();
+        var elementWidth = element.width();
+        var y = Math.min(evt.clientY, screenHeight - elementHeight);
+        var x = Math.min(evt.clientX, screenWidth - elementWidth);
+        element.css({ top: y, left: x });
+      };
       var viewspanForm = $('#viewspan_form');
       var onDblClick = function(evt) {
         if (user) return;
@@ -1016,6 +1032,11 @@ var VisualizerUI = (function($, window, undefined) {
         if (id = target.attr('data-span-id')) {
           window.getSelection().removeAllRanges();
           var span = data.spans[id];
+
+          var urlHash = URLHash.parse(window.location.hash);
+          urlHash.setArgument('focus', [[span.id]]);
+          $('#viewspan_highlight_link').show().attr('href', urlHash.getHash());
+
           var spanText = data.text.substring(span.from, span.to);
           $('#viewspan_selected').text(spanText);
           var encodedText = encodeURIComponent(spanText);
@@ -1029,13 +1050,19 @@ var VisualizerUI = (function($, window, undefined) {
           // annotator comments
           $('#viewspan_notes').val(span.annotatorNotes || '');
           dispatcher.post('showForm', [viewspanForm]);
-          adjustToCursor(evt, viewspanForm.parent());
+          $('#viewspan_form-ok').focus();
+          adjustFormToCursor(evt, viewspanForm.parent());
         }
       };
+      viewspanForm.submit(function(evt) {
+        dispatcher.post('hideForm', [viewspanForm]);
+        return false;
+      });
 
       var init = function() {
         dispatcher.post('initForm', [viewspanForm, {
-            width: 760
+            width: 760,
+            no_cancel: true
           }]);
       };
 

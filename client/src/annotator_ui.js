@@ -176,7 +176,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var showAllAttributes = false;
         if (span) {
           var urlHash = URLHash.parse(window.location.hash);
-          urlHash.setArgument('edited', [[span.id]]);
+          urlHash.setArgument('focus', [[span.id]]);
           $('#span_highlight_link').show().attr('href', urlHash.getHash());
           var el = $('#span_' + span.type);
           if (el.length) {
