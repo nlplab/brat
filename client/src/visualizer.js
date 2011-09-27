@@ -387,8 +387,8 @@ var Visualizer = (function($, window, undefined) {
 
         data.editedSent = [];
         editedText = [];
-        if (argsEdited) {
-          $.each(argsEdited, function(editedNo, edited) {
+        var setEdited = function(editedType) {
+          $.each(args[editedType] || [], function(editedNo, edited) {
             if (edited[0] == 'sent') {
               data.editedSent.push(parseInt(edited[1], 10));
             } else if (edited[0] == 'equiv') { // [equiv, Equiv, T1]
@@ -401,7 +401,7 @@ var Visualizer = (function($, window, undefined) {
                       len -= 3;
                       for (var i = 1; i <= len; i++) {
                         var arc = data.eventDescs[equiv[0] + "*" + i].equivArc;
-                        arc.edited = true;
+                        arc.edited = editedType;
                       }
                       return; // next equiv
                     }
@@ -416,11 +416,11 @@ var Visualizer = (function($, window, undefined) {
                 if (edited.length == 3) { // arc
                   $.each(span.outgoing, function(arcNo, arc) {
                     if (arc.target == edited[2] && arc.type == edited[1]) {
-                      arc.edited = true;
+                      arc.edited = editedType;
                     }
                   });
                 } else { // span
-                  span.edited = true;
+                  span.edited = editedType;
                 }
               } else {
                 var eventDesc = data.eventDescs[edited[0]];
@@ -428,14 +428,16 @@ var Visualizer = (function($, window, undefined) {
                   var relArc = eventDesc.roles[0];
                   $.each(data.spans[eventDesc.triggerId].outgoing, function(arcNo, arc) {
                     if (arc.target == relArc.targetId && arc.type == relArc.type) {
-                      arc.edited = true;
+                      arc.edited = editedType;
                     }
                   });
                 }
               }
             }
           });
-        }
+        };
+        setEdited('edited');
+        setEdited('focus');
 
         // sort the spans for linear order
         sortedSpans.sort(function(a, b) {
@@ -1034,6 +1036,7 @@ Util.profileStart('chunks');
                   ry: editedSpanSize,
               });
               svg.other(editedRect, 'animate', {
+                'data-type': span.edited,
                 attributeName: 'fill',
                 values: highlightSpanSequence,
                 dur: highlightDuration,
@@ -1468,6 +1471,7 @@ Util.profileStart('arcs');
                     ry: editedArcSize,
               });
               svg.other(editedRect, 'animate', {
+                'data-type': arc.edited,
                 attributeName: 'fill',
                 values: highlightArcSequence,
                 dur: highlightDuration,
@@ -1523,6 +1527,7 @@ Util.profileStart('arcs');
                   'strokeDashArray': dashArray,
               });
               svg.other(editedRect, 'animate', {
+                'data-type': arc.edited,
                 attributeName: 'fill',
                 values: highlightArcSequence,
                 dur: highlightDuration,
