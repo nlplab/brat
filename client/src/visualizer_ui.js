@@ -186,16 +186,21 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var displayArcComment = function(
-          evt, target, symmetric,
+          evt, target, symmetric, arcId,
           originSpanId, role, targetSpanId, commentText, commentType) {
         var arcRole = target.attr('data-arc-role');
+        var arrowStr = symmetric ? ' &#8212; ' : ' &#8594; '; // &#8212 == mdash, &#8594 == Unicode right arrow
         var comment = ( '<div class="comment_id">' +
-                        Util.escapeHTML('"'+data.spans[originSpanId].text + '" (' + originSpanId + ') ') +
-                        (symmetric ? '' : ' &#8594; ') + // &#8594 == Unicode right arrow
+                        (arcId ? arcId+': ' : '') +
+                        Util.escapeHTML(originSpanId) +
+                        arrowStr + 
                         Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole)) +
-                        (symmetric ? ' ' : ':') +
-                        Util.escapeHTML('"'+data.spans[targetSpanId].text + '" (' + targetSpanId + ') ') +
+                        arrowStr + 
+                        Util.escapeHTML(targetSpanId) +
                         '</div>' );
+        comment += ('<div>' + Util.escapeHTML('"'+data.spans[originSpanId].text+'"') +
+                    arrowStr +
+                    Util.escapeHTML('"'+data.spans[targetSpanId].text + '"') + '</div>');
         displayComment(evt, target, comment, commentText, commentType);
       };
 
@@ -799,7 +804,6 @@ var VisualizerUI = (function($, window, undefined) {
               dispatcher.post('setCollection', ['/']);
           }
         } else {
-          console.log('loaded', response.collection);
           lastGoodCollection = response.collection;
           selectorData = response;
           documentListing = response; // 'backup'

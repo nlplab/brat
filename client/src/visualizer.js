@@ -1887,8 +1887,10 @@ Util.profileStart('before render');
           var arcEventDescId = target.attr('data-arc-ed');
           var commentText = '';
           var commentType = '';
+          var arcId;
           if (arcEventDescId) {
-            var comment = data.eventDescs[arcEventDescId].comment;
+            var eventDesc = data.eventDescs[arcEventDescId];
+            var comment = eventDesc.comment;
             if (comment) {
               commentText = comment.text;
               commentType = comment.type;
@@ -1897,9 +1899,13 @@ Util.profileStart('before render');
                   commentText = commentType;
               }
             }
+            if (eventDesc.relation) {
+              // among arcs, only ones corresponding to relations have "independent" IDs
+              arcId = arcEventDescId;
+            }
           }
           dispatcher.post('displayArcComment', [
-              evt, target, symmetric,
+              evt, target, symmetric, arcId,
               originSpanId, role, targetSpanId,
               commentText, commentType]);
           highlightArcs = $svg.
