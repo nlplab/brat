@@ -21,6 +21,11 @@ var AnnotatorUI = (function($, window, undefined) {
       var attributeTypes = null;
       var showValidAttributes; // callback function
 
+      // amount by which to lighten (adjust "L" in HSL space) span
+      // colors for type selection box BG display. 0=no lightening,
+      // 1=white BG (no color)
+      var spanBoxTextBgColorLighten = 0.4;
+
       that.user = null;
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
@@ -545,7 +550,7 @@ var AnnotatorUI = (function($, window, undefined) {
               attr('value', type.type);
             // use a light version of the span color as BG
             var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
-            spanBgColor = Util.adjustColorLightness(spanBgColor, 0.2);
+            spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
             var $label = $('<label/>').
               attr('for', 'span_' + type.type).
               text(name);
