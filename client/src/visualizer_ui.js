@@ -845,11 +845,14 @@ var VisualizerUI = (function($, window, undefined) {
         }, 'savedSVG']);
       };
 
-      var onDoneRendering = function() {
-        var svgtop = $('svg').offset().top;
-        var $inFocus = $('svg animate:first').parent();
-        if ($inFocus.length) {
-          $('html,body').animate({ scrollTop: $inFocus.offset().top - svgtop }, { duration: 'slow', easing: 'swing'});
+      var onDoneRendering = function(coll, doc, args) {
+        if (!args.edited) {
+          var svgtop = $('svg').offset().top;
+          var $inFocus = $('#svg animate[data-type="focus"]:first').parent();
+          if ($inFocus.length) {
+            $('html,body').
+                animate({ scrollTop: $inFocus.offset().top - svgtop }, { duration: 'slow', easing: 'swing'});
+          }
         }
         saveSVG();
         $('#waiter').dialog('close');
