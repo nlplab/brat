@@ -848,7 +848,7 @@ var VisualizerUI = (function($, window, undefined) {
       var onDoneRendering = function() {
         var svgtop = $('svg').offset().top;
         var $inFocus = $('svg animate:first').parent();
-        if ($inFocus) {
+        if ($inFocus.length) {
           $('html,body').animate({ scrollTop: $inFocus.offset().top - svgtop }, { duration: 'slow', easing: 'swing'});
         }
         saveSVG();
