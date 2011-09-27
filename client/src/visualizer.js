@@ -979,6 +979,7 @@ Util.profileStart('chunks');
         $.each(data.chunks, function(chunkNo, chunk) {
           reservations = new Array();
           chunk.group = svg.group(row.group);
+          chunk.highlightGroup = svg.group(chunk.group);
 
           var y = 0;
           var minArcDist;
@@ -1033,7 +1034,7 @@ Util.profileStart('chunks');
             var shadowRect;
             var editedRect;
             if (span.edited) {
-              editedRect = svg.rect(span.group,
+              editedRect = svg.rect(chunk.highlightGroup,
                   bx - editedSpanSize, by - editedSpanSize,
                   bw + 2 * editedSpanSize, bh + 2 * editedSpanSize, {
  
