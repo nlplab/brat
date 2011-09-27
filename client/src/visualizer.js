@@ -46,6 +46,7 @@ var Visualizer = (function($, window, undefined) {
       var that = this;
 
       // OPTIONS
+      var roundCoordinates = true; // try to have exact pixel offsets
       var margin = { x: 2, y: 1 };
       var boxTextMargin = { x: 0, y: 1.5 }; // effect is inverse of "margin" for some reason
       var highlightRounding = { x: 3, y:3 }; // rx, ry for highlight boxes
@@ -1495,6 +1496,12 @@ Util.profileStart('arcs');
             }
 
             var path;
+
+            if (roundCoordinates) {
+              // don't ask
+              height = (height|0)+0.5;
+            }
+
             path = svg.createPath().move(textStart, -height);
             if (rowIndex == leftRow) {
               var cornerx = from + ufoCatcherMod * arcSlant;
@@ -1634,7 +1641,12 @@ Util.profileStart('rows');
                   '' + row.sentence, { 'data-sent': row.sentence });
             }
           }
-          translate(row, 0, y - rowPadding);
+          
+          var rowY = y - rowPadding;
+          if (roundCoordinates) {
+            rowY = rowY|0;
+          }
+          translate(row, 0, rowY);
           y += margin.y;
         });
         y += margin.y;
