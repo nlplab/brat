@@ -47,7 +47,7 @@ var Visualizer = (function($, window, undefined) {
 
       // OPTIONS
       var margin = { x: 2, y: 1 };
-      var boxTextMargin = { x: 0, y: 1 }; // effect is inverse of "margin" for some reason
+      var boxTextMargin = { x: 0, y: 1.5 }; // effect is inverse of "margin" for some reason
       var highlightRounding = { x: 3, y:3 }; // rx, ry for highlight boxes
       var spaceWidths = {
         ' ': 5,
