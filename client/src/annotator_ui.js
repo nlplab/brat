@@ -576,9 +576,17 @@ var AnnotatorUI = (function($, window, undefined) {
             if (type.hotkey) {
               spanKeymap[type.hotkey] = 'span_' + type.type;
               var name = $label.html();
-              name = name.replace(new RegExp("(&[^;]*?)?" + type.hotkey),
-                function($0, $1) {
-                  return $1 ? $0 : '<span class="accesskey">' + Util.escapeHTML(type.hotkey) + '</span>';
+              var replace = true;
+              name = name.replace(new RegExp("(&[^;]*?)?(" + type.hotkey + ")", 'gi'),
+                function(all, entity, letter) {
+                  if (replace && !entity) {
+                    replace = false;
+                    var hotkey = type.hotkey.toLowerCase() == letter
+                        ? type.hotkey.toLowerCase()
+                        : type.hotkey.toUpperCase();
+                    return '<span class="accesskey">' + Util.escapeHTML(hotkey) + '</span>';
+                  }
+                  return all;
                 });
               $label.html(name);
             }
