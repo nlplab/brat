@@ -1024,6 +1024,13 @@ Util.profileStart('chunks');
             var bw = ww + 2 * margin.x;
             var bh = hh + 2 * margin.y;
 
+            if (roundCoordinates) {
+              x  = (x|0)+0.5;
+              bx = (bx|0)+0.5;              
+            }
+
+            console.log(x, bx);
+
             var shadowRect;
             var editedRect;
             if (span.edited) {
