@@ -652,7 +652,6 @@ var VisualizerUI = (function($, window, undefined) {
       var searchFormSubmit = function(evt) {
         // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
         var activeTab = $('#search_tabs').tabs('option', 'selected');
-        dispatcher.post('hideForm', [searchForm]);
         var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
         var opts = {
           action : action,
@@ -662,6 +661,10 @@ var VisualizerUI = (function($, window, undefined) {
         switch (action) {
           case 'searchText':
             opts.text = $('#search_form_text_text').val();
+            if (!opts.text.length) {
+              dispatcher.post('messages', [[['Text search query cannot be empty', 'error']]]);
+              return false;
+            }
             break;
           case 'searchEntity':
             opts.type = $('#search_form_entity_type').val() || '';
@@ -688,6 +691,7 @@ var VisualizerUI = (function($, window, undefined) {
             opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
             break;
         }
+        dispatcher.post('hideForm', [searchForm]);
         dispatcher.post('ajax', [opts, function(response) {
           if(response && response.items && response.items.length == 0) {
             // TODO: might consider having this message come from the
