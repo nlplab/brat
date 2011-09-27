@@ -486,11 +486,9 @@ var VisualizerUI = (function($, window, undefined) {
 
       var addSpanTypesToSelect = function($select, types, included) {
         if (!included) included = {};
-        var root = false;
         if (!included['']) {
           included[''] = true;
-          root = true;
-          $select.empty();
+          $select.html('<option value="">- Any -</option>');
         }
         $.each(types, function(typeNo, type) {
           if (type !== null) {
@@ -504,9 +502,6 @@ var VisualizerUI = (function($, window, undefined) {
             }
           }
         });
-        if (root) {
-          $select.append('<option value="">- Any -</option>');
-        }
       };
 
       var setupSearchTypes = function(response) {
@@ -520,12 +515,12 @@ var VisualizerUI = (function($, window, undefined) {
       var searchEventRoleChanged = function(evt) {
         var $type = $(this).parent().next().children('select');
         var type = $type.val();
-        $type.empty();
         var role = $(this).val();
         var origin = $('#search_form_event_type').val();
         var eventType = spanTypes[origin];
         var arcTypes = eventType && eventType.arcs || [];
         var arcType = null;
+        $type.html('<option value="">- Any -</option>');
         $.each(arcTypes, function(arcNo, arcDesc) {
           if (arcDesc.type == role) {
             arcType = arcDesc;
@@ -539,11 +534,12 @@ var VisualizerUI = (function($, window, undefined) {
           var option = '<option value="' + Util.escapeQuotes(target) + '">' + Util.escapeHTML(spanName) + '</option>'
           $type.append(option);
         });
-        $type.append('<option value="">- Any -</option>');
         // return the type to the same value, if possible
         if (type) {
           $type.val(type);
-        }
+        } else if ($type.children().length == 2) {
+          $type[0].selectedIndex = 1;
+        };
       };
 
       $('#search_form_event_roles .search_event_role select').live('change', searchEventRoleChanged);
@@ -553,11 +549,14 @@ var VisualizerUI = (function($, window, undefined) {
         var $roles = $('#search_form_event_roles');
         var rowNo = $roles.children().length;
         var $role = $('<select class="fullwidth"/>');
+        $role.append('<option value="">- Any -</option>');
         $.each(searchEventRoles, function(arcTypePairNo, arcTypePair) {
           var option = '<option value="' + Util.escapeQuotes(arcTypePair[0]) + '">' + Util.escapeHTML(arcTypePair[1]) + '</option>'
           $role.append(option);
         });
-        $role.append('<option value="">- Any -</option>');
+        if ($role.children().length == 2) {
+          $role[0].selectedIndex = 1;
+        };
         var $type = $('<select class="fullwidth"/>');
         var $text = $('<input class="fullwidth"/>');
         var button = $('<input type="button"/>');
@@ -604,7 +603,8 @@ var VisualizerUI = (function($, window, undefined) {
       // when relation changes, change choices of arg1 type
       $('#search_form_relation_type').change(function(evt) {
         var relTypeType = $(this).val();
-        var $arg1 = $('#search_form_relation_arg1_type').empty();
+        var $arg1 = $('#search_form_relation_arg1_type').
+            html('<option value="">- Any -</option>');
         var $arg2 = $('#search_form_relation_arg2_type').empty();
         $.each(spanTypes,
           function(spanTypeType, spanType) {
@@ -618,13 +618,16 @@ var VisualizerUI = (function($, window, undefined) {
             });
           }
         });
-        $arg1.append('<option value="">- Any -</option>');
+        if ($arg1.children().length == 2) {
+          $arg1[0].selectedIndex = 1;
+        };
         $('#search_form_relation_arg1_type').change();
       });
 
       // when arg1 type changes, change choices of arg2 type
       $('#search_form_relation_arg1_type').change(function(evt) {
-        var $arg2 = $('#search_form_relation_arg2_type').empty();
+        var $arg2 = $('#search_form_relation_arg2_type').
+            html('<option value="">- Any -</option>');
         var relType = $('#search_form_relation_type').val();
         var arg1Type = spanTypes[$(this).val()];
         var arcTypes = arg1Type && arg1Type.arcs || [];
@@ -642,7 +645,9 @@ var VisualizerUI = (function($, window, undefined) {
             $arg2.append(option);
           });
         }
-        $arg2.append('<option value="">- Any -</option>');
+        if ($arg2.children().length == 2) {
+          $arg2[0].selectedIndex = 1;
+        };
       });
 
       $('#search_tabs').tabs();
