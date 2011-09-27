@@ -432,6 +432,12 @@ var Visualizer = (function($, window, undefined) {
                       arc.edited = editedType;
                     }
                   });
+                } else { // try for trigger
+                  $.each(data.eventDescs, function(eventDescNo, eventDesc) {
+                    if (eventDesc.triggerId == edited[0]) {
+                      data.spans[eventDesc.id].edited = editedType;
+                    }
+                  });
                 }
               }
             }
