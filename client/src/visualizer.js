@@ -51,11 +51,11 @@ var Visualizer = (function($, window, undefined) {
       var boxTextMargin = { x: 0, y: 1.5 }; // effect is inverse of "margin" for some reason
       var highlightRounding = { x: 3, y:3 }; // rx, ry for highlight boxes
       var spaceWidths = {
-        ' ': 5,
-        '\u00a0': 5,
+        ' ': 4,
+        '\u00a0': 4,
         '\u200b': 0,
-        '\u3000': 10,
-        '\n': 5
+        '\u3000': 8,
+        '\n': 4
       };
       var boxSpacing = 1;
       var curlyHeight = 4;
