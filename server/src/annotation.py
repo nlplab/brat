@@ -1037,8 +1037,12 @@ class IdedAnnotation(TypedAnnotation):
         self.id = id
 
     def reference_id(self):
-        # Return list that uniquely identifies this annotation within the document
+        """Returns a list that uniquely identifies this annotation within its document."""
         return [self.id]
+
+    def reference_text(self):
+        """Returns a human-readable string that identifies this annotation within its document."""
+        return str(self.reference_id()[0])
 
     def __str__(self):
         raise NotImplementedError
@@ -1126,6 +1130,9 @@ class EquivAnnotation(TypedAnnotation):
             return ['equiv', self.type, self.entities[0]]
         else:
             return ['equiv', self.type, self.entities]
+
+    def reference_text(self):
+        return '('+','.join([unicode(e) for e in self.entities])+')'
 
 class AttributeAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail, value, source_id=None):

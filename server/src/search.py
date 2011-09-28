@@ -57,9 +57,13 @@ class TextMatch(object):
         self.end = end
         self.text = text
         self.sentence = sentence
-        # TODO: temporary "fake ID" to make other bits of code happy, remove
-        # once no longer necessary
-        self.id = "%s~%s" % (self.start, self.end)
+
+    def reference_id(self):
+        # mimic reference_id for annotations
+        return ["%s~%s" % (self.start, self.end)]
+
+    def reference_text(self):
+        return "%s-%s" % (self.start, self.end)
 
     def get_text(self):
         return self.text
@@ -474,7 +478,8 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_
         # collect per-document (ann_obj) for sorting
         ann_matches = []
         
-        # TODO: Equivs also
+        # binary relations and equivs need to be treated separately due
+        # to different structure (not a great design there)
         for r in ann_obj.get_relations():
             if r.type in ignore_types:
                 continue
@@ -495,6 +500,38 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_
                 if arg2type is not None and arg2type != arg2.type:
                     continue
                 
+            ann_matches.append(r)
+
+        for r in ann_obj.get_equivs():
+            if r.type in ignore_types:
+                continue
+            if restrict_types != [] and r.type not in restrict_types:
+                continue
+
+            # argument constraints. This differs from that for non-equiv
+            # for relations as equivs are symmetric, so the arg1-arg2
+            # distinction can be ignored.
+
+            # TODO: this can match the same thing twice, which most
+            # likely isn't what a user expects: for example, having
+            # 'Protein' for both arg1type and arg2type can still match
+            # an equiv between 'Protein' and 'Gene'.
+            match_found = False
+            for arg, argtype in ((arg1, arg1type), (arg2, arg2type)):
+                match_found = False
+                for aeid in r.entities:
+                    argent = ann_obj.get_ann_by_id(aeid)
+                    if arg is not None and arg not in argent.get_text():
+                        continue
+                    if argtype is not None and argtype != argent.type:
+                        continue
+                    match_found = True
+                    break
+                if not match_found:
+                    break
+            if not match_found:
+                continue
+
             ann_matches.append(r)
 
         # TODO: sort, e.g. by offset of participant occurring first
@@ -720,7 +757,7 @@ def format_results(matches):
         # annotation, not a collection (directory) or document.
         # second entry is non-listed "pointer" to annotation
         fn = basename(ann_obj.get_document())
-        items.append(["a", { 'focus' : [[ann.id]] }, fn, ann.id])
+        items.append(["a", { 'focus' : [ann.reference_id()] }, fn, ann.reference_text()])
         if include_type:
             items[-1].append(ann.type)
         if include_text:
