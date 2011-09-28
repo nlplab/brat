@@ -1704,12 +1704,10 @@ Util.profileStart('chunkFinish');
                   for(var o=0; o<openSpans.length; o++) {
                       if(openSpans[o].to > current.from) {
                           stillOpen.push(openSpans[o]);
+                          openSpans[o].nestingHeightLR++;
                       }
                   }
                   openSpans = stillOpen;
-                  for(var o=0; o<openSpans.length; o++) {
-                      openSpans[o].nestingHeightLR++;
-                  }
                   current.nestingDepthLR=openSpans.length;
                   openSpans.push(current);
               }
@@ -1732,12 +1730,10 @@ Util.profileStart('chunkFinish');
                   for(var o=0; o<openSpans.length; o++) {
                       if(openSpans[o].from < current.to) {
                           stillOpen.push(openSpans[o]);
+                          openSpans[o].nestingHeightRL++;
                       }
                   }
                   openSpans = stillOpen;
-                  for(var o=0; o<openSpans.length; o++) {
-                      openSpans[o].nestingHeightRL++;
-                  }
                   current.nestingDepthRL=openSpans.length;
                   openSpans.push(current);
               }
