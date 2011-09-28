@@ -1666,7 +1666,28 @@ Util.profileStart('rows');
 Util.profileEnd('rows');
 Util.profileStart('chunkFinish');
 
+        // chunk index sort functions for overlapping span drawing
+        // algorithm; first for left-to-right pass, sorting primarily
+        // by start offset, second for right-to-left pass by end
+        // offset. Secondary sort by span length in both cases.
+        var currentChunk;
+        var lrChunkComp = function(a,b) { 
+          var ac = currentChunk.spans[a];
+          var bc = currentChunk.spans[b]
+          var startDiff = Util.cmp(ac.from, bc.from);
+          return startDiff != 0 ? startDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
+        }
+        var rlChunkComp = function(a,b) { 
+          var ac = currentChunk.spans[a];
+          var bc = currentChunk.spans[b]
+          var endDiff = Util.cmp(ac.from, bc.from);
+          return endDiff != 0 ? endDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
+        }
+
         $.each(data.chunks, function(chunkNo, chunk) {
+            // context for sort
+            currentChunk = chunk;
+
             // text rendering
             foo = svg.text(textGroup, chunk.textX, chunk.row.textY, chunk.text,
               {
@@ -1685,14 +1706,6 @@ Util.profileStart('chunkFinish');
               // brackets in a (mostly) reasonable way, determine
               // depth/height separately in a left-to-right traversal
               // and a right-to-left traversal.
-
-              // sort by start position with longer first for matching
-              var lrChunkComp = function(a,b) { 
-                  ac = chunk.spans[a];
-                  bc = chunk.spans[b]
-                  var startDiff = Util.cmp(ac.from, bc.from);
-                  return (startDiff != 0 ? startDiff : Util.cmp(-(ac.to-ac.from), -(bc.to-bc.from)));
-              }
               orderedIdx.sort(lrChunkComp);              
               
               var openSpans = [];
@@ -1713,12 +1726,6 @@ Util.profileStart('chunkFinish');
               }
 
               // re-sort for right-to-left traversal by end position
-              var rlChunkComp = function(a,b) { 
-                  ac = chunk.spans[a];
-                  bc = chunk.spans[b]
-                  var endDiff = Util.cmp(ac.from, bc.from);
-                  return (endDiff != 0 ? endDiff : Util.cmp(-(ac.to-ac.from), -(bc.to-bc.from)));
-              }
               orderedIdx.sort(rlChunkComp);
 
               openSpans = [];
