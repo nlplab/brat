@@ -84,7 +84,7 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
 
             # Note: for client, relations are represented as "arcs"
             # attached to "spans" corresponding to entity annotations.
-            for arc in chain(project_conf.relation_types_from(_type), node.arguments.keys()):
+            for arc in chain(project_conf.relation_types_from(_type), node.arg_list):
                 curr_arc = {}
                 curr_arc['type'] = arc
 
@@ -171,7 +171,7 @@ def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
             # minimal info on argument types to allow differentiation of e.g.
             # "Equiv(Protein, Protein)" and "Equiv(Organism, Organism)"
             args = []
-            for arg in node.arguments.keys():
+            for arg in node.arg_list:
                 curr_arg = {}
                 curr_arg['role'] = arg
                 # TODO: special type (e.g. "<ENTITY>") expansion via projectconf

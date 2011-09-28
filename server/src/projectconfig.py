@@ -791,6 +791,7 @@ class ProjectConfiguration(object):
 
         if to_ann == "<ANY>":
             relations_from = get_relations_by_arg1(self.directory, from_ann, include_special)
+            # TODO: consider using from_node.arg_list instead of .arguments for order
             return unique_preserve_order([role for role in from_node.arguments] + [r.storage_form() for r in relations_from])
 
         # specific hits
