@@ -44,6 +44,9 @@ __annotation_config_filename  = "annotation.conf"
 __visual_config_filename      = 'visual.conf'
 __kb_shortcut_filename        = 'kb_shortcuts.conf'
 
+# special relation type for marking which entities can nest
+ENTITY_NESTING_TYPE = "ENTITY-NESTING"
+
 # visual config default value names
 VISUAL_SPAN_DEFAULT = "SPAN_DEFAULT"
 VISUAL_ARC_DEFAULT  = "ARC_DEFAULT"
@@ -634,7 +637,7 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
     for r in get_relation_type_list(directory):
         # "Special" nesting relation ignored unless specifically
         # requested
-        if r.storage_form() == "ENTITY-NESTING" and not include_special:
+        if r.storage_form() == ENTITY_NESTING_TYPE and not include_special:
             continue
 
         if len(r.arg_list) != 2:

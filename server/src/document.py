@@ -27,7 +27,7 @@ from common import ProtocolError, CollectionNotAccessibleError
 from config import DATA_DIR
 from projectconfig import (ProjectConfiguration, SEPARATOR_STR, 
         SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
-        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT)
+        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, ENTITY_NESTING_TYPE)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -58,7 +58,7 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
             # to block this magic value from getting to the client.
             # TODO: resolve cleanly, preferably by not storing this with
             # other relations at all.
-            if _type == "ENTITY-NESTING":
+            if _type == ENTITY_NESTING_TYPE:
                 continue
 
             item['name'] = project_conf.preferred_display_form(_type)
