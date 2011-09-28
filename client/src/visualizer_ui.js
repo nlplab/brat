@@ -233,18 +233,25 @@ var VisualizerUI = (function($, window, undefined) {
         delete opts.alsoResize;
 
         // Always add OK and Cancel
-        var buttons = (opts.buttons || []).concat([
-            {
+        var buttons = (opts.buttons || []);
+        if (opts.no_ok) {
+          delete opts.no_ok;
+        } else {
+          buttons.push({
               id: formId + "-ok",
               text: "OK",
               click: function() { form.submit(); }
-            },
-            {
+            });
+        }
+        if (opts.no_cancel) {
+          delete opts.no_cancel;
+        } else {
+          buttons.push({
               id: formId + "-cancel",
               text: "Cancel",
               click: function() { form.dialog('close'); }
-            }
-          ]);
+            });
+        }
         delete opts.buttons;
 
         opts = $.extend({
@@ -486,11 +493,9 @@ var VisualizerUI = (function($, window, undefined) {
 
       var addSpanTypesToSelect = function($select, types, included) {
         if (!included) included = {};
-        var root = false;
         if (!included['']) {
           included[''] = true;
-          root = true;
-          $select.empty();
+          $select.html('<option value="">- Any -</option>');
         }
         $.each(types, function(typeNo, type) {
           if (type !== null) {
@@ -504,9 +509,6 @@ var VisualizerUI = (function($, window, undefined) {
             }
           }
         });
-        if (root) {
-          $select.append('<option value="">- Any -</option>');
-        }
       };
 
       var setupSearchTypes = function(response) {
@@ -520,12 +522,12 @@ var VisualizerUI = (function($, window, undefined) {
       var searchEventRoleChanged = function(evt) {
         var $type = $(this).parent().next().children('select');
         var type = $type.val();
-        $type.empty();
         var role = $(this).val();
         var origin = $('#search_form_event_type').val();
         var eventType = spanTypes[origin];
         var arcTypes = eventType && eventType.arcs || [];
         var arcType = null;
+        $type.html('<option value="">- Any -</option>');
         $.each(arcTypes, function(arcNo, arcDesc) {
           if (arcDesc.type == role) {
             arcType = arcDesc;
@@ -539,11 +541,12 @@ var VisualizerUI = (function($, window, undefined) {
           var option = '<option value="' + Util.escapeQuotes(target) + '">' + Util.escapeHTML(spanName) + '</option>'
           $type.append(option);
         });
-        $type.append('<option value="">- Any -</option>');
         // return the type to the same value, if possible
         if (type) {
           $type.val(type);
-        }
+        } else if ($type.children().length == 2) {
+          $type[0].selectedIndex = 1;
+        };
       };
 
       $('#search_form_event_roles .search_event_role select').live('change', searchEventRoleChanged);
@@ -553,11 +556,14 @@ var VisualizerUI = (function($, window, undefined) {
         var $roles = $('#search_form_event_roles');
         var rowNo = $roles.children().length;
         var $role = $('<select class="fullwidth"/>');
+        $role.append('<option value="">- Any -</option>');
         $.each(searchEventRoles, function(arcTypePairNo, arcTypePair) {
           var option = '<option value="' + Util.escapeQuotes(arcTypePair[0]) + '">' + Util.escapeHTML(arcTypePair[1]) + '</option>'
           $role.append(option);
         });
-        $role.append('<option value="">- Any -</option>');
+        if ($role.children().length == 2) {
+          $role[0].selectedIndex = 1;
+        };
         var $type = $('<select class="fullwidth"/>');
         var $text = $('<input class="fullwidth"/>');
         var button = $('<input type="button"/>');
@@ -604,7 +610,8 @@ var VisualizerUI = (function($, window, undefined) {
       // when relation changes, change choices of arg1 type
       $('#search_form_relation_type').change(function(evt) {
         var relTypeType = $(this).val();
-        var $arg1 = $('#search_form_relation_arg1_type').empty();
+        var $arg1 = $('#search_form_relation_arg1_type').
+            html('<option value="">- Any -</option>');
         var $arg2 = $('#search_form_relation_arg2_type').empty();
         $.each(spanTypes,
           function(spanTypeType, spanType) {
@@ -618,13 +625,16 @@ var VisualizerUI = (function($, window, undefined) {
             });
           }
         });
-        $arg1.append('<option value="">- Any -</option>');
+        if ($arg1.children().length == 2) {
+          $arg1[0].selectedIndex = 1;
+        };
         $('#search_form_relation_arg1_type').change();
       });
 
       // when arg1 type changes, change choices of arg2 type
       $('#search_form_relation_arg1_type').change(function(evt) {
-        var $arg2 = $('#search_form_relation_arg2_type').empty();
+        var $arg2 = $('#search_form_relation_arg2_type').
+            html('<option value="">- Any -</option>');
         var relType = $('#search_form_relation_type').val();
         var arg1Type = spanTypes[$(this).val()];
         var arcTypes = arg1Type && arg1Type.arcs || [];
@@ -642,7 +652,9 @@ var VisualizerUI = (function($, window, undefined) {
             $arg2.append(option);
           });
         }
-        $arg2.append('<option value="">- Any -</option>');
+        if ($arg2.children().length == 2) {
+          $arg2[0].selectedIndex = 1;
+        };
       });
 
       $('#search_tabs').tabs();
@@ -652,7 +664,6 @@ var VisualizerUI = (function($, window, undefined) {
       var searchFormSubmit = function(evt) {
         // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
         var activeTab = $('#search_tabs').tabs('option', 'selected');
-        dispatcher.post('hideForm', [searchForm]);
         var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
         var opts = {
           action : action,
@@ -662,6 +673,10 @@ var VisualizerUI = (function($, window, undefined) {
         switch (action) {
           case 'searchText':
             opts.text = $('#search_form_text_text').val();
+            if (!opts.text.length) {
+              dispatcher.post('messages', [[['Text search query cannot be empty', 'error']]]);
+              return false;
+            }
             break;
           case 'searchEntity':
             opts.type = $('#search_form_entity_type').val() || '';
@@ -688,6 +703,7 @@ var VisualizerUI = (function($, window, undefined) {
             opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
             break;
         }
+        dispatcher.post('hideForm', [searchForm]);
         dispatcher.post('ajax', [opts, function(response) {
           if(response && response.items && response.items.length == 0) {
             // TODO: might consider having this message come from the
@@ -999,6 +1015,15 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       // TODO: copy from annotator_ui; DRY it up
+      var adjustFormToCursor = function(evt, element) {
+        var screenHeight = $(window).height() - 8; // TODO HACK - no idea why -8 is needed
+        var screenWidth = $(window).width() - 8;
+        var elementHeight = element.height();
+        var elementWidth = element.width();
+        var y = Math.min(evt.clientY, screenHeight - elementHeight);
+        var x = Math.min(evt.clientX, screenWidth - elementWidth);
+        element.css({ top: y, left: x });
+      };
       var viewspanForm = $('#viewspan_form');
       var onDblClick = function(evt) {
         if (user) return;
@@ -1007,6 +1032,11 @@ var VisualizerUI = (function($, window, undefined) {
         if (id = target.attr('data-span-id')) {
           window.getSelection().removeAllRanges();
           var span = data.spans[id];
+
+          var urlHash = URLHash.parse(window.location.hash);
+          urlHash.setArgument('focus', [[span.id]]);
+          $('#viewspan_highlight_link').show().attr('href', urlHash.getHash());
+
           var spanText = data.text.substring(span.from, span.to);
           $('#viewspan_selected').text(spanText);
           var encodedText = encodeURIComponent(spanText);
@@ -1020,13 +1050,19 @@ var VisualizerUI = (function($, window, undefined) {
           // annotator comments
           $('#viewspan_notes').val(span.annotatorNotes || '');
           dispatcher.post('showForm', [viewspanForm]);
-          adjustToCursor(evt, viewspanForm.parent());
+          $('#viewspan_form-ok').focus();
+          adjustFormToCursor(evt, viewspanForm.parent());
         }
       };
+      viewspanForm.submit(function(evt) {
+        dispatcher.post('hideForm', [viewspanForm]);
+        return false;
+      });
 
       var init = function() {
         dispatcher.post('initForm', [viewspanForm, {
-            width: 760
+            width: 760,
+            no_cancel: true
           }]);
       };
 

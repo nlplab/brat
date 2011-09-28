@@ -176,7 +176,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var showAllAttributes = false;
         if (span) {
           var urlHash = URLHash.parse(window.location.hash);
-          urlHash.setArgument('edited', [[span.id]]);
+          urlHash.setArgument('focus', [[span.id]]);
           $('#span_highlight_link').show().attr('href', urlHash.getHash());
           var el = $('#span_' + span.type);
           if (el.length) {
@@ -290,13 +290,27 @@ var AnnotatorUI = (function($, window, undefined) {
             if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
               var arcTypeName = arcDesc.type;
               var displayName = arcDesc.labels[0] || arcTypeName;
-              if (arcDesc.hotkey) {
-                keymap[arcDesc.hotkey] = '#arc_' + arcTypeName;
-              }
               var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label for="arc_' + arcTypeName + '"/>').text(displayName);
               var $div = $('<div/>').append($checkbox).append($label);
               $scroller.append($div);
+              if (arcDesc.hotkey) {
+                keymap[arcDesc.hotkey] = '#arc_' + arcTypeName;
+                var name = $label.html();
+                var replace = true;
+                name = name.replace(new RegExp("(&[^;]*?)?(" + arcDesc.hotkey + ")", 'gi'),
+                  function(all, entity, letter) {
+                    if (replace && !entity) {
+                      replace = false;
+                      var hotkey = arcDesc.hotkey.toLowerCase() == letter
+                          ? arcDesc.hotkey.toLowerCase()
+                          : arcDesc.hotkey.toUpperCase();
+                      return '<span class="accesskey">' + Util.escapeHTML(hotkey) + '</span>';
+                    }
+                    return all;
+                  });
+                $label.html(name);
+              }
 
               noArcs = false;
             }
@@ -576,9 +590,17 @@ var AnnotatorUI = (function($, window, undefined) {
             if (type.hotkey) {
               spanKeymap[type.hotkey] = 'span_' + type.type;
               var name = $label.html();
-              name = name.replace(new RegExp("(&[^;]*?)?" + type.hotkey),
-                function($0, $1) {
-                  return $1 ? $0 : '<span class="accesskey">' + Util.escapeHTML(type.hotkey) + '</span>';
+              var replace = true;
+              name = name.replace(new RegExp("(&[^;]*?)?(" + type.hotkey + ")", 'gi'),
+                function(all, entity, letter) {
+                  if (replace && !entity) {
+                    replace = false;
+                    var hotkey = type.hotkey.toLowerCase() == letter
+                        ? type.hotkey.toLowerCase()
+                        : type.hotkey.toUpperCase();
+                    return '<span class="accesskey">' + Util.escapeHTML(hotkey) + '</span>';
+                  }
+                  return all;
                 });
               $label.html(name);
             }

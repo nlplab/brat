@@ -402,7 +402,7 @@ fieldset {
   height: 87px;
 }
 
-#span_highlight_link, #arc_highlight_link {
+#span_highlight_link, #arc_highlight_link, #viewspan_highlight_link {
   float: right;
 }
 /*
