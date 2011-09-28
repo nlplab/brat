@@ -1036,8 +1036,6 @@ Util.profileStart('chunks');
               bx = (bx|0)+0.5;              
             }
 
-            console.log(x, bx);
-
             var shadowRect;
             var editedRect;
             if (span.edited) {
@@ -1681,18 +1679,27 @@ Util.profileStart('chunkFinish');
               for (var i=chunk.spans.length-1; i>=0; i--) {
                   orderedIdx.push(i);
               }
-              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[a].from, chunk.spans[b].from) });
 
-              // Detect overlapping pairs and mark entity nesting
-              // height/depth (number of nested/nesting entities).
-              // Note: for identical spans and "crossing" annotations,
-              // the span starting first becomes the outer span.
-              var overlapping = [];
+              // Mark entity nesting height/depth (number of
+              // nested/nesting entities). To account for crossing
+              // brackets in a (mostly) reasonable way, determine
+              // depth/height separately in a left-to-right traversal
+              // and a right-to-left traversal.
+
+              // sort by start position with longer first for matching
+              var lrChunkComp = function(a,b) { 
+                  ac = chunk.spans[a];
+                  bc = chunk.spans[b]
+                  var startDiff = Util.cmp(ac.from, bc.from);
+                  return (startDiff != 0 ? startDiff : Util.cmp(-(ac.to-ac.from), -(bc.to-bc.from)));
+              }
+              orderedIdx.sort(lrChunkComp);              
+              
               var openSpans = [];
               for(var i=0; i<orderedIdx.length; i++) {
                   var current = chunk.spans[orderedIdx[i]];
-                  current.nestingHeight = 0;
-                  current.nestingDepth = 0;
+                  current.nestingHeightLR = 0;
+                  current.nestingDepthLR = 0;
                   var stillOpen = [];
                   for(var o=0; o<openSpans.length; o++) {
                       if(openSpans[o].to > current.from) {
@@ -1701,16 +1708,50 @@ Util.profileStart('chunkFinish');
                   }
                   openSpans = stillOpen;
                   for(var o=0; o<openSpans.length; o++) {
-                      openSpans[o].nestingHeight++;
+                      openSpans[o].nestingHeightLR++;
                   }
-                  current.nestingDepth=openSpans.length;
+                  current.nestingDepthLR=openSpans.length;
                   openSpans.push(current);
               }
 
-              // Re-order by nesting depth
-              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[a].nestingDepth, chunk.spans[b].nestingDepth) });
+              // re-sort for right-to-left traversal by end position
+              var rlChunkComp = function(a,b) { 
+                  ac = chunk.spans[a];
+                  bc = chunk.spans[b]
+                  var endDiff = Util.cmp(ac.from, bc.from);
+                  return (endDiff != 0 ? endDiff : Util.cmp(-(ac.to-ac.from), -(bc.to-bc.from)));
+              }
+              orderedIdx.sort(rlChunkComp);
 
-              // And draw in order
+              openSpans = [];
+              for(var i=0; i<orderedIdx.length; i++) {
+                  var current = chunk.spans[orderedIdx[i]];
+                  current.nestingHeightRL = 0;
+                  current.nestingDepthRL = 0;
+                  var stillOpen = [];
+                  for(var o=0; o<openSpans.length; o++) {
+                      if(openSpans[o].from < current.to) {
+                          stillOpen.push(openSpans[o]);
+                      }
+                  }
+                  openSpans = stillOpen;
+                  for(var o=0; o<openSpans.length; o++) {
+                      openSpans[o].nestingHeightRL++;
+                  }
+                  current.nestingDepthRL=openSpans.length;
+                  openSpans.push(current);
+              }
+
+              // the effective depth and height are the max of those
+              // for the left-to-right and right-to-left traversals.
+              for(var i=0; i<orderedIdx.length; i++) {
+                  var c = chunk.spans[orderedIdx[i]];
+                  c.nestingHeight = c.nestingHeightLR > c.nestingHeightRL ? c.nestingHeightLR : c.nestingHeightRL;
+                  c.nestingDepth = c.nestingDepthLR > c.nestingDepthRL ? c.nestingDepthLR : c.nestingDepthRL;
+              }              
+
+              // Re-order by nesting height and draw in order
+              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[b].nestingHeight, chunk.spans[a].nestingHeight) });
 
               for(var i=0; i<chunk.spans.length; i++) {
                 var span=chunk.spans[orderedIdx[i]];
