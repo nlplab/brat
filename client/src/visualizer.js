@@ -46,15 +46,16 @@ var Visualizer = (function($, window, undefined) {
       var that = this;
 
       // OPTIONS
+      var roundCoordinates = true; // try to have exact pixel offsets
       var margin = { x: 2, y: 1 };
-      var boxTextMargin = { x: 0, y: 1 }; // effect is inverse of "margin" for some reason
+      var boxTextMargin = { x: 0, y: 1.5 }; // effect is inverse of "margin" for some reason
       var highlightRounding = { x: 3, y:3 }; // rx, ry for highlight boxes
       var spaceWidths = {
-        ' ': 5,
-        '\u00a0': 5,
+        ' ': 4,
+        '\u00a0': 4,
         '\u200b': 0,
-        '\u3000': 10,
-        '\n': 5
+        '\u3000': 8,
+        '\n': 4
       };
       var boxSpacing = 1;
       var curlyHeight = 4;
@@ -78,6 +79,7 @@ var Visualizer = (function($, window, undefined) {
 
       var highlightSpanSequence = 'yellow;green;yellow';
       var highlightArcSequence = 'yellow;lime;yellow';
+      var highlightTextSequence = 'yellow;lime;yellow';
       var highlightDuration = '2s';
       
       // END OPTIONS
@@ -379,17 +381,18 @@ var Visualizer = (function($, window, undefined) {
 
         // highlighting
 
-        // Note: making "focus" an alias for "edited" when "edited" is
-        // not defined.  TODO: unify the "focus" and "edited"
-        // mechanisms.
-        var argsEdited = args.edited || args.focus;
+        // merge edited and focus fields in arguments
+        // edited: set by editing process
+        // focus: set by search process
+        var argsEdited = (args.edited || []).concat(args.focus || []);
 
-        if (argsEdited) {
-          $.each(argsEdited, function(editedNo, edited) {
+        data.editedSent = [];
+        editedText = [];
+        var setEdited = function(editedType) {
+          $.each(args[editedType] || [], function(editedNo, edited) {
             if (edited[0] == 'sent') {
-              data.editedSent = edited[1];
+              data.editedSent.push(parseInt(edited[1], 10));
             } else if (edited[0] == 'equiv') { // [equiv, Equiv, T1]
-              data.editedSent = null;
               $.each(data.equivs, function(equivNo, equiv) {
                 if (equiv[1] == edited[1]) {
                   var len = equiv.length;
@@ -399,30 +402,49 @@ var Visualizer = (function($, window, undefined) {
                       len -= 3;
                       for (var i = 1; i <= len; i++) {
                         var arc = data.eventDescs[equiv[0] + "*" + i].equivArc;
-                        arc.edited = true;
+                        arc.edited = editedType;
                       }
                       return; // next equiv
                     }
                   }
                 }
               });
+            } else if (edited.length == 2) {
+              editedText.push([parseInt(edited[0], 10), parseInt(edited[1], 10)]);
             } else {
-              data.editedSent = null;
               var span = data.spans[edited[0]];
               if (span) {
                 if (edited.length == 3) { // arc
                   $.each(span.outgoing, function(arcNo, arc) {
                     if (arc.target == edited[2] && arc.type == edited[1]) {
-                      arc.edited = true;
+                      arc.edited = editedType;
                     }
                   });
                 } else { // span
-                  span.edited = true;
+                  span.edited = editedType;
+                }
+              } else {
+                var eventDesc = data.eventDescs[edited[0]];
+                if (eventDesc) { // relation
+                  var relArc = eventDesc.roles[0];
+                  $.each(data.spans[eventDesc.triggerId].outgoing, function(arcNo, arc) {
+                    if (arc.target == relArc.targetId && arc.type == relArc.type) {
+                      arc.edited = editedType;
+                    }
+                  });
+                } else { // try for trigger
+                  $.each(data.eventDescs, function(eventDescNo, eventDesc) {
+                    if (eventDesc.triggerId == edited[0]) {
+                      data.spans[eventDesc.id].edited = editedType;
+                    }
+                  });
                 }
               }
             }
           });
-        }
+        };
+        setEdited('edited');
+        setEdited('focus');
 
         // sort the spans for linear order
         sortedSpans.sort(function(a, b) {
@@ -512,6 +534,10 @@ var Visualizer = (function($, window, undefined) {
           // now resolve first-order dependencies between sort orders but not
           // second-order or higher.
           chunk.spans.sort(sortComparator); // sort
+
+          chunk.editedTextStart = [];
+          chunk.editedTextEnd = [];
+
           $.each(chunk.spans, function(spanNo, span) {
             span.chunk = chunk;
             // TODO: span.text is useful, but this is a weird place to init it ...
@@ -591,6 +617,43 @@ var Visualizer = (function($, window, undefined) {
             }
           }); // chunk.spans
         }); // chunks
+
+        var numChunks = data.chunks.length;
+        $.each(editedText, function(textNo, textPos) {
+          var from = textPos[0];
+          var to = textPos[1];
+          if (from < 0) from = 0;
+          if (to < 0) to = 0;
+          if (to >= data.text.length) to = data.text.length - 1;
+          if (from > to) from = to;
+          var i = 0;
+          while (i < numChunks) {
+            var chunk = data.chunks[i];
+            if (from <= chunk.to) {
+              chunk.editedTextStart.push([textNo, true, from - chunk.from]);
+              break;
+            }
+            i++;
+          }
+          if (i == numChunks) {
+            dispatcher.post('messages', [[['Wrong text offset', 'error']]]);
+            return;
+          }
+          while (i < numChunks) {
+            var chunk = data.chunks[i];
+            if (to <= chunk.to) {
+              chunk.editedTextEnd.push([textNo, false, to - chunk.from]);
+              break
+            }
+            i++;
+          }
+          if (i == numChunks) {
+            dispatcher.post('messages', [[['Wrong text offset', 'error']]]);
+            var chunk = data.chunks[data.chunks.length - 1];
+            chunk.editedTextEnd.push([textNo, false, chunk.text.length]);
+            return;
+          }
+        });
 
         var realSpanNo = -1;
         var lastSpan;
@@ -731,31 +794,43 @@ var Visualizer = (function($, window, undefined) {
         $.each(data.chunks, function(chunkNo, chunk) {
           chunk.row = undefined; // reset
           if (!(chunk.text in chunkTexts)) chunkTexts[chunk.text] = []
+          var chunkText = chunkTexts[chunk.text];
 
           // here we also need all the spans that are contained in
           // chunks with this text, because we need to know the position
           // of the span text within the respective chunk text
-          chunkTexts[chunk.text] = chunkTexts[chunk.text].concat(chunk.spans);
+          chunkText.push.apply(chunkText, chunk.spans);
+          // and also the editedText boundaries
+          chunkText.push.apply(chunkText, chunk.editedTextStart);
+          chunkText.push.apply(chunkText, chunk.editedTextEnd);
         });
         var textSizes = getTextMeasurements(
           chunkTexts,
           undefined,
           function(span, text) {
-            // measure the span text position in pixels
-            var firstChar = span.from - span.chunk.from;
-            if (firstChar < 0) {
-              firstChar = 0;
-              console.warn("DEBUG: Span", span.text, "in chunk", span.chunk.text, "has strange offsets. FIXME");
+            if (span.text !== undefined) { // it's a span!
+              // measure the span text position in pixels
+              var firstChar = span.from - span.chunk.from;
+              if (firstChar < 0) {
+                firstChar = 0;
+                console.warn("DEBUG: Span", span.text, "in chunk", span.chunk.text, "has strange offsets. FIXME");
+              }
+              var startPos = text.getStartPositionOfChar(firstChar).x;
+              var lastChar = span.to - span.chunk.from - 1;
+              var endPos = (lastChar < 0)
+                ? startPos
+                : text.getEndPositionOfChar(lastChar).x;
+              span.curly = {
+                from: startPos,
+                to: endPos
+              };
+            } else { // it's editedText [id, start?, char#, offset]
+              if (span[1] || span[2] == 0) { // start
+                span[3] = text.getStartPositionOfChar(span[2]).x;
+              } else {
+                span[3] = text.getEndPositionOfChar(span[2] - 1).x;
+              }
             }
-            var startPos = text.getStartPositionOfChar(firstChar).x;
-            var lastChar = span.to - span.chunk.from - 1;
-            var endPos = (lastChar < 0)
-              ? startPos
-              : text.getEndPositionOfChar(lastChar).x;
-            span.curly = {
-              from: startPos,
-              to: endPos
-            };
           });
 
         // get the span annotation text sizes
@@ -802,6 +877,33 @@ var Visualizer = (function($, window, undefined) {
           }); // tower
         }); // data.towers
       };
+
+      var makeArrow = function(defs, spec) {
+        var parsedSpec = spec.split(',');
+        var type = parsedSpec[0];
+        if (type == 'none') return;
+
+        var size = parsedSpec[1];
+        var color = parsedSpec[2];
+        if (!color) {
+          color = size;
+          size = 5;
+        }
+        var arrowId = 'arrow_' + spec.replace(/,/g, '_');
+
+        var arrow;
+        if (type == 'triangle') {
+          arrow = svg.marker(defs, arrowId,
+            size, size / 2, size, size, 'auto',
+            {
+              markerUnits: 'strokeWidth',
+              'fill': color,
+            });
+          svg.polyline(arrow, [[0, 0], [size, size / 2], [0, size], [size / 25, size / 2]]);
+        }
+        return arrowId;
+      }
+
 
       var drawing = false;
       var redraw = false;
@@ -871,10 +973,13 @@ Util.profileStart('chunks');
         var reservations;
         var lastBoxChunkIndex = -1;
         var twoBarWidths; // HACK to avoid measuring space's width
+        var openTextHighlights = {};
+        var textEditedRows = [];
 
         $.each(data.chunks, function(chunkNo, chunk) {
           reservations = new Array();
           chunk.group = svg.group(row.group);
+          chunk.highlightGroup = svg.group(chunk.group);
 
           var y = 0;
           var minArcDist;
@@ -887,13 +992,18 @@ Util.profileStart('chunks');
 
           $.each(chunk.spans, function(spanNo, span) {
             var spanDesc = spanTypes[span.type];
-            var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
-            var fgColor = spanDesc && spanDesc.fgColor || '#000000';
-            var borderColor = spanDesc && spanDesc.borderColor || '#000000';
+            var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.bgColor || '#ffffff';
+            var fgColor = spanDesc && spanDesc.fgColor || spanTypes.SPAN_DEFAULT.fgColor || '#000000';
+            var borderColor = spanDesc && spanDesc.borderColor || spanTypes.SPAN_DEFAULT.borderColor || '#000000';
 
+            // special case: if the border 'color' value is 'darken',
+            // then just darken the BG color a bit for the border.
+            if (borderColor == 'darken') {
+                borderColor = Util.adjustColorLightness(bgColor, -0.6);
+            }
+            
             span.group = svg.group(chunk.group, {
               'class': 'span',
-              id: 'span_' + span.id,
             });
 
             var spanHeight = 0;
@@ -921,10 +1031,15 @@ Util.profileStart('chunks');
             var bw = ww + 2 * margin.x;
             var bh = hh + 2 * margin.y;
 
+            if (roundCoordinates) {
+              x  = (x|0)+0.5;
+              bx = (bx|0)+0.5;              
+            }
+
             var shadowRect;
             var editedRect;
             if (span.edited) {
-              editedRect = svg.rect(span.group,
+              editedRect = svg.rect(chunk.highlightGroup,
                   bx - editedSpanSize, by - editedSpanSize,
                   bw + 2 * editedSpanSize, bh + 2 * editedSpanSize, {
  
@@ -933,14 +1048,14 @@ Util.profileStart('chunks');
                   rx: editedSpanSize,
                   ry: editedSpanSize,
               });
-              var animation = svg.other(editedRect, 'animate', {
+              svg.other(editedRect, 'animate', {
+                'data-type': span.edited,
                 attributeName: 'fill',
                 values: highlightSpanSequence,
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
               });
-              animation.beginElement();
               chunkFrom = Math.min(bx - editedSpanSize, chunkFrom);
               chunkTo = Math.max(bx + bw + editedSpanSize, chunkTo);
               spanHeight = Math.max(bh + 2 * editedSpanSize, spanHeight);
@@ -1069,6 +1184,12 @@ Util.profileStart('chunks');
           }
           var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
+          // open text highlights
+          $.each(chunk.editedTextStart, function(textNo, textDesc) {
+            textDesc[3] += current.x + boxX;
+            openTextHighlights[textDesc[0]] = textDesc;
+          });
+
           if (chunk.sentence) {
             while (sentenceNumber < chunk.sentence) {
               sentenceNumber++;
@@ -1084,11 +1205,23 @@ Util.profileStart('chunks');
 
           if (chunk.sentence ||
               current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
+            // the chunk does not fit
+            var lastX = current.x;
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
-            // new row
-            rows.push(row);
             current.x = margin.x + sentNumMargin + rowPadding +
                 (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
+
+            // break the text highlights
+            $.each(openTextHighlights, function(textId, textDesc) {
+              if (textDesc[3] != lastX) {
+                textEditedRows.push([row, textDesc[3], lastX + boxX]);
+              }
+              textDesc[3] = current.x;
+            });
+
+            // new row
+            rows.push(row);
+
             svg.remove(chunk.group);
             row = new Row(svg);
             row.backgroundIndex = sentenceToggle;
@@ -1104,7 +1237,17 @@ Util.profileStart('chunks');
               each(function(index, element) {
                   chunk.spans[index].rect = element;
               });
+
           }
+
+          // close text highlights
+          $.each(chunk.editedTextEnd, function(textNo, textDesc) {
+            textDesc[3] += current.x + boxX;
+            var startDesc = openTextHighlights[textDesc[0]];
+            delete openTextHighlights[textDesc[0]];
+            textEditedRows.push([row, startDesc[3], textDesc[3]]);
+          });
+
           if (hasAnnotations) row.hasAnnotations = true;
 
           if (chunk.sentence) {
@@ -1228,25 +1371,24 @@ Util.profileStart('arcs');
                       }
                   });            
           }
-          var color = arcDesc && arcDesc.color || '#000000';
+          var color = arcDesc && arcDesc.color || spanTypes.ARC_DEFAULT.color || '#000000';
+          var hashlessColor = color.replace('#', '');
           var dashArray = arcDesc && arcDesc.dashArray;
+          var arrowHead = (arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5') + ',' + hashlessColor;
+          var arrowTail = (arcDesc && arcDesc.arrowTail || spanTypes.ARC_DEFAULT.arrowTail || 'triangle,5') + ',' + hashlessColor;
 
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
           var leftRow = left.chunk.row.index;
           var rightRow = right.chunk.row.index;
 
-          if (!arrows[arc.type]) {
-            var arrowId = 'arrow_' + arc.type;
-            var arrowhead = svg.marker(defs, arrowId,
-              5, 2.5, 5, 5, 'auto',
-              {
-                markerUnits: 'strokeWidth',
-                'fill': color,
-              });
-            svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
-
-            arrows[arc.type] = arrowId;
+          if (!arrows[arrowHead]) {
+            var arrow = makeArrow(defs, arrowHead);
+            if (arrow) arrows[arrowHead] = arrow;
+          }
+          if (!arrows[arrowTail]) {
+            var arrow = makeArrow(defs, arrowTail);
+            if (arrow) arrows[arrowTail] = arrow;
           }
 
           // find the next height
@@ -1341,14 +1483,14 @@ Util.profileStart('arcs');
                     rx: editedArcSize,
                     ry: editedArcSize,
               });
-              var animation = svg.other(editedRect, 'animate', {
+              svg.other(editedRect, 'animate', {
+                'data-type': arc.edited,
                 attributeName: 'fill',
                 values: highlightArcSequence,
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
               });
-              animation.beginElement();
             }
             if (arc.shadowClass) {
               svg.rect(shadowGroup,
@@ -1366,6 +1508,12 @@ Util.profileStart('arcs');
             }
 
             var path;
+
+            if (roundCoordinates) {
+              // don't ask
+              height = (height|0)+0.5;
+            }
+
             path = svg.createPath().move(textStart, -height);
             if (rowIndex == leftRow) {
               var cornerx = from + ufoCatcherMod * arcSlant;
@@ -1382,29 +1530,35 @@ Util.profileStart('arcs');
             } else {
               path.line(from, -height);
             }
+            var hashlessColor = color.replace('#', '');
+            var arrowType = arrows[(leftToRight ?
+                arcDesc && arcDesc.arrowTail || spanTypes.ARC_DEFAULT.arrowTail || 'none' :
+                arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
-              markerEnd: leftToRight || arc.equiv ? undefined : ('url(#' + arrows[arc.type] + ')'),
-              'stroke': color,
+              markerEnd: arrowType && ('url(#' + arrowType + ')'),
+              style: 'stroke: ' + color,
               'strokeDashArray': dashArray,
             });
             if (arc.edited) {
               svg.path(shadowGroup, path, {
                   'class': 'shadow_EditHighlight_arc',
                   strokeWidth: editedStroke,
+                  'strokeDashArray': dashArray,
               });
-              var animation = svg.other(editedRect, 'animate', {
+              svg.other(editedRect, 'animate', {
+                'data-type': arc.edited,
                 attributeName: 'fill',
                 values: highlightArcSequence,
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
               });
-              animation.beginElement();
             }
             if (arc.shadowClass) {
               svg.path(shadowGroup, path, {
                   'class': 'shadow_' + arc.shadowClass,
                   strokeWidth: shadowStroke,
+                  'strokeDashArray': dashArray,
               });
             }
             path = svg.createPath().move(textEnd, -height);
@@ -1424,21 +1578,26 @@ Util.profileStart('arcs');
             } else {
               path.line(to, -height);
             }
+            var arrowType = arrows[(leftToRight ?
+                arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5' :
+                arcDesc && arcDesc.arrowTail || spanTypes.ARC_DEFAULT.arrowTail || 'none') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
-                markerEnd: leftToRight && !arc.equiv ? 'url(#' + arrows[arc.type] + ')' : undefined,
-                'stroke': color,
+                markerEnd: arrowType && ('url(#' + arrowType + ')'),
+                style: 'stroke: ' + color,
                 'strokeDashArray': dashArray,
             });
             if (arc.edited) {
               svg.path(shadowGroup, path, {
                   'class': 'shadow_EditHighlight_arc',
                   strokeWidth: editedStroke,
+                  'strokeDashArray': dashArray,
               });
             }
             if (shadowGroup) {
               svg.path(shadowGroup, path, {
                   'class': 'shadow_' + arc.shadowClass,
                   strokeWidth: shadowStroke,
+                  'strokeDashArray': dashArray,
               });
             }
           } // arc rows
@@ -1468,7 +1627,7 @@ Util.profileStart('rows');
             0, y + sizes.texts.y + sizes.texts.height,
             canvasWidth, rowBox.height + sizes.texts.height + 1, {
             'class': 'background' +
-                (data.editedSent && data.editedSent == currentSent ?
+                ($.inArray(currentSent, data.editedSent) != -1 ?
                  'Highlight' : row.backgroundIndex),
           });
           y += rowBox.height;
@@ -1494,7 +1653,12 @@ Util.profileStart('rows');
                   '' + row.sentence, { 'data-sent': row.sentence });
             }
           }
-          translate(row, 0, y - rowPadding);
+          
+          var rowY = y - rowPadding;
+          if (roundCoordinates) {
+            rowY = rowY|0;
+          }
+          translate(row, 0, rowY);
           y += margin.y;
         });
         y += margin.y;
@@ -1502,7 +1666,28 @@ Util.profileStart('rows');
 Util.profileEnd('rows');
 Util.profileStart('chunkFinish');
 
+        // chunk index sort functions for overlapping span drawing
+        // algorithm; first for left-to-right pass, sorting primarily
+        // by start offset, second for right-to-left pass by end
+        // offset. Secondary sort by span length in both cases.
+        var currentChunk;
+        var lrChunkComp = function(a,b) { 
+          var ac = currentChunk.spans[a];
+          var bc = currentChunk.spans[b]
+          var startDiff = Util.cmp(ac.from, bc.from);
+          return startDiff != 0 ? startDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
+        }
+        var rlChunkComp = function(a,b) { 
+          var ac = currentChunk.spans[a];
+          var bc = currentChunk.spans[b]
+          var endDiff = Util.cmp(ac.from, bc.from);
+          return endDiff != 0 ? endDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
+        }
+
         $.each(data.chunks, function(chunkNo, chunk) {
+            // context for sort
+            currentChunk = chunk;
+
             // text rendering
             foo = svg.text(textGroup, chunk.textX, chunk.row.textY, chunk.text,
               {
@@ -1515,41 +1700,66 @@ Util.profileStart('chunkFinish');
               for (var i=chunk.spans.length-1; i>=0; i--) {
                   orderedIdx.push(i);
               }
-              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[a].from, chunk.spans[b].from) });
 
-              // Detect overlapping pairs and mark entity nesting
-              // height/depth (number of nested/nesting entities).
-              // Note: for identical spans and "crossing" annotations,
-              // the span starting first becomes the outer span.
-              var overlapping = [];
+              // Mark entity nesting height/depth (number of
+              // nested/nesting entities). To account for crossing
+              // brackets in a (mostly) reasonable way, determine
+              // depth/height separately in a left-to-right traversal
+              // and a right-to-left traversal.
+              orderedIdx.sort(lrChunkComp);              
+              
               var openSpans = [];
               for(var i=0; i<orderedIdx.length; i++) {
                   var current = chunk.spans[orderedIdx[i]];
-                  current.nestingHeight = 0;
-                  current.nestingDepth = 0;
+                  current.nestingHeightLR = 0;
+                  current.nestingDepthLR = 0;
                   var stillOpen = [];
                   for(var o=0; o<openSpans.length; o++) {
                       if(openSpans[o].to > current.from) {
                           stillOpen.push(openSpans[o]);
+                          openSpans[o].nestingHeightLR++;
                       }
                   }
                   openSpans = stillOpen;
-                  for(var o=0; o<openSpans.length; o++) {
-                      openSpans[o].nestingHeight++;
-                  }
-                  current.nestingDepth=openSpans.length;
+                  current.nestingDepthLR=openSpans.length;
                   openSpans.push(current);
               }
 
-              // Re-order by nesting depth
-              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[a].nestingDepth, chunk.spans[b].nestingDepth) });
+              // re-sort for right-to-left traversal by end position
+              orderedIdx.sort(rlChunkComp);
 
-              // And draw in order
+              openSpans = [];
+              for(var i=0; i<orderedIdx.length; i++) {
+                  var current = chunk.spans[orderedIdx[i]];
+                  current.nestingHeightRL = 0;
+                  current.nestingDepthRL = 0;
+                  var stillOpen = [];
+                  for(var o=0; o<openSpans.length; o++) {
+                      if(openSpans[o].from < current.to) {
+                          stillOpen.push(openSpans[o]);
+                          openSpans[o].nestingHeightRL++;
+                      }
+                  }
+                  openSpans = stillOpen;
+                  current.nestingDepthRL=openSpans.length;
+                  openSpans.push(current);
+              }
+
+              // the effective depth and height are the max of those
+              // for the left-to-right and right-to-left traversals.
+              for(var i=0; i<orderedIdx.length; i++) {
+                  var c = chunk.spans[orderedIdx[i]];
+                  c.nestingHeight = c.nestingHeightLR > c.nestingHeightRL ? c.nestingHeightLR : c.nestingHeightRL;
+                  c.nestingDepth = c.nestingDepthLR > c.nestingDepthRL ? c.nestingDepthLR : c.nestingDepthRL;
+              }              
+
+              // Re-order by nesting height and draw in order
+              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[b].nestingHeight, chunk.spans[a].nestingHeight) });
 
               for(var i=0; i<chunk.spans.length; i++) {
                 var span=chunk.spans[orderedIdx[i]];
                 var spanDesc = spanTypes[span.type];
-                var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
+                var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.bgColor || '#ffffff';
 
                 // Tweak for nesting depth/height. Recognize just three
                 // levels for now: normal, nested, and nesting, where
@@ -1565,7 +1775,7 @@ Util.profileStart('chunkFinish');
                 var yShrink = shrink * nestingAdjustYStepSize;
                 var xShrink = shrink * nestingAdjustXStepSize;
                 // bit lighter
-                var lightBgColor = Util.lightenColor(bgColor, 0.8);
+                var lightBgColor = Util.adjustColorLightness(bgColor, 0.8);
                 // store to have same mouseover highlight without recalc
                 span.highlightPos = { x:chunk.textX + span.curly.from - 1 + xShrink, 
                                       y:chunk.row.textY + sizes.texts.y + 1 + yShrink, // XXX TODO: why +1??
@@ -1582,6 +1792,23 @@ Util.profileStart('chunkFinish');
               }
             }
         });
+
+        // draw the editedText
+        $.each(textEditedRows, function(textRowNo, textRowDesc) { // row, from, to
+          var textHighlight = svg.rect(highlightGroup,
+              textRowDesc[1] - 2, textRowDesc[0].textY - sizes.spans.height,
+              textRowDesc[2] - textRowDesc[1] + 4, sizes.spans.height + 4,
+              { fill: 'yellow' } // TODO: put into css file, as default - turn into class
+          );
+          svg.other(textHighlight, 'animate', {
+            attributeName: 'fill',
+            values: highlightTextSequence,
+            dur: highlightDuration,
+            repeatCount: 'indefinite',
+            begin: 'indefinite'
+          });
+        });
+
 
 Util.profileEnd('chunkFinish');
 Util.profileStart('finish');
@@ -1603,6 +1830,9 @@ Util.profileReport();
           redraw = false;
           renderDataReal();
         }
+        $svg.find('animate').each(function() {
+          this.beginElement();
+        });
         dispatcher.post('doneRendering', [coll, doc, args]);
       };
 
@@ -1615,7 +1845,7 @@ Util.profileReport();
         Util.profileEnd('invoke getDocument');
         if (_data && _data.exception) {
           if (renderErrors[_data.exception]) {
-            dispatcher.post('renderError:' + _data.exception);
+            dispatcher.post('renderError:' + _data.exception, [_data]);
           } else {
             dispatcher.post('unknownError', [_data.exception]);
           }
@@ -1688,7 +1918,7 @@ Util.profileStart('before render');
               span.comment && span.comment.type]);
 
           var spanDesc = spanTypes[span.type];
-          var bgColor = spanDesc && spanDesc.bgColor || '#ffffff';
+          var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.bgColor || '#ffffff';
           highlight = svg.rect(highlightGroup,
                                span.highlightPos.x, span.highlightPos.y,
                                span.highlightPos.w, span.highlightPos.h,
@@ -1732,8 +1962,10 @@ Util.profileStart('before render');
           var arcEventDescId = target.attr('data-arc-ed');
           var commentText = '';
           var commentType = '';
+          var arcId;
           if (arcEventDescId) {
-            var comment = data.eventDescs[arcEventDescId].comment;
+            var eventDesc = data.eventDescs[arcEventDescId];
+            var comment = eventDesc.comment;
             if (comment) {
               commentText = comment.text;
               commentType = comment.type;
@@ -1742,9 +1974,13 @@ Util.profileStart('before render');
                   commentText = commentType;
               }
             }
+            if (eventDesc.relation) {
+              // among arcs, only ones corresponding to relations have "independent" IDs
+              arcId = arcEventDescId;
+            }
           }
           dispatcher.post('displayArcComment', [
-              evt, target, symmetric,
+              evt, target, symmetric, arcId,
               originSpanId, role, targetSpanId,
               commentText, commentType]);
           highlightArcs = $svg.
@@ -1788,7 +2024,7 @@ Util.profileStart('before render');
         $.each(events, function(eventNo, eventName) {
             element.bind(eventName,
               function(evt) {
-                dispatcher.post(eventName, [evt]);
+                dispatcher.post(eventName, [evt], 'all');
               }
             );
         });
@@ -1843,8 +2079,9 @@ Util.profileStart('before render');
         $.each(types, function(typeNo, type) {
           if (type) {
             spanTypes[type.type] = type;
-            if (type.children.length) {
-              loadSpanTypes(type.children);
+            var children = type.children;
+            if (children && children.length) {
+              loadSpanTypes(children);
             }
           }
         });
@@ -1870,11 +2107,15 @@ Util.profileStart('before render');
           spanTypes = {};
           loadSpanTypes(response.entity_types);
           loadSpanTypes(response.event_types);
+          loadSpanTypes(response.unconfigured_types);
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
 
           isCollectionLoaded = true;
           triggerRender();
+        } else {
+          // exception on collection load; allow visualizer_ui
+          // collectionLoaded to handle this
         }
       };
 

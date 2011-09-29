@@ -21,14 +21,16 @@ from re import match,sub
 
 from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         AnnotationFileNotFoundError, 
-        AnnotationCollectionNotFoundError, 
+        AnnotationCollectionNotFoundError,
         open_textfile)
-from common import ProtocolError
+from common import ProtocolError, CollectionNotAccessibleError
 from config import DATA_DIR
-from projectconfig import ProjectConfiguration, SEPARATOR_STR, SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES
+from projectconfig import (ProjectConfiguration, SEPARATOR_STR, 
+        SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
+        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, ENTITY_NESTING_TYPE)
 from stats import get_statistics
 from message import Messager
-from auth import can_read, AccessDeniedError
+from auth import allowed_to_read, AccessDeniedError
 
 try:
     from config import PERFORM_VERIFICATION
@@ -40,7 +42,6 @@ try:
 except ImportError:
     JAPANESE = False
 
-# TODO: this is not a good spot for this
 from itertools import chain
 
 def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
@@ -51,17 +52,23 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
         else:
             item = {}
             _type = node.storage_form() 
+
+            # This isn't really a great place to put this, but we need
+            # to block this magic value from getting to the client.
+            # TODO: resolve cleanly, preferably by not storing this with
+            # other relations at all.
+            if _type == ENTITY_NESTING_TYPE:
+                continue
+
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
-            # TODO: use project_conf
             item['labels'] = project_conf.get_labels_by_type(_type)
             item['attributes'] = project_conf.attributes_for(_type)
 
-            # TODO: avoid magic values
             span_drawing_conf = project_conf.get_drawing_config_by_type(_type) 
             if span_drawing_conf is None:
-                span_drawing_conf = project_conf.get_drawing_config_by_type("SPAN_DEFAULT")
+                span_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_SPAN_DEFAULT)
             if span_drawing_conf is None:
                 span_drawing_conf = {}
             for k in SPAN_DRAWING_ATTRIBUTES:
@@ -74,13 +81,10 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                 pass
 
             arcs = []
-            # TODO: this whole bit makes very little sense for relations,
-            # which are already "arcs" in the UI sense. This bit of the
-            # protocol should be cleaned up. See issue #237.
 
             # Note: for client, relations are represented as "arcs"
             # attached to "spans" corresponding to entity annotations.
-            for arc in chain(project_conf.relation_types_from(_type), node.arguments.keys()):
+            for arc in chain(project_conf.relation_types_from(_type), node.arg_list):
                 curr_arc = {}
                 curr_arc['type'] = arc
 
@@ -92,10 +96,9 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                 except KeyError:
                     pass
                 
-                # TODO: avoid magic values
                 arc_drawing_conf = project_conf.get_drawing_config_by_type(arc)
                 if arc_drawing_conf is None:
-                    arc_drawing_conf = project_conf.get_drawing_config_by_type("ARC_DEFAULT")
+                    arc_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ARC_DEFAULT)
                 if arc_drawing_conf is None:
                     arc_drawing_conf = {}
                 for k in ARC_DRAWING_ATTRIBUTES:
@@ -107,7 +110,10 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                 # the arc can connect to
 
                 # This bit doesn't make sense for relations, which are
-                # already "arcs" (see comment above). TODO cleanup.
+                # already "arcs" (see comment above).
+                # TODO: determine if this should be an error: relation
+                # config should now go through _fill_relation_configuration
+                # instead.
                 if project_conf.is_relation_type(_type):
                     targets = []
                 else:
@@ -128,6 +134,58 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                     project_conf, hotkey_by_type)
             items.append(item)
     return items
+
+# TODO: duplicates part of _fill_type_configuration
+def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
+    items = []
+    for node in nodes:
+        if node == SEPARATOR_STR:
+            items.append(None)
+        else:
+            item = {}
+            _type = node.storage_form() 
+
+            if _type == ENTITY_NESTING_TYPE:
+                continue
+
+            item['name'] = project_conf.preferred_display_form(_type)
+            item['type'] = _type
+            item['unused'] = node.unused
+            item['labels'] = project_conf.get_labels_by_type(_type)
+            item['attributes'] = project_conf.attributes_for(_type)
+
+            arc_drawing_conf = project_conf.get_drawing_config_by_type(_type)
+            if arc_drawing_conf is None:
+                arc_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ARC_DEFAULT)
+            if arc_drawing_conf is None:
+                arc_drawing_conf = {}
+            for k in ARC_DRAWING_ATTRIBUTES:
+                if k in arc_drawing_conf:
+                    item[k] = arc_drawing_conf[k]                    
+            
+            try:
+                item['hotkey'] = hotkey_by_type[_type]
+            except KeyError:
+                pass
+
+            # minimal info on argument types to allow differentiation of e.g.
+            # "Equiv(Protein, Protein)" and "Equiv(Organism, Organism)"
+            args = []
+            for arg in node.arg_list:
+                curr_arg = {}
+                curr_arg['role'] = arg
+                # TODO: special type (e.g. "<ENTITY>") expansion via projectconf
+                curr_arg['targets'] = node.arguments[arg]
+
+                args.append(curr_arg)
+
+            item['args'] = args
+
+            item['children'] = _fill_relation_configuration(node.children,
+                    project_conf, hotkey_by_type)
+            items.append(item)
+    return items
+
 
 # TODO: this may not be a good spot for this
 def _fill_attribute_configuration(nodes, project_conf):
@@ -178,12 +236,45 @@ def _fill_attribute_configuration(nodes, project_conf):
             items.append(item)
     return items
 
+def _fill_visual_configuration(types, project_conf):
+    # similar to _fill_type_configuration, but for types for which
+    # full annotation configuration was not found but some visual
+    # configuration can be filled.
+
+    # TODO: duplicates parts of _fill_type_configuration; combine?
+    items = []
+    for _type in types:
+        item = {}
+        item['name'] = project_conf.preferred_display_form(_type)
+        item['type'] = _type
+        item['unused'] = True
+        item['labels'] = project_conf.get_labels_by_type(_type)
+
+        drawing_conf = project_conf.get_drawing_config_by_type(_type) 
+        # not sure if this is a good default, but let's try
+        if drawing_conf is None:
+            drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_SPAN_DEFAULT)
+        if drawing_conf is None:
+            drawing_conf = {}
+        # just plug in everything found, whether for a span or arc
+        for k in chain(SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES):
+            if k in drawing_conf:
+                item[k] = drawing_conf[k]
+
+        # TODO: anything else?
+
+        items.append(item)
+
+    return items
+
 # TODO: this is not a good spot for this
 def get_span_types(directory):
     project_conf = ProjectConfiguration(directory)
 
     keymap = project_conf.get_kb_shortcuts()
     hotkey_by_type = dict((v, k) for k, v in keymap.iteritems())
+
+    # fill config for nodes for which annotation is configured
 
     event_hierarchy = project_conf.get_event_type_hierarchy()
     event_types = _fill_type_configuration(event_hierarchy,
@@ -197,13 +288,21 @@ def get_span_types(directory):
     attribute_types = _fill_attribute_configuration(attribute_hierarchy, project_conf)
 
     relation_hierarchy = project_conf.get_relation_type_hierarchy()
-    relation_types = _fill_type_configuration(relation_hierarchy,
+    relation_types = _fill_relation_configuration(relation_hierarchy,
             project_conf, hotkey_by_type)
 
-    return event_types, entity_types, attribute_types, relation_types
+    # make visual config available also for nodes for which there is
+    # no annotation config ...
+    unconfigured = [l for l in project_conf.get_labels() if 
+                    not project_conf.is_configured_type(l)]
+    # ... and include the defaults.
+    unconfigured += [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
+    unconf_types = _fill_visual_configuration(unconfigured, project_conf)
 
-def assert_can_read(doc_path):
-    if not can_read(doc_path):
+    return event_types, entity_types, attribute_types, relation_types, unconf_types
+
+def assert_allowed_to_read(doc_path):
+    if not allowed_to_read(doc_path):
         raise AccessDeniedError # Permission denied by access control
 
 def real_directory(directory):
@@ -222,9 +321,9 @@ def _is_hidden(file_name):
 def _listdir(directory):
     #return listdir(directory)
     try:
-        assert_can_read(directory)
+        assert_allowed_to_read(directory)
         return [f for f in listdir(directory) if not _is_hidden(f)
-                and can_read(path_join(directory, f))]
+                and allowed_to_read(path_join(directory, f))]
     except OSError, e:
         Messager.error("Error listing %s: %s" % (directory, e))
         raise AnnotationCollectionNotFoundError(directory)
@@ -235,7 +334,7 @@ def get_directory_information(collection):
 
     real_dir = real_directory(directory)
     
-    assert_can_read(real_dir)
+    assert_allowed_to_read(real_dir)
     
     # Get the document names
     base_names = [fn[0:-4] for fn in _listdir(real_dir)
@@ -259,7 +358,11 @@ def get_directory_information(collection):
     doclist = doclist_with_time
     doclist_header.append(("Modified", "time"))
 
-    stats_types, doc_stats = get_statistics(real_dir, base_names)
+    try:
+        stats_types, doc_stats = get_statistics(real_dir, base_names)
+    except OSError:
+        # something like missing access permissions?
+        raise CollectionNotAccessibleError
                 
     doclist = [doclist[i] + doc_stats[i] for i in range(len(doclist))]
     doclist_header += stats_types
@@ -287,7 +390,15 @@ def get_directory_information(collection):
     for i in doclist:
         combolist.append(["d", None]+i)
 
-    event_types, entity_types, attribute_types, relation_types = get_span_types(real_dir)
+    event_types, entity_types, attribute_types, relation_types, unconf_types = get_span_types(real_dir)
+
+    # read in README (if any) to send as a description of the
+    # collection
+    try:
+        with open_textfile(path_join(real_dir, "README")) as txt_file:
+            readme_text = txt_file.read()
+    except IOError:
+        readme_text = None
 
     json_dic = {
             'items': combolist,
@@ -298,6 +409,8 @@ def get_directory_information(collection):
             'entity_types': entity_types,
             'attribute_types': attribute_types,
             'relation_types': relation_types,
+            'unconfigured_types': unconf_types,
+            'description': readme_text,
             }
     return json_dic
 
@@ -317,22 +430,27 @@ class IsDirectoryError(ProtocolError):
         self.path = path
 
     def __str__(self):
-        return 'Requested "document" is directory (append "/"): %s' % self.path
+        return ''
 
     def json(self, json_dic):
         json_dic['exception'] = 'isDirectoryError'
         return json_dic
 
 #TODO: All this enrichment isn't a good idea, at some point we need an object
-def _enrich_json_with_text(j_dic, txt_file_path):
-    try:
-        with open_textfile(txt_file_path) as txt_file:
-            text = txt_file.read()
-    except IOError:
-        raise UnableToReadTextFile(txt_file_path)
-    except UnicodeDecodeError:
-        Messager.error('Error reading text file: nonstandard encoding or binary?', -1)
-        raise UnableToReadTextFile(txt_file_path)
+def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
+    if raw_text is not None:
+        # looks like somebody read this already; nice
+        text = raw_text
+    else:
+        # need to read raw text
+        try:
+            with open_textfile(txt_file_path) as txt_file:
+                text = txt_file.read()
+        except IOError:
+            raise UnableToReadTextFile(txt_file_path)
+        except UnicodeDecodeError:
+            Messager.error('Error reading text file: nonstandard encoding or binary?', -1)
+            raise UnableToReadTextFile(txt_file_path)
 
     # TODO XXX huge hack, sorry, the client currently crashing on
     # chrome for two or more consecutive space, so replace every

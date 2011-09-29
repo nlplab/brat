@@ -168,7 +168,9 @@ def main(args):
             json_dic = {}
             e.json(json_dic)
             # Add human-readable version of the error
-            Messager.error(str(e))
+            errstr = str(e)
+            if errstr != '':
+                Messager.error(str(e))
             server_response = ('Content-Type: application/json\n\n' +
                     dumps(Messager.output_json(json_dic)))
             log_info('Server Response:\n' + server_response)

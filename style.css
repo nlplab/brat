@@ -21,8 +21,18 @@ svg.reselect {
   border: 1px solid #ff3333;
 }
 
+/* alternative font test */
+/*
 text {
-  font-family: serif;
+  font-size: 13px;
+  font-family: helvetica,arial,freesans,clean,sans-serif;
+}
+*/
+
+text {
+  /* font-family: serif; */
+  font-size: 13px;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 
 #header {
@@ -57,11 +67,19 @@ path {
   pointer-events: none;
 }
 
+/* alternative font test */
+/*
+.span text {
+  font-size: 10.5px;
+  font-family: helvetica,arial,freesans,clean,sans-serif;
+}
+*/
+
 .span text {
   font-size: 10px;
   /* font-size: 9px; */
   text-anchor: middle;
-  font-family: 'PT Sans Caption', serif;
+  font-family: 'PT Sans Caption', sans-serif;
   /* font-family: 'Anonymous Pro', monospace; */
   pointer-events: none;
 }
@@ -209,7 +227,7 @@ rect.shadow_EditHighlight {
 .arcs text {
   font-size: 9px;
   text-anchor: middle;
-  font-family: 'PT Sans Caption', serif;
+  font-family: 'PT Sans Caption', sans-serif;
   /* font-family: 'Anonymous Pro', monospace; */
   dominant-baseline: central;
   cursor: default;
@@ -402,7 +420,7 @@ fieldset {
   height: 87px;
 }
 
-#span_highlight_link, #arc_highlight_link {
+#span_highlight_link, #arc_highlight_link, #viewspan_highlight_link {
   float: right;
 }
 /*

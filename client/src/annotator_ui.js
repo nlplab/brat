@@ -19,6 +19,12 @@ var AnnotatorUI = (function($, window, undefined) {
       var repeatingArcTypes = [];
       var spanTypes = null;
       var attributeTypes = null;
+      var showValidAttributes; // callback function
+
+      // amount by which to lighten (adjust "L" in HSL space) span
+      // colors for type selection box BG display. 0=no lightening,
+      // 1=white BG (no color)
+      var spanBoxTextBgColorLighten = 0.4;
 
       that.user = null;
       var svgElement = $(svg._svg);
@@ -167,9 +173,10 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#span_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
         $('#span_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
         $('#span_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
+        var showAllAttributes = false;
         if (span) {
           var urlHash = URLHash.parse(window.location.hash);
-          urlHash.setArgument('edited', [[span.id]]);
+          urlHash.setArgument('focus', [[span.id]]);
           $('#span_highlight_link').show().attr('href', urlHash.getHash());
           var el = $('#span_' + span.type);
           if (el.length) {
@@ -180,11 +187,7 @@ var AnnotatorUI = (function($, window, undefined) {
             });
           }
           // annotator comments
-          if (span.annotatorNotes) {
-            $('#span_notes').val(span.annotatorNotes);
-          } else {
-            $('#span_notes').val('');
-          }
+          $('#span_notes').val(span.annotatorNotes || '');
 
           // count the repeating arc types
           var arcTypeCount = {};
@@ -201,9 +204,17 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         } else {
           $('#span_highlight_link').hide();
-          $('#span_form input:radio:first')[0].checked = true;
+          var firstRadio = $('#span_form input:radio:first')[0];
+          if (firstRadio) {
+            firstRadio.checked = true;
+          } else {
+            dispatcher.post('hideForm', [spanForm]);
+            dispatcher.post('messages', [[['No valid span types defined', 'error']]]);
+            return;
+          }
           $('#span_notes').val('');
           $('#span_form_split').hide();
+          showAllAttributes = true;
         }
         if (span && !reselectedSpan) {
           $('#span_form_reselect, #span_form_delete').show();
@@ -224,6 +235,21 @@ var AnnotatorUI = (function($, window, undefined) {
             $input.val(val || '').change();
           }
         });
+        showValidAttributes = function() {
+          var type = $('#span_form input:radio:checked').val();
+          var validAttrs = type ? spanTypes[type].attributes : [];
+          $.each(attributeTypes, function(attrNo, attr) {
+            var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+            var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
+            if (showAttr) {
+              $input.button('widget').show();
+            } else {
+              $input.button('widget').hide();
+            }
+          });
+          showAllAttributes = false;
+        }
+        showValidAttributes();
         var confirmMode = $('#confirm_mode')[0].checked;
         if (reselectedSpan && !confirmMode) {
           spanForm.submit();
@@ -260,17 +286,31 @@ var AnnotatorUI = (function($, window, undefined) {
           var $scroller = $('#arc_roles .scroller').empty();
 
           // lay them out into the form
-          $.each(arcTypes, function(arcTypeNo, arcDesc) {
+          $.each(arcTypes || [], function(arcTypeNo, arcDesc) {
             if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
               var arcTypeName = arcDesc.type;
               var displayName = arcDesc.labels[0] || arcTypeName;
-              if (arcDesc.hotkey) {
-                keymap[arcDesc.hotkey] = '#arc_' + arcTypeName;
-              }
               var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label for="arc_' + arcTypeName + '"/>').text(displayName);
               var $div = $('<div/>').append($checkbox).append($label);
               $scroller.append($div);
+              if (arcDesc.hotkey) {
+                keymap[arcDesc.hotkey] = '#arc_' + arcTypeName;
+                var name = $label.html();
+                var replace = true;
+                name = name.replace(new RegExp("(&[^;]*?)?(" + arcDesc.hotkey + ")", 'gi'),
+                  function(all, entity, letter) {
+                    if (replace && !entity) {
+                      replace = false;
+                      var hotkey = arcDesc.hotkey.toLowerCase() == letter
+                          ? arcDesc.hotkey.toLowerCase()
+                          : arcDesc.hotkey.toUpperCase();
+                      return '<span class="accesskey">' + Util.escapeHTML(hotkey) + '</span>';
+                    }
+                    return all;
+                  });
+                $label.html(name);
+              }
 
               noArcs = false;
             }
@@ -327,7 +367,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         dispatcher.post('showForm', [arcForm]);
-        $('#arc_form input:submit').focus();
+        $('#arc_form-ok').focus();
         adjustToCursor(evt, arcForm.parent());
       };
 
@@ -478,9 +518,11 @@ var AnnotatorUI = (function($, window, undefined) {
               that.user = response.user;
               dispatcher.post('messages', [[['Welcome back, user "' + that.user + '"', 'comment']]]);
               auth_button.val('Logout');
+              dispatcher.post('user', [that.user]);
               $('.login').show();
             } else {
               auth_button.val('Login');
+              dispatcher.post('user', [null]);
               $('.login').hide();
             }
           }
@@ -498,6 +540,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanFormSubmitRadio = function(evt) {
         var confirmMode = $('#confirm_mode')[0].checked;
         if (confirmMode) {
+          showValidAttributes();
           $('#span_form-ok').focus();
         } else {
           spanFormSubmit(evt, $(evt.target));
@@ -505,7 +548,7 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var rememberData = function(_data) {
-        if (_data) {
+        if (_data && !_data.exception) {
           data = _data;
         }
       };
@@ -519,9 +562,18 @@ var AnnotatorUI = (function($, window, undefined) {
             var $input = $('<input type="radio" name="span_type"/>').
               attr('id', 'span_' + type.type).
               attr('value', type.type);
+            // use a light version of the span color as BG
+            var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
+            spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
             var $label = $('<label/>').
               attr('for', 'span_' + type.type).
               text(name);
+            if (type.unused) {
+              $input.attr('disabled', 'disabled');
+              $label.css('font-weight', 'bold');
+            } else {
+              $label.css('background-color', spanBgColor);
+            }
             var $collapsible = $('<div class="collapsible open"/>');
             var $content = $('<div class="item_content"/>').
               append($input).
@@ -538,9 +590,17 @@ var AnnotatorUI = (function($, window, undefined) {
             if (type.hotkey) {
               spanKeymap[type.hotkey] = 'span_' + type.type;
               var name = $label.html();
-              name = name.replace(new RegExp("(&[^;]*?)?" + type.hotkey),
-                function($0, $1) {
-                  return $1 ? $0 : '<span class="accesskey">' + Util.escapeHTML(type.hotkey) + '</span>';
+              var replace = true;
+              name = name.replace(new RegExp("(&[^;]*?)?(" + type.hotkey + ")", 'gi'),
+                function(all, entity, letter) {
+                  if (replace && !entity) {
+                    replace = false;
+                    var hotkey = type.hotkey.toLowerCase() == letter
+                        ? type.hotkey.toLowerCase()
+                        : type.hotkey.toUpperCase();
+                    return '<span class="accesskey">' + Util.escapeHTML(hotkey) + '</span>';
+                  }
+                  return all;
                 });
               $label.html(name);
             }
@@ -565,6 +625,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var rememberSpanSettings = function(response) {
         spanKeymap = {};
+
+        // TODO: check for exceptions in response
         
         // hide event "half" of box if not defined (assume entities always defined)
         if (response.event_types.length == 0) {
@@ -633,7 +695,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (x == 'annotationIsReadOnly') {
             dispatcher.post('messages', [[["This document is read-only and can't be edited.", 'error']]]);
           } else {
-            dispatcher.message('unknownError', [x]);
+            dispatcher.post('messages', [[['Unknown error '+x, 'error']]]);
           }
           reselectedSpan = null;
           svgElement.removeClass('reselect');
@@ -650,9 +712,8 @@ var AnnotatorUI = (function($, window, undefined) {
           // this "prevent" is to protect against reloading (from the
           // server) the very data that we just received as part of the
           // response to the edit.
-          dispatcher.post('preventReloadByURL', [true]);
+          dispatcher.post('preventReloadByURL');
           dispatcher.post('setArguments', [args]);
-          dispatcher.post('preventReloadByURL', [false]);
           dispatcher.post('renderData', [data]);
         }
       };
@@ -679,6 +740,7 @@ var AnnotatorUI = (function($, window, undefined) {
                 $('#auth_user').val('');
                 $('#auth_pass').val('');
                 $('.login').show();
+                dispatcher.post('user', [user]);
               }
           }]);
         return false;
@@ -691,6 +753,7 @@ var AnnotatorUI = (function($, window, undefined) {
             that.user = null;
             $('#auth_button').val('Login');
             $('.login').hide();
+            dispatcher.post('user', [null]);
           }]);
         } else {
           dispatcher.post('showForm', [authForm]);
@@ -823,7 +886,6 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var importForm = $('#import_form');
       var importFormSubmit = function(evt) {
-        dispatcher.post('hideForm', [importForm]);
         var _docid = $('#import_docid').val();
         var _doctitle = $('#import_title').val();
         var _doctext = $('#import_text').val();
@@ -835,7 +897,17 @@ var AnnotatorUI = (function($, window, undefined) {
           text  : _doctext,
         };
         dispatcher.post('ajax', [opts, function(response) {
-          dispatcher.post('setDocument', [response.document]);
+          var x = response.exception;
+          if (x) {
+            if (x == 'fileExistsError') {
+              dispatcher.post('messages', [[["A file with the given name exists. Please give a different name to the file to import.", 'error']]]);
+            } else {
+              dispatcher.post('messages', [[['Unknown error: ' + response.exception, 'error']]]);
+            }
+          } else {
+            dispatcher.post('hideForm', [importForm]);
+            dispatcher.post('setDocument', [response.document]);
+          }
         }]);
         return false;
       };

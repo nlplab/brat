@@ -16,23 +16,8 @@ from os.path import dirname, join as path_join, isdir
 try:
     from os.path import relpath
 except ImportError:
-    # workaround for missing relpath in 2.5, following code from the 
-    # BareNecessities package, License: MIT, Author: James Gardner
-    # TODO: remove need for relpath instead
-    from os.path import abspath, sep, pardir, commonprefix
-    def relpath(path, start):
-        """Return a relative version of a path"""
-        if not path:
-            raise ValueError("no path specified")
-        start_list = abspath(start).split(sep)
-        path_list = abspath(path).split(sep)
-        # Work out how much of the filepath is shared by start and path.
-        i = len(commonprefix([start_list, path_list]))
-        rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
-        if not rel_list:
-            return path
-        return path_join(*rel_list)
-
+    # relpath new to python 2.6; use our implementation if not found
+    from common import relpath
 from common import ProtocolError
 from config import USER_PASSWORD, DATA_DIR
 from message import Messager
@@ -112,7 +97,7 @@ def whoami():
         Messager.error('Not logged in!', duration=3)
     return json_dic
 
-def can_read(real_path):
+def allowed_to_read(real_path):
     try:
         user = get_session().get('user')
     except KeyError:

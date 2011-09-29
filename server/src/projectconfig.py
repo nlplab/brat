@@ -44,9 +44,16 @@ __annotation_config_filename  = "annotation.conf"
 __visual_config_filename      = 'visual.conf'
 __kb_shortcut_filename        = 'kb_shortcuts.conf'
 
+# special relation type for marking which entities can nest
+ENTITY_NESTING_TYPE = "ENTITY-NESTING"
+
+# visual config default value names
+VISUAL_SPAN_DEFAULT = "SPAN_DEFAULT"
+VISUAL_ARC_DEFAULT  = "ARC_DEFAULT"
+
 # visual config attribute name lists
 SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
-ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray']
+ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead', 'arrowTail']
 
 # fallback defaults if config files not found
 __default_configuration = """
@@ -69,12 +76,13 @@ __default_visual = """
 [labels]
 Protein | Protein | Pro | P
 Protein_binding | Protein binding | Binding | Bind
-Gene_expression | Gene_expression | Expression | Exp
+Gene_expression | Gene expression | Expression | Exp
 Theme | Theme | Th
 
 [drawing]
-SPAN_DEFAULT	fgColor:black, bgColor:white, borderColor:black
-ARC_DEFAULT	color:block
+Protein	bgColor:#7fa2ff
+SPAN_DEFAULT	fgColor:black, bgColor:lightgreen, borderColor:black
+ARC_DEFAULT	color:black
 """
 
 __default_kb_shortcuts = """
@@ -461,8 +469,8 @@ __minimal_visual = {
     LABEL_SECTION     : [TypeHierarchyNode(["Protein", "Pro", "P"]),
                          TypeHierarchyNode(["Equiv", "Eq"]),
                          TypeHierarchyNode(["Event", "Ev"])],
-    DRAWING_SECTION   : [TypeHierarchyNode(["SPAN_DEFAULT"], ["fgColor:black", "bgColor:white"]),
-                         TypeHierarchyNode(["ARC_DEFAULT"], ["color:black"])],
+    DRAWING_SECTION   : [TypeHierarchyNode([VISUAL_SPAN_DEFAULT], ["fgColor:black", "bgColor:white"]),
+                         TypeHierarchyNode([VISUAL_ARC_DEFAULT], ["color:black"])],
     }
 
 def get_visual_configs(directory):
@@ -610,7 +618,7 @@ def get_drawing_config_by_storage_form(directory, term):
                 d[t][k] = d[t][k].replace("-", ",")
                 
         # propagate defaults (TODO: get rid of magic "DEFAULT" values)
-        default_keys = ["SPAN_DEFAULT", "ARC_DEFAULT"]
+        default_keys = [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
         for default_dict in [d.get(dk, {}) for dk in default_keys]:
             for k in default_dict:
                 for t in d:
@@ -629,7 +637,7 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
     for r in get_relation_type_list(directory):
         # "Special" nesting relation ignored unless specifically
         # requested
-        if r.storage_form() == "ENTITY-NESTING" and not include_special:
+        if r.storage_form() == ENTITY_NESTING_TYPE and not include_special:
             continue
 
         if len(r.arg_list) != 2:
@@ -783,6 +791,7 @@ class ProjectConfiguration(object):
 
         if to_ann == "<ANY>":
             relations_from = get_relations_by_arg1(self.directory, from_ann, include_special)
+            # TODO: consider using from_node.arg_list instead of .arguments for order
             return unique_preserve_order([role for role in from_node.arguments] + [r.storage_form() for r in relations_from])
 
         # specific hits
@@ -893,6 +902,11 @@ class ProjectConfiguration(object):
 
     def is_relation_type(self, t):
         return t in self.get_relation_types()
+
+    def is_configured_type(self, t):
+        return (t in self.get_entity_types() or
+                t in self.get_event_types() or
+                t in self.get_relation_types())
 
     def type_category(self, t):
         """

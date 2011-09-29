@@ -20,7 +20,7 @@ var Dispatcher = (function($, window, undefined) {
         return this;
       };
 
-      var post = function(asynch, message, args) {
+      var post = function(asynch, message, args, returnType) {
         if (typeof(asynch) !== 'number') {
           // no asynch parameter
           args = message;
@@ -64,6 +64,20 @@ var Dispatcher = (function($, window, undefined) {
             console.warn('Message ' + message + ' has no subscribers.'); // DEBUG
 */
           }
+        }
+        if (returnType == 'any') {
+          var i = results.length;
+          while (i--) {
+            if (results[i] !== false) return results[i];
+          }
+          return false;
+        }
+        if (returnType == 'all') {
+          var i = results.length;
+          while (i--) {
+            if (results[i] === false) return results[i];
+          }
+          return results;
         }
         return results;
       };

@@ -57,9 +57,13 @@ class TextMatch(object):
         self.end = end
         self.text = text
         self.sentence = sentence
-        # TODO: temporary "fake ID" to make other bits of code happy, remove
-        # once no longer necessary
-        self.id = ""
+
+    def reference_id(self):
+        # mimic reference_id for annotations
+        return ["%s~%s" % (self.start, self.end)]
+
+    def reference_text(self):
+        return "%s-%s" % (self.start, self.end)
 
     def get_text(self):
         return self.text
@@ -423,7 +427,6 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
             if restrict_types != [] and t.type not in restrict_types:
                 continue
             # TODO: make options for "text included" vs. "text matches"
-            # TODO: remove temporary hack giving special status to "*"
             if (text != None and text != "" and 
                 text != DEFAULT_EMPTY_STRING and text not in t.text):
                 continue
@@ -451,7 +454,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
 
     return matches
 
-def search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=[], ignore_types=[]):
+def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=[], ignore_types=[]):
     """
     Searches the given Annotations objects for relation annotations
     matching the given specification. Returns a SearchMatchSet object.
@@ -475,14 +478,59 @@ def search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=[], ignore_typ
         # collect per-document (ann_obj) for sorting
         ann_matches = []
         
-        # TODO: Equivs also
+        # binary relations and equivs need to be treated separately due
+        # to different structure (not a great design there)
         for r in ann_obj.get_relations():
             if r.type in ignore_types:
                 continue
             if restrict_types != [] and r.type not in restrict_types:
                 continue
 
-            # TODO: argument constraints
+            # argument constraints
+            if arg1 is not None or arg1type is not None:
+                arg1ent = ann_obj.get_ann_by_id(r.arg1)
+                if arg1 is not None and arg1 not in arg1ent.get_text():
+                    continue
+                if arg1type is not None and arg1type != arg1ent.type:
+                    continue
+            if arg2 is not None or arg2type is not None:
+                arg2ent = ann_obj.get_ann_by_id(r.arg2)
+                if arg2 is not None and arg2 not in arg2ent.get_text():
+                    continue
+                if arg2type is not None and arg2type != arg2.type:
+                    continue
+                
+            ann_matches.append(r)
+
+        for r in ann_obj.get_equivs():
+            if r.type in ignore_types:
+                continue
+            if restrict_types != [] and r.type not in restrict_types:
+                continue
+
+            # argument constraints. This differs from that for non-equiv
+            # for relations as equivs are symmetric, so the arg1-arg2
+            # distinction can be ignored.
+
+            # TODO: this can match the same thing twice, which most
+            # likely isn't what a user expects: for example, having
+            # 'Protein' for both arg1type and arg2type can still match
+            # an equiv between 'Protein' and 'Gene'.
+            match_found = False
+            for arg, argtype in ((arg1, arg1type), (arg2, arg2type)):
+                match_found = False
+                for aeid in r.entities:
+                    argent = ann_obj.get_ann_by_id(aeid)
+                    if arg is not None and arg not in argent.get_text():
+                        continue
+                    if argtype is not None and argtype != argent.type:
+                        continue
+                    match_found = True
+                    break
+                if not match_found:
+                    break
+            if not match_found:
+                continue
 
             ann_matches.append(r)
 
@@ -539,14 +587,37 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
                 Messager.error('Failed to retrieve trigger annotation %s, skipping event %s in search' % (e.trigger, e.id))
 
             # TODO: make options for "text included" vs. "text matches"
-            # TODO: remove temporary hack giving special status to "*"
             if (trigger_text != None and trigger_text != "" and 
-                trigger_text != "*" and trigger_text not in t_ann.text):
+                trigger_text != DEFAULT_EMPTY_STRING and 
+                trigger_text not in t_ann.text):
                 continue
 
-            # TODO: argument constraints
-            if len(args) != 0:
-                Messager.warning('NOTE: ignoring event argument constraints in search (not implemented yet, sorry!)')
+            # argument constraints
+            missing_match = False
+            for arg in args:
+                for s in ('role', 'type', 'text'):
+                    assert s in arg, "Error: missing mandatory field '%s' in event search" % s
+                found_match = False
+                for role, aid in e.args:
+                    if arg['role'] is not None and arg['role'] != '' and arg['role'] != role:
+                        # mismatch on role
+                        continue
+                    arg_ent = ann_obj.get_ann_by_id(aid)
+                    if (arg['type'] is not None and arg['type'] != '' and 
+                        arg['type'] != arg_ent.type):
+                        # mismatch on type
+                        continue
+                    if (arg['text'] is not None and arg['text'] != '' and
+                        arg['text'] not in arg_ent.get_text()):
+                        # mismatch on text
+                        continue
+                    found_match = True
+                    break
+                if not found_match:
+                    missing_match = True
+                    break
+            if missing_match:
+                continue
 
             ann_matches.append((t_ann, e))
 
@@ -686,7 +757,7 @@ def format_results(matches):
         # annotation, not a collection (directory) or document.
         # second entry is non-listed "pointer" to annotation
         fn = basename(ann_obj.get_document())
-        items.append(["a", { 'edited' : [[ann.id]] }, fn, ann.id])
+        items.append(["a", { 'focus' : [ann.reference_id()] }, fn, ann.reference_text()])
         if include_type:
             items[-1].append(ann.type)
         if include_text:
@@ -714,7 +785,7 @@ def search_text(collection, text):
     
     return results
 
-def search_entity(collection, type, text=DEFAULT_EMPTY_STRING):
+def search_entity(collection, type=None, text=DEFAULT_EMPTY_STRING):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
@@ -730,7 +801,7 @@ def search_entity(collection, type, text=DEFAULT_EMPTY_STRING):
     
     return results
 
-def search_event(collection, type, trigger, args):
+def search_event(collection, type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
@@ -738,6 +809,12 @@ def search_event(collection, type, trigger, args):
     restrict_types = []
     if type is not None and type != "":
         restrict_types.append(type)
+
+    # to get around lack of JSON object parsing in dispatcher, parse
+    # args here. 
+    # TODO: parse JSON in dispatcher; this is far from the right place to do this..
+    from jsonwrap import loads
+    args = loads(args)
 
     matches = search_anns_for_event(ann_objs, trigger, args, restrict_types=restrict_types)
 
@@ -746,7 +823,7 @@ def search_event(collection, type, trigger, args):
     
     return results
 
-def search_relation(collection, type, arg1, arg2):
+def search_relation(collection, type=None, arg1=None, arg1type=None, arg2=None, arg2type=None):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
@@ -755,7 +832,7 @@ def search_relation(collection, type, arg1, arg2):
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_anns_for_relation(ann_objs, arg1, arg2, restrict_types=restrict_types)
+    matches = search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=restrict_types)
 
     results = format_results(matches)
     results['collection'] = directory

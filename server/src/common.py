@@ -12,7 +12,7 @@ Version:    2011-04-21
 
 class ProtocolError(Exception):
     def __init__(self):
-        raise NotImplementedError, 'abstract method'
+        pass
 
     def __str__(self):
         # TODO: just adding __str__ to ProtocolError, not all
@@ -36,6 +36,12 @@ class NotImplementedError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'notImplemented'
 
+class CollectionNotAccessibleError(ProtocolError):
+    def json(self, json_dic):
+        json_dic['exception'] = 'collectionNotAccessible'
+
+    def __str__(self):
+        return 'Error: collection not accessible'
 
 # TODO: We have issues using this in relation to our inspection
 #       in dispatch, can we make it work?
@@ -55,3 +61,21 @@ def deprecated_action(func):
                               'which is marked as deprecated') % func.__name__,)
         return func(*args, **kwds)
     return wrapper
+
+# relpath is not included in python 2.5; alternative implementation from
+# BareNecessities package, License: MIT, Author: James Gardner
+# TODO: remove need for relpath instead
+def relpath(path, start):
+    """Return a relative version of a path"""
+    from os.path import abspath, sep, pardir, commonprefix
+    from os.path import join as path_join
+    if not path:
+        raise ValueError("no path specified")
+    start_list = abspath(start).split(sep)
+    path_list = abspath(path).split(sep)
+    # Work out how much of the filepath is shared by start and path.
+    i = len(commonprefix([start_list, path_list]))
+    rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
+    if not rel_list:
+        return path
+    return path_join(*rel_list)

@@ -50,7 +50,7 @@ class NoSVGError(ProtocolError):
         self.version = version
 
     def __str__(self):
-        return 'SVG with version "%s" does not exist "%s"' % (self.version, )
+        return 'SVG with version "%s" does not exist' % (self.version, )
 
     def json(self, json_dic):
         json_dic['exception'] = 'noSVG'

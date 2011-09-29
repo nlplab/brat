@@ -254,111 +254,129 @@ var Util = (function(window, undefined) {
 
     // color parsing function originally from
     // http://plugins.jquery.com/files/jquery.color.js.txt
-    	// Parse strings looking for color tuples [255,255,255]
-    var strToRgb = function(color) {
-        var result;
+    // (with slight modifications)
 
-        // Check if we're already dealing with an array of colors
+    // Parse strings looking for color tuples [255,255,255]
+    var rgbNumRE = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/;
+    var rgbPercRE = /rgb\(\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*\)/;
+    var rgbHash6RE = /#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})/;
+    var rgbHash3RE = /#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])/;
+
+    var strToRgb = function(color) {
+      var result;
+
+      // Check if we're already dealing with an array of colors
 //         if ( color && color.constructor == Array && color.length == 3 )
 //             return color;
-        
-        // Look for rgb(num,num,num)
-        if (result = /rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)/.exec(color))
-            return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])];
-        
-        // Look for rgb(num%,num%,num%)
-        if (result = /rgb\(\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*\)/.exec(color))
-            return [parseFloat(result[1])*2.55, parseFloat(result[2])*2.55, parseFloat(result[3])*2.55];
-        
-        // Look for #a0b1c2
-        if (result = /#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})/.exec(color))
-            return [parseInt(result[1],16), parseInt(result[2],16), parseInt(result[3],16)];
-        
-        // Look for #fff
-        if (result = /#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])/.exec(color))
-            return [parseInt(result[1]+result[1],16), parseInt(result[2]+result[2],16), parseInt(result[3]+result[3],16)];
-        
-        // Otherwise, we're most likely dealing with a named color
-        return colors[jQuery.trim(color).toLowerCase()];
+      
+      // Look for rgb(num,num,num)
+      if (result = rgbNumRE.exec(color))
+        return [parseInt(result[1]), parseInt(result[2]), parseInt(result[3])];
+      
+      // Look for rgb(num%,num%,num%)
+      if (result = rgbPercRE.exec(color))
+        return [parseFloat(result[1])*2.55, parseFloat(result[2])*2.55, parseFloat(result[3])*2.55];
+      
+      // Look for #a0b1c2
+      if (result = rgbHash6RE.exec(color))
+        return [parseInt(result[1],16), parseInt(result[2],16), parseInt(result[3],16)];
+      
+      // Look for #fff
+      if (result = rgbHash3RE.exec(color))
+        return [parseInt(result[1]+result[1],16), parseInt(result[2]+result[2],16), parseInt(result[3]+result[3],16)];
+      
+      // Otherwise, we're most likely dealing with a named color
+      return colors[$.trim(color).toLowerCase()];
     }
 
     var rgbToStr = function(rgb) {
-        // TODO: there has to be a better way, even in JS
-        return ('#' + 
-                Math.floor(rgb[0]).toString(16) + 
-                Math.floor(rgb[1]).toString(16) + 
-                Math.floor(rgb[2]).toString(16));
+      // TODO: there has to be a better way, even in JS
+      var r = Math.floor(rgb[0]).toString(16);
+      var g = Math.floor(rgb[1]).toString(16);
+      var b = Math.floor(rgb[2]).toString(16);
+      // pad
+      r = r.length < 2 ? '0' + r : r;
+      g = g.length < 2 ? '0' + g : g;
+      b = b.length < 2 ? '0' + b : b;        
+      return ('#'+r+g+b);
     }
     
     // Functions rgbToHsl and hslToRgb originally from 
     // http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
     // implementation of functions in Wikipedia
+    // (with slight modifications)
 
     // RGB to HSL color conversion
     var rgbToHsl = function(rgb) {
-        r = rgb[0]/255, g = rgb[1]/255, b = rgb[2]/255;
-        var max = Math.max(r, g, b), min = Math.min(r, g, b);
-        var h, s, l = (max + min) / 2;
+      var r = rgb[0]/255, g = rgb[1]/255, b = rgb[2]/255;
+      var max = Math.max(r, g, b), min = Math.min(r, g, b);
+      var h, s, l = (max + min) / 2;
 
-        if(max == min){
-            h = s = 0; // achromatic
-        }else{
-            var d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-            switch(max){
-            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-            case g: h = (b - r) / d + 2; break;
-            case b: h = (r - g) / d + 4; break;
-            }
-            h /= 6;
+      if (max == min) {
+        h = s = 0; // achromatic
+      } else {
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
         }
-        
-        return [h, s, l];
-    }
-
-    var hslToRgb = function(hsl){
-        h = hsl[0], s = hsl[1], l = hsl[2];
-
-        var r, g, b;
-
-        if(s == 0){
-            r = g = b = l; // achromatic
-        }else{
-            function hue2rgb(p, q, t){
-                if(t < 0) t += 1;
-                if(t > 1) t -= 1;
-                if(t < 1/6) return p + (q - p) * 6 * t;
-                if(t < 1/2) return q;
-                if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-                return p;
-            }
-            
-            var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-            var p = 2 * l - q;
-            r = hue2rgb(p, q, h + 1/3);
-            g = hue2rgb(p, q, h);
-            b = hue2rgb(p, q, h - 1/3);
-        }
-        
-        return [r * 255, g * 255, b * 255];
-    }
-
-    var lightenColorCache = {};
-
-    // given color string and 0<=adjust<=1, returns color string
-    // lighter by the amount, the larger the lighter.
-    var lightenColor = function(colorstr, adjust) {
-      if (!(colorstr in lightenColorCache)) {
-        lightenColorCache[colorstr] = {}
+        h /= 6;
       }
-      if (!(adjust in lightenColorCache[colorstr])) {
+      
+      return [h, s, l];
+    }
+
+    var hue2rgb = function(p, q, t) {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    }
+
+    var hslToRgb = function(hsl) {
+      var h = hsl[0], s = hsl[1], l = hsl[2];
+
+      var r, g, b;
+
+      if (s == 0) {
+        r = g = b = l; // achromatic
+      } else {
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+      }
+      
+      return [r * 255, g * 255, b * 255];
+    }
+
+    var adjustLightnessCache = {};
+
+    // given color string and -1<=adjust<=1, returns color string
+    // where lightness (in the HSL sense) is adjusted by the given
+    // amount, the larger the lighter: -1 gives black, 1 white, and 0
+    // the given color.
+    var adjustColorLightness = function(colorstr, adjust) {
+      if (!(colorstr in adjustLightnessCache)) {
+        adjustLightnessCache[colorstr] = {}
+      }
+      if (!(adjust in adjustLightnessCache[colorstr])) {
         var rgb = strToRgb(colorstr);
         var hsl = rgbToHsl(rgb);
-        hsl[2] = 1.0 - ((1.0-hsl[2])*(1.0-adjust));
+        if (adjust > 0.0) {
+          hsl[2] = 1.0 - ((1.0-hsl[2])*(1.0-adjust));
+        } else {
+          hsl[2] = (1.0+adjust)*hsl[2];
+        }
         var lightRgb = hslToRgb(hsl);
-        lightenColorCache[colorstr][adjust] = rgbToStr(lightRgb);
+        adjustLightnessCache[colorstr][adjust] = rgbToStr(lightRgb);
       }
-      return lightenColorCache[colorstr][adjust];
+      return adjustLightnessCache[colorstr][adjust];
     }
 
     // Partially stolen from: http://documentcloud.github.com/underscore/
@@ -385,7 +403,7 @@ var Util = (function(window, undefined) {
       return true;
     };
 
-    var equalsRE = /^([^=]+)=(.*)$/;
+    var keyValRE = /^([^=]+)=(.*)$/; // key=value
 
     var deparam = function(str) {
       var args = str.split('&');
@@ -393,13 +411,13 @@ var Util = (function(window, undefined) {
       if (!len) return null;
       var result = {};
       for (var i = 0; i < len; i++) {
-        var parts = args[i].match(equalsRE);
+        var parts = args[i].match(keyValRE);
         if (!parts || parts.length != 3) break;
         var val = [];
         var arr = parts[2].split(',');
         var sublen = arr.length;
         for (var j = 0; j < sublen; j++) {
-          val.push(arr[j].split('-'));
+          val.push(arr[j].split('~'));
         }
         result[parts[1]] = val;
       }
@@ -423,7 +441,7 @@ var Util = (function(window, undefined) {
             var arr = [];
             for (var i = 0; i < len; i++) {
               if ($.isArray(val[i])) {
-                arr.push(val[i].join('-'));
+                arr.push(val[i].join('~'));
               } else {
                 // non-array argument; this is an error from the caller
                 console.error('param: Error: received non-array-in-array argument', key, '[', i, ']', ':', val[i], '(fix caller)');
@@ -489,7 +507,7 @@ var Util = (function(window, undefined) {
       cmp: cmp,
       rgbToHsl: rgbToHsl,
       hslToRgb: hslToRgb,
-      lightenColor: lightenColor,
+      adjustColorLightness: adjustColorLightness,
       objectToUrlStr: objectToUrlStr,
       isEqual: isEqual,
       param: param,

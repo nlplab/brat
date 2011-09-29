@@ -19,6 +19,7 @@ var VisualizerUI = (function($, window, undefined) {
       var coll, doc, args;
       var collScroll;
       var docScroll;
+      var user = null;
 
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
@@ -26,7 +27,9 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START collection browser sorting - related */
 
+      var lastGoodCollection = '/';
       var sortOrder = [2, 1]; // column (0..), sort order (1, -1)
+      var collectionSortOrder; // holds previous sort while search is active
       var docSortFunction = function(a, b) {
           // parent at the top
           if (a[2] === '..') return -1;
@@ -133,6 +136,7 @@ var VisualizerUI = (function($, window, undefined) {
         var elementHeight = element.height() + 22;
         var elementWidth = element.width() + 22;
         var x, y;
+        offset = offset || 0;
         if (top) {
           y = evt.clientY - elementHeight - offset;
           if (y < 0) top = false;
@@ -182,16 +186,21 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var displayArcComment = function(
-          evt, target, symmetric,
+          evt, target, symmetric, arcId,
           originSpanId, role, targetSpanId, commentText, commentType) {
         var arcRole = target.attr('data-arc-role');
+        var arrowStr = symmetric ? ' &#8212; ' : ' &#8594; '; // &#8212 == mdash, &#8594 == Unicode right arrow
         var comment = ( '<div class="comment_id">' +
-                        Util.escapeHTML('"'+data.spans[originSpanId].text + '" (' + originSpanId + ') ') +
-                        (symmetric ? '' : ' &#8594; ') + // &#8594 == Unicode right arrow
+                        (arcId ? arcId+': ' : '') +
+                        Util.escapeHTML(originSpanId) +
+                        arrowStr + 
                         Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole)) +
-                        (symmetric ? ' ' : ':') +
-                        Util.escapeHTML('"'+data.spans[targetSpanId].text + '" (' + targetSpanId + ') ') +
+                        arrowStr + 
+                        Util.escapeHTML(targetSpanId) +
                         '</div>' );
+        comment += ('<div>' + Util.escapeHTML('"'+data.spans[originSpanId].text+'"') +
+                    arrowStr +
+                    Util.escapeHTML('"'+data.spans[targetSpanId].text + '"') + '</div>');
         displayComment(evt, target, comment, commentText, commentType);
       };
 
@@ -224,18 +233,25 @@ var VisualizerUI = (function($, window, undefined) {
         delete opts.alsoResize;
 
         // Always add OK and Cancel
-        var buttons = (opts.buttons || []).concat([
-            {
+        var buttons = (opts.buttons || []);
+        if (opts.no_ok) {
+          delete opts.no_ok;
+        } else {
+          buttons.push({
               id: formId + "-ok",
               text: "OK",
               click: function() { form.submit(); }
-            },
-            {
+            });
+        }
+        if (opts.no_cancel) {
+          delete opts.no_cancel;
+        } else {
+          buttons.push({
               id: formId + "-cancel",
               text: "Cancel",
               click: function() { form.dialog('close'); }
-            }
-          ]);
+            });
+        }
         delete opts.buttons;
 
         opts = $.extend({
@@ -265,6 +281,7 @@ var VisualizerUI = (function($, window, undefined) {
         // as suggested in http://stackoverflow.com/questions/2657076/jquery-ui-dialog-fixed-positioning
         form.parent().css({position:"fixed"});
         form.dialog('open');
+        slideToggle($('#pulldown').stop(), false);
         return form;
       };
 
@@ -446,7 +463,9 @@ var VisualizerUI = (function($, window, undefined) {
           $('#document_input').focus().select();
         }, 0);
       }; // end showFileBrowser()
-      $('#collection_browser_button').click(showFileBrowser);
+      $('#collection_browser_button').click(function(evt) {
+        dispatcher.post('clearSearch');
+      });
 
       var currentSelectorPosition = function() {
         var pos;
@@ -455,11 +474,10 @@ var VisualizerUI = (function($, window, undefined) {
             // args may have changed, so lacking a perfect match return
             // last matching document as best guess
             pos = docNo;
-            // check for perfect match
-            // TODO: use proper object equality (e.g. underscore.js
-            // isEqual) instead of param() hack
-            if ((!docRow[1] && !args) || 
-                (Util.param(docRow[1] || '') == Util.param(args || ''))) {
+            // check whether 'focus' agrees; the rest of the args are
+            // irrelevant for determining position.
+            var collectionArgs = docRow[1] || {};
+            if (Util.isEqual(collectionArgs.focus, args.focus)) {
               pos = docNo;
               return false;
             }
@@ -473,21 +491,20 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START search - related */
 
-      var addSpanTypesToSelect = function($select, types) {
+      var addSpanTypesToSelect = function($select, types, included) {
+        if (!included) included = {};
+        if (!included['']) {
+          included[''] = true;
+          $select.html('<option value="">- Any -</option>');
+        }
         $.each(types, function(typeNo, type) {
           if (type !== null) {
-            // protect against introducing the same thing twice
-            // TODO: unnecessarily slow implementation, do better
-            var previously_included = false;
-            $select.children("option[text='"+type.name+"']").each(function(optNo, opt) {
-              previously_included = true;
-            });
-
-            if (!previously_included) {
+            if (!included[type.name]) {
+              included[type.name] = true;
               var $option = $('<option value="' + Util.escapeQuotes(type.type) + '"/>').text(type.name);
               $select.append($option);
               if (type.children) {
-                addSpanTypesToSelect($select, type.children);
+                addSpanTypesToSelect($select, type.children, included);
               }
             }
           }
@@ -495,11 +512,8 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var setupSearchTypes = function(response) {
-        $('#search_form_entity_type').empty();
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
-        $('#search_form_event_type').empty();
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
-        $('#search_form_relation_type').empty();
         addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
       }
 
@@ -508,12 +522,12 @@ var VisualizerUI = (function($, window, undefined) {
       var searchEventRoleChanged = function(evt) {
         var $type = $(this).parent().next().children('select');
         var type = $type.val();
-        $type.empty();
         var role = $(this).val();
         var origin = $('#search_form_event_type').val();
         var eventType = spanTypes[origin];
         var arcTypes = eventType && eventType.arcs || [];
         var arcType = null;
+        $type.html('<option value="">- Any -</option>');
         $.each(arcTypes, function(arcNo, arcDesc) {
           if (arcDesc.type == role) {
             arcType = arcDesc;
@@ -528,7 +542,11 @@ var VisualizerUI = (function($, window, undefined) {
           $type.append(option);
         });
         // return the type to the same value, if possible
-        $type.val(type);
+        if (type) {
+          $type.val(type);
+        } else if ($type.children().length == 2) {
+          $type[0].selectedIndex = 1;
+        };
       };
 
       $('#search_form_event_roles .search_event_role select').live('change', searchEventRoleChanged);
@@ -538,10 +556,14 @@ var VisualizerUI = (function($, window, undefined) {
         var $roles = $('#search_form_event_roles');
         var rowNo = $roles.children().length;
         var $role = $('<select class="fullwidth"/>');
+        $role.append('<option value="">- Any -</option>');
         $.each(searchEventRoles, function(arcTypePairNo, arcTypePair) {
           var option = '<option value="' + Util.escapeQuotes(arcTypePair[0]) + '">' + Util.escapeHTML(arcTypePair[1]) + '</option>'
           $role.append(option);
         });
+        if ($role.children().length == 2) {
+          $role[0].selectedIndex = 1;
+        };
         var $type = $('<select class="fullwidth"/>');
         var $text = $('<input class="fullwidth"/>');
         var button = $('<input type="button"/>');
@@ -588,9 +610,11 @@ var VisualizerUI = (function($, window, undefined) {
       // when relation changes, change choices of arg1 type
       $('#search_form_relation_type').change(function(evt) {
         var relTypeType = $(this).val();
-        var $arg1 = $('#search_form_relation_arg1_type').empty();
+        var $arg1 = $('#search_form_relation_arg1_type').
+            html('<option value="">- Any -</option>');
         var $arg2 = $('#search_form_relation_arg2_type').empty();
-        $.each(spanTypes, function(spanTypeType, spanType) {
+        $.each(spanTypes,
+          function(spanTypeType, spanType) {
           if (spanType.arcs) {
             $.each(spanType.arcs, function(arcTypeNo, arcType) {
               if (arcType.type === relTypeType) {
@@ -601,16 +625,20 @@ var VisualizerUI = (function($, window, undefined) {
             });
           }
         });
+        if ($arg1.children().length == 2) {
+          $arg1[0].selectedIndex = 1;
+        };
         $('#search_form_relation_arg1_type').change();
       });
 
       // when arg1 type changes, change choices of arg2 type
       $('#search_form_relation_arg1_type').change(function(evt) {
-        var $arg2 = $('#search_form_relation_arg2_type').empty();
+        var $arg2 = $('#search_form_relation_arg2_type').
+            html('<option value="">- Any -</option>');
         var relType = $('#search_form_relation_type').val();
         var arg1Type = spanTypes[$(this).val()];
-        var arcTypes = arg1Type && arg1Type.arcs;
-        var arctype = null;
+        var arcTypes = arg1Type && arg1Type.arcs || [];
+        var arcType = null;
         $.each(arcTypes, function(arcNo, arcDesc) {
           if (arcDesc.type == relType) {
             arcType = arcDesc;
@@ -624,6 +652,9 @@ var VisualizerUI = (function($, window, undefined) {
             $arg2.append(option);
           });
         }
+        if ($arg2.children().length == 2) {
+          $arg2[0].selectedIndex = 1;
+        };
       });
 
       $('#search_tabs').tabs();
@@ -633,7 +664,6 @@ var VisualizerUI = (function($, window, undefined) {
       var searchFormSubmit = function(evt) {
         // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
         var activeTab = $('#search_tabs').tabs('option', 'selected');
-        dispatcher.post('hideForm', [searchForm]);
         var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
         var opts = {
           action : action,
@@ -643,36 +673,46 @@ var VisualizerUI = (function($, window, undefined) {
         switch (action) {
           case 'searchText':
             opts.text = $('#search_form_text_text').val();
+            if (!opts.text.length) {
+              dispatcher.post('messages', [[['Text search query cannot be empty', 'error']]]);
+              return false;
+            }
             break;
           case 'searchEntity':
-            opts.type = $('#search_form_entity_type').val();
+            opts.type = $('#search_form_entity_type').val() || '';
             opts.text = $('#search_form_entity_text').val();
             break;
           case 'searchEvent':
-            opts.type = $('#search_form_event_type').val();
+            opts.type = $('#search_form_event_type').val() || '';
             opts.trigger = $('#search_form_event_trigger').val();
             var eargs = [];
             $('#search_form_event_roles tr').each(function() {
               var earg = {};
-              earg.role = $(this).find('.search_event_role select').val();
-              earg.type = $(this).find('.search_event_type select').val();
+              earg.role = $(this).find('.search_event_role select').val() || '';
+              earg.type = $(this).find('.search_event_type select').val() || '';
               earg.text = $(this).find('.search_event_text input').val();
               eargs.push(earg);
             });
             opts.args = $.toJSON(eargs);
             break;
           case 'searchRelation':
-            opts.type = $('#search_form_relation_type').val();
-            opts.arg1 = $('#search_form_relation_arg1_type').val();
-            opts.arg2 = $('#search_form_relation_arg2_type').val();
+            opts.type = $('#search_form_relation_type').val() || '';
+            opts.arg1 = $('#search_form_relation_arg1_text').val();
+            opts.arg1type = $('#search_form_relation_arg1_type').val() || '';
+            opts.arg2 = $('#search_form_relation_arg2_text').val();
+            opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
             break;
         }
+        dispatcher.post('hideForm', [searchForm]);
         dispatcher.post('ajax', [opts, function(response) {
           if(response && response.items && response.items.length == 0) {
             // TODO: might consider having this message come from the
             // server instead
             dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
           } else {
+            if (!searchActive) {
+              collectionSortOrder = sortOrder;
+            }
             dispatcher.post('searchResultsReceived', [response]);
             searchActive = true;
             updateSearchButton();
@@ -693,10 +733,7 @@ var VisualizerUI = (function($, window, undefined) {
             id: 'search_form_clear',
             text: "Clear",
             click: function(evt) {
-              searchActive = false;
-              updateSearchButton();
               dispatcher.post('clearSearch');
-              dispatcher.post('hideForm', [searchForm]);
             },
           }],
       });
@@ -774,8 +811,16 @@ var VisualizerUI = (function($, window, undefined) {
 
       var collectionLoaded = function(response) {
         if (response.exception) {
-          dispatcher.post('setCollection', ['/']);
+          if (response.exception == 'annotationCollectionNotFound' ||
+              response.exception == 'collectionNotAccessible') {
+              // revert to last good
+              dispatcher.post('setCollection', [lastGoodCollection]);
+          } else {
+              dispatcher.post('messages', [[['Unknown error: ' + response.exception, 'error']]]);
+              dispatcher.post('setCollection', ['/']);
+          }
         } else {
+          lastGoodCollection = response.collection;
           selectorData = response;
           documentListing = response; // 'backup'
           selectorData.items.sort(docSortFunction);
@@ -797,12 +842,17 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var clearSearch = function() {
+        dispatcher.post('hideForm', [searchForm]);
+
         // back off to document collection
-        selectorData = documentListing;
-        // TODO: it would be better to revert to previous sort order
-        // rather than the default
-        sortOrder = [2, 1]; // reset
-        selectorData.items.sort(docSortFunction);
+        if (searchActive) {
+          selectorData = documentListing;
+          sortOrder = collectionSortOrder;
+          selectorData.items.sort(docSortFunction);
+          searchActive = false;
+          updateSearchButton();
+        }
+
         showFileBrowser();
       }
 
@@ -815,7 +865,15 @@ var VisualizerUI = (function($, window, undefined) {
         }, 'savedSVG']);
       };
 
-      var onDoneRendering = function() {
+      var onDoneRendering = function(coll, doc, args) {
+        if (!args.edited) {
+          var svgtop = $('svg').offset().top;
+          var $inFocus = $('#svg animate[data-type="focus"]:first').parent();
+          if ($inFocus.length) {
+            $('html,body').
+                animate({ scrollTop: $inFocus.offset().top - svgtop }, { duration: 'slow', easing: 'swing'});
+          }
+        }
         saveSVG();
         $('#waiter').dialog('close');
       }
@@ -846,7 +904,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var onRenderData = function(_data) {
-        if (_data) {
+        if (_data && !_data.exception) {
           data = _data;
         }
         if (!data) return;
@@ -956,6 +1014,58 @@ var VisualizerUI = (function($, window, undefined) {
         showForm(aboutDialog);
       });
 
+      // TODO: copy from annotator_ui; DRY it up
+      var adjustFormToCursor = function(evt, element) {
+        var screenHeight = $(window).height() - 8; // TODO HACK - no idea why -8 is needed
+        var screenWidth = $(window).width() - 8;
+        var elementHeight = element.height();
+        var elementWidth = element.width();
+        var y = Math.min(evt.clientY, screenHeight - elementHeight);
+        var x = Math.min(evt.clientX, screenWidth - elementWidth);
+        element.css({ top: y, left: x });
+      };
+      var viewspanForm = $('#viewspan_form');
+      var onDblClick = function(evt) {
+        if (user) return;
+        var target = $(evt.target);
+        var id;
+        if (id = target.attr('data-span-id')) {
+          window.getSelection().removeAllRanges();
+          var span = data.spans[id];
+
+          var urlHash = URLHash.parse(window.location.hash);
+          urlHash.setArgument('focus', [[span.id]]);
+          $('#viewspan_highlight_link').show().attr('href', urlHash.getHash());
+
+          var spanText = data.text.substring(span.from, span.to);
+          $('#viewspan_selected').text(spanText);
+          var encodedText = encodeURIComponent(spanText);
+          // TODO: DRY it off (it is almost-copy of annotator_ui)
+          $('#viewspan_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
+          $('#viewspan_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
+          $('#viewspan_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
+          $('#viewspan_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
+          $('#viewspan_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
+
+          // annotator comments
+          $('#viewspan_notes').val(span.annotatorNotes || '');
+          dispatcher.post('showForm', [viewspanForm]);
+          $('#viewspan_form-ok').focus();
+          adjustFormToCursor(evt, viewspanForm.parent());
+        }
+      };
+      viewspanForm.submit(function(evt) {
+        dispatcher.post('hideForm', [viewspanForm]);
+        return false;
+      });
+
+      var init = function() {
+        dispatcher.post('initForm', [viewspanForm, {
+            width: 760,
+            no_cancel: true
+          }]);
+      };
+
       var showUnableToReadTextFile = function() {
         dispatcher.post('messages', [[['Unable to read the text file.', 'error']]]);
         showFileBrowser();
@@ -971,15 +1081,25 @@ var VisualizerUI = (function($, window, undefined) {
         showFileBrowser();
       };
 
+      var reloadDirectoryWithSlash = function(data) {
+        var collection = data.collection + data.document + '/';
+        dispatcher.post('setCollection', [collection, '', data.arguments]);
+      };
+
       var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
         spanTypes = _spanTypes;
         attributeTypes = _attributeTypes;
+      };
+
+      var userReceived = function(_user) {
+        user = _user;
       };
       
       // hide anything requiring login, just in case
       $('.login').hide();
 
       dispatcher.
+          on('init', init).
           on('messages', displayMessages).
           on('displaySpanComment', displaySpanComment).
           on('displayArcComment', displayArcComment).
@@ -998,9 +1118,12 @@ var VisualizerUI = (function($, window, undefined) {
           on('renderError:noFileSpecified', showFileBrowser).
           on('renderError:annotationFileNotFound', showAnnotationFileNotFound).
           on('renderError:unableToReadTextFile', showUnableToReadTextFile).
+          on('renderError:isDirectoryError', reloadDirectoryWithSlash).
           on('unknownError', showUnknownError).
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
+          on('dblclick', onDblClick).
+          on('user', userReceived).
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch);
