@@ -14,7 +14,8 @@
 while true;
 do
     # Watch all server code for writes
-    inotifywait -qq -e close_write -r *.cgi *.fcgi `find server -name '*.py'`
+    find . -iregex '.*\.\(py\|cgi\|fcgi\)' \
+        | inotifywait -qq -e close_write --fromfile -
     echo `date`': Code change detected!'
 
     # Kill the existing server if any
