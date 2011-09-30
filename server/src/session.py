@@ -126,15 +126,13 @@ class Session(object):
         self._shelf = shelve_open(self._shelf_file, protocol=-1, writeback=True)
 
     def print_cookie(self):
-        data_tup = self.get_cookie_data()
-        # Headers
-        print ': '.join(data_tup[0])
-        # Cookie data
-        print data_tup[1]
+        print '\n'.join('%s: %s' % (k, v) for k, v in self.get_cookie_hdrs())
 
-    def get_cookie_data(self):
-        return (('Cache-Control', 'no-store, no-cache, must-revalidate'),
-                self._cookie)
+    def get_cookie_hdrs(self):
+        hdrs = [('Cache-Control', 'no-store, no-cache, must-revalidate')]
+        for cookie_line in self._cookie.output(header='Set-Cookie:', sep='\n').split('\n'):
+            hdrs.append(tuple(cookie_line.split(': ', 1)))
+        return tuple(hdrs)
 
     def close(self):
         # save the data
