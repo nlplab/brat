@@ -121,10 +121,9 @@ def retrieve_svg(document, version):
     if not isfile(svg_path):
         raise NoSVGError(version)
 
-    print 'Content-Type: image/svg+xml'
-    print 'Content-Disposition: inline; filename=' + document + '.svg\n'
-    with open(svg_path, 'r') as svg_file:
-        print svg_file.read()
-    print
     # Bail out with a hack since we violated the protocol
-    raise NoPrintJSONError
+    hdrs = [('Content-Type', 'image/svg+xml'),
+            ('Content-Disposition', 'inline; filename=' + document + '.svg')]
+    with open(svg_path, 'r') as svg_file:
+        data = svg_file.read()
+    raise NoPrintJSONError(hdrs, data)
