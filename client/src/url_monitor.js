@@ -64,6 +64,9 @@ var URLMonitor = (function($, window, undefined) {
       var preventReloadByURL = function() {
         reloadData = false;
       }
+      var allowReloadByURL = function() {
+        reloadData = true;
+      }
 
       var init = function() {
         $(window).bind('hashchange', updateState);
@@ -76,6 +79,7 @@ var URLMonitor = (function($, window, undefined) {
           on('setDocument', setDocument).
           on('setCollection', setCollection).
           on('preventReloadByURL', preventReloadByURL).
+          on('allowReloadByURL', allowReloadByURL).
           on('init', init);
     };
 

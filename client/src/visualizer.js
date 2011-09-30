@@ -90,6 +90,7 @@ var Visualizer = (function($, window, undefined) {
       var data = null;
       var coll, doc, args;
       var spanTypes;
+      var relationTypesHash;
       var abbrevsOn = true;
       var isRenderRequested;
       var isCollectionLoaded = false;
@@ -1371,6 +1372,11 @@ Util.profileStart('arcs');
                       }
                   });            
           }
+          // fall back on relation types in case origin span type is
+          // undefined
+          if (!arcDesc) {
+            arcDesc = relationTypesHash[arc.type];
+          }
           var color = arcDesc && arcDesc.color || spanTypes.ARC_DEFAULT.color || '#000000';
           var hashlessColor = color.replace('#', '');
           var dashArray = arcDesc && arcDesc.dashArray;
@@ -1448,8 +1454,11 @@ Util.profileStart('arcs');
             var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type);
             if (abbrevsOn && !ufoCatcher && arcLabels) {
               var labelIdx = 1; // first abbreviation
-              var maxLength = ((to - from) - (2 * arcSlant)) / 7;
-              while (labelText.length > maxLength &&
+              // strictly speaking 2*arcSlant would be needed to allow for
+              // the full-width arcs to fit, but judged unabbreviated text
+              // to be more important than the space for arcs.
+              var maxLength = (to - from) - (arcSlant);
+              while (sizes.arcs.widths[labelText] > maxLength &&
                      arcLabels[labelIdx]) {
                 labelText = arcLabels[labelIdx];
                 labelIdx++;
@@ -1680,7 +1689,7 @@ Util.profileStart('chunkFinish');
         var rlChunkComp = function(a,b) { 
           var ac = currentChunk.spans[a];
           var bc = currentChunk.spans[b]
-          var endDiff = Util.cmp(ac.from, bc.from);
+          var endDiff = Util.cmp(bc.to, ac.to);
           return endDiff != 0 ? endDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
         }
 
@@ -2108,6 +2117,10 @@ Util.profileStart('before render');
           loadSpanTypes(response.entity_types);
           loadSpanTypes(response.event_types);
           loadSpanTypes(response.unconfigured_types);
+          relationTypesHash = {};
+          $.each(response.relation_types, function(relTypeNo, relType) {
+            relationTypesHash[relType.type] = relType;
+          });
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
 
