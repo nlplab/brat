@@ -1454,7 +1454,10 @@ Util.profileStart('arcs');
             var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type);
             if (abbrevsOn && !ufoCatcher && arcLabels) {
               var labelIdx = 1; // first abbreviation
-              var maxLength = (to - from) - (2 * arcSlant);
+              // strictly speaking 2*arcSlant would be needed to allow for
+              // the full-width arcs to fit, but judged unabbreviated text
+              // to be more important than the space for arcs.
+              var maxLength = (to - from) - (arcSlant);
               while (sizes.arcs.widths[labelText] > maxLength &&
                      arcLabels[labelIdx]) {
                 labelText = arcLabels[labelIdx];
