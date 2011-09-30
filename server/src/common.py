@@ -29,8 +29,9 @@ class ProtocolError(Exception):
 # If received by ajax.cgi, no JSON will be sent
 # XXX: This is an ugly hack to circumvent protocol flaws
 class NoPrintJSONError(Exception):
-    pass
-
+    def __init__(self, hdrs, data):
+        self.hdrs = hdrs
+        self.data = data
 
 class NotImplementedError(ProtocolError):
     def json(self, json_dic):

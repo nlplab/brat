@@ -9,7 +9,7 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
 '''
 
-from os.path import abspath
+from os.path import abspath, normpath
 from os.path import join as path_join
 
 from annotator import create_arc, delete_arc, possible_arc_types
@@ -127,7 +127,6 @@ class DirectorySecurityError(ProtocolError):
         json_dic['exception'] = 'directorySecurity',
         return json_dic
 
-
 def _directory_is_safe(dir_path):
     # TODO: Make this less naive
     if not dir_path.startswith('/'):
@@ -135,7 +134,8 @@ def _directory_is_safe(dir_path):
         return False
 
     # Make a simple test that the directory is inside the data directory
-    return abspath(path_join(DATA_DIR, dir_path[1:])).startswith(DATA_DIR)
+    return abspath(path_join(DATA_DIR, dir_path[1:])
+            ).startswith(normpath(DATA_DIR))
 
 def dispatch(params, client_ip, client_hostname):
     action = params.getvalue('action')
