@@ -42,7 +42,7 @@ def main(args):
         response_hdrs = [hdr for hdr in cookie_hdrs]
     else:
         response_hdrs = []
-    response_hdrs.append(response_data[0])
+    response_hdrs.extend(response_data[0])
 
     print '\n'.join('%s: %s' % (k, v) for k, v in response_hdrs)
     print

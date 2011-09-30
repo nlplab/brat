@@ -51,7 +51,7 @@ def brat_app(environ, start_response):
         response_hdrs = [hdr for hdr in cookie_hdrs]
     else:
         response_hdrs = []
-    response_hdrs.append(response_data[0])
+    response_hdrs.extend(response_data[0])
 
     start_response(response_code, response_hdrs)
     # Add a newline for readability
