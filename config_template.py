@@ -33,10 +33,11 @@ DEBUG = False
 # Contact email for users to use if the software encounters errors
 ADMIN_CONTACT_EMAIL = CHANGE_ME
 
+DEBUG, INFO, WARNING, ERROR, CRITICAL = range(5)
 # If you are developing you may want to turn on extensive server logging
+LOG_LEVEL = WARNING
 '''
-from logging import INFO
-LOG_LEVEL = INFO
+LOG_LEVEL = DEBUG
 '''
 
 # If the source data is in Japanese enable word segmentation

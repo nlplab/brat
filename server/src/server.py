@@ -93,9 +93,13 @@ def _config_check():
     try:
         import config
         del config
-    except ImportError:
+    except ImportError, e:
         path.extend(orig_path)
-        Messager.error(_miss_config_msg(), duration=-1)
+        # "Prettiest" way to check specific failure
+        if e.message == 'No module named config':
+            Messager.error(_miss_config_msg(), duration=-1)
+        else:
+            Messager.error(_get_stack_trace(), duration=-1)
         raise ConfigurationError
     # Try importing the config entries we need
     try:
@@ -115,6 +119,23 @@ def _config_check():
     # Then restore it
     path.extend(orig_path)
 
+# Convert internal log level to logging log level
+def _convert_log_level(log_level):
+    import config
+    import logging
+    if log_level == config.DEBUG:
+        return logging.DEBUG
+    elif log_level == config.INFO:
+        return logging.INFO
+    elif log_level == config.WARNING:
+        return logging.WARNING
+    elif log_level == config.ERROR:
+        return logging.ERROR
+    elif log_level == config.CRITICAL:
+        return logging.CRITICAL
+    else:
+        assert False, 'Should not happen'
+
 def _safe_serve(params, client_ip, client_hostname):
     from common import ProtocolError, NoPrintJSONError
     from config import WORK_DIR
@@ -127,11 +148,12 @@ def _safe_serve(params, client_ip, client_hostname):
     # Enable logging
     try:
         from config import LOG_LEVEL
+        log_level = _convert_log_level(LOG_LEVEL)
     except ImportError:
         from logging import WARNING as LOG_LEVEL_WARNING
-        LOG_LEVEL = LOG_LEVEL_WARNING
+        log_level = LOG_LEVEL_WARNING
     log_basic_config(filename=path_join(WORK_DIR, 'server.log'),
-            level=LOG_LEVEL)
+            level=log_level)
 
     # Session information is now available
     cookie_hdrs = get_session().get_cookie_hdrs()
@@ -157,11 +179,8 @@ def _safe_serve(params, client_ip, client_hostname):
 
     return (cookie_hdrs, response_data)
 
-# Encapsulate an interpreter crash
-def _server_crash(cookie_hdrs, e):
-    from config import ADMIN_CONTACT_EMAIL, DEBUG
-    from jsonwrap import dumps
-    from message import Messager
+# Programmatically access the stack-trace
+def _get_stack_trace():
     from traceback import print_exc
     
     try:
@@ -173,7 +192,15 @@ def _server_crash(cookie_hdrs, e):
     buf = StringIO()
     print_exc(file=buf)
     buf.seek(0)
-    stack_trace = buf.read()
+    return buf.read()
+
+# Encapsulate an interpreter crash
+def _server_crash(cookie_hdrs, e):
+    from config import ADMIN_CONTACT_EMAIL, DEBUG
+    from jsonwrap import dumps
+    from message import Messager
+
+    stack_trace = _get_stack_trace()
 
     if DEBUG:
         # Send back the stack-trace as json
