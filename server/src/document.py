@@ -27,7 +27,7 @@ from common import ProtocolError, CollectionNotAccessibleError
 from config import DATA_DIR
 from projectconfig import (ProjectConfiguration, SEPARATOR_STR, 
         SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
-        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT)
+        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, ENTITY_NESTING_TYPE)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -42,7 +42,6 @@ try:
 except ImportError:
     JAPANESE = False
 
-# TODO: this is not a good spot for this
 from itertools import chain
 
 def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
@@ -58,13 +57,12 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
             # to block this magic value from getting to the client.
             # TODO: resolve cleanly, preferably by not storing this with
             # other relations at all.
-            if _type == "ENTITY-NESTING":
+            if _type == ENTITY_NESTING_TYPE:
                 continue
 
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
-            # TODO: use project_conf
             item['labels'] = project_conf.get_labels_by_type(_type)
             item['attributes'] = project_conf.attributes_for(_type)
 
@@ -83,13 +81,10 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                 pass
 
             arcs = []
-            # TODO: this whole bit makes very little sense for relations,
-            # which are already "arcs" in the UI sense. This bit of the
-            # protocol should be cleaned up. See issue #237.
 
             # Note: for client, relations are represented as "arcs"
             # attached to "spans" corresponding to entity annotations.
-            for arc in chain(project_conf.relation_types_from(_type), node.arguments.keys()):
+            for arc in chain(project_conf.relation_types_from(_type), node.arg_list):
                 curr_arc = {}
                 curr_arc['type'] = arc
 
@@ -101,7 +96,6 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                 except KeyError:
                     pass
                 
-                # TODO: avoid magic values
                 arc_drawing_conf = project_conf.get_drawing_config_by_type(arc)
                 if arc_drawing_conf is None:
                     arc_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ARC_DEFAULT)
@@ -116,7 +110,10 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                 # the arc can connect to
 
                 # This bit doesn't make sense for relations, which are
-                # already "arcs" (see comment above). TODO cleanup.
+                # already "arcs" (see comment above).
+                # TODO: determine if this should be an error: relation
+                # config should now go through _fill_relation_configuration
+                # instead.
                 if project_conf.is_relation_type(_type):
                     targets = []
                 else:
@@ -137,6 +134,58 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                     project_conf, hotkey_by_type)
             items.append(item)
     return items
+
+# TODO: duplicates part of _fill_type_configuration
+def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
+    items = []
+    for node in nodes:
+        if node == SEPARATOR_STR:
+            items.append(None)
+        else:
+            item = {}
+            _type = node.storage_form() 
+
+            if _type == ENTITY_NESTING_TYPE:
+                continue
+
+            item['name'] = project_conf.preferred_display_form(_type)
+            item['type'] = _type
+            item['unused'] = node.unused
+            item['labels'] = project_conf.get_labels_by_type(_type)
+            item['attributes'] = project_conf.attributes_for(_type)
+
+            arc_drawing_conf = project_conf.get_drawing_config_by_type(_type)
+            if arc_drawing_conf is None:
+                arc_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ARC_DEFAULT)
+            if arc_drawing_conf is None:
+                arc_drawing_conf = {}
+            for k in ARC_DRAWING_ATTRIBUTES:
+                if k in arc_drawing_conf:
+                    item[k] = arc_drawing_conf[k]                    
+            
+            try:
+                item['hotkey'] = hotkey_by_type[_type]
+            except KeyError:
+                pass
+
+            # minimal info on argument types to allow differentiation of e.g.
+            # "Equiv(Protein, Protein)" and "Equiv(Organism, Organism)"
+            args = []
+            for arg in node.arg_list:
+                curr_arg = {}
+                curr_arg['role'] = arg
+                # TODO: special type (e.g. "<ENTITY>") expansion via projectconf
+                curr_arg['targets'] = node.arguments[arg]
+
+                args.append(curr_arg)
+
+            item['args'] = args
+
+            item['children'] = _fill_relation_configuration(node.children,
+                    project_conf, hotkey_by_type)
+            items.append(item)
+    return items
+
 
 # TODO: this may not be a good spot for this
 def _fill_attribute_configuration(nodes, project_conf):
@@ -239,7 +288,7 @@ def get_span_types(directory):
     attribute_types = _fill_attribute_configuration(attribute_hierarchy, project_conf)
 
     relation_hierarchy = project_conf.get_relation_type_hierarchy()
-    relation_types = _fill_type_configuration(relation_hierarchy,
+    relation_types = _fill_relation_configuration(relation_hierarchy,
             project_conf, hotkey_by_type)
 
     # make visual config available also for nodes for which there is

@@ -8,7 +8,7 @@ from __future__ import with_statement
 
 import annotation
 
-from projectconfig import ProjectConfiguration
+from projectconfig import ProjectConfiguration, ENTITY_NESTING_TYPE
 
 # Issue types. Values should match with annotation interface.
 AnnotationError = "AnnotationError"
@@ -114,10 +114,6 @@ def verify_entity_overlap(ann_obj, projectconf):
     def disp(s):
         return projectconf.preferred_display_form(s)
 
-    # Note: "ENTITY-NESTING" is a bit of a magic value in config. Might
-    # want to use some other approach.
-    nesting_relation = "ENTITY-NESTING"
-
     # check for overlap between physical entities
     physical_entities = [a for a in ann_obj.get_textbounds() if projectconf.is_physical_entity_type(a.type)]
     overlapping = check_textbound_overlap(physical_entities)
@@ -125,10 +121,10 @@ def verify_entity_overlap(ann_obj, projectconf):
         if a1.start == a2.start and a1.end == a2.end:
             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s has identical span with %s %s" % (disp(a1.type), disp(a2.type), a2.id)))            
         elif contained_in_span(a1, a2):
-            if nesting_relation not in projectconf.relation_types_from_to(a1.type, a2.type, include_special=True):
+            if ENTITY_NESTING_TYPE not in projectconf.relation_types_from_to(a1.type, a2.type, include_special=True):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in %s (%s)" % (disp(a1.type), disp(a2.type), a2.id)))
         elif contained_in_span(a2, a1):
-            if nesting_relation not in projectconf.relation_types_from_to(a2.type, a1.type, include_special=True):
+            if ENTITY_NESTING_TYPE not in projectconf.relation_types_from_to(a2.type, a1.type, include_special=True):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain %s (%s)" % (disp(a1.type), disp(a2.type), a2.id)))
         else:
             # crossing boundaries; never allowed for physical entities.

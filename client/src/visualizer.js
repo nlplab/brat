@@ -51,11 +51,11 @@ var Visualizer = (function($, window, undefined) {
       var boxTextMargin = { x: 0, y: 1.5 }; // effect is inverse of "margin" for some reason
       var highlightRounding = { x: 3, y:3 }; // rx, ry for highlight boxes
       var spaceWidths = {
-        ' ': 5,
-        '\u00a0': 5,
+        ' ': 4,
+        '\u00a0': 4,
         '\u200b': 0,
-        '\u3000': 10,
-        '\n': 5
+        '\u3000': 8,
+        '\n': 4
       };
       var boxSpacing = 1;
       var curlyHeight = 4;
@@ -1031,6 +1031,11 @@ Util.profileStart('chunks');
             var bw = ww + 2 * margin.x;
             var bh = hh + 2 * margin.y;
 
+            if (roundCoordinates) {
+              x  = (x|0)+0.5;
+              bx = (bx|0)+0.5;              
+            }
+
             var shadowRect;
             var editedRect;
             if (span.edited) {
@@ -1661,7 +1666,28 @@ Util.profileStart('rows');
 Util.profileEnd('rows');
 Util.profileStart('chunkFinish');
 
+        // chunk index sort functions for overlapping span drawing
+        // algorithm; first for left-to-right pass, sorting primarily
+        // by start offset, second for right-to-left pass by end
+        // offset. Secondary sort by span length in both cases.
+        var currentChunk;
+        var lrChunkComp = function(a,b) { 
+          var ac = currentChunk.spans[a];
+          var bc = currentChunk.spans[b]
+          var startDiff = Util.cmp(ac.from, bc.from);
+          return startDiff != 0 ? startDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
+        }
+        var rlChunkComp = function(a,b) { 
+          var ac = currentChunk.spans[a];
+          var bc = currentChunk.spans[b]
+          var endDiff = Util.cmp(bc.to, ac.to);
+          return endDiff != 0 ? endDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
+        }
+
         $.each(data.chunks, function(chunkNo, chunk) {
+            // context for sort
+            currentChunk = chunk;
+
             // text rendering
             foo = svg.text(textGroup, chunk.textX, chunk.row.textY, chunk.text,
               {
@@ -1674,36 +1700,61 @@ Util.profileStart('chunkFinish');
               for (var i=chunk.spans.length-1; i>=0; i--) {
                   orderedIdx.push(i);
               }
-              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[a].from, chunk.spans[b].from) });
 
-              // Detect overlapping pairs and mark entity nesting
-              // height/depth (number of nested/nesting entities).
-              // Note: for identical spans and "crossing" annotations,
-              // the span starting first becomes the outer span.
-              var overlapping = [];
+              // Mark entity nesting height/depth (number of
+              // nested/nesting entities). To account for crossing
+              // brackets in a (mostly) reasonable way, determine
+              // depth/height separately in a left-to-right traversal
+              // and a right-to-left traversal.
+              orderedIdx.sort(lrChunkComp);              
+              
               var openSpans = [];
               for(var i=0; i<orderedIdx.length; i++) {
                   var current = chunk.spans[orderedIdx[i]];
-                  current.nestingHeight = 0;
-                  current.nestingDepth = 0;
+                  current.nestingHeightLR = 0;
+                  current.nestingDepthLR = 0;
                   var stillOpen = [];
                   for(var o=0; o<openSpans.length; o++) {
                       if(openSpans[o].to > current.from) {
                           stillOpen.push(openSpans[o]);
+                          openSpans[o].nestingHeightLR++;
                       }
                   }
                   openSpans = stillOpen;
-                  for(var o=0; o<openSpans.length; o++) {
-                      openSpans[o].nestingHeight++;
-                  }
-                  current.nestingDepth=openSpans.length;
+                  current.nestingDepthLR=openSpans.length;
                   openSpans.push(current);
               }
 
-              // Re-order by nesting depth
-              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[a].nestingDepth, chunk.spans[b].nestingDepth) });
+              // re-sort for right-to-left traversal by end position
+              orderedIdx.sort(rlChunkComp);
 
-              // And draw in order
+              openSpans = [];
+              for(var i=0; i<orderedIdx.length; i++) {
+                  var current = chunk.spans[orderedIdx[i]];
+                  current.nestingHeightRL = 0;
+                  current.nestingDepthRL = 0;
+                  var stillOpen = [];
+                  for(var o=0; o<openSpans.length; o++) {
+                      if(openSpans[o].from < current.to) {
+                          stillOpen.push(openSpans[o]);
+                          openSpans[o].nestingHeightRL++;
+                      }
+                  }
+                  openSpans = stillOpen;
+                  current.nestingDepthRL=openSpans.length;
+                  openSpans.push(current);
+              }
+
+              // the effective depth and height are the max of those
+              // for the left-to-right and right-to-left traversals.
+              for(var i=0; i<orderedIdx.length; i++) {
+                  var c = chunk.spans[orderedIdx[i]];
+                  c.nestingHeight = c.nestingHeightLR > c.nestingHeightRL ? c.nestingHeightLR : c.nestingHeightRL;
+                  c.nestingDepth = c.nestingDepthLR > c.nestingDepthRL ? c.nestingDepthLR : c.nestingDepthRL;
+              }              
+
+              // Re-order by nesting height and draw in order
+              orderedIdx.sort(function(a,b) { return Util.cmp(chunk.spans[b].nestingHeight, chunk.spans[a].nestingHeight) });
 
               for(var i=0; i<chunk.spans.length; i++) {
                 var span=chunk.spans[orderedIdx[i]];
