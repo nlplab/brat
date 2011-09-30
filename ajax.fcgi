@@ -14,21 +14,22 @@ Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-09-14
 '''
 
-# TODO: Fail gracefully if flup is not present
-from flup.server.fcgi import WSGIServer
-
+# Standard library imports
 from sys import path as sys_path
 from os.path import dirname, join as path_join
 from cgi import FieldStorage
 
+# Library imports
+# TODO: Fail gracefully if flup is not present
+from flup.server.fcgi import WSGIServer
+
+# Local imports
 sys_path.append(path_join(dirname(__file__), 'server/src'))
 
-from dispatch import dispatch
-from session import get_session
+from server import serve
 
 def brat_app(environ, start_response):
-    # XXX: We are assuming everything went fine here... This is just a test!
-    # TODO: Move most of this code into a unified agnostic server
+    # Get 
     try:
         remote_addr = environ['REMOTE_ADDR']
     except KeyError:
@@ -37,14 +38,21 @@ def brat_app(environ, start_response):
         remote_host = environ['REMOTE_HOST']
     except KeyError:
         remote_host = None
-
     params = FieldStorage(environ['wsgi.input'], environ=environ)
 
-    json_dic = dispatch(params, remote_addr, remote_host)
-    # XXX: If this was done properly there would be exception handling here
-    from json import dumps
-    start_response('200 OK', [('Content-Type', 'application/json')])
-    return [dumps(json_dic, indent=4)]
+    cookie_hdrs, response_data = serve(params, remote_addr, remote_host)
+   
+    # Not returning 200 OK is a breach of protocol with the client
+    response_code = '200 OK'
+    # Add the cookie data if we have any
+    if cookie_hdrs is not None:
+        response_hdrs = [hdr for hdr in cookie_hdrs]
+    else:
+        response_hdrs = []
+    response_hdrs.append(response_data[0])
+
+    start_response(response_code, response_hdrs)
+    return [response_data[1]]
 
 if __name__ == '__main__':
     from sys import exit
