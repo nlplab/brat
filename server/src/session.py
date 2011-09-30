@@ -126,9 +126,15 @@ class Session(object):
         self._shelf = shelve_open(self._shelf_file, protocol=-1, writeback=True)
 
     def print_cookie(self):
-        # send the headers
-        print "Cache-Control: no-store, no-cache, must-revalidate"
-        print self._cookie
+        data_tup = self.get_cookie_data()
+        # Headers
+        print ': '.join(data_tup[0])
+        # Cookie data
+        print data_tup[1]
+
+    def get_cookie_data(self):
+        return (('Cache-Control', 'no-store, no-cache, must-revalidate'),
+                self._cookie)
 
     def close(self):
         # save the data
