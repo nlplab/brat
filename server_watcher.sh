@@ -6,6 +6,8 @@
 #
 #   https://github.com/rvoicilas/inotify-tools
 #
+#   sudo apt-get install inotify-tools
+#
 # Author:   Pontus Stenetorp    <pontus stenetorp se>
 # Version:  2011-09-29
 
