@@ -374,6 +374,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').empty();
+        dispatcher.post('allowReloadByURL');
         dispatcher.post('setCollection', [_coll, _doc, _args]);
         return false;
       };
@@ -783,6 +784,7 @@ var VisualizerUI = (function($, window, undefined) {
           if (pos > 0 && selectorData.items[pos - 1][0] != "c") {
             // not at the start, and the previous is not a collection (dir)
             var newPos = pos - 1;
+            dispatcher.post('allowReloadByURL');
             dispatcher.post('setDocument', [selectorData.items[newPos][2],
                                             selectorData.items[newPos][1]]);
           }
@@ -792,6 +794,7 @@ var VisualizerUI = (function($, window, undefined) {
           if (pos < selectorData.items.length - 1) {
             // not at the end
             var newPos = pos + 1;
+            dispatcher.post('allowReloadByURL');
             dispatcher.post('setDocument', [selectorData.items[newPos][2],
                                             selectorData.items[newPos][1]]);
           }
