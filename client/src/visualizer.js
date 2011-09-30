@@ -90,6 +90,7 @@ var Visualizer = (function($, window, undefined) {
       var data = null;
       var coll, doc, args;
       var spanTypes;
+      var relationTypesHash;
       var abbrevsOn = true;
       var isRenderRequested;
       var isCollectionLoaded = false;
@@ -1371,6 +1372,11 @@ Util.profileStart('arcs');
                       }
                   });            
           }
+          // fall back on relation types in case origin span type is
+          // undefined
+          if (!arcDesc) {
+            arcDesc = relationTypesHash[arc.type];
+          }
           var color = arcDesc && arcDesc.color || spanTypes.ARC_DEFAULT.color || '#000000';
           var hashlessColor = color.replace('#', '');
           var dashArray = arcDesc && arcDesc.dashArray;
@@ -2108,6 +2114,10 @@ Util.profileStart('before render');
           loadSpanTypes(response.entity_types);
           loadSpanTypes(response.event_types);
           loadSpanTypes(response.unconfigured_types);
+          relationTypesHash = {};
+          $.each(response.relation_types, function(relTypeNo, relType) {
+            relationTypesHash[relType.type] = relType;
+          });
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
 
