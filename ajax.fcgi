@@ -29,7 +29,7 @@ sys_path.append(path_join(dirname(__file__), 'server/src'))
 from server import serve
 
 def brat_app(environ, start_response):
-    # Get 
+    # Get the data required by the server
     try:
         remote_addr = environ['REMOTE_ADDR']
     except KeyError:
@@ -40,7 +40,9 @@ def brat_app(environ, start_response):
         remote_host = None
     params = FieldStorage(environ['wsgi.input'], environ=environ)
 
+    # Call main server
     cookie_hdrs, response_data = serve(params, remote_addr, remote_host)
+    # Then package and send response
    
     # Not returning 200 OK is a breach of protocol with the client
     response_code = '200 OK'
@@ -52,7 +54,8 @@ def brat_app(environ, start_response):
     response_hdrs.append(response_data[0])
 
     start_response(response_code, response_hdrs)
-    return [response_data[1]]
+    # Add a newline for readability
+    return [response_data[1] + '\n']
 
 if __name__ == '__main__':
     from sys import exit
