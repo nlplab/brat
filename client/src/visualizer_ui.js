@@ -911,6 +911,16 @@ var VisualizerUI = (function($, window, undefined) {
           data = _data;
         }
         if (!data) return;
+        var $sourceFiles = $('#source_files');
+        $.each(data.source_files, function(extNo, ext) {
+          var $link = $('<a target="brat_search"/>').
+              text(ext).
+              attr('href',
+                  'ajax.cgi?action=downloadFile&collection=' + coll +
+                  '&document=' + doc + '&extension=' + ext);
+          if (extNo) $sourceFiles.append(', ');
+          $sourceFiles.append($link);
+        });
         hideSVGDownloadLinks();
 
         if (data.mtime) {
