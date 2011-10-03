@@ -20,6 +20,7 @@ from common import ProtocolError
 from config import DATA_DIR
 from docimport import save_import
 from document import get_directory_information, get_document
+from download import download_file
 from inspect import getargspec
 from itertools import izip
 from jsonwrap import dumps
@@ -39,6 +40,7 @@ DISPATCHER = {
 
         'storeSVG': store_svg,
         'retrieveSVG': retrieve_svg,
+        'downloadFile': download_file,
 
         'login': login,
         'logout': logout,
