@@ -19,7 +19,7 @@ def download_file(document, collection, extension):
 
     hdrs = [('Content-Type', 'text/plain'),
             ('Content-Disposition',
-                'inline; filename=%s' % (fname, )]
+                'inline; filename=%s' % fname)]
     with open_textfile(fpath) as txt_file:
         data = txt_file.read()
     raise NoPrintJSONError(hdrs, data)
