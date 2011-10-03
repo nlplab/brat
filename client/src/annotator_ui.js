@@ -46,6 +46,13 @@ var AnnotatorUI = (function($, window, undefined) {
 
         if (!keymap) return;
 
+        // disable shortcuts when working with elements that you could
+        // conceivably type in
+        var target = evt.target;
+        var nodeName = target.nodeName.toLowerCase();
+        if (nodeName == 'input' && target.type.toLowerCase() == 'text') return;
+        if (nodeName == 'textarea' || nodeName == 'select') return;
+
         var binding = keymap[code];
         if (!binding) binding = keymap[String.fromCharCode(code)];
         if (binding) {

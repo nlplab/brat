@@ -769,7 +769,7 @@ var VisualizerUI = (function($, window, undefined) {
             // entry
             // NOTE: spec seems to require this to be upper-case,
             // but at least chrome 8.0.552.215 returns lowercased
-            if (evt.target.nodeName.toUpperCase() != 'TEXTAREA') {
+            if (evt.target.nodeName.toLowerCase() == 'input' && evt.target.type.toLowerCase() == 'text') {
               currentForm.trigger('submit');
             }
           }
