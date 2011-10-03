@@ -563,6 +563,20 @@ def _enrich_json_with_data(j_dic, ann_obj):
     for i in issues:
         j_dic['comments'].append((unicode(i.ann_id), i.type, i.description))
 
+    # Attach the source files for the annotations and text
+    from os.path import relpath, normpath, join as path_join
+    from config import DATA_DIR
+    from annotation import TEXT_FILE_SUFFIX
+    # XXX: We assume that the data dir is in the same root as us, we could
+    # do a check and return nothing if this is not the case
+    ann_files = [relpath(p, path_join(DATA_DIR, '..')) for p in ann_obj._input_files]
+    # XXX: The Annotations object does not __necessarily__ hold a reference to
+    # a text file, so we assume this path hack to work
+    ann_files.append(ann_files[0][:-3] + TEXT_FILE_SUFFIX)
+    ann_files = [p for p in set(ann_files)]
+    ann_files.sort()
+    j_dic['source_files'] = ann_files
+
 def _enrich_json_with_base(j_dic):
     # TODO: Make the names here and the ones in the Annotations object conform
     # This is the from offset
