@@ -911,7 +911,7 @@ var VisualizerUI = (function($, window, undefined) {
           data = _data;
         }
         if (!data) return;
-        var $sourceFiles = $('#source_files');
+        var $sourceFiles = $('#source_files').empty();
         $.each(data.source_files, function(extNo, ext) {
           var $link = $('<a target="brat_search"/>').
               text(ext).
