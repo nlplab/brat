@@ -564,7 +564,8 @@ def _enrich_json_with_data(j_dic, ann_obj):
         j_dic['comments'].append((unicode(i.ann_id), i.type, i.description))
 
     # Attach the source files for the annotations and text
-    from os.path import relpath, normpath, join as path_join
+    from os.path import normpath, join as path_join
+    from common import relpath
     from config import DATA_DIR
     from annotation import TEXT_FILE_SUFFIX
     # XXX: We assume that the data dir is in the same root as us, we could
