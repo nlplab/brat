@@ -58,6 +58,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (binding) {
           $('#' + binding).click();
         }
+        return false;
       };
 
       var onDblClick = function(evt) {

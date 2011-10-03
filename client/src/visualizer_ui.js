@@ -771,6 +771,7 @@ var VisualizerUI = (function($, window, undefined) {
             // but at least chrome 8.0.552.215 returns lowercased
             if (evt.target.nodeName.toLowerCase() == 'input' && evt.target.type.toLowerCase() == 'text') {
               currentForm.trigger('submit');
+              return false;
             }
           }
           return;
