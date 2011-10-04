@@ -60,6 +60,7 @@ var Visualizer = (function($, window, undefined) {
       var curlyHeight = 4;
       var arcSpacing = 9; //10;
       var arcSlant = 15; //10;
+      var minArcSlant = 5; //10;
       var arcStartHeight = 19; //23; //25;
       var arcHorizontalSpacing = 10; // min space boxes with connecting arc
       var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
@@ -1151,17 +1152,17 @@ Util.profileStart('chunks');
                   // same row, but before this
                   border = origin.translation.x + leftSpan.right;
                 } else {
-                  border = margin.x + sentNumMargin + rowPadding; // XXX change to margin!
+                  border = margin.x + sentNumMargin + rowPadding;
                 }
-                var smallestLabelWidth = sizes.arcs.widths[labels[labels.length - 1]] + 2 * arcSlant;
+                var smallestLabelWidth = sizes.arcs.widths[labels[labels.length - 1]] + 2 * minArcSlant;
                 var gap = current.x + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
-                if (!hasLeftArcs || spacing > arcSpacing) {
+                if (!hasLeftArcs || spacing < arcSpacing) {
                   spacing = arcSpacing;
                   spacingChunkId = origin.index + 1;
                 }
                 arcSpacing = smallestLabelWidth - bx;
-                if (!hasLeftArcs || spacingRowBreak > arcSpacing) {
+                if (!hasLeftArcs || spacingRowBreak < arcSpacing) {
                   spacingRowBreak = arcSpacing;
                 }
                 hasLeftArcs = true;
@@ -1169,7 +1170,6 @@ Util.profileStart('chunks');
                 hasRightArcs = true;
               }
             });
-            // TODO:
             $.each(span.outgoing, function(arcId, arc) {
               var leftSpan = data.spans[arc.target];
               var target = leftSpan.chunk;
@@ -1183,18 +1183,19 @@ Util.profileStart('chunks');
                 } else {
                   border = margin.x + sentNumMargin + rowPadding;
                 }
-                var smallestLabelWidth = sizes.arcs.widths[foo = labels[labels.length - 1]] + 2 * arcSlant;
+                var smallestLabelWidth = sizes.arcs.widths[foo = labels[labels.length - 1]] + 2 * minArcSlant;
                 var gap = current.x + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
-                if (!hasLeftArcs || spacing > arcSpacing) {
+                if (!hasLeftArcs || spacing < arcSpacing) {
                   spacing = arcSpacing;
                   spacingChunkId = target.index + 1;
                 }
                 arcSpacing = smallestLabelWidth - bx;
-                if (!hasLeftArcs || spacingRowBreak > arcSpacing) {
+                if (!hasLeftArcs || spacingRowBreak < arcSpacing) {
                   spacingRowBreak = arcSpacing;
                 }
                 hasLeftArcs = true;
+                if (span.id == "E14" || span.id == "E13") { console.log(span.id, spacing); }
               } else {
                 hasRightArcs = true;
               }
