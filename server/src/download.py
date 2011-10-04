@@ -5,6 +5,8 @@ Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2011-10-03
 '''
 
+from __future__ import with_statement
+
 from os.path import join as path_join
 
 from document import real_directory
