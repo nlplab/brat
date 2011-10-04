@@ -60,7 +60,7 @@ var Visualizer = (function($, window, undefined) {
       var curlyHeight = 4;
       var arcSpacing = 9; //10;
       var arcSlant = 15; //10;
-      var minArcSlant = 5; //10;
+      var minArcSlant = 8;
       var arcStartHeight = 19; //23; //25;
       var arcHorizontalSpacing = 10; // min space boxes with connecting arc
       var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
@@ -1154,7 +1154,8 @@ Util.profileStart('chunks');
                 } else {
                   border = margin.x + sentNumMargin + rowPadding;
                 }
-                var smallestLabelWidth = sizes.arcs.widths[labels[labels.length - 1]] + 2 * minArcSlant;
+                var labelNo = abbrevsOn ? labels.length - 1 : 0;
+                var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
                 var gap = current.x + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
                 if (!hasLeftArcs || spacing < arcSpacing) {
@@ -1183,7 +1184,8 @@ Util.profileStart('chunks');
                 } else {
                   border = margin.x + sentNumMargin + rowPadding;
                 }
-                var smallestLabelWidth = sizes.arcs.widths[foo = labels[labels.length - 1]] + 2 * minArcSlant;
+                var labelNo = abbrevsOn ? labels.length - 1 : 0;
+                var smallestLabelWidth = sizes.arcs.widths[foo = labels[labelNo]] + 2 * minArcSlant;
                 var gap = current.x + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
                 if (!hasLeftArcs || spacing < arcSpacing) {
