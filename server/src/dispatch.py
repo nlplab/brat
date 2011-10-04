@@ -156,10 +156,15 @@ def dispatch(params, client_ip, client_hostname):
             raise DirectorySecurityError(params.getvalue('collection'))
 
     # Make sure that we are authenticated if we are to do certain actions
-    if action in REQUIRES_AUTHENTICATION and get_session()['user'] is None:
-        log_info('Authorization failure for "%s" with hostname "%s"'
-                % (client_ip, client_hostname))
-        raise NotAuthorisedError(action)
+    if action in REQUIRES_AUTHENTICATION:
+        try:
+            user = get_session()['user']
+        except KeyError:
+            user = None
+        if user is None:
+            log_info('Authorization failure for "%s" with hostname "%s"'
+                     % (client_ip, client_hostname))
+            raise NotAuthorisedError(action)
 
     # Fetch the action function for this action (if any)
     try:
