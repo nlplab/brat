@@ -1,4 +1,3 @@
-// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 
 
@@ -972,11 +971,11 @@ Util.profileStart('chunks');
         row.index = 0;
         var rowIndex = 0;
         var reservations;
-        var lastBoxChunkIndex = -1;
         var twoBarWidths; // HACK to avoid measuring space's width
         var openTextHighlights = {};
         var textEditedRows = [];
 
+        addArcTextMeasurements(sizes);
         $.each(data.chunks, function(chunkNo, chunk) {
           reservations = new Array();
           chunk.group = svg.group(row.group);
@@ -984,12 +983,14 @@ Util.profileStart('chunks');
 
           var y = 0;
           var minArcDist;
-          var lastArcBorder = 0;
           var hasLeftArcs, hasRightArcs, hasInternalArcs;
           var hasAnnotations;
           var chunkFrom = Infinity;
           var chunkTo = 0;
           var chunkHeight = 0;
+          var spacing = 0;
+          var spacingChunkId = null;
+          var spacingRowBreak = 0;
 
           $.each(chunk.spans, function(spanNo, span) {
             var spanDesc = spanTypes[span.type];
@@ -1084,6 +1085,7 @@ Util.profileStart('chunks');
                 'data-span-id': span.id,
                 'strokeDashArray': span.attributeMerge.dasharray,
               });
+            span.right = bx + bw; // TODO put it somewhere nicer?
             if (!(span.shadowClass || span.edited)) {
               chunkFrom = Math.min(bx, chunkFrom);
               chunkTo = Math.max(bx + bw, chunkTo);
@@ -1134,32 +1136,65 @@ Util.profileStart('chunks');
               spanHeight = Math.max(curlyHeight, spanHeight);
             }
 
-            // find the last arc backwards
+            // find the gap to fit the backwards arcs
             $.each(span.incoming, function(arcId, arc) {
-              var origin = data.spans[arc.origin].chunk;
+              var leftSpan = data.spans[arc.origin];
+              var origin = leftSpan.chunk;
+              var border;
               if (chunk.index == origin.index) {
                 hasInternalArcs = true;
               }
               if (origin.row) {
-                hasLeftArcs = true;
+                var labels = Util.getArcLabels(spanTypes, leftSpan.type, arc.type);
+                if (!labels.length) labels = [arc.type];
                 if (origin.row.index == rowIndex) {
                   // same row, but before this
-                  var border = origin.translation.x + origin.right;
-                  if (border > lastArcBorder) lastArcBorder = border;
+                  border = origin.translation.x + leftSpan.right;
+                } else {
+                  border = margin.x + sentNumMargin + rowPadding; // XXX change to margin!
                 }
+                var smallestLabelWidth = sizes.arcs.widths[labels[labels.length - 1]] + 2 * arcSlant;
+                var gap = current.x + bx - border;
+                var arcSpacing = smallestLabelWidth - gap;
+                if (!hasLeftArcs || spacing > arcSpacing) {
+                  spacing = arcSpacing;
+                  spacingChunkId = origin.index + 1;
+                }
+                arcSpacing = smallestLabelWidth - bx;
+                if (!hasLeftArcs || spacingRowBreak > arcSpacing) {
+                  spacingRowBreak = arcSpacing;
+                }
+                hasLeftArcs = true;
               } else {
                 hasRightArcs = true;
               }
             });
+            // TODO:
             $.each(span.outgoing, function(arcId, arc) {
-              var target = data.spans[arc.target].chunk;
+              var leftSpan = data.spans[arc.target];
+              var target = leftSpan.chunk;
+              var border;
               if (target.row) {
-                hasLeftArcs = true;
+                var labels = Util.getArcLabels(spanTypes, span.type, arc.type);
+                if (!labels.length) labels = [arc.type];
                 if (target.row.index == rowIndex) {
                   // same row, but before this
-                  var border = target.translation.x + target.right;
-                  if (border > lastArcBorder) lastArcBorder = border;
+                  border = target.translation.x + leftSpan.right;
+                } else {
+                  border = margin.x + sentNumMargin + rowPadding;
                 }
+                var smallestLabelWidth = sizes.arcs.widths[foo = labels[labels.length - 1]] + 2 * arcSlant;
+                var gap = current.x + bx - border;
+                var arcSpacing = smallestLabelWidth - gap;
+                if (!hasLeftArcs || spacing > arcSpacing) {
+                  spacing = arcSpacing;
+                  spacingChunkId = target.index + 1;
+                }
+                arcSpacing = smallestLabelWidth - bx;
+                if (!hasLeftArcs || spacingRowBreak > arcSpacing) {
+                  spacingRowBreak = arcSpacing;
+                }
+                hasLeftArcs = true;
               } else {
                 hasRightArcs = true;
               }
@@ -1170,7 +1205,6 @@ Util.profileStart('chunks');
           }); // spans
 
           // positioning of the chunk
-          var spacing;
           chunk.right = chunkTo;
           var textWidth = sizes.texts.widths[chunk.text];
           chunkHeight += sizes.texts.height;
@@ -1178,11 +1212,12 @@ Util.profileStart('chunks');
           var boxWidth =
               Math.max(textWidth, chunkTo) -
               Math.min(0, chunkFrom);
-          if (hasLeftArcs) {
-            var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
+          // if (hasLeftArcs) {
+            // TODO change this with smallestLeftArc
+            // var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
             // arc too small?
-            if (spacing > 0) current.x += spacing;
-          }
+          if (spacing > 0) current.x += spacing;
+          // }
           var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
           // open text highlights
@@ -1211,6 +1246,10 @@ Util.profileStart('chunks');
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
             current.x = margin.x + sentNumMargin + rowPadding +
                 (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
+            if (spacingRowBreak > 0) {
+              current.x += spacingRowBreak;
+              spacing = 0; // do not center intervening elements
+            }
 
             // break the text highlights
             $.each(openTextHighlights, function(textId, textDesc) {
@@ -1226,7 +1265,6 @@ Util.profileStart('chunks');
             svg.remove(chunk.group);
             row = new Row(svg);
             row.backgroundIndex = sentenceToggle;
-            lastBoxChunkIndex = chunk.index - 1;
             row.index = ++rowIndex;
             svg.add(row.group, chunk.group);
             chunk.group = row.group.lastElementChild;
@@ -1258,12 +1296,16 @@ Util.profileStart('chunks');
           if (spacing > 0) {
             // if we added a gap, center the intervening elements
             spacing /= 2;
-            while (++lastBoxChunkIndex < chunk.index) {
-              var movedChunk = data.chunks[lastBoxChunkIndex];
+            var firstChunkInRow = row.chunks[row.chunks.length - 1];
+            if (spacingChunkId < firstChunkInRow.index) {
+              spacingChunkId = firstChunkInRow.index + 1;
+            }
+            for (var chunkIndex = spacingChunkId; chunkIndex < chunk.index; chunkIndex++) {
+              var movedChunk = data.chunks[chunkIndex];
               translate(movedChunk, movedChunk.translation.x + spacing, 0);
+              movedChunk.textX += spacing;
             }
           }
-          if (chunk.spans.length) lastBoxChunkIndex = chunk.index;
 
           row.chunks.push(chunk);
           chunk.row = row;
@@ -1344,7 +1386,6 @@ Util.profileEnd('arcsPrep');
 Util.profileStart('arcs');
 
         // add the arcs
-        addArcTextMeasurements(sizes);
         $.each(data.arcs, function(arcNo, arc) {
           roleClass = 'role_' + arc.type;
 
@@ -1698,7 +1739,7 @@ Util.profileStart('chunkFinish');
             currentChunk = chunk;
 
             // text rendering
-            foo = svg.text(textGroup, chunk.textX, chunk.row.textY, chunk.text,
+            chunk.textElem = svg.text(textGroup, chunk.textX, chunk.row.textY, chunk.text,
               {
                 'data-chunk-id': chunk.index
               });
