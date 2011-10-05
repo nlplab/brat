@@ -1,27 +1,44 @@
+// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
+// vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var VisualizerUI = (function($, window, undefined) {
-    var VisualizerUI = function(dispatcher) {
+    var VisualizerUI = function(dispatcher, svg) {
       var that = this;
 
       var messagePostOutFadeDelay = 1000;
       var messageDefaultFadeDelay = 3000;
       var defaultFloatFormat = '%.1f/right';
 
-      var filesData = null;
+      var documentListing = null; // always documents of current collection
+      var selectorData = null;    // can be search results when available
+      var searchActive = false;   // whether search results received and in use
+
       var currentForm;
-      var dir, doc, args;
-      var dirScroll;
+      var spanTypes = null;
+      var attributeTypes = null;
+      var data = null;
+      var coll, doc, args;
+      var collScroll;
       var docScroll;
+      var user = null;
 
-      var sortOrder = [1, 1]; // column (0..), sort order (1, -1)
+      var svgElement = $(svg._svg);
+      var svgId = svgElement.parent().attr('id');
+
+
+      /* START collection browser sorting - related */
+
+      var lastGoodCollection = '/';
+      var sortOrder = [2, 1]; // column (0..), sort order (1, -1)
+      var collectionSortOrder; // holds previous sort while search is active
       var docSortFunction = function(a, b) {
-          // parent dir at the top
-          if (a[1] === '..') return -1;
-          if (b[1] === '..') return 1;
+          // parent at the top
+          if (a[2] === '..') return -1;
+          if (b[2] === '..') return 1;
 
-          // then other directories
-          var aa = a[0];
-          var bb = b[0];
-          if (aa !== bb) return aa ? -1 : 1;
+          // then other collections
+          var aIsColl = a[0] == "c";
+          var bIsColl = b[0] == "c";
+          if (aIsColl !== bIsColl) return aIsColl ? -1 : 1;
 
           // desired column in the desired order
           var col = sortOrder[0];
@@ -30,25 +47,33 @@ var VisualizerUI = (function($, window, undefined) {
           if (aa != bb) return (aa < bb) ? -sortOrder[1] : sortOrder[1];
 
           // prevent random shuffles on columns with duplicate values
-          // (alphabetical order of filenames)
-          aa = a[1];
-          bb = b[1];
+          // (alphabetical order of documents)
+          aa = a[2];
+          bb = b[2];
           if (aa != bb) return (aa < bb) ? -1 : 1;
           return 0;
       };
 
       var makeSortChangeFunction = function(sort, th, thNo) {
           $(th).click(function() {
-              if (sort[0] === thNo + 1) sort[1] = -sort[1];
+              // TODO: avoid magic numbers in access to the selector
+              // data (column 0 is type, 1 is args, rest is data)
+              if (sort[0] === thNo + 2) sort[1] = -sort[1];
               else {
-                var type = filesData.dochead[thNo][1];
+                var type = selectorData.header[thNo][1];
                 var ascending = type === "string";
-                sort[0] = thNo + 1;
+                sort[0] = thNo + 2;
                 sort[1] = ascending ? 1 : -1;
               }
+              selectorData.items.sort(docSortFunction);
               showFileBrowser(); // resort
           });
       }
+
+      /* END collection browser sorting - related */
+
+
+      /* START message display - related */
 
       var messageContainer = $('#messages');
       var displayMessages = foo = function(msgs) {
@@ -97,6 +122,11 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
+      /* END message display - related */
+
+
+      /* START comment popup - related */
+
       var adjustToCursor = function(evt, element, offset, top, right) {
         // get the real width, without wrapping
         element.css({ left: 0, top: 0 });
@@ -106,6 +136,7 @@ var VisualizerUI = (function($, window, undefined) {
         var elementHeight = element.height() + 22;
         var elementWidth = element.width() + 22;
         var x, y;
+        offset = offset || 0;
         if (top) {
           y = evt.clientY - elementHeight - offset;
           if (y < 0) top = false;
@@ -120,63 +151,78 @@ var VisualizerUI = (function($, window, undefined) {
         if (!right) {
           x = evt.clientX - elementWidth - offset;
         }
+        if (y < 0) y = 0;
+        if (x < 0) x = 0;
         element.css({ top: y, left: x });
       };
 
-      var infoPopup = $('#infopopup');
-      var infoDisplayed = false;
+      var commentPopup = $('#commentpopup');
+      var commentDisplayed = false;
 
-      var displayInfo = function(evt, target, info, infoText, infoType) {
+      var displayComment = function(evt, target, comment, commentText, commentType) {
         var idtype;
-        if (infoType) {
-          info += infoText;
-          idtype = 'info_' + infoType;
+        if (commentType) {
+          comment += Util.escapeHTMLwithNewlines(commentText);
+          idtype = 'comment_' + commentType;
         }
-        infoPopup[0].className = idtype;
-        infoPopup.html(info);
-        adjustToCursor(evt, infoPopup, 10, true, true);
-        infoPopup.stop(true, true).fadeIn();
-        infoDisplayed = true;
+        commentPopup[0].className = idtype;
+        commentPopup.html(comment);
+        adjustToCursor(evt, commentPopup, 10, true, true);
+        commentPopup.stop(true, true).fadeIn();
+        commentDisplayed = true;
       };
 
-      var displaySpanInfo = function(
-          evt, target, spanId, spanType, mods, spanText, infoText, infoType) {
+      var displaySpanComment = function(
+          evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
-        var info = '<div><span class="info_id">' + spanId + '</span>' +
-          ' ' + '<span class="info_type">' + spanType + '</span>';
+          var comment = '<div><span class="comment_id">' + Util.escapeHTML(spanId) + '</span>' +
+            ' ' + '<span class="comment_type">' + Util.escapeHTML(Util.spanDisplayForm(spanTypes, spanType)) + '</span>';
         if (mods.length) {
-          info += '<div>' + mods.join(', ') + '</div>';
+          comment += '<div>' + Util.escapeHTML(mods.join(', ')) + '</div>';
         }
-        info += '</div>';
-        info += '<div>"' + spanText + '"</div>';
-        displayInfo(evt, target, info, infoText, infoType);
+        comment += '</div>';
+        comment += '<div>"' + Util.escapeHTML(spanText) + '"</div>';
+        displayComment(evt, target, comment, commentText, commentType);
       };
 
-      var displayArcInfo = function(
-          evt, target, symmetric,
-          originSpanId, role, targetSpanId, infoText, infoType) {
-        var info = (symmetric
-          ? '<div class="info_arc">' + originSpanId + ' ' +
-            target.attr('data-arc-role') + ' ' + targetSpanId +'</div>'
-          : '<div class="info_arc">' + originSpanId + ' &#8594; ' +
-            target.attr('data-arc-role') + ':' + targetSpanId +'</div>');
-        displayInfo(evt, target, info, infoText, infoType);
+      var displayArcComment = function(
+          evt, target, symmetric, arcId,
+          originSpanId, role, targetSpanId, commentText, commentType) {
+        var arcRole = target.attr('data-arc-role');
+        var arrowStr = symmetric ? ' &#8212; ' : ' &#8594; '; // &#8212 == mdash, &#8594 == Unicode right arrow
+        var comment = ( '<div class="comment_id">' +
+                        (arcId ? arcId+': ' : '') +
+                        Util.escapeHTML(originSpanId) +
+                        arrowStr + 
+                        Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole)) +
+                        arrowStr + 
+                        Util.escapeHTML(targetSpanId) +
+                        '</div>' );
+        comment += ('<div>' + Util.escapeHTML('"'+data.spans[originSpanId].text+'"') +
+                    arrowStr +
+                    Util.escapeHTML('"'+data.spans[targetSpanId].text + '"') + '</div>');
+        displayComment(evt, target, comment, commentText, commentType);
       };
 
-      var displaySentInfo = function(
-          evt, target, infoText, infoType) {
-        displayInfo(evt, target, '', infoText, infoType);
+      var displaySentComment = function(
+          evt, target, commentText, commentType) {
+        displayComment(evt, target, '', commentText, commentType);
       };
 
-      var hideInfo = function() {
-        infoPopup.stop(true, true).fadeOut(function() { infoDisplayed = false; });
+      var hideComment = function() {
+        commentPopup.stop(true, true).fadeOut(function() { commentDisplayed = false; });
       };
 
       var onMouseMove = function(evt) {
-        if (infoDisplayed) {
-          adjustToCursor(evt, infoPopup, 10, true, true);
+        if (commentDisplayed) {
+          adjustToCursor(evt, commentPopup, 10, true, true);
         }
       };
+
+      /* END comment popup - related */
+
+
+      /* START form management - related */
 
       initForm = function(form, opts) {
         opts = opts || {};
@@ -187,18 +233,25 @@ var VisualizerUI = (function($, window, undefined) {
         delete opts.alsoResize;
 
         // Always add OK and Cancel
-        var buttons = (opts.buttons || []).concat([
-            {
+        var buttons = (opts.buttons || []);
+        if (opts.no_ok) {
+          delete opts.no_ok;
+        } else {
+          buttons.push({
               id: formId + "-ok",
               text: "OK",
               click: function() { form.submit(); }
-            },
-            {
+            });
+        }
+        if (opts.no_cancel) {
+          delete opts.no_cancel;
+        } else {
+          buttons.push({
               id: formId + "-cancel",
               text: "Cancel",
               click: function() { form.dialog('close'); }
-            },
-          ]);
+            });
+        }
         delete opts.buttons;
 
         opts = $.extend({
@@ -225,7 +278,10 @@ var VisualizerUI = (function($, window, undefined) {
 
       var showForm = function(form) {
         currentForm = form;
+        // as suggested in http://stackoverflow.com/questions/2657076/jquery-ui-dialog-fixed-positioning
+        form.parent().css({position:"fixed"});
         form.dialog('open');
+        slideToggle($('#pulldown').stop(), false);
         return form;
       };
 
@@ -238,6 +294,11 @@ var VisualizerUI = (function($, window, undefined) {
         if (form === currentForm) currentForm = null;
       };
 
+      /* END form management - related */
+
+
+      /* START collection browser - related */
+
       var selectElementInTable = function(table, value) {
         table = $(table);
         table.find('tr').removeClass('selected');
@@ -245,17 +306,19 @@ var VisualizerUI = (function($, window, undefined) {
           table.find('tr[data-value="' + value + '"]').addClass('selected');
         }
       }
+
       var chooseDocument = function(evt) {
         var docname = $(evt.target).closest('tr').attr('data-value');
         $('#document_input').val(docname);
         selectElementInTable('#document_select', docname);
       }
+
       var chooseDocumentAndSubmit = function(evt) {
         chooseDocument(evt);
-        fileBrowserSubmit();
+        fileBrowserSubmit(evt);
       }
 
-      var fileBrowser = $('#file_browser');
+      var fileBrowser = $('#collection_browser');
       initForm(fileBrowser, {
           alsoResize: '#document_select',
           close: function(evt) {
@@ -265,76 +328,91 @@ var VisualizerUI = (function($, window, undefined) {
           },
           width: 500
       });
-      //fileBrowser.widget().resizable('option', 'alsoResize', '#document_select');
       $('#document_input').change(function(evt) {
         selectElementInTable('#document_select', $(this).val());
       });
+
       var fileBrowserSubmit = function(evt) {
-        var _dir, _doc, found;
+        var _coll, _doc, _args, found;
         var input = $('#document_input').
             val().
-            replace(/\/?\\s+$/, '').
+            replace(/\/?\s+$/, '').
             replace(/^\s+/, '');
         if (input.substr(0, 2) === '..') {
           // ..
-          var pos = dir.substr(0, dir.length - 1).lastIndexOf('/');
+          var pos = coll.substr(0, coll.length - 1).lastIndexOf('/');
           if (pos === -1) {
-            dispatcher.post('messages', [[['At the top directory', 'error', 2]]]);
+            dispatcher.post('messages', [[['At the root', 'error', 2]]]);
             $('#document_input').focus().select();
             return false;
           } else {
-            _dir = dir.substr(0, pos + 1);
+            _coll = coll.substr(0, pos + 1);
             _doc = '';
           }
-        } else if (found = input.match(/^(\/?)((?:[^\/]+\/)*)([^\/]*)$/)) {
+        } else if (found = input.match(/^(\/?)((?:[^\/]*\/)*)([^\/?]*)(?:\?(.*))?$/)) {
           var abs = found[1];
-          var dirname = found[2].substr(0, found[2].length - 1);
+          var collname = found[2].substr(0, found[2].length - 1);
           var docname = found[3];
+          var args = found[4];
           if (abs) {
-            _dir = abs + dirname;
-            if (_dir.length < 2) dir += '/';
+            _coll = abs + collname;
+            if (_coll.length < 2) coll += '/';
             _doc = docname;
           } else {
-            if (dirname) dirname += '/';
-            _dir = dir + dirname;
+            if (collname) collname += '/';
+            _coll = coll + collname;
             _doc = docname;
+          }
+          if (args) {
+              _args = Util.deparam(args);
+          } else {
+              _args = {};
           }
         } else {
           dispatcher.post('messages', [[['Invalid document name format', 'error', 2]]]);
           $('#document_input').focus().select();
         }
-        dispatcher.post('setDirectory', [_dir, _doc]);
         docScroll = $('#document_select')[0].scrollTop;
-        fileBrowser.find('#document_select tbody').html(''); // prevent a slowbug
+        fileBrowser.find('#document_select tbody').empty();
+        dispatcher.post('allowReloadByURL');
+        dispatcher.post('setCollection', [_coll, _doc, _args]);
         return false;
       };
       fileBrowser.
           submit(fileBrowserSubmit).
           bind('reset', hideForm);
+
       var showFileBrowser = function() {
-        if (!(filesData && showForm(fileBrowser))) return false;
+        if (!(selectorData && showForm(fileBrowser))) return false;
 
         var html = ['<tr>'];
         var tbody;
-        $.each(filesData.dochead, function(headNo, head) {
+        $.each(selectorData.header, function(headNo, head) {
           html.push('<th>' + head[0] + '</th>');
         });
         html.push('</tr>');
         $('#document_select thead').html(html.join(''));
 
         html = [];
-        filesData.docs.sort(docSortFunction);
-        $.each(filesData.docs, function(docNo, doc) {
-          var isDir = doc[0];
-          var name = doc[1];
-          var dirFile = isDir ? 'dir' : 'file';
-          var dirSuffix = isDir ? '/' : '';
-          html.push('<tr class="' + dirFile + '" data-value="'
-              + name + dirSuffix + '"><th>' + name + dirSuffix + '</th>');
-          var len = filesData.dochead.length - 1;
+        // NOTE: we seem to have some excessive sorting going on;
+        // disabling this as a test. If everything works, just remove
+        // the following commented-out line (and this comment):
+        //selectorData.items.sort(docSortFunction);
+        $.each(selectorData.items, function(docNo, doc) {
+          var isColl = doc[0] == "c"; // "collection"
+          // second column is optional annotation-specific pointer,
+          // used (at least) for search results
+          var annp = doc[1] ? ('?' + Util.param(doc[1])) : '';
+          var name = doc[2];
+          var collFile = isColl ? 'dir' : 'file';
+          var collSuffix = isColl ? '/' : '';
+          html.push('<tr class="' + collFile + '" data-value="'
+                    + name + collSuffix + annp + '"><th>'
+                    + name + collSuffix + '</th>');
+          var len = selectorData.header.length - 1;
           for (var i = 0; i < len; i++) {
-            var type = filesData.dochead[i + 1][1];
-            var datum = doc[i + 2];
+            var type = selectorData.header[i + 1][1];
+            var datum = doc[i + 3];
             // format rest according to "data type" specified in header
             var formatted = null;
             var cssClass = null;
@@ -346,7 +424,7 @@ var VisualizerUI = (function($, window, undefined) {
             } else if (type === 'string') {
               formatted = datum;
             } else if (type === 'time') {
-              formatted = Utility.formatTimeAgo(datum * 1000);
+              formatted = Util.formatTimeAgo(datum * 1000);
             } else if (type === 'float') {
               type = defaultFloatFormat;
               cssClass = 'rightalign';
@@ -375,18 +453,307 @@ var VisualizerUI = (function($, window, undefined) {
             makeSortChangeFunction(sortOrder, th, thNo);
         });
 
-        $('#directory_input').val(filesData.directory);
+        $('#collection_input').val(selectorData.collection);
         $('#document_input').val(doc);
-        var curdir = filesData.directory;
-        var pos = curdir.lastIndexOf('/');
-        if (pos != -1) curdir = curdir.substring(pos + 1);
-        selectElementInTable($('#directory_select'), curdir);
+        var curcoll = selectorData.collection;
+        var pos = curcoll.lastIndexOf('/');
+        if (pos != -1) curcoll = curcoll.substring(pos + 1);
+        selectElementInTable($('#collection_select'), curcoll);
         selectElementInTable($('#document_select'), doc);
         setTimeout(function() {
           $('#document_input').focus().select();
         }, 0);
+      }; // end showFileBrowser()
+      $('#collection_browser_button').click(function(evt) {
+        dispatcher.post('clearSearch');
+      });
+
+      var currentSelectorPosition = function() {
+        var pos;
+        $.each(selectorData.items, function(docNo, docRow) {
+          if (docRow[2] == doc) {
+            // args may have changed, so lacking a perfect match return
+            // last matching document as best guess
+            pos = docNo;
+            // check whether 'focus' agrees; the rest of the args are
+            // irrelevant for determining position.
+            var collectionArgs = docRow[1] || {};
+            if (Util.isEqual(collectionArgs.focus, args.focus)) {
+              pos = docNo;
+              return false;
+            }
+          }
+        });
+        return pos;
+      }
+
+      /* END collection browser - related */
+
+
+      /* START search - related */
+
+      var addSpanTypesToSelect = function($select, types, included) {
+        if (!included) included = {};
+        if (!included['']) {
+          included[''] = true;
+          $select.html('<option value="">- Any -</option>');
+        }
+        $.each(types, function(typeNo, type) {
+          if (type !== null) {
+            if (!included[type.name]) {
+              included[type.name] = true;
+              var $option = $('<option value="' + Util.escapeQuotes(type.type) + '"/>').text(type.name);
+              $select.append($option);
+              if (type.children) {
+                addSpanTypesToSelect($select, type.children, included);
+              }
+            }
+          }
+        });
       };
-      $('#file_browser_button').click(showFileBrowser);
+
+      var setupSearchTypes = function(response) {
+        addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
+        addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
+        addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
+      }
+
+      // when event role changes, event types do as well
+      var searchEventRoles = [];
+      var searchEventRoleChanged = function(evt) {
+        var $type = $(this).parent().next().children('select');
+        var type = $type.val();
+        var role = $(this).val();
+        var origin = $('#search_form_event_type').val();
+        var eventType = spanTypes[origin];
+        var arcTypes = eventType && eventType.arcs || [];
+        var arcType = null;
+        $type.html('<option value="">- Any -</option>');
+        $.each(arcTypes, function(arcNo, arcDesc) {
+          if (arcDesc.type == role) {
+            arcType = arcDesc;
+            return false;
+          }
+        });
+        var targets = arcType && arcType.targets || [];
+        $.each(targets, function(targetNo, target) {
+          var spanType = spanTypes[target];
+          var spanName = spanType.name || spanType.labels[0] || target;
+          var option = '<option value="' + Util.escapeQuotes(target) + '">' + Util.escapeHTML(spanName) + '</option>'
+          $type.append(option);
+        });
+        // return the type to the same value, if possible
+        if (type) {
+          $type.val(type);
+        } else if ($type.children().length == 2) {
+          $type[0].selectedIndex = 1;
+        };
+      };
+
+      $('#search_form_event_roles .search_event_role select').live('change', searchEventRoleChanged);
+
+      // adding new role rows
+      var addEmptySearchEventRole = function() {
+        var $roles = $('#search_form_event_roles');
+        var rowNo = $roles.children().length;
+        var $role = $('<select class="fullwidth"/>');
+        $role.append('<option value="">- Any -</option>');
+        $.each(searchEventRoles, function(arcTypePairNo, arcTypePair) {
+          var option = '<option value="' + Util.escapeQuotes(arcTypePair[0]) + '">' + Util.escapeHTML(arcTypePair[1]) + '</option>'
+          $role.append(option);
+        });
+        if ($role.children().length == 2) {
+          $role[0].selectedIndex = 1;
+        };
+        var $type = $('<select class="fullwidth"/>');
+        var $text = $('<input class="fullwidth"/>');
+        var button = $('<input type="button"/>');
+        var rowButton = $('<td/>').append(button);
+        if (rowNo) {
+          rowButton.addClass('search_event_role_del');
+          button.val('\u2013'); // n-dash
+        } else {
+          rowButton.addClass('search_event_role_add');
+          button.val('+');
+        }
+        var $tr = $('<tr/>').
+          append($('<td class="search_event_role"/>').append($role)).
+          append($('<td class="search_event_type"/>').append($type)).
+          append($('<td class="search_event_text"/>').append($text)).
+          append(rowButton);
+        $roles.append($tr);
+        $role.trigger('change');
+      };
+
+      // deleting role rows
+      var delSearchEventRole = function(evt) {
+        $row = $(this).closest('tr');
+        $row.remove();
+      }
+
+      $('#search_form_event_roles .search_event_role_add input').live('click', addEmptySearchEventRole);
+      $('#search_form_event_roles .search_event_role_del input').live('click', delSearchEventRole);
+
+      // When event type changes, the event roles do as well
+      // Also, put in one empty role row
+      $('#search_form_event_type').change(function(evt) {
+        var $roles = $('#search_form_event_roles').empty();
+        searchEventRoles = [];
+        var eventType = spanTypes[$(this).val()];
+        var arcTypes = eventType && eventType.arcs || [];
+        $.each(arcTypes, function(arcTypeNo, arcType) {
+          var arcTypeName = arcType.labels && arcType.labels[0] || arcType.type;
+          searchEventRoles.push([arcType.type, arcTypeName]);
+        });
+        addEmptySearchEventRole();
+      });
+
+      // when relation changes, change choices of arg1 type
+      $('#search_form_relation_type').change(function(evt) {
+        var relTypeType = $(this).val();
+        var $arg1 = $('#search_form_relation_arg1_type').
+            html('<option value="">- Any -</option>');
+        var $arg2 = $('#search_form_relation_arg2_type').empty();
+        $.each(spanTypes,
+          function(spanTypeType, spanType) {
+          if (spanType.arcs) {
+            $.each(spanType.arcs, function(arcTypeNo, arcType) {
+              if (arcType.type === relTypeType) {
+                var spanName = spanType.name;
+                var option = '<option value="' + Util.escapeQuotes(spanTypeType) + '">' + Util.escapeHTML(spanName) + '</option>'
+                $arg1.append(option);
+              }
+            });
+          }
+        });
+        if ($arg1.children().length == 2) {
+          $arg1[0].selectedIndex = 1;
+        };
+        $('#search_form_relation_arg1_type').change();
+      });
+
+      // when arg1 type changes, change choices of arg2 type
+      $('#search_form_relation_arg1_type').change(function(evt) {
+        var $arg2 = $('#search_form_relation_arg2_type').
+            html('<option value="">- Any -</option>');
+        var relType = $('#search_form_relation_type').val();
+        var arg1Type = spanTypes[$(this).val()];
+        var arcTypes = arg1Type && arg1Type.arcs || [];
+        var arcType = null;
+        $.each(arcTypes, function(arcNo, arcDesc) {
+          if (arcDesc.type == relType) {
+            arcType = arcDesc;
+            return false;
+          }
+        });
+        if (arcType && arcType.targets) {
+          $.each(arcType.targets, function(spanTypeNo, spanTypeType) {
+            var spanName = Util.spanDisplayForm(spanTypes, spanTypeType);
+            var option = '<option value="' + Util.escapeQuotes(spanTypeType) + '">' + Util.escapeHTML(spanName) + '</option>'
+            $arg2.append(option);
+          });
+        }
+        if ($arg2.children().length == 2) {
+          $arg2[0].selectedIndex = 1;
+        };
+      });
+
+      $('#search_tabs').tabs();
+
+      var searchForm = $('#search_form');
+
+      var searchFormSubmit = function(evt) {
+        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
+        var activeTab = $('#search_tabs').tabs('option', 'selected');
+        var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
+        var opts = {
+          action : action,
+          collection : coll,
+          // TODO the search form got complex :)
+        };
+        switch (action) {
+          case 'searchText':
+            opts.text = $('#search_form_text_text').val();
+            if (!opts.text.length) {
+              dispatcher.post('messages', [[['Text search query cannot be empty', 'error']]]);
+              return false;
+            }
+            break;
+          case 'searchEntity':
+            opts.type = $('#search_form_entity_type').val() || '';
+            opts.text = $('#search_form_entity_text').val();
+            break;
+          case 'searchEvent':
+            opts.type = $('#search_form_event_type').val() || '';
+            opts.trigger = $('#search_form_event_trigger').val();
+            var eargs = [];
+            $('#search_form_event_roles tr').each(function() {
+              var earg = {};
+              earg.role = $(this).find('.search_event_role select').val() || '';
+              earg.type = $(this).find('.search_event_type select').val() || '';
+              earg.text = $(this).find('.search_event_text input').val();
+              eargs.push(earg);
+            });
+            opts.args = $.toJSON(eargs);
+            break;
+          case 'searchRelation':
+            opts.type = $('#search_form_relation_type').val() || '';
+            opts.arg1 = $('#search_form_relation_arg1_text').val();
+            opts.arg1type = $('#search_form_relation_arg1_type').val() || '';
+            opts.arg2 = $('#search_form_relation_arg2_text').val();
+            opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
+            break;
+        }
+        dispatcher.post('hideForm', [searchForm]);
+        dispatcher.post('ajax', [opts, function(response) {
+          if(response && response.items && response.items.length == 0) {
+            // TODO: might consider having this message come from the
+            // server instead
+            dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
+          } else {
+            if (!searchActive) {
+              collectionSortOrder = sortOrder;
+            }
+            dispatcher.post('searchResultsReceived', [response]);
+            searchActive = true;
+            updateSearchButton();
+          }
+        }]);
+        return false;
+      };
+
+      searchForm.submit(searchFormSubmit);
+
+      initForm(searchForm, {
+          width: 500,
+          alsoResize: '#search_tabs',
+          open: function(evt) {
+            keymap = {};
+          },
+          buttons: [{
+            id: 'search_form_clear',
+            text: "Clear",
+            click: function(evt) {
+              dispatcher.post('clearSearch');
+            },
+          }],
+      });
+
+      $('#search_button').click(function(evt) {
+        // this.checked = searchActive; // TODO: dup? unnecessary? remove if yes.
+        updateSearchButton();
+        $('#search_form_event_type').change();
+        $('#search_form_relation_type').change();
+        dispatcher.post('showForm', [searchForm]);
+      });
+
+      var updateSearchButton = function() {
+        $searchButton = $('#search_button');
+        $searchButton[0].checked = searchActive;
+        $searchButton.button('refresh');
+      }
+
+      /* END search - related */
 
       var onKeyDown = function(evt) {
         var code = evt.which;
@@ -398,7 +765,14 @@ var VisualizerUI = (function($, window, undefined) {
 
         if (currentForm) {
           if (code === $.ui.keyCode.ENTER) {
-            currentForm.trigger('submit');
+            // don't trigger submit in textareas to allow multiline text
+            // entry
+            // NOTE: spec seems to require this to be upper-case,
+            // but at least chrome 8.0.552.215 returns lowercased
+            if (evt.target.nodeName.toLowerCase() == 'input' && evt.target.type.toLowerCase() == 'text') {
+              currentForm.trigger('submit');
+              return false;
+            }
           }
           return;
         }
@@ -407,29 +781,23 @@ var VisualizerUI = (function($, window, undefined) {
           showFileBrowser();
           return false;
         } else if (code == $.ui.keyCode.LEFT) {
-          var pos;
-          $.each(filesData.docs, function(docNo, docRow) {
-            if (docRow[1] === doc) {
-              pos = docNo;
-              return false;
-            }
-          });
-          if (pos > 0 && !filesData.docs[pos - 1][0]) {
-            // not at the start, and the previous is not a directory
-            dispatcher.post('setDocument', [filesData.docs[pos - 1][1]]);
+          var pos = currentSelectorPosition();
+          if (pos > 0 && selectorData.items[pos - 1][0] != "c") {
+            // not at the start, and the previous is not a collection (dir)
+            var newPos = pos - 1;
+            dispatcher.post('allowReloadByURL');
+            dispatcher.post('setDocument', [selectorData.items[newPos][2],
+                                            selectorData.items[newPos][1]]);
           }
           return false;
         } else if (code === $.ui.keyCode.RIGHT) {
-          var pos;
-          $.each(filesData.docs, function(docNo, docRow) {
-            if (docRow[1] == doc) {
-              pos = docNo;
-              return false;
-            }
-          });
-          if (pos < filesData.docs.length - 1) {
+          var pos = currentSelectorPosition();
+          if (pos < selectorData.items.length - 1) {
             // not at the end
-            dispatcher.post('setDocument', [filesData.docs[pos + 1][1]]);
+            var newPos = pos + 1;
+            dispatcher.post('allowReloadByURL');
+            dispatcher.post('setDocument', [selectorData.items[newPos][2],
+                                            selectorData.items[newPos][1]]);
           }
           return false;
         }
@@ -445,13 +813,52 @@ var VisualizerUI = (function($, window, undefined) {
         resizerTimeout = setTimeout(resizeFunction, 100); // TODO is 100ms okay?
       };
 
-      var dirLoaded = function(response) {
+      var collectionLoaded = function(response) {
         if (response.exception) {
-          dispatcher.post('setDirectory', ['/']);
+          if (response.exception == 'annotationCollectionNotFound' ||
+              response.exception == 'collectionNotAccessible') {
+              // revert to last good
+              dispatcher.post('setCollection', [lastGoodCollection]);
+          } else {
+              dispatcher.post('messages', [[['Unknown error: ' + response.exception, 'error']]]);
+              dispatcher.post('setCollection', ['/']);
+          }
         } else {
-          filesData = response;
+          lastGoodCollection = response.collection;
+          selectorData = response;
+          documentListing = response; // 'backup'
+          selectorData.items.sort(docSortFunction);
+          setupSearchTypes(response);
         }
       };
+
+      var searchResultsReceived = function(response) {
+        if (response.exception) {
+            ; // TODO: reasonable reaction
+        } else {
+          selectorData = response;
+          sortOrder = [2, 1]; // reset
+          // NOTE: don't sort, allowing order in which
+          // responses are given to be used as default
+          //selectorData.items.sort(docSortFunction);
+          showFileBrowser();
+        }
+      };
+
+      var clearSearch = function() {
+        dispatcher.post('hideForm', [searchForm]);
+
+        // back off to document collection
+        if (searchActive) {
+          selectorData = documentListing;
+          sortOrder = collectionSortOrder;
+          selectorData.items.sort(docSortFunction);
+          searchActive = false;
+          updateSearchButton();
+        }
+
+        showFileBrowser();
+      }
 
       var saveSVGTimer = null;
       var saveSVG = function() {
@@ -462,7 +869,15 @@ var VisualizerUI = (function($, window, undefined) {
         }, 'savedSVG']);
       };
 
-      var onDoneRendering = function() {
+      var onDoneRendering = function(coll, doc, args) {
+        if (!args.edited) {
+          var svgtop = $('svg').offset().top;
+          var $inFocus = $('#svg animate[data-type="focus"]:first').parent();
+          if ($inFocus.length) {
+            $('html,body').
+                animate({ scrollTop: $inFocus.offset().top - svgtop }, { duration: 'slow', easing: 'swing'});
+          }
+        }
         saveSVG();
         $('#waiter').dialog('close');
       }
@@ -473,6 +888,10 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var showSVGDownloadLinks = function(data) {
+        if (data && data.exception == 'corruptSVG') {
+          dispatcher.post('messages', [[['Cannot save SVG: corrupt', 'error']]]);
+          return;
+        }
         var params = {
             action: 'retrieveSVG',
             'document': doc,
@@ -488,11 +907,45 @@ var VisualizerUI = (function($, window, undefined) {
         $('#download_svg').hide();
       };
 
-      var gotCurrent = function(_dir, _doc, _args) {
-        dir = _dir;
+      var onRenderData = function(_data) {
+        if (_data && !_data.exception) {
+          data = _data;
+        }
+        if (!data) return;
+        var $sourceFiles = $('#source_files').empty();
+        $.each(data.source_files, function(extNo, ext) {
+          var $link = $('<a target="brat_search"/>').
+              text(ext).
+              attr('href',
+                  'ajax.cgi?action=downloadFile&collection=' + coll +
+                  '&document=' + doc + '&extension=' + ext);
+          if (extNo) $sourceFiles.append(', ');
+          $sourceFiles.append($link);
+        });
+        hideSVGDownloadLinks();
+
+        if (data.mtime) {
+          // we're getting seconds and need milliseconds
+          //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
+          $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).show();
+        } else {
+          //$('#document_ctime').css("display", "none");
+          $('#document_mtime').hide();
+        }
+      }
+
+      var gotCurrent = function(_coll, _doc, _args) {
+        coll = _coll;
         doc = _doc;
         args = _args;
-        $('#document_name').text(dir + doc);
+
+        $docName = $('#document_name input').val(coll + doc);
+        var docName = $docName[0];
+        // TODO do this on resize, as well
+        // scroll the document name to the right, so the name is visible
+        // (even if the collection name isn't, fully)
+        docName.scrollLeft = docName.scrollWidth;
+
         $('#document_mtime').hide();
         hideSVGDownloadLinks();
       };
@@ -501,11 +954,11 @@ var VisualizerUI = (function($, window, undefined) {
         var el = $(el);
         var height = el.data("cachedHeight");
         var visible = el.is(":visible");
-        
+
         if (show === undefined) show = !visible;
-        
+
         if (show === visible) return false;
-        
+
         if (!height) {
           height = el.show().height();
           el.data("cachedHeight", height);
@@ -538,18 +991,18 @@ var VisualizerUI = (function($, window, undefined) {
       $('#confirm_mode').click(function(evt) {
         var val = this.checked;
         if (val) {
-          dispatcher.post('messages', [[['Confirm mode is now on', 'info']]]);
+          dispatcher.post('messages', [[['Confirm mode is now on', 'comment']]]);
         } else {
-          dispatcher.post('messages', [[['Confirm mode is now off', 'info']]]);
+          dispatcher.post('messages', [[['Confirm mode is now off', 'comment']]]);
         }
       });
 
       $('#abbrev_mode').click(function(evt) {
         var val = this.checked;
         if (val) {
-          dispatcher.post('messages', [[['Abbreviations are now on', 'info']]]);
+          dispatcher.post('messages', [[['Abbreviations are now on', 'comment']]]);
         } else {
-          dispatcher.post('messages', [[['Abbreviations are now off', 'info']]]);
+          dispatcher.post('messages', [[['Abbreviations are now off', 'comment']]]);
         }
         dispatcher.post('abbrevs', [val]);
         dispatcher.post('resetData');
@@ -576,26 +1029,119 @@ var VisualizerUI = (function($, window, undefined) {
         showForm(aboutDialog);
       });
 
+      // TODO: copy from annotator_ui; DRY it up
+      var adjustFormToCursor = function(evt, element) {
+        var screenHeight = $(window).height() - 8; // TODO HACK - no idea why -8 is needed
+        var screenWidth = $(window).width() - 8;
+        var elementHeight = element.height();
+        var elementWidth = element.width();
+        var y = Math.min(evt.clientY, screenHeight - elementHeight);
+        var x = Math.min(evt.clientX, screenWidth - elementWidth);
+        element.css({ top: y, left: x });
+      };
+      var viewspanForm = $('#viewspan_form');
+      var onDblClick = function(evt) {
+        if (user) return;
+        var target = $(evt.target);
+        var id;
+        if (id = target.attr('data-span-id')) {
+          window.getSelection().removeAllRanges();
+          var span = data.spans[id];
+
+          var urlHash = URLHash.parse(window.location.hash);
+          urlHash.setArgument('focus', [[span.id]]);
+          $('#viewspan_highlight_link').show().attr('href', urlHash.getHash());
+
+          var spanText = data.text.substring(span.from, span.to);
+          $('#viewspan_selected').text(spanText);
+          var encodedText = encodeURIComponent(spanText);
+          // TODO: DRY it off (it is almost-copy of annotator_ui)
+          $('#viewspan_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
+          $('#viewspan_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
+          $('#viewspan_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
+          $('#viewspan_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
+          $('#viewspan_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
+
+          // annotator comments
+          $('#viewspan_notes').val(span.annotatorNotes || '');
+          dispatcher.post('showForm', [viewspanForm]);
+          $('#viewspan_form-ok').focus();
+          adjustFormToCursor(evt, viewspanForm.parent());
+        }
+      };
+      viewspanForm.submit(function(evt) {
+        dispatcher.post('hideForm', [viewspanForm]);
+        return false;
+      });
+
+      var init = function() {
+        dispatcher.post('initForm', [viewspanForm, {
+            width: 760,
+            no_cancel: true
+          }]);
+      };
+
+      var showUnableToReadTextFile = function() {
+        dispatcher.post('messages', [[['Unable to read the text file.', 'error']]]);
+        showFileBrowser();
+      };
+
+      var showAnnotationFileNotFound = function() {
+        dispatcher.post('messages', [[['Annotation file not found.', 'error']]]);
+        showFileBrowser();
+      };
+
+      var showUnknownError = function(exception) {
+        dispatcher.post('messages', [[['Unknown error: ' + exception, 'error']]]);
+        showFileBrowser();
+      };
+
+      var reloadDirectoryWithSlash = function(data) {
+        var collection = data.collection + data.document + '/';
+        dispatcher.post('setCollection', [collection, '', data.arguments]);
+      };
+
+      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
+        spanTypes = _spanTypes;
+        attributeTypes = _attributeTypes;
+      };
+
+      var userReceived = function(_user) {
+        user = _user;
+      };
+      
+      // hide anything requiring login, just in case
+      $('.login').hide();
+
       dispatcher.
+          on('init', init).
           on('messages', displayMessages).
-          on('displaySpanInfo', displaySpanInfo).
-          on('displayArcInfo', displayArcInfo).
-          on('displaySentInfo', displaySentInfo).
-          on('hideInfo', hideInfo).
+          on('displaySpanComment', displaySpanComment).
+          on('displayArcComment', displayArcComment).
+          on('displaySentComment', displaySentComment).
+          on('hideComment', hideComment).
           on('showForm', showForm).
           on('hideForm', hideForm).
           on('initForm', initForm).
-          on('dirLoaded', dirLoaded).
+          on('collectionLoaded', collectionLoaded).
+          on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('current', gotCurrent).
           on('doneRendering', onDoneRendering).
           on('startedRendering', onStartedRendering).
-          on('renderData', hideSVGDownloadLinks).
+          on('renderData', onRenderData).
           on('savedSVG', showSVGDownloadLinks).
-          on('noFileSpecified', showFileBrowser).
+          on('renderError:noFileSpecified', showFileBrowser).
+          on('renderError:annotationFileNotFound', showAnnotationFileNotFound).
+          on('renderError:unableToReadTextFile', showUnableToReadTextFile).
+          on('renderError:isDirectoryError', reloadDirectoryWithSlash).
+          on('unknownError', showUnknownError).
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
-          on('resize', onResize);
-
+          on('dblclick', onDblClick).
+          on('user', userReceived).
+          on('resize', onResize).
+          on('searchResultsReceived', searchResultsReceived).
+          on('clearSearch', clearSearch);
     };
 
     return VisualizerUI;

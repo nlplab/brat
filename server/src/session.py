@@ -53,16 +53,19 @@ Version:    2011-03-11
 
 from Cookie import SimpleCookie, CookieError
 from atexit import register as atexit_register
+from config import WORK_DIR
 from datetime import datetime, timedelta
-from os import environ
+from os import environ, mkdir
 from os.path import join as path_join
-# TODO: Full imports
-import hashlib, shelve
+from os.path import exists
+from hashlib import sha224
+from shelve import open as shelve_open
 
 
 # TODO: Pythonista overlook
 class Session(object):
-    def __init__(self, name='sid', dir='sessions', path=None, domain=None, max_age=None):
+    def __init__(self, name='sid', dir=path_join(WORK_DIR, 'sessions'),
+            path=None, domain=None, max_age=None):
 
         self._name = name
         now = datetime.utcnow();
@@ -80,7 +83,7 @@ class Session(object):
         except KeyError:
             # there isn't any, make a new session ID
             remote = environ.get('REMOTE_ADDR')
-            self.sid = hashlib.sha224('%s-%s' % (remote, now)).hexdigest()
+            self.sid = sha224('%s-%s' % (remote, now)).hexdigest()
 
         self._cookie.clear();
         self._cookie[name] = self.sid
@@ -114,15 +117,22 @@ class Session(object):
         except CookieError:
             pass
 
+        # if the sessions dir doesn't exist, create it
+        if not exists(dir):
+            mkdir(dir)
         # persist the session data
         self._shelf_file = path_join(dir, self.sid)
         # -1 signifies the highest available protocol version
-        self._shelf = shelve.open(self._shelf_file, protocol=-1, writeback=True)
+        self._shelf = shelve_open(self._shelf_file, protocol=-1, writeback=True)
 
     def print_cookie(self):
-        # send the headers
-        print "Cache-Control: no-store, no-cache, must-revalidate"
-        print self._cookie
+        print '\n'.join('%s: %s' % (k, v) for k, v in self.get_cookie_hdrs())
+
+    def get_cookie_hdrs(self):
+        hdrs = [('Cache-Control', 'no-store, no-cache, must-revalidate')]
+        for cookie_line in self._cookie.output(header='Set-Cookie:', sep='\n').split('\n'):
+            hdrs.append(tuple(cookie_line.split(': ', 1)))
+        return tuple(hdrs)
 
     def close(self):
         # save the data

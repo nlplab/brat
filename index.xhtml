@@ -5,8 +5,7 @@
 <html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>stav</title>
-    <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/redmond/jquery-ui.css" rel="stylesheet" type="text/css"/>
-    <link href="http://fonts.googleapis.com/css?family=Astloch:regular,bold" rel="stylesheet" type="text/css"/>
+    <link href="static/jquery-theme/jquery-ui-redmond.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript" src="client/lib/head.load.min.js"></script>
     <script type="text/javascript">
       head.js(
@@ -19,7 +18,7 @@
           'client/lib/jquery.sprintf.js',
           'client/lib/jquery.json.min.js',
           // helpers
-          'client/src/utility.js',
+          'client/src/util.js',
           // modules
           'client/src/dispatcher.js',
           'client/src/url_monitor.js',
@@ -32,9 +31,9 @@
           var dispatcher = new Dispatcher();
           var urlMonitor = new URLMonitor(dispatcher);
           var ajax = new Ajax(dispatcher);
-          var visualizer = new Visualizer(dispatcher, '#svg');
+          var visualizer = new Visualizer(dispatcher, 'svg');
           var svg = visualizer.svg;
-          var visualizerUI = new VisualizerUI(dispatcher, '#svg');
+          var visualizerUI = new VisualizerUI(dispatcher, svg);
           var spinner = new Spinner(dispatcher, '#spinner');
           dispatcher.post('init');
       });
@@ -44,29 +43,36 @@
     <link rel="shortcut icon" href="favicon.ico"/>
   </head>
   <body>
-    <img id="spinner" src="spinner.gif"/>
+    <img id="spinner" src="static/img/spinner.gif"/>
     <div id="messages"/>
-    <div id="infopopup"/>
+    <div id="commentpopup"/>
     <div id="header" class="ui-widget">
       <div id="mainHeader" class="ui-widget-header">
-        <div id="document_name"/>
         <div id="mainlogo" class="logo unselectable">stav</div>
-        <div id="document_mtime" class="unselectable"/>
+        <div id="document_name">
+          <input readonly="readonly" class="ui-widget-header"/>
+        </div>
         <!-- <span id="document_ctime"/> -->
       </div>
       <div id="pulldown" class="unselectable ui-widget-content">
         <div id="pulldown_padder">
           <div>
-            <input id="file_browser_button" type="button" value="File" tabindex="-1" title="Open File Browser (Tab)"/>
+            <input id="auth_button" type="button" value="Login"/>
+            <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
+            <!-- <input id="export_button" type="button" value="Export"/> -->
+            <!--
+            <input id="search_button" type="button" class="login" value="Search" tabindex="-1" title="Search annotations in current collection"/>
+            -->
+            <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search annotations in current collection">Search</label>
+            <input id="import_button" type="button" class="login" value="Import" tabindex="-1" title="Import a new document into the current collection"/>
+            <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
+            <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
             <span><input id="abbrev_mode" type="checkbox" value="true" checked="checked"/><label for="abbrev_mode" title="Toggle the abbreviation mode">Abbreviations</label></span>
           </div>
+          <div id="document_mtime" class="unselectable"/>
           <div>
-            <a href="#" id="original_link" target="stav_search" style="display:none">Original document</a>
-            <span id="download_svg">
-              SVG download:
-              <a id="download_svg_color" target="svg">Color</a> 
-              <!-- or -->
-              <a style="display:none" id="download_svg_grayscale" target="svg">Grayscale</a>
+            Download: <span id="source_files"/><span id="download_svg">,
+              <a id="download_svg_color" target="svg"> svg</a>
             </span>
             &nbsp;
           </div>
@@ -74,10 +80,202 @@
       </div>
     </div>
     <div id="svg"></div>
-    <form id="file_browser" class="dialog" title="Open">
+    <form id="import_form" class="dialog" title="Import">
+      <fieldset id="import_form_docid">
+        <legend>Document ID</legend>
+        <input id="import_docid" class="borderless"/>
+      </fieldset>
+      <fieldset id="import_form_title">
+        <legend>Document title</legend>
+        <input id="import_title" class="borderless"/>
+      </fieldset>
+      <fieldset id="import_form_text">
+        <legend>Document text</legend>
+        <textarea id="import_text" class="borderless"/>
+      </fieldset>
+    </form>
+    <form id="search_form" class="dialog" title="Search">
+      <div id="search_tabs">
+        <ul>
+          <li><a href="#search_tab_text">Text</a></li>
+          <li><a href="#search_tab_entity">Entity</a></li>
+          <li><a href="#search_tab_event">Event</a></li>
+          <li><a href="#search_tab_relation">Relation</a></li>
+        </ul>
+        <div id="search_tab_text">
+          <table class="fullwidth">
+            <tr>
+              <td>Text</td>
+              <td>
+                <input id="search_form_text_text" class="fullwidth"
+                    placeholder="Text to match"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div id="search_tab_entity">
+          <table class="fullwidth">
+            <tr>
+              <td>Type</td>
+              <td>
+                <select id="search_form_entity_type"/>
+              </td>
+            </tr>
+            <tr>
+              <td>Text</td>
+              <td>
+                <input id="search_form_entity_text" class="fullwidth"
+                    placeholder="Text to match (empty=anything)"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div id="search_tab_event">
+          <table class="fullwidth">
+            <tr>
+              <td>Type</td>
+              <td colspan="3">
+                <select id="search_form_event_type"/>
+              </td>
+            </tr>
+            <tr>
+              <td>Trigger</td>
+              <td colspan="3">
+                <input id="search_form_event_trigger" class="fullwidth"
+                    placeholder="Text to match (empty=anything)"/>
+              </td>
+            </tr>
+            <tbody id="search_form_event_roles"/>
+          </table>
+        </div>
+        <div id="search_tab_relation">
+          <table class="fullwidth">
+            <tr>
+              <td>Type</td>
+              <td>
+                <select id="search_form_relation_type" class="fullwidth"/>
+              </td>
+            </tr>
+            <tr>
+              <td>Arg1</td>
+              <td>
+                <select id="search_form_relation_arg1_type" class="fullwidth"/>
+              </td>
+              <td>
+                <input id="search_form_relation_arg1_text" class="fullwidth"
+                    placeholder="Text to match (empty=anything)"/>
+              </td>
+            </tr>
+            <tr>
+              <td>Arg2</td>
+              <td>
+               <select id="search_form_relation_arg2_type" class="fullwidth"/>
+              </td>
+              <td>
+                <input id="search_form_relation_arg2_text" class="fullwidth"
+                    placeholder="Text to match (empty=anything)"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </form>
+    <form id="viewspan_form" class="dialog" title="Span">
+      <fieldset id="viewspan_selected_fset">
+        <legend>Selected Text</legend>
+        <a target="brat_linked" id="viewspan_highlight_link" href="#">Link</a>
+        <div id="viewspan_selected"/>
+      </fieldset>
+
       <fieldset>
-        <legend>Directory</legend>
-        <input id="directory_input" readonly="readonly" placeholder="Document" class="borderless"/>
+        <legend>Search</legend>
+        <a target="brat_search" id="viewspan_uniprot" href="#">UniProt</a>,
+        <a target="brat_search" id="viewspan_entregene" href="#">EntrezGene</a>,
+        <a target="brat_search" id="viewspan_wikipedia" href="#">Wikipedia</a>,
+        <a target="brat_search" id="viewspan_google" href="#">Google</a>,
+        <a target="brat_search" id="viewspan_alc" href="#">ALC</a>
+      </fieldset>
+
+      <fieldset>
+        <legend>Notes</legend>
+        <input id="viewspan_notes" class="borderless" readonly="readonly"/>
+      </fieldset>
+    </form>
+    <form id="span_form" class="dialog" title="Span">
+      <fieldset id="span_selected_fset">
+        <legend>Selected Text</legend>
+        <a target="brat_linked" id="span_highlight_link" href="#">Link</a>
+        <div id="span_selected"/>
+      </fieldset>
+
+      <fieldset>
+        <legend>Search</legend>
+        <a target="brat_search" id="span_uniprot" href="#">UniProt</a>,
+        <a target="brat_search" id="span_entregene" href="#">EntrezGene</a>,
+        <a target="brat_search" id="span_wikipedia" href="#">Wikipedia</a>,
+        <a target="brat_search" id="span_google" href="#">Google</a>,
+        <a target="brat_search" id="span_alc" href="#">ALC</a>
+      </fieldset>
+
+      <div id="span_types" class="scroll_fset"/>
+      
+      <div id="span_attributes" class="scroll_fset">
+        <fieldset>
+          <legend>Event Attributes</legend>
+          <div class="scroller"/>
+        </fieldset>
+      </div>
+
+      <fieldset>
+        <legend>Notes</legend>
+        <input id="span_notes" class="borderless"/>
+      </fieldset>
+    </form>
+    <form id="arc_form" class="dialog" title="Arc">
+      <fieldset id="arc_origin_fset">
+        <legend>From</legend>
+        <a target="brat_linked" id="arc_highlight_link" href="#">Link</a>
+        <div id="arc_origin"/>
+      </fieldset>
+
+      <fieldset id="arc_target_fset">
+        <legend>To</legend>
+        <div id="arc_target"/>
+      </fieldset>
+
+      <div id="arc_roles" class="scroll_fset">
+        <fieldset>
+          <legend>Role Types</legend>
+          <div class="scroller"/>
+        </fieldset>
+      </div>
+
+      <fieldset>
+        <legend>Notes</legend>
+        <input id="arc_notes" class="borderless"/>
+      </fieldset>
+
+    </form>
+    <form id="auth_form" class="dialog" title="Login">
+      <fieldset>
+        <legend>Username</legend>
+        <input id="auth_user" placeholder="Username" class="borderless"/>
+      </fieldset>
+      <fieldset>
+        <legend>Password</legend>
+        <input id="auth_pass" type="password" placeholder="Password" class="borderless"/>
+      </fieldset>
+    </form>
+    <form id="split_form" class="dialog" title="Split the Span">
+      <fieldset>
+        <legend>Split Roles</legend>
+        <div id="split_roles" class="scroll_fset"/>
+      </fieldset>
+    </form>
+    <form id="collection_browser" class="dialog" title="Open">
+      <fieldset>
+        <legend>Collection</legend>
+        <input id="collection_input" readonly="readonly" placeholder="Document" class="borderless"/>
       </fieldset>
       <fieldset>
         <legend>Document</legend>
@@ -89,11 +287,11 @@
       </table>
     </form>
     <div id="waiter" class="dialog" title="Please wait">
-      <img src="spinner.gif"/>
+      <img src="static/img/spinner.gif"/>
     </div>
-    <div id="about" class="dialog unselectable" title="About stav">
+    <div id="about" class="dialog unselectable" title="About brat">
       <div id="aboutlogo" class="logo">stav</div>
-      <p>Stav text annotation visualizer</p>
+      <div align="center">Stav text annotation visualizer</div>
       <p>Stav is Open Source software, distributed under the <a target="licence" href="http://www.opensource.org/licenses/mit-license">MIT Licence</a>.</p>
       <div id="copyright">&copy; 2010-2011 The stav contributors</div>
     </div>

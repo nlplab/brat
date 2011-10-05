@@ -1,3 +1,5 @@
+// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
+// vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 // TODO: does 'arguments.callee.caller' work?
 
 var Dispatcher = (function($, window, undefined) {
@@ -18,7 +20,7 @@ var Dispatcher = (function($, window, undefined) {
         return this;
       };
 
-      var post = function(asynch, message, args) {
+      var post = function(asynch, message, args, returnType) {
         if (typeof(asynch) !== 'number') {
           // no asynch parameter
           args = message;
@@ -62,6 +64,20 @@ var Dispatcher = (function($, window, undefined) {
             console.warn('Message ' + message + ' has no subscribers.'); // DEBUG
 */
           }
+        }
+        if (returnType == 'any') {
+          var i = results.length;
+          while (i--) {
+            if (results[i] !== false) return results[i];
+          }
+          return false;
+        }
+        if (returnType == 'all') {
+          var i = results.length;
+          while (i--) {
+            if (results[i] === false) return results[i];
+          }
+          return results;
         }
         return results;
       };

@@ -16,16 +16,17 @@ Version:    2011-04-22
 from __future__ import with_statement
 
 from os.path import join as path_join
-from os.path import isfile
+from os.path import isfile, exists
+from os import mkdir
 
 from common import ProtocolError, NoPrintJSONError
-from config import BASE_DIR
-from message import display_message
+from config import BASE_DIR, WORK_DIR
+from message import Messager
 from session import get_session
 
 ### Constants
 # TODO: We really need a work directory
-SVG_DIR = path_join(BASE_DIR, 'svg')
+SVG_DIR = path_join(WORK_DIR, 'svg')
 # TODO: These constants most likely don't belong here
 CSS_PATH = path_join(BASE_DIR, 'style.css')
 GRAYSCALE_CSS_PATH = path_join(BASE_DIR, 'style_grayscale.css')
@@ -36,10 +37,11 @@ class UnknownSVGVersionError(ProtocolError):
     def __init__(self, unknown_version):
         self.unknown_version = unknown_version
 
+    def __str__(self):
+        return 'Version "%s" is not a valid version' % self.unknown_version
+
     def json(self, json_dic):
         json_dic['exception'] = 'unknownSVGVersion'
-        display_message('Version "%s" is not a valid version'
-                % self.unknown_version, 'error')
         return json_dic
 
 
@@ -47,10 +49,23 @@ class NoSVGError(ProtocolError):
     def __init__(self, version):
         self.version = version
 
+    def __str__(self):
+        return 'SVG with version "%s" does not exist' % (self.version, )
+
     def json(self, json_dic):
         json_dic['exception'] = 'noSVG'
-        directory('SVG with version "%s" does not exist "%s"'
-                % (self.version, ), 'error')
+        return json_dic
+
+
+class CorruptSVGError(ProtocolError):
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return 'Corrupt SVG'
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'corruptSVG'
         return json_dic
 
 
@@ -76,11 +91,14 @@ def _save_svg(svg, colour=True):
             svg = svg[:defs] + css + svg[defs:]
             svg_file.write(svg)
         else:
-            # TODO: Always print this? Use an exception?
-            # XXX: When does this actually happen?
-            display_message("Error: bad SVG!", "error", -1)
+            # TODO: @amadanmath: When does this actually happen?
+            raise CorruptSVGError
 
 def _svg_path(colour=True):
+    # Create the SVG_DIR if necessary
+    if not exists(SVG_DIR):
+        mkdir(SVG_DIR)
+
     base_path = path_join(SVG_DIR, get_session().sid)
     if colour:
         return base_path + '_colour.svg'
@@ -103,10 +121,9 @@ def retrieve_svg(document, version):
     if not isfile(svg_path):
         raise NoSVGError(version)
 
-    print 'Content-Type: image/svg+xml'
-    print 'Content-Disposition: inline; filename=' + document + '.svg\n'
-    with open(svg_path, 'r') as svg_file:
-        print svg_file.read()
-    print
     # Bail out with a hack since we violated the protocol
-    raise NoPrintJSONError
+    hdrs = [('Content-Type', 'image/svg+xml'),
+            ('Content-Disposition', 'inline; filename=' + document + '.svg')]
+    with open(svg_path, 'r') as svg_file:
+        data = svg_file.read()
+    raise NoPrintJSONError(hdrs, data)

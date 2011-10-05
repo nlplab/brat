@@ -1,2 +1,5 @@
 # List all extracted directories here
-geniass
+mecab
+mecab-0.98
+mecab-ipadic-2.7.0-20070801
+mecab-python-0.98

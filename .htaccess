@@ -1,2 +1,12 @@
 Options +ExecCGI
 DirectoryIndex index.xhtml
+
+# When using FastCGI, uncomment the following three lines and replace
+# "INSTALLATION-ROOT" with the URL path of the application.
+# For example, if the URL to the application is 
+# "http://www.example.com/~user/visualizer/", 
+# "INSTALLATION-ROOT" should be replaced with "/~user/visualizer/"
+#
+#RewriteEngine On
+#RewriteBase INSTALLATION-ROOT
+#RewriteRule ajax\.cgi$ ajax.fcgi

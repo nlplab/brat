@@ -1,3 +1,5 @@
+// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
+// vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var Ajax = (function($, window, undefined) {
     var Ajax = function(dispatcher) {
       var that = this;
@@ -11,13 +13,13 @@ var Ajax = (function($, window, undefined) {
           data: data,
           type: 'POST',
           success: function(response) {
-/* TODO Commented out until
- * server-side complies
-            if (response.action !== data.action) {
+            // If no exception is set, verify the server results
+            if (response.exception == undefined && response.action !== data.action) {
               console.error('Action ' + data.action +
                 ' returned the results of action ' + response.action);
+              response.exception = true;
+              dispatcher.post('messages', [[['Protocol error: Action' + data.action + ' returned the results of action ' + response.action, 'error']]]);
             }
-*/
             dispatcher.post('messages', [response.messages]);
 
             // if .exception is just Boolean true, do not process

@@ -1,0 +1,28 @@
+/**
+ * Sequence diagram of the client-server initialisation sequence. The sequence
+ * assumes that the client starts from scratch, no caches, no prior
+ * information.
+ *
+ * Uses mscgen:
+ *      http://www.mcternan.me.uk/mscgen/
+ *
+ * Author:  Pontus Stenetorp    <pontus stenetorp se>
+ * Version: 2011-07-14
+ */
+
+msc {
+    Client, Webserver, Server;
+
+    Client->Webserver   [label="JavaScript Source Requests (parallel)"];
+    Client->Webserver   [label="Static Resource Requests (parallel)"];
+    Webserver->Client   [label="JavaScript Sources (parallel)"];
+    Webserver->Client   [label="Static Resources (parallel)"];
+    ---                 [label="Client Loads JavaScript Sources"];
+    ...;
+    ---                 [label="Client Executes JavaScript Source"];
+    Client->Server      [label="getCollectionInformation"];
+    Server->Client      [label="Collection Information"];
+    Client->Server      [label="whoami"];
+    Server->Client      [label="Username or `null`"];
+    ...;
+}
