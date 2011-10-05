@@ -1,21 +1,19 @@
-# brat rapid annotation tool #
+# brat rapid annotation tool (brat) #
 
 ## About ##
 
 *brat* (brat rapid annotation tool) is based on the [stav][stav] visualiser
 which was originally made in order to visualise
-[BioNLP'11 Shared Task][bionlp_2011_st] data.
+[BioNLP'11 Shared Task][bionlp_2011_st] data. Currently brat is under heavy
+development but is used by [Genia][genia] and several external groups for
+ongoing annotation projects. brat aims to provide an intuitive and fast way to
+create text-bound and relational annotations.
 
 [stav]:             https://github.com/TsujiiLaboratory/stav/
 [bionlp_2011_st]:   https://sites.google.com/site/bionlpst/
+[genia]:            http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/
 
-Currently brat is under heavy development but is used by [Genia][genia] and
-several external groups for ongoing annotation projects. brat aims to provide
-an intuitive and fast way to create text-bound and relational annotations.
-
-[genia]:    http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/
-
-It also aims to overcome short-comings of previous annotation tools such as:
+brat aims to overcome short-comings of previous annotation tools such as:
 
 * De-centralisation of configurations and data, causing synchronisation issues
 * Annotations and related text not being visually adjacent
