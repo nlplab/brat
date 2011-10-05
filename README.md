@@ -29,10 +29,6 @@ to the text
 * Zero set-up for annotators, leave configurations and server/data maintainence
 to other staff
 
-## License ##
-
-Please see LICENSE.
-
 ## Citing ##
 
 If you do make use of brat or components from brat, please do cite us in your
@@ -64,6 +60,10 @@ is published:
     ...the stav text annotation visualiser\footnote{
         \url{https://github.com/TsujiiLaboratory/stav}
     }
+
+## License ##
+
+Please see LICENSE.
 
 ## Installation ##
 
@@ -167,8 +167,7 @@ Let's edit the httpd.conf.
 
     sudo vim /etc/apache2/httpd.conf
 
-If you are installing brat into your home directory, add the following four
-lines.
+If you are installing brat into your home directory, add the following lines.
 
     <Directory /home/*/public_html>
         AllowOverride Options Indexes
@@ -184,21 +183,23 @@ lines.
         #</IfModule>
     </Directory>
 
-And make sure that you have the userdir module enabled.
+If you are not installing into your home directory adjust the above lines
+accordingly. If you installed into your home directory make sure that you have
+the `userdir` module enabled.
 
     sudo a2enmod userdir
 
 For FastCGI you also want to install its module and then add it and the
-rewrite module that we use to redirect the CGI requests to FastCGI:
+`rewrite` module that we use to redirect the CGI requests to FastCGI:
 
     sudo apt-get install libapache2-mod-fastcgi
     sudo a2enmod fastcgi
     sudo a2enmod rewrite
 
-The final FastCGI step is detailed in `.htacces` in the brat installation
-directory, which involves uncommeting and configuring the rewrite module.
+The final FastCGI step is detailed in `.htaccess` in the brat installation
+directory, which involves uncommenting and configuring the `rewrite` module.
 
-Finally tell Apache 2.x to load your new config.
+Finally tell Apache 2.x to load your new configuration.
 
     sudo /etc/init.d/apache2 reload
 
@@ -258,7 +259,7 @@ five o'clock.
 ## Contact ##
 
 For help and feedback please contact the authors below, preferably with all on
-them on CC since their responsibilites and availability may vary:
+them on CC since their responsibilities and availability may vary:
 
 * Goran Topić       <goran is s u-tokyo ac jp>
 * Sampo Pyysalo     <smp is s u-tokyo ac jp>
