@@ -174,18 +174,17 @@ Let's edit the httpd.conf.
 If you are installing brat into your home directory, add the following lines.
 
     <Directory /home/*/public_html>
-        AllowOverride Options Indexes
+        AllowOverride Options Indexes FileInfo
         AddType application/xhtml+xml .xhtml
         AddType font/ttf .ttf
         # For CGI support
         AddHandler cgi-script .cgi
-        # Comment out the line above and uncomment the lines below for FastCGI
-        #<IfModule mod_fastcgi.c>
-        #    # Single user installations should be fine with anything over 8
-        #    FastCgiConfig -maxProcesses 16
-        #    AddHandler fastcgi-script fcgi
-        #</IfModule>
+        # Comment out the line above and uncomment the line below for FastCGI
+        #AddHandler fastcgi-script fcgi
     </Directory>
+    
+    # For FastCGI, Single user installs should be fine with anything over 8
+    #FastCgiConfig -maxProcesses 16
 
 If you are not installing into your home directory adjust the above lines
 accordingly. If you installed into your home directory make sure that you have
