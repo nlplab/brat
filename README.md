@@ -155,11 +155,15 @@ you need if you don't have the misfortune to have the
 brat supports [FastCGI][fastcgi] which can speed up your installation by
 roughly x10 since you won't have to invoke the Python interpreter for every
 request. If you want to use FastCGI as opposed to CGI keep an eye out for
-configuration comments regarding it.
+configuration comments regarding it. For FastCGI you need the [flup][flup]
+Python library:
 
-[fastcgi]: http://www.fastcgi.com/
+    ( cd server/lib/ && tar xfz flup-1.0.2.tar.gz )
 
-Install Apache 2.x:
+[fastcgi]:  http://www.fastcgi.com/
+[flup]:     http://trac.saddi.com/flup
+
+Install Apache 2.x if you don't have it already:
 
     sudo apt-get install apache2
 

@@ -21,7 +21,12 @@ from cgi import FieldStorage
 
 # Library imports
 # TODO: Fail gracefully if flup is not present
-from flup.server.fcgi import WSGIServer
+try:
+    from flup.server.fcgi import WSGIServer
+except ImportError:
+    # We do have carry it ourselves, just-in-case
+    sys_path.append(path_join(dirname(__file__), 'server/lib/', 'flup-1.0.2'))
+    from flup.server.fcgi import WSGIServer
 
 # Local imports
 sys_path.append(path_join(dirname(__file__), 'server/src'))
