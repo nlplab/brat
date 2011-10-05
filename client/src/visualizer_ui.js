@@ -895,7 +895,6 @@ var VisualizerUI = (function($, window, undefined) {
         var params = {
             action: 'retrieveSVG',
             'document': doc,
-            version: 'colour'
         };
         $('#download_svg_color').attr('href', 'ajax.cgi?' + $.param(params));
         params['version'] = 'greyscale';
