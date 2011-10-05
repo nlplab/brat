@@ -128,12 +128,6 @@ Extract all the library dependencies.
 
     ( cd server/lib && tar xfz simplejson-2.1.5.tar.gz )
 
-And extract and compile [GeniaSS][geniass]:
-
-[geniass]: http://www-tsujii.is.s.u-tokyo.ac.jp/~y-matsu/geniass/
-
-    ( cd external && tar xfz geniass-1.00.tar.gz && cd geniass && make )
-
 Put a configuration in place.
 
     cp config_template.py config.py
