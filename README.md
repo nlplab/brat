@@ -57,7 +57,7 @@ Thus in the meantime use the following publication:
       url       = {http://www.aclweb.org/anthology/W11-1816}
     }
 
-If you have enough space we would be very happy if you link to the stav
+If you have enough space we would be very happy if you also link to the stav
 repository which will later contain a link to the brat repository after brat
 is published:
 
