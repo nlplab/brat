@@ -77,9 +77,10 @@ var Visualizer = (function($, window, undefined) {
       var nestingAdjustYStepSize = 2; // size of height adjust for nested/nesting spans
       var nestingAdjustXStepSize = 1; // size of height adjust for nested/nesting spans
 
-      var highlightSpanSequence = 'yellow;green;yellow';
-      var highlightArcSequence = 'yellow;lime;yellow';
-      var highlightTextSequence = 'yellow;lime;yellow';
+      var highlightSequence = 'FFFC69;FFCC00;FFFC69';
+      var highlightSpanSequence = highlightSequence;
+      var highlightArcSequence =  highlightSequence;
+      var highlightTextSequence = highlightSequence;
       var highlightDuration = '2s';
       
       // END OPTIONS
