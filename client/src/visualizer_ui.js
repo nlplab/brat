@@ -1078,6 +1078,24 @@ var VisualizerUI = (function($, window, undefined) {
             width: 760,
             no_cancel: true
           }]);
+        dispatcher.post('ajax', [{
+            action: 'whoami'
+          }, function(response) {
+            var auth_button = $('#auth_button');
+            if (response.user) {
+              user = response.user;
+              dispatcher.post('messages', [[['Welcome back, user "' + user + '"', 'comment']]]);
+              auth_button.val('Logout');
+              dispatcher.post('user', [user]);
+              $('.login').show();
+            } else {
+              user = null;
+              auth_button.val('Login');
+              dispatcher.post('user', [null]);
+              $('.login').hide();
+            }
+          }
+        ]);
       };
 
       var showUnableToReadTextFile = function() {
@@ -1105,10 +1123,6 @@ var VisualizerUI = (function($, window, undefined) {
         attributeTypes = _attributeTypes;
       };
 
-      var userReceived = function(_user) {
-        user = _user;
-      };
-      
       // hide anything requiring login, just in case
       $('.login').hide();
 
@@ -1137,7 +1151,6 @@ var VisualizerUI = (function($, window, undefined) {
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
           on('dblclick', onDblClick).
-          on('user', userReceived).
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch);

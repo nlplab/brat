@@ -517,26 +517,6 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
-      var init = function() {
-        dispatcher.post('ajax', [{
-            action: 'whoami'
-          }, function(response) {
-            var auth_button = $('#auth_button');
-            if (response.user) {
-              that.user = response.user;
-              dispatcher.post('messages', [[['Welcome back, user "' + that.user + '"', 'comment']]]);
-              auth_button.val('Logout');
-              dispatcher.post('user', [that.user]);
-              $('.login').show();
-            } else {
-              auth_button.val('Login');
-              dispatcher.post('user', [null]);
-              $('.login').hide();
-            }
-          }
-        ]);
-      };
-
       var collapseHandler = function(evt) {
         var el = $(evt.target);
         var open = el.hasClass('open');
@@ -951,12 +931,16 @@ var AnnotatorUI = (function($, window, undefined) {
       // overlay to prevent interaction
       waiter.parent().css('opacity', '0');
 
+      var userReceived = function(_user) {
+        that.user = _user;
+      }
+
       dispatcher.
         on('renderData', rememberData).
         on('collectionLoaded', rememberSpanSettings).
         on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
         on('hideForm', hideForm).
-        on('init', init).
+        on('user', userReceived).
         on('edited', edited).
         on('current', gotCurrent).
         on('keydown', onKeyDown).
