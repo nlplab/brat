@@ -150,9 +150,16 @@ This part largely focuses on Ubuntu, but use your \*NIX-fu to turn it into what
 you need if you don't have the misfortune to have the
 "Brown Lunix Distribution".
 
-#### Apache 2 ####
+#### Apache 2.x ####
 
-Install apache2, maybe you have a package manager.
+brat supports [FastCGI][fastcgi] which can speed up your installation by
+roughly x10 since you won't have to invoke the Python interpreter for every
+request. If you want to use FastCGI as opposed to CGI keep an eye out for
+configuration comments regarding it.
+
+[fastcgi]: http://www.fastcgi.com/
+
+Install Apache 2.x:
 
     sudo apt-get install apache2
 
@@ -165,16 +172,33 @@ lines.
 
     <Directory /home/*/public_html>
         AllowOverride Options Indexes
-        AddHandler cgi-script .cgi
         AddType application/xhtml+xml .xhtml
         AddType font/ttf .ttf
+        # For CGI support
+        AddHandler cgi-script .cgi
+        # Comment out the line above and uncomment the lines below for FastCGI
+        #<IfModule mod_fastcgi.c>
+        #    # Single user installations should be fine with anything over 8
+        #    FastCgiConfig -maxProcesses 16
+        #    AddHandler fastcgi-script fcgi
+        #</IfModule>
     </Directory>
 
 And make sure that you have the userdir module enabled.
 
     sudo a2enmod userdir
 
-Finally tell apache2 to load your new config.
+For FastCGI you also want to install its module and then add it and the
+rewrite module that we use to redirect the CGI requests to FastCGI:
+
+    sudo apt-get install libapache2-mod-fastcgi
+    sudo a2enmod fastcgi
+    sudo a2enmod rewrite
+
+The final FastCGI step is detailed in `.htacces` in the brat installation
+directory, which involves uncommeting and configuring the rewrite module.
+
+Finally tell Apache 2.x to load your new config.
 
     sudo /etc/init.d/apache2 reload
 
