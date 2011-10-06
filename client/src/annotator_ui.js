@@ -50,7 +50,8 @@ var AnnotatorUI = (function($, window, undefined) {
         // conceivably type in
         var target = evt.target;
         var nodeName = target.nodeName.toLowerCase();
-        if (nodeName == 'input' && target.type.toLowerCase() == 'text') return;
+        var nodeType = target.type.toLowerCase();
+        if (nodeName == 'input' && (nodeType == 'text' || nodeType == 'password')) return;
         if (nodeName == 'textarea' || nodeName == 'select') return;
 
         var binding = keymap[code];
