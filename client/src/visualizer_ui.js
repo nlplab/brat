@@ -283,7 +283,6 @@ var VisualizerUI = (function($, window, undefined) {
         form.parent().css({position:"fixed"});
         form.dialog('open');
         slideToggle($('#pulldown').stop(), false);
-        $('#pulldownArrow').show('fast');
         return form;
       };
 
@@ -988,7 +987,6 @@ var VisualizerUI = (function($, window, undefined) {
           clearTimeout(menuTimer);
           menuTimer = setTimeout(function() {
             slideToggle($('#pulldown').stop(), false);
-            $('#pulldownArrow').show('fast');
           }, 500);
         });
 
