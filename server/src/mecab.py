@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-`
 
 '''
-MeCab wrapper for brat
+MeCab wrapper
 
 http://mecab.sourceforge.net/
 

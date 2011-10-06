@@ -138,7 +138,7 @@ if __name__ == '__main__':
         print 'Succesful!'
 
         # TODO XXX: remove tests that assume local filesystem structure
-        with open('/home/ninjin/public_html/brat/brat_test_data/epi/PMID-18573876.txt', 'r') as _file:
+        with open('/home/ninjin/public_html/stav/stav_test_data/epi/PMID-18573876.txt', 'r') as _file:
             sentence = _file.read()
 
         print 'Sentence:', sentence

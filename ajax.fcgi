@@ -4,7 +4,7 @@
 
 '''
 Entry for FastCGI calls to brat. This is a simple wrapper around a persistent
-WSGI server that delegates the processing to the FastCGI-agnostic brat server.
+WSGI server that delegates the processing to the FastCGI-agnostic server.
 
 Depends on flup:
 
@@ -33,7 +33,7 @@ sys_path.append(path_join(dirname(__file__), 'server/src'))
 
 from server import serve
 
-def brat_app(environ, start_response):
+def stav_app(environ, start_response):
     # Get the data required by the server
     try:
         remote_addr = environ['REMOTE_ADDR']
@@ -64,5 +64,5 @@ def brat_app(environ, start_response):
 
 if __name__ == '__main__':
     from sys import exit
-    WSGIServer(brat_app).run()
+    WSGIServer(stav_app).run()
     exit(0)

@@ -771,7 +771,7 @@ def format_results(matches):
     response['items'] = items
     return response
 
-### per-directory interface functions (brat) ###
+### per-directory interface functions ###
 
 def search_text(collection, text):
     directory = collection
@@ -923,7 +923,7 @@ def main(argv=None):
             except:
                 refstr = ""
                 raise
-            print "\thttp://localhost/brat/#/%s%s (%s)" % (ann_obj.get_document().replace("data/",""), refstr, str(ann).rstrip())
+            print "\thttp://localhost/stav/#/%s%s (%s)" % (ann_obj.get_document().replace("data/",""), refstr, str(ann).rstrip())
 
 if __name__ == "__main__":
     import sys

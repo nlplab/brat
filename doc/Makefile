@@ -1,4 +1,4 @@
-# Makefile for generating brat documentation and documentation related files.
+# Makefile for generating stav documentation and documentation related files.
 #
 # Author:	Pontus Stenetorp	<pontus stenetorp se>
 # Version:	2011-07-14

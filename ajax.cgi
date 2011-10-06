@@ -4,7 +4,7 @@
 
 '''
 Enty for CGI calls to the application. A simple wrapper around the CGI
-handling that then delegates the work to the CGI-agnostic brat server.
+handling that then delegates the work to the CGI-agnostic server.
 
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
 Version:    2010-02-07

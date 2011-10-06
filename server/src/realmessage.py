@@ -4,7 +4,6 @@
 
 '''
 Server-to-client messaging-related functionality
-for Brat Rapid Annotation Tool (brat)
 
 NOTE: This module is used by ajax.cgi prior to verifying that the Python
 version is new enough to run with all our other modules. Thus this module has

@@ -3,7 +3,7 @@
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 '''
-Main entry for the brat server, ensures integrity, handles dispatch and
+Main entry for the stav server, ensures integrity, handles dispatch and
 processes potential exceptions before returning them to be sent as responses.
 
 NOTE(S):

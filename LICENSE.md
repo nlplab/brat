@@ -1,10 +1,10 @@
 # Licenses #
 
-This file contains licenses for all software and resources included in brat.
+This file contains licenses for all software and resources included in stav.
 
-## brat ##
+## stav ##
 
-Copyright 2010-2011 The brat contributors, all rights reserved.
+Copyright 2010-2011 The stav contributors, distributed under the MIT license.
 
 ## Google Web Fonts ##
 
