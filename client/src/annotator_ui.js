@@ -691,7 +691,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#waiter').dialog('close');
         } else {
           if (response.edited == undefined) {
-            console.log('Warning: server response to edit has', response.edited, 'value for "edited"');
+            console.warn('Warning: server response to edit has', response.edited, 'value for "edited"');
           } else {
             args.edited = response.edited;
           }
@@ -707,48 +707,6 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
-
-      var authForm = $('#auth_form');
-      dispatcher.post('initForm', [authForm]);
-      var authFormSubmit = function(evt) {
-        dispatcher.post('hideForm');
-        var user = $('#auth_user').val();
-        var password = $('#auth_pass').val();
-        dispatcher.post('ajax', [{
-            action: 'login',
-            user: user,
-            password: password,
-          },
-          function(response) {
-              if (response.exception) {
-                dispatcher.post('showForm', [authForm]);
-                $('#auth_user').select().focus();
-              } else {
-                that.user = user;
-                $('#auth_button').val('Logout');
-                $('#auth_user').val('');
-                $('#auth_pass').val('');
-                $('.login').show();
-                dispatcher.post('user', [user]);
-              }
-          }]);
-        return false;
-      };
-      $('#auth_button').click(function(evt) {
-        if (that.user) {
-          dispatcher.post('ajax', [{
-            action: 'logout'
-          }, function(response) {
-            that.user = null;
-            $('#auth_button').val('Login');
-            $('.login').hide();
-            dispatcher.post('user', [null]);
-          }]);
-        } else {
-          dispatcher.post('showForm', [authForm]);
-        }
-      });
-      authForm.submit(authFormSubmit);
 
       var spanForm = $('#span_form');
 
@@ -936,7 +894,12 @@ var AnnotatorUI = (function($, window, undefined) {
         that.user = _user;
       }
 
+      var init = function() {
+        dispatcher.post('annotationIsAvailable');
+      };
+
       dispatcher.
+        on('init', init).
         on('renderData', rememberData).
         on('collectionLoaded', rememberSpanSettings).
         on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).

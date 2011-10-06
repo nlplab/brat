@@ -20,6 +20,7 @@ var VisualizerUI = (function($, window, undefined) {
       var collScroll;
       var docScroll;
       var user = null;
+      var annotationAvailable = false;
 
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
@@ -1043,7 +1044,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
       var viewspanForm = $('#viewspan_form');
       var onDblClick = function(evt) {
-        if (user) return;
+        if (user && annotationAvailable) return;
         var target = $(evt.target);
         var id;
         if (id = target.attr('data-span-id')) {
@@ -1075,6 +1076,49 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('hideForm', [viewspanForm]);
         return false;
       });
+
+      var authForm = $('#auth_form');
+      initForm(authForm);
+      var authFormSubmit = function(evt) {
+        dispatcher.post('hideForm');
+        var _user = $('#auth_user').val();
+        var password = $('#auth_pass').val();
+        dispatcher.post('ajax', [{
+            action: 'login',
+            user: _user,
+            password: password,
+          },
+          function(response) {
+              if (response.exception) {
+                dispatcher.post('showForm', [authForm]);
+                $('#auth_user').select().focus();
+              } else {
+                user = _user;
+                $('#auth_button').val('Logout');
+                $('#auth_user').val('');
+                $('#auth_pass').val('');
+                $('.login').show();
+                dispatcher.post('user', [user]);
+              }
+          }]);
+        return false;
+      };
+      $('#auth_button').click(function(evt) {
+        if (user) {
+          dispatcher.post('ajax', [{
+            action: 'logout'
+          }, function(response) {
+            user = null;
+            $('#auth_button').val('Login');
+            $('.login').hide();
+            dispatcher.post('user', [null]);
+          }]);
+        } else {
+          dispatcher.post('showForm', [authForm]);
+        }
+      });
+      authForm.submit(authFormSubmit);
+
 
       var init = function() {
         dispatcher.post('initForm', [viewspanForm, {
@@ -1126,11 +1170,16 @@ var VisualizerUI = (function($, window, undefined) {
         attributeTypes = _attributeTypes;
       };
 
+      var annotationIsAvailable = function() {
+        annotationAvailable = true;
+      };
+
       // hide anything requiring login, just in case
       $('.login').hide();
 
       dispatcher.
           on('init', init).
+          on('annotationIsAvailable', annotationIsAvailable).
           on('messages', displayMessages).
           on('displaySpanComment', displaySpanComment).
           on('displayArcComment', displayArcComment).
