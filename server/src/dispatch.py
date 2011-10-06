@@ -71,7 +71,12 @@ REQUIRES_AUTHENTICATION = set((
     'createSpan',
     'deleteSpan',
     'splitSpan',
-    #'setDocumentStatus',
+   
+    # Search functionality (heavy on the CPU/disk ATM)
+    'searchText',
+    'searchEntity',
+    'searchEvent',
+    'searchRelation',
     ))
 
 # Sanity check
