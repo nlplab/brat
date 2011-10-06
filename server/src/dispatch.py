@@ -54,21 +54,12 @@ DISPATCHER = {
 REQUIRES_AUTHENTICATION = set((
     # Document functionality
     'importDocument',
-
-    # Editing functionality
-    'createArc',
-    'deleteArc',
-    'createSpan',
-    'deleteSpan',
-    'splitSpan',
-    #'setDocumentStatus',
     ))
 
 # Sanity check
 for req_action in REQUIRES_AUTHENTICATION:
     assert req_action in DISPATCHER, (
             'redundant action in REQUIRES_AUTHENTICATION set')
->>>>>>> master:server/src/dispatch.py
 ###
 
 
