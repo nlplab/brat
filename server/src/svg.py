@@ -29,7 +29,6 @@ from session import get_session
 SVG_DIR = path_join(WORK_DIR, 'svg')
 # TODO: These constants most likely don't belong here
 CSS_PATH = path_join(BASE_DIR, 'style.css')
-GRAYSCALE_CSS_PATH = path_join(BASE_DIR, 'style_grayscale.css')
 ###
 
 
@@ -69,13 +68,8 @@ class CorruptSVGError(ProtocolError):
         return json_dic
 
 
-def _save_svg(svg, colour=True):
-    if colour:
-        css_path = CSS_PATH
-    else:
-        css_path = GRAYSCALE_CSS_PATH
-
-    svg_path = _svg_path(colour=colour)
+def _save_svg(svg):
+    svg_path = _svg_path()
 
     with open(svg_path, 'w') as svg_file:
         svg_file.write('<?xml version="1.0" standalone="no"?>'
@@ -83,7 +77,7 @@ def _save_svg(svg, colour=True):
                 '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
         defs = svg.find('</defs>')
 
-        with open(css_path, 'r') as css_file:
+        with open(CSS_PATH, 'r') as css_file:
             css = css_file.read()
 
         if defs != -1:
@@ -94,29 +88,19 @@ def _save_svg(svg, colour=True):
             # TODO: @amadanmath: When does this actually happen?
             raise CorruptSVGError
 
-def _svg_path(colour=True):
+def _svg_path():
     # Create the SVG_DIR if necessary
     if not exists(SVG_DIR):
         mkdir(SVG_DIR)
 
-    base_path = path_join(SVG_DIR, get_session().sid)
-    if colour:
-        return base_path + '_colour.svg'
-    else:
-        return base_path + '_greyscale.svg'
+    return path_join(SVG_DIR, get_session().sid)
 
 def store_svg(svg):
     _save_svg(svg)
-    _save_svg(svg, colour=False)
     return {}
 
-def retrieve_svg(document, version):
-    if version == 'colour':
-        svg_path = _svg_path()
-    elif version == 'greyscale':
-        svg_path = _svg_path(colour=False)
-    else:
-        raise UnknownSVGVersionError(version)
+def retrieve_svg(document):
+    svg_path = _svg_path()
 
     if not isfile(svg_path):
         raise NoSVGError(version)

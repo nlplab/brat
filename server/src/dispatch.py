@@ -54,6 +54,12 @@ DISPATCHER = {
 REQUIRES_AUTHENTICATION = set((
     # Document functionality
     'importDocument',
+   
+    # Search functionality (heavy on the CPU/disk ATM)
+    'searchText',
+    'searchEntity',
+    'searchEvent',
+    'searchRelation',
     ))
 
 # Sanity check
