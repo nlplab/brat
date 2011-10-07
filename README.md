@@ -1,44 +1,18 @@
-# brat rapid annotation tool (brat) #
+# stav text annotation visualiser (stav) #
 
 ## About ##
 
-*brat* (brat rapid annotation tool) is based on the [stav][stav] visualiser
-which was originally made in order to visualise
-[BioNLP'11 Shared Task][bionlp_2011_st] data. Currently brat is under heavy
-development but is used by [Genia][genia] and several external groups for
-ongoing annotation projects. brat aims to provide an intuitive and fast way to
-create text-bound and relational annotations.
+stav is a text visualisation tool, developed for the purpose of visualising
+data from the [BioNLP'11 Shared Task][bionlp_2011_st]. It aims to provide a
+clear and easily graspable representation of event structures and the
+associated textual spans.
 
-[stav]:             https://github.com/TsujiiLaboratory/stav/
-[bionlp_2011_st]:   https://sites.google.com/site/bionlpst/
-[genia]:            http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/
-
-brat aims to overcome short-comings of previous annotation tools such as:
-
-* De-centralisation of configurations and data, causing synchronisation issues
-* Annotations and related text not being visually adjacent
-* Complexity of set-up for annotators
-* Etc.
-
-brat does this by:
-
-* Data and configurations on a central web server (as Mark Twain said:
-"Put all your eggs in one basket, and then guard that basket!")
-* Present text as it would appear to a reader and maintain annotations close
-to the text
-* Zero set-up for annotators, leave configurations and server/data maintainence
-to other staff
+[bionlp_2011_st]: https://sites.google.com/site/bionlpst/
 
 ## Citing ##
 
-If you do make use of brat or components from brat, please do cite us in your
-related publications.
-
-We are currently preparing a publication for brat and would appreciate if the
-software is referred to as "an annotation tool based on the stav visualiser"
-to avoid any potential confusion regarding prior publications.
-
-Thus in the meantime use the following publication:
+If you make use of stav in your publications please cite the publication below
+which is provided in [BibTeX](http://en.wikipedia.org/wiki/BibTeX) format:
 
     @InProceedings{stenetorp2011supporting,
       author    = {Stenetorp, Pontus and Topi\'{c}, Goran and Pyysalo, Sampo
@@ -54,8 +28,7 @@ Thus in the meantime use the following publication:
     }
 
 If you have enough space we would be very happy if you also link to the stav
-repository which will later contain a link to the brat repository after brat
-is published:
+repository to make it easier for readers to get straight-to-the-software:
 
     ...the stav text annotation visualiser\footnote{
         \url{https://github.com/TsujiiLaboratory/stav}
@@ -63,40 +36,40 @@ is published:
 
 ## License ##
 
-Please see LICENSE.
+stav is open source software, please see LICENSE.md for details.
 
 ## Installation ##
 
-This section describes how to install brat and its third-party dependencies.
-Do note that brat is a served through a web server and we currently develop
+This section describes how to install stav and its third-party dependencies.
+Do note that stav is a served through a web server and we currently develop
 against Apache 2.x, these instructions will assume that you use the same but
 we do have LigHTTPD configuration files in the repository if you feel like
 trying it out.
 
 ### WARNING ###
 
-Since brat (and this document) is very much under development the information
+Since stav (and this document) is very much under development the information
 on this document may not be up to date. If it isn't, bash the developers ASAP.
 You are also very welcome to file issues for bugs that you may find or
-features that you would like to see in brat, do so at
+features that you would like to see in stav, do so at
 [our GitHub page][issues] or by mailing the authors. We appreciate if you
 supply the version you are working on and as much details on your system as
 possible (we have received tar-balls of whole installations at some points
 since the installation can be self-contained in a single directory).
 
-[issues]: https://github.com/TsujiiLaboratory/brat/issues
+[issues]: https://github.com/TsujiiLaboratory/stav/issues
 
-### brat ###
+### stav ###
 
-Extract brat somewhere convenient where your webserver can reach it:
+Check out stav using git.
 
-    tar xzf TsujiiLaboratory-brat-${VERSION}-${HASH}.tar.gz
+    git clone git@github.com:TsujiiLaboratory/stav.git
 
-Enter the brat directory:
+Enter the stav directory:
 
-    cd brat
+    cd stav
 
-When running brat it needs to read and write data to several directories,
+When running stav it needs to read and write data to several directories,
 let's create them.
 
     mkdir data work
@@ -138,11 +111,7 @@ Edit the configuration to suit your environment.
 
 Your installation should now be ready, just place your data in the `data`
 directory and make sure it has the right permissions using `chmod` as you did
-above. If your data consists of no prior annotations and only `.txt` files,
-create the annotation files (`.ann`) as below.
-
-    ( find data -name '*.txt' | sed -e 's|\.txt||g' \
-        | xargs -I {} touch '{}.ann' )
+above.
 
 ### Third-party Stuff ###
 
@@ -152,7 +121,7 @@ you need if you don't have the misfortune to have the
 
 #### Apache 2.x ####
 
-brat supports [FastCGI][fastcgi] which can speed up your installation by
+stav supports [FastCGI][fastcgi] which can speed up your installation by
 roughly x10 since you won't have to invoke the Python interpreter for every
 request. If you want to use FastCGI as opposed to CGI keep an eye out for
 configuration comments regarding it. For FastCGI you need the [flup][flup]
@@ -171,7 +140,7 @@ Let's edit the httpd.conf.
 
     sudo vim /etc/apache2/httpd.conf
 
-If you are installing brat into your home directory, add the following lines.
+If you are installing stav into your home directory, add the following lines.
 
     <Directory /home/*/public_html>
         AllowOverride Options Indexes FileInfo
@@ -199,7 +168,7 @@ For FastCGI you also want to install its module and then add it and the
     sudo a2enmod fastcgi
     sudo a2enmod rewrite
 
-The final FastCGI step is detailed in `.htaccess` in the brat installation
+The final FastCGI step is detailed in `.htaccess` in the stav installation
 directory, which involves uncommenting and configuring the `rewrite` module.
 
 Finally tell Apache 2.x to load your new configuration.
@@ -245,19 +214,6 @@ Clone this repository into `~/Sites`. Edit
 `/private/etc/apache2/users/$USER.conf`. Then invoke `sudo apachectl reload`.
 The default user and group name for Apache is `_www` (as found in
 `/private/etc/apache2/httpd.conf`), for use in `chgrp`.
-
-## Back-ups ##
-
-brat had a very flaky back-up system (actually my fault for my early morning
-hack), there is an alternate script that you can use with good old `cron`.
-Do as follows.
-
-Add a line like the one below to the crontab for your Apache user:
-
-    0 5 * * * ${PATH_TO_BRAT_INSTALLATION}/tools/backup.py
-
-You will now have a back-up made into your work directory every morning at
-five o'clock.
 
 ## Contact ##
 
