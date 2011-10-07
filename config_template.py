@@ -22,6 +22,10 @@ DATA_DIR = join(BASE_DIR, RELATIVE_PATH_TO_DATA_DIR)
 WORK_DIR = join(BASE_DIR, RELATIVE_PATH_TO_WORK_DIR)
 '''
 
+USER_PASSWORD = {
+        CHANGE_ME : CHANGE_ME
+        }
+
 # Enable additional debug output
 DEBUG = False
 
