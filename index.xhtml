@@ -65,9 +65,7 @@
             <input id="search_button" type="button" class="login" value="Search" tabindex="-1" title="Search annotations in current collection"/>
             -->
             <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search annotations in current collection">Search</label>
-            <input id="import_button" type="button" class="login" value="Import" tabindex="-1" title="Import a new document into the current collection"/>
             <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
-            <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
             <span><input id="abbrev_mode" type="checkbox" value="true" checked="checked"/><label for="abbrev_mode" title="Toggle the abbreviation mode">Abbreviations</label></span>
           </div>
           <div id="document_mtime" class="unselectable"/>
@@ -81,20 +79,6 @@
       </div>
     </div>
     <div id="svg"></div>
-    <form id="import_form" class="dialog" title="Import">
-      <fieldset id="import_form_docid">
-        <legend>Document ID</legend>
-        <input id="import_docid" class="borderless"/>
-      </fieldset>
-      <fieldset id="import_form_title">
-        <legend>Document title</legend>
-        <input id="import_title" class="borderless"/>
-      </fieldset>
-      <fieldset id="import_form_text">
-        <legend>Document text</legend>
-        <textarea id="import_text" class="borderless"/>
-      </fieldset>
-    </form>
     <form id="search_form" class="dialog" title="Search">
       <div id="search_tabs">
         <ul>
