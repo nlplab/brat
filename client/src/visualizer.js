@@ -2214,7 +2214,8 @@ Util.profileStart('before render');
 
       waitUntilFontsLoaded([
         'Astloch',
-        'PT Sans Caption'
+	'Ubuntu',
+	'Liberation Sans'
       ]);
 
 
