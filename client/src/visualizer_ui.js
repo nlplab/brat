@@ -405,7 +405,7 @@ var VisualizerUI = (function($, window, undefined) {
           // used (at least) for search results
           var annp = doc[1] ? ('?' + Util.param(doc[1])) : '';
           var name = doc[2];
-          var collFile = isColl ? 'dir' : 'file';
+          var collFile = isColl ? 'collection' : 'file';
           var collSuffix = isColl ? '/' : '';
           html.push('<tr class="' + collFile + '" data-value="'
                     + name + collSuffix + annp + '"><th>'
