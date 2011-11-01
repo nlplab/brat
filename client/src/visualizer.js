@@ -938,10 +938,10 @@ Util.profileStart('init');
 
         var defs = addHeaderAndDefs();
 
-        var backgroundGroup = svg.group({ class: 'background' });
-        var glowGroup = svg.group({ class: 'glow' });
-        highlightGroup = svg.group({ class: 'highlight' });
-        var textGroup = svg.group({ class: 'text' });
+        var backgroundGroup = svg.group({ 'class': 'background' });
+        var glowGroup = svg.group({ 'class': 'glow' });
+        highlightGroup = svg.group({ 'class': 'highlight' });
+        var textGroup = svg.group({ 'class': 'text' });
 
 Util.profileEnd('init');
 Util.profileStart('measures');
