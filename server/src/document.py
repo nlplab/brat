@@ -84,7 +84,15 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
 
             # Note: for client, relations are represented as "arcs"
             # attached to "spans" corresponding to entity annotations.
+
+            # To avoid redundant entries, fill each type at most once.
+            filled_arc_type = {}
+
             for arc in chain(project_conf.relation_types_from(_type), node.arg_list):
+                if arc in filled_arc_type:
+                    continue
+                filled_arc_type[arc] = True
+
                 curr_arc = {}
                 curr_arc['type'] = arc
 
