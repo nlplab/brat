@@ -914,6 +914,7 @@ def main(argv=None):
         for ann_obj, ann in m.get_matches():
             # TODO: get rid of specific URL hack and similar
             baseurl='http://127.0.0.1/~smp/brat/#/'
+            #baseurl='http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/brat/tomoko/current/#/'
             print "\t%s%s?focus=%s (%s)" % (baseurl, ann_obj.get_document().replace("data/",""), ann.reference_id()[0], str(ann).rstrip())
 
 if __name__ == "__main__":
