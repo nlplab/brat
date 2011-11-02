@@ -178,7 +178,7 @@ class TypeHierarchyNode:
         self.keys_by_type = {}
         for a in self.args:
             a = a.strip()
-            m = re.match(r'^(.*?):(.*)$', a)
+            m = re.match(r'^(\S*?):(\S*)$', a)
             if not m:
                 Messager.warning("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), 5)
                 raise InvalidProjectConfigException
