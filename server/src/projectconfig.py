@@ -234,7 +234,16 @@ class TypeHierarchyNode:
         """
         return self.__primary_term
 
-def __read_term_hierarchy(input):
+def __require_tab_separator(section):
+    """    
+    Given a section name, returns True iff in that section of the
+    project config only tab separators should be permitted.
+    This exception initially introduced to allow slighlty different
+    syntax for the [labels] section than others.
+    """
+    return section == "labels"    
+
+def __read_term_hierarchy(input, section=None):
     root_nodes    = []
     last_node_at_depth = {}
 
@@ -268,8 +277,13 @@ def __read_term_hierarchy(input):
         # macro expansion
         for n in macros:
             l = l.replace(n, macros[n])
-        
-        m = re.match(r'^(\s*)([^\t]+)(?:\t(.*))?$', l)
+
+        # choose strict tab-only separator or looser any-space
+        # separator matching depending on section
+        if __require_tab_separator(section):
+            m = re.match(r'^(\s*)([^\t]+)(?:\t(.*))?$', l)
+        else:
+            m = re.match(r'^(\s*)(\S+)(?:\s+(.*))?$', l)
         assert m, "Error parsing line: '%s'" % l
         indent, terms, args = m.groups()
         terms = [t.strip() for t in terms.split("|") if t.strip() != ""]
@@ -383,7 +397,7 @@ def __parse_configs(configstr, source, expected_sections):
     configs = {}
     for s, sl in section_lines.items():
         try:
-            configs[s] = __read_term_hierarchy(sl)
+            configs[s] = __read_term_hierarchy(sl, s)
         except:
             Messager.warning("Project configuration: error parsing section [%s] in %s." % (s, source), 5)
             raise
