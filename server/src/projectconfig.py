@@ -61,7 +61,7 @@ __default_configuration = """
 Protein
 
 [relations]
-Equiv	Arg1:Protein, Arg2:Protein
+Equiv	Arg1:Protein, Arg2:Protein, <REL-TYPE>:symmetric-transitive
 
 [events]
 Protein_binding|GO:0005515	Theme+:Protein
@@ -172,6 +172,7 @@ class TypeHierarchyNode:
 
         # TODO: cleaner and more localized parsing
         self.arguments = {}
+        self.special_arguments = {}
         self.arg_list = []
         self.mandatory_arguments = []
         self.multiple_allowed_arguments = []
@@ -184,6 +185,17 @@ class TypeHierarchyNode:
                 raise InvalidProjectConfigException
             key, atypes = m.groups()
 
+            # special case (sorry): if the key is a reserved config
+            # string (e.g. "<REL-TYPE>"), parse differently and store
+            # separately
+            if key in reserved_config_string:
+                if key is self.special_arguments:
+                    Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
+                    raise InvalidProjectConfigException
+                self.special_arguments[key] = atypes.split("-")
+                # NOTE: skip the rest of processing -- don't add in normal args
+                continue
+                
             if key[-1:] not in ("?", "*"):
                 mandatory_key = True
             else:
@@ -466,7 +478,7 @@ def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 # final fallback for configuration; a minimal known-good config
 __minimal_configuration = {
     ENTITY_SECTION    : [TypeHierarchyNode(["Protein"])],
-    RELATION_SECTION  : [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein"])],
+    RELATION_SECTION  : [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein", "<REL-TYPE>:symmetric-transitive"])],
     EVENT_SECTION     : [TypeHierarchyNode(["Event"], ["Theme:Protein"])],
     ATTRIBUTE_SECTION : [TypeHierarchyNode(["Negation"], ["Arg:<EVENT>"])],
     }
@@ -654,14 +666,10 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
         if r.storage_form() == ENTITY_NESTING_TYPE and not include_special:
             continue
 
-        # remove any arguments corresponding to reserved strings
-        # (most likely to be included is <REL-TYPE>)
-        arg_list = [a for a in r.arg_list if a not in reserved_config_string]
-
-        if len(arg_list) != 2:
-            Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(arg_list)))
+        if len(r.arg_list) != 2:
+            Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(r.arg_list)))
         else:
-            types = r.arguments[arg_list[num]]
+            types = r.arguments[r.arg_list[num]]
             for type in types:
                 # TODO: "wildcards" other than <ANY>
                 if type == "<ANY>" or atype == "<ANY>" or type == atype:
@@ -870,6 +878,15 @@ class ProjectConfiguration(object):
     def get_relation_types(self):
         return [t.storage_form() for t in get_relation_type_list(self.directory)]
 
+    def get_equiv_types(self):
+        # equivalence relations are those relations that are symmetric
+        # and transitive, i.e. that have "symmetric" and "transitive"
+        # in their "<REL-TYPE>" special argument values.
+        return [t.storage_form() for t in get_relation_type_list(self.directory)
+                if "<REL-TYPE>" in t.special_arguments and
+                "symmetric" in t.special_arguments["<REL-TYPE>"] and
+                "transitive" in t.special_arguments["<REL-TYPE>"]]
+
     def get_relation_by_type(self, _type):
         # TODO: dict storage
         for r in get_relation_type_list(self.directory):
@@ -920,6 +937,9 @@ class ProjectConfiguration(object):
 
     def is_relation_type(self, t):
         return t in self.get_relation_types()
+
+    def is_equiv_type(self, t):
+        return t in self.get_equiv_types()
 
     def is_configured_type(self, t):
         return (t in self.get_entity_types() or
