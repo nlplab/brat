@@ -671,8 +671,6 @@ class Annotations(object):
     def _parse_equiv_annotation(self, data, data_tail, input_file_path):
         # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
-        if type != 'Equiv':
-            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1, input_file_path)
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail, source_id=input_file_path)
 
@@ -1097,7 +1095,7 @@ class EquivAnnotation(TypedAnnotation):
 
     Represented in standoff as
     
-    *\tEquiv ID1 ID2 [...]
+    *\tTYPE ID1 ID2 [...]
 
     Where "*" is the literal asterisk character.
     """
