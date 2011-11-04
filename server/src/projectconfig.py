@@ -240,6 +240,16 @@ class TypeHierarchyNode:
                     self.keys_by_type[atype] = []
                 self.keys_by_type[atype].append(key)
 
+        # very, very special case processing: if we have a relation of type
+        # "Equiv" that doesn't specify a "<REL-TYPE>", automatically fill
+        # "symmetric" and "transitive". This is to support older
+        # configurations that rely on the type "Equiv" to identify the
+        # relation as an equivalence.
+        if (self.storage_form() == "Equiv" and 
+            "<REL-TYPE>" not in self.special_arguments):
+            Messager.warning('"Equiv" defined in config without "<REL-TYPE>"; assuming symmetric and transitive. Consider revising config to add "<REL-TYPE>:symmetric-transitive" to definition.')
+            self.special_arguments["<REL-TYPE>"] = ["symmetric", "transitive"]
+
     def storage_form(self):
         """
         Returns the form of the term used for storage serverside.
