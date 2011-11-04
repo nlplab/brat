@@ -98,9 +98,9 @@ User-agent: guest
 Disallow: /confidential/
 """
 
-# Reserved "macros" with special meanings in configuration.
-reserved_macro_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE"]
-reserved_macro_string = ["<%s>" % n for n in reserved_macro_name]
+# Reserved strings with special meanings in configuration.
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE"]
+reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
 SEPARATOR_STR = "SEPARATOR"
@@ -216,7 +216,7 @@ class TypeHierarchyNode:
 
                 # Check disabled; need to support arbitrary UTF values for attributes.conf.
                 # TODO: consider checking for similar for appropriate confs.
-#                 if atype not in reserved_macro_string and normalize_to_storage_form(atype) != atype:
+#                 if atype not in reserved_config_string and normalize_to_storage_form(atype) != atype:
 #                     Messager.warning("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, 5)
 #                     raise InvalidProjectConfigException
 
@@ -266,7 +266,7 @@ def __read_term_hierarchy(input, section=None):
         m = re.match(r'^<([a-zA-Z_-]+)>=\s*(.*?)\s*$', l)
         if m:
             name, value = m.groups()
-            if name in reserved_macro_name:
+            if name in reserved_config_name:
                 Messager.error("Cannot redefine <%s> in configuration, it is a reserved name." % name)
                 # TODO: proper exception
                 assert False
@@ -654,10 +654,14 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
         if r.storage_form() == ENTITY_NESTING_TYPE and not include_special:
             continue
 
-        if len(r.arg_list) != 2:
-            Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(r.arg_list)))
+        # remove any arguments corresponding to reserved strings
+        # (most likely to be included is <REL-TYPE>)
+        arg_list = [a for a in r.arg_list if a not in reserved_config_string]
+
+        if len(arg_list) != 2:
+            Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(arg_list)))
         else:
-            types = r.arguments[r.arg_list[num]]
+            types = r.arguments[arg_list[num]]
             for type in types:
                 # TODO: "wildcards" other than <ANY>
                 if type == "<ANY>" or atype == "<ANY>" or type == atype:
