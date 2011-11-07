@@ -31,6 +31,7 @@ JOINED_ANN_FILE_SUFF = 'ann'
 # These file suffixes indicate partial annotations that can not be written to
 # since they depend on multiple files for completeness
 PARTIAL_ANN_FILE_SUFF = ['a1', 'a2', 'co', 'rel']
+KNOWN_FILE_SUFF = [JOINED_ANN_FILE_SUFF]+PARTIAL_ANN_FILE_SUFF
 TEXT_FILE_SUFFIX = 'txt'
 ###
 
@@ -893,9 +894,9 @@ class TextAnnotations(Annotations):
         if document.endswith('.txt'):
             textfile_path = document
         else:
-            # Do we have an extension?
+            # Do we have a known extension?
             _, file_ext = splitext(document)
-            if not file_ext:
+            if not file_ext or not file_ext in KNOWN_FILE_SUFF:
                 textfile_path = document
             else:
                 textfile_path = document[:len(document) - len(file_ext)]
