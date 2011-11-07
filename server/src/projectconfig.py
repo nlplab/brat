@@ -240,16 +240,6 @@ class TypeHierarchyNode:
                     self.keys_by_type[atype] = []
                 self.keys_by_type[atype].append(key)
 
-        # very, very special case processing: if we have a relation of type
-        # "Equiv" that doesn't specify a "<REL-TYPE>", automatically fill
-        # "symmetric" and "transitive". This is to support older
-        # configurations that rely on the type "Equiv" to identify the
-        # relation as an equivalence.
-        if (self.storage_form() == "Equiv" and 
-            "<REL-TYPE>" not in self.special_arguments):
-            Messager.warning('"Equiv" defined in config without "<REL-TYPE>"; assuming symmetric and transitive. Consider revising config to add "<REL-TYPE>:symmetric-transitive" to definition.')
-            self.special_arguments["<REL-TYPE>"] = ["symmetric", "transitive"]
-
     def storage_form(self):
         """
         Returns the form of the term used for storage serverside.
@@ -451,6 +441,21 @@ def get_configs(directory, filename, defaultstr, minconf, sections):
         except:
             Messager.warning("Project configuration: Falling back to minimal default. Configuration is likely wrong.", 5)
             configs = minconf
+
+        # very, very special case processing: if we have a type
+        # "Equiv" defined in a "relations" section that doesn't
+        # specify a "<REL-TYPE>", automatically fill "symmetric" and
+        # "transitive". This is to support older configurations that
+        # rely on the type "Equiv" to identify the relation as an
+        # equivalence.
+        if 'relations' in configs:
+            for r in configs['relations']:
+                if r == SEPARATOR_STR:
+                    continue
+                if (r.storage_form() == "Equiv" and 
+                    "<REL-TYPE>" not in r.special_arguments):
+                    Messager.warning('Note: "Equiv" defined in config without "<REL-TYPE>"; assuming symmetric and transitive. Consider revising config to add "<REL-TYPE>:symmetric-transitive" to definition.')
+                    r.special_arguments["<REL-TYPE>"] = ["symmetric", "transitive"]
 
         get_configs.__cache[(directory, filename)] = configs
 
