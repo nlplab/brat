@@ -434,6 +434,17 @@ var AnnotatorUI = (function($, window, undefined) {
         if (that.user === null) return;
 
         var target = $(evt.target);
+
+        // three things that are clickable in SVG
+        var targetSpanId = target.data('span-id');
+        var targetChunkId = target.data('chunk-id');
+        var targetArcRole = target.data('arc-role');
+        if (!(targetSpanId || targetChunkId || targetArcRole)) {
+          // misclick
+          window.getSelection().removeAllRanges();
+          return;
+        }
+
         // is it arc drag end?
         if (arcDragOrigin) {
           var origin = arcDragOrigin;
