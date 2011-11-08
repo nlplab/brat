@@ -434,6 +434,9 @@ fieldset {
 #span_attributes {
   height: 87px;
 }
+#span_attributes .ui-button-text {
+  padding: 2px 5px;
+}
 
 #span_highlight_link, #arc_highlight_link, #viewspan_highlight_link {
   float: right;
