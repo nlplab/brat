@@ -1151,6 +1151,7 @@ var VisualizerUI = (function($, window, undefined) {
               dispatcher.post('user', [null]);
               $('.login').hide();
               dispatcher.post('showForm', [tutorialForm]);
+              $('#tutorial-ok').focus();
             }
           }
         ]);
