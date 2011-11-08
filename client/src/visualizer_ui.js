@@ -1115,6 +1115,19 @@ var VisualizerUI = (function($, window, undefined) {
       authForm.submit(authFormSubmit);
 
 
+      var tutorialForm = $('#tutorial');
+      initForm(tutorialForm, {
+        width: 400,
+        height: 300,
+        no_cancel: true,
+        no_ok: true,
+        buttons: [{
+          id: "tutorial-ok",
+          text: "OK",
+          click: function() { tutorialForm.dialog('close'); }
+        }]
+      });
+
       var init = function() {
         dispatcher.post('initForm', [viewspanForm, {
             width: 760,
@@ -1135,6 +1148,7 @@ var VisualizerUI = (function($, window, undefined) {
               auth_button.val('Login');
               dispatcher.post('user', [null]);
               $('.login').hide();
+              dispatcher.post('showForm', [tutorialForm]);
             }
           }
         ]);
