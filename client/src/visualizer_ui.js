@@ -810,8 +810,10 @@ var VisualizerUI = (function($, window, undefined) {
 
       var resizerTimeout = null;
       var onResize = function(evt) {
-        clearTimeout(resizerTimeout);
-        resizerTimeout = setTimeout(resizeFunction, 100); // TODO is 100ms okay?
+        if (evt.target === window) {
+          clearTimeout(resizerTimeout);
+          resizerTimeout = setTimeout(resizeFunction, 100); // TODO is 100ms okay?
+        }
       };
 
       var collectionLoaded = function(response) {
