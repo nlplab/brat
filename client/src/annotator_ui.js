@@ -442,6 +442,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (!(targetSpanId || targetChunkId || targetArcRole)) {
           // misclick
           window.getSelection().removeAllRanges();
+          stopArcDrag(target);
           return;
         }
 
