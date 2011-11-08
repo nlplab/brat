@@ -68,9 +68,6 @@ def contained_in_span(a1, a2):
 def verify_equivs(ann_obj, projectconf):
     issues = []
 
-    # TODO: get rid of hard-coded type label
-    EQUIV_TYPE = "Equiv"
-
     # shortcut
     def disp(s):
         return projectconf.preferred_display_form(s)
@@ -96,13 +93,18 @@ def verify_equivs(ann_obj, projectconf):
 
         for t1, t2 in type_pairs:
             reltypes = projectconf.relation_types_from_to(t1, t2)
-            if EQUIV_TYPE not in reltypes:
+            # TODO: this is too convoluted; use projectconf directly
+            equiv_type_found = False
+            for rt in reltypes:
+                if projectconf.is_equiv_type(rt):
+                    equiv_type_found = True
+            if not equiv_type_found:
                 # Avoid redundant output
                 if (t2,t1) in marked:
                     continue
                 # TODO: mark this error on the Eq relation, not the entities
                 for e in equiv_anns:
-                    issues.append(AnnotationIssue(e.id, AnnotationError, "Equiv relation not allowed between %s and %s" % (disp(t1), disp(t2))))
+                    issues.append(AnnotationIssue(e.id, AnnotationError, "Equivalence relation %s not allowed between %s and %s" % (eq.type, disp(t1), disp(t2))))
                 marked[(t1,t2)] = True
 
     return issues

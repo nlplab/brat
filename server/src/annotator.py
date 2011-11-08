@@ -514,7 +514,7 @@ def create_span(collection, document, start, end, type, attributes=None, id=None
 
         mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
-    
+
 from annotation import BinaryRelationAnnotation
 
 #TODO: Should determine which step to call next
@@ -542,19 +542,18 @@ def create_arc(collection, document, origin, target, type,
         origin = ann_obj.get_ann_by_id(origin) 
         target = ann_obj.get_ann_by_id(target)
 
-        # Ugly check, but we really get no other information
-        if type == 'Equiv':
+        if projectconf.is_equiv_type(type):
             # It is an Equiv
-            if old_type == "Equiv":
+            if projectconf.is_equiv_type(old_type):
                 # "Change" from Equiv to Equiv is harmless
                 # TODO: some message needed?
                 pass
             else:
-                assert old_type is None, 'attempting to change Equiv, not supported'
+                assert old_type is None, 'attempting to change equiv relation to non-equiv relation, operation not supported'
                 ann = EquivAnnotation(type, [unicode(origin.id), unicode(target.id)], '')
                 ann_obj.add_annotation(ann)
                 mods.addition(ann)
-        elif type in projectconf.get_relation_types():
+        elif projectconf.is_relation_type(type):
             if old_type is not None or old_target is not None:
                 assert type in projectconf.get_relation_types(), (
                         ('attempting to convert relation to non-relation "%s" ' % (target.type, )) +
@@ -675,7 +674,7 @@ def delete_arc(collection, document, origin, target, type):
 
         except AttributeError:
             projectconf = ProjectConfiguration(real_dir)
-            if type == 'Equiv':
+            if projectconf.is_equiv_type(type):
                 # It is an equiv then?
                 #XXX: Slow hack! Should have a better accessor! O(eq_ann)
                 for eq_ann in ann_obj.get_equivs():

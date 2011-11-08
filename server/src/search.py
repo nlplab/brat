@@ -676,10 +676,11 @@ def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nes
                     if t.start <= m.start() and t.end >= m.end():
                         embedding.append(t)
 
-            # Note interpretation of ignore_types here: if the text span
-            # is embedded in one or more of the ignore_types, the match is
-            # ignored.
-            if len([e for e in embedding if e.type in ignore_types]) != 0:
+            # Note interpretation of ignore_types here: if the text
+            # span is embedded in one or more of the ignore_types or
+            # the ignore_types include the special value "ANY", the
+            # match is ignored.
+            if len([e for e in embedding if e.type in ignore_types or "ANY" in ignore_types]) != 0:
                 continue
 
             if restrict_types != [] and len([e for e in embedding if e.type in restrict_types]) == 0:
@@ -882,6 +883,7 @@ def argparser():
 def main(argv=None):
     import sys
     import os
+    import urllib
 
     if argv is None:
         argv = sys.argv
@@ -898,7 +900,7 @@ def main(argv=None):
                                          restrict_types=arg.restrict,
                                          ignore_types=arg.ignore,
                                          nested_types=arg.nested)]
-    elif arg.consistency is not None:
+    elif arg.consistency:
         matches = check_files_consistency(arg.files,
                                           restrict_types=arg.restrict,
                                           ignore_types=arg.ignore,
@@ -910,20 +912,10 @@ def main(argv=None):
     for m in matches:
         print m.criterion
         for ann_obj, ann in m.get_matches():
-            # TODO: get rid of "edited" hack to point to a document ("%5B0%5D%5B%5D"="[0][]")
             # TODO: get rid of specific URL hack and similar
-            try:
-                if ann.id not in (None, ""):
-                    refstr = "?edited%%5B0%%5D%%5B%%5D=%s" % ann.id
-                elif ann.sentence is not None:
-                    # generate sentence reference
-                    refstr = "?edited%%5B0%%5D%%5B%%5D=sent&edited%%5B0%%5D%%5B%%5D=%d" % ann.sentence
-                else:
-                    refstr = ""
-            except:
-                refstr = ""
-                raise
-            print "\thttp://localhost/brat/#/%s%s (%s)" % (ann_obj.get_document().replace("data/",""), refstr, str(ann).rstrip())
+            baseurl='http://127.0.0.1/~smp/brat/#/'
+            #baseurl='http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/brat/tomoko/current/#/'
+            print "\t%s%s?focus=%s (%s)" % (baseurl, ann_obj.get_document().replace("data/",""), ann.reference_id()[0], str(ann).rstrip())
 
 if __name__ == "__main__":
     import sys

@@ -61,7 +61,7 @@ __default_configuration = """
 Protein
 
 [relations]
-Equiv	Arg1:Protein, Arg2:Protein
+Equiv	Arg1:Protein, Arg2:Protein, <REL-TYPE>:symmetric-transitive
 
 [events]
 Protein_binding|GO:0005515	Theme+:Protein
@@ -98,9 +98,9 @@ User-agent: guest
 Disallow: /confidential/
 """
 
-# Reserved "macros" with special meanings in configuration.
-reserved_macro_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE"]
-reserved_macro_string = ["<%s>" % n for n in reserved_macro_name]
+# Reserved strings with special meanings in configuration.
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE"]
+reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
 SEPARATOR_STR = "SEPARATOR"
@@ -172,18 +172,30 @@ class TypeHierarchyNode:
 
         # TODO: cleaner and more localized parsing
         self.arguments = {}
+        self.special_arguments = {}
         self.arg_list = []
         self.mandatory_arguments = []
         self.multiple_allowed_arguments = []
         self.keys_by_type = {}
         for a in self.args:
             a = a.strip()
-            m = re.match(r'^(.*?):(.*)$', a)
+            m = re.match(r'^(\S*?):(\S*)$', a)
             if not m:
                 Messager.warning("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), 5)
                 raise InvalidProjectConfigException
             key, atypes = m.groups()
 
+            # special case (sorry): if the key is a reserved config
+            # string (e.g. "<REL-TYPE>"), parse differently and store
+            # separately
+            if key in reserved_config_string:
+                if key is self.special_arguments:
+                    Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
+                    raise InvalidProjectConfigException
+                self.special_arguments[key] = atypes.split("-")
+                # NOTE: skip the rest of processing -- don't add in normal args
+                continue
+                
             if key[-1:] not in ("?", "*"):
                 mandatory_key = True
             else:
@@ -216,7 +228,7 @@ class TypeHierarchyNode:
 
                 # Check disabled; need to support arbitrary UTF values for attributes.conf.
                 # TODO: consider checking for similar for appropriate confs.
-#                 if atype not in reserved_macro_string and normalize_to_storage_form(atype) != atype:
+#                 if atype not in reserved_config_string and normalize_to_storage_form(atype) != atype:
 #                     Messager.warning("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, 5)
 #                     raise InvalidProjectConfigException
 
@@ -234,7 +246,16 @@ class TypeHierarchyNode:
         """
         return self.__primary_term
 
-def __read_term_hierarchy(input):
+def __require_tab_separator(section):
+    """    
+    Given a section name, returns True iff in that section of the
+    project config only tab separators should be permitted.
+    This exception initially introduced to allow slighlty different
+    syntax for the [labels] section than others.
+    """
+    return section == "labels"    
+
+def __read_term_hierarchy(input, section=None):
     root_nodes    = []
     last_node_at_depth = {}
 
@@ -257,7 +278,7 @@ def __read_term_hierarchy(input):
         m = re.match(r'^<([a-zA-Z_-]+)>=\s*(.*?)\s*$', l)
         if m:
             name, value = m.groups()
-            if name in reserved_macro_name:
+            if name in reserved_config_name:
                 Messager.error("Cannot redefine <%s> in configuration, it is a reserved name." % name)
                 # TODO: proper exception
                 assert False
@@ -268,8 +289,13 @@ def __read_term_hierarchy(input):
         # macro expansion
         for n in macros:
             l = l.replace(n, macros[n])
-        
-        m = re.match(r'^(\s*)([^\t]+)(?:\t(.*))?$', l)
+
+        # choose strict tab-only separator or looser any-space
+        # separator matching depending on section
+        if __require_tab_separator(section):
+            m = re.match(r'^(\s*)([^\t]+)(?:\t(.*))?$', l)
+        else:
+            m = re.match(r'^(\s*)(\S+)(?:\s+(.*))?$', l)
         assert m, "Error parsing line: '%s'" % l
         indent, terms, args = m.groups()
         terms = [t.strip() for t in terms.split("|") if t.strip() != ""]
@@ -383,7 +409,7 @@ def __parse_configs(configstr, source, expected_sections):
     configs = {}
     for s, sl in section_lines.items():
         try:
-            configs[s] = __read_term_hierarchy(sl)
+            configs[s] = __read_term_hierarchy(sl, s)
         except:
             Messager.warning("Project configuration: error parsing section [%s] in %s." % (s, source), 5)
             raise
@@ -415,6 +441,21 @@ def get_configs(directory, filename, defaultstr, minconf, sections):
         except:
             Messager.warning("Project configuration: Falling back to minimal default. Configuration is likely wrong.", 5)
             configs = minconf
+
+        # very, very special case processing: if we have a type
+        # "Equiv" defined in a "relations" section that doesn't
+        # specify a "<REL-TYPE>", automatically fill "symmetric" and
+        # "transitive". This is to support older configurations that
+        # rely on the type "Equiv" to identify the relation as an
+        # equivalence.
+        if 'relations' in configs:
+            for r in configs['relations']:
+                if r == SEPARATOR_STR:
+                    continue
+                if (r.storage_form() == "Equiv" and 
+                    "<REL-TYPE>" not in r.special_arguments):
+                    Messager.warning('Note: "Equiv" defined in config without "<REL-TYPE>"; assuming symmetric and transitive. Consider revising config to add "<REL-TYPE>:symmetric-transitive" to definition.')
+                    r.special_arguments["<REL-TYPE>"] = ["symmetric", "transitive"]
 
         get_configs.__cache[(directory, filename)] = configs
 
@@ -452,7 +493,7 @@ def __get_kb_shortcuts(directory, filename, default_shortcuts, min_shortcuts):
 # final fallback for configuration; a minimal known-good config
 __minimal_configuration = {
     ENTITY_SECTION    : [TypeHierarchyNode(["Protein"])],
-    RELATION_SECTION  : [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein"])],
+    RELATION_SECTION  : [TypeHierarchyNode(["Equiv"], ["Arg1:Protein", "Arg2:Protein", "<REL-TYPE>:symmetric-transitive"])],
     EVENT_SECTION     : [TypeHierarchyNode(["Event"], ["Theme:Protein"])],
     ATTRIBUTE_SECTION : [TypeHierarchyNode(["Negation"], ["Arg:<EVENT>"])],
     }
@@ -852,6 +893,15 @@ class ProjectConfiguration(object):
     def get_relation_types(self):
         return [t.storage_form() for t in get_relation_type_list(self.directory)]
 
+    def get_equiv_types(self):
+        # equivalence relations are those relations that are symmetric
+        # and transitive, i.e. that have "symmetric" and "transitive"
+        # in their "<REL-TYPE>" special argument values.
+        return [t.storage_form() for t in get_relation_type_list(self.directory)
+                if "<REL-TYPE>" in t.special_arguments and
+                "symmetric" in t.special_arguments["<REL-TYPE>"] and
+                "transitive" in t.special_arguments["<REL-TYPE>"]]
+
     def get_relation_by_type(self, _type):
         # TODO: dict storage
         for r in get_relation_type_list(self.directory):
@@ -902,6 +952,9 @@ class ProjectConfiguration(object):
 
     def is_relation_type(self, t):
         return t in self.get_relation_types()
+
+    def is_equiv_type(self, t):
+        return t in self.get_equiv_types()
 
     def is_configured_type(self, t):
         return (t in self.get_entity_types() or

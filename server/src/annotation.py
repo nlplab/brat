@@ -31,6 +31,7 @@ JOINED_ANN_FILE_SUFF = 'ann'
 # These file suffixes indicate partial annotations that can not be written to
 # since they depend on multiple files for completeness
 PARTIAL_ANN_FILE_SUFF = ['a1', 'a2', 'co', 'rel']
+KNOWN_FILE_SUFF = [JOINED_ANN_FILE_SUFF]+PARTIAL_ANN_FILE_SUFF
 TEXT_FILE_SUFFIX = 'txt'
 ###
 
@@ -671,8 +672,6 @@ class Annotations(object):
     def _parse_equiv_annotation(self, data, data_tail, input_file_path):
         # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
-        if type != 'Equiv':
-            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1, input_file_path)
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail, source_id=input_file_path)
 
@@ -895,9 +894,9 @@ class TextAnnotations(Annotations):
         if document.endswith('.txt'):
             textfile_path = document
         else:
-            # Do we have an extension?
+            # Do we have a known extension?
             _, file_ext = splitext(document)
-            if not file_ext:
+            if not file_ext or not file_ext in KNOWN_FILE_SUFF:
                 textfile_path = document
             else:
                 textfile_path = document[:len(document) - len(file_ext)]
@@ -1097,7 +1096,7 @@ class EquivAnnotation(TypedAnnotation):
 
     Represented in standoff as
     
-    *\tEquiv ID1 ID2 [...]
+    *\tTYPE ID1 ID2 [...]
 
     Where "*" is the literal asterisk character.
     """
