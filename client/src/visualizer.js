@@ -178,7 +178,12 @@ var Visualizer = (function($, window, undefined) {
         $.each(data.equivs, function(equivNo, equiv) {
           equiv[0] = "*" + equivNo;
           var equivSpans = equiv.slice(2);
-          equivSpans.sort(function(a, b) {
+          var okEquivSpans = [];
+          $.each(equivSpans, function(equivSpanNo, equivSpan) {
+            if (data.spans[equivSpan]) okEquivSpans.push(equivSpan);
+            // TODO: #404, inform the user with a message?
+          });
+          okEquivSpans.sort(function(a, b) {
             var aSpan = data.spans[a];
             var bSpan = data.spans[b];
             var tmp = aSpan.from + aSpan.to - bSpan.from - bSpan.to;
@@ -341,6 +346,7 @@ var Visualizer = (function($, window, undefined) {
         $.each(data.eventDescs, function(eventNo, eventDesc) {
           var dist = 0;
           var origin = data.spans[eventDesc.id];
+          if (!origin) return; // TODO: tell the user?
           if (!origin.chunk) {
             // TODO: include missing trigger ID in error message
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Trigger for event "' + eventDesc.id + '" not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
