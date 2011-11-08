@@ -783,26 +783,23 @@ var VisualizerUI = (function($, window, undefined) {
           showFileBrowser();
           return false;
         } else if (code == $.ui.keyCode.LEFT) {
-          var pos = currentSelectorPosition();
-          if (pos > 0 && selectorData.items[pos - 1][0] != "c") {
-            // not at the start, and the previous is not a collection (dir)
-            var newPos = pos - 1;
-            dispatcher.post('allowReloadByURL');
-            dispatcher.post('setDocument', [selectorData.items[newPos][2],
-                                            selectorData.items[newPos][1]]);
-          }
-          return false;
+          return moveInFileBrowser(-1);
         } else if (code === $.ui.keyCode.RIGHT) {
-          var pos = currentSelectorPosition();
-          if (pos < selectorData.items.length - 1) {
-            // not at the end
-            var newPos = pos + 1;
-            dispatcher.post('allowReloadByURL');
-            dispatcher.post('setDocument', [selectorData.items[newPos][2],
-                                            selectorData.items[newPos][1]]);
-          }
-          return false;
+          return moveInFileBrowser(+1);
         }
+      };
+
+      var moveInFileBrowser = function(dir) {
+        var pos = currentSelectorPosition();
+        var newPos = pos + dir;
+        if (newPos >= 0 && newPos < selectorData.items.length &&
+            selectorData.items[newPos][0] != "c") {
+          // not at the start, and the previous is not a collection (dir)
+          dispatcher.post('allowReloadByURL');
+          dispatcher.post('setDocument', [selectorData.items[newPos][2],
+                                          selectorData.items[newPos][1]]);
+        }
+        return false;
       };
 
       var resizeFunction = function(evt) {
@@ -1175,6 +1172,38 @@ var VisualizerUI = (function($, window, undefined) {
       // hide anything requiring login, just in case
       $('.login').hide();
 
+      // XXX TODO a lot
+      var touchStart;
+      var onTouchStart = function(evt) {
+        // evt.preventDefault();
+        evt = evt.originalEvent;
+        if (evt.touches.length == 1) {
+          // single touch; start tracking to see if we're doing
+          // left/right
+          touchStart = $.extend({}, evt.touches[0]); // clone
+        } else if (evt.touches.length == 4) {
+          // 4 finger tap: file browser
+          showFileBrowser();
+          return false;
+        }
+      };
+      var onTouchEnd = function(evt) {
+        // evt.preventDefault();
+        evt = evt.originalEvent;
+        $.each(evt.changedTouches, function(touchEndNo, touchEnd) {
+          if (touchStart.identifier == touchEnd.identifier) {
+            var dx = touchEnd.screenX - touchStart.screenX;
+            var dy = touchEnd.screenY - touchStart.screenY;
+            var adx = Math.abs(dx);
+            var ady = Math.abs(dy);
+            if (adx > 200 && ady < adx / 2) {
+              // it's left/right!
+              return moveInFileBrowser(dx < 0 ? -1 : +1);
+            }
+          }
+        });
+      };
+
       dispatcher.
           on('init', init).
           on('annotationIsAvailable', annotationIsAvailable).
@@ -1201,6 +1230,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('keydown', onKeyDown).
           on('mousemove', onMouseMove).
           on('dblclick', onDblClick).
+          on('touchstart', onTouchStart).
+          on('touchend', onTouchEnd).
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch);
