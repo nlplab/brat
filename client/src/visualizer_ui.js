@@ -383,7 +383,13 @@ var VisualizerUI = (function($, window, undefined) {
           submit(fileBrowserSubmit).
           bind('reset', hideForm);
 
+      var fileBrowserWaiting = false;
       var showFileBrowser = function() {
+        if (currentForm == tutorialForm) {
+          fileBrowserWaiting = true;
+          return;
+        }
+        fileBrowserWaiting = false;
         if (!(selectorData && showForm(fileBrowser))) return false;
 
         var html = ['<tr><th/>'];
@@ -1132,7 +1138,12 @@ var VisualizerUI = (function($, window, undefined) {
           id: "tutorial-ok",
           text: "OK",
           click: function() { tutorialForm.dialog('close'); }
-        }]
+        }],
+        close: function() {
+          if (fileBrowserWaiting) {
+            showForm(fileBrowser);
+          }
+        }
       });
 
       var init = function() {
