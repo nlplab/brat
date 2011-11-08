@@ -232,18 +232,20 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#span_form_reselect, #span_form_delete').hide();
           keymap[$.ui.keyCode.DELETE] = null;
         }
-        $.each(attributeTypes, function(attrNo, attr) {
-          $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
-          var val = span && span.attributes[attr.type];
-          if (attr.unused) {
-            $input.val(val || '');
-          } else if (attr.bool) {
-            $input[0].checked = val;
-            $input.button('refresh');
-          } else {
-            $input.val(val || '').change();
-          }
-        });
+        if (!reselectedSpan) {
+          $.each(attributeTypes, function(attrNo, attr) {
+            $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+            var val = span && span.attributes[attr.type];
+            if (attr.unused) {
+              $input.val(val || '');
+            } else if (attr.bool) {
+              $input[0].checked = val;
+              $input.button('refresh');
+            } else {
+              $input.val(val || '').change();
+            }
+          });
+        }
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
           var validAttrs = type ? spanTypes[type].attributes : [];
