@@ -550,6 +550,12 @@ fieldset {
   font-weight: normal;
   text-align: left;
 }
+#readme {
+  width: 100%;
+  height: 100px;
+  overflow: auto;
+}
+
 #import_text {
   font-family: inherit;
 }
