@@ -2090,7 +2090,8 @@ Util.profileStart('before render');
           'dblclick', 'click'
       ]);
       registerHandlers($(document), [
-          'keydown', 'keypress'
+          'keydown', 'keypress',
+          'touchstart', 'touchend'
       ]);
       registerHandlers($(window), [
           'resize'

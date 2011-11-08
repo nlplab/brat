@@ -645,4 +645,16 @@ fieldset {
   font-style: normal;
   font-weight: bold;
   src: local('PT Sans Caption Bold'), local('PTSans-CaptionBold'), url('static/fonts/PT_Sans-Caption-Web-Bold.ttf') format('truetype');
+<<<<<<< Updated upstream
 } */
+=======
+}
+
+// Apple iPad, iPhone, iPod
+
+* {
+   -webkit-tap-highlight-color: rgba(0,0,0,0);
+   -webkit-text-size-adjust: none;
+   select: none;
+}
+>>>>>>> Stashed changes
