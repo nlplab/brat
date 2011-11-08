@@ -987,14 +987,16 @@ var VisualizerUI = (function($, window, undefined) {
           }, 500);
         });
 
-      $('#confirm_mode').click(function(evt) {
-        var val = this.checked;
-        if (val) {
-          dispatcher.post('messages', [[['Confirm mode is now on', 'comment']]]);
-        } else {
-          dispatcher.post('messages', [[['Confirm mode is now off', 'comment']]]);
-        }
-      });
+        $('#confirm_mode').
+          click(function(evt) {
+            var val = this.checked;
+            if (val) {
+              dispatcher.post('messages', [[['Confirm mode is now on', 'comment']]]);
+            } else {
+              dispatcher.post('messages', [[['Confirm mode is now off', 'comment']]]);
+            }
+          }).
+          parent().addClass('login');
 
       $('#abbrev_mode').click(function(evt) {
         var val = this.checked;
