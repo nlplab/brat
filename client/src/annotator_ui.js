@@ -439,7 +439,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var targetSpanId = target.data('span-id');
         var targetChunkId = target.data('chunk-id');
         var targetArcRole = target.data('arc-role');
-        if (!(targetSpanId || targetChunkId || targetArcRole)) {
+        if (!(targetSpanId !== undefined || targetChunkId !== undefined || targetArcRole !== undefined)) {
           // misclick
           window.getSelection().removeAllRanges();
           stopArcDrag(target);
