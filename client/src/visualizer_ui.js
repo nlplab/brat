@@ -386,7 +386,7 @@ var VisualizerUI = (function($, window, undefined) {
       var showFileBrowser = function() {
         if (!(selectorData && showForm(fileBrowser))) return false;
 
-        var html = ['<tr>'];
+        var html = ['<tr><th/>'];
         var tbody;
         $.each(selectorData.header, function(headNo, head) {
           html.push('<th>' + head[0] + '</th>');
@@ -406,10 +406,12 @@ var VisualizerUI = (function($, window, undefined) {
           var annp = doc[1] ? ('?' + Util.param(doc[1])) : '';
           var name = doc[2];
           var collFile = isColl ? 'collection' : 'file';
+          var collFileImg = isColl ? 'ic_list_folder.png' : 'ic_list_drafts.png';
           var collSuffix = isColl ? '/' : '';
           html.push('<tr class="' + collFile + '" data-value="'
-                    + name + collSuffix + annp + '"><th>'
-                    + name + collSuffix + '</th>');
+            + name + collSuffix + annp + '">');
+          html.push('<th><img src="static/file_browser/' + collFileImg + '" alt="' + collFile + '"/></th>');
+          html.push('<th>' + name + collSuffix + '</th>');
           var len = selectorData.header.length - 1;
           for (var i = 0; i < len; i++) {
             var type = selectorData.header[i + 1][1];

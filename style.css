@@ -542,6 +542,10 @@ fieldset {
 #document_select tr.selected {
   background-color: #cccccc;
 }
+#document_select img {
+  width: 20px;
+  height: 20px;
+}
 #collection_browser th {
   font-weight: normal;
   text-align: left;
