@@ -1693,7 +1693,9 @@ Util.profileStart('rows');
           y += sizes.texts.height;
           row.textY = y - rowPadding;
           if (row.sentence) {
-            var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y - rowPadding,
+            var sentence_hash = new URLHash(coll, doc, { focus: [[ 'sent', row.sentence ]] } );
+            var link = svg.link(sentNumGroup, sentence_hash.getHash());
+            var text = svg.text(link, sentNumMargin - margin.x, y - rowPadding,
                 '' + row.sentence, { 'data-sent': row.sentence });
             var sentComment = data.sentComment[row.sentence];
             if (sentComment) {
