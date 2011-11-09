@@ -1130,8 +1130,8 @@ var VisualizerUI = (function($, window, undefined) {
 
       var tutorialForm = $('#tutorial');
       initForm(tutorialForm, {
-        width: 400,
-        height: 300,
+        width: 600,
+        height: 500,
         no_cancel: true,
         no_ok: true,
         buttons: [{
