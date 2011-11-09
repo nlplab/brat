@@ -1530,7 +1530,6 @@ Util.profileStart('arcs');
 	    // numbers (as in e.g. "Theme2") as subscripts
 	    var svgText;
 	    var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
-	    console.log(labelText, splitLabelText);
 	    if (!splitLabelText[2]) {
 		// no subscript, simple string suffices
 		svgText = labelText;
