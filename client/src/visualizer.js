@@ -1525,7 +1525,24 @@ Util.profileStart('arcs');
               'data-arc-id': arc.id,
               'data-arc-ed': arc.eventDescId,
             };
-            var text = svg.text(arcGroup, (from + to) / 2, -height, labelText, options);
+
+	    // construct SVG text, showing possible trailing index
+	    // numbers (as in e.g. "Theme2") as subscripts
+	    var svgText;
+	    var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
+	    console.log(labelText, splitLabelText);
+	    if (!splitLabelText[2]) {
+		// no subscript, simple string suffices
+		svgText = labelText;
+	    } else {
+		svgText = svg.createText();
+		svgText.span(splitLabelText[1]);
+		//svgText.span(splitLabelText[2], { 'baseline-shift': 'sub', 'font-size': '80%' });
+		svgText.span(splitLabelText[2], { 'dy': '0.3em', 'font-size': '80%' });
+	    }
+
+            var text = svg.text(arcGroup, (from + to) / 2, -height, svgText, options);
+
             var width = sizes.arcs.widths[labelText];
             var textBox = {
               x: (from + to - width) / 2,
