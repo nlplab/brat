@@ -287,6 +287,10 @@
         <input id="collection_input" readonly="readonly" placeholder="Document" class="borderless"/>
       </fieldset>
       <fieldset>
+        <legend>Collection Information</legend>
+        <textarea id="readme" readonly="readonly" class="borderless"/>
+      </fieldset>
+      <fieldset>
         <legend>Document</legend>
         <input id="document_input" placeholder="Document" class="borderless"/>
       </fieldset>
@@ -294,10 +298,6 @@
         <thead class="ui-widget-header"/>
         <tbody class="ui-widget-content"/>
       </table>
-      <fieldset>
-        <legend>Collection Information</legend>
-        <textarea id="readme" readonly="readonly" class="borderless"/>
-      </fieldset>
     </form>
     <div id="waiter" class="dialog" title="Please wait">
       <img src="static/img/spinner.gif"/>
@@ -326,7 +326,6 @@
       <ul>
         <li><b>Collection</b>: annotation collection browser</li>
         <li><b>Search</b>: search current collection</li>
-        <li><b>Confirm mode</b>: <font color="red">this is stupid, why is this button visible to non-logged in users?</font></li>
         <li><b>Abbreviations</b>: toggle use of abbreviations in visualization</li>
         <li><b>Login</b>: log in for editing</li>
       </ul>
