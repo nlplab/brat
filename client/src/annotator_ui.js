@@ -39,8 +39,11 @@ var AnnotatorUI = (function($, window, undefined) {
 
         if (code === $.ui.keyCode.ESCAPE) {
           stopArcDrag();
-          reselectedSpan = null;
-          svgElement.removeClass('reselect');
+          if (reselectedSpan) {
+            $(reselectedSpan.rect).removeClass('reselect');
+            reselectedSpan = null;
+            svgElement.removeClass('reselect');
+          }
           return;
         }
 
@@ -360,7 +363,7 @@ var AnnotatorUI = (function($, window, undefined) {
             el.checked = true;
           }
 
-          $('#arc_form_delete').show();
+          $('#arc_form_reselect, #arc_form_delete').show();
           keymap[$.ui.keyCode.DELETE] = 'arc_form_delete';
         } else {
           // new arc
@@ -370,7 +373,7 @@ var AnnotatorUI = (function($, window, undefined) {
             el.checked = true;
           }
 
-          $('#arc_form_delete').hide();
+          $('#arc_form_reselect, #arc_form_delete').hide();
         }
 
         var confirmMode = $('#confirm_mode')[0].checked;
@@ -403,6 +406,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var reselectArc = function(evt) {
         dispatcher.post('hideForm', [arcForm]);
         svgElement.addClass('reselect');
+        $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').addClass('reselect');
         startArcDrag(arcOptions.origin);
       };
 
@@ -433,6 +437,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           svg.remove(arcDragArc);
           arcDragOrigin = null;
+          $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').removeClass('reselect');
           svgElement.removeClass('reselect');
         }
       };
@@ -529,6 +534,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
             if (crossSentence) {
               dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
+              $(reselectedSpan.rect).removeClass('reselect');
               reselectedSpan = null;
               svgElement.removeClass('reselect');
             } else {
@@ -712,6 +718,7 @@ var AnnotatorUI = (function($, window, undefined) {
           } else {
             dispatcher.post('messages', [[['Unknown error '+x, 'error']]]);
           }
+          $(reselectedSpan.rect).removeClass('reselect');
           reselectedSpan = null;
           svgElement.removeClass('reselect');
           $('#waiter').dialog('close');
@@ -754,6 +761,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var reselectSpan = function() {
         dispatcher.post('hideForm', [spanForm]);
         svgElement.addClass('reselect');
+        $(editedSpan.rect).addClass('reselect');
         reselectedSpan = editedSpan;
       };
 
@@ -816,8 +824,11 @@ var AnnotatorUI = (function($, window, undefined) {
           }],
           close: function(evt) {
             keymap = null;
-            reselectedSpan = null;
-            svgElement.removeClass('reselect');
+            if (reselectedSpan) {
+              $(reselectedSpan.rect).removeClass('reselect');
+              reselectedSpan = null;
+              svgElement.removeClass('reselect');
+            }
           }
         }]);
 

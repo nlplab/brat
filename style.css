@@ -237,6 +237,16 @@ rect.shadow_EditHighlight {
 .span.highlight rect {
   stroke-width: 2px;
 }
+.span rect.reselect {
+  stroke-width: 4px;
+}
+.arcs .reselect path {
+  stroke-width: 2px;
+  stroke: #ff0000 !important;
+}
+.arcs .reselect text {
+  fill: #ff0000 !important;
+}
 
 .arcs text {
   font-size: 9px;
