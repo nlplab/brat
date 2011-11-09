@@ -51,6 +51,10 @@ except NameError:
     pass # BACKUP_DIR most likely not defined
 
 # If tokenization other than whitespace is desired, this can be used
+#
+# To install support for Japanese tokenisation use the following command:
+#
+#   ( cd external && ./mecab.sh )
 '''
 WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION = range(3)
 TOKENIZATION = PTBLIKE_TOKENIZATION
