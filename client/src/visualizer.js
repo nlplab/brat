@@ -2017,9 +2017,9 @@ Util.profileStart('before render');
           var originSpanId = target.attr('data-arc-origin');
           var targetSpanId = target.attr('data-arc-target');
           var role = target.attr('data-arc-role');
-          // TODO: remove special-case processing, introduce way to differentiate
-          // symmetric relations in general
-          var symmetric = role === "Equiv";
+          var symmetric = (relationTypesHash[role] && 
+                           relationTypesHash[role].properties &&
+                           $.inArray('symmetric', relationTypesHash[role].properties) != -1);
           // NOTE: no commentText, commentType for now
           var arcEventDescId = target.attr('data-arc-ed');
           var commentText = '';
