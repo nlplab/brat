@@ -437,7 +437,9 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           svg.remove(arcDragArc);
           arcDragOrigin = null;
-          $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').removeClass('reselect');
+          if (arcOptions) {
+              $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').removeClass('reselect');
+          }
           svgElement.removeClass('reselect');
         }
       };
