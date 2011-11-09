@@ -168,6 +168,12 @@ var AnnotatorUI = (function($, window, undefined) {
         element.css({ top: y, left: x });
       };
 
+      var updateCheckbox = function($input) {
+        var $widget = $input.button('widget');
+        var $textspan = $widget.find('.ui-button-text');
+        $textspan.text(($input[0].checked ? '☑ ' : '☐ ') + $widget.attr('data-bare'));
+      };
+
       var fillSpanTypesAndDisplayForm = function(evt, spanText, span) {
         keymap = spanKeymap;
         if (span) {
@@ -240,6 +246,7 @@ var AnnotatorUI = (function($, window, undefined) {
               $input.val(val || '');
             } else if (attr.bool) {
               $input[0].checked = val;
+              updateCheckbox($input);
               $input.button('refresh');
             } else {
               $input.val(val || '').change();
@@ -626,6 +633,10 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
+      var attrChangeHandler = function(evt) {
+        updateCheckbox($(evt.target));
+      };
+
       var rememberSpanSettings = function(response) {
         spanKeymap = {};
 
@@ -655,9 +666,10 @@ var AnnotatorUI = (function($, window, undefined) {
             } else if (attr.bool) {
               var escapedName = Util.escapeQuotes(attr.name);
               var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
-              var $label = $('<label for="span_attr_' + escapedType + '">' + escapedName + '</label>');
+              var $label = $('<label for="span_attr_' + escapedType + '" data-bare="' + escapedName + '">&#x2610; ' + escapedName + '</label>');
               $attrs.append($input).append($label);
               $input.button();
+              $input.change(attrChangeHandler);
             } else {
               var $div = $('<div class="ui-button ui-button-text-only"/>');
               var $select = $('<select id="span_attr_' + escapedType + '" class="ui-widget ui-state-default ui-button-text"/>');
