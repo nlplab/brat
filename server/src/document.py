@@ -15,7 +15,7 @@ Version:    2011-04-21
 '''
 
 from os import listdir
-from os.path import abspath, isabs, isdir
+from os.path import abspath, isabs, isdir, normpath
 from os.path import join as path_join
 from re import match,sub
 
@@ -386,7 +386,8 @@ def get_directory_information(collection):
     # just in case, and for generality
     dirlist = [[dir] for dir in dirlist]
 
-    if real_dir != DATA_DIR:
+    # check whether at root, ignoring e.g. possible trailing slashes
+    if normpath(real_dir) != normpath(DATA_DIR):
         parent = abspath(path_join(real_dir, '..'))[len(DATA_DIR) + 1:]
         # to get consistent processing client-side, add explicitly to list
         dirlist.append([".."])
