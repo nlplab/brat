@@ -377,6 +377,12 @@ class Annotations(object):
     def get_relations(self):
         return (a for a in self if isinstance(a, BinaryRelationAnnotation))
 
+    def get_entities(self):
+        # Entities are textbounds that are not triggers
+        triggers = self.get_triggers()        
+        return (a for a in self if (isinstance(a, TextBoundAnnotation) and
+                                    not a in triggers))
+    
     def get_oneline_comments(self):
         #XXX: The status exception is for the document status protocol
         #       which is yet to be formalised
@@ -389,6 +395,8 @@ class Annotations(object):
 
     def get_triggers(self):
         # Triggers are text-bounds referenced by events
+        # TODO: this omits entity triggers that lack a referencing event
+        # (for one reason or another -- brat shouldn't define any.)
         return (self.get_ann_by_id(e.trigger) for e in self.get_events())
 
     # TODO: getters for other categories of annotations

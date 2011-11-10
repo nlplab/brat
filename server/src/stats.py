@@ -84,7 +84,7 @@ def get_statistics(directory, base_names, use_cache=True):
         generate = True
 
     # "header" and types
-    stat_types = [("Textbounds", "int"), ("Relations", "int"), ("Events", "int")]
+    stat_types = [("Entities", "int"), ("Relations", "int"), ("Events", "int")]
     if PERFORM_VERIFICATION:
         stat_types.append(("Issues", "int"))
             
@@ -97,7 +97,7 @@ def get_statistics(directory, base_names, use_cache=True):
             try:
                 with Annotations(path_join(directory, docname), 
                         read_only=True) as ann_obj:
-                    tb_count = len([a for a in ann_obj.get_textbounds()])
+                    tb_count = len([a for a in ann_obj.get_entities()])
                     rel_count = (len([a for a in ann_obj.get_relations()]) +
                                  len([a for a in ann_obj.get_equivs()]))
                     event_count = len([a for a in ann_obj.get_events()])
