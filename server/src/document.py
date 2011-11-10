@@ -15,13 +15,15 @@ Version:    2011-04-21
 '''
 
 from os import listdir
-from os.path import abspath, isabs, isdir, normpath
+from os.path import abspath, isabs, isdir, normpath, getmtime
 from os.path import join as path_join
 from re import match,sub
+from errno import ENOENT, EACCES
 
 from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         AnnotationFileNotFoundError, 
         AnnotationCollectionNotFoundError,
+        JOINED_ANN_FILE_SUFF,
         open_textfile)
 from common import ProtocolError, CollectionNotAccessibleError
 from config import DATA_DIR
@@ -341,6 +343,27 @@ def _listdir(directory):
     except OSError, e:
         Messager.error("Error listing %s: %s" % (directory, e))
         raise AnnotationCollectionNotFoundError(directory)
+    
+def _getmtime(file_path):
+    '''
+    Internal wrapper of getmtime that handles access denied and invalid paths
+    according to our specification.
+
+    Arguments:
+
+    file_path - path to the file to get the modification time for
+    '''
+
+    try:
+        return getmtime(file_path)
+    except OSError, e:
+        if e.errno in (EACCES, ENOENT):
+            # The file did not exist or permission denied, we use -1 to
+            #   indicate this since mtime > 0 is an actual time.
+            return -1
+        else:
+            # We are unable to handle this exception, pass it one
+            raise
 
 # TODO: This is not the prettiest of functions
 def get_directory_information(collection):
@@ -358,17 +381,11 @@ def get_directory_information(collection):
     doclist_header = [("Document", "string")]
 
     # Then get the modification times
-    from os.path import getmtime, join
     doclist_with_time = []
-    for file in doclist:
-        try:
-            from annotation import JOINED_ANN_FILE_SUFF
-            mtime = getmtime(join(DATA_DIR,
-                join(real_dir, file + "." + JOINED_ANN_FILE_SUFF)))
-        except:
-            # The file did not exist (or similar problem)
-            mtime = -1
-        doclist_with_time.append([file, mtime])
+    for file_name in doclist:
+        file_path = path_join(DATA_DIR, real_dir,
+            file_name + "." + JOINED_ANN_FILE_SUFF)
+        doclist_with_time.append([file_name, _getmtime(file_path)])
     doclist = doclist_with_time
     doclist_header.append(("Modified", "time"))
 
@@ -624,3 +641,15 @@ def get_document(collection, document):
     real_dir = real_directory(directory)
     doc_path = path_join(real_dir, document)
     return _document_json_dict(doc_path)
+
+def get_document_timestamp(collection, document):
+    directory = collection
+    real_dir = real_directory(directory)
+    assert_allowed_to_read(real_dir)
+    doc_path = path_join(real_dir, document)
+    ann_path = doc_path + '.' + JOINED_ANN_FILE_SUFF
+    mtime = _getmtime(ann_path)
+
+    return {
+            'mtime': mtime,
+            }
