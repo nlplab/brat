@@ -910,6 +910,17 @@ var AnnotatorUI = (function($, window, undefined) {
         importForm.find('input, textarea').val('');
       });
 
+      $('#undo_button').click(function() {
+        if (coll && doc) {
+          options = {
+            'action': 'undo',
+            'collection': coll,
+            'document': doc
+          }
+          dispatcher.post('ajax', [options, 'edited']);
+        }
+      });
+
 
       var preventDefault = function(evt) {
         evt.preventDefault();

@@ -1144,7 +1144,7 @@ var VisualizerUI = (function($, window, undefined) {
         }],
         close: function() {
           if (fileBrowserWaiting) {
-            showForm(fileBrowser);
+            showFileBrowser();
           }
         }
       });
