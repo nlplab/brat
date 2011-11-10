@@ -412,7 +412,9 @@ var VisualizerUI = (function($, window, undefined) {
           var annp = doc[1] ? ('?' + Util.param(doc[1])) : '';
           var name = doc[2];
           var collFile = isColl ? 'collection' : 'file';
-          var collFileImg = isColl ? 'ic_list_folder.png' : 'ic_list_drafts.png';
+          //var collFileImg = isColl ? 'ic_list_folder.png' : 'ic_list_drafts.png';
+          //var collFileImg = isColl ? 'Fugue-folder-horizontal-open.png' : 'Fugue-document.png';
+          var collFileImg = isColl ? 'Fugue-shadowless-folder-horizontal-open.png' : 'Fugue-shadowless-document.png';
           var collSuffix = isColl ? '/' : '';
           html.push('<tr class="' + collFile + '" data-value="'
             + name + collSuffix + annp + '">');
