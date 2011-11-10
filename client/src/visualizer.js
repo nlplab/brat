@@ -1853,12 +1853,16 @@ Util.profileStart('chunkFinish');
               var xShrink = shrink * nestingAdjustXStepSize;
               // bit lighter
               var lightBgColor = Util.adjustColorLightness(bgColor, 0.8);
-              // store to have same mouseover highlight without recalc
+	      // tweak for Y start offset (and corresponding height
+	      // reduction): text rarely hits font max height, so this
+	      // tends to look better
+	      var yStartTweak = 1;
+              // store to have same mouseover highlight without recalc	      
               span.highlightPos = {
-                  x: chunk.textX + span.curly.from - 1 + xShrink, 
-                  y: chunk.row.textY + sizes.texts.y + 1 + yShrink, // XXX TODO: why +1??
-                  w: span.curly.to - span.curly.from + 2 - 2*xShrink, 
-                  h: sizes.spans.height + 2 - 2*yShrink,
+                  x: chunk.textX + span.curly.from + xShrink, 
+                  y: chunk.row.textY + sizes.texts.y + yShrink + yStartTweak,
+                  w: span.curly.to - span.curly.from - 2*xShrink, 
+                  h: sizes.texts.height - 2*yShrink - yStartTweak,
               };
               svg.rect(highlightGroup,
                   span.highlightPos.x, span.highlightPos.y,
@@ -2239,7 +2243,8 @@ Util.profileStart('before render');
 
       waitUntilFontsLoaded([
         'Astloch',
-	'Ubuntu',
+	'PT Sans Caption',
+	//	'Ubuntu',
 	'Liberation Sans'
       ]);
 

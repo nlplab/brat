@@ -1240,6 +1240,34 @@ var VisualizerUI = (function($, window, undefined) {
         });
       };
 
+      var maxDocumentChangesTimeout = 2 * 1000;
+      var documentChangesTimeout = 1 * 1000;
+      var checkForDocumentChanges = function() {
+        if (!coll || !doc) {
+          setTimeout(checkForDocumentChanges, 1 * 1000);
+        } else {
+          opts = {
+            'action': 'getDocumentTimestamp',
+            'collection': coll,
+            'document': doc
+          }
+          dispatcher.post('ajax', [opts, function(response) {
+            if (data) {
+              if (data.mtime != response.mtime) {
+                dispatcher.post('current', [coll, doc, args, true]);
+                documentChangesTimeout = 1 * 1000;
+              } else {
+                documentChangesTimeout *= 2;
+                if (documentChangesTimeout >= maxDocumentChangesTimeout)
+                  documentChangesTimeout = maxDocumentChangesTimeout;
+              }
+            }
+            setTimeout(checkForDocumentChanges, documentChangesTimeout);
+          }]);
+        }
+      }
+      checkForDocumentChanges();
+
       dispatcher.
           on('init', init).
           on('annotationIsAvailable', annotationIsAvailable).
