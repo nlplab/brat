@@ -334,8 +334,8 @@ class Annotations(object):
             self.ann_ctime = getctime(self._input_files[0])
         else:
             # We don't have a single file, just set to epoch for now
-            self.ann_mtime = 0
-            self.ann_ctime = 0
+            self.ann_mtime = -1
+            self.ann_ctime = -1
 
     def _sanity(self):
         # Beware, we ONLY do format checking, leave your semantics hat at home
