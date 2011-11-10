@@ -89,11 +89,11 @@ path {
 
 /* "basic" font */
 .span text {
-  font-size: 10.5px;
-  /* font-size: 9px; */
+  /*  font-size: 10.5px; */
+  font-size: 10px;
   text-anchor: middle;
-  font-family: Ubuntu, sans-serif;
-  /* font-family: 'PT Sans Caption', sans-serif; */
+  /* font-family: Ubuntu, sans-serif; */
+  font-family: 'PT Sans Caption', sans-serif;
   /* font-family: 'Anonymous Pro', monospace; */
   pointer-events: none;
 }
@@ -251,8 +251,8 @@ rect.shadow_EditHighlight {
 .arcs text {
   font-size: 9px;
   text-anchor: middle;
-  font-family: Ubuntu, sans-serif;
-  /* font-family: 'PT Sans Caption', sans-serif; */
+  /* font-family: Ubuntu, sans-serif; */
+  font-family: 'PT Sans Caption', sans-serif;
   /* font-family: 'Anonymous Pro', monospace; */
   dominant-baseline: central;
   cursor: default;
@@ -633,12 +633,12 @@ fieldset {
   font-weight: normal;
   src: local('Liberation Sans'), local('Liberation-Sans'), url('static/fonts/Liberation_Sans-Regular.ttf') format('truetype');
 }
-@font-face {
+/* @font-face {
   font-family: 'Ubuntu';
   font-style: normal;
   font-weight: normal;
   src: local('Ubuntu'), url('static/fonts/Ubuntu-Normal.ttf') format('truetype');
-}
+} */
 @font-face {
   font-family: 'Astloch';
   font-style: normal;
@@ -657,18 +657,18 @@ fieldset {
   font-weight: normal;
   src: local('Allerta'), url('static/fonts/Allerta-Medium.ttf') format('truetype');
 } */
-/* @font-face {
+@font-face {
   font-family: 'PT Sans Caption';
   font-style: normal;
   font-weight: normal;
   src: local('PT Sans Caption'), local('PTSans-Caption'), url('static/fonts/PT_Sans-Caption-Web-Regular.ttf') format('truetype');
-} */
-/* @font-face {
+}
+@font-face {
   font-family: 'PT Sans Caption';
   font-style: normal;
   font-weight: bold;
   src: local('PT Sans Caption Bold'), local('PTSans-CaptionBold'), url('static/fonts/PT_Sans-Caption-Web-Bold.ttf') format('truetype');
-} */
+}
 
 // Apple iPad, iPhone, iPod
 
