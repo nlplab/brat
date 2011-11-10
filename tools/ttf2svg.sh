@@ -60,7 +60,8 @@ do
 
     # ID creation is along the lines of Google web fonts
     # NOTE: This may require some tweaking to get in line with our CSS
-    FONT_ID=`basename ${TTF_PATH} | sed -e 's|\.[^.]\+$||g' -e 's|_||g'`
+    FONT_ID=`basename ${TTF_PATH} | sed -e 's|\.[^.]\+$||g' -e 's|_|-|g' \
+        -e 's/-\(Normal\|Regular\|Web\)//g'`
 
     # Convert the font
     TMP_FILE=`tempfile`
