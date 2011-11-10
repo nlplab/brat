@@ -68,7 +68,7 @@ var Visualizer = (function($, window, undefined) {
       var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
       var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
       var reverseArcControlx = 5;   // control point distance for "UFO catchers"
-      var shadowSize = 5;
+      var shadowSize = 4;
       var shadowStroke = 5;
       var editedSpanSize = 7;
       var editedArcSize = 3;
@@ -1525,7 +1525,23 @@ Util.profileStart('arcs');
               'data-arc-id': arc.id,
               'data-arc-ed': arc.eventDescId,
             };
-            var text = svg.text(arcGroup, (from + to) / 2, -height, labelText, options);
+
+	    // construct SVG text, showing possible trailing index
+	    // numbers (as in e.g. "Theme2") as subscripts
+	    var svgText;
+	    var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
+	    if (!splitLabelText[2]) {
+		// no subscript, simple string suffices
+		svgText = labelText;
+	    } else {
+		svgText = svg.createText();
+		svgText.span(splitLabelText[1]);
+		//svgText.span(splitLabelText[2], { 'baseline-shift': 'sub', 'font-size': '80%' });
+		svgText.span(splitLabelText[2], { 'dy': '0.3em', 'font-size': '80%' });
+	    }
+
+            var text = svg.text(arcGroup, (from + to) / 2, -height, svgText, options);
+
             var width = sizes.arcs.widths[labelText];
             var textBox = {
               x: (from + to - width) / 2,
@@ -2017,9 +2033,9 @@ Util.profileStart('before render');
           var originSpanId = target.attr('data-arc-origin');
           var targetSpanId = target.attr('data-arc-target');
           var role = target.attr('data-arc-role');
-          // TODO: remove special-case processing, introduce way to differentiate
-          // symmetric relations in general
-          var symmetric = role === "Equiv";
+          var symmetric = (relationTypesHash[role] && 
+                           relationTypesHash[role].properties &&
+                           $.inArray('symmetric', relationTypesHash[role].properties) != -1);
           // NOTE: no commentText, commentType for now
           var arcEventDescId = target.attr('data-arc-ed');
           var commentText = '';

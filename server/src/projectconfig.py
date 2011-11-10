@@ -682,7 +682,9 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
             continue
 
         if len(r.arg_list) != 2:
-            Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(r.arg_list)))
+            # Don't complain about argument constraints for unused relations
+            if not r.unused:
+                Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(r.arg_list)))
         else:
             types = r.arguments[r.arg_list[num]]
             for type in types:

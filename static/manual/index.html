@@ -1,0 +1,116 @@
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>brat manual</title>
+    <link rel="stylesheet" type="text/css" href="../../style.css"/>
+    <link rel="shortcut icon" href="../../favicon.ico"/>
+  </head>
+  <body>
+    <h1>brat rapid annotation tool manual</h1> 
+    <p><span style="color:red; font-weight:bold">NOTE: this manual page is under construction and is still very much incomplete.</span></p>
+
+    <h2>Visualization</h2>
+    <p>When a document is selected, the main window area shows a
+      visualization of the text and annotations of that
+      document.
+    </p>
+    <img src="images/visualization-1.png"/>
+    <p>Placing the mouse cursor over an annotation shows some further
+      information about that annotation, including the full form of
+      the annotation type, the annotation ID, and any attributes or
+      notes attached to the annotation.
+    </p>
+
+    <h2>Menu</h2>
+    <p>Placing the mouse cursor over the top bar of the window opens the
+    tool menu which drops down from the top of the screen. Once the mouse
+    pointer leaves the menu area the menu will disappear, thus allowing more
+    screen space for the annotations by only appearing when needed.
+      </p>
+    <img src="images/menu-1.png"/>
+    <p>The menu provides access to the following features:
+      <ul>
+        <li><b>Collection</b>: annotation collection browser</li>
+        <li><b>Search</b>: search current collection</li>
+        <li><b>Abbreviations</b>: toggle use of abbreviations in visualization</li>
+        <li><b>Login</b>: log in for editing</li>
+      </ul>
+      The menu also contains download links for the raw text, the
+      annotations <a href="http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/SharedTask/detail.shtml#format">in stand-off format</a>, and the visualization in SVG
+      format.
+    </p>
+
+    <h2>Collection browser</h2> 
+    <p>The collection browser, accessible from the menu or by pressing
+      the tab key, allows you to access the different text collections
+      and individual documents in those collections set up on your
+      installation.
+    </p>
+    <img src="images/collection-browser-1.png"/>
+
+    <h2>Basic editing</h2>
+    <p>To edit annotations, users first need to log in by clicking on
+      the &quot;Login&quot; button and enter a valid username and
+      password in the login dialog.
+    <p>
+      
+    <p>When logged in, it is possible to add annotations for a text
+      span simply by selecting that span with the mouse.
+    </p>
+    <img src="images/selection-1.png"/>
+    <p>Selection can be performed either by &quot;dragging&quot; over
+      the text or by double-clicking on a word.
+    </p>
+    <p><b>Note</b>: a multi-word span can also be selected with two
+      double-clicks on the first and last words by holding CTRL during
+      the first double-click and holding down shift during the
+      second double-click.
+    </p>
+    <p>After selecting a span, the system shows the span annotation
+      dialog.
+    </p>
+    <img src="images/span-dialog-1.png"/>
+    <p>
+      This allows the selection of the type to assign to the newly
+      created annotation, as well as the addition of comments or
+      setting additional aspects of the annotation such as attribute
+      values (if available).
+    </p>
+    <p>
+      The types available for annotation and additional aspects 
+      that are available for marking depend on the configuration of
+      the current collection.
+    </p>
+    <p>Associations between annotated text spans can be annotated by
+      &quot;dragging&quot; the mouse from one annotation to the
+      other.
+    </p>
+    <img src="images/relation-1.png"/>
+    <p>
+      Releasing the mouse pointer over another annotation again brings
+      up a dialog for selecting the type of the annotation.
+    </p>
+    <img src="images/arc-dialog-1.png"/>
+    <p>
+      The types available for selection in this dialog depend both on
+      the configuration of the collection and the types of the two
+      selected annotations.
+    </p>
+    <p>
+      (When attempting to associate annotations that do not have any
+      configured annotation types that can connect them, an error
+      message will be shown instead of this dialog.)
+    </p>
+
+    <p>Existing annotations can be modified or deleted from the same
+      annotation dialog, which can be brought up by double-clicking
+      on an annotation.
+    </p>
+    <p>(The available annotation types and other aspects depend on the
+      configuration of each collection.)
+    </p>
+
+    <h2>Advanced usage</h2>
+    <p><span style="color:red; font-weight:bold">TODO</span></p>
+
+  </body>
+</html>

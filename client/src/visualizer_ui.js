@@ -412,7 +412,9 @@ var VisualizerUI = (function($, window, undefined) {
           var annp = doc[1] ? ('?' + Util.param(doc[1])) : '';
           var name = doc[2];
           var collFile = isColl ? 'collection' : 'file';
-          var collFileImg = isColl ? 'ic_list_folder.png' : 'ic_list_drafts.png';
+          //var collFileImg = isColl ? 'ic_list_folder.png' : 'ic_list_drafts.png';
+          //var collFileImg = isColl ? 'Fugue-folder-horizontal-open.png' : 'Fugue-document.png';
+          var collFileImg = isColl ? 'Fugue-shadowless-folder-horizontal-open.png' : 'Fugue-shadowless-document.png';
           var collSuffix = isColl ? '/' : '';
           html.push('<tr class="' + collFile + '" data-value="'
             + name + collSuffix + annp + '">');
@@ -464,7 +466,8 @@ var VisualizerUI = (function($, window, undefined) {
 
         $('#collection_input').val(selectorData.collection);
         $('#document_input').val(doc);
-        $('#readme').text(selectorData.description || '');
+        //$('#readme').text(selectorData.description || '');
+        $('#readme').val(selectorData.description || '');
         var curcoll = selectorData.collection;
         var pos = curcoll.lastIndexOf('/');
         if (pos != -1) curcoll = curcoll.substring(pos + 1);
@@ -1130,8 +1133,8 @@ var VisualizerUI = (function($, window, undefined) {
 
       var tutorialForm = $('#tutorial');
       initForm(tutorialForm, {
-        width: 400,
-        height: 300,
+        width: 600,
+        height: 500,
         no_cancel: true,
         no_ok: true,
         buttons: [{
