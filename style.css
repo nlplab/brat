@@ -668,10 +668,7 @@ fieldset {
   font-style: normal;
   font-weight: bold;
   src: local('PT Sans Caption Bold'), local('PTSans-CaptionBold'), url('static/fonts/PT_Sans-Caption-Web-Bold.ttf') format('truetype');
-<<<<<<< Updated upstream
 } */
-=======
-}
 
 // Apple iPad, iPhone, iPod
 
@@ -680,4 +677,3 @@ fieldset {
    -webkit-text-size-adjust: none;
    select: none;
 }
->>>>>>> Stashed changes
