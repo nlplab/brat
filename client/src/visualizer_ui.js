@@ -466,7 +466,8 @@ var VisualizerUI = (function($, window, undefined) {
 
         $('#collection_input').val(selectorData.collection);
         $('#document_input').val(doc);
-        $('#readme').text(selectorData.description || '');
+        //$('#readme').text(selectorData.description || '');
+        $('#readme').val(selectorData.description || '');
         var curcoll = selectorData.collection;
         var pos = curcoll.lastIndexOf('/');
         if (pos != -1) curcoll = curcoll.substring(pos + 1);
