@@ -29,6 +29,11 @@ from session import get_session
 SVG_DIR = path_join(WORK_DIR, 'svg')
 # TODO: These constants most likely don't belong here
 CSS_PATH = path_join(BASE_DIR, 'style.css')
+FONT_DIR = path_join(BASE_DIR, 'static', 'fonts')
+SVG_FONTS = (
+        path_join(FONT_DIR, 'Liberation_Sans-Regular.svg'),
+        path_join(FONT_DIR, 'PT_Sans-Caption-Web-Regular.svg'),
+        )
 ###
 
 
@@ -82,7 +87,12 @@ def _save_svg(svg):
 
         if defs != -1:
             css = '<style type="text/css"><![CDATA[' + css + ']]></style>'
-            svg = svg[:defs] + css + svg[defs:]
+            font_data = []
+            for font_path in SVG_FONTS:
+                with open(font_path, 'r') as font_file:
+                    font_data.append(font_file.read().strip())
+            fonts = '\n'.join(font_data)
+            svg = svg[:defs] + '\n' + fonts + '\n' + css + '\n' + svg[defs:]
             svg_file.write(svg)
         else:
             # TODO: @amadanmath: When does this actually happen?
