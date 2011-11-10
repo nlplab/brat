@@ -633,41 +633,17 @@ fieldset {
   font-weight: normal;
   src: local('Liberation Sans'), local('Liberation-Sans'), url('static/fonts/Liberation_Sans-Regular.ttf') format('truetype');
 }
-/* @font-face {
-  font-family: 'Ubuntu';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Ubuntu'), url('static/fonts/Ubuntu-Normal.ttf') format('truetype');
-} */
-@font-face {
-  font-family: 'Astloch';
-  font-style: normal;
-  font-weight: bold;
-  src: local('Astloch Bold'), local('Astloch-Bold'), url('static/fonts/Astloch-Bold.ttf') format('truetype');
-}
 @font-face {
   font-family: 'Astloch';
   font-style: normal;
   font-weight: normal;
   src: local('Astloch'), url('static/fonts/Astloch-Regular.ttf') format('truetype');
 }
-/* @font-face {
-  font-family: 'Allerta';
-  font-style: normal;
-  font-weight: normal;
-  src: local('Allerta'), url('static/fonts/Allerta-Medium.ttf') format('truetype');
-} */
 @font-face {
   font-family: 'PT Sans Caption';
   font-style: normal;
   font-weight: normal;
   src: local('PT Sans Caption'), local('PTSans-Caption'), url('static/fonts/PT_Sans-Caption-Web-Regular.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'PT Sans Caption';
-  font-style: normal;
-  font-weight: bold;
-  src: local('PT Sans Caption Bold'), local('PTSans-CaptionBold'), url('static/fonts/PT_Sans-Caption-Web-Bold.ttf') format('truetype');
 }
 
 // Apple iPad, iPhone, iPod
