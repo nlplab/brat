@@ -60,14 +60,16 @@ do
 
     # ID creation is along the lines of Google web fonts
     # NOTE: This may require some tweaking to get in line with our CSS
-    FONT_ID=`basename ${TTF_PATH} | sed -e 's|\.[^.]\+$||g' -e 's|_|-|g' \
-        -e 's/-\(Normal\|Regular\|Web\)//g'`
+    FONT_ID=`basename ${TTF_PATH} | sed -e 's|\.[^.]\+$||g' \
+        -e 's/-\(Normal\|Regular\|Web\)//g' \
+        -e 's|-| |g' -e 's|_| |g'`
 
     # Convert the font
     TMP_FILE=`tempfile`
     java -jar ${BATIK_TTF2SVG_PATH} ${TTF_PATH} -l 32 -h 127 \
-        -o ${TMP_FILE} -id ${FONT_ID}
-    cat ${TMP_FILE} | grep -v '<hkern' > `echo ${TTF_PATH} \
-        | sed -e 's|\.ttf$|.svg|g'`
+        -o ${TMP_FILE} -id "${FONT_ID}"
+    # Remove the kerning, browsers don't do it anyway and it saves space
+    cat ${TMP_FILE} | grep -v '^<hkern' | grep -v -e '^<?xml' -e '^</\?defs' \
+        -e '^</\?svg' > `echo ${TTF_PATH} | sed -e 's|\.ttf$|.svg|g'`
     rm -f ${TMP_FILE}
 done
