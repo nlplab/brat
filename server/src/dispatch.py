@@ -19,7 +19,8 @@ from auth import login, logout, whoami, NotAuthorisedError
 from common import ProtocolError
 from config import DATA_DIR
 from docimport import save_import
-from document import get_directory_information, get_document
+from document import (get_directory_information, get_document,
+        get_document_timestamp)
 from download import download_file
 from inspect import getargspec
 from itertools import izip
@@ -36,6 +37,7 @@ from search import search_text, search_entity, search_event, search_relation
 DISPATCHER = {
         'getCollectionInformation': get_directory_information,
         'getDocument': get_document,
+        'getDocumentTimestamp': get_document_timestamp,
         'importDocument': save_import,
 
         'storeSVG': store_svg,
