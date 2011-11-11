@@ -21,7 +21,7 @@ from config import DATA_DIR
 from docimport import save_import
 from document import (get_directory_information, get_document,
         get_document_timestamp)
-from download import download_file
+from download import download_file, download_collection
 from inspect import getargspec
 from itertools import izip
 from jsonwrap import dumps
@@ -43,6 +43,7 @@ DISPATCHER = {
         'storeSVG': store_svg,
         'retrieveSVG': retrieve_svg,
         'downloadFile': download_file,
+        'downloadCollection': download_collection,
 
         'login': login,
         'logout': logout,
