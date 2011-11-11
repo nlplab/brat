@@ -1283,7 +1283,7 @@ var VisualizerUI = (function($, window, undefined) {
           }]);
         }
       }
-      //checkForDocumentChanges();
+      checkForDocumentChanges();
 
       dispatcher.
           on('init', init).
