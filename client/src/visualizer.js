@@ -2294,6 +2294,7 @@ Util.profileStart('before render');
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
           on('current', gotCurrent).
+          on('clearSVG', clearSVG).
           on('mouseover', onMouseOver).
           on('mouseout', onMouseOut);
     };

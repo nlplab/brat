@@ -375,6 +375,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').empty();
+        dispatcher.post('clearSVG');
         dispatcher.post('allowReloadByURL');
         dispatcher.post('setCollection', [_coll, _doc, _args]);
         return false;
