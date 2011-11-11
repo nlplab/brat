@@ -302,6 +302,13 @@ var AnnotatorUI = (function($, window, undefined) {
         var noArcs = true;
         keymap = {};
 
+        // separate out possible numeric suffix from type
+        var noNumArcType;
+        if (arcType) {
+            var splitType = arcType.match(/^(.*?)(\d*)$/);
+            noNumArcType = splitType[1];
+        }
+
         if (spanTypes[originType]) {
           var arcTypes = spanTypes[originType].arcs;
           var $scroller = $('#arc_roles .scroller').empty();
@@ -341,7 +348,8 @@ var AnnotatorUI = (function($, window, undefined) {
         if (noArcs) {
           if (arcId) {
             // let the user delete or whatever, even on bad config
-            var $checkbox = $('<input id="arc_' + arcType + '" type="hidden" name="arc_type" value="' + arcType + '"/>');
+            // (note that what's shown to the user is w/o possible num suffix)
+            var $checkbox = $('<input id="arc_' + arcType + '" type="hidden" name="arc_type" value="' + noNumArcType + '"/>');
             $scroller.append($checkbox);
           } else {
             // can't make a new arc
@@ -361,6 +369,12 @@ var AnnotatorUI = (function($, window, undefined) {
           var el = $('#arc_' + arcType)[0];
           if (el) {
             el.checked = true;
+          } else {
+              // try w/o numeric suffix
+              el = $('#arc_' + noNumArcType)[0];
+              if (el) {
+                  el.checked = true;
+              }
           }
 
           $('#arc_form_reselect, #arc_form_delete').show();
