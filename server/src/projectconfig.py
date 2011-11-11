@@ -454,7 +454,9 @@ def get_configs(directory, filename, defaultstr, minconf, sections):
                     continue
                 if (r.storage_form() == "Equiv" and 
                     "<REL-TYPE>" not in r.special_arguments):
-                    Messager.warning('Note: "Equiv" defined in config without "<REL-TYPE>"; assuming symmetric and transitive. Consider revising config to add "<REL-TYPE>:symmetric-transitive" to definition.')
+                    # this was way too much noise; will only add in after
+                    # at least most configs are revised.
+#                     Messager.warning('Note: "Equiv" defined in config without "<REL-TYPE>"; assuming symmetric and transitive. Consider revising config to add "<REL-TYPE>:symmetric-transitive" to definition.')
                     r.special_arguments["<REL-TYPE>"] = ["symmetric", "transitive"]
 
         get_configs.__cache[(directory, filename)] = configs
