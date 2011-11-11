@@ -798,9 +798,9 @@ var VisualizerUI = (function($, window, undefined) {
           return moveInFileBrowser(-1);
         } else if (code === $.ui.keyCode.RIGHT) {
           return moveInFileBrowser(+1);
-        } else if (code === $.ui.keyCode.UP) {
+        } else if (evt.shiftKey && code === $.ui.keyCode.UP) {
           autoPaging(true);
-        } else if (code === $.ui.keyCode.DOWN) {
+        } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
           autoPaging(false);
         }
       };
