@@ -1718,6 +1718,8 @@ Util.profileStart('rows');
             currentSent = row.sentence;
           }
           var rowBox = row.group.getBBox();
+          // Make it work on IE
+          rowBox = { x: rowBox.x, y: rowBox.y, height: rowBox.height, width: rowBox.width };
           // Make it work on Firefox and Opera
           if (!rowBox || rowBox.height == -Infinity) {
             rowBox = { x: 0, y: 0, height: 0, width: 0 };
@@ -2276,9 +2278,9 @@ Util.profileStart('before render');
 
       waitUntilFontsLoaded([
         'Astloch',
-	'PT Sans Caption',
-	//	'Ubuntu',
-	'Liberation Sans'
+        'PT Sans Caption',
+        //	'Ubuntu',
+        'Liberation Sans'
       ]);
 
 
