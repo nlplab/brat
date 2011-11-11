@@ -17,23 +17,26 @@ from __future__ import with_statement
 
 from os.path import join as path_join
 from os.path import isfile, exists
-from os import mkdir
+from os import makedirs, mkdir
 
 from common import ProtocolError, NoPrintJSONError
 from config import BASE_DIR, WORK_DIR
+from document import real_directory
 from message import Messager
 from session import get_session
 
 ### Constants
-# TODO: We really need a work directory
 SVG_DIR = path_join(WORK_DIR, 'svg')
-# TODO: These constants most likely don't belong here
 CSS_PATH = path_join(BASE_DIR, 'style.css')
 FONT_DIR = path_join(BASE_DIR, 'static', 'fonts')
 SVG_FONTS = (
         path_join(FONT_DIR, 'Liberation_Sans-Regular.svg'),
         path_join(FONT_DIR, 'PT_Sans-Caption-Web-Regular.svg'),
         )
+# Maintain a mirror of the data directory where we keep the latest stored svg
+#   for each document. Incurs some disk write overhead.
+SVG_STORE_DIR = path_join(WORK_DIR, 'svg_store')
+SVG_STORE = False
 ###
 
 
@@ -73,7 +76,7 @@ class CorruptSVGError(ProtocolError):
         return json_dic
 
 
-def _save_svg(svg):
+def _save_svg(collection, document, svg):
     svg_path = _svg_path()
 
     with open(svg_path, 'w') as svg_file:
@@ -94,6 +97,16 @@ def _save_svg(svg):
             fonts = '\n'.join(font_data)
             svg = svg[:defs] + '\n' + fonts + '\n' + css + '\n' + svg[defs:]
             svg_file.write(svg)
+
+            # Create a copy in the svg store?
+            if SVG_STORE:
+                real_dir = real_directory(collection, rel_to=SVG_STORE_DIR)
+                if not exists(real_dir):
+                    makedirs(real_dir)
+                svg_store_path = path_join(real_dir, document + '.svg')
+                with open(svg_store_path, 'w') as svg_store_file:
+                    svg_store_file.write(svg)
+
         else:
             # TODO: @amadanmath: When does this actually happen?
             raise CorruptSVGError
@@ -105,8 +118,8 @@ def _svg_path():
 
     return path_join(SVG_DIR, get_session().sid)
 
-def store_svg(svg):
-    _save_svg(svg)
+def store_svg(collection, document, svg):
+    _save_svg(collection, document, svg)
     return {}
 
 def retrieve_svg(document):

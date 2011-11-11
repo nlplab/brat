@@ -321,9 +321,9 @@ def assert_allowed_to_read(doc_path):
     if not allowed_to_read(doc_path):
         raise AccessDeniedError # Permission denied by access control
 
-def real_directory(directory):
+def real_directory(directory, rel_to=DATA_DIR):
     assert isabs(directory), 'directory "%s" is not absolute' % directory
-    return path_join(DATA_DIR, directory[1:])
+    return path_join(rel_to, directory[1:])
 
 def relative_directory(directory):
     # inverse of real_directory
