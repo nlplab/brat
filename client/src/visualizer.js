@@ -1405,7 +1405,12 @@ Util.profileStart('arcs');
 
         // add the arcs
         $.each(data.arcs, function(arcNo, arc) {
-          roleClass = 'role_' + arc.type;
+          // separate out possible numeric suffix from type
+	  var noNumArcType;
+	  if (arc.type) {
+	    var splitType = arc.type.match(/^(.*?)(\d*)$/);
+            noNumArcType = splitType[1];
+	  }
 
           var originSpan = data.spans[arc.origin];
           var targetSpan = data.spans[arc.target];
@@ -1431,11 +1436,25 @@ Util.profileStart('arcs');
                       }
                   });            
           }
-          // fall back on relation types in case origin span type is
+	  // fall back on unnumbered type if not found in full
+          if (!arcDesc && noNumArcType && noNumArcType != arc.type &&
+	      spanDesc && spanDesc.arcs) {
+              $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
+                      if (arcDescIter.type == noNumArcType) {
+                          arcDesc = arcDescIter;
+                      }
+                  });            
+          }
+	  // fall back on relation types in case origin span type is
           // undefined
           if (!arcDesc) {
             arcDesc = relationTypesHash[arc.type];
           }
+	  // final fallback to unnumbered relation
+	  if (!arcDesc) {
+	    arcDesc = relationTypesHash[noNumArcType];
+	  }
+
           var color = arcDesc && arcDesc.color || spanTypes.ARC_DEFAULT.color || '#000000';
           var hashlessColor = color.replace('#', '');
           var dashArray = arcDesc && arcDesc.dashArray;
