@@ -1149,6 +1149,10 @@ var VisualizerUI = (function($, window, undefined) {
 
 
       var tutorialForm = $('#tutorial');
+      if (!$.browser.webkit) {
+        // Inject the browser warning
+        $('#browserwarning').css('display', 'block');
+      }
       initForm(tutorialForm, {
         width: 600,
         height: 500,
