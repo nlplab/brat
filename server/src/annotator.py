@@ -441,6 +441,10 @@ def create_span(collection, document, start, end, type, attributes=None, id=None
     working_directory = path_split(document)[0]
 
     with TextAnnotations(document) as ann_obj:
+        # bail as quick as possible if read-only 
+        if ann_obj._read_only:
+            raise AnnotationsIsReadOnlyError(ann_obj.get_document())
+
         mods = ModificationTracker()
 
         if id is not None:
@@ -532,10 +536,9 @@ def create_arc(collection, document, origin, target, type,
     document = path_join(real_dir, document)
 
     with TextAnnotations(document) as ann_obj:
-        # Dirty hack to bail as quick as possible if read-only 
-
-        # TODO: why only here? The checking of readonly should be
-        # consistent across the different editing functions.
+        # bail as quick as possible if read-only 
+        # TODO: make consistent across the different editing
+        # functions, integrate ann_obj initialization and checks
         if ann_obj._read_only:
             raise AnnotationsIsReadOnlyError(ann_obj.get_document())
 
@@ -643,6 +646,10 @@ def delete_arc(collection, document, origin, target, type):
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
     with TextAnnotations(document) as ann_obj:
+        # bail as quick as possible if read-only 
+        if ann_obj._read_only:
+            raise AnnotationsIsReadOnlyError(ann_obj.get_document())
+
         mods = ModificationTracker()
 
         # This can be an event or an equiv
@@ -721,6 +728,10 @@ def delete_span(collection, document, id):
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
     with TextAnnotations(document) as ann_obj:
+        # bail as quick as possible if read-only 
+        if ann_obj._read_only:
+            raise AnnotationsIsReadOnlyError(ann_obj.get_document())
+
         mods = ModificationTracker()
         
         #TODO: Handle a failure to find it
@@ -774,6 +785,10 @@ def split_span(collection, document, args, id):
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
     with TextAnnotations(document) as ann_obj:
+        # bail as quick as possible if read-only 
+        if ann_obj._read_only:
+            raise AnnotationsIsReadOnlyError(ann_obj.get_document())
+
         mods = ModificationTracker()
         
         ann = ann_obj.get_ann_by_id(id)
