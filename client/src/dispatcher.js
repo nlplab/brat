@@ -23,6 +23,7 @@ var Dispatcher = (function($, window, undefined) {
       var post = function(asynch, message, args, returnType) {
         if (typeof(asynch) !== 'number') {
           // no asynch parameter
+          returnType = args;
           args = message;
           message = asynch;
           asynch = null;
@@ -77,7 +78,6 @@ var Dispatcher = (function($, window, undefined) {
           while (i--) {
             if (results[i] === false) return results[i];
           }
-          return results;
         }
         return results;
       };

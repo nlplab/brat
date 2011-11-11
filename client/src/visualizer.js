@@ -2234,6 +2234,11 @@ Util.profileStart('before render');
         }
       };
 
+      var isReloadOkay = function() {
+        // do not reload while the user is in the dialog
+        return !drawing;
+      };
+
       var fontTestString = 'abbcccddddeeeeeffffffggggggghhhhhhhhiiiiiiiiijjjjjjjjjjkkkkkkkkkkkllllllllllllmmmmmmmmmmmmmnnnnnnnnnnnnnnoooooooooooooooppppppppppppppppqqqqqqqqqqqqqqqqqrrrrrrrrrrrrrrrrrrsssssssssssssssssssttttttttttttttttttttuuuuuuuuuuuuuuuuuuuuuvvvvvvvvvvvvvvvvvvvvvvwwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyzzzzzzzzzzzzzzzzzzzzzzzzzz';
       var waitUntilFontsLoaded = function(fonts) {
         var interval = 50;
@@ -2283,6 +2288,7 @@ Util.profileStart('before render');
           on('collectionChanged', collectionChanged).
           on('collectionLoaded', collectionLoaded).
           on('renderData', renderData).
+          on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
           on('current', gotCurrent).

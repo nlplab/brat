@@ -1261,9 +1261,7 @@ var VisualizerUI = (function($, window, undefined) {
       var maxDocumentChangesTimeout = 32 * 1000;
       var documentChangesTimeout = 1 * 1000;
       var checkForDocumentChanges = function() {
-        if (!coll || !doc) {
-          documentChangesTimer = setTimeout(checkForDocumentChanges, 1 * 1000);
-        } else {
+        if (coll && doc && dispatcher.post('isReloadOkay', [], 'all')) {
           opts = {
             'action': 'getDocumentTimestamp',
             'collection': coll,
@@ -1280,22 +1278,29 @@ var VisualizerUI = (function($, window, undefined) {
                   documentChangesTimeout = maxDocumentChangesTimeout;
               }
             }
-            documentChangesTimer = setTimeout(checkForDocumentChanges, documentChangesTimeout);
           }]);
+        } else {
+          documentChangesTimeout = 1 * 1000;
         }
+        documentChangesTimer = setTimeout(checkForDocumentChanges, documentChangesTimeout);
       }
       checkForDocumentChanges();
 
       $('#autorefresh_mode').click(function(evt) {
-            var val = this.checked;
-            if (val) {
-              checkForDocumentChanges();
-              dispatcher.post('messages', [[['Autorefresh mode is now on', 'comment']]]);
-            } else {
-              clearTimeout(documentChangesTimer);
-              dispatcher.post('messages', [[['Autorefresh mode is now off', 'comment']]]);
-            }
-          });
+        var val = this.checked;
+        if (val) {
+          checkForDocumentChanges();
+          dispatcher.post('messages', [[['Autorefresh mode is now on', 'comment']]]);
+        } else {
+          clearTimeout(documentChangesTimer);
+          dispatcher.post('messages', [[['Autorefresh mode is now off', 'comment']]]);
+        }
+      });
+
+      var isReloadOkay = function() {
+        // do not reload while the user is in the dialog
+        return currentForm == null;
+      };
 
       dispatcher.
           on('init', init).
@@ -1310,6 +1315,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('initForm', initForm).
           on('collectionLoaded', collectionLoaded).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
+          on('isReloadOkay', isReloadOkay).
           on('current', gotCurrent).
           on('doneRendering', onDoneRendering).
           on('startedRendering', onStartedRendering).

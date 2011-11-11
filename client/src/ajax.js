@@ -3,16 +3,19 @@
 var Ajax = (function($, window, undefined) {
     var Ajax = function(dispatcher) {
       var that = this;
+      var pending = 0;
 
       // merge data will get merged into the response data
       // before calling the callback
       var ajaxCall = function(data, callback, merge) {
         dispatcher.post('spin');
+        pending++;
         $.ajax({
           url: 'ajax.cgi',
           data: data,
           type: 'POST',
           success: function(response) {
+            pending--;
             // If no exception is set, verify the server results
             if (response.exception == undefined && response.action !== data.action) {
               console.error('Action ' + data.action +
@@ -36,6 +39,7 @@ var Ajax = (function($, window, undefined) {
             dispatcher.post('unspin');
           },
           error: function(response, textStatus, errorThrown) {
+            pending--;
             dispatcher.post('unspin');
             $('#waiter').dialog('close');
             console.error(textStatus + ':', errorThrown, response);
@@ -43,7 +47,14 @@ var Ajax = (function($, window, undefined) {
         });
       };
 
+      var isReloadOkay = function() {
+        // do not reload while data is pending
+        return pending == 0;
+      };
+
+
       dispatcher.
+          on('isReloadOkay', isReloadOkay).
           on('ajax', ajaxCall);
     };
 
