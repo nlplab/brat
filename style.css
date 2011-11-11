@@ -636,8 +636,8 @@ fieldset {
 @font-face {
   font-family: 'Astloch';
   font-style: normal;
-  font-weight: normal;
-  src: local('Astloch'), url('static/fonts/Astloch-Regular.ttf') format('truetype');
+  font-weight: bold;
+  src: local('Astloch Bold'), local('Astloch-Bold'), url('static/fonts/Astloch-Bold.ttf') format('truetype');
 }
 @font-face {
   font-family: 'PT Sans Caption';
