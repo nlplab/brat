@@ -942,6 +942,12 @@ var VisualizerUI = (function($, window, undefined) {
         }
         if (!data) return;
         var $sourceFiles = $('#source_files').empty();
+        /* Add a download link for the whole collection */
+        $sourceFiles.append(
+            $('<a target="brat_search"/>').text('coll').attr('href',
+              'ajax.cgi?action=downloadCollection&collection=' + coll));
+        $sourceFiles.append(', ');
+        /* Add download links for all available extensions */
         $.each(data.source_files, function(extNo, ext) {
           var $link = $('<a target="brat_search"/>').
               text(ext).
