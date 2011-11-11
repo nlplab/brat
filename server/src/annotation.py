@@ -1056,6 +1056,17 @@ class IdedAnnotation(TypedAnnotation):
     def __str__(self):
         raise NotImplementedError
 
+def split_role(r):
+    """
+    Given a string R that may be suffixed with a number, returns a
+    tuple (ROLE, NUM) where ROLE+NUM == R and NUM is the maximal
+    suffix of R consisting only of digits.
+    """
+    i=len(r)
+    while i>1 and r[i-1].isdigit():
+        i -= 1
+    return r[:i],r[i:]
+
 class EventAnnotation(IdedAnnotation):
     """
     Represents an event annotation. Events are typed annotations that
@@ -1074,6 +1085,34 @@ class EventAnnotation(IdedAnnotation):
         IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.trigger = trigger
         self.args = args
+
+    def add_argument(self, role, argid):
+        # strip possible numeric suffixes off given role;
+        # none should be given
+        role, rn = split_role(role)
+        if rn != '':
+            Messager.warning('Received role with number; ignoring')
+
+        # for each argument role in existing roles, determine the
+        # role numbers already used
+        rnums = {}
+        for r, aid in self.args:
+            rb, rn = split_role(r)
+            if rb not in rnums:
+                rnums[rb] = {}
+            rnums[rb][rn] = True
+
+        # find the first available free number for the current role,
+        # using the convention that the empty number suffix stands for 1
+        rnum = ''
+        while role in rnums and rnum in rnums[role]:
+            if rnum == '':
+                rnum = '2'
+            else:
+                rnum = str(int(rnum)+1)
+
+        # role+rnum is available, add
+        self.args.append((role+rnum, argid))
 
     def __str__(self):
         return u'%s\t%s:%s %s%s' % (

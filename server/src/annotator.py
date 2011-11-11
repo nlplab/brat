@@ -600,7 +600,7 @@ def create_arc(collection, document, origin, target, type,
                 if old_type is None and old_target is None:
                     if arg_tup not in origin.args:
                         before = unicode(origin)
-                        origin.args.append(arg_tup)
+                        origin.add_argument(type, unicode(target.id))
                         mods.change(before, origin)
                     else:
                         # It already existed as an arg, we were called to do nothing...
@@ -613,7 +613,7 @@ def create_arc(collection, document, origin, target, type,
                     if old_arg_tup in origin.args and arg_tup not in origin.args:
                         before = unicode(origin)
                         origin.args.remove(old_arg_tup)
-                        origin.args.append(arg_tup)
+                        origin.add_argument(type, unicode(target.id))
                         mods.change(before, origin)
                     else:
                         # Collision etc. don't do anything
