@@ -1137,8 +1137,9 @@ Util.profileStart('chunks');
                     span.curly.to, bottom,
                     span.curly.to, bottom + curlyHeight),
                 {
-                  'class': 'curly'
-              });
+		  'class': 'curly',
+//                  'stroke': 'grey',
+		});
               chunkFrom = Math.min(span.curly.from, chunkFrom);
               chunkTo = Math.max(span.curly.to, chunkTo);
               spanHeight = Math.max(curlyHeight, spanHeight);
