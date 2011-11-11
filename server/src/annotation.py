@@ -138,7 +138,9 @@ class AnnotationsIsReadOnlyError(ProtocolError):
         self.fn = fn
 
     def __str__(self):
-        return u'Annotations read-only for %s' % (self.fn, )
+        # No extra message; the client is doing a fine job of reporting this
+        #return u'Annotations read-only for %s' % (self.fn, )
+        return ''
 
     def json(self, json_dic):
         json_dic['exception'] = 'annotationIsReadOnly'
