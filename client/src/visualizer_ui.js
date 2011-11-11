@@ -1257,11 +1257,12 @@ var VisualizerUI = (function($, window, undefined) {
         });
       };
 
-      var maxDocumentChangesTimeout = 2 * 1000;
+      var documentChangesTimer = null;
+      var maxDocumentChangesTimeout = 32 * 1000;
       var documentChangesTimeout = 1 * 1000;
       var checkForDocumentChanges = function() {
         if (!coll || !doc) {
-          setTimeout(checkForDocumentChanges, 1 * 1000);
+          documentChangesTimer = setTimeout(checkForDocumentChanges, 1 * 1000);
         } else {
           opts = {
             'action': 'getDocumentTimestamp',
@@ -1279,11 +1280,22 @@ var VisualizerUI = (function($, window, undefined) {
                   documentChangesTimeout = maxDocumentChangesTimeout;
               }
             }
-            setTimeout(checkForDocumentChanges, documentChangesTimeout);
+            documentChangesTimer = setTimeout(checkForDocumentChanges, documentChangesTimeout);
           }]);
         }
       }
       checkForDocumentChanges();
+
+      $('#autorefresh_mode').click(function(evt) {
+            var val = this.checked;
+            if (val) {
+              checkForDocumentChanges();
+              dispatcher.post('messages', [[['Autorefresh mode is now on', 'comment']]]);
+            } else {
+              clearTimeout(documentChangesTimer);
+              dispatcher.post('messages', [[['Autorefresh mode is now off', 'comment']]]);
+            }
+          });
 
       dispatcher.
           on('init', init).
