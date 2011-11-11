@@ -101,11 +101,12 @@ class Session(object):
             self._cookie[name]['domain'] = ''
 
         # set/reset expiration date
-        if max_age:
+        if max_age is not None:
             if isinstance(max_age, int):
                 max_age = timedelta(seconds=max_age)
             expires = now + max_age
-            self._cookie[name]['expires'] = expires.strftime('%a, %d %b %Y %H:%M:%S')
+            self._cookie[name]['expires'] = expires.strftime(
+                    '%a, %d %b %Y %H:%M:%S')
         else:
             self._cookie[name]['expires'] = ''
 
@@ -170,7 +171,8 @@ CURRENT_SESSION = None
 def get_session():
     global CURRENT_SESSION
     if CURRENT_SESSION is None:
-        CURRENT_SESSION = Session()
+        # The cookie will expire in 30 days (in seconds)
+        CURRENT_SESSION = Session(max_age=60 * 60 * 24 * 30)
     return CURRENT_SESSION
 
 # Make sure that we save the session on interpreter shutdown
