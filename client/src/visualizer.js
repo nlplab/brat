@@ -193,12 +193,12 @@ var Visualizer = (function($, window, undefined) {
             }
             return 0;
           });
-          var len = equivSpans.length;
+          var len = okEquivSpans.length;
           for (var i = 1; i < len; i++) {
             var eventDesc = data.eventDescs[equiv[0] + '*' + i] =
-                new EventDesc(equivSpans[i - 1], equivSpans[i - 1], [[equiv[1], equivSpans[i]]], 'equiv');
-            eventDesc.leftSpans = equivSpans.slice(0, i);
-            eventDesc.rightSpans = equivSpans.slice(i);
+                new EventDesc(okEquivSpans[i - 1], okEquivSpans[i - 1], [[equiv[1], okEquivSpans[i]]], 'equiv');
+            eventDesc.leftSpans = okEquivSpans.slice(0, i);
+            eventDesc.rightSpans = okEquivSpans.slice(i);
           }
         });
         $.each(data.relations, function(relNo, rel) {
