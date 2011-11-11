@@ -58,6 +58,7 @@ var Visualizer = (function($, window, undefined) {
       };
       var boxSpacing = 1;
       var curlyHeight = 4;
+      var coloredCurlies = true; // color curlies by box BG
       var arcSpacing = 9; //10;
       var arcSlant = 15; //10;
       var minArcSlant = 8;
@@ -1127,6 +1128,13 @@ Util.profileStart('chunks');
 
             // Make curlies to show the span
             if (span.drawCurly) {
+	      var curlyColor = 'grey';
+	      if (coloredCurlies) {
+		var spanDesc = spanTypes[span.type];
+		var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.fgColor || '#000000';
+		curlyColor = Util.adjustColorLightness(bgColor, -0.6);
+	      }
+
               var bottom = yy + hh + margin.y - yAdjust + 1;
               svg.path(span.group, svg.createPath()
                   .move(span.curly.from, bottom + curlyHeight)
@@ -1138,7 +1146,7 @@ Util.profileStart('chunks');
                     span.curly.to, bottom + curlyHeight),
                 {
 		  'class': 'curly',
-//                  'stroke': 'grey',
+                  'stroke': curlyColor,
 		});
               chunkFrom = Math.min(span.curly.from, chunkFrom);
               chunkTo = Math.max(span.curly.to, chunkTo);

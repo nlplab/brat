@@ -213,7 +213,9 @@ rect.shadow_EditHighlight {
 }
 
 .span path.curly {
-  stroke: grey;
+  /* 'stroke' def here blocks 'stroke' set in JS..? */
+  /* stroke: grey; */
+  stroke-width: 0.5;
 }
 
 .span path.boxcross {
