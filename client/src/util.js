@@ -74,8 +74,14 @@ var Util = (function(window, undefined) {
       var type = spanTypes[spanType];
       var arcTypes = type && type.arcs || [];
       var arcDesc = null;
+      // also consider matches without suffix number, if any
+      var noNumArcType;
+      if (arcType) {
+          var splitType = arcType.match(/^(.*?)(\d*)$/);
+          noNumArcType = splitType[1];
+      }
       $.each(arcTypes, function(arcno, arcDescI) {
-        if (arcDescI.type == arcType) {
+        if (arcDescI.type == arcType || arcDescI.type == noNumArcType) {
           arcDesc = arcDescI;
           return false;
         }

@@ -956,6 +956,11 @@ var AnnotatorUI = (function($, window, undefined) {
       // overlay to prevent interaction
       waiter.parent().css('opacity', '0');
 
+      var isReloadOkay = function() {
+        // do not reload while the user is in the middle of editing
+        return arcDragOrigin == null && reselectedSpan == null;
+      };
+
       var userReceived = function(_user) {
         that.user = _user;
       }
@@ -965,20 +970,21 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       dispatcher.
-        on('init', init).
-        on('renderData', rememberData).
-        on('collectionLoaded', rememberSpanSettings).
-        on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
-        on('hideForm', hideForm).
-        on('user', userReceived).
-        on('edited', edited).
-        on('current', gotCurrent).
-        on('keydown', onKeyDown).
-        on('dblclick', onDblClick).
-        on('dragstart', preventDefault).
-        on('mousedown', onMouseDown).
-        on('mouseup', onMouseUp).
-        on('mousemove', onMouseMove);
+          on('init', init).
+          on('renderData', rememberData).
+          on('collectionLoaded', rememberSpanSettings).
+          on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
+          on('hideForm', hideForm).
+          on('user', userReceived).
+          on('edited', edited).
+          on('current', gotCurrent).
+          on('isReloadOkay', isReloadOkay).
+          on('keydown', onKeyDown).
+          on('dblclick', onDblClick).
+          on('dragstart', preventDefault).
+          on('mousedown', onMouseDown).
+          on('mouseup', onMouseUp).
+          on('mousemove', onMouseMove);
     };
 
     return AnnotatorUI;

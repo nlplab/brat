@@ -59,11 +59,11 @@ var VisualizerUI = (function($, window, undefined) {
           $(th).click(function() {
               // TODO: avoid magic numbers in access to the selector
               // data (column 0 is type, 1 is args, rest is data)
-              if (sort[0] === thNo + 2) sort[1] = -sort[1];
+              if (sort[0] === thNo + 1) sort[1] = -sort[1];
               else {
-                var type = selectorData.header[thNo][1];
+                var type = selectorData.header[thNo - 1][1];
                 var ascending = type === "string";
-                sort[0] = thNo + 2;
+                sort[0] = thNo + 1;
                 sort[1] = ascending ? 1 : -1;
               }
               selectorData.items.sort(docSortFunction);
@@ -1263,12 +1263,11 @@ var VisualizerUI = (function($, window, undefined) {
         });
       };
 
-      var maxDocumentChangesTimeout = 2 * 1000;
+      var documentChangesTimer = null;
+      var maxDocumentChangesTimeout = 32 * 1000;
       var documentChangesTimeout = 1 * 1000;
       var checkForDocumentChanges = function() {
-        if (!coll || !doc) {
-          setTimeout(checkForDocumentChanges, 1 * 1000);
-        } else {
+        if (coll && doc && dispatcher.post('isReloadOkay', [], 'all')) {
           opts = {
             'action': 'getDocumentTimestamp',
             'collection': coll,
@@ -1285,11 +1284,29 @@ var VisualizerUI = (function($, window, undefined) {
                   documentChangesTimeout = maxDocumentChangesTimeout;
               }
             }
-            setTimeout(checkForDocumentChanges, documentChangesTimeout);
           }]);
+        } else {
+          documentChangesTimeout = 1 * 1000;
         }
+        documentChangesTimer = setTimeout(checkForDocumentChanges, documentChangesTimeout);
       }
-      //checkForDocumentChanges();
+      checkForDocumentChanges();
+
+      $('#autorefresh_mode').click(function(evt) {
+        var val = this.checked;
+        if (val) {
+          checkForDocumentChanges();
+          dispatcher.post('messages', [[['Autorefresh mode is now on', 'comment']]]);
+        } else {
+          clearTimeout(documentChangesTimer);
+          dispatcher.post('messages', [[['Autorefresh mode is now off', 'comment']]]);
+        }
+      });
+
+      var isReloadOkay = function() {
+        // do not reload while the user is in the dialog
+        return currentForm == null;
+      };
 
       dispatcher.
           on('init', init).
@@ -1304,6 +1321,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('initForm', initForm).
           on('collectionLoaded', collectionLoaded).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
+          on('isReloadOkay', isReloadOkay).
           on('current', gotCurrent).
           on('doneRendering', onDoneRendering).
           on('startedRendering', onStartedRendering).

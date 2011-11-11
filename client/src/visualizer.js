@@ -193,12 +193,12 @@ var Visualizer = (function($, window, undefined) {
             }
             return 0;
           });
-          var len = equivSpans.length;
+          var len = okEquivSpans.length;
           for (var i = 1; i < len; i++) {
             var eventDesc = data.eventDescs[equiv[0] + '*' + i] =
-                new EventDesc(equivSpans[i - 1], equivSpans[i - 1], [[equiv[1], equivSpans[i]]], 'equiv');
-            eventDesc.leftSpans = equivSpans.slice(0, i);
-            eventDesc.rightSpans = equivSpans.slice(i);
+                new EventDesc(okEquivSpans[i - 1], okEquivSpans[i - 1], [[equiv[1], okEquivSpans[i]]], 'equiv');
+            eventDesc.leftSpans = okEquivSpans.slice(0, i);
+            eventDesc.rightSpans = okEquivSpans.slice(i);
           }
         });
         $.each(data.relations, function(relNo, rel) {
@@ -1407,9 +1407,10 @@ Util.profileStart('arcs');
         $.each(data.arcs, function(arcNo, arc) {
           // separate out possible numeric suffix from type
 	  var noNumArcType;
+	  var splitArcType;
 	  if (arc.type) {
-	    var splitType = arc.type.match(/^(.*?)(\d*)$/);
-            noNumArcType = splitType[1];
+	    splitArcType = arc.type.match(/^(.*?)(\d*)$/);
+            noNumArcType = splitArcType[1];
 	  }
 
           var originSpan = data.spans[arc.origin];
@@ -1557,15 +1558,14 @@ Util.profileStart('arcs');
 	    // construct SVG text, showing possible trailing index
 	    // numbers (as in e.g. "Theme2") as subscripts
 	    var svgText;
-	    var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
-	    if (!splitLabelText[2]) {
+	    if (!splitArcType[2]) {
 		// no subscript, simple string suffices
 		svgText = labelText;
 	    } else {
 		svgText = svg.createText();
-		svgText.span(splitLabelText[1]);
-		//svgText.span(splitLabelText[2], { 'baseline-shift': 'sub', 'font-size': '80%' });
-		svgText.span(splitLabelText[2], { 'dy': '0.3em', 'font-size': '80%' });
+		svgText.span(labelText);
+		//svgText.span(splitArcType[2], { 'baseline-shift': 'sub', 'font-size': '80%' });
+		svgText.span(splitArcType[2], { 'dy': '0.3em', 'font-size': '80%' });
 	    }
 
             var text = svg.text(arcGroup, (from + to) / 2, -height, svgText, options);
@@ -1718,6 +1718,8 @@ Util.profileStart('rows');
             currentSent = row.sentence;
           }
           var rowBox = row.group.getBBox();
+          // Make it work on IE
+          rowBox = { x: rowBox.x, y: rowBox.y, height: rowBox.height, width: rowBox.width };
           // Make it work on Firefox and Opera
           if (!rowBox || rowBox.height == -Infinity) {
             rowBox = { x: 0, y: 0, height: 0, width: 0 };
@@ -2234,6 +2236,11 @@ Util.profileStart('before render');
         }
       };
 
+      var isReloadOkay = function() {
+        // do not reload while the user is in the dialog
+        return !drawing;
+      };
+
       var fontTestString = 'abbcccddddeeeeeffffffggggggghhhhhhhhiiiiiiiiijjjjjjjjjjkkkkkkkkkkkllllllllllllmmmmmmmmmmmmmnnnnnnnnnnnnnnoooooooooooooooppppppppppppppppqqqqqqqqqqqqqqqqqrrrrrrrrrrrrrrrrrrsssssssssssssssssssttttttttttttttttttttuuuuuuuuuuuuuuuuuuuuuvvvvvvvvvvvvvvvvvvvvvvwwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyzzzzzzzzzzzzzzzzzzzzzzzzzz';
       var waitUntilFontsLoaded = function(fonts) {
         var interval = 50;
@@ -2271,9 +2278,9 @@ Util.profileStart('before render');
 
       waitUntilFontsLoaded([
         'Astloch',
-	'PT Sans Caption',
-	//	'Ubuntu',
-	'Liberation Sans'
+        'PT Sans Caption',
+        //	'Ubuntu',
+        'Liberation Sans'
       ]);
 
 
@@ -2283,6 +2290,7 @@ Util.profileStart('before render');
           on('collectionChanged', collectionChanged).
           on('collectionLoaded', collectionLoaded).
           on('renderData', renderData).
+          on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
           on('current', gotCurrent).
