@@ -15,7 +15,7 @@ from cgi import FieldStorage
 from os import environ
 from os.path import dirname
 from os.path import join as path_join
-from sys import path as sys_path
+from sys import path as sys_path, stdout
 
 # Local imports
 sys_path.append(path_join(dirname(__file__), 'server/src'))
@@ -44,9 +44,10 @@ def main(args):
         response_hdrs = []
     response_hdrs.extend(response_data[0])
 
-    print '\n'.join('%s: %s' % (k, v) for k, v in response_hdrs)
-    print
-    print response_data[1]
+    stdout.write('\n'.join('%s: %s' % (k, v) for k, v in response_hdrs))
+    stdout.write('\n')
+    stdout.write('\n')
+    stdout.write(response_data[1])
     return 0
 
 if __name__ == '__main__':
