@@ -798,6 +798,10 @@ var VisualizerUI = (function($, window, undefined) {
           return moveInFileBrowser(-1);
         } else if (code === $.ui.keyCode.RIGHT) {
           return moveInFileBrowser(+1);
+        } else if (code === $.ui.keyCode.UP) {
+          autoPaging(true);
+        } else if (code === $.ui.keyCode.DOWN) {
+          autoPaging(false);
         }
       };
 
@@ -812,6 +816,17 @@ var VisualizerUI = (function($, window, undefined) {
                                           selectorData.items[newPos][1]]);
         }
         return false;
+      };
+     
+      /* Automatically proceed from document to document */ 
+      var autoPagingTimeout = null;
+      var autoPaging = function(on) {
+          clearTimeout(autoPagingTimeout);
+          if (on) {
+            autoPagingTimeout = setInterval(function() {
+              moveInFileBrowser(+1);
+            }, 2000);
+          }
       };
 
       var resizeFunction = function(evt) {
