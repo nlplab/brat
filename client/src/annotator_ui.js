@@ -720,8 +720,10 @@ var AnnotatorUI = (function($, window, undefined) {
           } else {
             dispatcher.post('messages', [[['Unknown error '+x, 'error']]]);
           }
-          $(reselectedSpan.rect).removeClass('reselect');
-          reselectedSpan = null;
+          if (reselectedSpan) {
+            $(reselectedSpan.rect).removeClass('reselect');
+            reselectedSpan = null;
+          }
           svgElement.removeClass('reselect');
           $('#waiter').dialog('close');
         } else {
