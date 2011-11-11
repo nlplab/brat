@@ -1407,9 +1407,10 @@ Util.profileStart('arcs');
         $.each(data.arcs, function(arcNo, arc) {
           // separate out possible numeric suffix from type
 	  var noNumArcType;
+	  var splitArcType;
 	  if (arc.type) {
-	    var splitType = arc.type.match(/^(.*?)(\d*)$/);
-            noNumArcType = splitType[1];
+	    splitArcType = arc.type.match(/^(.*?)(\d*)$/);
+            noNumArcType = splitArcType[1];
 	  }
 
           var originSpan = data.spans[arc.origin];
@@ -1557,15 +1558,14 @@ Util.profileStart('arcs');
 	    // construct SVG text, showing possible trailing index
 	    // numbers (as in e.g. "Theme2") as subscripts
 	    var svgText;
-	    var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
-	    if (!splitLabelText[2]) {
+	    if (!splitArcType[2]) {
 		// no subscript, simple string suffices
 		svgText = labelText;
 	    } else {
 		svgText = svg.createText();
-		svgText.span(splitLabelText[1]);
-		//svgText.span(splitLabelText[2], { 'baseline-shift': 'sub', 'font-size': '80%' });
-		svgText.span(splitLabelText[2], { 'dy': '0.3em', 'font-size': '80%' });
+		svgText.span(labelText);
+		//svgText.span(splitArcType[2], { 'baseline-shift': 'sub', 'font-size': '80%' });
+		svgText.span(splitArcType[2], { 'dy': '0.3em', 'font-size': '80%' });
 	    }
 
             var text = svg.text(arcGroup, (from + to) / 2, -height, svgText, options);
