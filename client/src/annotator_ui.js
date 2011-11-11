@@ -53,7 +53,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // conceivably type in
         var target = evt.target;
         var nodeName = target.nodeName.toLowerCase();
-        var nodeType = target.type.toLowerCase();
+        var nodeType = target.type && target.type.toLowerCase();
         if (nodeName == 'input' && (nodeType == 'text' || nodeType == 'password')) return;
         if (nodeName == 'textarea' || nodeName == 'select') return;
 
