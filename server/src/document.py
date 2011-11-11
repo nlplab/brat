@@ -165,10 +165,10 @@ def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
             item['attributes'] = project_conf.attributes_for(_type)
 
             # TODO: avoid magic value
-            if '<REL-TYPE>' not in node.special_arguments:
-                item['properties'] = []
-            else:
-                item['properties'] = node.special_arguments['<REL-TYPE>']
+            item['properties'] = {}
+            if '<REL-TYPE>' in node.special_arguments:
+                for special_argument in node.special_arguments['<REL-TYPE>']:
+                    item['properties'][special_argument] = True
 
             arc_drawing_conf = project_conf.get_drawing_config_by_type(_type)
             if arc_drawing_conf is None:
