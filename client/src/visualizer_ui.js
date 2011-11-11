@@ -59,11 +59,11 @@ var VisualizerUI = (function($, window, undefined) {
           $(th).click(function() {
               // TODO: avoid magic numbers in access to the selector
               // data (column 0 is type, 1 is args, rest is data)
-              if (sort[0] === thNo + 2) sort[1] = -sort[1];
+              if (sort[0] === thNo + 1) sort[1] = -sort[1];
               else {
-                var type = selectorData.header[thNo][1];
+                var type = selectorData.header[thNo - 1][1];
                 var ascending = type === "string";
-                sort[0] = thNo + 2;
+                sort[0] = thNo + 1;
                 sort[1] = ascending ? 1 : -1;
               }
               selectorData.items.sort(docSortFunction);
