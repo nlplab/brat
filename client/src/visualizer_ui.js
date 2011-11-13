@@ -769,6 +769,29 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* END search - related */
 
+
+      /* START options dialog - related */
+
+      var optionsForm = $('#options_form');
+      var optionsFormSubmit = function(evt) {
+        dispatcher.post('hideForm', [optionsForm]);
+        return false;
+      };
+      optionsForm.submit(optionsFormSubmit);
+      initForm(optionsForm, {
+          width: 500,
+          no_cancel: true,
+          open: function(evt) {
+            keymap = {};
+          }
+      });
+      $('#options_button').click(function() {
+        dispatcher.post('showForm', [optionsForm]);
+      });
+
+      /* END options dialog - related */
+
+
       var onKeyDown = function(evt) {
         var code = evt.which;
 

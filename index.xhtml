@@ -70,11 +70,9 @@
             -->
             <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search annotations in current collection">Search</label>
             <input id="import_button" type="button" class="login" value="Import" tabindex="-1" title="Import a new document into the current collection"/>
+            <input id="options_button" type="button" value="Options" tabindex="-1"/>
             <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
-            <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
-            <span><input id="abbrev_mode" type="checkbox" value="true" checked="checked"/><label for="abbrev_mode" title="Toggle the abbreviation mode">Abbreviations</label></span>
             <input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/>
-            <span><input id="autorefresh_mode" type="checkbox" value="true" checked="checked"/><label for="autorefresh_mode" title="Toggle the autorefresh mode">Autorefresh</label></span>
           </div>
           <div id="document_mtime" class="unselectable"/>
           <div>
@@ -104,6 +102,20 @@
       <fieldset id="import_form_text">
         <legend>Document text</legend>
         <textarea id="import_text" class="borderless"/>
+      </fieldset>
+    </form>
+    <form id="options_form" class="dialog" title="Options">
+      <fieldset id="options_form_visual">
+        <legend>Visual options</legend>
+        <span><input id="abbrev_mode" type="checkbox" value="true" checked="checked"/><label for="abbrev_mode" title="Toggle the abbreviation mode">Abbreviations</label></span>
+      </fieldset>
+      <fieldset id="options_form_annotation">
+        <legend>Annotation options</legend>
+        <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
+      </fieldset>
+      <fieldset id="options_form_network">
+        <legend>Network options</legend>
+        <span><input id="autorefresh_mode" type="checkbox" value="true" checked="checked"/><label for="autorefresh_mode" title="Toggle the autorefresh mode">Autorefresh</label></span>
       </fieldset>
     </form>
     <form id="search_form" class="dialog" title="Search">
