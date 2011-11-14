@@ -119,6 +119,11 @@
         <span><input id="autorefresh_mode" type="checkbox" value="true" checked="checked"/><label for="autorefresh_mode" title="Toggle the autorefresh mode">Autorefresh</label></span>
       </fieldset>
     </form>
+    <form id="more_information_dialog" class="dialog" title="Collection information">
+      <fieldset>
+        <textarea id="more_info_readme" readonly="readonly" class="borderless"/>
+      </fieldset>
+    </form>
     <form id="search_form" class="dialog" title="Search">
       <div id="search_tabs">
         <ul>
@@ -305,7 +310,7 @@
       <fieldset>
         <legend>Collection Information</legend>
         <input id="readme" readonly="readonly" class="borderless"/>
-        <!-- <textarea id="readme" readonly="readonly" class="borderless"/> -->
+        <input id="more_readme_button" type="button" value="More..."/>
       </fieldset>
       <fieldset>
         <legend>Document</legend>

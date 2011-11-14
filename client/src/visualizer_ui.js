@@ -467,8 +467,23 @@ var VisualizerUI = (function($, window, undefined) {
 
         $('#collection_input').val(selectorData.collection);
         $('#document_input').val(doc);
-        //$('#readme').text(selectorData.description || '');
+
         $('#readme').val(selectorData.description || '');
+        if (selectorData.description && 
+            (selectorData.description.match(/\n/) ||
+             selectorData.description.length > 50)) {
+          // multi-line or long description; show "more" button and fill
+          // dialog text
+          $('#more_readme_button').show();
+          $('#more_info_readme').text(selectorData.description);
+          // TODO: better way to do this
+          $('#more_info_readme').height(350);
+        } else {
+          // empty or short, single-line description; no need for more
+          $('#more_readme_button').hide();
+          $('#more_info_readme').text('');
+        }
+
         var curcoll = selectorData.collection;
         var pos = curcoll.lastIndexOf('/');
         if (pos != -1) curcoll = curcoll.substring(pos + 1);
@@ -790,6 +805,29 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       /* END options dialog - related */
+
+
+      /* START "more collection information" dialog - related */
+
+      var moreInfoDialog = $('#more_information_dialog');
+      var moreInfoDialogSubmit = function(evt) {
+        dispatcher.post('hideForm', [moreInfoDialog]);
+        return false;
+      };
+      moreInfoDialog.submit(moreInfoDialogSubmit);
+      initForm(moreInfoDialog, {
+          width: 500,
+          height: 500,
+          no_cancel: true,
+          open: function(evt) {
+            keymap = {};
+          }
+      });
+      $('#more_readme_button').click(function() {
+        dispatcher.post('showForm', [moreInfoDialog]);
+      });
+
+      /* END "more collection information" dialog - related */
 
 
       var onKeyDown = function(evt) {
