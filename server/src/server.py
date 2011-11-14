@@ -119,19 +119,19 @@ def _config_check():
     # Then restore it
     path.extend(orig_path)
 
-# Convert internal log level to logging log level
+# Convert internal log level to `logging` log level
 def _convert_log_level(log_level):
     import config
     import logging
-    if log_level == config.DEBUG:
+    if log_level == config.LL_DEBUG:
         return logging.DEBUG
-    elif log_level == config.INFO:
+    elif log_level == config.LL_INFO:
         return logging.INFO
-    elif log_level == config.WARNING:
+    elif log_level == config.LL_WARNING:
         return logging.WARNING
-    elif log_level == config.ERROR:
+    elif log_level == config.LL_ERROR:
         return logging.ERROR
-    elif log_level == config.CRITICAL:
+    elif log_level == config.LL_CRITICAL:
         return logging.CRITICAL
     else:
         assert False, 'Should not happen'

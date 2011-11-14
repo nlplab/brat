@@ -20,7 +20,7 @@ import re
 
 INPUT_ENCODING = "UTF-8"
 OUTPUT_ENCODING = "UTF-8"
-DEBUG_GTB_TOKENIZATION = True
+DEBUG_GTB_TOKENIZATION = False
 
 # Penn treebank bracket escapes (others excluded)
 PTB_ESCAPES = [('(', '-LRB-'),

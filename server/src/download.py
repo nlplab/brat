@@ -44,7 +44,7 @@ def download_collection(collection):
     tmp_file_path = None
     try:
         _, tmp_file_path = mkstemp()
-        tar_cmd = 'tar -c -z -f {} {}'.format(tmp_file_path, dir_name)
+        tar_cmd = 'tar -c -z -f %s %s' % (tmp_file_path, dir_name, )
         tar_p = Popen(shlex_split(tar_cmd), cwd=path_join(real_dir, '..'))
         tar_p.wait()
 
