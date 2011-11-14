@@ -80,26 +80,19 @@ text {
   right: 0;
 }
 #messagepullup {
-  height: 300px;
+  max-height: 300px;
   width: 100%;
   position: fixed;
   bottom: 0;
   left: 0;
-  overflow-y: auto; /* or 'scroll' */
-}
-#messagepullup > div {
-  position: absolute;
-  width: 100%;
-  bottom: 0;
+  overflow-y: scroll; /* or 'auto' */
   background-color: #ffffff;
   background-color: rgba(255,255,255,0.75);
 }
-#messagepullup > div > div {
+#messagepullup > div {
   margin: 2px 5px;
   padding: 10px;
   border: 1px outset #000000;
-  background-color: lightblue;  
-  background-color: rgba(192,192,255,0.75);
 }
 
 path {

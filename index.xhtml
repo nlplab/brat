@@ -30,7 +30,8 @@
           'client/src/spinner.js'
       );
       head.ready(function() {
-          var dispatcher = new Dispatcher();
+          // var dispatcher = new Dispatcher(); // XXX DEBUG
+          dispatcher = new Dispatcher();
           var urlMonitor = new URLMonitor(dispatcher);
           var ajax = new Ajax(dispatcher);
           var visualizer = new Visualizer(dispatcher, 'svg');
@@ -90,25 +91,7 @@
       </div>
     </div>
     <div id="svg"></div>
-    <div id="messagepullup">
-      <div>
-        <div>Message 1</div>
-        <div>Message 2</div>
-        <div>Message 3</div>
-        <div>Message 1</div>
-        <div>Message 2</div>
-        <div>Message 3</div>
-        <div>Message 1</div>
-        <div>Message 2</div>
-        <div>Message 3</div>
-        <div>Message 1</div>
-        <div>Message 2</div>
-        <div>Message 3</div>
-        <div>Message 1</div>
-        <div>Message 2</div>
-        <div>Message 3</div>
-      </div>
-    </div>
+    <div id="messagepullup" style="display: none"/>
     <div id="pulluptrigger"/>
     <form id="import_form" class="dialog" title="Import">
       <fieldset id="import_form_docid">

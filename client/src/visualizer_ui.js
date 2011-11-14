@@ -26,6 +26,8 @@ var VisualizerUI = (function($, window, undefined) {
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
 
+      var maxMessages = 100;
+
 
       /* START collection browser sorting - related */
 
@@ -77,10 +79,11 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START message display - related */
 
-      var messageContainer = $('#messages');
-      var displayMessages = foo = function(msgs) {
+      var $messageContainer = $('#messages');
+      var $messagepullup = $('#messagepullup');
+      var displayMessages = function(msgs) {
         if (msgs === false) {
-          messageContainer.children().each(function(msgElNo, msgEl) {
+          $messageContainer.children().each(function(msgElNo, msgEl) {
               $(msgEl).remove();
           });
         } else {
@@ -94,7 +97,8 @@ var VisualizerUI = (function($, window, undefined) {
               escaped = msg[0].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
               element = $('<div class="error"><b>[ERROR: could not display the following message normally due to malformed XML:]</b><br/>' + escaped + '</div>');
             }
-            messageContainer.append(element);
+            $messageContainer.append(element);
+            $messagepullup.append(element.clone());
             var delay = (msg[2] === undefined)
                           ? messageDefaultFadeDelay
                           : (msg[2] === -1)
@@ -121,6 +125,11 @@ var VisualizerUI = (function($, window, undefined) {
               });
             }
           });
+          var $messages = $messagepullup.children();
+          for (var i = 0; i < $messages.length - maxMessages; i++) {
+            console.log(i);
+            $($messages[i]).remove();
+          }
         }
       };
 
@@ -1052,23 +1061,33 @@ var VisualizerUI = (function($, window, undefined) {
         hideSVGDownloadLinks();
       };
 
-      var slideToggle = function(el, show) {
+      var slideToggle = function(el, show, autoHeight) {
         var el = $(el);
-        var height = el.data("cachedHeight");
         var visible = el.is(":visible");
+        var height;
 
         if (show === undefined) show = !visible;
 
         if (show === visible) return false;
 
+        if (!autoHeight) {
+          height = el.data("cachedHeight");
+        } else {
+          el.height('auto');
+        }
         if (!height) {
           height = el.show().height();
-          el.data("cachedHeight", height);
+          el.data('cachedHeight', height);
           if (!visible) el.hide().css({ height: 0 });
         }
 
         if (show) {
-          el.show().animate({ height: height }, { duration: 150 });
+          el.show().animate({ height: height }, { duration: 150, complete: function() {
+              if (autoHeight) {
+                el.height('auto');
+              }
+            }
+          });
         } else {
           el.animate({ height: 0 }, { duration: 300, complete: function() {
               el.hide();
@@ -1095,13 +1114,13 @@ var VisualizerUI = (function($, window, undefined) {
       $('#pulluptrigger').
         mouseenter(function(evt) {
           clearTimeout(pullupTimer);
-          slideToggle($('#messagepullup').stop(), true);
+          slideToggle($messagepullup.stop(), true, true);
         });
-      $('#messagepullup > div').
+      $('#messagepullup').
         mouseleave(function(evt) {
           clearTimeout(pullupTimer);
           pullupTimer = setTimeout(function() {
-            slideToggle($('#messagepullup').stop(), false);
+            slideToggle($messagepullup.stop(), false, true);
           }, 500);
         });
 
