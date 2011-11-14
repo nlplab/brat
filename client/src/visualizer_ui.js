@@ -1110,7 +1110,12 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('messages', [[['Abbreviations are now off', 'comment']]]);
         }
         dispatcher.post('abbrevs', [val]);
-        dispatcher.post('resetData');
+        // TODO: XXX: for some insane reason, doing the following call
+        // synchronously breaks the checkbox (#456). If you ever figure
+        // out why, it would make more sense to call
+        //    dispatcher.post('resetData');
+        // without the asynch.
+        dispatcher.post(1, 'resetData');
       });
 
       $('#spacious_mode').click(function(evt) {
@@ -1121,7 +1126,8 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('messages', [[['Spacious mode is now off', 'comment']]]);
         }
         dispatcher.post('spacious', [val]);
-        dispatcher.post('resetData');
+        // TODO: XXX: see comment above for why this is asynchronous
+        dispatcher.post(1, 'resetData');
       });
 
       $('#pulldown').find('input').button();
