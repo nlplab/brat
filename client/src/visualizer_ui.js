@@ -804,6 +804,9 @@ var VisualizerUI = (function($, window, undefined) {
       $('#options_button').click(function() {
         dispatcher.post('showForm', [optionsForm]);
       });
+      // make nice-looking buttons
+      $('#options_form').find('input').button();
+
 
       /* END options dialog - related */
 
