@@ -8,6 +8,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var arcDragOriginGroup = null;
       var arcDragArc = null;
       var data = null;
+      var searchConfig = null;
       var spanOptions = null;
       var arcOptions = null;
       var spanKeymap = null;
@@ -53,7 +54,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // conceivably type in
         var target = evt.target;
         var nodeName = target.nodeName.toLowerCase();
-        var nodeType = target.type.toLowerCase();
+        var nodeType = target.type && target.type.toLowerCase();
         if (nodeName == 'input' && (nodeType == 'text' || nodeType == 'password')) return;
         if (nodeName == 'textarea' || nodeName == 'select') return;
 
@@ -181,16 +182,22 @@ var AnnotatorUI = (function($, window, undefined) {
         keymap = spanKeymap;
         if (span) {
           $('#del_span_button').show();
+          if (span.generalType == 'entity') { // entity
+            $('#event_types').hide()
+            $('#entity_types').show().removeClass('scroll_wrapper_half').addClass('scroll_wrapper_full');
+          } else { // trigger
+            $('#entity_types').hide();
+            $('#event_types').show().removeClass('scroll_wrapper_half').addClass('scroll_wrapper_full');
+          }
         } else {
           $('#del_span_button').hide();
+          $('#entity_types, #event_types').show().removeClass('scroll_wrapper_full').addClass('scroll_wrapper_half');
         }
         $('#span_selected').text(spanText);
-        var encodedText = encodeURIComponent(spanText);
-        $('#span_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
-        $('#span_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
-        $('#span_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
-        $('#span_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
-        $('#span_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
+        var encodedText = encodeURIComponent(spanText);       
+        $.each(searchConfig, function(searchNo, search) {
+          $('#span_'+search[0]).attr('href', search[1].replace('%s', encodedText));
+        });
         var showAllAttributes = false;
         if (span) {
           var urlHash = URLHash.parse(window.location.hash);
@@ -664,51 +671,63 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // TODO: check for exceptions in response
         
-        // hide event "half" of box if not defined (assume entities always defined)
-        if (response.event_types.length == 0) {
-          var $entities = $('<div id="entity_types" class="scroll_wrapper_full"/>');
-          addSpanTypesToDiv($entities, response.entity_types, 'Entities');
-          $('#span_types').empty().append($entities);
-        } else {
-          var $entities = $('<div id="entity_types" class="scroll_wrapper_half"/>');
-          addSpanTypesToDiv($entities, response.entity_types, 'Entities');
-          var $events = $('<div id="event_types" class="scroll_wrapper_half"/>');
-          addSpanTypesToDiv($events, response.event_types, 'Events');
-          $('#span_types').empty().append($entities).append($events);
-        }
+        var $entities = $('<div id="entity_types" class="scroll_wrapper_half"/>');
+        addSpanTypesToDiv($entities, response.entity_types, 'Entities');
+        var $events = $('<div id="event_types" class="scroll_wrapper_half"/>');
+        addSpanTypesToDiv($events, response.event_types, 'Events');
+        $('#span_types').empty().append($entities).append($events);
 
         // hide event attributes box if not defined
         var $attrs = $('#span_attributes div.scroller').empty();
-        if (!$.isEmptyObject(attributeTypes)) {
-          $.each(attributeTypes, function(attrNo, attr) {
-            var escapedType = Util.escapeQuotes(attr.type);
-            if (attr.unused) {
-              var $input = $('<input type="hidden" id="span_attr_' + escapedType + '" value=""/>');
-              $attrs.append($input);
-            } else if (attr.bool) {
-              var escapedName = Util.escapeQuotes(attr.name);
-              var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
-              var $label = $('<label for="span_attr_' + escapedType + '" data-bare="' + escapedName + '">&#x2610; ' + escapedName + '</label>');
-              $attrs.append($input).append($label);
-              $input.button();
-              $input.change(attrChangeHandler);
-            } else {
-              var $div = $('<div class="ui-button ui-button-text-only"/>');
-              var $select = $('<select id="span_attr_' + escapedType + '" class="ui-widget ui-state-default ui-button-text"/>');
-              var $option = $('<option class="ui-state-default" value=""/>').text(attr.name + ': ?');
+        $.each(attributeTypes, function(attrNo, attr) {
+          var escapedType = Util.escapeQuotes(attr.type);
+          if (attr.unused) {
+            var $input = $('<input type="hidden" id="span_attr_' + escapedType + '" value=""/>');
+            $attrs.append($input);
+          } else if (attr.bool) {
+            var escapedName = Util.escapeQuotes(attr.name);
+            var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
+            var $label = $('<label for="span_attr_' + escapedType + '" data-bare="' + escapedName + '">&#x2610; ' + escapedName + '</label>');
+            $attrs.append($input).append($label);
+            $input.button();
+            $input.change(attrChangeHandler);
+          } else {
+            var $div = $('<div class="ui-button ui-button-text-only"/>');
+            var $select = $('<select id="span_attr_' + escapedType + '" class="ui-widget ui-state-default ui-button-text"/>');
+            var $option = $('<option class="ui-state-default" value=""/>').text(attr.name + ': ?');
+            $select.append($option);
+            $.each(attr.values, function(valType, value) {
+              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + (value.name || valType));
               $select.append($option);
-              $.each(attr.values, function(valType, value) {
-                $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + (value.name || valType));
-                $select.append($option);
-              });
-              $div.append($select);
-              $attrs.append($div);
-              $select.change(onAttributeChange);
-            }
-          });
-          $('#span_attributes').show();
+            });
+            $div.append($select);
+            $attrs.append($div);
+            $select.change(onAttributeChange);
+          }
+        });
+
+        // fill search options in span dialog
+        searchConfig = response.search_config;
+        var $searchlinks  = $('#span_search_links').empty();
+        var $searchlinks2 = $('#viewspan_search_links').empty();
+        var firstLink=true;
+        var linkFilled=false;
+        $.each(searchConfig, function(searchNo, search) {
+          if (!firstLink) {
+            $searchlinks.append(',\n')
+            $searchlinks2.append(',\n')
+          }
+          firstLink=false;
+          $searchlinks.append('<a target="brat_search" id="span_'+search[0]+'" href="#">'+search[0]+'</a>');
+          $searchlinks2.append('<a target="brat_search" id="viewspan_'+search[0]+'" href="#">'+search[0]+'</a>');
+          linkFilled=true;
+        });
+        if (linkFilled) {
+          $('#span_search_fieldset').show();
+          $('#viewspan_search_fieldset').show();
         } else {
-          $('#span_attributes').hide();
+          $('#span_search_fieldset').hide();
+          $('#viewspan_search_fieldset').hide();
         }
 
         spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);

@@ -33,12 +33,15 @@ ATTRIBUTE_SECTION = "attributes"
 __access_control_filename           = 'acl.conf'
 
 __expected_configuration_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTION, ATTRIBUTE_SECTION)
+__optional_configuration_sections = []
 
 # visual config section name constants
 LABEL_SECTION     = "labels"
 DRAWING_SECTION   = "drawing"
+SEARCH_SECTION    = "search"
 
-__expected_visual_sections = (LABEL_SECTION, DRAWING_SECTION)
+__expected_visual_sections = (LABEL_SECTION, DRAWING_SECTION, SEARCH_SECTION)
+__optional_visual_sections = (SEARCH_SECTION)
 
 __annotation_config_filename  = "annotation.conf"
 __visual_config_filename      = 'visual.conf'
@@ -83,6 +86,9 @@ Theme | Theme | Th
 Protein	bgColor:#7fa2ff
 SPAN_DEFAULT	fgColor:black, bgColor:lightgreen, borderColor:black
 ARC_DEFAULT	color:black
+
+[search]
+google     <URL>:http://www.google.com/search?q=%s
 """
 
 __default_kb_shortcuts = """
@@ -99,7 +105,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL"]
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
@@ -186,8 +192,8 @@ class TypeHierarchyNode:
             key, atypes = m.groups()
 
             # special case (sorry): if the key is a reserved config
-            # string (e.g. "<REL-TYPE>"), parse differently and store
-            # separately
+            # string (e.g. "<REL-TYPE>" or "<URL>"), parse differently
+            # and store separately
             if key in reserved_config_string:
                 if key is self.special_arguments:
                     Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
@@ -385,7 +391,7 @@ def __read_first_in_directory_tree(directory, filename):
 
     return (result, source)
 
-def __parse_configs(configstr, source, expected_sections):
+def __parse_configs(configstr, source, expected_sections, optional_sections):
     # top-level config structure is a set of term hierarchies
     # separated by lines consisting of "[SECTION]" where SECTION is
     # e.g.  "entities", "relations", etc.
@@ -417,12 +423,13 @@ def __parse_configs(configstr, source, expected_sections):
     # verify that expected sections are present; replace with empty if not.
     for s in expected_sections:
         if s not in configs:
-            Messager.warning("Project configuration: missing section [%s] in %s. Configuration may be wrong." % (s, source), 5)
+            if s not in optional_sections:
+                Messager.warning("Project configuration: missing section [%s] in %s. Configuration may be wrong." % (s, source), 5)
             configs[s] = []
 
     return configs
             
-def get_configs(directory, filename, defaultstr, minconf, sections):
+def get_configs(directory, filename, defaultstr, minconf, sections, optional_sections):
     if (directory, filename) not in get_configs.__cache:
         configstr, source =  __read_first_in_directory_tree(directory, filename)
 
@@ -437,7 +444,7 @@ def get_configs(directory, filename, defaultstr, minconf, sections):
 
         # try to parse what was found, fall back to minimal config
         try: 
-            configs = __parse_configs(configstr, source, sections)        
+            configs = __parse_configs(configstr, source, sections, optional_sections)        
         except:
             Messager.warning("Project configuration: Falling back to minimal default. Configuration is likely wrong.", 5)
             configs = minconf
@@ -505,7 +512,8 @@ def get_annotation_configs(directory):
                        __annotation_config_filename, 
                        __default_configuration,
                        __minimal_configuration,
-                       __expected_configuration_sections)
+                       __expected_configuration_sections,
+                       __optional_configuration_sections)
 
 # final fallback for visual configuration; minimal known-good config
 __minimal_visual = {
@@ -514,6 +522,7 @@ __minimal_visual = {
                          TypeHierarchyNode(["Event", "Ev"])],
     DRAWING_SECTION   : [TypeHierarchyNode([VISUAL_SPAN_DEFAULT], ["fgColor:black", "bgColor:white"]),
                          TypeHierarchyNode([VISUAL_ARC_DEFAULT], ["color:black"])],
+    SEARCH_SECTION    : [TypeHierarchyNode(["google"], ["<URL>:http://www.google.com/search?q=%s"])],
     }
 
 def get_visual_configs(directory):
@@ -521,7 +530,8 @@ def get_visual_configs(directory):
                        __visual_config_filename,
                        __default_visual,
                        __minimal_visual,
-                       __expected_visual_sections)
+                       __expected_visual_sections,
+                       __optional_visual_sections)
 
 def get_entity_type_hierarchy(directory):    
     return get_annotation_configs(directory)[ENTITY_SECTION]
@@ -551,6 +561,9 @@ get_labels.__cache = {}
 
 def get_drawing_config(directory):
     return get_visual_configs(directory)[DRAWING_SECTION]
+
+def get_search_config(directory):
+    return get_visual_configs(directory)[SEARCH_SECTION]
 
 def get_access_control(directory):
     cache = get_access_control.__cache
@@ -624,6 +637,13 @@ def get_attribute_type_list(directory):
         cache[directory] = __type_hierarchy_to_list(get_attribute_type_hierarchy(directory))
     return cache[directory]
 get_attribute_type_list.__cache = {}    
+
+def get_search_config_list(directory):
+    cache = get_search_config_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_search_config(directory))
+    return cache[directory]
+get_search_config_list.__cache = {}    
 
 def get_node_by_storage_form(directory, term):
     cache = get_node_by_storage_form.__cache
@@ -916,8 +936,17 @@ class ProjectConfiguration(object):
     def get_labels_by_type(self, _type):
         return get_labels_by_storage_form(self.directory, _type)
     
-    def get_drawing_config_by_type(self, type):
-        return get_drawing_config_by_storage_form(self.directory, type)
+    def get_drawing_config_by_type(self, _type):
+        return get_drawing_config_by_storage_form(self.directory, _type)
+
+    def get_search_config(self):
+        search_config = []
+        for r in get_search_config_list(self.directory):
+            if '<URL>' not in r.special_arguments:
+                Messager.warning('Project configuration: config error: missing <URL> specification for %s search.' % r.storage_form())
+            else:
+                search_config.append((r.storage_form(), r.special_arguments['<URL>'][0]))
+        return search_config
 
     def get_entity_types(self):
         return [t.storage_form() for t in get_entity_type_list(self.directory)]

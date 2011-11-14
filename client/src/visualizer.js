@@ -94,6 +94,7 @@ var Visualizer = (function($, window, undefined) {
       var spanTypes;
       var relationTypesHash;
       var abbrevsOn = true;
+      var spaciousOn = false;
       var isRenderRequested;
       var isCollectionLoaded = false;
       var areFontsLoaded = false;
@@ -1128,12 +1129,12 @@ Util.profileStart('chunks');
 
             // Make curlies to show the span
             if (span.drawCurly) {
-	      var curlyColor = 'grey';
-	      if (coloredCurlies) {
-		var spanDesc = spanTypes[span.type];
-		var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.fgColor || '#000000';
-		curlyColor = Util.adjustColorLightness(bgColor, -0.6);
-	      }
+              var curlyColor = 'grey';
+              if (coloredCurlies) {
+                var spanDesc = spanTypes[span.type];
+                var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.fgColor || '#000000';
+                curlyColor = Util.adjustColorLightness(bgColor, -0.6);
+              }
 
               var bottom = yy + hh + margin.y - yAdjust + 1;
               svg.path(span.group, svg.createPath()
@@ -1145,9 +1146,9 @@ Util.profileStart('chunks');
                     span.curly.to, bottom,
                     span.curly.to, bottom + curlyHeight),
                 {
-		  'class': 'curly',
+                  'class': 'curly',
                   'stroke': curlyColor,
-		});
+                });
               chunkFrom = Math.min(span.curly.from, chunkFrom);
               chunkTo = Math.max(span.curly.to, chunkTo);
               spanHeight = Math.max(curlyHeight, spanHeight);
@@ -1406,12 +1407,12 @@ Util.profileStart('arcs');
         // add the arcs
         $.each(data.arcs, function(arcNo, arc) {
           // separate out possible numeric suffix from type
-	  var noNumArcType;
-	  var splitArcType;
-	  if (arc.type) {
-	    splitArcType = arc.type.match(/^(.*?)(\d*)$/);
+          var noNumArcType;
+          var splitArcType;
+          if (arc.type) {
+            splitArcType = arc.type.match(/^(.*?)(\d*)$/);
             noNumArcType = splitArcType[1];
-	  }
+          }
 
           var originSpan = data.spans[arc.origin];
           var targetSpan = data.spans[arc.target];
@@ -1431,30 +1432,30 @@ Util.profileStart('arcs');
           // of searching through the list every type
           var arcDesc;
           if (spanDesc && spanDesc.arcs) {
-              $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
-                      if (arcDescIter.type == arc.type) {
-                          arcDesc = arcDescIter;
-                      }
-                  });            
+            $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
+                if (arcDescIter.type == arc.type) {
+                  arcDesc = arcDescIter;
+                }
+              });            
           }
-	  // fall back on unnumbered type if not found in full
+          // fall back on unnumbered type if not found in full
           if (!arcDesc && noNumArcType && noNumArcType != arc.type &&
-	      spanDesc && spanDesc.arcs) {
-              $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
-                      if (arcDescIter.type == noNumArcType) {
-                          arcDesc = arcDescIter;
-                      }
-                  });            
+            spanDesc && spanDesc.arcs) {
+            $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
+                if (arcDescIter.type == noNumArcType) {
+                  arcDesc = arcDescIter;
+                }
+              });            
           }
-	  // fall back on relation types in case origin span type is
+          // fall back on relation types in case origin span type is
           // undefined
           if (!arcDesc) {
             arcDesc = relationTypesHash[arc.type];
           }
-	  // final fallback to unnumbered relation
-	  if (!arcDesc) {
-	    arcDesc = relationTypesHash[noNumArcType];
-	  }
+          // final fallback to unnumbered relation
+          if (!arcDesc) {
+            arcDesc = relationTypesHash[noNumArcType];
+          }
 
           var color = arcDesc && arcDesc.color || spanTypes.ARC_DEFAULT.color || '#000000';
           var hashlessColor = color.replace('#', '');
@@ -1555,18 +1556,18 @@ Util.profileStart('arcs');
               'data-arc-ed': arc.eventDescId,
             };
 
-	    // construct SVG text, showing possible trailing index
-	    // numbers (as in e.g. "Theme2") as subscripts
-	    var svgText;
-	    if (!splitArcType[2]) {
-		// no subscript, simple string suffices
-		svgText = labelText;
-	    } else {
-		svgText = svg.createText();
-		svgText.span(labelText);
-		//svgText.span(splitArcType[2], { 'baseline-shift': 'sub', 'font-size': '80%' });
-		svgText.span(splitArcType[2], { 'dy': '0.3em', 'font-size': '80%' });
-	    }
+            // construct SVG text, showing possible trailing index
+            // numbers (as in e.g. "Theme2") as subscripts
+            var svgText;
+            if (!splitArcType[2]) {
+                // no subscript, simple string suffices
+                svgText = labelText;
+            } else {
+                svgText = svg.createText();
+                svgText.span(labelText);
+                //svgText.span(splitArcType[2], { 'baseline-shift': 'sub', 'font-size': '80%' });
+                svgText.span(splitArcType[2], { 'dy': '0.3em', 'font-size': '80%' });
+            }
 
             var text = svg.text(arcGroup, (from + to) / 2, -height, svgText, options);
 
@@ -1883,11 +1884,11 @@ Util.profileStart('chunkFinish');
               var xShrink = shrink * nestingAdjustXStepSize;
               // bit lighter
               var lightBgColor = Util.adjustColorLightness(bgColor, 0.8);
-	      // tweak for Y start offset (and corresponding height
-	      // reduction): text rarely hits font max height, so this
-	      // tends to look better
-	      var yStartTweak = 1;
-              // store to have same mouseover highlight without recalc	      
+              // tweak for Y start offset (and corresponding height
+              // reduction): text rarely hits font max height, so this
+              // tends to look better
+              var yStartTweak = 1;
+              // store to have same mouseover highlight without recalc              
               span.highlightPos = {
                   x: chunk.textX + span.curly.from + xShrink, 
                   y: chunk.row.textY + sizes.texts.y + yShrink + yStartTweak,
@@ -2069,7 +2070,7 @@ Util.profileStart('before render');
           var role = target.attr('data-arc-role');
           var symmetric = (relationTypesHash[role] && 
                            relationTypesHash[role].properties &&
-                           $.inArray('symmetric', relationTypesHash[role].properties) != -1);
+                           relationTypesHash[role].properties.symmetric);
           // NOTE: no commentText, commentType for now
           var arcEventDescId = target.attr('data-arc-ed');
           var commentText = '';
@@ -2127,6 +2128,23 @@ Util.profileStart('before render');
 
       var setAbbrevs = function(_abbrevsOn) {
         abbrevsOn = _abbrevsOn;
+      }
+
+      var setSpacious = function(_spaciousOn) {
+        spaciousOn = _spaciousOn;
+	// TODO: store standard settings instead of hard-coding
+	// them here (again)
+	if (spaciousOn) {
+	  boxSpacing  = 3;
+	  curlyHeight = 6;	  
+	  arcSpacing = 12;
+	  arcStartHeight = 23;
+	} else {
+	  boxSpacing  = 1;
+	  curlyHeight = 4;
+	  arcSpacing = 9;
+	  arcStartHeight = 19;
+	}
       }
 
       $svgDiv = $($svgDiv).hide();
@@ -2279,7 +2297,7 @@ Util.profileStart('before render');
       waitUntilFontsLoaded([
         'Astloch',
         'PT Sans Caption',
-        //	'Ubuntu',
+        //        'Ubuntu',
         'Liberation Sans'
       ]);
 
@@ -2293,7 +2311,9 @@ Util.profileStart('before render');
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
+          on('spacious', setSpacious).
           on('current', gotCurrent).
+          on('clearSVG', clearSVG).
           on('mouseover', onMouseOver).
           on('mouseout', onMouseOut);
     };

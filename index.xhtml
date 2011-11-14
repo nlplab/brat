@@ -70,11 +70,9 @@
             -->
             <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search annotations in current collection">Search</label>
             <input id="import_button" type="button" class="login" value="Import" tabindex="-1" title="Import a new document into the current collection"/>
+            <input id="options_button" type="button" value="Options" tabindex="-1"/>
             <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
-            <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
-            <span><input id="abbrev_mode" type="checkbox" value="true" checked="checked"/><label for="abbrev_mode" title="Toggle the abbreviation mode">Abbreviations</label></span>
             <input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/>
-            <span><input id="autorefresh_mode" type="checkbox" value="true" checked="checked"/><label for="autorefresh_mode" title="Toggle the autorefresh mode">Autorefresh</label></span>
           </div>
           <div id="document_mtime" class="unselectable"/>
           <div>
@@ -104,6 +102,26 @@
       <fieldset id="import_form_text">
         <legend>Document text</legend>
         <textarea id="import_text" class="borderless"/>
+      </fieldset>
+    </form>
+    <form id="options_form" class="dialog" title="Options">
+      <fieldset id="options_form_visual">
+        <legend>Visual options</legend>
+        <span><input id="abbrev_mode" type="checkbox" value="true" checked="checked"/><label for="abbrev_mode" title="Toggle abbreviations on/off">Abbreviations</label></span>
+        <span><input id="spacious_mode" type="checkbox" value="true"/><label for="spacious_mode" title="Toggle spacious visualization mode on/off">Spacious mode</label></span>
+      </fieldset>
+      <fieldset id="options_form_annotation" class="login">
+        <legend>Annotation options</legend>
+        <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
+      </fieldset>
+      <fieldset id="options_form_network">
+        <legend>Network options</legend>
+        <span><input id="autorefresh_mode" type="checkbox" value="true" checked="checked"/><label for="autorefresh_mode" title="Toggle the autorefresh mode">Autorefresh</label></span>
+      </fieldset>
+    </form>
+    <form id="more_information_dialog" class="dialog" title="Collection information">
+      <fieldset>
+        <textarea id="more_info_readme" readonly="readonly" class="borderless"/>
       </fieldset>
     </form>
     <form id="search_form" class="dialog" title="Search">
@@ -199,13 +217,15 @@
         <div id="viewspan_selected"/>
       </fieldset>
 
-      <fieldset>
+      <fieldset id="viewspan_search_fieldset">
         <legend>Search</legend>
+        <div id="viewspan_search_links">
         <a target="brat_search" id="viewspan_uniprot" href="#">UniProt</a>,
         <a target="brat_search" id="viewspan_entregene" href="#">EntrezGene</a>,
         <a target="brat_search" id="viewspan_wikipedia" href="#">Wikipedia</a>,
         <a target="brat_search" id="viewspan_google" href="#">Google</a>,
         <a target="brat_search" id="viewspan_alc" href="#">ALC</a>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -220,20 +240,22 @@
         <div id="span_selected"/>
       </fieldset>
 
-      <fieldset>
+      <fieldset id="span_search_fieldset">
         <legend>Search</legend>
+        <div id="span_search_links">
         <a target="brat_search" id="span_uniprot" href="#">UniProt</a>,
         <a target="brat_search" id="span_entregene" href="#">EntrezGene</a>,
         <a target="brat_search" id="span_wikipedia" href="#">Wikipedia</a>,
         <a target="brat_search" id="span_google" href="#">Google</a>,
         <a target="brat_search" id="span_alc" href="#">ALC</a>
+        </div>
       </fieldset>
 
       <div id="span_types" class="scroll_fset"/>
       
       <div id="span_attributes" class="scroll_fset">
         <fieldset>
-          <legend>Event Attributes</legend>
+          <legend>Attributes</legend>
           <div class="scroller"/>
         </fieldset>
       </div>
@@ -292,7 +314,7 @@
       <fieldset>
         <legend>Collection Information</legend>
         <input id="readme" readonly="readonly" class="borderless"/>
-        <!-- <textarea id="readme" readonly="readonly" class="borderless"/> -->
+        <input id="more_readme_button" type="button" value="More..."/>
       </fieldset>
       <fieldset>
         <legend>Document</legend>
@@ -314,66 +336,80 @@
       <div id="copyright">&copy; 2010-2011 The brat contributors</div>
     </div>
     <div id="tutorial" class="dialog unselectable" title="Tutorial">
-    <h2>Welcome to the brat annotation tool!</h2>
-    <p>Below is a mini-tutorial for basic usage. For detailed
-      instructions, please see
-      the <a href="static/manual/index.html">brat user
-        manual</a>.</p>
-    <h3>Visualization</h3>
-    <p>When a document is selected, the main window area shows a
-      visualization of the text and annotations of that
-      document. Placing the mouse cursor over an annotation shows
-      some further information about that annotation.
-    </p>
-    <h3>Menu</h3>
-    <p>Placing the mouse cursor over the top bar of the window opens the
-      tool menu. This provides access to the following features:
-      <ul>
-        <li><b>Collection</b>: annotation collection browser</li>
-        <li><b>Search</b>: search current collection</li>
-        <li><b>Abbreviations</b>: toggle use of abbreviations in visualization</li>
-        <li><b>Login</b>: log in for editing</li>
-      </ul>
-      The menu also contains download links for the raw text, the
-      annotations in standoff format, and the visualization in SVG
-      format.
-    </p>
-    <h3>Collection browser</h3> 
-    <p>The collection browser, accessible from the menu or by pressing
-      the tab key, allows you to access the different text collections
-      and individual documents in those collections set up on your
-      installation.
-    </p>
-    <p>Simply double-click on a collection name to show its contents
-      or on a document name to visualize it.
-    </p>
-    <h3>Basic editing</h3>
-    <p>When logged in (from the menu), it is possible to add
-      annotations for a text span simply by selecting that span with
-      the mouse(either by &quot;dragging&quot; over the text or by
-      double-clicking on a word).
-    </p>
-    <p>After selecting a span, the system shows the annotation dialog.
-      This allows the selection of the type to assign to the newly
-      created annotation, as well as the addition of comments or
-      setting additional aspects of the annotation.
-    </p>
-    <p>Associations between annotated text spans can be annotated by
-      &quot;dragging&quot; with the mouse from one annotation to the
-      other. This again brings up a dialog for selecting the type of
-      the annotation.
-    </p>
-    <p>Existing annotations can be modified or deleted from the same
-      annotation dialog, which can be brought up by double-clicking
-      on an annotation.
-    </p>
-    <p>(The available annotation types and other aspects depend on the
-      configuration of each collection.)
-    </p>
-    <h3>Advanced usage</h3>
-    <p>Please see the <a href="static/manual/index.html">brat user
-        manual</a> for more!
-    </p>
+      <h2>Welcome to the brat annotation tool!</h2>
+      <div id="browserwarning">
+        Please be aware that
+        <span class="logo">brat</span>
+        is only supported on the Webkit browsers (i.e.
+        <a href="http://www.google.com/chrome">Google Chrome</a>
+        and
+        <a href="http://www.apple.com/safari/">Safari</a>).
+        In other broswers, it may exhibit various degrees of problems,
+        from minor annoyances to severe ones that make
+        <span class="logo">brat</span>
+        unusable. Please consider using
+        <span class="logo">brat</span>
+        in a supported browser for better user experience.
+      </div>
+      <p>Below is a mini-tutorial for basic usage. For detailed
+        instructions, please see
+        the <a href="static/manual/index.html">brat user
+          manual</a>.</p>
+      <h3>Visualization</h3>
+      <p>When a document is selected, the main window area shows a
+        visualization of the text and annotations of that
+        document. Placing the mouse cursor over an annotation shows
+        some further information about that annotation.
+      </p>
+      <h3>Menu</h3>
+      <p>Placing the mouse cursor over the top bar of the window opens the
+        tool menu. This provides access to the following features:
+        <ul>
+          <li><b>Collection</b>: annotation collection browser</li>
+          <li><b>Search</b>: search current collection</li>
+          <li><b>Abbreviations</b>: toggle use of abbreviations in visualization</li>
+          <li><b>Login</b>: log in for editing</li>
+        </ul>
+        The menu also contains download links for the raw text, the
+        annotations in standoff format, and the visualization in SVG
+        format.
+      </p>
+      <h3>Collection browser</h3> 
+      <p>The collection browser, accessible from the menu or by pressing
+        the tab key, allows you to access the different text collections
+        and individual documents in those collections set up on your
+        installation.
+      </p>
+      <p>Simply double-click on a collection name to show its contents
+        or on a document name to visualize it.
+      </p>
+      <h3>Basic editing</h3>
+      <p>When logged in (from the menu), it is possible to add
+        annotations for a text span simply by selecting that span with
+        the mouse(either by &quot;dragging&quot; over the text or by
+        double-clicking on a word).
+      </p>
+      <p>After selecting a span, the system shows the annotation dialog.
+        This allows the selection of the type to assign to the newly
+        created annotation, as well as the addition of comments or
+        setting additional aspects of the annotation.
+      </p>
+      <p>Associations between annotated text spans can be annotated by
+        &quot;dragging&quot; with the mouse from one annotation to the
+        other. This again brings up a dialog for selecting the type of
+        the annotation.
+      </p>
+      <p>Existing annotations can be modified or deleted from the same
+        annotation dialog, which can be brought up by double-clicking
+        on an annotation.
+      </p>
+      <p>(The available annotation types and other aspects depend on the
+        configuration of each collection.)
+      </p>
+      <h3>Advanced usage</h3>
+      <p>Please see the <a href="static/manual/index.html">brat user
+          manual</a> for more!
+      </p>
     </div>
   </body>
 </html>

@@ -16,6 +16,7 @@ var VisualizerUI = (function($, window, undefined) {
       var spanTypes = null;
       var attributeTypes = null;
       var data = null;
+      var searchConfig = null;
       var coll, doc, args;
       var collScroll;
       var docScroll;
@@ -375,6 +376,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').empty();
+        dispatcher.post('clearSVG');
         dispatcher.post('allowReloadByURL');
         dispatcher.post('setCollection', [_coll, _doc, _args]);
         return false;
@@ -466,8 +468,23 @@ var VisualizerUI = (function($, window, undefined) {
 
         $('#collection_input').val(selectorData.collection);
         $('#document_input').val(doc);
-        //$('#readme').text(selectorData.description || '');
+
         $('#readme').val(selectorData.description || '');
+        if (selectorData.description && 
+            (selectorData.description.match(/\n/) ||
+             selectorData.description.length > 50)) {
+          // multi-line or long description; show "more" button and fill
+          // dialog text
+          $('#more_readme_button').show();
+          $('#more_info_readme').text(selectorData.description);
+          // TODO: better way to do this
+          $('#more_info_readme').height(350);
+        } else {
+          // empty or short, single-line description; no need for more
+          $('#more_readme_button').hide();
+          $('#more_info_readme').text('');
+        }
+
         var curcoll = selectorData.collection;
         var pos = curcoll.lastIndexOf('/');
         if (pos != -1) curcoll = curcoll.substring(pos + 1);
@@ -768,6 +785,52 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* END search - related */
 
+
+      /* START options dialog - related */
+
+      var optionsForm = $('#options_form');
+      var optionsFormSubmit = function(evt) {
+        dispatcher.post('hideForm', [optionsForm]);
+        return false;
+      };
+      optionsForm.submit(optionsFormSubmit);
+      initForm(optionsForm, {
+          width: 500,
+          no_cancel: true,
+          open: function(evt) {
+            keymap = {};
+          }
+      });
+      $('#options_button').click(function() {
+        dispatcher.post('showForm', [optionsForm]);
+      });
+
+      /* END options dialog - related */
+
+
+      /* START "more collection information" dialog - related */
+
+      var moreInfoDialog = $('#more_information_dialog');
+      var moreInfoDialogSubmit = function(evt) {
+        dispatcher.post('hideForm', [moreInfoDialog]);
+        return false;
+      };
+      moreInfoDialog.submit(moreInfoDialogSubmit);
+      initForm(moreInfoDialog, {
+          width: 500,
+          height: 500,
+          no_cancel: true,
+          open: function(evt) {
+            keymap = {};
+          }
+      });
+      $('#more_readme_button').click(function() {
+        dispatcher.post('showForm', [moreInfoDialog]);
+      });
+
+      /* END "more collection information" dialog - related */
+
+
       var onKeyDown = function(evt) {
         var code = evt.which;
 
@@ -798,9 +861,9 @@ var VisualizerUI = (function($, window, undefined) {
           return moveInFileBrowser(-1);
         } else if (code === $.ui.keyCode.RIGHT) {
           return moveInFileBrowser(+1);
-        } else if (code === $.ui.keyCode.UP) {
+        } else if (evt.shiftKey && code === $.ui.keyCode.UP) {
           autoPaging(true);
-        } else if (code === $.ui.keyCode.DOWN) {
+        } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
           autoPaging(false);
         }
       };
@@ -855,6 +918,7 @@ var VisualizerUI = (function($, window, undefined) {
           lastGoodCollection = response.collection;
           selectorData = response;
           documentListing = response; // 'backup'
+          searchConfig = response.search_config;
           selectorData.items.sort(docSortFunction);
           setupSearchTypes(response);
         }
@@ -1046,6 +1110,17 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('resetData');
       });
 
+      $('#spacious_mode').click(function(evt) {
+        var val = this.checked;
+        if (val) {
+          dispatcher.post('messages', [[['Spacious mode is now on', 'comment']]]);
+        } else {
+          dispatcher.post('messages', [[['Spacious mode is now off', 'comment']]]);
+        }
+        dispatcher.post('spacious', [val]);
+        dispatcher.post('resetData');
+      });
+
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();
       $('#svg').css('margin-top', headerHeight + 10);
@@ -1092,13 +1167,9 @@ var VisualizerUI = (function($, window, undefined) {
           var spanText = data.text.substring(span.from, span.to);
           $('#viewspan_selected').text(spanText);
           var encodedText = encodeURIComponent(spanText);
-          // TODO: DRY it off (it is almost-copy of annotator_ui)
-          $('#viewspan_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
-          $('#viewspan_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
-          $('#viewspan_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
-          $('#viewspan_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
-          $('#viewspan_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
-
+          $.each(searchConfig, function(searchNo, search) {
+            $('#viewspan_'+search[0]).attr('href', search[1].replace('%s', encodedText));
+          });
           // annotator comments
           $('#viewspan_notes').val(span.annotatorNotes || '');
           dispatcher.post('showForm', [viewspanForm]);
@@ -1155,6 +1226,10 @@ var VisualizerUI = (function($, window, undefined) {
 
 
       var tutorialForm = $('#tutorial');
+      if (!$.browser.webkit) {
+        // Inject the browser warning
+        $('#browserwarning').css('display', 'block');
+      }
       initForm(tutorialForm, {
         width: 600,
         height: 500,

@@ -592,6 +592,12 @@ fieldset {
 #export_page tr.background1 {
   background-color: #dddddd;
 }
+
+#browserwarning {
+  background-color: #ffcccc;
+  padding: 10px;
+  display: none;
+}
 .ui-icon-gripsmall-diagonal-se {
   margin: 0 -3px -3px 0;
 }
