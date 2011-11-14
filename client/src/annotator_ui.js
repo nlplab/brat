@@ -8,6 +8,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var arcDragOriginGroup = null;
       var arcDragArc = null;
       var data = null;
+      var searchConfig = null;
       var spanOptions = null;
       var arcOptions = null;
       var spanKeymap = null;
@@ -193,12 +194,10 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#entity_types, #event_types').show().removeClass('scroll_wrapper_full').addClass('scroll_wrapper_half');
         }
         $('#span_selected').text(spanText);
-        var encodedText = encodeURIComponent(spanText);
-        $('#span_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
-        $('#span_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
-        $('#span_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
-        $('#span_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
-        $('#span_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
+        var encodedText = encodeURIComponent(spanText);       
+        $.each(searchConfig, function(searchNo, search) {
+          $('#span_'+search[0]).attr('href', search[1].replace('%s', encodedText));
+        });
         var showAllAttributes = false;
         if (span) {
           var urlHash = URLHash.parse(window.location.hash);
@@ -706,6 +705,30 @@ var AnnotatorUI = (function($, window, undefined) {
             $select.change(onAttributeChange);
           }
         });
+
+        // fill search options in span dialog
+        searchConfig = response.search_config;
+        var $searchlinks  = $('#span_search_links').empty();
+        var $searchlinks2 = $('#viewspan_search_links').empty();
+        var firstLink=true;
+        var linkFilled=false;
+        $.each(searchConfig, function(searchNo, search) {
+          if (!firstLink) {
+            $searchlinks.append(',\n')
+            $searchlinks2.append(',\n')
+          }
+          firstLink=false;
+          $searchlinks.append('<a target="brat_search" id="span_'+search[0]+'" href="#">'+search[0]+'</a>');
+          $searchlinks2.append('<a target="brat_search" id="viewspan_'+search[0]+'" href="#">'+search[0]+'</a>');
+          linkFilled=true;
+        });
+        if (linkFilled) {
+          $('#span_search_fieldset').show();
+          $('#viewspan_search_fieldset').show();
+        } else {
+          $('#span_search_fieldset').hide();
+          $('#viewspan_search_fieldset').hide();
+        }
 
         spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);

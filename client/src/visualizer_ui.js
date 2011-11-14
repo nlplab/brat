@@ -16,6 +16,7 @@ var VisualizerUI = (function($, window, undefined) {
       var spanTypes = null;
       var attributeTypes = null;
       var data = null;
+      var searchConfig = null;
       var coll, doc, args;
       var collScroll;
       var docScroll;
@@ -917,6 +918,7 @@ var VisualizerUI = (function($, window, undefined) {
           lastGoodCollection = response.collection;
           selectorData = response;
           documentListing = response; // 'backup'
+          searchConfig = response.search_config;
           selectorData.items.sort(docSortFunction);
           setupSearchTypes(response);
         }
@@ -1165,13 +1167,9 @@ var VisualizerUI = (function($, window, undefined) {
           var spanText = data.text.substring(span.from, span.to);
           $('#viewspan_selected').text(spanText);
           var encodedText = encodeURIComponent(spanText);
-          // TODO: DRY it off (it is almost-copy of annotator_ui)
-          $('#viewspan_uniprot').attr('href', 'http://www.uniprot.org/uniprot/?sort=score&query=' + encodedText);
-          $('#viewspan_entregene').attr('href', 'http://www.ncbi.nlm.nih.gov/gene?term=' + encodedText);
-          $('#viewspan_wikipedia').attr('href', 'http://en.wikipedia.org/wiki/Special:Search?search=' + encodedText);
-          $('#viewspan_google').attr('href', 'http://www.google.com/search?q=' + encodedText);
-          $('#viewspan_alc').attr('href', 'http://eow.alc.co.jp/' + encodedText);
-
+          $.each(searchConfig, function(searchNo, search) {
+            $('#viewspan_'+search[0]).attr('href', search[1].replace('%s', encodedText));
+          });
           // annotator comments
           $('#viewspan_notes').val(span.annotatorNotes || '');
           dispatcher.post('showForm', [viewspanForm]);

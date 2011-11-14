@@ -943,7 +943,7 @@ class ProjectConfiguration(object):
         search_config = []
         for r in get_search_config_list(self.directory):
             if '<URL>' not in r.special_arguments:
-                Messager.warning('Missing <URL> specification for %s search' % _type)
+                Messager.warning('Project configuration: config error: missing <URL> specification for %s search.' % r.storage_form())
             else:
                 search_config.append((r.storage_form(), r.special_arguments['<URL>'][0]))
         return search_config
