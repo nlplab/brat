@@ -317,6 +317,9 @@ def get_span_types(directory):
 
     return event_types, entity_types, attribute_types, relation_types, unconf_types
 
+def get_search_config(directory):
+    return ProjectConfiguration(directory).get_search_config()
+
 def assert_allowed_to_read(doc_path):
     if not allowed_to_read(doc_path):
         raise AccessDeniedError # Permission denied by access control
@@ -424,6 +427,9 @@ def get_directory_information(collection):
 
     event_types, entity_types, attribute_types, relation_types, unconf_types = get_span_types(real_dir)
 
+    # plug in the search config too
+    search_config = get_search_config(real_dir)
+
     # read in README (if any) to send as a description of the
     # collection
     try:
@@ -443,6 +449,7 @@ def get_directory_information(collection):
             'relation_types': relation_types,
             'unconfigured_types': unconf_types,
             'description': readme_text,
+            'search_config': search_config,
             }
     return json_dic
 

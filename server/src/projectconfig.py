@@ -192,8 +192,8 @@ class TypeHierarchyNode:
             key, atypes = m.groups()
 
             # special case (sorry): if the key is a reserved config
-            # string (e.g. "<REL-TYPE>"), parse differently and store
-            # separately
+            # string (e.g. "<REL-TYPE>" or "<URL>"), parse differently
+            # and store separately
             if key in reserved_config_string:
                 if key is self.special_arguments:
                     Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
@@ -562,6 +562,9 @@ get_labels.__cache = {}
 def get_drawing_config(directory):
     return get_visual_configs(directory)[DRAWING_SECTION]
 
+def get_search_config(directory):
+    return get_visual_configs(directory)[SEARCH_SECTION]
+
 def get_access_control(directory):
     cache = get_access_control.__cache
     if directory not in cache:
@@ -634,6 +637,13 @@ def get_attribute_type_list(directory):
         cache[directory] = __type_hierarchy_to_list(get_attribute_type_hierarchy(directory))
     return cache[directory]
 get_attribute_type_list.__cache = {}    
+
+def get_search_config_list(directory):
+    cache = get_search_config_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_search_config(directory))
+    return cache[directory]
+get_search_config_list.__cache = {}    
 
 def get_node_by_storage_form(directory, term):
     cache = get_node_by_storage_form.__cache
@@ -926,8 +936,17 @@ class ProjectConfiguration(object):
     def get_labels_by_type(self, _type):
         return get_labels_by_storage_form(self.directory, _type)
     
-    def get_drawing_config_by_type(self, type):
-        return get_drawing_config_by_storage_form(self.directory, type)
+    def get_drawing_config_by_type(self, _type):
+        return get_drawing_config_by_storage_form(self.directory, _type)
+
+    def get_search_config(self):
+        search_config = []
+        for r in get_search_config_list(self.directory):
+            if '<URL>' not in r.special_arguments:
+                Messager.warning('Missing <URL> specification for %s search' % _type)
+            else:
+                search_config.append((r.storage_form(), r.special_arguments['<URL>'][0]))
+        return search_config
 
     def get_entity_types(self):
         return [t.storage_form() for t in get_entity_type_list(self.directory)]
