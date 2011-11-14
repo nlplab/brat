@@ -1070,6 +1070,17 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('resetData');
       });
 
+      $('#spacious_mode').click(function(evt) {
+        var val = this.checked;
+        if (val) {
+          dispatcher.post('messages', [[['Spacious mode is now on', 'comment']]]);
+        } else {
+          dispatcher.post('messages', [[['Spacious mode is now off', 'comment']]]);
+        }
+        dispatcher.post('spacious', [val]);
+        dispatcher.post('resetData');
+      });
+
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();
       $('#svg').css('margin-top', headerHeight + 10);

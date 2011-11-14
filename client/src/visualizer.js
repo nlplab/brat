@@ -94,6 +94,7 @@ var Visualizer = (function($, window, undefined) {
       var spanTypes;
       var relationTypesHash;
       var abbrevsOn = true;
+      var spaciousOn = false;
       var isRenderRequested;
       var isCollectionLoaded = false;
       var areFontsLoaded = false;
@@ -2129,6 +2130,23 @@ Util.profileStart('before render');
         abbrevsOn = _abbrevsOn;
       }
 
+      var setSpacious = function(_spaciousOn) {
+        spaciousOn = _spaciousOn;
+	// TODO: store standard settings instead of hard-coding
+	// them here (again)
+	if (spaciousOn) {
+	  boxSpacing  = 3;
+	  curlyHeight = 6;	  
+	  arcSpacing = 12;
+	  arcStartHeight = 23;
+	} else {
+	  boxSpacing  = 1;
+	  curlyHeight = 4;
+	  arcSpacing = 9;
+	  arcStartHeight = 19;
+	}
+      }
+
       $svgDiv = $($svgDiv).hide();
 
       // register event listeners
@@ -2293,6 +2311,7 @@ Util.profileStart('before render');
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
+          on('spacious', setSpacious).
           on('current', gotCurrent).
           on('clearSVG', clearSVG).
           on('mouseover', onMouseOver).
