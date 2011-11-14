@@ -18,13 +18,16 @@ WORK_DIR = CHANGE_ME
 from os.path import dirname, join
 
 BASE_DIR = dirname(__file__)
-DATA_DIR = join(BASE_DIR, RELATIVE_PATH_TO_DATA_DIR)
-WORK_DIR = join(BASE_DIR, RELATIVE_PATH_TO_WORK_DIR)
+DATA_DIR = join(BASE_DIR, 'data')
+WORK_DIR = join(BASE_DIR, 'work')
 '''
 
 # TODO: Remove these when we have a back-end
 USER_PASSWORD = {
-    CHANGE_ME : CHANGE_ME
+    # Format:
+    #   'USERNAME': 'PASSWORD',
+    # Example, user `foo` and password `bar`:
+    #   'foo': 'bar',
     }
 
 # Enable additional debug output
@@ -33,14 +36,22 @@ DEBUG = False
 # Contact email for users to use if the software encounters errors
 ADMIN_CONTACT_EMAIL = CHANGE_ME
 
-DEBUG, INFO, WARNING, ERROR, CRITICAL = range(5)
-# If you are developing you may want to turn on extensive server logging
-LOG_LEVEL = WARNING
+# Log levels
+LL_DEBUG, LL_INFO, LL_WARNING, LL_ERROR, LL_CRITICAL = range(5)
+# If you are a developer you may want to turn on extensive server logging
+LOG_LEVEL = LL_WARNING
 '''
-LOG_LEVEL = DEBUG
+LOG_LEVEL = LL_DEBUG
 '''
 
-# If the source data is in Japanese enable word segmentation
+# If the source data is in Japanese enable word segmentation enable this flag
+#   which is necessary for the `JAPANESE_TOKENIZATION` flag also in this file.
+#
+# To install support for Japanese tokenisation use the following command:
+#
+#   ( cd external && ./mecab.sh )
+#
+# Once installation is done set this variable to `True`.
 '''
 JAPANESE = True
 '''
@@ -51,10 +62,6 @@ except NameError:
     pass # BACKUP_DIR most likely not defined
 
 # If tokenization other than whitespace is desired, this can be used
-#
-# To install support for Japanese tokenisation use the following command:
-#
-#   ( cd external && ./mecab.sh )
 '''
 WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION = range(3)
 TOKENIZATION = PTBLIKE_TOKENIZATION
