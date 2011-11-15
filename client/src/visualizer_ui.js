@@ -127,7 +127,6 @@ var VisualizerUI = (function($, window, undefined) {
           });
           var $messages = $messagepullup.children();
           for (var i = 0; i < $messages.length - maxMessages; i++) {
-            console.log(i);
             $($messages[i]).remove();
           }
         }
@@ -274,7 +273,9 @@ var VisualizerUI = (function($, window, undefined) {
 
         form.dialog(opts);
         form.bind('dialogclose', function() {
+          if (form == currentForm) {
             currentForm = null;
+          }
         });
 
         // HACK: jQuery UI's dialog does not support alsoResize
