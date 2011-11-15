@@ -358,15 +358,18 @@ fieldset {
 }
 
 .messages > div.error {
-  background-color: #ff6666;
+  background-color: #FF9696;
+  /* background-color: #ff6666; */
   color: #000000;
 }
 .messages > div.warning {
-  background-color: #ff8800;
+  background-color: #FFE2A3;
+  /* background-color: #ff8800; */
   color: #000000;
 }
 .messages > div.comment {
-  background-color: #66ff66;
+  background-color: #A3FFA3;
+  /* background-color: #66ff66; */
   color: #000000;
 }
 .messages > div.debug {
