@@ -49,7 +49,9 @@
   </head>
   <body>
     <img id="spinner" src="static/img/spinner.gif"/>
-    <div id="messages"/>
+    <div id="messagepullup" class="messages" style="display: none"/>
+    <div id="messages" class="messages"/>
+    <div id="pulluptrigger"/>
     <div id="commentpopup"/>
     <div id="header" class="ui-widget">
       <div id="mainHeader" class="ui-widget-header">
@@ -91,8 +93,6 @@
       </div>
     </div>
     <div id="svg"></div>
-    <div id="messagepullup" style="display: none"/>
-    <div id="pulluptrigger"/>
     <form id="import_form" class="dialog" title="Import">
       <fieldset id="import_form_docid">
         <legend>Document ID</legend>

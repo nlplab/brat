@@ -81,6 +81,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var $messageContainer = $('#messages');
       var $messagepullup = $('#messagepullup');
+      var pullupTimer = null;
       var displayMessages = function(msgs) {
         if (msgs === false) {
           $messageContainer.children().each(function(msgElNo, msgEl) {
@@ -97,18 +98,26 @@ var VisualizerUI = (function($, window, undefined) {
               escaped = msg[0].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
               element = $('<div class="error"><b>[ERROR: could not display the following message normally due to malformed XML:]</b><br/>' + escaped + '</div>');
             }
+            var pullupElement = element.clone();
             $messageContainer.append(element);
-            $messagepullup.append(element.clone());
+            $messagepullup.append(pullupElement.css('display', 'none'));
+            slideToggle(pullupElement, true, true);
+
+            var fader = function() {
+              if ($messagepullup.is(':visible')) {
+                element.remove();
+              } else {
+                element.hide('slow', function() {
+                  element.remove();
+                });
+              }
+            };
+            /* XXX delay is not necessary any more, right?
             var delay = (msg[2] === undefined)
                           ? messageDefaultFadeDelay
                           : (msg[2] === -1)
                               ? null
                               : (msg[2] * 1000);
-            var fader = function() {
-              element.hide('slow', function() {
-                element.remove();
-              });
-            };
             if (delay === null) {
               var button = $('<input type="button" value="OK"/>');
               element.prepend(button);
@@ -124,13 +133,31 @@ var VisualizerUI = (function($, window, undefined) {
                   timer = setTimeout(fader, messagePostOutFadeDelay);
               });
             }
+            */
+            setTimeout(fader, messageDefaultFadeDelay);
           });
+
+          // limited history - delete oldest
           var $messages = $messagepullup.children();
           for (var i = 0; i < $messages.length - maxMessages; i++) {
             $($messages[i]).remove();
           }
         }
       };
+
+      $('#pulluptrigger').
+        mouseenter(function(evt) {
+          clearTimeout(pullupTimer);
+          slideToggle($messagepullup.stop(), true, true);
+        });
+      $('#messagepullup').
+        mouseleave(function(evt) {
+          clearTimeout(pullupTimer);
+          pullupTimer = setTimeout(function() {
+            slideToggle($messagepullup.stop(), false, true);
+          }, 500);
+        });
+
 
       /* END message display - related */
 
@@ -1108,20 +1135,6 @@ var VisualizerUI = (function($, window, undefined) {
           clearTimeout(menuTimer);
           menuTimer = setTimeout(function() {
             slideToggle($('#pulldown').stop(), false);
-          }, 500);
-        });
-
-      var pullupTimer = null;
-      $('#pulluptrigger').
-        mouseenter(function(evt) {
-          clearTimeout(pullupTimer);
-          slideToggle($messagepullup.stop(), true, true);
-        });
-      $('#messagepullup').
-        mouseleave(function(evt) {
-          clearTimeout(pullupTimer);
-          pullupTimer = setTimeout(function() {
-            slideToggle($messagepullup.stop(), false, true);
           }, 500);
         });
 
