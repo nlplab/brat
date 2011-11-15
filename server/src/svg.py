@@ -80,7 +80,7 @@ def _save_svg(collection, document, svg):
     svg_path = _svg_path()
 
     with open(svg_path, 'w') as svg_file:
-        svg_file.write('<?xml version="1.0" standalone="no"?>'
+        svg_hdr = ('<?xml version="1.0" standalone="no"?>'
                 '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
                 '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
         defs = svg.find('</defs>')
@@ -95,7 +95,8 @@ def _save_svg(collection, document, svg):
                 with open(font_path, 'r') as font_file:
                     font_data.append(font_file.read().strip())
             fonts = '\n'.join(font_data)
-            svg = svg[:defs] + '\n' + fonts + '\n' + css + '\n' + svg[defs:]
+            svg = (svg_hdr + '\n' + svg[:defs] + '\n' + fonts + '\n' + css
+                    + '\n' + svg[defs:])
             svg_file.write(svg)
 
             # Create a copy in the svg store?
