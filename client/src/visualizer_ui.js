@@ -147,11 +147,13 @@ var VisualizerUI = (function($, window, undefined) {
 
       $('#pulluptrigger').
         mouseenter(function(evt) {
+          $('#pulluptrigger').hide();
           clearTimeout(pullupTimer);
           slideToggle($messagepullup.stop(), true, true);
         });
       $('#messagepullup').
         mouseleave(function(evt) {
+          $('#pulluptrigger').show();
           clearTimeout(pullupTimer);
           pullupTimer = setTimeout(function() {
             slideToggle($messagepullup.stop(), false, true);

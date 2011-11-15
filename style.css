@@ -330,6 +330,7 @@ fieldset {
   position: fixed;
   bottom: 0;
   right: 0;
+  background: url('static/img/Fugue-shadowless-information-balloon.png') no-repeat;
 }
 #messagepullup {
   max-height: 300px;
