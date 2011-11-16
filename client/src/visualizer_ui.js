@@ -81,6 +81,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var $messageContainer = $('#messages');
       var $messagepullup = $('#messagepullup');
+      var pullupTimer = null;
       var displayMessages = function(msgs) {
         if (msgs === false) {
           $messageContainer.children().each(function(msgElNo, msgEl) {
@@ -97,18 +98,26 @@ var VisualizerUI = (function($, window, undefined) {
               escaped = msg[0].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
               element = $('<div class="error"><b>[ERROR: could not display the following message normally due to malformed XML:]</b><br/>' + escaped + '</div>');
             }
+            var pullupElement = element.clone();
             $messageContainer.append(element);
-            $messagepullup.append(element.clone());
+            $messagepullup.append(pullupElement.css('display', 'none'));
+            slideToggle(pullupElement, true, true);
+
+            var fader = function() {
+              if ($messagepullup.is(':visible')) {
+                element.remove();
+              } else {
+                element.hide('slow', function() {
+                  element.remove();
+                });
+              }
+            };
+            /* XXX delay is not necessary any more, right?
             var delay = (msg[2] === undefined)
                           ? messageDefaultFadeDelay
                           : (msg[2] === -1)
                               ? null
                               : (msg[2] * 1000);
-            var fader = function() {
-              element.hide('slow', function() {
-                element.remove();
-              });
-            };
             if (delay === null) {
               var button = $('<input type="button" value="OK"/>');
               element.prepend(button);
@@ -124,14 +133,33 @@ var VisualizerUI = (function($, window, undefined) {
                   timer = setTimeout(fader, messagePostOutFadeDelay);
               });
             }
+            */
+            setTimeout(fader, messageDefaultFadeDelay);
           });
+
+          // limited history - delete oldest
           var $messages = $messagepullup.children();
           for (var i = 0; i < $messages.length - maxMessages; i++) {
-            console.log(i);
             $($messages[i]).remove();
           }
         }
       };
+
+      $('#pulluptrigger').
+        mouseenter(function(evt) {
+          $('#pulluptrigger').hide();
+          clearTimeout(pullupTimer);
+          slideToggle($messagepullup.stop(), true, true);
+        });
+      $('#messagepullup').
+        mouseleave(function(evt) {
+          $('#pulluptrigger').show();
+          clearTimeout(pullupTimer);
+          pullupTimer = setTimeout(function() {
+            slideToggle($messagepullup.stop(), false, true);
+          }, 500);
+        });
+
 
       /* END message display - related */
 
@@ -274,7 +302,9 @@ var VisualizerUI = (function($, window, undefined) {
 
         form.dialog(opts);
         form.bind('dialogclose', function() {
+          if (form == currentForm) {
             currentForm = null;
+          }
         });
 
         // HACK: jQuery UI's dialog does not support alsoResize
@@ -795,6 +825,30 @@ var VisualizerUI = (function($, window, undefined) {
       /* END search - related */
 
 
+      /* START data dialog - related */
+
+      var dataForm = $('#data_form');
+      var dataFormSubmit = function(evt) {
+        dispatcher.post('hideForm', [dataForm]);
+        return false;
+      };
+      dataForm.submit(dataFormSubmit);
+      initForm(dataForm, {
+          width: 500,
+          no_cancel: true,
+          open: function(evt) {
+            keymap = {};
+          }
+      });
+      $('#data_button').click(function() {
+        dispatcher.post('showForm', [dataForm]);
+      });
+      // make nice-looking buttons
+      $('#data_form').find('input').button();
+
+      /* END data dialog - related */
+
+
       /* START options dialog - related */
 
       var optionsForm = $('#options_form');
@@ -815,7 +869,6 @@ var VisualizerUI = (function($, window, undefined) {
       });
       // make nice-looking buttons
       $('#options_form').find('input').button();
-
 
       /* END options dialog - related */
 
@@ -1003,8 +1056,10 @@ var VisualizerUI = (function($, window, undefined) {
             'document': doc,
         };
         $('#download_svg_color').attr('href', 'ajax.cgi?' + $.param(params));
-        params['version'] = 'greyscale';
-        $('#download_svg_grayscale').attr('href', 'ajax.cgi?' + $.param(params));
+        // XXX TODO: confirm that these are defunct and remove
+//         params['version'] = 'greyscale';
+//         $('#download_svg_grayscale').attr('href', 'ajax.cgi?' + $.param(params));
+        $('#download_svg_color').button();
         $('#download_svg').show();
       };
 
@@ -1018,11 +1073,6 @@ var VisualizerUI = (function($, window, undefined) {
         }
         if (!data) return;
         var $sourceFiles = $('#source_files').empty();
-        /* Add a download link for the whole collection */
-        $sourceFiles.append(
-            $('<a target="brat_search"/>').text('coll').attr('href',
-              'ajax.cgi?action=downloadCollection&collection=' + coll));
-        $sourceFiles.append(', ');
         /* Add download links for all available extensions */
         $.each(data.source_files, function(extNo, ext) {
           var $link = $('<a target="brat_search"/>').
@@ -1030,9 +1080,17 @@ var VisualizerUI = (function($, window, undefined) {
               attr('href',
                   'ajax.cgi?action=downloadFile&collection=' + coll +
                   '&document=' + doc + '&extension=' + ext);
-          if (extNo) $sourceFiles.append(', ');
+          $link.button();
+          if (extNo) $sourceFiles.append(' ');
           $sourceFiles.append($link);
         });
+        /* Add a download link for the whole collection */
+        var $sourceCollection = $('#source_collection').empty();
+        var $collectionDownloadLink = $('<a target="brat_search"/>')
+          .text('Document collection')
+          .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + coll);
+        $sourceCollection.append($collectionDownloadLink);
+        $collectionDownloadLink.button();
         hideSVGDownloadLinks();
 
         if (data.mtime) {
@@ -1107,20 +1165,6 @@ var VisualizerUI = (function($, window, undefined) {
           clearTimeout(menuTimer);
           menuTimer = setTimeout(function() {
             slideToggle($('#pulldown').stop(), false);
-          }, 500);
-        });
-
-      var pullupTimer = null;
-      $('#pulluptrigger').
-        mouseenter(function(evt) {
-          clearTimeout(pullupTimer);
-          slideToggle($messagepullup.stop(), true, true);
-        });
-      $('#messagepullup').
-        mouseleave(function(evt) {
-          clearTimeout(pullupTimer);
-          pullupTimer = setTimeout(function() {
-            slideToggle($messagepullup.stop(), false, true);
           }, 500);
         });
 

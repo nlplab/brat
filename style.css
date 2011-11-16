@@ -72,27 +72,8 @@ text {
 #auth_button {
   float: right;
 }
-#pulluptrigger {
-  height: 30px;
-  width:  30px;
-  position: fixed;
-  bottom: 0;
-  right: 0;
-}
-#messagepullup {
-  max-height: 300px;
-  width: 100%;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  overflow-y: scroll; /* or 'auto' */
-  background-color: #ffffff;
-  background-color: rgba(255,255,255,0.75);
-}
-#messagepullup > div {
-  margin: 2px 5px;
-  padding: 10px;
-  border: 1px outset #000000;
+#options_button {
+  float: right;
 }
 
 path {
@@ -346,35 +327,61 @@ fieldset {
   font-weight: bold;
 }
 
+#pulluptrigger {
+  height: 30px;
+  width:  30px;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background: url('static/img/Fugue-shadowless-information-balloon.png') no-repeat;
+}
+#messagepullup {
+  max-height: 300px;
+  overflow-y: scroll; /* or 'auto' */
+  background-color: #ffffff;
+  background-color: rgba(255,255,255,0.75);
+  z-index: 20001;
+}
 #messages {
+  z-index: 20002;
+}
+#pulluptrigger {
+  z-index: 20003;
+}
+.messages {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
 }
-#messages > div {
-  padding: 10px;
+.messages > div {
+  padding: 5px;
+  margin: 2px 5px;
   border: 1px outset #000000;
 }
 
-#messages > div.error {
-  background-color: #ff6666;
+.messages > div.error {
+  background-color: #FF9696;
+  font-weight: bold;
   color: #000000;
 }
-#messages > div.warning {
-  background-color: #ff8800;
+.messages > div.warning {
+  background-color: #FFE2A3;
+  font-weight: bold;
   color: #000000;
 }
-#messages > div.comment {
-  background-color: #66ff66;
-  color: #000000;
+.messages > div.comment {
+  background-color: #87b6d9;
+  color: #ffffff;
+  font-weight: bold;
+  border: 1px outset #27628F;
 }
-#messages > div.debug {
+.messages > div.debug {
   background-color: #ffff99;
   color: #000000;
 }
 
-#messages > div > input {
+.messages > div > input {
   float: right;
   display: block;
 }
