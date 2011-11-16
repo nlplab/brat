@@ -371,6 +371,7 @@ fieldset {
   background-color: #87b6d9;
   color: #ffffff;
   font-weight: bold;
+  border: 1px outset #27628F;
 }
 .messages > div.debug {
   background-color: #ffff99;
