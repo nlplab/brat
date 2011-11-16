@@ -4,16 +4,27 @@
     <link rel="stylesheet" type="text/css" href="../../style.css"/>
     <link rel="shortcut icon" href="../../favicon.ico"/>
   </head>
+  <style type="text/css">
+  <!--
+    .image .caption { 
+      font-size: 80%;
+      font-family: sans-serif;
+      text-align: center;
+    }
+  -->
+  </style>  
   <body>
     <h1>brat rapid annotation tool manual</h1> 
-    <p><span style="color:red; font-weight:bold">NOTE: this manual page is under construction and is still very much incomplete.</span></p>
 
     <h2>Visualization</h2>
     <p>When a document is selected, the main window area shows a
       visualization of the text and annotations of that
       document.
     </p>
-    <img src="images/visualization-1.png"/>
+    <div class="image">
+      <img src="images/visualization-1.png"/>
+      <div style="width: 800px" class="caption">Annotation visualization</div>
+    </div>
     <p>Placing the mouse cursor over an annotation shows some further
       information about that annotation, including the full form of
       the annotation type, the annotation ID, and any attributes or
@@ -22,75 +33,151 @@
 
     <h2>Menu</h2>
     <p>Placing the mouse cursor over the top bar of the window opens the
-    tool menu which drops down from the top of the screen. Once the mouse
-    pointer leaves the menu area the menu will disappear, thus allowing more
-    screen space for the annotations by only appearing when needed.
-      </p>
-    <img src="images/menu-1.png"/>
+      tool menu which drops down from the top of the screen.
+    </p>
+    <div class="image">
+      <img src="images/menu-1.png"/>
+      <div style="width: 800px" class="caption">brat menu</div>
+    </div>
+    <p> Once the mouse pointer leaves the menu area the menu will
+      disappear, thus allowing more screen space for the annotations by
+      only appearing when needed.
+    </p>
     <p>The menu provides access to the following features:
       <ul>
-        <li><b>Collection</b>: annotation collection browser</li>
-        <li><b>Data</b>: export annotation data</li>
-        <li><b>Search</b>: search current collection</li>
+        <li><b>Collection</b>: <a href="#collection_browser">annotation collection browser</a></li>
+        <li><b>Data</b>: <a href="#data_dialog">export/import annotation data</a></li>
+        <li><b>Search</b>: <a href="#search">search current collection</a></li>
         <li><b>Options</b>: system configuration options</li>
-        <li><b>Login</b>: log in for editing</li>
+        <li><b>Login</b>: <a href="#logging_in">log in for editing</a></li>
       </ul>
       (Exported data is downloaded in raw text for the document, in a
       <a href="http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/SharedTask/detail.shtml#format">in stand-off format</a> for annotations, and in SVG format for
       the visualization.)
     </p>
 
-    <h2>Collection browser</h2> 
+    <h2 id="collection_browser">Collection browser</h2> 
     <p>The collection browser, accessible from the menu or by pressing
       the tab key, allows you to access the different text collections
       and individual documents in those collections set up on your
       installation.
     </p>
-    <img src="images/collection-browser-1.png"/>
-
+    <div class="image">
+      <img src="images/collection-browser-1.png"/>
+      <div style="width: 800px" class="caption">brat collection browser</div>
+    </div>
+    <p>Collections can be organized hierarchically: a collection can
+      contain others, similarly to a directory or folder structure on
+      disk.
+    </p>
+    <p>Other collections 
+      (<img src="../file_browser/Fugue-shadowless-folder-horizontal-open.png"/>) 
+      are shown first in the document browser. The
+      entry &quot;..&quot; refers to the collection containing the
+      current one (if any).
+    </p>
+    <p>Documents
+      (<img src="../file_browser/Fugue-shadowless-document.png"/>) are
+      shown in the collection browser after collections. For each
+      document, the last modification time and simple annotation
+      statistics (the number of entity, relation and even annotations)
+      is shown.
+    </p>
+    <p>Document are sorted by document name by default.  It is
+      possible to sort the documents in the collection browser by
+      other criteria by clicking on the labels in the browser
+      header. For example, clicking once on &quot;Entities&quot; will
+      sort the documents so that ones with the largest numbers of
+      entity annotations are shown first. A second click on the same
+      label will invert this sort order, so that for example documents
+      with the fewest entity annotations are shown first.
+    </p>
+    <h2 id="logging_in">Logging in</h2>
+    <p>To log in into the system, first click the &quot;Login&quot;
+      button in the menu.
+    </p>
+    <div class="image">
+      <img width="800px" src="images/menu-login-1.png"/>
+      <div style="width: 800px" class="caption">Login button</div>
+    </div>
+    <p>Clicking on the &quot;Login&quot; button brings up the login
+      dialog.
+    </p>
+    <div class="image">
+      <img src="images/login-dialog-1.png"/>
+      <div style="width: 800px" class="caption">Login dialog</div>
+    </div>
+    <p>To log in, enter a valid username and password in the login
+      dialog. User and password settings are specific to the server
+      configuration. If you need a new login or have forgotten your
+      password, you should contact the administrator of your brat
+      installation.
+    </p>
     <h2>Basic editing</h2>
-    <p>To edit annotations, users first need to log in by clicking on
-      the &quot;Login&quot; button and enter a valid username and
-      password in the login dialog.
+    <p>To edit annotations, users first need
+      to <a href="#logging_in">log in</a> into an account that has
+      editing permissions.
     <p>
-      
+
+    <h3>Adding an annotation for a text span</h3>
     <p>When logged in, it is possible to add annotations for a text
       span simply by selecting that span with the mouse.
     </p>
-    <img src="images/selection-1.png"/>
+    <div class="image">
+      <img src="images/selection-1.png"/>
+      <div style="width: 800px" class="caption">Selecting text for annotation</div>
+    </div>
     <p>Selection can be performed either by &quot;dragging&quot; over
       the text or by double-clicking on a word.
     </p>
-    <p><b>Note</b>: a multi-word span can also be selected with two
-      double-clicks on the first and last words by holding CTRL during
-      the first double-click and holding down shift during the
-      second double-click.
+    <p><img src="images/Fugue-shadowless-exclamation-white.png"/>
+      A multi-word span can also be selected with two double-clicks on
+      the first and last words by holding CTRL during the first
+      double-click and holding down shift during the second
+      double-click.
     </p>
     <p>After selecting a span, the system shows the span annotation
       dialog.
     </p>
-    <img src="images/span-dialog-1.png"/>
-    <p>
-      This allows the selection of the type to assign to the newly
+    <div class="image">
+      <img src="images/span-dialog-1.png"/>
+      <div style="width: 800px" class="caption">Span annotation dialog</div>
+    </div>
+    <p>This allows the selection of the type to assign to the newly
       created annotation, as well as the addition of comments or
       setting additional aspects of the annotation such as attribute
       values (if available).
     </p>
-    <p>
-      The types available for annotation and additional aspects 
+    <p><img src="images/Fugue-shadowless-exclamation.png"/>
+      If the annotation dialog fails to open when selecting text,
+      please first check that you are <a href="#logging_in">logged
+      in</a> into an account with editing permissions.
+      Another possible reason for failure may be the use of a browser
+      that does not support selection in SVG text elements. Please
+      consider testing with a 
+      <a href="supported-browsers.html">supported browser</a>.
+    </p>
+    <p>The types available for annotation and additional aspects 
       that are available for marking depend on the configuration of
       the current collection.
     </p>
-    <p>Associations between annotated text spans can be annotated by
-      &quot;dragging&quot; the mouse from one annotation to the
-      other.
+
+    <h3>Adding associations between annotations</h3>
+    <p>Associations between existing annotations can be created by
+      &quot;dragging&quot; the mouse from one annotation to the other.
     </p>
-    <img src="images/relation-1.png"/>
+    <div class="image">
+      <img src="images/relation-1.png"/>
+      <div style="width: 800px" class="caption">Connecting existing annotations</div>
+    </div>
     <p>
       Releasing the mouse pointer over another annotation again brings
       up a dialog for selecting the type of the annotation.
     </p>
-    <img src="images/arc-dialog-1.png"/>
+    <div class="image">
+      <img src="images/arc-dialog-1.png"/>
+      <div style="width: 800px" class="caption">Relation type dialog</div>
+    </div>
     <p>
       The types available for selection in this dialog depend both on
       the configuration of the collection and the types of the two
@@ -102,12 +189,97 @@
       message will be shown instead of this dialog.)
     </p>
 
-    <p>Existing annotations can be modified or deleted from the same
-      annotation dialog, which can be brought up by double-clicking
-      on an annotation.
+    <h3>Editing existing annotations</h3>
+    <p>Logged-in users can modify or delete existing annotations by
+      double-clicking on the annotation.
     </p>
-    <p>(The available annotation types and other aspects depend on the
-      configuration of each collection.)
+    <div class="image">
+      <img src="images/annotation-detail-span-1.png"/>
+      <div style="width: 800px" class="caption">Double-click on the
+      &quot;box&quot; for a text span annotation to edit it.</div>
+    </div>
+    <br/>
+    <div class="image">
+      <img src="images/annotation-detail-arc-1.png"/>
+      <div style="width: 800px" class="caption">Double-click on the
+      &quot;arc&quot; connecting two annotations to edit the
+      association of those annotations.</div>
+    </div>
+    <p>This will bring up the same annotation dialog with which the
+      annotation type was originally selected, with some additional
+      options.
+    </p>
+    <div class="image">
+      <img src="images/edit-span-1.png"/>
+      <div style="width: 800px" class="caption">Annotation dialog for
+	previously created entity annotation</div>
+    </div>
+    <br/>
+    <div class="image">
+      <img src="images/edit-arc-1.png"/>
+      <div style="width: 800px" class="caption">Annotation dialog for
+	previously created relation annotation</div>
+    </div>
+    <p>In addition to allowing the type of the annotation and
+      additional aspects such as notes to be modified, these dialogs
+      also support the following additional features:
+    </p>
+    <ul>
+      <li><b>Link</b>: URL linking directly to the annotation</li>
+      <li><b>Delete</b>: delete the annotation</li>
+      <li><b>Reselect</b>: re-select the span of the annotation or the
+	connected annotations</li>
+    </ul>
+    <p>(Note that once created, the basic category of an annotation
+      cannot be changed: that is, while an entity annotation can be
+      changed into an entity annotation of another type, it cannot be
+      changed into an event or relation annotation.)
+    </p>
+
+    <h2>Keyboard shortcuts</h2>
+    <p>The following keyboard shortcuts are accessible in normal
+      visualization or annotation state. (When a menu is open, these
+      keyboard shortcuts are disabled.)
+    </p>
+    <ul>
+      <li><b>ESC</b>: clear any open menus (canceling possible
+      modification) and on-screen messages</li>
+      <li><b>TAB</b>: open
+	the <a href="#collection_browser">collection browser</a>
+      <li><b>Left arrow</b>: previous document</li>
+      <li><b>Right arrow</b>: next document</li>
+    </ul>
+    <p>The order in which &quot;previous&quot; and &quot;next&quot;
+      documents are visited when pressing the arrow keys depends on
+      the current sort order selected in the
+      <a href="#collection_browser">collection browser</a>.  This
+      allows documents to be browsed with the keyboard for example in
+      sequence from those with the most entity annotations to those
+      with the fewest. (The default order is by document name.)
+    </p>
+    <p>When an annotation menu is open, a different set of
+      configurable keyboard shortcuts is available to quick-select
+      annotation types.
+    </p>
+    <p>When an annotation menu is open, a different set of
+      configurable keyboard shortcuts is available to quick-select
+      annotation types. (<b>TODO: explain more</b>)
+    </p>
+
+    <h2 id="data_dialog">Data dialog</h2>
+    <div class="image">
+      <img src="images/data-dialog-1.png"/>
+      <div style="width: 800px" class="caption">Data export/import dialog</div>
+    </div>
+    <p>(<b>TODO: document</b>)
+    </p>
+
+    <h2 id="search">Search</h2>
+    <div class="image">
+      <img src="images/search-dialog-1.png"/>
+      <div style="width: 800px" class="caption">Search dialog</div>
+    </div>
+    <p>(<b>TODO: document</b>)
     </p>
 
     <h2>Advanced usage</h2>
