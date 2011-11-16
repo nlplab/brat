@@ -381,7 +381,7 @@ class Annotations(object):
 
     def get_entities(self):
         # Entities are textbounds that are not triggers
-        triggers = self.get_triggers()        
+        triggers = [t for t in self.get_triggers()]
         return (a for a in self if (isinstance(a, TextBoundAnnotation) and
                                     not a in triggers))
     
