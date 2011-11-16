@@ -67,28 +67,13 @@
           <div>
             <input id="auth_button" type="button" value="Login"/>
             <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
-            <!-- <input id="export_button" type="button" value="Export"/> -->
-            <!--
-            <input id="search_button" type="button" class="login" value="Search" tabindex="-1" title="Search annotations in current collection"/>
-            -->
+            <input id="data_button" type="button" value="Data" tabindex="-1"/>
             <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search annotations in current collection">Search</label>
-            <input id="import_button" type="button" class="login" value="Import" tabindex="-1" title="Import a new document into the current collection"/>
-            <input id="options_button" type="button" value="Options" tabindex="-1"/>
             <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
             <input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/>
+            <input id="options_button" type="button" value="Options" tabindex="-1"/>
           </div>
           <div id="document_mtime" class="unselectable"/>
-          <div>
-            Download: <span id="source_files"/><span id="download_svg">,
-              <a id="download_svg_color" target="svg"> svg</a>
-              <!--
-              SVG download links:
-              <a id="download_svg_color" target="svg">Color</a> or
-              <a id="download_svg_grayscale" target="svg">Grayscale</a>
-              -->
-            </span>
-            &nbsp;
-          </div>
         </div>
       </div>
     </div>
@@ -107,6 +92,34 @@
         <textarea id="import_text" class="borderless"/>
       </fieldset>
     </form>
+    <!-- Data dialog -->
+    <form id="data_form" class="dialog" title="Data">
+      <fieldset>
+        <legend>Export current document data</legend>
+        <div>
+          <span id="source_files"/><span id="download_svg">
+            <a id="download_svg_color" target="svg">svg</a>
+            <!--
+              SVG download links:
+              <a id="download_svg_color" target="svg">Color</a> or
+              <a id="download_svg_grayscale" target="svg">Grayscale</a>
+            -->
+          </span>
+          &nbsp;
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Export entire collection</legend>
+        <div>
+          <span id="source_collection"/>
+        </div>
+      </fieldset>
+      <fieldset class="login">
+        <legend>Import</legend>
+        <input id="import_button" type="button" class="login" value="Import document" tabindex="-1" title="Import a new document into the current collection"/>
+      </fieldset>
+    </form>
+    <!-- Options dialog -->
     <form id="options_form" class="dialog" title="Options">
       <fieldset id="options_form_visual">
         <legend>Visual options</legend>
@@ -122,11 +135,13 @@
         <span><input id="autorefresh_mode" type="checkbox" value="true" checked="checked"/><label for="autorefresh_mode" title="Toggle the autorefresh mode">Autorefresh</label></span>
       </fieldset>
     </form>
+    <!-- More collection information dialog -->
     <form id="more_information_dialog" class="dialog" title="Collection information">
       <fieldset>
         <textarea id="more_info_readme" readonly="readonly" class="borderless"/>
       </fieldset>
     </form>
+    <!-- Search dialog -->
     <form id="search_form" class="dialog" title="Search">
       <div id="search_tabs">
         <ul>
@@ -222,13 +237,7 @@
 
       <fieldset id="viewspan_search_fieldset">
         <legend>Search</legend>
-        <div id="viewspan_search_links">
-        <a target="brat_search" id="viewspan_uniprot" href="#">UniProt</a>,
-        <a target="brat_search" id="viewspan_entregene" href="#">EntrezGene</a>,
-        <a target="brat_search" id="viewspan_wikipedia" href="#">Wikipedia</a>,
-        <a target="brat_search" id="viewspan_google" href="#">Google</a>,
-        <a target="brat_search" id="viewspan_alc" href="#">ALC</a>
-        </div>
+        <div id="viewspan_search_links"/>
       </fieldset>
 
       <fieldset>
@@ -245,13 +254,7 @@
 
       <fieldset id="span_search_fieldset">
         <legend>Search</legend>
-        <div id="span_search_links">
-        <a target="brat_search" id="span_uniprot" href="#">UniProt</a>,
-        <a target="brat_search" id="span_entregene" href="#">EntrezGene</a>,
-        <a target="brat_search" id="span_wikipedia" href="#">Wikipedia</a>,
-        <a target="brat_search" id="span_google" href="#">Google</a>,
-        <a target="brat_search" id="span_alc" href="#">ALC</a>
-        </div>
+        <div id="span_search_links"/>
       </fieldset>
 
       <div id="span_types" class="scroll_fset"/>

@@ -72,6 +72,9 @@ text {
 #auth_button {
   float: right;
 }
+#options_button {
+  float: right;
+}
 
 path {
   pointer-events: none;
