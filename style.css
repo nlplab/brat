@@ -352,25 +352,25 @@ fieldset {
   right: 0;
 }
 .messages > div {
-  padding: 10px;
+  padding: 5px;
   margin: 2px 5px;
   border: 1px outset #000000;
 }
 
 .messages > div.error {
   background-color: #FF9696;
-  /* background-color: #ff6666; */
+  font-weight: bold;
   color: #000000;
 }
 .messages > div.warning {
   background-color: #FFE2A3;
-  /* background-color: #ff8800; */
+  font-weight: bold;
   color: #000000;
 }
 .messages > div.comment {
-  background-color: #A3FFA3;
-  /* background-color: #66ff66; */
-  color: #000000;
+  background-color: #87b6d9;
+  color: #ffffff;
+  font-weight: bold;
 }
 .messages > div.debug {
   background-color: #ffff99;
