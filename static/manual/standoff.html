@@ -1,0 +1,298 @@
+<html>
+  <head>
+    <title>brat manual</title>
+    <link rel="stylesheet" type="text/css" href="../../style.css"/>
+    <link rel="shortcut icon" href="../../favicon.ico"/>
+  </head>
+  <body>
+    <h1>brat standoff format</h1>
+    <p>Annotations created in brat are stored on disk in a standoff
+      format: annotations are stored separately from the annotated
+      document text, which is never modified by the tool.
+    </p>
+    <p>For each text document in the system, there is a corresponding
+      annotation file. The two are associatied by the file naming
+      convention that their base name (file name without suffix) is
+      the same: for example, the file <tt>DOC-1000.ann</tt> contains
+      annotations for the file <tt>DOC-1000.txt</tt>.</p>
+    <p>Within the document, individual annotations are connected to
+      specific spans of text through character offsets. For example,
+      in a document beginning &quot;Japan was today struck by
+      ...&quot; the text &quot;Japan&quot; is identified by the offset
+      range 0..5. (All offsets all indexed from 0 and include the
+      character at the start offset but exclude the character at the
+      end offset.)
+    </p>
+    <p>The specific standoff flavor used by brat is similar to the
+      <a href="http://2011.bionlp-st.org/home/file-formats" rel="nofollow">BioNLP Shared Task standoff format</a>, and described in detail in
+      the following.
+    </p>
+
+    <h2>General annotation structure</h2>
+    <p>All annotations follow the same basic structure: Each line
+      contains one annotation, and each annotation is given an ID that
+      appears first on the line, separated from the rest of the
+      annotation by a single TAB character. The rest of the structure
+      varies by annotation type.
+    </p>
+    <p>
+      Examples of annotation for an entity (<tt>T1</tt>), an event
+      trigger (<tt>T2</tt>), an event (<tt>E1</tt>)
+      <!--, an event modification (<tt>M1</tt>) --> and a relation
+      (<tt>R1</tt>) are shown in the following.
+    </p>
+
+    <table border="1" rules="none" cellspacing="10" style="border-color:rgb(136, 136, 136);border-width:1px;background-color:rgb(207, 226, 243);font-family:monospace">
+      <tr><td colspan="5">&nbsp;</td></tr>
+      <tr><td>&nbsp;</td>
+	<td width="100">T1</td><td width="200">Organization 0 4</td><td>Sony</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+	<td>T2</td><td>MERGE-ORG 14 27</td><td>joint venture</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+	<td>T3</td><td>Organization 33 41</td><td>Ericsson</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+	<td>E1</td><td colspan="2">MERGE-ORG:T2 Org1:T1 Org2:T3</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+	<td>T4</td><td>Country 75 81</td><td>Sweden</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+<!--	    <td>M1</td><td colspan="2">Speculation E1</td>
+	  </tr><tr><td>&nbsp;</td>
+-->
+        <td>R1</td><td colspan="2">Origin Arg1:T3 Arg2:T4</td>
+      <td>&nbsp;</td></tr>
+      <tr><td colspan="5">&nbsp;</td></tr>
+    </table>
+
+    <p>Detailed descriptions of these annotations are given below.</p>
+
+    <h3 id="text-bound_annotation">Text-bound annotations</h3>
+    <p>Text-bound annotations are an important category of annotation
+      related to both entity and event annotations. Text-bound
+      annotation identifies a specific span of text and assigns it a
+      type.
+    </p>
+
+    <table border="1" rules="none" cellspacing="10" style="border-color:rgb(136, 136, 136);border-width:1px;background-color:rgb(207, 226, 243);font-family:monospace">
+      <tr><td colspan="5">&nbsp;</td></tr>
+      <tr><td>&nbsp;</td>
+	<td width="100">T1</td><td width="200">Organization 0 4</td><td>Sony</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+	<td>T2</td><td>MERGE-ORG 14 27</td><td>joint venture</td>
+      <td>&nbsp;</td></tr>
+      <tr><td colspan="5">&nbsp;</td></tr>
+    </table>
+
+    <p>All text-bound annotations follow the same structure. As in all
+      annotations, the ID occurs first and is delimited from the rest
+      of the line with a TAB character. The primary annotation is
+      given as a SPACE-separated triple (type, start-offset,
+      end-offset). The start-offset is the index of the first
+      character of the annotated span in the text (".txt" file),
+      i.e. the number of characters in the document preceding it. The
+      end-offset is the index of the first character after the
+      annotated span.  Thus, the character in the end-offset position
+      is not included in the annotated span. For reference, the text
+      spanned by the annotation is included, separated by a TAB
+      character.
+    </p>
+
+    <h3>Annotation ID conventions</h3>
+    <p>All annotations IDs consist of a single upper-case character
+      identifying the annotation type and a number. The initial ID
+      characters relate to annotation types as follows:
+    </p>
+    <ul>
+      <li><tt>T</tt>: text-bound annotation</li>
+      <li><tt>R</tt>: relation</li>
+      <li><tt>E</tt>: event</li>
+      <li><tt>M</tt>: event modification</li>
+      <li><tt>A</tt>: attribute</li>
+    </ul>
+    <p>Additionally, an asterisk ("*") can be used as a placeholder
+      for an ID in special cases.
+    </p>
+
+    <h2>Text files (<tt>.txt</tt>)</h2>
+    <p>Text files are expected to have the suffix <tt>.txt</tt> and
+      contain the text of the original documents input into the
+      system.</p>
+
+    <table border="1" rules="none" cellspacing="10" style="border-color:rgb(136, 136, 136);border-width:1px;background-color:rgb(207, 226, 243);font-family:monospace">
+      <tr><td colspan="3">&nbsp;</td></tr>
+      <tr><td>&nbsp;</td>
+	<td width="500">Sony formed a joint venture with Ericsson, a mobile phone company based in Sweden.</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+	<td>Sony announced today that ...</td>
+      <td>&nbsp;</td></tr>
+      <tr><td colspan="3">&nbsp;</td></tr>
+    </table>
+    <p>The document texts are stored in plain text files encoded
+      using <a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8</a>
+      (an extension of ASCII &mdash; plain ASCII texts work also).
+      <!-- and UNIX-style newline convention. -->
+
+      Document texts may contain newlines, which will be shown as line
+      breaks by brat. However, it is not necessary for the documents
+      to contain any newlines: brat performs its own sentence
+      segmentation for display using a reliable algorithm. (Whether
+      or not newlines are included in the original text documents,
+      the text files themselves are not modified.)
+    </p>
+    <h2>Annotation files (<tt>.ann</tt>)</h2>
+    <p>Annotations are stored in files with the <tt>.ann</tt>
+      suffix. The various annotation types that may be contained in
+      these files are discussed in the following.
+    </p>
+    
+    <h3>Entity annotations</h3>
+    <p>Each entity annotation has a unique ID and is defined by type
+      (e.g. <tt>Person</tt> or <tt>Organization</tt>) and the span of
+      characters containing the entity mention (represented as a
+      "start end" offset pair).
+    </p>
+
+    <table border="1" rules="none" cellspacing="10" style="border-color:rgb(136, 136, 136);border-width:1px;background-color:rgb(207, 226, 243);font-family:monospace">
+      <tr><td colspan="5">&nbsp;</td></tr>
+      <tr><td>&nbsp;</td>
+	<td width="100">T1</td><td width="200">Organization 0 4</td><td>Sony</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+	<td>T3</td><td>Organization 33 41</td><td>Ericsson</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+	<td>T3</td><td>Country 75 81</td><td>Sweden</td>
+      <td>&nbsp;</td></tr>
+      <tr><td colspan="5">&nbsp;</td></tr>
+    </table>
+    <p>Each line contains
+      one <a href="#text-bound_annotation">text-bound annotation</a>
+      identifying the entity mention in text.
+    </p>
+      
+
+    <h3>Event annotations</h3>
+    <p>Each event annotationd has a unique ID and is defined by type
+      (e.g. <tt>MERGE-ORG</tt>), event trigger (the text stating
+      the event) and arguments.
+    </p>
+    <table border="1" rules="none" cellspacing="10" style="border-color:rgb(136, 136, 136);border-width:1px;background-color:rgb(207, 226, 243);font-family:monospace">
+      <tr><td colspan="5">&nbsp;</td></tr>
+      <tr><td>&nbsp;</td>
+	<td width="100">T2</td><td width="200">MERGE-ORG 14 27</td><td>joint venture</td>
+      <td>&nbsp;</td></tr><tr><td>&nbsp;</td>
+	<td>E1</td><td colspan="2">MERGE-ORG:T2 Org1:T1 Org2:T3</td>
+      <td>&nbsp;</td></tr>
+      <tr><td colspan="5">&nbsp;</td></tr>
+    </table>
+    <p>The event triggers, annotations marking the word or words
+      stating each event,
+      are <a href="#text-bound_annotation">text-bound annotations</a>
+      and their format is identical to that for entities. (The IDs of
+      triggers occupy the same space as the IDs of entities, and these
+      must not overlap.)
+    </p>
+    <p>As for all annotations, the event ID occurs first, separated by
+      a TAB character. The event trigger is specified as TYPE:ID and
+      identifies the event type and its trigger through the ID. By
+      convention, the event type is specified both in the trigger
+      annotation and the event annotation. The event trigger is
+      separated from the event arguments by SPACE. The event arguments
+      are a SPACE-separated set of ROLE:ID pairs, where ROLE is one of
+      the event- and task-specific argument roles (e.g. Theme, Cause,
+      Site) and the ID identifies the entity or event filling that
+      role. Note that several events can share the same trigger and that
+      while the event trigger should be specified first, the event
+      arguments can appear in any order.
+    </p>
+<br>
+These event annotations are the primary extraction target in the main tasks. Participants will be provided by human-created gold standard event annotations for the training and development data, but will need to create both event trigger and event annotations for the test data.<br>
+<h4>Additional entity annotations</h4>
+The event annotation files (.a2) for some main tasks contain annotation identifying additional entities that are relevant to events but not among the given core entities found in the .a1 files. These annotations identify, for example, the cellular component to which a protein is moved in a Localization event or the domain that is bound in a Binding event. The annotations are specified as text-bound annotations, that is, their format is identical to that for the entities in the .a1 files (see above).<br>
+<br>
+These annotations are only provided for training and development data, not test data, and they are a target of extraction. Systems participating in (sub)tasks involving these entities will thus need to extract them and include them in the output.<br>
+<h4>Event modification annotations</h4>
+The event annotation files (.a2) for some main tasks contain an additional class of annotation identifying when events are stated speculatively or in a negative context.<br>
+<br>
+<table border="1" cellspacing="0" style="border-color:rgb(136, 136, 136);border-width:1px;border-collapse:collapse;background-color:rgb(207, 226, 243)">
+<tbody>
+<tr>
+<td style="width:728px;height:34px"><br style="font-family:courier new,monospace">
+<span style="font-family:courier new,monospace">M1</td>&nbsp;<td> Speculation E1</span><br>
+      <span style="font-family:courier new,monospace">M2 </td>&nbsp;<td> Negation E2</span><br>
+<br>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+Event modification annotations begin with an ID, separated by TAB from the modification type (Speculation or Negation), which is in turn separated by SPACE from the ID of the event the modification applies to.<br>
+<h4>Entity equivalence annotations</h4>
+The event annotation files (.a2) contain an additional class of annotation identifying equivalence stated through simple local abbreviations and other aliasing between given entities, such as between <i>interleukin-2</i> and <i>IL-2</i> in the text "interleukin-2 (IL-2)".<br>
+<br>
+<table border="1" cellspacing="0" style="border-color:rgb(136, 136, 136);border-width:1px;border-collapse:collapse;background-color:rgb(207, 226, 243)">
+<tbody>
+<tr>
+<td style="width:728px;height:34px"><br style="font-family:courier new,monospace">
+<span style="font-family:courier new,monospace">*</td>&nbsp;<td>&nbsp; Equiv T3 T4</span><br>
+<br>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+Equiv annotations are given a placeholder "*" in place of an ID, separated by TAB. The primary annotation consists of the relation type ("Equiv") and a set of two or more ID numbers separated by SPACE. These annotations specify that the listed IDs are mutually interchangeable so that any other annotation (e.g. an event) referencing such an ID would be interpreted identically if this ID was replaced with any other in the set.<br>
+<br>
+Note that while Equiv annotations will not be provided for test data, they are <b>not extraction targets</b> in the task and participating systems should not output Equiv annotations.<br>
+<br>
+<h2>Supporting task file formats</h2>
+These file formats are relevant to participation in the supporting tasks.<br>
+<br>
+<h3>Text files (.txt) and entity annotation files (.a1)</h3>
+These file formats are identical to those in the main tasks (see definitions above).<br>
+<br>
+<h3>Relation annotation files (.rel)</h3>
+These files contain annotation for directed pairwise relations stated in the text, specified through <span style="border-collapse:collapse"> the type of relation and the two entities.</span><br>
+<br>
+<table border="1" cellspacing="0" style="border-color:rgb(136, 136, 136);border-width:1px;border-collapse:collapse;background-color:rgb(207, 226, 243)">
+<tbody>
+<tr>
+<td style="width:728px;height:34px"><span style="font-family:courier new,monospace"><br>
+</span><span style="font-family:courier new,monospace">R1 </td>&nbsp;<td> Subunit-Complex Arg1:T11 Arg2:T32</span><br style="font-family:courier new,monospace">
+<span style="font-family:courier new,monospace">R2 </td>&nbsp;<td> Subunit-Complex Arg1:T10 Arg2:T32</span><br style="font-family:courier new,monospace">
+<span style="font-family:courier new,monospace">R3 </td>&nbsp;<td> Protein-Component Arg1:T22 Arg2:T34</span><br style="font-family:courier new,monospace">
+<span style="font-family:courier new,monospace">R4 </td>&nbsp;<td> Protein-Component Arg1:T22 Arg2:T36</span><br>
+<br>
+</td>
+</tr>
+</tbody>
+</table>
+<span style="border-collapse:collapse"><br>
+The
+format is similar to that applied for Events in the main tasks, with the exception that the annotation does not identify a specific piece
+of text expressing the relation ("text binding").<br>
+</span>
+<h4><span style="border-collapse:collapse">Additional entity annotations and entity equivalence annotations</span></h4>
+<span style="border-collapse:collapse">Relation annotation files can also contain additional entity annotations and entity equivalence (Equiv) annotations, both in a format identical to the corresponding format in the main tasks (see definitions above).<br>
+<br>
+</span>
+<h2><span style="border-collapse:collapse">File naming conventions</span></h2>
+All files in the shared task follow the same naming convention, with the suffixes identifying the file format (see above) and the base name the text source the file relates to, as follows:<br>
+<br>
+ID_SYSTEM - ID_NUMBER - SECTION_SPECIFICATION - SUBSECTION_NUMBER<br>
+<br>
+Where<br>
+<ul><li>ID_SYSTEM identifies the system from which IDs are drawn, e.g. "PMID" for files for which the original source is PubMed or "PMC" for files for which the source is PubMed Central.</li>
+<li>ID_NUMBER is the ID number within the ID system, e.g. "1234567" for a file with PubMed/PMC ID 1234567.</li>
+<li>SECTION_SPECIFICATION identifies the top-level section of the document that the file relates to, consisting of</li>
+<ul><li>&nbsp;SECTION_NUMBER a running two-digit section number, "01" for the first top-level section etc. By convention, files relating to the title and abstract are given the number "00".</li>
+<li>&nbsp;SECTION_TITLE the title of the section, as in the original document except with space replaced by underscore, e.g. "Materials_and_Methods". By convention, files relating to the title and abstract are given the title "TIAB".</li></ul>
+<li>SUBSECTION_NUMBER a running two-digit subsection number ("01" for the first subsection etc.) in the top-level section that the file relates to. The number is incremented by one for each subsection, sub-subsection or similar, thus "flattening" sub-subsection or further structure. For top-level sections with no subsections this string is empty. For text before the first subsection in top-level sections with subsections, the number is "00".<br>
+</li></ul>
+If the document has no sections, both SECTION-SPECIFICATION and SUBSECTION_NUMBER are empty.<br>
+<br>
+Thus, for example,<br>
+<ul><li>PMID-123456: entire content (i.e. title and abstract) of the PubMed document with PMID 123456<br>
+</li>
+<li>PMC-1234567-00-TIAB : title and abstract of PubMed Central document with PMC ID 1234567</li>
+<li>PMC-1234567-01-Introduction: the 1st top-level section, "Introduction", of PubMed Central document with PMC ID 1234567. The section has no subsections.</li>
+<li>PMC-1234567-04-Results-07: 7th sequential subsection (or sub-subsection etc.) of the 4th top-level section, "Results", of PubMed Central document with PMC ID 1234567.</li>
+<li>PMC-1234567-04-Results-00: text before first subsection of the 4th top-level section, "Results", of PubMed Central document with PMC ID 1234567.</li></ul>
+Note that in cases where a top-level section has no text before the first subsection, files with SUBSECTION_NUMBER "00" would have no text content to refer to and are thus not included.<br>
