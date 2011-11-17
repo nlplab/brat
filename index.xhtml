@@ -133,7 +133,12 @@
       </fieldset>
       <fieldset id="options_form_annotation" class="login">
         <legend>Annotation options</legend>
-        <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span>
+        <!-- <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span> -->
+        <span id="annotation_speed" class="radio_group">
+          <input type="radio" id="annotation_speed1" value="1" name="annspeed_radio"/><label for="annotation_speed1">Slow annotation</label>
+          <input type="radio" id="annotation_speed2" value="2" name="annspeed_radio" checked="checked" /><label for="annotation_speed2">Normal annotation</label>
+          <input type="radio" id="annotation_speed3" value="3" name="annspeed_radio"/><label for="annotation_speed3">Rapid annotation</label>
+        </span>
       </fieldset>
       <fieldset id="options_form_network">
         <legend>Network options</legend>

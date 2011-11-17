@@ -21,6 +21,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanTypes = null;
       var attributeTypes = null;
       var showValidAttributes; // callback function
+      var confirmModeOn = false; // TODO: grab initial value from radio button
 
       // amount by which to lighten (adjust "L" in HSL space) span
       // colors for type selection box BG display. 0=no lightening,
@@ -277,8 +278,7 @@ var AnnotatorUI = (function($, window, undefined) {
           showAllAttributes = false;
         }
         showValidAttributes();
-        var confirmMode = $('#confirm_mode')[0].checked;
-        if (reselectedSpan && !confirmMode) {
+        if (reselectedSpan && !confirmModeOn) {
           spanForm.submit();
         } else {
           dispatcher.post('showForm', [spanForm]);
@@ -396,8 +396,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#arc_form_reselect, #arc_form_delete').hide();
         }
 
-        var confirmMode = $('#confirm_mode')[0].checked;
-        if (!confirmMode) {
+        if (!confirmModeOn) {
           arcForm.find('#arc_roles input:radio').click(arcFormSubmitRadio);
         }
 
@@ -413,8 +412,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var deleteArc = function(evt) {
-        var confirmMode = $('#confirm_mode')[0].checked;
-        if (confirmMode && !confirm("Are you sure you want to delete this annotation?")) {
+        if (confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
         }
         var eventDataId = $(evt.target).attr('data-arc-ed');
@@ -576,8 +574,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var spanFormSubmitRadio = function(evt) {
-        var confirmMode = $('#confirm_mode')[0].checked;
-        if (confirmMode) {
+        if (confirmModeOn) {
           showValidAttributes();
           $('#span_form-ok').focus();
         } else {
@@ -780,8 +777,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanForm = $('#span_form');
 
       var deleteSpan = function() {
-        var confirmMode = $('#confirm_mode')[0].checked;
-        if (confirmMode && !confirm("Are you sure you want to delete this annotation?")) {
+        if (confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
         }
         $.extend(spanOptions, {
@@ -983,6 +979,14 @@ var AnnotatorUI = (function($, window, undefined) {
         that.user = _user;
       }
 
+      var setAnnotationSpeed = function(speed) {
+        if (speed == 1) {
+          confirmModeOn = true;
+        } else {
+          confirmModeOn = false;
+        }
+      };
+
       var init = function() {
         dispatcher.post('annotationIsAvailable');
       };
@@ -1002,7 +1006,8 @@ var AnnotatorUI = (function($, window, undefined) {
           on('dragstart', preventDefault).
           on('mousedown', onMouseDown).
           on('mouseup', onMouseUp).
-          on('mousemove', onMouseMove);
+          on('mousemove', onMouseMove).
+          on('annotationSpeed', setAnnotationSpeed);
     };
 
     return AnnotatorUI;

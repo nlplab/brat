@@ -1161,16 +1161,17 @@ var VisualizerUI = (function($, window, undefined) {
           }, 500);
         });
 
-      $('#confirm_mode').
-        click(function(evt) {
-          var val = this.checked;
-          if (val) {
-            dispatcher.post('messages', [[['Confirm mode is now on', 'comment']]]);
-          } else {
-            dispatcher.post('messages', [[['Confirm mode is now off', 'comment']]]);
-          }
-        }).
-        parent().addClass('login');
+      // deprecated in favor of the "annotation speed" toggle
+//       $('#confirm_mode').
+//         click(function(evt) {
+//           var val = this.checked;
+//           if (val) {
+//             dispatcher.post('messages', [[['Confirm mode is now on', 'comment']]]);
+//           } else {
+//             dispatcher.post('messages', [[['Confirm mode is now off', 'comment']]]);
+//           }
+//         }).
+//         parent().addClass('login');
 
       $('#abbrev_mode').click(function(evt) {
         var val = this.checked;
@@ -1196,20 +1197,12 @@ var VisualizerUI = (function($, window, undefined) {
         return false;
       });
 
-      
-      // deprecated by density radio controls
-//       $('#spacious_mode').click(function(evt) {
-//         var val = this.checked;
-//         if (val) {
-//           dispatcher.post('messages', [[['Spacious mode is now on', 'comment']]]);
-//         } else {
-//           dispatcher.post('messages', [[['Spacious mode is now off', 'comment']]]);
-//         }
-//         dispatcher.post('spacious', [val]);
-//         // TODO: XXX: see comment above for why this is asynchronous
-//         dispatcher.post(1, 'resetData');
-//       });
-
+      $('#annotation_speed input').click(function(evt) {
+        var val = this.value;
+        dispatcher.post('annotationSpeed', [val]);
+        return false;
+      });      
+    
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();
       $('#svg').css('margin-top', headerHeight + 10);
