@@ -847,8 +847,9 @@ var VisualizerUI = (function($, window, undefined) {
       $('#data_button').click(function() {
         dispatcher.post('showForm', [dataForm]);
       });
-      // make nice-looking buttons
-      $('#data_form').find('input').button();
+      // make nice-looking buttons for checkboxes and buttons
+      $('#data_form').find('input[type="checkbox"]').button();
+      $('#data_form').find('input[type="button"]').button();
 
       /* END data dialog - related */
 
@@ -871,8 +872,9 @@ var VisualizerUI = (function($, window, undefined) {
       $('#options_button').click(function() {
         dispatcher.post('showForm', [optionsForm]);
       });
-      // make nice-looking buttons
-      $('#options_form').find('input').button();
+      // make nice-looking buttons for checkboxes and radios
+      $('#options_form').find('input[type="checkbox"]').button();
+      $('#options_form').find('.radio_group').buttonset();
 
       /* END options dialog - related */
 
@@ -1199,17 +1201,27 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post(1, 'resetData');
       });
 
-      $('#spacious_mode').click(function(evt) {
-        var val = this.checked;
-        if (val) {
-          dispatcher.post('messages', [[['Spacious mode is now on', 'comment']]]);
-        } else {
-          dispatcher.post('messages', [[['Spacious mode is now off', 'comment']]]);
-        }
-        dispatcher.post('spacious', [val]);
+      $('#layout_density input').click(function(evt) {
+        var val = this.value;
+        dispatcher.post('layoutDensity', [val]);
         // TODO: XXX: see comment above for why this is asynchronous
         dispatcher.post(1, 'resetData');
+        return false;
       });
+
+      
+      // deprecated by density radio controls
+//       $('#spacious_mode').click(function(evt) {
+//         var val = this.checked;
+//         if (val) {
+//           dispatcher.post('messages', [[['Spacious mode is now on', 'comment']]]);
+//         } else {
+//           dispatcher.post('messages', [[['Spacious mode is now off', 'comment']]]);
+//         }
+//         dispatcher.post('spacious', [val]);
+//         // TODO: XXX: see comment above for why this is asynchronous
+//         dispatcher.post(1, 'resetData');
+//       });
 
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();

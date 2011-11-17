@@ -94,7 +94,6 @@ var Visualizer = (function($, window, undefined) {
       var spanTypes;
       var relationTypesHash;
       var abbrevsOn = true;
-      var spaciousOn = false;
       var isRenderRequested;
       var isCollectionLoaded = false;
       var areFontsLoaded = false;
@@ -2130,16 +2129,27 @@ Util.profileStart('before render');
         abbrevsOn = _abbrevsOn;
       }
 
-      var setSpacious = function(_spaciousOn) {
-        spaciousOn = _spaciousOn;
+      var setLayoutDensity = function(_density) {
+	//dispatcher.post('messages', [[['Setting layout density ' + _density, 'comment']]]);
 	// TODO: store standard settings instead of hard-coding
 	// them here (again)
-	if (spaciousOn) {
+	if (_density < 2) {
+	  // dense
+	  margin = { x: 0, y: 0 };
+	  boxSpacing  = 1;
+	  curlyHeight = 1;
+	  arcSpacing = 7;
+	  arcStartHeight = 17;
+	} else if(_density > 2) {
+	  // spacious
+	  margin = { x: 2, y: 1 };
 	  boxSpacing  = 3;
 	  curlyHeight = 6;	  
 	  arcSpacing = 12;
 	  arcStartHeight = 23;
 	} else {
+	  // standard
+	  margin = { x: 2, y: 1 };
 	  boxSpacing  = 1;
 	  curlyHeight = 4;
 	  arcSpacing = 9;
@@ -2311,7 +2321,7 @@ Util.profileStart('before render');
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
-          on('spacious', setSpacious).
+          on('layoutDensity', setLayoutDensity).
           on('current', gotCurrent).
           on('clearSVG', clearSVG).
           on('mouseover', onMouseOver).
