@@ -401,6 +401,9 @@ fieldset {
   -webkit-box-shadow: 5px 5px 5px #aaaaaa;
   box-shadow: 5px 5px 5px #aaaaaa;
 }
+#more_info_readme {
+  height: 350px;
+}
 
 .comment_id {
   font-weight: bold;

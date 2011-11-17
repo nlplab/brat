@@ -524,8 +524,6 @@ var VisualizerUI = (function($, window, undefined) {
           // dialog text
           $('#more_readme_button').show();
           $('#more_info_readme').text(selectorData.description);
-          // TODO: better way to do this
-          $('#more_info_readme').height(350);
         } else {
           // empty or short, single-line description; no need for more
           $('#more_readme_button').hide();
@@ -878,11 +876,11 @@ var VisualizerUI = (function($, window, undefined) {
       moreInfoDialog.submit(moreInfoDialogSubmit);
       initForm(moreInfoDialog, {
           width: 500,
-          height: 500,
           no_cancel: true,
           open: function(evt) {
             keymap = {};
-          }
+          },
+          alsoResize: '#more_info_readme',
       });
       $('#more_readme_button').click(function() {
         dispatcher.post('showForm', [moreInfoDialog]);
