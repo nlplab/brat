@@ -394,7 +394,7 @@ var VisualizerUI = (function($, window, undefined) {
           var abs = found[1];
           var collname = found[2].substr(0, found[2].length - 1);
           var docname = found[3];
-          var args = found[4];
+          var argstr = found[4];
           if (abs) {
             _coll = abs + collname;
             if (_coll.length < 2) coll += '/';
@@ -404,8 +404,8 @@ var VisualizerUI = (function($, window, undefined) {
             _coll = coll + collname;
             _doc = docname;
           }
-          if (args) {
-              _args = Util.deparam(args);
+          if (argstr) {
+              _args = Util.deparam(argstr);
           } else {
               _args = {};
           }
@@ -415,9 +415,17 @@ var VisualizerUI = (function($, window, undefined) {
         }
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').empty();
-        dispatcher.post('clearSVG');
-        dispatcher.post('allowReloadByURL');
-        dispatcher.post('setCollection', [_coll, _doc, _args]);
+        if (coll != _coll || doc != _doc ||
+            !Util.isEqual(args, _args)) {
+          // trigger clear and changes if something other than the
+          // current thing is chosen
+          dispatcher.post('clearSVG');
+          dispatcher.post('allowReloadByURL');
+          dispatcher.post('setCollection', [_coll, _doc, _args]);
+        } else {
+          // hide even on select current thing
+          hideForm(fileBrowser);
+        }
         return false;
       };
       fileBrowser.
