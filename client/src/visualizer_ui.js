@@ -618,8 +618,6 @@ var VisualizerUI = (function($, window, undefined) {
         // return the type to the same value, if possible
         if (type) {
           $type.val(type);
-        } else if ($type.children().length == 2) {
-          $type[0].selectedIndex = 1;
         };
       };
 
@@ -635,9 +633,6 @@ var VisualizerUI = (function($, window, undefined) {
           var option = '<option value="' + Util.escapeQuotes(arcTypePair[0]) + '">' + Util.escapeHTML(arcTypePair[1]) + '</option>'
           $role.append(option);
         });
-        if ($role.children().length == 2) {
-          $role[0].selectedIndex = 1;
-        };
         var $type = $('<select class="fullwidth"/>');
         var $text = $('<input class="fullwidth"/>');
         var button = $('<input type="button"/>');
@@ -699,9 +694,6 @@ var VisualizerUI = (function($, window, undefined) {
             });
           }
         });
-        if ($arg1.children().length == 2) {
-          $arg1[0].selectedIndex = 1;
-        };
         $('#search_form_relation_arg1_type').change();
       });
 
@@ -726,9 +718,6 @@ var VisualizerUI = (function($, window, undefined) {
             $arg2.append(option);
           });
         }
-        if ($arg2.children().length == 2) {
-          $arg2[0].selectedIndex = 1;
-        };
       });
 
       $('#search_tabs').tabs();
