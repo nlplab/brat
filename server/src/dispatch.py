@@ -30,7 +30,7 @@ from message import Messager
 from svg import store_svg, retrieve_svg
 from session import get_session
 from search import search_text, search_entity, search_event, search_relation
-
+from predict import suggest_span_types
 
 ### Constants
 # Function call-backs
@@ -61,6 +61,8 @@ DISPATCHER = {
         'searchEntity'   : search_entity,
         'searchEvent'    : search_event,
         'searchRelation' : search_relation,
+
+        'suggestSpanTypes': suggest_span_types,
         }
 
 # Actions that require authentication
@@ -74,6 +76,7 @@ REQUIRES_AUTHENTICATION = set((
     'createSpan',
     'deleteSpan',
     'splitSpan',
+    'suggestSpanTypes',
    
     # Search functionality (heavy on the CPU/disk ATM)
     'searchText',

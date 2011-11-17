@@ -22,6 +22,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var attributeTypes = null;
       var showValidAttributes; // callback function
       var confirmModeOn = false; // TODO: grab initial value from radio button
+      var rapidModeOn = false;  // TODO: grab initial value from radio button
 
       // amount by which to lighten (adjust "L" in HSL space) span
       // colors for type selection box BG display. 0=no lightening,
@@ -553,16 +554,34 @@ var AnnotatorUI = (function($, window, undefined) {
             });
 
             if (crossSentence) {
+              // attempt to annotate across sentence boundaries; not supported
               dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
               $(reselectedSpan.rect).removeClass('reselect');
               reselectedSpan = null;
               svgElement.removeClass('reselect');
-            } else {
+            } else if (!rapidModeOn) {
+              // normal span select in standard annotation mode: show selector
               var spanText = data.text.substring(selectedFrom, selectedTo);
               fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
+            } else {
+              // normal span select in rapid annotation mode: call
+              // server for span type candidates
+              var spanText = data.text.substring(selectedFrom, selectedTo);
+              dispatcher.post('ajax', [ { 
+                              action: 'suggestSpanTypes',
+                              collection: coll,
+                              document: doc,
+                              start: selectedFrom,
+                              end: selectedTo,
+                              }, 'suggestedSpanTypes']);
             }
           }
         }
+      };
+
+      var receivedSuggestedSpanTypes = function(_suggestions) {
+        console.log(_suggestions);
+        dispatcher.post('messages', [[['Received span types: '+ _suggestions, 'info']]]);
       };
 
       var collapseHandler = function(evt) {
@@ -985,6 +1004,11 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           confirmModeOn = false;
         }
+        if (speed == 3) {
+          rapidModeOn = true;
+        } else {
+          rapidModeOn = false;
+        }
       };
 
       var init = function() {
@@ -1007,7 +1031,8 @@ var AnnotatorUI = (function($, window, undefined) {
           on('mousedown', onMouseDown).
           on('mouseup', onMouseUp).
           on('mousemove', onMouseMove).
-          on('annotationSpeed', setAnnotationSpeed);
+          on('annotationSpeed', setAnnotationSpeed).
+          on('suggestedSpanTypes', receivedSuggestedSpanTypes);
     };
 
     return AnnotatorUI;
