@@ -410,6 +410,7 @@ var Util = (function(window, undefined) {
     };
 
     var keyValRE = /^([^=]+)=(.*)$/; // key=value
+    var isDigitsRE = /^[0-9]+$/;
 
     var deparam = function(str) {
       var args = str.split('&');
@@ -423,7 +424,24 @@ var Util = (function(window, undefined) {
         var arr = parts[2].split(',');
         var sublen = arr.length;
         for (var j = 0; j < sublen; j++) {
-          val.push(arr[j].split('~'));
+          var innermost = [];
+          // map empty arguments ("" in URL) to empty arrays
+          // (innermost remains [])
+          if (arr[j].length) {
+            var arrsplit = arr[j].split('~');
+            var subsublen = arrsplit.length;
+            for (var k = 0; k < subsublen; k++) {
+              if(arrsplit[k].match(isDigitsRE)) {
+                // convert digits into ints ...
+                innermost.push(parseInt(arrsplit[k], 10));
+              }
+              else {
+                // ... anything else remains a string.
+                innermost.push(arrsplit[k]);
+              }
+            }
+          }
+          val.push(innermost);
         }
         result[parts[1]] = val;
       }
