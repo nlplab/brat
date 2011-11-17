@@ -532,10 +532,6 @@ var VisualizerUI = (function($, window, undefined) {
           $('#more_info_readme').text('');
         }
 
-        var curcoll = selectorData.collection;
-        var pos = curcoll.lastIndexOf('/');
-        if (pos != -1) curcoll = curcoll.substring(pos + 1);
-        selectElementInTable($('#collection_select'), curcoll);
         selectElementInTable($('#document_select'), doc);
         setTimeout(function() {
           $('#document_input').focus().select();
