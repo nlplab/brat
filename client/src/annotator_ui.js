@@ -211,8 +211,6 @@ var AnnotatorUI = (function($, window, undefined) {
               radio.checked = false;
             });
           }
-          // annotator comments
-          $('#span_notes').val(span.annotatorNotes || '');
 
           // count the repeating arc types
           var arcTypeCount = {};
@@ -237,13 +235,14 @@ var AnnotatorUI = (function($, window, undefined) {
             dispatcher.post('messages', [[['No valid span types defined', 'error']]]);
             return;
           }
-          $('#span_notes').val('');
           $('#span_form_split').hide();
+          $('#span_notes').val('');
           showAllAttributes = true;
         }
         if (span && !reselectedSpan) {
           $('#span_form_reselect, #span_form_delete').show();
           keymap[$.ui.keyCode.DELETE] = 'span_form_delete';
+          $('#span_notes').val(span.annotatorNotes || '');
         } else {
           $('#span_form_reselect, #span_form_delete').hide();
           keymap[$.ui.keyCode.DELETE] = null;
