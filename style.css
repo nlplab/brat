@@ -404,6 +404,10 @@ fieldset {
 #more_info_readme {
   height: 350px;
 }
+#more_readme_button {                   
+  padding: 2px 5px;
+  float: right;
+}
 
 .comment_id {
   font-weight: bold;

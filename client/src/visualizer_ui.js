@@ -522,6 +522,7 @@ var VisualizerUI = (function($, window, undefined) {
              selectorData.description.length > 50)) {
           // multi-line or long description; show "more" button and fill
           // dialog text
+          $('#more_readme_button').button(); // TODO: more reasonable place
           $('#more_readme_button').show();
           $('#more_info_readme').text(selectorData.description);
         } else {
