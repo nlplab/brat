@@ -246,7 +246,7 @@ rect.shadow_EditHighlight {
   stroke-width: 2px;
 }
 .span rect.reselect {
-  stroke-width: 4px;
+  stroke-width: 2px;
 }
 .arcs .reselect path {
   stroke-width: 2px;
