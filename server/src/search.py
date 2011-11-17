@@ -60,7 +60,8 @@ class TextMatch(object):
 
     def reference_id(self):
         # mimic reference_id for annotations
-        return ["%s~%s" % (self.start, self.end)]
+        # this is the form expected by client Util.param()
+        return [self.start, self.end]
 
     def reference_text(self):
         return "%s-%s" % (self.start, self.end)
