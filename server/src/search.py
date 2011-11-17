@@ -585,7 +585,7 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
                 t_ann = ann_obj.get_ann_by_id(e.trigger)
             except:
                 # TODO: specific exception
-                Messager.error('Failed to retrieve trigger annotation %s, skipping event %s in search' % (e.trigger, e.id))
+                Messager.error('Failed to retrieve trigger annotation %s, skipping event %s in search' % (e.trigger, e.id))            
 
             # TODO: make options for "text included" vs. "text matches"
             if (trigger_text != None and trigger_text != "" and 
@@ -593,32 +593,41 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
                 trigger_text not in t_ann.text):
                 continue
 
-            # argument constraints
-            missing_match = False
+            # interpret unconstrained (all blank values) argument
+            # "constraints" as no constraint
+            arg_constraints = []
             for arg in args:
-                for s in ('role', 'type', 'text'):
-                    assert s in arg, "Error: missing mandatory field '%s' in event search" % s
-                found_match = False
-                for role, aid in e.args:
-                    if arg['role'] is not None and arg['role'] != '' and arg['role'] != role:
-                        # mismatch on role
-                        continue
-                    arg_ent = ann_obj.get_ann_by_id(aid)
-                    if (arg['type'] is not None and arg['type'] != '' and 
-                        arg['type'] != arg_ent.type):
-                        # mismatch on type
-                        continue
-                    if (arg['text'] is not None and arg['text'] != '' and
-                        arg['text'] not in arg_ent.get_text()):
-                        # mismatch on text
-                        continue
-                    found_match = True
-                    break
-                if not found_match:
-                    missing_match = True
-                    break
-            if missing_match:
-                continue
+                if arg['role'] != '' or arg['type'] != '' or arg['text'] != '':
+                    arg_constraints.append(arg)
+            args = arg_constraints
+
+            # argument constraints, if any
+            if len(args) > 0:
+                missing_match = False
+                for arg in args:
+                    for s in ('role', 'type', 'text'):
+                        assert s in arg, "Error: missing mandatory field '%s' in event search" % s
+                    found_match = False
+                    for role, aid in e.args:
+                        if arg['role'] is not None and arg['role'] != '' and arg['role'] != role:
+                            # mismatch on role
+                            continue
+                        arg_ent = ann_obj.get_ann_by_id(aid)
+                        if (arg['type'] is not None and arg['type'] != '' and 
+                            arg['type'] != arg_ent.type):
+                            # mismatch on type
+                            continue
+                        if (arg['text'] is not None and arg['text'] != '' and
+                            arg['text'] not in arg_ent.get_text()):
+                            # mismatch on text
+                            continue
+                        found_match = True
+                        break
+                    if not found_match:
+                        missing_match = True
+                        break
+                if missing_match:
+                    continue
 
             ann_matches.append((t_ann, e))
 
