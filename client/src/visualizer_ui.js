@@ -851,7 +851,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
       optionsForm.submit(optionsFormSubmit);
       initForm(optionsForm, {
-          width: 500,
+          width: 550,
           no_cancel: true,
           open: function(evt) {
             keymap = {};
