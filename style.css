@@ -414,6 +414,16 @@ fieldset {
   right: -2px;
 }
 
+#notes_container {
+  position: relative;
+}
+#clear_notes_button {                   
+  padding: 2px 5px;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+}
+
 .comment_id {
   font-weight: bold;
 }

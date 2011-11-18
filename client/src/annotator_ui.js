@@ -337,6 +337,12 @@ var AnnotatorUI = (function($, window, undefined) {
         adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent());
       };
 
+      var clearSpanNotes = function(evt) {
+        $('#span_notes').val('');
+      }
+      $('#clear_notes_button').button();
+      $('#clear_notes_button').click(clearSpanNotes);
+
       var arcFormSubmitRadio = function(evt) {
         // TODO: check for confirm_mode?
         arcFormSubmit(evt, $(evt.target));
