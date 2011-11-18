@@ -10,6 +10,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var data = null;
       var searchConfig = null;
       var spanOptions = null;
+      var rapidSpanOptions = null;
       var arcOptions = null;
       var spanKeymap = null;
       var keymap = null;
@@ -302,7 +303,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#rapid_span_selected').text(text);
 
         // fill types
-        $spanTypeDiv = $('#rapid_span_types_div');
+        var $spanTypeDiv = $('#rapid_span_types_div');
         // remove previously filled, if any
         $spanTypeDiv.empty();
         $.each(types, function(typeNo, type) {
@@ -312,7 +313,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var $input = $('<input type="radio" name="rapid_span_type"/>').
               attr('id', 'rapid_span_' + name).
               attr('value', name);
-          var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
+          var spanBgColor = spanTypes[name] && spanTypes[name].bgColor || '#ffffff';
           spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
           // TODO: use preferred label instead of type name
           var $label = $('<label/>').
@@ -325,6 +326,7 @@ var AnnotatorUI = (function($, window, undefined) {
             append($label);
           $spanTypeDiv.append($content);
           // TODO: set up hotkeys
+          rapidSpanForm.find('#rapid_span_types input:radio').click(rapidSpanFormSubmitRadio);
         });
 
         var firstRadio = $('#rapid_span_form input:radio:first')[0];
@@ -633,7 +635,7 @@ var AnnotatorUI = (function($, window, undefined) {
               dispatcher.post('ajax', [ { 
                               action: 'suggestSpanTypes',
                               collection: coll,
-                              document: doc,
+                              'document': doc,
                               start: selectedFrom,
                               end: selectedTo,
                               text: spanText,
@@ -650,6 +652,12 @@ var AnnotatorUI = (function($, window, undefined) {
           return false;
         }
         console.log('Suggested types:', sugg.types);
+        // initialize for submission
+        // TODO: is this a reasonable place to do this?
+        rapidSpanOptions = {
+          start: sugg.start,
+          end: sugg.end,  
+        };
         rapidFillSpanTypesAndDisplayForm(sugg.start, sugg.end, sugg.text, sugg.types);
       };
 
@@ -668,6 +676,10 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           spanFormSubmit(evt, $(evt.target));
         }
+      }
+
+      var rapidSpanFormSubmitRadio = function(evt) {
+        spanFormSubmit(evt, $(evt.target));
       }
 
       var rememberData = function(_data) {
@@ -825,7 +837,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#viewspan_search_fieldset').hide();
         }
 
-        spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
+        spanForm.find('#span_types input:radio').click(spanFormSubmit);
         spanForm.find('.collapser').click(collapseHandler);
       };
 
@@ -1008,6 +1020,25 @@ var AnnotatorUI = (function($, window, undefined) {
           keymap = spanKeymap;
         });
       spanForm.submit(spanFormSubmit);
+
+      var rapidSpanFormSubmit = function(evt, typeRadio) {
+        typeRadio = typeRadio || $('#rapid_span_form input:radio:checked');
+        var type = typeRadio.val();
+        dispatcher.post('hideForm', [rapidSpanForm]);
+        $.extend(rapidSpanOptions, {
+          action: 'createSpan',
+          collection: coll,
+          'document': doc,
+          type: type,
+        });
+        // unfocus all elements to prevent focus being kept after
+        // hiding them
+        rapidSpanForm.parent().find('*').blur();
+        $('#waiter').dialog('open');
+        dispatcher.post('ajax', [rapidSpanOptions, 'edited']);
+        return false;
+      };
+      rapidSpanForm.submit(rapidSpanFormSubmit);
 
       var importForm = $('#import_form');
       var importFormSubmit = function(evt) {
