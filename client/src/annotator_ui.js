@@ -761,7 +761,7 @@ var AnnotatorUI = (function($, window, undefined) {
         addSpanTypesToDiv($events, response.event_types, 'Events');
         $('#span_types').empty().append($entities).append($events);
 
-        // hide event attributes box if not defined
+        // fill in attributes
         var $attrs = $('#span_attributes div.scroller').empty();
         $.each(attributeTypes, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
@@ -789,6 +789,17 @@ var AnnotatorUI = (function($, window, undefined) {
             $select.change(onAttributeChange);
           }
         });
+
+        // hide attributes frame if none defined
+        var attribute_found = false;
+        $.each($('#span_attributes input'), function(attrNo, attr) {
+          attribute_found = true;
+        });
+        if (attribute_found) {
+          $('#span_attributes').show();
+        } else {
+          $('#span_attributes').hide();
+        }
 
         // fill search options in span dialog
         searchConfig = response.search_config;
