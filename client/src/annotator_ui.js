@@ -803,14 +803,11 @@ var AnnotatorUI = (function($, window, undefined) {
         });
 
         // hide attributes frame if none defined
-        var attribute_found = false;
-        $.each($('#span_attributes input'), function(attrNo, attr) {
-          attribute_found = true;
-        });
-        if (attribute_found) {
-          $('#span_attributes').show();
+        var $span_attributes = $('#span_attributes');
+        if ($span_attributes.find('input').length) {
+          $span_attributes.show();
         } else {
-          $('#span_attributes').hide();
+          $span_attributes.hide();
         }
 
         // fill search options in span dialog
