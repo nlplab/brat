@@ -221,8 +221,12 @@ var AnnotatorUI = (function($, window, undefined) {
           var arcTypeCount = {};
           repeatingArcTypes = [];
           $.each(span.outgoing, function(arcNo, arc) {
-            if ((arcTypeCount[arc.type] = (arcTypeCount[arc.type] || 0) + 1) == 2) {
-              repeatingArcTypes.push(arc.type);
+            // parse out possible number suffixes to allow e.g. splitting
+            // on "Theme" for args ("Theme1", "Theme2").
+            var splitArcType = arc.type.match(/^(.*?)(\d*)$/);
+            var noNumArcType = splitArcType[1];
+            if ((arcTypeCount[noNumArcType] = (arcTypeCount[noNumArcType] || 0) + 1) == 2) {
+              repeatingArcTypes.push(noNumArcType);
             }
           });
           if (repeatingArcTypes.length) {
