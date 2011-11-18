@@ -328,8 +328,8 @@ fieldset {
 }
 
 #pulluptrigger {
-  height: 40px;
-  width:  40px;
+  height: 35px;
+  width:  35px;
   position: fixed;
   bottom: 0;
   left: 0;
@@ -343,7 +343,7 @@ fieldset {
   z-index: 20001;
 }
 #messages {
-  z-index: 20002;
+  z-index: 20004;
 }
 #pulluptrigger {
   z-index: 20003;
