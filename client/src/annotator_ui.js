@@ -24,6 +24,9 @@ var AnnotatorUI = (function($, window, undefined) {
       var confirmModeOn = false; // TODO: grab initial value from radio button
       var rapidModeOn = false;  // TODO: grab initial value from radio button
 
+      // TODO: this is an ugly hack, remove (see comment with assignment)
+      var lastRapidAnnotationEvent = null;
+
       // amount by which to lighten (adjust "L" in HSL space) span
       // colors for type selection box BG display. 0=no lightening,
       // 1=white BG (no color)
@@ -289,9 +292,54 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
+      var rapidFillSpanTypesAndDisplayForm = function(start, end, text, types) {
+        // variant of fillSpanTypesAndDisplayForm for rapid annotation mode
+        keymap = spanKeymap;
+        $('#rapid_span_selected').text(text);
+
+        // fill types
+        $spanTypeDiv = $('#rapid_span_types_div');
+        // remove previously filled, if any
+        $spanTypeDiv.empty();
+        $.each(types, function(typeNo, type) {
+          // TODO: this duplicates a part of addSpanTypesToDivInner, unify
+          var name = type[0];
+          var prob = type[1];
+          var $input = $('<input type="radio" name="rapid_span_type"/>').
+              attr('id', 'rapid_span_' + name).
+              attr('value', name);
+          var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
+          spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
+          // TODO: use preferred label instead of type name
+          var $label = $('<label/>').
+            attr('for', 'rapid_span_' + name).
+            text(name+' ('+100.0*prob+'%)');
+          $label.css('background-color', spanBgColor);          
+          // TODO: check for unnecessary extra wrapping here
+          var $content = $('<div class="item_content"/>').
+            append($input).
+            append($label);
+          $spanTypeDiv.append($content);
+          // TODO: set up hotkeys
+        });
+
+        var firstRadio = $('#rapid_span_form input:radio:first')[0];
+        if (firstRadio) {
+          firstRadio.checked = true;
+        } else {
+          dispatcher.post('hideForm', [rapidSpanForm]);
+          dispatcher.post('messages', [[['No valid span types defined', 'error']]]);
+          return;
+        }
+        dispatcher.post('showForm', [rapidSpanForm]);
+        $('#rapid_span_form-ok').focus();
+        // TODO: avoid using global for stored event
+        adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent());
+      };
+
       var arcFormSubmitRadio = function(evt) {
-          // TODO: check for confirm_mode?
-          arcFormSubmit(evt, $(evt.target));
+        // TODO: check for confirm_mode?
+        arcFormSubmit(evt, $(evt.target));
       }
 
       var arcFormSubmit = function(evt, typeRadio) {
@@ -567,21 +615,32 @@ var AnnotatorUI = (function($, window, undefined) {
               // normal span select in rapid annotation mode: call
               // server for span type candidates
               var spanText = data.text.substring(selectedFrom, selectedTo);
+              // TODO: we're currently storing the event to position the
+              // span form using adjustToCursor() (which takes an event),
+              // but this is clumsy and suboptimal (user may have scrolled
+              // during the ajax invocation); think of a better way.
+              lastRapidAnnotationEvent = evt;
               dispatcher.post('ajax', [ { 
                               action: 'suggestSpanTypes',
                               collection: coll,
                               document: doc,
                               start: selectedFrom,
                               end: selectedTo,
+                              text: spanText,
                               }, 'suggestedSpanTypes']);
             }
           }
         }
       };
 
-      var receivedSuggestedSpanTypes = function(_suggestions) {
-        console.log(_suggestions);
-        dispatcher.post('messages', [[['Received span types: '+ _suggestions, 'info']]]);
+      var receivedSuggestedSpanTypes = function(sugg) {
+        // make sure the suggestions are for the current collection and document
+        if (sugg.collection != coll || sugg.document != doc) {
+          dispatcher.post('messages', [[['Error: collection/document mismatch for span suggestions', 'error']]]);
+          return false;
+        }
+        console.log('Suggested types:', sugg.types);
+        rapidFillSpanTypesAndDisplayForm(sugg.start, sugg.end, sugg.text, sugg.types);
       };
 
       var collapseHandler = function(evt) {
@@ -793,8 +852,10 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
 
+      // TODO: why are these globals defined here instead of at the top?
       var spanForm = $('#span_form');
-
+      var rapidSpanForm = $('#rapid_span_form');
+    
       var deleteSpan = function() {
         if (confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
@@ -880,6 +941,14 @@ var AnnotatorUI = (function($, window, undefined) {
               reselectedSpan = null;
               svgElement.removeClass('reselect');
             }
+          }
+        }]);
+
+      dispatcher.post('initForm', [rapidSpanForm, {
+          alsoResize: '#rapid_span_types',
+          width: 400,             
+          close: function(evt) {
+            keymap = null;
           }
         }]);
 
