@@ -7,6 +7,11 @@
 # out representing an annotation of type T as an entity and later
 # decides that T should rather be an event.
 
+# Usage example:
+
+#     python tools/ent2event.py Core_Angiogenesis_Term Angiogenesis-1.4.1/*.ann
+
+
 from __future__ import with_statement
 
 import sys
