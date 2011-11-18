@@ -73,7 +73,7 @@
             <!-- <input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/> -->
             <input id="options_button" type="button" value="Options" tabindex="-1"/>
           </div>
-          <div id="document_mtime" class="unselectable"/>
+          <div id="document_mtime" class="unselectable">&nbsp;</div>
         </div>
       </div>
     </div>
@@ -329,8 +329,10 @@
       </fieldset>
       <fieldset>
         <legend>Collection Information</legend>
-        <input style="width:80%" id="readme" readonly="readonly" class="borderless"/>
-        <input id="more_readme_button" type="button" value="More..."/>
+        <div id="readme_container">
+          <input id="readme" readonly="readonly" class="borderless"/>
+          <input id="more_readme_button" type="button" value="More..."/>
+        </div>
       </fieldset>
       <fieldset>
         <legend>Document</legend>
