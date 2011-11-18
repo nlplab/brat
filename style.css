@@ -328,12 +328,12 @@ fieldset {
 }
 
 #pulluptrigger {
-  height: 30px;
-  width:  30px;
+  height: 40px;
+  width:  40px;
   position: fixed;
   bottom: 0;
-  right: 0;
-  background: url('static/img/Fugue-shadowless-information-balloon.png') no-repeat;
+  left: 0;
+  background: url('static/img/Fugue-shadowless-information-balloon.png') center no-repeat;
 }
 #messagepullup {
   max-height: 300px;
