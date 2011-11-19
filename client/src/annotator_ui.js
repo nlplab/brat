@@ -168,14 +168,31 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
-      var adjustToCursor = function(evt, element) {
+      var adjustToCursor = function(evt, element, centerX, centerY) {
         var screenHeight = $(window).height() - 8; // TODO HACK - no idea why -8 is needed
         var screenWidth = $(window).width() - 8;
         var elementHeight = element.height();
         var elementWidth = element.width();
-        var y = Math.min(evt.clientY, screenHeight - elementHeight);
-        var x = Math.min(evt.clientX, screenWidth - elementWidth);
-        element.css({ top: y, left: x });
+        var cssSettings = {};
+        var eLeft;
+        var eTop;
+        if (centerX) {
+            eLeft = evt.clientX - elementWidth/2;
+        } else {
+            eLeft = evt.clientX;
+        }
+        if (centerY) {
+            eTop = evt.clientY - elementHeight/2;
+        } else {
+            eTop = evt.clientY;
+        }
+        // Try to make sure the element doesn't go off-screen. Note
+        // that if the screen is smaller than the element, this will
+        // place its bottom-right corner to the bottom-right corner
+        // of the screen.
+        eLeft = Math.min(Math.max(eLeft,0), screenWidth - elementWidth);
+        eTop  = Math.min(Math.max(eTop,0), screenHeight - elementHeight);
+        element.css({ top: eTop, left: eLeft });
       };
 
       var updateCheckbox = function($input) {
@@ -339,8 +356,9 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         dispatcher.post('showForm', [rapidSpanForm]);
         $('#rapid_span_form-ok').focus();
-        // TODO: avoid using global for stored event
-        adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent());
+        // TODO: avoid using global for stored click event
+        adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent(),
+                       true, true);
       };
 
       var clearSpanNotes = function(evt) {
