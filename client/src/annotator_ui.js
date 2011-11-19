@@ -186,12 +186,19 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
             eTop = evt.clientY;
         }
-        // Try to make sure the element doesn't go off-screen. Note
-        // that if the screen is smaller than the element, this will
-        // place its bottom-right corner to the bottom-right corner
-        // of the screen.
-        eLeft = Math.min(Math.max(eLeft,0), screenWidth - elementWidth);
-        eTop  = Math.min(Math.max(eTop,0), screenHeight - elementHeight);
+        // Try to make sure the element doesn't go off-screen.
+        // If this isn't possible (the element is larger than the screen),
+        // alight top-left corner of screen and dialog as a compromise.
+        if (screenWidth > elementWidth) {
+            eLeft = Math.min(Math.max(eLeft,0), screenWidth - elementWidth);
+        } else {
+            eLeft = 0;
+        } 
+        if (screenHeight > elementHeight) {
+            eTop  = Math.min(Math.max(eTop,0), screenHeight - elementHeight);
+        } else {
+            eTop  = 0;
+        }
         element.css({ top: eTop, left: eLeft });
       };
 
