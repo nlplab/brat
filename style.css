@@ -460,6 +460,60 @@ fieldset {
     max-height: 300px;
 }
 
+/* BEGIN new entity and event dialog style */
+.split_wrapper {
+  height: 150px;
+  /* HACK tweaking to avoid overflows  */
+  padding-bottom: 2em;
+  /* end HACK */
+}
+.split_wrapper div.wrapper_half_left {
+  /* a bit less than 50% to avoid scrollbar overflows */
+  width: 49%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  float: left;
+}
+.split_wrapper div.wrapper_half_right {
+  /* a bit less than 50% to avoid scrollbar overflows */
+  width: 49%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  float: right;
+}
+.split_wrapper div.scroll_wrapper_upper {
+  width: 100%;
+  height: 65%;
+  display: inline-block;
+  vertical-align: top;
+}
+.split_wrapper div.scroll_wrapper_lower {
+  width: 100%;
+  height: 35%;
+  display: inline-block;
+  vertical-align: bottom;
+}
+.split_wrapper div.scroll_wrapper_full {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+}
+.split_wrapper fieldset {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+.split_wrapper div.scroller {
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+  border-style: inset inset none none;
+  border-width: 1px;
+}
+/* END new entity and event dialog style */
 
 /* XXX preparation for generated span form later */
 .scroll_fset {
@@ -500,7 +554,7 @@ fieldset {
 #span_attributes {
   height: 87px;
 }
-#span_attributes .ui-button-text {
+.small-buttons .ui-button-text {
   padding: 2px 5px;
 }
 
