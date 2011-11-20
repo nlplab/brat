@@ -328,12 +328,12 @@ fieldset {
 }
 
 #pulluptrigger {
-  height: 30px;
-  width:  30px;
+  height: 35px;
+  width:  35px;
   position: fixed;
   bottom: 0;
-  right: 0;
-  background: url('static/img/Fugue-shadowless-information-balloon.png') no-repeat;
+  left: 0;
+  background: url('static/img/Fugue-shadowless-information-balloon.png') center no-repeat;
 }
 #messagepullup {
   max-height: 300px;
@@ -343,7 +343,7 @@ fieldset {
   z-index: 20001;
 }
 #messages {
-  z-index: 20002;
+  z-index: 20004;
 }
 #pulluptrigger {
   z-index: 20003;
@@ -408,6 +408,16 @@ fieldset {
   position: relative;
 }
 #more_readme_button {                   
+  padding: 2px 5px;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+}
+
+#notes_container {
+  position: relative;
+}
+#clear_notes_button {                   
   padding: 2px 5px;
   position: absolute;
   top: -2px;

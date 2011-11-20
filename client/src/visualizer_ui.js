@@ -79,10 +79,16 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START message display - related */
 
+      var showPullupTrigger = function() {
+        $('#pulluptrigger').show('puff');
+      }
+
       var $messageContainer = $('#messages');
       var $messagepullup = $('#messagepullup');
       var pullupTimer = null;
       var displayMessages = function(msgs) {
+        var initialMessageNum = $messagepullup.children().length;
+
         if (msgs === false) {
           $messageContainer.children().each(function(msgElNo, msgEl) {
               $(msgEl).remove();
@@ -143,17 +149,32 @@ var VisualizerUI = (function($, window, undefined) {
             $($messages[i]).remove();
           }
         }
+
+        // if there is change in the number of messages, may need to
+        // tweak trigger visibility
+        var messageNum = $messagepullup.children().length;
+        if (messageNum != initialMessageNum) {
+          if (messageNum == 0) {
+            // all gone; nothing to trigger
+            $('#pulluptrigger').hide('slow');
+          } else if (initialMessageNum == 0) {
+            // first messages, show trigger at fade
+            setTimeout(showPullupTrigger, messageDefaultFadeDelay+250);
+          }
+        }
       };
 
+      // hide pullup trigger by default, show on first message
+      $('#pulluptrigger').hide();
       $('#pulluptrigger').
         mouseenter(function(evt) {
-          $('#pulluptrigger').hide();
+          $('#pulluptrigger').hide('puff');
           clearTimeout(pullupTimer);
           slideToggle($messagepullup.stop(), true, true);
         });
       $('#messagepullup').
         mouseleave(function(evt) {
-          $('#pulluptrigger').show();
+          setTimeout(showPullupTrigger, 500);
           clearTimeout(pullupTimer);
           pullupTimer = setTimeout(function() {
             slideToggle($messagepullup.stop(), false, true);

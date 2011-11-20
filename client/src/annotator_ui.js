@@ -10,6 +10,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var data = null;
       var searchConfig = null;
       var spanOptions = null;
+      var rapidSpanOptions = null;
       var arcOptions = null;
       var spanKeymap = null;
       var keymap = null;
@@ -22,6 +23,10 @@ var AnnotatorUI = (function($, window, undefined) {
       var attributeTypes = null;
       var showValidAttributes; // callback function
       var confirmModeOn = false; // TODO: grab initial value from radio button
+      var rapidModeOn = false;  // TODO: grab initial value from radio button
+
+      // TODO: this is an ugly hack, remove (see comment with assignment)
+      var lastRapidAnnotationEvent = null;
 
       // amount by which to lighten (adjust "L" in HSL space) span
       // colors for type selection box BG display. 0=no lightening,
@@ -163,14 +168,38 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
-      var adjustToCursor = function(evt, element) {
+      var adjustToCursor = function(evt, element, centerX, centerY) {
         var screenHeight = $(window).height() - 8; // TODO HACK - no idea why -8 is needed
         var screenWidth = $(window).width() - 8;
         var elementHeight = element.height();
         var elementWidth = element.width();
-        var y = Math.min(evt.clientY, screenHeight - elementHeight);
-        var x = Math.min(evt.clientX, screenWidth - elementWidth);
-        element.css({ top: y, left: x });
+        var cssSettings = {};
+        var eLeft;
+        var eTop;
+        if (centerX) {
+            eLeft = evt.clientX - elementWidth/2;
+        } else {
+            eLeft = evt.clientX;
+        }
+        if (centerY) {
+            eTop = evt.clientY - elementHeight/2;
+        } else {
+            eTop = evt.clientY;
+        }
+        // Try to make sure the element doesn't go off-screen.
+        // If this isn't possible (the element is larger than the screen),
+        // alight top-left corner of screen and dialog as a compromise.
+        if (screenWidth > elementWidth) {
+            eLeft = Math.min(Math.max(eLeft,0), screenWidth - elementWidth);
+        } else {
+            eLeft = 0;
+        } 
+        if (screenHeight > elementHeight) {
+            eTop  = Math.min(Math.max(eTop,0), screenHeight - elementHeight);
+        } else {
+            eTop  = 0;
+        }
+        element.css({ top: eTop, left: eLeft });
       };
 
       var updateCheckbox = function($input) {
@@ -217,8 +246,12 @@ var AnnotatorUI = (function($, window, undefined) {
           var arcTypeCount = {};
           repeatingArcTypes = [];
           $.each(span.outgoing, function(arcNo, arc) {
-            if ((arcTypeCount[arc.type] = (arcTypeCount[arc.type] || 0) + 1) == 2) {
-              repeatingArcTypes.push(arc.type);
+            // parse out possible number suffixes to allow e.g. splitting
+            // on "Theme" for args ("Theme1", "Theme2").
+            var splitArcType = arc.type.match(/^(.*?)(\d*)$/);
+            var noNumArcType = splitArcType[1];
+            if ((arcTypeCount[noNumArcType] = (arcTypeCount[noNumArcType] || 0) + 1) == 2) {
+              repeatingArcTypes.push(noNumArcType);
             }
           });
           if (repeatingArcTypes.length) {
@@ -266,16 +299,24 @@ var AnnotatorUI = (function($, window, undefined) {
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
           var validAttrs = type ? spanTypes[type].attributes : [];
+          var shownCount = 0;
           $.each(attributeTypes, function(attrNo, attr) {
             var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
             var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
             if (showAttr) {
               $input.button('widget').show();
+              shownCount++;
             } else {
               $input.button('widget').hide();
             }
           });
           showAllAttributes = false;
+          // show the frame only if at least one attribute is shown.
+          if (shownCount > 0) {
+            $('#span_attributes').show();
+          } else {
+            $('#span_attributes').hide();
+          }
         }
         showValidAttributes();
         if (reselectedSpan && !confirmModeOn) {
@@ -288,9 +329,62 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
+      var rapidFillSpanTypesAndDisplayForm = function(start, end, text, types) {
+        // variant of fillSpanTypesAndDisplayForm for rapid annotation mode
+        keymap = spanKeymap;
+        $('#rapid_span_selected').text(text);
+
+        // fill types
+        var $spanTypeDiv = $('#rapid_span_types_div');
+        // remove previously filled, if any
+        $spanTypeDiv.empty();
+        $.each(types, function(typeNo, type) {
+          // TODO: this duplicates a part of addSpanTypesToDivInner, unify
+          var name = type[0];
+          var prob = type[1];
+          var $input = $('<input type="radio" name="rapid_span_type"/>').
+              attr('id', 'rapid_span_' + name).
+              attr('value', name);
+          var spanBgColor = spanTypes[name] && spanTypes[name].bgColor || '#ffffff';
+          spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
+          // TODO: use preferred label instead of type name
+          var $label = $('<label/>').
+            attr('for', 'rapid_span_' + name).
+            text(name+' ('+100.0*prob+'%)');
+          $label.css('background-color', spanBgColor);          
+          // TODO: check for unnecessary extra wrapping here
+          var $content = $('<div class="item_content"/>').
+            append($input).
+            append($label);
+          $spanTypeDiv.append($content);
+          // TODO: set up hotkeys
+          rapidSpanForm.find('#rapid_span_types input:radio').click(rapidSpanFormSubmitRadio);
+        });
+
+        var firstRadio = $('#rapid_span_form input:radio:first')[0];
+        if (firstRadio) {
+          firstRadio.checked = true;
+        } else {
+          dispatcher.post('hideForm', [rapidSpanForm]);
+          dispatcher.post('messages', [[['No valid span types defined', 'error']]]);
+          return;
+        }
+        dispatcher.post('showForm', [rapidSpanForm]);
+        $('#rapid_span_form-ok').focus();
+        // TODO: avoid using global for stored click event
+        adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent(),
+                       true, true);
+      };
+
+      var clearSpanNotes = function(evt) {
+        $('#span_notes').val('');
+      }
+      $('#clear_notes_button').button();
+      $('#clear_notes_button').click(clearSpanNotes);
+
       var arcFormSubmitRadio = function(evt) {
-          // TODO: check for confirm_mode?
-          arcFormSubmit(evt, $(evt.target));
+        // TODO: check for confirm_mode?
+        arcFormSubmit(evt, $(evt.target));
       }
 
       var arcFormSubmit = function(evt, typeRadio) {
@@ -553,16 +647,51 @@ var AnnotatorUI = (function($, window, undefined) {
             });
 
             if (crossSentence) {
+              // attempt to annotate across sentence boundaries; not supported
               dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
               $(reselectedSpan.rect).removeClass('reselect');
               reselectedSpan = null;
               svgElement.removeClass('reselect');
-            } else {
+            } else if (!rapidModeOn) {
+              // normal span select in standard annotation mode: show selector
               var spanText = data.text.substring(selectedFrom, selectedTo);
               fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
+            } else {
+              // normal span select in rapid annotation mode: call
+              // server for span type candidates
+              var spanText = data.text.substring(selectedFrom, selectedTo);
+              // TODO: we're currently storing the event to position the
+              // span form using adjustToCursor() (which takes an event),
+              // but this is clumsy and suboptimal (user may have scrolled
+              // during the ajax invocation); think of a better way.
+              lastRapidAnnotationEvent = evt;
+              dispatcher.post('ajax', [ { 
+                              action: 'suggestSpanTypes',
+                              collection: coll,
+                              'document': doc,
+                              start: selectedFrom,
+                              end: selectedTo,
+                              text: spanText,
+                              }, 'suggestedSpanTypes']);
             }
           }
         }
+      };
+
+      var receivedSuggestedSpanTypes = function(sugg) {
+        // make sure the suggestions are for the current collection and document
+        if (sugg.collection != coll || sugg.document != doc) {
+          dispatcher.post('messages', [[['Error: collection/document mismatch for span suggestions', 'error']]]);
+          return false;
+        }
+        console.log('Suggested types:', sugg.types);
+        // initialize for submission
+        // TODO: is this a reasonable place to do this?
+        rapidSpanOptions = {
+          start: sugg.start,
+          end: sugg.end,  
+        };
+        rapidFillSpanTypesAndDisplayForm(sugg.start, sugg.end, sugg.text, sugg.types);
       };
 
       var collapseHandler = function(evt) {
@@ -580,6 +709,10 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           spanFormSubmit(evt, $(evt.target));
         }
+      }
+
+      var rapidSpanFormSubmitRadio = function(evt) {
+        spanFormSubmit(evt, $(evt.target));
       }
 
       var rememberData = function(_data) {
@@ -673,7 +806,7 @@ var AnnotatorUI = (function($, window, undefined) {
         addSpanTypesToDiv($events, response.event_types, 'Events');
         $('#span_types').empty().append($entities).append($events);
 
-        // hide event attributes box if not defined
+        // fill in attributes
         var $attrs = $('#span_attributes div.scroller').empty();
         $.each(attributeTypes, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
@@ -702,6 +835,14 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         });
 
+        // hide attributes frame if none defined
+        var $span_attributes = $('#span_attributes');
+        if ($span_attributes.find('input').length) {
+          $span_attributes.show();
+        } else {
+          $span_attributes.hide();
+        }
+
         // fill search options in span dialog
         searchConfig = response.search_config;
         var $searchlinks  = $('#span_search_links').empty();
@@ -726,7 +867,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#viewspan_search_fieldset').hide();
         }
 
-        spanForm.find('#span_types input:radio').click(spanFormSubmitRadio);
+        spanForm.find('#span_types input:radio').click(spanFormSubmit);
         spanForm.find('.collapser').click(collapseHandler);
       };
 
@@ -774,8 +915,10 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
 
+      // TODO: why are these globals defined here instead of at the top?
       var spanForm = $('#span_form');
-
+      var rapidSpanForm = $('#rapid_span_form');
+    
       var deleteSpan = function() {
         if (confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
@@ -864,6 +1007,14 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         }]);
 
+      dispatcher.post('initForm', [rapidSpanForm, {
+          alsoResize: '#rapid_span_types',
+          width: 400,             
+          close: function(evt) {
+            keymap = null;
+          }
+        }]);
+
       var spanFormSubmit = function(evt, typeRadio) {
         typeRadio = typeRadio || $('#span_form input:radio:checked');
         var type = typeRadio.val();
@@ -899,6 +1050,25 @@ var AnnotatorUI = (function($, window, undefined) {
           keymap = spanKeymap;
         });
       spanForm.submit(spanFormSubmit);
+
+      var rapidSpanFormSubmit = function(evt, typeRadio) {
+        typeRadio = typeRadio || $('#rapid_span_form input:radio:checked');
+        var type = typeRadio.val();
+        dispatcher.post('hideForm', [rapidSpanForm]);
+        $.extend(rapidSpanOptions, {
+          action: 'createSpan',
+          collection: coll,
+          'document': doc,
+          type: type,
+        });
+        // unfocus all elements to prevent focus being kept after
+        // hiding them
+        rapidSpanForm.parent().find('*').blur();
+        $('#waiter').dialog('open');
+        dispatcher.post('ajax', [rapidSpanOptions, 'edited']);
+        return false;
+      };
+      rapidSpanForm.submit(rapidSpanFormSubmit);
 
       var importForm = $('#import_form');
       var importFormSubmit = function(evt) {
@@ -985,6 +1155,11 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           confirmModeOn = false;
         }
+        if (speed == 3) {
+          rapidModeOn = true;
+        } else {
+          rapidModeOn = false;
+        }
       };
 
       var init = function() {
@@ -1007,7 +1182,8 @@ var AnnotatorUI = (function($, window, undefined) {
           on('mousedown', onMouseDown).
           on('mouseup', onMouseUp).
           on('mousemove', onMouseMove).
-          on('annotationSpeed', setAnnotationSpeed);
+          on('annotationSpeed', setAnnotationSpeed).
+          on('suggestedSpanTypes', receivedSuggestedSpanTypes);
     };
 
     return AnnotatorUI;
