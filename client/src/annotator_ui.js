@@ -876,22 +876,6 @@ var AnnotatorUI = (function($, window, undefined) {
         var $attrs = $('#x_event_attributes div.scroller').empty();
         addAttributeTypesToDiv($attrs, attributeTypes);
 
-        // TODO: this may be redundant; the same check is
-        // performed each time when showing the dialog.
-        // hide attributes frame(s) if none defined
-        var $entity_attributes = $('#x_entity_attributes');
-        if ($entity_attributes.find('input').length) {
-          $entity_attributes.show();
-        } else {
-          $entity_attributes.hide();
-        }
-        var $event_attributes = $('#x_event_attributes');
-        if ($event_attributes.find('input').length) {
-          $event_attributes.show();
-        } else {
-          $event_attributes.hide();
-        }
-
         // fill search options in span dialog
         searchConfig = response.search_config;
         var $searchlinks  = $('#span_search_links').empty();
