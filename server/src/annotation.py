@@ -8,7 +8,7 @@ from __future__ import with_statement
 Functionality related to the annotation file format.
 
 Author:     Pontus Stenetorp   <pontus is s u tokyo ac jp>
-Version:    2010-01-25
+Version:    2011-01-25
 '''
 
 # TODO: Major re-work, cleaning up and conforming with new server paradigm

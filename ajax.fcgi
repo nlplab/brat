@@ -11,7 +11,7 @@ Depends on flup:
     http://pypi.python.org/pypi/flup/
 
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
-Version:    2010-09-14
+Version:    2011-09-14
 '''
 
 # Standard library imports
