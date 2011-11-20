@@ -59,8 +59,7 @@ def brat_app(environ, start_response):
     response_hdrs.extend(response_data[0])
 
     start_response(response_code, response_hdrs)
-    # Add a newline for readability
-    return [response_data[1] + '\n']
+    return [response_data[1]]
 
 if __name__ == '__main__':
     from sys import exit
