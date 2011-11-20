@@ -35,13 +35,22 @@ class AnnotationIssue:
     def __str__(self):
         return "%s\t%s %s\t%s" % (self.id, self.type, self.ann_id, self.description)
 
-def argparser():
-    import argparse
+def event_nonum_args(e):
+    """
+    Given an EventAnnotatation, returns its arguments without trailing
+    numbers (e.g. "Theme1" -> "Theme").
+    """
+    from re import match as re_match
 
-    ap=argparse.ArgumentParser(description="Verify BioNLP Shared Task annotations.")
-    ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
-    ap.add_argument("files", metavar="FILE", nargs="+", help="Files to verify.")
-    return ap
+    nna = {}
+    for arg, aid in e.args:
+        m = re_match(r'^(.*?)\d*$', arg)
+        if m:
+            arg = m.group(1)
+        if arg not in nna:
+            nna[arg] = []
+        nna[arg].append(aid)
+    return nna
 
 def check_textbound_overlap(anns):
     """
@@ -216,9 +225,92 @@ def verify_relations(ann_obj, projectconf):
 
     return issues
 
-def verify_annotation(ann_obj, projectconf):
-    import re
+def verify_mandatory_arguments(ann_obj, projectconf):
+    """
+    Checks for events missing mandatory arguments.
+    """
+    issues = []
 
+    # shortcut
+    def disp(s):
+        return projectconf.preferred_display_form(s)
+    
+    for e in ann_obj.get_events():
+        found_nonum_args = event_nonum_args(e)
+        for m in projectconf.mandatory_arguments(e.type):
+            if m not in found_nonum_args:
+                issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "%s required for event" % disp(m)))
+
+    return issues
+
+def verify_disallowed_arguments(ann_obj, projectconf):
+    """
+    Checks for events with arguments they are not allowed to
+    have.
+    """
+    issues = []
+
+    # shortcut
+    def disp(s):
+        return projectconf.preferred_display_form(s)
+
+    for e in ann_obj.get_events():
+        allowed = projectconf.arc_types_from(e.type)
+        eargs = event_nonum_args(e)
+        for a in eargs:
+            if a not in allowed:
+                issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take a %s argument" % (disp(e.type), disp(a))))
+            else:
+                for rid in eargs[a]:
+                    r = ann_obj.get_ann_by_id(rid)
+                    if a not in projectconf.arc_types_from_to(e.type, r.type):
+                        issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s argument %s cannot be of type %s" % (disp(e.type), disp(a), disp(r.type))))
+
+    return issues
+
+def verify_argument_counts(ann_obj, projectconf):
+    """
+    Checks for instances of events with multiple arguments of types
+    that are not allowed to repeat.
+    """
+    issues = []
+
+    # shortcut
+    def disp(s):
+        return projectconf.preferred_display_form(s)
+
+    # TODO: check also ranges
+    for e in ann_obj.get_events():
+        multiple_allowed = projectconf.multiple_allowed_arguments(e.type)
+        found_nonum_args = event_nonum_args(e)
+        for a in [m for m in found_nonum_args if len(found_nonum_args[m]) > 1]:
+            if a not in multiple_allowed:
+                issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take multiple %s arguments" % (disp(e.type), disp(a))))
+
+    return issues
+
+def verify_attributes(ann_obj, projectconf):
+    """
+    Checks for instances of attributes attached to annotations that
+    are not allowed to have them.
+    """
+    issues = []
+
+    # shortcut
+    def disp(s):
+        return projectconf.preferred_display_form(s)
+
+    for a in ann_obj.get_attributes():
+        tid = a.target
+        t = ann_obj.get_ann_by_id(tid)
+        allowed = projectconf.attributes_for(t.type)
+        
+        if a.type not in allowed:
+            issues.append(AnnotationIssue(t.id, AnnotationError, "Error: %s cannot take a %s attribute" % (disp(t.type), disp(a.type))))
+
+    return issues
+
+def verify_annotation(ann_obj, projectconf):
     """
     Verifies the correctness of a given AnnotationFile.
     Returns a list of AnnotationIssues.
@@ -235,54 +327,23 @@ def verify_annotation(ann_obj, projectconf):
 
     issues += verify_relations(ann_obj, projectconf)
 
-    # shortcut
-    def disp(s):
-        return projectconf.preferred_display_form(s)
+    issues += verify_mandatory_arguments(ann_obj, projectconf)
 
-    # various event type checks
+    issues += verify_disallowed_arguments(ann_obj, projectconf)
 
-    def event_nonum_args(e):
-        # returns event arguments without trailing numbers
-        # (e.g. "Theme1" -> "Theme").
-        nna = {}
-        for arg, aid in e.args:
-            m = re.match(r'^(.*?)\d*$', arg)
-            if m:
-                arg = m.group(1)
-            if arg not in nna:
-                nna[arg] = []
-            nna[arg].append(aid)
-        return nna
+    issues += verify_argument_counts(ann_obj, projectconf)
 
-    # check for events missing mandatory arguments
-    for e in ann_obj.get_events():
-        found_nonum_args = event_nonum_args(e)
-        for m in projectconf.mandatory_arguments(e.type):
-            if m not in found_nonum_args:
-                issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "%s required for event" % disp(m)))
-
-    # check for events with disallowed arguments
-    for e in ann_obj.get_events():
-        allowed = projectconf.arc_types_from(e.type)
-        eargs = event_nonum_args(e)
-        for a in eargs:
-            if a not in allowed:
-                issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take a %s argument" % (disp(e.type), disp(a))))
-            else:
-                for rid in eargs[a]:
-                    r = ann_obj.get_ann_by_id(rid)
-                    if a not in projectconf.arc_types_from_to(e.type, r.type):
-                        issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s argument %s cannot be of type %s" % (disp(e.type), disp(a), disp(r.type))))
-
-    # check for events with disallowed argument counts
-    for e in ann_obj.get_events():
-        multiple_allowed = projectconf.multiple_allowed_arguments(e.type)
-        found_nonum_args = event_nonum_args(e)
-        for a in [m for m in found_nonum_args if len(found_nonum_args[m]) > 1]:
-            if a not in multiple_allowed:
-                issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take multiple %s arguments" % (disp(e.type), disp(a))))
+    issues += verify_attributes(ann_obj, projectconf)
     
     return issues
+
+def argparser():
+    import argparse
+
+    ap=argparse.ArgumentParser(description="Verify BioNLP Shared Task annotations.")
+    ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
+    ap.add_argument("files", metavar="FILE", nargs="+", help="Files to verify.")
+    return ap
 
 def main(argv=None):
     import sys
