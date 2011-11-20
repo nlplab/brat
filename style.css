@@ -467,6 +467,13 @@ fieldset {
   padding-bottom: 2em;
   /* end HACK */
 }
+.split_wrapper div.wrapper_full_width {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  float: left;
+}
 .split_wrapper div.wrapper_half_left {
   /* a bit less than 50% to avoid scrollbar overflows */
   width: 49%;

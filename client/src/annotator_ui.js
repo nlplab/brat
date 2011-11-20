@@ -213,15 +213,24 @@ var AnnotatorUI = (function($, window, undefined) {
         if (span) {
           $('#del_span_button').show();
           if (span.generalType == 'entity') { // entity
-            $('#event_types').hide()
-            $('#entity_types').show().removeClass('scroll_wrapper_half').addClass('scroll_wrapper_full');
+            $('#span_event_section').hide()
+            $('#span_entity_section').show().
+              removeClass('wrapper_half_left').
+              addClass('wrapper_full_width');
           } else { // trigger
-            $('#entity_types').hide();
-            $('#event_types').show().removeClass('scroll_wrapper_half').addClass('scroll_wrapper_full');
+            $('#span_entity_section').hide();
+            $('#span_event_section').show().
+              removeClass('wrapper_half_right').
+              addClass('wrapper_full_width');
           }
         } else {
           $('#del_span_button').hide();
-          $('#entity_types, #event_types').show().removeClass('scroll_wrapper_full').addClass('scroll_wrapper_half');
+          $('#span_entity_section').show().
+            removeClass('wrapper_full_width').
+            addClass('wrapper_half_left');
+          $('#span_event_section').show().
+            removeClass('wrapper_full_width').
+            addClass('wrapper_half_right');
         }
         $('#span_selected').text(spanText);
         var encodedText = encodeURIComponent(spanText);       
@@ -296,6 +305,7 @@ var AnnotatorUI = (function($, window, undefined) {
             }
           });
         }
+        // TODO: generalize to consider also entity attributes
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
           var validAttrs = type ? spanTypes[type].attributes : [];
@@ -314,9 +324,34 @@ var AnnotatorUI = (function($, window, undefined) {
           // show attribute frames only if at least one attribute is
           // shown, and set size classes appropriately
           if (shownCount > 0) {
-            $('#span_attributes').show();
+            $('#x_event_attributes').show();
+            $('#event_attribute_label').show();
+            $('#x_event_types').
+              removeClass('scroll_wrapper_full').
+              addClass('scroll_wrapper_upper');
           } else {
-            $('#span_attributes').hide();
+            $('#x_event_attributes').hide();
+            $('#event_attribute_label').hide();
+            $('#x_event_types').
+              removeClass('scroll_wrapper_upper').
+              addClass('scroll_wrapper_full');
+          }
+          // at the moment, simply assume there are never any entity
+          // attributes.
+          // TODO: add support for entity attributes
+          var entity_attributes_shown=false;
+          if (entity_attributes_shown) {
+            $('#x_entity_attributes').show();
+            $('#entity_attribute_label').show();
+            $('#x_entity_types').
+              removeClass('scroll_wrapper_full').
+              addClass('scroll_wrapper_upper');
+          } else {
+            $('#x_entity_attributes').hide();
+            $('#entity_attribute_label').hide();
+            $('#x_entity_types').
+              removeClass('scroll_wrapper_upper').
+              addClass('scroll_wrapper_full');
           }
         }
         showValidAttributes();
@@ -828,12 +863,6 @@ var AnnotatorUI = (function($, window, undefined) {
         spanKeymap = {};
 
         // TODO: check for exceptions in response
-        
-        var $entities = $('<div id="entity_types" class="scroll_wrapper_half"/>');
-        addSpanTypesToDiv($entities, response.entity_types, 'Entities');
-        var $events = $('<div id="event_types" class="scroll_wrapper_half"/>');
-        addSpanTypesToDiv($events, response.event_types, 'Events');
-        $('#span_types').empty().append($entities).append($events);
 
         // fill in entity and event types
         var $entityScroller = $('#x_entity_types div.scroller');
@@ -843,18 +872,24 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // fill in attributes
         // TODO: split into entity and event attribs, fill separately
-        var $attrs = $('#span_attributes div.scroller').empty();
-        addAttributeTypesToDiv($attrs, attributeTypes);
-        // XXX TODO DUP!
+        // to support also entity attributes
         var $attrs = $('#x_event_attributes div.scroller').empty();
         addAttributeTypesToDiv($attrs, attributeTypes);
 
-        // hide attributes frame if none defined
-        var $span_attributes = $('#span_attributes');
-        if ($span_attributes.find('input').length) {
-          $span_attributes.show();
+        // TODO: this may be redundant; the same check is
+        // performed each time when showing the dialog.
+        // hide attributes frame(s) if none defined
+        var $entity_attributes = $('#x_entity_attributes');
+        if ($entity_attributes.find('input').length) {
+          $entity_attributes.show();
         } else {
-          $span_attributes.hide();
+          $entity_attributes.hide();
+        }
+        var $event_attributes = $('#x_event_attributes');
+        if ($event_attributes.find('input').length) {
+          $event_attributes.show();
+        } else {
+          $event_attributes.hide();
         }
 
         // fill search options in span dialog
@@ -881,7 +916,8 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#viewspan_search_fieldset').hide();
         }
 
-        spanForm.find('#span_types input:radio').click(spanFormSubmit);
+        spanForm.find('#x_entity_types input:radio').click(spanFormSubmit);
+        spanForm.find('#x_event_types input:radio').click(spanFormSubmit);
         spanForm.find('.collapser').click(collapseHandler);
       };
 
@@ -996,7 +1032,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       dispatcher.post('initForm', [spanForm, {
-          alsoResize: '#span_types',
+          alsoResize: '#entity_and_event_wrapper',
           width: 760,
           buttons: [{
               id: 'span_form_delete',
