@@ -299,16 +299,24 @@ var AnnotatorUI = (function($, window, undefined) {
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
           var validAttrs = type ? spanTypes[type].attributes : [];
+          var shownCount = 0;
           $.each(attributeTypes, function(attrNo, attr) {
             var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
             var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
             if (showAttr) {
               $input.button('widget').show();
+              shownCount++;
             } else {
               $input.button('widget').hide();
             }
           });
           showAllAttributes = false;
+          // show the frame only if at least one attribute is shown.
+          if (shownCount > 0) {
+            $('#span_attributes').show();
+          } else {
+            $('#span_attributes').hide();
+          }
         }
         showValidAttributes();
         if (reselectedSpan && !confirmModeOn) {
