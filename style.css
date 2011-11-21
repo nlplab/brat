@@ -526,28 +526,14 @@ fieldset {
 } 
 /* END new entity and event dialog style */
 
-/* XXX preparation for generated span form later */
 .scroll_fset {
   height: 200px;
-}
-#span_types.scroll_fset div.scroll_wrapper_half {
-  width: 50%;
-  height: 100%;
-  display: inline-block;
-  vertical-align: top;
-}
-#span_types.scroll_fset div.scroll_wrapper_full {
-  width: 100%;
-  height: 100%;
-  display: inline-block;
-  vertical-align: top;
 }
 .scroll_fset fieldset {
   height: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
 }
-
 /* HACK to display <legend> properly */
   .scroll_fset {
     margin-bottom: 2.5em;
@@ -562,9 +548,6 @@ fieldset {
   height: 100%;
 }
 
-#span_attributes {
-  height: 87px;
-}
 .small-buttons .ui-button-text {
   padding: 2px 5px;
 }
