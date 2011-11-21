@@ -12,7 +12,7 @@ NOTE(S):
 * Stay compatible with Python 2.3 until we verify the Python version
 
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
-Version:    2010-09-29
+Version:    2011-09-29
 '''
 
 # Standard library version

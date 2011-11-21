@@ -11,7 +11,7 @@ Depends on flup:
     http://pypi.python.org/pypi/flup/
 
 Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
-Version:    2010-09-14
+Version:    2011-09-14
 '''
 
 # Standard library imports
@@ -59,8 +59,7 @@ def brat_app(environ, start_response):
     response_hdrs.extend(response_data[0])
 
     start_response(response_code, response_hdrs)
-    # Add a newline for readability
-    return [response_data[1] + '\n']
+    return [response_data[1]]
 
 if __name__ == '__main__':
     from sys import exit
