@@ -210,21 +210,41 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var fillSpanTypesAndDisplayForm = function(evt, spanText, span) {
         keymap = spanKeymap;
+
+        // Figure out whether we should show or hide one of the two
+        // main halves of the selection frame (entities / events).
+        // This depends on the type of the current span, if any, and
+        // the availability of types to select.
+        var hideFrame;
         if (span) {
-          $('#del_span_button').show();
-          if (span.generalType == 'entity') { // entity
-            $('#span_event_section').hide()
-            $('#span_entity_section').show().
-              removeClass('wrapper_half_left').
-              addClass('wrapper_full_width');
-          } else { // trigger
-            $('#span_entity_section').hide();
-            $('#span_event_section').show().
-              removeClass('wrapper_half_right').
-              addClass('wrapper_full_width');
+          // existing span; only show relevant half
+          if (span.generalType == 'entity') {
+            hideFrame = 'event';
+          } else {
+            hideFrame = 'entity';
           }
         } else {
-          $('#del_span_button').hide();
+          // new span; show everything that's available
+          if ($('#event_types').find('input').length == 0) {
+            hideFrame = 'event';
+          } else if ($('#entity_types').find('input').length == 0) {
+            hideFrame = 'entity';
+          } else {
+            hideFrame = 'none';
+          }
+        }
+        if (hideFrame == 'event') {
+          $('#span_event_section').hide()
+          $('#span_entity_section').show().
+            removeClass('wrapper_half_left').
+            addClass('wrapper_full_width');
+        } else if (hideFrame == 'entity') {
+          $('#span_entity_section').hide()
+          $('#span_event_section').show().
+            removeClass('wrapper_half_right').
+            addClass('wrapper_full_width');
+        } else {
+          // show both entity and event halves
           $('#span_entity_section').show().
             removeClass('wrapper_full_width').
             addClass('wrapper_half_left');
@@ -232,6 +252,14 @@ var AnnotatorUI = (function($, window, undefined) {
             removeClass('wrapper_full_width').
             addClass('wrapper_half_right');
         }
+
+        // only show "delete" button if there's an existing annotation to delete
+        if (span) {
+          $('#del_span_button').show();
+        } else {
+          $('#del_span_button').hide();
+        }
+
         $('#span_selected').text(spanText);
         var encodedText = encodeURIComponent(spanText);       
         $.each(searchConfig, function(searchNo, search) {
