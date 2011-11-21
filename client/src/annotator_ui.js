@@ -330,15 +330,15 @@ var AnnotatorUI = (function($, window, undefined) {
           // show attribute frames only if at least one attribute is
           // shown, and set size classes appropriately
           if (shownCount > 0) {
-            $('#x_event_attributes').show();
+            $('#event_attributes').show();
             $('#event_attribute_label').show();
-            $('#x_event_types').
+            $('#event_types').
               removeClass('scroll_wrapper_full').
               addClass('scroll_wrapper_upper');
           } else {
-            $('#x_event_attributes').hide();
+            $('#event_attributes').hide();
             $('#event_attribute_label').hide();
-            $('#x_event_types').
+            $('#event_types').
               removeClass('scroll_wrapper_upper').
               addClass('scroll_wrapper_full');
           }
@@ -347,15 +347,15 @@ var AnnotatorUI = (function($, window, undefined) {
           // TODO: add support for entity attributes
           var entity_attributes_shown=false;
           if (entity_attributes_shown) {
-            $('#x_entity_attributes').show();
+            $('#entity_attributes').show();
             $('#entity_attribute_label').show();
-            $('#x_entity_types').
+            $('#entity_types').
               removeClass('scroll_wrapper_full').
               addClass('scroll_wrapper_upper');
           } else {
-            $('#x_entity_attributes').hide();
+            $('#entity_attributes').hide();
             $('#entity_attribute_label').hide();
-            $('#x_entity_types').
+            $('#entity_types').
               removeClass('scroll_wrapper_upper').
               addClass('scroll_wrapper_full');
           }
@@ -897,15 +897,15 @@ var AnnotatorUI = (function($, window, undefined) {
         // TODO: check for exceptions in response
 
         // fill in entity and event types
-        var $entityScroller = $('#x_entity_types div.scroller').empty();
+        var $entityScroller = $('#entity_types div.scroller').empty();
         addSpanTypesToDivInner($entityScroller, response.entity_types, 'entity');
-        var $eventScroller = $('#x_event_types div.scroller').empty();
+        var $eventScroller = $('#event_types div.scroller').empty();
         addSpanTypesToDivInner($eventScroller, response.event_types, 'event');
 
         // fill in attributes
         // TODO: split into entity and event attribs, fill separately
         // to support also entity attributes
-        var $attrs = $('#x_event_attributes div.scroller').empty();
+        var $attrs = $('#event_attributes div.scroller').empty();
         addAttributeTypesToDiv($attrs, attributeTypes);
 
         // fill search options in span dialog
@@ -932,8 +932,8 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#viewspan_search_fieldset').hide();
         }
 
-        spanForm.find('#x_entity_types input:radio').click(spanFormSubmitRadio);
-        spanForm.find('#x_event_types input:radio').click(spanFormSubmitRadio);
+        spanForm.find('#entity_types input:radio').click(spanFormSubmitRadio);
+        spanForm.find('#event_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
       };
 
