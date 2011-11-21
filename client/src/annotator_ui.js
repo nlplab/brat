@@ -237,6 +237,12 @@ var AnnotatorUI = (function($, window, undefined) {
         $.each(searchConfig, function(searchNo, search) {
           $('#span_'+search[0]).attr('href', search[1].replace('%s', encodedText));
         });
+
+        // enable all inputs by default (see setSpanTypeSelectability)
+        $.each($('#span_form input'), function(iNum, i) {
+           i.disabled = false;
+        });
+
         var showAllAttributes = false;
         if (span) {
           var urlHash = URLHash.parse(window.location.hash);
@@ -757,7 +763,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
-      var addSpanTypesToDivInner = function($parent, types) {
+      var addSpanTypesToDivInner = function($parent, types, category) {
         $.each(types, function(typeNo, type) {
           if (type === null) {
             $parent.append('<hr/>');
@@ -766,6 +772,9 @@ var AnnotatorUI = (function($, window, undefined) {
             var $input = $('<input type="radio" name="span_type"/>').
               attr('id', 'span_' + type.type).
               attr('value', type.type);
+            if (category) {
+              $input.attr('category', category);
+            }
             // use a light version of the span color as BG
             var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
             spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
@@ -847,7 +856,29 @@ var AnnotatorUI = (function($, window, undefined) {
         });
       }
 
+      var setSpanTypeSelectability = function(evt) {
+        // TODO: this implementation is incomplete: we need to switch
+        // off the ability to select an entity type after choosing an
+        // event attribute and vice versa to have the UI prevent the
+        // creation of incoherent combinations such as a Negated
+        // Protein.
+        
+        // just assume all attributes are event attributes
+        // TODO: support for entity attributes
+        var isEventAttribute = true;
+        if (isEventAttribute) {
+          $toDisable = $('#span_form input[category="entity"]');
+        } else {
+          $toDisable = $('#span_form input[category="event"]');
+        }
+        $.each($toDisable, function(iNum, i) {
+           i.disabled = true;
+           i.checked = false;
+        });
+      }
+
       var onAttributeChange = function(evt) {
+        setSpanTypeSelectability(evt);
         if (evt.target.selectedIndex) {
           $(evt.target).addClass('ui-state-active');
         } else {
@@ -856,6 +887,7 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var attrChangeHandler = function(evt) {
+        setSpanTypeSelectability(evt);
         updateCheckbox($(evt.target));
       };
 
@@ -866,9 +898,9 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // fill in entity and event types
         var $entityScroller = $('#x_entity_types div.scroller').empty();
-        addSpanTypesToDivInner($entityScroller, response.entity_types);
+        addSpanTypesToDivInner($entityScroller, response.entity_types, 'entity');
         var $eventScroller = $('#x_event_types div.scroller').empty();
-        addSpanTypesToDivInner($eventScroller, response.event_types);
+        addSpanTypesToDivInner($eventScroller, response.event_types, 'event');
 
         // fill in attributes
         // TODO: split into entity and event attribs, fill separately
