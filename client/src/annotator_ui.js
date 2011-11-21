@@ -210,24 +210,67 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var fillSpanTypesAndDisplayForm = function(evt, spanText, span) {
         keymap = spanKeymap;
+
+        // Figure out whether we should show or hide one of the two
+        // main halves of the selection frame (entities / events).
+        // This depends on the type of the current span, if any, and
+        // the availability of types to select.
+        var hideFrame;
         if (span) {
-          $('#del_span_button').show();
-          if (span.generalType == 'entity') { // entity
-            $('#event_types').hide()
-            $('#entity_types').show().removeClass('scroll_wrapper_half').addClass('scroll_wrapper_full');
-          } else { // trigger
-            $('#entity_types').hide();
-            $('#event_types').show().removeClass('scroll_wrapper_half').addClass('scroll_wrapper_full');
+          // existing span; only show relevant half
+          if (span.generalType == 'entity') {
+            hideFrame = 'event';
+          } else {
+            hideFrame = 'entity';
           }
         } else {
-          $('#del_span_button').hide();
-          $('#entity_types, #event_types').show().removeClass('scroll_wrapper_full').addClass('scroll_wrapper_half');
+          // new span; show everything that's available
+          if ($('#event_types').find('input').length == 0) {
+            hideFrame = 'event';
+          } else if ($('#entity_types').find('input').length == 0) {
+            hideFrame = 'entity';
+          } else {
+            hideFrame = 'none';
+          }
         }
+        if (hideFrame == 'event') {
+          $('#span_event_section').hide()
+          $('#span_entity_section').show().
+            removeClass('wrapper_half_left').
+            addClass('wrapper_full_width');
+        } else if (hideFrame == 'entity') {
+          $('#span_entity_section').hide()
+          $('#span_event_section').show().
+            removeClass('wrapper_half_right').
+            addClass('wrapper_full_width');
+        } else {
+          // show both entity and event halves
+          $('#span_entity_section').show().
+            removeClass('wrapper_full_width').
+            addClass('wrapper_half_left');
+          $('#span_event_section').show().
+            removeClass('wrapper_full_width').
+            addClass('wrapper_half_right');
+        }
+
+        // only show "delete" button if there's an existing annotation to delete
+        if (span) {
+          $('#del_span_button').show();
+        } else {
+          $('#del_span_button').hide();
+        }
+
         $('#span_selected').text(spanText);
         var encodedText = encodeURIComponent(spanText);       
         $.each(searchConfig, function(searchNo, search) {
           $('#span_'+search[0]).attr('href', search[1].replace('%s', encodedText));
         });
+
+        // enable all inputs by default (see setSpanTypeSelectability)
+        $.each($('#span_form input'), function(iNum, i) {
+           i.disabled = false;
+        });
+
         var showAllAttributes = false;
         if (span) {
           var urlHash = URLHash.parse(window.location.hash);
@@ -296,6 +339,7 @@ var AnnotatorUI = (function($, window, undefined) {
             }
           });
         }
+        // TODO: generalize to consider also entity attributes
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
           var validAttrs = type ? spanTypes[type].attributes : [];
@@ -311,11 +355,37 @@ var AnnotatorUI = (function($, window, undefined) {
             }
           });
           showAllAttributes = false;
-          // show the frame only if at least one attribute is shown.
+          // show attribute frames only if at least one attribute is
+          // shown, and set size classes appropriately
           if (shownCount > 0) {
-            $('#span_attributes').show();
+            $('#event_attributes').show();
+            $('#event_attribute_label').show();
+            $('#event_types').
+              removeClass('scroll_wrapper_full').
+              addClass('scroll_wrapper_upper');
           } else {
-            $('#span_attributes').hide();
+            $('#event_attributes').hide();
+            $('#event_attribute_label').hide();
+            $('#event_types').
+              removeClass('scroll_wrapper_upper').
+              addClass('scroll_wrapper_full');
+          }
+          // at the moment, simply assume there are never any entity
+          // attributes.
+          // TODO: add support for entity attributes
+          var entity_attributes_shown=false;
+          if (entity_attributes_shown) {
+            $('#entity_attributes').show();
+            $('#entity_attribute_label').show();
+            $('#entity_types').
+              removeClass('scroll_wrapper_full').
+              addClass('scroll_wrapper_upper');
+          } else {
+            $('#entity_attributes').hide();
+            $('#entity_attribute_label').hide();
+            $('#entity_types').
+              removeClass('scroll_wrapper_upper').
+              addClass('scroll_wrapper_full');
           }
         }
         showValidAttributes();
@@ -721,7 +791,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
-      var addSpanTypesToDivInner = function($parent, types) {
+      var addSpanTypesToDivInner = function($parent, types, category) {
         $.each(types, function(typeNo, type) {
           if (type === null) {
             $parent.append('<hr/>');
@@ -730,6 +800,9 @@ var AnnotatorUI = (function($, window, undefined) {
             var $input = $('<input type="radio" name="span_type"/>').
               attr('id', 'span_' + type.type).
               attr('value', type.type);
+            if (category) {
+              $input.attr('category', category);
+            }
             // use a light version of the span color as BG
             var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
             spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
@@ -782,42 +855,17 @@ var AnnotatorUI = (function($, window, undefined) {
         $top.append($fieldset);
         addSpanTypesToDivInner($scroller, types);
       };
-
-      var onAttributeChange = function(evt) {
-        if (evt.target.selectedIndex) {
-          $(evt.target).addClass('ui-state-active');
-        } else {
-          $(evt.target).removeClass('ui-state-active');
-        }
-      }
-
-      var attrChangeHandler = function(evt) {
-        updateCheckbox($(evt.target));
-      };
-
-      var rememberSpanSettings = function(response) {
-        spanKeymap = {};
-
-        // TODO: check for exceptions in response
-        
-        var $entities = $('<div id="entity_types" class="scroll_wrapper_half"/>');
-        addSpanTypesToDiv($entities, response.entity_types, 'Entities');
-        var $events = $('<div id="event_types" class="scroll_wrapper_half"/>');
-        addSpanTypesToDiv($events, response.event_types, 'Events');
-        $('#span_types').empty().append($entities).append($events);
-
-        // fill in attributes
-        var $attrs = $('#span_attributes div.scroller').empty();
-        $.each(attributeTypes, function(attrNo, attr) {
+      var addAttributeTypesToDiv = function($top, types) {
+        $.each(types, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
           if (attr.unused) {
             var $input = $('<input type="hidden" id="span_attr_' + escapedType + '" value=""/>');
-            $attrs.append($input);
+            $top.append($input);
           } else if (attr.bool) {
             var escapedName = Util.escapeQuotes(attr.name);
             var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
             var $label = $('<label for="span_attr_' + escapedType + '" data-bare="' + escapedName + '">&#x2610; ' + escapedName + '</label>');
-            $attrs.append($input).append($label);
+            $top.append($input).append($label);
             $input.button();
             $input.change(attrChangeHandler);
           } else {
@@ -830,18 +878,63 @@ var AnnotatorUI = (function($, window, undefined) {
               $select.append($option);
             });
             $div.append($select);
-            $attrs.append($div);
+            $top.append($div);
             $select.change(onAttributeChange);
           }
         });
+      }
 
-        // hide attributes frame if none defined
-        var $span_attributes = $('#span_attributes');
-        if ($span_attributes.find('input').length) {
-          $span_attributes.show();
+      var setSpanTypeSelectability = function(evt) {
+        // TODO: this implementation is incomplete: we need to switch
+        // off the ability to select an entity type after choosing an
+        // event attribute and vice versa to have the UI prevent the
+        // creation of incoherent combinations such as a Negated
+        // Protein.
+        
+        // just assume all attributes are event attributes
+        // TODO: support for entity attributes
+        var isEventAttribute = true;
+        if (isEventAttribute) {
+          $toDisable = $('#span_form input[category="entity"]');
         } else {
-          $span_attributes.hide();
+          $toDisable = $('#span_form input[category="event"]');
         }
+        $.each($toDisable, function(iNum, i) {
+           i.disabled = true;
+           i.checked = false;
+        });
+      }
+
+      var onAttributeChange = function(evt) {
+        setSpanTypeSelectability(evt);
+        if (evt.target.selectedIndex) {
+          $(evt.target).addClass('ui-state-active');
+        } else {
+          $(evt.target).removeClass('ui-state-active');
+        }
+      }
+
+      var attrChangeHandler = function(evt) {
+        setSpanTypeSelectability(evt);
+        updateCheckbox($(evt.target));
+      };
+
+      var rememberSpanSettings = function(response) {
+        spanKeymap = {};
+
+        // TODO: check for exceptions in response
+
+        // fill in entity and event types
+        var $entityScroller = $('#entity_types div.scroller').empty();
+        addSpanTypesToDivInner($entityScroller, response.entity_types, 'entity');
+        var $eventScroller = $('#event_types div.scroller').empty();
+        addSpanTypesToDivInner($eventScroller, response.event_types, 'event');
+
+        // fill in attributes
+        // TODO: split into entity and event attribs, fill separately
+        // to support also entity attributes
+        var $attrs = $('#event_attributes div.scroller').empty();
+        addAttributeTypesToDiv($attrs, attributeTypes);
 
         // fill search options in span dialog
         searchConfig = response.search_config;
@@ -867,7 +960,8 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#viewspan_search_fieldset').hide();
         }
 
-        spanForm.find('#span_types input:radio').click(spanFormSubmit);
+        spanForm.find('#entity_types input:radio').click(spanFormSubmitRadio);
+        spanForm.find('#event_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
       };
 
@@ -982,7 +1076,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       dispatcher.post('initForm', [spanForm, {
-          alsoResize: '#span_types',
+          alsoResize: '#entity_and_event_wrapper',
           width: 760,
           buttons: [{
               id: 'span_form_delete',

@@ -268,14 +268,31 @@
         <div id="span_search_links"/>
       </fieldset>
 
-      <div id="span_types" class="scroll_fset"/>
-      
-      <div id="span_attributes" class="scroll_fset">
-        <fieldset>
-          <legend>Attributes</legend>
-          <div class="scroller"/>
-        </fieldset>
-      </div>
+      <fieldset>
+        <div id="entity_and_event_wrapper" class="split_wrapper">
+          <div id="span_entity_section" class="wrapper_half_left">
+            <div id="entity_label">Entity type</div>
+            <div id="entity_types" class="scroll_wrapper_upper">
+              <div class="scroller"/> 
+            </div>
+            <div id="entity_attribute_label">Entity attributes</div>
+            <div id="entity_attributes" class="scroll_wrapper_lower">
+              <!-- note special-case top padding for buttons -->
+              <div style="padding-top: 0.5em" class="scroller small-buttons"/> 
+            </div>
+          </div><div id="span_event_section" class="wrapper_half_right">
+            <div id="event_label">Event type</div>
+            <div id="event_types" class="scroll_wrapper_upper">
+              <div class="scroller"/> 
+            </div>            
+            <div id="event_attribute_label">Event attributes</div>
+            <div id="event_attributes" class="scroll_wrapper_lower">
+              <!-- note special-case top padding for buttons -->
+              <div style="padding-top: 0.5em" class="scroller small-buttons"/> 
+            </div>
+          </div>
+        </div>
+      </fieldset>
 
       <fieldset>
         <legend>Notes</legend>

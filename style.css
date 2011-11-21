@@ -460,29 +460,80 @@ fieldset {
     max-height: 300px;
 }
 
-
-/* XXX preparation for generated span form later */
-.scroll_fset {
-  height: 200px;
+/* BEGIN new entity and event dialog style */
+.split_wrapper {
+  height: 300px;
+  /* HACK tweaking to avoid overflows  */
+  padding-bottom: 2em;
+  /* end HACK */
 }
-#span_types.scroll_fset div.scroll_wrapper_half {
-  width: 50%;
-  height: 100%;
-  display: inline-block;
-  vertical-align: top;
-}
-#span_types.scroll_fset div.scroll_wrapper_full {
+.split_wrapper div.wrapper_full_width {
   width: 100%;
   height: 100%;
   display: inline-block;
   vertical-align: top;
+  float: left;
+}
+.split_wrapper div.wrapper_half_left {
+  /* a bit less than 50% to avoid scrollbar overflows */
+  width: 49%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  float: left;
+}
+.split_wrapper div.wrapper_half_right {
+  /* a bit less than 50% to avoid scrollbar overflows */
+  width: 49%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  float: right;
+}
+.split_wrapper div.scroll_wrapper_upper {
+  width: 100%;
+  height: 85%;
+  display: inline-block;
+  vertical-align: top;
+}
+.split_wrapper div.scroll_wrapper_lower {
+  width: 100%;
+  height: 15%;
+  display: inline-block;
+  vertical-align: bottom;
+}
+.split_wrapper div.scroll_wrapper_full {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+}
+.split_wrapper fieldset {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+.split_wrapper div.scroller {
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+  border-style: inset inset none none;
+  border-width: 1px;
+}
+/* special-case visual tweak; not sure why this is necessary */
+#span_search_fieldset {
+  margin-bottom: 0.5em;
+} 
+/* END new entity and event dialog style */
+
+.scroll_fset {
+  height: 200px;
 }
 .scroll_fset fieldset {
   height: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
 }
-
 /* HACK to display <legend> properly */
   .scroll_fset {
     margin-bottom: 2.5em;
@@ -497,10 +548,7 @@ fieldset {
   height: 100%;
 }
 
-#span_attributes {
-  height: 87px;
-}
-#span_attributes .ui-button-text {
+.small-buttons .ui-button-text {
   padding: 2px 5px;
 }
 
