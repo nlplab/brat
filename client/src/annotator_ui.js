@@ -27,6 +27,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
       // TODO: this is an ugly hack, remove (see comment with assignment)
       var lastRapidAnnotationEvent = null;
+      // TODO: another avoidable global; try to work without
+      var rapidAnnotationDialogVisible = false;
 
       // amount by which to lighten (adjust "L" in HSL space) span
       // colors for type selection box BG display. 0=no lightening,
@@ -39,6 +41,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var hideForm = function() {
         keymap = null;
+        rapidAnnotationDialogVisible = false;
       };
 
       var onKeyDown = function(evt) {
@@ -56,7 +59,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // in rapid annotation mode, prioritize the keys 0..9 for the
         // ordered choices in the quick annotation dialog.
-        if (rapidModeOn && "0".charCodeAt() <= code && code <= "9".charCodeAt()) {
+        if (rapidModeOn && rapidAnnotationDialogVisible && 
+            "0".charCodeAt() <= code && code <= "9".charCodeAt()) {
           var idx = String.fromCharCode(code);
           var $input = $('#rapid_span_'+idx);
           if ($input.length) {
@@ -490,6 +494,7 @@ var AnnotatorUI = (function($, window, undefined) {
           return;
         }
         dispatcher.post('showForm', [rapidSpanForm]);
+        rapidAnnotationDialogVisible = true;
         $('#rapid_span_form-ok').focus();
         // TODO: avoid using global for stored click event
 //         adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent(),
