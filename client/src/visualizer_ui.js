@@ -1469,7 +1469,12 @@ var VisualizerUI = (function($, window, undefined) {
         }
         documentChangesTimer = setTimeout(checkForDocumentChanges, documentChangesTimeout);
       }
-      checkForDocumentChanges();
+/// modified by Tomoko per Goran's suggestion
+//      checkForDocumentChanges();
+   if ($('#autorefresh_mode')[0].checked) {
+     checkForDocumentChanges();
+   }
+///
 
       $('#autorefresh_mode').click(function(evt) {
         var val = this.checked;
