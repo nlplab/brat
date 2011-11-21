@@ -442,8 +442,14 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('showForm', [rapidSpanForm]);
         $('#rapid_span_form-ok').focus();
         // TODO: avoid using global for stored click event
+//         adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent(),
+//                        true, true);
+        // TODO: avoid coordinate hack to position roughly at first
+        // available selection
+        lastRapidAnnotationEvent.clientX -= 40;
+        lastRapidAnnotationEvent.clientY -= 115;
         adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent(),
-                       true, true);
+                       false, false);
       };
 
       var clearSpanNotes = function(evt) {
