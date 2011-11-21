@@ -54,6 +54,17 @@ var AnnotatorUI = (function($, window, undefined) {
           return;
         }
 
+        // in rapid annotation mode, prioritize the keys 1..9 for the
+        // ordered choices in the quick annotation dialog.
+        if (rapidModeOn && "1".charCodeAt() <= code <= "9".charCodeAt()) {
+          var idx = String.fromCharCode(code);
+          var $input = $('#rapid_span_'+idx);
+          if ($input.length) {
+            console.log(code, idx, $input);            
+            $input.click();
+          }
+        }
+
         if (!keymap) return;
 
         // disable shortcuts when working with elements that you could
@@ -412,22 +423,54 @@ var AnnotatorUI = (function($, window, undefined) {
           // TODO: this duplicates a part of addSpanTypesToDivInner, unify
           var name = type[0];
           var prob = type[1];
+          var $numlabel = $('<span class="accesskey">'+(typeNo+1)+'</span><span>:</span>');
           var $input = $('<input type="radio" name="rapid_span_type"/>').
-              attr('id', 'rapid_span_' + name).
+              attr('id', 'rapid_span_' + (typeNo+1)).
               attr('value', name);
           var spanBgColor = spanTypes[name] && spanTypes[name].bgColor || '#ffffff';
           spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
           // TODO: use preferred label instead of type name
           var $label = $('<label/>').
-            attr('for', 'rapid_span_' + name).
+            attr('for', 'rapid_span_' + (typeNo+1)).
             text(name+' ('+100.0*prob+'%)');
           $label.css('background-color', spanBgColor);          
           // TODO: check for unnecessary extra wrapping here
           var $content = $('<div class="item_content"/>').
+            append($numlabel).
             append($input).
             append($label);
           $spanTypeDiv.append($content);
-          // TODO: set up hotkeys
+          // highlight configured hotkey (if any) in text.
+          // NOTE: this bit doesn't actually set up the hotkey.
+          var hotkeyType = 'span_' + name;
+          // TODO: this is clumsy; there should be a better way
+          var typeHotkey = null;
+          $.each(keymap, function(key, keyType) {
+            if (keyType == hotkeyType) {
+              typeHotkey = key;
+              return false;
+            }
+          });
+          if (typeHotkey) {
+            var name = $label.html();
+            var replace = true;
+            name = name.replace(new RegExp("(&[^;]*?)?(" + typeHotkey + ")", 'gi'),
+              function(all, entity, letter) {
+                if (replace && !entity) {
+                  replace = false;
+                  var hotkey = typeHotkey.toLowerCase() == letter
+                      ? typeHotkey.toLowerCase()
+                      : typeHotkey.toUpperCase();
+                  return '<span class="accesskey">' + Util.escapeHTML(hotkey) + '</span>';
+                }
+                return all;
+              });
+            $label.html(name);
+          }
+          // set up numbered hotkeys
+          
+          
+          // finally, set up click event handlers
           rapidSpanForm.find('#rapid_span_types input:radio').click(rapidSpanFormSubmitRadio);
         });
 
@@ -446,7 +489,7 @@ var AnnotatorUI = (function($, window, undefined) {
 //                        true, true);
         // TODO: avoid coordinate hack to position roughly at first
         // available selection
-        lastRapidAnnotationEvent.clientX -= 40;
+        lastRapidAnnotationEvent.clientX -= 55;
         lastRapidAnnotationEvent.clientY -= 115;
         adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent(),
                        false, false);
