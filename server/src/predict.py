@@ -12,7 +12,7 @@ Version:    2011-11-17
 def suggest_span_types(collection, document, start, end, text):
     # array so that server can control presentation order in UI
     # independently from scores if needed
-    return { 'types': [ ['Binding', 0.9],
+    return { 'types': [ ['DNA_methylation', 0.9],
                         ['Protein', 0.05],
                         ['Entity', 0.05]
                         ],
