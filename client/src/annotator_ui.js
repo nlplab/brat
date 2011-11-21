@@ -865,9 +865,9 @@ var AnnotatorUI = (function($, window, undefined) {
         // TODO: check for exceptions in response
 
         // fill in entity and event types
-        var $entityScroller = $('#x_entity_types div.scroller');
+        var $entityScroller = $('#x_entity_types div.scroller').empty();
         addSpanTypesToDivInner($entityScroller, response.entity_types);
-        var $eventScroller = $('#x_event_types div.scroller');
+        var $eventScroller = $('#x_event_types div.scroller').empty();
         addSpanTypesToDivInner($eventScroller, response.event_types);
 
         // fill in attributes
