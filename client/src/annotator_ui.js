@@ -900,8 +900,8 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#viewspan_search_fieldset').hide();
         }
 
-        spanForm.find('#x_entity_types input:radio').click(spanFormSubmit);
-        spanForm.find('#x_event_types input:radio').click(spanFormSubmit);
+        spanForm.find('#x_entity_types input:radio').click(spanFormSubmitRadio);
+        spanForm.find('#x_event_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('.collapser').click(collapseHandler);
       };
 
