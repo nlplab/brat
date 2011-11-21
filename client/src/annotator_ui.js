@@ -466,13 +466,10 @@ var AnnotatorUI = (function($, window, undefined) {
                 return all;
               });
             $label.html(name);
-          }
-          // set up numbered hotkeys
-          
-          
-          // finally, set up click event handlers
-          rapidSpanForm.find('#rapid_span_types input:radio').click(rapidSpanFormSubmitRadio);
+          }          
         });
+        // set up click event handlers
+        rapidSpanForm.find('#rapid_span_types input:radio').click(rapidSpanFormSubmitRadio);
 
         var firstRadio = $('#rapid_span_form input:radio:first')[0];
         if (firstRadio) {
@@ -803,7 +800,6 @@ var AnnotatorUI = (function($, window, undefined) {
           dispatcher.post('messages', [[['Error: collection/document mismatch for span suggestions', 'error']]]);
           return false;
         }
-        console.log('Suggested types:', sugg.types);
         // initialize for submission
         // TODO: is this a reasonable place to do this?
         rapidSpanOptions = {
@@ -831,7 +827,7 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var rapidSpanFormSubmitRadio = function(evt) {
-        spanFormSubmit(evt, $(evt.target));
+        rapidSpanFormSubmit(evt, $(evt.target));
       }
 
       var rememberData = function(_data) {
