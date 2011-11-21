@@ -520,6 +520,10 @@ fieldset {
   border-style: inset inset none none;
   border-width: 1px;
 }
+/* special-case visual tweak; not sure why this is necessary */
+#span_search_fieldset {
+  margin-bottom: 0.5em;
+} 
 /* END new entity and event dialog style */
 
 /* XXX preparation for generated span form later */
