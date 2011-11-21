@@ -419,17 +419,18 @@ var AnnotatorUI = (function($, window, undefined) {
         var $spanTypeDiv = $('#rapid_span_types_div');
         // remove previously filled, if any
         $spanTypeDiv.empty();
-        $.each(types, function(typeNo, type) {
+        $.each(types, function(typeNo, typeAndProb) {
           // TODO: this duplicates a part of addSpanTypesToDivInner, unify
-          var name = type[0];
-          var prob = type[1];
+          var type = typeAndProb[0];
+          var prob = typeAndProb[1];
           var $numlabel = $('<span class="accesskey">'+(typeNo+1)+'</span><span>:</span>');
           var $input = $('<input type="radio" name="rapid_span_type"/>').
               attr('id', 'rapid_span_' + (typeNo+1)).
-              attr('value', name);
-          var spanBgColor = spanTypes[name] && spanTypes[name].bgColor || '#ffffff';
+              attr('value', type);
+          var spanBgColor = spanTypes[type] && spanTypes[type].bgColor || '#ffffff';
           spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
-          // TODO: use preferred label instead of type name
+          // use preferred label instead of type name if available
+          var name = spanTypes[type] && spanTypes[type].name || type;
           var $label = $('<label/>').
             attr('for', 'rapid_span_' + (typeNo+1)).
             text(name+' ('+100.0*prob+'%)');
@@ -442,7 +443,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $spanTypeDiv.append($content);
           // highlight configured hotkey (if any) in text.
           // NOTE: this bit doesn't actually set up the hotkey.
-          var hotkeyType = 'span_' + name;
+          var hotkeyType = 'span_' + type;
           // TODO: this is clumsy; there should be a better way
           var typeHotkey = null;
           $.each(keymap, function(key, keyType) {
