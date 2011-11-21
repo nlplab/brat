@@ -54,13 +54,12 @@ var AnnotatorUI = (function($, window, undefined) {
           return;
         }
 
-        // in rapid annotation mode, prioritize the keys 1..9 for the
+        // in rapid annotation mode, prioritize the keys 0..9 for the
         // ordered choices in the quick annotation dialog.
-        if (rapidModeOn && "1".charCodeAt() <= code <= "9".charCodeAt()) {
+        if (rapidModeOn && "0".charCodeAt() <= code && code <= "9".charCodeAt()) {
           var idx = String.fromCharCode(code);
           var $input = $('#rapid_span_'+idx);
           if ($input.length) {
-            console.log(code, idx, $input);            
             $input.click();
           }
         }
@@ -405,7 +404,6 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           dispatcher.post('showForm', [spanForm]);
           $('#span_form-ok').focus();
-
           adjustToCursor(evt, spanForm.parent());
         }
       };
@@ -469,6 +467,17 @@ var AnnotatorUI = (function($, window, undefined) {
             $label.html(name);
           }          
         });
+        // fill in some space and the special "Other" option, with key "0" (zero)
+        $spanTypeDiv.append($('<div class="item_content">&#160;</div>')); // non-breaking space
+        var $numlabel = $('<span class="accesskey">0</span><span>:</span>');        
+        var $input = $('<input type="radio" name="rapid_span_type" id="rapid_span_0" value=""/>');
+        var $label = $('<label for="rapid_span_0" style="background-color:lightgray">Other...</label>');
+        var $content = $('<div class="item_content"/>').
+          append($numlabel).
+          append($input).
+          append($label);
+        $spanTypeDiv.append($content);
+
         // set up click event handlers
         rapidSpanForm.find('#rapid_span_types input:radio').click(rapidSpanFormSubmitRadio);
 
@@ -1208,18 +1217,35 @@ var AnnotatorUI = (function($, window, undefined) {
       var rapidSpanFormSubmit = function(evt, typeRadio) {
         typeRadio = typeRadio || $('#rapid_span_form input:radio:checked');
         var type = typeRadio.val();
-        dispatcher.post('hideForm', [rapidSpanForm]);
-        $.extend(rapidSpanOptions, {
-          action: 'createSpan',
-          collection: coll,
-          'document': doc,
-          type: type,
-        });
+
         // unfocus all elements to prevent focus being kept after
         // hiding them
         rapidSpanForm.parent().find('*').blur();
-        $('#waiter').dialog('open');
-        dispatcher.post('ajax', [rapidSpanOptions, 'edited']);
+        dispatcher.post('hideForm', [rapidSpanForm]);
+
+        if (type == "") {
+          // empty type value signals the special case where the user
+          // selected "none of the above" of the proposed types and
+          // the normal dialog should be brought up for the same span.
+          spanOptions = {
+            action: 'createSpan',
+            start: rapidSpanOptions.start,
+            end: rapidSpanOptions.end,
+          };
+          // TODO: avoid using the stored mouse event
+          fillSpanTypesAndDisplayForm(lastRapidAnnotationEvent,
+                                      $('#rapid_span_selected').text());
+        } else {
+          // normal type selection; submit createSpan with the selected type.
+          $.extend(rapidSpanOptions, {
+            action: 'createSpan',
+            collection: coll,
+            'document': doc,
+            type: type,
+          });
+          $('#waiter').dialog('open');
+          dispatcher.post('ajax', [rapidSpanOptions, 'edited']);
+        }
         return false;
       };
       rapidSpanForm.submit(rapidSpanFormSubmit);
