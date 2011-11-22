@@ -24,6 +24,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var showValidAttributes; // callback function
       var confirmModeOn = false; // TODO: grab initial value from radio button
       var rapidModeOn = false;  // TODO: grab initial value from radio button
+      var annotationLoggingOn = false;
 
       // TODO: this is an ugly hack, remove (see comment with assignment)
       var lastRapidAnnotationEvent = null;
@@ -787,6 +788,18 @@ var AnnotatorUI = (function($, window, undefined) {
               // normal span select in standard annotation mode: show selector
               var spanText = data.text.substring(selectedFrom, selectedTo);
               fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
+              // special case for annotation logging: for precise timing
+              // of annotator judments, the server needs to know also
+              // when an annotation dialog is displayed to the user.
+              // TODO: do the same also for other dialogs
+              if (annotationLoggingOn) {
+                // lazy, reuse pre-filled span options
+                // TODO: fill in properly
+                var tmpAction = spanOptions.action;
+                spanOptions.action = 'logDialogOpen';
+                dispatcher.post('ajax', [spanOptions, null]);
+                spanOptions.action = tmpAction;
+              }
             } else {
               // normal span select in rapid annotation mode: call
               // server for span type candidates
@@ -995,6 +1008,9 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var rememberSpanSettings = function(response) {
         spanKeymap = {};
+
+        // TODO: this function is a bit strange place to remember this
+        annotationLoggingOn = response.annotation_logging;
 
         // TODO: check for exceptions in response
 
