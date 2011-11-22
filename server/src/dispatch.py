@@ -179,13 +179,13 @@ def dispatch(params, client_ip, client_hostname):
 
     # Fetch the action function for this action (if any)
     try:
-        action_fuction = DISPATCHER[action]
+        action_function = DISPATCHER[action]
     except KeyError:
         log_info('Invalid action "%s"' % action)
         raise InvalidActionError(action)
 
     # Determine what arguments the action function expects
-    args, varargs, keywords, defaults = getargspec(action_fuction)
+    args, varargs, keywords, defaults = getargspec(action_function)
     # We will not allow this for now, there is most likely no need for it
     assert varargs is None, 'no varargs for action functions'
     assert keywords is None, 'no keywords for action functions'
@@ -215,7 +215,7 @@ def dispatch(params, client_ip, client_hostname):
     log_info('dispatcher will call %s(%s)' % (action,
         ', '.join((repr(a) for a in action_args)), ))
 
-    json_dic = action_fuction(*action_args)
+    json_dic = action_function(*action_args)
 
     # Assign which action that was performed to the json_dic
     json_dic['action'] = action
