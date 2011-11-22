@@ -26,6 +26,7 @@ from inspect import getargspec
 from itertools import izip
 from jsonwrap import dumps
 from logging import info as log_info
+from annlog import log_annotation
 from message import Messager
 from svg import store_svg, retrieve_svg
 from session import get_session
@@ -65,25 +66,27 @@ DISPATCHER = {
         'suggestSpanTypes': suggest_span_types,
         }
 
-# Actions that require authentication
-REQUIRES_AUTHENTICATION = set((
-    # Document functionality
-    'importDocument',
+# Actions that correspond to annotation functionality
+ANNOTATION_ACTION = set((
+        'createArc',
+        'deleteArc',
+        'createSpan',
+        'deleteSpan',
+        'splitSpan',
+        'suggestSpanTypes',
+        ))
 
-    # Editing functionality
-    'createArc',
-    'deleteArc',
-    'createSpan',
-    'deleteSpan',
-    'splitSpan',
-    'suggestSpanTypes',
-   
-    # Search functionality (heavy on the CPU/disk ATM)
-    'searchText',
-    'searchEntity',
-    'searchEvent',
-    'searchRelation',
-    ))
+# Actions that require authentication
+REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
+        # Document functionality
+        'importDocument',
+        
+        # Search functionality (heavy on the CPU/disk ATM)
+        'searchText',
+        'searchEntity',
+        'searchEvent',
+        'searchRelation',
+        ))
 
 # Sanity check
 for req_action in REQUIRES_AUTHENTICATION:
@@ -215,7 +218,21 @@ def dispatch(params, client_ip, client_hostname):
     log_info('dispatcher will call %s(%s)' % (action,
         ', '.join((repr(a) for a in action_args)), ))
 
+    # Log annotation actions separately (if so configured)
+    if action in ANNOTATION_ACTION:
+        log_annotation(params.getvalue('collection'),
+                       params.getvalue('document'),
+                       'START', action, action_args)
+
+    # TODO: log_annotation for exceptions?
+
     json_dic = action_function(*action_args)
+
+    # Log annotation actions separately (if so configured)
+    if action in ANNOTATION_ACTION:
+        log_annotation(params.getvalue('collection'),
+                       params.getvalue('document'),
+                       'FINISH', action, action_args)
 
     # Assign which action that was performed to the json_dic
     json_dic['action'] = action
