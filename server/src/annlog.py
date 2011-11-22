@@ -20,6 +20,13 @@ from session import get_session
 from message import Messager
 from inspect import getargspec
 
+def annotation_logging_active():
+    """
+    Returns true if annotation logging is being performed, false
+    otherwise.
+    """
+    return ann_logger() is not None
+
 def ann_logger():
     """
     Lazy initializer for the annotation logger. Returns None if

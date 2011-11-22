@@ -33,6 +33,7 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
+from annlog import annotation_logging_active
 
 try:
     from config import PERFORM_VERIFICATION
@@ -438,6 +439,10 @@ def get_directory_information(collection):
     except IOError:
         readme_text = None
 
+    # fill in a flag for whether annotator logging is active so that
+    # the client knows whether to invoke timing actions
+    ann_logging = annotation_logging_active()
+
     json_dic = {
             'items': combolist,
             'header' : doclist_header,
@@ -450,6 +455,7 @@ def get_directory_information(collection):
             'unconfigured_types': unconf_types,
             'description': readme_text,
             'search_config': search_config,
+            'annotation_logging': ann_logging,
             }
     return json_dic
 
