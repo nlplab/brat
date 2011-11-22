@@ -86,6 +86,7 @@ def log_annotation(collection, document, status, action, args):
     # TODO: get rid of the assumption, parse the actual args
     other_args = args[2:]
 
-    l.info('%s\t%s\t%s\t%s\t%s' % (_detab(collection), _detab(document),
-                                   _detab(status), _detab(action),
-                                   '\t'.join([_detab(str(a)) for a in other_args])))
+    l.info('%s\t%s\t%s\t%s\t%s\t%s' % (_detab(user), _detab(collection), 
+                                       _detab(document), _detab(status), 
+                                       _detab(action),
+                                       '\t'.join([_detab(str(a)) for a in other_args])))
