@@ -109,7 +109,7 @@ for fn in filenames:
         start, end = int(start), int(end)
 
         # parse tag
-        m = re.match(r'^([BIO])((?:-[A-Za-z]+)?)$', tag)
+        m = re.match(r'^([BIO])((?:-[A-Za-z_]+)?)$', tag)
         assert m, "ERROR: failed to parse tag '%s' in %s" % (tag, fn)
         ttag, ttype = m.groups()
 
