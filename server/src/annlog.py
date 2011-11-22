@@ -40,7 +40,6 @@ def ann_logger():
                 formatter = logging.Formatter('%(asctime)s\t%(message)s')
                 handler.setFormatter(formatter)
                 l.addHandler(handler)
-                l.info('hello')
                 ann_logger.__logger = l
             except IOError, e:
                 Messager.error("""Error: failed to initialize annotation log %s: %s.
