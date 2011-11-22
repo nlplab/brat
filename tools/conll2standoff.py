@@ -15,39 +15,14 @@ try:
 except:
     pass
 
-# Take a mandatory "-d" arg that tells us where to find the original,
-# unsegmented and untagged reference files.
-
-if len(sys.argv) < 3 or sys.argv[1] != "-d":
-    print >> sys.stderr, "USAGE:", sys.argv[0], "-d REF-DIR [-o OUT-DIR] (FILES|DIR)"
-    sys.exit(1)
-
-reference_directory = sys.argv[2]
-
-# Take an optional "-o" arg specifying an output directory for the results
-
-output_directory = None
-filenames = sys.argv[3:]
-if len(sys.argv) > 4 and sys.argv[3] == "-o":
-    output_directory = sys.argv[4]
-    print >> sys.stderr, "Writing output to %s" % output_directory
-    filenames = sys.argv[5:]
-
-
-# special case: if we only have a single file in input and it specifies
-# a directory, process all files in that directory
-input_directory = None
-if len(filenames) == 1 and os.path.isdir(filenames[0]):
-    input_directory = filenames[0]
-    filenames = [os.path.join(input_directory, fn) for fn in os.listdir(input_directory)]
-    print >> sys.stderr, "Processing %d files in %s ..." % (len(filenames), input_directory)
-
+# TODO: get rid of globals
 
 # output goes to stdout by default
 out = sys.stdout
+reference_directory = None
+output_directory = None
 
-# primary processing
-for fn in filenames:
+def process(fn):
     fnbase = os.path.basename(fn)
     
     # read in the reference file
@@ -179,3 +154,58 @@ for fn in filenames:
     if output_directory is not None:
         # we've opened a specific output for this
         out.close()
+
+def main(argv):
+    global reference_directory, output_directory
+
+
+    # (clumsy arg parsing, sorry)
+
+    # Take a mandatory "-d" arg that tells us where to find the original,
+    # unsegmented and untagged reference files.
+
+    if len(argv) < 3 or argv[1] != "-d":
+        print >> sys.stderr, "USAGE:", argv[0], "-d REF-DIR [-o OUT-DIR] (FILES|DIR)"
+        return 1
+
+    reference_directory = argv[2]
+
+    # Take an optional "-o" arg specifying an output directory for the results
+
+    output_directory = None
+    filenames = argv[3:]
+    if len(argv) > 4 and argv[3] == "-o":
+        output_directory = argv[4]
+        print >> sys.stderr, "Writing output to %s" % output_directory
+        filenames = argv[5:]
+
+
+    # special case: if we only have a single file in input and it specifies
+    # a directory, process all files in that directory
+    input_directory = None
+    if len(filenames) == 1 and os.path.isdir(filenames[0]):
+        input_directory = filenames[0]
+        filenames = [os.path.join(input_directory, fn) for fn in os.listdir(input_directory)]
+        print >> sys.stderr, "Processing %d files in %s ..." % (len(filenames), input_directory)
+
+    fail_count = 0
+    for fn in filenames:
+        try:
+            process(fn)
+        except Exception, e:
+            print >> sys.stderr, "Error processing %s: %s" % (fn, e)
+            fail_count += 1
+
+    if fail_count > 0:
+        print >> sys.stderr, """
+##############################################################################
+#
+# WARNING: error in processing %d/%d files, output is incomplete!
+#
+##############################################################################
+""" % (fail_count, len(filenames))
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
