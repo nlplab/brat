@@ -1211,6 +1211,13 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post(1, 'resetData');
       });
 
+      $('#sentence_highlights').click(function(evt) {
+        var val = this.checked;
+        dispatcher.post('sentenceHighlights', [val]);
+        // TODO: XXX: see comment above for why this is asynchronous
+        dispatcher.post(1, 'resetData');
+      });
+
       $('#layout_density input').click(function(evt) {
         var val = this.value;
         dispatcher.post('layoutDensity', [val]);

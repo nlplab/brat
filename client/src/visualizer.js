@@ -94,6 +94,7 @@ var Visualizer = (function($, window, undefined) {
       var spanTypes;
       var relationTypesHash;
       var abbrevsOn = true;
+      var sentenceHighlightsOn = true;
       var isRenderRequested;
       var isCollectionLoaded = false;
       var areFontsLoaded = false;
@@ -1728,12 +1729,21 @@ Util.profileStart('rows');
             rowBox.height = -rowBox.y+rowSpacing;
           }
           rowBox.height += rowPadding;
+	  var bgClass;
+	  if ($.inArray(currentSent, data.editedSent) != -1) {
+	    // specifically highlighted
+	    bgClass = 'backgroundHighlight';
+	  } else if (sentenceHighlightsOn) {
+	    // give every second sentence has a different bg "highlight"
+	    bgClass = 'background'+ row.backgroundIndex;
+	  } else {
+	    // plain "standard" bg
+	    bgClass = 'background0';
+	  }
           svg.rect(backgroundGroup,
             0, y + sizes.texts.y + sizes.texts.height,
             canvasWidth, rowBox.height + sizes.texts.height + 1, {
-            'class': 'background' +
-                ($.inArray(currentSent, data.editedSent) != -1 ?
-                 'Highlight' : row.backgroundIndex),
+            'class': bgClass,
           });
           y += rowBox.height;
           y += sizes.texts.height;
@@ -2129,6 +2139,10 @@ Util.profileStart('before render');
         abbrevsOn = _abbrevsOn;
       }
 
+      var setSentenceHighlights = function(_sentenceHighlightsOn) {
+	sentenceHighlightsOn = _sentenceHighlightsOn;
+      }
+
       var setLayoutDensity = function(_density) {
 	//dispatcher.post('messages', [[['Setting layout density ' + _density, 'comment']]]);
 	// TODO: store standard settings instead of hard-coding
@@ -2321,6 +2335,7 @@ Util.profileStart('before render');
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
+          on('sentenceHighlights', setSentenceHighlights).
           on('layoutDensity', setLayoutDensity).
           on('current', gotCurrent).
           on('clearSVG', clearSVG).
