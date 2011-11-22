@@ -76,6 +76,11 @@ ANNOTATION_ACTION = set((
         'suggestSpanTypes',
         ))
 
+# Actions that will be logged as annotator actions (if so configured)
+LOGGED_ANNOTATOR_ACTION = ANNOTATION_ACTION | set((
+        'getDocument',
+        ))
+
 # Actions that require authentication
 REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
         # Document functionality
@@ -219,7 +224,7 @@ def dispatch(params, client_ip, client_hostname):
         ', '.join((repr(a) for a in action_args)), ))
 
     # Log annotation actions separately (if so configured)
-    if action in ANNOTATION_ACTION:
+    if action in LOGGED_ANNOTATOR_ACTION:
         log_annotation(params.getvalue('collection'),
                        params.getvalue('document'),
                        'START', action, action_args)
@@ -229,7 +234,7 @@ def dispatch(params, client_ip, client_hostname):
     json_dic = action_function(*action_args)
 
     # Log annotation actions separately (if so configured)
-    if action in ANNOTATION_ACTION:
+    if action in LOGGED_ANNOTATOR_ACTION:
         log_annotation(params.getvalue('collection'),
                        params.getvalue('document'),
                        'FINISH', action, action_args)
