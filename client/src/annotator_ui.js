@@ -973,19 +973,21 @@ var AnnotatorUI = (function($, window, undefined) {
            i.checked = false;
         });
         // the disable may leave the dialog in a state where nothing
-        // is checked, which would cause error on "OK". Check the
-        // first valid choice to prevent this.
+        // is checked, which would cause error on "OK". In this case,
+        // check the first valid choice.
+        if ($('#span_form input[checked][type="radio"]').length == 0) {
         var firstEnabledRadio = null;
-        $.each($('#span_form input'), function(iNum, i) {
-          if(!i.disabled) {
-            firstEnabledRadio = i;
-            return false;
+          $.each($('#span_form input'), function(iNum, i) {
+            if(!i.disabled) {
+              firstEnabledRadio = i;
+              return false;
+            }
+          });
+          if (firstEnabledRadio) {
+            firstEnabledRadio.checked = true;
           }
-        });
-        if (firstEnabledRadio) {
-          firstEnabledRadio.checked = true;
+          // TODO: meaningful response to all radios being disabled
         }
-        // TODO: meaningful response to all buttons being disabled
       }
 
       var onAttributeChange = function(evt) {
