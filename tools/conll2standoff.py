@@ -22,18 +22,31 @@ out = sys.stdout
 reference_directory = None
 output_directory = None
 
-def process(fn):
-    global out
+def reference_text_filename(fn):
+    # Tries to determine the name of the reference text file
+    # for the given CoNLL output file.
 
     fnbase = os.path.basename(fn)
-    
-    # read in the reference file
     reffn = os.path.join(reference_directory, fnbase)
 
     # if the file doesn't exist, try replacing the last dot-separated
     # suffix in the filename with .txt
     if not os.path.exists(reffn):
         reffn = re.sub(r'(.*)\..*', r'\1.txt', reffn)
+
+    return reffn
+
+def output_filename(fn):
+    if output_directory is None:
+        return None
+
+    reffn = reference_text_filename(fn)
+    return os.path.join(output_directory, os.path.basename(reffn).replace(".txt",".a1"))
+
+def process(fn):
+    global out
+
+    reffn = reference_text_filename(fn)
 
     try:
         #reffile = open(reffn)
@@ -57,7 +70,7 @@ def process(fn):
     # if an output directory is specified, write a file with an
     # appropriate name there
     if output_directory is not None:
-        outfn = os.path.join(output_directory, os.path.basename(reffn).replace(".txt",".a1"))
+        outfn = output_filename(fn)
         #out = codecs.open(outfn, "wt", "UTF-8")
         out = open(outfn, "wt")
 
@@ -197,6 +210,15 @@ def main(argv):
         except Exception, e:
             print >> sys.stderr, "Error processing %s: %s" % (fn, e)
             fail_count += 1
+
+            # if we're storing output on disk, remove the output file
+            # to avoid having partially-written data
+            ofn = output_filename(fn)
+            try:
+                os.remove(ofn)
+            except:
+                # never mind if that fails
+                pass
 
     if fail_count > 0:
         print >> sys.stderr, """
