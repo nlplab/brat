@@ -22,6 +22,11 @@ DATA_DIR = join(BASE_DIR, 'data')
 WORK_DIR = join(BASE_DIR, 'work')
 '''
 
+# If ANNOTATION_LOG is defined, the system will log annotator actions into
+# this file.
+
+# ANNOTATION_LOG = join(WORK_DIR, 'annotation.log')
+
 # TODO: Remove these when we have a back-end
 USER_PASSWORD = {
     # Format:
