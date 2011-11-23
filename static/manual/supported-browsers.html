@@ -1,20 +1,98 @@
 <html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>brat manual</title>
-    <link rel="stylesheet" type="text/css" href="../../style.css"/>
+    <link rel="stylesheet" type="text/css" href="../style.css"/>
+    <link rel="stylesheet" type="text/css" href="../jquery-theme/jquery-ui-redmond.css"/>
     <link rel="shortcut icon" href="../../favicon.ico"/>
   </head>
   <style type="text/css">
-  <!--
-    .image .caption { 
-      font-size: 80%;
-      font-family: sans-serif;
-      text-align: center;
-    }
-  -->
   </style>  
   <body>
-    <h1>brat rapid annotation tool: supported browsers</h1> 
+    <div id="main" class="center">
+
+      <div id="header" class="ui-widget-header">
+	<span>LOGO HERE</span>
+	<a href="../index.html">home</a>
+	<span>menuitem</span>
+	<span>menuitem</span>
+	<span>menuitem</span>
+	<a href="index.html">brat manual</a>
+      </div>
+
+      <h1>brat browser support</h1> 
+
+      <p>brat is implemented using standard web technologies and
+	should, in principle, be usable in any standards-compliant
+	browser.
+      </p>
+      <p>In practice not all browsers currently fully support all
+	aspects of the technologies used to implement visualization
+	and editing in brat. The following table summarizes the
+	current browser support for various brat functions.
+      </p>
+      <table id="browsersupport">
+	<tr class="ui-widget-header">
+	  <th>Browser</th>
+	  <th style="width:8em">Visualization</th>
+	  <th style="width:8em">Editing</th>
+	</tr>
+	<tr>
+	  <td><a href="http://www.google.com/chrome">Chrome</a> (Google) on PC</td>
+	  <td class="support-ok">Full</td>
+	  <td class="support-ok">Full</td>
+	</tr><tr>
+	  <td><a href="http://www.google.com/chrome">Chrome</a> (Google) on Android (tablet/phone)</td>
+	  <td class="support-ok">Full</td>
+	  <td class="support-TODO">TODO</td>
+	</tr><tr>
+	  <td><a href="http://www.firefox.com">Firefox</a> (Mozilla)</td>
+	  <td class="support-ok">Full</td>
+	  <td class="support-partial">Partial</td>
+	</tr><tr>
+	  <td><a href="http://www.opera.com">Opera</a></td>
+	  <td class="support-ok">Full</td>
+	  <td class="support-TODO">TODO</td>
+	</tr><tr>
+	  <td><a href="http://www.apple.com/safari/">Safari</a> (Apple) on PC</td>
+	  <td class="support-ok">Full</td>
+	  <td class="support-TODO">TODO</td>
+	</tr><tr>
+	  <td><a href="http://www.apple.com/safari/">Safari</a> (Apple) on iPad/iPhone</td>
+	  <td class="support-ok">Full</td>
+	  <td class="support-TODO">TODO</td>
+	</tr><tr>
+	  <td><a href="http://http://www.microsoft.com/windows/internet-explorer/">Internet Explorer (Microsoft)</a> version 9</td>
+	  <td class="support-ok">Full</td>
+	  <td class="support-partial">Partial</td>
+	</tr><tr>
+	  <td><a href="http://http://www.microsoft.com/windows/internet-explorer/">Internet Explorer (Microsoft)</a> version &lt; 9</td>
+	  <td class="support-no">No</td>
+	  <td class="support-no">No</td>
+	</tr>
+      </table>
+      <p>Please note the following:
+	<ul>
+	  <li>Partial means ... TODO</li>
+	  <li>The above table is based on testing with recent browser
+	  versions. Older versions may not support the same features.</li>
+	</ul>
+      </p>
+      <p>Note that even if a browser is not fully supported, it may
+	still be possible to use it with brat for visualization or
+	basic editing.
+      </p>
+      <h2>Why doesn't it work in my browser?</h2>
+      <p>The core of brat visualization is based on
+	<a href="http://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable
+	Vector Graphics</a> (SVG). Although SVG has been a recommended
+	web standard for over a decade, not all browsers have
+	implemented it; in particular, Internet Explorer has only
+	started supporting SVG from version 9.
+      </p>
+
+      <div id="footer">
+	&copy; 2010-2011 brat contributors
+      </div>
+
   </body>
-  <h1>TODO</h1>
 </html>  
