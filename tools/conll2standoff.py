@@ -23,6 +23,8 @@ reference_directory = None
 output_directory = None
 
 def process(fn):
+    global out
+
     fnbase = os.path.basename(fn)
     
     # read in the reference file
