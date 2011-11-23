@@ -794,11 +794,12 @@ var AnnotatorUI = (function($, window, undefined) {
               // TODO: do the same also for other dialogs
               if (annotationLoggingOn) {
                 // lazy, reuse pre-filled span options
-                // TODO: fill in properly
-                var tmpAction = spanOptions.action;
-                spanOptions.action = 'logDialogOpen';
-                dispatcher.post('ajax', [spanOptions, null]);
-                spanOptions.action = tmpAction;
+                dispatcher.post('ajax', [ {
+                  action: 'logAnnotatorAction',
+                  collection: coll,
+                  'document': doc,
+                  log: 'spanSelected',
+                }, null]);
               }
             } else {
               // normal span select in rapid annotation mode: call

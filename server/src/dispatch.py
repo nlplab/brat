@@ -33,6 +33,11 @@ from session import get_session
 from search import search_text, search_entity, search_event, search_relation
 from predict import suggest_span_types
 
+# no-op function that can be invoked by client to log a user action
+def logging_no_op(collection, document, log):
+    # need to return a dictionary
+    return {}
+
 ### Constants
 # Function call-backs
 DISPATCHER = {
@@ -64,6 +69,8 @@ DISPATCHER = {
         'searchRelation' : search_relation,
 
         'suggestSpanTypes': suggest_span_types,
+
+        'logAnnotatorAction': logging_no_op,
         }
 
 # Actions that correspond to annotation functionality
@@ -79,6 +86,7 @@ ANNOTATION_ACTION = set((
 # Actions that will be logged as annotator actions (if so configured)
 LOGGED_ANNOTATOR_ACTION = ANNOTATION_ACTION | set((
         'getDocument',
+        'logAnnotatorAction',
         ))
 
 # Actions that require authentication
