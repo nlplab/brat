@@ -784,8 +784,9 @@ var AnnotatorUI = (function($, window, undefined) {
               $(reselectedSpan.rect).removeClass('reselect');
               reselectedSpan = null;
               svgElement.removeClass('reselect');
-            } else if (!rapidModeOn) {
-              // normal span select in standard annotation mode: show selector
+            } else if (!rapidModeOn || reselectedSpan != null) {
+              // normal span select in standard annotation mode
+              // or reselect: show selector
               var spanText = data.text.substring(selectedFrom, selectedTo);
               fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
               // special case for annotation logging: for precise timing
