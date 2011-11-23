@@ -20,6 +20,7 @@
           'client/lib/jquery.json.min.js',
           // brat helpers
           'client/src/util.js',
+          'client/src/annotation_log.js',
           // brat modules
           'client/src/dispatcher.js',
           'client/src/url_monitor.js',
@@ -39,6 +40,7 @@
           var visualizerUI = new VisualizerUI(dispatcher, svg);
           var annotatorUI = new AnnotatorUI(dispatcher, svg);
           var spinner = new Spinner(dispatcher, '#spinner');
+          var logger = new AnnotationLog(dispatcher);
           //Util.profileEnable();
           dispatcher.post('init');
       });

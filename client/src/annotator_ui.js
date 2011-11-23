@@ -24,7 +24,6 @@ var AnnotatorUI = (function($, window, undefined) {
       var showValidAttributes; // callback function
       var confirmModeOn = false; // TODO: grab initial value from radio button
       var rapidModeOn = false;  // TODO: grab initial value from radio button
-      var annotationLoggingOn = false;
 
       // TODO: this is an ugly hack, remove (see comment with assignment)
       var lastRapidAnnotationEvent = null;
@@ -123,6 +122,8 @@ var AnnotatorUI = (function($, window, undefined) {
           var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
           var arcAnnotatorNotes = ''; // TODO fill from info to be provided by server
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId, arcAnnotatorNotes);
+          // for precise timing, log dialog display to user.
+          dispatcher.post('logAction', ['arcEditSelected']);
 
         // if not, then do we edit a span?
         } else if (id = target.attr('data-span-id')) {
@@ -137,6 +138,8 @@ var AnnotatorUI = (function($, window, undefined) {
           };
           var spanText = data.text.substring(editedSpan.from, editedSpan.to);
           fillSpanTypesAndDisplayForm(evt, spanText, editedSpan);
+          // for precise timing, log annotation display to user.
+          dispatcher.post('logAction', ['spanEditSelected']);
         }
       };
 
@@ -725,6 +728,8 @@ var AnnotatorUI = (function($, window, undefined) {
               $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
               $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type)+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
               fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
+              // for precise timing, log dialog display to user.
+              dispatcher.post('logAction', ['arcSelected']);
             }
           }
         } else if (!evt.ctrlKey) {
@@ -789,19 +794,8 @@ var AnnotatorUI = (function($, window, undefined) {
               // or reselect: show selector
               var spanText = data.text.substring(selectedFrom, selectedTo);
               fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
-              // special case for annotation logging: for precise timing
-              // of annotator judments, the server needs to know also
-              // when an annotation dialog is displayed to the user.
-              // TODO: do the same also for other dialogs
-              if (annotationLoggingOn) {
-                // lazy, reuse pre-filled span options
-                dispatcher.post('ajax', [ {
-                  action: 'logAnnotatorAction',
-                  collection: coll,
-                  'document': doc,
-                  log: 'spanSelected',
-                }, null]);
-              }
+              // for precise timing, log annotation display to user.
+              dispatcher.post('logAction', ['spanSelected']);
             } else {
               // normal span select in rapid annotation mode: call
               // server for span type candidates
@@ -1010,9 +1004,6 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var rememberSpanSettings = function(response) {
         spanKeymap = {};
-
-        // TODO: this function is a bit strange place to remember this
-        annotationLoggingOn = response.annotation_logging;
 
         // TODO: check for exceptions in response
 
@@ -1258,6 +1249,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // TODO: avoid using the stored mouse event
           fillSpanTypesAndDisplayForm(lastRapidAnnotationEvent,
                                       $('#rapid_span_selected').text());
+          dispatcher.post('logAction', ['normalSpanSelected']);
         } else {
           // normal type selection; submit createSpan with the selected type.
           $.extend(rapidSpanOptions, {
