@@ -86,6 +86,13 @@ def log_annotation(collection, document, status, action, args):
     # TODO: get rid of the assumption, parse the actual args
     other_args = args[2:]
 
+    # special case for "log only" action: don't redundantly
+    # record the uninformative action name, but treat the
+    # first argument as the 'action'.
+    if action == 'logAnnotatorAction':
+        action = other_args[0]
+        other_args = other_args[1:]
+
     l.info('%s\t%s\t%s\t%s\t%s\t%s' % (_detab(user), _detab(collection), 
                                        _detab(document), _detab(status), 
                                        _detab(action),
