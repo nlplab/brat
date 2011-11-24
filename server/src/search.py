@@ -782,9 +782,9 @@ def format_results(matches):
     response['items'] = items
     return response
 
-### per-directory interface functions (brat) ###
+### brat interface functions ###
 
-def search_text(collection, text):
+def search_text(collection, document, scope="collection", text=""):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
@@ -796,7 +796,7 @@ def search_text(collection, text):
     
     return results
 
-def search_entity(collection, type=None, text=DEFAULT_EMPTY_STRING):
+def search_entity(collection, document, scope="collection", type=None, text=DEFAULT_EMPTY_STRING):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
@@ -812,7 +812,7 @@ def search_entity(collection, type=None, text=DEFAULT_EMPTY_STRING):
     
     return results
 
-def search_event(collection, type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
+def search_event(collection, document, scope="collection", type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)
@@ -834,7 +834,7 @@ def search_event(collection, type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
     
     return results
 
-def search_relation(collection, type=None, arg1=None, arg1type=None, arg2=None, arg2type=None):
+def search_relation(collection, document, scope="collection", type=None, arg1=None, arg1type=None, arg2=None, arg2type=None):
     directory = collection
 
     ann_objs = __directory_to_annotations(directory)

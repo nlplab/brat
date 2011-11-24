@@ -749,9 +749,14 @@ var VisualizerUI = (function($, window, undefined) {
         // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
         var activeTab = $('#search_tabs').tabs('option', 'selected');
         var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
+        // hack around empty document; "" would be interpreted as
+        // missing argument by server dispatcher (issue #513)
+        // TODO: do this properly, avoiding magic strings
+        var docArg = doc ? doc : "/NO-DOCUMENT/";
         var opts = {
           action : action,
           collection : coll,
+          document: docArg,
           // TODO the search form got complex :)
         };
         switch (action) {
@@ -787,6 +792,9 @@ var VisualizerUI = (function($, window, undefined) {
             opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
             break;
         }
+        // fill in scope of search (document / collection)
+        opts.scope = $('#search_scope input[checked]').val();
+        console.log(opts.scope);
         dispatcher.post('hideForm', [searchForm]);
         dispatcher.post('ajax', [opts, function(response) {
           if(response && response.items && response.items.length == 0) {
