@@ -494,7 +494,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
 
     return matches
 
-def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=[], ignore_types=[]):
+def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=[], ignore_types=[], text_match="word"):
     """
     Searches the given Annotations objects for relation annotations
     matching the given specification. Returns a SearchMatchSet object.
@@ -590,7 +590,7 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_
 
     return matches
 
-def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignore_types=[]):
+def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignore_types=[], text_match="word"):
     """
     Searches the given Annotations objects for Event annotations
     matching the given specification. Returns a SearchMatchSet object.
