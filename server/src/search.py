@@ -436,7 +436,7 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types
 
     return match_sets
 
-def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
+def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[], text_match="word"):
     """
     Searches for the given text in the Textbound annotations in the
     given Annotations objects.  Returns a SearchMatchSet object.
@@ -686,7 +686,7 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
 
     return matches
 
-def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[]):
+def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[], text_match="word"):
     """
     Searches for the given text in the document texts of the given
     Annotations objects.  Returns a SearchMatchSet object.
@@ -711,7 +711,24 @@ def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nes
     for ann_obj in ann_objs:
         doctext = ann_obj.get_document_text()
 
-        for m in re.finditer(r'\b('+text+r')\b', doctext):
+        if text_match == "word":
+            # require boundaries
+            result_iterator = re.finditer(r'\b('+text+r')\b', doctext)
+        elif text_match == "substring":
+            # any substring match, as text (nonoverlapping matches)
+            result_iterator = re.finditer(re.escape(text), doctext)
+        elif text_match == "regex":
+            try:
+                r = re.compile(text)
+                result_iterator = r.finditer(doctext)
+            except: # whatever (sre_constants.error, other?)
+                Messager.warning('Given string "%s" is not a valid regular expression.' % text)
+                return matches
+        else:
+            Messager.error('Unrecognized search match specification "%s"' % text_match)
+            return matches
+
+        for m in result_iterator:
             # only need to care about embedding annotations if there's
             # some annotation-based restriction
             #if restrict_types == [] and ignore_types == []:
@@ -885,13 +902,14 @@ def format_results(matches, concordancing=False, context_length=50):
 
 def search_text(collection, document, scope="collection",
                 concordancing=False, context_length=50,
+                text_match="word",
                 text=""):
 
     directory = collection
 
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
-    matches = search_anns_for_text(ann_objs, text)
+    matches = search_anns_for_text(ann_objs, text, text_match=text_match)
         
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -900,6 +918,7 @@ def search_text(collection, document, scope="collection",
 
 def search_entity(collection, document, scope="collection",
                   concordancing=False, context_length=50,
+                  text_match="word",
                   type=None, text=DEFAULT_EMPTY_STRING):
 
     directory = collection
@@ -910,7 +929,7 @@ def search_entity(collection, document, scope="collection",
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_anns_for_textbound(ann_objs, text, restrict_types=restrict_types)
+    matches = search_anns_for_textbound(ann_objs, text, restrict_types=restrict_types, text_match=text_match)
         
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -919,6 +938,7 @@ def search_entity(collection, document, scope="collection",
 
 def search_event(collection, document, scope="collection",
                  concordancing=False, context_length=50,
+                 text_match="word",
                  type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
 
     directory = collection
@@ -935,7 +955,7 @@ def search_event(collection, document, scope="collection",
     from jsonwrap import loads
     args = loads(args)
 
-    matches = search_anns_for_event(ann_objs, trigger, args, restrict_types=restrict_types)
+    matches = search_anns_for_event(ann_objs, trigger, args, restrict_types=restrict_types, text_match=text_match)
 
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -944,6 +964,7 @@ def search_event(collection, document, scope="collection",
 
 def search_relation(collection, document, scope="collection", 
                     concordancing=False, context_length=50,
+                    text_match="word",
                     type=None, arg1=None, arg1type=None, 
                     arg2=None, arg2type=None):
 
@@ -955,7 +976,7 @@ def search_relation(collection, document, scope="collection",
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=restrict_types)
+    matches = search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=restrict_types, text_match=text_match)
 
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
