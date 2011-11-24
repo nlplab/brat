@@ -123,6 +123,45 @@ def __directory_to_annotations(directory):
 
     return __filenames_to_annotations(filenames)
 
+def __document_to_annotations(directory, document):
+    """
+    Given a directory and a document, returns an Annotations object
+    for the file.
+    """
+    # TODO: put this shared functionality in a more reasonable place
+    from document import real_directory
+    from os.path import join as path_join
+
+    real_dir = real_directory(directory)
+    filenames = [path_join(real_dir, document)]
+
+    return __filenames_to_annotations(filenames)
+
+def __doc_or_dir_to_annotations(directory, document, scope):
+    """
+    Given a directory, a document, and a scope specification
+    with the value "collection" or "document" selecting between
+    the two, returns Annotations object for either the specific
+    document identified (scope=="document") or all documents in
+    the given directory (scope=="collection").
+    """
+
+    # TODO: lots of magic values here; try to avoid this
+
+    if scope == "collection":
+        return __directory_to_annotations(directory)
+    elif scope == "document":
+        # NOTE: "/NO-DOCUMENT/" is a workaround for a brat
+        # client-server comm issue (issue #513).
+        if document == "" or document == "/NO-DOCUMENT/":
+            Messager.warning('No document selected for search in document.')
+            return []
+        else:
+            return __document_to_annotations(directory, document)
+    else:
+        Messager.error('Unrecognized search scope specification %s' % scope)
+        return []
+
 def _get_text_type_ann_map(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Helper function for search. Given annotations, returns a
@@ -787,7 +826,7 @@ def format_results(matches):
 def search_text(collection, document, scope="collection", text=""):
     directory = collection
 
-    ann_objs = __directory_to_annotations(directory)
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
     matches = search_anns_for_text(ann_objs, text)
         
@@ -799,7 +838,7 @@ def search_text(collection, document, scope="collection", text=""):
 def search_entity(collection, document, scope="collection", type=None, text=DEFAULT_EMPTY_STRING):
     directory = collection
 
-    ann_objs = __directory_to_annotations(directory)
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
     restrict_types = []
     if type is not None and type != "":
@@ -815,7 +854,7 @@ def search_entity(collection, document, scope="collection", type=None, text=DEFA
 def search_event(collection, document, scope="collection", type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
     directory = collection
 
-    ann_objs = __directory_to_annotations(directory)
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
     restrict_types = []
     if type is not None and type != "":
@@ -836,8 +875,8 @@ def search_event(collection, document, scope="collection", type=None, trigger=DE
 
 def search_relation(collection, document, scope="collection", type=None, arg1=None, arg1type=None, arg2=None, arg2type=None):
     directory = collection
-
-    ann_objs = __directory_to_annotations(directory)
+    
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
     restrict_types = []
     if type is not None and type != "":
