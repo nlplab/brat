@@ -808,9 +808,14 @@ var VisualizerUI = (function($, window, undefined) {
             opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
             break;
         }
+
         // fill in scope of search (document / collection)
         opts.scope = $('#search_scope input[checked]').val();
-        console.log(opts.scope);
+
+        // fill in concordancing options
+        opts.concordancing = $('#concordancing_on').is(':checked');
+        opts.context_length = $('#context_length').val();
+
         dispatcher.post('hideForm', [searchForm]);
         dispatcher.post('ajax', [opts, function(response) {
           if(response && response.items && response.items.length == 0) {

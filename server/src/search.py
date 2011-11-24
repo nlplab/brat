@@ -746,7 +746,7 @@ def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nes
 
     return matches
 
-def format_results(matches):
+def format_results(matches, concordancing=False, context_length=50):
     """
     Given matches to a search (a SearchMatchSet), formats the results
     for the client, returning a dictionary with the results in the
@@ -756,6 +756,16 @@ def format_results(matches):
     # sticks
 #     from document import relative_directory
     from os.path import basename
+
+    # sanity
+    if concordancing:
+        try:
+            context_length = int(context_length)
+            assert context_length > 0, "format_results: invalid context length ('%s')" % str(context_length)
+        except:
+            # whatever goes wrong ...
+            Messager.warning('Context length should be an integer larger than zero.')
+            return {}            
 
     # the search response format is built similarly to that of the
     # directory listing.
@@ -791,14 +801,33 @@ def format_results(matches):
     except AttributeError:
         include_trigger_text = False
 
+    include_context = False
+    if include_text and concordancing:
+        include_context = True
+        try:
+            for ann_obj, ann in matches.get_matches():
+                ann.start
+                ann.end
+        except AttributeError:
+            include_context = False
+        
+
+    # extend header fields in order of data fields
     if include_type:
         response['header'].append(('Type', 'string'))
+
+    if include_context:
+        response['header'].append(('Left context', 'string'))
 
     if include_text:
         response['header'].append(('Text', 'string'))
 
     if include_trigger_text:
         response['header'].append(('Trigger text', 'string'))
+
+    if include_context:
+        response['header'].append(('Right context', 'string'))
+
 
     # fill in content
     items = []
@@ -808,34 +837,53 @@ def format_results(matches):
         # second entry is non-listed "pointer" to annotation
         fn = basename(ann_obj.get_document())
         items.append(["a", { 'focus' : [ann.reference_id()] }, fn, ann.reference_text()])
+
         if include_type:
             items[-1].append(ann.type)
+
+        if include_context:
+            start = max(ann.start - context_length, 0)
+            items[-1].append(ann_obj.get_document_text()[start:ann.start])
+
         if include_text:
             items[-1].append(ann.text)
+
         if include_trigger_text:
             try:
                 items[-1].append(ann_obj.get_ann_by_id(ann.trigger).text)
             except:
                 # TODO: specific exception
                 items[-1].append("(ERROR)")
+
+        if include_context:
+            end = min(ann.end + context_length, len(ann_obj.get_document_text()))
+            items[-1].append(ann_obj.get_document_text()[ann.end:end])
+
+
     response['items'] = items
     return response
 
 ### brat interface functions ###
 
-def search_text(collection, document, scope="collection", text=""):
+def search_text(collection, document, scope="collection",
+                concordancing=False, context_length=50,
+                text=""):
+
     directory = collection
 
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
     matches = search_anns_for_text(ann_objs, text)
         
-    results = format_results(matches)
+    results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
     
     return results
 
-def search_entity(collection, document, scope="collection", type=None, text=DEFAULT_EMPTY_STRING):
+def search_entity(collection, document, scope="collection",
+                  concordancing=False, context_length=50,
+                  type=None, text=DEFAULT_EMPTY_STRING):
+
     directory = collection
 
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
@@ -846,12 +894,15 @@ def search_entity(collection, document, scope="collection", type=None, text=DEFA
 
     matches = search_anns_for_textbound(ann_objs, text, restrict_types=restrict_types)
         
-    results = format_results(matches)
+    results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
     
     return results
 
-def search_event(collection, document, scope="collection", type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
+def search_event(collection, document, scope="collection",
+                 concordancing=False, context_length=50,
+                 type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
+
     directory = collection
 
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
@@ -868,12 +919,16 @@ def search_event(collection, document, scope="collection", type=None, trigger=DE
 
     matches = search_anns_for_event(ann_objs, trigger, args, restrict_types=restrict_types)
 
-    results = format_results(matches)
+    results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
     
     return results
 
-def search_relation(collection, document, scope="collection", type=None, arg1=None, arg1type=None, arg2=None, arg2type=None):
+def search_relation(collection, document, scope="collection", 
+                    concordancing=False, context_length=50,
+                    type=None, arg1=None, arg1type=None, 
+                    arg2=None, arg2type=None):
+
     directory = collection
     
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
@@ -884,7 +939,7 @@ def search_relation(collection, document, scope="collection", type=None, arg1=No
 
     matches = search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=restrict_types)
 
-    results = format_results(matches)
+    results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
     
     return results
