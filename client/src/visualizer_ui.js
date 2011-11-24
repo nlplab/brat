@@ -739,6 +739,22 @@ var VisualizerUI = (function($, window, undefined) {
           });
         }
       });
+      // context length setting should only be visible if
+      // concordancing is on
+      // TODO: @amadanmath: help, my jQuery is horrible
+      if ($('#concordancing_on').is(':checked')) {
+        $('#context_size_div').show("blind");
+      } else {
+        $('#context_size_div').hide("blind");
+      }
+      $('#concordancing input[type="radio"]').change(function() {
+        if ($('#concordancing_on').is(':checked')) {
+          $('#context_size_div').show("blind");
+        } else {
+          $('#context_size_div').hide("blind");
+        }
+      });
+
       // set up jQuery UI elements in search form
       $('#search_tabs').tabs();
       $('#search_form').find('.radio_group').buttonset();
