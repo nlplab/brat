@@ -70,7 +70,7 @@
             <input id="auth_button" type="button" value="Login"/>
             <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
             <input id="data_button" type="button" value="Data" tabindex="-1"/>
-            <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search annotations in current collection">Search</label>
+            <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search text and annotations">Search</label>
             <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
             <!-- <input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/> -->
             <input id="options_button" type="button" value="Options" tabindex="-1"/>
@@ -264,6 +264,22 @@
           </table>
         </div>
       </div>
+      <fieldset class="ui-corner-all ui-widget-content">
+        <legend>Options</legend>
+        <div>
+          Search in current
+          <span id="search_scope" class="radio_group small-buttons">
+            <input type="radio" id="search_scope_doc" value="document" 
+                   name="search_scope_radio" checked="checked"/>
+            <label for="search_scope_doc"
+                   title="Search in current document only.">document</label>
+            <input type="radio" id="search_scope_coll" value="2" 
+                   name="search_scope_radio"/>
+            <label for="search_scope_coll"
+                   title="Search in all documents in current collection.">collection</label>
+          </span>
+        </div>
+      </fieldset>
     </form>
     <form id="viewspan_form" class="dialog" title="Span">
       <fieldset id="viewspan_selected_fset">

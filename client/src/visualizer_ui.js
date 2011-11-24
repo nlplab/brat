@@ -739,8 +739,9 @@ var VisualizerUI = (function($, window, undefined) {
           });
         }
       });
-
+      // set up jQuery UI elements in search form
       $('#search_tabs').tabs();
+      $('#search_form').find('.radio_group').buttonset();
 
       var searchForm = $('#search_form');
 
