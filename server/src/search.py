@@ -810,13 +810,23 @@ def format_results(matches, concordancing=False, context_length=50):
                 ann.end
         except AttributeError:
             include_context = False
-        
+
+    include_trigger_context = False
+    if include_trigger_text and concordancing and not include_context:
+        include_trigger_context = True
+        try:
+            for ann_obj, ann in matches.get_matches():
+                trigger = ann_obj.get_ann_by_id(ann.trigger)
+                trigger.start
+                trigger.end
+        except AttributeError:
+            include_trigger_context = False
 
     # extend header fields in order of data fields
     if include_type:
         response['header'].append(('Type', 'string'))
 
-    if include_context:
+    if include_context or include_trigger_context:
         response['header'].append(('Left context', 'string'))
 
     if include_text:
@@ -825,9 +835,8 @@ def format_results(matches, concordancing=False, context_length=50):
     if include_trigger_text:
         response['header'].append(('Trigger text', 'string'))
 
-    if include_context:
+    if include_context or include_trigger_context:
         response['header'].append(('Right context', 'string'))
-
 
     # fill in content
     items = []
@@ -842,8 +851,16 @@ def format_results(matches, concordancing=False, context_length=50):
             items[-1].append(ann.type)
 
         if include_context:
-            start = max(ann.start - context_length, 0)
-            items[-1].append(ann_obj.get_document_text()[start:ann.start])
+            context_ann = ann
+        elif include_trigger_context:
+            context_ann = ann_obj.get_ann_by_id(ann.trigger)
+        else:
+            context_ann = None
+
+        if context_ann is not None:
+            # left context
+            start = max(context_ann.start - context_length, 0)
+            items[-1].append(ann_obj.get_document_text()[start:context_ann.start])
 
         if include_text:
             items[-1].append(ann.text)
@@ -855,9 +872,10 @@ def format_results(matches, concordancing=False, context_length=50):
                 # TODO: specific exception
                 items[-1].append("(ERROR)")
 
-        if include_context:
-            end = min(ann.end + context_length, len(ann_obj.get_document_text()))
-            items[-1].append(ann_obj.get_document_text()[ann.end:end])
+        if context_ann is not None:
+            # right context
+            end = min(context_ann.end + context_length, len(ann_obj.get_document_text()))
+            items[-1].append(ann_obj.get_document_text()[context_ann.end:end])
 
 
     response['items'] = items
