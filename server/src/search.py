@@ -438,7 +438,8 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types
 
 def search_anns_for_textbound(ann_objs, text, restrict_types=[], 
                               ignore_types=[], nested_types=[], 
-                              text_match="word", match_case=False):
+                              text_match="word", match_case=False,
+                              entities_only=False):
     """
     Searches for the given text in the Textbound annotations in the
     given Annotations objects.  Returns a SearchMatchSet object.
@@ -463,7 +464,13 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
         ann_matches = []
-        for t in ann_obj.get_textbounds():
+
+        if entities_only:
+            candidates = ann_obj.get_textbounds()
+        else:
+            candidates = ann_obj.get_entities()
+
+        for t in candidates:
             if t.type in ignore_types:
                 continue
             if restrict_types != [] and t.type not in restrict_types:
@@ -1072,6 +1079,7 @@ def argparser():
     ap.add_argument("-c", "--consistency", default=False, action="store_true", help="Search for inconsistent annotations.")
     ap.add_argument("-t", "--text", metavar="TEXT", help="Search for matching text.")
     ap.add_argument("-b", "--textbound", metavar="TEXT", help="Search for textbound matching text.")
+    ap.add_argument("-e", "--entity", metavar="TEXT", help="Search for entity matching text.")
     ap.add_argument("-r", "--restrict", metavar="TYPE", nargs="+", help="Restrict to given types.")
     ap.add_argument("-i", "--ignore", metavar="TYPE", nargs="+", help="Ignore given types.")
     ap.add_argument("-n", "--nested", metavar="TYPE", nargs="+", help="Require type to be nested.")
@@ -1093,6 +1101,12 @@ def main(argv=None):
                                               restrict_types=arg.restrict,
                                               ignore_types=arg.ignore,
                                               nested_types=arg.nested)]
+    elif arg.entity is not None:
+        matches = [search_files_for_textbound(arg.files, arg.textbound,
+                                              restrict_types=arg.restrict,
+                                              ignore_types=arg.ignore,
+                                              nested_types=arg.nested,
+                                              entities_only=True)]
     elif arg.text is not None:
         matches = [search_files_for_text(arg.files, arg.text,
                                          restrict_types=arg.restrict,
