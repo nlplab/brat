@@ -754,6 +754,19 @@ var VisualizerUI = (function($, window, undefined) {
           $('#context_size_div').hide("blind");
         }
       });
+      $('#search_options div.advancedOptions').hide("highlight");
+      // set up advanced search options; only visible is clicked
+      var advancedSearchOptionsVisible = false;
+      $('#advanced_search_option_toggle').click(function(evt) {
+        if (advancedSearchOptionsVisible) {
+          $('#search_options div.advancedOptions').hide("highlight");
+        } else {
+          $('#search_options div.advancedOptions').show("highlight");
+        }
+        advancedSearchOptionsVisible = !advancedSearchOptionsVisible;
+        // block default
+        return false;
+      });
 
       // set up jQuery UI elements in search form
       $('#search_tabs').tabs();
@@ -779,7 +792,7 @@ var VisualizerUI = (function($, window, undefined) {
           case 'searchText':
             opts.text = $('#search_form_text_text').val();
             if (!opts.text.length) {
-              dispatcher.post('messages', [[['Text search query cannot be empty', 'error']]]);
+              dispatcher.post('messages', [[['Please fill in the text to search for!', 'comment']]]);
               return false;
             }
             break;
@@ -816,8 +829,9 @@ var VisualizerUI = (function($, window, undefined) {
         opts.concordancing = $('#concordancing_on').is(':checked');
         opts.context_length = $('#context_length').val();
 
-        // fill in text match option
+        // fill in text match options
         opts.text_match = $('#text_match input[checked]').val()
+        opts.match_case = $('#match_case_on').is(':checked');
 
         dispatcher.post('hideForm', [searchForm]);
         dispatcher.post('ajax', [opts, function(response) {

@@ -264,10 +264,11 @@
           </table>
         </div>
       </div>
-      <fieldset class="ui-corner-all ui-widget-content">
+      <fieldset id="search_options" class="ui-corner-all ui-widget-content">
         <legend>Options</legend>
-        <div>
-          Search in current
+        <a href="" id="advanced_search_option_toggle">Show advanced</a>
+        <div class="optionRow">
+          <span class="optionLabel">Search in current</span>
           <span id="search_scope" class="radio_group small-buttons">
             <input type="radio" id="search_scope_doc" value="document" 
                    name="search_scope_radio" checked="checked"/>
@@ -279,8 +280,9 @@
                    title="Search in all documents in current collection.">collection</label>
           </span>
         </div>
-        <div>
-          Concordancing 
+        <div class="advancedOptions">
+        <div class="optionRow">
+          <span class="optionLabel">Concordancing</span>
           <span id="concordancing" class="radio_group small-buttons">
             <input type="radio" id="concordancing_off" value="document" 
                    name="concordancing_radio" checked="checked"/>
@@ -292,11 +294,11 @@
                    title="In addition to search results, display also the text context of the matches in Key Word In Context (KWIC) format.">on</label>
           </span>
         </div>
-        <div id="context_size_div">
+        <div id="context_size_div" class="optionRow">
           Context length <input id="context_length" maxlength="3" size="3" value="50"/> characters
         </div>
-        <div>
-          Match text as 
+        <div class="optionRow">
+          <span class="optionLabel">Match text as</span>
           <span id="text_match" class="radio_group small-buttons">
             <input type="radio" id="text_match_word" value="word" 
                    name="text_match_radio" checked="checked"/>
@@ -309,8 +311,22 @@
             <input type="radio" id="text_match_regex" value="regex" 
                    name="text_match_radio"/>
             <label for="text_match_regex"
-                   title="Match text against document as regular expression.">regular expression</label>
+                   title="Match text against document as regular expression.">regexp</label>
           </span>
+        </div>
+        <div class="optionRow">
+          <span class="optionLabel">Match case</span>
+          <span id="match_case" class="radio_group small-buttons">
+            <input type="radio" id="match_case_off" value="document" 
+                   name="match_case_radio" checked="checked"/>
+            <label for="match_case_off"
+                   title="Ignore character case in text search ('abc' matches 'ABC')">off</label>
+            <input type="radio" id="match_case_on" value="collection" 
+                   name="match_case_radio"/>
+            <label for="match_case_on"
+                   title="Require identical character case in text search ('abc' does not match 'ABC')">on</label>
+          </span>
+        </div>
         </div>
       </fieldset>
     </form>
@@ -460,7 +476,7 @@
       <div id="aboutlogo" class="logo">brat</div>
       <!--This software is distributed under the <a target="licence" href="http://www.opensource.org/licenses/isc-license">ISC Licence</a>.-->
       <div align="center">brat rapid annotation tool</div>
-      <div style="font-size:60%" align="center">version 1.0&alpha;1</div>
+      <div style="font-size:60%" align="center">version 1.0&alpha;2</div>
       <div id="copyright">&copy; 2010-2011 The brat contributors</div>
     </div>
     <div id="tutorial" class="dialog unselectable" title="Tutorial">

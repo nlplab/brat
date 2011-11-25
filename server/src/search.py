@@ -436,7 +436,40 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types
 
     return match_sets
 
-def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[], text_match="word"):
+def _get_match_regex(text, text_match="word", match_case=False,
+                     whole_string=False):
+    """
+    Helper for the various search_anns_for_ functions.
+    """
+    if match_case:
+        regex_flags = 0
+    else:
+        regex_flags = re.IGNORECASE
+
+    if text_match == "word":
+        # full word match: require word boundaries or, optionally,
+        # whole string boundaries
+        if whole_string:
+            return re.compile(r'^'+re.escape(text)+r'$', regex_flags)
+        else:
+            return re.compile(r'\b'+re.escape(text)+r'\b', regex_flags)
+    elif text_match == "substring":
+        # any substring match, as text (nonoverlapping matches)
+        return re.compile(re.escape(text), regex_flags)
+    elif text_match == "regex":
+        try:
+            return re.compile(text, regex_flags)
+        except: # whatever (sre_constants.error, other?)
+            Messager.warning('Given string "%s" is not a valid regular expression.' % text)
+            return None        
+    else:
+        Messager.error('Unrecognized search match specification "%s"' % text_match)
+        return None    
+
+def search_anns_for_textbound(ann_objs, text, restrict_types=[], 
+                              ignore_types=[], nested_types=[], 
+                              text_match="word", match_case=False,
+                              entities_only=False):
     """
     Searches for the given text in the Textbound annotations in the
     given Annotations objects.  Returns a SearchMatchSet object.
@@ -457,18 +490,30 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
     if nested_types != []:
         description = description + ' (nesting annotation of type %s)' % (",".join(nested_types))
     matches = SearchMatchSet(description)
-    
+
+    # compile a regular expression according to arguments for matching
+    match_regex = _get_match_regex(text, text_match, match_case, whole_string=False)
+
+    if match_regex is None:
+        # something went wrong, return empty
+        return matches
+
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
         ann_matches = []
-        for t in ann_obj.get_textbounds():
+
+        if entities_only:
+            candidates = ann_obj.get_textbounds()
+        else:
+            candidates = ann_obj.get_entities()
+
+        for t in candidates:
             if t.type in ignore_types:
                 continue
             if restrict_types != [] and t.type not in restrict_types:
                 continue
-            # TODO: make options for "text included" vs. "text matches"
             if (text != None and text != "" and 
-                text != DEFAULT_EMPTY_STRING and text not in t.text):
+                text != DEFAULT_EMPTY_STRING and not match_regex.search(t.get_text())):
                 continue
             if nested_types != []:
                 # TODO: massively inefficient
@@ -494,7 +539,9 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
 
     return matches
 
-def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=[], ignore_types=[]):
+def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, 
+                             restrict_types=[], ignore_types=[], 
+                             text_match="word", match_case=False):
     """
     Searches the given Annotations objects for relation annotations
     matching the given specification. Returns a SearchMatchSet object.
@@ -513,6 +560,18 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_
     if restrict_types != []:
         description = description + ' (of type %s)' % (",".join(restrict_types))
     matches = SearchMatchSet(description)
+
+    # compile regular expressions according to arguments for matching
+    arg1_match_regex, arg2_match_regex = None, None
+    if arg1 is not None:
+        arg1_match_regex = _get_match_regex(arg1, text_match, match_case, whole_string=True)
+    if arg2 is not None:
+        arg2_match_regex = _get_match_regex(arg2, text_match, match_case, whole_string=True)
+
+    if ((arg1 is not None and arg1_match_regex is None) or
+        (arg2 is not None and arg2_match_regex is None)):
+        # something went wrong, return empty
+        return matches
     
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
@@ -529,13 +588,13 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_
             # argument constraints
             if arg1 is not None or arg1type is not None:
                 arg1ent = ann_obj.get_ann_by_id(r.arg1)
-                if arg1 is not None and arg1 not in arg1ent.get_text():
+                if arg1 is not None and not arg1_match_regex.search(arg1ent.get_text()):
                     continue
                 if arg1type is not None and arg1type != arg1ent.type:
                     continue
             if arg2 is not None or arg2type is not None:
                 arg2ent = ann_obj.get_ann_by_id(r.arg2)
-                if arg2 is not None and arg2 not in arg2ent.get_text():
+                if arg2 is not None and not arg2_match_regex.search(arg2ent.get_text()):
                     continue
                 if arg2type is not None and arg2type != arg2.type:
                     continue
@@ -557,11 +616,12 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_
             # 'Protein' for both arg1type and arg2type can still match
             # an equiv between 'Protein' and 'Gene'.
             match_found = False
-            for arg, argtype in ((arg1, arg1type), (arg2, arg2type)):
+            for arg, argtype, arg_match_regex in ((arg1, arg1type, arg1_match_regex), 
+                                                  (arg2, arg2type, arg2_match_regex)):
                 match_found = False
                 for aeid in r.entities:
                     argent = ann_obj.get_ann_by_id(aeid)
-                    if arg is not None and arg not in argent.get_text():
+                    if arg is not None and not arg_match_regex.search(argent.get_text()):
                         continue
                     if argtype is not None and argtype != argent.type:
                         continue
@@ -590,7 +650,9 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_
 
     return matches
 
-def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignore_types=[]):
+def search_anns_for_event(ann_objs, trigger_text, args, 
+                          restrict_types=[], ignore_types=[], 
+                          text_match="word", match_case=False):
     """
     Searches the given Annotations objects for Event annotations
     matching the given specification. Returns a SearchMatchSet object.
@@ -609,6 +671,14 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
     if restrict_types != []:
         description = description + ' (of type %s)' % (",".join(restrict_types))
     matches = SearchMatchSet(description)
+
+    # compile a regular expression according to arguments for matching
+    if trigger_text is not None:
+        trigger_match_regex = _get_match_regex(trigger_text, text_match, match_case, whole_string=False)
+
+        if trigger_match_regex is None:
+            # something went wrong, return empty
+            return matches
     
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
@@ -629,7 +699,7 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
             # TODO: make options for "text included" vs. "text matches"
             if (trigger_text != None and trigger_text != "" and 
                 trigger_text != DEFAULT_EMPTY_STRING and 
-                trigger_text not in t_ann.text):
+                not trigger_match_regex.search(t_ann.text)):
                 continue
 
             # interpret unconstrained (all blank values) argument
@@ -648,18 +718,34 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
                         assert s in arg, "Error: missing mandatory field '%s' in event search" % s
                     found_match = False
                     for role, aid in e.args:
+
                         if arg['role'] is not None and arg['role'] != '' and arg['role'] != role:
                             # mismatch on role
                             continue
+
                         arg_ent = ann_obj.get_ann_by_id(aid)
                         if (arg['type'] is not None and arg['type'] != '' and 
                             arg['type'] != arg_ent.type):
                             # mismatch on type
                             continue
-                        if (arg['text'] is not None and arg['text'] != '' and
-                            arg['text'] not in arg_ent.get_text()):
-                            # mismatch on text
-                            continue
+
+                        if (arg['text'] is not None and arg['text'] != ''):
+                            # TODO: it would be better to pre-compile regexs for
+                            # all arguments with text constraints
+                            match_regex = _get_match_regex(arg['text'], text_match, match_case, whole_string=True)
+                            if match_regex is None:
+                                return matches
+                            # TODO: there has to be a better way ...
+                            if isinstance(arg_ent, annotation.EventAnnotation):
+                                # compare against trigger text
+                                text_ent = ann_obj.get_ann_by_id(ann_ent.trigger)
+                            else:
+                                # compare against entity text
+                                text_ent = arg_ent
+                            if not match_regex.search(text_ent.get_text()):
+                                # mismatch on text
+                                continue
+
                         found_match = True
                         break
                     if not found_match:
@@ -686,7 +772,9 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
 
     return matches
 
-def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[], text_match="word"):
+def search_anns_for_text(ann_objs, text, 
+                         restrict_types=[], ignore_types=[], nested_types=[], 
+                         text_match="word", match_case=False):
     """
     Searches for the given text in the document texts of the given
     Annotations objects.  Returns a SearchMatchSet object.
@@ -708,27 +796,18 @@ def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nes
         description = description + ' (not embedded in %s)' % ",".join(ignore_types)    
     matches = SearchMatchSet(description)
 
+    # compile a regular expression according to arguments for matching
+    match_regex = _get_match_regex(text, text_match, match_case, whole_string=True)
+
+    if match_regex is None:
+        # something went wrong, return empty
+        return matches
+
+    # main search loop
     for ann_obj in ann_objs:
         doctext = ann_obj.get_document_text()
 
-        if text_match == "word":
-            # require boundaries
-            result_iterator = re.finditer(r'\b('+text+r')\b', doctext)
-        elif text_match == "substring":
-            # any substring match, as text (nonoverlapping matches)
-            result_iterator = re.finditer(re.escape(text), doctext)
-        elif text_match == "regex":
-            try:
-                r = re.compile(text)
-                result_iterator = r.finditer(doctext)
-            except: # whatever (sre_constants.error, other?)
-                Messager.warning('Given string "%s" is not a valid regular expression.' % text)
-                return matches
-        else:
-            Messager.error('Unrecognized search match specification "%s"' % text_match)
-            return matches
-
-        for m in result_iterator:
+        for m in match_regex.finditer(doctext):
             # only need to care about embedding annotations if there's
             # some annotation-based restriction
             #if restrict_types == [] and ignore_types == []:
@@ -900,16 +979,34 @@ def format_results(matches, concordancing=False, context_length=50):
 
 ### brat interface functions ###
 
+def _to_bool(s):
+    """
+    Given a string representing a boolean value sent over
+    JSON, returns the corresponding actual boolean.
+    """
+    if s == "true":
+        return True
+    elif s == "false":
+        return False
+    else:
+        assert False, "Error: '%s' is not a JSON boolean" % s
+
 def search_text(collection, document, scope="collection",
-                concordancing=False, context_length=50,
-                text_match="word",
+                concordancing="false", context_length=50,
+                text_match="word", match_case="false",
                 text=""):
 
     directory = collection
 
-    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
+    # Interpret JSON booleans
+    concordancing = _to_bool(concordancing)
+    match_case = _to_bool(match_case)
 
-    matches = search_anns_for_text(ann_objs, text, text_match=text_match)
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)    
+
+    matches = search_anns_for_text(ann_objs, text, 
+                                   text_match=text_match, 
+                                   match_case=match_case)
         
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -917,11 +1014,15 @@ def search_text(collection, document, scope="collection",
     return results
 
 def search_entity(collection, document, scope="collection",
-                  concordancing=False, context_length=50,
-                  text_match="word",
+                  concordancing="false", context_length=50,
+                  text_match="word", match_case="false",
                   type=None, text=DEFAULT_EMPTY_STRING):
 
     directory = collection
+
+    # Interpret JSON booleans
+    concordancing = _to_bool(concordancing)
+    match_case = _to_bool(match_case)
 
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
@@ -929,7 +1030,10 @@ def search_entity(collection, document, scope="collection",
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_anns_for_textbound(ann_objs, text, restrict_types=restrict_types, text_match=text_match)
+    matches = search_anns_for_textbound(ann_objs, text, 
+                                        restrict_types=restrict_types, 
+                                        text_match=text_match,
+                                        match_case=match_case)
         
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -937,11 +1041,15 @@ def search_entity(collection, document, scope="collection",
     return results
 
 def search_event(collection, document, scope="collection",
-                 concordancing=False, context_length=50,
-                 text_match="word",
+                 concordancing="false", context_length=50,
+                 text_match="word", match_case="false",
                  type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
 
     directory = collection
+
+    # Interpret JSON booleans
+    concordancing = _to_bool(concordancing)
+    match_case = _to_bool(match_case)
 
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
@@ -955,7 +1063,10 @@ def search_event(collection, document, scope="collection",
     from jsonwrap import loads
     args = loads(args)
 
-    matches = search_anns_for_event(ann_objs, trigger, args, restrict_types=restrict_types, text_match=text_match)
+    matches = search_anns_for_event(ann_objs, trigger, args, 
+                                    restrict_types=restrict_types,
+                                    text_match=text_match, 
+                                    match_case=match_case)
 
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -963,12 +1074,16 @@ def search_event(collection, document, scope="collection",
     return results
 
 def search_relation(collection, document, scope="collection", 
-                    concordancing=False, context_length=50,
-                    text_match="word",
+                    concordancing="false", context_length=50,
+                    text_match="word", match_case="false",
                     type=None, arg1=None, arg1type=None, 
                     arg2=None, arg2type=None):
 
     directory = collection
+
+    # Interpret JSON booleans
+    concordancing = _to_bool(concordancing)
+    match_case = _to_bool(match_case)
     
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
@@ -976,7 +1091,11 @@ def search_relation(collection, document, scope="collection",
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=restrict_types, text_match=text_match)
+    matches = search_anns_for_relation(ann_objs, arg1, arg1type,
+                                       arg2, arg2type,
+                                       restrict_types=restrict_types,
+                                       text_match=text_match,
+                                       match_case=match_case)
 
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -1017,6 +1136,7 @@ def argparser():
     ap.add_argument("-c", "--consistency", default=False, action="store_true", help="Search for inconsistent annotations.")
     ap.add_argument("-t", "--text", metavar="TEXT", help="Search for matching text.")
     ap.add_argument("-b", "--textbound", metavar="TEXT", help="Search for textbound matching text.")
+    ap.add_argument("-e", "--entity", metavar="TEXT", help="Search for entity matching text.")
     ap.add_argument("-r", "--restrict", metavar="TYPE", nargs="+", help="Restrict to given types.")
     ap.add_argument("-i", "--ignore", metavar="TYPE", nargs="+", help="Ignore given types.")
     ap.add_argument("-n", "--nested", metavar="TYPE", nargs="+", help="Require type to be nested.")
@@ -1038,6 +1158,12 @@ def main(argv=None):
                                               restrict_types=arg.restrict,
                                               ignore_types=arg.ignore,
                                               nested_types=arg.nested)]
+    elif arg.entity is not None:
+        matches = [search_files_for_textbound(arg.files, arg.textbound,
+                                              restrict_types=arg.restrict,
+                                              ignore_types=arg.ignore,
+                                              nested_types=arg.nested,
+                                              entities_only=True)]
     elif arg.text is not None:
         matches = [search_files_for_text(arg.files, arg.text,
                                          restrict_types=arg.restrict,
