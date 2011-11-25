@@ -691,6 +691,19 @@ fieldset {
 #export_page tr.background1 {
   background-color: #dddddd;
 }
+.optionRow {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.optionLabel {
+  display: inline-block;
+  width: 8em;
+}
+#advanced_search_option_toggle {
+  float: right;                      
+  font-size: 80%;
+  color: gray;
+}
 
 #browserwarning {
   background-color: #ffcccc;
