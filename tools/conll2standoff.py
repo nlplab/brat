@@ -15,6 +15,14 @@ try:
 except:
     pass
 
+# what to do if an error in the tag sequence (e.g. "O I-T1" or "B-T1
+# I-T2") is encountered: recover/discard the erroneously tagged 
+# sequence, or abord the entire process
+# TODO: add a command-line option for this
+SEQUENCE_ERROR_RECOVER, SEQUENCE_ERROR_DISCARD, SEQUENCE_ERROR_FAIL = range(3)
+
+SEQUENCE_ERROR_PROCESSING = SEQUENCE_ERROR_RECOVER
+
 # TODO: get rid of globals
 
 # output goes to stdout by default
@@ -139,9 +147,33 @@ def process(fn):
     currType, currStart = None, None
     for startoff, endoff, ttag, ttype in taggedTokens:
 
+        # special case for surviving format errors in input: if the
+        # type sequence changes without a "B" tag, change the tag
+        # to allow some output (assumed to be preferable to complete
+        # failure.)
+        if prevTag != "O" and ttag == "I" and currType != ttype:
+            if SEQUENCE_ERROR_PROCESSING == SEQUENCE_ERROR_RECOVER:
+                # reinterpret as the missing "B" tag.
+                ttag = "B"
+            elif SEQUENCE_ERROR_PROCESSING == SEQUENCE_ERROR_DISCARD:
+                ttag = "O"
+            else:
+                assert SEQUENCE_ERROR_PROCESSING == SEQUENCE_ERROR_FAIL
+                pass # will fail on later check
+
+        # similarly if an "I" tag occurs after an "O" tag
+        if prevTag == "O" and ttag == "I":
+            if SEQUENCE_ERROR_PROCESSING == SEQUENCE_ERROR_RECOVER:
+                ttag = "B"            
+            elif SEQUENCE_ERROR_PROCESSING == SEQUENCE_ERROR_DISCARD:
+                ttag = "O"
+            else:
+                assert SEQUENCE_ERROR_PROCESSING == SEQUENCE_ERROR_FAIL
+                pass # will fail on later check
+
         if prevTag != "O" and ttag != "I":
             # previous entity does not continue into this tag; output
-            assert currType is not None and currStart is not None, "ERROR in %s" % fn
+            assert currType is not None and currStart is not None, "ERROR at %s (%d-%d) in %s" % (reftext[startoff:endoff], startoff, endoff, fn)
             
             print >> out, entityStr(currStart, prevEnd, currType, idIdx, reftext).encode("UTF-8")
 
