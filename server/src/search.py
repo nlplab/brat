@@ -460,6 +460,28 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
     if nested_types != []:
         description = description + ' (nesting annotation of type %s)' % (",".join(nested_types))
     matches = SearchMatchSet(description)
+
+    # compile a regular expression according to arguments for matching
+    if match_case:
+        regex_flags = 0
+    else:
+        regex_flags = re.IGNORECASE
+
+    if text_match == "word":
+        # require full match
+        match_regex = re.compile(r'^'+re.escape(text)+r'$', regex_flags)
+    elif text_match == "substring":
+        # any substring match, as text (nonoverlapping matches)
+        match_regex = re.compile(re.escape(text), regex_flags)
+    elif text_match == "regex":
+        try:
+            match_regex = re.compile(text, regex_flags)
+        except: # whatever (sre_constants.error, other?)
+            Messager.warning('Given string "%s" is not a valid regular expression.' % text)
+            return matches
+    else:
+        Messager.error('Unrecognized search match specification "%s"' % text_match)
+        return matches
     
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
@@ -475,9 +497,8 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
                 continue
             if restrict_types != [] and t.type not in restrict_types:
                 continue
-            # TODO: make options for "text included" vs. "text matches"
             if (text != None and text != "" and 
-                text != DEFAULT_EMPTY_STRING and text not in t.text):
+                text != DEFAULT_EMPTY_STRING and not match_regex.search(t.text)):
                 continue
             if nested_types != []:
                 # TODO: massively inefficient
@@ -732,7 +753,7 @@ def search_anns_for_text(ann_objs, text,
 
     if text_match == "word":
         # require boundaries
-        match_regex = re.compile(r'\b('+re.escape(text)+r')\b', regex_flags)
+        match_regex = re.compile(r'\b'+re.escape(text)+r'\b', regex_flags)
     elif text_match == "substring":
         # any substring match, as text (nonoverlapping matches)
         match_regex = re.compile(re.escape(text), regex_flags)
