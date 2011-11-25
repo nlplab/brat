@@ -915,14 +915,30 @@ def format_results(matches, concordancing=False, context_length=50):
 
 ### brat interface functions ###
 
+def _to_bool(s):
+    """
+    Given a string representing a boolean value sent over
+    JSON, returns the corresponding actual boolean.
+    """
+    if s == "true":
+        return True
+    elif s == "false":
+        return False
+    else:
+        assert False, "Error: '%s' is not a JSON boolean" % s
+
 def search_text(collection, document, scope="collection",
-                concordancing=False, context_length=50,
-                text_match="word", match_case=False,
+                concordancing="false", context_length=50,
+                text_match="word", match_case="false",
                 text=""):
 
     directory = collection
 
-    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
+    # Interpret JSON booleans
+    concordancing = _to_bool(concordancing)
+    match_case = _to_bool(match_case)
+
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)    
 
     matches = search_anns_for_text(ann_objs, text, 
                                    text_match=text_match, 
@@ -934,11 +950,15 @@ def search_text(collection, document, scope="collection",
     return results
 
 def search_entity(collection, document, scope="collection",
-                  concordancing=False, context_length=50,
-                  text_match="word", match_case=False,
+                  concordancing="false", context_length=50,
+                  text_match="word", match_case="false",
                   type=None, text=DEFAULT_EMPTY_STRING):
 
     directory = collection
+
+    # Interpret JSON booleans
+    concordancing = _to_bool(concordancing)
+    match_case = _to_bool(match_case)
 
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
@@ -957,11 +977,15 @@ def search_entity(collection, document, scope="collection",
     return results
 
 def search_event(collection, document, scope="collection",
-                 concordancing=False, context_length=50,
-                 text_match="word", match_case=False,
+                 concordancing="false", context_length=50,
+                 text_match="word", match_case="false",
                  type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
 
     directory = collection
+
+    # Interpret JSON booleans
+    concordancing = _to_bool(concordancing)
+    match_case = _to_bool(match_case)
 
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
@@ -986,12 +1010,16 @@ def search_event(collection, document, scope="collection",
     return results
 
 def search_relation(collection, document, scope="collection", 
-                    concordancing=False, context_length=50,
-                    text_match="word", match_case=False,
+                    concordancing="false", context_length=50,
+                    text_match="word", match_case="false",
                     type=None, arg1=None, arg1type=None, 
                     arg2=None, arg2type=None):
 
     directory = collection
+
+    # Interpret JSON booleans
+    concordancing = _to_bool(concordancing)
+    match_case = _to_bool(match_case)
     
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
