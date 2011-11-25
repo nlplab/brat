@@ -436,6 +436,36 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types
 
     return match_sets
 
+def _get_match_regex(text, text_match="word", match_case=False,
+                     whole_string=False):
+    """
+    Helper for the various search_anns_for_ functions.
+    """
+    if match_case:
+        regex_flags = 0
+    else:
+        regex_flags = re.IGNORECASE
+
+    if text_match == "word":
+        # full word match: require word boundaries or, optionally,
+        # whole string boundaries
+        if whole_string:
+            return re.compile(r'^'+re.escape(text)+r'$', regex_flags)
+        else:
+            return re.compile(r'\b'+re.escape(text)+r'\b', regex_flags)
+    elif text_match == "substring":
+        # any substring match, as text (nonoverlapping matches)
+        return re.compile(re.escape(text), regex_flags)
+    elif text_match == "regex":
+        try:
+            return re.compile(text, regex_flags)
+        except: # whatever (sre_constants.error, other?)
+            Messager.warning('Given string "%s" is not a valid regular expression.' % text)
+            return None        
+    else:
+        Messager.error('Unrecognized search match specification "%s"' % text_match)
+        return None    
+
 def search_anns_for_textbound(ann_objs, text, restrict_types=[], 
                               ignore_types=[], nested_types=[], 
                               text_match="word", match_case=False,
@@ -462,27 +492,12 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
     matches = SearchMatchSet(description)
 
     # compile a regular expression according to arguments for matching
-    if match_case:
-        regex_flags = 0
-    else:
-        regex_flags = re.IGNORECASE
+    match_regex = _get_match_regex(text, text_match, match_case, whole_string=False)
 
-    if text_match == "word":
-        # require full match
-        match_regex = re.compile(r'^'+re.escape(text)+r'$', regex_flags)
-    elif text_match == "substring":
-        # any substring match, as text (nonoverlapping matches)
-        match_regex = re.compile(re.escape(text), regex_flags)
-    elif text_match == "regex":
-        try:
-            match_regex = re.compile(text, regex_flags)
-        except: # whatever (sre_constants.error, other?)
-            Messager.warning('Given string "%s" is not a valid regular expression.' % text)
-            return matches
-    else:
-        Messager.error('Unrecognized search match specification "%s"' % text_match)
+    if match_regex is None:
+        # something went wrong, return empty
         return matches
-    
+
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
         ann_matches = []
@@ -498,7 +513,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
             if restrict_types != [] and t.type not in restrict_types:
                 continue
             if (text != None and text != "" and 
-                text != DEFAULT_EMPTY_STRING and not match_regex.search(t.text)):
+                text != DEFAULT_EMPTY_STRING and not match_regex.search(t.get_text())):
                 continue
             if nested_types != []:
                 # TODO: massively inefficient
@@ -545,6 +560,18 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
     if restrict_types != []:
         description = description + ' (of type %s)' % (",".join(restrict_types))
     matches = SearchMatchSet(description)
+
+    # compile regular expressions according to arguments for matching
+    arg1_match_regex, arg2_match_regex = None, None
+    if arg1 is not None:
+        arg1_match_regex = _get_match_regex(arg1, text_match, match_case, whole_string=True)
+    if arg2 is not None:
+        arg2_match_regex = _get_match_regex(arg2, text_match, match_case, whole_string=True)
+
+    if ((arg1 is not None and arg1_match_regex is None) or
+        (arg2 is not None and arg2_match_regex is None)):
+        # something went wrong, return empty
+        return matches
     
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
@@ -561,13 +588,13 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
             # argument constraints
             if arg1 is not None or arg1type is not None:
                 arg1ent = ann_obj.get_ann_by_id(r.arg1)
-                if arg1 is not None and arg1 not in arg1ent.get_text():
+                if arg1 is not None and not arg1_match_regex.search(arg1ent.get_text()):
                     continue
                 if arg1type is not None and arg1type != arg1ent.type:
                     continue
             if arg2 is not None or arg2type is not None:
                 arg2ent = ann_obj.get_ann_by_id(r.arg2)
-                if arg2 is not None and arg2 not in arg2ent.get_text():
+                if arg2 is not None and not arg2_match_regex.search(arg2ent.get_text()):
                     continue
                 if arg2type is not None and arg2type != arg2.type:
                     continue
@@ -589,11 +616,12 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
             # 'Protein' for both arg1type and arg2type can still match
             # an equiv between 'Protein' and 'Gene'.
             match_found = False
-            for arg, argtype in ((arg1, arg1type), (arg2, arg2type)):
+            for arg, argtype, arg_match_regex in ((arg1, arg1type, arg1_match_regex), 
+                                                  (arg2, arg2type, arg2_match_regex)):
                 match_found = False
                 for aeid in r.entities:
                     argent = ann_obj.get_ann_by_id(aeid)
-                    if arg is not None and arg not in argent.get_text():
+                    if arg is not None and not arg_match_regex.search(argent.get_text()):
                         continue
                     if argtype is not None and argtype != argent.type:
                         continue
@@ -744,27 +772,11 @@ def search_anns_for_text(ann_objs, text,
         description = description + ' (not embedded in %s)' % ",".join(ignore_types)    
     matches = SearchMatchSet(description)
 
-
     # compile a regular expression according to arguments for matching
-    if match_case:
-        regex_flags = 0
-    else:
-        regex_flags = re.IGNORECASE
+    match_regex = _get_match_regex(text, text_match, match_case, whole_string=True)
 
-    if text_match == "word":
-        # require boundaries
-        match_regex = re.compile(r'\b'+re.escape(text)+r'\b', regex_flags)
-    elif text_match == "substring":
-        # any substring match, as text (nonoverlapping matches)
-        match_regex = re.compile(re.escape(text), regex_flags)
-    elif text_match == "regex":
-        try:
-            match_regex = re.compile(text, regex_flags)
-        except: # whatever (sre_constants.error, other?)
-            Messager.warning('Given string "%s" is not a valid regular expression.' % text)
-            return matches
-    else:
-        Messager.error('Unrecognized search match specification "%s"' % text_match)
+    if match_regex is None:
+        # something went wrong, return empty
         return matches
 
     # main search loop
