@@ -716,27 +716,34 @@ def search_anns_for_text(ann_objs, text,
         description = description + ' (not embedded in %s)' % ",".join(ignore_types)    
     matches = SearchMatchSet(description)
 
+
+    # compile a regular expression according to arguments for matching
+    if match_case:
+        regex_flags = 0
+    else:
+        regex_flags = re.IGNORECASE
+
+    if text_match == "word":
+        # require boundaries
+        match_regex = re.compile(r'\b('+re.escape(text)+r')\b', regex_flags)
+    elif text_match == "substring":
+        # any substring match, as text (nonoverlapping matches)
+        match_regex = re.compile(re.escape(text), regex_flags)
+    elif text_match == "regex":
+        try:
+            match_regex = re.compile(text, regex_flags)
+        except: # whatever (sre_constants.error, other?)
+            Messager.warning('Given string "%s" is not a valid regular expression.' % text)
+            return matches
+    else:
+        Messager.error('Unrecognized search match specification "%s"' % text_match)
+        return matches
+
+    # main search loop
     for ann_obj in ann_objs:
         doctext = ann_obj.get_document_text()
 
-        if text_match == "word":
-            # require boundaries
-            result_iterator = re.finditer(r'\b('+text+r')\b', doctext)
-        elif text_match == "substring":
-            # any substring match, as text (nonoverlapping matches)
-            result_iterator = re.finditer(re.escape(text), doctext)
-        elif text_match == "regex":
-            try:
-                r = re.compile(text)
-                result_iterator = r.finditer(doctext)
-            except: # whatever (sre_constants.error, other?)
-                Messager.warning('Given string "%s" is not a valid regular expression.' % text)
-                return matches
-        else:
-            Messager.error('Unrecognized search match specification "%s"' % text_match)
-            return matches
-
-        for m in result_iterator:
+        for m in match_regex.finditer(doctext):
             # only need to care about embedding annotations if there's
             # some annotation-based restriction
             #if restrict_types == [] and ignore_types == []:
