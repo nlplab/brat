@@ -8,7 +8,7 @@
   <style type="text/css">
   </style>  
   <body>
-    <div id="main" class="center">
+    <div id="manual-main" class="center">
 
       <div id="header" class="ui-widget-header">
 	<span>LOGO HERE</span>
@@ -37,7 +37,7 @@
 	  <th style="width:8em">Editing</th>
 	</tr>
 	<tr>
-	  <td><a href="http://www.google.com/chrome">Chrome</a> (Google) on PC</td>
+	  <td><a href="http://www.google.com/chrome">Chrome</a> (Google) on PC/Mac</td>
 	  <td class="support-ok">Full</td>
 	  <td class="support-ok">Full</td>
 	</tr><tr>
@@ -53,7 +53,7 @@
 	  <td class="support-ok">Full</td>
 	  <td class="support-TODO">TODO</td>
 	</tr><tr>
-	  <td><a href="http://www.apple.com/safari/">Safari</a> (Apple) on PC</td>
+	  <td><a href="http://www.apple.com/safari/">Safari</a> (Apple) on PC/Mac</td>
 	  <td class="support-ok">Full</td>
 	  <td class="support-TODO">TODO</td>
 	</tr><tr>
@@ -70,26 +70,81 @@
 	  <td class="support-no">No</td>
 	</tr>
       </table>
+      <p>&quot;Visualization&quot; refers to the functionality for
+	viewing existing annotations and navigating in collections,
+	and &quot;Editing&quot; to functionality for changing or
+	removing existing annotations and creating new ones. Editing
+	is only possible on browsers supporting visualization.
+      </p>
       <p>Please note the following:
 	<ul>
-	  <li>Partial means ... TODO</li>
+	  <li>brat is not specifically tested on browsers not listed
+	    here, but basic functionality is likely to work also on
+	    other modern, standards-compliant browsers.
+	  </li>
+	  <li>Even if a browser is not fully supported, it may still
+	    be possible to use it with brat for visualization and
+	    basic editing.
+	  </li>
+	  <li>On touch-based interfaces such as those on the iPad, the
+	    iPhone, and Android tablets, selection is currently not
+	    supported, so editing is limited to existing annotations.
+	    We hope to address this limitation in the next release.
+	  </li>
+	  <li>There is a known issue with selection in SVG in the
+	    Opera browser. We hope to be able to address this in the
+	    next release.
+	  </li>
 	  <li>The above table is based on testing with recent browser
-	  versions. Older versions may not support the same features.</li>
+	    versions. Older versions may not support the same features.</li>
 	</ul>
       </p>
-      <p>Note that even if a browser is not fully supported, it may
-	still be possible to use it with brat for visualization or
-	basic editing.
+      <h2>Troubleshooting</h2>
+      <p>If brat doesn't work in your browser:</p>
+      <p><strong>If your browser is listed as supported</strong> in
+	the above table but brat fails to work, please check the
+	following:
+	<ul>
+	  <li>JavaScript should be permitted. The layout and editing
+	    functions of brat are implemented in JavaScript, and
+	    having JavaScript switched off either entirely or limited
+	    using blockers such as NoScript will prevent brat from
+	    working.
+	  </li>
+	  <li>Cookies should be permitted for editing. brat identifies
+	    users by a session cookie, so users who refuse cookies
+	    cannot be verified as having editing permissions. Cookies
+	    can be switched off for visualization, and brat does not
+	    store any cookies or other identifying information of
+	    users who are not logged in.
+	  </li>
+	  <li>The browser should be a relatively recent version. Older
+	    versions of supported browsers may work partially or not
+	    at all. Please consider upgrading if you are running an
+	    older version.
+	  </li>
+	</ul>
+      </p> 
+      <p><strong>If your browser is listed as <i>not</i>
+	  supported</strong>, please consider installing a supported
+	browser. Most of the supported browsers are freely
+	available, and installation only takes a couple of
+	minutes. (You can also try badgering the developers to add
+	support for your browser!)
       </p>
-      <h2>Why doesn't it work in my browser?</h2>
-      <p>The core of brat visualization is based on
+      <h3>Why is browser X not supported?</h3>
+      <p>Most likely because the browser does not implement support for
 	<a href="http://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable
-	Vector Graphics</a> (SVG). Although SVG has been a recommended
-	web standard for over a decade, not all browsers have
-	implemented it; in particular, Internet Explorer has only
-	started supporting SVG from version 9.
+	Vector Graphics</a> (SVG).
       </p>
-
+      <p>The core of brat visualization is based on SVG. Although SVG
+	has been a recommended web standard for over a decade, not all
+	browsers have implemented it; in particular, Internet Explorer
+	has only started supporting SVG from version 9. Because SVG is
+	central to the brat visualization, supporting browsers that do
+	not implement it would require rewriting much of the brat
+	client.
+      </p>
       <div id="footer">
 	&copy; 2010-2011 brat contributors
       </div>
