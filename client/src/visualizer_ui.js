@@ -754,6 +754,19 @@ var VisualizerUI = (function($, window, undefined) {
           $('#context_size_div').hide("blind");
         }
       });
+      $('#search_options div.advancedOptions').hide("highlight");
+      // set up advanced search options; only visible is clicked
+      var advancedSearchOptionsVisible = false;
+      $('#advanced_search_option_toggle').click(function(evt) {
+        if (advancedSearchOptionsVisible) {
+          $('#search_options div.advancedOptions').hide("highlight");
+        } else {
+          $('#search_options div.advancedOptions').show("highlight");
+        }
+        advancedSearchOptionsVisible = !advancedSearchOptionsVisible;
+        // block default
+        return false;
+      });
 
       // set up jQuery UI elements in search form
       $('#search_tabs').tabs();
