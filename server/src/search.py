@@ -671,6 +671,14 @@ def search_anns_for_event(ann_objs, trigger_text, args,
     if restrict_types != []:
         description = description + ' (of type %s)' % (",".join(restrict_types))
     matches = SearchMatchSet(description)
+
+    # compile a regular expression according to arguments for matching
+    if trigger_text is not None:
+        trigger_match_regex = _get_match_regex(trigger_text, text_match, match_case, whole_string=False)
+
+        if trigger_match_regex is None:
+            # something went wrong, return empty
+            return matches
     
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
@@ -691,7 +699,7 @@ def search_anns_for_event(ann_objs, trigger_text, args,
             # TODO: make options for "text included" vs. "text matches"
             if (trigger_text != None and trigger_text != "" and 
                 trigger_text != DEFAULT_EMPTY_STRING and 
-                trigger_text not in t_ann.text):
+                not trigger_match_regex.search(t_ann.text)):
                 continue
 
             # interpret unconstrained (all blank values) argument
@@ -710,18 +718,34 @@ def search_anns_for_event(ann_objs, trigger_text, args,
                         assert s in arg, "Error: missing mandatory field '%s' in event search" % s
                     found_match = False
                     for role, aid in e.args:
+
                         if arg['role'] is not None and arg['role'] != '' and arg['role'] != role:
                             # mismatch on role
                             continue
+
                         arg_ent = ann_obj.get_ann_by_id(aid)
                         if (arg['type'] is not None and arg['type'] != '' and 
                             arg['type'] != arg_ent.type):
                             # mismatch on type
                             continue
-                        if (arg['text'] is not None and arg['text'] != '' and
-                            arg['text'] not in arg_ent.get_text()):
-                            # mismatch on text
-                            continue
+
+                        if (arg['text'] is not None and arg['text'] != ''):
+                            # TODO: it would be better to pre-compile regexs for
+                            # all arguments with text constraints
+                            match_regex = _get_match_regex(arg['text'], text_match, match_case, whole_string=True)
+                            if match_regex is None:
+                                return matches
+                            # TODO: there has to be a better way ...
+                            if isinstance(arg_ent, annotation.EventAnnotation):
+                                # compare against trigger text
+                                text_ent = ann_obj.get_ann_by_id(ann_ent.trigger)
+                            else:
+                                # compare against entity text
+                                text_ent = arg_ent
+                            if not match_regex.search(text_ent.get_text()):
+                                # mismatch on text
+                                continue
+
                         found_match = True
                         break
                     if not found_match:
