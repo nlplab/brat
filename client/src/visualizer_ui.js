@@ -779,7 +779,7 @@ var VisualizerUI = (function($, window, undefined) {
           case 'searchText':
             opts.text = $('#search_form_text_text').val();
             if (!opts.text.length) {
-              dispatcher.post('messages', [[['Text search query cannot be empty', 'error']]]);
+              dispatcher.post('messages', [[['Please fill in the text to search for!', 'comment']]]);
               return false;
             }
             break;
