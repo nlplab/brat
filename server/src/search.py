@@ -436,7 +436,9 @@ def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types
 
     return match_sets
 
-def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[], text_match="word"):
+def search_anns_for_textbound(ann_objs, text, restrict_types=[], 
+                              ignore_types=[], nested_types=[], 
+                              text_match="word", match_case=False):
     """
     Searches for the given text in the Textbound annotations in the
     given Annotations objects.  Returns a SearchMatchSet object.
@@ -494,7 +496,9 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[], ignore_types=[]
 
     return matches
 
-def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=[], ignore_types=[], text_match="word"):
+def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, 
+                             restrict_types=[], ignore_types=[], 
+                             text_match="word", match_case=False):
     """
     Searches the given Annotations objects for relation annotations
     matching the given specification. Returns a SearchMatchSet object.
@@ -590,7 +594,9 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_
 
     return matches
 
-def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignore_types=[], text_match="word"):
+def search_anns_for_event(ann_objs, trigger_text, args, 
+                          restrict_types=[], ignore_types=[], 
+                          text_match="word", match_case=False):
     """
     Searches the given Annotations objects for Event annotations
     matching the given specification. Returns a SearchMatchSet object.
@@ -686,7 +692,9 @@ def search_anns_for_event(ann_objs, trigger_text, args, restrict_types=[], ignor
 
     return matches
 
-def search_anns_for_text(ann_objs, text, restrict_types=[], ignore_types=[], nested_types=[], text_match="word"):
+def search_anns_for_text(ann_objs, text, 
+                         restrict_types=[], ignore_types=[], nested_types=[], 
+                         text_match="word", match_case=False):
     """
     Searches for the given text in the document texts of the given
     Annotations objects.  Returns a SearchMatchSet object.
@@ -902,14 +910,16 @@ def format_results(matches, concordancing=False, context_length=50):
 
 def search_text(collection, document, scope="collection",
                 concordancing=False, context_length=50,
-                text_match="word",
+                text_match="word", match_case=False,
                 text=""):
 
     directory = collection
 
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
-    matches = search_anns_for_text(ann_objs, text, text_match=text_match)
+    matches = search_anns_for_text(ann_objs, text, 
+                                   text_match=text_match, 
+                                   match_case=match_case)
         
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -918,7 +928,7 @@ def search_text(collection, document, scope="collection",
 
 def search_entity(collection, document, scope="collection",
                   concordancing=False, context_length=50,
-                  text_match="word",
+                  text_match="word", match_case=False,
                   type=None, text=DEFAULT_EMPTY_STRING):
 
     directory = collection
@@ -929,7 +939,10 @@ def search_entity(collection, document, scope="collection",
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_anns_for_textbound(ann_objs, text, restrict_types=restrict_types, text_match=text_match)
+    matches = search_anns_for_textbound(ann_objs, text, 
+                                        restrict_types=restrict_types, 
+                                        text_match=text_match,
+                                        match_case=match_case)
         
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -938,7 +951,7 @@ def search_entity(collection, document, scope="collection",
 
 def search_event(collection, document, scope="collection",
                  concordancing=False, context_length=50,
-                 text_match="word",
+                 text_match="word", match_case=False,
                  type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
 
     directory = collection
@@ -955,7 +968,10 @@ def search_event(collection, document, scope="collection",
     from jsonwrap import loads
     args = loads(args)
 
-    matches = search_anns_for_event(ann_objs, trigger, args, restrict_types=restrict_types, text_match=text_match)
+    matches = search_anns_for_event(ann_objs, trigger, args, 
+                                    restrict_types=restrict_types,
+                                    text_match=text_match, 
+                                    match_case=match_case)
 
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
@@ -964,7 +980,7 @@ def search_event(collection, document, scope="collection",
 
 def search_relation(collection, document, scope="collection", 
                     concordancing=False, context_length=50,
-                    text_match="word",
+                    text_match="word", match_case=False,
                     type=None, arg1=None, arg1type=None, 
                     arg2=None, arg2type=None):
 
@@ -976,7 +992,11 @@ def search_relation(collection, document, scope="collection",
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, restrict_types=restrict_types, text_match=text_match)
+    matches = search_anns_for_relation(ann_objs, arg1, arg1type,
+                                       arg2, arg2type,
+                                       restrict_types=restrict_types,
+                                       text_match=text_match,
+                                       match_case=match_case)
 
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory

@@ -816,8 +816,9 @@ var VisualizerUI = (function($, window, undefined) {
         opts.concordancing = $('#concordancing_on').is(':checked');
         opts.context_length = $('#context_length').val();
 
-        // fill in text match option
+        // fill in text match options
         opts.text_match = $('#text_match input[checked]').val()
+        opts.match_case = $('#match_case_on').is(':checked');
 
         dispatcher.post('hideForm', [searchForm]);
         dispatcher.post('ajax', [opts, function(response) {
