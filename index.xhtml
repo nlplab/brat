@@ -342,7 +342,7 @@
     </form>
     <form id="viewspan_form" class="dialog" title="Span">
       <fieldset id="viewspan_selected_fset">
-        <legend>Selected Text</legend>
+        <legend>Text</legend>
         <a target="brat_linked" id="viewspan_highlight_link" href="#">Link</a>
         <div id="viewspan_selected"/>
       </fieldset>
@@ -359,7 +359,7 @@
     </form>
     <form id="span_form" class="dialog" title="Span">
       <fieldset id="span_selected_fset">
-        <legend>Selected Text</legend>
+        <legend>Text</legend>
         <a target="brat_linked" id="span_highlight_link" href="#">Link</a>
         <div id="span_selected"/>
       </fieldset>
@@ -372,24 +372,27 @@
       <fieldset>
         <div id="entity_and_event_wrapper" class="split_wrapper">
           <div id="span_entity_section" class="wrapper_half_left">
-            <div id="entity_label">Entity type</div>
+            <div id="entity_label" class="label-like">Entity type</div>
             <div id="entity_types" class="scroll_wrapper_upper">
               <div class="scroller"/> 
             </div>
-            <div id="entity_attribute_label">Entity attributes</div>
+            <!-- NOTE: the attribute labels must be *outside* of the
+                 divs they logically belong to prevent scrollers
+                 overflowing them. -->
+            <div id="entity_attribute_label" 
+                 class="label-like wrapper_lower_label">Entity attributes</div>
             <div id="entity_attributes" class="scroll_wrapper_lower">
-              <!-- note special-case top padding for buttons -->
-              <div style="padding-top: 0.5em" class="scroller small-buttons"/> 
+              <div class="scroller small-buttons"/> 
             </div>
           </div><div id="span_event_section" class="wrapper_half_right">
-            <div id="event_label">Event type</div>
+            <div id="event_label" class="label-like">Event type</div>
             <div id="event_types" class="scroll_wrapper_upper">
               <div class="scroller"/> 
             </div>            
-            <div id="event_attribute_label">Event attributes</div>
+            <div id="event_attribute_label"
+                 class="wrapper_lower_label label-like">Event attributes</div>
             <div id="event_attributes" class="scroll_wrapper_lower">
-              <!-- note special-case top padding for buttons -->
-              <div style="padding-top: 0.5em" class="scroller small-buttons"/> 
+              <div class="scroller small-buttons"/> 
             </div>
           </div>
         </div>
@@ -399,13 +402,14 @@
         <legend>Notes</legend>
         <div id="notes_container">
           <input id="span_notes" class="borderless"/>
-          <input id="clear_notes_button" type="button" value="&#x2715;"/>
+          <input id="clear_notes_button" type="button" value="&#x2715;"
+                 title="Clear notes"/>
         </div>
       </fieldset>
     </form>
     <form id="rapid_span_form" class="dialog" title="Span type">
       <fieldset id="rapid_span_selected_fset">
-        <legend>Selected Text</legend>
+        <legend>Text</legend>
         <div id="rapid_span_selected"/>
       </fieldset>
       <div id="rapid_span_types" class="scroll_fset">

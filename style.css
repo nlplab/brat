@@ -323,6 +323,15 @@ fieldset legend {
   /* match jQuery UI .ui-widget-content color */
   color: #2e6e9e;
 }
+.label-like {
+   /* for UI consistency, this should match the "fieldset legend" style;
+      sorry about the duplication. */
+  font-family: monospace;
+  font-size: 90%;
+  /* match jQuery UI .ui-widget-content color */
+  color: #2e6e9e;
+}   
+
 .accesskey {
   text-decoration: underline;
 }
@@ -474,8 +483,8 @@ fieldset legend {
 /* BEGIN new entity and event dialog style */
 .split_wrapper {
   height: 300px;
-  /* HACK tweaking to avoid overflows  */
-  padding-bottom: 2em;
+  /* HACK tweaking to avoid overflows. */
+  padding-bottom: 2.5em;
   /* end HACK */
 }
 .split_wrapper div.wrapper_full_width {
@@ -513,6 +522,12 @@ fieldset legend {
   display: inline-block;
   vertical-align: bottom;
 }
+.wrapper_lower_label {
+  margin-top: 0.5em;
+}
+div.scroll_wrapper_lower div {
+ padding-top: 0.5em;
+}
 .split_wrapper div.scroll_wrapper_full {
   width: 100%;
   height: 100%;
@@ -530,6 +545,9 @@ fieldset legend {
   height: 100%;
   border-style: inset inset none none;
   border-width: 1px;
+}
+div.scroll_wrapper_upper div.scroller {
+  border-style: inset inset inset none;
 }
 /* special-case visual tweak; not sure why this is necessary */
 #span_search_fieldset {
