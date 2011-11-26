@@ -1202,7 +1202,7 @@ Util.profileStart('chunks');
                   border = margin.x + sentNumMargin + rowPadding;
                 }
                 var labelNo = abbrevsOn ? labels.length - 1 : 0;
-                var smallestLabelWidth = sizes.arcs.widths[foo = labels[labelNo]] + 2 * minArcSlant;
+                var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
                 var gap = current.x + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
                 if (!hasLeftArcs || spacing < arcSpacing) {
