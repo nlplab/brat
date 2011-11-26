@@ -760,8 +760,10 @@ var VisualizerUI = (function($, window, undefined) {
       $('#advanced_search_option_toggle').click(function(evt) {
         if (advancedSearchOptionsVisible) {
           $('#search_options div.advancedOptions').hide("highlight");
+          $('#advanced_search_option_toggle').text("Show advanced");
         } else {
           $('#search_options div.advancedOptions').show("highlight");
+          $('#advanced_search_option_toggle').text("Hide advanced");
         }
         advancedSearchOptionsVisible = !advancedSearchOptionsVisible;
         // block default
