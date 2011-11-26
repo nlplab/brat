@@ -744,15 +744,15 @@ var VisualizerUI = (function($, window, undefined) {
       // concordancing is on
       // TODO: @amadanmath: help, my jQuery is horrible
       if ($('#concordancing_on').is(':checked')) {
-        $('#context_size_div').show("blind");
+        $('#context_size_div').show("highlight");
       } else {
-        $('#context_size_div').hide("blind");
+        $('#context_size_div').hide("highlight");
       }
       $('#concordancing input[type="radio"]').change(function() {
         if ($('#concordancing_on').is(':checked')) {
-          $('#context_size_div').show("blind");
+          $('#context_size_div').show("highlight");
         } else {
-          $('#context_size_div').hide("blind");
+          $('#context_size_div').hide("highlight");
         }
       });
       $('#search_options div.advancedOptions').hide("highlight");
