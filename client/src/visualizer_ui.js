@@ -1092,7 +1092,7 @@ var VisualizerUI = (function($, window, undefined) {
           return false;
         }
         clearTimeout(saveSVGTimer);
-        saveSVGTimer = dispatcher.post(500, 'ajax', [{
+        saveSVGTimer = dispatcher.post(1, 'ajax', [{
           action: 'storeSVG',
           svg: $('#svg').html(),
           collection: coll,
