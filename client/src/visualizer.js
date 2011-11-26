@@ -1567,9 +1567,21 @@ Util.profileStart('arcs');
                 svgText = labelText;
             } else {
                 svgText = svg.createText();
-                svgText.span(labelText);
-                //svgText.span(splitArcType[2], { 'baseline-shift': 'sub', 'font-size': '80%' });
-                svgText.span(splitArcType[2], { 'dy': '0.3em', 'font-size': '80%' });
+		// TODO: to address issue #453, attaching options also
+		// to spans, not only primary text. Make sure there
+		// are no problems with this.
+                svgText.span(labelText, options);
+		var subscriptSettings = {
+		  'dy': '0.3em', 
+		  'font-size': '80%'
+		};
+		// alternate possibility
+// 	        var subscriptSettings = {
+// 		  'baseline-shift': 'sub',
+// 		  'font-size': '80%'
+// 		};
+		$.extend(subscriptSettings, options);
+                svgText.span(splitArcType[2], subscriptSettings);
             }
 
 	    // guess at the correct baseline shift to get vertical centering.
