@@ -310,7 +310,18 @@ rect.shadow_EditHighlight {
   float: left;
 }
 fieldset {
-  border: 1px solid #999999;
+  /* match relevant parts of jQuery UI .ui-widget-content */
+  border: 1px solid #a6c9e2;
+  /* round corners, same as jQuery UI .ui-corner-all */
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+fieldset legend {
+  font-family: monospace;
+  font-size: 90%;
+  /* match jQuery UI .ui-widget-content color */
+  color: #2e6e9e;
 }
 .accesskey {
   text-decoration: underline;
