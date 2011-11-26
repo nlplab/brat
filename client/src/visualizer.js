@@ -1498,6 +1498,9 @@ Util.profileStart('arcs');
           }
 
           // Adjust the height to align with pixels when rendered
+
+	  // TODO: on at least Chrome, this doesn't make a difference:
+	  // the lines come out pixel-width even without it. Check.
           height += 0.5
 
           var chunkReverse = false;
@@ -1569,7 +1572,11 @@ Util.profileStart('arcs');
                 svgText.span(splitArcType[2], { 'dy': '0.3em', 'font-size': '80%' });
             }
 
-            var text = svg.text(arcGroup, (from + to) / 2, -height, svgText, options);
+	    // guess at the correct baseline shift to get vertical centering.
+	    // (CSS dominant-baseline can't be used as not all SVG rendereds support it.)
+	    var baseline_shift = sizes.arcs.height / 4;
+            var text = svg.text(arcGroup, (from + to) / 2, -height + baseline_shift,
+				svgText, options);
 
             var width = sizes.arcs.widths[labelText];
             var textBox = {

@@ -262,7 +262,7 @@ rect.shadow_EditHighlight {
   /* font-family: Ubuntu, sans-serif; */
   font-family: 'PT Sans Caption', sans-serif;
   /* font-family: 'Anonymous Pro', monospace; */
-  dominant-baseline: central;
+  /* dominant-baseline: central; */
   cursor: default;
 }
 
