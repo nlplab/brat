@@ -28,7 +28,7 @@ from jsonwrap import dumps
 from logging import info as log_info
 from annlog import log_annotation
 from message import Messager
-from svg import store_svg, retrieve_svg
+from svg import store_svg, retrieve_stored
 from session import get_session
 from search import search_text, search_entity, search_event, search_relation
 from predict import suggest_span_types
@@ -47,7 +47,7 @@ DISPATCHER = {
         'importDocument': save_import,
 
         'storeSVG': store_svg,
-        'retrieveSVG': retrieve_svg,
+        'retrieveStored': retrieve_stored,
         'downloadFile': download_file,
         'downloadCollection': download_collection,
 

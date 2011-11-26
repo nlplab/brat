@@ -1158,16 +1158,21 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('messages', [[['Cannot save SVG: corrupt', 'error']]]);
           return;
         }
-        var params = {
-            action: 'retrieveSVG',
+        var $downloadStored = $('#download_stored').empty();
+        $.each(data.stored, function(storedNo, stored) {
+          var params = {
+            action: 'retrieveStored',
             'document': doc,
-        };
-        $('#download_svg_color').attr('href', 'ajax.cgi?' + $.param(params));
-        // XXX TODO: confirm that these are defunct and remove
-//         params['version'] = 'greyscale';
-//         $('#download_svg_grayscale').attr('href', 'ajax.cgi?' + $.param(params));
-        $('#download_svg_color').button();
-        $('#download_svg').show();
+            'suffix': stored.suffix,
+          };
+          var $downloadLink = $('<a id="download_'+stored.name+'"' +
+                                ' target="'+stored.name+'"' +
+                                '>'+stored.name+'</a>');
+          $downloadLink.attr('href', 'ajax.cgi?' + $.param(params));
+          $downloadLink.button();
+          if (storedNo) $downloadStored.append(' ');
+          $downloadStored.append($downloadLink);
+        });
         currentDocumentSVGsaved = true;
       };
 

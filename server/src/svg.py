@@ -33,6 +33,7 @@ SVG_FONTS = (
         path_join(FONT_DIR, 'Liberation_Sans-Regular.svg'),
         path_join(FONT_DIR, 'PT_Sans-Caption-Web-Regular.svg'),
         )
+SVG_SUFFIX='svg'
 # Maintain a mirror of the data directory where we keep the latest stored svg
 #   for each document. Incurs some disk write overhead.
 SVG_STORE_DIR = path_join(WORK_DIR, 'svg_store')
@@ -77,7 +78,7 @@ class CorruptSVGError(ProtocolError):
 
 
 def _save_svg(collection, document, svg):
-    svg_path = _svg_path()
+    svg_path = _stored_path()+'.'+SVG_SUFFIX
 
     with open(svg_path, 'w') as svg_file:
         svg_hdr = ('<?xml version="1.0" standalone="no"?>'
@@ -112,7 +113,8 @@ def _save_svg(collection, document, svg):
             # TODO: @amadanmath: When does this actually happen?
             raise CorruptSVGError
 
-def _svg_path():
+
+def _stored_path():
     # Create the SVG_DIR if necessary
     if not exists(SVG_DIR):
         mkdir(SVG_DIR)
@@ -120,11 +122,15 @@ def _svg_path():
     return path_join(SVG_DIR, get_session().sid)
 
 def store_svg(collection, document, svg):
-    _save_svg(collection, document, svg)
-    return {}
+    stored = []
 
-def retrieve_svg(document):
-    svg_path = _svg_path()
+    _save_svg(collection, document, svg)
+    stored.append({'name': 'svg', 'suffix': SVG_SUFFIX})
+
+    return { 'stored' : stored }
+
+def retrieve_stored(document, suffix):
+    svg_path = _stored_path()+'.'+suffix
 
     if not isfile(svg_path):
         raise NoSVGError(version)
