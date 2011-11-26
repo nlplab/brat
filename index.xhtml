@@ -125,43 +125,53 @@
     <form id="options_form" class="dialog" title="Options">
       <fieldset id="options_form_visual">
         <legend>Visual options</legend>
-        <span><input id="abbrev_mode" type="checkbox" value="true" checked="checked"/><label for="abbrev_mode" title="Toggle abbreviations on/off">Abbreviations</label></span>
-        <span><input id="sentence_highlights" type="checkbox" value="true" checked="checked"/><label for="sentence_highlights" title="Toggle sentence background highlighting on/off">Sentence highlighting</label></span>
-        <br/><br/>
-        <span id="layout_density" class="radio_group">
-          Layout density:
-          <input type="radio" id="layout_density1" value="1" 
-                 name="layout_radio"/>
-          <label for="layout_density1"
-                 title="Dense annotation layout: minimizes space taken by annotations.">Dense</label>
-          <input type="radio" id="layout_density2" value="2" 
-                 name="layout_radio" checked="checked" />
-          <label for="layout_density2"
-                 title="Normal annotation layout density: balances between annotation size and readability.">Normal</label>
-          <input type="radio" id="layout_density3" value="3" 
-                 name="layout_radio"/>
-          <label for="layout_density3"
-                 title="Spacious annotation layout: allows extra space for annotations to improve readability.">Spacious</label>
-        </span>
+        <div class="optionRow">
+          <span>
+            <input id="abbrev_mode" type="checkbox" value="true" checked="checked"/>
+            <label for="abbrev_mode" title="Toggle abbreviations on/off">Abbreviations</label>
+          </span>
+          <span>
+            <input id="sentence_highlights" type="checkbox" value="true" checked="checked"/>
+            <label for="sentence_highlights" title="Toggle sentence background highlighting on/off">Sentence highlighting</label>
+          </span>
+        </div>
+        <div class="optionRow">
+          <span class="optionLabel">Layout density</span>
+          <span id="layout_density" class="radio_group small-buttons">
+            <input type="radio" id="layout_density1" value="1" 
+                   name="layout_radio"/>
+            <label for="layout_density1"
+                   title="Dense annotation layout: minimizes space taken by annotations.">Dense</label>
+            <input type="radio" id="layout_density2" value="2" 
+                   name="layout_radio" checked="checked" />
+            <label for="layout_density2"
+                   title="Normal annotation layout density: balances between annotation size and readability.">Normal</label>
+            <input type="radio" id="layout_density3" value="3" 
+                   name="layout_radio"/>
+            <label for="layout_density3"
+                   title="Spacious annotation layout: allows extra space for annotations to improve readability.">Spacious</label>
+          </span>
+        </div>
       </fieldset>
       <fieldset id="options_form_annotation" class="login">
         <legend>Annotation options</legend>
-        <!-- <span><input id="confirm_mode" type="checkbox" value="true"/><label for="confirm_mode" title="Toggle the confirm mode">Confirm mode</label></span> -->
-        Annotation mode:
-        <span id="annotation_speed" class="radio_group">
-          <input type="radio" id="annotation_speed1" value="1" 
-                 name="annspeed_radio"/>
-          <label for="annotation_speed1"
-                 title="Careful annotation mode: ask for additional confirmation of annotation changes. Suitable for annotators in training and for mature corpora requiring few changes.">Careful</label>
-          <input type="radio" id="annotation_speed2" value="2" 
-                 name="annspeed_radio" checked="checked"/>
-          <label for="annotation_speed2"
-                  title="Normal annotation mode. Suitable for standard annotation processes.">Normal</label>
-          <input type="radio" id="annotation_speed3" value="3" 
-                 name="annspeed_radio"/>
-          <label for="annotation_speed3"
-                 title="Rapid annotation mode: activate automatic support for speeding up annotation process. Suitable for experienced annotators performing an established task.">Rapid</label>
-        </span>
+        <div class="optionRow">
+          <span class="optionLabel">Annotation mode</span>
+          <span id="annotation_speed" class="radio_group small-buttons">
+            <input type="radio" id="annotation_speed1" value="1" 
+                   name="annspeed_radio"/>
+            <label for="annotation_speed1"
+                   title="Careful annotation mode: ask for additional confirmation of annotation changes. Suitable for annotators in training and for mature corpora requiring few changes.">Careful</label>
+            <input type="radio" id="annotation_speed2" value="2" 
+                   name="annspeed_radio" checked="checked"/>
+            <label for="annotation_speed2"
+                   title="Normal annotation mode. Suitable for standard annotation processes.">Normal</label>
+            <input type="radio" id="annotation_speed3" value="3" 
+                   name="annspeed_radio"/>
+            <label for="annotation_speed3"
+                   title="Rapid annotation mode: activate automatic support for speeding up annotation process. Suitable for experienced annotators performing an established task.">Rapid</label>
+          </span>
+        </div>
       </fieldset>
       <fieldset id="options_form_network">
         <legend>Network options</legend>
