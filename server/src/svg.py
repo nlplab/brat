@@ -34,6 +34,7 @@ SVG_FONTS = (
         path_join(FONT_DIR, 'PT_Sans-Caption-Web-Regular.svg'),
         )
 SVG_SUFFIX='svg'
+PNG_SUFFIX='png'
 # Maintain a mirror of the data directory where we keep the latest stored svg
 #   for each document. Incurs some disk write overhead.
 SVG_STORE_DIR = path_join(WORK_DIR, 'svg_store')
@@ -58,7 +59,7 @@ class NoSVGError(ProtocolError):
         self.version = version
 
     def __str__(self):
-        return 'SVG with version "%s" does not exist' % (self.version, )
+        return 'Stored document with version "%s" does not exist' % (self.version, )
 
     def json(self, json_dic):
         json_dic['exception'] = 'noSVG'
@@ -76,9 +77,8 @@ class CorruptSVGError(ProtocolError):
         json_dic['exception'] = 'corruptSVG'
         return json_dic
 
-
 def _save_svg(collection, document, svg):
-    svg_path = _stored_path()+'.'+SVG_SUFFIX
+    svg_path = _svg_path()
 
     with open(svg_path, 'w') as svg_file:
         svg_hdr = ('<?xml version="1.0" standalone="no"?>'
@@ -121,23 +121,62 @@ def _stored_path():
 
     return path_join(SVG_DIR, get_session().sid)
 
+def _svg_path():
+    return _stored_path()+'.'+SVG_SUFFIX
+
 def store_svg(collection, document, svg):
     stored = []
 
     _save_svg(collection, document, svg)
     stored.append({'name': 'svg', 'suffix': SVG_SUFFIX})
 
+    # attempt conversion to PNG
+    try:
+        from config import SVG_TO_PNG_COMMAND
+        from os import system
+
+        svgfn = _svg_path()
+        pngfn = svgfn.replace('.'+SVG_SUFFIX, '.'+PNG_SUFFIX)
+        cmd = SVG_TO_PNG_COMMAND % (svgfn, pngfn)
+
+        # TODO: use subprocess instead
+        retval = system(cmd)
+
+        # I'm getting weird return values from inkscape; will
+        # just assume everything's OK ...
+        # TODO: check return value, react appropriately
+        stored.append({'name': 'png', 'suffix': PNG_SUFFIX})
+            
+    except: # whatever
+        # no luck, but doesn't matter
+        pass
+
     return { 'stored' : stored }
 
 def retrieve_stored(document, suffix):
-    svg_path = _stored_path()+'.'+suffix
+    stored_path = _stored_path()+'.'+suffix
 
-    if not isfile(svg_path):
-        raise NoSVGError(version)
+    if not isfile(stored_path):
+        # @ninjin: not sure what 'version' was supposed to be returned
+        # here, but none was defined, so returning that
+#         raise NoSVGError(version)
+        raise NoSVGError('None')
+
+    filename = document+'.'+suffix
+
+    # sorry, quick hack to get the content-type right
+    # TODO: send this with initial 'stored' response instead of
+    # guessing on suffix
+    if suffix == SVG_SUFFIX:
+        content_type = 'image/svg+xml'
+    elif suffix == PNG_SUFFIX:
+        content_type = 'image/png'
 
     # Bail out with a hack since we violated the protocol
-    hdrs = [('Content-Type', 'image/svg+xml'),
-            ('Content-Disposition', 'inline; filename=' + document + '.svg')]
-    with open(svg_path, 'r') as svg_file:
-        data = svg_file.read()
+    hdrs = [('Content-Type', content_type),
+            ('Content-Disposition', 'inline; filename=' + filename)]
+
+    with open(stored_path, 'r') as stored_file:
+        data = stored_file.read()
+
     raise NoPrintJSONError(hdrs, data)
