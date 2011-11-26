@@ -28,6 +28,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var maxMessages = 100;
 
+      var currentDocumentSVGsaved = false;
 
       /* START collection browser sorting - related */
 
@@ -904,6 +905,9 @@ var VisualizerUI = (function($, window, undefined) {
       });
       $('#data_button').click(function() {
         dispatcher.post('showForm', [dataForm]);
+        // the SVG button can only be accessed through the data form,
+        // so we'll spare unnecessary saves by only saving here
+        saveSVG();
       });
       // make nice-looking buttons for checkboxes and buttons
       $('#data_form').find('input[type="checkbox"]').button();
@@ -1083,6 +1087,10 @@ var VisualizerUI = (function($, window, undefined) {
 
       var saveSVGTimer = null;
       var saveSVG = function() {
+        if (currentDocumentSVGsaved) {
+          // no need to store again
+          return false;
+        }
         clearTimeout(saveSVGTimer);
         saveSVGTimer = dispatcher.post(500, 'ajax', [{
           action: 'storeSVG',
@@ -1101,7 +1109,6 @@ var VisualizerUI = (function($, window, undefined) {
                 animate({ scrollTop: $inFocus.offset().top - svgtop - window.innerHeight / 2 }, { duration: 'slow', easing: 'swing'});
           }
         }
-        saveSVG();
         $('#waiter').dialog('close');
       }
 
@@ -1110,7 +1117,7 @@ var VisualizerUI = (function($, window, undefined) {
         $('#waiter').dialog('open');
       }
 
-      var showSVGDownloadLinks = function(data) {
+      var savedSVGreceived = function(data) {
         if (data && data.exception == 'corruptSVG') {
           dispatcher.post('messages', [[['Cannot save SVG: corrupt', 'error']]]);
           return;
@@ -1125,10 +1132,12 @@ var VisualizerUI = (function($, window, undefined) {
 //         $('#download_svg_grayscale').attr('href', 'ajax.cgi?' + $.param(params));
         $('#download_svg_color').button();
         $('#download_svg').show();
+        currentDocumentSVGsaved = true;
       };
 
-      var hideSVGDownloadLinks = function() {
+      var invalidateSavedSVG = function() {
         $('#download_svg').hide();
+        currentDocumentSVGsaved = false;
       };
 
       var onRenderData = function(_data) {
@@ -1155,7 +1164,7 @@ var VisualizerUI = (function($, window, undefined) {
           .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + coll);
         $sourceCollection.append($collectionDownloadLink);
         $collectionDownloadLink.button();
-        hideSVGDownloadLinks();
+        invalidateSavedSVG();
 
         if (data.mtime) {
           // we're getting seconds and need milliseconds
@@ -1180,7 +1189,7 @@ var VisualizerUI = (function($, window, undefined) {
         docName.scrollLeft = docName.scrollWidth;
 
         $('#document_mtime').hide();
-        hideSVGDownloadLinks();
+        invalidateSavedSVG();
       };
 
       var slideToggle = function(el, show, autoHeight) {
@@ -1566,7 +1575,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('doneRendering', onDoneRendering).
           on('startedRendering', onStartedRendering).
           on('renderData', onRenderData).
-          on('savedSVG', showSVGDownloadLinks).
+          on('savedSVG', savedSVGreceived).
           on('renderError:noFileSpecified', showFileBrowser).
           on('renderError:annotationFileNotFound', showAnnotationFileNotFound).
           on('renderError:unableToReadTextFile', showUnableToReadTextFile).
