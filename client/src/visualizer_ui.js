@@ -220,6 +220,7 @@ var VisualizerUI = (function($, window, undefined) {
       var commentPopup = $('#commentpopup');
       var commentDisplayed = false;
 
+      var displayCommentTimer = null;
       var displayComment = function(evt, target, comment, commentText, commentType) {
         var idtype;
         if (commentType) {
@@ -229,39 +230,71 @@ var VisualizerUI = (function($, window, undefined) {
         commentPopup[0].className = idtype;
         commentPopup.html(comment);
         adjustToCursor(evt, commentPopup, 10, true, true);
-        commentPopup.stop(true, true).fadeIn();
-        commentDisplayed = true;
+        clearTimeout(displayCommentTimer);
+        /* slight "tooltip" delay to allow highlights to be seen
+           before the popup obstructs them. */
+        displayCommentTimer = setTimeout(function() {
+          commentPopup.stop(true, true).fadeIn();
+          commentDisplayed = true;
+        }, 500);
       };
 
       var displaySpanComment = function(
           evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
-          var comment = '<div><span class="comment_id">' + Util.escapeHTML(spanId) + '</span>' +
-            ' ' + '<span class="comment_type">' + Util.escapeHTML(Util.spanDisplayForm(spanTypes, spanType)) + '</span>';
+          var comment = ( '<div><span class="comment_type_id_wrapper">' +
+                          '<span class="comment_type">' +
+                          Util.escapeHTML(Util.spanDisplayForm(spanTypes,
+                                                               spanType)) +
+                          '</span>' +
+                          ' ' +
+                          '<span class="comment_id">' +
+                          'ID:'+Util.escapeHTML(spanId) +
+                          '</span></span>' );
         if (mods.length) {
           comment += '<div>' + Util.escapeHTML(mods.join(', ')) + '</div>';
         }
         comment += '</div>';
-        comment += '<div>"' + Util.escapeHTML(spanText) + '"</div>';
+        comment += ('<div class="comment_text">"' + 
+                    Util.escapeHTML(spanText) + 
+                    '"</div>');
         displayComment(evt, target, comment, commentText, commentType);
       };
 
       var displayArcComment = function(
           evt, target, symmetric, arcId,
-          originSpanId, role, targetSpanId, commentText, commentType) {
+          originSpanId, originSpanType, role, 
+          targetSpanId, targetSpanType,
+          commentText, commentType) {
         var arcRole = target.attr('data-arc-role');
-        var arrowStr = symmetric ? ' &#8212; ' : ' &#8594; '; // &#8212 == mdash, &#8594 == Unicode right arrow
-        var comment = ( '<div class="comment_id">' +
-                        (arcId ? arcId+': ' : '') +
-                        Util.escapeHTML(originSpanId) +
-                        arrowStr + 
-                        Util.escapeHTML(Util.arcDisplayForm(spanTypes, data.spans[originSpanId].type, arcRole)) +
-                        arrowStr + 
-                        Util.escapeHTML(targetSpanId) +
-                        '</div>' );
-        comment += ('<div>' + Util.escapeHTML('"'+data.spans[originSpanId].text+'"') +
+        // in arrowStr, &#8212 == mdash, &#8594 == Unicode right arrow
+        var arrowStr = symmetric ? '&#8212;' : '&#8594;';
+        var arcDisplayForm = Util.arcDisplayForm(spanTypes, 
+                                                 data.spans[originSpanId].type, 
+                                                 arcRole);
+        var comment = "";
+        comment += ('<span class="comment_type_id_wrapper">' +
+                    '<span class="comment_type">' +
+                    Util.escapeHTML(Util.spanDisplayForm(spanTypes,
+                                                         originSpanType)) +
+                    ' ' + arrowStr + ' ' +
+                    arcDisplayForm +
+                    ' ' + arrowStr + ' ' +
+                    Util.escapeHTML(Util.spanDisplayForm(spanTypes,
+                                                         targetSpanType)) +
+                    '</span>' +
+                    '<span class="comment_id">' +
+                    (arcId ? 'ID:'+arcId : 
+                     Util.escapeHTML(originSpanId) +
+                     arrowStr + 
+                     Util.escapeHTML(targetSpanId)) +
+                    '</span>' +
+                    '</span>');
+        comment += ('<div class="comment_text">' + 
+                    Util.escapeHTML('"'+data.spans[originSpanId].text+'"') +
                     arrowStr +
-                    Util.escapeHTML('"'+data.spans[targetSpanId].text + '"') + '</div>');
+                    Util.escapeHTML('"'+data.spans[targetSpanId].text + '"') +
+                    '</div>');
         displayComment(evt, target, comment, commentText, commentType);
       };
 
@@ -271,7 +304,10 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var hideComment = function() {
-        commentPopup.stop(true, true).fadeOut(function() { commentDisplayed = false; });
+        clearTimeout(displayCommentTimer);
+        if (commentDisplayed) {
+          commentPopup.stop(true, true).fadeOut(function() { commentDisplayed = false; });
+        }
       };
 
       var onMouseMove = function(evt) {

@@ -407,6 +407,7 @@ fieldset legend {
 }
 
 #commentpopup {
+  font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
   position: fixed;
   top: 0;
   left: 0;
@@ -414,12 +415,16 @@ fieldset legend {
   padding: 10px;
   display: none;
   border: 1px outset #000000;
-  background-color: #eeeeee;
+  background-color: #d7e7ee;
+  /* background-color: #eeeeee; */
   color: #000000;
   z-index: 20;
   -moz-box-shadow: 5px 5px 5px #aaaaaa;
   -webkit-box-shadow: 5px 5px 5px #aaaaaa;
   box-shadow: 5px 5px 5px #aaaaaa;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
 }
 #more_info_readme {
   height: 350px;
@@ -445,10 +450,21 @@ fieldset legend {
 }
 
 .comment_id {
-  font-weight: bold;
+  vertical-align: top;
+  float:right;
+  font-size: 75%;
+  font-family: monospace;
+  color: #333333;
 }
 .comment_type {
+  /* font-weight: bold; */
+}
+.comment_text {
   font-weight: bold;
+}
+.comment_type_id_wrapper {
+  /* padding for floating ID */
+  padding-right: 2em;
 }
 
 #span_form .collapser {

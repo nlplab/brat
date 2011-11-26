@@ -2116,13 +2116,17 @@ Util.profileStart('before render');
               }
             }
             if (eventDesc.relation) {
-              // among arcs, only ones corresponding to relations have "independent" IDs
+              // among arcs, only ones corresponding to relations have
+	      // "independent" IDs
               arcId = arcEventDescId;
             }
           }
+	  var originSpanType = data.spans[originSpanId].type || '';
+	  var targetSpanType = data.spans[targetSpanId].type || '';
           dispatcher.post('displayArcComment', [
               evt, target, symmetric, arcId,
-              originSpanId, role, targetSpanId,
+              originSpanId, originSpanType, role,
+	      targetSpanId, targetSpanType,
               commentText, commentType]);
           highlightArcs = $svg.
               find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
