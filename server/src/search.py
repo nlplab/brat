@@ -492,7 +492,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
     matches = SearchMatchSet(description)
 
     # compile a regular expression according to arguments for matching
-    match_regex = _get_match_regex(text, text_match, match_case, whole_string=False)
+    match_regex = _get_match_regex(text, text_match, match_case)
 
     if match_regex is None:
         # something went wrong, return empty
@@ -564,9 +564,9 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
     # compile regular expressions according to arguments for matching
     arg1_match_regex, arg2_match_regex = None, None
     if arg1 is not None:
-        arg1_match_regex = _get_match_regex(arg1, text_match, match_case, whole_string=True)
+        arg1_match_regex = _get_match_regex(arg1, text_match, match_case)
     if arg2 is not None:
-        arg2_match_regex = _get_match_regex(arg2, text_match, match_case, whole_string=True)
+        arg2_match_regex = _get_match_regex(arg2, text_match, match_case)
 
     if ((arg1 is not None and arg1_match_regex is None) or
         (arg2 is not None and arg2_match_regex is None)):
@@ -674,7 +674,7 @@ def search_anns_for_event(ann_objs, trigger_text, args,
 
     # compile a regular expression according to arguments for matching
     if trigger_text is not None:
-        trigger_match_regex = _get_match_regex(trigger_text, text_match, match_case, whole_string=False)
+        trigger_match_regex = _get_match_regex(trigger_text, text_match, match_case)
 
         if trigger_match_regex is None:
             # something went wrong, return empty
@@ -732,7 +732,7 @@ def search_anns_for_event(ann_objs, trigger_text, args,
                         if (arg['text'] is not None and arg['text'] != ''):
                             # TODO: it would be better to pre-compile regexs for
                             # all arguments with text constraints
-                            match_regex = _get_match_regex(arg['text'], text_match, match_case, whole_string=True)
+                            match_regex = _get_match_regex(arg['text'], text_match, match_case)
                             if match_regex is None:
                                 return matches
                             # TODO: there has to be a better way ...
@@ -797,7 +797,7 @@ def search_anns_for_text(ann_objs, text,
     matches = SearchMatchSet(description)
 
     # compile a regular expression according to arguments for matching
-    match_regex = _get_match_regex(text, text_match, match_case, whole_string=True)
+    match_regex = _get_match_regex(text, text_match, match_case)
 
     if match_regex is None:
         # something went wrong, return empty
