@@ -97,9 +97,19 @@
     <!-- Data dialog -->
     <form id="data_form" class="dialog" title="Data">
       <fieldset>
-        <legend>Export current document data</legend>
-        <div>
+        <legend>Export current document</legend>
+        <div class="optionRow">
+          <span class="optionLabel">Annotation data</span>
           <span id="source_files"/>
+        </div>
+        <div class="optionRow">
+          <span class="optionLabel">Visualization</span>
+          <span id="stored_file_spinner" class="ui-button ui-widget ui-corner-all ui-state-default ui-button-text-only">
+            <span class="ui-button-text">
+              <img style="vertical-align:bottom" height="18" 
+                   src="static/img/spinner.gif"/>
+            </span>
+          </span>
           <span id="download_stored"/>
         </div>
       </fieldset>

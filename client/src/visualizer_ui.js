@@ -1128,6 +1128,7 @@ var VisualizerUI = (function($, window, undefined) {
           return false;
         }
         clearTimeout(saveSVGTimer);
+        $('#stored_file_spinner').show()
         saveSVGTimer = dispatcher.post(1, 'ajax', [{
           action: 'storeSVG',
           svg: $('#svg').html(),
@@ -1154,6 +1155,8 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var savedSVGreceived = function(data) {
+        $('#stored_file_spinner').hide()
+
         if (data && data.exception == 'corruptSVG') {
           dispatcher.post('messages', [[['Cannot save SVG: corrupt', 'error']]]);
           return;
