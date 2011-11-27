@@ -1242,7 +1242,11 @@ var VisualizerUI = (function($, window, undefined) {
 
         if (show === undefined) show = !visible;
 
-        if (show === visible) return false;
+        // @amadanmath: commenting this out appears to remove the annoying
+        // misfeature where it's possible to stop the menu halfway by
+        // mousing out and back in during closing. Please check that
+        // this doesn't introduce other trouble and remove these lines.
+//         if (show === visible) return false;
 
         if (!autoHeight) {
           height = el.data("cachedHeight");
