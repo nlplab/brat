@@ -1158,7 +1158,7 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('messages', [[['Cannot save SVG: corrupt', 'error']]]);
           return;
         }
-        var $downloadStored = $('#download_stored').empty();
+        var $downloadStored = $('#download_stored').empty().show();
         $.each(data.stored, function(storedNo, stored) {
           var params = {
             action: 'retrieveStored',
@@ -1177,7 +1177,9 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var invalidateSavedSVG = function() {
-        $('#download_svg').hide();
+        // assuming that invalidation of the SVG invalidates all stored
+        // static visualizations, as others are derived from the SVG
+        $('#download_stored').hide();
         currentDocumentSVGsaved = false;
       };
 

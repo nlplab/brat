@@ -74,10 +74,14 @@ TOKENIZATION = PTBLIKE_TOKENIZATION
 
 # If export to formats other than SVG is needed, the server must have
 # a software capable of conversion like inkscape set up, and the
-# following variables must be defined.
+# following must be defined.
 # (SETUP NOTE: at least Inkscape 0.46 requires the directory
 # ".gnome2/" in the apache home directory and will crash if it doesn't
 # exist.)
 '''
-SVG_TO_PNG_COMMAND = 'inkscape --export-area-drawing --without-gui --file=%s --export-png=%s'
+SVG_CONVERSION_COMMANDS = [
+    ('png', 'inkscape --export-area-drawing --without-gui --file=%s --export-png=%s'),
+    ('pdf', 'inkscape --export-area-drawing --without-gui --file=%s --export-pdf=%s'),
+    ('eps', 'inkscape --export-area-drawing --without-gui --file=%s --export-eps=%s'),
+]
 '''

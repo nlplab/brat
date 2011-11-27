@@ -35,6 +35,8 @@ SVG_FONTS = (
         )
 SVG_SUFFIX='svg'
 PNG_SUFFIX='png'
+PDF_SUFFIX='pdf'
+EPS_SUFFIX='eps'
 # Maintain a mirror of the data directory where we keep the latest stored svg
 #   for each document. Incurs some disk write overhead.
 SVG_STORE_DIR = path_join(WORK_DIR, 'svg_store')
@@ -130,26 +132,43 @@ def store_svg(collection, document, svg):
     _save_svg(collection, document, svg)
     stored.append({'name': 'svg', 'suffix': SVG_SUFFIX})
 
-    # attempt conversion to PNG
+    # attempt conversions from SVG to other formats
     try:
-        from config import SVG_TO_PNG_COMMAND
-        from os import system
+        from config import SVG_CONVERSION_COMMANDS
+    except ImportError:
+        SVG_CONVERSION_COMMANDS = []
 
-        svgfn = _svg_path()
-        pngfn = svgfn.replace('.'+SVG_SUFFIX, '.'+PNG_SUFFIX)
-        cmd = SVG_TO_PNG_COMMAND % (svgfn, pngfn)
+    for format, command in SVG_CONVERSION_COMMANDS:
+        try:
+            from os import system
 
-        # TODO: use subprocess instead
-        retval = system(cmd)
+            svgfn = _svg_path()
+            # TODO: assuming format name matches suffix; generalize
+            outfn = svgfn.replace('.'+SVG_SUFFIX, '.'+format)
+            cmd = command % (svgfn, outfn)
 
-        # I'm getting weird return values from inkscape; will
-        # just assume everything's OK ...
-        # TODO: check return value, react appropriately
-        stored.append({'name': 'png', 'suffix': PNG_SUFFIX})
+            import logging
+            logging.error(cmd)
+
+            retval = system(cmd)
+
+            # TODO: this check may not work on all architectures.
+            # consider rather checking is the intended output file
+            # exists (don't forget to delete a possible old one
+            # with the same name, though).
+#             if retval != 0:
+#                 stored.append({'name': format, 'suffix': format})
+#             else:
+#                 Messager.warning("Failed conversion to %s" % format)
+            # I'm getting weird return values from inkscape; will
+            # just assume everything's OK ...
+            # TODO: check return value, react appropriately
+            stored.append({'name': format, 'suffix': format})
             
-    except: # whatever
-        # no luck, but doesn't matter
-        pass
+        except: # whatever
+            Messager.warning("Failed conversion to %s" % format)
+            # no luck, but doesn't matter
+            pass
 
     return { 'stored' : stored }
 
@@ -171,6 +190,14 @@ def retrieve_stored(document, suffix):
         content_type = 'image/svg+xml'
     elif suffix == PNG_SUFFIX:
         content_type = 'image/png'
+    elif suffix == PDF_SUFFIX:
+        content_type = 'application/pdf'
+    elif suffix == EPS_SUFFIX:
+        content_type = 'application/postscript'
+    else:
+        Messager.error('Unknown suffix "%s"; cannot determine Contenxt-Type' % suffix)
+        # TODO: reasonable backoff value
+        content_type = None
 
     # Bail out with a hack since we violated the protocol
     hdrs = [('Content-Type', content_type),
