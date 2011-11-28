@@ -1217,7 +1217,7 @@ var VisualizerUI = (function($, window, undefined) {
         /* Add a download link for the whole collection */
         var $sourceCollection = $('#source_collection').empty();
         var $collectionDownloadLink = $('<a target="brat_search"/>')
-          .text('Document collection')
+          .text('Download tar.gz')
           .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + coll);
         $sourceCollection.append($collectionDownloadLink);
         $collectionDownloadLink.button();

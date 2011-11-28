@@ -97,9 +97,9 @@
     <!-- Data dialog -->
     <form id="data_form" class="dialog" title="Data">
       <fieldset>
-        <legend>Export current document</legend>
+        <legend>Export</legend>
         <div class="optionRow">
-          <span class="optionLabel">Annotation data</span>
+          <span class="optionLabel">Document data</span>
           <span id="source_files"/>
         </div>
         <div class="optionRow">
@@ -110,19 +110,24 @@
                    src="static/img/spinner.gif"/>
             </span>
           </span>
-          <span id="stored_file_regenerate">regenerate</span>
+          <span id="stored_file_regenerate" title="Regenerate static visualization of the current document">regenerate</span>
           <span id="download_stored"/>
         </div>
-      </fieldset>
-      <fieldset>
-        <legend>Export entire collection</legend>
-        <div>
-          <span id="source_collection"/>
+        <div class="optionRow">
+          <span class="optionLabel">Collection data</span>
+          <span id="source_collection" title="Download the entire current collection as a .tar.gz package"/>
         </div>
       </fieldset>
       <fieldset class="login">
         <legend>Import</legend>
-        <input id="import_button" type="button" class="login" value="Import document" tabindex="-1" title="Import a new document into the current collection"/>
+        <div class="optionRow">
+          <span class="optionLabel">New document</span>
+          <input id="import_button" type="button" class="login" value="Enter text" tabindex="-1" title="Import a new document into the current collection"/>
+        </div>
+        <div class="optionRow">
+          <span class="optionLabel">New collection</span>
+          <input id="import_collection_button" type="button" class="login" value="Upload tar.gz" tabindex="-1" title="Import an entire collection into the current installation"/>
+        </div>
       </fieldset>
     </form>
     <!-- Options dialog -->
