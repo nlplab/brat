@@ -949,6 +949,14 @@ var VisualizerUI = (function($, window, undefined) {
       $('#data_form').find('input[type="checkbox"]').button();
       $('#data_form').find('input[type="button"]').button();
 
+      // resize invalidates stored visualization (SVG etc.); add a
+      // button to regen
+      $('#stored_file_regenerate').button().hide();
+      $('#stored_file_regenerate').click(function(evt) {
+        $('#stored_file_regenerate').hide();
+        saveSVG();
+      });
+
       /* END data dialog - related */
 
 
@@ -1128,6 +1136,7 @@ var VisualizerUI = (function($, window, undefined) {
           return false;
         }
         clearTimeout(saveSVGTimer);
+        $('#stored_file_regenerate').hide();
         $('#stored_file_spinner').show()
         saveSVGTimer = dispatcher.post(1, 'ajax', [{
           action: 'storeSVG',
@@ -1183,6 +1192,8 @@ var VisualizerUI = (function($, window, undefined) {
         // assuming that invalidation of the SVG invalidates all stored
         // static visualizations, as others are derived from the SVG
         $('#download_stored').hide();
+        // have a way to regenerate if dialog open when data invalidated
+        $('#stored_file_regenerate').show();
         currentDocumentSVGsaved = false;
       };
 
