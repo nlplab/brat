@@ -81,7 +81,10 @@ var AnnotatorUI = (function($, window, undefined) {
         var binding = keymap[code];
         if (!binding) binding = keymap[String.fromCharCode(code)];
         if (binding) {
-          $('#' + binding).click();
+          var boundInput = $('#' + binding)[0];
+          if (boundInput && !boundInput.disabled) {
+            boundInput.click();
+          }
         }
         return false;
       };
@@ -895,7 +898,7 @@ var AnnotatorUI = (function($, window, undefined) {
               $div.append($collapser)
             }
             $div.append($content);
-            addSpanTypesToDivInner($collapsible, type.children);
+            addSpanTypesToDivInner($collapsible, type.children, category);
             $parent.append($div);
             if (type.hotkey) {
               spanKeymap[type.hotkey] = 'span_' + type.type;
