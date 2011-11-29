@@ -22,7 +22,7 @@ from os import makedirs, remove
 from os.path import exists, dirname, join as path_join, isfile
 from shutil import copy
 from shutil import move
-from tempfile import NamedTemporaryFile
+from tempfile import mkstemp
 
 try:
     from cPickle import dump as pickle_dump, load as pickle_load
@@ -158,15 +158,15 @@ def close_session():
         makedirs(SESSIONS_DIR)
 
     # Write to a temporary file and move it in place, for safety
-    tmp_file = None
+    tmp_file_path = None
     try:
-        tmp_file = NamedTemporaryFile('wb', delete=False)
-        pickle_dump(CURRENT_SESSION, tmp_file)
-        tmp_file.close()
-        copy(tmp_file.name, get_session_pickle_path(CURRENT_SESSION.get_sid()))
+        _, tmp_file_path = mkstemp()
+        with open(tmp_file_path, 'wb') as tmp_file:
+            pickle_dump(CURRENT_SESSION, tmp_file)
+        copy(tmp_file_path, get_session_pickle_path(CURRENT_SESSION.get_sid()))
     finally:
-        if tmp_file is not None:
-            remove(tmp_file.name)
+        if tmp_file_path is not None:
+            remove(tmp_file_path)
 
 def save_conf(config_json):
     get_session()['conf'] = config_json
@@ -195,18 +195,18 @@ if __name__ == '__main__':
 
     # Pickle check
     init_session('127.0.0.1')
-    tmp_file = None
+    tmp_file_path = None
     try:
-        tmp_file = NamedTemporaryFile('wb', delete=False)
+        _, tmp_file_path = mkstemp()
         session = get_session()
         session['foo'] = 'bar'
-        pickle_dump(session, tmp_file)
-        tmp_file.close()
+        with open(tmp_file_path, 'wb') as tmp_file:
+            pickle_dump(session, tmp_file)
         del session
 
-        with open(tmp_file.name, 'rb') as tmp_file:
+        with open(tmp_file_path, 'rb') as tmp_file:
             session = pickle_load(tmp_file)
             assert session['foo'] == 'bar'
     finally:
-        if tmp_file is not None:
-            remove(tmp_file.name)
+        if tmp_file_path is not None:
+            remove(tmp_file_path)
