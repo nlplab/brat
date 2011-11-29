@@ -39,17 +39,14 @@ var VisualizerUI = (function($, window, undefined) {
       // on initial load, hide the "no SVG" message
       $('#no_svg_wrapper').hide();
 
-      var hideNoSVG = function(_coll, _doc, _args) {
+      var hideNoSVG = function() {
         clearTimeout(noSvgTimer);
-        if(_doc) {
-          $('#no_svg_wrapper').hide(0);
-        }
+        $('#no_svg_wrapper').hide(0);
       }
 
       var showNoSVG = function() {
         clearTimeout(noSvgTimer);
         noSvgTimer = setTimeout(function() {
-          console.log('foo');
           $('#no_svg_wrapper').fadeIn(500);
         }, 2000);
       }
@@ -522,6 +519,11 @@ var VisualizerUI = (function($, window, undefined) {
           return;
         }
         fileBrowserWaiting = false;
+
+        // hide "no document" message when file browser shown
+        // TODO: can't make this work; I can't detect when it gets hidden.
+//         hideNoSVG();
+
         if (!(selectorData && showForm(fileBrowser))) return false;
 
         var html = ['<tr><th/>'];
@@ -1315,6 +1317,11 @@ var VisualizerUI = (function($, window, undefined) {
         doc = _doc;
         args = _args;
 
+        // if we have a specific document, hide the "no document" message
+        if (_doc) {
+          hideNoSVG();
+        }
+          
         $docName = $('#document_name input').val(coll + doc);
         var docName = $docName[0];
         // TODO do this on resize, as well
@@ -1738,8 +1745,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch).
-          on('clearSVG', showNoSVG).
-          on('current', hideNoSVG);
+          on('clearSVG', showNoSVG);
     };
 
     return VisualizerUI;
