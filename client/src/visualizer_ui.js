@@ -32,14 +32,26 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START "no svg" message - related */
 
+      var noSvgTimer = null;
+
+      // this is necessary for centering
+      $('#no_svg_wrapper').css('display', 'table');
+      // on initial load, hide the "no SVG" message
+      $('#no_svg_wrapper').hide();
+
       var hideNoSVG = function(_coll, _doc, _args) {
+        clearTimeout(noSvgTimer);
         if(_doc) {
-          $('#no_svg_wrapper').hide();
+          $('#no_svg_wrapper').hide(0);
         }
       }
 
       var showNoSVG = function() {
-        $('#no_svg_wrapper').show();
+        clearTimeout(noSvgTimer);
+        noSvgTimer = setTimeout(function() {
+          console.log('foo');
+          $('#no_svg_wrapper').fadeIn(500);
+        }, 2000);
       }
       
       /* END "no svg" message - related */
