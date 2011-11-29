@@ -1154,6 +1154,8 @@ var VisualizerUI = (function($, window, undefined) {
           searchConfig = response.search_config;
           selectorData.items.sort(docSortFunction);
           setupSearchTypes(response);
+          // scroller at the top
+          docScroll = 0;
         }
       };
 
