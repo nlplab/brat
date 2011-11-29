@@ -457,6 +457,7 @@ var Visualizer = (function($, window, undefined) {
         };
         setEdited('edited');
         setEdited('focus');
+        setEdited('match');
 
         // sort the spans for linear order
         sortedSpans.sort(function(a, b) {
@@ -1948,6 +1949,9 @@ Util.profileStart('chunkFinish');
               textRowDesc[2] - textRowDesc[1] + 4, sizes.spans.height + 4,
               { fill: 'yellow' } // TODO: put into css file, as default - turn into class
           );
+	  // SMP TODO: for implementing #509, changing
+	  // highlightTextSequence here will give different-colored
+	  // highlights	  
 	  var editedType = textRowDesc[3];
           svg.other(textHighlight, 'animate', {
             'data-type': editedType,
