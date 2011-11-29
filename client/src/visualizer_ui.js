@@ -1173,7 +1173,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var onDoneRendering = function(coll, doc, args) {
-        if (!args.edited) {
+        if (args && !args.edited) {
           var svgtop = $('svg').offset().top;
           var $inFocus = $('#svg animate[data-type="focus"]:first').parent();
           if ($inFocus.length) {
