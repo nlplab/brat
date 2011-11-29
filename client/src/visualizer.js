@@ -2185,11 +2185,11 @@ Util.profileStart('before render');
 	// them here (again)
 	if (_density < 2) {
 	  // dense
-	  margin = { x: 0, y: 0 };
+	  margin = { x: 1, y: 0 };
 	  boxSpacing  = 1;
 	  curlyHeight = 1;
 	  arcSpacing = 7;
-	  arcStartHeight = 17;
+	  arcStartHeight = 18
 	} else if(_density > 2) {
 	  // spacious
 	  margin = { x: 2, y: 1 };
