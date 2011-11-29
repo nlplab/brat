@@ -21,6 +21,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var repeatingArcTypes = [];
       var spanTypes = null;
       var attributeTypes = null;
+      var relationTypesHash = null;
       var showValidAttributes; // callback function
       var confirmModeOn = false; // TODO: grab initial value from radio button
       var rapidModeOn = false;  // TODO: grab initial value from radio button
@@ -547,6 +548,12 @@ var AnnotatorUI = (function($, window, undefined) {
             noNumArcType = splitType[1];
         }
 
+        var isEquiv =
+          relationTypesHash &&
+          relationTypesHash[noNumArcType] &&
+          relationTypesHash[noNumArcType].properties.symmetric &&
+          relationTypesHash[noNumArcType].properties.transitive;
+
         if (spanTypes[originType]) {
           var arcTypes = spanTypes[originType].arcs;
           var $scroller = $('#arc_roles .scroller').empty();
@@ -555,6 +562,16 @@ var AnnotatorUI = (function($, window, undefined) {
           $.each(arcTypes || [], function(arcTypeNo, arcDesc) {
             if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
               var arcTypeName = arcDesc.type;
+
+              var isThisEquiv =
+                relationTypesHash &&
+                relationTypesHash[arcTypeName] &&
+                relationTypesHash[arcTypeName].properties.symmetric &&
+                relationTypesHash[arcTypeName].properties.transitive;
+
+              // do not allow equiv<->non-equiv change options
+              if (arcType && isEquiv != isThisEquiv) return;
+
               var displayName = arcDesc.labels[0] || arcTypeName;
               var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label for="arc_' + arcTypeName + '"/>').text(displayName);
@@ -1053,9 +1070,10 @@ var AnnotatorUI = (function($, window, undefined) {
         spanForm.find('.collapser').click(collapseHandler);
       };
 
-      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
+      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes, _relationTypesHash) {
         spanTypes = _spanTypes;
         attributeTypes = _attributeTypes;
+        relationTypesHash = _relationTypesHash;
       };
 
       var gotCurrent = function(_coll, _doc, _args) {

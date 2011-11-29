@@ -2295,7 +2295,7 @@ Util.profileStart('before render');
             relationTypesHash[relType.type] = relType;
           });
 
-          dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
+          dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes, relationTypesHash]);
 
           isCollectionLoaded = true;
           triggerRender();
