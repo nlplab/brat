@@ -28,7 +28,7 @@
       <p>In practice not all browsers currently fully support all
 	aspects of the technologies used to implement visualization
 	and editing in brat. The following table summarizes the
-	current browser support for various brat functions.
+	current browser support for brat functions.
       </p>
       <table id="browsersupport">
 	<tr class="ui-widget-header">
@@ -41,9 +41,9 @@
 	  <td class="support-ok">Full</td>
 	  <td class="support-ok">Full</td>
 	</tr><tr>
-	  <td><a href="http://www.google.com/chrome">Chrome</a> (Google) on Android (tablet/phone)</td>
+	  <td><a href="http://www.apple.com/safari/">Safari</a> (Apple) on PC/Mac</td>
 	  <td class="support-ok">Full</td>
-	  <td class="support-TODO">TODO</td>
+	  <td class="support-ok">Full</td>
 	</tr><tr>
 	  <td><a href="http://www.firefox.com">Firefox</a> (Mozilla)</td>
 	  <td class="support-ok">Full</td>
@@ -51,19 +51,19 @@
 	</tr><tr>
 	  <td><a href="http://www.opera.com">Opera</a></td>
 	  <td class="support-ok">Full</td>
-	  <td class="support-TODO">TODO</td>
-	</tr><tr>
-	  <td><a href="http://www.apple.com/safari/">Safari</a> (Apple) on PC/Mac</td>
-	  <td class="support-ok">Full</td>
-	  <td class="support-TODO">TODO</td>
-	</tr><tr>
-	  <td><a href="http://www.apple.com/safari/">Safari</a> (Apple) on iPad/iPhone</td>
-	  <td class="support-ok">Full</td>
-	  <td class="support-TODO">TODO</td>
+	  <td class="support-partial">Partial</td>
 	</tr><tr>
 	  <td><a href="http://http://www.microsoft.com/windows/internet-explorer/">Internet Explorer (Microsoft)</a> version 9</td>
 	  <td class="support-ok">Full</td>
 	  <td class="support-partial">Partial</td>
+	</tr><tr>
+	  <td><a href="http://www.apple.com/safari/">Safari</a> (Apple) on iPad/iPhone</td>
+	  <td class="support-ok">Full</td>
+	  <td class="support-partial">Partial</td>
+	</tr><tr>
+	  <td><a href="http://www.android.com/about/">Android browser</a> (Google) on Android tablet/phone</td>
+	  <td class="support-ok">Full</td>
+	  <td class="support-no">No</td>
 	</tr><tr>
 	  <td><a href="http://http://www.microsoft.com/windows/internet-explorer/">Internet Explorer (Microsoft)</a> version &lt; 9</td>
 	  <td class="support-no">No</td>
@@ -85,6 +85,11 @@
 	  <li>Even if a browser is not fully supported, it may still
 	    be possible to use it with brat for visualization and
 	    basic editing.
+	  </li>
+	  <li>Some versions of browsers listed as fully supported may
+	    have minor visual problems. For example, there is a known
+	    issue with the menu being rendered overly large on
+	    Internet Explorer, but this does not prevent use of brat.
 	  </li>
 	  <li>On touch-based interfaces such as those on the iPad, the
 	    iPhone, and Android tablets, selection is currently not
@@ -143,7 +148,10 @@
 	has only started supporting SVG from version 9. Because SVG is
 	central to the brat visualization, supporting browsers that do
 	not implement it would require rewriting much of the brat
-	client.
+	client. There are currently no plans to do this, and we ask
+	users of browsers that do not implement SVG support to
+	consider using one of the many supported browsers when using
+	brat.
       </p>
       <div id="footer">
 	&copy; 2010-2011 brat contributors
