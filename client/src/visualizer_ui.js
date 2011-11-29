@@ -940,10 +940,19 @@ var VisualizerUI = (function($, window, undefined) {
           }
       });
       $('#data_button').click(function() {
+        // aspects of the data form relating to the current document should
+        // only be shown when a document is selected.
+        if (!doc) {
+          $('#document_export').hide();
+          $('#document_visualization').hide();
+        } else {
+          $('#document_export').show();
+          $('#document_visualization').show();
+          saveSVG();
+        }
         dispatcher.post('showForm', [dataForm]);
         // the SVG button can only be accessed through the data form,
         // so we'll spare unnecessary saves by only saving here
-        saveSVG();
       });
       // make nice-looking buttons for checkboxes and buttons
       $('#data_form').find('input[type="checkbox"]').button();
