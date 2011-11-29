@@ -21,7 +21,7 @@ except ImportError:
 from common import ProtocolError
 from config import USER_PASSWORD, DATA_DIR
 from message import Messager
-from session import get_session
+from session import get_session, invalidate_session
 from projectconfig import ProjectConfiguration
 
 
@@ -83,7 +83,7 @@ def login(user, password):
     return {}
 
 def logout():
-    get_session().invalidate()
+    invalidate_session()
     # TODO: Really send this message?
     Messager.info('Bye!')
     return {}

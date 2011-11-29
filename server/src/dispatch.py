@@ -29,7 +29,7 @@ from logging import info as log_info
 from annlog import log_annotation
 from message import Messager
 from svg import store_svg, retrieve_stored
-from session import get_session
+from session import get_session, load_conf, save_conf
 from search import search_text, search_entity, search_event, search_relation
 from predict import suggest_span_types
 
@@ -71,6 +71,9 @@ DISPATCHER = {
         'suggestSpanTypes': suggest_span_types,
 
         'logAnnotatorAction': logging_no_op,
+
+        'saveConf': save_conf,
+        'loadConf': load_conf,
         }
 
 # Actions that correspond to annotation functionality
@@ -99,6 +102,10 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
         'searchEntity',
         'searchEvent',
         'searchRelation',
+
+        # Configuration storage
+        'loadConf',
+        'saveConf',
         ))
 
 # Sanity check

@@ -2,180 +2,209 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-# TODO: Update the example usage
 '''
 Session handling class.
 
-Usage example:
-
-    from session import Session
-    session = Session()
-    print "Content-Type: text/plain\n"
-    counter = session['counter'] = session.get('counter', 0) + 1
-    if counter <= 5:
-        print "Counter is %s" % counter
-    else:
-        print "Logged off."
-        session.invalidate()
-    session.close()
-
-API:
-    new Session(name, dir, path, max_age)
-        Needs to be called before the response body starts!
-        name:    cookie's name ["sid"]
-        dir:     directory where sessions will be stored ["sessions"]
-        path:    cookie's path restriction [None, i.e. whole site]
-        domain:  cookie's domain restriction [None, i.e. this site]
-        max_age: session validity, in seconds or timedelta [None, i.e. until browser closes]
-                 (note that resolution is in minutes, so less than 60 usually makes no sense)
-
-    session.close()
-        Last thing to do in a script: save the session.
-        No further modifications possible.
-
-    session.invalidate()
-        Delete the session.
-        No further modifications possible.
-
-    value = session[key]
-    session[key] = value
-    del session[key]
-    value = session.get(key, default)
-        The usual suspects.
-        Default defaults to None.
-
-    The session object will also be globally available as Session.instance.
+Note: New modified version using pickle instead of shelve.
 
 Author:     Goran Topic         <goran is s u-tokyo ac jp>
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-03-11
 '''
 
-from Cookie import SimpleCookie, CookieError
+from Cookie import CookieError, SimpleCookie
 from atexit import register as atexit_register
-from config import WORK_DIR
 from datetime import datetime, timedelta
-from os import environ, mkdir
-from os.path import join as path_join
-from os.path import exists
 from hashlib import sha224
-from shelve import open as shelve_open
+from os import makedirs, remove
+from os.path import exists, dirname, join as path_join, isfile
+from shutil import copy
+from shutil import move
+from tempfile import NamedTemporaryFile
+
+try:
+    from cPickle import dump as pickle_dump, load as pickle_load
+except ImportError:
+    from pickle import dump as pickle_dump, load as pickle_load
+
+from config import WORK_DIR
+
+### Constants
+CURRENT_SESSION = None
+SESSION_COOKIE_KEY = 'sid'
+# Where we store our session data files
+SESSIONS_DIR=path_join(WORK_DIR, 'sessions')
+EXPIRATION_DELTA = timedelta(days=30)
+###
 
 
-# TODO: Pythonista overlook
-class Session(object):
-    def __init__(self, name='sid', dir=path_join(WORK_DIR, 'sessions'),
-            path=None, domain=None, max_age=None):
+# Raised if a session is requested although not initialised
+class NoSessionError(Exception):
+    pass
 
-        self._name = name
-        now = datetime.utcnow();
 
-        # blank cookie
-        self._cookie = SimpleCookie()
+class SessionCookie(SimpleCookie):
+    def __init__(self, sid=None):
+        if sid is not None:
+            self[SESSION_COOKIE_KEY] = sid
 
-        if environ.has_key('HTTP_COOKIE'):
-            # cookie already exists, see what's in it
-            self._cookie.load(environ['HTTP_COOKIE'])
+    def set_expired(self):
+        self[SESSION_COOKIE_KEY]['expires'] = 0
 
-        try:
-            # what's our session ID?
-            self.sid = self._cookie[name].value;
-        except KeyError:
-            # there isn't any, make a new session ID
-            remote = environ.get('REMOTE_ADDR')
-            self.sid = sha224('%s-%s' % (remote, now)).hexdigest()
+    def get_sid(self):
+        return self[SESSION_COOKIE_KEY].value
 
-        self._cookie.clear();
-        self._cookie[name] = self.sid
-
-        # set/reset path
-        if path:
-            self._cookie[name]['path'] = path
-        else:
-            self._cookie[name]['path'] = ''
-
-        # set/reset domain
-        if domain:
-            self._cookie[name]['domain'] = domain
-        else:
-            self._cookie[name]['domain'] = ''
-
-        # set/reset expiration date
-        if max_age is not None:
-            if isinstance(max_age, int):
-                max_age = timedelta(seconds=max_age)
-            expires = now + max_age
-            self._cookie[name]['expires'] = expires.strftime(
-                    '%a, %d %b %Y %H:%M:%S')
-        else:
-            self._cookie[name]['expires'] = ''
-
-        # to protect against cookie-stealing JS, make our cookie
-        # available only to the browser, and not to any scripts
-        try:
-            # This will not work for Python 2.5 and older
-            self._cookie[name]['httponly'] = True
-        except CookieError:
-            pass
-
-        # if the sessions dir doesn't exist, create it
-        if not exists(dir):
-            mkdir(dir)
-        # persist the session data
-        self._shelf_file = path_join(dir, self.sid)
-        # -1 signifies the highest available protocol version
-        self._shelf = shelve_open(self._shelf_file, protocol=-1, writeback=True)
-
-    def print_cookie(self):
-        print '\n'.join('%s: %s' % (k, v) for k, v in self.get_cookie_hdrs())
-
-    def get_cookie_hdrs(self):
+    def hdrs(self):
+        # TODO: can probably be done better
         hdrs = [('Cache-Control', 'no-store, no-cache, must-revalidate')]
-        for cookie_line in self._cookie.output(header='Set-Cookie:', sep='\n').split('\n'):
+        for cookie_line in self.output(header='Set-Cookie:',
+                sep='\n').split('\n'):
             hdrs.append(tuple(cookie_line.split(': ', 1)))
         return tuple(hdrs)
 
-    def close(self):
-        # save the data
-        self._shelf.close()
+    @classmethod
+    def load(cls, cookie_data):
+        cookie = SessionCookie()
+        SimpleCookie.load(cookie, cookie_data)
+        return cookie
+    # TODO: Weave the headers into __str__
 
-    def invalidate(self):
-        from os import unlink
 
-        # remove and expire the session
-        self._shelf.close()
-        unlink(self._shelf_file)
-        self._cookie[self._name]['expires'] = 0
+class Session(dict):
+    def __init__(self, cookie):
+        self.cookie = cookie
+        sid = self.cookie.get_sid()
+        self.init_cookie(sid)
 
-    def __getitem__(self, key):
-        return self._shelf[key]
+    def init_cookie(self, sid):
+        # Clear the cookie and set its defaults
+        self.cookie.clear()
 
-    def __setitem__(self, key, value):
-        self._shelf[key] = value
-
-    def __delitem__(self, key):
-        del self._shelf[key]
+        self.cookie[SESSION_COOKIE_KEY] = sid
+        self.cookie[SESSION_COOKIE_KEY]['path'] = ''
+        self.cookie[SESSION_COOKIE_KEY]['domain'] = ''
+        self.cookie[SESSION_COOKIE_KEY]['expires'] = (
+                datetime.utcnow() + EXPIRATION_DELTA
+                ).strftime('%a, %d %b %Y %H:%M:%S')
+        # Protect against cookie-stealing JavaScript
+        try:
+            # Note: This will not work for Python 2.5 and older
+            self.cookie[SESSION_COOKIE_KEY]['httponly'] = True
+        except CookieError:
+            pass
 
     def get(self, key, default=None):
-        # FIXME: for some reason, doesn't work:
-        # self._shelf.get(key, default)
-        #
-        # instead:
         try:
-            return self._shelf[key]
+            return self[key]
         except KeyError:
             return default
 
+    def get_sid(self):
+        return self.cookie.get_sid()
 
-CURRENT_SESSION = None
-def get_session():
+    def __str__(self):
+        return 'Session(sid="%s", cookie="%s",  dict="%s")' % (
+                self.get_sid(), self.cookie, dict.__str__(self), )
+
+
+def get_session_pickle_path(sid):
+    return path_join(SESSIONS_DIR, '%s.pickle' % (sid, ))
+
+def init_session(remote_address, cookie_data=None):
+    if cookie_data is not None:
+        cookie = SessionCookie.load(cookie_data)
+    else:
+        # Default sid for the session
+        sid = sha224('%s-%s' % (remote_address, datetime.utcnow())).hexdigest()
+        cookie = SessionCookie(sid)
+
+    # Set the session singleton (there can be only one!)
     global CURRENT_SESSION
+    ppath = get_session_pickle_path(cookie.get_sid())
+    if isfile(ppath):
+        # Load our old session data and initialise the cookie
+        with open(ppath, 'rb') as session_pickle:
+            CURRENT_SESSION = pickle_load(session_pickle)
+        CURRENT_SESSION.init_cookie(CURRENT_SESSION.get_sid())
+    else:
+        # Create a new session
+        CURRENT_SESSION = Session(cookie)
+
+def get_session():
     if CURRENT_SESSION is None:
-        # The cookie will expire in 30 days (in seconds)
-        CURRENT_SESSION = Session(max_age=60 * 60 * 24 * 30)
+        raise NoSessionError
     return CURRENT_SESSION
 
-# Make sure that we save the session on interpreter shutdown
-@atexit_register
-def _save_session():
-    get_session().close()
+def invalidate_session():
+    global CURRENT_SESSION
+    if CURRENT_SESSION is None:
+        return
+
+    # Set expired and remove from disk
+    CURRENT_SESSION.cookie.set_expired()
+    ppath = get_session_pickle_path(CURRENT_SESSION.get_sid())
+    if isfile(ppath):
+        remove(ppath)
+
+def close_session():
+    # Do we have a session to save in the first place?
+    if CURRENT_SESSION is None:
+        return
+
+    # If the sessions dir doesn't exist, create it
+    if not exists(SESSIONS_DIR):
+        makedirs(SESSIONS_DIR)
+
+    # Write to a temporary file and move it in place, for safety
+    tmp_file = None
+    try:
+        tmp_file = NamedTemporaryFile('wb', delete=False)
+        pickle_dump(CURRENT_SESSION, tmp_file)
+        tmp_file.close()
+        copy(tmp_file.name, get_session_pickle_path(CURRENT_SESSION.get_sid()))
+    finally:
+        if tmp_file is not None:
+            remove(tmp_file.name)
+
+def save_conf(config_json):
+    get_session()['conf'] = config_json
+
+def load_conf():
+    return {
+            'config': get_session()['conf'],
+            }
+
+if __name__ == '__main__':
+    # Some simple sanity checks
+    try:
+        get_session()
+        assert False
+    except NoSessionError:
+        pass
+
+    # New "fresh" cookie session check
+    init_session('127.0.0.1')
+    
+    try:
+        session = get_session()
+        session['foo'] = 'bar'
+    except NoSessionError:
+        assert False
+
+    # Pickle check
+    init_session('127.0.0.1')
+    tmp_file = None
+    try:
+        tmp_file = NamedTemporaryFile('wb', delete=False)
+        session = get_session()
+        session['foo'] = 'bar'
+        pickle_dump(session, tmp_file)
+        tmp_file.close()
+        del session
+
+        with open(tmp_file.name, 'rb') as tmp_file:
+            session = pickle_load(tmp_file)
+            assert session['foo'] == 'bar'
+    finally:
+        if tmp_file is not None:
+            remove(tmp_file.name)
