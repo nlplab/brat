@@ -12,6 +12,8 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-03-11
 '''
 
+from __future__ import with_statement
+
 from Cookie import CookieError, SimpleCookie
 from atexit import register as atexit_register
 from datetime import datetime, timedelta
