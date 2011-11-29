@@ -925,7 +925,10 @@ Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
 
-        if (!_data && !data) return;
+        if (!_data && !data) { 
+          dispatcher.post('doneRendering', [coll, doc, args]);
+	  return;
+	}
         $svgDiv.show();
         if ((_data && (_data.document !== doc || _data.collection !== coll)) || drawing) {
           redraw = true;
