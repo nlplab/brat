@@ -133,7 +133,6 @@ var VisualizerUI = (function($, window, undefined) {
                 });
               }
             };
-            /* XXX delay is not necessary any more, right?
             var delay = (msg[2] === undefined)
                           ? messageDefaultFadeDelay
                           : (msg[2] === -1)
@@ -154,8 +153,7 @@ var VisualizerUI = (function($, window, undefined) {
                   timer = setTimeout(fader, messagePostOutFadeDelay);
               });
             }
-            */
-            setTimeout(fader, messageDefaultFadeDelay);
+            // setTimeout(fader, messageDefaultFadeDelay);
           });
 
           // limited history - delete oldest
