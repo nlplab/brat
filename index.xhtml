@@ -50,6 +50,43 @@
     <link rel="shortcut icon" href="favicon.ico"/>
   </head>
   <body>
+    <!-- page-centered div following in part Billbad's answer at
+         http://stackoverflow.com/questions/396145/whats-the-best-way-of-centering-a-div-vertically-with-css         
+      -->
+    <div class="center_wrapper" id="no_svg_wrapper">
+      <div>
+        <div>
+          <fieldset>
+            <h1 class="unselectable">No document selected</h1>
+            <p class="unselectable">Select a document to visualize or edit from the document collection browser.</p>
+            <p class="unselectable">The collection browser can be opened by pressing the
+              TAB key or by clicking on the &quot;Collection&quot; button in the menu
+              that opens when placing the mouse cursor on the blue bar on top.
+            </p>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+    <div class="center_wrapper" id="no_js_wrapper">
+      <div>
+        <div>
+          <fieldset>
+            <h1 class="unselectable">No JavaScript</h1>
+            <p class="unselectable">Your browser has JavaScript
+              disabled, or does not support it.</p>
+            <p class="unselectable">
+              <span class="logo">brat</span>
+              needs JavaScript in order to run.
+            </p>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+    <script>
+      var njsw = document.getElementById('no_js_wrapper');
+      njsw.parentNode.removeChild(njsw);
+      document.getElementById('no_svg_wrapper').style.display = 'table';
+    </script>
     <img id="spinner" src="static/img/spinner.gif"/>
     <div id="messagepullup" class="messages" style="display: none"/>
     <div id="messages" class="messages"/>
@@ -75,7 +112,9 @@
             <!-- <input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/> -->
             <input id="options_button" type="button" value="Options" tabindex="-1"/>
           </div>
-          <div id="document_mtime" class="unselectable">&nbsp;</div>
+          <!-- Dummy span, fixes visual glitch (issue #535). TODO: better fix -->
+          <span class="document_edit_time unselectable">&nbsp;</span>
+          <div id="document_mtime" class="document_edit_time unselectable">&nbsp;</div>
         </div>
       </div>
     </div>
@@ -99,10 +138,10 @@
       <fieldset>
         <legend>Export</legend>
         <div class="optionRow">
-          <span class="optionLabel">Document data</span>
+          <span id="document_export" class="optionLabel">Document data</span>
           <span id="source_files"/>
         </div>
-        <div class="optionRow">
+        <div id="document_visualization" class="optionRow">
           <span class="optionLabel">Visualization</span>
           <span id="stored_file_spinner" class="ui-button ui-widget ui-corner-all ui-state-default ui-button-text-only">
             <span class="ui-button-text">
@@ -499,7 +538,7 @@
       <div id="aboutlogo" class="logo">brat</div>
       <!--This software is distributed under the <a target="licence" href="http://www.opensource.org/licenses/isc-license">ISC Licence</a>.-->
       <div align="center">brat rapid annotation tool</div>
-      <div style="font-size:60%" align="center">version 1.0&alpha;3</div>
+      <div style="font-size:60%" align="center">version 1.0&alpha;4</div>
       <div id="copyright">&copy; 2010-2011 The brat contributors</div>
     </div>
     <div id="tutorial" class="dialog unselectable" title="Tutorial">
@@ -520,8 +559,8 @@
       </div>
       <p>Below is a mini-tutorial for basic usage. For detailed
         instructions, please see
-        the <a href="static/manual/index.html">brat user
-          manual</a>.</p>
+        the <a href="static/manual/index.html" target="manual">brat
+        user manual</a>.</p>
       <h3>Visualization</h3>
       <p>When a document is selected, the main window area shows a
         visualization of the text and annotations of that

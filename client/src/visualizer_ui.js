@@ -30,6 +30,20 @@ var VisualizerUI = (function($, window, undefined) {
 
       var currentDocumentSVGsaved = false;
 
+      /* START "no svg" message - related */
+
+      var hideNoSVG = function(_coll, _doc, _args) {
+        if(_doc) {
+          $('#no_svg_wrapper').hide();
+        }
+      }
+
+      var showNoSVG = function() {
+        $('#no_svg_wrapper').show();
+      }
+      
+      /* END "no svg" message - related */
+
       /* START collection browser sorting - related */
 
       var lastGoodCollection = '/';
@@ -71,6 +85,7 @@ var VisualizerUI = (function($, window, undefined) {
                 sort[1] = ascending ? 1 : -1;
               }
               selectorData.items.sort(docSortFunction);
+              docScroll = 0;
               showFileBrowser(); // resort
           });
       }
@@ -119,7 +134,6 @@ var VisualizerUI = (function($, window, undefined) {
                 });
               }
             };
-            /* XXX delay is not necessary any more, right?
             var delay = (msg[2] === undefined)
                           ? messageDefaultFadeDelay
                           : (msg[2] === -1)
@@ -140,8 +154,7 @@ var VisualizerUI = (function($, window, undefined) {
                   timer = setTimeout(fader, messagePostOutFadeDelay);
               });
             }
-            */
-            setTimeout(fader, messageDefaultFadeDelay);
+            // setTimeout(fader, messageDefaultFadeDelay);
           });
 
           // limited history - delete oldest
@@ -807,19 +820,43 @@ var VisualizerUI = (function($, window, undefined) {
         return false;
       });
 
+      var activeSearchTab = function() {
+        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
+        var activeTab = $('#search_tabs').tabs('option', 'selected');
+        return ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
+      }
+
+      var onSearchTabSelect = function() {
+        var action = activeSearchTab();
+        switch (action) {
+          case 'searchText':
+            $('#search_form_text_text').focus().select();
+            break;
+          case 'searchEntity':
+            $('#search_form_entity_text').focus().select();
+            break;
+          case 'searchEvent':
+            $('#search_form_event_trigger').focus().select();
+            break;
+          case 'searchRelation':
+            $('#search_form_relation_type').focus().select();
+            break;
+        }
+      };
+
       // set up jQuery UI elements in search form
-      $('#search_tabs').tabs();
+      $('#search_tabs').tabs({
+        show: onSearchTabSelect
+      });
       $('#search_form').find('.radio_group').buttonset();
 
       var searchForm = $('#search_form');
 
       var searchFormSubmit = function(evt) {
-        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
-        var activeTab = $('#search_tabs').tabs('option', 'selected');
-        var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
         // hack around empty document; "" would be interpreted as
         // missing argument by server dispatcher (issue #513)
         // TODO: do this properly, avoiding magic strings
+        var action = activeSearchTab();
         var docArg = doc ? doc : "/NO-DOCUMENT/";
         var opts = {
           action : action,
@@ -878,6 +915,7 @@ var VisualizerUI = (function($, window, undefined) {
             // TODO: might consider having this message come from the
             // server instead
             dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
+            dispatcher.post('clearSearch', [true]);
           } else {
             if (!searchActive) {
               collectionSortOrder = sortOrder;
@@ -894,7 +932,8 @@ var VisualizerUI = (function($, window, undefined) {
 
       initForm(searchForm, {
           width: 500,
-          alsoResize: '#search_tabs',
+          // alsoResize: '#search_tabs',
+          resizable: false,
           open: function(evt) {
             keymap = {};
           },
@@ -907,13 +946,16 @@ var VisualizerUI = (function($, window, undefined) {
           }],
       });
 
-      $('#search_button').click(function(evt) {
+      var showSearchForm = function() {
         // this.checked = searchActive; // TODO: dup? unnecessary? remove if yes.
         updateSearchButton();
         $('#search_form_event_type').change();
         $('#search_form_relation_type').change();
         dispatcher.post('showForm', [searchForm]);
-      });
+        onSearchTabSelect();
+      }
+
+      $('#search_button').click(showSearchForm);
 
       var updateSearchButton = function() {
         $searchButton = $('#search_button');
@@ -934,16 +976,26 @@ var VisualizerUI = (function($, window, undefined) {
       dataForm.submit(dataFormSubmit);
       initForm(dataForm, {
           width: 500,
+          resizable: false,
           no_cancel: true,
           open: function(evt) {
             keymap = {};
           }
       });
       $('#data_button').click(function() {
+        // aspects of the data form relating to the current document should
+        // only be shown when a document is selected.
+        if (!doc) {
+          $('#document_export').hide();
+          $('#document_visualization').hide();
+        } else {
+          $('#document_export').show();
+          $('#document_visualization').show();
+          saveSVG();
+        }
         dispatcher.post('showForm', [dataForm]);
         // the SVG button can only be accessed through the data form,
         // so we'll spare unnecessary saves by only saving here
-        saveSVG();
       });
       // make nice-looking buttons for checkboxes and buttons
       $('#data_form').find('input[type="checkbox"]').button();
@@ -970,6 +1022,7 @@ var VisualizerUI = (function($, window, undefined) {
       optionsForm.submit(optionsFormSubmit);
       initForm(optionsForm, {
           width: 550,
+          resizable: false,
           no_cancel: true,
           open: function(evt) {
             keymap = {};
@@ -1042,6 +1095,9 @@ var VisualizerUI = (function($, window, undefined) {
           autoPaging(true);
         } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
           autoPaging(false);
+        } else if (evt.ctrlKey && code == 'F'.charCodeAt(0)) {
+          evt.preventDefault();
+          showSearchForm();
         }
       };
 
@@ -1098,6 +1154,8 @@ var VisualizerUI = (function($, window, undefined) {
           searchConfig = response.search_config;
           selectorData.items.sort(docSortFunction);
           setupSearchTypes(response);
+          // scroller at the top
+          docScroll = 0;
         }
       };
 
@@ -1114,7 +1172,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
-      var clearSearch = function() {
+      var clearSearch = function(dontShowFileBrowser) {
         dispatcher.post('hideForm', [searchForm]);
 
         // back off to document collection
@@ -1126,7 +1184,9 @@ var VisualizerUI = (function($, window, undefined) {
           updateSearchButton();
         }
 
-        showFileBrowser();
+        if (!dontShowFileBrowser) {
+          showFileBrowser();
+        }
       }
 
       var saveSVGTimer = null;
@@ -1147,7 +1207,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var onDoneRendering = function(coll, doc, args) {
-        if (!args.edited) {
+        if (args && !args.edited) {
           var svgtop = $('svg').offset().top;
           var $inFocus = $('#svg animate[data-type="focus"]:first').parent();
           if ($inFocus.length) {
@@ -1155,12 +1215,17 @@ var VisualizerUI = (function($, window, undefined) {
                 animate({ scrollTop: $inFocus.offset().top - svgtop - window.innerHeight / 2 }, { duration: 'slow', easing: 'swing'});
           }
         }
-        $('#waiter').dialog('close');
+        dispatcher.post('allowReloadByURL');
+        if (!currentForm) {
+          $('#waiter').dialog('close');
+        }
       }
 
       var onStartedRendering = function() {
         hideForm(fileBrowser);
-        $('#waiter').dialog('open');
+        if (!currentForm) {
+          $('#waiter').dialog('open');
+        }
       }
 
       var savedSVGreceived = function(data) {
@@ -1413,7 +1478,7 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       var authForm = $('#auth_form');
-      initForm(authForm);
+      initForm(authForm, { resizable: false });
       var authFormSubmit = function(evt) {
         dispatcher.post('hideForm');
         var _user = $('#auth_user').val();
@@ -1497,25 +1562,37 @@ var VisualizerUI = (function($, window, undefined) {
               auth_button.val('Login');
               dispatcher.post('user', [null]);
               $('.login').hide();
-              dispatcher.post('showForm', [tutorialForm]);
-              $('#tutorial-ok').focus();
+              // don't show tutorial if there's a specific document (annoyance)
+              if (!doc) {
+                dispatcher.post('showForm', [tutorialForm]);
+                $('#tutorial-ok').focus();
+              }
             }
           }
         ]);
       };
 
+      var noFileSpecified = function() {
+        // not (only) an error, so no messaging
+        dispatcher.post('clearSVG');
+        showFileBrowser();
+      }
+
       var showUnableToReadTextFile = function() {
         dispatcher.post('messages', [[['Unable to read the text file.', 'error']]]);
+        dispatcher.post('clearSVG');
         showFileBrowser();
       };
 
       var showAnnotationFileNotFound = function() {
         dispatcher.post('messages', [[['Annotation file not found.', 'error']]]);
+        dispatcher.post('clearSVG');
         showFileBrowser();
       };
 
       var showUnknownError = function(exception) {
         dispatcher.post('messages', [[['Unknown error: ' + exception, 'error']]]);
+        dispatcher.post('clearSVG');
         showFileBrowser();
       };
 
@@ -1637,7 +1714,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('startedRendering', onStartedRendering).
           on('renderData', onRenderData).
           on('savedSVG', savedSVGreceived).
-          on('renderError:noFileSpecified', showFileBrowser).
+          on('renderError:noFileSpecified', noFileSpecified).
           on('renderError:annotationFileNotFound', showAnnotationFileNotFound).
           on('renderError:unableToReadTextFile', showUnableToReadTextFile).
           on('renderError:isDirectoryError', reloadDirectoryWithSlash).
@@ -1649,7 +1726,9 @@ var VisualizerUI = (function($, window, undefined) {
           on('touchend', onTouchEnd).
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
-          on('clearSearch', clearSearch);
+          on('clearSearch', clearSearch).
+          on('clearSVG', showNoSVG).
+          on('current', hideNoSVG);
     };
 
     return VisualizerUI;

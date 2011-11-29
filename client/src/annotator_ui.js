@@ -21,6 +21,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var repeatingArcTypes = [];
       var spanTypes = null;
       var attributeTypes = null;
+      var relationTypesHash = null;
       var showValidAttributes; // callback function
       var confirmModeOn = false; // TODO: grab initial value from radio button
       var rapidModeOn = false;  // TODO: grab initial value from radio button
@@ -547,6 +548,12 @@ var AnnotatorUI = (function($, window, undefined) {
             noNumArcType = splitType[1];
         }
 
+        var isEquiv =
+          relationTypesHash &&
+          relationTypesHash[noNumArcType] &&
+          relationTypesHash[noNumArcType].properties.symmetric &&
+          relationTypesHash[noNumArcType].properties.transitive;
+
         if (spanTypes[originType]) {
           var arcTypes = spanTypes[originType].arcs;
           var $scroller = $('#arc_roles .scroller').empty();
@@ -555,6 +562,16 @@ var AnnotatorUI = (function($, window, undefined) {
           $.each(arcTypes || [], function(arcTypeNo, arcDesc) {
             if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
               var arcTypeName = arcDesc.type;
+
+              var isThisEquiv =
+                relationTypesHash &&
+                relationTypesHash[arcTypeName] &&
+                relationTypesHash[arcTypeName].properties.symmetric &&
+                relationTypesHash[arcTypeName].properties.transitive;
+
+              // do not allow equiv<->non-equiv change options
+              if (arcType && isEquiv != isThisEquiv) return;
+
               var displayName = arcDesc.labels[0] || arcTypeName;
               var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label for="arc_' + arcTypeName + '"/>').text(displayName);
@@ -685,7 +702,9 @@ var AnnotatorUI = (function($, window, undefined) {
           if (target) {
             target.parent().removeClass('highlight');
           }
-          svg.remove(arcDragArc);
+          if (arcDragArc) {
+            svg.remove(arcDragArc);
+          }
           arcDragOrigin = null;
           if (arcOptions) {
               $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').removeClass('reselect');
@@ -864,6 +883,8 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var addSpanTypesToDivInner = function($parent, types, category) {
+        if (!types) return;
+
         $.each(types, function(typeNo, type) {
           if (type === null) {
             $parent.append('<hr/>');
@@ -1030,16 +1051,18 @@ var AnnotatorUI = (function($, window, undefined) {
         var $searchlinks2 = $('#viewspan_search_links').empty();
         var firstLink=true;
         var linkFilled=false;
-        $.each(searchConfig, function(searchNo, search) {
-          if (!firstLink) {
-            $searchlinks.append(',\n')
-            $searchlinks2.append(',\n')
-          }
-          firstLink=false;
-          $searchlinks.append('<a target="brat_search" id="span_'+search[0]+'" href="#">'+search[0]+'</a>');
-          $searchlinks2.append('<a target="brat_search" id="viewspan_'+search[0]+'" href="#">'+search[0]+'</a>');
-          linkFilled=true;
-        });
+        if (searchConfig) {
+          $.each(searchConfig, function(searchNo, search) {
+            if (!firstLink) {
+              $searchlinks.append(',\n')
+              $searchlinks2.append(',\n')
+            }
+            firstLink=false;
+            $searchlinks.append('<a target="brat_search" id="span_'+search[0]+'" href="#">'+search[0]+'</a>');
+            $searchlinks2.append('<a target="brat_search" id="viewspan_'+search[0]+'" href="#">'+search[0]+'</a>');
+            linkFilled=true;
+          });
+        }
         if (linkFilled) {
           $('#span_search_fieldset').show();
           $('#viewspan_search_fieldset').show();
@@ -1053,9 +1076,10 @@ var AnnotatorUI = (function($, window, undefined) {
         spanForm.find('.collapser').click(collapseHandler);
       };
 
-      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
+      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes, _relationTypesHash) {
         spanTypes = _spanTypes;
         attributeTypes = _attributeTypes;
+        relationTypesHash = _relationTypesHash;
       };
 
       var gotCurrent = function(_coll, _doc, _args) {
@@ -1326,8 +1350,8 @@ var AnnotatorUI = (function($, window, undefined) {
         evt.preventDefault();
       }
 
-      var waiter = $('#waiter');
-      waiter.dialog({
+      var $waiter = $('#waiter');
+      $waiter.dialog({
         closeOnEscape: false,
         buttons: {},
         modal: true,
@@ -1338,7 +1362,7 @@ var AnnotatorUI = (function($, window, undefined) {
       // hide the waiter (Sampo said it's annoying)
       // we don't elliminate it altogether because it still provides the
       // overlay to prevent interaction
-      waiter.parent().css('opacity', '0');
+      $waiter.parent().css('opacity', '0');
 
       var isReloadOkay = function() {
         // do not reload while the user is in the middle of editing

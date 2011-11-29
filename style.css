@@ -10,6 +10,35 @@ html {
   margin-bottom: 100px;
 }
 
+.center_wrapper {
+  display: table;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+.center_wrapper > div {
+  display: table-cell;
+  vertical-align: middle;
+}
+.center_wrapper > div > div {
+  /* match jQuery UI .ui-widget-content color */
+  color: #2e6e9e;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20em;
+  font-size: 12px;
+  font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
+}
+.center_wrapper > div > div h1 {
+  text-align: center;
+  font-size: 16px;
+}
+#no_svg_wrapper {
+  display: none;
+}
+
 svg {
   width: 100%;
   height: 1px;
@@ -600,15 +629,15 @@ div.scroll_wrapper_upper div.scroller {
 #span_highlight_link, #arc_highlight_link, #viewspan_highlight_link {
   float: right;
 }
-/*
 #document_ctime, #document_mtime {
-  padding: 0 2px;
-  REMOVEbackground-color: #dddddd;
-  REMOVEborder: 1px solid #999999;
-  opacity: 0.5;
-  float: right;
+  vertical-align: bottom;                 
+  padding: 0 5px;
+  float: left;
 }
-*/
+.document_edit_time {
+  font-family: monospace;
+  color: #777;
+}
 #menu_explanation {
   margin-left: 10px;
   display: inline-block;
