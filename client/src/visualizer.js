@@ -94,7 +94,7 @@ var Visualizer = (function($, window, undefined) {
       var spanTypes;
       var relationTypesHash;
       var abbrevsOn = true;
-      var sentenceHighlightsOn = true;
+      var textBackgrounds = "striped";
       var isRenderRequested;
       var isCollectionLoaded = false;
       var areFontsLoaded = false;
@@ -1760,7 +1760,7 @@ Util.profileStart('rows');
 	  if ($.inArray(currentSent, data.editedSent) != -1) {
 	    // specifically highlighted
 	    bgClass = 'backgroundHighlight';
-	  } else if (sentenceHighlightsOn) {
+	  } else if (textBackgrounds == "striped") {
 	    // give every second sentence has a different bg "highlight"
 	    bgClass = 'background'+ row.backgroundIndex;
 	  } else {
@@ -2175,8 +2175,8 @@ Util.profileStart('before render');
         abbrevsOn = _abbrevsOn;
       }
 
-      var setSentenceHighlights = function(_sentenceHighlightsOn) {
-	sentenceHighlightsOn = _sentenceHighlightsOn;
+      var setTextBackgrounds = function(_textBackgrounds) {
+	  textBackgrounds = _textBackgrounds;
       }
 
       var setLayoutDensity = function(_density) {
@@ -2371,7 +2371,7 @@ Util.profileStart('before render');
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
-          on('sentenceHighlights', setSentenceHighlights).
+          on('textBackgrounds', setTextBackgrounds).
           on('layoutDensity', setLayoutDensity).
           on('current', gotCurrent).
           on('clearSVG', clearSVG).

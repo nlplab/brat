@@ -174,13 +174,29 @@
       <fieldset id="options_form_visual">
         <legend>Visual options</legend>
         <div class="optionRow">
-          <span>
-            <input id="abbrev_mode" type="checkbox" value="true" checked="checked"/>
-            <label for="abbrev_mode" title="Toggle abbreviations on/off">Abbreviations</label>
+          <span class="optionLabel">Abbreviate labels</span>
+          <span id="label_abbreviations" class="radio_group small-buttons">
+            <input type="radio" id="label_abbreviations_off" value="off"
+                   name="label_abbrev_radio"/>
+            <label for="label_abbreviations_off"
+                   title="Always display full form of labels.">Off</label>
+            <input type="radio" id="label_abbreviations_on" value="on" 
+                   name="label_abbrev_radio" checked="checked"/>
+            <label for="label_abbreviations_on"
+                   title="Abbreviate annotation labels in limited space.">On</label>
           </span>
-          <span>
-            <input id="sentence_highlights" type="checkbox" value="true" checked="checked"/>
-            <label for="sentence_highlights" title="Toggle sentence background highlighting on/off">Sentence highlighting</label>
+        </div>
+        <div class="optionRow">
+          <span class="optionLabel">Text background</span>        
+          <span id="text_backgrounds" class="radio_group small-buttons">
+            <input type="radio" id="text_backgrounds_blank" value="blank" 
+                   name="text_background_radio"/>
+            <label for="text_backgrounds_blank"
+                   title="Blank white text backgrounds.">Blank</label>
+            <input type="radio" id="text_backgrounds_striped" value="striped" 
+                   name="text_background_radio" checked="checked"/>
+            <label for="text_backgrounds_striped"
+                   title="Striped text backgrounds with every second sentence on light gray background.">Striped</label>
           </span>
         </div>
         <div class="optionRow">
@@ -223,11 +239,14 @@
       </fieldset>
       <fieldset id="options_form_network">
         <legend>Network options</legend>
-<!--        <span><input id="autorefresh_mode" type="checkbox" value="true" checked="checked"/><label for="autorefresh_mode" title="Toggle the autorefresh mode">Autorefresh</label></span>-->
-        <span>
-          <input id="autorefresh_mode" type="checkbox" value="true"/>
-          <label for="autorefresh_mode" 
-                 title="Toggle the autorefresh mode on/off. When autorefresh is on, the system will periodically check with the server for updates to the document you are working on. This is useful when collaborating on annotation but consumes some resources, so you may wish to turn autorefresh off if you are not collaborating with others.">Autorefresh</label></span>
+        <div class="optionRow">
+          <span class="optionLabel">Collaboration</span>
+          <span class="small-buttons">
+            <input id="autorefresh_mode" type="checkbox" value="true"/>
+            <label for="autorefresh_mode" 
+                   title="Toggle the autorefresh mode on/off. When autorefresh is on, the system will periodically check with the server for updates to the document you are working on. This is useful when collaborating on annotation but consumes some resources, so you may wish to turn autorefresh off if there are no simultaneous edits.">Autorefresh</label>
+          </span>
+        </div>
       </fieldset>
     </form>
     <!-- More collection information dialog -->

@@ -1367,20 +1367,9 @@ var VisualizerUI = (function($, window, undefined) {
           }, 500);
         });
 
-      // deprecated in favor of the "annotation speed" toggle
-//       $('#confirm_mode').
-//         click(function(evt) {
-//           var val = this.checked;
-//           if (val) {
-//             dispatcher.post('messages', [[['Confirm mode is now on', 'comment']]]);
-//           } else {
-//             dispatcher.post('messages', [[['Confirm mode is now off', 'comment']]]);
-//           }
-//         }).
-//         parent().addClass('login');
-
-      $('#abbrev_mode').click(function(evt) {
-        var val = this.checked;
+      $('#label_abbreviations input').click(function(evt) {
+        var val = this.value;
+        val = val === 'on';
         if (val) {
           dispatcher.post('messages', [[['Abbreviations are now on', 'comment']]]);
         } else {
@@ -1395,9 +1384,9 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post(1, 'resetData');
       });
 
-      $('#sentence_highlights').click(function(evt) {
-        var val = this.checked;
-        dispatcher.post('sentenceHighlights', [val]);
+      $('#text_backgrounds input').click(function(evt) {
+        var val = this.value;
+        dispatcher.post('textBackgrounds', [val]);
         // TODO: XXX: see comment above for why this is asynchronous
         dispatcher.post(1, 'resetData');
       });
