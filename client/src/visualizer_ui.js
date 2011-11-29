@@ -1523,8 +1523,11 @@ var VisualizerUI = (function($, window, undefined) {
               auth_button.val('Login');
               dispatcher.post('user', [null]);
               $('.login').hide();
-              dispatcher.post('showForm', [tutorialForm]);
-              $('#tutorial-ok').focus();
+              // don't show tutorial if there's a specific document (annoyance)
+              if (!doc) {
+                dispatcher.post('showForm', [tutorialForm]);
+                $('#tutorial-ok').focus();
+              }
             }
           }
         ]);
