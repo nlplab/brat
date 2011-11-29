@@ -32,7 +32,7 @@ var Dispatcher = (function($, window, undefined) {
           args = [];
         }
         var results = [];
-        // DEBUG console.log(message, args);
+        // DEBUG: if (typeof(message) != "string" || !(message.match(/mouse/) || message == "hideComment")) console.log(message, args);
 
         if (typeof(message) === 'function') {
           // someone was lazy and sent a simple function

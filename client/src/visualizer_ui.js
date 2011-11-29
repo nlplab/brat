@@ -1184,6 +1184,7 @@ var VisualizerUI = (function($, window, undefined) {
                 animate({ scrollTop: $inFocus.offset().top - svgtop - window.innerHeight / 2 }, { duration: 'slow', easing: 'swing'});
           }
         }
+        dispatcher.post('allowReloadByURL');
         $('#waiter').dialog('close');
       }
 
