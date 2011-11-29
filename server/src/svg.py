@@ -117,7 +117,7 @@ def _svg_path():
     if not exists(SVG_DIR):
         mkdir(SVG_DIR)
 
-    return path_join(SVG_DIR, get_session().sid)
+    return path_join(SVG_DIR, get_session().get_sid())
 
 def store_svg(collection, document, svg):
     _save_svg(collection, document, svg)

@@ -32,10 +32,16 @@ def main(args):
         remote_host = environ['REMOTE_HOST']
     except KeyError:
         remote_host = None
+    try:
+        cookie_data = environ['HTTP_COOKIE']
+    except KeyError:
+        cookie_data = None
+
     params = FieldStorage()
 
     # Call main server
-    cookie_hdrs, response_data = serve(params, remote_addr, remote_host)
+    cookie_hdrs, response_data = serve(params, remote_addr, remote_host,
+            cookie_data)
 
     # Package and send response
     if cookie_hdrs is not None:

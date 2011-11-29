@@ -136,14 +136,14 @@ def _convert_log_level(log_level):
     else:
         assert False, 'Should not happen'
 
-def _safe_serve(params, client_ip, client_hostname):
+def _safe_serve(params, client_ip, client_hostname, cookie_data):
     from common import ProtocolError, NoPrintJSONError
     from config import WORK_DIR
     from dispatch import dispatch
     from jsonwrap import dumps
     from logging import basicConfig as log_basic_config
     from message import Messager
-    from session import get_session
+    from session import get_session, init_session, close_session, NoSessionError
 
     # Enable logging
     try:
@@ -155,8 +155,7 @@ def _safe_serve(params, client_ip, client_hostname):
     log_basic_config(filename=path_join(WORK_DIR, 'server.log'),
             level=log_level)
 
-    # Session information is now available
-    cookie_hdrs = get_session().get_cookie_hdrs()
+    init_session(client_ip, cookie_data=cookie_data)
 
     try:
         # Dispatch the request
@@ -176,6 +175,13 @@ def _safe_serve(params, client_ip, client_hostname):
     except NoPrintJSONError, e:
         # Terrible hack to serve other things than JSON
         response_data = (e.hdrs, e.data)
+
+    # Get the potential cookie headers and close the session (if any)
+    try:
+        cookie_hdrs = get_session().cookie.hdrs()
+        close_session()
+    except NoSessionError:
+        cookie_hdrs = None
 
     return (cookie_hdrs, response_data)
 
@@ -225,8 +231,8 @@ def _server_crash(cookie_hdrs, e):
     return (cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic))))
 
 # Serve the client request
-def serve(params, client_ip, client_hostname):
-    # At this stage we can not get any cookie data, wait-for-it
+def serve(params, client_ip, client_hostname, cookie_data):
+    # The session relies on the config, wait-for-it
     cookie_hdrs = None
 
     # Do we have a Python version compatibly with our libs?
@@ -265,7 +271,7 @@ def serve(params, client_ip, client_hostname):
 
     try:
         # Safe region, can throw any exception, has verified installation
-        return _safe_serve(params, client_ip, client_hostname)
+        return _safe_serve(params, client_ip, client_hostname, cookie_data)
     except BaseException, e:
         # Handle the server crash
         return _server_crash(cookie_hdrs, e)
