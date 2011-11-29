@@ -33,7 +33,6 @@ var VisualizerUI = (function($, window, undefined) {
       /* START "no svg" message - related */
 
       var hideNoSVG = function(_coll, _doc, _args) {
-        console.log(_doc);
         if(_doc) {
           $('#no_svg_wrapper_outer').hide();
         }
