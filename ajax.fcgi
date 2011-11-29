@@ -43,10 +43,15 @@ def brat_app(environ, start_response):
         remote_host = environ['REMOTE_HOST']
     except KeyError:
         remote_host = None
+    try:
+        cookie_data = environ['HTTP_COOKIE']
+    except KeyError:
+        cookie_data = None
     params = FieldStorage(environ['wsgi.input'], environ=environ)
 
     # Call main server
-    cookie_hdrs, response_data = serve(params, remote_addr, remote_host)
+    cookie_hdrs, response_data = serve(params, remote_addr, remote_host,
+            cookie_data)
     # Then package and send response
    
     # Not returning 200 OK is a breach of protocol with the client
