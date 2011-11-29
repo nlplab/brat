@@ -85,6 +85,7 @@ var VisualizerUI = (function($, window, undefined) {
                 sort[1] = ascending ? 1 : -1;
               }
               selectorData.items.sort(docSortFunction);
+              docScroll = 0;
               showFileBrowser(); // resort
           });
       }
