@@ -166,6 +166,14 @@ def close_session():
         if tmp_file is not None:
             remove(tmp_file.name)
 
+def save_conf(config_json):
+    get_session()['conf'] = config_json
+
+def load_conf():
+    return {
+            'config': get_session()['conf'],
+            }
+
 if __name__ == '__main__':
     # Some simple sanity checks
     try:
