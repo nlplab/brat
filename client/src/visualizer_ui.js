@@ -34,12 +34,12 @@ var VisualizerUI = (function($, window, undefined) {
 
       var hideNoSVG = function(_coll, _doc, _args) {
         if(_doc) {
-          $('#no_svg_wrapper_outer').hide();
+          $('#no_svg_wrapper').hide();
         }
       }
 
       var showNoSVG = function() {
-        $('#no_svg_wrapper_outer').show();
+        $('#no_svg_wrapper').show();
       }
       
       /* END "no svg" message - related */
