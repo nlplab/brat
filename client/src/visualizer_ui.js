@@ -1530,18 +1530,27 @@ var VisualizerUI = (function($, window, undefined) {
         ]);
       };
 
+      var noFileSpecified = function() {
+        // not (only) an error, so no messaging
+        dispatcher.post('clearSVG');
+        showFileBrowser();
+      }
+
       var showUnableToReadTextFile = function() {
         dispatcher.post('messages', [[['Unable to read the text file.', 'error']]]);
+        dispatcher.post('clearSVG');
         showFileBrowser();
       };
 
       var showAnnotationFileNotFound = function() {
         dispatcher.post('messages', [[['Annotation file not found.', 'error']]]);
+        dispatcher.post('clearSVG');
         showFileBrowser();
       };
 
       var showUnknownError = function(exception) {
         dispatcher.post('messages', [[['Unknown error: ' + exception, 'error']]]);
+        dispatcher.post('clearSVG');
         showFileBrowser();
       };
 
@@ -1663,7 +1672,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('startedRendering', onStartedRendering).
           on('renderData', onRenderData).
           on('savedSVG', savedSVGreceived).
-          on('renderError:noFileSpecified', showFileBrowser).
+          on('renderError:noFileSpecified', noFileSpecified).
           on('renderError:annotationFileNotFound', showAnnotationFileNotFound).
           on('renderError:unableToReadTextFile', showUnableToReadTextFile).
           on('renderError:isDirectoryError', reloadDirectoryWithSlash).

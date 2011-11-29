@@ -131,6 +131,7 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var clearSVG = function() {
+	data = null;
         svg.clear();
         $svgDiv.hide();
       };
