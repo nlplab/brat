@@ -53,9 +53,9 @@
     <!-- page-centered div following in part Billbad's answer at
          http://stackoverflow.com/questions/396145/whats-the-best-way-of-centering-a-div-vertically-with-css         
       -->
-    <div id="no_svg_wrapper_outer">
-      <div id="no_svg_wrapper_middle">
-        <div id="no_svg_div">
+    <div class="center_wrapper" id="no_svg_wrapper">
+      <div>
+        <div>
           <fieldset>
             <h1 class="unselectable">No document selected</h1>
             <p class="unselectable">Select a document to visualize or edit from the document collection browser.</p>
@@ -67,6 +67,26 @@
         </div>
       </div>
     </div>
+    <div class="center_wrapper" id="no_js_wrapper">
+      <div>
+        <div>
+          <fieldset>
+            <h1 class="unselectable">No JavaScript</h1>
+            <p class="unselectable">Your browser has JavaScript
+              disabled, or does not support it.</p>
+            <p class="unselectable">
+              <span class="logo">brat</span>
+              needs JavaScript in order to run.
+            </p>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+    <script>
+      var njsw = document.getElementById('no_js_wrapper');
+      njsw.parentNode.removeChild(njsw);
+      document.getElementById('no_svg_wrapper').style.display = 'table';
+    </script>
     <img id="spinner" src="static/img/spinner.gif"/>
     <div id="messagepullup" class="messages" style="display: none"/>
     <div id="messages" class="messages"/>

@@ -34,12 +34,12 @@ var VisualizerUI = (function($, window, undefined) {
 
       var hideNoSVG = function(_coll, _doc, _args) {
         if(_doc) {
-          $('#no_svg_wrapper_outer').hide();
+          $('#no_svg_wrapper').hide();
         }
       }
 
       var showNoSVG = function() {
-        $('#no_svg_wrapper_outer').show();
+        $('#no_svg_wrapper').show();
       }
       
       /* END "no svg" message - related */
@@ -85,6 +85,7 @@ var VisualizerUI = (function($, window, undefined) {
                 sort[1] = ascending ? 1 : -1;
               }
               selectorData.items.sort(docSortFunction);
+              docScroll = 0;
               showFileBrowser(); // resort
           });
       }
@@ -133,7 +134,6 @@ var VisualizerUI = (function($, window, undefined) {
                 });
               }
             };
-            /* XXX delay is not necessary any more, right?
             var delay = (msg[2] === undefined)
                           ? messageDefaultFadeDelay
                           : (msg[2] === -1)
@@ -154,8 +154,7 @@ var VisualizerUI = (function($, window, undefined) {
                   timer = setTimeout(fader, messagePostOutFadeDelay);
               });
             }
-            */
-            setTimeout(fader, messageDefaultFadeDelay);
+            // setTimeout(fader, messageDefaultFadeDelay);
           });
 
           // limited history - delete oldest
@@ -821,19 +820,43 @@ var VisualizerUI = (function($, window, undefined) {
         return false;
       });
 
+      var activeSearchTab = function() {
+        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
+        var activeTab = $('#search_tabs').tabs('option', 'selected');
+        return ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
+      }
+
+      var onSearchTabSelect = function() {
+        var action = activeSearchTab();
+        switch (action) {
+          case 'searchText':
+            $('#search_form_text_text').focus().select();
+            break;
+          case 'searchEntity':
+            $('#search_form_entity_text').focus().select();
+            break;
+          case 'searchEvent':
+            $('#search_form_event_trigger').focus().select();
+            break;
+          case 'searchRelation':
+            $('#search_form_relation_type').focus().select();
+            break;
+        }
+      };
+
       // set up jQuery UI elements in search form
-      $('#search_tabs').tabs();
+      $('#search_tabs').tabs({
+        show: onSearchTabSelect
+      });
       $('#search_form').find('.radio_group').buttonset();
 
       var searchForm = $('#search_form');
 
       var searchFormSubmit = function(evt) {
-        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
-        var activeTab = $('#search_tabs').tabs('option', 'selected');
-        var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
         // hack around empty document; "" would be interpreted as
         // missing argument by server dispatcher (issue #513)
         // TODO: do this properly, avoiding magic strings
+        var action = activeSearchTab();
         var docArg = doc ? doc : "/NO-DOCUMENT/";
         var opts = {
           action : action,
@@ -892,6 +915,7 @@ var VisualizerUI = (function($, window, undefined) {
             // TODO: might consider having this message come from the
             // server instead
             dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
+            dispatcher.post('clearSearch', [true]);
           } else {
             if (!searchActive) {
               collectionSortOrder = sortOrder;
@@ -922,13 +946,16 @@ var VisualizerUI = (function($, window, undefined) {
           }],
       });
 
-      $('#search_button').click(function(evt) {
+      var showSearchForm = function() {
         // this.checked = searchActive; // TODO: dup? unnecessary? remove if yes.
         updateSearchButton();
         $('#search_form_event_type').change();
         $('#search_form_relation_type').change();
         dispatcher.post('showForm', [searchForm]);
-      });
+        onSearchTabSelect();
+      }
+
+      $('#search_button').click(showSearchForm);
 
       var updateSearchButton = function() {
         $searchButton = $('#search_button');
@@ -1068,6 +1095,9 @@ var VisualizerUI = (function($, window, undefined) {
           autoPaging(true);
         } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
           autoPaging(false);
+        } else if (evt.ctrlKey && code == 'F'.charCodeAt(0)) {
+          evt.preventDefault();
+          showSearchForm();
         }
       };
 
@@ -1140,7 +1170,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
-      var clearSearch = function() {
+      var clearSearch = function(dontShowFileBrowser) {
         dispatcher.post('hideForm', [searchForm]);
 
         // back off to document collection
@@ -1152,7 +1182,9 @@ var VisualizerUI = (function($, window, undefined) {
           updateSearchButton();
         }
 
-        showFileBrowser();
+        if (!dontShowFileBrowser) {
+          showFileBrowser();
+        }
       }
 
       var saveSVGTimer = null;
@@ -1181,12 +1213,17 @@ var VisualizerUI = (function($, window, undefined) {
                 animate({ scrollTop: $inFocus.offset().top - svgtop - window.innerHeight / 2 }, { duration: 'slow', easing: 'swing'});
           }
         }
-        $('#waiter').dialog('close');
+        dispatcher.post('allowReloadByURL');
+        if (!currentForm) {
+          $('#waiter').dialog('close');
+        }
       }
 
       var onStartedRendering = function() {
         hideForm(fileBrowser);
-        $('#waiter').dialog('open');
+        if (!currentForm) {
+          $('#waiter').dialog('open');
+        }
       }
 
       var savedSVGreceived = function(data) {

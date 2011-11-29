@@ -10,7 +10,7 @@ html {
   margin-bottom: 100px;
 }
 
-#no_svg_wrapper_outer {
+.center_wrapper {
   display: table;
   position: absolute;
   top: 0;
@@ -18,11 +18,11 @@ html {
   height: 100%;
   width: 100%;
 }
-#no_svg_wrapper_middle {
+.center_wrapper > div {
   display: table-cell;
   vertical-align: middle;
 }
-#no_svg_div {
+.center_wrapper > div > div {
   /* match jQuery UI .ui-widget-content color */
   color: #2e6e9e;
   margin-left: auto;
@@ -31,9 +31,12 @@ html {
   font-size: 12px;
   font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
 }
-#no_svg_div h1 {
+.center_wrapper > div > div h1 {
   text-align: center;
   font-size: 16px;
+}
+#no_svg_wrapper {
+  display: none;
 }
 
 svg {

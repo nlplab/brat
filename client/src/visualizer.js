@@ -421,7 +421,7 @@ var Visualizer = (function($, window, undefined) {
                 }
               });
             } else if (edited.length == 2) {
-              editedText.push([parseInt(edited[0], 10), parseInt(edited[1], 10)]);
+              editedText.push([parseInt(edited[0], 10), parseInt(edited[1], 10), editedType]);
             } else {
               var span = data.spans[edited[0]];
               if (span) {
@@ -633,6 +633,7 @@ var Visualizer = (function($, window, undefined) {
         $.each(editedText, function(textNo, textPos) {
           var from = textPos[0];
           var to = textPos[1];
+          var editedType = textPos[2];
           if (from < 0) from = 0;
           if (to < 0) to = 0;
           if (to >= data.text.length) to = data.text.length - 1;
@@ -641,7 +642,7 @@ var Visualizer = (function($, window, undefined) {
           while (i < numChunks) {
             var chunk = data.chunks[i];
             if (from <= chunk.to) {
-              chunk.editedTextStart.push([textNo, true, from - chunk.from]);
+              chunk.editedTextStart.push([textNo, true, from - chunk.from, null, editedType]);
               break;
             }
             i++;
@@ -1307,7 +1308,7 @@ Util.profileStart('chunks');
             textDesc[3] += current.x + boxX;
             var startDesc = openTextHighlights[textDesc[0]];
             delete openTextHighlights[textDesc[0]];
-            textEditedRows.push([row, startDesc[3], textDesc[3]]);
+            textEditedRows.push([row, startDesc[3], textDesc[3], startDesc[4]]);
           });
 
           if (hasAnnotations) row.hasAnnotations = true;
@@ -1539,7 +1540,8 @@ Util.profileStart('arcs');
             var originType = data.spans[arc.origin].type;
             var arcLabels = Util.getArcLabels(spanTypes, originType, arc.type);
             var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type);
-            if (abbrevsOn && !ufoCatcher && arcLabels) {
+            // if (abbrevsOn && !ufoCatcher && arcLabels) {
+            if (abbrevsOn && arcLabels) {
               var labelIdx = 1; // first abbreviation
               // strictly speaking 2*arcSlant would be needed to allow for
               // the full-width arcs to fit, but judged unabbreviated text
@@ -1946,6 +1948,7 @@ Util.profileStart('chunkFinish');
               { fill: 'yellow' } // TODO: put into css file, as default - turn into class
           );
           svg.other(textHighlight, 'animate', {
+            'data-type': textRowDesc[3],
             attributeName: 'fill',
             values: highlightTextSequence,
             dur: highlightDuration,
@@ -2295,7 +2298,7 @@ Util.profileStart('before render');
             relationTypesHash[relType.type] = relType;
           });
 
-          dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes]);
+          dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes, relationTypesHash]);
 
           isCollectionLoaded = true;
           triggerRender();
