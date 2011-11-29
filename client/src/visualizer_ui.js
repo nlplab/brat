@@ -920,13 +920,15 @@ var VisualizerUI = (function($, window, undefined) {
           }],
       });
 
-      $('#search_button').click(function(evt) {
+      var showSearchForm = function() {
         // this.checked = searchActive; // TODO: dup? unnecessary? remove if yes.
         updateSearchButton();
         $('#search_form_event_type').change();
         $('#search_form_relation_type').change();
         dispatcher.post('showForm', [searchForm]);
-      });
+      }
+
+      $('#search_button').click(showSearchForm);
 
       var updateSearchButton = function() {
         $searchButton = $('#search_button');
@@ -1066,6 +1068,9 @@ var VisualizerUI = (function($, window, undefined) {
           autoPaging(true);
         } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
           autoPaging(false);
+        } else if (evt.ctrlKey && code == 'F'.charCodeAt(0)) {
+          evt.preventDefault();
+          showSearchForm();
         }
       };
 
