@@ -702,7 +702,9 @@ var AnnotatorUI = (function($, window, undefined) {
           if (target) {
             target.parent().removeClass('highlight');
           }
-          svg.remove(arcDragArc);
+          if (arcDragArc) {
+            svg.remove(arcDragArc);
+          }
           arcDragOrigin = null;
           if (arcOptions) {
               $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').removeClass('reselect');
