@@ -819,19 +819,43 @@ var VisualizerUI = (function($, window, undefined) {
         return false;
       });
 
+      var activeSearchTab = function() {
+        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
+        var activeTab = $('#search_tabs').tabs('option', 'selected');
+        return ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
+      }
+
+      var onSearchTabSelect = function() {
+        var action = activeSearchTab();
+        switch (action) {
+          case 'searchText':
+            $('#search_form_text_text').focus().select();
+            break;
+          case 'searchEntity':
+            $('#search_form_entity_text').focus().select();
+            break;
+          case 'searchEvent':
+            $('#search_form_event_trigger').focus().select();
+            break;
+          case 'searchRelation':
+            $('#search_form_relation_type').focus().select();
+            break;
+        }
+      };
+
       // set up jQuery UI elements in search form
-      $('#search_tabs').tabs();
+      $('#search_tabs').tabs({
+        show: onSearchTabSelect
+      });
       $('#search_form').find('.radio_group').buttonset();
 
       var searchForm = $('#search_form');
 
       var searchFormSubmit = function(evt) {
-        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
-        var activeTab = $('#search_tabs').tabs('option', 'selected');
-        var action = ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
         // hack around empty document; "" would be interpreted as
         // missing argument by server dispatcher (issue #513)
         // TODO: do this properly, avoiding magic strings
+        var action = activeSearchTab();
         var docArg = doc ? doc : "/NO-DOCUMENT/";
         var opts = {
           action : action,
@@ -890,6 +914,7 @@ var VisualizerUI = (function($, window, undefined) {
             // TODO: might consider having this message come from the
             // server instead
             dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
+            dispatcher.post('clearSearch', [true]);
           } else {
             if (!searchActive) {
               collectionSortOrder = sortOrder;
@@ -926,6 +951,7 @@ var VisualizerUI = (function($, window, undefined) {
         $('#search_form_event_type').change();
         $('#search_form_relation_type').change();
         dispatcher.post('showForm', [searchForm]);
+        onSearchTabSelect();
       }
 
       $('#search_button').click(showSearchForm);
@@ -1143,7 +1169,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
-      var clearSearch = function() {
+      var clearSearch = function(dontShowFileBrowser) {
         dispatcher.post('hideForm', [searchForm]);
 
         // back off to document collection
@@ -1155,7 +1181,9 @@ var VisualizerUI = (function($, window, undefined) {
           updateSearchButton();
         }
 
-        showFileBrowser();
+        if (!dontShowFileBrowser) {
+          showFileBrowser();
+        }
       }
 
       var saveSVGTimer = null;
