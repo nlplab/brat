@@ -50,6 +50,23 @@
     <link rel="shortcut icon" href="favicon.ico"/>
   </head>
   <body>
+    <!-- page-centered div following in part Billbad's answer at
+         http://stackoverflow.com/questions/396145/whats-the-best-way-of-centering-a-div-vertically-with-css         
+      -->
+    <div id="no_svg_wrapper_outer">
+      <div id="no_svg_wrapper_middle">
+        <div id="no_svg_div">
+          <fieldset>
+            <h1 class="unselectable">No document selected</h1>
+            <p class="unselectable">Select a document to visualize or edit from the document collection browser.</p>
+            <p class="unselectable">The collection browser can be opened by pressing the
+              TAB key or by clicking on the &quot;Collection&quot; button in the menu
+              that opens when placing the mouse cursor on the blue bar on top.
+            </p>
+          </fieldset>
+        </div>
+      </div>
+    </div>
     <img id="spinner" src="static/img/spinner.gif"/>
     <div id="messagepullup" class="messages" style="display: none"/>
     <div id="messages" class="messages"/>
