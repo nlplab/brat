@@ -1214,12 +1214,16 @@ var VisualizerUI = (function($, window, undefined) {
           }
         }
         dispatcher.post('allowReloadByURL');
-        $('#waiter').dialog('close');
+        if (!currentForm) {
+          $('#waiter').dialog('close');
+        }
       }
 
       var onStartedRendering = function() {
         hideForm(fileBrowser);
-        $('#waiter').dialog('open');
+        if (!currentForm) {
+          $('#waiter').dialog('open');
+        }
       }
 
       var savedSVGreceived = function(data) {
