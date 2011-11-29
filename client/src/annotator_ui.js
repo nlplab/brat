@@ -883,6 +883,8 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var addSpanTypesToDivInner = function($parent, types, category) {
+        if (!types) return;
+
         $.each(types, function(typeNo, type) {
           if (type === null) {
             $parent.append('<hr/>');
@@ -1049,16 +1051,18 @@ var AnnotatorUI = (function($, window, undefined) {
         var $searchlinks2 = $('#viewspan_search_links').empty();
         var firstLink=true;
         var linkFilled=false;
-        $.each(searchConfig, function(searchNo, search) {
-          if (!firstLink) {
-            $searchlinks.append(',\n')
-            $searchlinks2.append(',\n')
-          }
-          firstLink=false;
-          $searchlinks.append('<a target="brat_search" id="span_'+search[0]+'" href="#">'+search[0]+'</a>');
-          $searchlinks2.append('<a target="brat_search" id="viewspan_'+search[0]+'" href="#">'+search[0]+'</a>');
-          linkFilled=true;
-        });
+        if (searchConfig) {
+          $.each(searchConfig, function(searchNo, search) {
+            if (!firstLink) {
+              $searchlinks.append(',\n')
+              $searchlinks2.append(',\n')
+            }
+            firstLink=false;
+            $searchlinks.append('<a target="brat_search" id="span_'+search[0]+'" href="#">'+search[0]+'</a>');
+            $searchlinks2.append('<a target="brat_search" id="viewspan_'+search[0]+'" href="#">'+search[0]+'</a>');
+            linkFilled=true;
+          });
+        }
         if (linkFilled) {
           $('#span_search_fieldset').show();
           $('#viewspan_search_fieldset').show();
