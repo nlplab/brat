@@ -75,7 +75,9 @@
             <!-- <input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/> -->
             <input id="options_button" type="button" value="Options" tabindex="-1"/>
           </div>
-          <div id="document_mtime" class="unselectable">&nbsp;</div>
+          <!-- Dummy span, fixes visual glitch (issue #535). TODO: better fix -->
+          <span class="document_edit_time unselectable">&nbsp;</span>
+          <div id="document_mtime" class="document_edit_time unselectable">&nbsp;</div>
         </div>
       </div>
     </div>

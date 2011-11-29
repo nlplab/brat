@@ -600,15 +600,15 @@ div.scroll_wrapper_upper div.scroller {
 #span_highlight_link, #arc_highlight_link, #viewspan_highlight_link {
   float: right;
 }
-/*
 #document_ctime, #document_mtime {
-  padding: 0 2px;
-  REMOVEbackground-color: #dddddd;
-  REMOVEborder: 1px solid #999999;
-  opacity: 0.5;
-  float: right;
+  vertical-align: bottom;                 
+  padding: 0 5px;
+  float: left;
 }
-*/
+.document_edit_time {
+  font-family: monospace;
+  color: #777;
+}
 #menu_explanation {
   margin-left: 10px;
   display: inline-block;
