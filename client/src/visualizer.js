@@ -395,7 +395,8 @@ var Visualizer = (function($, window, undefined) {
         // merge edited and focus fields in arguments
         // edited: set by editing process
         // focus: set by search process
-        var argsEdited = (args.edited || []).concat(args.focus || []);
+	// TODO XXX: this appears to be entirely unused; make sure and remove
+//         var argsEdited = (args.edited || []).concat(args.focus || []);
 
         data.editedSent = [];
         editedText = [];
@@ -1947,8 +1948,9 @@ Util.profileStart('chunkFinish');
               textRowDesc[2] - textRowDesc[1] + 4, sizes.spans.height + 4,
               { fill: 'yellow' } // TODO: put into css file, as default - turn into class
           );
+	  var editedType = textRowDesc[3];
           svg.other(textHighlight, 'animate', {
-            'data-type': textRowDesc[3],
+            'data-type': editedType,
             attributeName: 'fill',
             values: highlightTextSequence,
             dur: highlightDuration,
