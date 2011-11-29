@@ -30,6 +30,21 @@ var VisualizerUI = (function($, window, undefined) {
 
       var currentDocumentSVGsaved = false;
 
+      /* START "no svg" message - related */
+
+      var hideNoSVG = function(_coll, _doc, _args) {
+        console.log(_doc);
+        if(_doc) {
+          $('#no_svg_wrapper_outer').hide();
+        }
+      }
+
+      var showNoSVG = function() {
+        $('#no_svg_wrapper_outer').show();
+      }
+      
+      /* END "no svg" message - related */
+
       /* START collection browser sorting - related */
 
       var lastGoodCollection = '/';
@@ -1658,7 +1673,9 @@ var VisualizerUI = (function($, window, undefined) {
           on('touchend', onTouchEnd).
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
-          on('clearSearch', clearSearch);
+          on('clearSearch', clearSearch).
+          on('clearSVG', showNoSVG).
+          on('current', hideNoSVG);
     };
 
     return VisualizerUI;
