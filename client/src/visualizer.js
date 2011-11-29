@@ -2207,6 +2207,10 @@ Util.profileStart('before render');
 	}
       }
 
+      var setSvgWidth = function(_width) {
+	  $svgDiv.width(_width);
+      }
+
       $svgDiv = $($svgDiv).hide();
 
       // register event listeners
@@ -2373,6 +2377,7 @@ Util.profileStart('before render');
           on('abbrevs', setAbbrevs).
           on('textBackgrounds', setTextBackgrounds).
           on('layoutDensity', setLayoutDensity).
+          on('svgWidth', setSvgWidth).
           on('current', gotCurrent).
           on('clearSVG', clearSVG).
           on('mouseover', onMouseOver).

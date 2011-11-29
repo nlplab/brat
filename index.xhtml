@@ -216,6 +216,19 @@
                    title="Spacious annotation layout: allows extra space for annotations to improve readability.">Spacious</label>
           </span>
         </div>
+        <div class="optionRow">
+          <span class="optionLabel">Visualization width</span>
+          <input id="svg_width_value" maxlength="3" size="3" value="100"
+                 style="text-align:right"/>
+          <span id="svg_width_unit" class="radio_group small-buttons">
+            <input type="radio" id="svg_width_unit_percent" value="%" 
+                   name="svg_width_radio" checked="checked"/>
+            <label for="svg_width_unit_percent">percent</label>
+            <input type="radio" id="svg_width_unit_pixels" value="px" 
+                   name="svg_width_radio"/>
+            <label for="svg_width_unit_pixels">pixels</label>
+          </span>
+        </div>
       </fieldset>
       <fieldset id="options_form_annotation" class="login">
         <legend>Annotation options</legend>

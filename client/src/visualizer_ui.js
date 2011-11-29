@@ -1399,6 +1399,16 @@ var VisualizerUI = (function($, window, undefined) {
         return false;
       });
 
+      $('#svg_width_unit input').click(function(evt) {
+        var width_unit = this.value;
+        var width_value = $('#svg_width_value')[0].value;
+        var val = width_value+width_unit;
+        dispatcher.post('svgWidth', [val]);
+        // TODO: XXX: see comment above for why this is asynchronous
+        dispatcher.post(1, 'resetData');
+        return false;
+      });
+
       $('#annotation_speed input').click(function(evt) {
         var val = this.value;
         dispatcher.post('annotationSpeed', [val]);
