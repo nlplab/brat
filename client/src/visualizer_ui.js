@@ -908,7 +908,8 @@ var VisualizerUI = (function($, window, undefined) {
 
       initForm(searchForm, {
           width: 500,
-          alsoResize: '#search_tabs',
+          // alsoResize: '#search_tabs',
+          resizable: false,
           open: function(evt) {
             keymap = {};
           },
@@ -948,6 +949,7 @@ var VisualizerUI = (function($, window, undefined) {
       dataForm.submit(dataFormSubmit);
       initForm(dataForm, {
           width: 500,
+          resizable: false,
           no_cancel: true,
           open: function(evt) {
             keymap = {};
@@ -993,6 +995,7 @@ var VisualizerUI = (function($, window, undefined) {
       optionsForm.submit(optionsFormSubmit);
       initForm(optionsForm, {
           width: 550,
+          resizable: false,
           no_cancel: true,
           open: function(evt) {
             keymap = {};
@@ -1436,7 +1439,7 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       var authForm = $('#auth_form');
-      initForm(authForm);
+      initForm(authForm, { resizable: false });
       var authFormSubmit = function(evt) {
         dispatcher.post('hideForm');
         var _user = $('#auth_user').val();
