@@ -1539,7 +1539,8 @@ Util.profileStart('arcs');
             var originType = data.spans[arc.origin].type;
             var arcLabels = Util.getArcLabels(spanTypes, originType, arc.type);
             var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type);
-            if (abbrevsOn && !ufoCatcher && arcLabels) {
+            // if (abbrevsOn && !ufoCatcher && arcLabels) {
+            if (abbrevsOn && arcLabels) {
               var labelIdx = 1; // first abbreviation
               // strictly speaking 2*arcSlant would be needed to allow for
               // the full-width arcs to fit, but judged unabbreviated text
