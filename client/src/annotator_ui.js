@@ -22,7 +22,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanTypes = null;
       var entityAttributeTypes = null;
       var eventAttributeTypes = null;
-      var allAttributeTypes = null;
+      var allAttributeTypes = null; // TODO: temp workaround, remove
       var relationTypesHash = null;
       var showValidAttributes; // callback function
       var confirmModeOn = false; // TODO: grab initial value from radio button
@@ -349,6 +349,7 @@ var AnnotatorUI = (function($, window, undefined) {
           keymap[$.ui.keyCode.DELETE] = null;
         }
         if (!reselectedSpan) {
+          // TODO: avoid allAttributeTypes; just check type-appropriate ones
           $.each(allAttributeTypes, function(attrNo, attr) {
             $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
             var val = span && span.attributes[attr.type];
@@ -953,22 +954,27 @@ var AnnotatorUI = (function($, window, undefined) {
         $top.append($fieldset);
         addSpanTypesToDivInner($scroller, types);
       };
-      var addAttributeTypesToDiv = function($top, types) {
+      var addAttributeTypesToDiv = function($top, types, category) {
         $.each(types, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
+          var attrId = 'span_attr_' + escapedType;
           if (attr.unused) {
-            var $input = $('<input type="hidden" id="span_attr_' + escapedType + '" value=""/>');
+            var $input = $('<input type="hidden" id="'+attrId+'" value=""/>');
             $top.append($input);
           } else if (attr.bool) {
             var escapedName = Util.escapeQuotes(attr.name);
-            var $input = $('<input type="checkbox" id="span_attr_' + escapedType + '" value="' + escapedType + '"/>');
-            var $label = $('<label for="span_attr_' + escapedType + '" data-bare="' + escapedName + '">&#x2610; ' + escapedName + '</label>');
+            var $input = $('<input type="checkbox" id="'+attrId+
+                           '" value="' + escapedType + 
+                           '" category="' + category + '"/>');
+            var $label = $('<label for="'+attrId+
+                           '" data-bare="' + escapedName + '">&#x2610; ' + 
+                           escapedName + '</label>');
             $top.append($input).append($label);
             $input.button();
             $input.change(attrChangeHandler);
           } else {
             var $div = $('<div class="ui-button ui-button-text-only"/>');
-            var $select = $('<select id="span_attr_' + escapedType + '" class="ui-widget ui-state-default ui-button-text"/>');
+            var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text"/>');
             var $option = $('<option class="ui-state-default" value=""/>').text(attr.name + ': ?');
             $select.append($option);
             $.each(attr.values, function(valType, value) {
@@ -982,20 +988,21 @@ var AnnotatorUI = (function($, window, undefined) {
         });
       }
 
-      var setSpanTypeSelectability = function(evt) {
-        // TODO: this implementation is incomplete: we need to switch
-        // off the ability to select an entity type after choosing an
-        // event attribute and vice versa to have the UI prevent the
-        // creation of incoherent combinations such as a Negated
-        // Protein.
+      var setSpanTypeSelectability = function(category) {
+        // TODO: this implementation is incomplete: we should ideally
+        // disable not only categories of types (events or entities),
+        // but the specific set of types that are incompatible with
+        // the current attribute settings.
         
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
-        var isEventAttribute = true;
-        if (isEventAttribute) {
+        if (category == "event") {
           $toDisable = $('#span_form input[category="entity"]');
-        } else {
+        } else if (category == "entity") {
           $toDisable = $('#span_form input[category="event"]');
+        } else {
+          console.error('Unrecognized attribute category:,', category)
+          $toDisable = [];
         }
         $.each($toDisable, function(iNum, i) {
            i.disabled = true;
@@ -1020,7 +1027,8 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var onAttributeChange = function(evt) {
-        setSpanTypeSelectability(evt);
+        var attrCategory = evt.target.getAttribute('category');
+        setSpanTypeSelectability(attrCategory);
         if (evt.target.selectedIndex) {
           $(evt.target).addClass('ui-state-active');
         } else {
@@ -1029,7 +1037,8 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var attrChangeHandler = function(evt) {
-        setSpanTypeSelectability(evt);
+        var attrCategory = evt.target.getAttribute('category');
+        setSpanTypeSelectability(attrCategory);
         updateCheckbox($(evt.target));
       };
 
@@ -1046,10 +1055,10 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // fill in attributes
         var $entattrs = $('#entity_attributes div.scroller').empty();
-        addAttributeTypesToDiv($entattrs, entityAttributeTypes);
+        addAttributeTypesToDiv($entattrs, entityAttributeTypes, 'entity');
 
         var $eveattrs = $('#event_attributes div.scroller').empty();
-        addAttributeTypesToDiv($eveattrs, eventAttributeTypes);
+        addAttributeTypesToDiv($eveattrs, eventAttributeTypes, 'event');
 
         // fill search options in span dialog
         searchConfig = response.search_config;
@@ -1082,6 +1091,16 @@ var AnnotatorUI = (function($, window, undefined) {
         spanForm.find('.collapser').click(collapseHandler);
       };
 
+      var tagCurrentDocument = function(taggerId) {
+        var tagOptions = {
+          action: 'tag',
+          collection: coll,
+          'document': doc,
+          tagger: taggerId,
+        };
+        dispatcher.post('ajax', [tagOptions, 'edited']);
+      }
+
       var setupTaggerUI = function(response) {
         var taggers = response.ner_taggers || [];
         $taggerButtons = $('#tagger_buttons').empty();
@@ -1099,14 +1118,8 @@ var AnnotatorUI = (function($, window, undefined) {
           var $button = $('<input id="tag_'+Util.escapeHTML(taggerId)+'_button" type="button" value="'+Util.escapeHTML(taggerModel)+'" tabindex="-1" title="Automatically tag the current document."/>');
           $row.append($label).append($button);
           $taggerButtons.append($row);
-          var tagOptions = {
-            action: 'tag',
-            collection: coll,
-            'document': doc,
-            tagger: taggerId,
-          };
           $button.click(function(evt) {
-            dispatcher.post('ajax', [tagOptions, 'edited']);
+            tagCurrentDocument(taggerId);
           });
         });
         $taggerButtons.find('input').button();
@@ -1278,6 +1291,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
 
         var attributes = {};
+        // TODO: avoid allAttributeTypes; just check type-appropriate ones
         $.each(allAttributeTypes, function(attrNo, attr) {
           var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
           if (attr.bool) {
