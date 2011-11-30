@@ -363,11 +363,11 @@ var AnnotatorUI = (function($, window, undefined) {
             }
           });
         }
-        showValidAttributes = function() {
-          var type = $('#span_form input:radio:checked').val();
+
+        var showAttributesFor = function(attrTypes, type) {
           var validAttrs = type ? spanTypes[type].attributes : [];
           var shownCount = 0;
-          $.each(allAttributeTypes, function(attrNo, attr) {
+          $.each(attrTypes, function(attrNo, attr) {
             var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
             var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
             if (showAttr) {
@@ -377,10 +377,18 @@ var AnnotatorUI = (function($, window, undefined) {
               $input.button('widget').hide();
             }
           });
+          return shownCount;
+        }
+
+        showValidAttributes = function() {
+          var type = $('#span_form input:radio:checked').val();
+          var entityAttrCount = showAttributesFor(entityAttributeTypes, type);
+          var eventAttrCount = showAttributesFor(eventAttributeTypes, type);
+          
           showAllAttributes = false;
           // show attribute frames only if at least one attribute is
           // shown, and set size classes appropriately
-          if (shownCount > 0) {
+          if (eventAttrCount > 0) {
             $('#event_attributes').show();
             $('#event_attribute_label').show();
             $('#event_types').
@@ -393,11 +401,7 @@ var AnnotatorUI = (function($, window, undefined) {
               removeClass('scroll_wrapper_upper').
               addClass('scroll_wrapper_full');
           }
-          // at the moment, simply assume there are never any entity
-          // attributes.
-          // TODO: add support for entity attributes
-          var entity_attributes_shown=false;
-          if (entity_attributes_shown) {
+          if (entityAttrCount > 0) {
             $('#entity_attributes').show();
             $('#entity_attribute_label').show();
             $('#entity_types').
