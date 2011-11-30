@@ -5,7 +5,11 @@ var Configuration = (function(window, undefined) {
     var textBackgrounds = "striped";
 
     var visual = {
-      margin : { x: 2, y: 1 },
+      margin: { x: 2, y: 1 },
+      boxSpacing: 1,
+      curlyHeight: 4,
+      arcSpacing: 9, //10;
+      arcStartHeight: 19, //23; //25;
     }
 
     return {

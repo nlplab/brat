@@ -55,13 +55,9 @@ var Visualizer = (function($, window, undefined) {
         '\u3000': 8,
         '\n': 4
       };
-      var boxSpacing = 1;
-      var curlyHeight = 4;
       var coloredCurlies = true; // color curlies by box BG
-      var arcSpacing = 9; //10;
       var arcSlant = 15; //10;
       var minArcSlant = 8;
-      var arcStartHeight = 19; //23; //25;
       var arcHorizontalSpacing = 10; // min space boxes with connecting arc
       var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
       var sentNumMargin = 20;
@@ -694,7 +690,7 @@ var Visualizer = (function($, window, undefined) {
           from: x,
           to: x + width,
           span: span,
-          height: height + (span.drawCurly ? curlyHeight : 0),
+          height: height + (span.drawCurly ? Configuration.visual.curlyHeight : 0),
         };
         // TODO look at this, and remove if ugly
         // example where it matters: the degenerate case of
@@ -732,13 +728,13 @@ var Visualizer = (function($, window, undefined) {
                 // it would be prettier to track individual boxes (and not
                 // rows) but the cases when it matters are rare, and not
                 // worth the bother so far
-                reservation.height += curlyHeight;
+                reservation.height += Configuration.visual.curlyHeight;
               }
               line.push(newSlot);
               return reservation.height;
             }
           }
-          resHeight += newSlot.height + boxSpacing;
+          resHeight += newSlot.height + Configuration.visual.boxSpacing;
         }
         reservations.push({
           ranges: [newSlot],
@@ -1032,7 +1028,7 @@ Util.profileStart('chunks');
 
             var spanHeight = 0;
 
-            if (!y) y = -sizes.texts.height - curlyHeight;
+            if (!y) y = -sizes.texts.height - Configuration.visual.curlyHeight;
             var x = (span.curly.from + span.curly.to) / 2;
 
             // XXX is it maybe sizes.texts?
@@ -1117,7 +1113,7 @@ Util.profileStart('chunks');
             var yAdjust = placeReservation(span, bx, bw, bh, reservations);
             span.rectBox = { x: bx, y: by - yAdjust, width: bw, height: bh };
             // this is monotonous due to sort:
-            span.height = yAdjust + hh + 3 * Configuration.visual.margin.y + curlyHeight + arcSpacing;
+            span.height = yAdjust + hh + 3 * Configuration.visual.margin.y + Configuration.visual.curlyHeight + Configuration.visual.arcSpacing;
             spanHeights[span.lineIndex * 2] = span.height;
             $(span.rect).attr('y', yy - Configuration.visual.margin.y - yAdjust);
             if (shadowRect) {
@@ -1150,20 +1146,20 @@ Util.profileStart('chunks');
 
               var bottom = yy + hh + Configuration.visual.margin.y - yAdjust + 1;
               svg.path(span.group, svg.createPath()
-                  .move(span.curly.from, bottom + curlyHeight)
+                  .move(span.curly.from, bottom + Configuration.visual.curlyHeight)
                   .curveC(span.curly.from, bottom,
-                    x, bottom + curlyHeight,
+                    x, bottom + Configuration.visual.curlyHeight,
                     x, bottom)
-                  .curveC(x, bottom + curlyHeight,
+                  .curveC(x, bottom + Configuration.visual.curlyHeight,
                     span.curly.to, bottom,
-                    span.curly.to, bottom + curlyHeight),
+                    span.curly.to, bottom + Configuration.visual.curlyHeight),
                 {
                   'class': 'curly',
                   'stroke': curlyColor,
                 });
               chunkFrom = Math.min(span.curly.from, chunkFrom);
               chunkTo = Math.max(span.curly.to, chunkTo);
-              spanHeight = Math.max(curlyHeight, spanHeight);
+              spanHeight = Math.max(Configuration.visual.curlyHeight, spanHeight);
             }
 
             // find the gap to fit the backwards arcs
@@ -1230,7 +1226,7 @@ Util.profileStart('chunks');
                 hasRightArcs = true;
               }
             });
-            spanHeight += yAdjust || curlyHeight;
+            spanHeight += yAdjust || Configuration.visual.curlyHeight;
             if (spanHeight > chunkHeight) chunkHeight = spanHeight;
             hasAnnotations = true;
           }); // spans
@@ -1361,7 +1357,9 @@ Util.profileStart('arcsPrep');
 
         var len = spanHeights.length;
         for (var i = 0; i < len; i++) {
-          if (!spanHeights[i] || spanHeights[i] < arcStartHeight) spanHeights[i] = arcStartHeight;
+	  if (!spanHeights[i] || spanHeights[i] < Configuration.visual.arcStartHeight) {
+	    spanHeights[i] = Configuration.visual.arcStartHeight;
+	  }
         }
 
         // find out how high the arcs have to go
@@ -1503,7 +1501,7 @@ Util.profileStart('arcs');
           for (var i = fromIndex2; i <= toIndex2; i++) {
             if (spanHeights[i] > height) height = spanHeights[i];
           }
-          height += arcSpacing;
+          height += Configuration.visual.arcSpacing;
           var leftSlantBound, rightSlantBound;
           for (var i = fromIndex2; i <= toIndex2; i++) {
             if (spanHeights[i] < height) spanHeights[i] = height;
@@ -2197,24 +2195,24 @@ Util.profileStart('before render');
 	if (_density < 2) {
 	  // dense
 	  Configuration.visual.margin = { x: 1, y: 0 };
-	  boxSpacing  = 1;
-	  curlyHeight = 1;
-	  arcSpacing = 7;
-	  arcStartHeight = 18
+	  Configuration.visual.boxSpacing = 1;
+	  Configuration.visual.curlyHeight = 1;
+	  Configuration.visual.arcSpacing = 7;
+	  Configuration.visual.arcStartHeight = 18
 	} else if(_density > 2) {
 	  // spacious
 	  Configuration.visual.margin = { x: 2, y: 1 };
-	  boxSpacing  = 3;
-	  curlyHeight = 6;	  
-	  arcSpacing = 12;
-	  arcStartHeight = 23;
+	  Configuration.visual.boxSpacing = 3;
+	  Configuration.visual.curlyHeight = 6;	  
+	  Configuration.visual.arcSpacing = 12;
+	  Configuration.visual.arcStartHeight = 23;
 	} else {
 	  // standard
 	  Configuration.visual.margin = { x: 2, y: 1 };
-	  boxSpacing  = 1;
-	  curlyHeight = 4;
-	  arcSpacing = 9;
-	  arcStartHeight = 19;
+	  Configuration.visual.boxSpacing = 1;
+	  Configuration.visual.curlyHeight = 4;
+	  Configuration.visual.arcSpacing = 9;
+	  Configuration.visual.arcStartHeight = 19;
 	}
       }
 
