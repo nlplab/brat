@@ -1590,10 +1590,23 @@ var VisualizerUI = (function($, window, undefined) {
           }
         ]);
         dispatcher.post('ajax', [{ action: 'loadConf' }, function(response) {
-          // TODO: check for exceptions
-          var storedConf = $.deparam(response.config);
-          // TODO: make assignment work
-          Configuration.abbrevsOn = storedConf.abbrevsOn == "true";
+          if (response.config != undefined) {
+            // TODO: check for exceptions
+            var storedConf = $.deparam(response.config);
+            // TODO: make assignment work
+            Configuration.abbrevsOn = storedConf.abbrevsOn == "true";
+            Configuration.textBackgrounds = storedConf.textBackgrounds;
+            Configuration.svgWidth = storedConf.svgWidth = "100%";
+            Configuration.rapidModeOn = storedConf.rapidModeOn == "true";
+            Configuration.confirmModeOn = storedConf.confirmModeOn == "true";
+            Configuration.autorefreshOn = storedConf.autorefreshOn == "true";
+            Configuration.visual.margin.x = parseInt(storedConf.visual.margin.x);
+            Configuration.visual.margin.y = parseInt(storedConf.visual.margin.y);
+            Configuration.visual.boxSpacing = parseInt(storedConf.visual.boxSpacing);
+            Configuration.visual.curlyHeight = parseInt(storedConf.visual.curlyHeight);
+            Configuration.visual.arcSpacing = parseInt(storedConf.visual.arcSpacing);
+            Configuration.visual.arcStartHeight = parseInt(storedConf.visual.arcStartHeight);
+          }
         }]);
       };
 

@@ -109,10 +109,6 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
         'searchEvent',
         'searchRelation',
 
-        # Configuration storage
-        'loadConf',
-        'saveConf',
-
         'tag',
         ))
 

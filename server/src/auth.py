@@ -83,7 +83,7 @@ def login(user, password):
     return {}
 
 def logout():
-    invalidate_session()
+    del get_session()['user']
     # TODO: Really send this message?
     Messager.info('Bye!')
     return {}

@@ -173,9 +173,13 @@ def save_conf(config):
     return {}
     
 def load_conf():
-    return {
-            'config': get_session()['conf'],
-            }
+    try:
+        return {
+                'config': get_session()['conf'],
+                }
+    except KeyError:
+        return {}
+
 
 if __name__ == '__main__':
     # Some simple sanity checks
