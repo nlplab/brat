@@ -183,8 +183,6 @@ class TypeHierarchyNode:
         self.arg_list = []
         self.arg_min_count = {}
         self.arg_max_count = {}
-#         self.mandatory_arguments = []
-#         self.multiple_allowed_arguments = []
         self.keys_by_type = {}
         for a in self.args:
             a = a.strip()
@@ -260,9 +258,15 @@ class TypeHierarchyNode:
                     minimum_count = n1
                     maximum_count = n2
 
-#             mandatory_key = (minimum_count > 0)
-#             multiple_allowed = (maximum_count > 1)
-            
+            # format / config sanity: an argument whose label ends
+            # with a digit label cannot be repeated, as this would
+            # introduce ambiguity into parsing. (For example, the
+            # second "Theme" is "Theme2", and the second "Arg1" would
+            # be "Arg12".)
+            if maximum_count > 1 and key[-1].isdigit():
+                Messager.warning("Project configuration: error parsing: arguments ending with a digit cannot be repeated: '%s'" % (key+rep), 5)
+                raise InvalidProjectConfigException
+
             if key in self.arguments:
                 Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
                 raise InvalidProjectConfigException
@@ -274,12 +278,6 @@ class TypeHierarchyNode:
 
             self.arg_list.append(key)
             
-#             if mandatory_key:
-#                 self.mandatory_arguments.append(key)
-
-#             if multiple_allowed:
-#                 self.multiple_allowed_arguments.append(key)
-
             for atype in atypes.split("|"):
                 if atype.strip() == "":
                     Messager.warning("Project configuration: error parsing: empty type for argument '%s'." % a, 5)
