@@ -1076,6 +1076,36 @@ var AnnotatorUI = (function($, window, undefined) {
         spanForm.find('.collapser').click(collapseHandler);
       };
 
+      var setupTaggerUI = function(response) {
+        var taggers = response.ner_taggers || [];
+        $taggerButtons = $('#tagger_buttons').empty();
+        $.each(taggers, function(taggerNo, tagger) {
+          // expect a tuple with ID, name, model, and URL
+          var taggerId = tagger[0];
+          var taggerName = tagger[1];
+          var taggerModel = tagger[2];
+          if (!taggerId || !taggerName || !taggerModel) {
+            dispatcher.post('messages', [[['Invalid tagger specification received from server', 'error']]]);
+            return true; // continue
+          }
+          var $row = $('<div class="optionRow"/>');
+          var $label = $('<span class="optionLabel">'+Util.escapeHTML(taggerName)+'</span>');
+          var $button = $('<input id="tag_'+Util.escapeHTML(taggerId)+'_button" type="button" value="'+Util.escapeHTML(taggerModel)+'" tabindex="-1" title="Automatically tag the current document."/>');
+          $row.append($label).append($button);
+          $taggerButtons.append($row);
+          var tagOptions = {
+            action: 'tag',
+            collection: coll,
+            'document': doc,
+            tagger: taggerId,
+          };
+          $button.click(function(evt) {
+            dispatcher.post('ajax', [tagOptions, null]);
+          });
+        });
+        $taggerButtons.find('input').button();
+      }
+
       var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes, _relationTypesHash) {
         spanTypes = _spanTypes;
         attributeTypes = _attributeTypes;
@@ -1429,6 +1459,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('init', init).
           on('renderData', rememberData).
           on('collectionLoaded', rememberSpanSettings).
+          on('collectionLoaded', setupTaggerUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('hideForm', hideForm).
           on('user', userReceived).
