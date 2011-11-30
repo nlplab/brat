@@ -9,6 +9,8 @@ Author:     Pontus Stenetorp
 Version:    2011-04-22
 '''
 
+from __future__ import with_statement
+
 from os.path import join as path_join
 
 from common import ProtocolError
