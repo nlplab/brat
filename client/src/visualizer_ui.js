@@ -1295,12 +1295,6 @@ var VisualizerUI = (function($, window, undefined) {
           $sourceFiles.append($link);
         });
         /* Add a download link for the whole collection */
-        var $sourceCollection = $('#source_collection').empty();
-        var $collectionDownloadLink = $('<a target="brat_search"/>')
-          .text('Download tar.gz')
-          .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + coll);
-        $sourceCollection.append($collectionDownloadLink);
-        $collectionDownloadLink.button();
         invalidateSavedSVG();
 
         if (data.mtime) {
@@ -1314,6 +1308,8 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var gotCurrent = function(_coll, _doc, _args) {
+        var oldColl = coll;
+
         coll = _coll;
         doc = _doc;
         args = _args;
@@ -1321,6 +1317,16 @@ var VisualizerUI = (function($, window, undefined) {
         // if we have a specific document, hide the "no document" message
         if (_doc) {
           hideNoSVG();
+        }
+
+        // if we have a collection change, update "collection download" button
+        if (oldColl != coll) {
+          var $sourceCollection = $('#source_collection').empty();
+          var $collectionDownloadLink = $('<a target="brat_search"/>')
+            .text('Download tar.gz')
+            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + coll);
+          $sourceCollection.append($collectionDownloadLink);
+          $collectionDownloadLink.button();
         }
           
         $docName = $('#document_name input').val(coll + doc);
