@@ -31,6 +31,7 @@ class UnknownTaggerError(ProtocolError):
 def tag(collection, document, tagger):
     for tagger_token, _, _, tagger_service_url in NER_TAGGING_SERVICES:
         if tagger == tagger_token:
+            added_tag_ids = []
             # TODO: XXX:
             Messager.warning('Faking tagging annotation!')
             ### START: Dummy part
@@ -43,12 +44,17 @@ def tag(collection, document, tagger):
                 doc_text = ann_obj.get_document_text()
                 if doc_text:
                     start = randint(0, len(doc_text) - 1)
-                    end = randint(start, len(doc_text))
+                    end = randint(start, start + 25
+                            if start + 25 <= len(doc_text) else len(doc_text))
+                    _id = ann_obj.get_new_id('T')
                     ann_obj.add_annotation(TextBoundAnnotationWithText(start,
-                        end, ann_obj.get_new_id('T'), 'NER', doc_text[start:end],
+                        end, _id, 'NER', doc_text[start:end],
                         source_id=doc_path))
+                    added_tag_ids.append(_id)
             ### END: Dummy part
             break
     else:
         raise UnknownTaggerError
-    return {}
+    return {
+            'added': added_tag_ids,
+            }
