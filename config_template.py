@@ -85,3 +85,14 @@ SVG_CONVERSION_COMMANDS = [
     ('eps', 'inkscape --export-area-drawing --without-gui --file=%s --export-eps=%s'),
 ]
 '''
+
+# If web services providing automatic tagging are available, they
+# can be made accessible by the UI by filling the following table.
+# The format for tagger services is (ID, tagger name, tagger model, URL).
+# The tagger name and model are used only in the UI as labels.
+'''
+NER_TAGGING_SERVICES = [
+    ('Stanford-CoNLL-MUC', 'Stanford NER', 'CoNLL+MUC model', 'http://example.com:80/tagger/'),
+    ('NERtagger-GENIA', 'NERtagger', 'GENIA model', 'http://example.com:8080/tagger/'),
+]
+'''

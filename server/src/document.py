@@ -45,6 +45,11 @@ try:
 except ImportError:
     JAPANESE = False
 
+try:
+    from config import NER_TAGGING_SERVICES
+except ImportError:
+    NER_TAGGING_SERVICES = []
+
 from itertools import chain
 
 def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
@@ -443,6 +448,9 @@ def get_directory_information(collection):
     # the client knows whether to invoke timing actions
     ann_logging = annotation_logging_active()
 
+    # fill in NER services, if any
+    ner_taggers = NER_TAGGING_SERVICES
+
     json_dic = {
             'items': combolist,
             'header' : doclist_header,
@@ -456,6 +464,7 @@ def get_directory_information(collection):
             'description': readme_text,
             'search_config': search_config,
             'annotation_logging': ann_logging,
+            'ner_taggers': ner_taggers,
             }
     return json_dic
 
