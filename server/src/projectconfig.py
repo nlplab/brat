@@ -181,8 +181,10 @@ class TypeHierarchyNode:
         self.arguments = {}
         self.special_arguments = {}
         self.arg_list = []
-        self.mandatory_arguments = []
-        self.multiple_allowed_arguments = []
+        self.arg_min_count = {}
+        self.arg_max_count = {}
+#         self.mandatory_arguments = []
+#         self.multiple_allowed_arguments = []
         self.keys_by_type = {}
         for a in self.args:
             a = a.strip()
@@ -258,20 +260,25 @@ class TypeHierarchyNode:
                     minimum_count = n1
                     maximum_count = n2
 
-            mandatory_key = (minimum_count > 0)
-            multiple_allowed = (maximum_count > 1)
+#             mandatory_key = (minimum_count > 0)
+#             multiple_allowed = (maximum_count > 1)
             
             if key in self.arguments:
                 Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
                 raise InvalidProjectConfigException
 
+            assert (key not in self.arg_min_count and 
+                    key not in self.arg_max_count), "INTERNAL ERROR"
+            self.arg_min_count[key] = minimum_count
+            self.arg_max_count[key] = maximum_count
+
             self.arg_list.append(key)
             
-            if mandatory_key:
-                self.mandatory_arguments.append(key)
+#             if mandatory_key:
+#                 self.mandatory_arguments.append(key)
 
-            if multiple_allowed:
-                self.multiple_allowed_arguments.append(key)
+#             if multiple_allowed:
+#                 self.multiple_allowed_arguments.append(key)
 
             for atype in atypes.split("|"):
                 if atype.strip() == "":
@@ -292,6 +299,34 @@ class TypeHierarchyNode:
                     self.keys_by_type[atype] = []
                 self.keys_by_type[atype].append(key)
 
+    def argument_minimum_count(self, arg):
+        """
+        Returns the minumum number of times the given argument is
+        required to appear for this type.
+        """
+        return self.arg_min_count[arg]
+
+    def argument_maximum_count(self, arg):
+        """
+        Returns the maximum number of times the given argument is
+        allowed to appear for this type.
+        """
+        return self.arg_max_count[arg]
+
+    def mandatory_arguments(self):
+        """
+        Returns the arguments that must appear at least once for
+        this type.
+        """
+        return [a for a in self.arg_list if self.arg_min_count[a] > 0]
+
+    def multiple_allowed_arguments(self):
+        """
+        Returns the arguments that may appear multiple times for this
+        type.
+        """
+        return [a for a in self.arg_list if self.arg_max_count[a] > 1]
+        
     def storage_form(self):
         """
         Returns the form of the term used for storage serverside.
@@ -841,7 +876,7 @@ class ProjectConfiguration(object):
         if node is None:
             Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
             return []
-        return node.mandatory_arguments
+        return node.mandatory_arguments()
 
     def multiple_allowed_arguments(self, type):
         """
@@ -852,7 +887,7 @@ class ProjectConfiguration(object):
         if node is None:
             Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
             return []
-        return node.multiple_allowed_arguments
+        return node.multiple_allowed_arguments()
 
     def arc_types_from(self, from_ann):
         return self.arc_types_from_to(from_ann)
