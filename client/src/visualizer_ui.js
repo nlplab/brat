@@ -1695,19 +1695,23 @@ var VisualizerUI = (function($, window, undefined) {
         }
         documentChangesTimer = setTimeout(checkForDocumentChanges, documentChangesTimeout);
       }
-/// modified by Tomoko per Goran's suggestion
-//      checkForDocumentChanges();
-   if ($('#autorefresh_mode')[0].checked) {
-     checkForDocumentChanges();
-   }
-///
+
+      // TODO: this needs to be reverse -- the button should be set by
+      // the configuration option.
+      Configuration.autorefreshOn = $('#autorefresh_mode')[0].checked;
+
+      if (Configuration.autorefreshOn) {
+        checkForDocumentChanges();
+      }
 
       $('#autorefresh_mode').click(function(evt) {
         var val = this.checked;
         if (val) {
+          Configuration.autorefreshOn = true;
           checkForDocumentChanges();
           dispatcher.post('messages', [[['Autorefresh mode is now on', 'comment']]]);
         } else {
+          Configuration.autorefreshOn = false;
           clearTimeout(documentChangesTimer);
           dispatcher.post('messages', [[['Autorefresh mode is now off', 'comment']]]);
         }
