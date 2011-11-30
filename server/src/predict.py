@@ -5,26 +5,57 @@
 '''
 Prediction for annotation types.
 
-Author:     Sampo Pyysalo    <smp is s u-tokyo ac jp>
+Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
+Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-11-17
 '''
 
 ### Constants
-SIMSEM_HOST = 'localhost'
-SIMSEM_PORT = 4711
+SIMSEM_HOST = None
+SIMSEM_PORT = None
 SIMSEM_URL = 'http://%s:%s/' % (SIMSEM_HOST, SIMSEM_PORT)
 ###
 
 from urllib import urlencode
-from urllib2 import urlopen
+from urllib2 import urlopen, HTTPError, URLError
+
+from common import ProtocolError
 from jsonwrap import loads
 
+
+class SimSemConnectionNotConfiguredError(ProtocolError):
+    def __str__(self):
+        return ('The SimSem connection has not been configured, '
+                'please contact the administrator')
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'simSemConnectionNotConfiguredError'
+
+
+class SimSemConnectionError(ProtocolError):
+    def __str__(self):
+        return ('The SimSem connection returned an error, '
+                'please contact the administrator')
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'simSemConnectionError'
+
+
 def suggest_span_types(collection, document, start, end, text):
+    if SIMSEM_HOST is None or SIMSEM_PORT is None:
+        raise SimSemConnectionNotConfiguredError
+
     # TODO: Catch exceptions
     req_data = urlencode({
             'classify': text,
             })
-    resp = urlopen('%s?%s' % (SIMSEM_URL, req_data,))
+
+    try:
+        resp = urlopen('%s?%s' % (SIMSEM_URL, req_data,))
+    except URLError:
+        # TODO: Could give more details
+        raise SimSemConnectionError
+
     json = loads(resp.read())
 
     # TODO: Check the error value
