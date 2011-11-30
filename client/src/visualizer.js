@@ -93,7 +93,6 @@ var Visualizer = (function($, window, undefined) {
       var coll, doc, args;
       var spanTypes;
       var relationTypesHash;
-      var abbrevsOn = true;
       var textBackgrounds = "striped";
       var isRenderRequested;
       var isCollectionLoaded = false;
@@ -568,7 +567,7 @@ var Visualizer = (function($, window, undefined) {
             var spanLabels = Util.getSpanLabels(spanTypes, span.type);
             span.labelText = Util.spanDisplayForm(spanTypes, span.type);
             // Find the most appropriate label according to text width
-            if (abbrevsOn && spanLabels) {
+            if (Configuration.abbrevsOn && spanLabels) {
               var labelIdx = 1; // first abbrev
               var maxLength = (span.to - span.from) / 0.8;
               while (span.labelText.length > maxLength &&
@@ -1185,7 +1184,7 @@ Util.profileStart('chunks');
                 } else {
                   border = margin.x + sentNumMargin + rowPadding;
                 }
-                var labelNo = abbrevsOn ? labels.length - 1 : 0;
+                var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                 var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
                 var gap = current.x + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
@@ -1215,7 +1214,7 @@ Util.profileStart('chunks');
                 } else {
                   border = margin.x + sentNumMargin + rowPadding;
                 }
-                var labelNo = abbrevsOn ? labels.length - 1 : 0;
+                var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                 var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
                 var gap = current.x + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
@@ -1549,8 +1548,8 @@ Util.profileStart('arcs');
             var originType = data.spans[arc.origin].type;
             var arcLabels = Util.getArcLabels(spanTypes, originType, arc.type);
             var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type);
-            // if (abbrevsOn && !ufoCatcher && arcLabels) {
-            if (abbrevsOn && arcLabels) {
+            // if (Configuration.abbrevsOn && !ufoCatcher && arcLabels) {
+            if (Configuration.abbrevsOn && arcLabels) {
               var labelIdx = 1; // first abbreviation
               // strictly speaking 2*arcSlant would be needed to allow for
               // the full-width arcs to fit, but judged unabbreviated text
@@ -2184,7 +2183,8 @@ Util.profileStart('before render');
       };
 
       var setAbbrevs = function(_abbrevsOn) {
-        abbrevsOn = _abbrevsOn;
+	// TODO: this is a slightly weird place to tweak the configuration
+        Configuration.abbrevsOn = _abbrevsOn;
       }
 
       var setTextBackgrounds = function(_textBackgrounds) {
