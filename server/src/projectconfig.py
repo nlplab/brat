@@ -15,6 +15,7 @@ Version:    2011-08-15
 import re
 import robotparser # TODO reduce scope
 import urlparse # TODO reduce scope
+import sys
 
 from annotation import open_textfile
 from message import Messager
@@ -187,7 +188,7 @@ class TypeHierarchyNode:
             a = a.strip()
             m = re.match(r'^(\S*?):(\S*)$', a)
             if not m:
-                Messager.warning("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), 5)
+                Messager.warning("Project configuration: Failed to parse argument '%s' (args: %s)" % (a, args), 5)
                 raise InvalidProjectConfigException
             key, atypes = m.groups()
 
@@ -201,20 +202,74 @@ class TypeHierarchyNode:
                 self.special_arguments[key] = atypes.split("-")
                 # NOTE: skip the rest of processing -- don't add in normal args
                 continue
-                
-            if key[-1:] not in ("?", "*"):
+
+            # Parse "repetition" modifiers. These are regex-like:
+            # - Arg      : mandatory argument, exactly one
+            # - Arg?     : optional argument, at most one
+            # - Arg*     : optional argument, any number
+            # - Arg+     : mandatory argument, one or more
+            # - Arg{N}   : mandatory, exactly N
+            # - Arg{N-M} : mandatory, between N and M
+
+            m = re.match(r'^(\S+?)(\{\S+\}|\?|\*|\+|)$', key)
+            if not m:
+                Messager.warning("Project configuration: error parsing argument '%s'." % key, 5)
+                raise InvalidProjectConfigException
+            key, rep = m.groups()
+
+            if rep == '':
+                # mandatory, exactly one
                 mandatory_key = True
-            else:
-                mandatory_key = False
-
-            if key[-1:] in ("*", "+"):
-                multiple_allowed = True
-            else:
                 multiple_allowed = False
-
-            if key[-1:] in ("?", "*", "+"):
-                key = key[:-1]
-
+                minimum_count = 1
+                maximum_count = 1
+            elif rep == '?':
+                # optional, at most one
+                mandatory_key = False
+                multiple_allowed = False
+                minimum_count = 0
+                maximum_count = 1
+            elif rep == '*':
+                # optional, any number
+                mandatory_key = False
+                multiple_allowed = True
+                minimum_count = 0
+                maximum_count = sys.maxint
+            elif rep == '+':
+                # mandatory, any number
+                mandatory_key = True
+                multiple_allowed = True
+                minimum_count = 1
+                maximum_count = sys.maxint
+            else:
+                # exact number or range constraint
+                assert '{' in rep and '}' in rep, "INTERNAL ERROR"
+                m = re.match(r'\{(\d+)(?:-(\d+))?\}$', rep)
+                if not m:
+                    Messager.warning("Project configuration: error parsing range '%s' in argument '%s' (syntax is '{MIN-MAX}')." % (rep, key+rep), 5)
+                    raise InvalidProjectConfigException
+                n1, n2 = m.groups()
+                n1 = int(n1)
+                if n2 is None:
+                    # exact number
+                    if n1 == 0:
+                        Messager.warning("Project configuration: cannot have exactly 0 repetitions of argument '%s'." % (key+rep), 5)
+                        raise InvalidProjectConfigException
+                    mandatory_key = True
+                    multiple_allowed = n1 > 1
+                    minimum_count = n1
+                    maximum_count = n1
+                else:
+                    # range
+                    n2 = int(n2)
+                    if n1 > n2:
+                        Messager.warning("Project configuration: invalid range %d-%d for argument '%s'." % (n1, n2, key+rep), 5)
+                        raise InvalidProjectConfigException
+                    mandatory_key = n1 > 0
+                    multiple_allowed = n2 > 1
+                    minimum_count = n1
+                    maximum_count = n2
+            
             if key in self.arguments:
                 Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
                 raise InvalidProjectConfigException
