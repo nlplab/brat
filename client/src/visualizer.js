@@ -2182,10 +2182,12 @@ Util.profileStart('before render');
       var setAbbrevs = function(_abbrevsOn) {
 	// TODO: this is a slightly weird place to tweak the configuration
         Configuration.abbrevsOn = _abbrevsOn;
+	dispatcher.post('configurationChanged');
       }
 
       var setTextBackgrounds = function(_textBackgrounds) {
-	  Configuration.textBackgrounds = _textBackgrounds;
+        Configuration.textBackgrounds = _textBackgrounds;
+	dispatcher.post('configurationChanged');
       }
 
       var setLayoutDensity = function(_density) {
@@ -2214,12 +2216,14 @@ Util.profileStart('before render');
 	  Configuration.visual.arcSpacing = 9;
 	  Configuration.visual.arcStartHeight = 19;
 	}
+	dispatcher.post('configurationChanged');
       }
 
       var setSvgWidth = function(_width) {
         Configuration.svgWidth = _width;
         // TODO: this needs to be set from Configuration on reload
 	$svgDiv.width(Configuration.svgWidth);
+	dispatcher.post('configurationChanged');
       }
 
       $svgDiv = $($svgDiv).hide();

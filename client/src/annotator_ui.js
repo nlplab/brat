@@ -1475,6 +1475,7 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           Configuration.visual.rapidModeOn = false;
         }
+        dispatcher.post('configurationChanged');
       };
 
       var init = function() {

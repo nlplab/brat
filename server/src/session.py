@@ -168,9 +168,10 @@ def close_session():
         if tmp_file_path is not None:
             remove(tmp_file_path)
 
-def save_conf(config_json):
-    get_session()['conf'] = config_json
-
+def save_conf(config):
+    get_session()['conf'] = config
+    return {}
+    
 def load_conf():
     return {
             'config': get_session()['conf'],

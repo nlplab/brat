@@ -1589,6 +1589,12 @@ var VisualizerUI = (function($, window, undefined) {
             }
           }
         ]);
+        dispatcher.post('ajax', [{ action: 'loadConf' }, function(response) {
+          // TODO: check for exceptions
+          var storedConf = $.deparam(response.config);
+          // TODO: make assignment work
+          Configuration.abbrevsOn = storedConf.abbrevsOn == "true";
+        }]);
       };
 
       var noFileSpecified = function() {
@@ -1722,6 +1728,13 @@ var VisualizerUI = (function($, window, undefined) {
         return currentForm == null;
       };
 
+      var configurationChanged = function() {
+        dispatcher.post('ajax', [{
+                    action: 'saveConf',
+                    config: $.param(Configuration),
+                }, null]);
+      };
+
       dispatcher.
           on('init', init).
           on('annotationIsAvailable', annotationIsAvailable).
@@ -1754,7 +1767,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch).
-          on('clearSVG', showNoSVG);
+          on('clearSVG', showNoSVG).
+          on('configurationChanged', configurationChanged);
     };
 
     return VisualizerUI;
