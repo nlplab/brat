@@ -33,6 +33,7 @@ from session import get_session, load_conf, save_conf
 from search import search_text, search_entity, search_event, search_relation
 from predict import suggest_span_types
 from undo import undo
+from tag import tag
 
 # no-op function that can be invoked by client to log a user action
 def logging_no_op(collection, document, log):
@@ -77,6 +78,7 @@ DISPATCHER = {
         'loadConf': load_conf,
 
         'undo': undo,
+        'tag': tag,
         }
 
 # Actions that correspond to annotation functionality
@@ -110,6 +112,8 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
         # Configuration storage
         'loadConf',
         'saveConf',
+
+        'tag',
         ))
 
 # Sanity check
