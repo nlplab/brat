@@ -32,6 +32,7 @@ from svg import store_svg, retrieve_stored
 from session import get_session, load_conf, save_conf
 from search import search_text, search_entity, search_event, search_relation
 from predict import suggest_span_types
+from undo import undo
 
 # no-op function that can be invoked by client to log a user action
 def logging_no_op(collection, document, log):
@@ -74,6 +75,8 @@ DISPATCHER = {
 
         'saveConf': save_conf,
         'loadConf': load_conf,
+
+        'undo': undo,
         }
 
 # Actions that correspond to annotation functionality
@@ -84,6 +87,7 @@ ANNOTATION_ACTION = set((
         'deleteSpan',
         'splitSpan',
         'suggestSpanTypes',
+        'undo',
         ))
 
 # Actions that will be logged as annotator actions (if so configured)
