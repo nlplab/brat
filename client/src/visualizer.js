@@ -1574,11 +1574,16 @@ Util.profileStart('arcs');
                 // no subscript, simple string suffices
                 svgText = labelText;
             } else {
+		// Need to parse out possible numeric suffixes to avoid
+		// duplicating number in label and its subscript
+		var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
+		var noNumLabelText = splitLabelText[1];
+
                 svgText = svg.createText();
 		// TODO: to address issue #453, attaching options also
 		// to spans, not only primary text. Make sure there
 		// are no problems with this.
-                svgText.span(labelText, options);
+                svgText.span(noNumLabelText, options);
 		var subscriptSettings = {
 		  'dy': '0.3em', 
 		  'font-size': '80%'
@@ -2185,11 +2190,11 @@ Util.profileStart('before render');
 	// them here (again)
 	if (_density < 2) {
 	  // dense
-	  margin = { x: 0, y: 0 };
+	  margin = { x: 1, y: 0 };
 	  boxSpacing  = 1;
 	  curlyHeight = 1;
 	  arcSpacing = 7;
-	  arcStartHeight = 17;
+	  arcStartHeight = 18
 	} else if(_density > 2) {
 	  // spacious
 	  margin = { x: 2, y: 1 };

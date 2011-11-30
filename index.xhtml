@@ -58,11 +58,11 @@
         <div>
           <fieldset>
             <h1 class="unselectable">No document selected</h1>
-            <p class="unselectable">Select a document to visualize or edit from the document collection browser.</p>
-            <p class="unselectable">The collection browser can be opened by pressing the
-              TAB key or by clicking on the &quot;Collection&quot; button in the menu
-              that opens when placing the mouse cursor on the blue bar on top.
-            </p>
+            <p class="unselectable">To select a document:</p>
+            <ul>
+              <li class="unselectable">press the <strong>TAB</strong> key, or</li>
+              <li class="unselectable">click on &quot;<strong>Collection</strong>&quot; in the blue menu bar on top</li>
+            </ul>
           </fieldset>
         </div>
       </div>
@@ -85,7 +85,6 @@
     <script>
       var njsw = document.getElementById('no_js_wrapper');
       njsw.parentNode.removeChild(njsw);
-      document.getElementById('no_svg_wrapper').style.display = 'table';
     </script>
     <img id="spinner" src="static/img/spinner.gif"/>
     <div id="messagepullup" class="messages" style="display: none"/>
@@ -135,7 +134,8 @@
     </form>
     <!-- Data dialog -->
     <form id="data_form" class="dialog" title="Data">
-      <fieldset>
+      <!-- Data dialog export section -->
+      <fieldset class="small-buttons">
         <legend>Export</legend>
         <div class="optionRow">
           <span id="document_export" class="optionLabel">Document data</span>
@@ -157,15 +157,28 @@
           <span id="source_collection" title="Download the entire current collection as a .tar.gz package"/>
         </div>
       </fieldset>
-      <fieldset class="login">
+      <!-- Data dialog import section -->
+      <fieldset class="login small-buttons">
         <legend>Import</legend>
         <div class="optionRow">
           <span class="optionLabel">New document</span>
-          <input id="import_button" type="button" class="login" value="Enter text" tabindex="-1" title="Import a new document into the current collection"/>
+          <input id="import_button" type="button" class="login ui-button-text" value="Enter text" tabindex="-1" title="Import a new document into the current collection"/>
         </div>
         <div class="optionRow">
           <span class="optionLabel">New collection</span>
-          <input id="import_collection_button" type="button" class="login" value="Upload tar.gz" tabindex="-1" title="Import an entire collection into the current installation"/>
+          <input id="import_collection_button" type="button" class="login ui-button-text" value="Upload tar.gz" tabindex="-1" title="Import an entire collection into the current installation"/>
+        </div>
+      </fieldset>
+      <!-- Data dialog delete section -->
+      <fieldset class="login small-buttons">
+        <legend>Delete</legend>
+        <div class="optionRow">
+          <span class="optionLabel">Current document</span>
+          <input id="delete_document_button" type="button" class="login ui-button-text" value="Delete document" tabindex="-1" title="Permanently remove the current document and its annotations from the collection."/>
+        </div>
+        <div class="optionRow">
+          <span class="optionLabel">Current collection</span>
+          <input id="delete_collection_button" type="button" class="login ui-button-text" value="Delete collection" tabindex="-1" title="Permanently remove the entire current collection and all documents in it."/>
         </div>
       </fieldset>
     </form>

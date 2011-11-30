@@ -27,13 +27,13 @@ html {
   color: #2e6e9e;
   margin-left: auto;
   margin-right: auto;
-  width: 20em;
+  width: 30em;
   font-size: 12px;
   font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
 }
 .center_wrapper > div > div h1 {
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
 }
 #no_svg_wrapper {
   display: none;

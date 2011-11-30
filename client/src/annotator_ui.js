@@ -1334,6 +1334,41 @@ var AnnotatorUI = (function($, window, undefined) {
         importForm.find('input, textarea').val('');
       });
 
+      /* BEGIN delete button - related */
+
+      $('#delete_document_button').click(function() {
+        if (!doc) {
+          dispatcher.post('messages', [[['No document selected', 'error']]]);
+          return false;
+        }
+        if (!confirm('Are you sure you want to permanently remove this document and its annotations from the collection? This action cannot be undone.')) {
+          return;
+        }
+        var delOptions = {
+          action: 'deleteDocument',
+          collection: coll,
+          'document': doc
+        }
+        dispatcher.post('ajax', [delOptions, 'docDeleted']);
+      });
+
+      $('#delete_collection_button').click(function() {
+        if (!coll) {
+          dispatcher.post('messages', [[['No collection selected', 'error']]]);
+          return false;
+        }
+        if (!confirm('Are you sure you want to permanently REMOVE the ENTIRE COLLECTION '+coll+', including all its documents and their annotations?  This action CANNOT BE UNDONE.')) {
+          return;
+        }
+        var delOptions = {
+          action: 'deleteCollection',
+          collection: coll,
+        }
+        dispatcher.post('ajax', [delOptions, 'collDeleted']);
+      });
+
+      /* END delete button - related */
+
       $('#undo_button').click(function() {
         if (coll && doc) {
           options = {

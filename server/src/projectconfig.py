@@ -15,6 +15,7 @@ Version:    2011-08-15
 import re
 import robotparser # TODO reduce scope
 import urlparse # TODO reduce scope
+import sys
 
 from annotation import open_textfile
 from message import Messager
@@ -180,14 +181,14 @@ class TypeHierarchyNode:
         self.arguments = {}
         self.special_arguments = {}
         self.arg_list = []
-        self.mandatory_arguments = []
-        self.multiple_allowed_arguments = []
+        self.arg_min_count = {}
+        self.arg_max_count = {}
         self.keys_by_type = {}
         for a in self.args:
             a = a.strip()
             m = re.match(r'^(\S*?):(\S*)$', a)
             if not m:
-                Messager.warning("Project configuration: Failed to parse argument %s (args: %s)" % (a, args), 5)
+                Messager.warning("Project configuration: Failed to parse argument '%s' (args: %s)" % (a, args), 5)
                 raise InvalidProjectConfigException
             key, atypes = m.groups()
 
@@ -201,32 +202,82 @@ class TypeHierarchyNode:
                 self.special_arguments[key] = atypes.split("-")
                 # NOTE: skip the rest of processing -- don't add in normal args
                 continue
-                
-            if key[-1:] not in ("?", "*"):
-                mandatory_key = True
-            else:
-                mandatory_key = False
 
-            if key[-1:] in ("*", "+"):
-                multiple_allowed = True
-            else:
-                multiple_allowed = False
+            # Parse "repetition" modifiers. These are regex-like:
+            # - Arg      : mandatory argument, exactly one
+            # - Arg?     : optional argument, at most one
+            # - Arg*     : optional argument, any number
+            # - Arg+     : mandatory argument, one or more
+            # - Arg{N}   : mandatory, exactly N
+            # - Arg{N-M} : mandatory, between N and M
 
-            if key[-1:] in ("?", "*", "+"):
-                key = key[:-1]
+            m = re.match(r'^(\S+?)(\{\S+\}|\?|\*|\+|)$', key)
+            if not m:
+                Messager.warning("Project configuration: error parsing argument '%s'." % key, 5)
+                raise InvalidProjectConfigException
+            key, rep = m.groups()
+
+            if rep == '':
+                # exactly one
+                minimum_count = 1
+                maximum_count = 1
+            elif rep == '?':
+                # zero or one
+                minimum_count = 0
+                maximum_count = 1
+            elif rep == '*':
+                # any number
+                minimum_count = 0
+                maximum_count = sys.maxint
+            elif rep == '+':
+                # one or more
+                minimum_count = 1
+                maximum_count = sys.maxint
+            else:
+                # exact number or range constraint
+                assert '{' in rep and '}' in rep, "INTERNAL ERROR"
+                m = re.match(r'\{(\d+)(?:-(\d+))?\}$', rep)
+                if not m:
+                    Messager.warning("Project configuration: error parsing range '%s' in argument '%s' (syntax is '{MIN-MAX}')." % (rep, key+rep), 5)
+                    raise InvalidProjectConfigException
+                n1, n2 = m.groups()
+                n1 = int(n1)
+                if n2 is None:
+                    # exact number
+                    if n1 == 0:
+                        Messager.warning("Project configuration: cannot have exactly 0 repetitions of argument '%s'." % (key+rep), 5)
+                        raise InvalidProjectConfigException
+                    minimum_count = n1
+                    maximum_count = n1
+                else:
+                    # range
+                    n2 = int(n2)
+                    if n1 > n2:
+                        Messager.warning("Project configuration: invalid range %d-%d for argument '%s'." % (n1, n2, key+rep), 5)
+                        raise InvalidProjectConfigException
+                    minimum_count = n1
+                    maximum_count = n2
+
+            # format / config sanity: an argument whose label ends
+            # with a digit label cannot be repeated, as this would
+            # introduce ambiguity into parsing. (For example, the
+            # second "Theme" is "Theme2", and the second "Arg1" would
+            # be "Arg12".)
+            if maximum_count > 1 and key[-1].isdigit():
+                Messager.warning("Project configuration: error parsing: arguments ending with a digit cannot be repeated: '%s'" % (key+rep), 5)
+                raise InvalidProjectConfigException
 
             if key in self.arguments:
                 Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
                 raise InvalidProjectConfigException
 
+            assert (key not in self.arg_min_count and 
+                    key not in self.arg_max_count), "INTERNAL ERROR"
+            self.arg_min_count[key] = minimum_count
+            self.arg_max_count[key] = maximum_count
+
             self.arg_list.append(key)
             
-            if mandatory_key:
-                self.mandatory_arguments.append(key)
-
-            if multiple_allowed:
-                self.multiple_allowed_arguments.append(key)
-
             for atype in atypes.split("|"):
                 if atype.strip() == "":
                     Messager.warning("Project configuration: error parsing: empty type for argument '%s'." % a, 5)
@@ -246,6 +297,34 @@ class TypeHierarchyNode:
                     self.keys_by_type[atype] = []
                 self.keys_by_type[atype].append(key)
 
+    def argument_minimum_count(self, arg):
+        """
+        Returns the minumum number of times the given argument is
+        required to appear for this type.
+        """
+        return self.arg_min_count[arg]
+
+    def argument_maximum_count(self, arg):
+        """
+        Returns the maximum number of times the given argument is
+        allowed to appear for this type.
+        """
+        return self.arg_max_count[arg]
+
+    def mandatory_arguments(self):
+        """
+        Returns the arguments that must appear at least once for
+        this type.
+        """
+        return [a for a in self.arg_list if self.arg_min_count[a] > 0]
+
+    def multiple_allowed_arguments(self):
+        """
+        Returns the arguments that may appear multiple times for this
+        type.
+        """
+        return [a for a in self.arg_list if self.arg_max_count[a] > 1]
+        
     def storage_form(self):
         """
         Returns the form of the term used for storage serverside.
@@ -795,7 +874,7 @@ class ProjectConfiguration(object):
         if node is None:
             Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
             return []
-        return node.mandatory_arguments
+        return node.mandatory_arguments()
 
     def multiple_allowed_arguments(self, type):
         """
@@ -806,7 +885,7 @@ class ProjectConfiguration(object):
         if node is None:
             Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
             return []
-        return node.multiple_allowed_arguments
+        return node.multiple_allowed_arguments()
 
     def arc_types_from(self, from_ann):
         return self.arc_types_from_to(from_ann)

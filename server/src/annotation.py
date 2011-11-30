@@ -1087,29 +1087,33 @@ class EventAnnotation(IdedAnnotation):
         self.args = args
 
     def add_argument(self, role, argid):
-        # strip possible numeric suffixes off given role;
-        # none should be given
-        role, rn = split_role(role)
-        if rn != '':
-            Messager.warning('Received role with number; ignoring')
+        # split into "main" role label and possible numeric suffix
+        role, rnum = split_role(role)
+        if rnum != '':
+            # if given a role with an explicit numeric suffix,
+            # use the role as given (assume number is part of
+            # role label).
+            pass
+        else:
+            # find next free numeric suffix.
 
-        # for each argument role in existing roles, determine the
-        # role numbers already used
-        rnums = {}
-        for r, aid in self.args:
-            rb, rn = split_role(r)
-            if rb not in rnums:
-                rnums[rb] = {}
-            rnums[rb][rn] = True
+            # for each argument role in existing roles, determine the
+            # role numbers already used
+            rnums = {}
+            for r, aid in self.args:
+                rb, rn = split_role(r)
+                if rb not in rnums:
+                    rnums[rb] = {}
+                rnums[rb][rn] = True
 
-        # find the first available free number for the current role,
-        # using the convention that the empty number suffix stands for 1
-        rnum = ''
-        while role in rnums and rnum in rnums[role]:
-            if rnum == '':
-                rnum = '2'
-            else:
-                rnum = str(int(rnum)+1)
+            # find the first available free number for the current role,
+            # using the convention that the empty number suffix stands for 1
+            rnum = ''
+            while role in rnums and rnum in rnums[role]:
+                if rnum == '':
+                    rnum = '2'
+                else:
+                    rnum = str(int(rnum)+1)
 
         # role+rnum is available, add
         self.args.append((role+rnum, argid))

@@ -32,14 +32,23 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START "no svg" message - related */
 
-      var hideNoSVG = function(_coll, _doc, _args) {
-        if(_doc) {
-          $('#no_svg_wrapper').hide();
-        }
+      var noSvgTimer = null;
+
+      // this is necessary for centering
+      $('#no_svg_wrapper').css('display', 'table');
+      // on initial load, hide the "no SVG" message
+      $('#no_svg_wrapper').hide();
+
+      var hideNoSVG = function() {
+        clearTimeout(noSvgTimer);
+        $('#no_svg_wrapper').hide(0);
       }
 
       var showNoSVG = function() {
-        $('#no_svg_wrapper').show();
+        clearTimeout(noSvgTimer);
+        noSvgTimer = setTimeout(function() {
+          $('#no_svg_wrapper').fadeIn(500);
+        }, 2000);
       }
       
       /* END "no svg" message - related */
@@ -510,6 +519,11 @@ var VisualizerUI = (function($, window, undefined) {
           return;
         }
         fileBrowserWaiting = false;
+
+        // hide "no document" message when file browser shown
+        // TODO: can't make this work; I can't detect when it gets hidden.
+//         hideNoSVG();
+
         if (!(selectorData && showForm(fileBrowser))) return false;
 
         var html = ['<tr><th/>'];
@@ -1303,6 +1317,11 @@ var VisualizerUI = (function($, window, undefined) {
         doc = _doc;
         args = _args;
 
+        // if we have a specific document, hide the "no document" message
+        if (_doc) {
+          hideNoSVG();
+        }
+          
         $docName = $('#document_name input').val(coll + doc);
         var docName = $docName[0];
         // TODO do this on resize, as well
@@ -1726,8 +1745,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch).
-          on('clearSVG', showNoSVG).
-          on('current', hideNoSVG);
+          on('clearSVG', showNoSVG);
     };
 
     return VisualizerUI;
