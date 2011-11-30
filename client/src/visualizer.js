@@ -46,7 +46,6 @@ var Visualizer = (function($, window, undefined) {
 
       // OPTIONS
       var roundCoordinates = true; // try to have exact pixel offsets
-      var margin = { x: 2, y: 1 };
       var boxTextMargin = { x: 0, y: 1.5 }; // effect is inverse of "margin" for some reason
       var highlightRounding = { x: 3, y:3 }; // rx, ry for highlight boxes
       var spaceWidths = {
@@ -93,7 +92,6 @@ var Visualizer = (function($, window, undefined) {
       var coll, doc, args;
       var spanTypes;
       var relationTypesHash;
-      var textBackgrounds = "striped";
       var isRenderRequested;
       var isCollectionLoaded = false;
       var areFontsLoaded = false;
@@ -976,14 +974,15 @@ Util.profileStart('measures');
           if (width > maxTextWidth) maxTextWidth = width;
         });
 
-        var width = maxTextWidth + sentNumMargin + 2 * margin.x + 1;
+        var width = maxTextWidth + sentNumMargin + 2 * Configuration.visual.margin.x + 1;
         if (width > canvasWidth) canvasWidth = width;
         $svg.width(canvasWidth);
 
 Util.profileEnd('measures');
 Util.profileStart('chunks');
 
-        var current = { x: margin.x + sentNumMargin + rowPadding, y: margin.y }; // TODO: we don't need some of this?
+        var current = { x: Configuration.visual.margin.x + sentNumMargin + rowPadding, 
+			y: Configuration.visual.margin.y }; // TODO: we don't need some of this?
         var rows = [];
         var spanHeights = [];
         var sentenceToggle = 0;
@@ -1051,10 +1050,10 @@ Util.profileStart('chunks');
 
             // attach e.g. "False_positive" into the type
             if (span.comment && span.comment.type) { rectClass += ' '+span.comment.type; }
-            var bx = xx - margin.x - boxTextMargin.x;
-            var by = yy - margin.y;
-            var bw = ww + 2 * margin.x;
-            var bh = hh + 2 * margin.y;
+            var bx = xx - Configuration.visual.margin.x - boxTextMargin.x;
+            var by = yy - Configuration.visual.margin.y;
+            var bw = ww + 2 * Configuration.visual.margin.x;
+            var bh = hh + 2 * Configuration.visual.margin.y;
 
             if (roundCoordinates) {
               x  = (x|0)+0.5;
@@ -1103,8 +1102,8 @@ Util.profileStart('chunks');
                 'class': rectClass,
                 fill: bgColor,
                 stroke: borderColor,
-                rx: margin.x,
-                ry: margin.y,
+                rx: Configuration.visual.margin.x,
+                ry: Configuration.visual.margin.y,
                 'data-span-id': span.id,
                 'strokeDashArray': span.attributeMerge.dasharray,
               });
@@ -1118,24 +1117,24 @@ Util.profileStart('chunks');
             var yAdjust = placeReservation(span, bx, bw, bh, reservations);
             span.rectBox = { x: bx, y: by - yAdjust, width: bw, height: bh };
             // this is monotonous due to sort:
-            span.height = yAdjust + hh + 3 * margin.y + curlyHeight + arcSpacing;
+            span.height = yAdjust + hh + 3 * Configuration.visual.margin.y + curlyHeight + arcSpacing;
             spanHeights[span.lineIndex * 2] = span.height;
-            $(span.rect).attr('y', yy - margin.y - yAdjust);
+            $(span.rect).attr('y', yy - Configuration.visual.margin.y - yAdjust);
             if (shadowRect) {
-              $(shadowRect).attr('y', yy - shadowSize - margin.y - yAdjust);
+              $(shadowRect).attr('y', yy - shadowSize - Configuration.visual.margin.y - yAdjust);
             }
             if (editedRect) {
-              $(editedRect).attr('y', yy - editedSpanSize - margin.y - yAdjust);
+              $(editedRect).attr('y', yy - editedSpanSize - Configuration.visual.margin.y - yAdjust);
             }
             if (span.attributeMerge.box === "crossed") {
               svg.path(span.group, svg.createPath().
-                  move(xx, yy - margin.y - yAdjust).
+                  move(xx, yy - Configuration.visual.margin.y - yAdjust).
                   line(xx + span.width,
-                    yy + hh + margin.y - yAdjust),
+                    yy + hh + Configuration.visual.margin.y - yAdjust),
                   { 'class': 'boxcross' });
               svg.path(span.group, svg.createPath().
-                  move(xx + span.width, yy - margin.y - yAdjust).
-                  line(xx, yy + hh + margin.y - yAdjust),
+                  move(xx + span.width, yy - Configuration.visual.margin.y - yAdjust).
+                  line(xx, yy + hh + Configuration.visual.margin.y - yAdjust),
                   { 'class': 'boxcross' });
             }
             var spanText = svg.text(span.group, x, y - yAdjust, data.spanAnnTexts[span.glyphedLabelText], { fill: fgColor });
@@ -1149,7 +1148,7 @@ Util.profileStart('chunks');
                 curlyColor = Util.adjustColorLightness(bgColor, -0.6);
               }
 
-              var bottom = yy + hh + margin.y - yAdjust + 1;
+              var bottom = yy + hh + Configuration.visual.margin.y - yAdjust + 1;
               svg.path(span.group, svg.createPath()
                   .move(span.curly.from, bottom + curlyHeight)
                   .curveC(span.curly.from, bottom,
@@ -1182,7 +1181,7 @@ Util.profileStart('chunks');
                   // same row, but before this
                   border = origin.translation.x + leftSpan.right;
                 } else {
-                  border = margin.x + sentNumMargin + rowPadding;
+                  border = Configuration.visual.margin.x + sentNumMargin + rowPadding;
                 }
                 var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                 var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
@@ -1212,7 +1211,7 @@ Util.profileStart('chunks');
                   // same row, but before this
                   border = target.translation.x + leftSpan.right;
                 } else {
-                  border = margin.x + sentNumMargin + rowPadding;
+                  border = Configuration.visual.margin.x + sentNumMargin + rowPadding;
                 }
                 var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                 var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
@@ -1272,11 +1271,11 @@ Util.profileStart('chunks');
           }
 
           if (chunk.sentence ||
-              current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * margin.x) {
+              current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
             // the chunk does not fit
             var lastX = current.x;
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
-            current.x = margin.x + sentNumMargin + rowPadding +
+            current.x = Configuration.visual.margin.x + sentNumMargin + rowPadding +
                 (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
             if (spacingRowBreak > 0) {
               current.x += spacingRowBreak;
@@ -1542,7 +1541,7 @@ Util.profileStart('arcs');
             if (rowIndex == rightRow) {
               to = rightBox.x + (chunkReverse ? rightBox.width : 0);
             } else {
-              to = canvasWidth - 2 * margin.y;
+              to = canvasWidth - 2 * Configuration.visual.margin.y;
             }
 
             var originType = data.spans[arc.origin].type;
@@ -1643,8 +1642,8 @@ Util.profileStart('arcs');
                     ry: shadowSize,
               });
             }
-            var textStart = textBox.x - margin.x;
-            var textEnd = textStart + textBox.width + 2 * margin.x;
+            var textStart = textBox.x - Configuration.visual.margin.x;
+            var textEnd = textStart + textBox.width + 2 * Configuration.visual.margin.x;
             if (from > to) {
               var tmp = textStart; textStart = textEnd; textEnd = tmp;
             }
@@ -1664,10 +1663,10 @@ Util.profileStart('arcs');
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
                 line = path.line(cornerx, -height).
-                    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+                    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
               } else {
                 path.line(cornerx, -height).
-                    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : margin.y));
+                    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
               }
             } else {
               path.line(from, -height);
@@ -1712,10 +1711,10 @@ Util.profileStart('arcs');
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
                 path.line(cornerx, -height).
-                    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+                    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
               } else {
                 path.line(cornerx, -height).
-                    line(to, rightBox.y + (leftToRight && !arc.equiv ? margin.y : rightBox.height / 2));
+                    line(to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
               }
             } else {
               path.line(to, -height);
@@ -1749,7 +1748,7 @@ Util.profileEnd('arcs');
 Util.profileStart('rows');
 
         // position the rows
-        var y = margin.y;
+        var y = Configuration.visual.margin.y;
         var sentNumGroup = svg.group({'class': 'sentnum'});
         var currentSent;
         $.each(rows, function(rowId, row) {
@@ -1771,7 +1770,7 @@ Util.profileStart('rows');
 	  if ($.inArray(currentSent, data.editedSent) != -1) {
 	    // specifically highlighted
 	    bgClass = 'backgroundHighlight';
-	  } else if (textBackgrounds == "striped") {
+	  } else if (Configuration.textBackgrounds == "striped") {
 	    // give every second sentence has a different bg "highlight"
 	    bgClass = 'background'+ row.backgroundIndex;
 	  } else {
@@ -1789,7 +1788,7 @@ Util.profileStart('rows');
           if (row.sentence) {
             var sentence_hash = new URLHash(coll, doc, { focus: [[ 'sent', row.sentence ]] } );
             var link = svg.link(sentNumGroup, sentence_hash.getHash());
-            var text = svg.text(link, sentNumMargin - margin.x, y - rowPadding,
+            var text = svg.text(link, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
                 '' + row.sentence, { 'data-sent': row.sentence });
             var sentComment = data.sentComment[row.sentence];
             if (sentComment) {
@@ -1804,7 +1803,7 @@ Util.profileStart('rows');
                   ry: shadowSize,
                   'data-sent': row.sentence,
               });
-              var text = svg.text(sentNumGroup, sentNumMargin - margin.x, y - rowPadding,
+              var text = svg.text(sentNumGroup, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
                   '' + row.sentence, { 'data-sent': row.sentence });
             }
           }
@@ -1814,9 +1813,9 @@ Util.profileStart('rows');
             rowY = rowY|0;
           }
           translate(row, 0, rowY);
-          y += margin.y;
+          y += Configuration.visual.margin.y;
         });
-        y += margin.y;
+        y += Configuration.visual.margin.y;
 
 Util.profileEnd('rows');
 Util.profileStart('chunkFinish');
@@ -2188,7 +2187,7 @@ Util.profileStart('before render');
       }
 
       var setTextBackgrounds = function(_textBackgrounds) {
-	  textBackgrounds = _textBackgrounds;
+	  Configuration.textBackgrounds = _textBackgrounds;
       }
 
       var setLayoutDensity = function(_density) {
@@ -2197,21 +2196,21 @@ Util.profileStart('before render');
 	// them here (again)
 	if (_density < 2) {
 	  // dense
-	  margin = { x: 1, y: 0 };
+	  Configuration.visual.margin = { x: 1, y: 0 };
 	  boxSpacing  = 1;
 	  curlyHeight = 1;
 	  arcSpacing = 7;
 	  arcStartHeight = 18
 	} else if(_density > 2) {
 	  // spacious
-	  margin = { x: 2, y: 1 };
+	  Configuration.visual.margin = { x: 2, y: 1 };
 	  boxSpacing  = 3;
 	  curlyHeight = 6;	  
 	  arcSpacing = 12;
 	  arcStartHeight = 23;
 	} else {
 	  // standard
-	  margin = { x: 2, y: 1 };
+	  Configuration.visual.margin = { x: 2, y: 1 };
 	  boxSpacing  = 1;
 	  curlyHeight = 4;
 	  arcSpacing = 9;
