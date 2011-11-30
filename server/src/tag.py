@@ -45,8 +45,11 @@ def tag(collection, document, tagger):
                 doc_text = ann_obj.get_document_text()
                 if doc_text:
                     start = randint(0, len(doc_text) - 1)
-                    end = randint(start, start + 25
-                            if start + 25 <= len(doc_text) else len(doc_text))
+                    cut_off = doc_text.find('.', start)
+                    if cut_off > start + 25:
+                        cut_off = start + 25
+                    end = randint(start, cut_off
+                            if cut_off <= len(doc_text) else len(doc_text))
                     _id = ann_obj.get_new_id('T')
                     tb = TextBoundAnnotationWithText(start, end, _id, 'NER',
                             doc_text[start:end], source_id=doc_path)
