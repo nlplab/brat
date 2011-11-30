@@ -1102,7 +1102,7 @@ var AnnotatorUI = (function($, window, undefined) {
             tagger: taggerId,
           };
           $button.click(function(evt) {
-            dispatcher.post('ajax', [tagOptions, null]);
+            dispatcher.post('ajax', [tagOptions, 'edited']);
           });
         });
         $taggerButtons.find('input').button();
