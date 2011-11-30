@@ -15,6 +15,7 @@ from common import ProtocolError
 from document import real_directory
 from message import Messager
 from annotation import TextAnnotations, TextBoundAnnotationWithText
+from annotator import _json_from_ann, ModificationTracker
 
 try:
     from config import NER_TAGGING_SERVICES
@@ -31,10 +32,10 @@ class UnknownTaggerError(ProtocolError):
 def tag(collection, document, tagger):
     for tagger_token, _, _, tagger_service_url in NER_TAGGING_SERVICES:
         if tagger == tagger_token:
-            added_tag_ids = []
-            # TODO: XXX:
-            Messager.warning('Faking tagging annotation!')
+            mods = ModificationTracker()
             ### START: Dummy part
+            # TODO: XXX: This is just for testing
+            Messager.warning('Faking tagging annotation!')
             from random import randint
             from annotation import TextBoundAnnotationWithText
             doc_path = path_join(real_directory(collection), document)
@@ -47,14 +48,14 @@ def tag(collection, document, tagger):
                     end = randint(start, start + 25
                             if start + 25 <= len(doc_text) else len(doc_text))
                     _id = ann_obj.get_new_id('T')
-                    ann_obj.add_annotation(TextBoundAnnotationWithText(start,
-                        end, _id, 'NER', doc_text[start:end],
-                        source_id=doc_path))
-                    added_tag_ids.append(_id)
-            ### END: Dummy part
-            break
+                    tb = TextBoundAnnotationWithText(start, end, _id, 'NER',
+                            doc_text[start:end], source_id=doc_path)
+                    mods.addition(tb)
+                    ann_obj.add_annotation(tb)
+                ### END: Dummy part
+                resp = mods.json_response()
+                resp['annotations'] = _json_from_ann(ann_obj)
+                return resp
     else:
         raise UnknownTaggerError
-    return {
-            'added': added_tag_ids,
-            }
+    assert False, 'not a reachable state' 
