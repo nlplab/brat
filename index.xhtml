@@ -157,6 +157,19 @@
           <span id="source_collection" title="Download the entire current collection as a .tar.gz package"/>
         </div>
       </fieldset>
+      <!-- Data dialog automatic annotation section -->
+      <fieldset class="login small-buttons">
+        <legend>Automatic annotation</legend>
+        <div class="optionRow">Automatically tag current document</div>
+        <div class="optionRow">
+          <span class="optionLabel">Stanford NER</span>
+          <input id="tag_Stanford_button" type="button" class="login ui-button-text" value="CoNLL+MUC model" tabindex="-1" title="Automatically tag the current document."/>
+        </div>
+        <div class="optionRow">
+          <span class="optionLabel">NERsuite</span>
+          <input id="tag_NERsuite_button" type="button" class="login ui-button-text" value="GENIA model" tabindex="-1" title="Automatically tag the current document."/>
+        </div>
+      </fieldset>
       <!-- Data dialog import section -->
       <fieldset class="login small-buttons">
         <legend>Import</legend>
