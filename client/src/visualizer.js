@@ -98,7 +98,8 @@ var Visualizer = (function($, window, undefined) {
       var isRenderRequested;
       var isCollectionLoaded = false;
       var areFontsLoaded = false;
-      var attributeTypes = null;
+      var entityAttributeTypes = null;
+      var eventAttributeTypes = null;
       var spanTypes = null;
       var highlightGroup;
 
@@ -210,7 +211,10 @@ var Visualizer = (function($, window, undefined) {
 
         // attributes
         $.each(data.attributes, function(attrNo, attr) {
-          var attrType = attributeTypes[attr[1]];
+	  // TODO: might wish to check what's appropriate for the type
+	  // instead of using the first attribute def found
+	  var attrType = (eventAttributeTypes[attr[1]] || 
+			  entityAttributeTypes[attr[1]]);
           var attrValue = attrType && attrType.values[attrType.bool || attr[3]];
           var span = data.spans[attr[2]];
           var valText = (attrValue && attrValue.name) || attr[3];
@@ -580,7 +584,10 @@ var Visualizer = (function($, window, undefined) {
             var postfix = '';
             var warning = false;
             $.each(span.attributes, function(attrType, valType) {
-              var attr = attributeTypes[attrType];
+	      // TODO: might wish to check what's appropriate for the type
+	      // instead of using the first attribute def found
+	      var attr = (eventAttributeTypes[attrType] ||
+			  entityAttributeTypes[attrType]);
               if (!attr) {
                 // non-existent type
                 warning = true;
@@ -2287,23 +2294,28 @@ Util.profileStart('before render');
         });
       }
 
+      var loadAttributeTypes = function(response_types) {
+	var processed = {};
+	$.each(response_types, function(aTypeNo, aType) {
+	  processed[aType.type] = aType;
+	  // count the values; if only one, it's a boolean attribute
+	  var values = [];
+	  for (var i in aType.values) {
+	    if (aType.values.hasOwnProperty(i)) {
+	      values.push(i);
+	    }
+	  }
+	  if (values.length == 1) {
+	    aType.bool = values[0];
+	  }
+	});
+	return processed;
+      }
+
       var collectionLoaded = function(response) {
         if (!response.exception) {
-          attributeTypes = {};
-          $.each(response.attribute_types, function(aTypeNo, aType) {
-            attributeTypes[aType.type] = aType;
-            // count the values; if only one, it's a boolean attribute
-            var values = [];
-            for (var i in aType.values) {
-              if (aType.values.hasOwnProperty(i)) {
-                values.push(i);
-              }
-            }
-            if (values.length == 1) {
-              aType.bool = values[0];
-            }
-          });
-
+	  eventAttributeTypes = loadAttributeTypes(response.event_attribute_types);
+	  entityAttributeTypes = loadAttributeTypes(response.entity_attribute_types);
           spanTypes = {};
           loadSpanTypes(response.entity_types);
           loadSpanTypes(response.event_types);
@@ -2313,7 +2325,7 @@ Util.profileStart('before render');
             relationTypesHash[relType.type] = relType;
           });
 
-          dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, attributeTypes, relationTypesHash]);
+          dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, entityAttributeTypes, eventAttributeTypes, relationTypesHash]);
 
           isCollectionLoaded = true;
           triggerRender();

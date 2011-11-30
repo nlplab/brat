@@ -971,7 +971,7 @@ class ProjectConfiguration(object):
 
             types = attr.arguments['Arg']
 
-            if ((ann_type in types) or
+            if ((ann_type in types) or ('<ANY>' in types) or
                 (self.is_event_type(ann_type) and '<EVENT>' in types) or
                 (self.is_physical_entity_type(ann_type) and '<ENTITY>' in types)):
                 attrs.append(attr.storage_form())
@@ -1041,6 +1041,47 @@ class ProjectConfiguration(object):
 
     def get_attribute_type_hierarchy(self):
         return get_attribute_type_hierarchy(self.directory)
+
+    def _get_filtered_attribute_type_hierarchy(self, types):
+        from copy import deepcopy
+        # TODO: This doesn't property implement recursive traversal
+        # and filtering, instead only checking the topmost nodes.
+        filtered = []
+        for t in self.get_attribute_type_hierarchy():
+            if t.storage_form() in types:
+                filtered.append(deepcopy(t))
+        return filtered
+
+    def attributes_for_types(self, types):
+        """
+        Returns list containing the attribute types that are
+        applicable to at least one of the given annotation types.
+        """
+        # list to preserve order, dict for lookup
+        attribute_list = []
+        seen = {}
+        for t in types:
+            for a in self.attributes_for(t):
+                if a not in seen:
+                    attribute_list.append(a)
+                    seen[a] = True
+        return attribute_list
+
+    def get_entity_attribute_type_hierarchy(self):
+        """
+        Returns the attribute type hierarchy filtered to include
+        only attributes that apply to at least one entity.
+        """
+        attr_types = self.attributes_for_types(self.get_entity_types())
+        return self._get_filtered_attribute_type_hierarchy(attr_types)
+
+    def get_event_attribute_type_hierarchy(self):
+        """
+        Returns the attribute type hierarchy filtered to include
+        only attributes that apply to at least one event.
+        """
+        attr_types = self.attributes_for_types(self.get_event_types())
+        return self._get_filtered_attribute_type_hierarchy(attr_types)
 
     def preferred_display_form(self, t):
         """
