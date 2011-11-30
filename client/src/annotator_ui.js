@@ -1121,6 +1121,12 @@ var AnnotatorUI = (function($, window, undefined) {
           });
         });
         $taggerButtons.find('input').button();
+        // if nothing was set up, hide the whole fieldset, else show
+        if ($taggerButtons.find('input').length == 0) {
+          $('#auto_tagging_fieldset').hide();
+        } else {
+          $('#auto_tagging_fieldset').show();
+        }
       }
 
       var spanAndAttributeTypesLoaded = function(_spanTypes, 
