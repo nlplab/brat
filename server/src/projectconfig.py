@@ -218,27 +218,19 @@ class TypeHierarchyNode:
             key, rep = m.groups()
 
             if rep == '':
-                # mandatory, exactly one
-                mandatory_key = True
-                multiple_allowed = False
+                # exactly one
                 minimum_count = 1
                 maximum_count = 1
             elif rep == '?':
-                # optional, at most one
-                mandatory_key = False
-                multiple_allowed = False
+                # zero or one
                 minimum_count = 0
                 maximum_count = 1
             elif rep == '*':
-                # optional, any number
-                mandatory_key = False
-                multiple_allowed = True
+                # any number
                 minimum_count = 0
                 maximum_count = sys.maxint
             elif rep == '+':
-                # mandatory, any number
-                mandatory_key = True
-                multiple_allowed = True
+                # one or more
                 minimum_count = 1
                 maximum_count = sys.maxint
             else:
@@ -255,8 +247,6 @@ class TypeHierarchyNode:
                     if n1 == 0:
                         Messager.warning("Project configuration: cannot have exactly 0 repetitions of argument '%s'." % (key+rep), 5)
                         raise InvalidProjectConfigException
-                    mandatory_key = True
-                    multiple_allowed = n1 > 1
                     minimum_count = n1
                     maximum_count = n1
                 else:
@@ -265,10 +255,11 @@ class TypeHierarchyNode:
                     if n1 > n2:
                         Messager.warning("Project configuration: invalid range %d-%d for argument '%s'." % (n1, n2, key+rep), 5)
                         raise InvalidProjectConfigException
-                    mandatory_key = n1 > 0
-                    multiple_allowed = n2 > 1
                     minimum_count = n1
                     maximum_count = n2
+
+            mandatory_key = (minimum_count > 0)
+            multiple_allowed = (maximum_count > 1)
             
             if key in self.arguments:
                 Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
