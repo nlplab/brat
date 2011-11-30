@@ -20,7 +20,9 @@ var AnnotatorUI = (function($, window, undefined) {
       var editedSpan = null;
       var repeatingArcTypes = [];
       var spanTypes = null;
-      var attributeTypes = null;
+      var entityAttributeTypes = null;
+      var eventAttributeTypes = null;
+      var allAttributeTypes = null;
       var relationTypesHash = null;
       var showValidAttributes; // callback function
       var confirmModeOn = false; // TODO: grab initial value from radio button
@@ -347,7 +349,7 @@ var AnnotatorUI = (function($, window, undefined) {
           keymap[$.ui.keyCode.DELETE] = null;
         }
         if (!reselectedSpan) {
-          $.each(attributeTypes, function(attrNo, attr) {
+          $.each(allAttributeTypes, function(attrNo, attr) {
             $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
             var val = span && span.attributes[attr.type];
             if (attr.unused) {
@@ -361,12 +363,11 @@ var AnnotatorUI = (function($, window, undefined) {
             }
           });
         }
-        // TODO: generalize to consider also entity attributes
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
           var validAttrs = type ? spanTypes[type].attributes : [];
           var shownCount = 0;
-          $.each(attributeTypes, function(attrNo, attr) {
+          $.each(allAttributeTypes, function(attrNo, attr) {
             var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
             var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
             if (showAttr) {
@@ -1040,10 +1041,11 @@ var AnnotatorUI = (function($, window, undefined) {
         addSpanTypesToDivInner($eventScroller, response.event_types, 'event');
 
         // fill in attributes
-        // TODO: split into entity and event attribs, fill separately
-        // to support also entity attributes
-        var $attrs = $('#event_attributes div.scroller').empty();
-        addAttributeTypesToDiv($attrs, attributeTypes);
+        var $entattrs = $('#entity_attributes div.scroller').empty();
+        addAttributeTypesToDiv($entattrs, entityAttributeTypes);
+
+        var $eveattrs = $('#event_attributes div.scroller').empty();
+        addAttributeTypesToDiv($eveattrs, eventAttributeTypes);
 
         // fill search options in span dialog
         searchConfig = response.search_config;
@@ -1106,10 +1108,18 @@ var AnnotatorUI = (function($, window, undefined) {
         $taggerButtons.find('input').button();
       }
 
-      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes, _relationTypesHash) {
+      var spanAndAttributeTypesLoaded = function(_spanTypes, 
+                                                 _entityAttributeTypes,
+                                                 _eventAttributeTypes,
+                                                 _relationTypesHash) {
         spanTypes = _spanTypes;
-        attributeTypes = _attributeTypes;
+        entityAttributeTypes = _entityAttributeTypes;
+        eventAttributeTypes = _eventAttributeTypes;
         relationTypesHash = _relationTypesHash;
+        // for easier access
+        allAttributeTypes = $.extend({}, 
+                                     entityAttributeTypes, 
+                                     eventAttributeTypes);
       };
 
       var gotCurrent = function(_coll, _doc, _args) {
@@ -1264,7 +1274,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
 
         var attributes = {};
-        $.each(attributeTypes, function(attrNo, attr) {
+        $.each(allAttributeTypes, function(attrNo, attr) {
           var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
           if (attr.bool) {
             attributes[attr.type] = $input[0].checked;

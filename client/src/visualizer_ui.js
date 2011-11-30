@@ -14,7 +14,8 @@ var VisualizerUI = (function($, window, undefined) {
 
       var currentForm;
       var spanTypes = null;
-      var attributeTypes = null;
+      // TODO: confirm unnecessary and remove
+//       var attributeTypes = null;
       var data = null;
       var searchConfig = null;
       var coll, doc, args;
@@ -1619,9 +1620,13 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('setCollection', [collection, '', data.arguments]);
       };
 
-      var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
+      // TODO: confirm attributeTypes unnecessary and remove
+//       var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
+//         spanTypes = _spanTypes;
+//         attributeTypes = _attributeTypes;
+//       };
+      var spanAndAttributeTypesLoaded = function(_spanTypes) {
         spanTypes = _spanTypes;
-        attributeTypes = _attributeTypes;
       };
 
       var annotationIsAvailable = function() {

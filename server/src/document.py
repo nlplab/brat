@@ -306,8 +306,14 @@ def get_span_types(directory):
     entity_types = _fill_type_configuration(entity_hierarchy,
             project_conf, hotkey_by_type)
 
-    attribute_hierarchy = project_conf.get_attribute_type_hierarchy()
-    attribute_types = _fill_attribute_configuration(attribute_hierarchy, project_conf)
+#     attribute_hierarchy = project_conf.get_attribute_type_hierarchy()
+#     attribute_types = _fill_attribute_configuration(attribute_hierarchy, project_conf)
+
+    entity_attribute_hierarchy = project_conf.get_entity_attribute_type_hierarchy()
+    entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf)
+    
+    event_attribute_hierarchy = project_conf.get_event_attribute_type_hierarchy()
+    event_attribute_types = _fill_attribute_configuration(event_attribute_hierarchy, project_conf)
 
     relation_hierarchy = project_conf.get_relation_type_hierarchy()
     relation_types = _fill_relation_configuration(relation_hierarchy,
@@ -321,7 +327,9 @@ def get_span_types(directory):
     unconfigured += [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
     unconf_types = _fill_visual_configuration(unconfigured, project_conf)
 
-    return event_types, entity_types, attribute_types, relation_types, unconf_types
+    # TODO: this is just horrible. What's all this doing in a function
+    # called get_span_types() anyway? Please fix.
+    return event_types, entity_types, event_attribute_types, entity_attribute_types, relation_types, unconf_types
 
 def get_search_config(directory):
     return ProjectConfiguration(directory).get_search_config()
@@ -431,7 +439,7 @@ def get_directory_information(collection):
     for i in doclist:
         combolist.append(["d", None]+i)
 
-    event_types, entity_types, attribute_types, relation_types, unconf_types = get_span_types(real_dir)
+    event_types, entity_types, event_attribute_types, entity_attribute_types, relation_types, unconf_types = get_span_types(real_dir)
 
     # plug in the search config too
     search_config = get_search_config(real_dir)
@@ -458,7 +466,9 @@ def get_directory_information(collection):
             'messages': [],
             'event_types': event_types,
             'entity_types': entity_types,
-            'attribute_types': attribute_types,
+#             'attribute_types': attribute_types,
+            'event_attribute_types': event_attribute_types,
+            'entity_attribute_types': entity_attribute_types,
             'relation_types': relation_types,
             'unconfigured_types': unconf_types,
             'description': readme_text,
