@@ -25,8 +25,6 @@ var AnnotatorUI = (function($, window, undefined) {
       var allAttributeTypes = null; // TODO: temp workaround, remove
       var relationTypesHash = null;
       var showValidAttributes; // callback function
-      var confirmModeOn = false; // TODO: grab initial value from radio button
-      var rapidModeOn = false;  // TODO: grab initial value from radio button
 
       // TODO: this is an ugly hack, remove (see comment with assignment)
       var lastRapidAnnotationEvent = null;
@@ -62,7 +60,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // in rapid annotation mode, prioritize the keys 0..9 for the
         // ordered choices in the quick annotation dialog.
-        if (rapidModeOn && rapidAnnotationDialogVisible && 
+        if (Configuration.visual.rapidModeOn && rapidAnnotationDialogVisible && 
             "0".charCodeAt() <= code && code <= "9".charCodeAt()) {
           var idx = String.fromCharCode(code);
           var $input = $('#rapid_span_'+idx);
@@ -417,7 +415,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         }
         showValidAttributes();
-        if (reselectedSpan && !confirmModeOn) {
+        if (reselectedSpan && !Configuration.visual.confirmModeOn) {
           spanForm.submit();
         } else {
           dispatcher.post('showForm', [spanForm]);
@@ -651,7 +649,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#arc_form_reselect, #arc_form_delete').hide();
         }
 
-        if (!confirmModeOn) {
+        if (!Configuration.visual.confirmModeOn) {
           arcForm.find('#arc_roles input:radio').click(arcFormSubmitRadio);
         }
 
@@ -667,7 +665,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var deleteArc = function(evt) {
-        if (confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
+        if (Configuration.visual.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
         }
         var eventDataId = $(evt.target).attr('data-arc-ed');
@@ -817,7 +815,7 @@ var AnnotatorUI = (function($, window, undefined) {
               $(reselectedSpan.rect).removeClass('reselect');
               reselectedSpan = null;
               svgElement.removeClass('reselect');
-            } else if (!rapidModeOn || reselectedSpan != null) {
+            } else if (!Configuration.visual.rapidModeOn || reselectedSpan != null) {
               // normal span select in standard annotation mode
               // or reselect: show selector
               var spanText = data.text.substring(selectedFrom, selectedTo);
@@ -870,7 +868,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var spanFormSubmitRadio = function(evt) {
-        if (confirmModeOn) {
+        if (Configuration.visual.confirmModeOn) {
           showValidAttributes();
           $('#span_form-ok').focus();
         } else {
@@ -1183,7 +1181,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var rapidSpanForm = $('#rapid_span_form');
     
       var deleteSpan = function() {
-        if (confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
+        if (Configuration.visual.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
         }
         $.extend(spanOptions, {
@@ -1468,14 +1466,14 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var setAnnotationSpeed = function(speed) {
         if (speed == 1) {
-          confirmModeOn = true;
+          Configuration.visual.confirmModeOn = true;
         } else {
-          confirmModeOn = false;
+          Configuration.visual.confirmModeOn = false;
         }
         if (speed == 3) {
-          rapidModeOn = true;
+          Configuration.visual.rapidModeOn = true;
         } else {
-          rapidModeOn = false;
+          Configuration.visual.rapidModeOn = false;
         }
       };
 

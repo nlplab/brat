@@ -3,6 +3,9 @@
 var Configuration = (function(window, undefined) {
     var abbrevsOn = true;
     var textBackgrounds = "striped";
+    var svgWidth = '100%';
+    var rapidModeOn = false;
+    var confirmModeOn = false; // TODO: grab initial value from radio button
 
     var visual = {
       margin: { x: 2, y: 1 },
@@ -16,5 +19,8 @@ var Configuration = (function(window, undefined) {
       abbrevsOn: abbrevsOn,
       textBackgrounds: textBackgrounds,
       visual: visual,
+      svgWidth: svgWidth,
+      rapidModeOn: rapidModeOn,
+      confirmModeOn: confirmModeOn,
     };
 })(window);

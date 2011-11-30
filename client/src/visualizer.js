@@ -2217,7 +2217,9 @@ Util.profileStart('before render');
       }
 
       var setSvgWidth = function(_width) {
-	  $svgDiv.width(_width);
+        Configuration.svgWidth = _width;
+        // TODO: this needs to be set from Configuration on reload
+	$svgDiv.width(Configuration.svgWidth);
       }
 
       $svgDiv = $($svgDiv).hide();
