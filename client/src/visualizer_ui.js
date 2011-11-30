@@ -499,8 +499,12 @@ var VisualizerUI = (function($, window, undefined) {
         if (coll != _coll || doc != _doc ||
             !Util.isEqual(args, _args)) {
           // trigger clear and changes if something other than the
-          // current thing is chosen
-          dispatcher.post('clearSVG');
+          // current thing is chosen, but only blank screen before
+          // render if the document changed (prevent "flicker" on
+          // e.g. picking search results)
+          if (coll != _coll || doc != _doc) {
+            dispatcher.post('clearSVG');
+          }
           dispatcher.post('allowReloadByURL');
           dispatcher.post('setCollection', [_coll, _doc, _args]);
         } else {
