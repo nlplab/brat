@@ -30,6 +30,7 @@ var VisualizerUI = (function($, window, undefined) {
       var maxMessages = 100;
 
       var currentDocumentSVGsaved = false;
+      var fileBrowserClosedWithSubmit = false;
 
       /* START "no svg" message - related */
 
@@ -445,7 +446,10 @@ var VisualizerUI = (function($, window, undefined) {
           alsoResize: '#document_select',
           close: function(evt) {
             if (!doc) {
-              $('#waiter').dialog('close');
+              // clear the "blind" unless waiting for a collection
+              if (!fileBrowserClosedWithSubmit) {
+                $('#waiter').dialog('close');
+              }
             }
           },
           width: 500
@@ -496,6 +500,10 @@ var VisualizerUI = (function($, window, undefined) {
         }
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').empty();
+
+        // set to allow keeping "blind" down during reload
+        fileBrowserClosedWithSubmit = true;
+
         if (coll != _coll || doc != _doc ||
             !Util.isEqual(args, _args)) {
           // trigger clear and changes if something other than the
@@ -519,6 +527,11 @@ var VisualizerUI = (function($, window, undefined) {
 
       var fileBrowserWaiting = false;
       var showFileBrowser = function() {
+        // keep tabs on how the browser is closed; we need to keep the
+        // "blind" up when retrieving a collection, but not when canceling
+        // without selection (would hang the UI)
+        fileBrowserClosedWithSubmit = false;
+
         if (currentForm == tutorialForm) {
           fileBrowserWaiting = true;
           return;
