@@ -14,7 +14,7 @@ from os.path import join as path_join
 from annotator import delete_span, create_span
 from annotation import TextAnnotations
 from common import ProtocolError
-from jsonwraps import loads as json_loads
+from jsonwrap import loads as json_loads
 
 
 class CorruptUndoTokenError(ProtocolError):
