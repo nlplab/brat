@@ -34,6 +34,7 @@ from search import search_text, search_entity, search_event, search_relation
 from predict import suggest_span_types
 from undo import undo
 from tag import tag
+from delete import delete_document, delete_collection
 
 # no-op function that can be invoked by client to log a user action
 def logging_no_op(collection, document, log):
@@ -65,10 +66,16 @@ DISPATCHER = {
         'deleteArc': delete_arc,
         'possibleArcTypes': possible_arc_types,
 
-        'searchText'     : search_text,
-        'searchEntity'   : search_entity,
-        'searchEvent'    : search_event,
-        'searchRelation' : search_relation,
+        # NODE: search actions are redundant to allow different
+        # permissions for single-document and whole-collection search.
+        'searchTextInDocument'     : search_text,
+        'searchEntityInDocument'   : search_entity,
+        'searchEventInDocument'    : search_event,
+        'searchRelationInDocument' : search_relation,
+        'searchTextInCollection'     : search_text,
+        'searchEntityInCollection'   : search_entity,
+        'searchEventInCollection'    : search_event,
+        'searchRelationInCollection' : search_relation,
 
         'suggestSpanTypes': suggest_span_types,
 
@@ -79,6 +86,9 @@ DISPATCHER = {
 
         'undo': undo,
         'tag': tag,
+
+        'deleteDocument': delete_document,
+        'deleteCollection': delete_collection,
         }
 
 # Actions that correspond to annotation functionality
@@ -103,11 +113,11 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
         # Document functionality
         'importDocument',
         
-        # Search functionality (heavy on the CPU/disk ATM)
-        'searchText',
-        'searchEntity',
-        'searchEvent',
-        'searchRelation',
+        # Search functionality in whole collection (heavy on the CPU/disk ATM)
+        'searchTextInCollection',
+        'searchEntityInCollection',
+        'searchEventInCollection',
+        'searchRelationInCollection',
 
         'tag',
         ))
@@ -115,7 +125,7 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
 # Sanity check
 for req_action in REQUIRES_AUTHENTICATION:
     assert req_action in DISPATCHER, (
-            'redundant action in REQUIRES_AUTHENTICATION set')
+            'INTERNAL ERROR: undefined action in REQUIRES_AUTHENTICATION set')
 ###
 
 

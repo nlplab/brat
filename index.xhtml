@@ -108,7 +108,6 @@
             <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
             <input id="data_button" type="button" value="Data" tabindex="-1"/>
             <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search text and annotations">Search</label>
-            <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
             <input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/>
             <input id="options_button" type="button" value="Options" tabindex="-1"/>
           </div>
@@ -159,11 +158,17 @@
         </div>
       </fieldset>
       <!-- Data dialog automatic annotation section -->
-      <fieldset class="login small-buttons">
-        <legend>Automatic annotation</legend>
-        <div class="optionRow">Automatically tag current document</div>
-        <div id="tagger_buttons"/>
-      </fieldset>
+      <div id="auto_tagging_login_control" class="login">
+        <fieldset id="auto_tagging_fieldset" class="small-buttons">
+          <legend>Automatic annotation</legend>
+          <div class="optionRow">Automatically tag current document</div>
+          <div id="tagger_buttons"/>
+        </fieldset>
+        <fieldset id="no_tagger_message" style="display:none">
+          <legend>Automatic annotation</legend>
+          <div style="color:gray; font-size:80%; text-align:center; margin:1em">(No tools set up. Please contact server maintainer if needed.)</div>
+        </fieldset>
+      </div>
       <!-- Data dialog import section -->
       <fieldset class="login small-buttons">
         <legend>Import</legend>
@@ -405,7 +410,7 @@
           </span>
         </div>
         <div id="context_size_div" class="optionRow">
-          Context length <input id="context_length" maxlength="3" size="3" value="50"/> characters
+          <span class="optionLabel">&#x21B3; Context length</span> <input id="context_length" maxlength="3" size="3" value="50"/> characters
         </div>
         <div class="optionRow">
           <span class="optionLabel">Match text as</span>
@@ -421,7 +426,7 @@
             <input type="radio" id="text_match_regex" value="regex" 
                    name="text_match_radio"/>
             <label for="text_match_regex"
-                   title="Treat given text as regular expression.">regexp</label>
+                   title="Treat given text as regular expression.">regex</label>
           </span>
         </div>
         <div class="optionRow">
@@ -598,10 +603,10 @@
       <div id="browserwarning">
         Please be aware that
         <span class="logo">brat</span>
-        is only supported on the Webkit browsers (i.e.
+        is only fully supported on
         <a href="http://www.google.com/chrome">Google Chrome</a>
         and
-        <a href="http://www.apple.com/safari/">Safari</a>).
+        <a href="http://www.apple.com/safari/">Safari</a>.
         In other browsers, it may exhibit various degrees of problems,
         from minor annoyances to severe ones that make
         <span class="logo">brat</span>
@@ -615,37 +620,39 @@
         instructions, please see
         the <a href="static/manual/index.html" target="manual">brat
         user manual</a>.</p>
+      <h3>Selecting a document</h3>
+      <p>After closing this tutorial, you will see the collection
+        browser, which allows you to access the different text
+        collections and individual documents in those collections on
+        your brat installation. Simply double-click on a collection
+        name to show its contents or on a document name to open it.
+      </p>
+      <p>You can later return to the collection browser by pressing the
+        TAB key or by clicking on &quot;Collection&quot; in the menu.
+      </p>
       <h3>Visualization</h3>
       <p>When a document is selected, the main window area shows a
         visualization of the text and annotations of that
         document. Placing the mouse cursor over an annotation shows
-        some further information about that annotation.
+        further information about that annotation.
       </p>
       <h3>Menu</h3>
-      <p>Placing the mouse cursor over the top bar of the window opens the
-        tool menu. This provides access to the following features:
+      <p>Placing the mouse cursor over the blue bar on top of the
+        window opens the tool menu. This provides access to the
+        following features:
         <ul>
-          <li><b>Collection</b>: annotation collection browser</li>
+          <li><b>Collection</b>: collection browser</li>
           <li><b>Data</b>: export annotation data</li>
-          <li><b>Search</b>: search current collection</li>
+          <li><b>Search</b>: search current document or collection</li>
           <li><b>Options</b>: system configuration options</li>
           <li><b>Login</b>: log in for editing</li>
         </ul>
       </p>
-      <h3>Collection browser</h3> 
-      <p>The collection browser, accessible from the menu or by pressing
-        the tab key, allows you to access the different text collections
-        and individual documents in those collections set up on your
-        installation.
-      </p>
-      <p>Simply double-click on a collection name to show its contents
-        or on a document name to visualize it.
-      </p>
       <h3>Basic editing</h3>
       <p>When logged in (from the menu), it is possible to add
         annotations for a text span simply by selecting that span with
-        the mouse(either by &quot;dragging&quot; over the text or by
-        double-clicking on a word).
+        the mouse, either by &quot;dragging&quot; over the text or by
+        double-clicking on a word.
       </p>
       <p>After selecting a span, the system shows the annotation dialog.
         This allows the selection of the type to assign to the newly

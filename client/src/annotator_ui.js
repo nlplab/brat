@@ -60,7 +60,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // in rapid annotation mode, prioritize the keys 0..9 for the
         // ordered choices in the quick annotation dialog.
-        if (Configuration.visual.rapidModeOn && rapidAnnotationDialogVisible && 
+        if (Configuration.rapidModeOn && rapidAnnotationDialogVisible && 
             "0".charCodeAt() <= code && code <= "9".charCodeAt()) {
           var idx = String.fromCharCode(code);
           var $input = $('#rapid_span_'+idx);
@@ -415,7 +415,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         }
         showValidAttributes();
-        if (reselectedSpan && !Configuration.visual.confirmModeOn) {
+        if (reselectedSpan && !Configuration.confirmModeOn) {
           spanForm.submit();
         } else {
           dispatcher.post('showForm', [spanForm]);
@@ -649,7 +649,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#arc_form_reselect, #arc_form_delete').hide();
         }
 
-        if (!Configuration.visual.confirmModeOn) {
+        if (!Configuration.confirmModeOn) {
           arcForm.find('#arc_roles input:radio').click(arcFormSubmitRadio);
         }
 
@@ -665,7 +665,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var deleteArc = function(evt) {
-        if (Configuration.visual.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
+        if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
         }
         var eventDataId = $(evt.target).attr('data-arc-ed');
@@ -815,7 +815,7 @@ var AnnotatorUI = (function($, window, undefined) {
               $(reselectedSpan.rect).removeClass('reselect');
               reselectedSpan = null;
               svgElement.removeClass('reselect');
-            } else if (!Configuration.visual.rapidModeOn || reselectedSpan != null) {
+            } else if (!Configuration.rapidModeOn || reselectedSpan != null) {
               // normal span select in standard annotation mode
               // or reselect: show selector
               var spanText = data.text.substring(selectedFrom, selectedTo);
@@ -845,6 +845,15 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var receivedSuggestedSpanTypes = function(sugg) {
+        if (sugg.exception) {
+          // failed in one way or another; assume rapid mode cannot be
+          // used.
+          dispatcher.post('messages', [[['Rapid annotation mode error; returning to normal mode.', 'warning', -1]]]);
+          setAnnotationSpeed(2);
+          dispatcher.post('configurationUpdated');
+          return false;
+        }
+
         // make sure the suggestions are for the current collection and document
         if (sugg.collection != coll || sugg.document != doc) {
           dispatcher.post('messages', [[['Error: collection/document mismatch for span suggestions', 'error']]]);
@@ -868,7 +877,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var spanFormSubmitRadio = function(evt) {
-        if (Configuration.visual.confirmModeOn) {
+        if (Configuration.confirmModeOn) {
           showValidAttributes();
           $('#span_form-ok').focus();
         } else {
@@ -1121,6 +1130,15 @@ var AnnotatorUI = (function($, window, undefined) {
           });
         });
         $taggerButtons.find('input').button();
+        // if nothing was set up, hide the whole fieldset and show
+        // a message to this effect, else the other way around
+        if ($taggerButtons.find('input').length == 0) {
+          $('#auto_tagging_fieldset').hide();
+          $('#no_tagger_message').show();
+        } else {
+          $('#auto_tagging_fieldset').show();
+          $('#no_tagger_message').hide();
+        }
       }
 
       var spanAndAttributeTypesLoaded = function(_spanTypes, 
@@ -1181,7 +1199,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var rapidSpanForm = $('#rapid_span_form');
     
       var deleteSpan = function() {
-        if (Configuration.visual.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
+        if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
         }
         $.extend(spanOptions, {
@@ -1466,14 +1484,14 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var setAnnotationSpeed = function(speed) {
         if (speed == 1) {
-          Configuration.visual.confirmModeOn = true;
+          Configuration.confirmModeOn = true;
         } else {
-          Configuration.visual.confirmModeOn = false;
+          Configuration.confirmModeOn = false;
         }
         if (speed == 3) {
-          Configuration.visual.rapidModeOn = true;
+          Configuration.rapidModeOn = true;
         } else {
-          Configuration.visual.rapidModeOn = false;
+          Configuration.rapidModeOn = false;
         }
         dispatcher.post('configurationChanged');
       };

@@ -36,6 +36,9 @@ var URLMonitor = (function($, window, undefined) {
         if (oldColl !== coll) {
           that.url_hash.setCollection(coll);
 
+          // keep "blind" down while loading new collection
+          $('#waiter').dialog('open');
+
           dispatcher.post('ajax', [{
               action: 'getCollectionInformation',
               collection: coll

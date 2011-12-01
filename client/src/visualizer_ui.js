@@ -30,6 +30,7 @@ var VisualizerUI = (function($, window, undefined) {
       var maxMessages = 100;
 
       var currentDocumentSVGsaved = false;
+      var fileBrowserClosedWithSubmit = false;
 
       /* START "no svg" message - related */
 
@@ -445,7 +446,10 @@ var VisualizerUI = (function($, window, undefined) {
           alsoResize: '#document_select',
           close: function(evt) {
             if (!doc) {
-              $('#waiter').dialog('close');
+              // clear the "blind" unless waiting for a collection
+              if (!fileBrowserClosedWithSubmit) {
+                $('#waiter').dialog('close');
+              }
             }
           },
           width: 500
@@ -496,11 +500,19 @@ var VisualizerUI = (function($, window, undefined) {
         }
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').empty();
+
+        // set to allow keeping "blind" down during reload
+        fileBrowserClosedWithSubmit = true;
+
         if (coll != _coll || doc != _doc ||
             !Util.isEqual(args, _args)) {
           // trigger clear and changes if something other than the
-          // current thing is chosen
-          dispatcher.post('clearSVG');
+          // current thing is chosen, but only blank screen before
+          // render if the document changed (prevent "flicker" on
+          // e.g. picking search results)
+          if (coll != _coll || doc != _doc) {
+            dispatcher.post('clearSVG');
+          }
           dispatcher.post('allowReloadByURL');
           dispatcher.post('setCollection', [_coll, _doc, _args]);
         } else {
@@ -515,6 +527,11 @@ var VisualizerUI = (function($, window, undefined) {
 
       var fileBrowserWaiting = false;
       var showFileBrowser = function() {
+        // keep tabs on how the browser is closed; we need to keep the
+        // "blind" up when retrieving a collection, but not when canceling
+        // without selection (would hang the UI)
+        fileBrowserClosedWithSubmit = false;
+
         if (currentForm == tutorialForm) {
           fileBrowserWaiting = true;
           return;
@@ -544,7 +561,7 @@ var VisualizerUI = (function($, window, undefined) {
           var isColl = doc[0] == "c"; // "collection"
           // second column is optional annotation-specific pointer,
           // used (at least) for search results
-          var annp = doc[1] ? ('?' + Util.param(doc[1])) : '';
+          var annp = doc[1] ? ('?' + Util.escapeHTML(Util.param(doc[1]))) : '';
           var name = doc[2];
           var collFile = isColl ? 'collection' : 'file';
           //var collFileImg = isColl ? 'ic_list_folder.png' : 'ic_list_drafts.png';
@@ -879,6 +896,7 @@ var VisualizerUI = (function($, window, undefined) {
           document: docArg,
           // TODO the search form got complex :)
         };
+
         switch (action) {
           case 'searchText':
             opts.text = $('#search_form_text_text').val();
@@ -913,8 +931,16 @@ var VisualizerUI = (function($, window, undefined) {
             break;
         }
 
-        // fill in scope of search (document / collection)
+        // fill in scope of search ("document" / "collection")
+        var searchScope = $('#search_scope input[checked]').val();
         opts.scope = $('#search_scope input[checked]').val();
+
+        // adjust specific action to invoke by scope
+        if (searchScope == "document") {
+          opts.action = opts.action + "InDocument";
+        } else {
+          opts.action = opts.action + "InCollection";
+        }
 
         // fill in concordancing options
         opts.concordancing = $('#concordancing_on').is(':checked');
@@ -1113,6 +1139,9 @@ var VisualizerUI = (function($, window, undefined) {
         } else if (evt.ctrlKey && code == 'F'.charCodeAt(0)) {
           evt.preventDefault();
           showSearchForm();
+        } else if (searchActive && evt.ctrlKey && code == 'G'.charCodeAt(0)) {
+          evt.preventDefault();
+          return moveInFileBrowser(+1);
         }
       };
 
@@ -1295,12 +1324,6 @@ var VisualizerUI = (function($, window, undefined) {
           $sourceFiles.append($link);
         });
         /* Add a download link for the whole collection */
-        var $sourceCollection = $('#source_collection').empty();
-        var $collectionDownloadLink = $('<a target="brat_search"/>')
-          .text('Download tar.gz')
-          .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + coll);
-        $sourceCollection.append($collectionDownloadLink);
-        $collectionDownloadLink.button();
         invalidateSavedSVG();
 
         if (data.mtime) {
@@ -1314,6 +1337,8 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var gotCurrent = function(_coll, _doc, _args) {
+        var oldColl = coll;
+
         coll = _coll;
         doc = _doc;
         args = _args;
@@ -1321,6 +1346,16 @@ var VisualizerUI = (function($, window, undefined) {
         // if we have a specific document, hide the "no document" message
         if (_doc) {
           hideNoSVG();
+        }
+
+        // if we have a collection change, update "collection download" button
+        if (oldColl != coll) {
+          var $sourceCollection = $('#source_collection').empty();
+          var $collectionDownloadLink = $('<a target="brat_search"/>')
+            .text('Download tar.gz')
+            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + coll);
+          $sourceCollection.append($collectionDownloadLink);
+          $collectionDownloadLink.button();
         }
           
         $docName = $('#document_name input').val(coll + doc);
@@ -1545,8 +1580,8 @@ var VisualizerUI = (function($, window, undefined) {
         $('#browserwarning').css('display', 'block');
       }
       initForm(tutorialForm, {
-        width: 600,
-        height: 500,
+        width: 800,
+        height: 600,
         no_cancel: true,
         no_ok: true,
         buttons: [{
@@ -1593,7 +1628,8 @@ var VisualizerUI = (function($, window, undefined) {
           if (response.config != undefined) {
             // TODO: check for exceptions
             var storedConf = $.deparam(response.config);
-            // TODO: make assignment work
+            // TODO: make whole-object assignment work
+            // @amadanmath: help! This code is horrible
             Configuration.abbrevsOn = storedConf.abbrevsOn == "true";
             Configuration.textBackgrounds = storedConf.textBackgrounds;
             Configuration.svgWidth = storedConf.svgWidth = "100%";
@@ -1607,6 +1643,7 @@ var VisualizerUI = (function($, window, undefined) {
             Configuration.visual.arcSpacing = parseInt(storedConf.visual.arcSpacing);
             Configuration.visual.arcStartHeight = parseInt(storedConf.visual.arcStartHeight);
           }
+          dispatcher.post('configurationUpdated');
         }]);
       };
 
@@ -1742,11 +1779,36 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var configurationChanged = function() {
+        // save configuration changed by user action
         dispatcher.post('ajax', [{
                     action: 'saveConf',
                     config: $.param(Configuration),
                 }, null]);
       };
+
+      var updateConfigurationUI = function() {
+        // update UI to reflect non-user config changes (e.g. load)
+        
+        // Annotation mode
+        if (Configuration.confirmModeOn) {
+          $('#annotation_speed1')[0].checked = true;
+        } else if (Configuration.rapidModeOn) {
+          $('#annotation_speed3')[0].checked = true;
+        } else {
+          $('#annotation_speed2')[0].checked = true;
+        }
+        $('#annotation_speed input').button('refresh');
+
+        // Label abbrevs
+        $('#label_abbreviations_on')[0].checked  = Configuration.abbrevsOn;
+        $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn; 
+        $('#label_abbreviations input').button('refresh');
+
+        // Text backgrounds
+        
+        $('#text_backgrounds input[value="'+Configuration.textBackgrounds+'"]')[0].checked = true;
+        $('#text_backgrounds input').button('refresh');
+      }
 
       dispatcher.
           on('init', init).
@@ -1781,7 +1843,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch).
           on('clearSVG', showNoSVG).
-          on('configurationChanged', configurationChanged);
+          on('configurationChanged', configurationChanged).
+          on('configurationUpdated', updateConfigurationUI);
     };
 
     return VisualizerUI;
