@@ -65,10 +65,16 @@ DISPATCHER = {
         'deleteArc': delete_arc,
         'possibleArcTypes': possible_arc_types,
 
-        'searchText'     : search_text,
-        'searchEntity'   : search_entity,
-        'searchEvent'    : search_event,
-        'searchRelation' : search_relation,
+        # NODE: search actions are redundant to allow different
+        # permissions for single-document and whole-collection search.
+        'searchTextInDocument'     : search_text,
+        'searchEntityInDocument'   : search_entity,
+        'searchEventInDocument'    : search_event,
+        'searchRelationInDocument' : search_relation,
+        'searchTextInCollection'     : search_text,
+        'searchEntityInCollection'   : search_entity,
+        'searchEventInCollection'    : search_event,
+        'searchRelationInCollection' : search_relation,
 
         'suggestSpanTypes': suggest_span_types,
 
@@ -103,11 +109,11 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
         # Document functionality
         'importDocument',
         
-        # Search functionality (heavy on the CPU/disk ATM)
-        'searchText',
-        'searchEntity',
-        'searchEvent',
-        'searchRelation',
+        # Search functionality in whole collection (heavy on the CPU/disk ATM)
+        'searchTextInCollection',
+        'searchEntityInCollection',
+        'searchEventInCollection',
+        'searchRelationInCollection',
 
         # Configuration storage
         'loadConf',
@@ -119,7 +125,7 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
 # Sanity check
 for req_action in REQUIRES_AUTHENTICATION:
     assert req_action in DISPATCHER, (
-            'redundant action in REQUIRES_AUTHENTICATION set')
+            'INTERNAL ERROR: undefined action in REQUIRES_AUTHENTICATION set')
 ###
 
 

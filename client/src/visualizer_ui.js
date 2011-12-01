@@ -896,6 +896,7 @@ var VisualizerUI = (function($, window, undefined) {
           document: docArg,
           // TODO the search form got complex :)
         };
+
         switch (action) {
           case 'searchText':
             opts.text = $('#search_form_text_text').val();
@@ -930,8 +931,16 @@ var VisualizerUI = (function($, window, undefined) {
             break;
         }
 
-        // fill in scope of search (document / collection)
+        // fill in scope of search ("document" / "collection")
+        var searchScope = $('#search_scope input[checked]').val();
         opts.scope = $('#search_scope input[checked]').val();
+
+        // adjust specific action to invoke by scope
+        if (searchScope == "document") {
+          opts.action = opts.action + "InDocument";
+        } else {
+          opts.action = opts.action + "InCollection";
+        }
 
         // fill in concordancing options
         opts.concordancing = $('#concordancing_on').is(':checked');
