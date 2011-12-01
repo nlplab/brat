@@ -340,13 +340,60 @@
     </p>
 
     <h2 id="search">Search</h2>
+
+    <h3>Basic search options</h3>
+    <p>The data dialog, accessible from
+      the <a href="#menusection">menu</a> or by pressing CTRL-F,
+      provides access to search features.</p>
     <div class="image">
-      <img src="images/search-dialog-1.png"/>
-      <div style="width: 800px" class="caption">Search dialog</div>
+      <img src="images/search-dialog-only-text-1.png"/>
+      <div style="width: 507px" class="caption">Search dialog</div>
     </div>
-    <p>(<b>TODO: document</b>)
+    <p>
+      The four tabs on top allow selection of the thing to search for:
+      <ul>
+      <li><b>Text</b>: search for text matching a given string or regular expression</li>
+      <li><b>Entity</b>: search for entity annotations matching given specification</li>
+      <li><b>Event</b>: search for event annotations matching given specification</li>
+      <li><b>Relation</b>: search for relation annotations matching given specification</li>
+      </ul>
+    </p>
+    <p>
+      The only option show by default allows the selection of the search
+      scope:
+      <ul>
+      <li><b>Document</b>: search only the current document</li>
+      <li><b>Collection</b>: search all documents in the current collection</li>
+      </ul>
     </p>
 
+    <h3>Advanced search options</h3>
+    <p>Clicking on the text &quot;Show advanced&quot; reveals advanced
+      search options.
+    </p>
+    <div class="image">
+      <img src="images/search-dialog-only-advanced-1.png"/>
+      <div style="width: 507px" class="caption">Advanced search options</div>
+    </div>
+      <ul>
+      <li><b>Concordancing</b>: display search results with
+	surrounding context of the specified size (<b>Context length</b>) in
+	a <a href="http://en.wikipedia.org/wiki/Key_Word_in_Context">key
+	  word in context</a> format</li>
+      <li><b>Matching</b>: select between matching given text strings
+	as whole words, substrings of words, and
+	<a href="http://en.wikipedia.org/wiki/Regular_expression">regular
+	expression</a> (regex) search. In regular expression mode, the
+	given string is interpreted as a
+	(<a href="http://en.wikipedia.org/wiki/PCRE">PCRE</a>) regular
+	expression that is matched against target text.
+      </li>
+      <li><b>Case</b>: whether or not to require character case to
+	agree between the given string and the matched text.
+      </li>
+      </ul>
+
+    <!-- TODO
     <h2>Advanced usage</h2>
 
     <h3>Touch interface</h3>
@@ -355,6 +402,7 @@
     </p>
 
     <p><span style="color:red; font-weight:bold">TODO</span> more</p>
+    -->
 
   </body>
   </div>
