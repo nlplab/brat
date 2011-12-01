@@ -845,6 +845,14 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var receivedSuggestedSpanTypes = function(sugg) {
+        if (sugg.exception) {
+          // failed in one way or another; assume rapid mode cannot be
+          // used.
+          dispatcher.post('messages', [[['Rapid annotation mode error; returning to normal mode.', 'warning', -1]]]);
+          setAnnotationSpeed(2);
+          return false;
+        }
+
         // make sure the suggestions are for the current collection and document
         if (sugg.collection != coll || sugg.document != doc) {
           dispatcher.post('messages', [[['Error: collection/document mismatch for span suggestions', 'error']]]);
