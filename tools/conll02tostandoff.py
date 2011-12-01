@@ -119,7 +119,8 @@ def process(fn):
                     sentences.append(current)
                 current = []
                 continue
-            elif re.match(r'^===*\s+O\s*$', l):
+            elif (re.match(r'^===*\s+O\s*$', l) or
+                  re.match(r'^-DOCSTART-', l)):
                 # special character sequence separating documents
                 if len(sentences) > 0:
                     output(fn, docnum, sentences)
@@ -137,9 +138,12 @@ def process(fn):
                 docnum += 1
                 # go on to process current normally
 
-            # assume normal line, format word and BIO tag separates
-            # by space.
+            # Assume it's a normal line. The format for spanish is
+            # is word and BIO tag separated by space, and for dutch
+            # word, POS and BIO tag separated by space. Try both.
             m = re.match(r'^(\S+)\s(\S+)$', l)
+            if not m:
+                m = re.match(r'^(\S+)\s\S+\s(\S+)$', l)
             assert m, "Error parsing line %d: %s" % (ln+1, l)
             token, tag = m.groups()
 
