@@ -64,11 +64,19 @@ var Visualizer = (function($, window, undefined) {
       var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
       var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
       var reverseArcControlx = 5;   // control point distance for "UFO catchers"
-      var shadowSize = 4;
-      var shadowStroke = 5;
+      
+      // "shadow" effect settings (note, error, incompelete)
+      var rectShadowSize = 2.5;
+      var rectShadowRounding = 2.5;
+      var arcLabelShadowSize = 1;
+      var arcLabelShadowRounding = 5;
+      var shadowStroke = 2.5; // TODO XXX: this doesn't affect anything..?
+
+      // "marked" effect settings (edited, focus, match)
       var markedSpanSize = 6;
       var markedArcSize = 2;
       var markedArcStroke = 7; // TODO XXX: this doesn't seem to do anything..?
+
       var rowPadding = 2;
       var nestingAdjustYStepSize = 2; // size of height adjust for nested/nesting spans
       var nestingAdjustXStepSize = 1; // size of height adjust for nested/nesting spans
@@ -1085,15 +1093,15 @@ Util.profileStart('chunks');
             }
             if (span.shadowClass) {
               shadowRect = svg.rect(span.group,
-                  bx - shadowSize, by - shadowSize,
-                  bw + 2 * shadowSize, bh + 2 * shadowSize, {
+                  bx - rectShadowSize, by - rectShadowSize,
+                  bw + 2 * rectShadowSize, bh + 2 * rectShadowSize, {
                   'class': 'blur shadow_' + span.shadowClass,
-                  rx: shadowSize,
-                  ry: shadowSize,
+                  rx: rectShadowRounding,
+                  ry: rectShadowRounding,
               });
-              chunkFrom = Math.min(bx - shadowSize, chunkFrom);
-              chunkTo = Math.max(bx + bw + shadowSize, chunkTo);
-              spanHeight = Math.max(bh + 2 * shadowSize, spanHeight);
+              chunkFrom = Math.min(bx - rectShadowSize, chunkFrom);
+              chunkTo = Math.max(bx + bw + rectShadowSize, chunkTo);
+              spanHeight = Math.max(bh + 2 * rectShadowSize, spanHeight);
             }
             span.rect = svg.rect(span.group,
                 bx, by, bw, bh, {
@@ -1120,7 +1128,7 @@ Util.profileStart('chunks');
             spanHeights[span.lineIndex * 2] = span.height;
             $(span.rect).attr('y', yy - Configuration.visual.margin.y - yAdjust);
             if (shadowRect) {
-              $(shadowRect).attr('y', yy - shadowSize - Configuration.visual.margin.y - yAdjust);
+              $(shadowRect).attr('y', yy - rectShadowSize - Configuration.visual.margin.y - yAdjust);
             }
             if (markedRect) {
               $(markedRect).attr('y', yy - markedSpanSize - Configuration.visual.margin.y - yAdjust);
@@ -1563,7 +1571,9 @@ Util.profileStart('arcs');
             }
 
             var shadowGroup;
-            if (arc.shadowClass || arc.marked) shadowGroup = svg.group(arcGroup);
+            if (arc.shadowClass || arc.marked) {
+	      shadowGroup = svg.group(arcGroup);
+	    }
             var options = {
               'fill': color,
               'data-arc-role': arc.type,
@@ -1637,11 +1647,13 @@ Util.profileStart('arcs');
             }
             if (arc.shadowClass) {
               svg.rect(shadowGroup,
-                  textBox.x - shadowSize, textBox.y - shadowSize,
-                  textBox.width + 2 * shadowSize, textBox.height + 2 * shadowSize, {
+                  textBox.x - arcLabelShadowSize, 
+		  textBox.y - arcLabelShadowSize,
+                  textBox.width  + 2 * arcLabelShadowSize, 
+		  textBox.height + 2 * arcLabelShadowSize, {
                     'class': 'blur shadow_' + arc.shadowClass,
-                    rx: shadowSize,
-                    ry: shadowSize,
+                    rx: arcLabelShadowRounding,
+                    ry: arcLabelShadowRounding,
               });
             }
             var textStart = textBox.x - Configuration.visual.margin.x;
@@ -1797,13 +1809,15 @@ Util.profileStart('rows');
             if (sentComment) {
               var box = text.getBBox();
               svg.remove(text);
+	      // TODO: using rectShadowSize, but this shadow should
+	      // probably have its own setting for shadow size
               shadowRect = svg.rect(sentNumGroup,
-                  box.x - shadowSize, box.y - shadowSize,
-                  box.width + 2 * shadowSize, box.height + 2 * shadowSize, {
+                  box.x - rectShadowSize, box.y - rectShadowSize,
+                  box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
 
                   'class': 'blur shadow_' + sentComment.type,
-                  rx: shadowSize,
-                  ry: shadowSize,
+                  rx: rectShadowRounding,
+                  ry: rectShadowRounding,
                   'data-sent': row.sentence,
               });
               var text = svg.text(sentNumGroup, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
