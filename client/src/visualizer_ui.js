@@ -1628,7 +1628,8 @@ var VisualizerUI = (function($, window, undefined) {
           if (response.config != undefined) {
             // TODO: check for exceptions
             var storedConf = $.deparam(response.config);
-            // TODO: make assignment work
+            // TODO: make whole-object assignment work
+            // @amadanmath: help! This code is horrible
             Configuration.abbrevsOn = storedConf.abbrevsOn == "true";
             Configuration.textBackgrounds = storedConf.textBackgrounds;
             Configuration.svgWidth = storedConf.svgWidth = "100%";
@@ -1642,6 +1643,7 @@ var VisualizerUI = (function($, window, undefined) {
             Configuration.visual.arcSpacing = parseInt(storedConf.visual.arcSpacing);
             Configuration.visual.arcStartHeight = parseInt(storedConf.visual.arcStartHeight);
           }
+          dispatcher.post('configurationUpdated');
         }]);
       };
 
@@ -1777,11 +1779,36 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var configurationChanged = function() {
+        // save configuration changed by user action
         dispatcher.post('ajax', [{
                     action: 'saveConf',
                     config: $.param(Configuration),
                 }, null]);
       };
+
+      var updateConfigurationUI = function() {
+        // update UI to reflect non-user config changes (e.g. load)
+        
+        // Annotation mode
+        if (Configuration.confirmModeOn) {
+          $('#annotation_speed1')[0].checked = true;
+        } else if (Configuration.rapidModeOn) {
+          $('#annotation_speed3')[0].checked = true;
+        } else {
+          $('#annotation_speed2')[0].checked = true;
+        }
+        $('#annotation_speed input').button('refresh');
+
+        // Label abbrevs
+        $('#label_abbreviations_on')[0].checked  = Configuration.abbrevsOn;
+        $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn; 
+        $('#label_abbreviations input').button('refresh');
+
+        // Text backgrounds
+        
+        $('#text_backgrounds input[value="'+Configuration.textBackgrounds+'"]')[0].checked = true;
+        $('#text_backgrounds input').button('refresh');
+      }
 
       dispatcher.
           on('init', init).
@@ -1816,7 +1843,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch).
           on('clearSVG', showNoSVG).
-          on('configurationChanged', configurationChanged);
+          on('configurationChanged', configurationChanged).
+          on('configurationUpdated', updateConfigurationUI);
     };
 
     return VisualizerUI;
