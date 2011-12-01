@@ -634,6 +634,14 @@ div.scroll_wrapper_upper div.scroller {
   padding: 0 5px;
   float: left;
 }
+#help_link {
+  color: darkgray;
+  vertical-align: bottom;                 
+  padding-top: 0.5em;
+  padding-right: 1em;
+  padding-bottom: 0.25em;
+  float: right;
+}
 .document_edit_time {
   font-family: monospace;
   color: #777;
