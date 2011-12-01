@@ -934,14 +934,33 @@ def format_results(matches, concordancing=False, context_length=50):
     if include_context or include_trigger_context:
         response['header'].append(('Right context', 'string'))
 
+    # gather sets of reference IDs by document to highlight
+    # all matches in a document at once
+    matches_by_doc = {}
+    for ann_obj, ann in matches.get_matches():
+        docid = basename(ann_obj.get_document())
+
+        if docid not in matches_by_doc:
+            matches_by_doc[docid] = []
+
+        matches_by_doc[docid].append(ann.reference_id())
+
     # fill in content
     items = []
     for ann_obj, ann in matches.get_matches():
         # First value ("a") signals that the item points to a specific
         # annotation, not a collection (directory) or document.
         # second entry is non-listed "pointer" to annotation
-        fn = basename(ann_obj.get_document())
-        items.append(["a", { 'focus' : [ann.reference_id()] }, fn, ann.reference_text()])
+        docid = basename(ann_obj.get_document())
+
+        # matches in the same doc other than the focus match
+        other_matches = [rid for rid in matches_by_doc[docid] 
+                         if rid != ann.reference_id()]
+
+        items.append(["a", { 'focus' : [ann.reference_id()],
+                             'match' : other_matches,
+                             }, 
+                      docid, ann.reference_text()])
 
         if include_type:
             items[-1].append(ann.type)
