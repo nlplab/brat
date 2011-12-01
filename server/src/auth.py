@@ -83,7 +83,11 @@ def login(user, password):
     return {}
 
 def logout():
-    del get_session()['user']
+    try:
+        del get_session()['user']
+    except KeyError:
+        # Already deleted, let it slide
+        pass
     # TODO: Really send this message?
     Messager.info('Bye!')
     return {}
