@@ -25,7 +25,7 @@ try:
 except ImportError:
     DEBUG = False
 from document import real_directory
-from jsonwrap import loads as json_loads
+from jsonwrap import loads as json_loads, dumps as json_dumps
 from message import Messager
 from projectconfig import ProjectConfiguration
 
@@ -80,7 +80,7 @@ def generate_arc_type_html(projectconf, types, keyboard_shortcuts):
 
 def possible_arc_types(collection, origin_type, target_type):
     directory = collection
-    
+
     real_dir = real_directory(directory)
     projectconf = ProjectConfiguration(real_dir)
     response = {}
@@ -101,7 +101,7 @@ def possible_arc_types(collection, origin_type, target_type):
             # should no longer be sent here. Remove 'keymap' and
             # 'html' args once clientside generation done.
             arc_kb_shortcuts = {} #select_keyboard_shortcuts(possible)
- 
+
             response['keymap'] = {}
             for k, p in arc_kb_shortcuts.items():
                 response['keymap'][k] = "arc_"+p
@@ -110,7 +110,7 @@ def possible_arc_types(collection, origin_type, target_type):
     except:
         Messager.error('Error selecting arc types!', -1)
         raise
-    
+
     return response
 
 #TODO: Couldn't we incorporate this nicely into the Annotations class?
@@ -221,8 +221,10 @@ def _json_from_ann(ann_obj):
 
 from logging import info as log_info
 from annotation import TextBoundAnnotation, TextBoundAnnotationWithText
+from copy import deepcopy
 
-def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type):
+def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type,
+        undo_resp={}):
     #TODO: Handle failure to find!
     ann = ann_obj.get_ann_by_id(id)
 
@@ -230,10 +232,18 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type):
         # We should actually modify the trigger
         tb_ann = ann_obj.get_ann_by_id(ann.trigger)
         e_ann = ann
+        undo_resp['id'] = e_ann.id
     else:
         tb_ann = ann
         e_ann = None
+        undo_resp['id'] = tb_ann.id
 
+    # Store away what we need to restore the old annotation
+    undo_resp['action'] = 'mod_tb'
+    undo_resp['start'] = tb_ann.start
+    undo_resp['end'] = tb_ann.end
+    undo_resp['type'] = tb_ann.type
+        
     if (int(start) != tb_ann.start
             or int(end) != tb_ann.end):
         if not isinstance(tb_ann, TextBoundAnnotation):
@@ -380,12 +390,16 @@ def _create_span(ann_obj, mods, type, start, end, txt_file_path,
 
     return ann, event
 
-def _set_attributes(ann_obj, ann, attributes, mods):
+def _set_attributes(ann_obj, ann, attributes, mods, undo_resp={}):
     # Find existing attributes (if any)
     existing_attr_anns = set((a for a in ann_obj.get_attributes()
             if a.target == ann.id))
 
     #log_info('ATTR: %s' %(existing_attr_anns, ))
+
+    # Note the existing annotations for undo
+    undo_resp['attributes'] = json_dumps(dict([(e.type, e.value)
+        for e in existing_attr_anns]))
 
     for existing_attr_ann in existing_attr_anns:
         if existing_attr_ann.type not in attributes:
@@ -412,6 +426,7 @@ def _set_attributes(ann_obj, ann, attributes, mods):
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def create_span(collection, document, start, end, type, attributes=None, id=None, comment=None):
     directory = collection
+    undo_resp = {}
 
     if attributes is None:
         _attributes = {}
@@ -450,18 +465,26 @@ def create_span(collection, document, start, end, type, attributes=None, id=None
         if id is not None:
             # We are to edit an existing annotation
             tb_ann, e_ann = _edit_span(ann_obj, mods, id, start, end, projectconf,
-                    _attributes, type)
+                    _attributes, type, undo_resp=undo_resp)
         else:
             # We are to create a new annotation
             tb_ann, e_ann = _create_span(ann_obj, mods, type, start, end, txt_file_path,
                     projectconf, _attributes)
 
+            undo_resp['action'] = 'add_tb'
+            if e_ann is not None:
+                undo_resp['id'] = e_ann.id
+            else:
+                undo_resp['id'] = tb_ann.id
+
         # Set annotation attributes
         if e_ann is not None:
             # Assign attributes to the event, not the trigger
-            _set_attributes(ann_obj, e_ann, _attributes, mods)
+            _set_attributes(ann_obj, e_ann, _attributes, mods,
+                    undo_resp=undo_resp)
         else:
-            _set_attributes(ann_obj, tb_ann, _attributes, mods)
+            _set_attributes(ann_obj, tb_ann, _attributes, mods,
+                    undo_resp=undo_resp)
 
         # Handle annotation comments
         if tb_ann is not None:
@@ -484,6 +507,9 @@ def create_span(collection, document, start, end, type, attributes=None, id=None
                     if (com_ann.type == 'AnnotatorNotes'
                             and com_ann.target == comment_on.id):
                         found = com_ann
+
+                        # Note the comment in the undo
+                        undo_resp['comment'] = found.tail[1:]
                         break
                 else:
                     found = None
@@ -511,17 +537,13 @@ def create_span(collection, document, start, end, type, attributes=None, id=None
 
         if tb_ann is not None:
             mods_json = mods.json_response()
-            from jsonwrap import dumps
-            mods_json['undo'] = dumps({
-                'type': 'add_tb',
-                'id': tb_ann.id,
-                })
-
         else:
             # Hack, we had a new-line in the span
             mods_json = {}
             Messager.error('Text span contained new-line, rejected', duration=3)
 
+        if undo_resp:
+            mods_json['undo'] = json_dumps(undo_resp)
         mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
 
@@ -601,7 +623,7 @@ def create_arc(collection, document, origin, target, type,
         else:
             try:
                 arg_tup = (type, unicode(target.id))
-                
+
                 # Is this an addition or an update?
                 if old_type is None and old_target is None:
                     if arg_tup not in origin.args:
