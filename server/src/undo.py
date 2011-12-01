@@ -9,7 +9,7 @@ Version:    2011-11-30
 
 from os.path import join as path_join
 
-from annotator import delete_span
+from annotator import delete_span, create_span
 from annotation import TextAnnotations
 from common import ProtocolError
 
@@ -48,12 +48,19 @@ def undo(collection, document, token):
     except ValueError:
         raise CorruptUndoTokenError
     try:
-        _type = token['type']
+        action = token['action']
     except KeyError:
-        raise InvalidTokenError('type')
+        raise InvalidTokenError('action')
 
-    if _type == 'add_tb':
+    if action == 'add_tb':
+        # Undo an addition
         return delete_span(collection, document, token['id'])
+    if action == 'mod_tb':
+        # Undo a modification
+        # TODO: We do not handle attributes and comments
+        return create_span(collection, document, token['start'], token['end'],
+                token['type'], id=token['id'], attributes=token['attributes'],
+                comment=token['comment'] if 'comment' in token else None)
     else:
         raise NonUndoableActionError
     assert False, 'should have returned prior to this point'
