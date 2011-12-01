@@ -1130,11 +1130,14 @@ var AnnotatorUI = (function($, window, undefined) {
           });
         });
         $taggerButtons.find('input').button();
-        // if nothing was set up, hide the whole fieldset, else show
+        // if nothing was set up, hide the whole fieldset and show
+        // a message to this effect, else the other way around
         if ($taggerButtons.find('input').length == 0) {
           $('#auto_tagging_fieldset').hide();
+          $('#no_tagger_message').show();
         } else {
           $('#auto_tagging_fieldset').show();
+          $('#no_tagger_message').hide();
         }
       }
 
