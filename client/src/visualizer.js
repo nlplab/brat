@@ -73,8 +73,8 @@ var Visualizer = (function($, window, undefined) {
       var nestingAdjustYStepSize = 2; // size of height adjust for nested/nesting spans
       var nestingAdjustXStepSize = 1; // size of height adjust for nested/nesting spans
 
-      //var highlightSequence = 'FFFC69;FFCC00;FFFC69';
       var highlightSequence = 'FF9632;FFFF00;FF9632'; // yellow - deep orange
+      //var highlightSequence = 'FFFC69;FFCC00;FFFC69'; // a bit toned town
       var highlightSpanSequence = highlightSequence;
       var highlightArcSequence =  highlightSequence;
       var highlightTextSequence = highlightSequence;
@@ -1073,7 +1073,8 @@ Util.profileStart('chunks');
               svg.other(markedRect, 'animate', {
                 'data-type': span.marked,
                 attributeName: 'fill',
-                values: highlightSpanSequence,
+		values: (span.marked == 'match'? highlightMatchSequence
+			 : highlightSpanSequence),
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
@@ -1627,7 +1628,8 @@ Util.profileStart('arcs');
               svg.other(markedRect, 'animate', {
                 'data-type': arc.marked,
                 attributeName: 'fill',
-                values: highlightArcSequence,
+		values: (arc.marked == 'match' ? highlightMatchSequence
+			 : highlightArcSequence),
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
@@ -1689,7 +1691,8 @@ Util.profileStart('arcs');
               svg.other(markedRect, 'animate', {
                 'data-type': arc.marked,
                 attributeName: 'fill',
-                values: highlightArcSequence,
+		values: (arc.marked == 'match' ? highlightMatchSequence
+			 : highlightArcSequence),
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
@@ -1963,14 +1966,11 @@ Util.profileStart('chunkFinish');
 	  // different-colored highlights
 	  // TODO: entirely different settings for non-animations?
 	  var markedType = textRowDesc[3];
-	  var highlightSeq = highlightTextSequence;
-	  if (markedType == 'match') {
-	    highlightSeq = highlightMatchSequence;
-	  }
           svg.other(textHighlight, 'animate', {
             'data-type': markedType,
             attributeName: 'fill',
-            values: highlightSeq,
+	    values: (markedType == 'match' ? highlightMatchSequence
+		     : highlightTextSequence),
             dur: highlightDuration,
             repeatCount: 'indefinite',
             begin: 'indefinite'
