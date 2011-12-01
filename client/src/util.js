@@ -373,14 +373,19 @@ var Util = (function(window, undefined) {
       }
       if (!(adjust in adjustLightnessCache[colorstr])) {
         var rgb = strToRgb(colorstr);
-        var hsl = rgbToHsl(rgb);
-        if (adjust > 0.0) {
-          hsl[2] = 1.0 - ((1.0-hsl[2])*(1.0-adjust));
+        if (rgb === undefined) {
+          // failed color string conversion; just return the input
+          adjustLightnessCache[colorstr][adjust] = colorstr;
         } else {
-          hsl[2] = (1.0+adjust)*hsl[2];
+          var hsl = rgbToHsl(rgb);
+          if (adjust > 0.0) {
+            hsl[2] = 1.0 - ((1.0-hsl[2])*(1.0-adjust));
+          } else {
+            hsl[2] = (1.0+adjust)*hsl[2];
+          }
+          var lightRgb = hslToRgb(hsl);
+          adjustLightnessCache[colorstr][adjust] = rgbToStr(lightRgb);
         }
-        var lightRgb = hslToRgb(hsl);
-        adjustLightnessCache[colorstr][adjust] = rgbToStr(lightRgb);
       }
       return adjustLightnessCache[colorstr][adjust];
     }
