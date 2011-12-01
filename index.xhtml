@@ -108,7 +108,6 @@
             <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
             <input id="data_button" type="button" value="Data" tabindex="-1"/>
             <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search text and annotations">Search</label>
-            <!-- <input id="tag_button" type="button" value="Tag (NERsuite)"/> -->
             <input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/>
             <input id="options_button" type="button" value="Options" tabindex="-1"/>
           </div>
@@ -159,11 +158,13 @@
         </div>
       </fieldset>
       <!-- Data dialog automatic annotation section -->
-      <fieldset id="auto_tagging_fieldset" class="login small-buttons">
-        <legend>Automatic annotation</legend>
-        <div class="optionRow">Automatically tag current document</div>
-        <div id="tagger_buttons"/>
-      </fieldset>
+      <div id="auto_tagging_login_control" class="login">
+        <fieldset id="auto_tagging_fieldset" class="small-buttons">
+          <legend>Automatic annotation</legend>
+          <div class="optionRow">Automatically tag current document</div>
+          <div id="tagger_buttons"/>
+        </fieldset>
+      </div>
       <!-- Data dialog import section -->
       <fieldset class="login small-buttons">
         <legend>Import</legend>
