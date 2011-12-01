@@ -21,6 +21,23 @@
 
     <h1>brat rapid annotation tool manual</h1> 
 
+    <h2>Selecting a document</h2>
+    <div class="image">
+      <img style="border: 1px solid black" src="images/document-selector-1.png"/>
+      <div style="width: 440px" class="caption">document selection</div>
+    </div>
+    <p>When starting, brat will show the
+      <a href="#collection_browser">collection browser</a>. To open a
+      document, simply double-click on one of the documents
+      (<img style="vertical-align:bottom" src="../file_browser/Fugue-shadowless-document.png"/>) in
+      the document selector.
+    </p>
+    <p>To open another collection, double-click on a collection
+      (<img style="vertical-align:bottom"
+      src="../file_browser/Fugue-shadowless-folder-horizontal-open.png"/>).
+      This will update the collection browser to show the contents of
+      that collection.
+    </p>
     <h2>Visualization</h2>
     <p>When a document is selected, the main window area shows a
       visualization of the text and annotations of that
@@ -36,9 +53,9 @@
       notes attached to the annotation.
     </p>
 
-    <h2>Menu</h2>
-    <p>Placing the mouse cursor over the top bar of the window opens the
-      tool menu which drops down from the top of the screen.
+    <h2 id="menusection">Menu</h2>
+    <p>Placing the mouse cursor over the top bar of the window opens
+      the menu, which drops down from the top of the screen.
     </p>
     <div class="image">
       <img src="images/menu-1.png"/>
@@ -50,20 +67,17 @@
     </p>
     <p>The menu provides access to the following features:
       <ul>
-        <li><b>Collection</b>: <a href="#collection_browser">annotation collection browser</a></li>
-        <li><b>Data</b>: <a href="#data_dialog">export/import annotation data</a></li>
-        <li><b>Search</b>: <a href="#search">search current collection</a></li>
+        <li><b>Collection</b>: <a href="#collection_browser">collection browser</a></li>
+        <li><b>Data</b>: <a href="#data_dialog">export/import/modify annotation data</a></li>
+        <li><b>Search</b>: <a href="#search">search current document or collection</a></li>
         <li><b>Options</b>: system configuration options</li>
         <li><b>Login</b>: <a href="#logging_in">log in for editing</a></li>
       </ul>
-      (Exported data is downloaded in raw text for the document, in a
-      <a href="http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/SharedTask/detail.shtml#format">in stand-off format</a> for annotations, and in SVG format for
-      the visualization.)
     </p>
 
     <h2 id="collection_browser">Collection browser</h2> 
     <p>The collection browser, accessible from the menu or by pressing
-      the tab key, allows you to access the different text collections
+      the TAB key, allows you to access the different text collections
       and individual documents in those collections set up on your
       installation.
     </p>
@@ -76,13 +90,13 @@
       disk.
     </p>
     <p>Other collections 
-      (<img src="../file_browser/Fugue-shadowless-folder-horizontal-open.png"/>) 
+      (<img style="vertical-align:bottom" src="../file_browser/Fugue-shadowless-folder-horizontal-open.png"/>) 
       are shown first in the document browser. The
       entry &quot;../&quot; refers to the collection containing the
       current one (if any).
     </p>
     <p>Documents
-      (<img src="../file_browser/Fugue-shadowless-document.png"/>) are
+      (<img style="vertical-align:bottom" src="../file_browser/Fugue-shadowless-document.png"/>) are
       shown in the collection browser after collections. For each
       document, the last modification time and simple annotation
       statistics (the number of entity, relation and even annotations)
@@ -120,7 +134,7 @@
     </p>
     <h2>Basic editing</h2>
     <p>To edit annotations, users first need
-      to <a href="#logging_in">log in</a> into an account that has
+      to <a href="#logging_in">log in</a> with an account that has
       editing permissions.
     <p>
 
@@ -135,7 +149,7 @@
     <p>Selection can be performed either by &quot;dragging&quot; over
       the text or by double-clicking on a word.
     </p>
-    <p><img src="images/Fugue-shadowless-exclamation-white.png"/> 
+    <p><img style="vertical-align:bottom" src="images/Fugue-shadowless-exclamation-white.png"/> 
       A multi-word span can also be selected with two double-clicks on
       the first and last words of the span, as follows: first, hold
       CTRL during the first double-click, then release CTRL and hold
@@ -153,7 +167,7 @@
       setting additional aspects of the annotation such as attribute
       values (if available).
     </p>
-    <p><img src="images/Fugue-shadowless-exclamation.png"/>
+    <p><img  style="vertical-align:bottom" src="images/Fugue-shadowless-exclamation.png"/>
       If the annotation dialog fails to open when selecting text,
       please first check that you are <a href="#logging_in">logged
       in</a> into an account with editing permissions.
@@ -251,6 +265,8 @@
       modification) and on-screen messages</li>
       <li><b>TAB</b>: open
 	the <a href="#collection_browser">collection browser</a>
+      <li><b>CTRL-F</b>: search
+      <li><b>CTRL-G</b>: next search result (after search)
       <li><b>Left arrow</b>: previous document</li>
       <li><b>Right arrow</b>: next document</li>
     </ul>
@@ -265,18 +281,62 @@
     <p>When an annotation menu is open, a different set of
       configurable keyboard shortcuts is available to quick-select
       annotation types.
-    </p>
-    <p>When an annotation menu is open, a different set of
-      configurable keyboard shortcuts is available to quick-select
-      annotation types. (<b>TODO: explain more</b>)
+      <!-- TODO: explain more -->
     </p>
 
     <h2 id="data_dialog">Data dialog</h2>
+    <p>The data dialog, accessible from
+      the <a href="#menusection">menu</a>, provides access to data
+      management features.
+    </p>
     <div class="image">
-      <img src="images/data-dialog-1.png"/>
-      <div style="width: 800px" class="caption">Data export/import dialog</div>
+      <img src="images/data-dialog-only-1.png"/>
+      <div style="width: 500px" class="caption">Data dialog</div>
     </div>
-    <p>(<b>TODO: document</b>)
+    <p>The following features are found in the data dialog:
+      <ul>
+        <li><b>Export document data</b>: export data for the current document.
+	  <ul>
+	    <li><b><tt>txt</tt></b>: raw document text (<a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8 encoding</a>)</li>
+	    <li><b><tt>ann</tt></b>: annotations
+	      in <a href="standoff.html">brat stand-off format</a>
+	      (text-based)</li>
+	  </ul>
+        <li><b>Export visualization</b>: export visualization of the
+          current document. The following formats are supported:
+	  <ul>
+	    <li><b><tt>svg</tt></b>: <a href="http://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable Vector Graphics</a> (vector format, XML) recommended for further editing of visualization (using tools such as <a href="http://inkscape.org/">inkscape</a>)</li>
+	    <li><b><tt>png</tt></b>: <a href="http://en.wikipedia.org/wiki/Portable_Network_Graphics">Portable Network Graphics</a> (bitmap format, binary) appropriate for web graphics</li>
+	    <li><b><tt>pdf</tt></b>: <a href="http://en.wikipedia.org/wiki/http://en.wikipedia.org/wiki/Portable_Document_Format">Portable Document Format</a> (vector format, binary) appropriate for embedding into documents</li>
+	    <li><b><tt>eps</tt></b>: <a href="http://en.wikipedia.org/wiki/Encapsulated_PostScript">Encapsulated PostScript</a> (vector format, binary) appropriate for embedding into documents</li>
+	  </ul>
+        <li><b>Export collection data</b>: export a <a href="http://en.wikipedia.org/wiki/Tar_(file_format)"><tt>tar</tt> archive</a> packaged with <a href="http://en.wikipedia.org/wiki/Gzip"><tt>gzip</tt></a> containing the raw texts and annotations of the entire collection.</li>
+        <li><b>Automatic annotation</b>: automatically annotate the
+          current document using one of the tools configured for the
+	  brat installation.
+	  <!-- TODO: more about this -->
+	</li>
+        <li><b>Import</b>:
+	  <ul>
+	    <li><b>New document</b>: add a single document to the current collection by entering text in a simple dialog</li>
+	    <li><b>New collection</b>: add an entire new collection by uploading a <a href="http://en.wikipedia.org/wiki/Tar_(file_format)"><tt>tar</tt> archive</a> packaged with <a href="http://en.wikipedia.org/wiki/Gzip"><tt>gzip</tt></a> containing the raw texts and optionally including also annotations (<a href="standoff.html">brat <tt>.ann</tt> files</a>)</li>
+	  </ul>
+	</li>
+        <li><b>Delete</b>:
+	  <ul>
+	    <li><b>Current document</b>: permanently remove the current document and its annotations the collection</li>
+	    <li><b>Current collection</b>: permanently remove the current collection, including all its documents and their annotations</li>
+	  </ul>
+	</li>
+      </ul>
+      Note that most of these features are only available when logged
+      in, and some are only available to users with administrative
+      rights.
+    </p>
+    <p>If some necessary features are not accessible in the data
+      dialog, make sure you are <a href="#logging_in">logged
+      in</a>. If the issue persists, please contact the administrator
+      of your brat installation.
     </p>
 
     <h2 id="search">Search</h2>

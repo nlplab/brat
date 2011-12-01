@@ -7,6 +7,14 @@ body {
   font-size: 13px;
 }
 
+h2 {
+  margin-top: 2em;
+}
+
+h3 {
+  margin-top: 1.5em;
+}
+
 .h1subtitle {
   font-size: 15px;
   color: gray;
