@@ -561,7 +561,7 @@ var VisualizerUI = (function($, window, undefined) {
           var isColl = doc[0] == "c"; // "collection"
           // second column is optional annotation-specific pointer,
           // used (at least) for search results
-          var annp = doc[1] ? ('?' + Util.param(doc[1])) : '';
+          var annp = doc[1] ? ('?' + Util.escapeHTML(Util.param(doc[1]))) : '';
           var name = doc[2];
           var collFile = isColl ? 'collection' : 'file';
           //var collFileImg = isColl ? 'ic_list_folder.png' : 'ic_list_drafts.png';

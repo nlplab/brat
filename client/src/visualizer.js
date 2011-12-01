@@ -73,11 +73,15 @@ var Visualizer = (function($, window, undefined) {
       var nestingAdjustYStepSize = 2; // size of height adjust for nested/nesting spans
       var nestingAdjustXStepSize = 1; // size of height adjust for nested/nesting spans
 
-      var highlightSequence = 'FFFC69;FFCC00;FFFC69';
+      //var highlightSequence = 'FFFC69;FFCC00;FFFC69';
+      var highlightSequence = 'FF9632;FFFF00;FF9632'; // yellow - deep orange
       var highlightSpanSequence = highlightSequence;
       var highlightArcSequence =  highlightSequence;
       var highlightTextSequence = highlightSequence;
       var highlightDuration = '2s';
+      // different sequence for "mere" matches (as opposed to "focus" and
+      // "edited" highlights)
+      var highlightMatchSequence = 'FFFF00'; // plain yellow
       
       // END OPTIONS
 
@@ -1957,14 +1961,18 @@ Util.profileStart('chunkFinish');
               textRowDesc[2] - textRowDesc[1] + 4, sizes.spans.height + 4,
               { fill: 'yellow' } // TODO: put into css file, as default - turn into class
           );
-	  // SMP TODO: for implementing #509, changing
-	  // highlightTextSequence here will give different-colored
-	  // highlights	  
+	  // NOTE: changing highlightTextSequence here will give
+	  // different-colored highlights
+	  // TODO: entirely different settings for non-animations?
 	  var editedType = textRowDesc[3];
+	  var highlightSeq = highlightTextSequence;
+	  if (editedType == 'match') {
+	    highlightSeq = highlightMatchSequence;
+	  }
           svg.other(textHighlight, 'animate', {
             'data-type': editedType,
             attributeName: 'fill',
-            values: highlightTextSequence,
+            values: highlightSeq,
             dur: highlightDuration,
             repeatCount: 'indefinite',
             begin: 'indefinite'
