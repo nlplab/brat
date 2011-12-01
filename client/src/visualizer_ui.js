@@ -41,12 +41,12 @@ var VisualizerUI = (function($, window, undefined) {
       // on initial load, hide the "no SVG" message
       $('#no_svg_wrapper').hide();
 
-      var hideNoSVG = function() {
+      var hideNoDocMessage = function() {
         clearTimeout(noSvgTimer);
         $('#no_svg_wrapper').hide(0);
       }
 
-      var showNoSVG = function() {
+      var showNoDocMessage = function() {
         clearTimeout(noSvgTimer);
         noSvgTimer = setTimeout(function() {
           $('#no_svg_wrapper').fadeIn(500);
@@ -446,10 +446,17 @@ var VisualizerUI = (function($, window, undefined) {
           alsoResize: '#document_select',
           close: function(evt) {
             if (!doc) {
+              // no document; set and show the relevant message, and
               // clear the "blind" unless waiting for a collection
-              if (!fileBrowserClosedWithSubmit) {
+              if (fileBrowserClosedWithSubmit) {
+                $('#no_document_message').hide();
+                $('#loading_message').show();
+              } else {
+                $('#loading_message').hide();
+                $('#no_document_message').show();
                 $('#waiter').dialog('close');
               }
+              showNoDocMessage();
             }
           },
           width: 500
@@ -501,11 +508,14 @@ var VisualizerUI = (function($, window, undefined) {
         docScroll = $('#document_select')[0].scrollTop;
         fileBrowser.find('#document_select tbody').empty();
 
-        // set to allow keeping "blind" down during reload
-        fileBrowserClosedWithSubmit = true;
-
         if (coll != _coll || doc != _doc ||
             !Util.isEqual(args, _args)) {
+          // something changed
+
+          // set to allow keeping "blind" down during reload
+          fileBrowserClosedWithSubmit = true;
+          // ... and change BG message to a more appropriate one
+
           // trigger clear and changes if something other than the
           // current thing is chosen, but only blank screen before
           // render if the document changed (prevent "flicker" on
@@ -532,6 +542,9 @@ var VisualizerUI = (function($, window, undefined) {
         // without selection (would hang the UI)
         fileBrowserClosedWithSubmit = false;
 
+        // no point in showing this while the browser is shown
+        hideNoDocMessage();
+
         if (currentForm == tutorialForm) {
           fileBrowserWaiting = true;
           return;
@@ -540,7 +553,7 @@ var VisualizerUI = (function($, window, undefined) {
 
         // hide "no document" message when file browser shown
         // TODO: can't make this work; I can't detect when it gets hidden.
-//         hideNoSVG();
+//         hideNoDocMessage();
 
         if (!(selectorData && showForm(fileBrowser))) return false;
 
@@ -1345,7 +1358,7 @@ var VisualizerUI = (function($, window, undefined) {
 
         // if we have a specific document, hide the "no document" message
         if (_doc) {
-          hideNoSVG();
+          hideNoDocMessage();
         }
 
         // if we have a collection change, update "collection download" button
@@ -1842,7 +1855,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('resize', onResize).
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch).
-          on('clearSVG', showNoSVG).
+          on('clearSVG', showNoDocMessage).
           on('configurationChanged', configurationChanged).
           on('configurationUpdated', updateConfigurationUI);
     };
