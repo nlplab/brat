@@ -57,13 +57,19 @@
     <div class="center_wrapper" id="no_svg_wrapper">
       <div>
         <div>
-          <fieldset>
+          <fieldset id="no_document_message">
             <h1 class="unselectable">No document selected</h1>
             <p class="unselectable">To select a document:</p>
             <ul>
               <li class="unselectable">press the <strong>TAB</strong> key, or</li>
               <li class="unselectable">click on &quot;<strong>Collection</strong>&quot; in the blue menu bar on top</li>
             </ul>
+          </fieldset>
+          <fieldset id="loading_collection_message" style="display:none">
+            <h1 class="unselectable">Loading collection</h1>
+            <p class="unselectable">This may take a while
+              for larger document collections.</p>
+            <p class="unselectable">Please wait patiently.</p>
           </fieldset>
         </div>
       </div>
@@ -78,6 +84,10 @@
             <p class="unselectable">
               <span class="logo">brat</span>
               needs JavaScript in order to run.
+            </p>
+            <p class="unselectable">Please enable JavaScript or try
+              a <a href="static/manual/supported-browsers.html">supported
+              browser</a>
             </p>
           </fieldset>
         </div>
