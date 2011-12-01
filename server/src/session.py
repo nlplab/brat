@@ -53,6 +53,9 @@ class SessionCookie(SimpleCookie):
     def set_expired(self):
         self[SESSION_COOKIE_KEY]['expires'] = 0
 
+    def set_sid(self, sid):
+        self[SESSION_COOKIE_KEY] = sid
+
     def get_sid(self):
         return self[SESSION_COOKIE_KEY].value
 
@@ -116,9 +119,18 @@ def init_session(remote_address, cookie_data=None):
     if cookie_data is not None:
         cookie = SessionCookie.load(cookie_data)
     else:
-        # Default sid for the session
-        sid = sha224('%s-%s' % (remote_address, datetime.utcnow())).hexdigest()
+        cookie = None
+ 
+    # Default sid for the session
+    sid = sha224('%s-%s' % (remote_address, datetime.utcnow())).hexdigest()
+    if cookie is None:
         cookie = SessionCookie(sid)
+    else:
+        try:
+            cookie.get_sid()
+        except KeyError:
+            # For some reason the cookie did not contain a SID, set to default
+            cookie.set_sid(sid)
 
     # Set the session singleton (there can be only one!)
     global CURRENT_SESSION
