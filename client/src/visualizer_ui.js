@@ -1139,6 +1139,9 @@ var VisualizerUI = (function($, window, undefined) {
         } else if (evt.ctrlKey && code == 'F'.charCodeAt(0)) {
           evt.preventDefault();
           showSearchForm();
+        } else if (searchActive && evt.ctrlKey && code == 'G'.charCodeAt(0)) {
+          evt.preventDefault();
+          return moveInFileBrowser(+1);
         }
       };
 
