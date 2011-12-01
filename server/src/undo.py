@@ -7,6 +7,8 @@ Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2011-11-30
 '''
 
+from __future__ import with_statement
+
 from os.path import join as path_join
 
 from annotator import real_directory, ModificationTracker, _json_from_ann
