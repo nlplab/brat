@@ -34,6 +34,7 @@ from search import search_text, search_entity, search_event, search_relation
 from predict import suggest_span_types
 from undo import undo
 from tag import tag
+from delete import delete_document, delete_collection
 
 # no-op function that can be invoked by client to log a user action
 def logging_no_op(collection, document, log):
@@ -85,6 +86,9 @@ DISPATCHER = {
 
         'undo': undo,
         'tag': tag,
+
+        'deleteDocument': delete_document,
+        'deleteCollection': delete_collection,
         }
 
 # Actions that correspond to annotation functionality
