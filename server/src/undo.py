@@ -14,6 +14,7 @@ from os.path import join as path_join
 from annotator import delete_span, create_span
 from annotation import TextAnnotations
 from common import ProtocolError
+from jsonwraps import loads as json_loads
 
 
 class CorruptUndoTokenError(ProtocolError):
@@ -44,9 +45,8 @@ class NonUndoableActionError(ProtocolError):
 
 
 def undo(collection, document, token):
-    from json import loads
     try:
-        token = loads(token)
+        token = json_loads(token)
     except ValueError:
         raise CorruptUndoTokenError
     try:
