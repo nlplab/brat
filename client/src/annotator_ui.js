@@ -1161,6 +1161,7 @@ var AnnotatorUI = (function($, window, undefined) {
         args = _args;
       };
 
+      var undoStack = [];
       var edited = function(response) {
         var x = response.exception;
         if (x) {
@@ -1187,6 +1188,9 @@ var AnnotatorUI = (function($, window, undefined) {
           // this "prevent" is to protect against reloading (from the
           // server) the very data that we just received as part of the
           // response to the edit.
+          if (response.undo != undefined) {
+            undoStack.push([coll, data.document, response.undo]);
+          }
           dispatcher.post('preventReloadByURL');
           dispatcher.post('setArguments', [args]);
           dispatcher.post('renderData', [data]);
@@ -1445,12 +1449,23 @@ var AnnotatorUI = (function($, window, undefined) {
 
       $('#undo_button').click(function() {
         if (coll && doc) {
-          options = {
-            'action': 'undo',
-            'collection': coll,
-            'document': doc
+          if (undoStack.length > 0) {
+            var storedUndo = undoStack.pop();
+            var collection = storedUndo[0];
+            var dok = storedUndo[1];
+            var token = storedUndo[2];
+            var options = {
+              'action': 'undo',
+              'collection': collection,
+              'document': dok,
+              'token': token
+            }
+            dispatcher.post('ajax', [options, 'edited']);
+          } else {
+            dispatcher.post('messages', [[['No action to be undone', 'error']]]);
           }
-          dispatcher.post('ajax', [options, 'edited']);
+        } else {
+          dispatcher.post('messages', [[['No document loaded, can not undo changes', 'error']]]);
         }
       });
 

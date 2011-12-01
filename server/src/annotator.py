@@ -511,6 +511,12 @@ def create_span(collection, document, start, end, type, attributes=None, id=None
 
         if tb_ann is not None:
             mods_json = mods.json_response()
+            from jsonwrap import dumps
+            mods_json['undo'] = dumps({
+                'type': 'add_tb',
+                'id': tb_ann.id,
+                })
+
         else:
             # Hack, we had a new-line in the span
             mods_json = {}
