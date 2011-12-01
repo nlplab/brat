@@ -1580,8 +1580,8 @@ var VisualizerUI = (function($, window, undefined) {
         $('#browserwarning').css('display', 'block');
       }
       initForm(tutorialForm, {
-        width: 600,
-        height: 500,
+        width: 800,
+        height: 600,
         no_cancel: true,
         no_ok: true,
         buttons: [{
