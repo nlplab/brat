@@ -850,7 +850,9 @@ var AnnotatorUI = (function($, window, undefined) {
             if (crossSentence) {
               // attempt to annotate across sentence boundaries; not supported
               dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
-              $(reselectedSpan.rect).removeClass('reselect');
+              if (reselectedSpan) {
+                $(reselectedSpan.rect).removeClass('reselect');
+              }
               reselectedSpan = null;
               svgElement.removeClass('reselect');
             } else if (!Configuration.rapidModeOn || reselectedSpan != null) {
