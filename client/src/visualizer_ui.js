@@ -577,7 +577,7 @@ var VisualizerUI = (function($, window, undefined) {
           // second column is optional annotation-specific pointer,
           // used (at least) for search results
           var annp = doc[1] ? ('?' + Util.escapeHTML(Util.param(doc[1]))) : '';
-          var name = doc[2];
+          var name = Util.escapeHTML(doc[2]);
           var collFile = isColl ? 'collection' : 'file';
           //var collFileImg = isColl ? 'ic_list_folder.png' : 'ic_list_drafts.png';
           //var collFileImg = isColl ? 'Fugue-folder-horizontal-open.png' : 'Fugue-document.png';
