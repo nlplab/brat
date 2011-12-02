@@ -199,7 +199,13 @@ class TypeHierarchyNode:
                 if key is self.special_arguments:
                     Messager.warning("Project configuration: error parsing: %s argument '%s' appears multiple times." % key, 5)
                     raise InvalidProjectConfigException
-                self.special_arguments[key] = atypes.split("-")
+                # special case in special case: relation type specifications
+                # are split by hyphens, nothing else is.
+                # (really sorry about this.)
+                if key == "REL-TYPE":
+                    self.special_arguments[key] = atypes.split("-")
+                else:
+                    self.special_arguments[key] = [atypes]
                 # NOTE: skip the rest of processing -- don't add in normal args
                 continue
 
