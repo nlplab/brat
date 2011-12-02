@@ -793,8 +793,8 @@ var AnnotatorUI = (function($, window, undefined) {
             // guessing from start of first word to end of last
             anchorOffset = 0;
             focusOffset = chunkIndexTo ? data.chunks[chunkIndexTo].to - data.chunks[chunkIndexTo].from : 1;
-            console.log('fallback from', data.chunks[chunkIndexFrom], anchorOffset);
-            console.log('fallback to', data.chunks[chunkIndexTo], focusOffset);
+            //console.log('fallback from', data.chunks[chunkIndexFrom], anchorOffset);
+            //console.log('fallback to', data.chunks[chunkIndexTo], focusOffset);
           } else {
             // normal case, assume the exact offsets are usable
             anchorOffset = sel.anchorOffset;
