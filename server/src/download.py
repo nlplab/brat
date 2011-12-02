@@ -28,11 +28,11 @@ def download_file(document, collection, extension):
     fname = '%s.%s' % (document, extension)
     fpath = path_join(real_dir, fname)
 
-    hdrs = [('Content-Type', 'text/plain'),
+    hdrs = [('Content-Type', 'text/plain; charset=utf-8'),
             ('Content-Disposition',
                 'inline; filename=%s' % fname)]
     with open_textfile(fpath, 'r') as txt_file:
-        data = txt_file.read()
+        data = txt_file.read().encode('utf-8')
     raise NoPrintJSONError(hdrs, data)
 
 def download_collection(collection):

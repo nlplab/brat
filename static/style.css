@@ -26,20 +26,41 @@ div.center {
   margin-right: auto;
 }
 #header {
-  height: 30px;
-  padding-top: 0.5em;
-  padding-left: 1em;
+  padding: 10px 15px;
   margin-bottom: 2em;
+  font-size: 120%;
+}
+
+.bigbutton {
+  font-size: 20px !important;
+  padding: 10px 15px !important;
+}
+
+#header > span, #header > a {
+  margin-right: 20px;
+}
+
+#header > a {
+  text-decoration: none
+}
+#header > .logo {
+  font-size: 1.2em;
+  margin-top: -10px;
+  margin-bottom: -10px;
+  text-shadow: #000 0 0 3px;
 }
 
 #main {
-  width:1000px;
+  width:960px;
   padding-left: 2em;
   padding-right: 2em;
 }
+#content {
+  margin: 15px;
+}
 
 #manual-main {
-  max-width:1000px;
+  max-width:960px;
   padding-left: 2em;
   padding-right: 2em;
   padding-bottom: 5em;
@@ -116,4 +137,28 @@ td.support-partial {
 
 td.support-no {
   background-color: #FF9090;
+}
+
+.rounded {
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+}
+
+.logo {
+  font-family: 'Astloch', serif;
+  font-style: normal;
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0em;
+  word-spacing: 0em;
+  line-height: 1.2;
+
+  font-weight: bold;
+}
+@font-face {
+  font-family: 'Astloch';
+  font-style: normal;
+  font-weight: bold;
+  src: local('Astloch Bold'), local('Astloch-Bold'), url('fonts/Astloch-Bold.ttf') format('truetype');
 }

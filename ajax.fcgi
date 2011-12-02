@@ -64,7 +64,8 @@ def brat_app(environ, start_response):
     response_hdrs.extend(response_data[0])
 
     start_response(response_code, response_hdrs)
-    return [response_data[1]]
+    # Use yield to return all data
+    yield response_data[1]
 
 if __name__ == '__main__':
     from sys import exit
