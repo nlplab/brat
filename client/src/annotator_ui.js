@@ -36,6 +36,9 @@ var AnnotatorUI = (function($, window, undefined) {
       // 1=white BG (no color)
       var spanBoxTextBgColorLighten = 0.4;
 
+      // for double-click selection simulation hack
+      var lastDoubleClickedChunkId = null;
+
       that.user = null;
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
@@ -94,12 +97,8 @@ var AnnotatorUI = (function($, window, undefined) {
         if (that.user === null) return;
         var target = $(evt.target);
         var id;
+
         // do we edit an arc?
-
-        // XXX TODO NOTE SMP: this detects click on a span of text, can
-        // be used for building simulation of double-click selection.
-        //console.log(id = target.attr('data-chunk-id'), data.chunks[id]);
-
         if (id = target.attr('data-arc-role')) {
           // TODO
           window.getSelection().removeAllRanges();
@@ -134,7 +133,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // for precise timing, log dialog display to user.
           dispatcher.post('logAction', ['arcEditSelected']);
 
-        // if not, then do we edit a span?
+        // if not an arc, then do we edit a span?
         } else if (id = target.attr('data-span-id')) {
           window.getSelection().removeAllRanges();
           editedSpan = data.spans[id];
@@ -149,6 +148,14 @@ var AnnotatorUI = (function($, window, undefined) {
           fillSpanTypesAndDisplayForm(evt, spanText, editedSpan);
           // for precise timing, log annotation display to user.
           dispatcher.post('logAction', ['spanEditSelected']);
+        }
+
+        // if not an arc or a span, is this a double-click on text?
+        else if (id = target.attr('data-chunk-id')) {
+          // remember what was clicked (this is in preparation for
+          // simulating double-click selection on browsers that do
+          // not support it.
+          lastDoubleClickedChunkId = id;
         }
       };
 
@@ -768,11 +775,37 @@ var AnnotatorUI = (function($, window, undefined) {
           var sel = window.getSelection();
           var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
           var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
+
+          // fallback for firefox (at least):
+          // it's unclear why, but for firefox the anchor and focus
+          // node parents are always undefined, the the anchor and
+          // focus nodes themselves do (often) have the necessary
+          // chunk ID. However, anchor offsets are almost always
+          // wrong, so we'll just make a guess at what the user might
+          // be interested in tagging instead of using what's given.
+          var anchorOffset = null;
+          var focusOffset = null;
+          if (chunkIndexFrom === undefined && chunkIndexTo === undefined &&
+              $(sel.anchorNode).attr('data-chunk-id') &&
+              $(sel.focusNode).attr('data-chunk-id')) {
+            chunkIndexFrom = $(sel.anchorNode).attr('data-chunk-id');
+            chunkIndexTo = $(sel.focusNode).attr('data-chunk-id');
+            // guessing from start of first word to end of last
+            anchorOffset = 0;
+            focusOffset = chunkIndexTo ? data.chunks[chunkIndexTo].to - data.chunks[chunkIndexTo].from : 1;
+            console.log('fallback from', data.chunks[chunkIndexFrom], anchorOffset);
+            console.log('fallback to', data.chunks[chunkIndexTo], focusOffset);
+          } else {
+            // normal case, assume the exact offsets are usable
+            anchorOffset = sel.anchorOffset;
+            focusOffset = sel.focusOffset;
+          }
+
           if (chunkIndexFrom !== undefined && chunkIndexTo !== undefined) {
             var chunkFrom = data.chunks[chunkIndexFrom];
             var chunkTo = data.chunks[chunkIndexTo];
-            var selectedFrom = chunkFrom.from + sel.anchorOffset;
-            var selectedTo = chunkTo.from + sel.focusOffset;
+            var selectedFrom = chunkFrom.from + anchorOffset;
+            var selectedTo = chunkTo.from + focusOffset;
             sel.removeAllRanges();
 
             if (selectedFrom > selectedTo) {
