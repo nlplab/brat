@@ -194,11 +194,13 @@ path {
 }
 
 .shadow_AnnotatorNotes {
-  fill: #00cc00;
+  /* fill: #00cc00; */
+  fill: #3ab7ee;
 }
 #commentpopup.comment_AnnotatorNotes {
   /* background-color: #00cc00; */
-  background-color: #DAF7DC;
+  /* background-color: #DAF7DC; */
+  background-color: #d7e7ee;
 }
 
 .shadow_AnnotationIncomplete {
