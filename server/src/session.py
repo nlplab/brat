@@ -137,9 +137,13 @@ def init_session(remote_address, cookie_data=None):
     ppath = get_session_pickle_path(cookie.get_sid())
     if isfile(ppath):
         # Load our old session data and initialise the cookie
-        with open(ppath, 'rb') as session_pickle:
-            CURRENT_SESSION = pickle_load(session_pickle)
-        CURRENT_SESSION.init_cookie(CURRENT_SESSION.get_sid())
+        try:
+            with open(ppath, 'rb') as session_pickle:
+                CURRENT_SESSION = pickle_load(session_pickle)
+            CURRENT_SESSION.init_cookie(CURRENT_SESSION.get_sid())
+        except Exception, e:
+            # On any error, just create a new session
+            CURRENT_SESSION = Session(cookie)            
     else:
         # Create a new session
         CURRENT_SESSION = Session(cookie)
