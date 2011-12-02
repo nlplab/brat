@@ -6,8 +6,11 @@ html {
 }
 
 #svg {
+/*
   margin-top: 34px;
   margin-bottom: 100px;
+*/
+  margin: 34px auto 100px;
 }
 
 .center_wrapper {
