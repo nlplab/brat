@@ -169,9 +169,14 @@ def close_session():
     if CURRENT_SESSION is None:
         return
 
-    # If the sessions dir doesn't exist, create it
-    if not exists(SESSIONS_DIR):
+    try:
         makedirs(SESSIONS_DIR)
+    except OSError, e:
+        if e.errno == 17:
+            # Already exists
+            pass
+        else:
+            raise
 
     # Write to a temporary file and move it in place, for safety
     tmp_file_path = None
