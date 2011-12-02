@@ -22,18 +22,166 @@
       <h1>brat troubleshooting</h1> 
 
       <p>This document provides information on how to address specific
-	issues with brat.
-      </p>
-
-      <p>The first section relates to trouble using an existing brat
-	installation (client and UI issues). If you have trouble
-	creating a new installation of brat on a server, skip to the
-	<a href="#server-trouble">section on installation</a>.
+	problems with brat. For general instructions on use, see the
+	<a href="index.html">brat manual</a>.
       </p>
 
       <h2 id="client-trouble">Trouble using brat</h2>
 
+      <p>This section relates to issues using an existing brat
+	installation that has been working for other users (client and
+	UI issues). If you have trouble creating a new installation of
+	brat on a server, skip to the
+	<a href="#server-trouble">section on installation</a>.
+      </p>
+
+      <h3>1) brat fails to start, or some features do not work</h3>
+
+      <div style="color:#666666; width:30%; float:right; margin:auto; padding-left:5em">
+      <b>Sidebar: why is browser X not supported?</b>
+      <p>Most likely because the browser does not fully implement
+	support for
+	<a href="http://en.wikipedia.org/wiki/Scalable_Vector_Graphics">Scalable
+	Vector Graphics</a> (SVG).
+      </p>
+      <p>The core of brat visualization is based on SVG. Although SVG
+	has been a recommended web standard for over a decade, not all
+	browsers have implemented it; in particular, Internet Explorer
+	has only started supporting SVG from version 9. Because SVG is
+	central to the brat visualization, supporting browsers that do
+	not implement it would require rewriting much of the brat
+	client. There are currently no plans to do this, and we ask
+	users of browsers that do not implement SVG support to
+	consider using one of the many supported browsers when using
+	brat.
+      </p>
+      </div>
+      
+      <p>It may be that your browser is not fully supported. Please
+	check your browser on the 
+	<a href="supported-browsers.html">brat browser support</a>
+	page.
+      </p>
+
+      <p><strong>If your browser is listed as supported</strong>
+	but brat fails to work, please check the following:
+	<ul>
+	  <li>JavaScript should be permitted. The layout and editing
+	    functions of brat are implemented in JavaScript, and
+	    having JavaScript switched off either entirely or limited
+	    using blockers such as NoScript will prevent brat from
+	    working.
+	  </li>
+	  <li>Cookies should be permitted for editing. brat identifies
+	    users by a session cookie, so users who refuse cookies
+	    cannot be verified as having editing permissions. Cookies
+	    can be switched off for visualization, and brat does not
+	    store any cookies or other identifying information of
+	    users who are not logged in.
+	  </li>
+	  <li>The browser should be a relatively recent version. Older
+	    versions of supported browsers may work partially or not
+	    at all. Please consider upgrading if you are running an
+	    older version.
+	  </li>
+	</ul>
+      </p> 
+      <p><strong>If your browser is listed as <i>not</i>
+	  supported</strong>, please consider installing a supported
+	browser. Most of the supported browsers are freely
+	available, and installation only takes a couple of
+	minutes. (You can also try pushing the developers to
+	improve support for your browser!)
+      </p>
+
+      <h3>2) brat works, but is slow</h3>
+
+      <p>This issue may relate to the browser, the system used to run
+	it, server load, or document size.
+      </p>
+
+      <p><b>Browser</b> implementations of the core technologies used
+	to implement brat (vector graphics and JavaScript) have
+	greatly improved recently, and installing the latest version
+	of your favorite browser may resolve the issue. There are also
+	known differences in the efficiency of various browsers'
+	implementations of these technologies, and trying a different
+	browser may help. brat is known to work well on recent
+	versions of the <a href="http://www.google.com/chrome">Google
+	Chrome</a> and <a href="http://www.apple.com/safari/">Apple
+	Safari</a> browsers.
+      </p>
+
+      <p><b>System</b> requirements for running the brat client are
+	not high, and most modern machines (including laptops) should
+	be able to run brat without noticable slowdown. However,
+	low-powered or memory-limited platforms such as smartphones
+	and older tablets as well as old machines may be unable to run
+	efficiently. Processing and memory requirements can be reduced
+	by limiting the size of collections and documents accessed on
+	such devices.
+      </p>
+
+      <p><b>Server</b> requirements for running brat are also quite
+	modest, but heavy server load will be noticed also as slowdown
+	on brat clients accessing the server. If you are running both
+	the brat client and server on the same machine, try could
+	closing down other programs to release server resources.
+      </p>
+
+      <p><b>Document</b> size increases processing power requirements
+	on brat. The system does not yet implement progressive or
+	partial rendering; that is, the whole document is always
+	rendered even though most of it may not be shown on-screen.
+	We hope to address this limitation in a future release, but
+	for the current version we suggest to partition large
+	documents into smaller sections for annotation.
+      </p>
+
+      <h3>3) brat was working, but crashed or misbehaved</h3>
+
+      <p>(<b>in short</b>: try reloading the page.</b>)</p>
+
+      <p>You may have encountered a bug in brat. Please contact the
+	developers and report the issue! We should be able to fix
+	this, in particular if the issue repeats when you perform a
+	particular sequence of actions.
+      </p>
+
+      <p>(It is also possible that you are encountering a browser
+	bug. Though relatively rare, they do occur. In this case
+	updating your browser might help.)
+
+      <p>In general, you should be able to recover from a brat
+	&quot;crash&quot; or &quot;hang&quot; simply by reloading the
+	page in your browser (or, in case of browser bug, reloading
+	the browser). <span style="color:green"><b>It is always safe
+	  to reload brat</b></span>: you will not lose any of your
+	work; all annotations are immediately stored on the server
+	as soon as you make them.
+      </p>
+
       <h2 id="server-trouble">Trouble installing brat on a server</h2>
+
+      <h3>Only a defunct menu bar on a blank screen is shown</h3>
+      <p>It is possible that the brat server script <tt>ajax.cgi</tt>
+	is not being executed by your web server.
+      </p>
+      <p>To check if this is the case, point a browser directly at the
+	<tt>ajax.cgi</tt> script: if your brat installation is located
+	at, for example, <tt>http://127.0.0.1/~brat/</tt>, try
+	entering the URL <tt>http://127.0.0.1/~brat/ajax.cgi</tt>. If
+	this gives an &quot;internal server error&quot; or similar
+	message, the script is not being executed. (If you receive a
+	&quot;no action&quot; message from brat, the issue is
+	elsewhere.)
+      </p>
+      <p>To fix this, verify that your web server is configured to
+	allow the execution of CGI scripts in the directory into which
+	brat is installed (see <a href="installation.html">installation 
+	instructions</a>) and that the script <tt>ajax.cgi</tt> is
+	executable by the web server.
+      </p>
 
       <div id="footer">
 	&copy; 2010-2011 brat contributors
