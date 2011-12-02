@@ -197,7 +197,8 @@ path {
   fill: #00cc00;
 }
 #commentpopup.comment_AnnotatorNotes {
-  background-color: #00cc00;
+  /* background-color: #00cc00; */
+  background-color: #DAF7DC;
 }
 
 .shadow_AnnotationIncomplete {
@@ -439,7 +440,7 @@ fieldset legend {
   position: fixed;
   top: 0;
   left: 0;
-  opacity: 0.8;
+  opacity: 0.9;
   padding: 10px;
   display: none;
   border: 1px outset #000000;
