@@ -600,7 +600,7 @@ var VisualizerUI = (function($, window, undefined) {
             } else if (datum === undefined) {
               formatted = '';
             } else if (type === 'string') {
-              formatted = datum;
+              formatted = Util.escapeHTML(datum);
             } else if (type === 'time') {
               formatted = Util.formatTimeAgo(datum * 1000);
             } else if (type === 'float') {
