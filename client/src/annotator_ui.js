@@ -95,6 +95,11 @@ var AnnotatorUI = (function($, window, undefined) {
         var target = $(evt.target);
         var id;
         // do we edit an arc?
+
+        // XXX TODO NOTE SMP: this detects click on a span of text, can
+        // be used for building simulation of double-click selection.
+        //console.log(id = target.attr('data-chunk-id'), data.chunks[id]);
+
         if (id = target.attr('data-arc-role')) {
           // TODO
           window.getSelection().removeAllRanges();
