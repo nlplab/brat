@@ -449,9 +449,11 @@ var VisualizerUI = (function($, window, undefined) {
               // no document; set and show the relevant message, and
               // clear the "blind" unless waiting for a collection
               if (fileBrowserClosedWithSubmit) {
+                //console.log('closed with submit');
                 $('#no_document_message').hide();
                 $('#loading_message').show();
               } else {
+                //console.log('closed without submit');
                 $('#loading_message').hide();
                 $('#no_document_message').show();
                 $('#waiter').dialog('close');
