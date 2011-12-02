@@ -2,6 +2,21 @@
 
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600&subset=latin&effect=smoothing);
 
+img {
+  -moz-box-shadow: 5px 5px 5px #999999;
+  -webkit-box-shadow: 5px 5px 5px #999999;
+  box-shadow: 5px 5px 5px #999999;
+  margin-bottom: 0.5em;
+}
+
+img.icon {
+  vertical-align:bottom;
+  -moz-box-shadow: 0px 0px 0px #ffffff;
+  -webkit-box-shadow: 0px 0px 0px #ffffff;
+  box-shadow: 0px 0px 0px #ffffff;
+  margin-bottom: 0;
+}
+
 body { 
   font-family: 'Open Sans', arial, sans-serif;
   font-size: 13px;
