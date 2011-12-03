@@ -22,17 +22,185 @@
       
       <h1>brat case studies</h1> 
 
-      <p>brat can be applied for practical annotation tasks such as
-	the following:
+      <p>brat has been applied in various real-world annotation
+	projects and is applicable to a great variety of annotation
+	tasks. This page showcases a number of tasks of both of
+	these categories.
       </p>
 
-      <h2>Japanese verb frame annotation</h2>
+      <div>	
+	<div id="notebox">Identifying information on this page
+	  regarding projects associated with brat development has been
+	  redacted for anonymous review. These detailes will be
+	  restored prior to public release.
+	</div>
+      </div>
 
-      <img src="case-studies/susumu-small.png"/>
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
 
-      <p>...</p>
+      <h1>projects using brat</h1>
+
+      <p>Some annotation projects that have used (or are currently
+	using) brat are introduced in the following.
+      </p>
+
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
+
+      <a href="case-studies/11419822-full.png">
+	<img class="right" src="case-studies/11419822-small.png"/>
+      </a>
+      <h2 class="nomargin">Event annotation for cancer biology</h2>
+      <p>we are using brat in [REDACTED] for structured event
+	annotation for scientific manuscript abstracts in cancer
+	domains.
+      </p>
+      <p>The task involves a large number of types of both physical
+	entities (genes/proteins, chemicals, cell, tissues,
+	pathological formations etc.), molecular level events, and
+	biological processes (gene expression, binding, development,
+	regulation etc.). To assist in the annotation, we are using
+	brat <a href="rapid-annotation.html">rapid annotation</a> mode
+	to suggest likely types to annotators.
+      </p>
+      <p>
+	<div class="inforow">
+	  <span class="infolabel">Examples in brat:</span>
+	  <span class="infovalue"><b style="color:red">TODO</b></span>
+	</div>
+	<div class="inforow">
+	  <span class="infolabel">Project website:</span>
+	  <span class="infovalue">[REDACTED]</span>
+	</div>
+	<div class="inforow">
+	  <span class="infolabel">Publications:</span>
+	  <span class="infovalue">[REDACTED]</span>
+	</div>
+      </p>
+
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
+
+      <a href="case-studies/susumu-full.png">
+	<img class="right" src="case-studies/susumu-small.png"/>
+      </a>
+      <h2 class="nomargin">Japanese verb frame annotation</h2>
+      <p>brat is applied in the [REDACTED] project for verb frame
+	annotation in <a href="framenet">FrameNet</a>-like
+	representation.
+      </p>
+      <p>The annotation involves identifying the core and peripheral
+	arguments of specific verbs in sentence scope and marking up
+	their roles.
+      </p>
+      <p>To assist in the visualization and annotation of Japanese
+	text, brat integrates the <a href="XXX">XXX</a> sentence
+	splitter and the <a href="YYY">YYY</a> Japanese word
+	segmentation tool.
+      </a>
+
+      <p>
+	<div class="inforow">
+	  <span class="infolabel">Examples in brat:</span>
+	  <span class="infovalue"><b style="color:red">TODO</b></span>
+	</div>
+	<div class="inforow">
+	  <span class="infolabel">Project website:</span>
+	  <span class="infovalue">[REDACTED]</span>
+	</div>
+	<div class="inforow">
+	  <span class="infolabel">Publications:</span>
+	  <span class="infovalue">[REDACTED]</span>
+	</div>
+      </p>
+
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
       
-      <br/>
+      <h1>annotation tasks compatible with brat</h1>
+
+      <p>A variety of annotation tasks that could be performed in brat
+	are introduced below using examples from annotated corpora.
+      </p>
+      <p>These annotations have been originally created in various
+	(other) tools and converted into brat format. Converters for
+	many of the original formats are distributed with brat.
+      </p>
+
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
+
+      <a href="case-studies/esp.train-doc-536-full.png">
+	<img class="right" src="case-studies/esp.train-doc-536-small.png"/>
+      </a>
+      <h2 class="nomargin">CoNLL 2002 Shared Task: Language-Independent Named Entity Recognition</h2>
+
+
+      <p>The Conference on Computational Natural Language Learning
+	(CoNLL) 2002 shared task Language-Independent Named Entity
+	Recognition provided two annotated corpora (Spanish and
+	Dutch) annotated with entities of four types (person,
+	organization, location and miscellaneous).
+      </p>
+      <p>A conversion script from the CoNLL 2002 shared task format to
+	the brat standoff format and a sample of the corpus annotations
+	are distributed with brat.
+      </p>
+      <p>The full shared task data are freely available from the shared
+	task website.
+      </p>
+      <p>
+	<div class="inforow">
+	  <span class="infolabel">Examples in brat:</span>
+	  <span class="infovalue"><b style="color:red">TODO</b></span>
+	</div>
+	<div class="inforow">
+	  <span class="infolabel">Project website:</span>
+	  <span class="infovalue"><a href="http://www.cnts.ua.ac.be/conll2002/ner/">CoNLL 2002 shared task website</a></span>
+	</div>
+	<div class="inforow">
+	  <span class="infolabel">Publications:</span>
+	  <span class="infovalue">[REDACTED]</span>
+	</div>
+      </p>
+
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
+
+      <a href="case-studies/esp.train-doc-536-full.png">
+	<img class="right" src="case-studies/esp.train-doc-536-small.png"/>
+      </a>
+      <h2 class="nomargin">BioNLP shared task 2011: various biomedical information extraction tasks</h2>
+
+      <p>The BioNLP shared task 2011 included seven different
+	information extraction subtasks, including relation
+	extraction, event extraction, and coreference tasks.
+      </p>
+      <p>The brat standoff format is compatible with that of the
+	BioNLP shared task, and samples of the annotations of the
+	various corpora provided for the task are distributed with
+	brat.
+      </p>
+      <p>The full shared task data are freely available from the shared
+	task website.
+      </p>
+      <p>
+	<div class="inforow">
+	  <span class="infolabel">Examples in brat:</span>
+	  <span class="infovalue"><b style="color:red">TODO</b></span>
+	</div>
+	<div class="inforow">
+	  <span class="infolabel">Project website:</span>
+	  <span class="infovalue"><a href="http://2011.bionlp-st.org">BioNLP shared task 2011 website</a></span>
+	</div>
+	<div class="inforow">
+	  <span class="infolabel">Publications:</span>
+	  <span class="infovalue">[REDACTED]</span>
+	</div>
+      </p>
+
+      <br style="clear:both"/>
       
       <div>
 	<h2 style="text-align:right"><a href="features.html">Next: features in overview</a></h2>

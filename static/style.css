@@ -2,11 +2,29 @@
 
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600&subset=latin&effect=smoothing);
 
+#notebox {
+  width:50%;
+  margin:auto;
+  text-align:center;
+  background-color: #ffcccc;
+  padding: 10px;
+  margin: 20px;
+}
+
 img {
   -moz-box-shadow: 5px 5px 5px #999999;
   -webkit-box-shadow: 5px 5px 5px #999999;
   box-shadow: 5px 5px 5px #999999;
   margin-bottom: 0.5em;
+}
+
+img.right {
+  border: 1px solid black;
+  margin:auto;
+  float:right;
+  margin-left: 5em;
+  margin-bottom: 3em;
+  margin-top: 1em;
 }
 
 img.icon {
@@ -26,8 +44,18 @@ h2 {
   margin-top: 2em;
 }
 
+h2.nomargin {
+  margin-top: 0em;
+}
+
 h3 {
   margin-top: 1.5em;
+}
+
+.infolabel {
+  font-weight: bold;  
+  display: inline-block;
+  width: 10em;
 }
 
 .h1subtitle {
