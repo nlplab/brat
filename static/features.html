@@ -1,0 +1,201 @@
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>brat rapid annotation tool</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link rel="stylesheet" type="text/css" href="jquery-theme/jquery-ui-redmond.css"/>
+    <link rel="shortcut icon" href="../../favicon.ico"/>
+  </head>
+  <style type="text/css">
+  <!--
+  -->
+  </style>  
+  <body>
+    <div id="manual-main" class="center">      
+      <div id="header" class="ui-widget-header rounded">
+        <span class="logo">brat</span>
+	<a href="index.html">home</a>
+	<span>menuitem</span>
+	<span>menuitem</span>
+	<span>menuitem</span>
+	<a href="index.html">brat manual</a>
+      </div>
+      
+      <h1>brat features</h1> 
+
+      <p>This page presents an overview of brat features. For detailed
+	instructions, see the <a href="manual/index.html">brat manual</a>.
+      </p>
+
+      <h2>Comprehensive visualization</h2>
+
+      <p>The brat annotation visualization is based on the concept
+	of &quot;what you see is what you get&quot;: all aspects of
+	the underlying annotation are visually represented in an
+	intuitive way.
+      </p>
+      <div class="image">
+	<img src="manual/images/visualization-1.png"/>
+	<div style="width: 800px" class="caption">Annotation visualization</div>
+      </div>
+
+      <h2>Intuitive editing</h2>
+
+      <p>Annotation editing is mouse-based and uses intuitive
+	&quot;gestures&quot; familiar from text editors, presentation
+	software, and many other tools. To mark a span of text, simply
+	select it with the mouse by &quot;dragging&quot; or by
+	double-clicking on a word.
+      </p>
+      <div class="image">
+	<img src="manual/images/selection-1.png"/>
+	<div style="width: 800px" class="caption">Selecting text for annotation</div>
+      </div>
+      <p>Connecting annotations, for exaple adding a relation between
+	two annotations, is equally simple: click with the mouse on
+	one annotation and drag a connection to the other.
+      </p>
+      <div class="image">
+	<img src="manual/images/relation-1.png"/>
+	<div style="width: 800px" class="caption">Connecting annotations</div>
+      </div>
+
+      <h2>Zero setup</h2>
+
+      <p>brat is built entirely on standard web technologies, and it
+	is not necessary to install any local software or browser
+	plugins to use it.
+      </p>
+      <p>An annotator can start using brat simply by entering the
+	address of the brat installation into the address bar of a
+	browser.
+      </p>
+
+      <h2>Annotation of texts in any language</h2>
+
+      <p>Both the brat server and client implement full
+	<a href="http://en.wikipedia.org/wiki/Unicode">Unicode</a>
+	support, thus supporting nearly 100 different scripts.
+      </p>
+      <div class="image">
+	<img border="1" src="japanese-example.png"/>
+	<div style="width: 800px" class="caption">Annotation of text in kanji</div>
+      </div>
+      <p>Text documents in any language can be converted into 
+	<a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8 encoded</a>
+	Unicode, which can be annotated in brat identically to texts
+	in <a href="http://en.wikipedia.org/wiki/ASCII">ASCII</a>
+	format.
+      </p>
+
+      <h2>An address for each annotation</h2>
+
+      <p>Every brat annotation can be uniquely addressed within the
+	brat server. Together with the URL of the server, this form
+	of addressing provides a globally unique address for every
+	brat annotation.
+      </p>
+      <div class="image">
+	<img border="1" src="URL-example.png"/>
+	<div style="width: 800px" class="caption">Focusing an annotation with a given URL</div>
+      </div>
+      <p>Entering such an address into a browser will not only show
+	the relevant document, but brat will further highlight and
+	center the specific annotation. These addresses can thus be
+	used in email and online documentation and discussions to
+	simply and unabiguously refer to any annotation in brat.
+      </p>
+      <p>(The address for each annotation can be easily accessed from
+	a dialog shown by double-clicking on an annotation.)
+      </p>
+
+      <h2>Integration with automatic annotation tools</h2>
+
+      <p>brat implements a simple interface for integrating the output
+	of automatic text annotation tools accessible as web services
+	into annotation efforts.
+      </p>
+
+      <h2>Ontology integration?</h2>
+
+      <p>(maybe there is still time to do something about this?)</p>
+
+      <h2>High-quality visualization at any scale</h2>
+
+      <p>The visualization of brat is based on Scalable Vector
+	Graphics (SVG), which can be rendered in arbitrary detail and
+	precision.
+      </p>
+      <div class="image">
+	<img border="1" src="zoomin-example.png"/>
+	<div style="width: 800px" class="caption">Zoomed in on an annotation</div>
+      </div>
+      <p>brat annotation visualizations are thus inherently print
+	quality and can be used as figures in publications to
+	illustrate annotations.
+      </p>
+      <p>SVG allows the built-in zoom functions of the browser to be
+	used for closeops or for a high-level view of the annotations
+	of a document.
+      </p>
+      <div class="image">
+	<img border="1" src="zoomout-example.png"/>
+	<div style="width: 800px" class="caption">Zoomed out for an overview</div>
+      </div>
+
+      <h2>Easy export in multiple formats</h2>
+
+      <p>Annotations created in brat can be exported with a few clicks
+	from the interface in a simple
+	<a href="manual/standoff.html">standoff format</a> that can be
+	easily analysed, processed, and converted into other formats.
+      </p>
+      <p>Visualizations can be similarly be exported in their native
+	SVG format, rendered as a bitmap
+	(<a href="http://en.wikipedia.org/wiki/Portable_Network_Graphics">PNG
+	format</a>), or converted into other vector formats for embedding
+	into documents (<a href="http://en.wikipedia.org/wiki/Portable_Document_Format">PDF</a> or <a href="http://en.wikipedia.org/wiki/Encapsulated_PostScript">EPS</a>).
+      </p>
+
+      <h2>Always saved, always up to date</h2>
+
+      <p>brat eliminates any risk of losing annotation efforts to tool
+	crashes, forgetting to save work, or even complete failure of
+	an annotator's computer by transparently communicating all
+	edit operations by annotators to the brat server as they are
+	done.
+      </p>
+      <p>Similarly, in maintaining a single authoritative version of
+	data shared by all annotators working on a project, the brat
+	server remove the possibility of conflicting versions of
+	annotations arising or out-of-data data being used as well as
+	the need for annotators to use a separate version control
+	system for coordinating their work.
+      </p>
+
+      <h2>Real-time collaboration</h2>
+
+      <p>The brat client-server architecture and design allow multiple
+	annotators to work simultaneously on the same collection of
+	document, or even on the same document, seeing each other's
+	edits nearly as they are made (some delay is inherent in the
+	communication).
+      </p>
+      <p>All edit operations are coordinated by the server to assure
+	that the annotation remains coherent even if multiple users
+	attempt to simultaneously modify a single annotation.
+      </p>
+
+      <h2>Detailed annotation process measurement</h2>
+
+      <p>brat can optionally be configured to record the precise time
+	that an annotator opens a document, each edit action, and even
+	the time spent selecting the type to assign to an annotation
+	after selecting where to place it.
+      </p>
+      
+      <div id="footer">
+	&copy; 2010-2011 brat contributors
+      </div>
+    </div>
+  </body>
+</html>
