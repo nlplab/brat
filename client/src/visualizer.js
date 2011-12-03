@@ -980,10 +980,6 @@ Util.profileStart('measures');
           if (width > maxTextWidth) maxTextWidth = width;
         });
 
-        var width = maxTextWidth + sentNumMargin + 2 * Configuration.visual.margin.x + 1;
-        if (width > canvasWidth) canvasWidth = width;
-        $svg.width(canvasWidth);
-
 Util.profileEnd('measures');
 Util.profileStart('chunks');
 
@@ -1282,8 +1278,16 @@ Util.profileStart('chunks');
             // the chunk does not fit
             var lastX = current.x;
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
+            // TODO: related to issue #571
+            // replace arcHorizontalSpacing with a calculated value
             current.x = Configuration.visual.margin.x + sentNumMargin + rowPadding +
                 (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
+            if (hasLeftArcs) {
+              var adjustedCurTextWidth = sizes.texts.widths[chunk.text] + arcHorizontalSpacing;
+              if (adjustedCurTextWidth > maxTextWidth) {
+                maxTextWidth = adjustedCurTextWidth;
+              }
+            }
             if (spacingRowBreak > 0) {
               current.x += spacingRowBreak;
               spacing = 0; // do not center intervening elements
@@ -1998,7 +2002,12 @@ Util.profileStart('finish');
         svg.path(sentNumGroup, svg.createPath().
           move(sentNumMargin, 0).
           line(sentNumMargin, y));
+
         // resize the SVG
+        var width = maxTextWidth + sentNumMargin + 2 * Configuration.visual.margin.x + 1;
+        if (width > canvasWidth) canvasWidth = width;
+
+        $svg.width(canvasWidth);
         $svg.height(y);
         $svgDiv.height(y);
 
