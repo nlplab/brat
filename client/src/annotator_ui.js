@@ -459,7 +459,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var name = spanTypes[type] && spanTypes[type].name || type;
           var $label = $('<label/>').
             attr('for', 'rapid_span_' + (typeNo+1)).
-            text(name+' ('+100.0*prob+'%)');
+            text(name+' (' + (100.0 * prob).toFixed(1) + '%)');
           $label.css('background-color', spanBgColor);          
           // TODO: check for unnecessary extra wrapping here
           var $content = $('<div class="item_content"/>').
@@ -493,7 +493,11 @@ var AnnotatorUI = (function($, window, undefined) {
                 return all;
               });
             $label.html(name);
-          }          
+          }
+          // Limit the number of suggestions to the number of numeric keys
+          if (typeNo >= 8) {
+            return false;
+          }
         });
         // fill in some space and the special "Other" option, with key "0" (zero)
         $spanTypeDiv.append($('<div class="item_content">&#160;</div>')); // non-breaking space

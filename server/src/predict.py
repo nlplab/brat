@@ -14,11 +14,13 @@ Version:    2011-11-17
 SIMSEM_HOST = None
 SIMSEM_PORT = None
 SIMSEM_URL = 'http://%s:%s/' % (SIMSEM_HOST, SIMSEM_PORT)
+CUT_OFF = 0.95
 ###
 
 from urllib import urlencode
 from urllib2 import urlopen, HTTPError, URLError
 
+from annlog import log_annotation
 from common import ProtocolError
 from jsonwrap import loads
 
@@ -45,7 +47,6 @@ def suggest_span_types(collection, document, start, end, text):
     if SIMSEM_HOST is None or SIMSEM_PORT is None:
         raise SimSemConnectionNotConfiguredError
 
-    # TODO: Catch exceptions
     req_data = urlencode({
             'classify': text,
             })
@@ -58,11 +59,22 @@ def suggest_span_types(collection, document, start, end, text):
 
     json = loads(resp.read())
 
-    # TODO: Check the error value
+    preds = json['result'][text]
+
+    selected_preds = []
+    conf_sum = 0
+    for cat, conf in preds:
+        selected_preds.append((cat, conf, ))
+        conf_sum += conf
+        if conf_sum >= CUT_OFF:
+            break
+
+    log_annotation(collection, document, 'DONE', 'suggestion',
+            [None, None, text, ] + [selected_preds, ])
 
     # array so that server can control presentation order in UI
     # independently from scores if needed
-    return { 'types': json['result'],
+    return { 'types': selected_preds,
              'collection': collection, # echo for reference
              'document': document,
              'start': start,
