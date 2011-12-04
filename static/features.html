@@ -209,9 +209,17 @@
 
       <h2>Fully configurable</h2>
 
-      <p>
+      <p>All aspects of annotation are configured using a simple
+	declarative configuration language. Each document collection
+	have its own configuration, allowing a single brat server to
+	host many projects with different annotation targets.
       </p>
-      
+      <p>Additionally, most aspects of the visualization such as font,
+	annotation &quot;box&quot; and &quot;arc&quot; colors as well
+	as arrow head and arc drawing style can be controlled in
+	detail using well-documented and widely known HTML/CSS style
+	specifications.
+      </p>
 
       <h2>Always validated</h2>
 
@@ -222,17 +230,27 @@
       <p>The validation of annotations created in brat is not isolated
 	into a separate process but closely integrated into the
 	annotation process: the validity of annotations is checked
-	after every edit option, giving annotators immediate feedback.
+	after every edit option, giving annotators immediate feedback
+	with simple visual hints.
       </p>
       <div class="image">
 	<img src="incomplete-ann-example.png"/>
 	<div style="width: 800px" class="caption">Example incomplete annotation and details</div>
       </div>
+      <p>Annotations that lack some mandatory part are not given a
+	colored fill and given a gray highlight. Placing the mouse
+	over such an annotation provides the details of the issues
+	detected by the annotation verifier.
+      </p>
       <div class="image">
 	<img src="error-ann-example.png"/>
 	<div style="width: 800px" class="caption">Example annotation with error and details</div>
       </div>
-      
+      <p>Annotations that have extra or erroneous parts are given a
+	red &quot;halo&quot; that indicates a problem with the
+	annotation. Again, placing the mouse over such an annotation
+	details the detected issues.
+      </p>
       <h2>Search</h2>
 
       <p>
