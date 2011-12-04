@@ -350,6 +350,7 @@ fieldset {
 }
 fieldset legend {
   font-family: monospace;
+  font-weight: bold;
   font-size: 90%;
   /* match jQuery UI .ui-widget-content color */
   color: #2e6e9e;
@@ -358,6 +359,7 @@ fieldset legend {
    /* for UI consistency, this should match the "fieldset legend" style;
       sorry about the duplication. */
   font-family: monospace;
+  font-weight: bold;
   font-size: 90%;
   /* match jQuery UI .ui-widget-content color */
   color: #2e6e9e;
