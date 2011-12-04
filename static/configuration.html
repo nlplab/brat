@@ -1,0 +1,122 @@
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>brat rapid annotation tool</title>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+    <link rel="stylesheet" type="text/css" href="jquery-theme/jquery-ui-redmond.css"/>
+    <link rel="shortcut icon" href="../../favicon.ico"/>
+  </head>
+  <style type="text/css">
+  <!--
+  -->
+  </style>  
+  <body>
+    <div id="manual-main" class="center">      
+      <div id="header" class="ui-widget-header rounded">
+        <span class="logo">brat</span>
+	<a href="index.html">home</a>
+	<span>menuitem</span>
+	<span>menuitem</span>
+	<span>menuitem</span>
+	<a href="index.html">brat manual</a>
+      </div>
+      
+      <h1>brat configuration</h1> 
+
+      <p>brat configurations are currently controlled by text-based
+	configuration files that can be created and edited in any text
+	editor. This page documents the configuration language.
+      </p>
+      <p><b>NOTE</b>: we are planning to introduce <b>GUI-based
+	configuration</b> in a future release, but have so far focused
+	development efforts on other aspects of the platform as the
+	need to alter configurations arises comparatively rarely and
+	the brat configuration language is simple enough to write even
+	by non-experts.
+      </p>
+
+      <h2>Configuration basics</h2>
+
+      <h3>Configuration files</h3>
+
+      <p>the configuration of an annotation project is controlled by
+	two files, <tt>annotation.conf</tt> and <tt>visual.conf</tt>,
+	the former defining the types of annotations available and the
+	latter the way they are displayed.
+      <p>Each annotation project typically defines its
+	own <tt>annotation.conf</tt>, but
+	defining <tt>visual.conf</tt> is not necessary, and the system
+	falls back on simple default visuals if this file is not
+	present. The configuration files can be placed anywhere in the
+	brat data directory, and are normally placed in the directory
+	corresponding to the base directory of the collection they
+	apply to.
+      </p>
+      <p>(To determine the configuration for a collection,
+	the system searches up in the directory tree from the
+	directory in which the collection is contained toward the root
+	of the brat <tt>data/</tt> directory, falling back on default
+	configurations if no configuration is present in any of these
+	locations.)
+      </p>
+
+      <h3>Configuration file structure</h3>
+
+      <p>Both the annotation and visual configuration files follow a
+	simple line-oriented structure and a syntax familiar from
+	many other text-based configuration systems.
+      </p>
+
+      <p>The top-level organization of the configuration files is
+	into <i>sections</i>, each marked with a line containing only
+	<tt>[section-name]</tt>, where <tt>section-name</tt> is one of
+	a set of predefined section names defined for the
+	configuration file.
+      </p>
+
+      <p>Within sections, each non-empty line defines one
+	configuration item, where with the first non-space sequence
+	names the item, and the rest of the line the specification,
+	which varies by section.
+      </p>
+
+      <p>Blank lines are ignored by the configuration
+	reader. Similarly, lines beginning with the number sign
+	&quot;#&quot; (also known as hash character) are ignored
+	as comments.
+      </p>
+
+
+      <p>An example of a simple annotation configuration file defining
+	two entity and two relation types is shown below.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[entities]</td><td width="250">&#160;</td>
+	      </tr><tr>
+		<td>Person</td>
+	      </tr><tr>
+		<td>Organization</td>
+	      </tr><tr>
+		<td>&#160;</td>
+	      </tr><tr>
+		<td>[relations]</td>	
+	      </tr><tr>
+		<td>Family</td><td>Arg1:Person, Arg2:Person</td>
+	      </tr><tr>
+		<td>Employment</td><td>Arg1:Person, Arg2:Organization</td>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      
+      <div id="footer">
+	&copy; 2010-2011 brat contributors
+      </div>
+    </div>
+  </body>
+</html>
