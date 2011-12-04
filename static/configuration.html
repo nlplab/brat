@@ -281,7 +281,42 @@
 
       <h3>Event definitions (<tt>[events]</tt> section)</h3>
 
+      <p>The <tt>[events]</tt> section defines <i>n</i>-ary
+	associations between other annotations (entities or events).
+	The &quot;event&quot category of annotations can be used
+	to mark things that are stated to happen in text, such as
+	two people getting married or a company going bankrupt.
+      </p>
+
+      <p>The basic syntax for defining events is similar to that for
+	relations. Each lines defined one event type (or, more
+	specifically, one event &quot;frame&quot; &mdash; possible
+	combination of arguments), with the event arguments specified
+	with a <tt>ROLE:TYPE</tt> syntax and separated by commas.  The
+	roles that event participants play in an event (<tt>ROLE</tt>)
+	in the definition can be freely defined.
+      </p>
+
+      <p>The following example shows a simple <tt>[events]</tt> section.</p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[relations]</td><td width="250">&#160;</td>
+	      </tr><tr>
+		<td>Marriage</td><td>Participant1:Person, Participant2:Person</td>
+	      </tr><tr>
+		<td>Bankruptcy</td><td>Org:Company</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
       <h3>Attribute definitions (<tt>[attributes]</tt> section)</h3>
+
 
       <h2>Additional details</h2>
 
