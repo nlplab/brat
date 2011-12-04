@@ -239,7 +239,7 @@ def verify_mandatory_arguments(ann_obj, projectconf):
         found_nonum_args = event_nonum_args(e)
         for m in projectconf.mandatory_arguments(e.type):
             if m not in found_nonum_args:
-                issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "%s required for event" % disp(m)))
+                issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "Argument '%s' required for event" % disp(m)))
 
     return issues
 
