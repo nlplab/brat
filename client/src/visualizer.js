@@ -66,7 +66,7 @@ var Visualizer = (function($, window, undefined) {
       var reverseArcControlx = 5;   // control point distance for "UFO catchers"
       
       // "shadow" effect settings (note, error, incompelete)
-      var rectShadowSize = 2.5;
+      var rectShadowSize = 3;
       var rectShadowRounding = 2.5;
       var arcLabelShadowSize = 1;
       var arcLabelShadowRounding = 5;
