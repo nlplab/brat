@@ -2,6 +2,15 @@
 
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600&subset=latin&effect=smoothing);
 
+.unselectable {
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -o-user-select: none;
+   user-select: none;
+   cursor: default;
+}
+
 #notebox {
   width:50%;
   margin:auto;
