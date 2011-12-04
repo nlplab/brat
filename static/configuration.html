@@ -108,11 +108,127 @@
 		<td>Family</td><td>Arg1:Person, Arg2:Person</td>
 	      </tr><tr>
 		<td>Employment</td><td>Arg1:Person, Arg2:Organization</td>
+	      </tr><tr>
+		<td>&#160;</td>
+	      </tr><tr>
+		<td colspan="2"># This is a comment line.
+	      </tr>
 	    </table>
 	  </td>
 	</tr>
       </table>
 
+      <h2>Annotation configuration (<tt>annotation.conf</tt>)</h2>
+
+      <p>The annotation configuration file, <tt>annotation.conf</tt>,
+	is divided into the following sections:
+	<ul>
+	  <li><tt>[entities]</tt></li>
+	  <li><tt>[relations]</tt></li>
+	  <li><tt>[events]</tt></li>
+	  <li><tt>[attributes]</tt></li>
+	</ul>
+      </p>
+      <p>Each of these sections must be present in the configuration
+	file, but they can be empty. For example, a configuration can
+	define only entity annotation targets by leaving the remaining
+	section empty.
+      </p>
+
+      <h3>Entity definitions (<tt>[entities]</tt> section)</h3>
+
+      <p>The <tt>[entities]</tt> section defines the types for the
+	things that can be marked in text as types text spans, such
+	as mentions of real-world &quot;things&quot; such as people
+	or locations.
+      </p>
+
+      <p>The basic format of the <tt>[entities]</tt> section is a
+	simple list, with one entity type per line. Thus, the
+	following is a valid <tt>[entities]</tt> section:
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[entities]</td><td width="250">&#160;</td>
+	      </tr><tr>
+		<td>Person</td>
+	      </tr><tr>
+		<td>Location</td>
+	      </tr><tr>
+		<td>Organization</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>In addition to listing the entity types,
+	the <tt>[entities]</tt> section can be used to define just one
+	additional aspect of the annotation: the hierarchy in which
+	the entities are organized. This is optional, and the syntax
+	specifying a hierarchy of entity organization consists simply 	
+	of TAB characters at the beginning of each line.
+      </p>
+
+      <img style="border:none" class="right" src="entity-type-hierarchy.png"/>
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[entities]</td>
+	      </tr><tr>
+		<td>Living-thing</td>
+	      </tr><tr>
+		<td>&#160;</td><td width="250">Person</td>
+	      </tr><tr>
+		<td>&#160;</td><td>Animal</td>
+	      </tr><tr>
+		<td>&#160;</td><td>Plant</td>
+	      </tr><tr>
+		<td>Nonliving-thing</td>
+	      </tr><tr>
+		<td>&#160;</td><td>Building</td>
+	      </tr><tr>
+		<td>&#160;</td><td>Vehicle</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>Such a hierarchy is interpreted an an <tt>is-a</tt> taxonomy
+	by various parts of the system.
+      </p>
+
+      <p>The most immediately visible difference that defining an
+	entity type hierarchy makes in annotation is that the type
+	selector shows the hierarchy and allows parts of it to be
+	collapsed (hidden) or opened to assist in navigating the
+	available entity types. (This feature is primarily useful for
+	larger numbers of defined types.)
+      </p>
+
+      <h3>Relation definitions (<tt>[relations]</tt> section)</h3>
+
+      <h3>Event definitions (<tt>[events]</tt> section)</h3>
+
+      <h3>Attribute definitions (<tt>[attributes]</tt> section)</h3>
+
+      <h2>Additional details</h2>
+
+      <h3>Type names</h3>
+
+      <p>Each annotation type consists of one or more characters,
+	constrained to the set of alphanumeric characters
+	(&quot;a&quot;-&quot;z&quot;, &quot;A&quot;-&quot;Z&quot;,
+	&quot;0&quot;-&quot;9&quot;), the hyphen (&quot;-&quot;) and
+	the underscore (&quot;_&quot;) character.
+      </p>
       
       <div id="footer">
 	&copy; 2010-2011 brat contributors
