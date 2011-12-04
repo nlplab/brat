@@ -144,8 +144,8 @@
       </p>
 
       <p>The basic format of the <tt>[entities]</tt> section is a
-	simple list, with one entity type per line. Thus, the
-	following is a valid <tt>[entities]</tt> section:
+	simple list, with one entity type per line. The following is
+	an example of a simple <tt>[entities]</tt> section:
       </p>
 
       <table class="annotation_wrapper">
@@ -215,11 +215,77 @@
 
       <h3>Relation definitions (<tt>[relations]</tt> section)</h3>
 
+      <p>The <tt>[relations]</tt> section defines binary relations
+	between annotations. Relation annotations can mark, for
+	example, a <tt>Family</tt> relationship between the entities
+	identified by two <tt>Person</tt> annotations.
+      </p>
+
+      <p>Each line in the <tt>[relations]</tt> section defines one
+	relation type, the entities it can associate and, optionally,
+	the properties of the relation. The types of annotations that
+	can be associated by the relation are identified using the
+	syntax <tt>ARG:TYPE</tt> (where <tt>ARG</tt> are, by convention,
+	<tt>Arg1</tt> and <tt>Arg2</tt>), separated by a comma.
+      </p>
+      <p>The following example shows a simple <tt>[relations]</tt>
+	section.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[relations]</td><td width="250">&#160;</td>
+	      </tr><tr>
+		<td>Family</td><td>Arg1:Person, Arg2:Person</td>
+	      </tr><tr>
+		<td>Employment</td><td>Arg1:Person, Arg2:Organization</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>Relations can often take arguments of more than one type.
+	This can be defined in the configuration by listing all the
+	possible types separated by the pipe character &quot;|&quot;.
+	Cases where not all argument combinations are valid can be
+	constrained by defining one valid set of combinations per
+	line. These features are illustrated in the following example:
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[relations]</td><td width="130">&#160;</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Located</td><td>Arg1:Person, </td><td>Arg2:Building|City|Country</td>
+	      </tr><tr>
+		<td>Located</td><td>Arg1:Building, </td><td>Arg2:City|Country</td>
+	      </tr><tr>
+		<td>Located</td><td>Arg1:City, </td><td>Arg2:Country</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>As for entities, a hierarchy of relation types can be defined
+	simply by placing TAB characters at the beginning of each
+	line.
+      </p>
+
       <h3>Event definitions (<tt>[events]</tt> section)</h3>
 
       <h3>Attribute definitions (<tt>[attributes]</tt> section)</h3>
 
       <h2>Additional details</h2>
+
+      <h3>Shortcuts and macros</h3>
 
       <h3>Type names</h3>
 
