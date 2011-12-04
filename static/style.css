@@ -80,7 +80,19 @@ div.center {
 #header {
   padding: 10px 15px;
   margin-bottom: 2em;
+  padding-left: 3em;
   font-size: 120%;
+}
+#menulogo {
+  padding-top: 0.5em;
+  padding-right: 1em;
+  float: right;  
+}
+#header span a {
+  text-decoration: none; /* no underline in menu */
+}
+#header > span, #header > a {
+  margin-right: 10px;
 }
 
 .bigbutton {
@@ -88,13 +100,6 @@ div.center {
   padding: 10px 15px !important;
 }
 
-#header > span, #header > a {
-  margin-right: 20px;
-}
-
-#header > a {
-  text-decoration: none
-}
 #header > .logo {
   font-size: 1.2em;
   margin-top: -10px;
