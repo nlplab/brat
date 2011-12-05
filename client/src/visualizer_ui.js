@@ -601,6 +601,12 @@ var VisualizerUI = (function($, window, undefined) {
               formatted = '';
             } else if (type === 'string') {
               formatted = Util.escapeHTML(datum);
+            } else if (type === 'string-right') {
+              formatted = Util.escapeHTML(datum);
+              cssClass = 'rightalign';
+            } else if (type === 'string-center') {
+              formatted = Util.escapeHTML(datum);
+              cssClass = 'centeralign';
             } else if (type === 'time') {
               formatted = Util.formatTimeAgo(datum * 1000);
             } else if (type === 'float') {

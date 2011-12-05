@@ -923,10 +923,15 @@ def format_results(matches, concordancing=False, context_length=50):
         response['header'].append(('Type', 'string'))
 
     if include_context or include_trigger_context:
-        response['header'].append(('Left context', 'string'))
+        # right-aligned string
+        response['header'].append(('Left context', 'string-right'))
 
     if include_text:
-        response['header'].append(('Text', 'string'))
+        # center-align text when concordancing, default otherwise
+        if include_context or include_trigger_context:
+            response['header'].append(('Text', 'string-center'))
+        else:
+            response['header'].append(('Text', 'string'))
 
     if include_trigger_text:
         response['header'].append(('Trigger text', 'string'))
