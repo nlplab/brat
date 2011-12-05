@@ -25,13 +25,28 @@
         <div id="menulogo" class="logo unselectable">brat</div>
       </div>
 
-<h2>Installation</h2>
+<h1>Installation</h1>
 
-<p>This section describes how to install brat and its third-party dependencies.
-Do note that brat is a served through a web server and we currently develop
-against Apache 2.x, these instructions will assume that you use the same but
-we do have LigHTTPD configuration files in the repository if you feel like
-trying it out.</p>
+<p>This page describes how to install a brat server and its
+third-party dependencies.
+</p>
+
+<p><b>Please note</b>: you do not need to install brat to try it out;
+  brat runs in your browser and a live demo system usable with any
+  <a href="supported-browsers.html">supported browser</a> is
+  linked form the <a href="index.html">brat home page</a>.
+<p>
+
+<p>If you wish to set up your own local brat installation for your
+  annotation project, please follow the instructions below.
+</p>
+
+<h2>Installing the brat server</h2>
+
+<p>brat is a served through a web server and we currently develop
+against Apache 2.x. These instructions primarily assume that Apache,
+but we do have also LigHTTPD configuration files in the repository if
+you prefer this alternative.</p>
 
 <pre><code>tar xzf brat.tar.gz
 </code></pre>
@@ -98,7 +113,7 @@ create the annotation files (<code>.ann</code>) as below.</p>
     | xargs -I {} touch '{}.ann' )
 </code></pre>
 
-<h3>Third-party Stuff</h3>
+<h2>Installing third-party components</h2>
 
 <p>This part largely focuses on Ubuntu, but use your *NIX-fu to turn it into what
 you need if you don't have the misfortune to have the

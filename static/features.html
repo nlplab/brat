@@ -40,7 +40,7 @@
 	intuitive way.
       </p>
       <div class="image">
-	<img src="manual/images/visualization-1.png"/>
+	<img src="images/visualization-1.png"/>
 	<div style="width: 800px" class="caption">Annotation visualization</div>
       </div>
 
@@ -53,7 +53,7 @@
 	double-clicking on a word.
       </p>
       <div class="image">
-	<img src="manual/images/selection-1.png"/>
+	<img src="images/selection-1.png"/>
 	<div style="width: 800px" class="caption">Selecting text for annotation</div>
       </div>
       <p>Connecting annotations, for example adding a relation between
@@ -61,7 +61,7 @@
 	one annotation and drag a connection to the other.
       </p>
       <div class="image">
-	<img src="manual/images/relation-1.png"/>
+	<img src="images/relation-1.png"/>
 	<div style="width: 800px" class="caption">Connecting annotations</div>
       </div>
 
@@ -74,6 +74,10 @@
       <p>An annotator can &quot;set up&quot; and start using brat
 	simply by entering the address of the brat installation into
 	the address bar of a browser.
+      </p>
+      <p>(Setting up an entirely new brat server does require some
+	action, but can be done in just five minutes on any system
+	running a web server.)
       </p>
 
       <h2>Annotation of texts in any language</h2>
@@ -121,10 +125,17 @@
 	of automatic text annotation tools accessible as web services
 	into annotation efforts.
       </p>
+      <div class="image">
+	<img border="1" src="automatic-annotation-dialog.png"/>
+	<div style="width: 476px" class="caption">Invoking automatic annotation tools as web services with one click</div>
+      </div>
+      <p>brat also features transparent integration with
+	state-of-the-art methods for basic annotation support such as
+	sentence splitting (English and Japanese) and tokenization
+	(Japanese).
+      </p>
 
-      <h2>Ontology integration?</h2>
-
-      <p>(maybe there is still time to do something about this?)</p>
+<!--       <h2>Ontology integration</h2> -->
 
       <h2>High-quality visualization at any scale</h2>
 
@@ -262,13 +273,28 @@
       </p>
       <h2>Search</h2>
 
-      <p>
+      <p>brat implements a full set of functions for searching
+	documents or document collections for annotation of any type
+	with a detailed set of configurable constraints.	
       </p>
+      <div class="image">
+	<img src="images/search-dialog-only-advanced-1.png"/>
+	<div style="width: 507px" class="caption">Text search with advanced settings shown</div>
+      </div>
 
       <h2>Concordancing</h2>
 
-      <p>
+      <p>brat supports basic key-word-in-context (KWIC) style concordancing
+	of search results.
       </p>
+      <div class="image">
+	<img src="concordancing-example.png"/>
+	<div style="width: 770px" class="caption">Search results with concordancing</div>
+      </div>
+
+      <div>
+	<h2 style="text-align:right"><a href="manual.html">Next: how to use it</a></h2>
+      </div>
       
       <div id="footer">
 	&copy; 2010-2011 brat contributors
