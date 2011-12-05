@@ -812,6 +812,9 @@ div.scroll_wrapper_upper div.scroller {
 .rightalign {
   text-align: right;
 }
+.centeralign {
+  text-align: center;
+}
 
 .dialog .borderless {
   outline: 0;
