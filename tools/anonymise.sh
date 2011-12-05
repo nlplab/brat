@@ -24,9 +24,9 @@ for TO_REDACT in \
     'David McClosky' 'David' 'david.mcclosky gmail com'
 do
     # Find all text files apart from those in `.git`
-    find . -type f -a -not -name anonymise.sh -print0 \
+    find . -type f -a -not -name anonymise.sh \
         | grep -v './.git/' \
-        | xargs -r -0 file \
+        | xargs -r file \
         | grep text \
         | cut -d ':' -f 1 \
         | xargs -r grep -l "${TO_REDACT}" \
