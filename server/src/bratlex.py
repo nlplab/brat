@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Tokenisation for the brat stand-off format:
-
-https://github.com/TsujiiLaboratory/brat/wiki/Annotation-Data-Format
+Tokenisation for the brat stand-off format.
 
 Example, test tokenisation on a collection:
 
