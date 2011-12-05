@@ -23,9 +23,13 @@ for TO_REDACT in \
     'Illes Solt' 'Illes' 'solt tmit bme hu' 'illes solt gmail com' \
     'David McClosky' 'David' 'david.mcclosky gmail com'
 do
+    # Find all text files apart from those in `.git`
     find . -type f -a -not -name anonymise.sh -print0 \
         | grep -v './.git/' \
-        | xargs -r -0 grep -l "${TO_REDACT}" \
+        | xargs -r -0 file \
+        | grep text \
+        | cut -d ':' -f 1 \
+        | xargs -r grep -l "${TO_REDACT}" \
         | xargs -r sed -i -e "s|${TO_REDACT}|REDACTED|g"
 done
 
