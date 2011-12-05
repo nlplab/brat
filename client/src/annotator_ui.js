@@ -26,6 +26,8 @@ var AnnotatorUI = (function($, window, undefined) {
       var relationTypesHash = null;
       var showValidAttributes; // callback function
 
+      var draggedArcHeight = 30;
+
       // TODO: this is an ugly hack, remove (see comment with assignment)
       var lastRapidAnnotationEvent = null;
       // TODO: another avoidable global; try to work without
@@ -191,7 +193,7 @@ var AnnotatorUI = (function($, window, undefined) {
           window.getSelection().removeAllRanges();
           var mx = evt.pageX - svgPosition.left;
           var my = evt.pageY - svgPosition.top + 5; // TODO FIXME why +5?!?
-          var y = Math.min(arcDragOriginBox.y, my) - 50;
+          var y = Math.min(arcDragOriginBox.y, my) - draggedArcHeight;
           var dx = (arcDragOriginBox.center - mx) / 4;
           var path = svg.createPath().
             move(arcDragOriginBox.center, arcDragOriginBox.y).
