@@ -6,11 +6,11 @@ In order by changed lines of code ([Ballmer][ballmer] says [SLOC][sloc]
 [ballmer]:  http://en.wikipedia.org/wiki/Steve_Ballmer 
 [sloc]:     http://en.wikipedia.org/wiki/Source_lines_of_code
 
-* Goran     Topić       &lt;goran is s u-tokyo ac jp&gt;
-* Sampo     Pyysalo     &lt;smp is s u-tokyo ac jp&gt;
-* Pontus    Stenetorp   &lt;pontus is s u-tokyo ac jp&gt;
-* Illes     Solt        &lt;solt tmit bme hu&gt;
-* David     McClosky    &lt;david.mcclosky gmail com&gt;
+* Goran Topić       &lt;REDACTED&gt;
+* Sampo Pyysalo     &lt;REDACTED&gt;
+* Pontus Stenetorp  &lt;REDACTED&gt;
+* Illes Solt        &lt;solt tmit bme hu&gt;
+* David McClosky    &lt;david.mcclosky gmail com&gt;
 
 Extracted using the following bash one-liner:
 
