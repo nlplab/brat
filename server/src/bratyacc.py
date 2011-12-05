@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Grammar for the brat stand-off format:
-
-https://github.com/TsujiiLaboratory/brat/wiki/Annotation-Data-Format
+Grammar for the brat stand-off format.
 
 Example, test grammar on a collection:
 

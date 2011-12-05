@@ -26,9 +26,9 @@ def argparser():
     ap=argparse.ArgumentParser(description="Generate web page linking to visualizations of BioNLP ST documents.")
     ap.add_argument("-v", "--visualizer", default="visualizer.xhtml", metavar="URL", help="Visualization script")
     ap.add_argument("-s", "--staticdir", default="static", metavar="DIR", help="Directory containing static visualizations")
-    ap.add_argument("-p", "--prefix", default="http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/BioNLP-ST/visual/", metavar="URL", help="URL prefix to prepend to links")
     ap.add_argument("-d", "--dataset", default=None, metavar="NAME", help="Dataset name (derived from directory by default.)")
     ap.add_argument("directory", help="Directory containing ST documents.")
+    ap.add_argument("prefix", metavar="URL", help="URL prefix to prepend to links")
     return ap
 
 

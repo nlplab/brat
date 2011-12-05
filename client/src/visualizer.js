@@ -704,7 +704,7 @@ var Visualizer = (function($, window, undefined) {
         };
         // TODO look at this, and remove if ugly
         // example where it matters: the degenerate case of
-        // http://www-tsujii.is.s.u-tokyo.ac.jp/GENIA/SharedTask/goran/visual/annotator.xhtml#miwa-genia-dev/9794389
+        // <REDACTED> look at @14ab7a68cb592821b8d3341957b8dfaa24540e22 for URL
         // (again, it would be solved by individual box reservations instead
         // of row-based)
 

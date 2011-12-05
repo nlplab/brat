@@ -2,7 +2,7 @@
 
 # MeCab Configuration and installation script
 #
-# Author:       Pontun Stenetorp <pontus@stenetorp>
+# Author:       Pontus Stenetorp    <pontus stenetorp se>
 # Version:      2011-05-16
 
 SCRIPT_PATH=`readlink -f $0`
