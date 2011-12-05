@@ -11,7 +11,7 @@ NOTE(S):
 * Defer imports until failures can be catched
 * Stay compatible with Python 2.3 until we verify the Python version
 
-Author:     Pontus  Stenetorp   <pontus is s u tokyo ac jp>
+Author:     Pontus Stenetorp   <pontus is s u-tokyo ac jp>
 Version:    2011-09-29
 '''
 
