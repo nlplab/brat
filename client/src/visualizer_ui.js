@@ -195,14 +195,14 @@ var VisualizerUI = (function($, window, undefined) {
         mouseenter(function(evt) {
           $('#pulluptrigger').hide('puff');
           clearTimeout(pullupTimer);
-          slideToggle($messagepullup.stop(), true, true);
+          slideToggle($messagepullup.stop(), true, true, true);
         });
       $('#messagepullup').
         mouseleave(function(evt) {
           setTimeout(showPullupTrigger, 500);
           clearTimeout(pullupTimer);
           pullupTimer = setTimeout(function() {
-            slideToggle($messagepullup.stop(), false, true);
+            slideToggle($messagepullup.stop(), false, true, true);
           }, 500);
         });
 
@@ -1396,7 +1396,7 @@ var VisualizerUI = (function($, window, undefined) {
         invalidateSavedSVG();
       };
 
-      var slideToggle = function(el, show, autoHeight) {
+      var slideToggle = function(el, show, autoHeight, bottom) {
         var el = $(el);
         var visible = el.is(":visible");
         var height;
@@ -1421,14 +1421,21 @@ var VisualizerUI = (function($, window, undefined) {
         }
 
         if (show) {
-          el.show().animate({ height: height }, { duration: 150, complete: function() {
+          el.show().animate({ height: height }, {
+            duration: 150,
+            complete: function() {
               if (autoHeight) {
                 el.height('auto');
               }
-            }
+            },
+            step: bottom ? function(now, fx) {
+              fx.elem.scrollTop = fx.elem.scrollHeight;
+            } : undefined
           });
         } else {
-          el.animate({ height: 0 }, { duration: 300, complete: function() {
+          el.animate({ height: 0 }, {
+            duration: 300,
+            complete: function() {
               el.hide();
             }
           });
