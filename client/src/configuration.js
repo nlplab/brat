@@ -5,7 +5,7 @@ var Configuration = (function(window, undefined) {
     var textBackgrounds = "striped";
     var svgWidth = '100%';
     var rapidModeOn = false;
-    var confirmModeOn = false; // TODO: grab initial value from radio button
+    var confirmModeOn = true;
     var autorefreshOn = false;
     
     var visual = {
