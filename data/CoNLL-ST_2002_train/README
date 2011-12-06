@@ -1,0 +1,13 @@
+Examples from CoNLL 2002 shared task: NER.
+
+This collection contains examples of data introduced for the Conference on Computational Natural Language Learning (CoNLL) 2002 shared task on Language-Independent Named Entity Recognition.
+
+The data involves documents in Spanish and Dutch annotated for mentions of four types of names entities: person (PER), organization (ORG), location (LOC) and miscellaneous (MISC).
+
+A detailed description and the full source data is freely available from the shared task website:
+
+    http://www.cnts.ua.ac.be/conll2002/ner/
+
+The examples contained in this directory have been converted with the script conll02tostandoff.py distributed with brat.
+
+For copyright and license information, please see the original source of the data.

@@ -1,13 +1,13 @@
 Examples from CoNLL 2000 shared task: Chunking.
 
-This collection contains examples of data introduced for the Conference on Computational Natural Language Learning 2000 (CoNLL 2000) shared task on chunking.
+This collection contains examples of data introduced for the Conference on Computational Natural Language Learning (CoNLL) 2000 shared task on chunking.
 
 Chunking is the task of dividing text into non-overlapping segments that are typically further assigned labels such as NP (Noun Phrase).
 
-A detailed description and the full source data is freely available from the CoNLL 2000 shared task website:
+A detailed description and the full source data is freely available from the shared task website:
 
     http://www.clips.ua.ac.be/conll2000/chunking/
 
-The examples contained in this directory have been converted with the script conll02tostandoff.py distributed with brat.
+The examples contained in this directory have been converted with the script conll00tostandoff.py distributed with brat.
 
 For copyright and license information, please see the original source of the data.
