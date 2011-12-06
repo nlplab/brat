@@ -1134,8 +1134,8 @@ var AnnotatorUI = (function($, window, undefined) {
               $searchlinks2.append(',\n')
             }
             firstLink=false;
-            $searchlinks.append('<a target="brat_search" id="span_'+search[0]+'" href="#">'+search[0]+'</a>');
-            $searchlinks2.append('<a target="brat_search" id="viewspan_'+search[0]+'" href="#">'+search[0]+'</a>');
+            $searchlinks.append('<a target="_blank" id="span_'+search[0]+'" href="#">'+search[0]+'</a>');
+            $searchlinks2.append('<a target="_blank" id="viewspan_'+search[0]+'" href="#">'+search[0]+'</a>');
             linkFilled=true;
           });
         }
