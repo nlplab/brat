@@ -259,6 +259,7 @@ var AnnotatorUI = (function($, window, undefined) {
           } else {
             hideFrame = 'entity';
           }
+          spanForm.dialog('option', { title: 'Edit Annotation' });
         } else {
           // new span; show everything that's available
           if ($('#event_types').find('input').length == 0) {
@@ -268,6 +269,7 @@ var AnnotatorUI = (function($, window, undefined) {
           } else {
             hideFrame = 'none';
           }
+          spanForm.dialog('option', { title: 'New Annotation' });
         }
         if (hideFrame == 'event') {
           $('#span_event_section').hide()
@@ -661,6 +663,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
           $('#arc_form_reselect, #arc_form_delete').show();
           keymap[$.ui.keyCode.DELETE] = 'arc_form_delete';
+
+          arcForm.dialog('option', { title: 'Edit Annotation' });
         } else {
           // new arc
           $('#arc_highlight_link').hide();
@@ -670,6 +674,8 @@ var AnnotatorUI = (function($, window, undefined) {
           }
 
           $('#arc_form_reselect, #arc_form_delete').hide();
+
+          arcForm.dialog('option', { title: 'New Annotation' });
         }
 
         if (!Configuration.confirmModeOn) {
