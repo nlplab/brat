@@ -1,0 +1,13 @@
+Examples from CoNLL-X shared task: dependency parsing.
+
+This collection contains examples of data introduced for the Tenth Conference on Computational Natural Language Learning (CoNLL-X) shared task on Multi-lingual Dependency Parsing.
+
+The data involves documents in Danish, Dutch, Portuguese and Swedish, the four languages for which data is freely available out of the 13 included in the CoNLL-X shared task.
+
+A detailed description and the full source data is freely available from the shared task website:
+
+    http://ilk.uvt.nl/conll/
+
+The examples contained in this directory have been converted with the script conll02tostandoff.py distributed with brat.
+
+For copyright and license information, please see the original source of the data.
