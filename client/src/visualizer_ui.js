@@ -1575,7 +1575,7 @@ var VisualizerUI = (function($, window, undefined) {
                 $('#auth_user').select().focus();
               } else {
                 user = _user;
-                $('#auth_button').val('Logout');
+                $('#auth_button').val('Logout ' + user);
                 $('#auth_user').val('');
                 $('#auth_pass').val('');
                 $('.login').show();
@@ -1635,7 +1635,7 @@ var VisualizerUI = (function($, window, undefined) {
             if (response.user) {
               user = response.user;
               dispatcher.post('messages', [[['Welcome back, user "' + user + '"', 'comment']]]);
-              auth_button.val('Logout');
+              auth_button.val('Logout ' + user);
               dispatcher.post('user', [user]);
               $('.login').show();
             } else {
