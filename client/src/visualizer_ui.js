@@ -648,6 +648,9 @@ var VisualizerUI = (function($, window, undefined) {
           // dialog text
           $('#more_readme_button').button(); // TODO: more reasonable place
           $('#more_readme_button').show();
+          // only display text up to the first newline in the short info
+          var split_readme_text = selectorData.description.match(/^[^\n]*/);
+          $('#readme').val(split_readme_text[0]);
           $('#more_info_readme').text(selectorData.description);
         } else {
           // empty or short, single-line description; no need for more
