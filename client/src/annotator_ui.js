@@ -429,7 +429,12 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         }
         showValidAttributes();
-        if (reselectedSpan && !Configuration.confirmModeOn) {
+
+        // TODO XXX: if seemed quite unexpected/unintuitive that the
+        // form was re-displayed while the document still shows the
+        // annotation in its old location in the background (check it).
+        // The fix of skipping confirm is not really good either, though.
+        if (reselectedSpan) { // && !Configuration.confirmModeOn) {
           spanForm.submit();
         } else {
           dispatcher.post('showForm', [spanForm]);
@@ -717,6 +722,9 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         }]);
       arcForm.submit(arcFormSubmit);
+      // set button tooltips (@amadanmath: can this be done in init?)
+      $('#arc_form_reselect').attr('title', 'Re-select the annotation this connects into.');
+      $('#arc_form_delete').attr('title', 'Delete this annotation.');
 
       var stopArcDrag = function(target) {
         if (arcDragOrigin) {
@@ -1319,7 +1327,7 @@ var AnnotatorUI = (function($, window, undefined) {
               click: deleteSpan
             }, {
               id: 'span_form_reselect',
-              text: 'Reselect',
+              text: 'Move',
               click: reselectSpan
             }, {
               id: 'span_form_split',
@@ -1335,6 +1343,10 @@ var AnnotatorUI = (function($, window, undefined) {
             }
           }
         }]);
+      // set button tooltips (@amadanmath: can this be done in init?)
+      $('#span_form_reselect').attr('title', 'Re-select the text span that this annotation marks.');
+      $('#span_form_delete').attr('title', 'Delete this annotation.');
+      $('#span_form_split').attr('title', 'Split this annotation into multiple similar annotations, distributing its arguments.');
 
       dispatcher.post('initForm', [rapidSpanForm, {
           alsoResize: '#rapid_span_types',
