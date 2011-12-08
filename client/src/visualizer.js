@@ -37,7 +37,7 @@ var Visualizer = (function($, window, undefined) {
       this.group = svg.group();
       this.background = svg.group(this.group);
       this.chunks = [];
-      this.hasAnnotations = 0;
+      this.hasAnnotations = false;
     };
 
     var Visualizer = function(dispatcher, svgId) {
@@ -137,7 +137,7 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var clearSVG = function() {
-	data = null;
+        data = null;
         svg.clear();
         $svgDiv.hide();
       };
@@ -216,10 +216,10 @@ var Visualizer = (function($, window, undefined) {
 
         // attributes
         $.each(data.attributes, function(attrNo, attr) {
-	  // TODO: might wish to check what's appropriate for the type
-	  // instead of using the first attribute def found
-	  var attrType = (eventAttributeTypes[attr[1]] || 
-			  entityAttributeTypes[attr[1]]);
+          // TODO: might wish to check what's appropriate for the type
+          // instead of using the first attribute def found
+          var attrType = (eventAttributeTypes[attr[1]] || 
+                          entityAttributeTypes[attr[1]]);
           var attrValue = attrType && attrType.values[attrType.bool || attr[3]];
           var span = data.spans[attr[2]];
           var valText = (attrValue && attrValue.name) || attr[3];
@@ -402,8 +402,8 @@ var Visualizer = (function($, window, undefined) {
         // highlighting: suppoting marking for
         // 'edited': set by editing process
         // 'focus' : set by search process, focused match
-	// 'match' : set by search process, other (non-focused) match
-	// (see setMarked() invocations below)
+        // 'match' : set by search process, other (non-focused) match
+        // (see setMarked() invocations below)
 
         data.markedSent = [];
         markedText = [];
@@ -587,10 +587,10 @@ var Visualizer = (function($, window, undefined) {
             var postfix = '';
             var warning = false;
             $.each(span.attributes, function(attrType, valType) {
-	      // TODO: might wish to check what's appropriate for the type
-	      // instead of using the first attribute def found
-	      var attr = (eventAttributeTypes[attrType] ||
-			  entityAttributeTypes[attrType]);
+              // TODO: might wish to check what's appropriate for the type
+              // instead of using the first attribute def found
+              var attr = (eventAttributeTypes[attrType] ||
+                          entityAttributeTypes[attrType]);
               if (!attr) {
                 // non-existent type
                 warning = true;
@@ -849,10 +849,10 @@ var Visualizer = (function($, window, undefined) {
                 to: endPos
               };
             } else { // it's markedText [id, start?, char#, offset]
-              if (span[1] || span[2] == 0) { // start
+              if (!span[2]) { // start
                 span[3] = text.getStartPositionOfChar(span[2]).x;
               } else {
-                span[3] = text.getEndPositionOfChar(span[2] - 1).x;
+                span[3] = text.getEndPositionOfChar(span[2] - 1).x + 1;
               }
             }
           });
@@ -940,8 +940,8 @@ Util.profileStart('init');
 
         if (!_data && !data) { 
           dispatcher.post('doneRendering', [coll, doc, args]);
-	  return;
-	}
+          return;
+        }
         $svgDiv.show();
         if ((_data && (_data.document !== doc || _data.collection !== coll)) || drawing) {
           redraw = true;
@@ -984,7 +984,7 @@ Util.profileEnd('measures');
 Util.profileStart('chunks');
 
         var current = { x: Configuration.visual.margin.x + sentNumMargin + rowPadding, 
-			y: Configuration.visual.margin.y }; // TODO: we don't need some of this?
+                        y: Configuration.visual.margin.y }; // TODO: we don't need some of this?
         var rows = [];
         var spanHeights = [];
         var sentenceToggle = 0;
@@ -1077,8 +1077,8 @@ Util.profileStart('chunks');
               svg.other(markedRect, 'animate', {
                 'data-type': span.marked,
                 attributeName: 'fill',
-		values: (span.marked == 'match'? highlightMatchSequence
-			 : highlightSpanSequence),
+                values: (span.marked == 'match'? highlightMatchSequence
+                         : highlightSpanSequence),
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
@@ -1254,12 +1254,6 @@ Util.profileStart('chunks');
           // }
           var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
-          // open text highlights
-          $.each(chunk.markedTextStart, function(textNo, textDesc) {
-            textDesc[3] += current.x + boxX;
-            openTextHighlights[textDesc[0]] = textDesc;
-          });
-
           if (chunk.sentence) {
             while (sentenceNumber < chunk.sentence) {
               sentenceNumber++;
@@ -1273,10 +1267,12 @@ Util.profileStart('chunks');
             sentenceToggle = 1 - sentenceToggle;
           }
 
+          var lastX = current.x;
+          var lastRow = row;
+
           if (chunk.sentence ||
               current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
             // the chunk does not fit
-            var lastX = current.x;
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
             // TODO: related to issue #571
             // replace arcHorizontalSpacing with a calculated value
@@ -1292,14 +1288,6 @@ Util.profileStart('chunks');
               current.x += spacingRowBreak;
               spacing = 0; // do not center intervening elements
             }
-
-            // break the text highlights
-            $.each(openTextHighlights, function(textId, textDesc) {
-              if (textDesc[3] != lastX) {
-                textMarkedRows.push([row, textDesc[3], lastX + boxX]);
-              }
-              textDesc[3] = current.x;
-            });
 
             // new row
             rows.push(row);
@@ -1318,17 +1306,35 @@ Util.profileStart('chunks');
               each(function(index, element) {
                   chunk.spans[index].rect = element;
               });
-
           }
+
+          // break the text highlights when the row breaks
+          if (row.index !== lastRow.index) {
+            $.each(openTextHighlights, function(textId, textDesc) {
+              if (textDesc[3] != lastX) {
+                var newDesc = [lastRow, textDesc[3], lastX + boxX, textDesc[4]];
+                textMarkedRows.push(newDesc);
+              }
+              textDesc[3] = current.x;
+            });
+          }
+
+          // open text highlights
+          $.each(chunk.markedTextStart, function(textNo, textDesc) {
+            textDesc[3] += current.x + boxX;
+            openTextHighlights[textDesc[0]] = textDesc;
+          });
 
           // close text highlights
           $.each(chunk.markedTextEnd, function(textNo, textDesc) {
             textDesc[3] += current.x + boxX;
             var startDesc = openTextHighlights[textDesc[0]];
             delete openTextHighlights[textDesc[0]];
-            textMarkedRows.push([row, startDesc[3], textDesc[3], startDesc[4]]);
+            markedRow = [row, startDesc[3], textDesc[3], startDesc[4]];
+            textMarkedRows.push(markedRow);
           });
 
+          // XXX check this - is it used? should it be lastRow?
           if (hasAnnotations) row.hasAnnotations = true;
 
           if (chunk.sentence) {
@@ -1372,9 +1378,9 @@ Util.profileStart('arcsPrep');
 
         var len = spanHeights.length;
         for (var i = 0; i < len; i++) {
-	  if (!spanHeights[i] || spanHeights[i] < Configuration.visual.arcStartHeight) {
-	    spanHeights[i] = Configuration.visual.arcStartHeight;
-	  }
+          if (!spanHeights[i] || spanHeights[i] < Configuration.visual.arcStartHeight) {
+            spanHeights[i] = Configuration.visual.arcStartHeight;
+          }
         }
 
         // find out how high the arcs have to go
@@ -1524,8 +1530,8 @@ Util.profileStart('arcs');
 
           // Adjust the height to align with pixels when rendered
 
-	  // TODO: on at least Chrome, this doesn't make a difference:
-	  // the lines come out pixel-width even without it. Check.
+          // TODO: on at least Chrome, this doesn't make a difference:
+          // the lines come out pixel-width even without it. Check.
           height += 0.5
 
           var chunkReverse = false;
@@ -1576,8 +1582,8 @@ Util.profileStart('arcs');
 
             var shadowGroup;
             if (arc.shadowClass || arc.marked) {
-	      shadowGroup = svg.group(arcGroup);
-	    }
+              shadowGroup = svg.group(arcGroup);
+            }
             var options = {
               'fill': color,
               'data-arc-role': arc.type,
@@ -1594,34 +1600,34 @@ Util.profileStart('arcs');
                 // no subscript, simple string suffices
                 svgText = labelText;
             } else {
-		// Need to parse out possible numeric suffixes to avoid
-		// duplicating number in label and its subscript
-		var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
-		var noNumLabelText = splitLabelText[1];
+                // Need to parse out possible numeric suffixes to avoid
+                // duplicating number in label and its subscript
+                var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
+                var noNumLabelText = splitLabelText[1];
 
                 svgText = svg.createText();
-		// TODO: to address issue #453, attaching options also
-		// to spans, not only primary text. Make sure there
-		// are no problems with this.
+                // TODO: to address issue #453, attaching options also
+                // to spans, not only primary text. Make sure there
+                // are no problems with this.
                 svgText.span(noNumLabelText, options);
-		var subscriptSettings = {
-		  'dy': '0.3em', 
-		  'font-size': '80%'
-		};
-		// alternate possibility
-// 	        var subscriptSettings = {
-// 		  'baseline-shift': 'sub',
-// 		  'font-size': '80%'
-// 		};
-		$.extend(subscriptSettings, options);
+                var subscriptSettings = {
+                  'dy': '0.3em', 
+                  'font-size': '80%'
+                };
+                // alternate possibility
+//                 var subscriptSettings = {
+//                   'baseline-shift': 'sub',
+//                   'font-size': '80%'
+//                 };
+                $.extend(subscriptSettings, options);
                 svgText.span(splitArcType[2], subscriptSettings);
             }
 
-	    // guess at the correct baseline shift to get vertical centering.
-	    // (CSS dominant-baseline can't be used as not all SVG rendereds support it.)
-	    var baseline_shift = sizes.arcs.height / 4;
+            // guess at the correct baseline shift to get vertical centering.
+            // (CSS dominant-baseline can't be used as not all SVG rendereds support it.)
+            var baseline_shift = sizes.arcs.height / 4;
             var text = svg.text(arcGroup, (from + to) / 2, -height + baseline_shift,
-				svgText, options);
+                                svgText, options);
 
             var width = sizes.arcs.widths[labelText];
             var textBox = {
@@ -1642,8 +1648,8 @@ Util.profileStart('arcs');
               svg.other(markedRect, 'animate', {
                 'data-type': arc.marked,
                 attributeName: 'fill',
-		values: (arc.marked == 'match' ? highlightMatchSequence
-			 : highlightArcSequence),
+                values: (arc.marked == 'match' ? highlightMatchSequence
+                         : highlightArcSequence),
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
@@ -1652,9 +1658,9 @@ Util.profileStart('arcs');
             if (arc.shadowClass) {
               svg.rect(shadowGroup,
                   textBox.x - arcLabelShadowSize, 
-		  textBox.y - arcLabelShadowSize,
+                  textBox.y - arcLabelShadowSize,
                   textBox.width  + 2 * arcLabelShadowSize, 
-		  textBox.height + 2 * arcLabelShadowSize, {
+                  textBox.height + 2 * arcLabelShadowSize, {
                     'class': 'blur shadow_' + arc.shadowClass,
                     rx: arcLabelShadowRounding,
                     ry: arcLabelShadowRounding,
@@ -1707,8 +1713,8 @@ Util.profileStart('arcs');
               svg.other(markedRect, 'animate', {
                 'data-type': arc.marked,
                 attributeName: 'fill',
-		values: (arc.marked == 'match' ? highlightMatchSequence
-			 : highlightArcSequence),
+                values: (arc.marked == 'match' ? highlightMatchSequence
+                         : highlightArcSequence),
                 dur: highlightDuration,
                 repeatCount: 'indefinite',
                 begin: 'indefinite'
@@ -1785,17 +1791,17 @@ Util.profileStart('rows');
             rowBox.height = -rowBox.y+rowSpacing;
           }
           rowBox.height += rowPadding;
-	  var bgClass;
-	  if ($.inArray(currentSent, data.markedSent) != -1) {
-	    // specifically highlighted
-	    bgClass = 'backgroundHighlight';
-	  } else if (Configuration.textBackgrounds == "striped") {
-	    // give every second sentence has a different bg "highlight"
-	    bgClass = 'background'+ row.backgroundIndex;
-	  } else {
-	    // plain "standard" bg
-	    bgClass = 'background0';
-	  }
+          var bgClass;
+          if ($.inArray(currentSent, data.markedSent) != -1) {
+            // specifically highlighted
+            bgClass = 'backgroundHighlight';
+          } else if (Configuration.textBackgrounds == "striped") {
+            // give every second sentence has a different bg "highlight"
+            bgClass = 'background'+ row.backgroundIndex;
+          } else {
+            // plain "standard" bg
+            bgClass = 'background0';
+          }
           svg.rect(backgroundGroup,
             0, y + sizes.texts.y + sizes.texts.height,
             canvasWidth, rowBox.height + sizes.texts.height + 1, {
@@ -1813,8 +1819,8 @@ Util.profileStart('rows');
             if (sentComment) {
               var box = text.getBBox();
               svg.remove(text);
-	      // TODO: using rectShadowSize, but this shadow should
-	      // probably have its own setting for shadow size
+              // TODO: using rectShadowSize, but this shadow should
+              // probably have its own setting for shadow size
               shadowRect = svg.rect(sentNumGroup,
                   box.x - rectShadowSize, box.y - rectShadowSize,
                   box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
@@ -1980,15 +1986,15 @@ Util.profileStart('chunkFinish');
               textRowDesc[2] - textRowDesc[1] + 4, sizes.spans.height + 4,
               { fill: 'yellow' } // TODO: put into css file, as default - turn into class
           );
-	  // NOTE: changing highlightTextSequence here will give
-	  // different-colored highlights
-	  // TODO: entirely different settings for non-animations?
-	  var markedType = textRowDesc[3];
+          // NOTE: changing highlightTextSequence here will give
+          // different-colored highlights
+          // TODO: entirely different settings for non-animations?
+          var markedType = textRowDesc[3];
           svg.other(textHighlight, 'animate', {
             'data-type': markedType,
             attributeName: 'fill',
-	    values: (markedType == 'match' ? highlightMatchSequence
-		     : highlightTextSequence),
+            values: (markedType == 'match' ? highlightMatchSequence
+                     : highlightTextSequence),
             dur: highlightDuration,
             repeatCount: 'indefinite',
             begin: 'indefinite'
@@ -2167,16 +2173,16 @@ Util.profileStart('before render');
             }
             if (eventDesc.relation) {
               // among arcs, only ones corresponding to relations have
-	      // "independent" IDs
+              // "independent" IDs
               arcId = arcEventDescId;
             }
           }
-	  var originSpanType = data.spans[originSpanId].type || '';
-	  var targetSpanType = data.spans[targetSpanId].type || '';
+          var originSpanType = data.spans[originSpanId].type || '';
+          var targetSpanType = data.spans[targetSpanId].type || '';
           dispatcher.post('displayArcComment', [
               evt, target, symmetric, arcId,
               originSpanId, originSpanType, role,
-	      targetSpanId, targetSpanType,
+              targetSpanId, targetSpanType,
               commentText, commentType]);
           highlightArcs = $svg.
               find('g[data-from="' + originSpanId + '"][data-to="' + targetSpanId + '"]').
@@ -2209,51 +2215,51 @@ Util.profileStart('before render');
       };
 
       var setAbbrevs = function(_abbrevsOn) {
-	// TODO: this is a slightly weird place to tweak the configuration
+        // TODO: this is a slightly weird place to tweak the configuration
         Configuration.abbrevsOn = _abbrevsOn;
-	dispatcher.post('configurationChanged');
+        dispatcher.post('configurationChanged');
       }
 
       var setTextBackgrounds = function(_textBackgrounds) {
         Configuration.textBackgrounds = _textBackgrounds;
-	dispatcher.post('configurationChanged');
+        dispatcher.post('configurationChanged');
       }
 
       var setLayoutDensity = function(_density) {
-	//dispatcher.post('messages', [[['Setting layout density ' + _density, 'comment']]]);
-	// TODO: store standard settings instead of hard-coding
-	// them here (again)
-	if (_density < 2) {
-	  // dense
-	  Configuration.visual.margin = { x: 1, y: 0 };
-	  Configuration.visual.boxSpacing = 1;
-	  Configuration.visual.curlyHeight = 1;
-	  Configuration.visual.arcSpacing = 7;
-	  Configuration.visual.arcStartHeight = 18
-	} else if(_density > 2) {
-	  // spacious
-	  Configuration.visual.margin = { x: 2, y: 1 };
-	  Configuration.visual.boxSpacing = 3;
-	  Configuration.visual.curlyHeight = 6;	  
-	  Configuration.visual.arcSpacing = 12;
-	  Configuration.visual.arcStartHeight = 23;
-	} else {
-	  // standard
-	  Configuration.visual.margin = { x: 2, y: 1 };
-	  Configuration.visual.boxSpacing = 1;
-	  Configuration.visual.curlyHeight = 4;
-	  Configuration.visual.arcSpacing = 9;
-	  Configuration.visual.arcStartHeight = 19;
-	}
-	dispatcher.post('configurationChanged');
+        //dispatcher.post('messages', [[['Setting layout density ' + _density, 'comment']]]);
+        // TODO: store standard settings instead of hard-coding
+        // them here (again)
+        if (_density < 2) {
+          // dense
+          Configuration.visual.margin = { x: 1, y: 0 };
+          Configuration.visual.boxSpacing = 1;
+          Configuration.visual.curlyHeight = 1;
+          Configuration.visual.arcSpacing = 7;
+          Configuration.visual.arcStartHeight = 18
+        } else if(_density > 2) {
+          // spacious
+          Configuration.visual.margin = { x: 2, y: 1 };
+          Configuration.visual.boxSpacing = 3;
+          Configuration.visual.curlyHeight = 6;          
+          Configuration.visual.arcSpacing = 12;
+          Configuration.visual.arcStartHeight = 23;
+        } else {
+          // standard
+          Configuration.visual.margin = { x: 2, y: 1 };
+          Configuration.visual.boxSpacing = 1;
+          Configuration.visual.curlyHeight = 4;
+          Configuration.visual.arcSpacing = 9;
+          Configuration.visual.arcStartHeight = 19;
+        }
+        dispatcher.post('configurationChanged');
       }
 
       var setSvgWidth = function(_width) {
-	$svgDiv.width(_width);
-	if (Configuration.svgWidth != _width) {
-	  Configuration.svgWidth = _width;
-	  dispatcher.post('configurationChanged');
-	}
+        $svgDiv.width(_width);
+        if (Configuration.svgWidth != _width) {
+          Configuration.svgWidth = _width;
+          dispatcher.post('configurationChanged');
+        }
       }
 
       $svgDiv = $($svgDiv).hide();
@@ -2328,27 +2334,27 @@ Util.profileStart('before render');
       }
 
       var loadAttributeTypes = function(response_types) {
-	var processed = {};
-	$.each(response_types, function(aTypeNo, aType) {
-	  processed[aType.type] = aType;
-	  // count the values; if only one, it's a boolean attribute
-	  var values = [];
-	  for (var i in aType.values) {
-	    if (aType.values.hasOwnProperty(i)) {
-	      values.push(i);
-	    }
-	  }
-	  if (values.length == 1) {
-	    aType.bool = values[0];
-	  }
-	});
-	return processed;
+        var processed = {};
+        $.each(response_types, function(aTypeNo, aType) {
+          processed[aType.type] = aType;
+          // count the values; if only one, it's a boolean attribute
+          var values = [];
+          for (var i in aType.values) {
+            if (aType.values.hasOwnProperty(i)) {
+              values.push(i);
+            }
+          }
+          if (values.length == 1) {
+            aType.bool = values[0];
+          }
+        });
+        return processed;
       }
 
       var collectionLoaded = function(response) {
         if (!response.exception) {
-	  eventAttributeTypes = loadAttributeTypes(response.event_attribute_types);
-	  entityAttributeTypes = loadAttributeTypes(response.entity_attribute_types);
+          eventAttributeTypes = loadAttributeTypes(response.event_attribute_types);
+          entityAttributeTypes = loadAttributeTypes(response.entity_attribute_types);
           spanTypes = {};
           loadSpanTypes(response.entity_types);
           loadSpanTypes(response.event_types);
