@@ -5,8 +5,8 @@
 '''
 Prediction for annotation types.
 
-Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
+Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
 Version:    2011-11-17
 '''
 
@@ -19,11 +19,14 @@ CUT_OFF = 0.95
 
 from urllib import urlencode
 from urllib2 import urlopen, HTTPError, URLError
+from urlparse import urlparse, urlunparse
 
 from annlog import log_annotation
 from common import ProtocolError
 from jsonwrap import loads
+from projectconfig import get_tools_configs
 
+# TODO: Reduce the SimSem coupling
 
 class SimSemConnectionNotConfiguredError(ProtocolError):
     def __str__(self):
@@ -43,7 +46,15 @@ class SimSemConnectionError(ProtocolError):
         json_dic['exception'] = 'simSemConnectionError'
 
 
-def suggest_span_types(collection, document, start, end, text):
+class UnknownModelError(ProtocolError):
+    def __str__(self):
+        return ('The client provided model not mentioned in `tools.conf`')
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'unknownModelError'
+
+
+def suggest_span_types(collection, document, start, end, text, model):
     if SIMSEM_HOST is None or SIMSEM_PORT is None:
         raise SimSemConnectionNotConfiguredError
 

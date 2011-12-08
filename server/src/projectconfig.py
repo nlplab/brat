@@ -7,8 +7,9 @@
 Per-project configuration functionality for
 Brat Rapid Annotation Tool (brat)
 
+Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
-            Illes Solt          <solt tmit bme hu>
+Author:     Illes Solt          <solt tmit bme hu>
 Version:    2011-08-15
 '''
 

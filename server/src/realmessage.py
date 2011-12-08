@@ -11,8 +11,8 @@ version is new enough to run with all our other modules. Thus this module has
 to be kept as backwards compatible as possible and this over-rides any
 requirements on style otherwise imposed on the project.
 
-Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
+Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
 Version:    2011-05-31
 '''
 

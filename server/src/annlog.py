@@ -5,7 +5,8 @@
 '''
 Annotation operation logging mechanism.
 
-Author:     Sampo Pyysalo    <smp is s u-tokyo ac jp>
+Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
+Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
 Version:    2011-11-22
 '''
 
