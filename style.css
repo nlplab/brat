@@ -348,7 +348,7 @@ fieldset {
   -webkit-border-radius: 5px;
   border-radius: 5px;
   /* to prevent border from running into legend */
-  margin-bottom: 5px;
+  margin-top: 5px;
 }
 fieldset legend {
   font-weight: bold;
