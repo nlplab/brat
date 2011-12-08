@@ -1671,6 +1671,9 @@ var VisualizerUI = (function($, window, undefined) {
             Configuration.rapidModeOn = storedConf.rapidModeOn == "true";
             Configuration.confirmModeOn = storedConf.confirmModeOn == "true";
             Configuration.autorefreshOn = storedConf.autorefreshOn == "true";
+            if (Configuration.autorefreshOn) {
+              checkForDocumentChanges();
+            }
             Configuration.visual.margin.x = parseInt(storedConf.visual.margin.x);
             Configuration.visual.margin.y = parseInt(storedConf.visual.margin.y);
             Configuration.visual.boxSpacing = parseInt(storedConf.visual.boxSpacing);
@@ -1787,10 +1790,6 @@ var VisualizerUI = (function($, window, undefined) {
         documentChangesTimer = setTimeout(checkForDocumentChanges, documentChangesTimeout);
       }
 
-      // TODO: this needs to be reverse -- the button should be set by
-      // the configuration option.
-      Configuration.autorefreshOn = $('#autorefresh_mode')[0].checked;
-
       if (Configuration.autorefreshOn) {
         checkForDocumentChanges();
       }
@@ -1806,6 +1805,7 @@ var VisualizerUI = (function($, window, undefined) {
           clearTimeout(documentChangesTimer);
           dispatcher.post('messages', [[['Autorefresh mode is now off', 'comment']]]);
         }
+        dispatcher.post('configurationChanged');
       });
 
       var isReloadOkay = function() {
@@ -1853,6 +1853,10 @@ var VisualizerUI = (function($, window, undefined) {
             $('#svg_width_unit input[value="'+splitSvgWidth[2]+'"]')[0].checked = true;
             $('#svg_width_unit input').button('refresh');
         }
+
+        // Autorefresh
+        $('#autorefresh_mode')[0].checked = Configuration.autorefreshOn;
+        $('#autorefresh_mode').button('refresh');
       }
 
       dispatcher.
