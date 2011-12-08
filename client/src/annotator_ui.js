@@ -898,6 +898,7 @@ var AnnotatorUI = (function($, window, undefined) {
                               start: selectedFrom,
                               end: selectedTo,
                               text: spanText,
+                              model: $('#rapid_model').val(),
                               }, 'suggestedSpanTypes']);
             }
           }

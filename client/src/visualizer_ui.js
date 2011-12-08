@@ -1099,6 +1099,17 @@ var VisualizerUI = (function($, window, undefined) {
       // make nice-looking buttons for checkboxes and radios
       $('#options_form').find('input[type="checkbox"]').button();
       $('#options_form').find('.radio_group').buttonset();
+      $('#rapid_model').addClass('ui-widget ui-state-default ui-button-text');
+
+      var fillDisambiguatorOptions = function(disambiguators) {
+        $('#annotation_speed3').button(disambiguators.length ? 'enable': 'disable');
+        //XXX: We need to disable rapid in the conf too if it is not available
+        var $rapid_mode = $('#rapid_model').html('');
+        $.each(disambiguators, function(modelNo, model) {
+          var $option = $('<option/>').attr('value', model[2]).text(model[2]);
+          $rapid_mode.append($option);
+        });
+      };
 
       /* END options dialog - related */
 
@@ -1220,6 +1231,7 @@ var VisualizerUI = (function($, window, undefined) {
           }
         } else {
           lastGoodCollection = response.collection;
+          fillDisambiguatorOptions(response.disambiguator_config);
           selectorData = response;
           documentListing = response; // 'backup'
           searchConfig = response.search_config;
@@ -1664,12 +1676,16 @@ var VisualizerUI = (function($, window, undefined) {
             var storedConf = $.deparam(response.config);
             // TODO: make whole-object assignment work
             // @amadanmath: help! This code is horrible
+            Configuration.svgWidth = storedConf.svgWidth;
+            dispatcher.post('svgWidth', [Configuration.svgWidth]);
             Configuration.abbrevsOn = storedConf.abbrevsOn == "true";
             Configuration.textBackgrounds = storedConf.textBackgrounds;
-            Configuration.svgWidth = storedConf.svgWidth = "100%";
             Configuration.rapidModeOn = storedConf.rapidModeOn == "true";
             Configuration.confirmModeOn = storedConf.confirmModeOn == "true";
             Configuration.autorefreshOn = storedConf.autorefreshOn == "true";
+            if (Configuration.autorefreshOn) {
+              checkForDocumentChanges();
+            }
             Configuration.visual.margin.x = parseInt(storedConf.visual.margin.x);
             Configuration.visual.margin.y = parseInt(storedConf.visual.margin.y);
             Configuration.visual.boxSpacing = parseInt(storedConf.visual.boxSpacing);
@@ -1786,10 +1802,6 @@ var VisualizerUI = (function($, window, undefined) {
         documentChangesTimer = setTimeout(checkForDocumentChanges, documentChangesTimeout);
       }
 
-      // TODO: this needs to be reverse -- the button should be set by
-      // the configuration option.
-      Configuration.autorefreshOn = $('#autorefresh_mode')[0].checked;
-
       if (Configuration.autorefreshOn) {
         checkForDocumentChanges();
       }
@@ -1805,6 +1817,7 @@ var VisualizerUI = (function($, window, undefined) {
           clearTimeout(documentChangesTimer);
           dispatcher.post('messages', [[['Autorefresh mode is now off', 'comment']]]);
         }
+        dispatcher.post('configurationChanged');
       });
 
       var isReloadOkay = function() {
@@ -1838,10 +1851,24 @@ var VisualizerUI = (function($, window, undefined) {
         $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn; 
         $('#label_abbreviations input').button('refresh');
 
-        // Text backgrounds
-        
+        // Text backgrounds        
         $('#text_backgrounds input[value="'+Configuration.textBackgrounds+'"]')[0].checked = true;
         $('#text_backgrounds input').button('refresh');
+
+        // SVG width
+        var splitSvgWidth = Configuration.svgWidth.match(/^(.*?)(px|\%)$/);
+        if (!splitSvgWidth) {
+          // TODO: reset to sensible value?
+          dispatcher.post('messages', [[['Error parsing SVG width "'+Configuration.svgWidth+'"', 'error', 2]]]);
+        } else {
+            $('#svg_width_value')[0].value = splitSvgWidth[1];
+            $('#svg_width_unit input[value="'+splitSvgWidth[2]+'"]')[0].checked = true;
+            $('#svg_width_unit input').button('refresh');
+        }
+
+        // Autorefresh
+        $('#autorefresh_mode')[0].checked = Configuration.autorefreshOn;
+        $('#autorefresh_mode').button('refresh');
       }
 
       dispatcher.

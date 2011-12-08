@@ -20,33 +20,39 @@ import sys
 from annotation import open_textfile
 from message import Messager
 
-# TODO: replace with reading a proper ontology.
-
 class InvalidProjectConfigException(Exception):
     pass
 
-# config section name constants
+# names of files in which various configs are found
+__access_control_filename     = 'acl.conf'
+__annotation_config_filename  = 'annotation.conf'
+__visual_config_filename      = 'visual.conf'
+__tools_config_filename       = 'tools.conf'
+__kb_shortcut_filename        = 'kb_shortcuts.conf'
+
+# annotation config section name constants
 ENTITY_SECTION    = "entities"
 RELATION_SECTION  = "relations"
 EVENT_SECTION     = "events"
 ATTRIBUTE_SECTION = "attributes"
 
-__access_control_filename           = 'acl.conf'
-
-__expected_configuration_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTION, ATTRIBUTE_SECTION)
-__optional_configuration_sections = []
+__expected_annotation_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTION, ATTRIBUTE_SECTION)
+__optional_annotation_sections = []
 
 # visual config section name constants
 LABEL_SECTION     = "labels"
 DRAWING_SECTION   = "drawing"
-SEARCH_SECTION    = "search"
 
-__expected_visual_sections = (LABEL_SECTION, DRAWING_SECTION, SEARCH_SECTION)
-__optional_visual_sections = (SEARCH_SECTION)
+__expected_visual_sections = (LABEL_SECTION, DRAWING_SECTION)
+__optional_visual_sections = []
 
-__annotation_config_filename  = "annotation.conf"
-__visual_config_filename      = 'visual.conf'
-__kb_shortcut_filename        = 'kb_shortcuts.conf'
+# tools config section name constants
+SEARCH_SECTION     = "search"
+ANNOTATORS_SECTION = "annotators"
+DISAMBIGUATORS_SECTION = "disambiguators"
+
+__expected_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION)
+__optional_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION)
 
 # special relation type for marking which entities can nest
 ENTITY_NESTING_TYPE = "ENTITY-NESTING"
@@ -87,7 +93,9 @@ Theme | Theme | Th
 Protein	bgColor:#7fa2ff
 SPAN_DEFAULT	fgColor:black, bgColor:lightgreen, borderColor:black
 ARC_DEFAULT	color:black
+"""
 
+__default_tools = """
 [search]
 google     <URL>:http://www.google.com/search?q=%s
 """
@@ -597,8 +605,8 @@ def get_annotation_configs(directory):
                        __annotation_config_filename, 
                        __default_configuration,
                        __minimal_configuration,
-                       __expected_configuration_sections,
-                       __optional_configuration_sections)
+                       __expected_annotation_sections,
+                       __optional_annotation_sections)
 
 # final fallback for visual configuration; minimal known-good config
 __minimal_visual = {
@@ -607,7 +615,6 @@ __minimal_visual = {
                          TypeHierarchyNode(["Event", "Ev"])],
     DRAWING_SECTION   : [TypeHierarchyNode([VISUAL_SPAN_DEFAULT], ["fgColor:black", "bgColor:white"]),
                          TypeHierarchyNode([VISUAL_ARC_DEFAULT], ["color:black"])],
-    SEARCH_SECTION    : [TypeHierarchyNode(["google"], ["<URL>:http://www.google.com/search?q=%s"])],
     }
 
 def get_visual_configs(directory):
@@ -617,6 +624,21 @@ def get_visual_configs(directory):
                        __minimal_visual,
                        __expected_visual_sections,
                        __optional_visual_sections)
+
+# final fallback for tools configuration; minimal known-good config
+__minimal_tools = {
+    SEARCH_SECTION     : [TypeHierarchyNode(["google"], ["<URL>:http://www.google.com/search?q=%s"])],
+    ANNOTATORS_SECTION : [],
+    DISAMBIGUATORS_SECTION : []
+    }
+
+def get_tools_configs(directory):
+    return get_configs(directory,
+                       __tools_config_filename,
+                       __default_tools,
+                       __minimal_tools,
+                       __expected_tools_sections,
+                       __optional_tools_sections)
 
 def get_entity_type_hierarchy(directory):    
     return get_annotation_configs(directory)[ENTITY_SECTION]
@@ -648,7 +670,13 @@ def get_drawing_config(directory):
     return get_visual_configs(directory)[DRAWING_SECTION]
 
 def get_search_config(directory):
-    return get_visual_configs(directory)[SEARCH_SECTION]
+    return get_tools_configs(directory)[SEARCH_SECTION]
+
+def get_annotator_config(directory):
+    return get_tools_configs(directory)[ANNOTATORS_SECTION]
+
+def get_disambiguator_config(directory):
+    return get_tools_configs(directory)[DISAMBIGUATORS_SECTION]
 
 def get_access_control(directory):
     cache = get_access_control.__cache
@@ -729,6 +757,20 @@ def get_search_config_list(directory):
         cache[directory] = __type_hierarchy_to_list(get_search_config(directory))
     return cache[directory]
 get_search_config_list.__cache = {}    
+
+def get_annotator_config_list(directory):
+    cache = get_annotator_config_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_annotator_config(directory))
+    return cache[directory]
+get_annotator_config_list.__cache = {}    
+
+def get_disambiguator_config_list(directory):
+    cache = get_disambiguator_config_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_disambiguator_config(directory))
+    return cache[directory]
+get_disambiguator_config_list.__cache = {}    
 
 def get_node_by_storage_form(directory, term):
     cache = get_node_by_storage_form.__cache
@@ -1032,6 +1074,35 @@ class ProjectConfiguration(object):
             else:
                 search_config.append((r.storage_form(), r.special_arguments['<URL>'][0]))
         return search_config
+
+    def _get_tool_config(self, tool_list):
+        disambiguator_config = []
+        for r in tool_list:
+            if '<URL>' not in r.special_arguments:
+                Messager.warning('Project configuration: config error: missing <URL> specification for %s.' % r.storage_form())
+                continue
+            if 'tool' not in r.arguments:
+                Messager.warning('Project configuration: config error: missing tool name ("tool") for %s.' % r.storage_form())
+                continue
+            if 'model' not in r.arguments:
+                Messager.warning('Project configuration: config error: missing model name ("model") for %s.' % r.storage_form())
+                continue
+            disambiguator_config.append((r.storage_form(),
+                                         r.arguments['tool'][0],
+                                         r.arguments['model'][0],
+                                         r.special_arguments['<URL>'][0]))
+        return disambiguator_config
+
+    def get_disambiguator_config(self):
+        tool_list = get_disambiguator_config_list(self.directory)
+        return self._get_tool_config(tool_list)
+
+    def get_annotator_config(self):
+        # TODO: "annotator" is a very confusing term for a web service
+        # that does automatic annotation in the context of a tool
+        # where most annotators are expected to be human. Rethink.
+        tool_list = get_annotator_config_list(self.directory)
+        return self._get_tool_config(tool_list)
 
     def get_entity_types(self):
         return [t.storage_form() for t in get_entity_type_list(self.directory)]
