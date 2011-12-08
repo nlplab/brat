@@ -2249,10 +2249,11 @@ Util.profileStart('before render');
       }
 
       var setSvgWidth = function(_width) {
-        Configuration.svgWidth = _width;
-        // TODO: this needs to be set from Configuration on reload
-	$svgDiv.width(Configuration.svgWidth);
-	dispatcher.post('configurationChanged');
+	$svgDiv.width(_width);
+	if (Configuration.svgWidth != _width) {
+	  Configuration.svgWidth = _width;
+	  dispatcher.post('configurationChanged');
+	}
       }
 
       $svgDiv = $($svgDiv).hide();

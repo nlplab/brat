@@ -1664,9 +1664,10 @@ var VisualizerUI = (function($, window, undefined) {
             var storedConf = $.deparam(response.config);
             // TODO: make whole-object assignment work
             // @amadanmath: help! This code is horrible
+            Configuration.svgWidth = storedConf.svgWidth;
+            dispatcher.post('svgWidth', [Configuration.svgWidth]);
             Configuration.abbrevsOn = storedConf.abbrevsOn == "true";
             Configuration.textBackgrounds = storedConf.textBackgrounds;
-            Configuration.svgWidth = storedConf.svgWidth = "100%";
             Configuration.rapidModeOn = storedConf.rapidModeOn == "true";
             Configuration.confirmModeOn = storedConf.confirmModeOn == "true";
             Configuration.autorefreshOn = storedConf.autorefreshOn == "true";
@@ -1838,10 +1839,20 @@ var VisualizerUI = (function($, window, undefined) {
         $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn; 
         $('#label_abbreviations input').button('refresh');
 
-        // Text backgrounds
-        
+        // Text backgrounds        
         $('#text_backgrounds input[value="'+Configuration.textBackgrounds+'"]')[0].checked = true;
         $('#text_backgrounds input').button('refresh');
+
+        // SVG width
+        var splitSvgWidth = Configuration.svgWidth.match(/^(.*?)(px|\%)$/);
+        if (!splitSvgWidth) {
+          // TODO: reset to sensible value?
+          dispatcher.post('messages', [[['Error parsing SVG width "'+Configuration.svgWidth+'"', 'error', 2]]]);
+        } else {
+            $('#svg_width_value')[0].value = splitSvgWidth[1];
+            $('#svg_width_unit input[value="'+splitSvgWidth[2]+'"]')[0].checked = true;
+            $('#svg_width_unit input').button('refresh');
+        }
       }
 
       dispatcher.
