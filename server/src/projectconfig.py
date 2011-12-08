@@ -672,6 +672,12 @@ def get_drawing_config(directory):
 def get_search_config(directory):
     return get_tools_configs(directory)[SEARCH_SECTION]
 
+def get_annotator_config(directory):
+    return get_tools_configs(directory)[ANNOTATORS_SECTION]
+
+def get_disambiguator_config(directory):
+    return get_tools_configs(directory)[DISAMBIGUATORS_SECTION]
+
 def get_access_control(directory):
     cache = get_access_control.__cache
     if directory not in cache:
@@ -751,6 +757,20 @@ def get_search_config_list(directory):
         cache[directory] = __type_hierarchy_to_list(get_search_config(directory))
     return cache[directory]
 get_search_config_list.__cache = {}    
+
+def get_annotator_config_list(directory):
+    cache = get_annotator_config_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_annotator_config(directory))
+    return cache[directory]
+get_annotator_config_list.__cache = {}    
+
+def get_disambiguator_config_list(directory):
+    cache = get_disambiguator_config_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_disambiguator_config(directory))
+    return cache[directory]
+get_disambiguator_config_list.__cache = {}    
 
 def get_node_by_storage_form(directory, term):
     cache = get_node_by_storage_form.__cache
@@ -1054,6 +1074,35 @@ class ProjectConfiguration(object):
             else:
                 search_config.append((r.storage_form(), r.special_arguments['<URL>'][0]))
         return search_config
+
+    def _get_tool_config(self, tool_list):
+        disambiguator_config = []
+        for r in tool_list:
+            if '<URL>' not in r.special_arguments:
+                Messager.warning('Project configuration: config error: missing <URL> specification for %s.' % r.storage_form())
+                continue
+            if 'tool' not in r.arguments:
+                Messager.warning('Project configuration: config error: missing tool name ("tool") for %s.' % r.storage_form())
+                continue
+            if 'model' not in r.arguments:
+                Messager.warning('Project configuration: config error: missing model name ("model") for %s.' % r.storage_form())
+                continue
+            disambiguator_config.append((r.storage_form(),
+                                         r.arguments['tool'][0],
+                                         r.arguments['model'][0],
+                                         r.special_arguments['<URL>'][0]))
+        return disambiguator_config
+
+    def get_disambiguator_config(self):
+        tool_list = get_disambiguator_config_list(self.directory)
+        return self._get_tool_config(tool_list)
+
+    def get_annotator_config(self):
+        # TODO: "annotator" is a very confusing term for a web service
+        # that does automatic annotation in the context of a tool
+        # where most annotators are expected to be human. Rethink.
+        tool_list = get_annotator_config_list(self.directory)
+        return self._get_tool_config(tool_list)
 
     def get_entity_types(self):
         return [t.storage_form() for t in get_entity_type_list(self.directory)]

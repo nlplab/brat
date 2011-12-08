@@ -334,6 +334,15 @@ def get_span_types(directory):
 def get_search_config(directory):
     return ProjectConfiguration(directory).get_search_config()
 
+def get_disambiguator_config(directory):
+    return ProjectConfiguration(directory).get_disambiguator_config()
+
+def get_annotator_config(directory):
+    # TODO: "annotator" is a very confusing term for a web service
+    # that does automatic annotation in the context of a tool
+    # where most annotators are expected to be human. Rethink.
+    return ProjectConfiguration(directory).get_annotator_config()
+
 def assert_allowed_to_read(doc_path):
     if not allowed_to_read(doc_path):
         raise AccessDeniedError # Permission denied by access control
@@ -444,6 +453,9 @@ def get_directory_information(collection):
     # plug in the search config too
     search_config = get_search_config(real_dir)
 
+    # ... and the disambiguator config ... this is getting a bit much
+    disambiguator_config = get_disambiguator_config(real_dir)
+
     # read in README (if any) to send as a description of the
     # collection
     try:
@@ -473,6 +485,7 @@ def get_directory_information(collection):
             'unconfigured_types': unconf_types,
             'description': readme_text,
             'search_config': search_config,
+            'disambiguator_config' : disambiguator_config,
             'annotation_logging': ann_logging,
             'ner_taggers': ner_taggers,
             }
