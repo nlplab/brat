@@ -1099,6 +1099,17 @@ var VisualizerUI = (function($, window, undefined) {
       // make nice-looking buttons for checkboxes and radios
       $('#options_form').find('input[type="checkbox"]').button();
       $('#options_form').find('.radio_group').buttonset();
+      $('#rapid_model').addClass('ui-widget ui-state-default ui-button-text');
+
+      var fillDisambiguatorOptions = function(disambiguators) {
+        $('#annotation_speed3').button(disambiguators.length ? 'enable': 'disable');
+        //XXX: We need to disable rapid in the conf too if it is not available
+        var $rapid_mode = $('#rapid_model').html('');
+        $.each(disambiguators, function(modelNo, model) {
+          var $option = $('<option/>').attr('value', model[2]).text(model[2]);
+          $rapid_mode.append($option);
+        });
+      };
 
       /* END options dialog - related */
 
@@ -1220,6 +1231,7 @@ var VisualizerUI = (function($, window, undefined) {
           }
         } else {
           lastGoodCollection = response.collection;
+          fillDisambiguatorOptions(response.disambiguator_config);
           selectorData = response;
           documentListing = response; // 'backup'
           searchConfig = response.search_config;
