@@ -715,6 +715,10 @@ var VisualizerUI = (function($, window, undefined) {
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
         addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
+        // nice-looking selects
+        $('#search_form_entity_type').addClass('ui-widget ui-state-default ui-button-text');
+        $('#search_form_event_type').addClass('ui-widget ui-state-default ui-button-text');
+        $('#search_form_relation_type').addClass('ui-widget ui-state-default ui-button-text');
       }
 
       // when event role changes, event types do as well
@@ -777,6 +781,12 @@ var VisualizerUI = (function($, window, undefined) {
           append(rowButton);
         $roles.append($tr);
         $role.trigger('change');
+        // style selector
+        $role.addClass('ui-widget ui-state-default ui-button-text');
+        $type.addClass('ui-widget ui-state-default ui-button-text');
+        // style button
+        button.button();
+        button.addClass('small-buttons ui-button-text').removeClass('ui-button');
       };
 
       // deleting role rows
@@ -821,6 +831,9 @@ var VisualizerUI = (function($, window, undefined) {
           }
         });
         $('#search_form_relation_arg1_type').change();
+        // style the selects
+        $arg1.addClass('ui-widget ui-state-default ui-button-text');
+        $arg2.addClass('ui-widget ui-state-default ui-button-text');
       });
 
       // when arg1 type changes, change choices of arg2 type
