@@ -11,20 +11,19 @@ Version:    2011-11-17
 '''
 
 ### Constants
-SIMSEM_HOST = None
-SIMSEM_PORT = None
-SIMSEM_URL = 'http://%s:%s/' % (SIMSEM_HOST, SIMSEM_PORT)
 CUT_OFF = 0.95
+# In seconds, we are rather strict here
+QUERY_TIMEOUT = 3
 ###
 
-from urllib import urlencode
+from urllib import urlencode, quote_plus
 from urllib2 import urlopen, HTTPError, URLError
 from urlparse import urlparse, urlunparse
 
 from annlog import log_annotation
 from common import ProtocolError
 from jsonwrap import loads
-from projectconfig import get_tools_configs
+from projectconfig import ProjectConfiguration
 
 # TODO: Reduce the SimSem coupling
 
@@ -39,7 +38,7 @@ class SimSemConnectionNotConfiguredError(ProtocolError):
 
 class SimSemConnectionError(ProtocolError):
     def __str__(self):
-        return ('The SimSem connection returned an error, '
+        return ('The SimSem connection returned an error or timed out, '
                 'please contact the administrator')
 
     def json(self, json_dic):
@@ -55,19 +54,21 @@ class UnknownModelError(ProtocolError):
 
 
 def suggest_span_types(collection, document, start, end, text, model):
-    if SIMSEM_HOST is None or SIMSEM_PORT is None:
+
+    pconf = ProjectConfiguration(collection)
+    for _, _, model_str, model_url in pconf.get_disambiguator_config():
+        if model_str == model:
+            break
+    else:
+        # We were unable to find a matching model
         raise SimSemConnectionNotConfiguredError
 
-    req_data = urlencode({
-            'classify': text,
-            })
-
     try:
-        resp = urlopen('%s?%s' % (SIMSEM_URL, req_data,))
+        resp = urlopen(model_url % quote_plus(text), None, QUERY_TIMEOUT)
     except URLError:
         # TODO: Could give more details
         raise SimSemConnectionError
-
+    
     json = loads(resp.read())
 
     preds = json['result'][text]
@@ -94,4 +95,4 @@ def suggest_span_types(collection, document, start, end, text, model):
              }
 
 if __name__ == '__main__':
-    print suggest_span_types('dummy', 'dummy', -1, -1, 'paracetamol')
+    print suggest_span_types('dummy', 'dummy', -1, -1, 'paracetamol', 'gef')
