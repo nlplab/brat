@@ -18,9 +18,9 @@ QUERY_TIMEOUT = 3
 
 from urllib import urlencode, quote_plus
 from urllib2 import urlopen, HTTPError, URLError
-from urlparse import urlparse, urlunparse
 
 from annlog import log_annotation
+from document import real_directory
 from common import ProtocolError
 from jsonwrap import loads
 from projectconfig import ProjectConfiguration
@@ -55,7 +55,7 @@ class UnknownModelError(ProtocolError):
 
 def suggest_span_types(collection, document, start, end, text, model):
 
-    pconf = ProjectConfiguration(collection)
+    pconf = ProjectConfiguration(real_directory(collection))
     for _, _, model_str, model_url in pconf.get_disambiguator_config():
         if model_str == model:
             break
