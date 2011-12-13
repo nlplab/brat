@@ -1066,10 +1066,11 @@ var AnnotatorUI = (function($, window, undefined) {
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
         var $toDisable;
+        var $category;
         if (category == "event") {
-          $toDisable = $('#span_form input[category="entity"]:not([unused])');
+          $toDisable = $('#span_form input[category="entity"]');
         } else if (category == "entity") {
-          $toDisable = $('#span_form input[category="event"]:not([unused])');
+          $toDisable = $('#span_form input[category="event"]');
         } else {
           console.error('Unrecognized attribute category:', category)
           $toDisable = $();
@@ -1078,7 +1079,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // the disable may leave the dialog in a state where nothing
         // is checked, which would cause error on "OK". In this case,
         // check the first valid choice.
-        $toDisable.not(':disabled').attr('checked', true);
+        $('#span_form input:not(:disabled):first').attr('checked', true);
       }
 
       var onAttributeChange = function(evt) {
