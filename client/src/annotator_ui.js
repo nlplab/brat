@@ -305,9 +305,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
 
         // enable all inputs by default (see setSpanTypeSelectability)
-        $.each($('#span_form input'), function(iNum, i) {
-           i.disabled = false;
-        });
+        $('#span_form input:not([unused])').removeAttr('disabled');
 
         var showAllAttributes = false;
         if (span) {
@@ -977,7 +975,10 @@ var AnnotatorUI = (function($, window, undefined) {
               attr('for', 'span_' + type.type).
               text(name);
             if (type.unused) {
-              $input.attr('disabled', 'disabled');
+              $input.attr({
+                disabled: 'disabled',
+                unused: 'unused'
+              });
               $label.css('font-weight', 'bold');
             } else {
               $label.css('background-color', spanBgColor);
@@ -1064,34 +1065,20 @@ var AnnotatorUI = (function($, window, undefined) {
         
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
+        var $toDisable;
         if (category == "event") {
-          $toDisable = $('#span_form input[category="entity"]');
+          $toDisable = $('#span_form input[category="entity"]:not([unused])');
         } else if (category == "entity") {
-          $toDisable = $('#span_form input[category="event"]');
+          $toDisable = $('#span_form input[category="event"]:not([unused])');
         } else {
-          console.error('Unrecognized attribute category:,', category)
-          $toDisable = [];
+          console.error('Unrecognized attribute category:', category)
+          $toDisable = $();
         }
-        $.each($toDisable, function(iNum, i) {
-           i.disabled = true;
-           i.checked = false;
-        });
+        $toDisable.attr('disabled', true).removeAttr('checked');
         // the disable may leave the dialog in a state where nothing
         // is checked, which would cause error on "OK". In this case,
         // check the first valid choice.
-        if ($('#span_form input[checked][type="radio"]').length == 0) {
-        var firstEnabledRadio = null;
-          $.each($('#span_form input'), function(iNum, i) {
-            if(!i.disabled) {
-              firstEnabledRadio = i;
-              return false;
-            }
-          });
-          if (firstEnabledRadio) {
-            firstEnabledRadio.checked = true;
-          }
-          // TODO: meaningful response to all radios being disabled
-        }
+        $toDisable.not(':disabled').attr('checked', true);
       }
 
       var onAttributeChange = function(evt) {
