@@ -129,6 +129,17 @@ path {
   pointer-events: none;
 }
 
+/* this should likely match span font */
+.span_type_label {
+  font-size: 12px;
+  font-family: 'PT Sans Caption', sans-serif;
+}
+/* this should likely match arc font */
+.arc_type_label {
+  font-size: 12px;
+  font-family: 'PT Sans Caption', sans-serif;
+}
+
 .span rect {
   stroke-width: 0.75;
 }
