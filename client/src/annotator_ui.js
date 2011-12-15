@@ -1034,7 +1034,7 @@ var AnnotatorUI = (function($, window, undefined) {
             var $input = $('<input type="checkbox" id="'+attrId+
                            '" value="' + escapedType + 
                            '" category="' + category + '"/>');
-            var $label = $('<label class="span_type_label" for="'+attrId+
+            var $label = $('<label class="attribute_type_label" for="'+attrId+
                            '" data-bare="' + escapedName + '">&#x2610; ' + 
                            escapedName + '</label>');
             $top.append($input).append($label);

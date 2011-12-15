@@ -131,12 +131,16 @@ path {
 
 /* this should likely match span font */
 .span_type_label {
-  font-size: 12px;
+  font-size: 11px;
   font-family: 'PT Sans Caption', sans-serif;
 }
 /* this should likely match arc font */
 .arc_type_label {
-  font-size: 12px;
+  font-size: 11px;
+  font-family: 'PT Sans Caption', sans-serif;
+}
+.attribute_type_label .ui-button-text {
+  font-size: 11px;
   font-family: 'PT Sans Caption', sans-serif;
 }
 
