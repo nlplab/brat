@@ -1313,10 +1313,19 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('showForm', [splitForm]);
       };
 
+      var linkSpan = function() {
+        args.focus = [[spanOptions.id || spanOptions.start + '~' + spanOptions.end]];
+        dispatcher.post('setArguments', [args]);
+      };
+
       dispatcher.post('initForm', [spanForm, {
           alsoResize: '#entity_and_event_wrapper',
           width: 760,
           buttons: [{
+              id: 'span_form_link',
+              text: "Link",
+              click: linkSpan
+            }, {
               id: 'span_form_delete',
               text: "Delete",
               click: deleteSpan
@@ -1342,6 +1351,7 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#span_form_reselect').attr('title', 'Re-select the text span that this annotation marks.');
       $('#span_form_delete').attr('title', 'Delete this annotation.');
       $('#span_form_split').attr('title', 'Split this annotation into multiple similar annotations, distributing its arguments.');
+      $('#span_form_link').attr('title', 'Mark the span, and generate the URL that can be copied.');
 
       dispatcher.post('initForm', [rapidSpanForm, {
           alsoResize: '#rapid_span_types',
