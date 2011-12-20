@@ -1881,7 +1881,9 @@ Util.profileStart('chunkFinish');
           if (!sentenceText) {
             sentenceText = svg.createText();
           }
-          sentenceText.span(chunk.space + chunk.text, {
+          var nextChunk = data.chunks[chunkNo + 1];
+          var nextSpace = nextChunk ? nextChunk.space : '';
+          sentenceText.span(chunk.text + nextSpace, {
             x: chunk.textX,
             y: chunk.row.textY,
             'data-chunk-id': chunk.index
