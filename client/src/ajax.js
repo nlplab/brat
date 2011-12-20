@@ -4,12 +4,16 @@ var Ajax = (function($, window, undefined) {
     var Ajax = function(dispatcher) {
       var that = this;
       var pending = 0;
+      var count = 0;
+      var pendingList = {};
 
       // merge data will get merged into the response data
       // before calling the callback
       var ajaxCall = function(data, callback, merge) {
         dispatcher.post('spin');
         pending++;
+        var id = count++;
+        pendingList[id] = true;
         $.ajax({
           url: 'ajax.cgi',
           data: data,
@@ -25,16 +29,21 @@ var Ajax = (function($, window, undefined) {
             }
             dispatcher.post('messages', [response.messages]);
 
-            // if .exception is just Boolean true, do not process
-            // the callback; if it is anything else, the
-            // callback is responsible for handling it
-            if (response.exception == true) {
-              $('#waiter').dialog('close');
-            } else if (callback) {
-              if (merge) {
-                $.extend(response, merge);
+            // If the request is obsolete, do nothing; if not...
+            if (pendingList[id]) {
+              delete pendingList[id];
+
+              // if .exception is just Boolean true, do not process
+              // the callback; if it is anything else, the
+              // callback is responsible for handling it
+              if (response.exception == true) {
+                $('#waiter').dialog('close');
+              } else if (callback) {
+                if (merge) {
+                  $.extend(response, merge);
+                }
+                dispatcher.post(0, callback, [response]);
               }
-              dispatcher.post(0, callback, [response]);
             }
             dispatcher.post('unspin');
           },
@@ -52,9 +61,14 @@ var Ajax = (function($, window, undefined) {
         return pending == 0;
       };
 
+      var makeObsolete = function() {
+        pendingList = {};
+      }
+
 
       dispatcher.
           on('isReloadOkay', isReloadOkay).
+          on('makeAjaxObsolete', makeObsolete).
           on('ajax', ajaxCall);
     };
 
