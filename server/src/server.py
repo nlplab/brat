@@ -138,8 +138,8 @@ def _convert_log_level(log_level):
 
 def _safe_serve(params, client_ip, client_hostname, cookie_data):
     # Note: Only logging imports here
-    from logging import basicConfig as log_basic_config
     from config import WORK_DIR
+    from logging import basicConfig as log_basic_config
 
     # Enable logging
     try:
@@ -152,11 +152,18 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
             level=log_level)
 
     # Do the necessary imports after enabling the logging, order critical
-    from common import ProtocolError, NoPrintJSONError
-    from dispatch import dispatch
-    from jsonwrap import dumps
-    from message import Messager
-    from session import get_session, init_session, close_session, NoSessionError
+    try:
+        from common import ProtocolError, NoPrintJSONError
+        from dispatch import dispatch
+        from jsonwrap import dumps
+        from message import Messager
+        from session import get_session, init_session, close_session, NoSessionError
+    except ImportError:
+        # Note: Heisenbug trap for #612, remove after resolved
+        from logging import critical as log_critical
+        from sys import path as sys_path
+        log_critical('Heisenbug trap reports: ' + str(sys_path))
+        raise
 
     init_session(client_ip, cookie_data=cookie_data)
 
