@@ -137,13 +137,9 @@ def _convert_log_level(log_level):
         assert False, 'Should not happen'
 
 def _safe_serve(params, client_ip, client_hostname, cookie_data):
-    from common import ProtocolError, NoPrintJSONError
-    from config import WORK_DIR
-    from dispatch import dispatch
-    from jsonwrap import dumps
+    # Note: Only logging imports here
     from logging import basicConfig as log_basic_config
-    from message import Messager
-    from session import get_session, init_session, close_session, NoSessionError
+    from config import WORK_DIR
 
     # Enable logging
     try:
@@ -154,6 +150,13 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         log_level = LOG_LEVEL_WARNING
     log_basic_config(filename=path_join(WORK_DIR, 'server.log'),
             level=log_level)
+
+    # Do the necessary imports after enabling the logging, order critical
+    from common import ProtocolError, NoPrintJSONError
+    from dispatch import dispatch
+    from jsonwrap import dumps
+    from message import Messager
+    from session import get_session, init_session, close_session, NoSessionError
 
     init_session(client_ip, cookie_data=cookie_data)
 
