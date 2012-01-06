@@ -18,9 +18,9 @@ QUERY_TIMEOUT = 3
 
 from urllib import urlencode, quote_plus
 from urllib2 import urlopen, HTTPError, URLError
-from urlparse import urlparse, urlunparse
 
 from annlog import log_annotation
+from document import real_directory
 from common import ProtocolError
 from jsonwrap import loads
 from projectconfig import ProjectConfiguration
@@ -55,7 +55,7 @@ class UnknownModelError(ProtocolError):
 
 def suggest_span_types(collection, document, start, end, text, model):
 
-    pconf = ProjectConfiguration(collection)
+    pconf = ProjectConfiguration(real_directory(collection))
     for _, _, model_str, model_url in pconf.get_disambiguator_config():
         if model_str == model:
             break
@@ -64,14 +64,15 @@ def suggest_span_types(collection, document, start, end, text, model):
         raise SimSemConnectionNotConfiguredError
 
     try:
-        resp = urlopen(model_url % quote_plus(text), None, QUERY_TIMEOUT)
+        quoted_text = quote_plus(text)
+        resp = urlopen(model_url % quoted_text, None, QUERY_TIMEOUT)
     except URLError:
         # TODO: Could give more details
         raise SimSemConnectionError
     
     json = loads(resp.read())
 
-    preds = json['result'][text]
+    preds = json['result'][text.decode('utf-8')]
 
     selected_preds = []
     conf_sum = 0
@@ -95,4 +96,5 @@ def suggest_span_types(collection, document, start, end, text, model):
              }
 
 if __name__ == '__main__':
-    print suggest_span_types('dummy', 'dummy', -1, -1, 'paracetamol', 'gef')
+    from config import DATA_DIR
+    print suggest_span_types(DATA_DIR, 'dummy', -1, -1, 'proposición', 'ner_spanish')

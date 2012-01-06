@@ -1865,15 +1865,29 @@ Util.profileStart('chunkFinish');
           return endDiff != 0 ? endDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
         }
 
+        var sentenceText = null;
         $.each(data.chunks, function(chunkNo, chunk) {
           // context for sort
           currentChunk = chunk;
 
           // text rendering
-          chunk.textElem = svg.text(textGroup, chunk.textX, chunk.row.textY, chunk.text,
-            {
-              'data-chunk-id': chunk.index
-            });
+          if (chunk.sentence) {
+            if (sentenceText) {
+              // svg.text(textGroup, sentenceText); // avoids jQuerySVG bug
+              svg.text(textGroup, 0, 0, sentenceText);
+            }
+            sentenceText = null;
+          }
+          if (!sentenceText) {
+            sentenceText = svg.createText();
+          }
+          var nextChunk = data.chunks[chunkNo + 1];
+          var nextSpace = nextChunk ? nextChunk.space : '';
+          sentenceText.span(chunk.text + nextSpace, {
+            x: chunk.textX,
+            y: chunk.row.textY,
+            'data-chunk-id': chunk.index
+          });
 
           // chunk backgrounds
           if (chunk.spans.length) {
@@ -1978,6 +1992,10 @@ Util.profileStart('chunkFinish');
             }
           }
         });
+        if (sentenceText) {
+          // svg.text(textGroup, sentenceText); // avoids jQuerySVG bug
+          svg.text(textGroup, 0, 0, sentenceText);
+        }
 
         // draw the markedText
         $.each(textMarkedRows, function(textRowNo, textRowDesc) { // row, from, to
