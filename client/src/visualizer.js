@@ -837,7 +837,16 @@ var Visualizer = (function($, window, undefined) {
               var firstChar = span.from - span.chunk.from;
               if (firstChar < 0) {
                 firstChar = 0;
-                console.warn("DEBUG: Span", span.text, "in chunk", span.chunk.text, "has strange offsets. FIXME");
+                dispatcher.post('messages', [[['<strong>WARNING</strong>' +
+                  '<br/> ' +
+                  'The span [' + span.from + ', ' + span.to + '] (' + span.text + ') is not ' +
+                  'contained in its designated chunk [' +
+                  span.chunk.from + ', ' + span.chunk.to + '] most likely ' +
+                  'due to the span starting or ending with a space, please ' +
+                  'verify the sanity of your data since we are unable to ' +
+                  'visualise this span correctly and will drop leading ' +
+                  'space characters'
+                  , 'warning', 15]]]);
               }
               var startPos = text.getStartPositionOfChar(firstChar).x;
               var lastChar = span.to - span.chunk.from - 1;
