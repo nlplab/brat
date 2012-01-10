@@ -279,6 +279,10 @@ rect.shadow_EditHighlight {
 .span rect.reselect {
   stroke-width: 2px;
 }
+.span rect.reselectTarget {
+  stroke-width: 2px;
+  stroke: #000;
+}
 .arcs .reselect path {
   stroke-width: 2px;
   stroke: #ff0000 !important;

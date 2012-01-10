@@ -174,6 +174,17 @@ var AnnotatorUI = (function($, window, undefined) {
         arcDragOriginGroup.addClass('highlight');
         arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin]);
         arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
+
+        // show the possible targets
+        var span = data.spans[arcDragOrigin] || {};
+        var spanDesc = spanTypes[span.type] || {};
+        var targetClasses = [];
+        $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
+          $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
+            targetClasses.push('.span_' + possibleTarget);
+          });
+        });
+        $(targetClasses.join(',')).not('[data-span-id="' + originId + '"]').addClass('reselectTarget');
       };
 
       var onMouseDown = function(evt) {
@@ -748,6 +759,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           svgElement.removeClass('reselect');
         }
+        $('.reselectTarget').removeClass('reselectTarget');
       };
 
       var onMouseUp = function(evt) {
