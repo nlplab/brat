@@ -96,7 +96,11 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var onDblClick = function(evt) {
+        // must be logged in
         if (that.user === null) return;
+        // must not be reselecting a span or an arc
+        if (reselectedSpan || arcDragOrigin) return;
+
         var target = $(evt.target);
         var id;
 
