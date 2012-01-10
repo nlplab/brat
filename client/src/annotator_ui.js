@@ -1090,11 +1090,13 @@ var AnnotatorUI = (function($, window, undefined) {
           console.error('Unrecognized attribute category:', category)
           $toDisable = $();
         }
-        $toDisable.attr('disabled', true).removeAttr('checked');
+        $toDisable.attr('disabled', true);
         // the disable may leave the dialog in a state where nothing
         // is checked, which would cause error on "OK". In this case,
         // check the first valid choice.
-        $('#span_form input:not(:disabled):first').attr('checked', true);
+        if ($toDisable.is(':checked')) {
+          $('#span_form input:not(:disabled):first').attr('checked', 'checked');
+        }
       }
 
       var onAttributeChange = function(evt) {
