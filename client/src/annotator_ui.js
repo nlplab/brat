@@ -355,10 +355,12 @@ var AnnotatorUI = (function($, window, undefined) {
         if (span && !reselectedSpan) {
           $('#span_form_reselect, #span_form_delete').show();
           keymap[$.ui.keyCode.DELETE] = 'span_form_delete';
+          keymap[$.ui.keyCode.INSERT] = 'span_form_reselect';
           $('#span_notes').val(span.annotatorNotes || '');
         } else {
           $('#span_form_reselect, #span_form_delete').hide();
           keymap[$.ui.keyCode.DELETE] = null;
+          keymap[$.ui.keyCode.INSERT] = null;
         }
         if (!reselectedSpan) {
           // TODO: avoid allAttributeTypes; just check type-appropriate ones
@@ -661,6 +663,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
           $('#arc_form_reselect, #arc_form_delete').show();
           keymap[$.ui.keyCode.DELETE] = 'arc_form_delete';
+          keymap[$.ui.keyCode.INSERT] = 'arc_form_reselect';
 
           arcForm.dialog('option', { title: 'Edit Annotation' });
         } else {
