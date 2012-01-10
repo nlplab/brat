@@ -51,6 +51,7 @@ var Ajax = (function($, window, undefined) {
             pending--;
             dispatcher.post('unspin');
             $('#waiter').dialog('close');
+            dispatcher.post('messages', [[['Error: Action' + data.action + ' failed on error ' + response.statusText, 'error']]]);
             console.error(textStatus + ':', errorThrown, response);
           }
         });
