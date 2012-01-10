@@ -51,9 +51,10 @@ var URLMonitor = (function($, window, undefined) {
       }
 
       var updateState = function() {
+        dispatcher.post('makeAjaxObsolete');
         var new_url_hash = URLHash.parse(window.location.hash);
         setCollection(new_url_hash.collection, new_url_hash.document,
-            new_url_hash.arguments)
+            new_url_hash.arguments);
        
         dispatcher.post('current', [that.url_hash.collection,
             that.url_hash.document, that.url_hash.arguments, reloadData]);

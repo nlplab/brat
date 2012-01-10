@@ -540,6 +540,7 @@ fieldset legend {
 }
 #span_form .item_content {
     margin-left: 16px;
+    white-space: nowrap;
 }
 #span_form .collapsible {
     margin-left: 20px;
@@ -624,6 +625,10 @@ div.scroll_wrapper_upper div.scroller {
   margin-bottom: 0.5em;
 } 
 /* END new entity and event dialog style */
+
+#search_form select {
+  width: 100%; // deal with overflowing selectboxes
+}
 
 .scroll_fset {
   height: 200px;

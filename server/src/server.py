@@ -20,6 +20,7 @@ from os.path import abspath
 from os.path import join as path_join
 from sys import version_info, stderr
 from time import time
+from thread import allocate_lock
 
 ### Constants
 # This handling of version_info is strictly for backwards compability
@@ -29,6 +30,7 @@ REQUIRED_PY_VERSION_MINOR = 5
 JSON_HDR = ('Content-Type', 'application/json')
 CONF_FNAME = 'config.py'
 CONF_TEMPLATE_FNAME = 'config_template.py'
+CONFIG_CHECK_LOCK = allocate_lock()
 ###
 
 
@@ -85,39 +87,43 @@ def _config_check():
     # Reset the path to force config.py to be in the root (could be hacked
     #       using __init__.py, but we can be monkey-patched anyway)
     orig_path = deepcopy(path)
-    # Can't you empty in O(1) instead of O(N)?
-    while path:
-        path.pop()
-    path.append(path_join(abspath(dirname(__file__)), '../..'))
-    # Check if we have a config, otherwise whine
+
     try:
-        import config
-        del config
-    except ImportError, e:
+        # Can't you empty in O(1) instead of O(N)?
+        while path:
+            path.pop()
+        path.append(path_join(abspath(dirname(__file__)), '../..'))
+        # Check if we have a config, otherwise whine
+        try:
+            import config
+            del config
+        except ImportError, e:
+            path.extend(orig_path)
+            # "Prettiest" way to check specific failure
+            if e.message == 'No module named config':
+                Messager.error(_miss_config_msg(), duration=-1)
+            else:
+                Messager.error(_get_stack_trace(), duration=-1)
+            raise ConfigurationError
+        # Try importing the config entries we need
+        try:
+            from config import DEBUG
+        except ImportError:
+            path.extend(orig_path)
+            Messager.error(_miss_var_msg('DEBUG'), duration=-1)
+            raise ConfigurationError
+        try:
+            from config import ADMIN_CONTACT_EMAIL
+        except ImportError:
+            path.extend(orig_path)
+            Messager.error(_miss_var_msg('ADMIN_CONTACT_EMAIL'), duration=-1)
+            raise ConfigurationError
+    finally:
+        # Remove our entry to the path
+        while path:
+            path.pop()
+        # Then restore it
         path.extend(orig_path)
-        # "Prettiest" way to check specific failure
-        if e.message == 'No module named config':
-            Messager.error(_miss_config_msg(), duration=-1)
-        else:
-            Messager.error(_get_stack_trace(), duration=-1)
-        raise ConfigurationError
-    # Try importing the config entries we need
-    try:
-        from config import DEBUG
-    except ImportError:
-        path.extend(orig_path)
-        Messager.error(_miss_var_msg('DEBUG'), duration=-1)
-        raise ConfigurationError
-    try:
-        from config import ADMIN_CONTACT_EMAIL
-    except ImportError:
-        path.extend(orig_path)
-        Messager.error(_miss_var_msg('ADMIN_CONTACT_EMAIL'), duration=-1)
-        raise ConfigurationError
-    # Remove our entry to the path
-    path.pop()
-    # Then restore it
-    path.extend(orig_path)
 
 # Convert internal log level to `logging` log level
 def _convert_log_level(log_level):
@@ -137,13 +143,9 @@ def _convert_log_level(log_level):
         assert False, 'Should not happen'
 
 def _safe_serve(params, client_ip, client_hostname, cookie_data):
-    from common import ProtocolError, NoPrintJSONError
+    # Note: Only logging imports here
     from config import WORK_DIR
-    from dispatch import dispatch
-    from jsonwrap import dumps
     from logging import basicConfig as log_basic_config
-    from message import Messager
-    from session import get_session, init_session, close_session, NoSessionError
 
     # Enable logging
     try:
@@ -154,6 +156,20 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         log_level = LOG_LEVEL_WARNING
     log_basic_config(filename=path_join(WORK_DIR, 'server.log'),
             level=log_level)
+
+    # Do the necessary imports after enabling the logging, order critical
+    try:
+        from common import ProtocolError, NoPrintJSONError
+        from dispatch import dispatch
+        from jsonwrap import dumps
+        from message import Messager
+        from session import get_session, init_session, close_session, NoSessionError
+    except ImportError:
+        # Note: Heisenbug trap for #612, remove after resolved
+        from logging import critical as log_critical
+        from sys import path as sys_path
+        log_critical('Heisenbug trap reports: ' + str(sys_path))
+        raise
 
     init_session(client_ip, cookie_data=cookie_data)
 
@@ -258,7 +274,10 @@ def serve(params, client_ip, client_hostname, cookie_data):
     from message import Messager
     
     try:
-        _config_check()
+        # We need to lock here since flup uses threads for each request and
+        # can thus manipulate each other's global variables
+        with CONFIG_CHECK_LOCK:
+            _config_check()
     except ConfigurationError:
         return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json({})))
     # We can now safely read the config

@@ -1172,6 +1172,11 @@ var VisualizerUI = (function($, window, undefined) {
               currentForm.trigger('submit');
               return false;
             }
+          } else if (evt.ctrlKey &&
+                (code == 'F'.charCodeAt(0) || code == 'G'.charCodeAt(0))) {
+            // prevent Ctrl-F/Ctrl-G in forms
+            evt.preventDefault();
+            return false;
           }
           return;
         }

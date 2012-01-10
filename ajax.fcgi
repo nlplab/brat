@@ -10,6 +10,10 @@ Depends on flup:
 
     http://pypi.python.org/pypi/flup/
 
+Or:
+
+    sudo apt-get install python-flup
+
 Author:     Pontus Stenetorp   <pontus is s u-tokyo ac jp>
 Version:    2011-09-14
 '''
