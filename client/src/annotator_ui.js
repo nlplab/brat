@@ -96,7 +96,11 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var onDblClick = function(evt) {
+        // must be logged in
         if (that.user === null) return;
+        // must not be reselecting a span or an arc
+        if (reselectedSpan || arcDragOrigin) return;
+
         var target = $(evt.target);
         var id;
 
@@ -174,6 +178,17 @@ var AnnotatorUI = (function($, window, undefined) {
         arcDragOriginGroup.addClass('highlight');
         arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin]);
         arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
+
+        // show the possible targets
+        var span = data.spans[arcDragOrigin] || {};
+        var spanDesc = spanTypes[span.type] || {};
+        var targetClasses = [];
+        $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
+          $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
+            targetClasses.push('.span_' + possibleTarget);
+          });
+        });
+        $(targetClasses.join(',')).not('[data-span-id="' + originId + '"]').addClass('reselectTarget');
       };
 
       var onMouseDown = function(evt) {
@@ -748,6 +763,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           svgElement.removeClass('reselect');
         }
+        $('.reselectTarget').removeClass('reselectTarget');
       };
 
       var onMouseUp = function(evt) {
@@ -1078,11 +1094,13 @@ var AnnotatorUI = (function($, window, undefined) {
           console.error('Unrecognized attribute category:', category)
           $toDisable = $();
         }
-        $toDisable.attr('disabled', true).removeAttr('checked');
+        $toDisable.attr('disabled', true);
         // the disable may leave the dialog in a state where nothing
         // is checked, which would cause error on "OK". In this case,
         // check the first valid choice.
-        $('#span_form input:not(:disabled):first').attr('checked', true);
+        if ($toDisable.is(':checked')) {
+          $('#span_form input:not(:disabled):first').attr('checked', 'checked');
+        }
       }
 
       var onAttributeChange = function(evt) {
