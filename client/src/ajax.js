@@ -10,10 +10,15 @@ var Ajax = (function($, window, undefined) {
       // merge data will get merged into the response data
       // before calling the callback
       var ajaxCall = function(data, callback, merge) {
+        merge = merge || {};
         dispatcher.post('spin');
         pending++;
         var id = count++;
-        pendingList[id] = true;
+
+        // special value: `merge.keep = true` prevents obsolescence
+        pendingList[id] = merge.keep;
+        delete merge.keep;
+
         $.ajax({
           url: 'ajax.cgi',
           data: data,
@@ -30,7 +35,7 @@ var Ajax = (function($, window, undefined) {
             dispatcher.post('messages', [response.messages]);
 
             // If the request is obsolete, do nothing; if not...
-            if (pendingList[id]) {
+            if (pendingList.hasOwnProperty(id)) {
               delete pendingList[id];
 
               // if .exception is just Boolean true, do not process
@@ -39,9 +44,7 @@ var Ajax = (function($, window, undefined) {
               if (response.exception == true) {
                 $('#waiter').dialog('close');
               } else if (callback) {
-                if (merge) {
-                  $.extend(response, merge);
-                }
+                $.extend(response, merge);
                 dispatcher.post(0, callback, [response]);
               }
             }
@@ -54,6 +57,7 @@ var Ajax = (function($, window, undefined) {
             console.error(textStatus + ':', errorThrown, response);
           }
         });
+        return id;
       };
 
       var isReloadOkay = function() {
@@ -61,10 +65,15 @@ var Ajax = (function($, window, undefined) {
         return pending == 0;
       };
 
-      var makeObsolete = function() {
-        pendingList = {};
+      var makeObsolete = function(all) {
+        if (all) {
+          pendingList = {};
+        } else {
+          $.each(pendingList, function(id, keep) {
+            if (!keep) delete pendingList[id];
+          });
+        }
       }
-
 
       dispatcher.
           on('isReloadOkay', isReloadOkay).

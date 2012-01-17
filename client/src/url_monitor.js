@@ -43,7 +43,8 @@ var URLMonitor = (function($, window, undefined) {
               action: 'getCollectionInformation',
               collection: coll
             }, 'collectionLoaded', {
-              collection: coll
+              collection: coll,
+              keep: true
             }]);
           dispatcher.post('collectionChanged', [coll, oldColl]);
         }
