@@ -197,11 +197,13 @@ var AnnotatorUI = (function($, window, undefined) {
         var originType = data.spans[arcDragOrigin].type;
         var spanType = spanTypes[originType];
         var result = [];
-        $.each(spanType.arcs, function(arcNo, arc) {
-          if ($.inArray(targetType, arc.targets) != -1) {
-            result.push(arc.type);
-          }
-        });
+        if (spanType) {
+          $.each(spanType.arcs, function(arcNo, arc) {
+            if ($.inArray(targetType, arc.targets) != -1) {
+              result.push(arc.type);
+            }
+          });
+        }
         return result;
       };
 

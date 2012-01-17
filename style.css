@@ -291,6 +291,10 @@ rect.shadow_EditHighlight {
   fill: #ff0000 !important;
 }
 
+.span rect.badTarget {
+  stroke: #f00;
+}
+
 .arcs text {
   font-size: 9px;
   text-anchor: middle;
