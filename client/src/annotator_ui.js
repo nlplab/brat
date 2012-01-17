@@ -766,6 +766,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var stopArcDrag = function(target) {
         if (arcDragOrigin) {
+          target.removeClass('badTarget');
           arcDragOriginGroup.removeClass('highlight');
           if (target) {
             target.parent().removeClass('highlight');
