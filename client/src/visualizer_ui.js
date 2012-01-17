@@ -282,6 +282,10 @@ var VisualizerUI = (function($, window, undefined) {
         comment += ('<div class="comment_text">"' + 
                     Util.escapeHTML(spanText) + 
                     '"</div>');
+        var validArcTypesForDrag = dispatcher.post('getValidArcTypesForDrag', [spanId, spanType]);
+        if (validArcTypesForDrag && validArcTypesForDrag[0]) {
+          comment += '<div>' + validArcTypesForDrag[0].join(', ') + '</div>';
+        }
         displayComment(evt, target, comment, commentText, commentType);
       };
 

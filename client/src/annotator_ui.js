@@ -191,6 +191,20 @@ var AnnotatorUI = (function($, window, undefined) {
         $(targetClasses.join(',')).not('[data-span-id="' + originId + '"]').addClass('reselectTarget');
       };
 
+      var getValidArcTypesForDrag = function(targetId, targetType) {
+        if (!arcDragOrigin || targetId == arcDragOrigin) return null;
+
+        var originType = data.spans[arcDragOrigin].type;
+        var spanType = spanTypes[originType];
+        var result = [];
+        $.each(spanType.arcs, function(arcNo, arc) {
+          if ($.inArray(targetType, arc.targets) != -1) {
+            result.push(arc.type);
+          }
+        });
+        return result;
+      };
+
       var onMouseDown = function(evt) {
         if (!that.user || arcDragOrigin) return;
         var target = $(evt.target);
@@ -1601,6 +1615,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       dispatcher.
           on('init', init).
+          on('getValidArcTypesForDrag', getValidArcTypesForDrag).
           on('renderData', rememberData).
           on('collectionLoaded', rememberSpanSettings).
           on('collectionLoaded', setupTaggerUI).
