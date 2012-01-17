@@ -2407,10 +2407,47 @@ Util.profileStart('before render');
         return !drawing;
       };
 
-      $(window).bind('load', function() {
-        areFontsLoaded = true;
-        triggerRender();
-      });
+      var fontTestString = 'abbcccddddeeeeeffffffggggggghhhhhhhhiiiiiiiiijjjjjjjjjjkkkkkkkkkkkllllllllllllmmmmmmmmmmmmmnnnnnnnnnnnnnnoooooooooooooooppppppppppppppppqqqqqqqqqqqqqqqqqrrrrrrrrrrrrrrrrrrsssssssssssssssssssttttttttttttttttttttuuuuuuuuuuuuuuuuuuuuuvvvvvvvvvvvvvvvvvvvvvvwwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyzzzzzzzzzzzzzzzzzzzzzzzzzz';
+      var waitUntilFontsLoaded = function(fonts) {
+        var interval = 50;
+        var maxTime = 1000; // max wait 1s for fonts
+        var $fontsTester = $('<div style="font-size: 72px; width: 1px"/>');
+        $('body').append($fontsTester);
+        var $serifDiv = $('<div style="font-family: serif"/>').text(fontTestString);
+        $.each(fonts, function(fontNo, font) {
+          var $newDiv = $('<div style="font-family: ' + font + '; overflow: scroll"/>').text(fontTestString);
+          $fontsTester.append($newDiv, $serifDiv);
+        });
+        
+        var waitUntilFontsLoadedInner = function(fonts, remainingTime, interval) {
+          var allLoaded = true;
+          $fontsTester.each(function() {
+            var newWidth = this.scrollWidth;
+            var serifWidth = $serifDiv[0].scrollWidth;
+            if (newWidth == serifWidth) {
+              allLoaded = false;
+              return false;
+            }
+          });
+          allLoaded = false;
+          if (allLoaded || remainingTime <= 0) {
+            areFontsLoaded = true;
+            triggerRender();
+          } else {
+            setTimeout(function() { waitUntilFontsLoadedInner(fonts, remainingTime - interval, interval); }, interval);
+          }
+        };
+
+        waitUntilFontsLoadedInner(fonts, maxTime, interval);
+        $fontsTester.remove();
+      }
+
+      waitUntilFontsLoaded([
+        'Astloch',
+        'PT Sans Caption',
+        //        'Ubuntu',
+        'Liberation Sans'
+      ]);
 
 
 
