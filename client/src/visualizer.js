@@ -2228,6 +2228,7 @@ Util.profileStart('before render');
 
       var onMouseOut = function(evt) {
         var target = $(evt.target);
+        target.removeClass('badTarget');
         dispatcher.post('hideComment');
         if (highlight) {
           svg.remove(highlight);

@@ -245,7 +245,7 @@ var VisualizerUI = (function($, window, undefined) {
       var commentDisplayed = false;
 
       var displayCommentTimer = null;
-      var displayComment = function(evt, target, comment, commentText, commentType) {
+      var displayComment = function(evt, target, comment, commentText, commentType, immediately) {
         var idtype;
         if (commentType) {
           comment += Util.escapeHTMLwithNewlines(commentText);
@@ -260,21 +260,22 @@ var VisualizerUI = (function($, window, undefined) {
         displayCommentTimer = setTimeout(function() {
           commentPopup.stop(true, true).fadeIn();
           commentDisplayed = true;
-        }, 500);
+        }, immediately ? 0 : 500);
       };
 
       var displaySpanComment = function(
           evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
-          var comment = ( '<div><span class="comment_type_id_wrapper">' +
-                          '<span class="comment_type">' +
-                          Util.escapeHTML(Util.spanDisplayForm(spanTypes,
-                                                               spanType)) +
-                          '</span>' +
-                          ' ' +
-                          '<span class="comment_id">' +
-                          'ID:'+Util.escapeHTML(spanId) +
-                          '</span></span>' );
+        var immediately = false;
+        var comment = ( '<div><span class="comment_type_id_wrapper">' +
+                        '<span class="comment_type">' +
+                        Util.escapeHTML(Util.spanDisplayForm(spanTypes,
+                                                             spanType)) +
+                        '</span>' +
+                        ' ' +
+                        '<span class="comment_id">' +
+                        'ID:'+Util.escapeHTML(spanId) +
+                        '</span></span>' );
         if (mods.length) {
           comment += '<div>' + Util.escapeHTML(mods.join(', ')) + '</div>';
         }
@@ -284,9 +285,14 @@ var VisualizerUI = (function($, window, undefined) {
                     '"</div>');
         var validArcTypesForDrag = dispatcher.post('getValidArcTypesForDrag', [spanId, spanType]);
         if (validArcTypesForDrag && validArcTypesForDrag[0]) {
-          comment += '<div>' + validArcTypesForDrag[0].join(', ') + '</div>';
+          if (validArcTypesForDrag[0].length) {
+            comment += '<div>' + validArcTypesForDrag[0].join(', ') + '</div>';
+          } else {
+            $('rect[data-span-id="' + spanId + '"]').addClass('badTarget');
+          }
+          immediately = true;
         }
-        displayComment(evt, target, comment, commentText, commentType);
+        displayComment(evt, target, comment, commentText, commentType, immediately);
       };
 
       var displayArcComment = function(
