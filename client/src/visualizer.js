@@ -2407,49 +2407,38 @@ Util.profileStart('before render');
         return !drawing;
       };
 
-      var fontTestString = 'abbcccddddeeeeeffffffggggggghhhhhhhhiiiiiiiiijjjjjjjjjjkkkkkkkkkkkllllllllllllmmmmmmmmmmmmmnnnnnnnnnnnnnnoooooooooooooooppppppppppppppppqqqqqqqqqqqqqqqqqrrrrrrrrrrrrrrrrrrsssssssssssssssssssttttttttttttttttttttuuuuuuuuuuuuuuuuuuuuuvvvvvvvvvvvvvvvvvvvvvvwwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyzzzzzzzzzzzzzzzzzzzzzzzzzz';
-      var waitUntilFontsLoaded = function(fonts) {
-        var interval = 50;
-        var maxTime = 1000; // max wait 1s for fonts
-        var $fontsTester = $('<div style="font-size: 72px; width: 1px"/>');
-        $('body').append($fontsTester);
-        var $serifDiv = $('<div style="font-family: serif"/>').text(fontTestString);
-        $.each(fonts, function(fontNo, font) {
-          var $newDiv = $('<div style="font-family: ' + font + '; overflow: scroll"/>').text(fontTestString);
-          $fontsTester.append($newDiv, $serifDiv);
-        });
-        
-        var waitUntilFontsLoadedInner = function(fonts, remainingTime, interval) {
-          var allLoaded = true;
-          $fontsTester.each(function() {
-            var newWidth = this.scrollWidth;
-            var serifWidth = $serifDiv[0].scrollWidth;
-            if (newWidth == serifWidth) {
-              allLoaded = false;
-              return false;
-            }
-          });
-          allLoaded = false;
-          if (allLoaded || remainingTime <= 0) {
-            areFontsLoaded = true;
-            triggerRender();
-          } else {
-            setTimeout(function() { waitUntilFontsLoadedInner(fonts, remainingTime - interval, interval); }, interval);
-          }
-        };
+      var proceedWithFonts = function() {
+        areFontsLoaded = true;
+        triggerRender();
+      };
 
-        waitUntilFontsLoadedInner(fonts, maxTime, interval);
-        $fontsTester.remove();
-      }
-
-      waitUntilFontsLoaded([
-        'Astloch',
-        'PT Sans Caption',
-        //        'Ubuntu',
-        'Liberation Sans'
-      ]);
-
-
+      WebFontConfig = {
+        custom: {
+          families: [
+            'Astloch',
+            'PT Sans Caption',
+            //        'Ubuntu',
+            'Liberation Sans'
+          ],
+          urls: [
+            'static/fonts/Astloch-Bold.ttf',
+            'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+            //
+            'static/fonts/Liberation_Sans-Regular.ttf'
+          ],
+        },
+        active: proceedWithFonts,
+        inactive: proceedWithFonts,
+        /* DEBUG
+        fontactive: function(fontFamily, fontDescription) {
+          console.log("active:", fontFamily, fontDescription);
+        },
+        fontloading: function(fontFamily, fontDescription) {
+          console.log("loading:", fontFamily, fontDescription);
+        },
+        */
+      };
+      $.getScript('client/lib/webfont.js');
 
 
       dispatcher.
