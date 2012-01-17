@@ -256,7 +256,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var updateCheckbox = function($input) {
         var $widget = $input.button('widget');
         var $textspan = $widget.find('.ui-button-text');
-        $textspan.text(($input[0].checked ? '☑ ' : '☐ ') + $widget.attr('data-bare'));
+        $textspan.html(($input[0].checked ? '&#x2611; ' : '&#x2610; ') + $widget.attr('data-bare'));
       };
 
       var fillSpanTypesAndDisplayForm = function(evt, spanText, span) {
