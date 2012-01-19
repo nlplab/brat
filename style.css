@@ -63,6 +63,12 @@ text {
   font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
 }
 
+#footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 0;
+}
 #header {
   position: fixed;
   top: 0;

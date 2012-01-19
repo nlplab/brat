@@ -1899,6 +1899,14 @@ var VisualizerUI = (function($, window, undefined) {
         $('#autorefresh_mode').button('refresh');
       }
 
+      $('#prev').button().click(function() {
+        return moveInFileBrowser(-1);
+      });
+      $('#next').button().click(function() {
+        return moveInFileBrowser(+1);
+      });
+      $('#footer').show();
+
       dispatcher.
           on('init', init).
           on('annotationIsAvailable', annotationIsAvailable).
