@@ -244,10 +244,6 @@ rect.shadow_EditHighlight {
   stroke: #ffff99;
 }
 
-.blur {
-  filter: url(#Gaussian_Blur);
-}
-
 .span path {
   fill: none;
 }
