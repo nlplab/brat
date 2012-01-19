@@ -2407,12 +2407,38 @@ Util.profileStart('before render');
         return !drawing;
       };
 
-      $(window).bind('load', function() {
+      var proceedWithFonts = function() {
         areFontsLoaded = true;
         triggerRender();
-      });
+      };
 
-
+      WebFontConfig = {
+        custom: {
+          families: [
+            'Astloch',
+            'PT Sans Caption',
+            //        'Ubuntu',
+            'Liberation Sans'
+          ],
+          urls: [
+            'static/fonts/Astloch-Bold.ttf',
+            'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+            //
+            'static/fonts/Liberation_Sans-Regular.ttf'
+          ],
+        },
+        active: proceedWithFonts,
+        inactive: proceedWithFonts,
+        /* DEBUG
+        fontactive: function(fontFamily, fontDescription) {
+          console.log("active:", fontFamily, fontDescription);
+        },
+        fontloading: function(fontFamily, fontDescription) {
+          console.log("loading:", fontFamily, fontDescription);
+        },
+        */
+      };
+      $.getScript('client/lib/webfont.js');
 
 
       dispatcher.
