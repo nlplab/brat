@@ -8,8 +8,16 @@ var URLMonitor = (function($, window, undefined) {
 
       that.url_hash = new URLHash();
 
+      // Thanks to:
+      // http://kilianvalkhof.com/2010/javascript/the-case-of-the-disappearing-favicon/
+      var setFavicon = function() {
+        var link = $('link[type="image/x-icon"]').remove().attr("href");
+        $('<link href="'+ link +'" rel="shortcut icon" type="image/x-icon" />').appendTo('head');
+      }
+
       var updateURL = function() {
         window.location.hash = that.url_hash.getHash();
+        setFavicon();
         dispatcher.post('hideForm');
       };
 

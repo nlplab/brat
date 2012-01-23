@@ -1100,7 +1100,8 @@ Util.profileStart('chunks');
               shadowRect = svg.rect(span.group,
                   bx - rectShadowSize, by - rectShadowSize,
                   bw + 2 * rectShadowSize, bh + 2 * rectShadowSize, {
-                  'class': 'blur shadow_' + span.shadowClass,
+                  'class': 'shadow_' + span.shadowClass,
+                  filter: 'url(#Gaussian_Blur)',
                   rx: rectShadowRounding,
                   ry: rectShadowRounding,
               });
@@ -1670,7 +1671,8 @@ Util.profileStart('arcs');
                   textBox.y - arcLabelShadowSize,
                   textBox.width  + 2 * arcLabelShadowSize, 
                   textBox.height + 2 * arcLabelShadowSize, {
-                    'class': 'blur shadow_' + arc.shadowClass,
+                    'class': 'shadow_' + arc.shadowClass,
+                    filter: 'url(#Gaussian_Blur)',
                     rx: arcLabelShadowRounding,
                     ry: arcLabelShadowRounding,
               });
@@ -1834,7 +1836,8 @@ Util.profileStart('rows');
                   box.x - rectShadowSize, box.y - rectShadowSize,
                   box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
 
-                  'class': 'blur shadow_' + sentComment.type,
+                  'class': 'shadow_' + sentComment.type,
+                  filter: 'url(#Gaussian_Blur)',
                   rx: rectShadowRounding,
                   ry: rectShadowRounding,
                   'data-sent': row.sentence,
