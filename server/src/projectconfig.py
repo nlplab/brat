@@ -1173,6 +1173,8 @@ class ProjectConfiguration(object):
             return labels[0]
 
     def is_physical_entity_type(self, t):
+        if t in self.get_entity_types() or t in self.get_event_types():
+            return t in self.get_entity_types()
         # TODO: remove this temporary hack
         if t in very_likely_physical_entity_types:
             return True
