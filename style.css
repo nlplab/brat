@@ -637,7 +637,7 @@ div.scroll_wrapper_upper div.scroller {
 /* END new entity and event dialog style */
 
 #search_form select {
-  width: 100%; // deal with overflowing selectboxes
+  width: 100%; /* deal with overflowing selectboxes */
 }
 
 .scroll_fset {
@@ -892,7 +892,7 @@ div.scroll_wrapper_upper div.scroller {
   src: local('PT Sans Caption'), local('PTSans-Caption'), url('static/fonts/PT_Sans-Caption-Web-Regular.ttf') format('truetype');
 }
 
-// Apple iPad, iPhone, iPod
+/* Apple iPad, iPhone, iPod */
 
 * {
    -webkit-tap-highlight-color: rgba(0,0,0,0);
