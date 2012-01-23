@@ -987,8 +987,8 @@ var VisualizerUI = (function($, window, undefined) {
         }
 
         // fill in scope of search ("document" / "collection")
-        var searchScope = $('#search_scope input[checked]').val();
-        opts.scope = $('#search_scope input[checked]').val();
+        var searchScope = $('#search_scope input:checked').val();
+        opts.scope = searchScope;
 
         // adjust specific action to invoke by scope
         if (searchScope == "document") {
@@ -1002,7 +1002,7 @@ var VisualizerUI = (function($, window, undefined) {
         opts.context_length = $('#context_length').val();
 
         // fill in text match options
-        opts.text_match = $('#text_match input[checked]').val()
+        opts.text_match = $('#text_match input:checked').val()
         opts.match_case = $('#match_case_on').is(':checked');
 
         dispatcher.post('hideForm', [searchForm]);
