@@ -470,6 +470,13 @@ var VisualizerUI = (function($, window, undefined) {
               }
               showNoDocMessage();
             }
+
+            if (!searchActive) {
+              // if the search was cleared by the collection button,
+              // reset the hash to clear properly (we have to do it
+              // after the file browser is cleared)
+              dispatcher.post('clearSearch');
+            }
           },
           width: 500
       });
@@ -674,7 +681,8 @@ var VisualizerUI = (function($, window, undefined) {
         }, 0);
       }; // end showFileBrowser()
       $('#collection_browser_button').click(function(evt) {
-        dispatcher.post('clearSearch');
+        dispatcher.post('clearSearch', [true]);
+        showFileBrowser();
       });
 
       var currentSelectorPosition = function() {
@@ -1003,7 +1011,7 @@ var VisualizerUI = (function($, window, undefined) {
             // TODO: might consider having this message come from the
             // server instead
             dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
-            dispatcher.post('clearSearch', [true]);
+            dispatcher.post('clearSearch');
           } else {
             if (!searchActive) {
               collectionSortOrder = sortOrder;
@@ -1283,7 +1291,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
-      var clearSearch = function(dontShowFileBrowser) {
+      var clearSearch = function(dontRefresh) {
         dispatcher.post('hideForm', [searchForm]);
 
         // back off to document collection
@@ -1295,8 +1303,10 @@ var VisualizerUI = (function($, window, undefined) {
           updateSearchButton();
         }
 
-        if (!dontShowFileBrowser) {
-          showFileBrowser();
+        if (!dontRefresh) {
+          delete args.focus;
+          delete args.match;
+          dispatcher.post('setArguments', [args]);
         }
       }
 
