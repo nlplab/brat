@@ -889,7 +889,6 @@ very_likely_physical_entity_types = [
     'Cell_type',
     'Drug_or_compound',
     'Gene_or_gene_product',
-    'Pathway',
     'Tissue',
     #'Not_sure',
     #'Other',
