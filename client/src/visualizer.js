@@ -179,7 +179,7 @@ var Visualizer = (function($, window, undefined) {
         $.each(data.modifications, function(modNo, mod) {
           if (!data.spans[mod[2]]) {
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
-            throw "BadDocumentError";
+            return;
           }
           data.spans[mod[2]][mod[1]] = true;
         });
@@ -358,18 +358,17 @@ var Visualizer = (function($, window, undefined) {
         $.each(data.eventDescs, function(eventNo, eventDesc) {
           var dist = 0;
           var origin = data.spans[eventDesc.id];
-          if (!origin) return; // TODO: tell the user?
-          if (!origin.chunk) {
+          if (!origin) {
             // TODO: include missing trigger ID in error message
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Trigger for event "' + eventDesc.id + '" not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
-            throw "BadDocumentError";
+            return;
           }
           var here = origin.chunk.index;
           $.each(eventDesc.roles, function(roleNo, role) {
             var target = data.spans[role.targetId];
             if (!target) {
               dispatcher.post('messages', [[['<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + eventDesc.id + '") not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
-              throw "BadDocumentError";
+              return;
             }
             var there = target.chunk.index;
             var dist = Math.abs(here - there);
