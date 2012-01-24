@@ -1304,7 +1304,6 @@ var VisualizerUI = (function($, window, undefined) {
         }
 
         if (!dontRefresh) {
-          delete args.focus;
           delete args.match;
           dispatcher.post('setArguments', [args]);
         }
