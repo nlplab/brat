@@ -1043,6 +1043,7 @@ var VisualizerUI = (function($, window, undefined) {
             },
           }],
       });
+      $('#search_form_clear').attr('title', 'Clear the search and resume normal collection browsing');
 
       var showSearchForm = function() {
         // this.checked = searchActive; // TODO: dup? unnecessary? remove if yes.
