@@ -44,6 +44,7 @@ var VisualizerUI = (function($, window, undefined) {
       var hideNoDocMessage = function() {
         clearTimeout(noSvgTimer);
         $('#no_svg_wrapper').hide(0);
+        $('#source_files').show();
       }
 
       var showNoDocMessage = function() {
@@ -51,6 +52,7 @@ var VisualizerUI = (function($, window, undefined) {
         noSvgTimer = setTimeout(function() {
           $('#no_svg_wrapper').fadeIn(500);
         }, 2000);
+        $('#source_files').hide();
       }
       
       /* END "no svg" message - related */
