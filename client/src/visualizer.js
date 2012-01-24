@@ -631,6 +631,7 @@ var Visualizer = (function($, window, undefined) {
             }
             if (warning) {
               svgtext.span("#", { 'class': 'glyph attribute_warning' });
+              text += ' #';
             }
             span.glyphedLabelText = text;
 
