@@ -677,6 +677,26 @@ def _document_json_dict(document):
     _enrich_json_with_text(j_dic, document + '.' + TEXT_FILE_SUFFIX)
 
     with TextAnnotations(document) as ann_obj:
+        # Note: At this stage the sentence offsets can conflict with the
+        #   annotations, we thus merge any sentence offsets that lie within
+        #   annotations
+        # XXX: ~O(tb_ann * sentence_breaks), can be optimised
+        # XXX: The merge strategy can lead to unforeseen consequences if two
+        #   sentences are not adjacent (the format allows for this:
+        #   S_1: [0, 10], S_2: [15, 20])
+        s_breaks = j_dic['sentence_offsets']
+        for tb_ann in ann_obj.get_textbounds():
+            s_i = 0
+            while s_i < len(s_breaks):
+                s_start, s_end = s_breaks[s_i]
+                # Does the annotation strech over the end of the sentence?
+                if tb_ann.start < s_end and tb_ann.end > s_end:
+                    # Merge this sentence and the next sentence
+                    s_breaks[s_i] = (s_start, s_breaks[s_i + 1][1])
+                    del s_breaks[s_i + 1]
+                else:
+                    s_i += 1
+        
         _enrich_json_with_data(j_dic, ann_obj)
 
     return j_dic

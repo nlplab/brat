@@ -66,6 +66,11 @@ try:
 except NameError:
     pass # BACKUP_DIR most likely not defined
 
+# It may be a good idea to limit the max number of results to a search
+# as very high numbers can be demanding of both server and clients.
+# (unlimited if not defined or <= 0)
+MAX_SEARCH_RESULT_NUMBER = 1000
+
 # If tokenization other than whitespace is desired, this can be used
 '''
 WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION = range(3)
