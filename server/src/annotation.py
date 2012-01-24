@@ -147,12 +147,14 @@ class AnnotationsIsReadOnlyError(ProtocolError):
         return json_dic
 
 
-class DuplicateAnnotationIdError(Exception):
-    def __init__(self, id):
+class DuplicateAnnotationIdError(AnnotationLineSyntaxError):
+    def __init__(self, id, line, line_num, filepath):
+        AnnotationLineSyntaxError.__init__(self, line, line_num, filepath)
         self.id = id
 
     def __str__(self):
-        return u'Encountered a duplicate of id: %s' % (self.id, )
+        return (u'Duplicate id: %s on line %d (id %s): "%s"'
+                ) % (self.id, self.line_num, self.id, self.line)
 
 
 class InvalidIdError(Exception):
@@ -735,7 +737,9 @@ class Annotations(object):
                         pre = annotation_id_prefix(id)
 
                         if id in self._ann_by_id and pre != '*':
-                            raise DuplicateAnnotationIdError(id)
+                            raise DuplicateAnnotationIdError(id,
+                                    self.ann_line, self.ann_line_num+1,
+                                    input_file_path)
 
                         # if the ID is not valid, need to fail with
                         # AnnotationLineSyntaxError (not
@@ -785,15 +789,16 @@ class Annotations(object):
 
                         assert new_ann is not None, "INTERNAL ERROR"
                         self.add_annotation(new_ann, read=True)
-
                     except IdedAnnotationLineSyntaxError, e:
                         # Could parse an ID but not the whole line; add UnparsedIdedAnnotation
-                        self.add_annotation(UnparsedIdedAnnotation(e.id, e.line, source_id=e.filepath), read=True)
+                        self.add_annotation(UnparsedIdedAnnotation(e.id,
+                            e.line, source_id=e.filepath), read=True)
                         self.failed_lines.append(e.line_num - 1)
 
                     except AnnotationLineSyntaxError, e:
                         # We could not parse even an ID on the line, just add it as an unknown annotation
-                        self.add_annotation(UnknownAnnotation(e.line, source_id=e.filepath), read=True)
+                        self.add_annotation(UnknownAnnotation(e.line,
+                            source_id=e.filepath), read=True)
                         # NOTE: For access we start at line 0, not 1 as in here
                         self.failed_lines.append(e.line_num - 1)
 
