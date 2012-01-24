@@ -7,6 +7,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var arcDragOriginBox = null;
       var arcDragOriginGroup = null;
       var arcDragArc = null;
+      var arcDragJustStarted = false;
       var data = null;
       var searchConfig = null;
       var spanOptions = null;
@@ -179,16 +180,7 @@ var AnnotatorUI = (function($, window, undefined) {
         arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin]);
         arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
 
-        // show the possible targets
-        var span = data.spans[arcDragOrigin] || {};
-        var spanDesc = spanTypes[span.type] || {};
-        var targetClasses = [];
-        $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
-          $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
-            targetClasses.push('.span_' + possibleTarget);
-          });
-        });
-        $(targetClasses.join(',')).not('[data-span-id="' + originId + '"]').addClass('reselectTarget');
+        arcDragJustStarted = true;
       };
 
       var getValidArcTypesForDrag = function(targetId, targetType) {
@@ -221,6 +213,24 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var onMouseMove = function(evt) {
         if (arcDragOrigin) {
+          if (arcDragJustStarted) {
+            // show the possible targets
+            var span = data.spans[arcDragOrigin] || {};
+            var spanDesc = spanTypes[span.type] || {};
+            // var targetClasses = [];
+            var $targets = $();
+            $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
+              $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
+                // speedup for #642: relevant browsers should support
+                // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
+                // so we get off jQuery and get down to the metal:
+                // targetClasses.push('.span_' + possibleTarget);
+                $targets = $targets.add(svgElement[0].getElementsByClassName('span_' + possibleTarget));
+              });
+            });
+            // $(targetClasses.join(',')).not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
+            $targets.not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
+          }
           window.getSelection().removeAllRanges();
           var mx = evt.pageX - svgPosition.left;
           var my = evt.pageY - svgPosition.top + 5; // TODO FIXME why +5?!?
@@ -233,6 +243,7 @@ var AnnotatorUI = (function($, window, undefined) {
                 mx, my);
           arcDragArc.setAttribute('d', path.path());
         }
+        arcDragJustStarted = false;
       };
 
       var adjustToCursor = function(evt, element, centerX, centerY) {
@@ -497,7 +508,7 @@ var AnnotatorUI = (function($, window, undefined) {
           spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
           // use preferred label instead of type name if available
           var name = spanTypes[type] && spanTypes[type].name || type;
-          var $label = $('<label/>').
+          var $label = $('<label class="span_type_label"/>').
             attr('for', 'rapid_span_' + (typeNo+1)).
             text(name+' (' + (100.0 * prob).toFixed(1) + '%)');
           $label.css('background-color', spanBgColor);          
@@ -543,7 +554,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $spanTypeDiv.append($('<div class="item_content">&#160;</div>')); // non-breaking space
         var $numlabel = $('<span class="accesskey">0</span><span>:</span>');        
         var $input = $('<input type="radio" name="rapid_span_type" id="rapid_span_0" value=""/>');
-        var $label = $('<label for="rapid_span_0" style="background-color:lightgray">Other...</label>');
+        var $label = $('<label class="span_type_label" for="rapid_span_0" style="background-color:lightgray">Other...</label>');
         var $content = $('<div class="item_content"/>').
           append($numlabel).
           append($input).
@@ -634,7 +645,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
               var displayName = arcDesc.labels[0] || arcTypeName;
               var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
-              var $label = $('<label for="arc_' + arcTypeName + '"/>').text(displayName);
+              var $label = $('<label class="arc_type_label" for="arc_' + arcTypeName + '"/>').text(displayName);
               var $div = $('<div/>').append($checkbox).append($label);
               $scroller.append($div);
               if (arcDesc.hotkey) {
@@ -1007,7 +1018,7 @@ var AnnotatorUI = (function($, window, undefined) {
             // use a light version of the span color as BG
             var spanBgColor = spanTypes[type.type] && spanTypes[type.type].bgColor || '#ffffff';
             spanBgColor = Util.adjustColorLightness(spanBgColor, spanBoxTextBgColorLighten);
-            var $label = $('<label/>').
+            var $label = $('<label class="span_type_label"/>').
               attr('for', 'span_' + type.type).
               text(name);
             if (type.unused) {
@@ -1071,7 +1082,7 @@ var AnnotatorUI = (function($, window, undefined) {
             var $input = $('<input type="checkbox" id="'+attrId+
                            '" value="' + escapedType + 
                            '" category="' + category + '"/>');
-            var $label = $('<label for="'+attrId+
+            var $label = $('<label class="attribute_type_label" for="'+attrId+
                            '" data-bare="' + escapedName + '">&#x2610; ' + 
                            escapedName + '</label>');
             $top.append($input).append($label);

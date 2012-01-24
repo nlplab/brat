@@ -179,7 +179,7 @@ var Visualizer = (function($, window, undefined) {
         $.each(data.modifications, function(modNo, mod) {
           if (!data.spans[mod[2]]) {
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
-            throw "BadDocumentError";
+            return;
           }
           data.spans[mod[2]][mod[1]] = true;
         });
@@ -358,18 +358,17 @@ var Visualizer = (function($, window, undefined) {
         $.each(data.eventDescs, function(eventNo, eventDesc) {
           var dist = 0;
           var origin = data.spans[eventDesc.id];
-          if (!origin) return; // TODO: tell the user?
-          if (!origin.chunk) {
+          if (!origin) {
             // TODO: include missing trigger ID in error message
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Trigger for event "' + eventDesc.id + '" not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
-            throw "BadDocumentError";
+            return;
           }
           var here = origin.chunk.index;
           $.each(eventDesc.roles, function(roleNo, role) {
             var target = data.spans[role.targetId];
             if (!target) {
               dispatcher.post('messages', [[['<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + eventDesc.id + '") not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
-              throw "BadDocumentError";
+              return;
             }
             var there = target.chunk.index;
             var dist = Math.abs(here - there);
@@ -631,6 +630,7 @@ var Visualizer = (function($, window, undefined) {
             }
             if (warning) {
               svgtext.span("#", { 'class': 'glyph attribute_warning' });
+              text += ' #';
             }
             span.glyphedLabelText = text;
 
@@ -1100,7 +1100,8 @@ Util.profileStart('chunks');
               shadowRect = svg.rect(span.group,
                   bx - rectShadowSize, by - rectShadowSize,
                   bw + 2 * rectShadowSize, bh + 2 * rectShadowSize, {
-                  'class': 'blur shadow_' + span.shadowClass,
+                  'class': 'shadow_' + span.shadowClass,
+                  filter: 'url(#Gaussian_Blur)',
                   rx: rectShadowRounding,
                   ry: rectShadowRounding,
               });
@@ -1670,7 +1671,8 @@ Util.profileStart('arcs');
                   textBox.y - arcLabelShadowSize,
                   textBox.width  + 2 * arcLabelShadowSize, 
                   textBox.height + 2 * arcLabelShadowSize, {
-                    'class': 'blur shadow_' + arc.shadowClass,
+                    'class': 'shadow_' + arc.shadowClass,
+                    filter: 'url(#Gaussian_Blur)',
                     rx: arcLabelShadowRounding,
                     ry: arcLabelShadowRounding,
               });
@@ -1834,7 +1836,8 @@ Util.profileStart('rows');
                   box.x - rectShadowSize, box.y - rectShadowSize,
                   box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
 
-                  'class': 'blur shadow_' + sentComment.type,
+                  'class': 'shadow_' + sentComment.type,
+                  filter: 'url(#Gaussian_Blur)',
                   rx: rectShadowRounding,
                   ry: rectShadowRounding,
                   'data-sent': row.sentence,
@@ -2407,49 +2410,38 @@ Util.profileStart('before render');
         return !drawing;
       };
 
-      var fontTestString = 'abbcccddddeeeeeffffffggggggghhhhhhhhiiiiiiiiijjjjjjjjjjkkkkkkkkkkkllllllllllllmmmmmmmmmmmmmnnnnnnnnnnnnnnoooooooooooooooppppppppppppppppqqqqqqqqqqqqqqqqqrrrrrrrrrrrrrrrrrrsssssssssssssssssssttttttttttttttttttttuuuuuuuuuuuuuuuuuuuuuvvvvvvvvvvvvvvvvvvvvvvwwwwwwwwwwwwwwwwwwwwwwwxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyzzzzzzzzzzzzzzzzzzzzzzzzzz';
-      var waitUntilFontsLoaded = function(fonts) {
-        var interval = 50;
-        var maxTime = 1000; // max wait 1s for fonts
-        var $fontsTester = $('<div style="font-size: 72px; width: 1px"/>');
-        $('body').append($fontsTester);
-        var $serifDiv = $('<div style="font-family: serif"/>').text(fontTestString);
-        $.each(fonts, function(fontNo, font) {
-          var $newDiv = $('<div style="font-family: ' + font + '; overflow: scroll"/>').text(fontTestString);
-          $fontsTester.append($newDiv, $serifDiv);
-        });
-        
-        var waitUntilFontsLoadedInner = function(fonts, remainingTime, interval) {
-          var allLoaded = true;
-          $fontsTester.each(function() {
-            var newWidth = this.scrollWidth;
-            var serifWidth = $serifDiv[0].scrollWidth;
-            if (newWidth == serifWidth) {
-              allLoaded = false;
-              return false;
-            }
-          });
-          allLoaded = false;
-          if (allLoaded || remainingTime <= 0) {
-            areFontsLoaded = true;
-            triggerRender();
-          } else {
-            setTimeout(function() { waitUntilFontsLoadedInner(fonts, remainingTime - interval, interval); }, interval);
-          }
-        };
+      var proceedWithFonts = function() {
+        areFontsLoaded = true;
+        triggerRender();
+      };
 
-        waitUntilFontsLoadedInner(fonts, maxTime, interval);
-        $fontsTester.remove();
-      }
-
-      waitUntilFontsLoaded([
-        'Astloch',
-        'PT Sans Caption',
-        //        'Ubuntu',
-        'Liberation Sans'
-      ]);
-
-
+      WebFontConfig = {
+        custom: {
+          families: [
+            'Astloch',
+            'PT Sans Caption',
+            //        'Ubuntu',
+            'Liberation Sans'
+          ],
+          urls: [
+            'static/fonts/Astloch-Bold.ttf',
+            'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+            //
+            'static/fonts/Liberation_Sans-Regular.ttf'
+          ],
+        },
+        active: proceedWithFonts,
+        inactive: proceedWithFonts,
+        /* DEBUG
+        fontactive: function(fontFamily, fontDescription) {
+          console.log("active:", fontFamily, fontDescription);
+        },
+        fontloading: function(fontFamily, fontDescription) {
+          console.log("loading:", fontFamily, fontDescription);
+        },
+        */
+      };
+      $.getScript('client/lib/webfont.js');
 
 
       dispatcher.

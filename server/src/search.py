@@ -20,6 +20,15 @@ if REPORT_SEARCH_TIMINGS:
     from sys import stderr
     from datetime import datetime
 
+# Search result number may be restricted to limit server load and
+# communication issues for searches in large collections that (perhaps
+# unintentionally) result in very large numbers of hits
+try:
+    from config import MAX_SEARCH_RESULT_NUMBER
+except ImportError:
+    # unlimited
+    MAX_SEARCH_RESULT_NUMBER = -1
+
 # TODO: nested_types restriction not consistently enforced in
 # searches.
 
@@ -40,6 +49,14 @@ class SearchMatchSet(object):
     def sort_matches(self):
         # sort by document name
         self.__matches.sort(lambda a,b: cmp(a[0].get_document(),b[0].get_document()))
+
+    def limit_to(self, num):
+        # don't limit to less than one match
+        if len(self.__matches) > num and num > 0:
+            self.__matches = self.__matches[:num]
+            return True
+        else:
+            return False
 
     # TODO: would be better with an iterator
     def get_matches(self):
@@ -446,6 +463,9 @@ def _get_match_regex(text, text_match="word", match_case=False,
     else:
         regex_flags = re.IGNORECASE
 
+    if text is None:
+        text = ''
+
     if text_match == "word":
         # full word match: require word boundaries or, optionally,
         # whole string boundaries
@@ -529,6 +549,13 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
         # add to overall collection
         for t in ann_matches:
             matches.add_match(ann_obj, t)    
+
+        # MAX_SEARCH_RESULT_NUMBER <= 0 --> no limit
+        if len(matches) > MAX_SEARCH_RESULT_NUMBER and MAX_SEARCH_RESULT_NUMBER > 0:
+            Messager.warning('Search result limit (%d) exceeded, stopping search.' % MAX_SEARCH_RESULT_NUMBER)
+            break
+
+    matches.limit_to(MAX_SEARCH_RESULT_NUMBER)
 
     # sort by document name for output
     matches.sort_matches()
@@ -640,6 +667,13 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
         # add to overall collection
         for r in ann_matches:
             matches.add_match(ann_obj, r)
+
+        # MAX_SEARCH_RESULT_NUMBER <= 0 --> no limit
+        if len(matches) > MAX_SEARCH_RESULT_NUMBER and MAX_SEARCH_RESULT_NUMBER > 0:
+            Messager.warning('Search result limit (%d) exceeded, stopping search.' % MAX_SEARCH_RESULT_NUMBER)
+            break
+
+    matches.limit_to(MAX_SEARCH_RESULT_NUMBER)
 
     # sort by document name for output
     matches.sort_matches()
@@ -763,6 +797,13 @@ def search_anns_for_event(ann_objs, trigger_text, args,
         for t_obj, e in ann_matches:
             matches.add_match(ann_obj, e)
 
+        # MAX_SEARCH_RESULT_NUMBER <= 0 --> no limit
+        if len(matches) > MAX_SEARCH_RESULT_NUMBER and MAX_SEARCH_RESULT_NUMBER > 0:
+            Messager.warning('Search result limit (%d) exceeded, stopping search.' % MAX_SEARCH_RESULT_NUMBER)
+            break
+
+    matches.limit_to(MAX_SEARCH_RESULT_NUMBER)
+
     # sort by document name for output
     matches.sort_matches()
 
@@ -835,6 +876,13 @@ def search_anns_for_text(ann_objs, text,
             # that does not involve an annotation; this is a bit of a hack
             tm = TextMatch(m.start(), m.end(), m.group())
             matches.add_match(ann_obj, tm)
+
+        # MAX_SEARCH_RESULT_NUMBER <= 0 --> no limit
+        if len(matches) > MAX_SEARCH_RESULT_NUMBER and MAX_SEARCH_RESULT_NUMBER > 0:
+            Messager.warning('Search result limit (%d) exceeded, stopping search.' % MAX_SEARCH_RESULT_NUMBER)
+            break
+
+    matches.limit_to(MAX_SEARCH_RESULT_NUMBER)
 
     if REPORT_SEARCH_TIMINGS:
         process_delta = datetime.now() - process_start
@@ -1135,13 +1183,13 @@ def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[], n
     anns = __filenames_to_annotations(filenames)
     return search_anns_for_text(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
-def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=[], nested_types=[]):
+def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=[], nested_types=[], entities_only=False):
     """
     Searches for the given text in textbound annotations in the given
     set of files.
     """
     anns = __filenames_to_annotations(filenames)
-    return search_anns_for_textbound(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+    return search_anns_for_textbound(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types, entities_only=entities_only)
 
 # TODO: filename list interface functions for event and relation search
 
@@ -1171,6 +1219,10 @@ def main(argv=None):
     import sys
     import os
     import urllib
+
+    # ignore search result number limits on command-line invocations
+    global MAX_SEARCH_RESULT_NUMBER
+    MAX_SEARCH_RESULT_NUMBER = -1
 
     if argv is None:
         argv = sys.argv

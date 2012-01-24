@@ -15,6 +15,8 @@ Author:     Pontus Stenetorp   <pontus is s u-tokyo ac jp>
 Version:    2011-09-29
 '''
 
+from __future__ import with_statement
+
 # Standard library version
 from os.path import abspath
 from os.path import join as path_join
