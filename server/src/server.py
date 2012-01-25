@@ -144,6 +144,12 @@ def _convert_log_level(log_level):
     else:
         assert False, 'Should not happen'
 
+
+class DefaultNoneDict(dict):
+    def __missing__(self, key):
+        return None
+
+
 def _safe_serve(params, client_ip, client_hostname, cookie_data):
     # Note: Only logging imports here
     from config import WORK_DIR
@@ -176,8 +182,16 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
     init_session(client_ip, cookie_data=cookie_data)
 
     try:
+        # Unpack the arguments into something less obscure than the
+        #   Python FieldStorage object (part dictonary, part list, part FUBAR)
+        http_args = DefaultNoneDict()
+        for k in params:
+            # Also take the opportunity to convert Strings into Unicode,
+            #   according to HTTP they should be UTF-8
+            http_args[k] = unicode(params.getvalue(k), encoding='utf-8')
+
         # Dispatch the request
-        json_dic = dispatch(params, client_ip, client_hostname)
+        json_dic = dispatch(http_args, client_ip, client_hostname)
         response_data = ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
     except ProtocolError, e:
         # Internal error, only reported to client not to log
