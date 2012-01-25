@@ -382,7 +382,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         } else {
           $('#span_highlight_link').hide();
-          var firstRadio = $('#span_form input:radio:first')[0];
+          var firstRadio = $('#span_form input:radio:not([unused]):first')[0];
           if (firstRadio) {
             firstRadio.checked = true;
           } else {
