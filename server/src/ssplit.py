@@ -51,9 +51,9 @@ def _refine_split(offsets, original_text):
     # Align the texts and see where our offsets don't match
     old_offsets = offsets[::-1]
     # Protect against edge case of single-line docs missing
-    # sentence-terminal newline
+    #   sentence-terminal newline
     if len(old_offsets) == 0:
-        old_offsets.append((0, len(original_text)))
+        old_offsets.append((0, len(original_text), ))
     new_offsets = []
     for refined_sentence in output.split('\n'):
         new_offset = old_offsets.pop()
@@ -63,8 +63,8 @@ def _refine_split(offsets, original_text):
             new_offset = (new_offset[0], next_end)
         new_offsets.append(new_offset)
 
-    # protect against missing document-final newline causing the last
-    # sentence to fall out of offset scope
+    # Protect against missing document-final newline causing the last
+    #   sentence to fall out of offset scope
     if len(new_offsets) != 0 and new_offsets[-1][1] != len(original_text)-1:
         start = new_offsets[-1][1]+1
         while start < len(original_text) and original_text[start].isspace():
@@ -72,6 +72,33 @@ def _refine_split(offsets, original_text):
         if start < len(original_text)-1:
             new_offsets.append((start, len(original_text)-1))
 
+    # Finally, inject new-lines from the original document as to respect the
+    #   original formatting where it is made explicit.
+    last_newline = -1
+    while True:
+        try:
+            orig_newline = original_text.index('\n', last_newline + 1)
+        except ValueError:
+            # No more newlines
+            break
+
+        for o_start, o_end in new_offsets:
+            if o_start <= orig_newline < o_end:
+                # We need to split the existing offsets in two
+                new_offsets.remove((o_start, o_end))
+                new_offsets.extend(((o_start, orig_newline, ),
+                        (orig_newline + 1, o_end), ))
+                break
+            elif o_end == orig_newline:
+                # We have already respected this newline
+                break
+        else:
+            # Stand-alone "null" sentence, just insert it
+            new_offsets.append((orig_newline, orig_newline, ))
+
+        last_newline = orig_newline
+
+    new_offsets.sort()
     return new_offsets
 
 def _sentence_boundary_gen(text, regex):
@@ -112,13 +139,28 @@ if __name__ == '__main__':
                 print offsets
                 print '# Sentences:'
                 for sentence in _text_by_offsets_gen(text, offsets):
-                    assert sentence, 'blank sentences disallowed'
-                    assert not sentence[0].isspace(), (
-                            'sentence may not start with white-space "%s"' % sentence)
+                    # These should only be allowed when coming from original
+                    #   explicit newlines.
+                    #assert sentence, 'blank sentences disallowed'
+                    #assert not sentence[0].isspace(), (
+                    #        'sentence may not start with white-space "%s"' % sentence)
                     print '"%s"' % sentence.replace('\n', '\\n')
         except IOError:
             pass # Most likely a broken pipe
     else:
+        sentence = 'This is a short sentence.\nthis is another one.'
+        print 'Sentence:', sentence
+        print 'Len sentence:', len(sentence)
+
+        ret = [o for o in en_sentence_boundary_gen(sentence)]
+        last_end = 0
+        for start, end in ret:
+            if last_end != start:
+                print 'DROPPED: "%s"' % sentence[last_end:start]
+            print 'SENTENCE: "%s"' % sentence[start:end]
+            last_end = end
+        print ret
+
         sentence = u'　変しん！　両になった。うそ！　かも　'
         print 'Sentence:', sentence
         print 'Len sentence:', len(sentence)
@@ -136,19 +178,3 @@ if __name__ == '__main__':
         ans = [(1, 44), (45, 50), (51, 57)]
         assert ret == ans, '%s != %s' % (ret, ans)
         print 'Succesful!'
-
-        # TODO XXX: remove tests that assume local filesystem structure
-        with open('/home/ninjin/public_html/brat/brat_test_data/epi/PMID-18573876.txt', 'r') as _file:
-            sentence = _file.read()
-
-        print 'Sentence:', sentence
-        print 'Len sentence:', len(sentence)
-
-        ret = [o for o in en_sentence_boundary_gen(sentence)]
-        last_end = 0
-        for start, end in ret:
-            if last_end != start:
-                print 'DROPPED: "%s"' % sentence[last_end:start]
-            print 'SENTENCE: "%s"' % sentence[start:end]
-            last_end = end
-        print ret
