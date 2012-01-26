@@ -314,7 +314,7 @@ var VisualizerUI = (function($, window, undefined) {
                     Util.escapeHTML(Util.spanDisplayForm(spanTypes,
                                                          originSpanType)) +
                     ' ' + arrowStr + ' ' +
-                    arcDisplayForm +
+                    Util.escapeHTML(arcDisplayForm) +
                     ' ' + arrowStr + ' ' +
                     Util.escapeHTML(Util.spanDisplayForm(spanTypes,
                                                          targetSpanType)) +
