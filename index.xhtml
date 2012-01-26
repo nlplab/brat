@@ -121,10 +121,10 @@
           <div>
             <input id="auth_button" type="button" value="Login"/>
             <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
-            <input id="data_button" type="button" value="Data" tabindex="-1"/>
+            <input id="data_button" type="button" value="Data" tabindex="-1" title="Import, Export Data; Manage Collection"/>
             <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search text and annotations">Search</label>
             <!--<input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/>-->
-            <input id="options_button" type="button" value="Options" tabindex="-1"/>
+            <input id="options_button" type="button" value="Options" tabindex="-1" title="Set Visual, Annotation and Network Options"/>
           </div>
           <!-- Dummy span, fixes visual glitch (issue #535). TODO: better fix -->
           <span class="document_edit_time unselectable">&nbsp;</span>
@@ -593,7 +593,7 @@
         <legend>Collection Information</legend>
         <div id="readme_container">
           <input id="readme" readonly="readonly" class="borderless"/>
-          <input id="more_readme_button" type="button" value="More..."/>
+          <input id="more_readme_button" type="button" value="More..." title="Show full collection information text"/>
         </div>
       </fieldset>
       <fieldset>

@@ -1043,6 +1043,7 @@ var VisualizerUI = (function($, window, undefined) {
             },
           }],
       });
+      $('#search_form_clear').attr('title', 'Clear the search and resume normal collection browsing');
 
       var showSearchForm = function() {
         // this.checked = searchActive; // TODO: dup? unnecessary? remove if yes.
@@ -1865,6 +1866,11 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var configurationChanged = function() {
+        // just assume that any config change makes stored
+        // visualizations invalid. This is a bit excessive (not all
+        // options affect visualization) but mostly harmless.
+        invalidateSavedSVG();
+
         // save configuration changed by user action
         dispatcher.post('ajax', [{
                     action: 'saveConf',

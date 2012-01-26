@@ -187,10 +187,8 @@ def _directory_is_safe(dir_path):
     return abspath(path_join(DATA_DIR, dir_path[1:])
             ).startswith(normpath(DATA_DIR))
 
-def dispatch(params, client_ip, client_hostname):
-    action = params.getvalue('action')
-    log_info(dir(params))
-    log_info(str(params))
+def dispatch(http_args, client_ip, client_hostname):
+    action = http_args['action']
 
     log_info('dispatcher handling action: %s' % (action, ));
     
@@ -199,9 +197,9 @@ def dispatch(params, client_ip, client_hostname):
         raise NoActionError
 
     # If we got a directory (collection), check it for security
-    if params.getvalue('collection') is not None:
-        if not _directory_is_safe(params.getvalue('collection')):
-            raise DirectorySecurityError(params.getvalue('collection'))
+    if http_args['collection'] is not None:
+        if not _directory_is_safe(http_args['collection']):
+            raise DirectorySecurityError(http_args['collection'])
 
     # Make sure that we are authenticated if we are to do certain actions
     if action in REQUIRES_AUTHENTICATION:
@@ -238,7 +236,7 @@ def dispatch(params, client_ip, client_hostname):
 
     action_args = []
     for arg_name in args:
-        arg_val = params.getvalue(arg_name)
+        arg_val = http_args[arg_name]
 
         # The client failed to provide this argument
         if arg_val is None:
@@ -254,8 +252,8 @@ def dispatch(params, client_ip, client_hostname):
 
     # Log annotation actions separately (if so configured)
     if action in LOGGED_ANNOTATOR_ACTION:
-        log_annotation(params.getvalue('collection'),
-                       params.getvalue('document'),
+        log_annotation(http_args['collection'],
+                       http_args['document'],
                        'START', action, action_args)
 
     # TODO: log_annotation for exceptions?
@@ -264,8 +262,8 @@ def dispatch(params, client_ip, client_hostname):
 
     # Log annotation actions separately (if so configured)
     if action in LOGGED_ANNOTATOR_ACTION:
-        log_annotation(params.getvalue('collection'),
-                       params.getvalue('document'),
+        log_annotation(http_args['collection'],
+                        http_args['document'],
                        'FINISH', action, action_args)
 
     # Assign which action that was performed to the json_dic

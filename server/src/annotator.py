@@ -339,7 +339,7 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type,
             mods.change(before, ann)
     return tb_ann, e_ann
 
-def _create_span(ann_obj, mods, type, start, end, txt_file_path,
+def __create_span(ann_obj, mods, type, start, end, txt_file_path,
         projectconf, attributes):
     # TODO: Rip this out!
     start = int(start)
@@ -423,16 +423,29 @@ def _set_attributes(ann_obj, ann, attributes, mods, undo_resp={}):
             ann_obj.add_annotation(new_attr)
             mods.addition(new_attr)
 
+# To unshadow Python internals like "type" and "id"
+def create_span(collection, document, start, end, type, attributes=None,
+        id=None, comment=None):
+    return _create_span(collection, document, start, end, type, attributes,
+            id, comment)
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def create_span(collection, document, start, end, type, attributes=None, id=None, comment=None):
+def _create_span(collection, document, start, end, _type, attributes=None,
+        _id=None, comment=None):
     directory = collection
     undo_resp = {}
 
     if attributes is None:
         _attributes = {}
     else:
-        # TODO: Catch parse failures here
-        _attributes =  json_loads(attributes)
+        try:
+            _attributes =  json_loads(attributes)
+        except ValueError:
+            # Failed to parse attributes, warn the client
+            Messager.warning((u'Unable to parse attributes string "%s" for '
+                    u'"createSpan", ignoring attributes for request and '
+                    u'assuming no attributes set') % (attributes, ))
+            _attributes = {}
 
         ### XXX: Hack since the client is sending back False and True as values...
         # These are __not__ to be sent, they violate the protocol
@@ -462,13 +475,13 @@ def create_span(collection, document, start, end, type, attributes=None, id=None
 
         mods = ModificationTracker()
 
-        if id is not None:
+        if _id is not None:
             # We are to edit an existing annotation
-            tb_ann, e_ann = _edit_span(ann_obj, mods, id, start, end, projectconf,
-                    _attributes, type, undo_resp=undo_resp)
+            tb_ann, e_ann = _edit_span(ann_obj, mods, _id, start, end, projectconf,
+                    _attributes, _type, undo_resp=undo_resp)
         else:
             # We are to create a new annotation
-            tb_ann, e_ann = _create_span(ann_obj, mods, type, start, end, txt_file_path,
+            tb_ann, e_ann = __create_span(ann_obj, mods, _type, start, end, txt_file_path,
                     projectconf, _attributes)
 
             undo_resp['action'] = 'add_tb'
@@ -519,14 +532,14 @@ def create_span(collection, document, start, end, type, attributes=None, id=None
                         # Change the comment
                         # XXX: Note the ugly tab, it is for parsing the tail
                         before = unicode(found)
-                        found.tail = '\t' + comment
+                        found.tail = u'\t' + comment
                         mods.change(before, found)
                     else:
                         # Create a new comment
                         new_comment = OnelineCommentAnnotation(
                                 comment_on.id, ann_obj.get_new_id('#'),
                                 # XXX: Note the ugly tab
-                                'AnnotatorNotes', '\t' + comment)
+                                u'AnnotatorNotes', u'\t' + comment)
                         ann_obj.add_annotation(new_comment)
                         mods.addition(new_comment)
                 else:
