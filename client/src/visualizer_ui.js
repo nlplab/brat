@@ -1396,8 +1396,8 @@ var VisualizerUI = (function($, window, undefined) {
           var $link = $('<a target="brat_search"/>').
               text(ext).
               attr('href',
-                  'ajax.cgi?action=downloadFile&collection=' + coll +
-                  '&document=' + doc + '&extension=' + ext);
+                  'ajax.cgi?action=downloadFile&collection=' + encodeURIComponent(coll) +
+                  '&document=' + encodeURIComponent(doc) + '&extension=' + encodeURIComponent(ext));
           $link.button();
           if (extNo) $sourceFiles.append(' ');
           $sourceFiles.append($link);
