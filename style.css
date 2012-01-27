@@ -63,11 +63,9 @@ text {
   font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
 }
 
-#footer {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  padding: 0;
+#navbuttons * {
+  vertical-align: middle;
+  padding: 2px 5px;
 }
 #header {
   position: fixed;

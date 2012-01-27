@@ -108,9 +108,12 @@
       <div id="mainHeader" class="ui-widget-header">
         <div id="pulldownArrow">&#x21D3;</div>
         <div id="mainlogo" class="logo unselectable">brat</div>
-        <div id="document_name">
+        <span id="navbuttons">
+          <img id="prev" alt="Previous document (Cursor Left)" title="Previous document (Cursor Left)" src="static/img/arrow-180.png"/><img id="next" alt="Next document (Cursor Right)" title="Next document (Cursor Right)" src="static/img/arrow.png"/>
+        </span>
+        <span id="document_name">
           <input readonly="readonly" class="ui-widget-header"/>
-        </div>
+        </span>
         <!-- <span id="document_ctime"/> -->
       </div>
       <div id="pulldown" class="unselectable ui-widget-content">
@@ -131,10 +134,6 @@
       </div>
     </div>
     <div id="svg"></div>
-    <div id="footer" class="ui-widget-header" style="display: none">
-      <span id="prev" class="unselectable" title="Previous document">&#8592;</span>
-      <span id="next" class="unselectable" title="Next document">&#8594;</span>
-    </div>
     <form id="import_form" class="dialog" title="Import">
       <fieldset id="import_form_docid">
         <legend>Document ID</legend>

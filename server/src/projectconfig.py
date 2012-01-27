@@ -404,6 +404,23 @@ def __read_term_hierarchy(input, section=None):
         else:
             args = [a.strip() for a in args.split(",") if a.strip() != ""]
 
+        # older configs allowed space in term strings, splitting those
+        # from arguments by space. Trying to parse one of these in the
+        # new way will result in a crash from space in arguments.
+        # The following is a workaround for the transition.
+        if len([x for x in args if re.search('\s', x)]) and '\t' in l:
+            # re-parse in the old way (dups from above)
+            m = re.match(r'^(\s*)([^\t]+)(?:\t(.*))?$', l)
+            assert m, "Error parsing line: '%s'" % l
+            indent, terms, args = m.groups()
+            terms = [t.strip() for t in terms.split("|") if t.strip() != ""]
+            if args is None or args.strip() == "":
+                args = []
+            else:
+                args = [a.strip() for a in args.split(",") if a.strip() != ""]
+            # issue a warning
+            Messager.warning("Space in term name(s) (%s) on line \"%s\" in config. This feature is deprecated and support will be removed in future versions. Please revise your configuration." % (",".join(['"%s"' % x for x in terms if " " in x]), l), 20)
+
         # depth in the ontology corresponds to the number of
         # spaces in the initial indent.
         depth = len(indent)
