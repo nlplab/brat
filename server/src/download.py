@@ -9,7 +9,6 @@ from __future__ import with_statement
 
 from os import remove
 from os.path import join as path_join, dirname, basename
-from shlex import split as shlex_split
 from tempfile import mkstemp
 
 from document import real_directory
@@ -44,8 +43,8 @@ def download_collection(collection):
     tmp_file_path = None
     try:
         _, tmp_file_path = mkstemp()
-        tar_cmd = 'tar -c -z -f %s %s' % (tmp_file_path, dir_name, )
-        tar_p = Popen(shlex_split(tar_cmd), cwd=path_join(real_dir, '..'))
+        tar_cmd_split = ('tar', '-c', '-z', '-f', tmp_file_path, dir_name, )
+        tar_p = Popen(tar_cmd_split, cwd=path_join(real_dir, '..'))
         tar_p.wait()
 
         hdrs = [('Content-Type', 'application/octet-stream'), #'application/x-tgz'),
