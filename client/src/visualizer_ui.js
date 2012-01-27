@@ -314,7 +314,7 @@ var VisualizerUI = (function($, window, undefined) {
                     Util.escapeHTML(Util.spanDisplayForm(spanTypes,
                                                          originSpanType)) +
                     ' ' + arrowStr + ' ' +
-                    arcDisplayForm +
+                    Util.escapeHTML(arcDisplayForm) +
                     ' ' + arrowStr + ' ' +
                     Util.escapeHTML(Util.spanDisplayForm(spanTypes,
                                                          targetSpanType)) +
@@ -1396,8 +1396,8 @@ var VisualizerUI = (function($, window, undefined) {
           var $link = $('<a target="brat_search"/>').
               text(ext).
               attr('href',
-                  'ajax.cgi?action=downloadFile&collection=' + coll +
-                  '&document=' + doc + '&extension=' + ext);
+                  'ajax.cgi?action=downloadFile&collection=' + encodeURIComponent(coll) +
+                  '&document=' + encodeURIComponent(doc) + '&extension=' + encodeURIComponent(ext));
           $link.button();
           if (extNo) $sourceFiles.append(' ');
           $sourceFiles.append($link);
@@ -1432,7 +1432,7 @@ var VisualizerUI = (function($, window, undefined) {
           var $sourceCollection = $('#source_collection').empty();
           var $collectionDownloadLink = $('<a target="brat_search"/>')
             .text('Download tar.gz')
-            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + coll);
+            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + encodeURIComponent(coll));
           $sourceCollection.append($collectionDownloadLink);
           $collectionDownloadLink.button();
         }
