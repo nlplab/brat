@@ -1432,7 +1432,7 @@ var VisualizerUI = (function($, window, undefined) {
           var $sourceCollection = $('#source_collection').empty();
           var $collectionDownloadLink = $('<a target="brat_search"/>')
             .text('Download tar.gz')
-            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + coll);
+            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + encodeURIComponent(coll));
           $sourceCollection.append($collectionDownloadLink);
           $collectionDownloadLink.button();
         }
