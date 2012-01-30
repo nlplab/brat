@@ -86,11 +86,6 @@ text {
   50% { color: #ffffff; margin-top: 7px; }
   100% { color: #9999ff; margin-top: 0; }
 }
-#pulldownArrow {
-  float: left;
-  padding: 0 5px;
-  -webkit-animation: pulse 2s ease-in-out infinite;
-}
 #pulldown {
   display: none;
   font-size: 80%;

@@ -1490,7 +1490,6 @@ var VisualizerUI = (function($, window, undefined) {
         mouseenter(function(evt) {
           clearTimeout(menuTimer);
           slideToggle($('#pulldown').stop(), true);
-          $('#pulldownArrow').hide('fast');
         }).
         mouseleave(function(evt) {
           clearTimeout(menuTimer);
