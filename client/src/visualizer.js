@@ -328,9 +328,10 @@ var Visualizer = (function($, window, undefined) {
           chunkNo++;
           if (pastFirst) {
             var numNL = chunk.space.split("\n").length - 1;
-            if (!numNL) numNL = 1;
-            sentenceNo += numNL;
-            chunk.sentence = sentenceNo;
+            if (numNL) {
+              sentenceNo += numNL;
+              chunk.sentence = sentenceNo;
+            }
           } else {
             pastFirst = true;
           }
