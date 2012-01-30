@@ -320,18 +320,17 @@ var Visualizer = (function($, window, undefined) {
         var pastFirst = false;
         $.each(data.sentence_offsets, function() {
           var from = this[0];
-          var to = this[0];
           var chunk;
+          if (data.chunks[chunkNo].from > from) return;
           while (chunkNo < numChunks && (chunk = data.chunks[chunkNo]).from < from) {
             chunkNo++;
           }
           chunkNo++;
           if (pastFirst) {
             var numNL = chunk.space.split("\n").length - 1;
-            if (numNL) {
-              sentenceNo += numNL;
-              chunk.sentence = sentenceNo;
-            }
+            if (!numNL) numNL = 1;
+            sentenceNo += numNL;
+            chunk.sentence = sentenceNo;
           } else {
             pastFirst = true;
           }
