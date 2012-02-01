@@ -10,6 +10,7 @@ var Configuration = (function(window, undefined) {
     
     var visual = {
       margin: { x: 2, y: 1 },
+      arcTextMargin: 1,
       boxSpacing: 1,
       curlyHeight: 4,
       arcSpacing: 9, //10;

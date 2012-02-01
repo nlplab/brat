@@ -1677,8 +1677,13 @@ Util.profileStart('arcs');
                     ry: arcLabelShadowRounding,
               });
             }
-            var textStart = textBox.x - Configuration.visual.margin.x;
-            var textEnd = textStart + textBox.width + 2 * Configuration.visual.margin.x;
+            var textStart = textBox.x;
+            var textEnd = textBox.x + textBox.width;
+
+	    // adjust by margin for arc drawing
+	    textStart -= Configuration.visual.arcTextMargin;
+	    textEnd += Configuration.visual.arcTextMargin;
+
             if (from > to) {
               var tmp = textStart; textStart = textEnd; textEnd = tmp;
             }
