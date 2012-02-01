@@ -16,7 +16,7 @@ var Ajax = (function($, window, undefined) {
         var id = count++;
 
         // special value: `merge.keep = true` prevents obsolescence
-        pendingList[id] = merge.keep;
+        pendingList[id] = merge.keep || false;
         delete merge.keep;
 
         $.ajax({
