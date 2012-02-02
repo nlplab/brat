@@ -206,7 +206,7 @@ Finally tell Apache 2.x to load your new configuration.
 
     sudo /etc/init.d/apache2 reload
 
-#### Finding Four Apache 2 Group ####
+#### Finding Your Apache 2 Group ####
 
 Ideally you should set all permissions as needed for the Apache 2 group, but
 finding it can be painful.
@@ -237,9 +237,15 @@ something that at least looks like `apache` or `www-data`:
 ### On a Mac ###
 
 On a Mac, Apache configuration is quite different, and Aptitude is not
-available.
+available. Instead, we recommend
+[Homebrew](http://mxcl.github.com/homebrew/) if there are packages you
+need to have installed (you will also need a compiler -- either XCode,
+or [this
+alternative](http://blog.strug.de/2011/09/homebrew-without-xcode-save-15-gb/)).
 
 #### Setting up Apache ####
+
+Enable Apache by System Preferences -> Sharing -> Web Sharing.
 
 Clone this repository into `~/Sites`. Edit
 `/private/etc/apache2/users/$USER.conf`. Then invoke `sudo apachectl reload`.
