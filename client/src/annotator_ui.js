@@ -1089,8 +1089,8 @@ var AnnotatorUI = (function($, window, undefined) {
             $input.button();
             $input.change(attrChangeHandler);
           } else {
-            var $div = $('<div class="ui-button ui-button-text-only"/>');
-            var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text"/>');
+            var $div = $('<div class="ui-button ui-button-text-only attribute_type_label"/>');
+            var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text" category="' + category + '"/>');
             var $option = $('<option class="ui-state-default" value=""/>').text(attr.name + ': ?');
             $select.append($option);
             $.each(attr.values, function(valType, value) {
