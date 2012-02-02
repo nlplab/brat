@@ -106,6 +106,10 @@ def process(fn):
         for ln, l in enumerate(lines):
             l = l.strip()
 
+            # igore lines starting with "#" as comments
+            if len(l) > 0 and l[0] == "#":
+                continue
+
             if re.match(r'^\s*$', l):
                 # blank lines separate sentences
                 if len(tokens) > 0:
@@ -130,7 +134,7 @@ def process(fn):
             # 8 DEPREL Dependency relation to the HEAD.
             fields = l.split('\t')
 
-            assert len(fields) == 10, "Format error in %s" % fn
+            assert len(fields) == 10, "Format error on line %d in %s: %s" % (ln, fn, l)
 
             ID, form, POS = fields[0], fields[1], fields[4]
             head, rel = fields[6], fields[7]

@@ -27,8 +27,8 @@ from thread import allocate_lock
 ### Constants
 # This handling of version_info is strictly for backwards compability
 PY_VER_STR = '%d.%d.%d-%s-%d' % tuple(version_info)
-REQUIRED_PY_VERSION_MAJOR = 2
-REQUIRED_PY_VERSION_MINOR = 5
+REQUIRED_PY_VERSION = (2, 5, 0, 'alpha', 1)
+REQUIRED_PY_VERSION_STR = '%d.%d.%d-%s-%d' % tuple(REQUIRED_PY_VERSION)
 JSON_HDR = ('Content-Type', 'application/json')
 CONF_FNAME = 'config.py'
 CONF_TEMPLATE_FNAME = 'config_template.py'
@@ -268,22 +268,21 @@ def serve(params, client_ip, client_hostname, cookie_data):
     cookie_hdrs = None
 
     # Do we have a Python version compatibly with our libs?
-    if (version_info[0] != REQUIRED_PY_VERSION_MAJOR or
-            version_info[1] < REQUIRED_PY_VERSION_MINOR):
+    if (version_info[0] != REQUIRED_PY_VERSION[0] or
+            version_info < REQUIRED_PY_VERSION):
         # Bail with hand-writen JSON, this is very fragile to protocol changes
         return cookie_hdrs, ((JSON_HDR, ),
                 ('''
 {
   "messages": [
     [
-      "Incompatible Python version (%s), %d.%d or above is supported",
+      "Incompatible Python version (%s), %s or above is supported",
       "error",
       -1
     ]
   ]
 }
-                ''' % (PY_VER_STR, REQUIRED_PY_VERSION_MAJOR,
-                    REQUIRED_PY_VERSION_MINOR)).strip())
+                ''' % (PY_VER_STR, REQUIRED_PY_VERSION_STR)).strip())
 
     # We can now safely use json and Messager
     from jsonwrap import dumps

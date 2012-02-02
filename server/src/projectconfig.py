@@ -211,7 +211,7 @@ class TypeHierarchyNode:
                 # special case in special case: relation type specifications
                 # are split by hyphens, nothing else is.
                 # (really sorry about this.)
-                if key == "REL-TYPE":
+                if key == "<REL-TYPE>":
                     self.special_arguments[key] = atypes.split("-")
                 else:
                     self.special_arguments[key] = [atypes]

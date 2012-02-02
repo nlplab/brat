@@ -19,6 +19,7 @@ from os.path import join as path_join
 from os.path import isfile, exists
 from os import makedirs, mkdir
 
+from annotator import open_textfile
 from common import ProtocolError, NoPrintJSONError
 from config import BASE_DIR, WORK_DIR
 from document import real_directory
@@ -82,20 +83,20 @@ class CorruptSVGError(ProtocolError):
 def _save_svg(collection, document, svg):
     svg_path = _svg_path()
 
-    with open(svg_path, 'w') as svg_file:
+    with open_textfile(svg_path, 'w') as svg_file:
         svg_hdr = ('<?xml version="1.0" standalone="no"?>'
                 '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
                 '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
         defs = svg.find('</defs>')
 
-        with open(CSS_PATH, 'r') as css_file:
+        with open_textfile(CSS_PATH, 'r') as css_file:
             css = css_file.read()
 
         if defs != -1:
             css = '<style type="text/css"><![CDATA[' + css + ']]></style>'
             font_data = []
             for font_path in SVG_FONTS:
-                with open(font_path, 'r') as font_file:
+                with open_textfile(font_path, 'r') as font_file:
                     font_data.append(font_file.read().strip())
             fonts = '\n'.join(font_data)
             svg = (svg_hdr + '\n' + svg[:defs] + '\n' + fonts + '\n' + css
@@ -108,7 +109,7 @@ def _save_svg(collection, document, svg):
                 if not exists(real_dir):
                     makedirs(real_dir)
                 svg_store_path = path_join(real_dir, document + '.svg')
-                with open(svg_store_path, 'w') as svg_store_file:
+                with open_textfile(svg_store_path, 'w') as svg_store_file:
                     svg_store_file.write(svg)
 
         else:
@@ -203,7 +204,7 @@ def retrieve_stored(document, suffix):
     hdrs = [('Content-Type', content_type),
             ('Content-Disposition', 'inline; filename=' + filename)]
 
-    with open(stored_path, 'r') as stored_file:
+    with open_textfile(stored_path, 'r') as stored_file:
         data = stored_file.read()
 
     raise NoPrintJSONError(hdrs, data)
