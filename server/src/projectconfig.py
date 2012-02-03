@@ -301,7 +301,8 @@ class TypeHierarchyNode:
                     Messager.warning("Project configuration: error parsing: empty type for argument '%s'." % a, 5)
                     raise InvalidProjectConfigException
 
-                # Check disabled; need to support arbitrary UTF values for attributes.conf.
+                # Check disabled; need to support arbitrary UTF values 
+                # for visual.conf. TODO: add this check for other configs.
                 # TODO: consider checking for similar for appropriate confs.
 #                 if atype not in reserved_config_string and normalize_to_storage_form(atype) != atype:
 #                     Messager.warning("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, 5)
@@ -818,8 +819,16 @@ def get_drawing_config_by_storage_form(directory, term):
                 Messager.warning("Project configuration: term %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
             d[t] = {}
             for a in n.arguments:
+                # attribute drawing can be specified with multiple
+                # values (multi-valued attributes), other parts of
+                # drawing config should have single values only.
                 if len(n.arguments[a]) != 1:
-                    Messager.warning("Project configuration: expected single value for %s argument %s, got '%s'. Configuration may be wrong." % (t, a, "|".join(n.arguments[a])))
+                    if a in ATTR_DRAWING_ATTRIBUTES:
+                        # use multi-valued directly
+                        d[t][a] = n.arguments[a]
+                    else:
+                        # warn and pass
+                        Messager.warning("Project configuration: expected single value for %s argument %s, got '%s'. Configuration may be wrong." % (t, a, "|".join(n.arguments[a])))
                 else:
                     d[t][a] = n.arguments[a][0]
 
@@ -827,7 +836,12 @@ def get_drawing_config_by_storage_form(directory, term):
         # fix original issue instead
         for t in d:
             for k in d[t]:
-                d[t][k] = d[t][k].replace("-", ",")
+                # sorry about this
+                if not isinstance(d[t][k], list):
+                    d[t][k] = d[t][k].replace("-", ",")
+                else:
+                    for i in range(len(d[t][k])):
+                        d[t][k][i] = d[t][k][i].replace("-", ",")
                 
         default_keys = [VISUAL_SPAN_DEFAULT, 
                         VISUAL_ARC_DEFAULT,
