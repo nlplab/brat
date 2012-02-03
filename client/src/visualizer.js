@@ -1118,7 +1118,7 @@ Util.profileStart('chunks');
                 rx: Configuration.visual.margin.x,
                 ry: Configuration.visual.margin.y,
                 'data-span-id': span.id,
-                'strokeDashArray': span.attributeMerge.dasharray,
+                'strokeDashArray': span.attributeMerge.dashArray,
               });
             span.right = bx + bw; // TODO put it somewhere nicer?
             if (!(span.shadowClass || span.marked)) {
