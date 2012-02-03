@@ -26,11 +26,17 @@
         <div id="menulogo" class="logo unselectable">brat</div>
       </div>
       
-      <h1>brat configuration</h1> 
+      <h1>brat annotation configuration</h1> 
 
-      <p>brat configurations are currently controlled by text-based
-	configuration files that can be created and edited in any text
-	editor. This page documents the configuration language.
+      <p>brat annotation configurations are currently controlled by
+	text-based configuration files that can be created and edited
+	in any text editor. This page documents the configuration
+	language.
+      </p>
+      <p style="color:gray">(Prefer to learn by example? Check out
+	configurations for various projects in
+	the <tt>configurations/</tt> directory of your brat
+	installation.)
       </p>
       <p><b>NOTE</b>: we are planning to introduce <b>GUI-based
 	configuration</b> in a future release, but have so far focused
@@ -137,8 +143,8 @@
       </p>
       <p>Each of these sections must be present in the configuration
 	file, but they can be empty. For example, a configuration can
-	define only entity annotation targets by leaving the remaining
-	section empty.
+	define only entity annotation targets by leaving the other
+	three sections empty.
       </p>
 
       <h3>Entity definitions (<tt>[entities]</tt> section)</h3>
@@ -227,7 +233,7 @@
 	identified by two <tt>Person</tt> annotations.
       </p>
 
-      <p>Each line in the <tt>[relations]</tt> section defines one
+      <p>Each line in the <tt>[relations]</tt> section defines a
 	relation type, the entities it can associate and, optionally,
 	the properties of the relation. The types of annotations that
 	can be associated by the relation are identified using the
@@ -285,6 +291,11 @@
 	line.
       </p>
 
+      <p>For further information on relation definitions, see
+	<a href="#advanced-relations">advanced relation
+	configuration</a>.
+      </p>
+
       <h3>Event definitions (<tt>[events]</tt> section)</h3>
 
       <p>The <tt>[events]</tt> section defines <i>n</i>-ary
@@ -323,9 +334,96 @@
 
       <h3>Attribute definitions (<tt>[attributes]</tt> section)</h3>
 
-
       <h2>Additional details</h2>
 
+      <h3 id="advanced-relations">Advanced relation configuration</h3>
+
+      <p>Relation definitions support the ability to set relation
+	properties through the special
+	attribute <tt>&lt;REL-TYPE&gt;</tt> as shown in the following
+	example.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[relations]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Equiv</td><td>Arg1:Person, Arg2:Person, &lt;REL-TYPE&gt;:symmetric-transitive</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>The <tt>&lt;REL-TYPE&gt;</tt> specification currently
+	supports two properties, <tt>symmetric</tt>
+	and <tt>transitive</tt>, which can apply either separately or
+	together. Multiple properties can be combined by using the dash
+	character (&quot;<tt>-</tt>&quot;), as in the above example.
+      </p>
+
+      <p>The combination <tt>symmetric-transitive</tt> defines an
+	<i>equivalence relation</i>.
+      </p>
+
+      <h3 id="advanced-attributes">Advanced attribute configuration</h3>
+
+      <p>Multi-valued attributes can be defined using the syntax
+	illustrated in the following example (<tt>annotation.conf</tt>):
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[relations]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Confidence</td><td>Arg:&lt;EVENT&gt;, Value:L1|L2|L3</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>The visual configuration of multi-valued attributes
+	in <tt>visual.conf</tt> can then specified as in one of the following
+	examples:
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[drawing]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Confidence</td><td>glyph:(1)|(2)|(3), &lt;GLYPH-POS&gt;:left</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>or</p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[drawing]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Confidence</td><td>dashArray:-|3-3|3-6</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+      
       <h3>Shortcuts and macros</h3>
 
       <h3>Type names</h3>
