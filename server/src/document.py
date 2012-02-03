@@ -29,7 +29,9 @@ from common import ProtocolError, CollectionNotAccessibleError
 from config import DATA_DIR
 from projectconfig import (ProjectConfiguration, SEPARATOR_STR, 
         SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
-        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, ENTITY_NESTING_TYPE)
+        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, 
+        ATTR_DRAWING_ATTRIBUTES, VISUAL_ATTR_DEFAULT,
+        ENTITY_NESTING_TYPE)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -223,6 +225,12 @@ def _fill_attribute_configuration(nodes, project_conf):
             item['unused'] = node.unused
             item['labels'] = project_conf.get_labels_by_type(_type)
 
+            attr_drawing_conf = project_conf.get_drawing_config_by_type(_type)
+            if attr_drawing_conf is None:
+                attr_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ATTR_DEFAULT)
+            if attr_drawing_conf is None:
+                attr_drawing_conf = {}
+
             # process "special" <GLYPH-POS> argument, specifying where
             # to place the glyph
             glyph_pos = None
@@ -239,13 +247,19 @@ def _fill_attribute_configuration(nodes, project_conf):
             
             # check if there are any (normal) "arguments"
             args = [k for k in node.arguments if k != "Arg" and not match(r'^<.*>$', k)]
+
             if len(args) == 0:
-                # no, assume binary and mark accordingly
-                # TODO: get rid of special cases, grab style from config
-                if _type == 'Negation':
-                    item['values'] = { _type : { 'box': u'crossed' } }
-                else:
-                    item['values'] = { _type : { 'dasharray': '3,3' } }
+                # assume binary, use drawing config
+                item['values'] = { _type : {} }
+                for k in ATTR_DRAWING_ATTRIBUTES:
+                    if k in attr_drawing_conf:
+                        item['values'][_type][k] = attr_drawing_conf[k]
+
+#                 # TODO: get rid of special cases, grab style from config
+#                 if _type == 'Negation':
+#                     item['values'] = { _type : { 'box': u'crossed' } }
+#                 else:
+#                     item['values'] = { _type : { 'dasharray': '3,3' } }
             else:
                 # has normal arguments, use these as possible values
                 item['values'] = {}

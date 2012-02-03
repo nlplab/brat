@@ -61,10 +61,12 @@ ENTITY_NESTING_TYPE = "ENTITY-NESTING"
 # visual config default value names
 VISUAL_SPAN_DEFAULT = "SPAN_DEFAULT"
 VISUAL_ARC_DEFAULT  = "ARC_DEFAULT"
+VISUAL_ATTR_DEFAULT = "ATTRIBUTE_DEFAULT"
 
 # visual config attribute name lists
 SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
 ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead', 'arrowTail']
+ATTR_DRAWING_ATTRIBUTES  = ['box', 'dashArray', 'glyph']
 
 # fallback defaults if config files not found
 __default_configuration = """
@@ -94,6 +96,7 @@ Theme | Theme | Th
 Protein	bgColor:#7fa2ff
 SPAN_DEFAULT	fgColor:black, bgColor:lightgreen, borderColor:black
 ARC_DEFAULT	color:black
+ATTRIBUTE_DEFAULT	glyph:*
 """
 
 __default_tools = """
@@ -632,7 +635,8 @@ __minimal_visual = {
                          TypeHierarchyNode(["Equiv", "Eq"]),
                          TypeHierarchyNode(["Event", "Ev"])],
     DRAWING_SECTION   : [TypeHierarchyNode([VISUAL_SPAN_DEFAULT], ["fgColor:black", "bgColor:white"]),
-                         TypeHierarchyNode([VISUAL_ARC_DEFAULT], ["color:black"])],
+                         TypeHierarchyNode([VISUAL_ARC_DEFAULT], ["color:black"]),
+                         TypeHierarchyNode([VISUAL_ATTR_DEFAULT], ["glyph:*"])],
     }
 
 def get_visual_configs(directory):
@@ -825,12 +829,20 @@ def get_drawing_config_by_storage_form(directory, term):
             for k in d[t]:
                 d[t][k] = d[t][k].replace("-", ",")
                 
-        # propagate defaults (TODO: get rid of magic "DEFAULT" values)
-        default_keys = [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
+        default_keys = [VISUAL_SPAN_DEFAULT, 
+                        VISUAL_ARC_DEFAULT,
+                        VISUAL_ATTR_DEFAULT]
         for default_dict in [d.get(dk, {}) for dk in default_keys]:
             for k in default_dict:
                 for t in d:
                     d[t][k] = d[t].get(k, default_dict[k])
+
+        # Kind of a special case: recognize <NONE> as "deleting" an
+        # attribute (prevents default propagation)
+        for t in d:
+            todelete = [k for k in d[t] if d[t][k] == '<NONE>']
+            for k in todelete:
+                del d[t][k]
 
         cache[directory] = d
 
