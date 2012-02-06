@@ -214,7 +214,7 @@
       </table>
 
       <p>Such a hierarchy is interpreted an an <tt>is-a</tt> taxonomy
-	by various parts of the system.
+	by the system.
       </p>
 
       <p>The most immediately visible difference that defining an
@@ -426,6 +426,65 @@
       
       <h3>Shortcuts and macros</h3>
 
+      <p>The following &quot;shortcuts&quot; are defined for
+	convenience for <tt>annotation.conf</tt> definitions:
+	<ul>
+	  <li><tt>&lt;ENTITY&gt;</tt>: any entity type (any type appearing in the <tt>[entities]</tt> section)</li>
+	  <li><tt>&lt;RELATION&gt;</tt>: any relation type (any type appearing in the <tt>[relations]</tt> section)</li>
+	  <li><tt>&lt;EVENT&gt;</tt>: any event type (any type appearing in the <tt>[events]</tt> section)</li>
+	  <li><tt>&lt;ANY&gt;</tt>: any type
+	</ul>
+      </p>
+      <p>These shortcuts can be used in definitions as in the
+	following partial <tt>annotation.conf</tt> example:
+      </p>
+      <table class="annotation_wrapper">
+	<tr><td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr><td width="100">[events]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Transport</td><td>Theme:&lt;ENTITY&gt;, Cause:&lt;ANY&gt;</td>
+	      </tr><tr>
+		<td>&#160;</td>
+	      </tr><tr>
+		<td>[attributes]</td>
+	      </tr><tr>
+		<td>Speculation</td><td>Arg:&lt;EVENT&gt;</td>
+	      </tr><tr>
+		<td>Name</td><td>Arg:&lt;ENTITY&gt;</td>
+	      </tr>
+	    </table>
+	</td></tr>
+      </table>
+      <p>Here, <tt>Transport</tt> events, for example, take
+	a <tt>Theme</tt> which is any entity type and a <tt>Cause</tt>
+	of any type.
+      </p>      
+      <p>The configuration files additionally support a syntax for
+	defining arbitrary &quot;macros&quot;, as illustrated in the
+	following:
+      </p>
+      <table class="annotation_wrapper">
+	<tr><td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td>&lt;LIVING-THING&gt;=Person|Animal|Plant</td>
+	      </tr>
+	    </table>
+	</td></tr>
+      </table>
+      <p>Defined macros can then appear anywhere in the configuration,
+	and will be interpreted using simple textual replacement; any
+	occurrence of a string defined as a macro
+	(e.g. "<tt>&lt;LIVING-THING&gt;</tt>") in a configuration file
+	will be processed as if its value
+	(e.g. "<tt>Person|Animal|Plant</tt>") were written in its
+	place.
+      </p>
+      <p>These shortcuts can make configurations with many types more concise
+	and easier to read and write.
+      </p>
+
       <h3>Type names</h3>
 
       <p>Each annotation type consists of one or more characters,
@@ -434,7 +493,51 @@
 	&quot;0&quot;-&quot;9&quot;), the hyphen (&quot;-&quot;) and
 	the underscore (&quot;_&quot;) character.
       </p>
-      
+      <p>However, these restrictions apply only to 
+	<tt>annotation.conf</tt>, which defines the types used by the
+	system internally and in storage on disk. The corresponding
+	labels appearing on the user interface, defined
+	in <tt>visual.conf</tt>, have no such limitations, and can
+	contain, for example, space or arbitrary Unicode
+	characters.
+      </p>
+      <p>The following (partial) configuration examples illustrate
+	arbitrary characters in labels on the user interface.
+      </p>
+      <p><tt>annotation.conf</tt>:
+      </p>
+      <img style="border:none" class="right" src="nonascii-label-example.png"/>
+      <table class="annotation_wrapper">
+	<tr><td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr><td width="100">[entities]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Immaterial-thing</td>
+	      </tr><tr>
+		<td>Organization</td>
+	      </tr><tr>
+		<td># (rest of config omitted)</td>
+	      </tr>
+	    </table>
+	</td></tr>
+      </table>
+      <p><tt>visual.conf</tt>:
+      </p>
+      <table class="annotation_wrapper">
+	<tr><td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr><td width="100">[labels]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Immaterial-thing | Immaterial thing</td>
+	      </tr><tr>
+		<td>Organization | &#x7D44;&#x7E54;</td>
+	      </tr><tr>
+		<td># (rest of config omitted)</td>
+	      </tr>
+	    </table>
+	</td></tr>
+      </table>
+
       <div id="footer">
 	&copy; 2010-2012 brat contributors
       </div>
