@@ -53,10 +53,9 @@ def main(args):
     stdout.write('\n'.join('%s: %s' % (k, v) for k, v in response_hdrs))
     stdout.write('\n')
     stdout.write('\n')
-    # sorry about this; hack needed to support both raw binary data
-    # and general Unicode in e.g. SVGs.
+    # Hack to support binary data and general Unicode for SVGs and JSON
     if isinstance(response_data[1], unicode):
-        stdout.write(response_data[1].encode("UTF-8"))
+        stdout.write(response_data[1].encode('utf-8'))
     else:
         stdout.write(response_data[1])
     return 0

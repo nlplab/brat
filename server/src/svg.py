@@ -204,7 +204,7 @@ def retrieve_stored(document, suffix):
     hdrs = [('Content-Type', content_type),
             ('Content-Disposition', 'inline; filename=' + filename)]
 
-    with open_textfile(stored_path, 'r') as stored_file:
+    with open(stored_path, 'rb') as stored_file:
         data = stored_file.read()
 
     raise NoPrintJSONError(hdrs, data)
