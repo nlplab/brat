@@ -119,16 +119,26 @@ create the annotation files (<code>.ann</code>) as below.</p>
 
 <h2>Installing third-party components</h2>
 
-<p>This part largely focuses on Ubuntu, but use your *NIX-fu to turn it into what
-you need if you don't have the misfortune to have the
-&quot;Brown Lunix Distribution&quot;.</p>
+<p>This part largely focuses on Ubuntu, but the instructions should be
+readily applicable to other *NIX-based systems.</p>
 
 <h4>Apache 2.x</h4>
 
 <p>brat supports <a href="http://www.fastcgi.com/">FastCGI</a> which can speed up your installation by
 roughly x10 since you won't have to invoke the Python interpreter for every
 request. If you want to use FastCGI as opposed to CGI keep an eye out for
-configuration comments regarding it. For FastCGI you need the <a href="http://trac.saddi.com/flup">flup</a>
+configuration comments regarding it.</p>
+
+<div>	
+  <div id="notebox"><b>NOTE</b>: FastCGI support in brat is still
+    somewhat experimental and there are known issues relating in
+    particular to failures to reload aspects of the system on change
+    to configuration files.  We recommend to only use FastCGI for
+    fixed annotation configurations.
+  </div>
+</div>
+
+<p>For FastCGI you need the <a href="http://trac.saddi.com/flup">flup</a>
 Python library:</p>
 
 <pre><code>( cd server/lib/ &amp;&amp; tar xfz flup-1.0.2.tar.gz )
