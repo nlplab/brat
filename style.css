@@ -66,6 +66,7 @@ text {
 #navbuttons * {
   vertical-align: middle;
   padding: 2px 5px;
+  float: left;
 }
 #header {
   position: fixed;

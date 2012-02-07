@@ -31,14 +31,25 @@ to other staff
 
 ## Citing ##
 
-If you do make use of brat or components from brat, please do cite us in your
-related publications.
+If you do make use of brat or components from brat for annotation purposes,
+please cite the following publication:
 
-We are currently preparing a publication for brat and would appreciate if the
-software is referred to as "an annotation tool based on the stav visualiser"
-to avoid any potential confusion regarding prior publications.
+    @inproceedings{,
+        author      = {Stenetorp, Pontus and Pyysalo, Sampo and Topi\'{c}, Goran
+                and Ohta, Tomoko and Ananiadou, Sophia and Tsujii, Jun'ichi},
+        title       = {{brat}: a Web-based Tool
+                for {NLP}-Assisted Text Annotation},
+        booktitle   = {Proceedings of the Demonstrations Session
+                at {EACL} 2012},
+        month       = {April},
+        year        = {2012},
+        address     = {Avignon, France},
+        publisher   = {Association for Computational Linguistics},
+        note        = {(to appear)},
+    }
 
-Thus in the meantime use the following publication:
+If you make use of brat or its components solely for visualisation purposes,
+please cite the following publication:
 
     @InProceedings{stenetorp2011supporting,
       author    = {Stenetorp, Pontus and Topi\'{c}, Goran and Pyysalo, Sampo
@@ -53,12 +64,11 @@ Thus in the meantime use the following publication:
       url       = {http://www.aclweb.org/anthology/W11-1816}
     }
 
-If you have enough space we would be very happy if you also link to the stav
-repository which will later contain a link to the brat repository after brat
-is published:
+Lastly, if you have enough space we would be very happy if you also link to the brat
+repository:
 
     ...the stav text annotation visualiser\footnote{
-        \url{https://github.com/TsujiiLaboratory/stav}
+        \url{https://github.com/TsujiiLaboratory/brat}
     }
 
 ## License ##
