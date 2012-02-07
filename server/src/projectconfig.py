@@ -61,10 +61,12 @@ ENTITY_NESTING_TYPE = "ENTITY-NESTING"
 # visual config default value names
 VISUAL_SPAN_DEFAULT = "SPAN_DEFAULT"
 VISUAL_ARC_DEFAULT  = "ARC_DEFAULT"
+VISUAL_ATTR_DEFAULT = "ATTRIBUTE_DEFAULT"
 
 # visual config attribute name lists
 SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
 ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead', 'arrowTail']
+ATTR_DRAWING_ATTRIBUTES  = ['box', 'dashArray', 'glyph']
 
 # fallback defaults if config files not found
 __default_configuration = """
@@ -94,6 +96,7 @@ Theme | Theme | Th
 Protein	bgColor:#7fa2ff
 SPAN_DEFAULT	fgColor:black, bgColor:lightgreen, borderColor:black
 ARC_DEFAULT	color:black
+ATTRIBUTE_DEFAULT	glyph:*
 """
 
 __default_tools = """
@@ -298,7 +301,8 @@ class TypeHierarchyNode:
                     Messager.warning("Project configuration: error parsing: empty type for argument '%s'." % a, 5)
                     raise InvalidProjectConfigException
 
-                # Check disabled; need to support arbitrary UTF values for attributes.conf.
+                # Check disabled; need to support arbitrary UTF values 
+                # for visual.conf. TODO: add this check for other configs.
                 # TODO: consider checking for similar for appropriate confs.
 #                 if atype not in reserved_config_string and normalize_to_storage_form(atype) != atype:
 #                     Messager.warning("Project configuration: '%s' is not a valid argument (should match '^[a-zA-Z0-9_-]*$')" % atype, 5)
@@ -632,7 +636,8 @@ __minimal_visual = {
                          TypeHierarchyNode(["Equiv", "Eq"]),
                          TypeHierarchyNode(["Event", "Ev"])],
     DRAWING_SECTION   : [TypeHierarchyNode([VISUAL_SPAN_DEFAULT], ["fgColor:black", "bgColor:white"]),
-                         TypeHierarchyNode([VISUAL_ARC_DEFAULT], ["color:black"])],
+                         TypeHierarchyNode([VISUAL_ARC_DEFAULT], ["color:black"]),
+                         TypeHierarchyNode([VISUAL_ATTR_DEFAULT], ["glyph:*"])],
     }
 
 def get_visual_configs(directory):
@@ -814,8 +819,16 @@ def get_drawing_config_by_storage_form(directory, term):
                 Messager.warning("Project configuration: term %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
             d[t] = {}
             for a in n.arguments:
+                # attribute drawing can be specified with multiple
+                # values (multi-valued attributes), other parts of
+                # drawing config should have single values only.
                 if len(n.arguments[a]) != 1:
-                    Messager.warning("Project configuration: expected single value for %s argument %s, got '%s'. Configuration may be wrong." % (t, a, "|".join(n.arguments[a])))
+                    if a in ATTR_DRAWING_ATTRIBUTES:
+                        # use multi-valued directly
+                        d[t][a] = n.arguments[a]
+                    else:
+                        # warn and pass
+                        Messager.warning("Project configuration: expected single value for %s argument %s, got '%s'. Configuration may be wrong." % (t, a, "|".join(n.arguments[a])))
                 else:
                     d[t][a] = n.arguments[a][0]
 
@@ -823,14 +836,27 @@ def get_drawing_config_by_storage_form(directory, term):
         # fix original issue instead
         for t in d:
             for k in d[t]:
-                d[t][k] = d[t][k].replace("-", ",")
+                # sorry about this
+                if not isinstance(d[t][k], list):
+                    d[t][k] = d[t][k].replace("-", ",")
+                else:
+                    for i in range(len(d[t][k])):
+                        d[t][k][i] = d[t][k][i].replace("-", ",")
                 
-        # propagate defaults (TODO: get rid of magic "DEFAULT" values)
-        default_keys = [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
+        default_keys = [VISUAL_SPAN_DEFAULT, 
+                        VISUAL_ARC_DEFAULT,
+                        VISUAL_ATTR_DEFAULT]
         for default_dict in [d.get(dk, {}) for dk in default_keys]:
             for k in default_dict:
                 for t in d:
                     d[t][k] = d[t].get(k, default_dict[k])
+
+        # Kind of a special case: recognize <NONE> as "deleting" an
+        # attribute (prevents default propagation)
+        for t in d:
+            todelete = [k for k in d[t] if d[t][k] == '<NONE>']
+            for k in todelete:
+                del d[t][k]
 
         cache[directory] = d
 

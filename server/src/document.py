@@ -29,7 +29,9 @@ from common import ProtocolError, CollectionNotAccessibleError
 from config import DATA_DIR
 from projectconfig import (ProjectConfiguration, SEPARATOR_STR, 
         SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
-        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, ENTITY_NESTING_TYPE)
+        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, 
+        ATTR_DRAWING_ATTRIBUTES, VISUAL_ATTR_DEFAULT,
+        ENTITY_NESTING_TYPE)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -223,37 +225,85 @@ def _fill_attribute_configuration(nodes, project_conf):
             item['unused'] = node.unused
             item['labels'] = project_conf.get_labels_by_type(_type)
 
+            attr_drawing_conf = project_conf.get_drawing_config_by_type(_type)
+            if attr_drawing_conf is None:
+                attr_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ATTR_DEFAULT)
+            if attr_drawing_conf is None:
+                attr_drawing_conf = {}
+
             # process "special" <GLYPH-POS> argument, specifying where
             # to place the glyph
-            glyph_pos = None
-            for k in node.arguments:
-                # TODO: remove magic value
-                if k == '<GLYPH-POS>':
-                    for v in node.arguments[k]:
-                        if v not in ('left', 'right'):
-                            display_message('Configuration error: "%s" is not a valid glyph position for %s' % (v,_type), 'warning')
-                        else:
-                            glyph_pos = v
+#             glyph_pos = None
+#             for k in node.arguments:
+#                 # TODO: remove magic value
+#                 if k == '<GLYPH-POS>':
+#                     for v in node.arguments[k]:
+#                         if v not in ('left', 'right'):
+#                             display_message('Configuration error: "%s" is not a valid glyph position for %s' % (v,_type), 'warning')
+#                         else:
+#                             glyph_pos = v
 
             # TODO: "special" <DEFAULT> argument
             
-            # check if there are any (normal) "arguments"
-            args = [k for k in node.arguments if k != "Arg" and not match(r'^<.*>$', k)]
-            if len(args) == 0:
-                # no, assume binary and mark accordingly
-                # TODO: get rid of special cases, grab style from config
-                if _type == 'Negation':
-                    item['values'] = { _type : { 'box': u'crossed' } }
-                else:
-                    item['values'] = { _type : { 'dasharray': '3,3' } }
+            # send "special" arguments in addition to standard drawing
+            # arguments
+            ALL_ATTR_ARGS = ATTR_DRAWING_ATTRIBUTES + ["<GLYPH-POS>"]
+
+            # Check if the possible values for the argument are specified
+            # TODO: avoid magic string
+            if "Value" in node.arguments:
+                args = node.arguments["Value"]
             else:
-                # has normal arguments, use these as possible values
+                # no "Value" defined; assume binary.
+                args = []
+
+            if len(args) == 0:
+                # binary; use drawing config directly
+                item['values'] = { _type : {} }
+                for k in ALL_ATTR_ARGS:
+                    if k in attr_drawing_conf:
+                        item['values'][_type][k] = attr_drawing_conf[k]
+            else:
+                # has normal arguments, use these as possible values.
+                # (this is quite terrible all around, sorry.)
                 item['values'] = {}
-                for k in args:
-                    for v in node.arguments[k]:
-                        item['values'][k] = { 'glyph':v }
-                        if glyph_pos is not None:
-                            item['values'][k]['position'] = glyph_pos
+                for i, v in enumerate(args):
+                    item['values'][v] = {}
+                    # match up annotation config with drawing config by
+                    # position in list of alternative values so that e.g.
+                    # "Values:L1|L2|L3" can have the visual config
+                    # "glyph:[1]|[2]|[3]". If only a single value is
+                    # defined, apply to all.
+                    for k in ALL_ATTR_ARGS:
+                        if k in attr_drawing_conf:
+                            # (sorry about this)
+                            if isinstance(attr_drawing_conf[k], list):
+                                # sufficiently many specified?
+                                if len(attr_drawing_conf[k]) > i:
+                                    item['values'][v][k] = attr_drawing_conf[k][i]
+                                else:
+                                    Messager.warning("Visual config error: expected %d values for %s attribute '%s' config, found only %d. Visuals may be wrong." % (len(args), v, k, len(attr_drawing_conf[k])))
+                            else:
+                                # single value (presumably), apply to all
+                                item['values'][v][k] = attr_drawing_conf[k]
+
+                    # if no drawing attribute was defined, fall back to
+                    # using a glyph derived from the attribute value
+                    if len([k for k in ATTR_DRAWING_ATTRIBUTES if
+                            k in item['values'][v]]) == 0:
+                        item['values'][v]['glyph'] = '['+v+']'
+
+            # special treatment for special args ...
+            # TODO: why don't we just use the same string on client as in conf?
+            vals = item['values']
+            for v in vals:
+                if '<GLYPH-POS>' in vals[v]:
+                    if vals[v]['<GLYPH-POS>'] not in ('left', 'right'):
+                        Messager.warning('Configuration error: "%s" is not a valid glyph position for %s %s' % (vals[v]['<GLYPH-POS>'], _type, v))
+                    else:
+                        # rename
+                        vals[v]['position'] = vals[v]['<GLYPH-POS>']
+                    del vals[v]['<GLYPH-POS>']
 
             items.append(item)
     return items
@@ -305,9 +355,6 @@ def get_span_types(directory):
     entity_hierarchy = project_conf.get_entity_type_hierarchy()
     entity_types = _fill_type_configuration(entity_hierarchy,
             project_conf, hotkey_by_type)
-
-#     attribute_hierarchy = project_conf.get_attribute_type_hierarchy()
-#     attribute_types = _fill_attribute_configuration(attribute_hierarchy, project_conf)
 
     entity_attribute_hierarchy = project_conf.get_entity_attribute_type_hierarchy()
     entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf)

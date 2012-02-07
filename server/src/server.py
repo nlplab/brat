@@ -76,8 +76,8 @@ def _miss_config_msg():
             'installation, copy the template file %s to %s in '
             'your installation directory ("cp %s %s") and edit '
             'it to suit your environment.'
-            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME, CONF_FNAME,
-                CONF_TEMPLATE_FNAME)
+            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME, 
+                CONF_TEMPLATE_FNAME, CONF_FNAME)
 
 # Check for existance and sanity of the configuration
 def _config_check():

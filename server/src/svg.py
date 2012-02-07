@@ -84,7 +84,7 @@ def _save_svg(collection, document, svg):
     svg_path = _svg_path()
 
     with open_textfile(svg_path, 'w') as svg_file:
-        svg_hdr = ('<?xml version="1.0" standalone="no"?>'
+        svg_hdr = ('<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
                 '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
                 '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
         defs = svg.find('</defs>')
@@ -204,7 +204,7 @@ def retrieve_stored(document, suffix):
     hdrs = [('Content-Type', content_type),
             ('Content-Disposition', 'inline; filename=' + filename)]
 
-    with open_textfile(stored_path, 'r') as stored_file:
+    with open(stored_path, 'rb') as stored_file:
         data = stored_file.read()
 
     raise NoPrintJSONError(hdrs, data)

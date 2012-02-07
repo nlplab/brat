@@ -26,11 +26,17 @@
         <div id="menulogo" class="logo unselectable">brat</div>
       </div>
       
-      <h1>brat configuration</h1> 
+      <h1>brat annotation configuration</h1> 
 
-      <p>brat configurations are currently controlled by text-based
-	configuration files that can be created and edited in any text
-	editor. This page documents the configuration language.
+      <p>brat annotation configurations are currently controlled by
+	text-based configuration files that can be created and edited
+	in any text editor. This page documents the configuration
+	language.
+      </p>
+      <p style="color:gray">(Prefer to learn by example? Check out
+	configurations for various projects in
+	the <tt>configurations/</tt> directory of your brat
+	installation.)
       </p>
       <p><b>NOTE</b>: we are planning to introduce <b>GUI-based
 	configuration</b> in a future release, but have so far focused
@@ -137,8 +143,8 @@
       </p>
       <p>Each of these sections must be present in the configuration
 	file, but they can be empty. For example, a configuration can
-	define only entity annotation targets by leaving the remaining
-	section empty.
+	define only entity annotation targets by leaving the other
+	three sections empty.
       </p>
 
       <h3>Entity definitions (<tt>[entities]</tt> section)</h3>
@@ -208,7 +214,7 @@
       </table>
 
       <p>Such a hierarchy is interpreted an an <tt>is-a</tt> taxonomy
-	by various parts of the system.
+	by the system.
       </p>
 
       <p>The most immediately visible difference that defining an
@@ -227,7 +233,7 @@
 	identified by two <tt>Person</tt> annotations.
       </p>
 
-      <p>Each line in the <tt>[relations]</tt> section defines one
+      <p>Each line in the <tt>[relations]</tt> section defines a
 	relation type, the entities it can associate and, optionally,
 	the properties of the relation. The types of annotations that
 	can be associated by the relation are identified using the
@@ -285,6 +291,11 @@
 	line.
       </p>
 
+      <p>For further information on relation definitions, see
+	<a href="#advanced-relations">advanced relation
+	configuration</a>.
+      </p>
+
       <h3>Event definitions (<tt>[events]</tt> section)</h3>
 
       <p>The <tt>[events]</tt> section defines <i>n</i>-ary
@@ -323,10 +334,156 @@
 
       <h3>Attribute definitions (<tt>[attributes]</tt> section)</h3>
 
-
       <h2>Additional details</h2>
 
+      <h3 id="advanced-relations">Advanced relation configuration</h3>
+
+      <p>Relation definitions support the ability to set relation
+	properties through the special
+	attribute <tt>&lt;REL-TYPE&gt;</tt> as shown in the following
+	example.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[relations]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Equiv</td><td>Arg1:Person, Arg2:Person, &lt;REL-TYPE&gt;:symmetric-transitive</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>The <tt>&lt;REL-TYPE&gt;</tt> specification currently
+	supports two properties, <tt>symmetric</tt>
+	and <tt>transitive</tt>, which can apply either separately or
+	together. Multiple properties can be combined by using the dash
+	character (&quot;<tt>-</tt>&quot;), as in the above example.
+      </p>
+
+      <p>The combination <tt>symmetric-transitive</tt> defines an
+	<i>equivalence relation</i>.
+      </p>
+
+      <h3 id="advanced-attributes">Advanced attribute configuration</h3>
+
+      <p>Multi-valued attributes can be defined using the syntax
+	illustrated in the following example (<tt>annotation.conf</tt>):
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[relations]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Confidence</td><td>Arg:&lt;EVENT&gt;, Value:L1|L2|L3</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>The visual configuration of multi-valued attributes
+	in <tt>visual.conf</tt> can then specified as in one of the following
+	examples:
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[drawing]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Confidence</td><td>glyph:(1)|(2)|(3), &lt;GLYPH-POS&gt;:left</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>or</p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[drawing]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Confidence</td><td>dashArray:-|3-3|3-6</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+      
       <h3>Shortcuts and macros</h3>
+
+      <p>The following &quot;shortcuts&quot; are defined for
+	convenience for <tt>annotation.conf</tt> definitions:
+	<ul>
+	  <li><tt>&lt;ENTITY&gt;</tt>: any entity type (any type appearing in the <tt>[entities]</tt> section)</li>
+	  <li><tt>&lt;RELATION&gt;</tt>: any relation type (any type appearing in the <tt>[relations]</tt> section)</li>
+	  <li><tt>&lt;EVENT&gt;</tt>: any event type (any type appearing in the <tt>[events]</tt> section)</li>
+	  <li><tt>&lt;ANY&gt;</tt>: any type
+	</ul>
+      </p>
+      <p>These shortcuts can be used in definitions as in the
+	following partial <tt>annotation.conf</tt> example:
+      </p>
+      <table class="annotation_wrapper">
+	<tr><td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr><td width="100">[events]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Transport</td><td>Theme:&lt;ENTITY&gt;, Cause:&lt;ANY&gt;</td>
+	      </tr><tr>
+		<td>&#160;</td>
+	      </tr><tr>
+		<td>[attributes]</td>
+	      </tr><tr>
+		<td>Speculation</td><td>Arg:&lt;EVENT&gt;</td>
+	      </tr><tr>
+		<td>Name</td><td>Arg:&lt;ENTITY&gt;</td>
+	      </tr>
+	    </table>
+	</td></tr>
+      </table>
+      <p>Here, <tt>Transport</tt> events, for example, take
+	a <tt>Theme</tt> which is any entity type and a <tt>Cause</tt>
+	of any type.
+      </p>      
+      <p>The configuration files additionally support a syntax for
+	defining arbitrary &quot;macros&quot;, as illustrated in the
+	following:
+      </p>
+      <table class="annotation_wrapper">
+	<tr><td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td>&lt;LIVING-THING&gt;=Person|Animal|Plant</td>
+	      </tr>
+	    </table>
+	</td></tr>
+      </table>
+      <p>Defined macros can then appear anywhere in the configuration,
+	and will be interpreted using simple textual replacement; any
+	occurrence of a string defined as a macro
+	(e.g. "<tt>&lt;LIVING-THING&gt;</tt>") in a configuration file
+	will be processed as if its value
+	(e.g. "<tt>Person|Animal|Plant</tt>") were written in its
+	place.
+      </p>
+      <p>These shortcuts can make configurations with many types more concise
+	and easier to read and write.
+      </p>
 
       <h3>Type names</h3>
 
@@ -336,7 +493,51 @@
 	&quot;0&quot;-&quot;9&quot;), the hyphen (&quot;-&quot;) and
 	the underscore (&quot;_&quot;) character.
       </p>
-      
+      <p>However, these restrictions apply only to 
+	<tt>annotation.conf</tt>, which defines the types used by the
+	system internally and in storage on disk. The corresponding
+	labels appearing on the user interface, defined
+	in <tt>visual.conf</tt>, have no such limitations, and can
+	contain, for example, space or arbitrary Unicode
+	characters.
+      </p>
+      <p>The following (partial) configuration examples illustrate
+	arbitrary characters in labels on the user interface.
+      </p>
+      <p><tt>annotation.conf</tt>:
+      </p>
+      <img style="border:none" class="right" src="nonascii-label-example.png"/>
+      <table class="annotation_wrapper">
+	<tr><td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr><td width="100">[entities]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Immaterial-thing</td>
+	      </tr><tr>
+		<td>Organization</td>
+	      </tr><tr>
+		<td># (rest of config omitted)</td>
+	      </tr>
+	    </table>
+	</td></tr>
+      </table>
+      <p><tt>visual.conf</tt>:
+      </p>
+      <table class="annotation_wrapper">
+	<tr><td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr><td width="100">[labels]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Immaterial-thing | Immaterial thing</td>
+	      </tr><tr>
+		<td>Organization | &#x7D44;&#x7E54;</td>
+	      </tr><tr>
+		<td># (rest of config omitted)</td>
+	      </tr>
+	    </table>
+	</td></tr>
+      </table>
+
       <div id="footer">
 	&copy; 2010-2012 brat contributors
       </div>
