@@ -597,7 +597,7 @@ var VisualizerUI = (function($, window, undefined) {
           var collSuffix = isColl ? '/' : '';
           html.push('<tr class="' + collFile + '" data-value="'
             + name + collSuffix + annp + '">');
-          html.push('<th><img src="static/file_browser/' + collFileImg + '" alt="' + collFile + '"/></th>');
+          html.push('<th><img src="static/img/' + collFileImg + '" alt="' + collFile + '"/></th>');
           html.push('<th>' + name + collSuffix + '</th>');
           var len = selectorData.header.length - 1;
           for (var i = 0; i < len; i++) {
