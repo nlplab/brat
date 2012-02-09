@@ -1389,6 +1389,8 @@ Util.profileEnd('chunks');
 Util.profileStart('arcsPrep');
 
         var arrows = {};
+        var arrow = makeArrow(defs, 'none');
+        if (arrow) arrows['none'] = arrow;
 
         var len = spanHeights.length;
         for (var i = 0; i < len; i++) {
@@ -1494,19 +1496,16 @@ Util.profileStart('arcs');
           }
           // fall back on relation types in case origin span type is
           // undefined
-          if (!arcDesc) {
-            arcDesc = relationTypesHash[arc.type];
-          }
-          // final fallback to unnumbered relation
-          if (!arcDesc) {
-            arcDesc = relationTypesHash[noNumArcType];
-          }
+          // then final fallback to unnumbered relation
+          // HACK: instead of falling back, extend (since
+          // relation_types has more info!)
+          $.extend(arcDesc, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
 
           var color = arcDesc && arcDesc.color || spanTypes.ARC_DEFAULT.color || '#000000';
+          var symmetric = arcDesc && arcDesc.properties && arcDesc.properties.symmetric;
           var hashlessColor = color.replace('#', '');
           var dashArray = arcDesc && arcDesc.dashArray;
           var arrowHead = (arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5') + ',' + hashlessColor;
-          var arrowTail = (arcDesc && arcDesc.arrowTail || spanTypes.ARC_DEFAULT.arrowTail || 'triangle,5') + ',' + hashlessColor;
 
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
@@ -1516,10 +1515,6 @@ Util.profileStart('arcs');
           if (!arrows[arrowHead]) {
             var arrow = makeArrow(defs, arrowHead);
             if (arrow) arrows[arrowHead] = arrow;
-          }
-          if (!arrows[arrowTail]) {
-            var arrow = makeArrow(defs, arrowTail);
-            if (arrow) arrows[arrowTail] = arrow;
           }
 
           // find the next height
@@ -1717,7 +1712,7 @@ Util.profileStart('arcs');
             }
             var hashlessColor = color.replace('#', '');
             var arrowType = arrows[(leftToRight ?
-                arcDesc && arcDesc.arrowTail || spanTypes.ARC_DEFAULT.arrowTail || 'none' :
+                symmetric && (arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead) || 'none' :
                 arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
               markerEnd: arrowType && ('url(#' + arrowType + ')'),
@@ -1766,7 +1761,7 @@ Util.profileStart('arcs');
             }
             var arrowType = arrows[(leftToRight ?
                 arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5' :
-                arcDesc && arcDesc.arrowTail || spanTypes.ARC_DEFAULT.arrowTail || 'none') + ',' + hashlessColor];
+                symmetric && (arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead) || 'none') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
                 markerEnd: arrowType && ('url(#' + arrowType + ')'),
                 style: 'stroke: ' + color,
