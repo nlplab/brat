@@ -600,9 +600,110 @@
 
       <h3>Search configuration (<tt>[search]</tt> section)</h3>
 
+      <p>The <tt>[search]</tt> section defines the online search services
+	that are made available in the annotation dialog.
+      </p>
+
+      <img style="border:none" class="right" src="img/search-config-1.png"/>
+
+      <p>Each line in the <tt>[search]</tt> section contains the name used
+	in the user interface for the search service, and a single key:value
+	pair. The key should have the special value
+	&quot;<tt>&lt;URL&gt;</tt>&quot; and its value should be the URL URL
+	of the search service with the string to query for replaced by
+	<tt>&quot;%s&quot;</tt>.
+      </p>
+
+      <p>The following example shows a simple <tt>[search]</tt> section.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[search]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Google</td><td>&lt;URL&gt;:http://www.google.com/search?q=%s</td>
+	      </tr><tr>
+		<td>Wikipedia</td><td>&lt;URL&gt;:http://en.wikipedia.org/wiki/%s</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>When selecting a span or editing an annotation, these search options
+	will then be shown in the brat annotation dialog.
+      </p>
+
       <h3>Annotation tool configuration (<tt>[annotators]</tt> section)</h3>
 
+      <p>The <tt>[annotators]</tt> section defines automatic annotation
+	services that can be invoked from brat.
+      </p>
+
+      <p>Each line in the <tt>[annotators]</tt> section contains a unique
+	name for the service and key:value pairs defining the way it is
+	presented in the user interface and the URL of the web service for
+	the tool. Values should be given for &quot;<tt>tool</tt>&quot;,
+	&quot;<tt>model</tt>&quot; and &quot;<tt>&lt;URL&gt;</tt>&quot;
+	(the first two are used for the user interface only).
+      <p>
+
+      <p>The following example shows a simple <tt>[annotators]</tt> section.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[annotators]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>SNER-CoNLL</td><td>tool:Stanford_NER, model:CoNLL, &lt;URL&gt;:http://example.com:80/tagger/</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
       <h3>Disambiguation tool configuration (<tt>[disambiguators]</tt> section)</h3>
+
+      <p>The <tt>[disambiguators]</tt> section defines automatic semantic
+	class (annotation type) disambiguation services that can be invoked
+	from brat.
+      </p>
+
+      <p>Each line in the <tt>[disambiguators]</tt> section contains a
+	unique name for the service and key:value pairs defining the way it
+	is presented in the user interface and the URL of the web service
+	for the tool. Values should be given for &quot;<tt>tool</tt>&quot;,
+	&quot;<tt>model</tt>&quot; and &quot;<tt>&lt;URL&gt;</tt>&quot; (the
+	first two are used for the user interface only).
+      <p>
+
+      <p>The following example shows a simple <tt>[disambiguators]</tt> section.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[disambiguators]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>simsem-MUC</td><td>tool:simsem, model:MUC, &lt;URL&gt;:http://example.com:80/simsem/%s</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>As for search, the string to query for is identified by
+	<tt>&quot;%s&quot;</tt> in the URL.
+      </p>
+
 
       <!------------------------------------------------------------------------>  
       <!--                              OTHER                                 -->
