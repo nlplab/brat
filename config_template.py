@@ -9,6 +9,9 @@ Author:     Pontus Stenetorp
 Version:    2011-01-19
 '''
 
+# Contact email for users to use if the software encounters errors
+ADMIN_CONTACT_EMAIL = CHANGE_ME
+
 BASE_DIR = CHANGE_ME
 DATA_DIR = CHANGE_ME
 WORK_DIR = CHANGE_ME
@@ -37,9 +40,6 @@ USER_PASSWORD = {
 
 # Enable additional debug output
 DEBUG = False
-
-# Contact email for users to use if the software encounters errors
-ADMIN_CONTACT_EMAIL = CHANGE_ME
 
 # Log levels
 LL_DEBUG, LL_INFO, LL_WARNING, LL_ERROR, LL_CRITICAL = range(5)
