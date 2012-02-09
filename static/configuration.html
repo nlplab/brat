@@ -26,6 +26,7 @@
         <div id="menulogo" class="logo unselectable">brat</div>
       </div>
       
+
       <h1>brat annotation configuration</h1> 
 
       <p>brat annotation configurations are currently controlled by
@@ -46,7 +47,26 @@
 	by non-experts.
       </p>
 
-      <h2>Configuration basics</h2>
+      <h2>Table of contents</h2>
+      <ul>
+	<li><a href="#configuration-basics">Configuration basics</a>
+	</li>
+	<li><a href="#annotation-configuration">Annotation configuration (<tt>annotation.conf</tt>)</a>
+	</li>
+	<li><a href="#visual-configuration">Visual configuration (<tt>visual.conf</tt>)</a>
+	</li>
+	<li><a href="#tool-configuration">Tool configuration (<tt>tools.conf</tt>)</a>
+	</li>
+	<li><a href="#additional-details">Additional details</a>
+	</li>
+      </ul>
+
+
+      <!------------------------------------------------------------------------>  
+      <!--                              BASIC                                 -->
+      <!------------------------------------------------------------------------>  
+
+      <h2 id="configuration-basics">Configuration basics</h2>
 
       <h3>Configuration files</h3>
 
@@ -134,7 +154,12 @@
 	</tr>
       </table>
 
-      <h2>Annotation configuration (<tt>annotation.conf</tt>)</h2>
+
+      <!------------------------------------------------------------------------>  
+      <!--                           ANNOTATION                               -->
+      <!------------------------------------------------------------------------>  
+
+      <h2 id="annotation-configuration">Annotation configuration (<tt>annotation.conf</tt>)</h2>
 
       <p>The annotation configuration file, <tt>annotation.conf</tt>,
 	is divided into the following sections:
@@ -385,7 +410,205 @@
 	  configuration</a>.
       </p>
 
-      <h2>Additional details</h2>
+
+      <!------------------------------------------------------------------------>  
+      <!--                             VISUAL                                 -->
+      <!------------------------------------------------------------------------>  
+
+      <h2 id="visual-configuration">Visual configuration (<tt>visual.conf</tt>)</h2>
+
+      <p>The visual configuration file, <tt>visual.conf</tt>, is divided into
+	the following sections:
+      </p>
+      <ul>
+	<li><tt>[labels]</tt></li>
+	<li><tt>[drawing]</tt></li>
+      </ul>
+      <p>Each of these sections must be present in the configuration file,
+	but they can be empty.
+      </p>
+
+      <h3>Label definitions (<tt>[labels]</tt> section)</h3>
+
+      <p>The <tt>[labels]</tt> section defines the labels to use in the
+	display of the defined annotation types on the user interface.  If
+	no labels are defined for a type, the system defaults do displaying
+	the configured type as defined in <tt>annotation.conf</tt>.
+      </p>
+
+      <p>The definition of labels has two primary uses: allowing labels used
+	in the user interface to use arbitrary characters (see the section
+	on <a href="#type-names">type names</a>), and defining abbreviations
+	to use when there is limited space in the layout.
+      </p>
+
+      <p>The format of the <tt>[labels]</tt> section is simple: each line
+	contains a set of strings, separated by pipe characters
+	(&quot;<tt>|</tt>&quot;). The first string should correspond to a
+	type defined in <tt>annotation.conf</tt>; the second is taken to be
+	the preferred, full form to use for the type, and the remaining (if
+	any) should correspond to its progressively shorter abbreviations.
+      </p>
+
+      <p>The following example shows a simple <tt>[labels]</tt> section.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="300">[labels]</td>
+	      </tr><tr>
+		<td>Organization | Organization | Org</td>
+	      </tr><tr>
+		<td>Immaterial-thing | Immaterial thing | Immaterial | Immat</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>Note that the first and second strings will be identical in cases
+	where the type as defined in <tt>annotation.conf</tt> matches the
+	preferred way of displaying it. Also, space is permitted in labels,
+	and space surrounding labels is ignored.
+      </p>
+
+      <h3>Drawing configuration (<tt>[drawing]</tt> section)</h3>
+
+      <p>The <tt>[drawing]</tt> section defines various non-textual aspects
+	of the visual presentation. If no visual configuration is defined
+	for a type, the system uses default settings, which can themselves
+	be configured.
+      </p>
+
+      <p>The format of the <tt>[drawing]</tt> section is similar to that
+	used in the other configurations. Each line contains the type of the
+	annotation that the visual configuration applies to, and a set
+	of <tt>KEY:VALUE</tt> pairs specifying the visual settings.
+      </p>
+
+      <p>The following example shows a simple <tt>[drawing]</tt> section.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[drawing]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Person</td><td>bgColor:#ffccaa</td>
+	      </tr><tr>
+		<td>Family</td><td>fgColor:darkgreen, arrowHead:triangle-5</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>This example specifies that annotations of the <tt>Person</tt> type
+	should be drawn with background of the
+	color <tt><span style="background-color:#ffccaa">#ffccaa</span></tt>,
+	and that arcs representing <tt>Family</tt> relations should be drawn
+	with <span style="color:darkgreen">dark green</span> lines ending
+	with 5-pixel triangular arrowheads.
+      </p>
+
+      <p>The recognized visual configuration keys, their values, and purpose
+	are
+      </p>
+      <ul>
+	<li><tt>fgColor</tt>:
+	  any <a href="http://www.w3schools.com/html/html_colors.asp">HTML
+	    color</a> specification (e.g. "black"), sets the color of a span
+	  text in the visualization.
+	</li>
+	<li><tt>bgColor</tt>: any HTML color specification (e.g. "white"),
+	  sets the color of a span "box" background in the visualization.
+	</li>
+	<li><tt>borderColor</tt>: any HTML color specification (e.g. "black"),
+	  sets the color of a span "box" border in the visualization.  Also
+	  supports special value "darken", which specifies to use a darker
+	  shade of bgColor for the border.
+	</li>
+	<li><tt>color</tt>: any HTML color specification (e.g. "black"), sets
+	  the color of an arc in the visualization.
+	</li>
+	<li><tt>dashArray</tt>: any valid 
+	  <a href="http://www.w3.org/TR/SVG/painting.html#StrokeDasharrayProperty">SVG
+	    stroke-dasharray</a> specification using dashes (instead of commas
+	  or space) as separators (e.g. "3-3"), sets the dash/dot pattern for
+	  lines in the span/arc visualization ("-" works for solid line)
+	</li>
+      </ul>
+      <p>The special labels "SPAN_DEFAULT" and "ARC_DEFAULT" are recognized
+	as setting defaults that will be used for types without specific
+	settings. It is not necessary to define all aspects of the
+	visualization (e.g. just Color can be given): defaults will be used
+	for unspecified cases. The following example illustrates the use
+	of these defaults.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[drawing]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>SPAN_DEFAULT</td><td>fgColor:black, bgColor:lightgreen, borderColor:darken</td>
+	      </tr><tr>
+		<td>ARC_DEFAULT</td><td>color:black, dashArray:-, arrowHead:triangle-5</td>
+	      </tr><tr>
+		<td>Person</td><td>bgColor:#ffccaa</td>
+	      </tr><tr>
+		<td>Family</td><td>fgColor:darkgreen</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>In this configuration, all annotation types except <tt>Person</tt>
+	and <tt>Family</tt> will be draws using the specified default
+	values. Further <tt>Person</tt> and <tt>Family</tt> annotations will
+	also &quot;inherit&quot; the defaults for aspect of the visual
+	presentation that are not explicitly defined, so that e.g. for the
+	<tt>borderColor</tt> of <tt>Person</tt> annotations, the system,
+	will use the special value <tt>darken</tt>.
+      </p>
+
+      <!------------------------------------------------------------------------>
+      <!--                              TOOLS                                 -->
+      <!------------------------------------------------------------------------>  
+
+      <h2 id="tool-configuration">Tool configuration (<tt>tools.conf</tt>)</h2>
+
+      <p>The annotation tool configuration file, <tt>tools.conf</tt>, is
+	divided into the following sections:
+      </p>
+      <ul>
+	<li><tt>[search]</tt></li>
+	<li><tt>[annotators]</tt></li>
+	<li><tt>[disambiguators]</tt></li>
+      </ul>
+      <p>Each of these sections must be present in the configuration file,
+	but they can be empty.
+      </p>
+
+      <h3>Search configuration (<tt>[search]</tt> section)</h3>
+
+      <h3>Annotation tool configuration (<tt>[annotators]</tt> section)</h3>
+
+      <h3>Disambiguation tool configuration (<tt>[disambiguators]</tt> section)</h3>
+
+      <!------------------------------------------------------------------------>  
+      <!--                              OTHER                                 -->
+      <!------------------------------------------------------------------------>  
+
+      <h2 id="additional-details">Additional details</h2>
 
       <h3 id="advanced-relations">Advanced relation configuration</h3>
 
@@ -536,7 +759,7 @@
 	and easier to read and write.
       </p>
 
-      <h3>Type names</h3>
+      <h3 id="type-names">Type names</h3>
 
       <p>Each annotation type consists of one or more characters,
 	constrained to the set of alphanumeric characters
