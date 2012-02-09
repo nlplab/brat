@@ -182,7 +182,7 @@ var URLHash = (function($, window, undefined) {
     };
 
     // arguments that do not appear in the URL
-    var INT_ARGS = ['match', 'focus'];
+    var INT_ARGS = ['match', 'focus', 'edited'];
 
     URLHash.splitArgs = function(args) {
       var intArgs = {};
