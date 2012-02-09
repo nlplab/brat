@@ -1285,7 +1285,12 @@ var VisualizerUI = (function($, window, undefined) {
           // NOTE: don't sort, allowing order in which
           // responses are given to be used as default
           //selectorData.items.sort(docSortFunction);
-          showFileBrowser();
+          if (response.action.match(/Collection$/)) {
+            showFileBrowser();
+          } else {
+            var item = response.items[0];
+            dispatcher.post('setDocument', [item[2], item[1]]);
+          }
         }
       };
 
