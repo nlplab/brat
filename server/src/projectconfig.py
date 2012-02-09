@@ -65,7 +65,7 @@ VISUAL_ATTR_DEFAULT = "ATTRIBUTE_DEFAULT"
 
 # visual config attribute name lists
 SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
-ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead', 'arrowTail']
+ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead']
 ATTR_DRAWING_ATTRIBUTES  = ['box', 'dashArray', 'glyph']
 
 # fallback defaults if config files not found
