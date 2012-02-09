@@ -1010,7 +1010,7 @@ def format_results(matches, concordancing=False, context_length=50):
         other_matches = [rid for rid in matches_by_doc[docid] 
                          if rid != ann.reference_id()]
 
-        items.append(["a", { 'focus' : [ann.reference_id()],
+        items.append(["a", { 'matchfocus' : [ann.reference_id()],
                              'match' : other_matches,
                              }, 
                       docid, ann.reference_text()])
