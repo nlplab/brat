@@ -67,8 +67,8 @@ please cite the following publication:
 Lastly, if you have enough space we would be very happy if you also link to the brat
 repository:
 
-    ...the stav text annotation visualiser\footnote{
-        \url{https://github.com/TsujiiLaboratory/brat}
+    ...the brat rapid annotation tool\footnote{
+        \url{http://brat.nlplab.org}
     }
 
 ## License ##

@@ -62,7 +62,7 @@ ann_logger.__logger = False
 
 # local abbrev; can't have literal tabs in log fields
 def _detab(s):
-    return str(s).replace('\t', '\\t')
+    return unicode(s).replace('\t', '\\t')
 
 def log_annotation(collection, document, status, action, args):
     """
@@ -97,4 +97,4 @@ def log_annotation(collection, document, status, action, args):
     l.info('%s\t%s\t%s\t%s\t%s\t%s' % (_detab(user), _detab(collection), 
                                        _detab(document), _detab(status), 
                                        _detab(action),
-                                       '\t'.join([_detab(str(a)) for a in other_args])))
+                                       '\t'.join([_detab(unicode(a)) for a in other_args])))

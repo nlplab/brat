@@ -137,7 +137,23 @@ div.center {
   color: gray;
   border-top: 1px solid lightgray;
   margin-top: 5em;
+  margin-bottom: 5em;  
   clear: both;
+}
+
+.footer-text {
+  float: left;
+}
+
+.footer-logo {
+  float: right;
+}
+
+.footer-logo img {
+  margin: 0;
+  -moz-box-shadow: 0px 0px 0px #fff;
+  -webkit-box-shadow: 0px 0px 0px #fff;
+  box-shadow: 0px 0px 0px #fff;
 }
 
 #titleblock {
