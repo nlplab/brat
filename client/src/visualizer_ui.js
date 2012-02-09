@@ -1698,7 +1698,8 @@ var VisualizerUI = (function($, window, undefined) {
                 $('#tutorial-ok').focus();
               }
             }
-          }
+          },
+          { keep: true }
         ]);
         dispatcher.post('ajax', [{ action: 'loadConf' }, function(response) {
           if (response.config != undefined) {
