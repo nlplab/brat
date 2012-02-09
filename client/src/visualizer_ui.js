@@ -297,6 +297,11 @@ var VisualizerUI = (function($, window, undefined) {
         displayComment(evt, target, comment, commentText, commentType, immediately);
       };
 
+      var onDocChanged = function() {
+        commentPopup.hide();
+        commentDisplayed = false;
+      };
+
       var displayArcComment = function(
           evt, target, symmetric, arcId,
           originSpanId, originSpanType, role, 
@@ -1930,6 +1935,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('displaySpanComment', displaySpanComment).
           on('displayArcComment', displayArcComment).
           on('displaySentComment', displaySentComment).
+          on('docChanged', onDocChanged).
           on('hideComment', hideComment).
           on('showForm', showForm).
           on('hideForm', hideForm).
