@@ -1091,7 +1091,7 @@ var AnnotatorUI = (function($, window, undefined) {
                            escapedName + '</label>');
             $top.append($input).append($label);
             $input.button();
-            $input.change(attrChangeHandler);
+            $input.change(onBooleanAttrChange);
           } else {
             var $div = $('<div class="ui-button ui-button-text-only attribute_type_label"/>');
             var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text" category="' + category + '"/>');
@@ -1103,7 +1103,7 @@ var AnnotatorUI = (function($, window, undefined) {
             });
             $div.append($select);
             $top.append($div);
-            $select.change(onAttributeChange);
+            $select.change(onMultiAttrChange);
           }
         });
       }
@@ -1116,6 +1116,7 @@ var AnnotatorUI = (function($, window, undefined) {
         
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
+        $('#span_form input:not([unused])').removeAttr('disabled');
         var $toDisable;
         var $category;
         if (category == "event") {
@@ -1135,17 +1136,21 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
-      var onAttributeChange = function(evt) {
-        var attrCategory = evt.target.getAttribute('category');
-        setSpanTypeSelectability(attrCategory);
-        if (evt.target.selectedIndex) {
-          $(evt.target).addClass('ui-state-active');
+      var onMultiAttrChange = function(evt) {
+        if ($(this).val() == '') {
+          $('#span_form input:not([unused])').removeAttr('disabled');
         } else {
-          $(evt.target).removeClass('ui-state-active');
+          var attrCategory = evt.target.getAttribute('category');
+          setSpanTypeSelectability(attrCategory);
+          if (evt.target.selectedIndex) {
+            $(evt.target).addClass('ui-state-active');
+          } else {
+            $(evt.target).removeClass('ui-state-active');
+          }
         }
       }
 
-      var attrChangeHandler = function(evt) {
+      var onBooleanAttrChange = function(evt) {
         var attrCategory = evt.target.getAttribute('category');
         setSpanTypeSelectability(attrCategory);
         updateCheckbox($(evt.target));
