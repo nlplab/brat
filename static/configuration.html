@@ -39,7 +39,7 @@
 	installation.)
       </p>
       <p><b>NOTE</b>: we are planning to introduce <b>GUI-based
-	configuration</b> in a future release, but have so far focused
+	  configuration</b> in a future release, but have so far focused
 	development efforts on other aspects of the platform as the
 	need to alter configurations arises comparatively rarely and
 	the brat configuration language is simple enough to write even
@@ -51,37 +51,41 @@
       <h3>Configuration files</h3>
 
       <p>the configuration of an annotation project is controlled by
-	two files, <tt>annotation.conf</tt> and <tt>visual.conf</tt>,
-	the former defining the types of annotations available and the
-	latter the way they are displayed.
-      <p>Each annotation project typically defines its
-	own <tt>annotation.conf</tt>, but
-	defining <tt>visual.conf</tt> is not necessary, and the system
-	falls back on simple default visuals if this file is not
-	present. The configuration files can be placed anywhere in the
-	brat data directory, and are normally placed in the directory
-	corresponding to the base directory of the collection they
-	apply to.
+	three files:
+	<ul>
+	  <li><tt>annotation.conf</tt>: annotation type configuration
+	  </li>
+	  <li><tt>visual.conf</tt>: annotation display configuration
+	  </li>
+	  <li><tt>tools.conf</tt>: annotation tool configuration
+	  </li>
+	</ul>
       </p>
-      <p>(To determine the configuration for a collection,
-	the system searches up in the directory tree from the
-	directory in which the collection is contained toward the root
-	of the brat <tt>data/</tt> directory, falling back on default
-	configurations if no configuration is present in any of these
-	locations.)
+      <p>Each annotation project typically defines its own
+	<tt>annotation.conf</tt>. Defining <tt>visual.conf</tt> and
+	<tt>tools.conf</tt> is not necessary, and the system falls back on
+	simple default visuals and tools if these files are not present.
+      </p>
+      <p>The configuration files can be placed anywhere in the brat data
+	directory, and are normally placed in the directory corresponding to
+	the base directory of the collection they apply to. (To determine
+	the configuration for a collection, the system searches up in the
+	directory tree from the directory in which the collection data is
+	toward the root of the brat <tt>data/</tt> directory, falling back
+	on default configurations if no configuration is present in any of
+	these locations.)
       </p>
 
       <h3>Configuration file structure</h3>
 
-      <p>Both the annotation and visual configuration files follow a
-	simple line-oriented structure and a syntax familiar from
-	many other text-based configuration systems.
+      <p>The configuration files follow a simple line-oriented structure and
+	a syntax familiar from many other text-based configuration systems.
       </p>
 
       <p>The top-level organization of the configuration files is
 	into <i>sections</i>, each marked with a line containing only
-	<tt>[section-name]</tt>, where <tt>section-name</tt> is one of
-	a set of predefined section names defined for the
+	&quot;<tt>[section-name]</tt>&quot;, where <tt>section-name</tt> is
+	one of a set of predefined section names defined for the
 	configuration file.
       </p>
 
@@ -293,7 +297,7 @@
 
       <p>For further information on relation definitions, see
 	<a href="#advanced-relations">advanced relation
-	configuration</a>.
+	  configuration</a>.
       </p>
 
       <h3>Event definitions (<tt>[events]</tt> section)</h3>
@@ -333,6 +337,53 @@
       </table>
 
       <h3>Attribute definitions (<tt>[attributes]</tt> section)</h3>
+
+      <p>The <tt>[attributes]</tt> section defines binary or multi-valued
+	&quot;flags&quot; that can be used to mark other annotations. For
+	example, a <tt>Negated</tt> attribute could be used to mark the
+	occurrence of an annotated event as being explicitly denied in text,
+	or a <tt>Confidence</tt> attribute to mark an event as one
+	of <tt>Certain</tt>, <tt>Probable</tt> or <tt>Doubtful</tt>.
+      </p>
+
+      <p>Each line in the <tt>[attributes]</tt> section defines an attribute
+	type and the annotations it can attach to. For binary attributes, the
+	possible values, <tt>true</tt> and <tt>false</tt>, are implicit; for
+	multi-valued attributes, the possible values must also be specified.
+      </p>
+
+      <p>The annotation type (or types) an attribute can apply to are
+	defined using the <tt>ARG:TYPE</tt> syntax used also in the definition
+	of relations and events (<tt>ARG</tt> is, by convention,
+	&quot;<tt>Arg</tt>&quot;). The values a multi-valued attribute can
+	take are defined using the syntax <tt>Value:VAL1|VAL2|VAL3[...]</tt>,
+	where &quot;<tt>Value</tt>&quot; is a literal string and <tt>VAL1</tt>,
+	<tt>VAL2</tt> etc. are the possible values.
+      </p>
+
+      <p>The following example shows a simple <tt>[attributes]</tt> section.
+      </p>
+
+      <table class="annotation_wrapper">
+	<tr>
+	  <td>
+	    <table class="annotation_table" rules="none" cellspacing="10">
+	      <tr>
+		<td width="100">[attributes]</td><td width="130">&#160;</td>
+	      </tr><tr>
+		<td>Negated</td><td>Arg:&lt;EVENT&gt;</td>
+	      </tr><tr>
+		<td>Confidence</td><td>Arg:&lt;EVENT&gt;, Value:L1|L2|L3</td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+      </table>
+
+      <p>For further information on configuring the visual display of
+	attributes, see <a href="#advanced-attributes">advanced attribute
+	  configuration</a>.
+      </p>
 
       <h2>Additional details</h2>
 
@@ -380,7 +431,7 @@
 	  <td>
 	    <table class="annotation_table" rules="none" cellspacing="10">
 	      <tr>
-		<td width="100">[relations]</td><td width="130">&#160;</td>
+		<td width="100">[attributes]</td><td width="130">&#160;</td>
 	      </tr><tr>
 		<td>Confidence</td><td>Arg:&lt;EVENT&gt;, Value:L1|L2|L3</td>
 	      </tr>
@@ -423,7 +474,7 @@
 	  </td>
 	</tr>
       </table>
-      
+
       <h3>Shortcuts and macros</h3>
 
       <p>The following &quot;shortcuts&quot; are defined for
