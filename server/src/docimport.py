@@ -9,6 +9,7 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-02-21
 '''
 
+from annotation import open_textfile
 from common import ProtocolError
 from config import DATA_DIR
 from document import real_directory
@@ -95,7 +96,7 @@ def save_import(title, text, docid, collection=None):
     if text != "" and text[-1] != '\n':
         text = text + '\n'
 
-    with open(txt_path, 'w') as txt_file:
+    with open_textfile(txt_path, 'w') as txt_file:
         txt_file.write(title + '\n' + text)
 
     # Touch the ann file so that we can edit the file later
