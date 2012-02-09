@@ -479,6 +479,10 @@ var AnnotatorUI = (function($, window, undefined) {
         // annotation in its old location in the background (check it).
         // The fix of skipping confirm is not really good either, though.
         if (reselectedSpan) { // && !Configuration.confirmModeOn) {
+          if (reselectedSpan) {
+            $(reselectedSpan.rect).removeClass('reselect');
+          }
+          reselectedSpan = null;
           spanForm.submit();
         } else {
           dispatcher.post('showForm', [spanForm]);
