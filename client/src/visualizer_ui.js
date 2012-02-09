@@ -422,11 +422,12 @@ var VisualizerUI = (function($, window, undefined) {
 
       var hideForm = function(form) {
         if (form === undefined) form = currentForm;
+        if (form !== currentForm) return;
         if (!form) return;
         // fadeOut version:
         // form.fadeOut(function() { currentForm = null; });
         form.dialog('close');
-        if (form === currentForm) currentForm = null;
+        currentForm = null;
       };
 
       /* END form management - related */
@@ -471,6 +472,8 @@ var VisualizerUI = (function($, window, undefined) {
                 $('#waiter').dialog('close');
               }
               showNoDocMessage();
+            } else if (!fileBrowserClosedWithSubmit && !searchActive) {
+              dispatcher.post('setArguments', [{}]);
             }
           },
           width: 500
@@ -1698,7 +1701,8 @@ var VisualizerUI = (function($, window, undefined) {
                 $('#tutorial-ok').focus();
               }
             }
-          }
+          },
+          { keep: true }
         ]);
         dispatcher.post('ajax', [{ action: 'loadConf' }, function(response) {
           if (response.config != undefined) {

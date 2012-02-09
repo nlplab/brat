@@ -5,6 +5,8 @@ var URLMonitor = (function($, window, undefined) {
       var that = this;
 
       var reloadData = true;
+      var changed = false;
+      var newIntArgs = {};
 
       that.url_hash = new URLHash();
 
@@ -16,23 +18,41 @@ var URLMonitor = (function($, window, undefined) {
       }
 
       var updateURL = function() {
-        window.location.hash = that.url_hash.getHash();
+        var new_hash = that.url_hash.getHash();
+        changed = false;
+        window.location.hash = new_hash;
         setFavicon();
         dispatcher.post('hideForm');
       };
 
       var setArguments = function(args) {
         var oldArgs = that.url_hash.arguments;
-        if (!Util.isEqual(oldArgs, args)) {
+        var argSplit = URLHash.splitArgs(args);
+
+        if (!Util.isEqual(that.url_hash.extArguments, argSplit[1])) {
+          changed = true;
           that.url_hash.setArguments(args);
           dispatcher.post('argsChanged', [args, oldArgs]);
         }
-        updateURL();
+        if (changed) { // hashchange event will trigger
+          newIntArgs = argSplit[0];
+          updateURL();
+        } else if (!Util.isEqual(that.url_hash.intArguments, argSplit[0])) {
+          that.url_hash.setArguments(args);
+          // hashchange event won't trigger, but internal args have
+          // changed, so we have to do updateState's job
+          dispatcher.post('hideForm');
+          dispatcher.post('argsChanged', [args, oldArgs]);
+          dispatcher.post('current', [that.url_hash.collection,
+              that.url_hash.document, that.url_hash.arguments, reloadData]);
+          reloadData = true;
+        }
       };
 
       var setDocument = function(doc, args) {
         var oldDoc = that.url_hash.document;
         if (oldDoc !== doc) {
+          changed = true;
           that.url_hash.setDocument(doc);
           dispatcher.post('docChanged', [doc, oldDoc]);
         }
@@ -42,6 +62,7 @@ var URLMonitor = (function($, window, undefined) {
       var setCollection = function(coll, doc, args) {
         var oldColl = that.url_hash.collection;
         if (oldColl !== coll) {
+          changed = true;
           that.url_hash.setCollection(coll);
 
           // keep "blind" down while loading new collection
@@ -61,9 +82,13 @@ var URLMonitor = (function($, window, undefined) {
 
       var updateState = function() {
         dispatcher.post('makeAjaxObsolete');
-        var new_url_hash = URLHash.parse(window.location.hash);
-        setCollection(new_url_hash.collection, new_url_hash.document,
-            new_url_hash.arguments);
+        if (!changed) {
+          var new_url_hash = URLHash.parse(window.location.hash);
+          setCollection(new_url_hash.collection, new_url_hash.document,
+              $.extend(new_url_hash.arguments, newIntArgs));
+          that.url_hash = new_url_hash;
+          newIntArgs = {};
+        }
        
         dispatcher.post('current', [that.url_hash.collection,
             that.url_hash.document, that.url_hash.arguments, reloadData]);
@@ -105,14 +130,22 @@ var URLHash = (function($, window, undefined) {
       that.collection = collection;
       that.document = _document || '';
       that.arguments = _arguments || {};
+      that.calcArgs();
     }
 
     URLHash.prototype = {
+      calcArgs: function() {
+        var args = URLHash.splitArgs(this.arguments);
+        this.intArguments = args[0];
+        this.extArguments = args[1];
+      },
+
       setArgument: function(argument, value) {
         if (!this.arguments) {
           this.arguments = {};
         }
         this.arguments[argument] = value;
+        this.calcArgs();
       },
 
       setArguments: function(_arguments) {
@@ -120,6 +153,7 @@ var URLHash = (function($, window, undefined) {
         // would allow changes of the args to alter original, which
         // could be e.g. the "args" of search results
         this.arguments = $.extend({}, _arguments || {});
+        this.calcArgs();
       },
 
       setDocument: function(_document) {
@@ -132,7 +166,8 @@ var URLHash = (function($, window, undefined) {
 
       getHash: function() {
         var url_hash = this.collection + this.document;
-        var url_args = Util.param(this.arguments);
+
+        var url_args = Util.param(this.extArguments);
 
         if (url_args.length) {
           url_hash += '?' + url_args;
@@ -144,6 +179,20 @@ var URLHash = (function($, window, undefined) {
 
         return url_hash;
       },
+    };
+
+    // arguments that do not appear in the URL
+    var INT_ARGS = ['match', 'focus', 'edited'];
+
+    URLHash.splitArgs = function(args) {
+      var intArgs = {};
+      var extArgs = $.extend({}, args);
+      var intArgNameLen = INT_ARGS.length;
+      for (var i = 0; i < intArgNameLen; i++) {
+        intArgs[INT_ARGS[i]] = extArgs[INT_ARGS[i]];
+        delete extArgs[INT_ARGS[i]];
+      }
+      return [intArgs, extArgs];
     };
 
     // TODO: Document and conform variables to the rest of the object
