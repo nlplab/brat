@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>brat manual</title>
+    <title>brat standoff format</title>
     <link rel="stylesheet" type="text/css" href="style.css"/>
     <link rel="stylesheet" type="text/css" href="jquery-theme/jquery-ui-redmond.css"/>
     <link rel="shortcut icon" href="../favicon.ico"/>
@@ -46,7 +46,42 @@
       the following.
     </p>
 
-    <h2>General annotation structure</h2>
+    <h2>Text files (<tt>.txt</tt>)</h2>
+    <p>Text files are expected to have the suffix <tt>.txt</tt> and
+      contain the text of the original documents input into the
+      system.</p>
+
+    <table class="annotation_wrapper"><tr><td>
+    <table class="annotation_table">
+      <tr>
+	<td width="450">Sony formed a joint venture with Ericsson, a mobile phone company based in Sweden.</td>
+      </tr><tr>
+	<td>Sony announced today that ...</td>
+      </tr>
+    </table>
+    </td></tr></table>
+
+    <p>The document texts are stored in plain text files encoded
+      using <a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8</a>
+      (an extension of <a href="http://en.wikipedia.org/wiki/ASCII">ASCII</a>
+      &mdash; plain ASCII texts work also).
+      <!-- and UNIX-style newline convention. -->
+
+      Document texts may contain newlines, which will be shown as line
+      breaks by brat. However, it is not necessary for the documents
+      to contain any newlines: brat performs its own sentence
+      segmentation for display using a reliable algorithm. (Whether
+      or not newlines are included in the original text documents,
+      the text files themselves are not modified.)
+    </p>
+
+    <h2>Annotation files (<tt>.ann</tt>)</h2>
+    <p>Annotations are stored in files with the <tt>.ann</tt>
+      suffix. The various annotation types that may be contained in
+      these files are discussed in the following.
+    </p>
+
+    <h3>General annotation structure</h3>
     <p>All annotations follow the same basic structure: Each line
       contains one annotation, and each annotation is given an ID that
       appears first on the line, separated from the rest of the
@@ -127,39 +162,6 @@
     </ul>
     <p>Additionally, an asterisk ("*") can be used as a placeholder
       for an ID in special cases.
-    </p>
-
-    <h2>Text files (<tt>.txt</tt>)</h2>
-    <p>Text files are expected to have the suffix <tt>.txt</tt> and
-      contain the text of the original documents input into the
-      system.</p>
-
-    <table class="annotation_wrapper"><tr><td>
-    <table class="annotation_table">
-      <tr>
-	<td width="450">Sony formed a joint venture with Ericsson, a mobile phone company based in Sweden.</td>
-      </tr><tr>
-	<td>Sony announced today that ...</td>
-      </tr>
-    </table>
-    </td></tr></table>
-
-    <p>The document texts are stored in plain text files encoded
-      using <a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8</a>
-      (an extension of ASCII &mdash; plain ASCII texts work also).
-      <!-- and UNIX-style newline convention. -->
-
-      Document texts may contain newlines, which will be shown as line
-      breaks by brat. However, it is not necessary for the documents
-      to contain any newlines: brat performs its own sentence
-      segmentation for display using a reliable algorithm. (Whether
-      or not newlines are included in the original text documents,
-      the text files themselves are not modified.)
-    </p>
-    <h2>Annotation files (<tt>.ann</tt>)</h2>
-    <p>Annotations are stored in files with the <tt>.ann</tt>
-      suffix. The various annotation types that may be contained in
-      these files are discussed in the following.
     </p>
     
     <h3>Entity annotations</h3>
@@ -248,7 +250,7 @@
     <p>Relation arguments are commonly identified simply
       as <tt>Arg1</tt> and <tt>Arg2</tt>, but the system can be
       configured to use any labels (e.g. <tt>Anaphor</tt>
-      and <tt>Antecedent</tt> in the standoff representation.
+      and <tt>Antecedent</tt>) in the standoff representation.
     </p>
 
     <h4>Equivalence relations</h4>
@@ -284,10 +286,11 @@
 
     <h3>Attribute annotations</h3>
 
-    <p>Attribute annotations are binary flags or type-value pairs that
-      specify further aspects of other annotations. Attributes have a
-      unique ID and are defined by reference to the ID of the annotation
-      that the attribute is &quot;for&quot; and the attribute value.
+    <p>Attribute annotations are binary or multi-valued
+      &quot;flags&quot; that specify further aspects of other
+      annotations. Attributes have a unique ID and are defined by
+      reference to the ID of the annotation that the attribute
+      marks and the attribute value.
     </p>
 
     <table class="annotation_wrapper"><tr><td>
@@ -295,7 +298,7 @@
       <tr>
 	<td width="100">A1</td><td width="250">Negation E1</td>
       </tr><tr>
-	<td>A2</td><td>Confidence:L1 E2</td>
+	<td>A2</td><td>Confidence E2 L1</td>
       </tr>
     </table>
     </td></tr></table>
@@ -304,18 +307,49 @@
       other fields by space.
     </p>
 
-    <p>Binary attributes such as <tt>A1</tt> in the above example need
-      only specify the attribute name and the ID of the related
-      annotation; multi-valued attributes specify the attribute name
-      and value separated by a colon. The values of multi-valued
-      attributes are fully configurable and can take any string
-      specified in configuration.
+    <p><b>Binary</b> attributes such as <tt>A1</tt> in the above
+      example need only specify the attribute name and the ID of the
+      marked annotation: the value <tt>true</tt> is implied for the
+      binary attribute. The absence of a binary attribute annotation
+      is interpreted as the attribute having the value <tt>false</tt>.
+    </p>
+    <p><b>Multi-valued</b> attributes specify also the attribute
+      value, separated by SPACE. The values of multi-valued attributes
+      are fully configurable.
     </p>
 
     <p>For backward compatibility with existing standoff formats, brat
       also recognizes the ID prefix &quot;<tt>M</tt>&quot; for
       attributes.
     </p>
+
+    <h3>Note annotations</h3>
+
+    <p>Note annotations provide a way to associate freeform text with
+      either the document or a specific annotation. Notes lines begin
+      with the number (or &quot;hash&quot;) sign <tt>#</tt>.
+    </p>
+
+    <table class="annotation_wrapper"><tr><td>
+    <table class="annotation_table">
+      <tr>
+	<td width="100">#1</td><td width="200">AnnotatorNotes T1</td><td>this annotation is suspect</td>
+<!--       </tr><tr> -->
+<!-- 	<td>#</td><td colspan="2">this is a freeform comment line</td> -->
+      </tr>
+    </table>
+    </td></tr></table>
+
+    <p>Notes with an &quot;ID&quot; starting with <tt>#</tt> followed
+      by a TAB character attach to specific annotations. For these
+      notes, the second TAB-separated field contains a note type and
+      the ID of the annotation that the note is attached to, and the
+      third TAB-separated field contains the text of the note.
+    </p>
+<!--     <p>Notes containing only the <tt>#</tt> character separated by -->
+<!--       TAB are taken to be freeform comments attached to the document, -->
+<!--       not a specific annotation in it. -->
+<!--     </p> -->
     </div>
   </body>
 </html>
