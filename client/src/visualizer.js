@@ -404,8 +404,9 @@ var Visualizer = (function($, window, undefined) {
 
         // highlighting: suppoting marking for
         // 'edited': set by editing process
-        // 'focus' : set by search process, focused match
+        // 'matchfocus' : set by search process, focused match
         // 'match' : set by search process, other (non-focused) match
+        // 'focus' : set by URL
         // (see setMarked() invocations below)
 
         data.markedSent = [];
@@ -467,6 +468,7 @@ var Visualizer = (function($, window, undefined) {
         };
         setMarked('edited');
         setMarked('focus');
+        setMarked('matchfocus');
         setMarked('match');
 
         // sort the spans for linear order
