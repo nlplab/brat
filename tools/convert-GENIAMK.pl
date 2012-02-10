@@ -165,48 +165,5 @@ for my $fn (@ARGV) {
 	}
     }
     
-#     # recursively filter out annotations with broken ID references
-#     my $removed;
-#     do {
-# 	$removed = 0;
-	
-# 	my %knownid;
-# 	for (@l) {
-# 	    $knownid{(@_=split(/\t/))[0]} = 1;
-# 	}
-
-# 	my @filtered;
-# 	for (@l) {
-# 	    if (/^E/) {
-# 		# event
-# 		my $broken = 0;
-# 		my @f = split(/\t/);
-# 		for my $arg (split(/ /, $f[1])) {
-# 		    die "Format error" unless ($arg =~ /^(.*):(.*)/);
-# 		    $broken = 1 unless(defined $knownid{$2});
-# 		}
-
-# 		if ($broken) {
-# 		    print STDERR "Removing event with broken ID reference: $_";
-# 		    $removed++;
-# 		} else {
-# 		    push(@filtered, $_);
-# 		}
-# 	    } elsif (/^A/) {
-# 		my @f = split(/\t/);
-# 		my @a = split(/ /, $f[1]);
-# 		if (!defined $knownid{$a[1]}) {
-# 		    print STDERR "Removing attribute with broken ID reference: $_";
-# 		    $removed++;
-# 		} else {
-# 		    push(@filtered, $_);
-# 		}
-# 	    } else {
-# 		push(@filtered, $_);
-# 	    }
-# 	}	
-# 	@l = @filtered;
-#     } while($removed);
-
     print @l;
 }
