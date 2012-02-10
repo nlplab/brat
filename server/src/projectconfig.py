@@ -881,8 +881,11 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
         else:
             types = r.arguments[r.arg_list[num]]
             for type in types:
-                # TODO: "wildcards" other than <ANY>
-                if type == "<ANY>" or atype == "<ANY>" or type == atype:
+                # TODO: don't just assume that we're dealing with an
+                # entity type
+                if (type in ("<ANY>", "<ENTITY>") or 
+                    atype in ("<ANY>", "<ENTITY>") or 
+                    type == atype):
                     rels.append(r)
 
     return rels
