@@ -1,6 +1,10 @@
 #!/bin/sh
 
 # Install script for brat server
+#
+# Author:   Sampo Pyysalo       <smp is s u tokyo ac jp>
+# Author:   Pontus Stenetorp    <pontus is s u tokyo ac jp>
+# Version:  2012-02-09
 
 # defaults
 
