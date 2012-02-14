@@ -32,6 +32,9 @@ var VisualizerUI = (function($, window, undefined) {
       var currentDocumentSVGsaved = false;
       var fileBrowserClosedWithSubmit = false;
 
+      var matchFocus = '';
+      var matches = '';
+
       /* START "no svg" message - related */
 
       var noSvgTimer = null;
@@ -440,18 +443,31 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START collection browser - related */
 
-      var selectElementInTable = function(table, value) {
+      var selectElementInTable = function(table, docname, mf) {
         table = $(table);
         table.find('tr').removeClass('selected');
-        if (value) {
-          table.find('tr[data-value="' + value + '"]').addClass('selected');
+        var sel = 'tr';
+        if (docname) {
+          sel += '[data-doc="' + docname + '"]';
         }
+        if (mf) {
+          sel += '[data-mf="' + Util.paramArray(mf) + '"]';
+        }
+        var $element = table.find(sel).first();
+
+        $element.addClass('selected');
+        matchFocus = $element.attr('data-mf');
+        matches = $element.attr('data-match');
       }
 
       var chooseDocument = function(evt) {
-        var docname = $(evt.target).closest('tr').attr('data-value');
-        $('#document_input').val(docname);
-        selectElementInTable('#document_select', docname);
+        var $element = $(evt.target).closest('tr');
+        $('#document_select tr').removeClass('selected');
+        $('#document_input').val($element.attr('data-doc'));
+
+        $element.addClass('selected');
+        matchFocus = $element.attr('data-mf');
+        matches = $element.attr('data-match');
       }
 
       var chooseDocumentAndSubmit = function(evt) {
@@ -467,25 +483,24 @@ var VisualizerUI = (function($, window, undefined) {
               // no document; set and show the relevant message, and
               // clear the "blind" unless waiting for a collection
               if (fileBrowserClosedWithSubmit) {
-                //console.log('closed with submit');
                 $('#no_document_message').hide();
                 $('#loading_message').show();
               } else {
-                //console.log('closed without submit');
                 $('#loading_message').hide();
                 $('#no_document_message').show();
                 $('#waiter').dialog('close');
               }
               showNoDocMessage();
             } else if (!fileBrowserClosedWithSubmit && !searchActive) {
-              dispatcher.post('setArguments', [{}]);
+              dispatcher.post('setArguments', [{}, true]);
             }
           },
           width: 500
       });
-      $('#document_input').change(function(evt) {
+      var docInputHandler = function(evt) {
         selectElementInTable('#document_select', $(this).val());
-      });
+      };
+      $('#document_input').keyup(docInputHandler);
 
       var fileBrowserSubmit = function(evt) {
         var _coll, _doc, _args, found;
@@ -504,11 +519,10 @@ var VisualizerUI = (function($, window, undefined) {
             _coll = coll.substr(0, pos + 1);
             _doc = '';
           }
-        } else if (found = input.match(/^(\/?)((?:[^\/]*\/)*)([^\/?]*)(?:\?(.*))?$/)) {
+        } else if (found = input.match(/^(\/?)((?:[^\/]*\/)*)([^\/?]*)$/)) {
           var abs = found[1];
           var collname = found[2].substr(0, found[2].length - 1);
           var docname = found[3];
-          var argstr = found[4];
           if (abs) {
             _coll = abs + collname;
             if (_coll.length < 2) coll += '/';
@@ -518,11 +532,6 @@ var VisualizerUI = (function($, window, undefined) {
             _coll = coll + collname;
             _doc = docname;
           }
-          if (argstr) {
-              _args = Util.deparam(argstr);
-          } else {
-              _args = {};
-          }
         } else {
           dispatcher.post('messages', [[['Invalid document name format', 'error', 2]]]);
           $('#document_input').focus().select();
@@ -531,7 +540,7 @@ var VisualizerUI = (function($, window, undefined) {
         fileBrowser.find('#document_select tbody').empty();
 
         if (coll != _coll || doc != _doc ||
-            !Util.isEqual(args, _args)) {
+            Util.paramArray(args.matchfocus) != matchFocus) {
           // something changed
 
           // set to allow keeping "blind" down during reload
@@ -546,7 +555,10 @@ var VisualizerUI = (function($, window, undefined) {
             dispatcher.post('clearSVG');
           }
           dispatcher.post('allowReloadByURL');
-          dispatcher.post('setCollection', [_coll, _doc, _args]);
+          var newArgs = [];
+          if (matchFocus) newArgs.push('matchfocus=' + matchFocus);
+          if (matches) newArgs.push('match=' + matches);
+          dispatcher.post('setCollection', [_coll, _doc, Util.deparam(newArgs.join('&'))]);
         } else {
           // hide even on select current thing
           hideForm(fileBrowser);
@@ -603,8 +615,17 @@ var VisualizerUI = (function($, window, undefined) {
           //var collFileImg = isColl ? 'Fugue-folder-horizontal-open.png' : 'Fugue-document.png';
           var collFileImg = isColl ? 'Fugue-shadowless-folder-horizontal-open.png' : 'Fugue-shadowless-document.png';
           var collSuffix = isColl ? '/' : '';
-          html.push('<tr class="' + collFile + '" data-value="'
-            + name + collSuffix + annp + '">');
+          if (doc[1]) {
+            var matchfocus = doc[1].matchfocus || [];
+            var mfstr = ' data-mf="' + Util.paramArray(matchfocus) + '"';
+            var match = doc[1].match || [];
+            var matchstr = ' data-match="' + Util.paramArray(match) + '"';
+          } else {
+            var matchstr = '';
+            var mfstr = '';
+          }
+          html.push('<tr class="' + collFile + '" data-doc="'
+            + name + collSuffix + '"' + matchstr + mfstr + '>');
           html.push('<th><img src="static/img/' + collFileImg + '" alt="' + collFile + '"/></th>');
           html.push('<th>' + name + collSuffix + '</th>');
           var len = selectorData.header.length - 1;
@@ -678,7 +699,7 @@ var VisualizerUI = (function($, window, undefined) {
           $('#more_info_readme').text('');
         }
 
-        selectElementInTable($('#document_select'), doc);
+        selectElementInTable($('#document_select'), doc, args.matchfocus);
         setTimeout(function() {
           $('#document_input').focus().select();
         }, 0);
@@ -697,7 +718,7 @@ var VisualizerUI = (function($, window, undefined) {
             // check whether 'focus' agrees; the rest of the args are
             // irrelevant for determining position.
             var collectionArgs = docRow[1] || {};
-            if (Util.isEqual(collectionArgs.focus, args.focus)) {
+            if (Util.isEqual(collectionArgs.matchfocus, args.matchfocus)) {
               pos = docNo;
               return false;
             }
