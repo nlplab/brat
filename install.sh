@@ -63,20 +63,26 @@ apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
 
 # Make $work_dir_abs and $data_dir_abs writable by apache
 
+group_ok=0
 if [ -n "$apache_group" ] ; then
-    echo "Assigning owner of \"$work_dir_abs/\" and \"$data_dir_abs/\" directories to apache ($apache_group):"
+    echo "Assigning owner of the following directories to apache ($apache_group):\n    \"$work_dir_abs/\" and\n    \"$data_dir_abs/\":"
     echo "(this requires sudo; please enter your password)"    
-    while true; do
-	sudo chgrp -R $apache_group $data_dir_abs $work_dir_abs
-	RETVAL=$?
-	if [ $RETVAL -eq 0 ]; then
-	    break
-	fi
-    done
-    chmod -R g+rwx $data_dir_abs $work_dir_abs
+
+    sudo chgrp -R $apache_group $data_dir_abs $work_dir_abs
+    RETVAL=$?
+    if [ $RETVAL -eq 0 ]; then
+	chmod -R g+rwx $data_dir_abs $work_dir_abs
+	group_ok=1
+    else
+	echo "WARNING: failed to change group."
+    fi
 else
     echo "WARNING: failed to determine apache group."
-    echo "Setting global read and write permissions to \"$work_dir_abs/\" and \"$data_dir_abs/\" directories"
+fi
+
+if [ $group_ok -eq 0 ]; then
+    echo
+    echo "Setting global read and write permissions to directories\n    \"$work_dir_abs/\" and\n    \"$data_dir_abs/\""
     echo "(you may wish to consider fixing this manually)"
     chmod -R 777 $data_dir_abs $work_dir_abs
 fi
@@ -87,4 +93,4 @@ fi
 
 # We really should check, but ...
 
-echo "Done! Please try your installation."
+echo "Done! Please test your installation."
