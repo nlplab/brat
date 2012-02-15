@@ -978,7 +978,9 @@ class TextAnnotations(Annotations):
         # "PMID.txt", not "PMID.a1.txt"
         textfn = document+"."+TEXT_FILE_SUFFIX
         try:
-            with open_textfile(textfn, 'r') as f:
+            # 'U' read mode specifies "universal newline mode" to
+            # support e.g. DOS newlines.
+            with open_textfile(textfn, 'rU') as f:
                 text = f.read()
                 return text
         except:
