@@ -607,6 +607,11 @@ var Visualizer = (function($, window, undefined) {
                 warning = true;
                 return;
               }
+	      if ($.isEmptyObject(val)) {
+		// defined, but lacks any visual presentation
+                warning = true;
+                return;		
+	      }
               if (val.glyph) {
                 if (val.position == "left") {
                   prefix = val.glyph + prefix;
