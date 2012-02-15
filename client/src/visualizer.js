@@ -2069,7 +2069,9 @@ Util.profileReport();
           renderDataReal();
         }
         $svg.find('animate').each(function() {
-          this.beginElement();
+          if (this.beginElement) { // protect against non-SMIL browsers
+            this.beginElement();
+          }
         });
         dispatcher.post('doneRendering', [coll, doc, args]);
       };
