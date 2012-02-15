@@ -422,8 +422,8 @@ var VisualizerUI = (function($, window, undefined) {
 
       var hideForm = function(form) {
         if (form === undefined) form = currentForm;
-        if (form !== currentForm) return;
         if (!form) return;
+        // if (form.attr('id') !== currentForm.attr('id')) return;
         // fadeOut version:
         // form.fadeOut(function() { currentForm = null; });
         form.dialog('close');
@@ -1074,22 +1074,22 @@ var VisualizerUI = (function($, window, undefined) {
           no_cancel: true,
           open: function(evt) {
             keymap = {};
+            // aspects of the data form relating to the current document should
+            // only be shown when a document is selected.
+            if (!doc) {
+              $('#document_export').hide();
+              $('#document_visualization').hide();
+            } else {
+              $('#document_export').show();
+              $('#document_visualization').show();
+              // the SVG button can only be accessed through the data form,
+              // so we'll spare unnecessary saves by only saving here
+              saveSVG();
+            }
           }
       });
       $('#data_button').click(function() {
-        // aspects of the data form relating to the current document should
-        // only be shown when a document is selected.
-        if (!doc) {
-          $('#document_export').hide();
-          $('#document_visualization').hide();
-        } else {
-          $('#document_export').show();
-          $('#document_visualization').show();
-          saveSVG();
-        }
         dispatcher.post('showForm', [dataForm]);
-        // the SVG button can only be accessed through the data form,
-        // so we'll spare unnecessary saves by only saving here
       });
       // make nice-looking buttons for checkboxes and buttons
       $('#data_form').find('input[type="checkbox"]').button();
