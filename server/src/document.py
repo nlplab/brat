@@ -563,11 +563,7 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
     else:
         # need to read raw text
         try:
-            # 'U' read mode specifies "universal newline mode" to
-            # support e.g. DOS newlines.
-            # TODO: make all .txt file readers use a single function for
-            # this; there's currently duplication in annotation.py
-            with open_textfile(txt_file_path, 'rU') as txt_file:
+            with open_textfile(txt_file_path, 'r') as txt_file:
                 text = txt_file.read()
         except IOError:
             raise UnableToReadTextFile(txt_file_path)
