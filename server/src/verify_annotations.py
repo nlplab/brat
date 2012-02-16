@@ -52,6 +52,22 @@ def event_nonum_args(e):
         nna[arg].append(aid)
     return nna
 
+def event_nonum_arg_count(e):
+    """
+    Given an EventAnnotation, returns a dictionary containing for each
+    of its argument without trailing numbers (e.g. "Theme1" ->
+    "Theme") the number of times the argument appears.
+    """
+    from re import match as re_match
+
+    nnc = {}
+    for arg, aid in e.args:
+        m = re_match(r'^(.*?)\d*$', arg)
+        if m:
+            arg = m.group(1)
+        nnc[arg] = nnc.get(arg, 0) + 1
+    return nnc
+
 def check_textbound_overlap(anns):
     """
     Checks for overlap between the given TextBoundAnnotations.
@@ -225,9 +241,9 @@ def verify_relations(ann_obj, projectconf):
 
     return issues
 
-def verify_mandatory_arguments(ann_obj, projectconf):
+def verify_missing_arguments(ann_obj, projectconf):
     """
-    Checks for events missing mandatory arguments.
+    Checks for events having too few mandatory arguments.
     """
     issues = []
 
@@ -236,10 +252,23 @@ def verify_mandatory_arguments(ann_obj, projectconf):
         return projectconf.preferred_display_form(s)
     
     for e in ann_obj.get_events():
-        found_nonum_args = event_nonum_args(e)
+        nonum_arg_counts = event_nonum_arg_count(e)
         for m in projectconf.mandatory_arguments(e.type):
-            if m not in found_nonum_args:
-                issues.append(AnnotationIssue(e.id, AnnotationIncomplete, "Argument '%s' required for event" % disp(m)))
+            c = nonum_arg_counts.get(m, 0)
+            amin = projectconf.argument_minimum_count(e.type, m)
+            amax = projectconf.argument_maximum_count(e.type, m)
+            if c < amin:
+                # insufficient, pick appropriate string and add issue
+                if amin == 1:
+                    countstr = "one %s argument " % disp(m)
+                else:
+                    countstr = "%d %s arguments " % (amin, disp(m))
+                if amin == amax:
+                    countstr = "exactly " + countstr
+                else:
+                    countstr = "at least " + countstr
+                issues.append(AnnotationIssue(e.id, AnnotationIncomplete, 
+                                              "Incomplete: " + countstr + "required for event"))
 
     return issues
 
@@ -268,10 +297,9 @@ def verify_disallowed_arguments(ann_obj, projectconf):
 
     return issues
 
-def verify_argument_counts(ann_obj, projectconf):
+def verify_extra_arguments(ann_obj, projectconf):
     """
-    Checks for instances of events with multiple arguments of types
-    that are not allowed to repeat.
+    Checks for events with excessively many allowed arguments.
     """
     issues = []
 
@@ -279,14 +307,16 @@ def verify_argument_counts(ann_obj, projectconf):
     def disp(s):
         return projectconf.preferred_display_form(s)
 
-    # TODO: check also ranges
     for e in ann_obj.get_events():
+        nonum_arg_counts = event_nonum_arg_count(e)
         multiple_allowed = projectconf.multiple_allowed_arguments(e.type)
-        found_nonum_args = event_nonum_args(e)
-        for a in [m for m in found_nonum_args if len(found_nonum_args[m]) > 1]:
+        for a in [m for m in nonum_arg_counts if nonum_arg_counts[m] > 1]:
+            amax = projectconf.argument_maximum_count(e.type, a)
             if a not in multiple_allowed:
                 issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s cannot take multiple %s arguments" % (disp(e.type), disp(a))))
-
+            elif nonum_arg_counts[a] > amax:
+                issues.append(AnnotationIssue(e.id, AnnotationError, "Error: %s can take at most %d %s arguments" % (disp(e.type), amax, disp(a))))
+    
     return issues
 
 def verify_attributes(ann_obj, projectconf):
@@ -327,11 +357,11 @@ def verify_annotation(ann_obj, projectconf):
 
     issues += verify_relations(ann_obj, projectconf)
 
-    issues += verify_mandatory_arguments(ann_obj, projectconf)
+    issues += verify_missing_arguments(ann_obj, projectconf)
 
     issues += verify_disallowed_arguments(ann_obj, projectconf)
 
-    issues += verify_argument_counts(ann_obj, projectconf)
+    issues += verify_extra_arguments(ann_obj, projectconf)
 
     issues += verify_attributes(ann_obj, projectconf)
     
