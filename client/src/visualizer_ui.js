@@ -79,6 +79,10 @@ var VisualizerUI = (function($, window, undefined) {
           var col = sortOrder[0];
           var aa = a[col];
           var bb = b[col];
+          if (selectorData.header[col - 2][1] === 'string-reverse') {
+            aa = aa.split('').reverse().join('');
+            bb = bb.split('').reverse().join('');
+          }
           if (aa != bb) return (aa < bb) ? -sortOrder[1] : sortOrder[1];
 
           // prevent random shuffles on columns with duplicate values
@@ -642,7 +646,7 @@ var VisualizerUI = (function($, window, undefined) {
               formatted = '';
             } else if (type === 'string') {
               formatted = Util.escapeHTML(datum);
-            } else if (type === 'string-right') {
+            } else if (type === 'string-right' || type === 'string-reverse') {
               formatted = Util.escapeHTML(datum);
               cssClass = 'rightalign';
             } else if (type === 'string-center') {

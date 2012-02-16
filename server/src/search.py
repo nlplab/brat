@@ -972,7 +972,7 @@ def format_results(matches, concordancing=False, context_length=50):
 
     if include_context or include_trigger_context:
         # right-aligned string
-        response['header'].append(('Left context', 'string-right'))
+        response['header'].append(('Left context', 'string-reverse'))
 
     if include_text:
         # center-align text when concordancing, default otherwise
