@@ -509,6 +509,7 @@ var VisualizerUI = (function($, window, undefined) {
             val().
             replace(/\/?\s+$/, '').
             replace(/^\s+/, '');
+        if (!input.length) return false;
         if (input.substr(0, 2) === '..') {
           // ..
           var pos = coll.substr(0, coll.length - 1).lastIndexOf('/');

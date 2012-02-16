@@ -409,12 +409,12 @@ var Visualizer = (function($, window, undefined) {
         // 'focus' : set by URL
         // (see setMarked() invocations below)
 
-        data.markedSent = [];
+        data.markedSent = {};
         markedText = [];
         var setMarked = function(markedType) {
           $.each(args[markedType] || [], function(markedNo, marked) {
             if (marked[0] == 'sent') {
-              data.markedSent.push(parseInt(marked[1], 10));
+              data.markedSent[marked[1]] = true;
             } else if (marked[0] == 'equiv') { // [equiv, Equiv, T1]
               $.each(data.equivs, function(equivNo, equiv) {
                 if (equiv[1] == marked[1]) {
@@ -1818,7 +1818,7 @@ Util.profileStart('rows');
           }
           rowBox.height += rowPadding;
           var bgClass;
-          if ($.inArray(currentSent, data.markedSent) != -1) {
+          if (data.markedSent[currentSent]) {
             // specifically highlighted
             bgClass = 'backgroundHighlight';
           } else if (Configuration.textBackgrounds == "striped") {
