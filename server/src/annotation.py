@@ -181,9 +181,13 @@ class DependingAnnotationDeleteError(Exception):
         %s''' % (unicode(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
 
 
-# Open function that enforces strict, utf-8
+# Open function that enforces strict, utf-8, and universal newlines for reading
 # TODO: Could have another wrapping layer raising an appropriate ProtocolError
-open_textfile = partial(codecs_open, errors='strict', encoding='utf8')
+def open_textfile(filename, mode='rU'):
+    # enforce universal newline support ('U') in read modes
+    if len(mode) != 0 and mode[0] == 'r' and 'U' not in mode:
+        mode = mode + 'U'
+    return codecs_open(filename, mode, encoding='utf8', errors='strict')
 
 def __split_annotation_id(id):
     import re

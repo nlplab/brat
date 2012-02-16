@@ -607,6 +607,11 @@ var Visualizer = (function($, window, undefined) {
                 warning = true;
                 return;
               }
+	      if ($.isEmptyObject(val)) {
+		// defined, but lacks any visual presentation
+                warning = true;
+                return;		
+	      }
               if (val.glyph) {
                 if (val.position == "left") {
                   prefix = val.glyph + prefix;
@@ -2064,7 +2069,9 @@ Util.profileReport();
           renderDataReal();
         }
         $svg.find('animate').each(function() {
-          this.beginElement();
+          if (this.beginElement) { // protect against non-SMIL browsers
+            this.beginElement();
+          }
         });
         dispatcher.post('doneRendering', [coll, doc, args]);
       };

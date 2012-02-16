@@ -1529,6 +1529,7 @@ var AnnotatorUI = (function($, window, undefined) {
           },
         }]);
       $('#import_button').click(function() {
+        dispatcher.post('hideForm', [$('#data_form')]);
         dispatcher.post('showForm', [importForm]);
         importForm.find('input, textarea').val('');
       });

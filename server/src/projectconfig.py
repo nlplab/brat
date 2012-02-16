@@ -881,8 +881,11 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
         else:
             types = r.arguments[r.arg_list[num]]
             for type in types:
-                # TODO: "wildcards" other than <ANY>
-                if type == "<ANY>" or atype == "<ANY>" or type == atype:
+                # TODO: don't just assume that we're dealing with an
+                # entity type
+                if (type in ("<ANY>", "<ENTITY>") or 
+                    atype in ("<ANY>", "<ENTITY>") or 
+                    type == atype):
                     rels.append(r)
 
     return rels
@@ -956,27 +959,49 @@ class ProjectConfiguration(object):
             Messager.debug("Project config received relative directory ('%s'), configuration may not be found." % directory, duration=-1)
         self.directory = directory
 
-    def mandatory_arguments(self, type):
+    def mandatory_arguments(self, atype):
         """
         Returns the mandatory argument types that must be present for
         an annotation of the given type.
         """
-        node = get_node_by_storage_form(self.directory, type)
+        node = get_node_by_storage_form(self.directory, atype)
         if node is None:
-            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
             return []
         return node.mandatory_arguments()
 
-    def multiple_allowed_arguments(self, type):
+    def multiple_allowed_arguments(self, atype):
         """
         Returns the argument types that are allowed to be filled more
         than once for an annotation of the given type.
         """
-        node = get_node_by_storage_form(self.directory, type)
+        node = get_node_by_storage_form(self.directory, atype)
         if node is None:
-            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
             return []
         return node.multiple_allowed_arguments()
+
+    def argument_maximum_count(self, atype, arg):
+        """
+        Returns the maximum number of times that the given argument is
+        allowed to be filled for an annotation of the given type.
+        """
+        node = get_node_by_storage_form(self.directory, atype)
+        if node is None:
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
+            return 0
+        return node.argument_maximum_count(arg)
+
+    def argument_minimum_count(self, atype, arg):
+        """
+        Returns the minimum number of times that the given argument is
+        allowed to be filled for an annotation of the given type.
+        """
+        node = get_node_by_storage_form(self.directory, atype)
+        if node is None:
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
+            return 0
+        return node.argument_minimum_count(arg)
 
     def arc_types_from(self, from_ann):
         return self.arc_types_from_to(from_ann)
