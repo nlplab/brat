@@ -607,11 +607,11 @@ var Visualizer = (function($, window, undefined) {
                 warning = true;
                 return;
               }
-	      if ($.isEmptyObject(val)) {
-		// defined, but lacks any visual presentation
+              if ($.isEmptyObject(val)) {
+                // defined, but lacks any visual presentation
                 warning = true;
-                return;		
-	      }
+                return;
+              }
               if (val.glyph) {
                 if (val.position == "left") {
                   prefix = val.glyph + prefix;
@@ -1690,9 +1690,9 @@ Util.profileStart('arcs');
             var textStart = textBox.x;
             var textEnd = textBox.x + textBox.width;
 
-	    // adjust by margin for arc drawing
-	    textStart -= Configuration.visual.arcTextMargin;
-	    textEnd += Configuration.visual.arcTextMargin;
+            // adjust by margin for arc drawing
+            textStart -= Configuration.visual.arcTextMargin;
+            textEnd += Configuration.visual.arcTextMargin;
 
             if (from > to) {
               var tmp = textStart; textStart = textEnd; textEnd = tmp;
