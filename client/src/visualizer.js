@@ -2418,6 +2418,7 @@ Util.profileStart('before render');
 
       var proceedWithFonts = function() {
         areFontsLoaded = true;
+        console.log("fonts done");
         triggerRender();
       };
 
@@ -2438,14 +2439,12 @@ Util.profileStart('before render');
         },
         active: proceedWithFonts,
         inactive: proceedWithFonts,
-        /* DEBUG
         fontactive: function(fontFamily, fontDescription) {
-          console.log("active:", fontFamily, fontDescription);
+          console.log("font active: ", fontFamily, fontDescription);
         },
         fontloading: function(fontFamily, fontDescription) {
-          console.log("loading:", fontFamily, fontDescription);
+          console.log("font loading:", fontFamily, fontDescription);
         },
-        */
       };
       $.getScript('client/lib/webfont.js');
 
