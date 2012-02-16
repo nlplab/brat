@@ -869,6 +869,7 @@ var Visualizer = (function($, window, undefined) {
                 to: endPos
               };
             } else { // it's markedText [id, start?, char#, offset]
+              if (span[2] < 0) span[2] = 0;
               if (!span[2]) { // start
                 span[3] = text.getStartPositionOfChar(span[2]).x;
               } else {
@@ -879,9 +880,12 @@ var Visualizer = (function($, window, undefined) {
 
         // get the span annotation text sizes
         var spanTexts = {};
+        var noSpans = true;
         $.each(data.spans, function(spanNo, span) {
           spanTexts[span.glyphedLabelText] = true;
+          noSpans = false;
         });
+        if (noSpans) spanTexts.$ = true; // dummy so we can at least get the height
         var spanSizes = getTextMeasurements(spanTexts, {'class': 'span'});
 
         return {
@@ -1275,6 +1279,9 @@ Util.profileStart('chunks');
           // }
           var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
+          var lastX = current.x;
+          var lastRow = row;
+
           if (chunk.sentence) {
             while (sentenceNumber < chunk.sentence) {
               sentenceNumber++;
@@ -1287,9 +1294,6 @@ Util.profileStart('chunks');
             }
             sentenceToggle = 1 - sentenceToggle;
           }
-
-          var lastX = current.x;
-          var lastRow = row;
 
           if (chunk.sentence ||
               current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
