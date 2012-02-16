@@ -1057,13 +1057,6 @@ var VisualizerUI = (function($, window, undefined) {
           open: function(evt) {
             keymap = {};
           },
-          buttons: [{
-            id: 'search_form_clear',
-            text: "Clear",
-            click: function(evt) {
-              dispatcher.post('clearSearch');
-            },
-          }],
       });
       $('#search_form_clear').attr('title', 'Clear the search and resume normal collection browsing');
 
