@@ -386,7 +386,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (firstRadio) {
             firstRadio.checked = true;
           } else {
-            dispatcher.post('hideForm', [spanForm]);
+            dispatcher.post('hideForm');
             dispatcher.post('messages', [[['No valid span types defined', 'error']]]);
             return;
           }
@@ -572,7 +572,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (firstRadio) {
           firstRadio.checked = true;
         } else {
-          dispatcher.post('hideForm', [rapidSpanForm]);
+          dispatcher.post('hideForm');
           dispatcher.post('messages', [[['No valid span types defined', 'error']]]);
           return;
         }
@@ -745,13 +745,13 @@ var AnnotatorUI = (function($, window, undefined) {
           return;
         }
         var eventDataId = $(evt.target).attr('data-arc-ed');
-        dispatcher.post('hideForm', [arcForm]);
+        dispatcher.post('hideForm');
         arcOptions.action = 'deleteArc';
         dispatcher.post('ajax', [arcOptions, 'edited']);
       };
 
       var reselectArc = function(evt) {
-        dispatcher.post('hideForm', [arcForm]);
+        dispatcher.post('hideForm');
         svgElement.addClass('reselect');
         $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').addClass('reselect');
         startArcDrag(arcOptions.origin);
@@ -1319,12 +1319,12 @@ var AnnotatorUI = (function($, window, undefined) {
           'document': doc,
         });
         dispatcher.post('ajax', [spanOptions, 'edited']);
-        dispatcher.post('hideForm', [spanForm]);
+        dispatcher.post('hideForm');
         $('#waiter').dialog('open');
       };
 
       var reselectSpan = function() {
-        dispatcher.post('hideForm', [spanForm]);
+        dispatcher.post('hideForm');
         svgElement.addClass('reselect');
         $(editedSpan.rect).addClass('reselect');
         reselectedSpan = editedSpan;
@@ -1342,7 +1342,7 @@ var AnnotatorUI = (function($, window, undefined) {
             collection: coll,
             'document': doc,
           });
-        dispatcher.post('hideForm', [splitForm]);
+        dispatcher.post('hideForm');
         dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;
       });
@@ -1351,7 +1351,7 @@ var AnnotatorUI = (function($, window, undefined) {
           width: 400
         }]);
       var splitSpan = function() {
-        dispatcher.post('hideForm', [spanForm]);
+        dispatcher.post('hideForm');
         var $roles = $('#split_roles').empty();
         var numRoles = repeatingArcTypes.length;
         var roles = $.each(repeatingArcTypes, function() {
@@ -1422,7 +1422,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanFormSubmit = function(evt, typeRadio) {
         typeRadio = typeRadio || $('#span_form input:radio:checked');
         var type = typeRadio.val();
-        dispatcher.post('hideForm', [spanForm]);
+        dispatcher.post('hideForm');
         $.extend(spanOptions, {
           action: 'createSpan',
           collection: coll,
@@ -1463,7 +1463,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // unfocus all elements to prevent focus being kept after
         // hiding them
         rapidSpanForm.parent().find('*').blur();
-        dispatcher.post('hideForm', [rapidSpanForm]);
+        dispatcher.post('hideForm');
 
         if (type == "") {
           // empty type value signals the special case where the user
@@ -1514,7 +1514,7 @@ var AnnotatorUI = (function($, window, undefined) {
               dispatcher.post('messages', [[['Unknown error: ' + response.exception, 'error']]]);
             }
           } else {
-            dispatcher.post('hideForm', [importForm]);
+            dispatcher.post('hideForm');
             dispatcher.post('setDocument', [response.document]);
           }
         }]);
@@ -1529,7 +1529,7 @@ var AnnotatorUI = (function($, window, undefined) {
           },
         }]);
       $('#import_button').click(function() {
-        dispatcher.post('hideForm', [$('#data_form')]);
+        dispatcher.post('hideForm');
         dispatcher.post('showForm', [importForm]);
         importForm.find('input, textarea').val('');
       });

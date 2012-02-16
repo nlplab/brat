@@ -432,13 +432,10 @@ var VisualizerUI = (function($, window, undefined) {
         return form;
       };
 
-      var hideForm = function(form) {
-        if (form === undefined) form = currentForm;
-        if (!form) return;
-        // if (form.attr('id') !== currentForm.attr('id')) return;
-        // fadeOut version:
-        // form.fadeOut(function() { currentForm = null; });
-        form.dialog('close');
+      var hideForm = function() {
+        if (!currentForm) return;
+        // currentForm.fadeOut(function() { currentForm = null; });
+        currentForm.dialog('close');
         currentForm = null;
       };
 
@@ -565,7 +562,7 @@ var VisualizerUI = (function($, window, undefined) {
           dispatcher.post('setCollection', [_coll, _doc, Util.deparam(newArgs.join('&'))]);
         } else {
           // hide even on select current thing
-          hideForm(fileBrowser);
+          hideForm();
         }
         return false;
       };
@@ -1032,7 +1029,7 @@ var VisualizerUI = (function($, window, undefined) {
         opts.text_match = $('#text_match input:checked').val()
         opts.match_case = $('#match_case_on').is(':checked');
 
-        dispatcher.post('hideForm', [searchForm]);
+        dispatcher.post('hideForm');
         dispatcher.post('ajax', [opts, function(response) {
           if(response && response.items && response.items.length == 0) {
             // TODO: might consider having this message come from the
@@ -1094,7 +1091,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var dataForm = $('#data_form');
       var dataFormSubmit = function(evt) {
-        dispatcher.post('hideForm', [dataForm]);
+        dispatcher.post('hideForm');
         return false;
       };
       dataForm.submit(dataFormSubmit);
@@ -1140,7 +1137,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var optionsForm = $('#options_form');
       var optionsFormSubmit = function(evt) {
-        dispatcher.post('hideForm', [optionsForm]);
+        dispatcher.post('hideForm');
         return false;
       };
       optionsForm.submit(optionsFormSubmit);
@@ -1177,7 +1174,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var moreInfoDialog = $('#more_information_dialog');
       var moreInfoDialogSubmit = function(evt) {
-        dispatcher.post('hideForm', [moreInfoDialog]);
+        dispatcher.post('hideForm');
         return false;
       };
       moreInfoDialog.submit(moreInfoDialogSubmit);
@@ -1325,7 +1322,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var clearSearch = function(dontShowFileBrowser) {
-        dispatcher.post('hideForm', [searchForm]);
+        dispatcher.post('hideForm');
 
         // back off to document collection
         if (searchActive) {
@@ -1374,7 +1371,7 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var onStartedRendering = function() {
-        hideForm(fileBrowser);
+        hideForm();
         if (!currentForm) {
           $('#waiter').dialog('open');
         }
@@ -1641,7 +1638,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
       viewspanForm.submit(function(evt) {
-        dispatcher.post('hideForm', [viewspanForm]);
+        dispatcher.post('hideForm');
         return false;
       });
 
