@@ -448,17 +448,17 @@ var VisualizerUI = (function($, window, undefined) {
         table = $(table);
         table.find('tr').removeClass('selected');
         var sel = 'tr';
+        var $element;
         if (docname) {
           sel += '[data-doc="' + docname + '"]';
+          if (mf) {
+            sel += '[data-mf="' + Util.paramArray(mf) + '"]';
+          }
+          var $element = table.find(sel).first();
+          $element.addClass('selected');
         }
-        if (mf) {
-          sel += '[data-mf="' + Util.paramArray(mf) + '"]';
-        }
-        var $element = table.find(sel).first();
-
-        $element.addClass('selected');
-        matchFocus = $element.attr('data-mf');
-        matches = $element.attr('data-match');
+        matchFocus = $element && $element.attr('data-mf');
+        matches = $element && $element.attr('data-match');
       }
 
       var chooseDocument = function(evt) {
