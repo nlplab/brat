@@ -362,12 +362,11 @@ def get_span_types(directory):
             project_conf, hotkey_by_type)
 
     # make visual config available also for nodes for which there is
-    # no annotation config ...
+    # no annotation config. Note that defaults (SPAN_DEFAULT etc.)
+    # are included via get_drawing_types() if defined.
     unconfigured = [l for l in (project_conf.get_labels().keys() +
                                 project_conf.get_drawing_types()) if 
                     not project_conf.is_configured_type(l)]
-    # ... and include the defaults.
-    unconfigured += [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
     unconf_types = _fill_visual_configuration(unconfigured, project_conf)
 
     # TODO: this is just horrible. What's all this doing in a function
