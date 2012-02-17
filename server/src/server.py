@@ -295,16 +295,18 @@ def serve(params, client_ip, client_hostname, cookie_data):
         with CONFIG_CHECK_LOCK:
             _config_check()
     except ConfigurationError, e:
-        exception_json = e.json()
-        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(exception_json)))
+        json_dic = {}
+        e.json(json_dic)
+        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
     # We can now safely read the config
     from config import DEBUG
 
     try:
         _permission_check()
     except PermissionError, e:
-        exception_json = e.json()
-        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(exception_json)))
+        json_dic = {}
+        e.json(json_dic)
+        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
 
     try:
         # Safe region, can throw any exception, has verified installation
