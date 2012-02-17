@@ -1944,6 +1944,12 @@ var VisualizerUI = (function($, window, undefined) {
       });
       $('#footer').show();
 
+      var onScreamingHalt = function() {
+        $('#waiter').dialog('close');
+        $('#pulldown, #navbuttons, #spinner').remove();
+        dispatcher.post('hideForm');
+      };
+
       dispatcher.
           on('init', init).
           on('annotationIsAvailable', annotationIsAvailable).
@@ -1978,6 +1984,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('searchResultsReceived', searchResultsReceived).
           on('clearSearch', clearSearch).
           on('clearSVG', showNoDocMessage).
+          on('screamingHalt', onScreamingHalt).
           on('configurationChanged', configurationChanged).
           on('configurationUpdated', updateConfigurationUI);
     };

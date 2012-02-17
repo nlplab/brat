@@ -32,10 +32,18 @@ var Ajax = (function($, window, undefined) {
               response.exception = true;
               dispatcher.post('messages', [[['Protocol error: Action' + data.action + ' returned the results of action ' + response.action, 'error']]]);
             }
-            dispatcher.post('messages', [response.messages]);
 
             // If the request is obsolete, do nothing; if not...
             if (pendingList.hasOwnProperty(id)) {
+              dispatcher.post('messages', [response.messages]);
+              if (response.exception == 'configurationError') {
+                // this is a no-rescue critical failure.
+                // Stop *everything*.
+                pendingList = {};
+                dispatcher.post('screamingHalt');
+                return;
+              }
+
               delete pendingList[id];
 
               // if .exception is just Boolean true, do not process
