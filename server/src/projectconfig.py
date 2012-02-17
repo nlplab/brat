@@ -689,6 +689,17 @@ def get_labels(directory):
     return cache[directory]
 get_labels.__cache = {}
 
+# TODO: too much caching?
+def get_drawing_types(directory):
+    cache = get_drawing_types.__cache
+    if directory not in cache:
+        l = set()
+        for n in get_drawing_config(directory):
+            l.add(n.storage_form())
+        cache[directory] = list(l)
+    return cache[directory]
+get_drawing_types.__cache = {}
+
 def get_drawing_config(directory):
     return get_visual_configs(directory)[DRAWING_SECTION]
 
@@ -1130,6 +1141,9 @@ class ProjectConfiguration(object):
 
     def get_labels_by_type(self, _type):
         return get_labels_by_storage_form(self.directory, _type)
+
+    def get_drawing_types(self):
+        return get_drawing_types(self.directory)
     
     def get_drawing_config_by_type(self, _type):
         return get_drawing_config_by_storage_form(self.directory, _type)

@@ -363,7 +363,8 @@ def get_span_types(directory):
 
     # make visual config available also for nodes for which there is
     # no annotation config ...
-    unconfigured = [l for l in project_conf.get_labels() if 
+    unconfigured = [l for l in (project_conf.get_labels().keys() +
+                                project_conf.get_drawing_types()) if 
                     not project_conf.is_configured_type(l)]
     # ... and include the defaults.
     unconfigured += [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
