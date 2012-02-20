@@ -282,26 +282,57 @@ var Visualizer = (function($, window, undefined) {
           }
         });
 
+        // prepare span boundaries for token containment testing
+        var spanBounds = [];
+        $.each(data.spans, function(spanNo, span) {
+          spanBounds.push([0+span.from, 0+span.to]);
+        });
+        spanBounds.sort(function(a, b) {
+          var x = a[0];
+          var y = b[0];
+          if (x == y) {
+            x = a[1];
+            y = b[1];
+          }
+          return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+        var currentSpanId = 0;
+        var startSpanId = 1;
+        var numSpans = spanBounds.length;
         data.chunks = [];
         var lastTo = 0;
         var firstFrom = null;
         var chunkNo = 0;
-        var inSpan;
         var space;
         var chunk = null;
+        // token containment testing (chunk recognition)
         $.each(data.token_offsets, function() {
           var from = this[0];
           var to = this[1];
           if (firstFrom === null) firstFrom = from;
-          inSpan = false;
-          $.each(data.spans, function(spanNo, span) {
-            if (span.from < to && to < span.to) {
-              // it does; no word break
-              inSpan = true;
-              return false;
-            }
-          });
-          if (inSpan) return;
+
+          // Replaced for speedup; TODO check correctness
+          // inSpan = false;
+          // $.each(data.spans, function(spanNo, span) {
+          //   if (span.from < to && to < span.to) {
+          //     // it does; no word break
+          //     inSpan = true;
+          //     return false;
+          //   }
+          // });
+
+          // Is the token end inside a span?
+          while (startSpanId < numSpans && to >= spanBounds[startSpanId][0]) {
+            startSpanId++;
+          }
+          currentSpanId = startSpanId - 1;
+          while (currentSpanId < numSpans && spanBounds[currentSpanId][1] <= to) {
+            currentSpanId++;
+          }
+          // if yes, the next token is in the same chunk
+          if (currentSpanId < numSpans && spanBounds[currentSpanId][0] < to) return;
+
+          // otherwise, create the chunk found so far
           space = data.text.substring(lastTo, firstFrom);
           var text = data.text.substring(firstFrom, to);
           if (chunk) chunk.nextSpace = space;
