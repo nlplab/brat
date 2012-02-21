@@ -283,22 +283,22 @@ var Visualizer = (function($, window, undefined) {
         });
 
         // prepare span boundaries for token containment testing
-        var spanBounds = [];
+        var sortedSpans = [];
         $.each(data.spans, function(spanNo, span) {
-          spanBounds.push([0+span.from, 0+span.to]);
+          sortedSpans.push(span);
         });
-        spanBounds.sort(function(a, b) {
-          var x = a[0];
-          var y = b[0];
+        sortedSpans.sort(function(a, b) {
+          var x = a.from;
+          var y = b.from;
           if (x == y) {
-            x = a[1];
-            y = b[1];
+            x = a.to;
+            y = b.to;
           }
           return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
         var currentSpanId = 0;
         var startSpanId = 0;
-        var numSpans = spanBounds.length;
+        var numSpans = sortedSpans.length;
         data.chunks = [];
         var lastTo = 0;
         var firstFrom = null;
@@ -322,17 +322,17 @@ var Visualizer = (function($, window, undefined) {
           // });
 
           // Is the token end inside a span?
-          if (startSpanId && to > spanBounds[startSpanId - 1][1]) {
-            while (startSpanId < numSpans && to > spanBounds[startSpanId][0]) {
+          if (startSpanId && to > sortedSpans[startSpanId - 1].to) {
+            while (startSpanId < numSpans && to > sortedSpans[startSpanId].from) {
               startSpanId++;
             }
           }
           currentSpanId = startSpanId;
-          while (currentSpanId < numSpans && to >= spanBounds[currentSpanId][1]) {
+          while (currentSpanId < numSpans && to >= sortedSpans[currentSpanId].to) {
             currentSpanId++;
           }
           // if yes, the next token is in the same chunk
-          if (currentSpanId < numSpans && to > spanBounds[currentSpanId][0]) {
+          if (currentSpanId < numSpans && to > sortedSpans[currentSpanId].from) {
             return;
           }
 
@@ -376,21 +376,14 @@ var Visualizer = (function($, window, undefined) {
         });
 
         // assign spans to appropriate chunks
-        // and copy spans to sortedSpans array
-        var sortedSpans = [];
         var numChunks = data.chunks.length;
-        for (spanId in data.spans) {
-          var span = data.spans[spanId];
-          sortedSpans.push(span);
-          for (var j = 0; j < numChunks; j++) {
-            var chunk = data.chunks[j];
-            if (span.to <= chunk.to) {
-              chunk.spans.push(span);
-              span.chunk = chunk;
-              break; // chunks
-            }
-          }
-        }
+        var currentChunkId = 0;
+        var chunk;
+        $.each(sortedSpans, function(spanId, span) {
+          while (span.to > (chunk = data.chunks[currentChunkId]).to) currentChunkId++;
+          chunk.spans.push(span);
+          span.chunk = chunk;
+        });
 
         // assign arcs to spans; calculate arc distances
         data.arcs = [];
@@ -506,7 +499,7 @@ var Visualizer = (function($, window, undefined) {
         setMarked('matchfocus');
         setMarked('match');
 
-        // sort the spans for linear order
+        // resort the spans for linear order by center
         sortedSpans.sort(function(a, b) {
           var tmp = a.from + a.to - b.from - b.to;
           if (tmp) {
