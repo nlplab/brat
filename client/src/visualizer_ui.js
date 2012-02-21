@@ -1733,7 +1733,14 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('ajax', [{ action: 'loadConf' }, function(response) {
           if (response.config != undefined) {
             // TODO: check for exceptions
-            Configuration = JSON.parse(response.config);
+            try {
+              Configuration = JSON.parse(response.config);
+            } catch(x) {
+              // XXX Bad config
+              Configuration = {};
+              dispatcher.post('messages', [[['Corrupted configuration; resetting.', 'error']]]);
+              configurationChanged();
+            }
             // TODO: make whole-object assignment work
             // @amadanmath: help! This code is horrible
             // Configuration.svgWidth = storedConf.svgWidth;
