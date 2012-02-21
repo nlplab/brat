@@ -38,6 +38,8 @@ var Visualizer = (function($, window, undefined) {
       this.background = svg.group(this.group);
       this.chunks = [];
       this.hasAnnotations = false;
+      this.maxArcHeight = 0;
+      this.maxSpanHeight = 0;
     };
 
     var Visualizer = function(dispatcher, svgId) {
@@ -1170,6 +1172,7 @@ Util.profileStart('chunks');
             }
 
             var yAdjust = placeReservation(span, bx, bw, bh, reservations);
+
             span.rectBox = { x: bx, y: by - yAdjust, width: bw, height: bh };
             // this is monotonous due to sort:
             span.height = yAdjust + hh + 3 * Configuration.visual.margin.y + Configuration.visual.curlyHeight + Configuration.visual.arcSpacing;
@@ -1731,6 +1734,7 @@ Util.profileStart('arcs');
               // don't ask
               height = (height|0)+0.5;
             }
+            if (height > row.maxArcHeight) row.maxArcHeight = height;
 
             path = svg.createPath().move(textStart, -height);
             if (rowIndex == leftRow) {
@@ -1830,26 +1834,41 @@ Util.profileStart('rows');
         var sentNumGroup = svg.group({'class': 'sentnum'});
         var currentSent;
         $.each(rows, function(rowId, row) {
+          $.each(row.chunks, function(chunkId, chunk) {
+            $.each(chunk.spans, function(spanid, span) {
+              if (row.maxSpanHeight < span.height) row.maxSpanHeight = span.height;
+            });
+          });
           if (row.sentence) {
             currentSent = row.sentence;
           }
-          var rowBox = row.group.getBBox();
-          // Make it work on IE
-          rowBox = { x: rowBox.x, y: rowBox.y, height: rowBox.height, width: rowBox.width };
-          // Make it work on Firefox and Opera
-          if (!rowBox || rowBox.height == -Infinity) {
-            rowBox = { x: 0, y: 0, height: 0, width: 0 };
-          }
+          // SLOW (#724) and replaced with calculations:
+          //
+          // var rowBox = row.group.getBBox();
+          // // Make it work on IE
+          // rowBox = { x: rowBox.x, y: rowBox.y, height: rowBox.height, width: rowBox.width };
+          // // Make it work on Firefox and Opera
+          // if (rowBox.height == -Infinity) {
+          //   rowBox = { x: 0, y: 0, height: 0, width: 0 };
+          // }
+
+          // XXX TODO HACK: find out where 5 and 1.5 come from!
+          // This is the fix for #724, but the numbers are guessed.
+          var rowBoxHeight = Math.max(row.maxArcHeight + 5, row.maxSpanHeight + 1.5); // XXX TODO HACK: why 5, 1.5?
           if (row.hasAnnotations) {
-            rowBox.height = -rowBox.y+rowSpacing;
+            // rowBox.height = -rowBox.y + rowSpacing;
+            rowBoxHeight += rowSpacing + 1.5; // XXX TODO HACK: why 1.5?
+          } else {
+            rowBoxHeight -= 5; // XXX TODO HACK: why -5?
           }
-          rowBox.height += rowPadding;
+
+          rowBoxHeight += rowPadding;
           var bgClass;
           if (data.markedSent[currentSent]) {
             // specifically highlighted
             bgClass = 'backgroundHighlight';
           } else if (Configuration.textBackgrounds == "striped") {
-            // give every second sentence has a different bg "highlight"
+            // give every other sentence a different bg class
             bgClass = 'background'+ row.backgroundIndex;
           } else {
             // plain "standard" bg
@@ -1857,10 +1876,10 @@ Util.profileStart('rows');
           }
           svg.rect(backgroundGroup,
             0, y + sizes.texts.y + sizes.texts.height,
-            canvasWidth, rowBox.height + sizes.texts.height + 1, {
+            canvasWidth, rowBoxHeight + sizes.texts.height + 1, {
             'class': bgClass,
           });
-          y += rowBox.height;
+          y += rowBoxHeight;
           y += sizes.texts.height;
           row.textY = y - rowPadding;
           if (row.sentence) {
