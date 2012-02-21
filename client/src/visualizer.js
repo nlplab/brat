@@ -1035,8 +1035,7 @@ Util.profileStart('measures');
 Util.profileEnd('measures');
 Util.profileStart('chunks');
 
-        var current = { x: Configuration.visual.margin.x + sentNumMargin + rowPadding, 
-                        y: Configuration.visual.margin.y }; // TODO: we don't need some of this?
+        var currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding;
         var rows = [];
         var spanHeights = [];
         var sentenceToggle = 0;
@@ -1241,7 +1240,7 @@ Util.profileStart('chunks');
                 }
                 var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                 var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
-                var gap = current.x + bx - border;
+                var gap = currentX + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
                 if (!hasLeftArcs || spacing < arcSpacing) {
                   spacing = arcSpacing;
@@ -1271,7 +1270,7 @@ Util.profileStart('chunks');
                 }
                 var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                 var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
-                var gap = current.x + bx - border;
+                var gap = currentX + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
                 if (!hasLeftArcs || spacing < arcSpacing) {
                   spacing = arcSpacing;
@@ -1301,13 +1300,13 @@ Util.profileStart('chunks');
               Math.min(0, chunkFrom);
           // if (hasLeftArcs) {
             // TODO change this with smallestLeftArc
-            // var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
+            // var spacing = arcHorizontalSpacing - (currentX - lastArcBorder);
             // arc too small?
-          if (spacing > 0) current.x += spacing;
+          if (spacing > 0) currentX += spacing;
           // }
           var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
-          var lastX = current.x;
+          var lastX = currentX;
           var lastRow = row;
 
           if (chunk.sentence) {
@@ -1324,12 +1323,12 @@ Util.profileStart('chunks');
           }
 
           if (chunk.sentence ||
-              current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
+              currentX + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
             // the chunk does not fit
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
             // TODO: related to issue #571
             // replace arcHorizontalSpacing with a calculated value
-            current.x = Configuration.visual.margin.x + sentNumMargin + rowPadding +
+            currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding +
                 (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
             if (hasLeftArcs) {
               var adjustedCurTextWidth = sizes.texts.widths[chunk.text] + arcHorizontalSpacing;
@@ -1338,7 +1337,7 @@ Util.profileStart('chunks');
               }
             }
             if (spacingRowBreak > 0) {
-              current.x += spacingRowBreak;
+              currentX += spacingRowBreak;
               spacing = 0; // do not center intervening elements
             }
 
@@ -1368,19 +1367,19 @@ Util.profileStart('chunks');
                 var newDesc = [lastRow, textDesc[3], lastX + boxX, textDesc[4]];
                 textMarkedRows.push(newDesc);
               }
-              textDesc[3] = current.x;
+              textDesc[3] = currentX;
             });
           }
 
           // open text highlights
           $.each(chunk.markedTextStart, function(textNo, textDesc) {
-            textDesc[3] += current.x + boxX;
+            textDesc[3] += currentX + boxX;
             openTextHighlights[textDesc[0]] = textDesc;
           });
 
           // close text highlights
           $.each(chunk.markedTextEnd, function(textNo, textDesc) {
-            textDesc[3] += current.x + boxX;
+            textDesc[3] += currentX + boxX;
             var startDesc = openTextHighlights[textDesc[0]];
             delete openTextHighlights[textDesc[0]];
             markedRow = [row, startDesc[3], textDesc[3], startDesc[4]];
@@ -1411,13 +1410,13 @@ Util.profileStart('chunks');
           row.chunks.push(chunk);
           chunk.row = row;
 
-          translate(chunk, current.x + boxX, 0);
-          chunk.textX = current.x + boxX;
+          translate(chunk, currentX + boxX, 0);
+          chunk.textX = currentX + boxX;
 
           var spaceWidth = 0;
           var spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
           for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
-          current.x += spaceWidth + boxWidth;
+          currentX += spaceWidth + boxWidth;
         }); // chunks
 
         // finish the last row
