@@ -297,7 +297,7 @@ var Visualizer = (function($, window, undefined) {
           return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
         var currentSpanId = 0;
-        var startSpanId = 1;
+        var startSpanId = 0;
         var numSpans = spanBounds.length;
         data.chunks = [];
         var lastTo = 0;
@@ -322,15 +322,19 @@ var Visualizer = (function($, window, undefined) {
           // });
 
           // Is the token end inside a span?
-          while (startSpanId < numSpans && to >= spanBounds[startSpanId][0]) {
-            startSpanId++;
+          if (startSpanId && to > spanBounds[startSpanId - 1][1]) {
+            while (startSpanId < numSpans && to > spanBounds[startSpanId][0]) {
+              startSpanId++;
+            }
           }
-          currentSpanId = startSpanId - 1;
-          while (currentSpanId < numSpans && spanBounds[currentSpanId][1] <= to) {
+          currentSpanId = startSpanId;
+          while (currentSpanId < numSpans && to >= spanBounds[currentSpanId][1]) {
             currentSpanId++;
           }
           // if yes, the next token is in the same chunk
-          if (currentSpanId < numSpans && spanBounds[currentSpanId][0] < to) return;
+          if (currentSpanId < numSpans && to > spanBounds[currentSpanId][0]) {
+            return;
+          }
 
           // otherwise, create the chunk found so far
           space = data.text.substring(lastTo, firstFrom);
