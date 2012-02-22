@@ -118,7 +118,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "GLYPH-POS"]
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
