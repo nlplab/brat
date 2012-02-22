@@ -647,7 +647,8 @@ var AnnotatorUI = (function($, window, undefined) {
               // do not allow equiv<->non-equiv change options
               if (arcType && isEquiv != isThisEquiv) return;
 
-              var displayName = arcDesc.labels[0] || arcTypeName;
+              var displayName = ((arcDesc.labels && arcDesc.labels[0]) || 
+                                 arcTypeName);
               var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label class="arc_type_label" for="arc_' + arcTypeName + '"/>').text(displayName);
               var $div = $('<div/>').append($checkbox).append($label);
