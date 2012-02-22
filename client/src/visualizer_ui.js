@@ -1733,25 +1733,32 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('ajax', [{ action: 'loadConf' }, function(response) {
           if (response.config != undefined) {
             // TODO: check for exceptions
-            var storedConf = $.deparam(response.config);
+            try {
+              Configuration = JSON.parse(response.config);
+            } catch(x) {
+              // XXX Bad config
+              Configuration = {};
+              dispatcher.post('messages', [[['Corrupted configuration; resetting.', 'error']]]);
+              configurationChanged();
+            }
             // TODO: make whole-object assignment work
             // @amadanmath: help! This code is horrible
-            Configuration.svgWidth = storedConf.svgWidth;
+            // Configuration.svgWidth = storedConf.svgWidth;
             dispatcher.post('svgWidth', [Configuration.svgWidth]);
-            Configuration.abbrevsOn = storedConf.abbrevsOn == "true";
-            Configuration.textBackgrounds = storedConf.textBackgrounds;
-            Configuration.rapidModeOn = storedConf.rapidModeOn == "true";
-            Configuration.confirmModeOn = storedConf.confirmModeOn == "true";
-            Configuration.autorefreshOn = storedConf.autorefreshOn == "true";
+            // Configuration.abbrevsOn = storedConf.abbrevsOn == "true";
+            // Configuration.textBackgrounds = storedConf.textBackgrounds;
+            // Configuration.rapidModeOn = storedConf.rapidModeOn == "true";
+            // Configuration.confirmModeOn = storedConf.confirmModeOn == "true";
+            // Configuration.autorefreshOn = storedConf.autorefreshOn == "true";
             if (Configuration.autorefreshOn) {
               checkForDocumentChanges();
             }
-            Configuration.visual.margin.x = parseInt(storedConf.visual.margin.x);
-            Configuration.visual.margin.y = parseInt(storedConf.visual.margin.y);
-            Configuration.visual.boxSpacing = parseInt(storedConf.visual.boxSpacing);
-            Configuration.visual.curlyHeight = parseInt(storedConf.visual.curlyHeight);
-            Configuration.visual.arcSpacing = parseInt(storedConf.visual.arcSpacing);
-            Configuration.visual.arcStartHeight = parseInt(storedConf.visual.arcStartHeight);
+            // Configuration.visual.margin.x = parseInt(storedConf.visual.margin.x);
+            // Configuration.visual.margin.y = parseInt(storedConf.visual.margin.y);
+            // Configuration.visual.boxSpacing = parseInt(storedConf.visual.boxSpacing);
+            // Configuration.visual.curlyHeight = parseInt(storedConf.visual.curlyHeight);
+            // Configuration.visual.arcSpacing = parseInt(storedConf.visual.arcSpacing);
+            // Configuration.visual.arcStartHeight = parseInt(storedConf.visual.arcStartHeight);
           }
           dispatcher.post('configurationUpdated');
         }]);
@@ -1894,7 +1901,7 @@ var VisualizerUI = (function($, window, undefined) {
         // save configuration changed by user action
         dispatcher.post('ajax', [{
                     action: 'saveConf',
-                    config: $.param(Configuration),
+                    config: JSON.stringify(Configuration),
                 }, null]);
       };
 
@@ -1926,9 +1933,9 @@ var VisualizerUI = (function($, window, undefined) {
           // TODO: reset to sensible value?
           dispatcher.post('messages', [[['Error parsing SVG width "'+Configuration.svgWidth+'"', 'error', 2]]]);
         } else {
-            $('#svg_width_value')[0].value = splitSvgWidth[1];
-            $('#svg_width_unit input[value="'+splitSvgWidth[2]+'"]')[0].checked = true;
-            $('#svg_width_unit input').button('refresh');
+          $('#svg_width_value')[0].value = splitSvgWidth[1];
+          $('#svg_width_unit input[value="'+splitSvgWidth[2]+'"]')[0].checked = true;
+          $('#svg_width_unit input').button('refresh');
         }
 
         // Autorefresh

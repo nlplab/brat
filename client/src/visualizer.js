@@ -38,6 +38,8 @@ var Visualizer = (function($, window, undefined) {
       this.background = svg.group(this.group);
       this.chunks = [];
       this.hasAnnotations = false;
+      this.maxArcHeight = 0;
+      this.maxSpanHeight = 0;
     };
 
     var Visualizer = function(dispatcher, svgId) {
@@ -283,22 +285,22 @@ var Visualizer = (function($, window, undefined) {
         });
 
         // prepare span boundaries for token containment testing
-        var spanBounds = [];
+        var sortedSpans = [];
         $.each(data.spans, function(spanNo, span) {
-          spanBounds.push([0+span.from, 0+span.to]);
+          sortedSpans.push(span);
         });
-        spanBounds.sort(function(a, b) {
-          var x = a[0];
-          var y = b[0];
+        sortedSpans.sort(function(a, b) {
+          var x = a.from;
+          var y = b.from;
           if (x == y) {
-            x = a[1];
-            y = b[1];
+            x = a.to;
+            y = b.to;
           }
           return ((x < y) ? -1 : ((x > y) ? 1 : 0));
         });
         var currentSpanId = 0;
-        var startSpanId = 1;
-        var numSpans = spanBounds.length;
+        var startSpanId = 0;
+        var numSpans = sortedSpans.length;
         data.chunks = [];
         var lastTo = 0;
         var firstFrom = null;
@@ -322,15 +324,19 @@ var Visualizer = (function($, window, undefined) {
           // });
 
           // Is the token end inside a span?
-          while (startSpanId < numSpans && to >= spanBounds[startSpanId][0]) {
-            startSpanId++;
+          if (startSpanId && to > sortedSpans[startSpanId - 1].to) {
+            while (startSpanId < numSpans && to > sortedSpans[startSpanId].from) {
+              startSpanId++;
+            }
           }
-          currentSpanId = startSpanId - 1;
-          while (currentSpanId < numSpans && spanBounds[currentSpanId][1] <= to) {
+          currentSpanId = startSpanId;
+          while (currentSpanId < numSpans && to >= sortedSpans[currentSpanId].to) {
             currentSpanId++;
           }
           // if yes, the next token is in the same chunk
-          if (currentSpanId < numSpans && spanBounds[currentSpanId][0] < to) return;
+          if (currentSpanId < numSpans && to > sortedSpans[currentSpanId].from) {
+            return;
+          }
 
           // otherwise, create the chunk found so far
           space = data.text.substring(lastTo, firstFrom);
@@ -372,21 +378,14 @@ var Visualizer = (function($, window, undefined) {
         });
 
         // assign spans to appropriate chunks
-        // and copy spans to sortedSpans array
-        var sortedSpans = [];
         var numChunks = data.chunks.length;
-        for (spanId in data.spans) {
-          var span = data.spans[spanId];
-          sortedSpans.push(span);
-          for (var j = 0; j < numChunks; j++) {
-            var chunk = data.chunks[j];
-            if (span.to <= chunk.to) {
-              chunk.spans.push(span);
-              span.chunk = chunk;
-              break; // chunks
-            }
-          }
-        }
+        var currentChunkId = 0;
+        var chunk;
+        $.each(sortedSpans, function(spanId, span) {
+          while (span.to > (chunk = data.chunks[currentChunkId]).to) currentChunkId++;
+          chunk.spans.push(span);
+          span.chunk = chunk;
+        });
 
         // assign arcs to spans; calculate arc distances
         data.arcs = [];
@@ -502,7 +501,7 @@ var Visualizer = (function($, window, undefined) {
         setMarked('matchfocus');
         setMarked('match');
 
-        // sort the spans for linear order
+        // resort the spans for linear order by center
         sortedSpans.sort(function(a, b) {
           var tmp = a.from + a.to - b.from - b.to;
           if (tmp) {
@@ -1038,8 +1037,7 @@ Util.profileStart('measures');
 Util.profileEnd('measures');
 Util.profileStart('chunks');
 
-        var current = { x: Configuration.visual.margin.x + sentNumMargin + rowPadding, 
-                        y: Configuration.visual.margin.y }; // TODO: we don't need some of this?
+        var currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding;
         var rows = [];
         var spanHeights = [];
         var sentenceToggle = 0;
@@ -1180,6 +1178,7 @@ Util.profileStart('chunks');
             }
 
             var yAdjust = placeReservation(span, bx, bw, bh, reservations);
+
             span.rectBox = { x: bx, y: by - yAdjust, width: bw, height: bh };
             // this is monotonous due to sort:
             span.height = yAdjust + hh + 3 * Configuration.visual.margin.y + Configuration.visual.curlyHeight + Configuration.visual.arcSpacing;
@@ -1253,7 +1252,7 @@ Util.profileStart('chunks');
                 }
                 var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                 var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
-                var gap = current.x + bx - border;
+                var gap = currentX + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
                 if (!hasLeftArcs || spacing < arcSpacing) {
                   spacing = arcSpacing;
@@ -1283,7 +1282,7 @@ Util.profileStart('chunks');
                 }
                 var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                 var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
-                var gap = current.x + bx - border;
+                var gap = currentX + bx - border;
                 var arcSpacing = smallestLabelWidth - gap;
                 if (!hasLeftArcs || spacing < arcSpacing) {
                   spacing = arcSpacing;
@@ -1313,13 +1312,13 @@ Util.profileStart('chunks');
               Math.min(0, chunkFrom);
           // if (hasLeftArcs) {
             // TODO change this with smallestLeftArc
-            // var spacing = arcHorizontalSpacing - (current.x - lastArcBorder);
+            // var spacing = arcHorizontalSpacing - (currentX - lastArcBorder);
             // arc too small?
-          if (spacing > 0) current.x += spacing;
+          if (spacing > 0) currentX += spacing;
           // }
           var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
-          var lastX = current.x;
+          var lastX = currentX;
           var lastRow = row;
 
           if (chunk.sentence) {
@@ -1336,12 +1335,12 @@ Util.profileStart('chunks');
           }
 
           if (chunk.sentence ||
-              current.x + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
+              currentX + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
             // the chunk does not fit
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
             // TODO: related to issue #571
             // replace arcHorizontalSpacing with a calculated value
-            current.x = Configuration.visual.margin.x + sentNumMargin + rowPadding +
+            currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding +
                 (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
             if (hasLeftArcs) {
               var adjustedCurTextWidth = sizes.texts.widths[chunk.text] + arcHorizontalSpacing;
@@ -1350,7 +1349,7 @@ Util.profileStart('chunks');
               }
             }
             if (spacingRowBreak > 0) {
-              current.x += spacingRowBreak;
+              currentX += spacingRowBreak;
               spacing = 0; // do not center intervening elements
             }
 
@@ -1380,19 +1379,19 @@ Util.profileStart('chunks');
                 var newDesc = [lastRow, textDesc[3], lastX + boxX, textDesc[4]];
                 textMarkedRows.push(newDesc);
               }
-              textDesc[3] = current.x;
+              textDesc[3] = currentX;
             });
           }
 
           // open text highlights
           $.each(chunk.markedTextStart, function(textNo, textDesc) {
-            textDesc[3] += current.x + boxX;
+            textDesc[3] += currentX + boxX;
             openTextHighlights[textDesc[0]] = textDesc;
           });
 
           // close text highlights
           $.each(chunk.markedTextEnd, function(textNo, textDesc) {
-            textDesc[3] += current.x + boxX;
+            textDesc[3] += currentX + boxX;
             var startDesc = openTextHighlights[textDesc[0]];
             delete openTextHighlights[textDesc[0]];
             markedRow = [row, startDesc[3], textDesc[3], startDesc[4]];
@@ -1423,13 +1422,13 @@ Util.profileStart('chunks');
           row.chunks.push(chunk);
           chunk.row = row;
 
-          translate(chunk, current.x + boxX, 0);
-          chunk.textX = current.x + boxX;
+          translate(chunk, currentX + boxX, 0);
+          chunk.textX = currentX + boxX;
 
           var spaceWidth = 0;
           var spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
           for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
-          current.x += spaceWidth + boxWidth;
+          currentX += spaceWidth + boxWidth;
         }); // chunks
 
         // finish the last row
@@ -1748,6 +1747,7 @@ Util.profileStart('arcs');
               // don't ask
               height = (height|0)+0.5;
             }
+            if (height > row.maxArcHeight) row.maxArcHeight = height;
 
             path = svg.createPath().move(textStart, -height);
             if (rowIndex == leftRow) {
@@ -1851,26 +1851,41 @@ Util.profileStart('rows');
         var sentNumGroup = svg.group({'class': 'sentnum'});
         var currentSent;
         $.each(rows, function(rowId, row) {
+          $.each(row.chunks, function(chunkId, chunk) {
+            $.each(chunk.spans, function(spanid, span) {
+              if (row.maxSpanHeight < span.height) row.maxSpanHeight = span.height;
+            });
+          });
           if (row.sentence) {
             currentSent = row.sentence;
           }
-          var rowBox = row.group.getBBox();
-          // Make it work on IE
-          rowBox = { x: rowBox.x, y: rowBox.y, height: rowBox.height, width: rowBox.width };
-          // Make it work on Firefox and Opera
-          if (!rowBox || rowBox.height == -Infinity) {
-            rowBox = { x: 0, y: 0, height: 0, width: 0 };
-          }
+          // SLOW (#724) and replaced with calculations:
+          //
+          // var rowBox = row.group.getBBox();
+          // // Make it work on IE
+          // rowBox = { x: rowBox.x, y: rowBox.y, height: rowBox.height, width: rowBox.width };
+          // // Make it work on Firefox and Opera
+          // if (rowBox.height == -Infinity) {
+          //   rowBox = { x: 0, y: 0, height: 0, width: 0 };
+          // }
+
+          // XXX TODO HACK: find out where 5 and 1.5 come from!
+          // This is the fix for #724, but the numbers are guessed.
+          var rowBoxHeight = Math.max(row.maxArcHeight + 5, row.maxSpanHeight + 1.5); // XXX TODO HACK: why 5, 1.5?
           if (row.hasAnnotations) {
-            rowBox.height = -rowBox.y+rowSpacing;
+            // rowBox.height = -rowBox.y + rowSpacing;
+            rowBoxHeight += rowSpacing + 1.5; // XXX TODO HACK: why 1.5?
+          } else {
+            rowBoxHeight -= 5; // XXX TODO HACK: why -5?
           }
-          rowBox.height += rowPadding;
+
+          rowBoxHeight += rowPadding;
           var bgClass;
           if (data.markedSent[currentSent]) {
             // specifically highlighted
             bgClass = 'backgroundHighlight';
           } else if (Configuration.textBackgrounds == "striped") {
-            // give every second sentence has a different bg "highlight"
+            // give every other sentence a different bg class
             bgClass = 'background'+ row.backgroundIndex;
           } else {
             // plain "standard" bg
@@ -1878,10 +1893,10 @@ Util.profileStart('rows');
           }
           svg.rect(backgroundGroup,
             0, y + sizes.texts.y + sizes.texts.height,
-            canvasWidth, rowBox.height + sizes.texts.height + 1, {
+            canvasWidth, rowBoxHeight + sizes.texts.height + 1, {
             'class': bgClass,
           });
-          y += rowBox.height;
+          y += rowBoxHeight;
           y += sizes.texts.height;
           row.textY = y - rowPadding;
           if (row.sentence) {
