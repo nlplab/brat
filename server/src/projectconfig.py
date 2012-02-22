@@ -394,6 +394,11 @@ def __read_term_hierarchy(input, section=None):
         for n in macros:
             l = l.replace(n, macros[n])
 
+        # check for undefined macros
+        for m in re.finditer(r'(<.*?>)', l):
+            s = m.groups(1)
+            assert s in reserved_config_string, "Error: undefined macro %s in configuration. (Note that macros are section-specific.)" % s
+
         # choose strict tab-only separator or looser any-space
         # separator matching depending on section
         if __require_tab_separator(section):
