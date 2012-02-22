@@ -396,7 +396,7 @@ def __read_term_hierarchy(input, section=None):
 
         # check for undefined macros
         for m in re.finditer(r'(<.*?>)', l):
-            s = m.groups(1)
+            s = m.group(1)
             assert s in reserved_config_string, "Error: undefined macro %s in configuration. (Note that macros are section-specific.)" % s
 
         # choose strict tab-only separator or looser any-space
