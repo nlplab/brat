@@ -66,7 +66,7 @@ VISUAL_ATTR_DEFAULT = "ATTRIBUTE_DEFAULT"
 # visual config attribute name lists
 SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
 ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead']
-ATTR_DRAWING_ATTRIBUTES  = ['box', 'dashArray', 'glyph']
+ATTR_DRAWING_ATTRIBUTES  = ['box', 'dashArray', 'glyph', 'position']
 
 # fallback defaults if config files not found
 __default_configuration = """
@@ -118,7 +118,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "GLYPH-POS"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "GLYPH-POS", "DEFAULT"]
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
