@@ -531,8 +531,8 @@ def __parse_configs(configstr, source, expected_sections, optional_sections):
     for s, sl in section_lines.items():
         try:
             configs[s] = __read_term_hierarchy(sl, s)
-        except:
-            Messager.warning("Project configuration: error parsing section [%s] in %s." % (s, source), 5)
+        except Exception, e:
+            Messager.warning("Project configuration: error parsing section [%s] in %s: %s" % (s, source, str(e)), 5)
             raise
 
     # verify that expected sections are present; replace with empty if not.
