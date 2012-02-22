@@ -1073,9 +1073,15 @@ Util.profileStart('chunks');
 
           $.each(chunk.spans, function(spanNo, span) {
             var spanDesc = spanTypes[span.type];
-            var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.bgColor || '#ffffff';
-            var fgColor = spanDesc && spanDesc.fgColor || spanTypes.SPAN_DEFAULT.fgColor || '#000000';
-            var borderColor = spanDesc && spanDesc.borderColor || spanTypes.SPAN_DEFAULT.borderColor || '#000000';
+            var bgColor = ((spanDesc && spanDesc.bgColor) || 
+			   (spanTypes.SPAN_DEFAULT &&
+			    spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
+            var fgColor = ((spanDesc && spanDesc.fgColor) || 
+			   (spanTypes.SPAN_DEFAULT &&
+			    spanTypes.SPAN_DEFAULT.fgColor) || '#000000');
+            var borderColor = ((spanDesc && spanDesc.borderColor) || 
+			       (spanTypes.SPAN_DEFAULT &&
+				spanTypes.SPAN_DEFAULT.borderColor) || '#000000');
 
             // special case: if the border 'color' value is 'darken',
             // then just darken the BG color a bit for the border.
@@ -1203,7 +1209,10 @@ Util.profileStart('chunks');
               var curlyColor = 'grey';
               if (coloredCurlies) {
                 var spanDesc = spanTypes[span.type];
-                var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.fgColor || '#000000';
+                var bgColor = ((spanDesc && spanDesc.bgColor) ||
+			       (spanTypes.SPAN_DEFAULT &&
+				spanTypes.SPAN_DEFAULT.fgColor) || 
+			       '#000000');
                 curlyColor = Util.adjustColorLightness(bgColor, -0.6);
               }
 
@@ -1543,11 +1552,15 @@ Util.profileStart('arcs');
           // relation_types has more info!)
           $.extend(arcDesc, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
 
-          var color = arcDesc && arcDesc.color || spanTypes.ARC_DEFAULT.color || '#000000';
+          var color = ((arcDesc && arcDesc.color) || 
+		       (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
+		       '#000000');
           var symmetric = arcDesc && arcDesc.properties && arcDesc.properties.symmetric;
           var hashlessColor = color.replace('#', '');
           var dashArray = arcDesc && arcDesc.dashArray;
-          var arrowHead = (arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5') + ',' + hashlessColor;
+          var arrowHead = ((arcDesc && arcDesc.arrowHead) ||
+			   (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead) ||
+			   'triangle,5') + ',' + hashlessColor;
 
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
@@ -1753,9 +1766,11 @@ Util.profileStart('arcs');
               path.line(from, -height);
             }
             var hashlessColor = color.replace('#', '');
+	    var myArrowHead   = ((arcDesc && arcDesc.arrowHead) || 
+				 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
             var arrowType = arrows[(leftToRight ?
-                symmetric && (arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead) || 'none' :
-                arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5') + ',' + hashlessColor];
+                symmetric && myArrowHead || 'none' :
+                myArrowHead || 'triangle,5') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
               markerEnd: arrowType && ('url(#' + arrowType + ')'),
               style: 'stroke: ' + color,
@@ -1801,9 +1816,11 @@ Util.profileStart('arcs');
             } else {
               path.line(to, -height);
             }
+	    var myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
+			       (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
             var arrowType = arrows[(leftToRight ?
-                arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead || 'triangle,5' :
-                symmetric && (arcDesc && arcDesc.arrowHead || spanTypes.ARC_DEFAULT.arrowHead) || 'none') + ',' + hashlessColor];
+                myArrowHead || 'triangle,5' :
+                symmetric && myArrowHead || 'none') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
                 markerEnd: arrowType && ('url(#' + arrowType + ')'),
                 style: 'stroke: ' + color,
@@ -2012,7 +2029,9 @@ Util.profileStart('chunkFinish');
             for(var i=0; i<chunk.spans.length; i++) {
               var span=chunk.spans[orderedIdx[i]];
               var spanDesc = spanTypes[span.type];
-              var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.bgColor || '#ffffff';
+              var bgColor = ((spanDesc && spanDesc.bgColor) ||
+			     (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
+			     '#ffffff');
 
               // Tweak for nesting depth/height. Recognize just three
               // levels for now: normal, nested, and nesting, where
@@ -2193,7 +2212,9 @@ Util.profileStart('before render');
               span.comment && span.comment.type]);
 
           var spanDesc = spanTypes[span.type];
-          var bgColor = spanDesc && spanDesc.bgColor || spanTypes.SPAN_DEFAULT.bgColor || '#ffffff';
+          var bgColor = ((spanDesc && spanDesc.bgColor) || 
+			 (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
+			 '#ffffff');
           highlight = svg.rect(highlightGroup,
                                span.highlightPos.x, span.highlightPos.y,
                                span.highlightPos.w, span.highlightPos.h,
