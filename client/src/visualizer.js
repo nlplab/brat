@@ -2123,11 +2123,12 @@ Util.profileStart('rows');
             row.sentComment = data.sentComment[row.sentence];
           }
           
-          var rowY = y - rowPadding;
-          if (roundCoordinates) {
-            rowY = rowY|0;
-          }
-          row.y += rowY; // TODO CHECK: possibly somewhere we need row.translation
+          // XXX removed - what did it do?
+          // var rowY = y - rowPadding;
+          // if (roundCoordinates) {
+          //   rowY = rowY|0;
+          // }
+          // row.y += rowY; // TODO CHECK: possibly somewhere we need row.translation
           y += Configuration.visual.margin.y;
         });
         y += Configuration.visual.margin.y;

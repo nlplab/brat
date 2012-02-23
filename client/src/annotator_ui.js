@@ -9,6 +9,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var arcDragArc = null;
       var arcDragJustStarted = false;
       var data = null;
+      var sourceData = null;
       var searchConfig = null;
       var spanOptions = null;
       var rapidSpanOptions = null;
@@ -906,7 +907,7 @@ var AnnotatorUI = (function($, window, undefined) {
               });
 
             var crossSentence = true;
-            $.each(data.sentence_offsets, function(sentNo, startEnd) {
+            $.each(sourceData.sentence_offsets, function(sentNo, startEnd) {
               if (selectedTo <= startEnd[1]) {
                 // this is the sentence
 
@@ -1003,6 +1004,12 @@ var AnnotatorUI = (function($, window, undefined) {
       var rememberData = function(_data) {
         if (_data && !_data.exception) {
           data = _data;
+        }
+      };
+
+      var rememberSourceData = function(_sourceData) {
+        if (_sourceData && !_sourceData.exception) {
+          sourceData = _sourceData;
         }
       };
 
@@ -1642,6 +1649,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('init', init).
           on('getValidArcTypesForDrag', getValidArcTypesForDrag).
           on('dataReady', rememberData).
+          on('renderData', rememberSourceData).
           on('collectionLoaded', rememberSpanSettings).
           on('collectionLoaded', setupTaggerUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
