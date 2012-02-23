@@ -1162,14 +1162,14 @@ Util.profileStart('chunks');
           $.each(chunk.spans, function(spanNo, span) {
             var spanDesc = spanTypes[span.type];
             var bgColor = ((spanDesc && spanDesc.bgColor) || 
-			   (spanTypes.SPAN_DEFAULT &&
-			    spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
+                           (spanTypes.SPAN_DEFAULT &&
+                            spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
             var fgColor = ((spanDesc && spanDesc.fgColor) || 
-			   (spanTypes.SPAN_DEFAULT &&
-			    spanTypes.SPAN_DEFAULT.fgColor) || '#000000');
+                           (spanTypes.SPAN_DEFAULT &&
+                            spanTypes.SPAN_DEFAULT.fgColor) || '#000000');
             var borderColor = ((spanDesc && spanDesc.borderColor) || 
-			       (spanTypes.SPAN_DEFAULT &&
-				spanTypes.SPAN_DEFAULT.borderColor) || '#000000');
+                               (spanTypes.SPAN_DEFAULT &&
+                                spanTypes.SPAN_DEFAULT.borderColor) || '#000000');
 
             // special case: if the border 'color' value is 'darken',
             // then just darken the BG color a bit for the border.
@@ -1299,9 +1299,9 @@ Util.profileStart('chunks');
               if (coloredCurlies) {
                 var spanDesc = spanTypes[span.type];
                 var bgColor = ((spanDesc && spanDesc.bgColor) ||
-			       (spanTypes.SPAN_DEFAULT &&
-				spanTypes.SPAN_DEFAULT.fgColor) || 
-			       '#000000');
+                               (spanTypes.SPAN_DEFAULT &&
+                                spanTypes.SPAN_DEFAULT.fgColor) || 
+                               '#000000');
                 curlyColor = Util.adjustColorLightness(bgColor, -0.6);
               }
 
@@ -1642,14 +1642,14 @@ Util.profileStart('arcs');
           $.extend(arcDesc, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
 
           var color = ((arcDesc && arcDesc.color) || 
-		       (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
-		       '#000000');
+                       (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
+                       '#000000');
           var symmetric = arcDesc && arcDesc.properties && arcDesc.properties.symmetric;
           var hashlessColor = color.replace('#', '');
           var dashArray = arcDesc && arcDesc.dashArray;
           var arrowHead = ((arcDesc && arcDesc.arrowHead) ||
-			   (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead) ||
-			   'triangle,5') + ',' + hashlessColor;
+                           (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead) ||
+                           'triangle,5') + ',' + hashlessColor;
 
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
@@ -1856,8 +1856,8 @@ Util.profileStart('arcs');
               path.line(from, -height);
             }
             var hashlessColor = color.replace('#', '');
-	    var myArrowHead   = ((arcDesc && arcDesc.arrowHead) || 
-				 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
+            var myArrowHead   = ((arcDesc && arcDesc.arrowHead) || 
+                                 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
             var arrowType = arrows[(leftToRight ?
                 symmetric && myArrowHead || 'none' :
                 myArrowHead || 'triangle,5') + ',' + hashlessColor];
@@ -1906,8 +1906,8 @@ Util.profileStart('arcs');
             } else {
               path.line(to, -height);
             }
-	    var myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
-			       (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
+            var myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
+                               (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
             var arrowType = arrows[(leftToRight ?
                 myArrowHead || 'triangle,5' :
                 symmetric && myArrowHead || 'none') + ',' + hashlessColor];
@@ -2135,8 +2135,8 @@ Util.profileStart('chunkFinish');
               var span=chunk.spans[orderedIdx[i]];
               var spanDesc = spanTypes[span.type];
               var bgColor = ((spanDesc && spanDesc.bgColor) ||
-			     (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
-			     '#ffffff');
+                             (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
+                             '#ffffff');
 
               // Tweak for nesting depth/height. Recognize just three
               // levels for now: normal, nested, and nesting, where
@@ -2318,8 +2318,8 @@ Util.profileStart('before render');
 
           var spanDesc = spanTypes[span.type];
           var bgColor = ((spanDesc && spanDesc.bgColor) || 
-			 (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
-			 '#ffffff');
+                         (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
+                         '#ffffff');
           highlight = svg.rect(highlightGroup,
                                span.highlightPos.x, span.highlightPos.y,
                                span.highlightPos.w, span.highlightPos.h,
