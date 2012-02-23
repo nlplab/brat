@@ -26,7 +26,6 @@ var Visualizer = (function($, window, undefined) {
       this.generalType = generalType;
       // this.chunk = undefined;
       // this.marked = undefined;
-      // this.towerId = undefined;
       // this.avgDist = undefined;
       // this.curly = undefined;
       // this.comment = undefined; // { type: undefined, text: undefined };
@@ -244,6 +243,102 @@ var Visualizer = (function($, window, undefined) {
         svg.clear();
         $svgDiv.hide();
       };
+
+      var setMarked = function(markedType) {
+        $.each(args[markedType] || [], function(markedNo, marked) {
+          if (marked[0] == 'sent') {
+            data.markedSent[marked[1]] = true;
+          } else if (marked[0] == 'equiv') { // [equiv, Equiv, T1]
+            $.each(data.equivs, function(equivNo, equiv) {
+              if (equiv[1] == marked[1]) {
+                var len = equiv.length;
+                for (var i = 2; i < len; i++) {
+                  if (equiv[i] == marked[2]) {
+                    // found it
+                    len -= 3;
+                    for (var i = 1; i <= len; i++) {
+                      var arc = data.eventDescs[equiv[0] + "*" + i].equivArc;
+                      arc.marked = markedType;
+                    }
+                    return; // next equiv
+                  }
+                }
+              }
+            });
+          } else if (marked.length == 2) {
+            markedText.push([parseInt(marked[0], 10), parseInt(marked[1], 10), markedType]);
+          } else {
+            var span = data.spans[marked[0]];
+            if (span) {
+              if (marked.length == 3) { // arc
+                $.each(span.outgoing, function(arcNo, arc) {
+                  if (arc.target == marked[2] && arc.type == marked[1]) {
+                    arc.marked = markedType;
+                  }
+                });
+              } else { // span
+                span.marked = markedType;
+              }
+            } else {
+              var eventDesc = data.eventDescs[marked[0]];
+              if (eventDesc) { // relation
+                var relArc = eventDesc.roles[0];
+                $.each(data.spans[eventDesc.triggerId].outgoing, function(arcNo, arc) {
+                  if (arc.target == relArc.targetId && arc.type == relArc.type) {
+                    arc.marked = markedType;
+                  }
+                });
+              } else { // try for trigger
+                $.each(data.eventDescs, function(eventDescNo, eventDesc) {
+                  if (eventDesc.triggerId == marked[0]) {
+                    data.spans[eventDesc.id].marked = markedType;
+                  }
+                });
+              }
+            }
+          }
+        });
+      };
+
+      var spanSortComparator = function(a, b) {
+        // longer arc distances go last
+        var tmp = a.avgDist - b.avgDist;
+        if (tmp) {
+          return tmp < 0 ? -1 : 1;
+        }
+        // spans with more arcs go last
+        var tmp = a.numArcs - b.numArcs;
+        if (tmp) {
+          return tmp < 0 ? -1 : 1;
+        }
+        // compare the span widths,
+        // put wider on bottom so they don't mess with arcs, or shorter
+        // on bottom if there are no arcs.
+        var ad = a.to - a.from;
+        var bd = b.to - b.from;
+        tmp = ad - bd;
+        if(a.numArcs == 0 && b.numArcs == 0) {
+          tmp = -tmp;
+        } 
+        if (tmp) {
+          return tmp < 0 ? 1 : -1;
+        }
+        tmp = a.refedIndexSum - b.refedIndexSum;
+        if (tmp) {
+          return tmp < 0 ? -1 : 1;
+        }
+        // if no other criterion is found, sort by type to maintain
+        // consistency
+        // TODO: isn't there a cmp() in JS?
+        if (a.type < b.type) {
+          return -1;
+        } else if (a.type > b.type) {
+          return 1;
+        }
+
+        return 0;
+      };
+
 
       var setData = function(_data) {
         sourceData = _data;
@@ -489,6 +584,7 @@ var Visualizer = (function($, window, undefined) {
         $.each(sortedSpans, function(spanId, span) {
           while (span.to > (chunk = data.chunks[currentChunkId]).to) currentChunkId++;
           chunk.spans.push(span);
+          span.text = chunk.text.substring(span.from - chunk.from, span.to - chunk.from);
           span.chunk = chunk;
         });
 
@@ -521,73 +617,12 @@ var Visualizer = (function($, window, undefined) {
           }); // roles
         }); // eventDescs
 
-        // highlighting: suppoting marking for
-        // 'edited': set by editing process
-        // 'matchfocus' : set by search process, focused match
-        // 'match' : set by search process, other (non-focused) match
-        // 'focus' : set by URL
-        // (see setMarked() invocations below)
-
+        // highlighting
         markedText = [];
-        var setMarked = function(markedType) {
-          $.each(args[markedType] || [], function(markedNo, marked) {
-            if (marked[0] == 'sent') {
-              data.markedSent[marked[1]] = true;
-            } else if (marked[0] == 'equiv') { // [equiv, Equiv, T1]
-              $.each(data.equivs, function(equivNo, equiv) {
-                if (equiv[1] == marked[1]) {
-                  var len = equiv.length;
-                  for (var i = 2; i < len; i++) {
-                    if (equiv[i] == marked[2]) {
-                      // found it
-                      len -= 3;
-                      for (var i = 1; i <= len; i++) {
-                        var arc = data.eventDescs[equiv[0] + "*" + i].equivArc;
-                        arc.marked = markedType;
-                      }
-                      return; // next equiv
-                    }
-                  }
-                }
-              });
-            } else if (marked.length == 2) {
-              markedText.push([parseInt(marked[0], 10), parseInt(marked[1], 10), markedType]);
-            } else {
-              var span = data.spans[marked[0]];
-              if (span) {
-                if (marked.length == 3) { // arc
-                  $.each(span.outgoing, function(arcNo, arc) {
-                    if (arc.target == marked[2] && arc.type == marked[1]) {
-                      arc.marked = markedType;
-                    }
-                  });
-                } else { // span
-                  span.marked = markedType;
-                }
-              } else {
-                var eventDesc = data.eventDescs[marked[0]];
-                if (eventDesc) { // relation
-                  var relArc = eventDesc.roles[0];
-                  $.each(data.spans[eventDesc.triggerId].outgoing, function(arcNo, arc) {
-                    if (arc.target == relArc.targetId && arc.type == relArc.type) {
-                      arc.marked = markedType;
-                    }
-                  });
-                } else { // try for trigger
-                  $.each(data.eventDescs, function(eventDescNo, eventDesc) {
-                    if (eventDesc.triggerId == marked[0]) {
-                      data.spans[eventDesc.id].marked = markedType;
-                    }
-                  });
-                }
-              }
-            }
-          });
-        };
-        setMarked('edited');
-        setMarked('focus');
-        setMarked('matchfocus');
-        setMarked('match');
+        setMarked('edited'); // set by editing process
+        setMarked('focus'); // set by URL
+        setMarked('matchfocus'); // set by search process, focused match
+        setMarked('match'); // set by search process, other (non-focused) match
 
         // resort the spans for linear order by center
         sortedSpans.sort(function(a, b) {
@@ -598,9 +633,9 @@ var Visualizer = (function($, window, undefined) {
           return 0;
         });
 
-        // mark curlies where needed
+        // sort spans into towers, calculate average arc distances
         var lastSpan = null;
-        var towerId = 0;
+        var towerId = -1;
         $.each(sortedSpans, function(i, span) {
           if (!lastSpan || (lastSpan.from != span.from || lastSpan.to != span.to)) {
             towerId++;
@@ -611,53 +646,14 @@ var Visualizer = (function($, window, undefined) {
           lastSpan = span;
         }); // sortedSpans
 
-        var spanAnnTexts = {};
-
-        var sortComparator = function(a, b) {
-          // longer arc distances go last
-          var tmp = a.avgDist - b.avgDist;
-          if (tmp) {
-            return tmp < 0 ? -1 : 1;
-          }
-          // spans with more arcs go last
-          var tmp = a.numArcs - b.numArcs;
-          if (tmp) {
-            return tmp < 0 ? -1 : 1;
-          }
-          // compare the span widths,
-          // put wider on bottom so they don't mess with arcs, or shorter
-          // on bottom if there are no arcs.
-          var ad = a.to - a.from;
-          var bd = b.to - b.from;
-          tmp = ad - bd;
-          if(a.numArcs == 0 && b.numArcs == 0) {
-            tmp = -tmp;
-          } 
-          if (tmp) {
-            return tmp < 0 ? 1 : -1;
-          }
-          tmp = a.refedIndexSum - b.refedIndexSum;
-          if (tmp) {
-            return tmp < 0 ? -1 : 1;
-          }
-          // if no other criterion is found, sort by type to maintain
-          // consistency
-          // TODO: isn't there a cmp() in JS?
-          if (a.type < b.type) {
-            return -1;
-          } else if (a.type > b.type) {
-            return 1;
-          }
-
-          return 0;
-        };
-
         for (var i = 0; i < 2; i++) {
           // preliminary sort to assign heights for basic cases
           // (first round) and cases resolved in the previous
           // round(s).
           $.each(data.chunks, function(chunkNo, chunk) {
-            chunk.spans.sort(sortComparator); // sort
+            // sort
+            chunk.spans.sort(spanSortComparator);
+            // renumber
             $.each(chunk.spans, function(spanNo, span) {
               span.indexNumber = spanNo;
               span.refedIndexSum = 0;
@@ -665,26 +661,25 @@ var Visualizer = (function($, window, undefined) {
           });
           // resolved cases will now have indexNumber set
           // to indicate their relative order. Sum those for referencing cases
+          // for use in iterative resorting
           $.each(data.arcs, function(arcNo, arc) {
             data.spans[arc.origin].refedIndexSum += data.spans[arc.target].indexNumber;
           });
         }
 
-        // Sort spans in chunks for drawing purposes
-        // and identify the marked text boundaries regarding chunks
+        var spanAnnTexts = {};
+        // Final sort of spans in chunks for drawing purposes
+        // Also identify the marked text boundaries regarding chunks
         $.each(data.chunks, function(chunkNo, chunk) {
           // and make the next sort take this into account. Note that this will
           // now resolve first-order dependencies between sort orders but not
           // second-order or higher.
-          chunk.spans.sort(sortComparator); // sort
+          chunk.spans.sort(spanSortComparator);
 
           chunk.markedTextStart = [];
           chunk.markedTextEnd = [];
 
           $.each(chunk.spans, function(spanNo, span) {
-            span.chunk = chunk;
-            // TODO: span.text is useful, but this is a weird place to init it ...
-            span.text = chunk.text.substring(span.from - chunk.from, span.to - chunk.from);
             if (!data.towers[span.towerId]) {
               data.towers[span.towerId] = [];
               span.drawCurly = true;
@@ -704,7 +699,7 @@ var Visualizer = (function($, window, undefined) {
               }
             }
 
-            var svgtext = svg.createText();
+            var svgtext = svg.createText(); // one "text" element per row
             var postfixArray = [];
             var prefix = '';
             var postfix = '';
@@ -771,6 +766,14 @@ var Visualizer = (function($, window, undefined) {
         }); // chunks
 
         var numChunks = data.chunks.length;
+        // note the location of marked text with respect to chunks
+        var startChunk = 0;
+        var currentChunk;
+        // sort by "from"; we don't need to sort by "to" as well,
+        // because unlike spans, chunks are disjunct
+        markedText.sort(function(a, b) { 
+          return Util.cmp(a[0], b[0]);
+        });
         $.each(markedText, function(textNo, textPos) {
           var from = textPos[0];
           var to = textPos[1];
@@ -779,35 +782,37 @@ var Visualizer = (function($, window, undefined) {
           if (to < 0) to = 0;
           if (to >= data.text.length) to = data.text.length - 1;
           if (from > to) from = to;
-          var i = 0;
-          while (i < numChunks) {
-            var chunk = data.chunks[i];
+          while (startChunk < numChunks) {
+            var chunk = data.chunks[startChunk];
             if (from <= chunk.to) {
               chunk.markedTextStart.push([textNo, true, from - chunk.from, null, markedType]);
               break;
             }
-            i++;
+            startChunk++;
           }
-          if (i == numChunks) {
+          if (startChunk == numChunks) {
             dispatcher.post('messages', [[['Wrong text offset', 'error']]]);
             return;
           }
-          while (i < numChunks) {
-            var chunk = data.chunks[i];
+          currentChunk = startChunk;
+          while (currentChunk < numChunks) {
+            var chunk = data.chunks[currentChunk];
             if (to <= chunk.to) {
               chunk.markedTextEnd.push([textNo, false, to - chunk.from]);
               break
             }
-            i++;
+            currentChunk++;
           }
-          if (i == numChunks) {
+          if (currentChunk == numChunks) {
             dispatcher.post('messages', [[['Wrong text offset', 'error']]]);
             var chunk = data.chunks[data.chunks.length - 1];
             chunk.markedTextEnd.push([textNo, false, chunk.text.length]);
             return;
           }
-        });
+        }); // markedText
 
+        // TODO: can span.lineIndex be different from span.towerId?
+        // If not, this piece of code should replace the towerId piece above
         var realSpanNo = -1;
         var lastSpan;
         $.each(sortedSpans, function(spanNo, span) {
