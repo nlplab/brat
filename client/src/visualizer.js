@@ -2,21 +2,74 @@
 
 
 var Visualizer = (function($, window, undefined) {
+  
+    var DocumentData = function(text) {
+      this.text = text;
+      this.chunks = [];
+      this.spans = {};
+      this.eventDescs = {};
+      this.sentComment = {};
+      this.arcs = [];
+      this.markedSent = {};
+      this.spanAnnTexts = {};
+      this.towers = {};
+      // this.sizes = {};
+    };
+
     var Span = function(id, type, from, to, generalType) {
       this.id = id;
       this.type = type;
       this.from = parseInt(from);
       this.to = parseInt(to);
-      this.outgoing = [];
+      this.totalDist = 0;
+      this.numArcs = 0;
+      this.generalType = generalType;
+      // this.chunk = undefined;
+      // this.marked = undefined;
+      // this.towerId = undefined;
+      // this.avgDist = undefined;
+      // this.curly = undefined;
+      // this.comment = undefined; // { type: undefined, text: undefined };
+      // this.annotatorNotes = undefined;
+      // this.drawCurly = undefined;
+      // this.glyphedLabelText = undefined;
+      // this.group = undefined;
+      // this.height = undefined;
+      // this.highlightPos = undefined;
+      // this.indexNumber = undefined;
+      // this.labelText = undefined;
+      // this.lineIndex = undefined;
+      // this.nestingDepth = undefined;
+      // this.nestingDepthLR = undefined;
+      // this.nestingDepthRL = undefined;
+      // this.nestingHeight = undefined;
+      // this.nestingHeightLR = undefined;
+      // this.nestingHeightRL = undefined;
+      // this.rect = undefined;
+      // this.rectBox = undefined;
+      // this.refedIndexSum = undefined;
+      // this.right = undefined;
+      // this.totaldist = undefined;
+      // this.towerId = undefined;
+      // this.width = undefined;
+      this.initContainers();
+    };
+
+    Span.prototype.initContainers = function() {
       this.incoming = [];
+      this.outgoing = [];
       this.attributes = {};
       this.attributeText = [];
       this.attributeCues = {};
       this.attributeCueFor = {};
       this.attributeMerge = {}; // for box, cross, etc. that are span-global
-      this.totalDist = 0;
-      this.numArcs = 0;
-      this.generalType = generalType;
+    };
+
+    Span.prototype.copy = function(id) {
+      var span = $.extend({}, this); // clone
+      span.id = id;
+      span.initContainers(); // protect from shallow copy
+      return span;
     };
 
     var EventDesc = function(id, triggerId, roles, klass) {
@@ -31,6 +84,46 @@ var Visualizer = (function($, window, undefined) {
       } else if (klass == "relation") {
         this.relation = true;
       }
+      // this.leftSpans = undefined;
+      // this.rightSpans = undefined;
+      // this.annotatorNotes = undefined;
+    };
+
+    var Chunk = function(index, text, from, to, space, spans) {
+      this.index = index;
+      this.text = text;
+      this.from = from;
+      this.to = to;
+      this.space = space;
+      this.spans = [];
+      // this.sentence = undefined;
+      // this.group = undefined;
+      // this.highlightGroup = undefined;
+      // this.markedTextStart = undefined;
+      // this.markedTextEnd = undefined;
+      // this.nextSpace = undefined;
+      // this.right = undefined;
+      // this.row = undefined;
+      // this.textX = undefined;
+      // this.translation = undefined;
+    }
+
+    var Arc = function(eventDesc, role, dist, eventNo) {
+      this.origin = eventDesc.id;
+      this.target = role.targetId;
+      this.dist = dist;
+      this.type = role.type;
+      this.shadowClass = eventDesc.shadowClass;
+      this.jumpHeight = 0;
+      if (eventDesc.equiv) {
+        this.equiv = true;
+        this.eventDescId = eventNo;
+        eventDesc.equivArc = this;
+      } else if (eventDesc.relation) {
+        this.relation = true;
+        this.eventDescId = eventNo;
+      }
+      // this.marked = undefined;
     };
 
     var Row = function(svg) {
@@ -40,6 +133,12 @@ var Visualizer = (function($, window, undefined) {
       this.hasAnnotations = false;
       this.maxArcHeight = 0;
       this.maxSpanHeight = 0;
+    };
+
+    var Measurements = function(widths, height, y) {
+      this.widths = widths;
+      this.height = height;
+      this.y = y;
     };
 
     var Visualizer = function(dispatcher, svgId) {
@@ -99,6 +198,7 @@ var Visualizer = (function($, window, undefined) {
       var svg;
       var $svg;
       var data = null;
+      var sourceData = null;
       var coll, doc, args;
       var spanTypes;
       var relationTypesHash;
@@ -140,45 +240,41 @@ var Visualizer = (function($, window, undefined) {
 
       var clearSVG = function() {
         data = null;
+        sourceData = null;
         svg.clear();
         $svgDiv.hide();
       };
 
       var setData = function(_data) {
-        data = _data;
+        sourceData = _data;
+        data = new DocumentData(sourceData.text);
 
         // collect annotation data
-        data.spans = {};
-        $.each(data.entities, function(entityNo, entity) {
+        $.each(sourceData.entities, function(entityNo, entity) {
           var span =
+              //      (id,        type,      from,      to,        generalType)
               new Span(entity[0], entity[1], entity[2], entity[3], 'entity');
           data.spans[entity[0]] = span;
         });
         var triggerHash = {};
-        $.each(data.triggers, function(triggerNo, trigger) {
+        $.each(sourceData.triggers, function(triggerNo, trigger) {
           triggerHash[trigger[0]] =
+              //       (id,         type,       from,       to,         generalType), eventList
               [new Span(trigger[0], trigger[1], trigger[2], trigger[3], 'trigger'), []];
         });
-        data.eventDescs = {};
-        $.each(data.events, function(eventNo, eventRow) {
+        $.each(sourceData.events, function(eventNo, eventRow) {
           var eventDesc = data.eventDescs[eventRow[0]] =
+              //           (id,          triggerId,   roles,        klass)
               new EventDesc(eventRow[0], eventRow[1], eventRow[2]);
           var trigger = triggerHash[eventDesc.triggerId];
-          var span = $.extend({}, trigger[0]); // clone
+          var span = trigger[0].copy(eventDesc.id);
           trigger[1].push(span);
-          span.incoming = []; // protect from shallow copy
-          span.outgoing = [];
-          span.attributes = {};
-          span.attributeText = [];
-          span.attributeCues = {};
-          span.attributeCueFor = {};
-          span.attributeMerge = {};
-          span.id = eventDesc.id;
           data.spans[eventDesc.id] = span;
         });
 
         // XXX modifications: delete later
-        $.each(data.modifications, function(modNo, mod) {
+        $.each(sourceData.modifications, function(modNo, mod) {
+          // mod: [id, spanId, modification]
           if (!data.spans[mod[2]]) {
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
             return;
@@ -186,14 +282,17 @@ var Visualizer = (function($, window, undefined) {
           data.spans[mod[2]][mod[1]] = true;
         });
 
-        $.each(data.equivs, function(equivNo, equiv) {
+        $.each(sourceData.equivs, function(equivNo, equiv) {
+          // equiv: ['*', 'Equiv', spanId...]
           equiv[0] = "*" + equivNo;
           var equivSpans = equiv.slice(2);
           var okEquivSpans = [];
+          // collect the equiv spans in an array
           $.each(equivSpans, function(equivSpanNo, equivSpan) {
             if (data.spans[equivSpan]) okEquivSpans.push(equivSpan);
             // TODO: #404, inform the user with a message?
           });
+          // sort spans in the equiv by their midpoint
           okEquivSpans.sort(function(a, b) {
             var aSpan = data.spans[a];
             var bSpan = data.spans[b];
@@ -203,21 +302,26 @@ var Visualizer = (function($, window, undefined) {
             }
             return 0;
           });
+          // generate the arcs
           var len = okEquivSpans.length;
           for (var i = 1; i < len; i++) {
             var eventDesc = data.eventDescs[equiv[0] + '*' + i] =
+                //                   (id,          triggerId,           roles,                         klass)
                 new EventDesc(okEquivSpans[i - 1], okEquivSpans[i - 1], [[equiv[1], okEquivSpans[i]]], 'equiv');
             eventDesc.leftSpans = okEquivSpans.slice(0, i);
             eventDesc.rightSpans = okEquivSpans.slice(i);
           }
         });
-        $.each(data.relations, function(relNo, rel) {
+        $.each(sourceData.relations, function(relNo, rel) {
           data.eventDescs[rel[0]] =
+              //           (id,     triggerId, roles,           klass)
               new EventDesc(rel[2], rel[2], [[rel[1], rel[3]]], 'relation');
         });
 
         // attributes
-        $.each(data.attributes, function(attrNo, attr) {
+        $.each(sourceData.attributes, function(attrNo, attr) {
+          // attr: [id, name, spanId, value, cueSpanId
+
           // TODO: might wish to check what's appropriate for the type
           // instead of using the first attribute def found
           var attrType = (eventAttributeTypes[attr[1]] || 
@@ -243,10 +347,15 @@ var Visualizer = (function($, window, undefined) {
           $.extend(span.attributeMerge, attrValue);
         });
 
-        data.sentComment = {};
-        $.each(data.comments, function(commentNo, comment) {
+        // comments
+        $.each(sourceData.comments, function(commentNo, comment) {
+          // comment: [entityId, type, text]
+          
           // TODO error handling
-          if (comment[0] instanceof Array && comment[0][0] == 'sent') { // [['sent', 7], 'Type', 'Text']
+
+          // sentence id: ['sent', sentId]
+          if (comment[0] instanceof Array && comment[0][0] == 'sent') {
+            // sentence comment
             var sent = comment[0][1];
             var text = comment[2];
             if (data.sentComment[sent]) {
@@ -259,13 +368,15 @@ var Visualizer = (function($, window, undefined) {
             var eventDesc = data.eventDescs[id];
             var commentEntities =
                 trigger
-                ? trigger[1]
+                ? trigger[1] // trigger: [span, ...]
                 : id in data.spans
-                  ? [data.spans[id]]
+                  ? [data.spans[id]] // span: [span]
                   : id in data.eventDescs
-                    ? [data.eventDescs[id]]
+                    ? [data.eventDescs[id]] // arc: [eventDesc]
                     : [];
             $.each(commentEntities, function(entityId, entity) {
+              // if duplicate comment for entity:
+              // overwrite type, concatenate comment with a newline
               if (!entity.comment) {
                 entity.comment = { type: comment[1], text: comment[2] };
               } else {
@@ -301,14 +412,13 @@ var Visualizer = (function($, window, undefined) {
         var currentSpanId = 0;
         var startSpanId = 0;
         var numSpans = sortedSpans.length;
-        data.chunks = [];
         var lastTo = 0;
         var firstFrom = null;
         var chunkNo = 0;
         var space;
         var chunk = null;
         // token containment testing (chunk recognition)
-        $.each(data.token_offsets, function() {
+        $.each(sourceData.token_offsets, function() {
           var from = this[0];
           var to = this[1];
           if (firstFrom === null) firstFrom = from;
@@ -342,24 +452,19 @@ var Visualizer = (function($, window, undefined) {
           space = data.text.substring(lastTo, firstFrom);
           var text = data.text.substring(firstFrom, to);
           if (chunk) chunk.nextSpace = space;
-          chunk = {
-              text: text,
-              space: space,
-              from: firstFrom,
-              to: to,
-              index: chunkNo++,
-              spans: [],
-            };
+          //               (index,     text, from,      to, space) {
+          chunk = new Chunk(chunkNo++, text, firstFrom, to, space);
           data.chunks.push(chunk);
           lastTo = to;
           firstFrom = null;
         });
         var numChunks = chunkNo;
 
+        // find sentence boundaries in relation to chunks
         chunkNo = 0;
         var sentenceNo = 0;
         var pastFirst = false;
-        $.each(data.sentence_offsets, function() {
+        $.each(sourceData.sentence_offsets, function() {
           var from = this[0];
           var chunk;
           if (data.chunks[chunkNo].from > from) return;
@@ -388,7 +493,6 @@ var Visualizer = (function($, window, undefined) {
         });
 
         // assign arcs to spans; calculate arc distances
-        data.arcs = [];
         $.each(data.eventDescs, function(eventNo, eventDesc) {
           var dist = 0;
           var origin = data.spans[eventDesc.id];
@@ -406,22 +510,7 @@ var Visualizer = (function($, window, undefined) {
             }
             var there = target.chunk.index;
             var dist = Math.abs(here - there);
-            var arc = {
-              origin: eventDesc.id,
-              target: role.targetId,
-              dist: dist,
-              type: role.type,
-              jumpHeight: 0,
-              shadowClass: eventDesc.shadowClass,
-            };
-            if (eventDesc.equiv) {
-              arc.equiv = true;
-              eventDesc.equivArc = arc;
-              arc.eventDescId = eventNo;
-            } else if (eventDesc.relation) {
-              arc.relation = true;
-              arc.eventDescId = eventNo;
-            }
+            var arc = new Arc(eventDesc, role, dist, eventNo);
             origin.totalDist += dist;
             origin.numArcs++;
             target.totalDist += dist;
@@ -439,7 +528,6 @@ var Visualizer = (function($, window, undefined) {
         // 'focus' : set by URL
         // (see setMarked() invocations below)
 
-        data.markedSent = {};
         markedText = [];
         var setMarked = function(markedType) {
           $.each(args[markedType] || [], function(markedNo, marked) {
@@ -518,13 +606,12 @@ var Visualizer = (function($, window, undefined) {
             towerId++;
           }
           span.towerId = towerId;
-          span.avgDist = span.totalDist / span.numArcs;
+          // average distance of arcs (0 for no arcs)
+          span.avgDist = span.numArcs ? span.totalDist / span.numArcs : 0;
           lastSpan = span;
         }); // sortedSpans
 
         var spanAnnTexts = {};
-        data.spanAnnTexts = {};
-        data.towers = {};
 
         var sortComparator = function(a, b) {
           // longer arc distances go last
@@ -584,6 +671,7 @@ var Visualizer = (function($, window, undefined) {
         }
 
         // Sort spans in chunks for drawing purposes
+        // and identify the marked text boundaries regarding chunks
         $.each(data.chunks, function(chunkNo, chunk) {
           // and make the next sort take this into account. Note that this will
           // now resolve first-order dependencies between sort orders but not
@@ -729,6 +817,7 @@ var Visualizer = (function($, window, undefined) {
           span.chunk.lastSpanIndex = realSpanNo;
           lastSpan = span;
         });
+        dispatcher.post('dataReady', [data]);
       };
 
       var resetData = function() {
@@ -846,11 +935,7 @@ var Visualizer = (function($, window, undefined) {
         var bbox = textMeasureGroup.getBBox();
         svg.remove(textMeasureGroup);
 
-        return {
-          widths: widths,
-          height: bbox.height,
-          y: bbox.y,
-        };
+        return new Measurements(widths, bbox.height, bbox.y);
       };
 
       var getTextAndSpanTextMeasurements = function() {
@@ -986,18 +1071,18 @@ var Visualizer = (function($, window, undefined) {
       var drawing = false;
       var redraw = false;
 
-      var renderDataReal = function(_data) {
+      var renderDataReal = function(sourceData) {
 
 Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
 
-        if (!_data && !data) { 
+        if (!sourceData && !data) { 
           dispatcher.post('doneRendering', [coll, doc, args]);
           return;
         }
         $svgDiv.show();
-        if ((_data && (_data.document !== doc || _data.collection !== coll)) || drawing) {
+        if ((sourceData && (sourceData.document !== doc || sourceData.collection !== coll)) || drawing) {
           redraw = true;
           dispatcher.post('doneRendering', [coll, doc, args]);
           return;
@@ -1005,7 +1090,7 @@ Util.profileStart('init');
         redraw = false;
         drawing = true;
 
-        if (_data) setData(_data);
+        if (sourceData) setData(sourceData);
         showMtime();
 
         // clear the SVG
@@ -2150,19 +2235,19 @@ Util.profileReport();
         annotationFileNotFound: true,
         isDirectoryError: true
       };
-      var renderData = function(_data) {
+      var renderData = function(sourceData) {
         Util.profileEnd('invoke getDocument');
-        if (_data && _data.exception) {
-          if (renderErrors[_data.exception]) {
-            dispatcher.post('renderError:' + _data.exception, [_data]);
+        if (sourceData && sourceData.exception) {
+          if (renderErrors[sourceData.exception]) {
+            dispatcher.post('renderError:' + sourceData.exception, [sourceData]);
           } else {
-            dispatcher.post('unknownError', [_data.exception]);
+            dispatcher.post('unknownError', [sourceData.exception]);
           }
         } else {
           dispatcher.post('startedRendering', [coll, doc, args]);
           dispatcher.post('spin');
           setTimeout(function() {
-              renderDataReal(_data);
+              renderDataReal(sourceData);
               dispatcher.post('unspin');
           }, 0);
         }
