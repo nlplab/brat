@@ -13,6 +13,8 @@ var Visualizer = (function($, window, undefined) {
       this.markedSent = {};
       this.spanAnnTexts = {};
       this.towers = {};
+      this.rows = [];
+      this.arrows = {};
       // this.sizes = {};
     };
 
@@ -45,7 +47,7 @@ var Visualizer = (function($, window, undefined) {
       // this.nestingHeightLR = undefined;
       // this.nestingHeightRL = undefined;
       // this.rect = undefined;
-      // this.rectBox = undefined;
+      // this.box = undefined;
       // this.refedIndexSum = undefined;
       // this.right = undefined;
       // this.totaldist = undefined;
@@ -126,12 +128,14 @@ var Visualizer = (function($, window, undefined) {
     };
 
     var Row = function(svg) {
-      this.group = svg.group();
-      this.background = svg.group(this.group);
       this.chunks = [];
       this.hasAnnotations = false;
       this.maxArcHeight = 0;
       this.maxSpanHeight = 0;
+      this.lines = [];
+      // this.group = undefined;
+      // this.background = undefined;
+      // this.index = undefined;
     };
 
     var Measurements = function(widths, height, y) {
@@ -221,7 +225,7 @@ var Visualizer = (function($, window, undefined) {
       }
 
       var rowBBox = function(span) {
-        var box = $.extend({}, span.rectBox); // clone
+        var box = $.extend({}, span.box); // clone
         var chunkTranslation = span.chunk.translation;
         box.x += chunkTranslation.x;
         box.y += chunkTranslation.y;
@@ -905,15 +909,6 @@ var Visualizer = (function($, window, undefined) {
         }
       };
       
-      var addHeaderAndDefs = function() {
-        var commentName = (coll + '/' + doc).replace('--', '-\\-');
-        $svg.append('<!-- document: ' + commentName + ' -->');
-        var defs = svg.defs();
-        var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
-        svg.add(defs, $blurFilter);
-        return defs;
-      }
-
       var getTextMeasurements = function(textsHash, options, callback) {
         // make some text elements, find out the dimensions
         var textMeasureGroup = svg.group(options);
@@ -1046,7 +1041,7 @@ var Visualizer = (function($, window, undefined) {
         }); // data.towers
       };
 
-      var makeArrow = function(defs, spec) {
+      var makeArrow = function(spec) {
         var parsedSpec = spec.split(',');
         var type = parsedSpec[0];
         if (type == 'none') return;
@@ -1058,18 +1053,307 @@ var Visualizer = (function($, window, undefined) {
           size = 5;
         }
         var arrowId = 'arrow_' + spec.replace(/,/g, '_');
+        data.arrows[spec] = [type, size, color, arrowId];
 
-        var arrow;
-        if (type == 'triangle') {
-          arrow = svg.marker(defs, arrowId,
-            size, size / 2, size, size, 'auto',
-            {
-              markerUnits: 'strokeWidth',
-              'fill': color,
-            });
-          svg.polyline(arrow, [[0, 0], [size, size / 2], [0, size], [size / 25, size / 2]]);
-        }
         return arrowId;
+      }
+
+      var addElementsToSVG = function() {
+        var commentName = (coll + '/' + doc).replace('--', '-\\-');
+        $svg.append('<!-- document: ' + commentName + ' -->');
+        var defs = svg.defs();
+        var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
+        svg.add(defs, $blurFilter);
+
+        var backgroundGroup = svg.group({ 'class': 'background' });
+        // draw the drag arc marker
+        var arrowhead = svg.marker(defs, 'drag_arrow',
+          5, 2.5, 5, 5, 'auto',
+          {
+            markerUnits: 'strokeWidth',
+            'class': 'drag_fill',
+          });
+        svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+
+        $.each(data.arrows, function(arrowSpec, arrowDesc) {
+          var size = arrowDesc[1];
+          if (arrowDesc[0] == 'triangle') {
+            var arrow = svg.marker(defs, arrowDesc[3],
+              size, size / 2, size, size, 'auto',
+              {
+                markerUnits: 'strokeWidth',
+                'fill': arrowDesc[2],
+              });
+            svg.polyline(arrow, [[0, 0], [size, size / 2], [0, size], [size / 25, size / 2]]);
+          }
+        });
+
+        var glowGroup = svg.group({ 'class': 'glow' });
+        highlightGroup = svg.group({ 'class': 'highlight' });
+        var textGroup = svg.group({ 'class': 'text' });
+        var sentNumGroup = svg.group({'class': 'sentnum'});
+
+        $.each(data.rows, function() {
+          this.group = svg.group();
+          this.background = svg.group(this.group);
+          this.arcs = svg.group(this.group, { 'class': 'arcs' });
+
+          svg.rect(backgroundGroup,
+            0, this.y + data.sizes.texts.y + data.sizes.texts.height,
+            canvasWidth, this.height + data.sizes.texts.height + 1, {
+            'class': this.bgClass,
+          });
+
+          if (this.link) {
+            var link = svg.link(sentNumGroup, this.link);
+            var text = svg.text(link, sentNumMargin - Configuration.visual.margin.x, this.y + this.height - rowPadding - data.sizes.texts.height,
+                '' + this.sentence, { 'data-sent': this.sentence });
+            if (this.sentComment) {
+              var box = text.getBBox(); // TODO FIXME measure in advance
+              svg.remove(text);
+              // TODO: using rectShadowSize, but this shadow should
+              // probably have its own setting for shadow size
+              shadowRect = svg.rect(sentNumGroup,
+                  box.x - rectShadowSize, box.y - rectShadowSize,
+                  box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
+
+                  'class': 'shadow_' + this.sentComment.type,
+                  filter: 'url(#Gaussian_Blur)',
+                  rx: rectShadowRounding,
+                  ry: rectShadowRounding,
+                  'data-sent': this.sentence,
+              });
+              var text = svg.text(link, sentNumMargin - Configuration.visual.margin.x, this.y + this.height - rowPadding - data.sizes.texts.height,
+                  '' + this.sentence, { 'data-sent': this.sentence });
+            }
+          }
+
+          if (this.text) {
+            svg.text(textGroup, 0, 0, this.text);
+          }
+        });
+
+        $.each(data.chunks, function() {
+          this.group = svg.group(this.row.group);
+          this.highlightGroup = svg.group(this.group);
+        });
+
+        $.each(data.spans, function() {
+            this.group = svg.group(this.chunk.group, {
+              'class': 'span',
+            });
+
+            var box = this.box;
+            var plainbox = this.plainbox;
+            if (this.marked) {
+              var markedRect = svg.rect(this.chunk.highlightGroup,
+                box.x - markedSpanSize, box.y - markedSpanSize,
+                box.w + 2 * markedSpanSize, box.h + 2 * markedSpanSize,
+                {
+                  // filter: 'url(#Gaussian_Blur)',
+                  'class': "shadow_EditHighlight",
+                  rx: markedSpanSize,
+                  ry: markedSpanSize,
+              });
+              svg.other(markedRect, 'animate', {
+                'data-type': this.marked,
+                attributeName: 'fill',
+                values: (this.marked == 'match'
+                         ? highlightMatchSequence
+                         : highlightSpanSequence),
+                dur: highlightDuration,
+                repeatCount: 'indefinite',
+                begin: 'indefinite',
+              });
+            }
+            if (this.shadowClass) {
+              svg.rect(this.group,
+                box.x - rectShadowSize, box.y - rectShadowSize,
+                box.w + 2 * rectShadowSize, box.h + 2 * rectShadowSize,
+                {
+                  'class': 'shadow_' + this.shadowClass,
+                  filter: 'url(#Gaussian_Blur)',
+                  rx: rectShadowRounding,
+                  ry: rectShadowRounding,
+              });
+            }
+            this.rect = svg.rect(this.group,
+                box.bx, box.y, box.w, box.h, box.opts);
+
+            if (this.attributeMerge.box === "crossed") {
+              svg.path(this.group, svg.createPath().
+                  move(plainbox.x, plainbox.y - Configuration.visual.margin.y - this.yAdjust).
+                  line(plainbox.x + this.width,
+                    plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust),
+                  { 'class': 'boxcross' });
+              svg.path(this.group, svg.createPath().
+                  move(plainbox.x + this.width, plainbox.y - Configuration.visual.margin.y - this.yAdjust).
+                  line(plainbox.x, plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust),
+                  { 'class': 'boxcross' });
+            }
+            svg.text(this.group, plainbox.x, plainbox.y - this.yAdjust, data.spanAnnTexts[this.glyphedLabelText], { fill: this.fgColor });
+
+            if (this.drawCurly) {
+              var bottom = plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust + 1;
+              svg.path(this.group, svg.createPath()
+                  .move(this.curly.from, bottom + Configuration.visual.curlyHeight)
+                  .curveC(this.curly.from, bottom,
+                    this.curly.x, bottom + Configuration.visual.curlyHeight,
+                    this.curly.x, bottom)
+                  .curveC(this.curly.x, bottom + Configuration.visual.curlyHeight,
+                    this.curly.to, bottom,
+                    this.curly.to, bottom + Configuration.visual.curlyHeight),
+                {
+                  'class': 'curly',
+                  'stroke': this.curly.color,
+                });
+            }
+
+            svg.rect(highlightGroup,
+                this.highlightPos.x, this.highlightPos.y,
+                this.highlightPos.w, this.highlightPos.h,
+                { fill: this.lightBgColor, //opacity:1,
+                  rx: highlightRounding.x,
+                  ry: highlightRounding.y,
+                });
+        });
+
+        // guess at the correct baseline shift to get vertical centering.
+        // (CSS dominant-baseline can't be used as not all SVG rendereds support it.)
+        var baselineShift = data.sizes.arcs.height / 4;
+
+        $.each(data.rows, function() {
+          var row = this;
+          $.each(this.lines, function() {
+            var arc = this.arc;
+            var textBox = this.textBox;
+
+            var arcGroup = svg.group(row.group, {
+                'data-from': arc.origin,
+                'data-to': arc.target
+            });
+            var shadowGroup;
+            if (arc.shadowClass || arc.marked) {
+              shadowGroup = svg.group(arcGroup);
+            }
+            svg.text(arcGroup, (this.from + this.to) / 2, -this.height + baselineShift,
+                                this.svgText, this.options);
+
+            if (arc.marked) {
+              var markedRect = svg.rect(shadowGroup,
+                  textBox.x - markedArcSize, textBox.y - markedArcSize,
+                  textBox.width + 2 * markedArcSize, textBox.height + 2 * markedArcSize, {
+                    // filter: 'url(#Gaussian_Blur)',
+                    'class': "shadow_EditHighlight",
+                    rx: markedArcSize,
+                    ry: markedArcSize,
+              });
+              svg.other(markedRect, 'animate', {
+                'data-type': arc.marked,
+                attributeName: 'fill',
+                values: (arc.marked == 'match' ? highlightMatchSequence
+                         : highlightArcSequence),
+                dur: highlightDuration,
+                repeatCount: 'indefinite',
+                begin: 'indefinite'
+              });
+            }
+            if (arc.shadowClass) {
+              svg.rect(shadowGroup,
+                  textBox.x - arcLabelShadowSize, 
+                  textBox.y - arcLabelShadowSize,
+                  textBox.width  + 2 * arcLabelShadowSize, 
+                  textBox.height + 2 * arcLabelShadowSize, {
+                    'class': 'shadow_' + arc.shadowClass,
+                    filter: 'url(#Gaussian_Blur)',
+                    rx: arcLabelShadowRounding,
+                    ry: arcLabelShadowRounding,
+              });
+            }
+
+            svg.path(arcGroup, this.leftLine, {
+              markerEnd: this.leftArrow && ('url(#' + this.leftArrow + ')'),
+              style: 'stroke: ' + this.color,
+              'strokeDashArray': this.dashArray,
+            });
+            if (arc.marked) {
+              var markedPath = svg.path(shadowGroup, this.leftLine, {
+                  'class': 'shadow_EditHighlight_arc',
+                  strokeWidth: markedArcStroke,
+                  'strokeDashArray': this.dashArray,
+              });
+              svg.other(markedPath, 'animate', {
+                'data-type': arc.marked,
+                attributeName: 'fill',
+                values: (arc.marked == 'match' ? highlightMatchSequence
+                         : highlightArcSequence),
+                dur: highlightDuration,
+                repeatCount: 'indefinite',
+                begin: 'indefinite'
+              });
+            }
+            if (arc.shadowClass) {
+              svg.path(shadowGroup, lineDesc.leftLine, {
+                  'class': 'shadow_' + arc.shadowClass,
+                  strokeWidth: shadowStroke,
+                  'strokeDashArray': lineDesc.dashArray,
+              });
+            }
+
+            svg.path(arcGroup, this.rightLine, {
+                markerEnd: this.rightArrow && ('url(#' + this.rightArrow + ')'),
+                style: 'stroke: ' + this.color,
+                'strokeDashArray': this.dashArray,
+            });
+            if (arc.marked) {
+              var markedPath = svg.path(shadowGroup, this.rightLine, {
+                  'class': 'shadow_EditHighlight_arc',
+                  strokeWidth: markedArcStroke,
+                  'strokeDashArray': this.dashArray,
+              });
+              svg.other(markedPath, 'animate', {
+                'data-type': arc.marked,
+                attributeName: 'fill',
+                values: (arc.marked == 'match' ? highlightMatchSequence
+                         : highlightArcSequence),
+                dur: highlightDuration,
+                repeatCount: 'indefinite',
+                begin: 'indefinite'
+              });
+            }
+            if (shadowGroup) {
+              svg.path(shadowGroup, this.rightLine, {
+                  'class': 'shadow_' + arc.shadowClass,
+                  strokeWidth: shadowStroke,
+                  'strokeDashArray': this.dashArray,
+              });
+            }
+          });
+        });
+
+        $.each(data.textHighlights, function() {
+          var highlightRect = svg.rect(highlightGroup,
+            this.x, this.y, this.w, this.h,
+            { fill: 'yellow' } // TODO: put into css file, as default - turn into class
+          );
+          // NOTE: changing highlightTextSequence here will give
+          // different-colored highlights
+          // TODO: entirely different settings for non-animations?
+          svg.other(highlightRect, 'animate', {
+            'data-type': this.type,
+            attributeName: 'fill',
+            values: (this.type == 'match' ? highlightMatchSequence
+                     : highlightTextSequence),
+            dur: highlightDuration,
+            repeatCount: 'indefinite',
+            begin: 'indefinite'
+          });
+        });
+
+        svg.path(sentNumGroup, svg.createPath().
+          move(sentNumMargin, 0).
+          line(sentNumMargin, data.height));
+
       }
 
 
@@ -1105,12 +1389,6 @@ Util.profileStart('init');
         // establish the width according to the enclosing element
         canvasWidth = that.forceWidth || $svgDiv.width();
 
-        var defs = addHeaderAndDefs();
-
-        var backgroundGroup = svg.group({ 'class': 'background' });
-        var glowGroup = svg.group({ 'class': 'glow' });
-        highlightGroup = svg.group({ 'class': 'highlight' });
-        var textGroup = svg.group({ 'class': 'text' });
 
 Util.profileEnd('init');
 Util.profileStart('measures');
@@ -1127,12 +1405,12 @@ Util.profileStart('measures');
 Util.profileEnd('measures');
 Util.profileStart('chunks');
 
+Util.profileStart('--chunks--prologue');
         var currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding;
-        var rows = [];
         var spanHeights = [];
         var sentenceToggle = 0;
         var sentenceNumber = 0;
-        var row = new Row(svg);
+        var row = new Row();
         row.sentence = ++sentenceNumber;
         row.backgroundIndex = sentenceToggle;
         row.index = 0;
@@ -1143,10 +1421,10 @@ Util.profileStart('chunks');
         var textMarkedRows = [];
 
         addArcTextMeasurements(sizes);
+Util.profileEnd('--chunks--prologue');
         $.each(data.chunks, function(chunkNo, chunk) {
+Util.profileStart('--chunks--before');
           reservations = new Array();
-          chunk.group = svg.group(row.group);
-          chunk.highlightGroup = svg.group(chunk.group);
 
           var y = 0;
           var minArcDist;
@@ -1158,13 +1436,14 @@ Util.profileStart('chunks');
           var spacing = 0;
           var spacingChunkId = null;
           var spacingRowBreak = 0;
+Util.profileEnd('--chunks--before');
 
           $.each(chunk.spans, function(spanNo, span) {
             var spanDesc = spanTypes[span.type];
             var bgColor = ((spanDesc && spanDesc.bgColor) || 
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
-            var fgColor = ((spanDesc && spanDesc.fgColor) || 
+            span.fgColor = ((spanDesc && spanDesc.fgColor) || 
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.fgColor) || '#000000');
             var borderColor = ((spanDesc && spanDesc.borderColor) || 
@@ -1177,10 +1456,6 @@ Util.profileStart('chunks');
                 borderColor = Util.adjustColorLightness(bgColor, -0.6);
             }
             
-            span.group = svg.group(chunk.group, {
-              'class': 'span',
-            });
-
             var spanHeight = 0;
 
             if (!y) y = -sizes.texts.height - Configuration.visual.curlyHeight;
@@ -1210,48 +1485,21 @@ Util.profileStart('chunks');
               x  = (x|0)+0.5;
               bx = (bx|0)+0.5;              
             }
+            this.curly.x = x;
 
-            var shadowRect;
-            var markedRect;
             if (span.marked) {
-              markedRect = svg.rect(chunk.highlightGroup,
-                  bx - markedSpanSize, by - markedSpanSize,
-                  bw + 2 * markedSpanSize, bh + 2 * markedSpanSize, {
- 
-                  // filter: 'url(#Gaussian_Blur)',
-                  'class': "shadow_EditHighlight",
-                  rx: markedSpanSize,
-                  ry: markedSpanSize,
-              });
-              svg.other(markedRect, 'animate', {
-                'data-type': span.marked,
-                attributeName: 'fill',
-                values: (span.marked == 'match'? highlightMatchSequence
-                         : highlightSpanSequence),
-                dur: highlightDuration,
-                repeatCount: 'indefinite',
-                begin: 'indefinite'
-              });
               chunkFrom = Math.min(bx - markedSpanSize, chunkFrom);
               chunkTo = Math.max(bx + bw + markedSpanSize, chunkTo);
               spanHeight = Math.max(bh + 2 * markedSpanSize, spanHeight);
             }
             if (span.shadowClass) {
-              shadowRect = svg.rect(span.group,
-                  bx - rectShadowSize, by - rectShadowSize,
-                  bw + 2 * rectShadowSize, bh + 2 * rectShadowSize, {
-                  'class': 'shadow_' + span.shadowClass,
-                  filter: 'url(#Gaussian_Blur)',
-                  rx: rectShadowRounding,
-                  ry: rectShadowRounding,
-              });
               chunkFrom = Math.min(bx - rectShadowSize, chunkFrom);
               chunkTo = Math.max(bx + bw + rectShadowSize, chunkTo);
               spanHeight = Math.max(bh + 2 * rectShadowSize, spanHeight);
             }
-            span.rect = svg.rect(span.group,
-                bx, by, bw, bh, {
-
+            span.box = {
+              x: bx, y: by, w: bw, h: bh,
+              opts: {
                 'class': rectClass,
                 fill: bgColor,
                 stroke: borderColor,
@@ -1259,7 +1507,9 @@ Util.profileStart('chunks');
                 ry: Configuration.visual.margin.y,
                 'data-span-id': span.id,
                 'strokeDashArray': span.attributeMerge.dashArray,
-              });
+              },
+            };
+            span.plainbox = { x: xx, y: yy, w: ww, h: hh };
             span.right = bx + bw; // TODO put it somewhere nicer?
             if (!(span.shadowClass || span.marked)) {
               chunkFrom = Math.min(bx, chunkFrom);
@@ -1267,12 +1517,13 @@ Util.profileStart('chunks');
               spanHeight = Math.max(bh, spanHeight);
             }
 
-            var yAdjust = placeReservation(span, bx, bw, bh, reservations);
+            span.yAdjust = placeReservation(span, bx, bw, bh, reservations);
+            span.box.y -= span.yAdjust;
 
-            span.rectBox = { x: bx, y: by - yAdjust, width: bw, height: bh };
             // this is monotonous due to sort:
-            span.height = yAdjust + hh + 3 * Configuration.visual.margin.y + Configuration.visual.curlyHeight + Configuration.visual.arcSpacing;
+            span.height = span.yAdjust + hh + 3 * Configuration.visual.margin.y + Configuration.visual.curlyHeight + Configuration.visual.arcSpacing;
             spanHeights[span.lineIndex * 2] = span.height;
+            /* FIXME NOW
             $(span.rect).attr('y', yy - Configuration.visual.margin.y - yAdjust);
             if (shadowRect) {
               $(shadowRect).attr('y', yy - rectShadowSize - Configuration.visual.margin.y - yAdjust);
@@ -1280,44 +1531,20 @@ Util.profileStart('chunks');
             if (markedRect) {
               $(markedRect).attr('y', yy - markedSpanSize - Configuration.visual.margin.y - yAdjust);
             }
-            if (span.attributeMerge.box === "crossed") {
-              svg.path(span.group, svg.createPath().
-                  move(xx, yy - Configuration.visual.margin.y - yAdjust).
-                  line(xx + span.width,
-                    yy + hh + Configuration.visual.margin.y - yAdjust),
-                  { 'class': 'boxcross' });
-              svg.path(span.group, svg.createPath().
-                  move(xx + span.width, yy - Configuration.visual.margin.y - yAdjust).
-                  line(xx, yy + hh + Configuration.visual.margin.y - yAdjust),
-                  { 'class': 'boxcross' });
-            }
-            var spanText = svg.text(span.group, x, y - yAdjust, data.spanAnnTexts[span.glyphedLabelText], { fill: fgColor });
+            */
 
             // Make curlies to show the span
             if (span.drawCurly) {
-              var curlyColor = 'grey';
               if (coloredCurlies) {
                 var spanDesc = spanTypes[span.type];
                 var bgColor = ((spanDesc && spanDesc.bgColor) ||
                                (spanTypes.SPAN_DEFAULT &&
                                 spanTypes.SPAN_DEFAULT.fgColor) || 
                                '#000000');
-                curlyColor = Util.adjustColorLightness(bgColor, -0.6);
+                span.curly.color = Util.adjustColorLightness(bgColor, -0.6);
+              } else {
+                span.curly.color = 'grey';
               }
-
-              var bottom = yy + hh + Configuration.visual.margin.y - yAdjust + 1;
-              svg.path(span.group, svg.createPath()
-                  .move(span.curly.from, bottom + Configuration.visual.curlyHeight)
-                  .curveC(span.curly.from, bottom,
-                    x, bottom + Configuration.visual.curlyHeight,
-                    x, bottom)
-                  .curveC(x, bottom + Configuration.visual.curlyHeight,
-                    span.curly.to, bottom,
-                    span.curly.to, bottom + Configuration.visual.curlyHeight),
-                {
-                  'class': 'curly',
-                  'stroke': curlyColor,
-                });
               chunkFrom = Math.min(span.curly.from, chunkFrom);
               chunkTo = Math.max(span.curly.to, chunkTo);
               spanHeight = Math.max(Configuration.visual.curlyHeight, spanHeight);
@@ -1387,11 +1614,12 @@ Util.profileStart('chunks');
                 hasRightArcs = true;
               }
             });
-            spanHeight += yAdjust || Configuration.visual.curlyHeight;
+            spanHeight += span.yAdjust || Configuration.visual.curlyHeight;
             if (spanHeight > chunkHeight) chunkHeight = spanHeight;
             hasAnnotations = true;
           }); // spans
 
+Util.profileStart('--chunks--postspan');
           // positioning of the chunk
           chunk.right = chunkTo;
           var textWidth = sizes.texts.widths[chunk.text];
@@ -1414,9 +1642,8 @@ Util.profileStart('chunks');
           if (chunk.sentence) {
             while (sentenceNumber < chunk.sentence) {
               sentenceNumber++;
-              row.arcs = svg.group(row.group, { 'class': 'arcs' });
-              rows.push(row);
-              row = new Row(svg);
+              data.rows.push(row);
+              row = new Row();
               sentenceToggle = 1 - sentenceToggle;
               row.backgroundIndex = sentenceToggle;
               row.index = ++rowIndex;
@@ -1426,8 +1653,6 @@ Util.profileStart('chunks');
 
           if (chunk.sentence ||
               currentX + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
-            // the chunk does not fit
-            row.arcs = svg.group(row.group, { 'class': 'arcs' });
             // TODO: related to issue #571
             // replace arcHorizontalSpacing with a calculated value
             currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding +
@@ -1444,14 +1669,12 @@ Util.profileStart('chunks');
             }
 
             // new row
-            rows.push(row);
+            data.rows.push(row);
 
-            svg.remove(chunk.group);
-            row = new Row(svg);
+            row = new Row();
             row.backgroundIndex = sentenceToggle;
             row.index = ++rowIndex;
-            svg.add(row.group, chunk.group);
-            chunk.group = row.group.lastElementChild;
+            /* XXX cut - probably unnecessary, but check
             $(chunk.group).children("g[class='span']").
               each(function(index, element) {
                   chunk.spans[index].group = element;
@@ -1460,6 +1683,7 @@ Util.profileStart('chunks');
               each(function(index, element) {
                   chunk.spans[index].rect = element;
               });
+            */
           }
 
           // break the text highlights when the row breaks
@@ -1519,17 +1743,17 @@ Util.profileStart('chunks');
           var spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
           for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
           currentX += spaceWidth + boxWidth;
+Util.profileEnd('--chunks--postspan');
         }); // chunks
 
         // finish the last row
-        row.arcs = svg.group(row.group, { 'class': 'arcs' });
-        rows.push(row);
+        data.rows.push(row);
 
 Util.profileEnd('chunks');
 Util.profileStart('arcsPrep');
 
         var arrows = {};
-        var arrow = makeArrow(defs, 'none');
+        var arrow = makeArrow('none');
         if (arrow) arrows['none'] = arrow;
 
         var len = spanHeights.length;
@@ -1578,15 +1802,6 @@ Util.profileStart('arcsPrep');
           // if equal, they're just equal.
           return 0;
         });
-
-        // draw the drag arc marker
-        var arrowhead = svg.marker(defs, 'drag_arrow',
-          5, 2.5, 5, 5, 'auto',
-          {
-            markerUnits: 'strokeWidth',
-            'class': 'drag_fill',
-          });
-        svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
 
 Util.profileEnd('arcsPrep');
 Util.profileStart('arcs');
@@ -1657,7 +1872,7 @@ Util.profileStart('arcs');
           var rightRow = right.chunk.row.index;
 
           if (!arrows[arrowHead]) {
-            var arrow = makeArrow(defs, arrowHead);
+            var arrow = makeArrow(arrowHead);
             if (arrow) arrows[arrowHead] = arrow;
           }
 
@@ -1685,33 +1900,32 @@ Util.profileStart('arcs');
 
           // TODO: on at least Chrome, this doesn't make a difference:
           // the lines come out pixel-width even without it. Check.
-          height += 0.5
+          height += 0.5;
 
           var chunkReverse = false;
           var ufoCatcher = originSpan.chunk.index == targetSpan.chunk.index;
           if (ufoCatcher) {
             chunkReverse =
-              leftBox.x + leftBox.width / 2 < rightBox.x + rightBox.width / 2;
+              leftBox.x + leftBox.w / 2 < rightBox.x + rightBox.w / 2;
           }
           var ufoCatcherMod = ufoCatcher ? chunkReverse ? -0.5 : 0.5 : 1;
 
+          var myArrowHead   = ((arcDesc && arcDesc.arrowHead) || 
+                               (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
+
           for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
-            var row = rows[rowIndex];
+            var row = data.rows[rowIndex];
             row.hasAnnotations = true;
-            var arcGroup = svg.group(row.arcs, {
-                'data-from': arc.origin,
-                'data-to': arc.target
-            });
             var from, to;
             
             if (rowIndex == leftRow) {
-              from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
+              from = leftBox.x + (chunkReverse ? 0 : leftBox.w);
             } else {
               from = sentNumMargin;
             }
 
             if (rowIndex == rightRow) {
-              to = rightBox.x + (chunkReverse ? rightBox.width : 0);
+              to = rightBox.x + (chunkReverse ? rightBox.w : 0);
             } else {
               to = canvasWidth - 2 * Configuration.visual.margin.y;
             }
@@ -1733,21 +1947,25 @@ Util.profileStart('arcs');
               }
             }
 
-            var shadowGroup;
-            if (arc.shadowClass || arc.marked) {
-              shadowGroup = svg.group(arcGroup);
-            }
-            var options = {
-              'fill': color,
-              'data-arc-role': arc.type,
-              'data-arc-origin': arc.origin,
-              'data-arc-target': arc.target,
-              'data-arc-id': arc.id,
-              'data-arc-ed': arc.eventDescId,
+            var lineData = {
+              arc: arc,
+              from: from,
+              to: to,
+              height: height,
+              color: color,
+              options: {
+                'fill': color,
+                'data-arc-role': arc.type,
+                'data-arc-origin': arc.origin,
+                'data-arc-target': arc.target,
+                'data-arc-id': arc.id,
+                'data-arc-ed': arc.eventDescId,
+              },
             };
 
             // construct SVG text, showing possible trailing index
             // numbers (as in e.g. "Theme2") as subscripts
+            // It's just an object - not drawn on SVG yet - so OK to do here
             var svgText;
             if (!splitArcType[2]) {
                 // no subscript, simple string suffices
@@ -1762,7 +1980,7 @@ Util.profileStart('arcs');
                 // TODO: to address issue #453, attaching options also
                 // to spans, not only primary text. Make sure there
                 // are no problems with this.
-                svgText.span(noNumLabelText, options);
+                svgText.span(noNumLabelText, lineData.options);
                 var subscriptSettings = {
                   'dy': '0.3em', 
                   'font-size': '80%'
@@ -1772,15 +1990,10 @@ Util.profileStart('arcs');
 //                   'baseline-shift': 'sub',
 //                   'font-size': '80%'
 //                 };
-                $.extend(subscriptSettings, options);
+                $.extend(subscriptSettings, lineData.options);
                 svgText.span(splitArcType[2], subscriptSettings);
             }
-
-            // guess at the correct baseline shift to get vertical centering.
-            // (CSS dominant-baseline can't be used as not all SVG rendereds support it.)
-            var baseline_shift = sizes.arcs.height / 4;
-            var text = svg.text(arcGroup, (from + to) / 2, -height + baseline_shift,
-                                svgText, options);
+            lineData.svgText = svgText;
 
             var width = sizes.arcs.widths[labelText];
             var textBox = {
@@ -1789,39 +2002,13 @@ Util.profileStart('arcs');
               y: -height - sizes.arcs.height / 2,
               height: sizes.arcs.height,
             }
-            if (arc.marked) {
-              var markedRect = svg.rect(shadowGroup,
-                  textBox.x - markedArcSize, textBox.y - markedArcSize,
-                  textBox.width + 2 * markedArcSize, textBox.height + 2 * markedArcSize, {
-                    // filter: 'url(#Gaussian_Blur)',
-                    'class': "shadow_EditHighlight",
-                    rx: markedArcSize,
-                    ry: markedArcSize,
-              });
-              svg.other(markedRect, 'animate', {
-                'data-type': arc.marked,
-                attributeName: 'fill',
-                values: (arc.marked == 'match' ? highlightMatchSequence
-                         : highlightArcSequence),
-                dur: highlightDuration,
-                repeatCount: 'indefinite',
-                begin: 'indefinite'
-              });
+            if (roundCoordinates) {
+              // don't ask
+              height = (height|0)+0.5;
             }
-            if (arc.shadowClass) {
-              svg.rect(shadowGroup,
-                  textBox.x - arcLabelShadowSize, 
-                  textBox.y - arcLabelShadowSize,
-                  textBox.width  + 2 * arcLabelShadowSize, 
-                  textBox.height + 2 * arcLabelShadowSize, {
-                    'class': 'shadow_' + arc.shadowClass,
-                    filter: 'url(#Gaussian_Blur)',
-                    rx: arcLabelShadowRounding,
-                    ry: arcLabelShadowRounding,
-              });
-            }
+
             var textStart = textBox.x;
-            var textEnd = textBox.x + textBox.width;
+            var textEnd = textStart + textBox.width;
 
             // adjust by margin for arc drawing
             textStart -= Configuration.visual.arcTextMargin;
@@ -1831,65 +2018,32 @@ Util.profileStart('arcs');
               var tmp = textStart; textStart = textEnd; textEnd = tmp;
             }
 
-            var path;
+            lineData.leftLine = svg.createPath().move(textStart, -height);
+            lineData.leftArrow = arrows[(leftToRight ?
+                symmetric && myArrowHead || 'none' :
+                myArrowHead || 'triangle,5') + ',' + hashlessColor];
 
-            if (roundCoordinates) {
-              // don't ask
-              height = (height|0)+0.5;
-            }
-            if (height > row.maxArcHeight) row.maxArcHeight = height;
-
-            path = svg.createPath().move(textStart, -height);
-            if (rowIndex == leftRow) {
+            if (row.index == leftRow) {
               var cornerx = from + ufoCatcherMod * arcSlant;
               // for normal cases, should not be past textStart even if narrow
               if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                line = path.line(cornerx, -height).
-                    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
+                lineData.leftLine.line(cornerx, -height).
+                    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.h / 2 : Configuration.visual.margin.y));
               } else {
-                path.line(cornerx, -height).
-                    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
+                lineData.leftLine.line(cornerx, -height).
+                    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.h / 2 : Configuration.visual.margin.y));
               }
             } else {
-              path.line(from, -height);
+              lineData.leftLine.line(from, -height);
             }
-            var hashlessColor = color.replace('#', '');
-            var myArrowHead   = ((arcDesc && arcDesc.arrowHead) || 
-                                 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
-            var arrowType = arrows[(leftToRight ?
-                symmetric && myArrowHead || 'none' :
-                myArrowHead || 'triangle,5') + ',' + hashlessColor];
-            svg.path(arcGroup, path, {
-              markerEnd: arrowType && ('url(#' + arrowType + ')'),
-              style: 'stroke: ' + color,
-              'strokeDashArray': dashArray,
-            });
-            if (arc.marked) {
-              svg.path(shadowGroup, path, {
-                  'class': 'shadow_EditHighlight_arc',
-                  strokeWidth: markedArcStroke,
-                  'strokeDashArray': dashArray,
-              });
-              svg.other(markedRect, 'animate', {
-                'data-type': arc.marked,
-                attributeName: 'fill',
-                values: (arc.marked == 'match' ? highlightMatchSequence
-                         : highlightArcSequence),
-                dur: highlightDuration,
-                repeatCount: 'indefinite',
-                begin: 'indefinite'
-              });
-            }
-            if (arc.shadowClass) {
-              svg.path(shadowGroup, path, {
-                  'class': 'shadow_' + arc.shadowClass,
-                  strokeWidth: shadowStroke,
-                  'strokeDashArray': dashArray,
-              });
-            }
-            path = svg.createPath().move(textEnd, -height);
+
+            lineData.rightLine = svg.createPath().move(textEnd, -height);
+            lineData.rightArrow = arrows[(leftToRight ?
+                myArrowHead || 'triangle,5' :
+                symmetric && myArrowHead || 'none') + ',' + hashlessColor];
+
             if (rowIndex == rightRow) {
               // TODO: duplicates above in part, make funcs
               var cornerx  = to - ufoCatcherMod * arcSlant;
@@ -1897,39 +2051,18 @@ Util.profileStart('arcs');
               if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-                path.line(cornerx, -height).
-                    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
+                lineData.rightLine.line(cornerx, -height).
+                    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.h / 2));
               } else {
-                path.line(cornerx, -height).
-                    line(to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
+                lineData.rightLine.line(cornerx, -height).
+                    line(to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.h / 2));
               }
             } else {
-              path.line(to, -height);
+              lineData.rightLine.line(to, -height);
             }
-            var myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
-                               (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
-            var arrowType = arrows[(leftToRight ?
-                myArrowHead || 'triangle,5' :
-                symmetric && myArrowHead || 'none') + ',' + hashlessColor];
-            svg.path(arcGroup, path, {
-                markerEnd: arrowType && ('url(#' + arrowType + ')'),
-                style: 'stroke: ' + color,
-                'strokeDashArray': dashArray,
-            });
-            if (arc.marked) {
-              svg.path(shadowGroup, path, {
-                  'class': 'shadow_EditHighlight_arc',
-                  strokeWidth: markedArcStroke,
-                  'strokeDashArray': dashArray,
-              });
-            }
-            if (shadowGroup) {
-              svg.path(shadowGroup, path, {
-                  'class': 'shadow_' + arc.shadowClass,
-                  strokeWidth: shadowStroke,
-                  'strokeDashArray': dashArray,
-              });
-            }
+
+            if (height > row.maxArcHeight) row.maxArcHeight = height;
+            row.lines.push(lineData);
           } // arc rows
         }); // arcs
 
@@ -1938,9 +2071,8 @@ Util.profileStart('rows');
 
         // position the rows
         var y = Configuration.visual.margin.y;
-        var sentNumGroup = svg.group({'class': 'sentnum'});
         var currentSent;
-        $.each(rows, function(rowId, row) {
+        $.each(data.rows, function(rowId, row) {
           $.each(row.chunks, function(chunkId, chunk) {
             $.each(chunk.spans, function(spanid, span) {
               if (row.maxSpanHeight < span.height) row.maxSpanHeight = span.height;
@@ -1970,56 +2102,32 @@ Util.profileStart('rows');
           }
 
           rowBoxHeight += rowPadding;
-          var bgClass;
+          row.height = rowBoxHeight;
+          row.y = y;
           if (data.markedSent[currentSent]) {
             // specifically highlighted
-            bgClass = 'backgroundHighlight';
+            row.bgClass = 'backgroundHighlight';
           } else if (Configuration.textBackgrounds == "striped") {
             // give every other sentence a different bg class
-            bgClass = 'background'+ row.backgroundIndex;
+            row.bgClass = 'background'+ row.backgroundIndex;
           } else {
             // plain "standard" bg
-            bgClass = 'background0';
+            row.bgClass = 'background0';
           }
-          svg.rect(backgroundGroup,
-            0, y + sizes.texts.y + sizes.texts.height,
-            canvasWidth, rowBoxHeight + sizes.texts.height + 1, {
-            'class': bgClass,
-          });
           y += rowBoxHeight;
           y += sizes.texts.height;
           row.textY = y - rowPadding;
           if (row.sentence) {
-            var sentence_hash = new URLHash(coll, doc, { focus: [[ 'sent', row.sentence ]] } );
-            var link = svg.link(sentNumGroup, sentence_hash.getHash());
-            var text = svg.text(link, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
-                '' + row.sentence, { 'data-sent': row.sentence });
-            var sentComment = data.sentComment[row.sentence];
-            if (sentComment) {
-              var box = text.getBBox();
-              svg.remove(text);
-              // TODO: using rectShadowSize, but this shadow should
-              // probably have its own setting for shadow size
-              shadowRect = svg.rect(sentNumGroup,
-                  box.x - rectShadowSize, box.y - rectShadowSize,
-                  box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
-
-                  'class': 'shadow_' + sentComment.type,
-                  filter: 'url(#Gaussian_Blur)',
-                  rx: rectShadowRounding,
-                  ry: rectShadowRounding,
-                  'data-sent': row.sentence,
-              });
-              var text = svg.text(sentNumGroup, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
-                  '' + row.sentence, { 'data-sent': row.sentence });
-            }
+            var sentenceHash = new URLHash(coll, doc, { focus: [[ 'sent', row.sentence ]] } );
+            row.link = sentenceHash.getHash();
+            row.sentComment = data.sentComment[row.sentence];
           }
           
           var rowY = y - rowPadding;
           if (roundCoordinates) {
             rowY = rowY|0;
           }
-          translate(row, 0, rowY);
+          row.y += rowY; // TODO CHECK: possibly somewhere we need row.translation
           y += Configuration.visual.margin.y;
         });
         y += Configuration.visual.margin.y;
@@ -2053,8 +2161,7 @@ Util.profileStart('chunkFinish');
           // text rendering
           if (chunk.sentence) {
             if (sentenceText) {
-              // svg.text(textGroup, sentenceText); // avoids jQuerySVG bug
-              svg.text(textGroup, 0, 0, sentenceText);
+              chunk.row.text = sentenceText;
             }
             sentenceText = null;
           }
@@ -2144,15 +2251,15 @@ Util.profileStart('chunkFinish');
               // minor tweak: don't shrink for depth 1 as the nesting 
               // highlight will grow anyway [check nestingDepth > 1])
               var shrink = 0;
-              if(span.nestingDepth > 1 && span.nestingHeight == 0) {
+              if (span.nestingDepth > 1 && span.nestingHeight == 0) {
                   shrink = 1;
-              } else if(span.nestingDepth == 0 && span.nestingHeight > 0) {
+              } else if (span.nestingDepth == 0 && span.nestingHeight > 0) {
                   shrink = -1;
               }
               var yShrink = shrink * nestingAdjustYStepSize;
               var xShrink = shrink * nestingAdjustXStepSize;
               // bit lighter
-              var lightBgColor = Util.adjustColorLightness(bgColor, 0.8);
+              span.lightBgColor = Util.adjustColorLightness(bgColor, 0.8);
               // tweak for Y start offset (and corresponding height
               // reduction): text rarely hits font max height, so this
               // tends to look better
@@ -2164,50 +2271,30 @@ Util.profileStart('chunkFinish');
                   w: span.curly.to - span.curly.from - 2*xShrink, 
                   h: sizes.texts.height - 2*yShrink - yStartTweak,
               };
-              svg.rect(highlightGroup,
-                  span.highlightPos.x, span.highlightPos.y,
-                  span.highlightPos.w, span.highlightPos.h,
-                  { fill: lightBgColor, //opacity:1,
-                    rx: highlightRounding.x,
-                    ry: highlightRounding.y,
-                  });
             }
           }
         });
-        if (sentenceText) {
-          // svg.text(textGroup, sentenceText); // avoids jQuerySVG bug
-          svg.text(textGroup, 0, 0, sentenceText);
-        }
+        data.rows[data.rows.length - 1].text = sentenceText;
 
         // draw the markedText
+        data.textHighlights = [];
         $.each(textMarkedRows, function(textRowNo, textRowDesc) { // row, from, to
-          var textHighlight = svg.rect(highlightGroup,
-              textRowDesc[1] - 2, textRowDesc[0].textY - sizes.spans.height,
-              textRowDesc[2] - textRowDesc[1] + 4, sizes.spans.height + 4,
-              { fill: 'yellow' } // TODO: put into css file, as default - turn into class
-          );
-          // NOTE: changing highlightTextSequence here will give
-          // different-colored highlights
-          // TODO: entirely different settings for non-animations?
-          var markedType = textRowDesc[3];
-          svg.other(textHighlight, 'animate', {
-            'data-type': markedType,
-            attributeName: 'fill',
-            values: (markedType == 'match' ? highlightMatchSequence
-                     : highlightTextSequence),
-            dur: highlightDuration,
-            repeatCount: 'indefinite',
-            begin: 'indefinite'
+          data.textHighlights.push({
+            x: textRowDesc[1] - 2,
+            y: textRowDesc[0].textY - sizes.spans.height,
+            w: textRowDesc[2] - textRowDesc[1] + 4,
+            h: sizes.spans.height + 4,
+            type: textRowDesc[3],
           });
         });
+        data.height = y;
 
 
 Util.profileEnd('chunkFinish');
+Util.profileStart('SVG');
+        addElementsToSVG();
+Util.profileEnd('SVG');
 Util.profileStart('finish');
-
-        svg.path(sentNumGroup, svg.createPath().
-          move(sentNumMargin, 0).
-          line(sentNumMargin, y));
 
         // resize the SVG
         var width = maxTextWidth + sentNumMargin + 2 * Configuration.visual.margin.x + 1;
