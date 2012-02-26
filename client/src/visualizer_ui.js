@@ -370,7 +370,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START form management - related */
 
-      initForm = function(form, opts) {
+      var initForm = function(form, opts) {
         opts = opts || {};
         var formId = form.attr('id');
 

@@ -37,6 +37,7 @@ var Dispatcher = (function($, window, undefined) {
         if (typeof(message) === 'function') {
           // someone was lazy and sent a simple function
           var host = arguments.callee.caller;
+          var result;
           if (asynch !== null) {
             result = setTimeout(function() {
               message.apply(host, args);

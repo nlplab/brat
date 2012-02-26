@@ -9,14 +9,14 @@ var Visualizer = (function($, window, undefined) {
       this.spans = {};
       this.eventDescs = {};
       this.sentComment = {};
-      this.arcs = [];
       this.markedSent = {};
-      this.spanAnnTexts = {};
+      this.arcs = [];
       this.towers = {};
-      this.rows = [];
       this.arrows = {};
       // this.sizes = {};
-    };
+      // this.rows = [];
+      this.spanAnnTexts = {};
+    }
 
     var Span = function(id, type, from, to, generalType) {
       this.id = id;
@@ -224,14 +224,6 @@ var Visualizer = (function($, window, undefined) {
         setTimeout(function() { $svg.css('margin-bottom', 0); }, 0);
       }
 
-      var rowBBox = function(span) {
-        var box = $.extend({}, span.box); // clone
-        var chunkTranslation = span.chunk.translation;
-        box.x += chunkTranslation.x;
-        box.y += chunkTranslation.y;
-        return box;
-      };
-
       var commentPriority = function(commentClass) {
         if (commentClass === undefined) return -1;
         var len = commentPrioLevels.length;
@@ -248,12 +240,12 @@ var Visualizer = (function($, window, undefined) {
         $svgDiv.hide();
       };
 
-      var setMarked = function(markedType) {
+      var setMarked = function(markedType, markedText) {
         $.each(args[markedType] || [], function(markedNo, marked) {
           if (marked[0] == 'sent') {
             data.markedSent[marked[1]] = true;
           } else if (marked[0] == 'equiv') { // [equiv, Equiv, T1]
-            $.each(data.equivs, function(equivNo, equiv) {
+            $.each(sourceData.equivs, function(equivNo, equiv) {
               if (equiv[1] == marked[1]) {
                 var len = equiv.length;
                 for (var i = 2; i < len; i++) {
@@ -375,7 +367,7 @@ var Visualizer = (function($, window, undefined) {
         $.each(sourceData.modifications, function(modNo, mod) {
           // mod: [id, spanId, modification]
           if (!data.spans[mod[2]]) {
-            dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
+            dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Event ' + mod[2] + ' (referenced from modification ' + mod[0] + ') does not occur in document ' + doc + '<br/>(please correct the source data)', 'error', 5]]]);
             return;
           }
           data.spans[mod[2]][mod[1]] = true;
@@ -598,7 +590,7 @@ var Visualizer = (function($, window, undefined) {
           var origin = data.spans[eventDesc.id];
           if (!origin) {
             // TODO: include missing trigger ID in error message
-            dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Trigger for event "' + eventDesc.id + '" not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
+            dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Trigger for event "' + eventDesc.id + '" not found in ' + doc + '<br/>(please correct the source data)', 'error', 5]]]);
             return;
           }
           var here = origin.chunk.index;
@@ -622,11 +614,11 @@ var Visualizer = (function($, window, undefined) {
         }); // eventDescs
 
         // highlighting
-        markedText = [];
-        setMarked('edited'); // set by editing process
-        setMarked('focus'); // set by URL
-        setMarked('matchfocus'); // set by search process, focused match
-        setMarked('match'); // set by search process, other (non-focused) match
+        var markedText = [];
+        setMarked('edited', markedText); // set by editing process
+        setMarked('focus', markedText); // set by URL
+        setMarked('matchfocus', markedText); // set by search process, focused match
+        setMarked('match', markedText); // set by search process, other (non-focused) match
 
         // resort the spans for linear order by center
         sortedSpans.sort(function(a, b) {
@@ -1058,6 +1050,9 @@ var Visualizer = (function($, window, undefined) {
         return arrowId;
       }
 
+      var coordsToPath = function(coords) {
+      };
+
       var addElementsToSVG = function() {
         var commentName = (coll + '/' + doc).replace('--', '-\\-');
         $svg.append('<!-- document: ' + commentName + ' -->');
@@ -1096,7 +1091,7 @@ var Visualizer = (function($, window, undefined) {
         $.each(data.rows, function() {
           this.group = svg.group();
           this.background = svg.group(this.group);
-          this.arcs = svg.group(this.group, { 'class': 'arcs' });
+          this.arcsGroup = svg.group(this.group, { 'class': 'arcs' });
 
           svg.rect(backgroundGroup,
             0, this.y + data.sizes.texts.y + data.sizes.texts.height,
@@ -1106,7 +1101,8 @@ var Visualizer = (function($, window, undefined) {
 
           if (this.link) {
             var link = svg.link(sentNumGroup, this.link);
-            var text = svg.text(link, sentNumMargin - Configuration.visual.margin.x, this.y + this.height - rowPadding - data.sizes.texts.height,
+            var text = svg.text(link,
+              sentNumMargin - Configuration.visual.margin.x, this.textY,
                 '' + this.sentence, { 'data-sent': this.sentence });
             if (this.sentComment) {
               var box = text.getBBox(); // TODO FIXME measure in advance
@@ -1114,16 +1110,16 @@ var Visualizer = (function($, window, undefined) {
               // TODO: using rectShadowSize, but this shadow should
               // probably have its own setting for shadow size
               shadowRect = svg.rect(sentNumGroup,
-                  box.x - rectShadowSize, box.y - rectShadowSize,
-                  box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
-
+                box.x - rectShadowSize, box.y - rectShadowSize,
+                box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
                   'class': 'shadow_' + this.sentComment.type,
                   filter: 'url(#Gaussian_Blur)',
                   rx: rectShadowRounding,
                   ry: rectShadowRounding,
                   'data-sent': this.sentence,
               });
-              var text = svg.text(link, sentNumMargin - Configuration.visual.margin.x, this.y + this.height - rowPadding - data.sizes.texts.height,
+              var text = svg.text(link,
+                sentNumMargin - Configuration.visual.margin.x, this.textY,
                   '' + this.sentence, { 'data-sent': this.sentence });
             }
           }
@@ -1139,96 +1135,101 @@ var Visualizer = (function($, window, undefined) {
         });
 
         $.each(data.spans, function() {
-            this.group = svg.group(this.chunk.group, {
-              'class': 'span',
+          this.group = svg.group(this.chunk.group, {
+            'class': 'span',
+          });
+
+          var box = this.box;
+          var plainbox = this.plainbox;
+          if (this.marked) {
+            var markedRect = svg.rect(this.chunk.highlightGroup,
+              box.x - markedSpanSize, box.y - markedSpanSize,
+              box.w + 2 * markedSpanSize, box.h + 2 * markedSpanSize,
+              {
+                // filter: 'url(#Gaussian_Blur)',
+                'class': "shadow_EditHighlight",
+                rx: markedSpanSize,
+                ry: markedSpanSize,
             });
+            svg.other(markedRect, 'animate', {
+              'data-type': this.marked,
+              attributeName: 'fill',
+              values: (this.marked == 'match'
+                       ? highlightMatchSequence
+                       : highlightSpanSequence),
+              dur: highlightDuration,
+              repeatCount: 'indefinite',
+              begin: 'indefinite',
+            });
+          }
+          if (this.shadowClass) {
+            svg.rect(this.group,
+              box.x - rectShadowSize, box.y - rectShadowSize,
+              box.w + 2 * rectShadowSize, box.h + 2 * rectShadowSize,
+              {
+                'class': 'shadow_' + this.shadowClass,
+                filter: 'url(#Gaussian_Blur)',
+                rx: rectShadowRounding,
+                ry: rectShadowRounding,
+            });
+          }
+          this.rect = svg.rect(this.group,
+              box.x, box.y, box.w, box.h, box.opts);
 
-            var box = this.box;
-            var plainbox = this.plainbox;
-            if (this.marked) {
-              var markedRect = svg.rect(this.chunk.highlightGroup,
-                box.x - markedSpanSize, box.y - markedSpanSize,
-                box.w + 2 * markedSpanSize, box.h + 2 * markedSpanSize,
-                {
-                  // filter: 'url(#Gaussian_Blur)',
-                  'class': "shadow_EditHighlight",
-                  rx: markedSpanSize,
-                  ry: markedSpanSize,
+          if (this.attributeMerge.box === "crossed") {
+            svg.path(this.group, svg.createPath().
+                move(plainbox.x, plainbox.y - Configuration.visual.margin.y - this.yAdjust).
+                line(plainbox.x + this.width,
+                  plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust),
+                { 'class': 'boxcross' });
+            svg.path(this.group, svg.createPath().
+                move(plainbox.x + this.width, plainbox.y - Configuration.visual.margin.y - this.yAdjust).
+                line(plainbox.x, plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust),
+                { 'class': 'boxcross' });
+          }
+          svg.text(this.group,
+            this.curly.x, this.textY,
+            data.spanAnnTexts[this.glyphedLabelText],
+            { fill: this.fgColor }
+          );
+
+          if (this.drawCurly) {
+            var bottom = plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust + 1;
+            svg.path(this.group, svg.createPath()
+                .move(this.curly.from, bottom + Configuration.visual.curlyHeight)
+                .curveC(this.curly.from, bottom,
+                  this.curly.x, bottom + Configuration.visual.curlyHeight,
+                  this.curly.x, bottom)
+                .curveC(this.curly.x, bottom + Configuration.visual.curlyHeight,
+                  this.curly.to, bottom,
+                  this.curly.to, bottom + Configuration.visual.curlyHeight),
+              {
+                'class': 'curly',
+                'stroke': this.curly.color,
               });
-              svg.other(markedRect, 'animate', {
-                'data-type': this.marked,
-                attributeName: 'fill',
-                values: (this.marked == 'match'
-                         ? highlightMatchSequence
-                         : highlightSpanSequence),
-                dur: highlightDuration,
-                repeatCount: 'indefinite',
-                begin: 'indefinite',
+          }
+
+          svg.rect(highlightGroup,
+              this.highlightPos.x, this.highlightPos.y,
+              this.highlightPos.w, this.highlightPos.h,
+              { fill: this.lightBgColor, //opacity:1,
+                rx: highlightRounding.x,
+                ry: highlightRounding.y,
               });
-            }
-            if (this.shadowClass) {
-              svg.rect(this.group,
-                box.x - rectShadowSize, box.y - rectShadowSize,
-                box.w + 2 * rectShadowSize, box.h + 2 * rectShadowSize,
-                {
-                  'class': 'shadow_' + this.shadowClass,
-                  filter: 'url(#Gaussian_Blur)',
-                  rx: rectShadowRounding,
-                  ry: rectShadowRounding,
-              });
-            }
-            this.rect = svg.rect(this.group,
-                box.bx, box.y, box.w, box.h, box.opts);
-
-            if (this.attributeMerge.box === "crossed") {
-              svg.path(this.group, svg.createPath().
-                  move(plainbox.x, plainbox.y - Configuration.visual.margin.y - this.yAdjust).
-                  line(plainbox.x + this.width,
-                    plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust),
-                  { 'class': 'boxcross' });
-              svg.path(this.group, svg.createPath().
-                  move(plainbox.x + this.width, plainbox.y - Configuration.visual.margin.y - this.yAdjust).
-                  line(plainbox.x, plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust),
-                  { 'class': 'boxcross' });
-            }
-            svg.text(this.group, plainbox.x, plainbox.y - this.yAdjust, data.spanAnnTexts[this.glyphedLabelText], { fill: this.fgColor });
-
-            if (this.drawCurly) {
-              var bottom = plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust + 1;
-              svg.path(this.group, svg.createPath()
-                  .move(this.curly.from, bottom + Configuration.visual.curlyHeight)
-                  .curveC(this.curly.from, bottom,
-                    this.curly.x, bottom + Configuration.visual.curlyHeight,
-                    this.curly.x, bottom)
-                  .curveC(this.curly.x, bottom + Configuration.visual.curlyHeight,
-                    this.curly.to, bottom,
-                    this.curly.to, bottom + Configuration.visual.curlyHeight),
-                {
-                  'class': 'curly',
-                  'stroke': this.curly.color,
-                });
-            }
-
-            svg.rect(highlightGroup,
-                this.highlightPos.x, this.highlightPos.y,
-                this.highlightPos.w, this.highlightPos.h,
-                { fill: this.lightBgColor, //opacity:1,
-                  rx: highlightRounding.x,
-                  ry: highlightRounding.y,
-                });
         });
 
         // guess at the correct baseline shift to get vertical centering.
-        // (CSS dominant-baseline can't be used as not all SVG rendereds support it.)
+        // (CSS dominant-baseline can't be used as not all SVG renderers support it.)
         var baselineShift = data.sizes.arcs.height / 4;
 
         $.each(data.rows, function() {
           var row = this;
+
           $.each(this.lines, function() {
             var arc = this.arc;
             var textBox = this.textBox;
 
-            var arcGroup = svg.group(row.group, {
+            var arcGroup = svg.group(row.arcsGroup, {
                 'data-from': arc.origin,
                 'data-to': arc.target
             });
@@ -1236,7 +1237,7 @@ var Visualizer = (function($, window, undefined) {
             if (arc.shadowClass || arc.marked) {
               shadowGroup = svg.group(arcGroup);
             }
-            svg.text(arcGroup, (this.from + this.to) / 2, -this.height + baselineShift,
+            svg.text(arcGroup, (this.from + this.to) / 2, this.height + baselineShift,
                                 this.svgText, this.options);
 
             if (arc.marked) {
@@ -1271,65 +1272,52 @@ var Visualizer = (function($, window, undefined) {
               });
             }
 
-            svg.path(arcGroup, this.leftLine, {
-              markerEnd: this.leftArrow && ('url(#' + this.leftArrow + ')'),
-              style: 'stroke: ' + this.color,
-              'strokeDashArray': this.dashArray,
-            });
-            if (arc.marked) {
-              var markedPath = svg.path(shadowGroup, this.leftLine, {
-                  'class': 'shadow_EditHighlight_arc',
-                  strokeWidth: markedArcStroke,
-                  'strokeDashArray': this.dashArray,
-              });
-              svg.other(markedPath, 'animate', {
-                'data-type': arc.marked,
-                attributeName: 'fill',
-                values: (arc.marked == 'match' ? highlightMatchSequence
-                         : highlightArcSequence),
-                dur: highlightDuration,
-                repeatCount: 'indefinite',
-                begin: 'indefinite'
-              });
-            }
-            if (arc.shadowClass) {
-              svg.path(shadowGroup, lineDesc.leftLine, {
-                  'class': 'shadow_' + arc.shadowClass,
-                  strokeWidth: shadowStroke,
-                  'strokeDashArray': lineDesc.dashArray,
-              });
-            }
+            var lineData = this;
+            $.each(this.sides, function() {
+              var path = svg.createPath().move(this.x0, lineData.height);
+              if (this.edgeRow) {
+                if (smoothArcCurves) {
+                  path.line(this.x1, lineData.height).
+                      curveQ(this.x2, lineData.height, this.x3, this.y3);
+                } else {
+                  path.line(this.x1, lineData.height).
+                      line(this.x3, this.y3);
+                }
+              } else {
+                path.line(this.x3, lineData.height);
+              }
 
-            svg.path(arcGroup, this.rightLine, {
-                markerEnd: this.rightArrow && ('url(#' + this.rightArrow + ')'),
-                style: 'stroke: ' + this.color,
-                'strokeDashArray': this.dashArray,
-            });
-            if (arc.marked) {
-              var markedPath = svg.path(shadowGroup, this.rightLine, {
-                  'class': 'shadow_EditHighlight_arc',
-                  strokeWidth: markedArcStroke,
-                  'strokeDashArray': this.dashArray,
+              svg.path(arcGroup, path, {
+                markerEnd: this.arrow && ('url(#' + this.arrow + ')'),
+                style: 'stroke: ' + lineData.color,
+                'strokeDashArray': lineData.dashArray,
               });
-              svg.other(markedPath, 'animate', {
-                'data-type': arc.marked,
-                attributeName: 'fill',
-                values: (arc.marked == 'match' ? highlightMatchSequence
-                         : highlightArcSequence),
-                dur: highlightDuration,
-                repeatCount: 'indefinite',
-                begin: 'indefinite'
-              });
-            }
-            if (shadowGroup) {
-              svg.path(shadowGroup, this.rightLine, {
-                  'class': 'shadow_' + arc.shadowClass,
-                  strokeWidth: shadowStroke,
-                  'strokeDashArray': this.dashArray,
-              });
-            }
-          });
-        });
+              if (arc.marked) {
+                var markedPath = svg.path(shadowGroup, path, {
+                    'class': 'shadow_EditHighlight_arc',
+                    strokeWidth: markedArcStroke,
+                    'strokeDashArray': lineData.dashArray,
+                });
+                svg.other(markedPath, 'animate', {
+                  'data-type': arc.marked,
+                  attributeName: 'fill',
+                  values: (arc.marked == 'match' ? highlightMatchSequence
+                           : highlightArcSequence),
+                  dur: highlightDuration,
+                  repeatCount: 'indefinite',
+                  begin: 'indefinite'
+                });
+              }
+              if (arc.shadowClass) {
+                svg.path(shadowGroup, path, {
+                    'class': 'shadow_' + arc.shadowClass,
+                    strokeWidth: shadowStroke,
+                    'strokeDashArray': lineData.dashArray,
+                });
+              }
+            }); // sides
+          }); // lines
+        }); // rows
 
         $.each(data.textHighlights, function() {
           var highlightRect = svg.rect(highlightGroup,
@@ -1419,6 +1407,7 @@ Util.profileStart('--chunks--prologue');
         var twoBarWidths; // HACK to avoid measuring space's width
         var openTextHighlights = {};
         var textMarkedRows = [];
+        data.rows = [];
 
         addArcTextMeasurements(sizes);
 Util.profileEnd('--chunks--prologue');
@@ -1437,7 +1426,6 @@ Util.profileStart('--chunks--before');
           var spacingChunkId = null;
           var spacingRowBreak = 0;
 Util.profileEnd('--chunks--before');
-
           $.each(chunk.spans, function(spanNo, span) {
             var spanDesc = spanTypes[span.type];
             var bgColor = ((spanDesc && spanDesc.bgColor) || 
@@ -1523,15 +1511,7 @@ Util.profileEnd('--chunks--before');
             // this is monotonous due to sort:
             span.height = span.yAdjust + hh + 3 * Configuration.visual.margin.y + Configuration.visual.curlyHeight + Configuration.visual.arcSpacing;
             spanHeights[span.lineIndex * 2] = span.height;
-            /* FIXME NOW
-            $(span.rect).attr('y', yy - Configuration.visual.margin.y - yAdjust);
-            if (shadowRect) {
-              $(shadowRect).attr('y', yy - rectShadowSize - Configuration.visual.margin.y - yAdjust);
-            }
-            if (markedRect) {
-              $(markedRect).attr('y', yy - markedSpanSize - Configuration.visual.margin.y - yAdjust);
-            }
-            */
+            span.textY = -sizes.texts.height - Configuration.visual.curlyHeight - span.yAdjust;
 
             // Make curlies to show the span
             if (span.drawCurly) {
@@ -1563,7 +1543,7 @@ Util.profileEnd('--chunks--before');
                 if (!labels.length) labels = [arc.type];
                 if (origin.row.index == rowIndex) {
                   // same row, but before this
-                  border = origin.translation.x + leftSpan.right;
+                  border = origin.textX + leftSpan.right;
                 } else {
                   border = Configuration.visual.margin.x + sentNumMargin + rowPadding;
                 }
@@ -1593,7 +1573,7 @@ Util.profileEnd('--chunks--before');
                 if (!labels.length) labels = [arc.type];
                 if (target.row.index == rowIndex) {
                   // same row, but before this
-                  border = target.translation.x + leftSpan.right;
+                  border = target.textX + leftSpan.right;
                 } else {
                   border = Configuration.visual.margin.x + sentNumMargin + rowPadding;
                 }
@@ -1728,7 +1708,6 @@ Util.profileStart('--chunks--postspan');
             }
             for (var chunkIndex = spacingChunkId; chunkIndex < chunk.index; chunkIndex++) {
               var movedChunk = data.chunks[chunkIndex];
-              translate(movedChunk, movedChunk.translation.x + spacing, 0);
               movedChunk.textX += spacing;
             }
           }
@@ -1736,7 +1715,6 @@ Util.profileStart('--chunks--postspan');
           row.chunks.push(chunk);
           chunk.row = row;
 
-          translate(chunk, currentX + boxX, 0);
           chunk.textX = currentX + boxX;
 
           var spaceWidth = 0;
@@ -1866,8 +1844,8 @@ Util.profileStart('arcs');
                            (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead) ||
                            'triangle,5') + ',' + hashlessColor;
 
-          var leftBox = rowBBox(left);
-          var rightBox = rowBBox(right);
+          var leftt = left.chunk.textX;
+          var rightt = right.chunk.textX;
           var leftRow = left.chunk.row.index;
           var rightRow = right.chunk.row.index;
 
@@ -1906,7 +1884,7 @@ Util.profileStart('arcs');
           var ufoCatcher = originSpan.chunk.index == targetSpan.chunk.index;
           if (ufoCatcher) {
             chunkReverse =
-              leftBox.x + leftBox.w / 2 < rightBox.x + rightBox.w / 2;
+              leftt + left.box.x + left.box.w / 2 < rightt + right.box.x + right.box.w / 2;
           }
           var ufoCatcherMod = ufoCatcher ? chunkReverse ? -0.5 : 0.5 : 1;
 
@@ -1919,13 +1897,13 @@ Util.profileStart('arcs');
             var from, to;
             
             if (rowIndex == leftRow) {
-              from = leftBox.x + (chunkReverse ? 0 : leftBox.w);
+              from = leftt + left.box.x + (chunkReverse ? 0 : left.box.w);
             } else {
               from = sentNumMargin;
             }
 
             if (rowIndex == rightRow) {
-              to = rightBox.x + (chunkReverse ? rightBox.w : 0);
+              to = rightt + right.box.x + (chunkReverse ? right.box.w : 0);
             } else {
               to = canvasWidth - 2 * Configuration.visual.margin.y;
             }
@@ -1951,7 +1929,7 @@ Util.profileStart('arcs');
               arc: arc,
               from: from,
               to: to,
-              height: height,
+              height: -height,
               color: color,
               options: {
                 'fill': color,
@@ -2002,6 +1980,7 @@ Util.profileStart('arcs');
               y: -height - sizes.arcs.height / 2,
               height: sizes.arcs.height,
             }
+            lineData.textBox = textBox;
             if (roundCoordinates) {
               // don't ask
               height = (height|0)+0.5;
@@ -2018,48 +1997,61 @@ Util.profileStart('arcs');
               var tmp = textStart; textStart = textEnd; textEnd = tmp;
             }
 
-            lineData.leftLine = svg.createPath().move(textStart, -height);
-            lineData.leftArrow = arrows[(leftToRight ?
+            lineData.textStart = textStart;
+            lineData.textEnd = textEnd;
+
+            var lcornerx, lcontrolx, ltexty, larrow;
+            var rcornerx, rcontrolx, rtexty, rarrow;
+            // TODO XXX there are extra calculations being done for
+            // non-leftRow or non-rightRow lines
+            // do we care?
+            lcornerx = from + ufoCatcherMod * arcSlant;
+            rcornerx = to - ufoCatcherMod * arcSlant;
+            // for normal cases, should not be past textStart even if narrow
+            if (!ufoCatcher) {
+              if (lcornerx > textStart) { lcornerx = textStart; }
+              if (rcornerx < textEnd) { rcornerx = textEnd; }
+            }
+            if (smoothArcCurves) {
+              // we don't care about it if not drawing smooth curves;
+              // it can be left undefined
+              lcontrolx = ufoCatcher
+                  ? lcornerx + 2 * ufoCatcherMod * reverseArcControlx
+                  : smoothArcSteepness * from + (1 - smoothArcSteepness) * lcornerx;
+              rcontrolx = ufoCatcher
+                  ? rcornerx - 2 * ufoCatcherMod * reverseArcControlx
+                  : smoothArcSteepness * to + (1 - smoothArcSteepness) * rcornerx;
+            }
+            ltexty = left.box.y +
+                (leftToRight || arc.equiv ? left.box.h / 2 : Configuration.visual.margin.y);
+            rtexty = right.box.y +
+                (leftToRight && !arc.equiv ? Configuration.visual.margin.y : right.box.h / 2);
+            larrow = arrows[(leftToRight ?
                 symmetric && myArrowHead || 'none' :
                 myArrowHead || 'triangle,5') + ',' + hashlessColor];
-
-            if (row.index == leftRow) {
-              var cornerx = from + ufoCatcherMod * arcSlant;
-              // for normal cases, should not be past textStart even if narrow
-              if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
-              if (smoothArcCurves) {
-                var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                lineData.leftLine.line(cornerx, -height).
-                    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.h / 2 : Configuration.visual.margin.y));
-              } else {
-                lineData.leftLine.line(cornerx, -height).
-                    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.h / 2 : Configuration.visual.margin.y));
-              }
-            } else {
-              lineData.leftLine.line(from, -height);
-            }
-
-            lineData.rightLine = svg.createPath().move(textEnd, -height);
-            lineData.rightArrow = arrows[(leftToRight ?
+            rarrow = arrows[(leftToRight ?
                 myArrowHead || 'triangle,5' :
                 symmetric && myArrowHead || 'none') + ',' + hashlessColor];
 
-            if (rowIndex == rightRow) {
-              // TODO: duplicates above in part, make funcs
-              var cornerx  = to - ufoCatcherMod * arcSlant;
-              // for normal cases, should not be past textEnd even if narrow
-              if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
-              if (smoothArcCurves) {
-                var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-                lineData.rightLine.line(cornerx, -height).
-                    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.h / 2));
-              } else {
-                lineData.rightLine.line(cornerx, -height).
-                    line(to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.h / 2));
-              }
-            } else {
-              lineData.rightLine.line(to, -height);
-            }
+            lineData.sides = [{
+              x0: textStart,
+              x1: lcornerx,
+              x2: lcontrolx,
+              x3: from,
+              y0: -height,
+              y3: ltexty,
+              edgeRow: row.index == leftRow,
+              arrow: larrow
+            }, {
+              x0: textEnd,
+              x1: rcornerx,
+              x2: rcontrolx,
+              x3: to,
+              y0: -height,
+              y3: rtexty,
+              edgeRow: row.index == rightRow,
+              arrow: rarrow
+            }];
 
             if (height > row.maxArcHeight) row.maxArcHeight = height;
             row.lines.push(lineData);
@@ -2116,6 +2108,7 @@ Util.profileStart('rows');
           }
           y += rowBoxHeight;
           y += sizes.texts.height;
+          row.yt = y;
           row.textY = y - rowPadding;
           if (row.sentence) {
             var sentenceHash = new URLHash(coll, doc, { focus: [[ 'sent', row.sentence ]] } );
@@ -2154,20 +2147,15 @@ Util.profileStart('chunkFinish');
           return endDiff != 0 ? endDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
         }
 
-        var sentenceText = null;
+        var sentenceText;
+        data.chunks[0].row.text = sentenceText = svg.createText();
         $.each(data.chunks, function(chunkNo, chunk) {
           // context for sort
           currentChunk = chunk;
 
           // text rendering
           if (chunk.sentence) {
-            if (sentenceText) {
-              chunk.row.text = sentenceText;
-            }
-            sentenceText = null;
-          }
-          if (!sentenceText) {
-            sentenceText = svg.createText();
+            chunk.row.text = sentenceText = svg.createText();
           }
           var nextChunk = data.chunks[chunkNo + 1];
           var nextSpace = nextChunk ? nextChunk.space : '';
@@ -2275,7 +2263,6 @@ Util.profileStart('chunkFinish');
             }
           }
         });
-        data.rows[data.rows.length - 1].text = sentenceText;
 
         // draw the markedText
         data.textHighlights = [];
@@ -2289,6 +2276,28 @@ Util.profileStart('chunkFinish');
           });
         });
         data.height = y;
+
+        $.each(data.spans, function() {
+          var yt = this.chunk.row.yt;
+          var xt = this.chunk.textX;
+          this.box.x += xt;
+          this.box.y += yt;
+          this.plainbox.x += xt;
+          this.plainbox.y += yt;
+          this.curly.from += xt;
+          this.curly.to += xt;
+          this.curly.x += xt;
+          this.textY += yt;
+        });
+        $.each(data.rows, function() {
+          var yt = this.yt;
+          $.each(this.lines, function() {
+            this.height += yt;
+            $.each(this.sides, function() {
+              this.y3 += yt;
+            }); // sides
+          }); // lines
+        }); // rows
 
 
 Util.profileEnd('chunkFinish');

@@ -178,8 +178,8 @@ var AnnotatorUI = (function($, window, undefined) {
         });
         arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
         arcDragOriginGroup.addClass('highlight');
-        arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin]);
-        arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
+        arcDragOriginBox = data.spans[arcDragOrigin].box;
+        arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.w / 2;
 
         arcDragJustStarted = true;
       };
@@ -1304,7 +1304,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // server) the very data that we just received as part of the
           // response to the edit.
           if (response.undo != undefined) {
-            undoStack.push([coll, sourceData.document, sourceDesponse.undo]);
+            undoStack.push([coll, sourceData.document, response.undo]);
           }
           dispatcher.post('preventReloadByURL');
           dispatcher.post('setArguments', [args]);

@@ -38,15 +38,6 @@ var Util = (function(window, undefined) {
       return result;
     }
 
-    var realBBox = function(span) {
-      var box = span.rect.getBBox();
-      var chunkTranslation = span.chunk.translation;
-      var rowTranslation = span.chunk.row.translation;
-      box.x += chunkTranslation.x + rowTranslation.x;
-      box.y += chunkTranslation.y + rowTranslation.y;
-      return box;
-    }
-
     var escapeHTML = function(str) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
@@ -531,7 +522,6 @@ var Util = (function(window, undefined) {
       profileEnd: profileEnd,
       profileReport: profileReport,
       formatTimeAgo: formatTimeAgo,
-      realBBox: realBBox,
       getSpanLabels: getSpanLabels,
       spanDisplayForm: spanDisplayForm,
       getArcLabels: getArcLabels,
