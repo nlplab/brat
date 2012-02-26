@@ -571,7 +571,7 @@ var Visualizer = (function($, window, undefined) {
           } else {
             pastFirst = true;
           }
-        });
+        }); // sentence_offsets
 
         // assign spans to appropriate chunks
         var numChunks = data.chunks.length;
@@ -992,17 +992,21 @@ var Visualizer = (function($, window, undefined) {
           spanTexts[span.glyphedLabelText] = true;
           noSpans = false;
         });
-        if (noSpans) spanTexts.$ = true; // dummy so we can at least get the height
         var spanSizes = getTextMeasurements(spanTexts, {'class': 'span'});
+        if (noSpans) spanTexts.$ = true; // dummy so we can at least get the height
+
+        var sentNoTexts = {};
+        sentNoTexts[sourceData.sentence_offsets.length] = true;
+        $.each(data.sentComment, function(sentCommentNo, sentComment) {
+          sentNoTexts[sentCommentNo + 1] = true;
+        });
+        var sentNoSizes = getTextMeasurements(sentNoTexts, {'class': 'sentNum'});
 
         return {
           texts: textSizes,
-          spans: spanSizes
+          spans: spanSizes,
+          sentNos: sentNoSizes
         };
-
-        // XXX NOTE
-        // var textHeight = measureBox.height; // => sizes.texts.height
-        // curlyY = measureBox.y;              // => sizes.texts.y
       };
 
       var addArcTextMeasurements = function(sizes) {
@@ -1101,27 +1105,29 @@ var Visualizer = (function($, window, undefined) {
 
           if (this.link) {
             var link = svg.link(sentNumGroup, this.link);
-            var text = svg.text(link,
-              sentNumMargin - Configuration.visual.margin.x, this.textY,
-                '' + this.sentence, { 'data-sent': this.sentence });
+
+            var x = sentNumMargin - Configuration.visual.margin.x;
+
             if (this.sentComment) {
-              var box = text.getBBox(); // TODO FIXME measure in advance
-              svg.remove(text);
+              var boxX = x - data.sizes.sentNos.widths[this.sentence];
+              var boxY = this.textY - data.sizes.sentNos.height;
               // TODO: using rectShadowSize, but this shadow should
               // probably have its own setting for shadow size
-              shadowRect = svg.rect(sentNumGroup,
-                box.x - rectShadowSize, box.y - rectShadowSize,
-                box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
+              shadowRect = svg.rect(link,
+                boxX - rectShadowSize, boxY - rectShadowSize,
+                data.sizes.sentNos.widths[this.sentence] + 2 * rectShadowSize,
+                data.sizes.sentNos.height + 2 * rectShadowSize, {
                   'class': 'shadow_' + this.sentComment.type,
                   filter: 'url(#Gaussian_Blur)',
                   rx: rectShadowRounding,
                   ry: rectShadowRounding,
                   'data-sent': this.sentence,
               });
-              var text = svg.text(link,
-                sentNumMargin - Configuration.visual.margin.x, this.textY,
-                  '' + this.sentence, { 'data-sent': this.sentence });
             }
+
+            var text = svg.text(link,
+              x, this.textY,
+                '' + this.sentence, { 'data-sent': this.sentence });
           }
 
           if (this.text) {
