@@ -13,9 +13,9 @@ var Visualizer = (function($, window, undefined) {
       this.arcs = [];
       this.towers = {};
       this.arrows = {};
+      this.spanAnnTexts = {};
       // this.sizes = {};
       // this.rows = [];
-      this.spanAnnTexts = {};
     }
 
     var Span = function(id, type, from, to, generalType) {
@@ -67,7 +67,7 @@ var Visualizer = (function($, window, undefined) {
     };
 
     Span.prototype.copy = function(id) {
-      var span = $.extend({}, this); // clone
+      var span = $.extend(new Span(), this); // clone
       span.id = id;
       span.initContainers(); // protect from shallow copy
       return span;
@@ -1352,6 +1352,7 @@ var Visualizer = (function($, window, undefined) {
 
 Util.profileEnd('before render');
 Util.profileStart('render');
+Util.profileStart('calculation');
 Util.profileStart('init');
 
         if (!sourceData && !data) { 
@@ -1393,7 +1394,6 @@ Util.profileStart('measures');
 Util.profileEnd('measures');
 Util.profileStart('chunks');
 
-Util.profileStart('--chunks--prologue');
         var currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding;
         var spanHeights = [];
         var sentenceToggle = 0;
@@ -1410,9 +1410,7 @@ Util.profileStart('--chunks--prologue');
         data.rows = [];
 
         addArcTextMeasurements(sizes);
-Util.profileEnd('--chunks--prologue');
         $.each(data.chunks, function(chunkNo, chunk) {
-Util.profileStart('--chunks--before');
           reservations = new Array();
 
           var y = 0;
@@ -1425,7 +1423,6 @@ Util.profileStart('--chunks--before');
           var spacing = 0;
           var spacingChunkId = null;
           var spacingRowBreak = 0;
-Util.profileEnd('--chunks--before');
           $.each(chunk.spans, function(spanNo, span) {
             var spanDesc = spanTypes[span.type];
             var bgColor = ((spanDesc && spanDesc.bgColor) || 
@@ -1599,7 +1596,6 @@ Util.profileEnd('--chunks--before');
             hasAnnotations = true;
           }); // spans
 
-Util.profileStart('--chunks--postspan');
           // positioning of the chunk
           chunk.right = chunkTo;
           var textWidth = sizes.texts.widths[chunk.text];
@@ -1721,7 +1717,6 @@ Util.profileStart('--chunks--postspan');
           var spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
           for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
           currentX += spaceWidth + boxWidth;
-Util.profileEnd('--chunks--postspan');
         }); // chunks
 
         // finish the last row
@@ -2299,8 +2294,8 @@ Util.profileStart('chunkFinish');
           }); // lines
         }); // rows
 
-
 Util.profileEnd('chunkFinish');
+Util.profileEnd('calculation');
 Util.profileStart('SVG');
         addElementsToSVG();
 Util.profileEnd('SVG');
