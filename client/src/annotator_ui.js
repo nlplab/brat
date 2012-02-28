@@ -1308,7 +1308,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           dispatcher.post('preventReloadByURL');
           dispatcher.post('setArguments', [args]);
-          dispatcher.post('renderData', [sourceData]);
+          dispatcher.post('renderData', [sourceData, true]);
         }
       };
 

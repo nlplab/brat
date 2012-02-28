@@ -14,6 +14,7 @@ var Visualizer = (function($, window, undefined) {
       this.towers = {};
       this.arrows = {};
       this.spanAnnTexts = {};
+      this.sentenceLinks = {};
       // this.sizes = {};
       // this.rows = [];
     }
@@ -1054,86 +1055,182 @@ var Visualizer = (function($, window, undefined) {
         return arrowId;
       }
 
-      var coordsToPath = function(coords) {
+      var transition = function(element, attr, oldVal, newVal) {
+        if (oldVal != newVal) {
+          svg.other(element, 'animate', {
+            attributeName: attr,
+            from: oldVal,
+            to: newVal,
+            dur: '1s',
+            begin: 'indefinite',
+            fill: 'freeze'
+          });
+        }
       };
 
-      var addElementsToSVG = function() {
-        var commentName = (coll + '/' + doc).replace('--', '-\\-');
-        $svg.append('<!-- document: ' + commentName + ' -->');
-        var defs = svg.defs();
-        var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
-        svg.add(defs, $blurFilter);
+      var addElementsToSVG = function(reuse) {
+        // prologue, defs, drag arrow
+        if (!reuse) {
+          var commentName = (coll + '/' + doc).replace('--', '-\\-');
+          $svg.append('<!-- document: ' + commentName + ' -->');
+          var defs = svg.defs();
+          var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
+          svg.add(defs, $blurFilter);
 
-        var backgroundGroup = svg.group({ 'class': 'background' });
-        // draw the drag arc marker
-        var arrowhead = svg.marker(defs, 'drag_arrow',
-          5, 2.5, 5, 5, 'auto',
-          {
-            markerUnits: 'strokeWidth',
-            'class': 'drag_fill',
+          var backgroundGroup = svg.group({ 'class': 'background' });
+          // draw the drag arc marker
+          var arrowhead = svg.marker(defs, 'drag_arrow',
+            5, 2.5, 5, 5, 'auto',
+            {
+              markerUnits: 'strokeWidth',
+              'class': 'drag_fill',
           });
-        svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+          svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+        } else {
+          var defs = $svg.find('defs');
+          var backgroundGroup = $svg.find('.background');
+          var trash = [];
+        }
 
+        // arc arrows
+        var reuseArrows = reuse && reuse.arrows || {};
         $.each(data.arrows, function(arrowSpec, arrowDesc) {
-          var size = arrowDesc[1];
-          if (arrowDesc[0] == 'triangle') {
-            var arrow = svg.marker(defs, arrowDesc[3],
-              size, size / 2, size, size, 'auto',
-              {
-                markerUnits: 'strokeWidth',
-                'fill': arrowDesc[2],
-              });
-            svg.polyline(arrow, [[0, 0], [size, size / 2], [0, size], [size / 25, size / 2]]);
+          if (!(arrowSpec in reuseArrows)) {
+            var size = arrowDesc[1];
+            if (arrowDesc[0] == 'triangle') {
+              var arrow = svg.marker(defs, arrowDesc[3],
+                size, size / 2, size, size, 'auto',
+                {
+                  markerUnits: 'strokeWidth',
+                  'fill': arrowDesc[2],
+                });
+              svg.polyline(arrow, [[0, 0], [size, size / 2], [0, size], [size / 25, size / 2]]);
+            }
+          }
+        });
+        // remove unused arrows, if any
+        $.each(reuseArrows, function(arrowSpec, arrowDesc) {
+          if (!(arrowSpec in data.arrows)) {
+            $('#' + arrowDesc[3]).remove();
           }
         });
 
-        var glowGroup = svg.group({ 'class': 'glow' });
-        highlightGroup = svg.group({ 'class': 'highlight' });
-        var textGroup = svg.group({ 'class': 'text' });
-        var sentNumGroup = svg.group({'class': 'sentnum'});
+        if (reuse) {
+          var glowGroup = $svg.find('g.glow');
+          highlightGroup = $svg.find('g.highlight');
+          var textGroup = $svg.find('g.text');
+          var sentNumGroup = $svg.find('g.sentnum');
+        } else {
+          var glowGroup = svg.group({ 'class': 'glow' });
+          highlightGroup = svg.group({ 'class': 'highlight' });
+          var textGroup = svg.group({ 'class': 'text' });
+          var sentNumGroup = svg.group({'class': 'sentnum'});
+        }
 
-        $.each(data.rows, function() {
-          this.group = svg.group();
-          this.background = svg.group(this.group);
-          this.arcsGroup = svg.group(this.group, { 'class': 'arcs' });
+        // sentence links
+        $.each(data.sentenceLinks, function(sentNo, sentDesc) {
+          var reuseDesc = reuse && reuse.sentenceLinks[sentNo];
+          if (!reuseDesc || reuseDesc.x != sentDesc.x || reuseDesc.y != sentDesc.y) {
+            sentDesc.link = svg.link(sentNumGroup, this.link);
+          } else {
+            sentDesc.link = reuseDesc.link;
+          }
 
-          svg.rect(backgroundGroup,
-            0, this.y + data.sizes.texts.y + data.sizes.texts.height,
-            canvasWidth, this.height + data.sizes.texts.height + 1, {
-            'class': this.bgClass,
-          });
+          var x = sentNumMargin - Configuration.visual.margin.x;
 
-          if (this.link) {
-            var link = svg.link(sentNumGroup, this.link);
+          if (this.sentComment) {
+            var boxX = x - data.sizes.sentNos.widths[this.sentence];
+            var boxY = this.textY - data.sizes.sentNos.height;
+            // TODO: using rectShadowSize, but this shadow should
+            // probably have its own setting for shadow size
+            shadowRect = svg.rect(link,
+              boxX - rectShadowSize, boxY - rectShadowSize,
+              data.sizes.sentNos.widths[this.sentence] + 2 * rectShadowSize,
+              data.sizes.sentNos.height + 2 * rectShadowSize, {
+                'class': 'shadow_' + this.sentComment.type,
+                filter: 'url(#Gaussian_Blur)',
+                rx: rectShadowRounding,
+                ry: rectShadowRounding,
+                'data-sent': this.sentence,
+            });
+          }
 
-            var x = sentNumMargin - Configuration.visual.margin.x;
-
-            if (this.sentComment) {
-              var boxX = x - data.sizes.sentNos.widths[this.sentence];
-              var boxY = this.textY - data.sizes.sentNos.height;
-              // TODO: using rectShadowSize, but this shadow should
-              // probably have its own setting for shadow size
-              shadowRect = svg.rect(link,
-                boxX - rectShadowSize, boxY - rectShadowSize,
-                data.sizes.sentNos.widths[this.sentence] + 2 * rectShadowSize,
-                data.sizes.sentNos.height + 2 * rectShadowSize, {
-                  'class': 'shadow_' + this.sentComment.type,
-                  filter: 'url(#Gaussian_Blur)',
-                  rx: rectShadowRounding,
-                  ry: rectShadowRounding,
-                  'data-sent': this.sentence,
-              });
+          if (reuseDesc) {
+            sentDesc.text = reuseDesc.text;
+            transition(sentDesc.text, 'x', reuseDesc.x, sentDesc.x);
+            transition(sentDesc.text, 'y', reuseDesc.y, sentDesc.y);
+          } else {
+            sentDesc.text = svg.text(sentDesc.link,
+              sentDesc.x, sentDesc.y,
+              '' + sentNo, { 'data-sent': sentNo });
+          }
+        });
+        if (reuse) {
+          for (var sentNo in reuse.sentenceLinks) {
+            if (reuse.sentenceLinks.hasOwnProperty(sentNo) && !(sentNo in data.sentenceLinks)) {
+              $(reuse.sentenceLinks[sentNo].link).remove();
             }
+          }
+        }
 
-            var text = svg.text(link,
-              x, this.textY,
-                '' + this.sentence, { 'data-sent': this.sentence });
+        var reuseRowsNum = reuse && reuse.rows.length || 0;
+        if (reuse) {
+          var lastRow = reuse.rows[reuse.rows.length - 1];
+          var lastY = lastRow.yf + lastRow.hf;
+        }
+        $.each(data.rows, function(rowId, row) {
+          if (rowId < reuseRowsNum) {
+            var reuseRow = reuse.rows[rowId];
+            this.group = reuseRow.group;
+            this.background = reuseRow.background;
+            this.arcsGroup = reuseRow.arcsGroup;
+          } else {
+            var reuseRow = null;
+            this.group = svg.group();
+            this.background = svg.group(this.group);
+            this.arcsGroup = svg.group(this.group, { 'class': 'arcs' });
+          }
+
+          this.yf = this.y + data.sizes.texts.y + data.sizes.texts.height;
+          this.hf = this.height + data.sizes.texts.height + 1;
+          if (reuseRow) {
+            this.rowRect = reuseRow.rowRect;
+            $(this.rowRect).attr('class', this.bgClass);
+          } else {
+            this.rowRect = svg.rect(backgroundGroup,
+              0, this.yf, canvasWidth, this.hf, {
+              'class': this.bgClass,
+            });
+          }
+          if (reuseRow) {
+            // move
+            transition(this.rowRect, 'width', reuse.canvasWidth, canvasWidth);
+            transition(this.rowRect, 'y', reuseRow.yf, this.yf);
+            transition(this.rowRect, 'height', reuseRow.hf, this.hf);
+          } else {
+            // apparate
+            console.log("apparating", this.index, this.bgClass, this.hf);
+            transition(this.rowRect, 'y', lastY, this.yf);
+            transition(this.rowRect, 'height', 0, this.hf);
           }
 
           if (this.text) {
-            svg.text(textGroup, 0, 0, this.text);
+            if (reuseRow) {
+              textGroup.find('text').remove();
+            }
+            var text = svg.text(textGroup, 0, 0, this.text);
           }
-        });
+        }); // rows
+
+        var lastRow = data.rows[data.rows.length - 1];
+        var lastY = lastRow.yf + lastRow.hf;
+        for (var i = data.rows.length; i < reuseRowsNum; i++) {
+          var reuseRow = reuse.rows[i];
+          // disapparate
+          transition(reuseRow.rowRect, 'height', reuseRow.height, 0); // disapparate
+          transition(reuseRow.rowRect, 'y', reuseRow.y, lastY); // disapparate
+          trash.push(reuseRow.group); // includes: spans, arcs
+        }
 
         $.each(data.chunks, function() {
           this.group = svg.group(this.row.group);
@@ -1354,12 +1451,15 @@ var Visualizer = (function($, window, undefined) {
       var drawing = false;
       var redraw = false;
 
-      var renderDataReal = function(sourceData) {
+      var renderDataReal = function(sourceData, reuse) {
 
 Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('calculation');
 Util.profileStart('init');
+reuse = true;
+
+        var oldData = null;
 
         if (!sourceData && !data) { 
           dispatcher.post('doneRendering', [coll, doc, args]);
@@ -1374,11 +1474,12 @@ Util.profileStart('init');
         redraw = false;
         drawing = true;
 
+        if (reuse) reuse = data; // old data copy
         if (sourceData) setData(sourceData);
         showMtime();
 
         // clear the SVG
-        svg.clear(true);
+        if (!reuse) svg.clear(true);
         if (!data || data.length == 0) return;
 
         // establish the width according to the enclosing element
@@ -1388,6 +1489,7 @@ Util.profileStart('init');
 Util.profileEnd('init');
 Util.profileStart('measures');
 
+        // TODO reuse measurements
         var sizes = getTextAndSpanTextMeasurements();
         data.sizes = sizes;
 
@@ -1396,6 +1498,7 @@ Util.profileStart('measures');
         $.each(sizes.texts.widths, function(text, width) {
           if (width > maxTextWidth) maxTextWidth = width;
         });
+        addArcTextMeasurements(sizes);
 
 Util.profileEnd('measures');
 Util.profileStart('chunks');
@@ -1415,7 +1518,6 @@ Util.profileStart('chunks');
         var textMarkedRows = [];
         data.rows = [];
 
-        addArcTextMeasurements(sizes);
         $.each(data.chunks, function(chunkNo, chunk) {
           reservations = new Array();
 
@@ -2111,11 +2213,6 @@ Util.profileStart('rows');
           y += sizes.texts.height;
           row.yt = y;
           row.textY = y - rowPadding;
-          if (row.sentence) {
-            var sentenceHash = new URLHash(coll, doc, { focus: [[ 'sent', row.sentence ]] } );
-            row.link = sentenceHash.getHash();
-            row.sentComment = data.sentComment[row.sentence];
-          }
           
           // XXX removed - what did it do?
           // var rowY = y - rowPadding;
@@ -2289,7 +2386,7 @@ Util.profileStart('chunkFinish');
           this.curly.to += xt;
           this.curly.x += xt;
           this.textY += yt;
-        });
+        }); // spans
         $.each(data.rows, function() {
           var yt = this.yt;
           $.each(this.lines, function() {
@@ -2298,19 +2395,41 @@ Util.profileStart('chunkFinish');
               this.y3 += yt;
             }); // sides
           }); // lines
+
+          // is it a sentence? provide link data
+          if (this.sentence) {
+            var sentenceHash = new URLHash(coll, doc, { focus: [[ 'sent', row.sentence ]] } );
+            row.sentComment = data.sentComment[row.sentence];
+
+            var sentenceLink = {
+              link: sentenceHash.getHash(),
+              x: sentNumMargin - Configuration.visual.margin.x,
+              y: this.textY
+            };
+
+            if (this.sentComment) {
+              sentenceLink.boxX = x - data.sizes.sentNos.widths[this.sentence];
+              sentenceLink.boxY = this.textY - data.sizes.sentNos.height;
+              sentenceLink.bgClass = 'shadow_' + this.sentComment.type;
+            }
+
+            data.sentenceLinks[this.sentence] = sentenceLink;
+          }
         }); // rows
+
+        // find out the size
+        var width = maxTextWidth + sentNumMargin + 2 * Configuration.visual.margin.x + 1;
+        if (width > canvasWidth) canvasWidth = width;
+        data.canvasWidth = canvasWidth;
 
 Util.profileEnd('chunkFinish');
 Util.profileEnd('calculation');
 Util.profileStart('SVG');
-        addElementsToSVG();
+        addElementsToSVG(reuse);
 Util.profileEnd('SVG');
 Util.profileStart('finish');
 
         // resize the SVG
-        var width = maxTextWidth + sentNumMargin + 2 * Configuration.visual.margin.x + 1;
-        if (width > canvasWidth) canvasWidth = width;
-
         $svg.width(canvasWidth);
         $svg.height(y);
         $svgDiv.height(y);
@@ -2330,6 +2449,9 @@ Util.profileReport();
             this.beginElement();
           }
         });
+        setTimeout(function() {
+          $('animate[fill="freeze"]').remove();
+        }, 1100);
         dispatcher.post('doneRendering', [coll, doc, args]);
       };
 
@@ -2338,7 +2460,7 @@ Util.profileReport();
         annotationFileNotFound: true,
         isDirectoryError: true
       };
-      var renderData = function(sourceData) {
+      var renderData = function(sourceData, reuse) {
         Util.profileEnd('invoke getDocument');
         if (sourceData && sourceData.exception) {
           if (renderErrors[sourceData.exception]) {
@@ -2350,7 +2472,7 @@ Util.profileReport();
           dispatcher.post('startedRendering', [coll, doc, args]);
           dispatcher.post('spin');
           setTimeout(function() {
-              renderDataReal(sourceData);
+              renderDataReal(sourceData, reuse);
               dispatcher.post('unspin');
           }, 0);
         }
