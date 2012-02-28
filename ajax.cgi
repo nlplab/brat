@@ -60,6 +60,23 @@ def main(args):
         stdout.write(response_data[1])
     return 0
 
+def profile_main(argv):
+    # runs main() with profiling, storing in a rotating set of files
+    # in work. To see a profile, run e.g.
+    # python -c 'import pstats; pstats.Stats("work/serverprofile0").strip_dirs().sort_stats("time").print_stats()' | less
+    import cProfile
+    import os.path
+    for i in range(0,10):
+        pfn = 'work/serverprofile'+str(i)
+        if not os.path.exists(pfn):
+            break
+    if os.path.exists(pfn):
+        # rotate back; TODO: clear next in rotation
+        pfn = 'work/serverprofile0'
+    cProfile.run('main(argv)', pfn)
+
 if __name__ == '__main__':
     from sys import argv, exit
     exit(main(argv))
+    # To turn on server profiles, comment out the line above and use the one below.
+    #exit(profile_main(argv))
