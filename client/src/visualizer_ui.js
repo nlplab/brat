@@ -17,6 +17,7 @@ var VisualizerUI = (function($, window, undefined) {
       // TODO: confirm unnecessary and remove
 //       var attributeTypes = null;
       var data = null;
+      var mtime = null;
       var searchConfig = null;
       var coll, doc, args;
       var collScroll;
@@ -1371,15 +1372,15 @@ var VisualizerUI = (function($, window, undefined) {
         }
       }
 
-      var savedSVGreceived = function(data) {
+      var savedSVGreceived = function(response) {
         $('#stored_file_spinner').hide()
 
-        if (data && data.exception == 'corruptSVG') {
+        if (response && response.exception == 'corruptSVG') {
           dispatcher.post('messages', [[['Cannot save SVG: corrupt', 'error']]]);
           return;
         }
         var $downloadStored = $('#download_stored').empty().show();
-        $.each(data.stored, function(storedNo, stored) {
+        $.each(response.stored, function(storedNo, stored) {
           var params = {
             action: 'retrieveStored',
             'document': doc,
@@ -1405,14 +1406,11 @@ var VisualizerUI = (function($, window, undefined) {
         currentDocumentSVGsaved = false;
       };
 
-      var onRenderData = function(_data) {
-        if (_data && !_data.exception) {
-          data = _data;
-        }
-        if (!data) return;
+      var onRenderData = function(sourceData) {
+        if (!sourceData) return;
         var $sourceFiles = $('#source_files').empty();
         /* Add download links for all available extensions */
-        $.each(data.source_files, function(extNo, ext) {
+        $.each(sourceData.source_files, function(extNo, ext) {
           var $link = $('<a target="brat_search"/>').
               text(ext).
               attr('href',
@@ -1425,10 +1423,11 @@ var VisualizerUI = (function($, window, undefined) {
         /* Add a download link for the whole collection */
         invalidateSavedSVG();
 
-        if (data.mtime) {
+        mtime = sourceData.mtime;
+        if (mtime) {
           // we're getting seconds and need milliseconds
-          //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * data.ctime)).css("display", "inline");
-          $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * data.mtime)).show();
+          //$('#document_ctime').text("Created: " + Annotator.formatTime(1000 * sourceData.ctime)).css("display", "inline");
+          $('#document_mtime').text("Last modified: " + Util.formatTimeAgo(1000 * mtime)).show();
         } else {
           //$('#document_ctime').css("display", "none");
           $('#document_mtime').hide();
@@ -1788,9 +1787,9 @@ var VisualizerUI = (function($, window, undefined) {
         showFileBrowser();
       };
 
-      var reloadDirectoryWithSlash = function(data) {
-        var collection = data.collection + data.document + '/';
-        dispatcher.post('setCollection', [collection, '', data.arguments]);
+      var reloadDirectoryWithSlash = function(sourceData) {
+        var collection = sourceData.collection + sourceData.document + '/';
+        dispatcher.post('setCollection', [collection, '', sourceData.arguments]);
       };
 
       // TODO: confirm attributeTypes unnecessary and remove
@@ -1853,7 +1852,7 @@ var VisualizerUI = (function($, window, undefined) {
           }
           dispatcher.post('ajax', [opts, function(response) {
             if (data) {
-              if (data.mtime != response.mtime) {
+              if (mtime != response.mtime) {
                 dispatcher.post('current', [coll, doc, args, true]);
                 documentChangesTimeout = 1 * 1000;
               } else {
@@ -1951,6 +1950,12 @@ var VisualizerUI = (function($, window, undefined) {
       });
       $('#footer').show();
 
+      var rememberData = function(_data) {
+        if (_data && !_data.exception) {
+          data = _data;
+        }
+      };
+
       var onScreamingHalt = function() {
         $('#waiter').dialog('close');
         $('#pulldown, #navbuttons, #spinner').remove();
@@ -1959,6 +1964,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       dispatcher.
           on('init', init).
+          on('dataReady', rememberData).
           on('annotationIsAvailable', annotationIsAvailable).
           on('messages', displayMessages).
           on('displaySpanComment', displaySpanComment).

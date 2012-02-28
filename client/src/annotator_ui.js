@@ -1290,18 +1290,18 @@ var AnnotatorUI = (function($, window, undefined) {
           } else {
             args.edited = response.edited;
           }
-          data = response.annotations;
-          data.document = doc;
-          data.collection = coll;
+          var sourceData = response.annotations;
+          sourceData.document = doc;
+          sourceData.collection = coll;
           // this "prevent" is to protect against reloading (from the
           // server) the very data that we just received as part of the
           // response to the edit.
           if (response.undo != undefined) {
-            undoStack.push([coll, data.document, response.undo]);
+            undoStack.push([coll, sourceData.document, sourceDesponse.undo]);
           }
           dispatcher.post('preventReloadByURL');
           dispatcher.post('setArguments', [args]);
-          dispatcher.post('renderData', [data]);
+          dispatcher.post('renderData', [sourceData]);
         }
       };
 
@@ -1641,7 +1641,7 @@ var AnnotatorUI = (function($, window, undefined) {
       dispatcher.
           on('init', init).
           on('getValidArcTypesForDrag', getValidArcTypesForDrag).
-          on('renderData', rememberData).
+          on('dataReady', rememberData).
           on('collectionLoaded', rememberSpanSettings).
           on('collectionLoaded', setupTaggerUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
