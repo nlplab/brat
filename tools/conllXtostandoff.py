@@ -21,14 +21,28 @@ OUTPUT_ENCODING = "UTF-8"
 
 output_directory = None
 
+# rewrites for characters appearing in CoNLL-X types that cannot be
+# directly used in identifiers in brat-flavored standoff
+charmap = {
+    '<' : '_lt_',
+    '>' : '_gt_',
+    '+' : '_plus_',
+    '?' : '_question_',
+    '&' : '_amp_',
+    ':' : '_colon_',
+}
+
+def maptype(s):
+    return "".join([charmap.get(c,c) for c in s])
+
 def tokstr(start, end, ttype, idnum, text):
     # sanity checks
     assert '\n' not in text, "ERROR: newline in entity '%s'" % (text)
     assert text == text.strip(), "ERROR: tagged span contains extra whitespace: '%s'" % (text)
-    return "T%d\t%s %d %d\t%s" % (idnum, ttype, start, end, text)
+    return "T%d\t%s %d %d\t%s" % (idnum, maptype(ttype), start, end, text)
 
 def depstr(depid, headid, rel, idnum):
-    return "R%d\t%s Arg1:T%d Arg2:T%d" % (idnum, rel, headid, depid)
+    return "R%d\t%s Arg1:T%d Arg2:T%d" % (idnum, maptype(rel), headid, depid)
 
 def output(infn, docnum, sentences):
     global output_directory
@@ -67,7 +81,6 @@ def output(infn, docnum, sentences):
 
             # output a token annotation
             print >> soout, tokstr(offset, offset+len(form), POS, idnum, form)
-#             print >> soout, tokstr(offset, offset+len(form), "T", idnum, form)
             assert ID not in idmap, "Error in data: dup ID"
             idmap[ID] = idnum
             idnum += 1

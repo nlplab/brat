@@ -453,6 +453,21 @@ var Util = (function(window, undefined) {
       return result;
     };
 
+    var paramArray = function(val) {
+      val = val || [];
+      var len = val.length;
+      var arr = [];
+      for (var i = 0; i < len; i++) {
+        if ($.isArray(val[i])) {
+          arr.push(val[i].join('~'));
+        } else {
+          // non-array argument; this is an error from the caller
+          console.error('param: Error: received non-array-in-array argument [', i, ']', ':', val[i], '(fix caller)');
+        }
+      }
+      return arr;
+    };
+
     var param = function(args) {
       if (!args) return '';
       var vals = [];
@@ -466,16 +481,7 @@ var Util = (function(window, undefined) {
           // values normally expected to be arrays, but some callers screw
           // up, so check
           if ($.isArray(val)) {
-            var len = val.length;
-            var arr = [];
-            for (var i = 0; i < len; i++) {
-              if ($.isArray(val[i])) {
-                arr.push(val[i].join('~'));
-              } else {
-                // non-array argument; this is an error from the caller
-                console.error('param: Error: received non-array-in-array argument', key, '[', i, ']', ':', val[i], '(fix caller)');
-              }
-            }
+            var arr = paramArray(val);
             vals.push(key + '=' + arr.join(','));
           } else {
             // non-array argument; this is an error from the caller
@@ -539,6 +545,7 @@ var Util = (function(window, undefined) {
       adjustColorLightness: adjustColorLightness,
       objectToUrlStr: objectToUrlStr,
       isEqual: isEqual,
+      paramArray: paramArray,
       param: param,
       deparam: deparam,
     };

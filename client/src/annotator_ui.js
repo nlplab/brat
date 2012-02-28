@@ -386,7 +386,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (firstRadio) {
             firstRadio.checked = true;
           } else {
-            dispatcher.post('hideForm', [spanForm]);
+            dispatcher.post('hideForm');
             dispatcher.post('messages', [[['No valid span types defined', 'error']]]);
             return;
           }
@@ -572,7 +572,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (firstRadio) {
           firstRadio.checked = true;
         } else {
-          dispatcher.post('hideForm', [rapidSpanForm]);
+          dispatcher.post('hideForm');
           dispatcher.post('messages', [[['No valid span types defined', 'error']]]);
           return;
         }
@@ -647,7 +647,8 @@ var AnnotatorUI = (function($, window, undefined) {
               // do not allow equiv<->non-equiv change options
               if (arcType && isEquiv != isThisEquiv) return;
 
-              var displayName = arcDesc.labels[0] || arcTypeName;
+              var displayName = ((arcDesc.labels && arcDesc.labels[0]) || 
+                                 arcTypeName);
               var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label class="arc_type_label" for="arc_' + arcTypeName + '"/>').text(displayName);
               var $div = $('<div/>').append($checkbox).append($label);
@@ -745,13 +746,13 @@ var AnnotatorUI = (function($, window, undefined) {
           return;
         }
         var eventDataId = $(evt.target).attr('data-arc-ed');
-        dispatcher.post('hideForm', [arcForm]);
+        dispatcher.post('hideForm');
         arcOptions.action = 'deleteArc';
         dispatcher.post('ajax', [arcOptions, 'edited']);
       };
 
       var reselectArc = function(evt) {
-        dispatcher.post('hideForm', [arcForm]);
+        dispatcher.post('hideForm');
         svgElement.addClass('reselect');
         $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').addClass('reselect');
         startArcDrag(arcOptions.origin);
@@ -1091,7 +1092,7 @@ var AnnotatorUI = (function($, window, undefined) {
                            escapedName + '</label>');
             $top.append($input).append($label);
             $input.button();
-            $input.change(attrChangeHandler);
+            $input.change(onBooleanAttrChange);
           } else {
             var $div = $('<div class="ui-button ui-button-text-only attribute_type_label"/>');
             var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text" category="' + category + '"/>');
@@ -1103,7 +1104,7 @@ var AnnotatorUI = (function($, window, undefined) {
             });
             $div.append($select);
             $top.append($div);
-            $select.change(onAttributeChange);
+            $select.change(onMultiAttrChange);
           }
         });
       }
@@ -1116,6 +1117,7 @@ var AnnotatorUI = (function($, window, undefined) {
         
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
+        $('#span_form input:not([unused])').removeAttr('disabled');
         var $toDisable;
         var $category;
         if (category == "event") {
@@ -1135,17 +1137,21 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
-      var onAttributeChange = function(evt) {
-        var attrCategory = evt.target.getAttribute('category');
-        setSpanTypeSelectability(attrCategory);
-        if (evt.target.selectedIndex) {
-          $(evt.target).addClass('ui-state-active');
+      var onMultiAttrChange = function(evt) {
+        if ($(this).val() == '') {
+          $('#span_form input:not([unused])').removeAttr('disabled');
         } else {
-          $(evt.target).removeClass('ui-state-active');
+          var attrCategory = evt.target.getAttribute('category');
+          setSpanTypeSelectability(attrCategory);
+          if (evt.target.selectedIndex) {
+            $(evt.target).addClass('ui-state-active');
+          } else {
+            $(evt.target).removeClass('ui-state-active');
+          }
         }
       }
 
-      var attrChangeHandler = function(evt) {
+      var onBooleanAttrChange = function(evt) {
         var attrCategory = evt.target.getAttribute('category');
         setSpanTypeSelectability(attrCategory);
         updateCheckbox($(evt.target));
@@ -1284,18 +1290,18 @@ var AnnotatorUI = (function($, window, undefined) {
           } else {
             args.edited = response.edited;
           }
-          data = response.annotations;
-          data.document = doc;
-          data.collection = coll;
+          var sourceData = response.annotations;
+          sourceData.document = doc;
+          sourceData.collection = coll;
           // this "prevent" is to protect against reloading (from the
           // server) the very data that we just received as part of the
           // response to the edit.
           if (response.undo != undefined) {
-            undoStack.push([coll, data.document, response.undo]);
+            undoStack.push([coll, sourceData.document, sourceDesponse.undo]);
           }
           dispatcher.post('preventReloadByURL');
           dispatcher.post('setArguments', [args]);
-          dispatcher.post('renderData', [data]);
+          dispatcher.post('renderData', [sourceData]);
         }
       };
 
@@ -1314,12 +1320,12 @@ var AnnotatorUI = (function($, window, undefined) {
           'document': doc,
         });
         dispatcher.post('ajax', [spanOptions, 'edited']);
-        dispatcher.post('hideForm', [spanForm]);
+        dispatcher.post('hideForm');
         $('#waiter').dialog('open');
       };
 
       var reselectSpan = function() {
-        dispatcher.post('hideForm', [spanForm]);
+        dispatcher.post('hideForm');
         svgElement.addClass('reselect');
         $(editedSpan.rect).addClass('reselect');
         reselectedSpan = editedSpan;
@@ -1337,7 +1343,7 @@ var AnnotatorUI = (function($, window, undefined) {
             collection: coll,
             'document': doc,
           });
-        dispatcher.post('hideForm', [splitForm]);
+        dispatcher.post('hideForm');
         dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;
       });
@@ -1346,7 +1352,7 @@ var AnnotatorUI = (function($, window, undefined) {
           width: 400
         }]);
       var splitSpan = function() {
-        dispatcher.post('hideForm', [spanForm]);
+        dispatcher.post('hideForm');
         var $roles = $('#split_roles').empty();
         var numRoles = repeatingArcTypes.length;
         var roles = $.each(repeatingArcTypes, function() {
@@ -1417,7 +1423,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanFormSubmit = function(evt, typeRadio) {
         typeRadio = typeRadio || $('#span_form input:radio:checked');
         var type = typeRadio.val();
-        dispatcher.post('hideForm', [spanForm]);
+        dispatcher.post('hideForm');
         $.extend(spanOptions, {
           action: 'createSpan',
           collection: coll,
@@ -1458,7 +1464,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // unfocus all elements to prevent focus being kept after
         // hiding them
         rapidSpanForm.parent().find('*').blur();
-        dispatcher.post('hideForm', [rapidSpanForm]);
+        dispatcher.post('hideForm');
 
         if (type == "") {
           // empty type value signals the special case where the user
@@ -1509,7 +1515,7 @@ var AnnotatorUI = (function($, window, undefined) {
               dispatcher.post('messages', [[['Unknown error: ' + response.exception, 'error']]]);
             }
           } else {
-            dispatcher.post('hideForm', [importForm]);
+            dispatcher.post('hideForm');
             dispatcher.post('setDocument', [response.document]);
           }
         }]);
@@ -1524,6 +1530,7 @@ var AnnotatorUI = (function($, window, undefined) {
           },
         }]);
       $('#import_button').click(function() {
+        dispatcher.post('hideForm');
         dispatcher.post('showForm', [importForm]);
         importForm.find('input, textarea').val('');
       });
@@ -1634,7 +1641,7 @@ var AnnotatorUI = (function($, window, undefined) {
       dispatcher.
           on('init', init).
           on('getValidArcTypesForDrag', getValidArcTypesForDrag).
-          on('renderData', rememberData).
+          on('dataReady', rememberData).
           on('collectionLoaded', rememberSpanSettings).
           on('collectionLoaded', setupTaggerUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).

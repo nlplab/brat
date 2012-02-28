@@ -231,18 +231,6 @@ def _fill_attribute_configuration(nodes, project_conf):
             if attr_drawing_conf is None:
                 attr_drawing_conf = {}
 
-            # process "special" <GLYPH-POS> argument, specifying where
-            # to place the glyph
-#             glyph_pos = None
-#             for k in node.arguments:
-#                 # TODO: remove magic value
-#                 if k == '<GLYPH-POS>':
-#                     for v in node.arguments[k]:
-#                         if v not in ('left', 'right'):
-#                             display_message('Configuration error: "%s" is not a valid glyph position for %s' % (v,_type), 'warning')
-#                         else:
-#                             glyph_pos = v
-
             # TODO: "special" <DEFAULT> argument
             
             # send "special" arguments in addition to standard drawing
@@ -262,7 +250,14 @@ def _fill_attribute_configuration(nodes, project_conf):
                 item['values'] = { _type : {} }
                 for k in ALL_ATTR_ARGS:
                     if k in attr_drawing_conf:
-                        item['values'][_type][k] = attr_drawing_conf[k]
+                        # protect against error from binary attribute
+                        # having multi-valued visual config (#698)
+                        if isinstance(attr_drawing_conf[k], list):
+                            Messager.warning("Visual config error: expected single value for %s binary attribute '%s' config, found %d. Visuals may be wrong." % (_type, k, len(attr_drawing_conf[k])))
+                            # fall back on the first just to have something.
+                            item['values'][_type][k] = attr_drawing_conf[k][0]
+                        else:
+                            item['values'][_type][k] = attr_drawing_conf[k]
             else:
                 # has normal arguments, use these as possible values.
                 # (this is quite terrible all around, sorry.)
@@ -367,11 +362,11 @@ def get_span_types(directory):
             project_conf, hotkey_by_type)
 
     # make visual config available also for nodes for which there is
-    # no annotation config ...
-    unconfigured = [l for l in project_conf.get_labels() if 
+    # no annotation config. Note that defaults (SPAN_DEFAULT etc.)
+    # are included via get_drawing_types() if defined.
+    unconfigured = [l for l in (project_conf.get_labels().keys() +
+                                project_conf.get_drawing_types()) if 
                     not project_conf.is_configured_type(l)]
-    # ... and include the defaults.
-    unconfigured += [VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT]
     unconf_types = _fill_visual_configuration(unconfigured, project_conf)
 
     # TODO: this is just horrible. What's all this doing in a function
@@ -568,7 +563,7 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
     else:
         # need to read raw text
         try:
-            with open_textfile(txt_file_path) as txt_file:
+            with open_textfile(txt_file_path, 'r') as txt_file:
                 text = txt_file.read()
         except IOError:
             raise UnableToReadTextFile(txt_file_path)

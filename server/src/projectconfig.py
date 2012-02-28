@@ -66,7 +66,7 @@ VISUAL_ATTR_DEFAULT = "ATTRIBUTE_DEFAULT"
 # visual config attribute name lists
 SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
 ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead']
-ATTR_DRAWING_ATTRIBUTES  = ['box', 'dashArray', 'glyph']
+ATTR_DRAWING_ATTRIBUTES  = ['box', 'dashArray', 'glyph', 'position']
 
 # fallback defaults if config files not found
 __default_configuration = """
@@ -118,7 +118,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "GLYPH-POS", "DEFAULT"]
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
@@ -394,6 +394,11 @@ def __read_term_hierarchy(input, section=None):
         for n in macros:
             l = l.replace(n, macros[n])
 
+        # check for undefined macros
+        for m in re.finditer(r'(<.*?>)', l):
+            s = m.group(1)
+            assert s in reserved_config_string, "Error: undefined macro %s in configuration. (Note that macros are section-specific.)" % s
+
         # choose strict tab-only separator or looser any-space
         # separator matching depending on section
         if __require_tab_separator(section):
@@ -531,8 +536,8 @@ def __parse_configs(configstr, source, expected_sections, optional_sections):
     for s, sl in section_lines.items():
         try:
             configs[s] = __read_term_hierarchy(sl, s)
-        except:
-            Messager.warning("Project configuration: error parsing section [%s] in %s." % (s, source), 5)
+        except Exception, e:
+            Messager.warning("Project configuration: error parsing section [%s] in %s: %s" % (s, source, str(e)), 5)
             raise
 
     # verify that expected sections are present; replace with empty if not.
@@ -688,6 +693,17 @@ def get_labels(directory):
         cache[directory] = l
     return cache[directory]
 get_labels.__cache = {}
+
+# TODO: too much caching?
+def get_drawing_types(directory):
+    cache = get_drawing_types.__cache
+    if directory not in cache:
+        l = set()
+        for n in get_drawing_config(directory):
+            l.add(n.storage_form())
+        cache[directory] = list(l)
+    return cache[directory]
+get_drawing_types.__cache = {}
 
 def get_drawing_config(directory):
     return get_visual_configs(directory)[DRAWING_SECTION]
@@ -881,8 +897,11 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
         else:
             types = r.arguments[r.arg_list[num]]
             for type in types:
-                # TODO: "wildcards" other than <ANY>
-                if type == "<ANY>" or atype == "<ANY>" or type == atype:
+                # TODO: don't just assume that we're dealing with an
+                # entity type
+                if (type in ("<ANY>", "<ENTITY>") or 
+                    atype in ("<ANY>", "<ENTITY>") or 
+                    type == atype):
                     rels.append(r)
 
     return rels
@@ -956,27 +975,49 @@ class ProjectConfiguration(object):
             Messager.debug("Project config received relative directory ('%s'), configuration may not be found." % directory, duration=-1)
         self.directory = directory
 
-    def mandatory_arguments(self, type):
+    def mandatory_arguments(self, atype):
         """
         Returns the mandatory argument types that must be present for
         an annotation of the given type.
         """
-        node = get_node_by_storage_form(self.directory, type)
+        node = get_node_by_storage_form(self.directory, atype)
         if node is None:
-            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
             return []
         return node.mandatory_arguments()
 
-    def multiple_allowed_arguments(self, type):
+    def multiple_allowed_arguments(self, atype):
         """
         Returns the argument types that are allowed to be filled more
         than once for an annotation of the given type.
         """
-        node = get_node_by_storage_form(self.directory, type)
+        node = get_node_by_storage_form(self.directory, atype)
         if node is None:
-            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % type)
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
             return []
         return node.multiple_allowed_arguments()
+
+    def argument_maximum_count(self, atype, arg):
+        """
+        Returns the maximum number of times that the given argument is
+        allowed to be filled for an annotation of the given type.
+        """
+        node = get_node_by_storage_form(self.directory, atype)
+        if node is None:
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
+            return 0
+        return node.argument_maximum_count(arg)
+
+    def argument_minimum_count(self, atype, arg):
+        """
+        Returns the minimum number of times that the given argument is
+        allowed to be filled for an annotation of the given type.
+        """
+        node = get_node_by_storage_form(self.directory, atype)
+        if node is None:
+            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
+            return 0
+        return node.argument_minimum_count(arg)
 
     def arc_types_from(self, from_ann):
         return self.arc_types_from_to(from_ann)
@@ -1105,6 +1146,9 @@ class ProjectConfiguration(object):
 
     def get_labels_by_type(self, _type):
         return get_labels_by_storage_form(self.directory, _type)
+
+    def get_drawing_types(self):
+        return get_drawing_types(self.directory)
     
     def get_drawing_config_by_type(self, _type):
         return get_drawing_config_by_storage_form(self.directory, _type)

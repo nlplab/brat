@@ -417,13 +417,13 @@ fieldset legend {
   overflow-y: scroll; /* or 'auto' */
   background-color: #ffffff;
   background-color: rgba(255,255,255,0.75);
-  z-index: 20001;
+  z-index: 1;
 }
 #messages {
-  z-index: 20004;
+  z-index: 4;
 }
 #pulluptrigger {
-  z-index: 20003;
+  z-index: 3;
 }
 .messages {
   position: fixed;

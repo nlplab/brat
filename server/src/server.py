@@ -37,7 +37,12 @@ CONFIG_CHECK_LOCK = allocate_lock()
 
 
 class PermissionError(Exception):
-    pass
+    def json(self, json_dic):
+        json_dic['exception'] = 'permissionError'
+
+class ConfigurationError(Exception):
+    def json(self, json_dic):
+        json_dic['exception'] = 'configurationError'
 
 
 # TODO: Possibly check configurations too
@@ -57,10 +62,6 @@ def _permission_check():
         Messager.error((('Data dir: "%s" is not read-able ' % DATA_DIR) +
                 'by the server'), duration=-1)
         raise PermissionError
-
-
-class ConfigurationError(Exception):
-    pass
 
 
 # Error message template functions
@@ -258,7 +259,7 @@ def _server_crash(cookie_hdrs, e):
     print >> stderr, stack_trace
 
     json_dic = {
-            'exception': True,
+            'exception': 'serverCrash',
             }
     return (cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic))))
 
@@ -293,15 +294,19 @@ def serve(params, client_ip, client_hostname, cookie_data):
         # can thus manipulate each other's global variables
         with CONFIG_CHECK_LOCK:
             _config_check()
-    except ConfigurationError:
-        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json({})))
+    except ConfigurationError, e:
+        json_dic = {}
+        e.json(json_dic)
+        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
     # We can now safely read the config
     from config import DEBUG
 
     try:
         _permission_check()
-    except PermissionError:
-        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json({})))
+    except PermissionError, e:
+        json_dic = {}
+        e.json(json_dic)
+        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
 
     try:
         # Safe region, can throw any exception, has verified installation

@@ -25,7 +25,7 @@ var URLMonitor = (function($, window, undefined) {
         dispatcher.post('hideForm');
       };
 
-      var setArguments = function(args) {
+      var setArguments = function(args, force) {
         var oldArgs = that.url_hash.arguments;
         var argSplit = URLHash.splitArgs(args);
 
@@ -34,10 +34,12 @@ var URLMonitor = (function($, window, undefined) {
           that.url_hash.setArguments(args);
           dispatcher.post('argsChanged', [args, oldArgs]);
         }
-        if (changed) { // hashchange event will trigger
+        if (changed) {
+          // hashchange event will trigger
           newIntArgs = argSplit[0];
           updateURL();
-        } else if (!Util.isEqual(that.url_hash.intArguments, argSplit[0])) {
+        } else if (force || !Util.isEqual(that.url_hash.intArguments, argSplit[0])) {
+          // hash is same, but internal arguments differ
           that.url_hash.setArguments(args);
           // hashchange event won't trigger, but internal args have
           // changed, so we have to do updateState's job
