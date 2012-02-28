@@ -11,6 +11,10 @@ import re
 import os
 import codecs
 
+# maximum number of sentences to include in single output document
+# (if None, doesn't split into documents)
+MAX_DOC_SENTENCES = 10
+
 # whether to output an explicit root note
 OUTPUT_ROOT = True
 # the string to use to represent the root node
@@ -30,6 +34,8 @@ charmap = {
     '?' : '_question_',
     '&' : '_amp_',
     ':' : '_colon_',
+    '.' : '_period_',
+    '!' : '_exclamation_',
 }
 
 def maptype(s):
@@ -51,7 +57,13 @@ def output(infn, docnum, sentences):
         txtout = sys.stdout
         soout = sys.stdout
     else:
-        outfn = os.path.join(output_directory, os.path.basename(infn)+'-doc-'+str(docnum))
+        # add doc numbering if there is a sentence count limit,
+        # implying multiple outputs per input
+        if MAX_DOC_SENTENCES:
+            outfnbase = os.path.basename(infn)+'-doc-'+str(docnum)
+        else:
+            outfnbase = os.path.basename(infn)
+        outfn = os.path.join(output_directory, outfnbase)
         txtout = codecs.open(outfn+'.txt', 'wt', encoding=OUTPUT_ENCODING)
         soout = codecs.open(outfn+'.ann', 'wt', encoding=OUTPUT_ENCODING)
 
@@ -129,8 +141,8 @@ def process(fn):
                     sentences.append((tokens, deps))
                 tokens, deps = [], []
 
-                # completely arbitrary division into documents
-                if len(sentences) >= 10:
+                # limit sentences per output "document"
+                if MAX_DOC_SENTENCES and len(sentences) >= MAX_DOC_SENTENCES:
                     output(fn, docnum, sentences)
                     sentences = []
                     docnum += 1
@@ -153,7 +165,9 @@ def process(fn):
             head, rel = fields[6], fields[7]
 
             tokens.append((ID, form, POS))
-            deps.append((ID, head, rel))
+            # allow value "_" for HEAD to indicate no dependency
+            if head != "_":
+                deps.append((ID, head, rel))
 
         # process leftovers, if any
         if len(tokens) > 0:
