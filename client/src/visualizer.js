@@ -15,6 +15,7 @@ var Visualizer = (function($, window, undefined) {
       this.arrows = {};
       this.spanAnnTexts = {};
       this.sentenceLinks = {};
+      this.chunksByFrom = {};
       // this.sizes = {};
       // this.rows = [];
     }
@@ -547,6 +548,7 @@ var Visualizer = (function($, window, undefined) {
           //               (index,     text, from,      to, space) {
           chunk = new Chunk(chunkNo++, text, firstFrom, to, space);
           data.chunks.push(chunk);
+          data.chunksByFrom[chunk.from] = chunk;
           lastTo = to;
           firstFrom = null;
         });
@@ -1090,6 +1092,7 @@ var Visualizer = (function($, window, undefined) {
           var defs = $svg.find('defs');
           var backgroundGroup = $svg.find('.background');
           var trash = [];
+          var additions = [];
         }
 
         // arc arrows
@@ -1163,12 +1166,17 @@ var Visualizer = (function($, window, undefined) {
             sentDesc.text = svg.text(sentDesc.link,
               sentDesc.x, sentDesc.y,
               '' + sentNo, { 'data-sent': sentNo });
+            if (reuse) {
+              transition(sentDesc.text, 'y', data.canvasHeight, sentDesc.y);
+            }
           }
         });
         if (reuse) {
           for (var sentNo in reuse.sentenceLinks) {
             if (reuse.sentenceLinks.hasOwnProperty(sentNo) && !(sentNo in data.sentenceLinks)) {
-              $(reuse.sentenceLinks[sentNo].link).remove();
+              var sentDesc = reuse.sentenceLinks[sentNo];
+              transition(sentDesc.link, 'y', reuse.y, data.canvasHeight);
+              trash.push(sentDesc.link);
             }
           }
         }
@@ -1194,30 +1202,30 @@ var Visualizer = (function($, window, undefined) {
           this.yf = this.y + data.sizes.texts.y + data.sizes.texts.height;
           this.hf = this.height + data.sizes.texts.height + 1;
           if (reuseRow) {
+            // move
             this.rowRect = reuseRow.rowRect;
             $(this.rowRect).attr('class', this.bgClass);
-          } else {
-            this.rowRect = svg.rect(backgroundGroup,
-              0, this.yf, canvasWidth, this.hf, {
-              'class': this.bgClass,
-            });
-          }
-          if (reuseRow) {
-            // move
             transition(this.rowRect, 'width', reuse.canvasWidth, canvasWidth);
             transition(this.rowRect, 'y', reuseRow.yf, this.yf);
             transition(this.rowRect, 'height', reuseRow.hf, this.hf);
           } else {
             // apparate
-            console.log("apparating", this.index, this.bgClass, this.hf);
-            transition(this.rowRect, 'y', lastY, this.yf);
-            transition(this.rowRect, 'height', 0, this.hf);
+            this.rowRect = svg.rect(backgroundGroup,
+              0, this.yf, canvasWidth, this.hf, {
+              'class': this.bgClass,
+            });
+            if (reuse) {
+              transition(this.rowRect, 'y', lastY, this.yf);
+              transition(this.rowRect, 'height', 0, this.hf);
+            }
           }
 
           if (this.text) {
             if (reuseRow) {
               textGroup.find('text').remove();
             }
+            // TODO instead of (0,0) and y coordinate inside the text,
+            // put the y coordinate out here
             var text = svg.text(textGroup, 0, 0, this.text);
           }
         }); // rows
@@ -1227,98 +1235,249 @@ var Visualizer = (function($, window, undefined) {
         for (var i = data.rows.length; i < reuseRowsNum; i++) {
           var reuseRow = reuse.rows[i];
           // disapparate
-          transition(reuseRow.rowRect, 'height', reuseRow.height, 0); // disapparate
-          transition(reuseRow.rowRect, 'y', reuseRow.y, lastY); // disapparate
+          transition(reuseRow.rowRect, 'height', reuseRow.height, 0);
+          transition(reuseRow.rowRect, 'y', reuseRow.y, lastY);
           trash.push(reuseRow.group); // includes: spans, arcs
         }
 
+        // chunk groups
         $.each(data.chunks, function() {
-          this.group = svg.group(this.row.group);
-          this.highlightGroup = svg.group(this.group);
-        });
+          var reuseChunk = reuse && reuse.chunksByFrom[this.from];
+          if (reuseChunk && reuseChunk.to != this.to) reuseChunk = null;
 
-        $.each(data.spans, function() {
-          this.group = svg.group(this.chunk.group, {
-            'class': 'span',
+          if (reuseChunk) {
+            this.group = reuseChunk.group;
+            this.highlightGroup = reuseChunk.highlightGroup;
+          } else {
+            this.group = svg.group(this.row.group);
+            this.highlightGroup = svg.group(this.group);
+          }
+        }); // chunks
+        if (reuse) {
+          $.each(reuse.chunks, function() {
+            var dataChunk = data.chunksByFrom[this.from];
+            if (!dataChunk || dataChunk.to != this.to) {
+              trash.push(this.group); // includes span.group
+              trash.push(this.highlightGroup);
+            };
           });
+        }
+
+        // spans
+        $.each(data.spans, function() {
+          var span = this;
+          var reuseSpan = reuse && reuse.spans[this.id];
+
+          if (reuseSpan) {
+            this.group = reuseSpan.group;
+            // TODO currently chunks are all split up.
+            // remove the chunk groups,
+            // we don't need them any more.
+            // just make sure things bear proper attributes so we can
+            // still react to events.
+            // chunks themselves are still a useful concept for the
+            // purpose of calculation - just remove the groups.
+          } else {
+            this.group = svg.group(this.chunk.group, {
+              'class': 'span',
+            });
+          }
 
           var box = this.box;
           var plainbox = this.plainbox;
           if (this.marked) {
-            var markedRect = svg.rect(this.chunk.highlightGroup,
-              box.x - markedSpanSize, box.y - markedSpanSize,
-              box.w + 2 * markedSpanSize, box.h + 2 * markedSpanSize,
-              {
-                // filter: 'url(#Gaussian_Blur)',
-                'class': "shadow_EditHighlight",
-                rx: markedSpanSize,
-                ry: markedSpanSize,
-            });
-            svg.other(markedRect, 'animate', {
-              'data-type': this.marked,
-              attributeName: 'fill',
-              values: (this.marked == 'match'
-                       ? highlightMatchSequence
-                       : highlightSpanSequence),
-              dur: highlightDuration,
-              repeatCount: 'indefinite',
-              begin: 'indefinite',
-            });
+            if (reuseSpan && reuseSpan.markedRect) {
+              // move
+              this.markedRect = reuseSpan.markedRect;
+              transition(this.markedRect, 'x', reuseSpan.box.x - markedSpanSize, box.x - markedSpanSize);
+              transition(this.markedRect, 'y', reuseSpan.box.y - markedSpanSize, box.y - markedSpanSize);
+              transition(this.markedRect, 'width', reuseSpan.box.w + 2 * markedSpanSize, box.w + 2 * markedSpanSize);
+              transition(this.markedRect, 'height', reuseSpan.box.h + 2 * markedSpanSize, box.h + 2 * markedSpanSize);
+            } else {
+              // apparate
+              this.markedRect = svg.rect(this.chunk.highlightGroup,
+                box.x - markedSpanSize, box.y - markedSpanSize,
+                box.w + 2 * markedSpanSize, box.h + 2 * markedSpanSize,
+                {
+                  // filter: 'url(#Gaussian_Blur)',
+                  'class': "shadow_EditHighlight",
+                  rx: markedSpanSize,
+                  ry: markedSpanSize,
+              });
+              svg.other(this.markedRect, 'animate', {
+                'data-type': this.marked,
+                attributeName: 'fill',
+                values: (this.marked == 'match'
+                         ? highlightMatchSequence
+                         : highlightSpanSequence),
+                dur: highlightDuration,
+                repeatCount: 'indefinite',
+                begin: 'indefinite',
+              });
+              if (reuse) {
+                transition(this.markedRect, 'x', box.x + box.w / 2, box.x - markedSpanSize);
+                transition(this.markedRect, 'y', box.y + box.h / 2, box.y - markedSpanSize);
+                transition(this.markedRect, 'width', 0, box.w + 2 * markedSpanSize);
+                transition(this.markedRect, 'height', 0, box.h + 2 * markedSpanSize);
+              }
+            }
+          } else if (reuseSpan && reuseSpan.markedRect) {
+            // disapparate
+            // XXX buggy?
+            transition(reuseSpan.markedRect, 'x', reuseSpan.box.x - markedSpanSize, reuseSpan.box.x + reuseSpan.box.w / 2);
+            transition(reuseSpan.markedRect, 'y', reuseSpan.box.y - markedSpanSize, reuseSpan.box.y + reuseSpan.box.h / 2);
+            transition(reuseSpan.markedRect, 'width', reuseSpan.box.w + 2 * markedSpanSize, 0);
+            transition(reuseSpan.markedRect, 'height', reuseSpan.box.h + 2 * markedSpanSize, 0);
+            trash.push(reuseSpan.markedRect);
           }
+
           if (this.shadowClass) {
-            svg.rect(this.group,
-              box.x - rectShadowSize, box.y - rectShadowSize,
-              box.w + 2 * rectShadowSize, box.h + 2 * rectShadowSize,
-              {
-                'class': 'shadow_' + this.shadowClass,
-                filter: 'url(#Gaussian_Blur)',
-                rx: rectShadowRounding,
-                ry: rectShadowRounding,
+            if (reuseSpan && reuseSpan.shadowRect) {
+              // move
+              this.shadowRect = reuseSpan.shadowRect;
+              transition(this.shadowRect, 'x', reuseSpan.box.x - rectShadowSize, box.x - rectShadowSize);
+              transition(this.shadowRect, 'y', reuseSpan.box.y - rectShadowSize, box.y - rectShadowSize);
+              transition(this.shadowRect, 'width', reuseSpan.box.w + 2 * rectShadowSize, box.w + 2 * rectShadowSize);
+              transition(this.shadowRect, 'height', reuseSpan.box.h + 2 * rectShadowSize, box.h + 2 * rectShadowSize);
+            } else {
+              // apparate
+              this.shadowRect = svg.rect(this.group,
+                box.x - rectShadowSize, box.y - rectShadowSize,
+                box.w + 2 * rectShadowSize, box.h + 2 * rectShadowSize,
+                {
+                  'class': 'shadow_' + this.shadowClass,
+                  filter: 'url(#Gaussian_Blur)',
+                  rx: rectShadowRounding,
+                  ry: rectShadowRounding,
+              });
+              if (reuse) {
+                transition(this.shadowRect, 'x', box.x + box.w / 2, box.x - rectShadowSize);
+                transition(this.shadowRect, 'y', box.y + box.h / 2, box.y - rectShadowSize);
+                transition(this.shadowRect, 'width', 0, box.w + 2 * rectShadowSize);
+                transition(this.shadowRect, 'height', 0, box.h + 2 * rectShadowSize);
+              }
+            }
+          } else if (reuseSpan && reuseSpan.markedRect) {
+            // disapparate
+            // XXX buggy?
+            transition(reuseSpan.shadowRect, 'x', reuseSpan.box.x - rectShadowSize, reuseSpan.box.x + reuseSpan.box.w / 2);
+            transition(reuseSpan.shadowRect, 'y', reuseSpan.box.y - rectShadowSize, reuseSpan.box.y + reuseSpan.box.h / 2);
+            transition(reuseSpan.shadowRect, 'width', reuseSpan.box.w + 2 * rectShadowSize, 0);
+            transition(reuseSpan.shadowRect, 'height', reuseSpan.box.h + 2 * rectShadowSize, 0);
+            trash.push(reuseSpan.shadowRect);
+          }
+
+          if (reuseSpan) {
+            // move
+            this.rect = reuseSpan.rect;
+            transition(this.rect, 'x', reuseSpan.box.x, box.x);
+            transition(this.rect, 'y', reuseSpan.box.y, box.y);
+            transition(this.rect, 'width', reuseSpan.box.w, box.w);
+            transition(this.rect, 'height', reuseSpan.box.h, box.h);
+          } else {
+            // apparate
+            this.rect = svg.rect(this.group,
+              box.x, box.y, box.w, box.h, box.opts);
+            if (reuse) {
+              transition(this.rect, 'x', box.x + box.w / 2, box.x);
+              transition(this.rect, 'y', box.y + box.h / 2, box.y);
+              transition(this.rect, 'width', 0, box.w);
+              transition(this.rect, 'height', 0, box.h);
+            }
+          }
+
+          if (reuseSpan && reuseSpan.attributeMerge.box === "crossed") {
+            // disapparate
+            // can't animate it, so kill it now
+            $.each(reuseSpan.cross, function() {
+              $(this).remove();
             });
           }
-          this.rect = svg.rect(this.group,
-              box.x, box.y, box.w, box.h, box.opts);
-
           if (this.attributeMerge.box === "crossed") {
-            svg.path(this.group, svg.createPath().
-                move(plainbox.x, plainbox.y - Configuration.visual.margin.y - this.yAdjust).
-                line(plainbox.x + this.width,
-                  plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust),
+            // apparate
+            // can't animate it, so defer drawing
+            var renderCross = function() {
+              var cross1 = svg.path(span.group, svg.createPath().
+                  move(plainbox.x, plainbox.y - Configuration.visual.margin.y - span.yAdjust).
+                  line(plainbox.x + span.width,
+                    plainbox.y + plainbox.h + Configuration.visual.margin.y - span.yAdjust),
+                  { 'class': 'boxcross' });
+              var cross2 = svg.path(span.group, svg.createPath().
+                  move(plainbox.x + span.width, plainbox.y - Configuration.visual.margin.y - span.yAdjust).
+                  line(plainbox.x, plainbox.y + plainbox.h + Configuration.visual.margin.y - span.yAdjust),
                 { 'class': 'boxcross' });
-            svg.path(this.group, svg.createPath().
-                move(plainbox.x + this.width, plainbox.y - Configuration.visual.margin.y - this.yAdjust).
-                line(plainbox.x, plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust),
-                { 'class': 'boxcross' });
+              span.cross = [cross1, cross2];
+            }
+            if (reuseSpan) additions.push(renderCross);
+            else renderCross();
           }
-          svg.text(this.group,
-            this.curly.x, this.textY,
-            data.spanAnnTexts[this.glyphedLabelText],
-            { fill: this.fgColor }
-          );
 
+          if (reuseSpan && reuseSpan.glyphedLabelText == this.glyphedLabelText) {
+            // move
+            this.text = reuseSpan.rect;
+            transition(this.text, 'x', reuseSpan.curly.x, this.curly.x);
+            transition(this.text, 'y', reuseSpan.textY, this.textY);
+          } else {
+            // apparate
+            var drawText = function() {
+              svg.text(span.group,
+                span.curly.x, span.textY,
+                data.spanAnnTexts[span.glyphedLabelText],
+                { fill: span.fgColor }
+              );
+            };
+            if (reuseSpan) additions.push(drawText);
+            else drawText();
+          }
+
+          if (reuseSpan && reuseSpan.drawCurly) {
+            // disapparate
+            $(reuseSpan.curlyPath).remove();
+          }
           if (this.drawCurly) {
+            // apparate
             var bottom = plainbox.y + plainbox.h + Configuration.visual.margin.y - this.yAdjust + 1;
-            svg.path(this.group, svg.createPath()
-                .move(this.curly.from, bottom + Configuration.visual.curlyHeight)
-                .curveC(this.curly.from, bottom,
-                  this.curly.x, bottom + Configuration.visual.curlyHeight,
-                  this.curly.x, bottom)
-                .curveC(this.curly.x, bottom + Configuration.visual.curlyHeight,
-                  this.curly.to, bottom,
-                  this.curly.to, bottom + Configuration.visual.curlyHeight),
-              {
-                'class': 'curly',
-                'stroke': this.curly.color,
-              });
+            var drawCurly = function() {
+              span.curlyPath = svg.path(span.group, svg.createPath()
+                  .move(span.curly.from, bottom + Configuration.visual.curlyHeight)
+                  .curveC(span.curly.from, bottom,
+                    span.curly.x, bottom + Configuration.visual.curlyHeight,
+                    span.curly.x, bottom)
+                  .curveC(span.curly.x, bottom + Configuration.visual.curlyHeight,
+                    span.curly.to, bottom,
+                    span.curly.to, bottom + Configuration.visual.curlyHeight),
+                {
+                  'class': 'curly',
+                  'stroke': span.curly.color,
+                });
+            };
+            if (reuseSpan) additions.push(drawCurly);
+            else drawCurly();
           }
 
-          svg.rect(highlightGroup,
-              this.highlightPos.x, this.highlightPos.y,
-              this.highlightPos.w, this.highlightPos.h,
-              { fill: this.lightBgColor, //opacity:1,
-                rx: highlightRounding.x,
-                ry: highlightRounding.y,
-              });
+          if (reuseSpan) {
+            // move
+            this.highlightRect = reuseSpan.highlightRect;
+            transition(this.highlightRect, 'x', reuseSpan.highlightPos.x, this.highlightPos.x);
+            transition(this.highlightRect, 'y', reuseSpan.highlightPos.y, this.highlightPos.y);
+            transition(this.highlightRect, 'width', reuseSpan.highlightPos.w, this.highlightPos.w);
+            transition(this.highlightRect, 'height', reuseSpan.highlightPos.h, this.highlightPos.h);
+          } else {
+            // apparate
+            this.highlightRect = svg.rect(highlightGroup,
+                this.highlightPos.x, this.highlightPos.y,
+                this.highlightPos.w, this.highlightPos.h,
+                { fill: this.lightBgColor, //opacity:1,
+                  rx: highlightRounding.x,
+                  ry: highlightRounding.y,
+                });
+            if (reuse) {
+              transition(this.highlightRect, 'x', this.highlightPos.x + this.highlightPos.w / 2, this.highlightPos.x);
+              transition(this.highlightRect, 'y', this.highlightPos.y + this.highlightPos.h / 2, this.highlightPos.y);
+              transition(this.highlightRect, 'width', 0, this.highlightPos.w);
+              transition(this.highlightRect, 'height', 0, this.highlightPos.h);
+            }
+          }
         });
 
         // guess at the correct baseline shift to get vertical centering.
@@ -1445,7 +1604,18 @@ var Visualizer = (function($, window, undefined) {
           move(sentNumMargin, 0).
           line(sentNumMargin, data.height));
 
-      }
+        if (reuse) {
+          setTimeout(function() {
+            $('animate[fill="freeze"]').remove();
+            $.each(trash, function() {
+              $(this).remove();
+            });
+            $.each(additions, function() {
+              this();
+            });
+          }, 1100); // hopefully enough?
+        }
+      };
 
 
       var drawing = false;
@@ -2421,6 +2591,7 @@ Util.profileStart('chunkFinish');
         var width = maxTextWidth + sentNumMargin + 2 * Configuration.visual.margin.x + 1;
         if (width > canvasWidth) canvasWidth = width;
         data.canvasWidth = canvasWidth;
+        data.canvasHeight = y;
 
 Util.profileEnd('chunkFinish');
 Util.profileEnd('calculation');
@@ -2449,9 +2620,6 @@ Util.profileReport();
             this.beginElement();
           }
         });
-        setTimeout(function() {
-          $('animate[fill="freeze"]').remove();
-        }, 1100);
         dispatcher.post('doneRendering', [coll, doc, args]);
       };
 
