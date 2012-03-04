@@ -8,6 +8,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var arcDragOriginGroup = null;
       var arcDragArc = null;
       var arcDragJustStarted = false;
+      var sourceData = null;
       var data = null;
       var searchConfig = null;
       var spanOptions = null;
@@ -906,7 +907,7 @@ var AnnotatorUI = (function($, window, undefined) {
               });
 
             var crossSentence = true;
-            $.each(data.sentence_offsets, function(sentNo, startEnd) {
+            $.each(sourceData.sentence_offsets, function(sentNo, startEnd) {
               if (selectedTo <= startEnd[1]) {
                 // this is the sentence
 
@@ -1297,7 +1298,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // server) the very data that we just received as part of the
           // response to the edit.
           if (response.undo != undefined) {
-            undoStack.push([coll, sourceData.document, sourceDesponse.undo]);
+            undoStack.push([coll, sourceData.document, response.undo]);
           }
           dispatcher.post('preventReloadByURL');
           dispatcher.post('setArguments', [args]);
@@ -1634,6 +1635,10 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('configurationChanged');
       };
 
+      var onRenderData = function(_sourceData) {
+        sourceData = _sourceData;
+      }
+
       var init = function() {
         dispatcher.post('annotationIsAvailable');
       };
@@ -1645,6 +1650,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('collectionLoaded', rememberSpanSettings).
           on('collectionLoaded', setupTaggerUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
+          on('renderData', onRenderData).
           on('hideForm', hideForm).
           on('user', userReceived).
           on('edited', edited).
