@@ -361,14 +361,24 @@ class Annotations(object):
                 raise EventWithoutTriggerError(e_ann)
 
         # Check that every trigger is only referenced by events
+
+        # Create a map for non-event references
+        referenced_to_referencer = {}
+        for non_e_ann in (a for a in self
+                if not isinstance(a, EventAnnotation)):
+            for ref in chain(non_e_ann.get_deps()):
+                try:
+                    referenced_to_referencer[ref].add(non_e_ann.id)
+                except KeyError:
+                    referenced_to_referencer[ref] = set((non_e_ann.id, ))
+
+        # Ensure that no non-event references a trigger
         for tr_ann in self.get_triggers():
-            for ann in (a for a in self if a is not tr_ann):
-                # We can't really know how to access all ID;s held by an
-                # annotation so we hook ourselves into the dependencies
-                soft_deps, hard_deps = ann.get_deps()
-                if tr_ann.id in soft_deps or tr_ann.id in hard_deps:
-                    if not isinstance(ann, EventAnnotation):
-                        raise TriggerReferenceError(tr_ann, ann)
+            if tr_ann.id in referenced_to_referencer:
+                conflict_ann_ids = referenced_to_referencer[tr_ann.id]
+                # Note: Only reporting the first conflict
+                raise TriggerReferenceError(tr_ann,
+                        self.get_ann_by_id(conflict_ann_ids[0]))
         
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
