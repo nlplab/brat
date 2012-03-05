@@ -16,6 +16,7 @@ Version:    2011-01-25
 from logging import info as log_info
 from codecs import open as codecs_open
 from functools import partial
+from itertools import chain
 from os import utime
 from time import time
 from os.path import join as path_join
@@ -366,7 +367,7 @@ class Annotations(object):
         referenced_to_referencer = {}
         for non_e_ann in (a for a in self
                 if not isinstance(a, EventAnnotation)):
-            for ref in chain(non_e_ann.get_deps()):
+            for ref in chain(*non_e_ann.get_deps()):
                 try:
                     referenced_to_referencer[ref].add(non_e_ann.id)
                 except KeyError:
