@@ -561,13 +561,14 @@ var Visualizer = (function($, window, undefined) {
         var pastFirst = false;
         $.each(sourceData.sentence_offsets, function() {
           var from = this[0];
-          var chunk;
+          if (chunkNo >= numChunks) return false;
           if (data.chunks[chunkNo].from > from) return;
+          var chunk;
           while (chunkNo < numChunks && (chunk = data.chunks[chunkNo]).from < from) {
             chunkNo++;
           }
           chunkNo++;
-          if (pastFirst) {
+          if (pastFirst && from <= chunk.from) {
             var numNL = chunk.space.split("\n").length - 1;
             if (!numNL) numNL = 1;
             sentenceNo += numNL;
@@ -578,7 +579,6 @@ var Visualizer = (function($, window, undefined) {
         });
 
         // assign spans to appropriate chunks
-        var numChunks = data.chunks.length;
         var currentChunkId = 0;
         var chunk;
         $.each(sortedSpans, function(spanId, span) {
