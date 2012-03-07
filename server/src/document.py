@@ -54,7 +54,12 @@ except ImportError:
 
 from itertools import chain
 
-def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
+def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connections=None):
+    # all_connections is an optimization to reduce invocations of
+    # projectconfig methods such as arc_types_from_to.
+    if all_connections is None:
+        all_connections = project_conf.all_connections()
+
     items = []
     for node in nodes:
         if node == SEPARATOR_STR:
@@ -136,10 +141,26 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                     targets = []
                 else:
                     targets = []
-                    # TODO: should include this functionality in projectconf
-                    for ttype in project_conf.get_entity_types() + project_conf.get_event_types():
-                        if arc in project_conf.arc_types_from_to(_type, ttype):
-                            targets.append(ttype)
+
+                    if arc in all_connections[_type]:
+                        targets = all_connections[_type][arc]
+
+                    # TODO: this code remains here to allow for further checking of the
+                    # new all_connections() functionality. Comment out to activate
+                    # verification of the new implementation (above) against the old one
+                    # (below, commented out).
+#                     check_targets = []
+#                     for ttype in project_conf.get_entity_types() + project_conf.get_event_types():
+#                         if arc in project_conf.arc_types_from_to(_type, ttype):
+#                             check_targets.append(ttype)
+
+#                     if targets == check_targets:
+#                         Messager.info("CHECKS OUT!")
+#                     elif sorted(targets) == sorted(check_targets):
+#                         Messager.warning("Different sort order for %s -> %s:\n%s\n%s" % (_type, arc, str(targets), str(check_targets)), 10)
+#                     else:
+#                         Messager.error("Mismatch for %s -> %s:\n%s\n%s" % (_type, arc, str(sorted(targets)), str(sorted(check_targets))), -1)
+
                 curr_arc['targets'] = targets
 
                 arcs.append(curr_arc)
@@ -149,7 +170,7 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type):
                 item['arcs'] = arcs
 
             item['children'] = _fill_type_configuration(node.children,
-                    project_conf, hotkey_by_type)
+                    project_conf, hotkey_by_type, all_connections)
             items.append(item)
     return items
 
@@ -343,13 +364,16 @@ def get_span_types(directory):
 
     # fill config for nodes for which annotation is configured
 
+    # calculate once only (this can get heavy)
+    all_connections = project_conf.all_connections()
+    
     event_hierarchy = project_conf.get_event_type_hierarchy()
     event_types = _fill_type_configuration(event_hierarchy,
-            project_conf, hotkey_by_type)
+            project_conf, hotkey_by_type, all_connections)
 
     entity_hierarchy = project_conf.get_entity_type_hierarchy()
     entity_types = _fill_type_configuration(entity_hierarchy,
-            project_conf, hotkey_by_type)
+            project_conf, hotkey_by_type, all_connections)
 
     entity_attribute_hierarchy = project_conf.get_entity_attribute_type_hierarchy()
     entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf)

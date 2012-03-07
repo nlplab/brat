@@ -1052,6 +1052,87 @@ class ProjectConfiguration(object):
 
         return types
 
+    def all_connections(self, include_special=False):
+        """
+        Returns a dict of dicts of lists, outer dict keyed by
+        entity/event type, inner dicts by role/relation type, and
+        lists containing entity/event types, representing all possible
+        connections between annotations. This function is provided to
+        optimize access to the entire annotation configuration for
+        passing it to the client and should never be used to check for
+        individual connections. The caller must not change the
+        contents of the returned collection.
+        """
+
+        # TODO: are these uniques really necessary?
+        entity_types = unique_preserve_order(self.get_entity_types())
+        event_types = unique_preserve_order(self.get_event_types())
+        all_types =  unique_preserve_order(entity_types + event_types)
+
+        connections = {}
+
+        # TODO: it might be possible to avoid copies like
+        # entity_types[:] and all_types[:] here. Consider the
+        # possibility.
+
+        for t1 in all_types:
+            assert t1 not in connections, "INTERNAL ERROR"
+            connections[t1] = {}
+
+            completed = {}
+
+            # relations
+
+            rels = get_relations_by_arg1(self.directory, t1, include_special)
+            
+            for r in rels:
+                a = r.storage_form()
+
+                if a in completed:
+                    continue
+
+                assert a not in connections[t1], "INTERNAL ERROR"
+
+                # magic number "1" is for 2nd argument
+                args = r.arguments[r.arg_list[1]]
+
+                if "<ANY>" in args or "<ENTITY>" in args:
+                    # NOTE: assuming relations only between entities
+                    connections[t1][a] = entity_types[:]
+                else:
+                    connections[t1][a] = args[:]
+
+                completed[a] = True
+
+            # event arguments
+
+            n1 = get_node_by_storage_form(self.directory, t1)
+                        
+            for a, args in n1.arguments.items():
+                if a in completed:
+                    Messager.warning("Project configuration: %s appears both as role and relation. Configuration may be wrong." % a)
+                    # won't try to resolve
+                    continue
+
+                assert a not in connections[t1], "INTERNAL ERROR"
+
+                if "<ANY>" in args:
+                    connections[t1][a] = all_types[:]
+                else:
+                    conns = []
+                    for t2 in args:
+                        if t2 == "<EVENT>":
+                            conns.extend(event_types)
+                        elif t2 == "<ENTITY>":
+                            conns.extend(entity_types)
+                        else:
+                            conns.append(t2)
+                    connections[t1][a] = unique_preserve_order(conns)
+
+                completed[a] = True
+
+        return connections
+
     def arc_types_from_to(self, from_ann, to_ann="<ANY>", include_special=False):
         """
         Returns the possible arc types that can connect an annotation
