@@ -3,7 +3,7 @@
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 '''
-Enty for CGI calls to brat. A simple wrapper around the CGI handling that then
+Entry for CGI calls to brat. A simple wrapper around the CGI handling that then
 delegates the work to the CGI-agnostic brat server.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
