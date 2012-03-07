@@ -366,7 +366,8 @@ class Annotations(object):
         # Create a map for non-event references
         referenced_to_referencer = {}
         for non_e_ann in (a for a in self
-                if not isinstance(a, EventAnnotation)):
+                if not isinstance(a, EventAnnotation)
+                and isinstance(a, IdedAnnotation)):
             for ref in chain(*non_e_ann.get_deps()):
                 try:
                     referenced_to_referencer[ref].add(non_e_ann.id)
