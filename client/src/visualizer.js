@@ -249,7 +249,7 @@ var Visualizer = (function($, window, undefined) {
           if (marked[0] == 'sent') {
             data.markedSent[marked[1]] = true;
           } else if (marked[0] == 'equiv') { // [equiv, Equiv, T1]
-            $.each(data.equivs, function(equivNo, equiv) {
+            $.each(sourceData.equivs, function(equivNo, equiv) {
               if (equiv[1] == marked[1]) {
                 var len = equiv.length;
                 for (var i = 2; i < len; i++) {
