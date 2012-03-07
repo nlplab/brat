@@ -340,8 +340,9 @@ var Visualizer = (function($, window, undefined) {
       };
 
 
-      var setData = function(_data) {
-        sourceData = _data;
+      var setData = function(_sourceData) {
+        sourceData = _sourceData;
+        dispatcher.post('newSourceData', [sourceData]);
         data = new DocumentData(sourceData.text);
 
         // collect annotation data
@@ -826,7 +827,7 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var resetData = function() {
-        setData(data);
+        setData(sourceData);
         renderData();
       }
 

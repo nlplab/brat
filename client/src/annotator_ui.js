@@ -1635,7 +1635,7 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('configurationChanged');
       };
 
-      var onRenderData = function(_sourceData) {
+      var onNewSourceData = function(_sourceData) {
         sourceData = _sourceData;
       }
 
@@ -1650,7 +1650,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('collectionLoaded', rememberSpanSettings).
           on('collectionLoaded', setupTaggerUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
-          on('renderData', onRenderData).
+          on('newSourceData', onNewSourceData).
           on('hideForm', hideForm).
           on('user', userReceived).
           on('edited', edited).

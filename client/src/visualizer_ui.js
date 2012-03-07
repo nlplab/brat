@@ -1406,7 +1406,7 @@ var VisualizerUI = (function($, window, undefined) {
         currentDocumentSVGsaved = false;
       };
 
-      var onRenderData = function(sourceData) {
+      var onNewSourceData = function(sourceData) {
         if (!sourceData) return;
         var $sourceFiles = $('#source_files').empty();
         /* Add download links for all available extensions */
@@ -1981,7 +1981,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('current', gotCurrent).
           on('doneRendering', onDoneRendering).
           on('startedRendering', onStartedRendering).
-          on('renderData', onRenderData).
+          on('newSourceData', onNewSourceData).
           on('savedSVG', savedSVGreceived).
           on('renderError:noFileSpecified', noFileSpecified).
           on('renderError:annotationFileNotFound', showAnnotationFileNotFound).
