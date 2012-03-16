@@ -8,9 +8,17 @@ Version:    2012-03-05
 '''
 
 from argparse import ArgumentParser
-# Do note that we intentionally don't use the brat json here, if you don't
-#   have a new enough Python, upgrade it damn it!
-from json import dumps
+
+try:
+    from json import dumps
+except ImportError:
+    # likely old Python; try to fall back on ujson in brat distrib
+    from sys import path as sys_path
+    from os.path import join as path_join
+    from os.path import dirname
+    sys_path.append(path_join(dirname(__file__), '../server/lib/ujson'))
+    from ujson import dumps
+
 from random import choice, randint
 from sys import stderr
 from urlparse import urlparse, parse_qs
