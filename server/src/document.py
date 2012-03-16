@@ -47,11 +47,6 @@ try:
 except ImportError:
     JAPANESE = False
 
-try:
-    from config import NER_TAGGING_SERVICES
-except ImportError:
-    NER_TAGGING_SERVICES = []
-
 from itertools import chain
 
 def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connections=None):
@@ -535,7 +530,7 @@ def get_directory_information(collection):
     ann_logging = annotation_logging_active()
 
     # fill in NER services, if any
-    ner_taggers = NER_TAGGING_SERVICES
+    ner_taggers = get_annotator_config(real_dir)
 
     json_dic = {
             'items': combolist,
