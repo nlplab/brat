@@ -21,7 +21,12 @@ except ImportError:
 
 from random import choice, randint
 from sys import stderr
-from urlparse import urlparse, parse_qs
+from urlparse import urlparse
+try:
+    from urlparse import parse_qs
+except ImportError:
+    # old Python again?
+    from cgi import parse_qs
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
 ### Constants
@@ -62,7 +67,7 @@ def _random_tagger(text):
     anns = {}
     num_anns = randint(1, len(text) / 100)
     for ann_num in xrange(num_anns):
-        ann_id = 'T{}'.format(ann_num)
+        ann_id = 'T%d' % ann_num
         # Annotation type
         _type = choice(('Confuse-a-Cat', 'Dead-parrot', ))
         start, end, span_text = _random_span(text)
@@ -93,10 +98,8 @@ class RandomTaggerHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'application/json; charset=utf-8')
         self.end_headers()
 
-        self.wfile.write(dumps(json_dic, encoding='utf-8', indent=4,
-                sort_keys=True))
-        print >> stderr, ('Generated {} random annotations'
-                ).format(len(json_dic))
+        self.wfile.write(dumps(json_dic))
+        print >> stderr, ('Generated %d random annotations' % len(json_dic))
 
     def log_message(self, format, *args):
         return # Too much noise from the default implementation
