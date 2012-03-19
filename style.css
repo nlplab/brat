@@ -633,6 +633,10 @@ div.scroll_wrapper_upper div.scroller {
   width: 100%; /* deal with overflowing selectboxes */
 }
 
+#search_form_note_type_row {
+  display: none;
+}
+
 .scroll_fset {
   height: 200px;
 }
