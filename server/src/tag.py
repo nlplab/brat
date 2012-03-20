@@ -68,8 +68,9 @@ def tag(collection, document, tagger):
         try:
             # Note: Can we actually fit a whole document in here?
             quoted_doc_text = quote_plus(ann_obj.get_document_text())
-            resp = urlopen(tagger_service_url % quoted_doc_text, None,
-                QUERY_TIMEOUT)
+            resp = urlopen(tagger_service_url % quoted_doc_text, None)
+#             resp = urlopen(tagger_service_url % quoted_doc_text, None,
+#                 QUERY_TIMEOUT)
         except URLError:
             raise TaggerConnectionError(tagger_token)
 
