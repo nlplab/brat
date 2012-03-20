@@ -316,6 +316,8 @@
           <li><a href="#search_tab_entity">Entity</a></li>
           <li><a href="#search_tab_event">Event</a></li>
           <li><a href="#search_tab_relation">Relation</a></li>
+          <li><a href="#search_tab_note">Note</a></li>
+          <li><a href="#search_tab_load">Load</a></li>
         </ul>
         <div id="search_tab_text">
           <table class="fullwidth">
@@ -389,6 +391,46 @@
               <td>
                 <input id="search_form_relation_arg2_text" class="fullwidth"
                     placeholder="Text to match (empty=anything)"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div id="search_tab_note">
+          <table class="fullwidth">
+            <tr>
+              <td>Category</td>
+              <td>
+                <select id="search_form_note_category" class="fullwidth">
+                  <option value="">- Any -</option>
+                  <option value="entity">Entity</option>
+                  <option value="event">Event</option>
+                  <option value="relation">Relation</option>
+                  <option value="sentence">Sentence</option>
+                </select>
+              </td>
+            </tr>
+            <tr id="search_form_note_type_row">
+              <td>Type</td>
+              <td>
+                <select id="search_form_note_type" class="fullwidth"/>
+              </td>
+            </tr>
+            <tr>
+              <td>Text</td>
+              <td>
+                <input id="search_form_note_text" class="fullwidth"
+                    placeholder="Text to match (empty=anything)"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div id="search_tab_load">
+          <table class="fullwidth">
+            <tr>
+              <td>File:</td>
+              <td>
+                <input type="file" name="file" id="search_form_load_file" class="fullwidth"/>
+                <input type="hidden" name="action" value="searchLoad"/>
               </td>
             </tr>
           </table>

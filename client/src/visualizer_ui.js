@@ -11,6 +11,7 @@ var VisualizerUI = (function($, window, undefined) {
       var documentListing = null; // always documents of current collection
       var selectorData = null;    // can be search results when available
       var searchActive = false;   // whether search results received and in use
+      var loadedSearchData = null;
 
       var currentForm;
       var spanTypes = null;
@@ -499,6 +500,13 @@ var VisualizerUI = (function($, window, undefined) {
           },
           width: 500
       });
+
+      // insert the Save link
+      var $fileBrowserButtonset = fileBrowser.
+          parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset').prepend(' ');
+      $('<a href="ajax.cgi?action=downloadSearchFile" id="save_search">Save</a>').
+          prependTo($fileBrowserButtonset).button().css('display', 'none');
+
       var docInputHandler = function(evt) {
         selectElementInTable('#document_select', $(this).val());
       };
@@ -759,10 +767,9 @@ var VisualizerUI = (function($, window, undefined) {
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
         addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
-        // nice-looking selects
-        $('#search_form_entity_type').addClass('ui-widget ui-state-default ui-button-text');
-        $('#search_form_event_type').addClass('ui-widget ui-state-default ui-button-text');
-        $('#search_form_relation_type').addClass('ui-widget ui-state-default ui-button-text');
+        // nice-looking selects and upload fields
+        $('#search_form select').addClass('ui-widget ui-state-default ui-button-text');
+        $('#search_form_load_file').addClass('ui-widget ui-state-default ui-button-text');
       }
 
       // when event role changes, event types do as well
@@ -902,6 +909,20 @@ var VisualizerUI = (function($, window, undefined) {
           });
         }
       });
+
+      $('#search_form_note_category').change(function(evt) {
+        var category = $(this).val();
+        var $type = $('#search_form_note_type');
+        if ($.inArray(category, ['entity', 'event', 'relation']) != -1) {
+          $type.html($('#search_form_' + category + '_type').html()).val('');
+          $('#search_form_note_type_row:not(:visible)').show('highlight');
+        } else {
+          $type.html('');
+          $('#search_form_note_type_row:visible').hide('highlight');
+        }
+      });
+
+
       // context length setting should only be visible if
       // concordancing is on
       // TODO: @amadanmath: help, my jQuery is horrible
@@ -934,9 +955,10 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       var activeSearchTab = function() {
-        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
+        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation, 4 = Notes, 5 = Load
         var activeTab = $('#search_tabs').tabs('option', 'selected');
-        return ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
+        return ['searchText', 'searchEntity', 'searchEvent',
+            'searchRelation', 'searchNote', 'searchLoad'][activeTab];
       }
 
       var onSearchTabSelect = function() {
@@ -954,6 +976,12 @@ var VisualizerUI = (function($, window, undefined) {
           case 'searchRelation':
             $('#search_form_relation_type').focus().select();
             break;
+          case 'searchNote':
+            $('#search_form_note_text').focus().select();
+            break;
+          case 'searchLoad':
+            $('#search_form_load_file').focus().select();
+            break;
         }
       };
 
@@ -962,6 +990,15 @@ var VisualizerUI = (function($, window, undefined) {
         show: onSearchTabSelect
       });
       $('#search_form').find('.radio_group').buttonset();
+
+      var applySearchResults = function(response) {
+        if (!searchActive) {
+          collectionSortOrder = sortOrder;
+        }
+        dispatcher.post('searchResultsReceived', [response]);
+        searchActive = true;
+        updateSearchButton();
+      };
 
       var searchForm = $('#search_form');
 
@@ -1010,6 +1047,14 @@ var VisualizerUI = (function($, window, undefined) {
             opts.arg2 = $('#search_form_relation_arg2_text').val();
             opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
             break;
+          case 'searchNote':
+            opts.category = $('#search_form_note_category').val() || '';
+            opts.type = $('#search_form_note_type').val() || '';
+            opts.text = $('#search_form_note_text').val() || '';
+            break;
+          case 'searchLoad':
+            applySearchResults(loadedSearchData);
+            return false;
         }
 
         // fill in scope of search ("document" / "collection")
@@ -1039,16 +1084,31 @@ var VisualizerUI = (function($, window, undefined) {
             dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
             dispatcher.post('clearSearch', [true]);
           } else {
-            if (!searchActive) {
-              collectionSortOrder = sortOrder;
-            }
-            dispatcher.post('searchResultsReceived', [response]);
-            searchActive = true;
-            updateSearchButton();
+            applySearchResults(response);
           }
         }]);
         return false;
       };
+
+      $('#search_form_load_file').change(function(evt) {
+        var $file = $('#search_form_load_file');
+        var file = $file[0].files[0];
+        var reader = new FileReader();
+        reader.onerror = function(evt) {
+          dispatcher.post('messages', [[['The file could not be read.', 'error']]]);
+        };
+        reader.onloadend = function(evt) {
+          try {
+            loadedSearchData = JSON.parse(evt.target.result);
+            // TODO XXX check for validity of contents, not just whether
+            // it's valid JSON or not; throw something if not
+          } catch (x) {
+            dispatcher.post('messages', [[['The file contains invalid data.', 'error']]]);
+            return;
+          }
+        };
+        reader.readAsText(file);
+      });
 
       searchForm.submit(searchFormSubmit);
 
@@ -1313,6 +1373,7 @@ var VisualizerUI = (function($, window, undefined) {
             var item = response.items[0];
             dispatcher.post('setDocument', [item[2], item[1]]);
           }
+          $('#save_search').css('display', 'inline-block');
         }
       };
 
@@ -1321,6 +1382,7 @@ var VisualizerUI = (function($, window, undefined) {
 
         // back off to document collection
         if (searchActive) {
+          $('#save_search').css('display', 'none');
           selectorData = documentListing;
           sortOrder = collectionSortOrder;
           selectorData.items.sort(docSortFunction);
