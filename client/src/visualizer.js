@@ -1079,9 +1079,9 @@ var Visualizer = (function($, window, undefined) {
 
       var renderDataReal = function(sourceData) {
 
-// Util.profileEnd('before render');
-// Util.profileStart('render');
-// Util.profileStart('init');
+Util.profileEnd('before render');
+Util.profileStart('render');
+Util.profileStart('init');
 
         if (!sourceData && !data) { 
           dispatcher.post('doneRendering', [coll, doc, args]);
@@ -1113,8 +1113,8 @@ var Visualizer = (function($, window, undefined) {
         highlightGroup = svg.group({ 'class': 'highlight' });
         var textGroup = svg.group({ 'class': 'text' });
 
-// Util.profileEnd('init');
-// Util.profileStart('measures');
+Util.profileEnd('init');
+Util.profileStart('measures');
 
         var sizes = getTextAndSpanTextMeasurements();
         data.sizes = sizes;
@@ -1125,8 +1125,8 @@ var Visualizer = (function($, window, undefined) {
           if (width > maxTextWidth) maxTextWidth = width;
         });
 
-// Util.profileEnd('measures');
-// Util.profileStart('chunks');
+Util.profileEnd('measures');
+Util.profileStart('chunks');
 
         var currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding;
         var rows = [];
@@ -1526,8 +1526,8 @@ var Visualizer = (function($, window, undefined) {
         row.arcs = svg.group(row.group, { 'class': 'arcs' });
         rows.push(row);
 
-// Util.profileEnd('chunks');
-// Util.profileStart('arcsPrep');
+Util.profileEnd('chunks');
+Util.profileStart('arcsPrep');
 
         var arrows = {};
         var arrow = makeArrow(defs, 'none');
@@ -1589,8 +1589,8 @@ var Visualizer = (function($, window, undefined) {
           });
         svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
 
-// Util.profileEnd('arcsPrep');
-// Util.profileStart('arcs');
+Util.profileEnd('arcsPrep');
+Util.profileStart('arcs');
 
         // add the arcs
         $.each(data.arcs, function(arcNo, arc) {
@@ -1934,8 +1934,8 @@ var Visualizer = (function($, window, undefined) {
           } // arc rows
         }); // arcs
 
-// Util.profileEnd('arcs');
-// Util.profileStart('rows');
+Util.profileEnd('arcs');
+Util.profileStart('rows');
 
         // position the rows
         var y = Configuration.visual.margin.y;
@@ -2025,8 +2025,8 @@ var Visualizer = (function($, window, undefined) {
         });
         y += Configuration.visual.margin.y;
 
-// Util.profileEnd('rows');
-// Util.profileStart('chunkFinish');
+Util.profileEnd('rows');
+Util.profileStart('chunkFinish');
 
         // chunk index sort functions for overlapping span drawing
         // algorithm; first for left-to-right pass, sorting primarily
@@ -2203,8 +2203,8 @@ var Visualizer = (function($, window, undefined) {
         });
 
 
-// Util.profileEnd('chunkFinish');
-// Util.profileStart('finish');
+Util.profileEnd('chunkFinish');
+Util.profileStart('finish');
 
         svg.path(sentNumGroup, svg.createPath().
           move(sentNumMargin, 0).
@@ -2218,9 +2218,9 @@ var Visualizer = (function($, window, undefined) {
         $svg.height(y);
         $svgDiv.height(y);
 
-// Util.profileEnd('finish');
-// Util.profileEnd('render');
-// Util.profileReport();
+Util.profileEnd('finish');
+Util.profileEnd('render');
+Util.profileReport();
 
 
         drawing = false;
@@ -2242,7 +2242,7 @@ var Visualizer = (function($, window, undefined) {
         isDirectoryError: true
       };
       var renderData = function(sourceData) {
-        // Util.profileEnd('invoke getDocument');
+        Util.profileEnd('invoke getDocument');
         if (sourceData && sourceData.exception) {
           if (renderErrors[sourceData.exception]) {
             dispatcher.post('renderError:' + sourceData.exception, [sourceData]);
@@ -2260,7 +2260,7 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var renderDocument = function() {
-        // Util.profileStart('invoke getDocument');
+        Util.profileStart('invoke getDocument');
         dispatcher.post('ajax', [{
             action: 'getDocument',
             collection: coll,
@@ -2276,8 +2276,8 @@ var Visualizer = (function($, window, undefined) {
           isRenderRequested = false;
           if (doc.length) {
 
-// Util.profileClear();
-// Util.profileStart('before render');
+Util.profileClear();
+Util.profileStart('before render');
 
             renderDocument();
           } else {
@@ -2587,7 +2587,7 @@ var Visualizer = (function($, window, undefined) {
 
       var proceedWithFonts = function() {
         areFontsLoaded = true;
-        // console.log("fonts done");
+        console.log("fonts done");
         triggerRender();
       };
 
@@ -2609,10 +2609,10 @@ var Visualizer = (function($, window, undefined) {
         active: proceedWithFonts,
         inactive: proceedWithFonts,
         fontactive: function(fontFamily, fontDescription) {
-	  // console.log("font active: ", fontFamily, fontDescription);
+          console.log("font active: ", fontFamily, fontDescription);
         },
         fontloading: function(fontFamily, fontDescription) {
-	  // console.log("font loading:", fontFamily, fontDescription);
+          console.log("font loading:", fontFamily, fontDescription);
         },
       };
       $.getScript('client/lib/webfont.js');
