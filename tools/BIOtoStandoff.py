@@ -101,6 +101,18 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
 
     standoff_entities = []
 
+    # cleanup for tagger errors where an entity begins with a
+    # "I" tag instead of a "B" tag
+    revisedTagged = []
+    prevTag = None
+    for startoff, endoff, ttag, ttype in taggedTokens:
+        if prevTag =="O" and ttag == "I":
+            print >> sys.stderr, "Note: rewriting \"I\" -> \"B\" after \"O\""
+            ttag = "B"
+        revisedTagged.append((startoff, endoff, ttag, ttype))
+        prevTag = ttag
+    taggedTokens = revisedTagged
+
     idIdx = 1
     prevTag, prevEnd = "O", 0
     currType, currStart = None, None
@@ -120,7 +132,7 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
         elif prevTag != "O":
             # previous entity continues ; just check sanity
             assert ttag == "I", "ERROR in %s" % fn
-            assert currType == ttype, "ERROR: entity of type '%s' continues as type '%s' in %s" % (currType, ttype, fn)
+            assert currType == ttype, "ERROR: entity of type '%s' continues as type '%s'" % (currType, ttype)
             
         if ttag == "B":
             # new entity starts
