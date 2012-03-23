@@ -3,6 +3,8 @@
 # Script to convert a column-based BIO-formatted entity-tagged file
 # into standoff with reference to the original text.
 
+from __future__ import with_statement
+
 import sys
 import re
 import os
@@ -136,5 +138,35 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
 
     return standoff_entities
 
+def main(argv):
+    if len(argv) < 3 or len(argv) > 5:
+        print >> sys.stderr, "Usage:", argv[0], "TEXTFILE BIOFILE [TOKENIDX [BIOIDX]]"
+        return 1
+    textfn, biofn = argv[1], argv[2]
+
+    tokenIdx = None
+    if len(argv) >= 4:
+        tokenIdx = int(argv[3])
+    bioIdx = None
+    if len(argv) >= 5:
+        bioIdx = int(argv[4])
+
+    with open(textfn, 'rU') as textf:
+        text = textf.read()
+    with open(biofn, 'rU') as biof:
+        bio = biof.read()
+
+    if tokenIdx is None:
+        so = BIO_to_standoff(bio, text)
+    elif bioIdx is None:
+        so = BIO_to_standoff(bio, text, tokenIdx)
+    else:
+        so = BIO_to_standoff(bio, text, tokenIdx, bioIdx)
+
+    for s in so:
+        print s
+
+    return 0
+
 if __name__ == "__main__":
-    print "Sorry, no CLI implemented yet (should be easy to do though)."
+    sys.exit(main(sys.argv))
