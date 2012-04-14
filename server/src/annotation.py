@@ -1313,7 +1313,7 @@ class TextBoundAnnotation(IdedAnnotation):
         return self.spans[0][0]
     def get_end(self):
         Messager.warning('TextBoundAnnotation.end access')
-        return self.spans[0][1]
+        return self.spans[-1][1]
     start = property(get_start)
     end = property(get_end)
     # end hack
@@ -1364,7 +1364,7 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
         return self.spans[0][0]
     def get_end(self):
         Messager.warning('TextBoundAnnotationWithText.end access')
-        return self.spans[0][1]
+        return self.spans[-1][1]
     start = property(get_start)
     end = property(get_end)
     # end hack

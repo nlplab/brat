@@ -640,7 +640,8 @@ def _enrich_json_with_data(j_dic, ann_obj):
             )
 
     for tb_ann in ann_obj.get_textbounds():
-        j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
+        #j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
+        j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.spans]
 
         # If we spotted it in the previous pass as a trigger for an
         # event or if the type is known to be an event type, we add it
