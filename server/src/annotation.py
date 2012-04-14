@@ -710,17 +710,33 @@ class Annotations(object):
 
     def _split_textbound_data(self, id, data, input_file_path):
         try:
-            type, start_str, end_str = data.split(None, 2)
-            # ignore trailing whitespace
-            end_str = end_str.rstrip()
-            # Abort if we have trailing values, i.e. space-separated tail in end_str
-            if any((c.isspace() for c in end_str)):
-                #Messager.error('Error parsing textbound "%s\t%s". (Using space instead of tab?)' % (id, data))
-                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-            start, end = (int(start_str), int(end_str))
+            # first space-separated string is type
+            type, rest = data.split(' ', 1)
+
+            # rest should be semicolon-separated list of "START END"
+            # pairs, where START and END are integers
+            spans = []
+            for span_str in rest.split(';'):
+                Messager.info(span_str)
+
+                start_str, end_str = span_str.split(' ', 2)
+
+                # ignore trailing whitespace
+                end_str = end_str.rstrip()
+
+                if any((c.isspace() for c in end_str)):
+                    Messager.error('Error parsing textbound "%s\t%s". (Using space instead of tab?)' % (id, data))
+                    raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
+                start, end = (int(start_str), int(end_str))
+                spans.append((start, end))
+
         except:
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-            
+
+        # the rest of the code can't handle discontinuous spans, so
+        # just provide the first for now
+        start, end = spans[0]            
         return type, start, end
 
     def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
@@ -981,7 +997,8 @@ class TextAnnotations(Annotations):
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
             if data_tail != '' and not data_tail[0].isspace():
                 Messager.error(u'Text-bound annotation text "%s" not separated from rest of line ("%s") by space!' % (text, data_tail))
-                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+                # permit this for now for testing discontinuous annotations
+#                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
         return TextBoundAnnotationWithText(start, end, id, type, text, data_tail, source_id=input_file_path)
 
