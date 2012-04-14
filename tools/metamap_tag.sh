@@ -12,8 +12,10 @@
 
 METAMAP_ROOT=~/tools/MetaMap
 
-# -N specifies "fielded" output and is assumed by tools using this
-# script.
+# -N specifies "fielded" output and is assumed by tools using this script
+# -J specifies restriction to the given UMLS semantic types
+# METAMAP_ARGS="-N -J anab,anst,bdsu,bdsy,blor,bpoc,bsoj,celc,cell,emst,ffas,tisu"
 METAMAP_ARGS="-N"
+
 
 $METAMAP_ROOT/public_mm/bin/metamap11 $METAMAP_ARGS $@
