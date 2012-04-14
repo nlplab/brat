@@ -717,8 +717,6 @@ class Annotations(object):
             # pairs, where START and END are integers
             spans = []
             for span_str in rest.split(';'):
-                Messager.info(span_str)
-
                 start_str, end_str = span_str.split(' ', 2)
 
                 # ignore trailing whitespace
@@ -734,14 +732,11 @@ class Annotations(object):
         except:
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
-        # the rest of the code can't handle discontinuous spans, so
-        # just provide the first for now
-        start, end = spans[0]            
-        return type, start, end
+        return type, spans
 
     def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
-        type, start, end = self._split_textbound_data(id, data, input_file_path)
-        return TextBoundAnnotation(start, end, id, type, data_tail, source_id=input_file_path)
+        type, spans = self._split_textbound_data(id, data, input_file_path)
+        return TextBoundAnnotation(spans, id, type, data_tail, source_id=input_file_path)
 
     def _parse_comment_line(self, id, data, data_tail, input_file_path):
         try:
@@ -957,50 +952,62 @@ class TextAnnotations(Annotations):
         Annotations.__init__(self, document, read_only)
 
     def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
-        type, start, end = self._split_textbound_data(id, data, input_file_path)
+        type, spans = self._split_textbound_data(id, data, input_file_path)
 
-        # Verify annotation extent
-        if start > end:
-            Messager.error('Text-bound annotation start > end.')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-        if start < 0:
-            Messager.error('Text-bound annotation start < 0.')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-        if end > len(self._document_text):
-            Messager.error('Text-bound annotation offset exceeds text length.')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+        # Verify spans
+        seen_spans = []
+        for start, end in spans:
+            if start > end:
+                Messager.error('Text-bound annotation start > end.')
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+            if start < 0:
+                Messager.error('Text-bound annotation start < 0.')
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+            if end > len(self._document_text):
+                Messager.error('Text-bound annotation offset exceeds text length.')
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
+            for ostart, oend in seen_spans:
+                if end >= ostart and start <= oend:
+                    Messager.error('Text-bound annotation spans overlap')
+                    raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
+            seen_spans.append((start,end))
+
+        spanlen = sum([end-start for start, end in spans])
 
         # Require tail to be either empty or to begin with the text
-        # corresponding to the start:end span. If the tail is empty,
-        # force a fill with the corresponding text.
-        if data_tail.strip() == '' and end - start > 0:
+        # corresponding to the catenation of the start:end spans. 
+        # If the tail is empty, force a fill with the corresponding text.
+        if data_tail.strip() == '' and spanlen > 0:
             Messager.error(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.", "warning")
-            text = self._document_text[start:end]
+            text = "".join([self._document_text[start:end] for start, end in spans])
+
         elif data_tail[0] != '\t':
             Messager.error('Text-bound annotation missing tab before text (expected format "ID\\tTYPE START END\\tTEXT").')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-        elif end-start > len(data_tail)-1: # -1 for tab
-            Messager.error('Text-bound annotation text "%s" shorter than marked span %d:%d' % (data_tail[1:], start, end))
+
+        elif spanlen > len(data_tail)-1: # -1 for tab
+            Messager.error('Text-bound annotation text "%s" shorter than marked span(s) %s' % (data_tail[1:], str(spans)))
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
         else:
-            text = data_tail[1:end-start+1] # shift 1 for tab
-            data_tail = data_tail[end-start+1:]
-            if text != self._document_text[start:end]:
-                #log_info(text.__class__.__name__)
+            text = data_tail[1:spanlen+1] # shift 1 for tab
+            data_tail = data_tail[spanlen+1:]
+
+            reftext = ''.join([self._document_text[start:end] for start, end in spans])
+
+            if text != reftext:
                 Messager.error((u'Text-bound annotation text "%s" does not '
-                                u'match marked span (%d:%d) text "%s" in document') % (
-                        text,
-                        start,
-                        end,
-                        self._document_text[start:end], 
-                        ))
+                                u'match marked span(s) %s text "%s" in document') % (
+                        text, str(spans), reftext))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
             if data_tail != '' and not data_tail[0].isspace():
                 Messager.error(u'Text-bound annotation text "%s" not separated from rest of line ("%s") by space!' % (text, data_tail))
-                # permit this for now for testing discontinuous annotations
-#                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
-        return TextBoundAnnotationWithText(start, end, id, type, text, data_tail, source_id=input_file_path)
+        return TextBoundAnnotationWithText(spans, id, type, text, data_tail, source_id=input_file_path)
 
     def get_document_text(self):
         return self._document_text
@@ -1286,14 +1293,30 @@ class TextBoundAnnotation(IdedAnnotation):
     ID\tTYPE START END
 
     Where START and END are positive integer offsets identifying the
-    span of the annotation in text.
+    span of the annotation in text. Discontinuous annotations can be
+    represented as
+
+    ID\tTYPE START1 END1;START2 END2;...
+
+    with multiple START END pairs separated by semicolons.
     """
 
-    def __init__(self, start, end, id, type, tail, source_id=None):
+    def __init__(self, spans, id, type, tail, source_id=None):
         # Note: if present, the text goes into tail
         IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
-        self.start = start
-        self.end = end
+        self.spans = spans
+
+    # TODO: temp hack while building support for discontinuous
+    # annotations; remove once done
+    def get_start(self):
+        Messager.warning('TextBoundAnnotation.start access')
+        return self.spans[0][0]
+    def get_end(self):
+        Messager.warning('TextBoundAnnotation.end access')
+        return self.spans[0][1]
+    start = property(get_start)
+    end = property(get_end)
+    # end hack
 
     def get_text(self):
         # If you're seeing this exception, you probably need a
@@ -1306,8 +1329,7 @@ class TextBoundAnnotation(IdedAnnotation):
         return u'%s\t%s %s %s%s' % (
                 self.id,
                 self.type,
-                self.start,
-                self.end,
+                ';'.join(['%d %d' % (start, end) for start, end in self.spans]),
                 self.tail
                 )
 
@@ -1323,13 +1345,29 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
 
     Where START and END are positive integer offsets identifying the
     span of the annotation in text and TEXT is the corresponding text.
+    Discontinuous annotations can be represented as
+
+    ID\tTYPE START1 END1;START2 END2;...
+
+    with multiple START END pairs separated by semicolons.
     """
-    def __init__(self, start, end, id, type, text, text_tail="", source_id=None):
+    def __init__(self, spans, id, type, text, text_tail="", source_id=None):
         IdedAnnotation.__init__(self, id, type, '\t'+text+text_tail, source_id=source_id)
-        self.start = start
-        self.end = end
+        self.spans = spans
         self.text = text
         self.text_tail = text_tail
+
+    # TODO: temp hack while building support for discontinuous
+    # annotations; remove once done
+    def get_start(self):
+        Messager.warning('TextBoundAnnotationWithText.start access')
+        return self.spans[0][0]
+    def get_end(self):
+        Messager.warning('TextBoundAnnotationWithText.end access')
+        return self.spans[0][1]
+    start = property(get_start)
+    end = property(get_end)
+    # end hack
 
     def get_text(self):
         return self.text
@@ -1339,8 +1377,7 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
         return u'%s\t%s %s %s\t%s%s' % (
                 self.id,
                 self.type,
-                self.start,
-                self.end,
+                ';'.join(['%d %d' % (start, end) for start, end in self.spans]),
                 self.text,
                 self.text_tail
                 )
