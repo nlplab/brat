@@ -30,7 +30,7 @@ from annlog import log_annotation
 from message import Messager
 from svg import store_svg, retrieve_stored
 from session import get_session, load_conf, save_conf
-from search import search_text, search_entity, search_event, search_relation
+from search import search_text, search_entity, search_event, search_relation, search_note
 from predict import suggest_span_types
 from undo import undo
 from tag import tag
@@ -66,16 +66,18 @@ DISPATCHER = {
         'deleteArc': delete_arc,
         'possibleArcTypes': possible_arc_types,
 
-        # NODE: search actions are redundant to allow different
+        # NOTE: search actions are redundant to allow different
         # permissions for single-document and whole-collection search.
         'searchTextInDocument'     : search_text,
         'searchEntityInDocument'   : search_entity,
         'searchEventInDocument'    : search_event,
         'searchRelationInDocument' : search_relation,
+        'searchNoteInDocument'     : search_note,
         'searchTextInCollection'     : search_text,
         'searchEntityInCollection'   : search_entity,
         'searchEventInCollection'    : search_event,
         'searchRelationInCollection' : search_relation,
+        'searchNoteInCollection'     : search_note,
 
         'suggestSpanTypes': suggest_span_types,
 
@@ -118,6 +120,7 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
         'searchEntityInCollection',
         'searchEventInCollection',
         'searchRelationInCollection',
+        'searchNoteInCollection',
 
         'tag',
         ))

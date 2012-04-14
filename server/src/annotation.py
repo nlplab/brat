@@ -1246,6 +1246,11 @@ class OnelineCommentAnnotation(IdedAnnotation):
                 self.tail
                 )
 
+    def get_text(self):
+        # TODO: will this always hold? Wouldn't it be better to parse
+        # further rather than just assuming the whole tail is the text?
+        return self.tail.strip()
+
     def get_deps(self):
         soft_deps, hard_deps = IdedAnnotation.get_deps(self)
         hard_deps.add(self.target)

@@ -90,6 +90,42 @@ class TextMatch(object):
         # Format like textbound, but w/o ID or type
         return u'%d %d\t%s' % (self.start, self.end, self.text)
 
+# Note search matches need to combine aspects of the note with aspects
+# of the annotation it's attached to, so we'll represent such matches
+# with this separate class.
+class NoteMatch(object):
+    """
+    Represents a note (comment) matching a query.
+    """
+    def __init__(self, note, ann, start=0, end=0):
+        self.note  = note
+        self.ann   = ann
+        self.start = start
+        self.end   = end
+
+        # for format_results
+        self.text  = note.get_text()
+        try:
+            self.type  = ann.type
+        except AttributeError:
+            # nevermind
+            pass
+
+    def reference_id(self):
+        # return reference to annotation that the comment is attached
+        # to, not the comment itself
+        return self.ann.reference_id()
+
+    def reference_text(self):
+        # as above
+        return self.ann.reference_text()
+
+    def get_text(self):
+        return self.note.get_text()
+
+    def __str__(self):
+        assert False, "INTERNAL ERROR: not implemented"
+
 def __filenames_to_annotations(filenames):
     """
     Given file names, returns corresponding Annotations objects.
@@ -544,6 +580,78 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
             ann_matches.append(t)
 
         # sort by start offset
+        ann_matches.sort(lambda a,b: cmp((a.start,-a.end),(b.start,-b.end)))
+
+        # add to overall collection
+        for t in ann_matches:
+            matches.add_match(ann_obj, t)    
+
+        # MAX_SEARCH_RESULT_NUMBER <= 0 --> no limit
+        if len(matches) > MAX_SEARCH_RESULT_NUMBER and MAX_SEARCH_RESULT_NUMBER > 0:
+            Messager.warning('Search result limit (%d) exceeded, stopping search.' % MAX_SEARCH_RESULT_NUMBER)
+            break
+
+    matches.limit_to(MAX_SEARCH_RESULT_NUMBER)
+
+    # sort by document name for output
+    matches.sort_matches()
+
+    if REPORT_SEARCH_TIMINGS:
+        process_delta = datetime.now() - process_start
+        print >> stderr, "search_anns_for_textbound: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+
+    return matches
+
+def search_anns_for_note(ann_objs, text, category,
+                         restrict_types=[], ignore_types=[],
+                         text_match="word", match_case=False):
+    """
+    Searches for the given text in the comment annotations in the
+    given Annotations objects.  Returns a SearchMatchSet object.
+    """
+
+    global REPORT_SEARCH_TIMINGS
+    if REPORT_SEARCH_TIMINGS:
+        process_start = datetime.now()
+
+    # treat None and empty list uniformly
+    restrict_types = [] if restrict_types is None else restrict_types
+    ignore_types   = [] if ignore_types is None else ignore_types
+
+    if category is not None:
+        description = "Comments on %s containing text '%s'" % (category, text)
+    else:
+        description = "Comments containing text '%s'" % text
+    if restrict_types != []:
+        description = description + ' (of type %s)' % (",".join(restrict_types))
+    matches = SearchMatchSet(description)
+
+    # compile a regular expression according to arguments for matching
+    match_regex = _get_match_regex(text, text_match, match_case)
+
+    if match_regex is None:
+        # something went wrong, return empty
+        return matches
+
+    for ann_obj in ann_objs:
+        # collect per-document (ann_obj) for sorting
+        ann_matches = []
+
+        candidates = ann_obj.get_oneline_comments()
+
+        for n in candidates:
+            a = ann_obj.get_ann_by_id(n.target)
+
+            if a.type in ignore_types:
+                continue
+            if restrict_types != [] and a.type not in restrict_types:
+                continue
+            if (text != None and text != "" and 
+                text != DEFAULT_EMPTY_STRING and not match_regex.search(a.get_text())):
+                continue
+
+            ann_matches.append(NoteMatch(n,a))
+
         ann_matches.sort(lambda a,b: cmp((a.start,-a.end),(b.start,-b.end)))
 
         # add to overall collection
@@ -1106,6 +1214,33 @@ def search_entity(collection, document, scope="collection",
                                         restrict_types=restrict_types, 
                                         text_match=text_match,
                                         match_case=match_case)
+        
+    results = format_results(matches, concordancing, context_length)
+    results['collection'] = directory
+    
+    return results
+
+def search_note(collection, document, scope="collection",
+                concordancing="false", context_length=50,
+                text_match="word", match_case="false",
+                category=None, type=None, text=DEFAULT_EMPTY_STRING):
+
+    directory = collection
+
+    # Interpret JSON booleans
+    concordancing = _to_bool(concordancing)
+    match_case = _to_bool(match_case)
+
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
+
+    restrict_types = []
+    if type is not None and type != "":
+        restrict_types.append(type)
+
+    matches = search_anns_for_note(ann_objs, text, category,
+                                   restrict_types=restrict_types, 
+                                   text_match=text_match,
+                                   match_case=match_case)
         
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
