@@ -8,6 +8,7 @@ Version:    2012-03-05
 '''
 
 from argparse import ArgumentParser
+from cgi import FieldStorage
 
 try:
     from json import dumps
@@ -87,8 +88,6 @@ def _random_tagger(text):
 
 class RandomTaggerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
-        from cgi import FieldStorage
-
         field_storage = FieldStorage(
                 headers=self.headers,
                 environ={
