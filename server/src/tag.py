@@ -80,17 +80,26 @@ def tag(collection, document, tagger):
         mods = ModificationTracker()
 
         for ann_data in json_resp.itervalues():
+            assert 'offsets' in ann_data, 'Tagger response lacks offsets'
             offsets = ann_data['offsets']
+            assert 'type' in ann_data, 'Tagger response lacks type'
+            _type = ann_data['type']
+            assert 'texts' in ann_data, 'Tagger response lacks texts'
+            texts = ann_data['texts']
+
+            # sanity
+            assert len(offsets) != 0, 'Tagger response has empty offsets'
+            assert len(texts) == len(offsets), 'Tagger response has different numbers of offsets and texts'
+
             # Note: We do not support discontinuous spans at this point
-            assert len(offsets) == 1, 'discontinuous/null spans'
+            assert len(offsets) < 2, 'Tagger response has multiple offsets (discontinuous spans not supported)'
             start, end = offsets[0]
+            text = texts[0]
+
             _id = ann_obj.get_new_id('T')
-            tb = TextBoundAnnotationWithText(
-                    start, end,
-                    _id,
-                    ann_data['type'],
-                    ann_data['text']
-                    )
+
+            tb = TextBoundAnnotationWithText(start, end, _id, _type, text)
+
             mods.addition(tb)
             ann_obj.add_annotation(tb)
 

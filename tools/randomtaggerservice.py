@@ -77,7 +77,7 @@ def _random_tagger(text):
         anns[ann_id] = {
                 'type': _type,
                 'offsets': ((start, end), ),
-                'text': span_text,
+                'texts': (span_text, ),
                 }
     return anns
 

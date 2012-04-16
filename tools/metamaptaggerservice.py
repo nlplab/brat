@@ -115,7 +115,7 @@ def _apply_tagger(text):
         anns["T%d" % idseq] = {
             'type': t.eType,
             'offsets': ((t.startOff, t.endOff), ),
-            'text': t.eText,
+            'texts': (t.eText, ),
             }
         idseq += 1
 
