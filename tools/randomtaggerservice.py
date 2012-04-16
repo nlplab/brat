@@ -65,6 +65,10 @@ def _random_span(text):
 def _random_tagger(text):
     # Generate some annotations
     anns = {}
+    if not text:
+        # We got no text, bail
+        return anns
+
     num_anns = randint(1, len(text) / 100)
     for ann_num in xrange(num_anns):
         ann_id = 'T%d' % ann_num
@@ -82,13 +86,20 @@ def _random_tagger(text):
     return anns
 
 class RandomTaggerHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        # Get our query
-        query = parse_qs(urlparse(self.path).query)
+    def do_POST(self):
+        from cgi import FieldStorage
+
+        field_storage = FieldStorage(
+                headers=self.headers,
+                environ={
+                    'REQUEST_METHOD':'POST',
+                    'CONTENT_TYPE':self.headers['Content-Type'],
+                    },
+                fp=self.rfile)
 
         # Do your random tagging magic
         try:
-            json_dic = _random_tagger(query['text'][0])
+            json_dic = _random_tagger(field_storage.value)
         except KeyError:
             # We weren't given any text to tag, such is life, return nothing
             json_dic = {}
