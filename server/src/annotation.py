@@ -537,6 +537,7 @@ class Annotations(object):
             not isinstance(d, AttributeAnnotation)
             and not isinstance(d, EquivAnnotation)
             and not isinstance(d, OnelineCommentAnnotation)
+            and not isinstance(d, NormalizationAnnotation)
             ))):
 
             for d in ann_deps:
@@ -561,6 +562,16 @@ class Annotations(object):
                     self._atomic_del_annotation(d)
                     if tracker is not None:
                         tracker.deletion(d)
+                elif isinstance(d, NormalizationAnnotation):
+                    # Nothing should be able to reference normalizations
+                    self._atomic_del_annotation(d)
+                    if tracker is not None:
+                        tracker.deletion(d)
+                else:
+                    # all types we allow to be deleted along with
+                    # annotations they depend on should have been
+                    # covered above.
+                    assert False, "INTERNAL ERROR"
             ann_deps = []
             
         if ann_deps:
@@ -722,7 +733,7 @@ class Annotations(object):
 
     def _split_textbound_data(self, id, data, input_file_path):
         try:
-            type, start_str, end_str = data.split(None, 2)
+            _type, start_str, end_str = data.split(None, 2)
             # ignore trailing whitespace
             end_str = end_str.rstrip()
             # Abort if we have trailing values, i.e. space-separated tail in end_str
@@ -733,21 +744,26 @@ class Annotations(object):
         except:
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
             
-        return type, start, end
+        return _type, start, end
 
-    def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
-        type, start, end = self._split_textbound_data(id, data, input_file_path)
-        return TextBoundAnnotation(start, end, id, type, data_tail, source_id=input_file_path)
+    def _parse_textbound_annotation(self, _id, data, data_tail, input_file_path):
+        _type, start, end = self._split_textbound_data(_id, data, input_file_path)
+        return TextBoundAnnotation(start, end, _id, _type, data_tail, source_id=input_file_path)
 
-    def _parse_normalization_annotation(self, id, data, data_tail, input_file_path):
-        pass
+    def _parse_normalization_annotation(self, _id, data, data_tail, input_file_path):
+        match = re_match(r'(\S+) (\S+) (\S+)', data)
+        if match is None:
+            raise IdedAnnotationLineSyntaxError(_id, self.ann_line, self.ann_line_num + 1, input_file_path)
+        _type, target, reference = match.groups()
 
-    def _parse_comment_annotation(self, id, data, data_tail, input_file_path):
+        return NormalizationAnnotation(_id, _type, target, reference, data_tail, source_id=input_file_path)
+
+    def _parse_comment_annotation(self, _id, data, data_tail, input_file_path):
         try:
-            type, target = data.split()
+            _type, target = data.split()
         except ValueError:
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-        return OnelineCommentAnnotation(target, id, type, data_tail, source_id=input_file_path)
+            raise IdedAnnotationLineSyntaxError(_id, self.ann_line, self.ann_line_num+1, input_file_path)
+        return OnelineCommentAnnotation(target, _id, _type, data_tail, source_id=input_file_path)
     
     def _parse_ann_file(self):
         self.ann_line_num = -1
@@ -1225,6 +1241,34 @@ class AttributeAnnotation(IdedAnnotation):
     def reference_id(self):
         # TODO: can't currently ID modifier in isolation; return
         # reference to modified instead
+        return [self.target]
+
+class NormalizationAnnotation(IdedAnnotation):
+    def __init__(self, _id, _type, target, reference, tail, source_id=None):
+        IdedAnnotation.__init__(self, _id, _type, tail, source_id=source_id)
+        self.target = target
+        self.reference = reference
+        # "human-readable" text of referenced ID (optional)
+        self.reftext, _ = tail.split('\t',1)
+        self.reftext = self.reftext.rstrip('\n')
+
+    def __str__(self):
+        return u'%s\t%s %s %s%s' % (
+                self.id,
+                self.type,
+                self.target,
+                self.reference,
+                self.tail,
+                )
+
+    def get_deps(self):
+        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
+        hard_deps.add(self.target)
+        return (soft_deps, hard_deps)
+
+    def reference_id(self):
+        # TODO: can't currently ID normalization in isolation; return
+        # reference to target instead
         return [self.target]
 
 class OnelineCommentAnnotation(IdedAnnotation):
