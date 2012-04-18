@@ -16,15 +16,17 @@ Version:    2011-01-25
 from logging import info as log_info
 from codecs import open as codecs_open
 from functools import partial
-from itertools import chain
+from itertools import chain, takewhile
 from os import utime
 from time import time
 from os.path import join as path_join
 from os.path import basename, splitext
+from re import match as re_match
 
 from common import ProtocolError
 from filelock import file_lock
 from message import Messager
+
 
 ### Constants
 # The only suffix we allow to write to, which is the joined annotation file
@@ -191,14 +193,11 @@ def open_textfile(filename, mode='rU'):
     return codecs_open(filename, mode, encoding='utf8', errors='strict')
 
 def __split_annotation_id(id):
-    import re
-    m = re.match(r'^([A-Za-z]+|#)([0-9]+)(.*?)$', id)
+    m = re_match(r'^([A-Za-z]+|#)([0-9]+)(.*?)$', id)
     if m is None:
         raise InvalidIdError(id)
     pre, num_str, suf = m.groups()
     return pre, num_str, suf
-
-from itertools import takewhile
 
 def annotation_id_prefix(id):
     pre = ''.join(c for c in takewhile(lambda x : not x.isdigit(), id))
@@ -295,7 +294,7 @@ class Annotations(object):
             'T': self._parse_textbound_annotation,
             'M': self._parse_modifier_annotation,
             'A': self._parse_attribute_annotation,
-#            'N': self._parse_normalization_annotation,
+            'N': self._parse_normalization_annotation,
             'R': self._parse_relation_annotation,
             '*': self._parse_equiv_annotation,
             'E': self._parse_event_annotation,
@@ -634,12 +633,10 @@ class Annotations(object):
 
     # XXX: This syntax is subject to change
     def _parse_attribute_annotation(self, id, data, data_tail, input_file_path):
-        import re
-
-        match = re.match(r'(.+?) (.+?) (.+?)$', data)
+        match = re_match(r'(.+?) (.+?) (.+?)$', data)
         if match is None:
             # Is it an old format without value?
-            match = re.match(r'(.+?) (.+?)$', data)
+            match = re_match(r'(.+?) (.+?)$', data)
 
             if match is None:
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line,
@@ -742,6 +739,9 @@ class Annotations(object):
         type, start, end = self._split_textbound_data(id, data, input_file_path)
         return TextBoundAnnotation(start, end, id, type, data_tail, source_id=input_file_path)
 
+    def _parse_normalization_annotation(self, id, data, data_tail, input_file_path):
+        pass
+
     def _parse_comment_annotation(self, id, data, data_tail, input_file_path):
         try:
             type, target = data.split()
@@ -750,8 +750,6 @@ class Annotations(object):
         return OnelineCommentAnnotation(target, id, type, data_tail, source_id=input_file_path)
     
     def _parse_ann_file(self):
-        from itertools import takewhile
-
         self.ann_line_num = -1
         for input_file_path in self._input_files:
             with open_textfile(input_file_path) as input_file:
@@ -895,7 +893,6 @@ class Annotations(object):
                                 #XXX: Disabled for now!
                                 #utime(DATA_DIR, (now, now))
                         except Exception, e:
-                            from message import Messager
                             Messager.error('ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' % e, -1)
                             raise
                 finally:
@@ -903,7 +900,6 @@ class Annotations(object):
                         from os import remove
                         remove(tmp_fname)
                     except Exception, e:
-                        from message import Messager
                         Messager.error("Error removing temporary file '%s'" % tmp_fname)
             return
 
