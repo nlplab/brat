@@ -15,7 +15,7 @@ CONFIG=config.py
 
 # Absolute data and work paths
 
-base_dir=`dirname $0 | xargs readlink -f`
+base_dir=`(cd \`dirname $0\`; pwd)`
 
 work_dir_abs="$base_dir/$WORK_DIR"
 data_dir_abs="$base_dir/$DATA_DIR"
@@ -49,7 +49,8 @@ cat "$base_dir/$CONFIG_TEMPLATE" | sed \
     -e 's|\(BASE_DIR = \).*|\1'\'$base_dir\''|' \
     -e 's|\(DATA_DIR = \).*|\1'\'$data_dir_abs\''|' \
     -e 's|\(WORK_DIR = \).*|\1'\'$work_dir_abs\''|' \
-    -e 's|\(USER_PASSWORD *= *{.*\)|\1\n    '\'"$user_name"\'': '\'"$password"\'',|') > "$base_dir/$CONFIG"
+    -e '/\(USER_PASSWORD *= *{.*\)/a\
+        \    '\'"$user_name"\'': '\'"$password"\'',') > "$base_dir/$CONFIG"
 
 # Create directories
 
@@ -64,7 +65,7 @@ apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
 # Make $work_dir_abs and $data_dir_abs writable by apache
 
 group_ok=0
-if [ -n "$apache_group" ] ; then
+if [ -n "$apache_group" -a -n "$apache_user" ] ; then
     echo "Assigning owner of the following directories to apache ($apache_group):\n    \"$work_dir_abs/\" and\n    \"$data_dir_abs/\":"
     echo "(this requires sudo; please enter your password)"    
 

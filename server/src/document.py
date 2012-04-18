@@ -626,6 +626,9 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
     return True
 
 def _enrich_json_with_data(j_dic, ann_obj):
+    # TODO: figure out if there's a reason for all the unicode()
+    # invocations here; remove if not.
+
     # We collect trigger ids to be able to link the textbound later on
     trigger_ids = set()
     for event_ann in ann_obj.get_events():
@@ -640,7 +643,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
             )
 
     for tb_ann in ann_obj.get_textbounds():
-        j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
+        j_tb = [unicode(tb_ann.id), unicode(tb_ann.type), tb_ann.start, tb_ann.end]
 
         # If we spotted it in the previous pass as a trigger for an
         # event or if the type is known to be an event type, we add it
@@ -660,12 +663,18 @@ def _enrich_json_with_data(j_dic, ann_obj):
 
     for att_ann in ann_obj.get_attributes():
         j_dic['attributes'].append(
-                [unicode(att_ann.id), att_ann.type, att_ann.target, att_ann.value]
+                [unicode(att_ann.id), unicode(att_ann.type), unicode(att_ann.target), att_ann.value]
+                )
+
+    for norm_ann in ann_obj.get_normalizations():
+        j_dic['normalizations'].append(
+                [unicode(norm_ann.id), unicode(norm_ann.type), unicode(norm_ann.target), 
+                 unicode(norm_ann.reference), unicode(norm_ann.reftext)]
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
         j_dic['comments'].append(
-                [com_ann.target, com_ann.type, com_ann.tail.strip()]
+                [unicode(com_ann.target), unicode(com_ann.type), com_ann.tail.strip()]
                 )
 
     if ann_obj.failed_lines:
@@ -712,16 +721,24 @@ def _enrich_json_with_data(j_dic, ann_obj):
 
 def _enrich_json_with_base(j_dic):
     # TODO: Make the names here and the ones in the Annotations object conform
-    # This is the from offset
-    j_dic['offset'] = 0
-    j_dic['entities'] = []
-    j_dic['events'] = []
-    j_dic['relations'] = []
-    j_dic['triggers'] = []
-    j_dic['modifications'] = []
-    j_dic['attributes'] = []
-    j_dic['equivs'] = []
-    j_dic['comments'] = []
+
+    # TODO: "from offset" of what? Commented this out, remove once
+    # sure that nothing is actually using this.
+#     # This is the from offset
+#     j_dic['offset'] = 0
+
+    for d in (
+        'entities',
+        'events',
+        'relations',
+        'triggers',
+        'modifications',
+        'attributes',
+        'equivs',
+        'normalizations',
+        'comments',
+        ):
+        j_dic[d] = []
 
 def _document_json_dict(document):
     #TODO: DOC!
