@@ -289,6 +289,19 @@ class Annotations(object):
             
     #TODO: DOC!
     def __init__(self, document, read_only=False):
+        # this decides which parsing function is invoked by annotation
+        # ID prefix (first letter)
+        self._parse_function_by_id_prefix = {
+            'T': self._parse_textbound_annotation,
+            'M': self._parse_modifier_annotation,
+            'A': self._parse_attribute_annotation,
+#            'N': self._parse_normalization_annotation,
+            'R': self._parse_relation_annotation,
+            '*': self._parse_equiv_annotation,
+            'E': self._parse_event_annotation,
+            '#': self._parse_comment_annotation,
+            }
+
         #TODO: DOC!
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
         from collections import defaultdict
@@ -697,7 +710,9 @@ class Annotations(object):
                                         args[1][0], args[1][1],
                                         data_tail, source_id=input_file_path)
 
-    def _parse_equiv_annotation(self, data, data_tail, input_file_path):
+    def _parse_equiv_annotation(self, dummy, data, data_tail, input_file_path):
+        # NOTE: first dummy argument to have a uniform signature with other
+        # parse_* functions
         # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
         equivs = type_tail.split(None)
@@ -727,7 +742,7 @@ class Annotations(object):
         type, start, end = self._split_textbound_data(id, data, input_file_path)
         return TextBoundAnnotation(start, end, id, type, data_tail, source_id=input_file_path)
 
-    def _parse_comment_line(self, id, data, data_tail, input_file_path):
+    def _parse_comment_annotation(self, id, data, data_tail, input_file_path):
         try:
             type, target = data.split()
         except ValueError:
@@ -777,31 +792,38 @@ class Annotations(object):
 
                         #log_info('Will evaluate prefix: ' + pre)
 
-                        if pre == '*':
-                            new_ann = self._parse_equiv_annotation(
-                                    data, data_tail, input_file_path)
-                        elif pre == 'E':
-                            new_ann = self._parse_event_annotation(
-                                    id, data, data_tail, input_file_path)
-                        elif pre == 'M':
-                            new_ann = self._parse_modifier_annotation(
-                                    id, data, data_tail, input_file_path)
+                        assert len(pre) >= 1, "INTERNAL ERROR"
+                        pre_first = pre[0]
 
-                        # XXX: This syntax is subject to change, limit to only T?
-                        elif pre.startswith('T'):
-                            new_ann = self._parse_textbound_annotation(
-                                    id, data, data_tail, input_file_path)
-                        elif pre == '#':
-                            new_ann = self._parse_comment_line(
-                                    id, data, data_tail, input_file_path)
-                        elif pre == 'R':
-                            new_ann = self._parse_relation_annotation(
-                                    id, data, data_tail, input_file_path)
-                        elif pre.startswith('A'):
-                            new_ann = self._parse_attribute_annotation(
-                                    id, data, data_tail, input_file_path)
-                        else:
+                        try:
+                            parse_func = self._parse_function_by_id_prefix[pre_first]
+                            new_ann = parse_func(id, data, data_tail, input_file_path)
+                        except KeyError:
                             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
+#                         if pre_first == '*':
+#                             new_ann = self._parse_equiv_annotation(
+#                                     data, data_tail, input_file_path)
+#                         elif pre_first == 'E':
+#                             new_ann = self._parse_event_annotation(
+#                                     id, data, data_tail, input_file_path)
+#                         elif pre_first == 'M':
+#                             new_ann = self._parse_modifier_annotation(
+#                                     id, data, data_tail, input_file_path)
+#                         elif pre_first == 'T':
+#                             new_ann = self._parse_textbound_annotation(
+#                                     id, data, data_tail, input_file_path)
+#                         elif pre_first == '#':
+#                             new_ann = self._parse_comment_annotation(
+#                                     id, data, data_tail, input_file_path)
+#                         elif pre_first == 'R':
+#                             new_ann = self._parse_relation_annotation(
+#                                     id, data, data_tail, input_file_path)
+#                         elif pre_first == 'A':
+#                             new_ann = self._parse_attribute_annotation(
+#                                     id, data, data_tail, input_file_path)
+#                         else:
+#                             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
                         assert new_ann is not None, "INTERNAL ERROR"
                         self.add_annotation(new_ann, read=True)
