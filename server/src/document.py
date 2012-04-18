@@ -721,17 +721,24 @@ def _enrich_json_with_data(j_dic, ann_obj):
 
 def _enrich_json_with_base(j_dic):
     # TODO: Make the names here and the ones in the Annotations object conform
-    # This is the from offset
-    j_dic['offset'] = 0
-    j_dic['entities'] = []
-    j_dic['events'] = []
-    j_dic['relations'] = []
-    j_dic['triggers'] = []
-    j_dic['modifications'] = []
-    j_dic['attributes'] = []
-    j_dic['equivs'] = []
-    j_dic['normalizations'] = []
-    j_dic['comments'] = []
+
+    # TODO: "from offset" of what? Commented this out, remove once
+    # sure that nothing is actually using this.
+#     # This is the from offset
+#     j_dic['offset'] = 0
+
+    for d in (
+        'entities',
+        'events',
+        'relations',
+        'triggers',
+        'modifications',
+        'attributes',
+        'equivs',
+        'normalizations',
+        'comments',
+        ):
+        j_dic[d] = []
 
 def _document_json_dict(document):
     #TODO: DOC!
