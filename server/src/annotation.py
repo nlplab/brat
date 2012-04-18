@@ -409,6 +409,9 @@ class Annotations(object):
     def get_relations(self):
         return (a for a in self if isinstance(a, BinaryRelationAnnotation))
 
+    def get_normalizations(self):
+        return (a for a in self if isinstance(a, NormalizationAnnotation))
+
     def get_entities(self):
         # Entities are textbounds that are not triggers
         triggers = [t for t in self.get_triggers()]
@@ -1249,8 +1252,7 @@ class NormalizationAnnotation(IdedAnnotation):
         self.target = target
         self.reference = reference
         # "human-readable" text of referenced ID (optional)
-        self.reftext, _ = tail.split('\t',1)
-        self.reftext = self.reftext.rstrip('\n')
+        self.reftext = tail.lstrip('\t').rstrip('\n')
 
     def __str__(self):
         return u'%s\t%s %s %s%s' % (
