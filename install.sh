@@ -65,7 +65,7 @@ apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
 # Make $work_dir_abs and $data_dir_abs writable by apache
 
 group_ok=0
-if [ -n "$apache_group" -a -n "$apache_group" ] ; then
+if [ -n "$apache_group" -a -n "$apache_user" ] ; then
     echo "Assigning owner of the following directories to apache ($apache_group):\n    \"$work_dir_abs/\" and\n    \"$data_dir_abs/\":"
     echo "(this requires sudo; please enter your password)"    
 
