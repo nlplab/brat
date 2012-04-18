@@ -491,6 +491,31 @@ var Visualizer = (function($, window, undefined) {
           }
         });
 
+	// normalizations
+	$.each(sourceData.normalizations, function(normNo, norm) {
+	  var id = norm[0];
+	  var normType = norm[1];
+	  var target = norm[2];
+	  var refid = norm[3];
+	  var reftext = norm[4];
+
+	  // grab entity / event the normalization applies to
+	  var normAnn = data.spans[target];
+          if (!normAnn) {
+            dispatcher.post('messages', [[['Annotation ' + target + ', referenced from normalization ' + id + ', does not exist.', 'error']]]);
+            return;
+          }
+
+	  // quick initial norm visualization: just add to comment text
+	  if (!normAnn.comment) {
+	    normAnn.comment = { type: normType, text: reftext };
+	  } else {
+	    normAnn.comment.type = normType
+	    normAnn.comment.text += "\n" + reftext;
+	  }
+
+        });
+
         // prepare span boundaries for token containment testing
         var sortedSpans = [];
         $.each(data.spans, function(spanNo, span) {
