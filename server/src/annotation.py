@@ -801,30 +801,6 @@ class Annotations(object):
                         except KeyError:
                             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
-#                         if pre_first == '*':
-#                             new_ann = self._parse_equiv_annotation(
-#                                     data, data_tail, input_file_path)
-#                         elif pre_first == 'E':
-#                             new_ann = self._parse_event_annotation(
-#                                     id, data, data_tail, input_file_path)
-#                         elif pre_first == 'M':
-#                             new_ann = self._parse_modifier_annotation(
-#                                     id, data, data_tail, input_file_path)
-#                         elif pre_first == 'T':
-#                             new_ann = self._parse_textbound_annotation(
-#                                     id, data, data_tail, input_file_path)
-#                         elif pre_first == '#':
-#                             new_ann = self._parse_comment_annotation(
-#                                     id, data, data_tail, input_file_path)
-#                         elif pre_first == 'R':
-#                             new_ann = self._parse_relation_annotation(
-#                                     id, data, data_tail, input_file_path)
-#                         elif pre_first == 'A':
-#                             new_ann = self._parse_attribute_annotation(
-#                                     id, data, data_tail, input_file_path)
-#                         else:
-#                             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-
                         assert new_ann is not None, "INTERNAL ERROR"
                         self.add_annotation(new_ann, read=True)
                     except IdedAnnotationLineSyntaxError, e:
