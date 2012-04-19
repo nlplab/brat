@@ -40,12 +40,11 @@ class CoreNLPTagger(object):
                     jar_paths.append(path_join(core_nlp_path, fname))
                     break
             else:
-                assert False, ('could not locate any jar on the form "{}"'
-                        ).format(jar_regex)
+                assert False, 'could not locate any jar on the form "%s"' % jar_regex
 
         # Then hook up the CoreNLP process
-        corenlp_cmd = ' '.join(('java -Xmx{}'.format(mem),
-                '-cp {}'.format(':'.join(jar_paths)),
+        corenlp_cmd = ' '.join(('java -Xmx%s' % mem,
+                '-cp %s' % ':'.join(jar_paths),
                 'edu.stanford.nlp.pipeline.StanfordCoreNLP',
                 '-annotators tokenize,ssplit,pos,lemma,ner',
                 ))

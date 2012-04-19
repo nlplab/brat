@@ -19,7 +19,7 @@ except ImportError:
     from sys import path as sys_path
     from os.path import join as path_join
     from os.path import dirname
-    sys_path.append(path_join(dirname(__file__), '../server/lib/ujson'))
+    sys_path.append(path_join(dirname(__file__), '../../server/lib/ujson'))
     from ujson import dumps
 
 from sys import stderr
