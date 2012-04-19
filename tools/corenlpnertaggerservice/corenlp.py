@@ -68,8 +68,8 @@ class CoreNLPTagger(object):
                 )
 
         # We can expect CoreNLP to be fairly fast, but let's cut it some slack
-        #   half a second per "token"
-        output_timeout = int(len(text.split()) * 0.5)
+        #   half a second per "token" with a start-up of one second
+        output_timeout = 1 + int(len(text.split()) * 0.5)
         # Make sure the data was actually seen by CoreNLP
         self._core_nlp_process.expect(SENTENCE_OUTPUT_REGEX,
                 timeout=output_timeout)
