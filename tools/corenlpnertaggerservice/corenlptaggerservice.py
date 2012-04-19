@@ -9,6 +9,7 @@ Version:    2012-04-18
 
 from argparse import ArgumentParser
 from cgi import FieldStorage
+from os.path import dirname, join as path_join
 
 from corenlp import CoreNLPTagger
 
@@ -17,8 +18,6 @@ try:
 except ImportError:
     # likely old Python; try to fall back on ujson in brat distrib
     from sys import path as sys_path
-    from os.path import join as path_join
-    from os.path import dirname
     sys_path.append(path_join(dirname(__file__), '../../server/lib/ujson'))
     from ujson import dumps
 
@@ -30,11 +29,14 @@ ARGPARSER = ArgumentParser(description='XXX')#XXX:
 ARGPARSER.add_argument('-p', '--port', type=int, default=47111,
         help='port to run the HTTP service on (default: 47111)')
 TAGGER = None
+#XXX: Hard-coded!
+CORENLP_PATH = path_join(dirname(__file__), 'stanford-corenlp-2012-04-09')
 ###
 
 
 class CoreNLPTaggerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
+        print >> stderr, 'Received request'
         field_storage = FieldStorage(
                 headers=self.headers,
                 environ={
@@ -64,8 +66,7 @@ def main(args):
 
     print >> stderr, 'Starting CoreNLP process (this takes a while)...',
     global TAGGER
-    #XXX: Hard-coded!
-    TAGGER = CoreNLPTagger('stanford-corenlp-2012-04-09')
+    TAGGER = CoreNLPTagger(CORENLP_PATH)
     print >> stderr, 'Done!'
 
     server_class = HTTPServer
