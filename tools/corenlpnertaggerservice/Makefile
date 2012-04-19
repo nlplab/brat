@@ -5,7 +5,7 @@ CORENLP_ARCH=${CORENLP_VER}.tgz
 CORENLP_URL=http://nlp.stanford.edu/software/${CORENLP_ARCH}
 CORENLP_SH=${CORENLP_ARCH}/corenlp.sh
 
-prepare: ${CORENLP_PY} pexpect
+prepare: ${CORENLP_SH} pexpect
 
 ${CORENLP_ARCH}:
 	wget -O ${CORENLP_ARCH} ${CORENLP_URL}
