@@ -86,8 +86,8 @@ class CoreNLPTagger(object):
         # Collect the NER spans, CoreNLP appears to be using only a BO tag-set
         #   so parsing it is piece of cake
         for sent_output in (d.strip() for i, d in enumerate(
-                self._core_nlp_process.before.rstrip().split('\r\n'), start=1)
-                if i % 3 == 0):
+                self._core_nlp_process.before.rstrip().split('\r\n'))
+                if (i + 1) % 3 == 0):
             ann_start = None
             last_end = None
             ann_type = None
