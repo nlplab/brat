@@ -117,7 +117,7 @@ def tag(collection, document, tagger):
             try:
                 conn.request('POST', url_soup.path,
                         # The document text as body
-                        ann_obj.get_document_text(),
+                        ann_obj.get_document_text().encode('utf8'),
                         headers=req_headers)
             except SocketError, e:
                 raise TaggerConnectionError(tagger_token, e)
