@@ -45,9 +45,9 @@ def logging_no_op(collection, document, log):
 # solution also only imports kvdb on invocation to avoid making
 # the DB a required dependency.
 def key_value_db_lookup(database, key):
-    import kvdb
+    import fbkvdb
     try:
-        value = kvdb.get(database, key)
+        value = fbkvdb.get_value(database, key)
     except KeyError:
         value = None
 

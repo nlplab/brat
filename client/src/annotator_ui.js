@@ -624,13 +624,14 @@ var AnnotatorUI = (function($, window, undefined) {
         if (val != oldSpanNormIdValue) {
             dispatcher.post('ajax', [ {
                             action: 'keyValueDbLookup',
-                            database: 'TODO',
+                            database: 'UniProt',
                             key: val}, 'keyValueDbLookupResult']);
           oldSpanNormIdValue = val;
         }
       }
       // see http://stackoverflow.com/questions/1948332/detect-all-changes-to-a-input-type-text-immediately-using-jquery
       $('#span_norm_id').bind('propertychange keyup input paste', spanNormIdUpdate);
+      $('#span_norm_txt').attr('disabled', true);
 
       var arcFormSubmitRadio = function(evt) {
         // TODO: check for confirm_mode?

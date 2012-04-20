@@ -508,6 +508,9 @@ fieldset legend {
   top: -2px;
   right: -2px;
 }
+.span_norm_txt_input {
+  background-color: #eaf4fd;
+}
 
 .comment_id {
   vertical-align: top;
