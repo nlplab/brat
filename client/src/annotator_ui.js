@@ -625,7 +625,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (key != oldSpanNormIdValue) {
             dispatcher.post('ajax', [ {
                             action: 'dbKeyLookup',
-                            database: 'UniProt',
+                            database: 'FMA',
                             key: key}, 'dbKeyLookupResult']);
           oldSpanNormIdValue = key;
         }
@@ -662,7 +662,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var val = $('#norm_db_query_input').val();
         dispatcher.post('ajax', [ {
                         action: 'dbValueLookup',
-                        database: 'UniProt',
+                        database: 'FMA',
                         value: val}, 'dbValueLookupResult']);
       }
       $('#norm_db_search_button').click(performNormSearch);

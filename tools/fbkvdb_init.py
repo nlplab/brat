@@ -65,6 +65,7 @@ def argparser():
     import argparse
 
     ap=argparse.ArgumentParser(description="Create key->value and value->key(s) DBs from given file.")
+    ap.add_argument("-l", "--lowercase", default=False, action="store_true", help="Lowercase values before DB entry.")
     ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
     ap.add_argument("-d", "--database", default=None, help="Base name of databases to create (default by input file name in brat work directory)")
     ap.add_argument("file", metavar="FILE", help="File containing keys and values (line format KEY<TAB>VALUE)")
@@ -110,6 +111,9 @@ def main(argv):
                     print >> sys.stderr, "(Too many errors; suppressing further error messages)"
                 error_count += 1
                 continue
+
+            if arg.lowercase:
+                value = value.lower()
 
             # enter key and value into DBs
             try:
