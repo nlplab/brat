@@ -44,7 +44,7 @@ def logging_no_op(collection, document, log):
 # TODO: this shouldn't really be here, but make sure the cleaned-up
 # solution also only imports kvdb on invocation to avoid making
 # the DB a required dependency.
-def key_value_db_lookup(database, key):
+def db_key_lookup(database, key):
     import fbkvdb
     try:
         value = fbkvdb.get_value(database, key)
@@ -56,6 +56,21 @@ def key_value_db_lookup(database, key):
         'database' : database,
         'key' : key,
         'value' : value
+        }
+    return json_dic
+
+def db_value_lookup(database, value):
+    import fbkvdb
+    try:
+        keys = fbkvdb.get_keys(database, value)
+    except KeyError:
+        keys = None
+
+    # echo request for sync
+    json_dic = {
+        'database' : database,
+        'value' : value,
+        'keys' : keys,
         }
     return json_dic
 
@@ -111,8 +126,9 @@ DISPATCHER = {
         'deleteCollection': delete_collection,
 
         # key:value DB lookup
-        'keyValueDbLookup': key_value_db_lookup,
-        }
+        'dbKeyLookup': db_key_lookup,
+        'dbValueLookup': db_value_lookup, 
+       }
 
 # Actions that correspond to annotation functionality
 ANNOTATION_ACTION = set((

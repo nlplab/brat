@@ -611,7 +611,8 @@ var AnnotatorUI = (function($, window, undefined) {
           return false;
         }
 
-        // TODO: check for lookup failure
+        // TODO: check for lookup failure, and only update txt if
+        // response.key matches current content of ID field
         console.log(response.value);
         $('#span_norm_txt').val(response.value);
       }
@@ -620,18 +621,58 @@ var AnnotatorUI = (function($, window, undefined) {
       // reference
       var oldSpanNormIdValue = '';
       var spanNormIdUpdate = function(evt) {
-        var val = $(this).val();
-        if (val != oldSpanNormIdValue) {
+        var key = $(this).val();
+        if (key != oldSpanNormIdValue) {
             dispatcher.post('ajax', [ {
-                            action: 'keyValueDbLookup',
+                            action: 'dbKeyLookup',
                             database: 'UniProt',
-                            key: val}, 'keyValueDbLookupResult']);
-          oldSpanNormIdValue = val;
+                            key: key}, 'dbKeyLookupResult']);
+          oldSpanNormIdValue = key;
         }
       }
       // see http://stackoverflow.com/questions/1948332/detect-all-changes-to-a-input-type-text-immediately-using-jquery
       $('#span_norm_id').bind('propertychange keyup input paste', spanNormIdUpdate);
-      $('#span_norm_txt').attr('disabled', true);
+      var normSearchDialog = $('#norm_db_search_dialog');
+      initForm(normSearchDialog, {
+          width: 800,
+          width: 600,
+          no_ok: true,
+          resizable: false,
+          open: function(evt) {
+            keymap = {};
+          },
+      });
+      var setSpanNormSearchResults = function(response) {
+        if (response.exception) {
+          // TODO: better response to failure
+          dispatcher.post('messages', [[['Lookup error', 'warning', -1]]]);
+          return false;
+        }
+
+        var html = [];
+        var tbody;
+        $('#norm_db_search_result_select thead').html('<tr><th>ID</th><th>Term</th></tr>');
+        var value = response.value;
+        $.each(response.keys, function(keyNo, key) {
+          html.push('<tr><td>'+key+'</td><td>'+value+'</td></tr>');
+        });
+        $('#norm_db_search_result_select tbody').html(html.join(''));
+      }
+      var performNormSearch = function() {
+        var val = $('#norm_db_query_input').val();
+        dispatcher.post('ajax', [ {
+                        action: 'dbValueLookup',
+                        database: 'UniProt',
+                        value: val}, 'dbValueLookupResult']);
+      }
+      $('#norm_db_search_button').click(performNormSearch);
+      var showNormSearchDialog = function() {
+        // take default search string from annotated span
+        $('#norm_db_query_input').val($('#span_selected').text());
+        dispatcher.post('showForm', [normSearchDialog]);
+      }
+      $('#span_norm_txt').click(showNormSearchDialog);
+      $('#norm_db_search_button').button();
 
       var arcFormSubmitRadio = function(evt) {
         // TODO: check for confirm_mode?
@@ -1700,7 +1741,8 @@ var AnnotatorUI = (function($, window, undefined) {
           on('mousemove', onMouseMove).
           on('annotationSpeed', setAnnotationSpeed).
           on('suggestedSpanTypes', receivedSuggestedSpanTypes).
-          on('keyValueDbLookupResult', setSpanNormText);
+          on('dbKeyLookupResult', setSpanNormText).
+          on('dbValueLookupResult', setSpanNormSearchResults);
     };
 
     return AnnotatorUI;

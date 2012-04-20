@@ -511,6 +511,31 @@ fieldset legend {
 .span_norm_txt_input {
   background-color: #eaf4fd;
 }
+#norm_db_search_result_select {
+  height: 200px;
+  display: inline-block;
+  border: 2px inset;
+  background-color: #ffffff;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+  overflow: scroll;
+}
+#norm_db_search_result_select thead tr * {
+  padding: 2px 5px;
+}
+#norm_db_search_result_select tbody tr * {
+  padding: 0 5px;
+}
+#norm_db_search_result_select tr {
+  cursor: pointer;
+}
+#norm_db_search_result_select tr * {
+  white-space: nowrap;
+}
+#norm_db_search_result_select tr.selected {
+  background-color: #cccccc;
+}
 
 .comment_id {
   vertical-align: top;
