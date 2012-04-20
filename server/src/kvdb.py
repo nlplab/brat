@@ -12,6 +12,10 @@ from os.path import join as path_join
 from config import WORK_DIR
 
 try:
+    # this bit is necessary as pytc wants to write some python
+    # eggs somewhere ...
+    from os import environ
+    environ['PYTHON_EGG_CACHE'] = WORK_DIR
     import pytc
 except ImportError:
     # TODO: this is not really a good way to communicate this problem.

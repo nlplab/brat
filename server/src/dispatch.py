@@ -41,6 +41,24 @@ def logging_no_op(collection, document, log):
     # need to return a dictionary
     return {}
 
+# TODO: this shouldn't really be here, but make sure the cleaned-up
+# solution also only imports kvdb on invocation to avoid making
+# the DB a required dependency.
+def key_value_db_lookup(database, key):
+    import kvdb
+    try:
+        value = kvdb.get(database, key)
+    except KeyError:
+        value = None
+
+    # echo request for sync
+    json_dic = {
+        'database' : database,
+        'key' : key,
+        'value' : value
+        }
+    return json_dic
+
 ### Constants
 # Function call-backs
 DISPATCHER = {
@@ -91,6 +109,9 @@ DISPATCHER = {
 
         'deleteDocument': delete_document,
         'deleteCollection': delete_collection,
+
+        # key:value DB lookup
+        'keyValueDbLookup': key_value_db_lookup,
         }
 
 # Actions that correspond to annotation functionality

@@ -561,13 +561,26 @@
       </fieldset>
 
       <fieldset>
+        <legend>Normalization</legend>
+        <div id="norm_container">
+          <span>ID:</span><input id="span_norm_id" class="borderless"
+                                 style="width:20%"/>
+          <span>Ref:</span><input id="span_norm_txt" class="borderless"
+                                  style="width:70%"/>
+          <input id="clear_norm_button" type="button" 
+                 value="&#x2715;" title="Clear normalization"/>
+        </div>
+      </fieldset>
+
+      <fieldset>
         <legend>Notes</legend>
         <div id="notes_container">
           <input id="span_notes" class="borderless"/>
-          <input id="clear_notes_button" type="button" value="&#x2715;"
-                 title="Clear notes"/>
+          <input id="clear_notes_button" type="button" 
+                 value="&#x2715;" title="Clear notes"/>
         </div>
       </fieldset>
+
     </form>
     <form id="rapid_span_form" class="dialog" title="Span type">
       <fieldset id="rapid_span_selected_fset">

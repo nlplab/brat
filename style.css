@@ -499,7 +499,10 @@ fieldset legend {
 #notes_container {
   position: relative;
 }
-#clear_notes_button {                   
+#norm_container {
+  position: relative;
+}
+#clear_notes_button, #clear_norm_button {                   
   padding: 2px 5px;
   position: absolute;
   top: -2px;

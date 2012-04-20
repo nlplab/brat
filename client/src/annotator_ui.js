@@ -597,6 +597,41 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#clear_notes_button').button();
       $('#clear_notes_button').click(clearSpanNotes);
 
+      var clearSpanNorm = function(evt) {
+        alert("Not implemented yet (sorry!)");
+      }
+      $('#clear_norm_button').button();
+      $('#clear_norm_button').click(clearSpanNorm);
+
+      // invoked on response to ajax request for id lookup
+      var setSpanNormText = function(response) {
+        if (response.exception) {
+          // TODO: better response to failure
+          dispatcher.post('messages', [[['Lookup error', 'warning', -1]]]);
+          return false;
+        }
+
+        // TODO: check for lookup failure
+        console.log(response.value);
+        $('#span_norm_txt').val(response.value);
+      }
+
+      // on any change to the normalization ID, update the text of the
+      // reference
+      var oldSpanNormIdValue = '';
+      var spanNormIdUpdate = function(evt) {
+        var val = $(this).val();
+        if (val != oldSpanNormIdValue) {
+            dispatcher.post('ajax', [ {
+                            action: 'keyValueDbLookup',
+                            database: 'TODO',
+                            key: val}, 'keyValueDbLookupResult']);
+          oldSpanNormIdValue = val;
+        }
+      }
+      // see http://stackoverflow.com/questions/1948332/detect-all-changes-to-a-input-type-text-immediately-using-jquery
+      $('#span_norm_id').bind('propertychange keyup input paste', spanNormIdUpdate);
+
       var arcFormSubmitRadio = function(evt) {
         // TODO: check for confirm_mode?
         arcFormSubmit(evt, $(evt.target));
@@ -1663,7 +1698,8 @@ var AnnotatorUI = (function($, window, undefined) {
           on('mouseup', onMouseUp).
           on('mousemove', onMouseMove).
           on('annotationSpeed', setAnnotationSpeed).
-          on('suggestedSpanTypes', receivedSuggestedSpanTypes);
+          on('suggestedSpanTypes', receivedSuggestedSpanTypes).
+          on('keyValueDbLookupResult', setSpanNormText);
     };
 
     return AnnotatorUI;
