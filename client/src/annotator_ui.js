@@ -622,11 +622,12 @@ var AnnotatorUI = (function($, window, undefined) {
       var oldSpanNormIdValue = '';
       var spanNormIdUpdate = function(evt) {
         var key = $(this).val();
+        var db = $('#span_norm_db').val();
         if (key != oldSpanNormIdValue) {
             dispatcher.post('ajax', [ {
-                            action: 'dbKeyLookup',
-                            database: 'FMA',
-                            key: key}, 'dbKeyLookupResult']);
+                            action: 'normGetName',
+                            database: db,
+                            key: key}, 'normGetNameResult']);
           oldSpanNormIdValue = key;
         }
       }
@@ -649,21 +650,33 @@ var AnnotatorUI = (function($, window, undefined) {
           return false;
         }
 
-        var html = [];
-        var tbody;
-        $('#norm_db_search_result_select thead').html('<tr><th>ID</th><th>Term</th></tr>');
-        var value = response.value;
-        $.each(response.keys, function(keyNo, key) {
-          html.push('<tr><td>'+key+'</td><td>'+value+'</td></tr>');
+        // TODO: avoid code duplication with showFileBrowser()
+
+        var html = ['<tr>'];
+        $.each(response.header, function(headNo, head) {
+          html.push('<th>' + Util.escapeHTML(head[0]) + '</th>');
+        });
+        html.push('</tr>');
+        $('#norm_db_search_result_select thead').html(html.join(''));
+
+        html = [];
+        var len = response.header.length - 1;
+        $.each(response.items, function(itemNo, item) {
+          html.push('<tr>');
+          for (var i=0; i<len; i++) {
+            html.push('<td>' + Util.escapeHTML(item[i]) + '</td>');
+          }
+          html.push('</tr>');
         });
         $('#norm_db_search_result_select tbody').html(html.join(''));
       }
       var performNormSearch = function() {
         var val = $('#norm_db_query_input').val();
+        var db = $('#span_norm_db').val();
         dispatcher.post('ajax', [ {
-                        action: 'dbValueLookup',
-                        database: 'FMA',
-                        value: val}, 'dbValueLookupResult']);
+                        action: 'normSearch',
+                        database: db,
+                        name: val}, 'normSearchResult']);
       }
       $('#norm_db_search_button').click(performNormSearch);
       var showNormSearchDialog = function() {
@@ -1741,8 +1754,8 @@ var AnnotatorUI = (function($, window, undefined) {
           on('mousemove', onMouseMove).
           on('annotationSpeed', setAnnotationSpeed).
           on('suggestedSpanTypes', receivedSuggestedSpanTypes).
-          on('dbKeyLookupResult', setSpanNormText).
-          on('dbValueLookupResult', setSpanNormSearchResults);
+          on('normGetNameResult', setSpanNormText).
+          on('normSearchResult', setSpanNormSearchResults);
     };
 
     return AnnotatorUI;

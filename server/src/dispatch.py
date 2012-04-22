@@ -35,44 +35,12 @@ from predict import suggest_span_types
 from undo import undo
 from tag import tag
 from delete import delete_document, delete_collection
+from norm import norm_get_name, norm_search
 
 # no-op function that can be invoked by client to log a user action
 def logging_no_op(collection, document, log):
     # need to return a dictionary
     return {}
-
-# TODO: this shouldn't really be here, but make sure the cleaned-up
-# solution also only imports kvdb on invocation to avoid making
-# the DB a required dependency.
-def db_key_lookup(database, key):
-    import fbkvdb
-    try:
-        value = fbkvdb.get_value(database, key)
-    except KeyError:
-        value = None
-
-    # echo request for sync
-    json_dic = {
-        'database' : database,
-        'key' : key,
-        'value' : value
-        }
-    return json_dic
-
-def db_value_lookup(database, value):
-    import fbkvdb
-    try:
-        keys = fbkvdb.get_keys(database, value)
-    except KeyError:
-        keys = None
-
-    # echo request for sync
-    json_dic = {
-        'database' : database,
-        'value' : value,
-        'keys' : keys,
-        }
-    return json_dic
 
 ### Constants
 # Function call-backs
@@ -125,9 +93,9 @@ DISPATCHER = {
         'deleteDocument': delete_document,
         'deleteCollection': delete_collection,
 
-        # key:value DB lookup
-        'dbKeyLookup': db_key_lookup,
-        'dbValueLookup': db_value_lookup, 
+        # normalization support
+        'normGetName': norm_get_name,
+        'normSearch': norm_search,         
        }
 
 # Actions that correspond to annotation functionality

@@ -566,12 +566,16 @@
       <fieldset>
         <legend>Normalization</legend>
         <div id="norm_container">
+          <select id="span_norm_db">
+            <option value="UniProt">UniProt</option>
+            <option value="FMA">FMA</option>
+          </select>
           <span class="span_norm_label">ID:</span>
           <input id="span_norm_id" class="span_norm_id_input"
                  style="width:20%"/>
           <span class="span_norm_label">Ref:</span>
           <input id="span_norm_txt" class="span_norm_txt_input"
-                 readonly="readonly" style="width:65%"/>
+                 readonly="readonly" style="width:50%"/>
           <input id="clear_norm_button" type="button" 
                  value="&#x2715;" title="Clear normalization"/>
         </div>
