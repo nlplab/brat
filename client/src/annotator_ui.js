@@ -652,16 +652,36 @@ var AnnotatorUI = (function($, window, undefined) {
       }
       // see http://stackoverflow.com/questions/1948332/detect-all-changes-to-a-input-type-text-immediately-using-jquery
       $('#span_norm_id').bind('propertychange keyup input paste', spanNormIdUpdate);
-      var normSearchDialog = $('#norm_db_search_dialog');
+      var normSearchDialog = $('#norm_search_dialog');
       initForm(normSearchDialog, {
           width: 800,
           width: 600,
-          no_ok: true,
-          resizable: false,
+          resizable: true,
+          alsoResize: '#norm_search_result_select',
           open: function(evt) {
             keymap = {};
           },
       });
+      var normSearchSubmit = function(evt) {
+        var selectedId = $('#norm_search_id').val(); 
+        var selectedTxt = $('#norm_search_query').val();
+        $('#span_norm_id').val(selectedId);
+        $('#span_norm_txt').val(selectedTxt);
+        normSearchDialog.dialog('close');
+        return false;
+      }
+      normSearchDialog.submit(normSearchSubmit);
+      var chooseNormId = function(evt) {
+        var $element = $(evt.target).closest('tr');
+        $('#norm_search_result_select tr').removeClass('selected');
+        $element.addClass('selected');
+        $('#norm_search_query').val($element.attr('data-txt'));
+        $('#norm_search_id').val($element.attr('data-id'));
+      }
+      var chooseNormIdAndSubmit = function(evt) {
+        chooseNormId(evt);
+        normSearchSubmit(evt);
+      }
       var setSpanNormSearchResults = function(response) {
         if (response.exception) {
           // TODO: better response to failure
@@ -676,35 +696,51 @@ var AnnotatorUI = (function($, window, undefined) {
           html.push('<th>' + Util.escapeHTML(head[0]) + '</th>');
         });
         html.push('</tr>');
-        $('#norm_db_search_result_select thead').html(html.join(''));
+        $('#norm_search_result_select thead').html(html.join(''));
 
         html = [];
         var len = response.header.length;
         $.each(response.items, function(itemNo, item) {
-          html.push('<tr>');
+          // NOTE: assuming ID is always the first datum in the item
+          // and that the preferred text is always the second
+          html.push('<tr'+
+                    ' data-id="'+Util.escapeHTML(item[0])+'"'+
+                    ' data-txt="'+Util.escapeHTML(item[1])+'"'+
+                    '>');
           for (var i=0; i<len; i++) {
             html.push('<td>' + Util.escapeHTML(item[i]) + '</td>');
           }
           html.push('</tr>');
         });
-        $('#norm_db_search_result_select tbody').html(html.join(''));
+        $('#norm_search_result_select tbody').html(html.join(''));
+
+        $('#norm_search_result_select tbody').find('tr').
+            click(chooseNormId).
+            dblclick(chooseNormIdAndSubmit);
+
+        // TODO: sorting on click on header (see showFileBrowser())
       }
       var performNormSearch = function() {
-        var val = $('#norm_db_query_input').val();
+        var val = $('#norm_search_query').val();
         var db = $('#span_norm_db').val();
         dispatcher.post('ajax', [ {
                         action: 'normSearch',
                         database: db,
                         name: val}, 'normSearchResult']);
       }
-      $('#norm_db_search_button').click(performNormSearch);
+      $('#norm_search_button').click(performNormSearch);
       var showNormSearchDialog = function() {
         // take default search string from annotated span
-        $('#norm_db_query_input').val($('#span_selected').text());
+        $('#norm_search_query').val($('#span_selected').text());
+        // clear ID entry
+        $('#norm_search_id').val('');
+        // blank the table
+        $('#norm_search_result_select thead').empty();
+        $('#norm_search_result_select tbody').empty();        
         dispatcher.post('showForm', [normSearchDialog]);
       }
       $('#span_norm_txt').click(showNormSearchDialog);
-      $('#norm_db_search_button').button();
+      $('#norm_search_button').button();
 
       var arcFormSubmitRadio = function(evt) {
         // TODO: check for confirm_mode?

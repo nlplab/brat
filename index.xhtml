@@ -672,13 +672,17 @@
       </table>
     </form>
     <!-- Normalization DB search dialog -->
-    <form id="norm_db_search_dialog" class="dialog" title="Search">
+    <form id="norm_search_dialog" class="dialog" title="Search">
       <fieldset>
         <legend>Query</legend>
-        <input id="norm_db_query_input" placeholder="Query string" class="borderless"/>
-        <input id="norm_db_search_button" type="button" value="Search"/>
+        <input id="norm_search_query" placeholder="Query string" class="borderless"/>
+        <input id="norm_search_button" type="button" value="Search"/>
       </fieldset>
-      <table id="norm_db_search_result_select" class="ui-widget unselectable">
+      <fieldset>
+        <legend>ID</legend>
+        <input id="norm_search_id" placeholder="Identifier" class="borderless"/>
+      </fieldset>
+      <table id="norm_search_result_select" class="ui-widget unselectable">
         <thead class="ui-widget-header"/>
         <tbody class="ui-widget-content"/>
       </table>

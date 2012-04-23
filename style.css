@@ -517,7 +517,7 @@ input.valid_value {
 input.invalid_value {
   background-color: #ffcccc;
 }
-#norm_db_search_result_select {
+#norm_search_result_select {
   height: 200px;
   display: inline-block;
   border: 2px inset;
@@ -527,19 +527,19 @@ input.invalid_value {
   margin-top: 10px;
   overflow: scroll;
 }
-#norm_db_search_result_select thead tr * {
+#norm_search_result_select thead tr * {
   padding: 2px 5px;
 }
-#norm_db_search_result_select tbody tr * {
+#norm_search_result_select tbody tr * {
   padding: 0 5px;
 }
-#norm_db_search_result_select tr {
+#norm_search_result_select tr {
   cursor: pointer;
 }
-#norm_db_search_result_select tr * {
+#norm_search_result_select tr * {
   white-space: nowrap;
 }
-#norm_db_search_result_select tr.selected {
+#norm_search_result_select tr.selected {
   background-color: #cccccc;
 }
 
