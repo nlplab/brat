@@ -997,7 +997,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
         dispatcher.post('searchResultsReceived', [response]);
         searchActive = true;
-        updateSearchButton();
+        updateSearchButtons();
       };
 
       var searchForm = $('#search_form');
@@ -1124,7 +1124,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var showSearchForm = function() {
         // this.checked = searchActive; // TODO: dup? unnecessary? remove if yes.
-        updateSearchButton();
+        updateSearchButtons();
         $('#search_form_event_type').change();
         $('#search_form_relation_type').change();
         dispatcher.post('showForm', [searchForm]);
@@ -1133,10 +1133,31 @@ var VisualizerUI = (function($, window, undefined) {
 
       $('#search_button').click(showSearchForm);
 
-      var updateSearchButton = function() {
+      $('#clear_search_button').click(function(evt) {
+         // clear, don't show collection browser
+         dispatcher.post('clearSearch', [true]);
+         // TODO: this was the only way I found to reset search. It
+         // trigger an unnecessary round-trip to the server, though,
+         // so there should be a better way ...
+         dispatcher.post('setArguments', [{}, true]);
+      });
+
+      var updateSearchButtons = function() {
         $searchButton = $('#search_button');
         $searchButton[0].checked = searchActive;
         $searchButton.button('refresh');
+        $clearSearchButton = $('#clear_search_button');
+        if (searchActive) {
+            // TODO: this is a bit poor form, using jQuery UI classes
+            // directly -- are these names guaranteed to be stable?
+            $('#search_button_label').removeClass('ui-corner-all');
+            $('#search_button_label').addClass('ui-corner-left');
+            $clearSearchButton.show();
+        } else {
+            $('#search_button_label').removeClass('ui-corner-left');
+            $('#search_button_label').addClass('ui-corner-all');
+            $clearSearchButton.hide();
+        }
       }
 
       /* END search - related */
@@ -1387,7 +1408,7 @@ var VisualizerUI = (function($, window, undefined) {
           sortOrder = collectionSortOrder;
           selectorData.items.sort(docSortFunction);
           searchActive = false;
-          updateSearchButton();
+          updateSearchButtons();
         }
 
         if (!dontShowFileBrowser) {

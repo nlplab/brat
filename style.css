@@ -774,6 +774,22 @@ div.scroll_wrapper_upper div.scroller {
   opacity: 0.8;
 }
 
+#search_button {
+  margin-right: 0;
+}
+#search_button_label {
+  margin-right: 0;
+
+}
+#clear_search_button {
+  margin-left: 0;
+  padding-left: 0.4em;
+  padding-right: 0.4em;
+  -moz-border-radius: 0px 5px 5px 0px;
+  -webkit-border-radius: 0px 5px 5px 0px;
+  border-radius: 0px 5px 5px 0px;
+}
+
 #spinner {
   display: none;
   position: fixed;
