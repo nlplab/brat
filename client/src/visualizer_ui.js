@@ -1319,7 +1319,7 @@ var VisualizerUI = (function($, window, undefined) {
         } else if (searchActive && evt.ctrlKey && code == 'G'.charCodeAt(0)) {
           evt.preventDefault();
           return moveInFileBrowser(+1);
-        } else if (searchActive && evt.ctrlKey && code == 'C'.charCodeAt(0)) {
+        } else if (searchActive && evt.ctrlKey && code == 'K'.charCodeAt(0)) {
           evt.preventDefault();
           clearSearchResults();
         }
