@@ -511,6 +511,12 @@ fieldset legend {
 .span_norm_txt_input {
   background-color: #eaf4fd;
 }
+input.valid_value {
+  background-color: #ccffcc;
+}
+input.invalid_value {
+  background-color: #ffcccc;
+}
 #norm_db_search_result_select {
   height: 200px;
   display: inline-block;

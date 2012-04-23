@@ -290,6 +290,14 @@ var AnnotatorUI = (function($, window, undefined) {
       var fillSpanTypesAndDisplayForm = function(evt, spanText, span) {
         keymap = spanKeymap;
 
+        // clear normalization stuff
+        // TODO: fill in from stored values
+        var $normid = $('#span_norm_id');
+        var $normtxt = $('#span_norm_txt');
+        $normid.val('');
+        $normid.removeClass('valid_value').removeClass('invalid_value');
+        $normtxt.val('');
+
         // Figure out whether we should show or hide one of the two
         // main halves of the selection frame (entities / events).
         // This depends on the type of the current span, if any, and
@@ -609,11 +617,17 @@ var AnnotatorUI = (function($, window, undefined) {
           // TODO: better response to failure
           dispatcher.post('messages', [[['Lookup error', 'warning', -1]]]);
           return false;
+        }        
+        // set input style according to whether we have a valid value
+        var $idinput = $('#span_norm_id');
+        // TODO: make sure the key echo in the response matches the
+        // current value of the $idinput
+        $idinput.removeClass('valid_value').removeClass('invalid_value');
+        if (response.value === null) {
+          $idinput.addClass('invalid_value');
+        } else {
+          $idinput.addClass('valid_value');
         }
-
-        // TODO: check for lookup failure, and only update txt if
-        // response.key matches current content of ID field
-        console.log(response.value);
         $('#span_norm_txt').val(response.value);
       }
 
@@ -624,10 +638,15 @@ var AnnotatorUI = (function($, window, undefined) {
         var key = $(this).val();
         var db = $('#span_norm_db').val();
         if (key != oldSpanNormIdValue) {
+          if (key == '') {
+            // don't query empties, just clear style
+            $(this).removeClass('valid_value').removeClass('invalid_value');
+          } else {
             dispatcher.post('ajax', [ {
                             action: 'normGetName',
                             database: db,
                             key: key}, 'normGetNameResult']);
+          }
           oldSpanNormIdValue = key;
         }
       }
@@ -660,7 +679,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#norm_db_search_result_select thead').html(html.join(''));
 
         html = [];
-        var len = response.header.length - 1;
+        var len = response.header.length;
         $.each(response.items, function(itemNo, item) {
           html.push('<tr>');
           for (var i=0; i<len; i++) {
