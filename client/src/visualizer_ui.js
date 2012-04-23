@@ -1133,14 +1133,16 @@ var VisualizerUI = (function($, window, undefined) {
 
       $('#search_button').click(showSearchForm);
 
-      $('#clear_search_button').click(function(evt) {
-         // clear, don't show collection browser
-         dispatcher.post('clearSearch', [true]);
-         // TODO: this was the only way I found to reset search. It
-         // trigger an unnecessary round-trip to the server, though,
-         // so there should be a better way ...
-         dispatcher.post('setArguments', [{}, true]);
-      });
+      var clearSearchResults = function() {
+        // clear UI, don't show collection browser
+        dispatcher.post('clearSearch', [true]);
+        // TODO: this was the only way I found to reset search. It
+        // trigger an unnecessary round-trip to the server, though,
+        // so there should be a better way ...
+        dispatcher.post('setArguments', [{}, true]);
+      }
+
+      $('#clear_search_button').click(clearSearchResults);
 
       var updateSearchButtons = function() {
         $searchButton = $('#search_button');
@@ -1317,6 +1319,9 @@ var VisualizerUI = (function($, window, undefined) {
         } else if (searchActive && evt.ctrlKey && code == 'G'.charCodeAt(0)) {
           evt.preventDefault();
           return moveInFileBrowser(+1);
+        } else if (searchActive && evt.ctrlKey && code == 'C'.charCodeAt(0)) {
+          evt.preventDefault();
+          clearSearchResults();
         }
       };
 
