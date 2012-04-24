@@ -46,6 +46,8 @@ var AnnotatorUI = (function($, window, undefined) {
       // for normalization: URLs bases by norm DB name
       var normDbUrlByDbName = {};
       var normDbUrlBaseByDbName = {};
+      // for normalization
+      var oldSpanNormIdValue = '';
 
       that.user = null;
       var svgElement = $(svg._svg);
@@ -437,9 +439,11 @@ var AnnotatorUI = (function($, window, undefined) {
           // fill if found (NOTE: only shows last on multiple)
           $.each(span ? span.normalizations : [], function(normNo, norm) {
             // stored as array (sorry)
-            var refdb = norm[0], refid = norm[1], reftext = norm[2];
-            $normId.val(refid);
-            $normText.val(reftext);
+            var refDb = norm[0], refId = norm[1], refText = norm[2];
+            $normId.val(refId);
+            // don't forget to update this reference value
+            oldSpanNormIdValue = refId
+            $normText.val(refText);
             // just assume the ID is valid (TODO: check)
             $normId.addClass('valid_value')
           });
@@ -662,7 +666,6 @@ var AnnotatorUI = (function($, window, undefined) {
 
       // on any change to the normalization ID, update the text of the
       // reference
-      var oldSpanNormIdValue = '';
       var spanNormIdUpdate = function(evt) {
         var key = $(this).val();
         var db = $('#span_norm_db').val();
@@ -698,6 +701,8 @@ var AnnotatorUI = (function($, window, undefined) {
         var selectedId = $('#norm_search_id').val(); 
         var selectedTxt = $('#norm_search_query').val();
         $('#span_norm_id').val(selectedId);
+        // don't forget to update this reference value
+        oldSpanNormIdValue = selectedId;
         $('#span_norm_txt').val(selectedTxt);
         updateNormalizationRefLink();
         // Switch dialogs. NOTE: assuming we closed the spanForm when
@@ -1513,6 +1518,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var $normId = $('#span_norm_id');
         var $normText = $('#span_norm_txt');
         $normId.val('');
+        oldSpanNormIdValue = '';
         $normId.removeClass('valid_value').removeClass('invalid_value');
         $normText.val('');
         updateNormalizationRefLink();
