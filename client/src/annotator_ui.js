@@ -1584,6 +1584,7 @@ var AnnotatorUI = (function($, window, undefined) {
           comment: $('#span_notes').val()
         });
 
+        // fill attributes
         var attributes = {};
         // TODO: avoid allAttributeTypes; just check type-appropriate ones
         $.each(allAttributeTypes, function(attrNo, attr) {
@@ -1594,10 +1595,21 @@ var AnnotatorUI = (function($, window, undefined) {
             attributes[attr.type] = $input.val();
           }
         });
+        spanOptions.attributes = $.toJSON(attributes);
+
+        // fill normalizations. Note that the protocol supports any
+        // number, but only no or one normalization supported in UI at
+        // the moment.
+        var normalizations = [];
+        var normDb = $('#span_norm_db').val();
+        var normId = $('#span_norm_id').val();
+        var normTxt = $('#span_norm_txt').val();
+        normalizations.push([normDb, normId, normTxt]);
+        spanOptions.normalizations = $.toJSON(normalizations);
+
         // unfocus all elements to prevent focus being kept after
         // hiding them
         spanForm.parent().find('*').blur();
-        spanOptions.attributes = $.toJSON(attributes);
         $('#waiter').dialog('open');
         dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;
