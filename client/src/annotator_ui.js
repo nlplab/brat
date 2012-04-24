@@ -290,14 +290,6 @@ var AnnotatorUI = (function($, window, undefined) {
       var fillSpanTypesAndDisplayForm = function(evt, spanText, span) {
         keymap = spanKeymap;
 
-        // clear normalization stuff
-        // TODO: fill in from stored values
-        var $normid = $('#span_norm_id');
-        var $normtxt = $('#span_norm_txt');
-        $normid.val('');
-        $normid.removeClass('valid_value').removeClass('invalid_value');
-        $normtxt.val('');
-
         // Figure out whether we should show or hide one of the two
         // main halves of the selection frame (entities / events).
         // This depends on the type of the current span, if any, and
@@ -427,6 +419,26 @@ var AnnotatorUI = (function($, window, undefined) {
             } else {
               $input.val(val || '').change();
             }
+          });
+        }
+
+        // fill normalizations (if any)
+        if (!reselectedSpan) {
+          // clear first
+          var $normid = $('#span_norm_id');
+          var $normtxt = $('#span_norm_txt');
+          $normid.val('');
+          $normid.removeClass('valid_value').removeClass('invalid_value');
+          $normtxt.val('');
+
+          // fill if found (NOTE: only shows last on multiple)
+          $.each(span ? span.normalizations : [], function(normNo, norm) {
+            // stored as array (sorry)
+            var refdb = norm[0], refid = norm[1], reftext = norm[2];
+            $normid.val(refid);
+            $normtxt.val(reftext);
+            // just assume the ID is valid (TODO: check)
+            $normid.addClass('valid_value')
           });
         }
 
@@ -606,7 +618,9 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#clear_notes_button').click(clearSpanNotes);
 
       var clearSpanNorm = function(evt) {
-        alert("Not implemented yet (sorry!)");
+        $('#span_norm_id').val('');
+        $('#span_norm_id').removeClass('valid_value').removeClass('invalid_value');
+        $('#span_norm_txt').val('');
       }
       $('#clear_norm_button').button();
       $('#clear_norm_button').click(clearSpanNorm);
@@ -638,9 +652,10 @@ var AnnotatorUI = (function($, window, undefined) {
         var key = $(this).val();
         var db = $('#span_norm_db').val();
         if (key != oldSpanNormIdValue) {
-          if (key == '') {
-            // don't query empties, just clear style
+          if (key.match(/^\s*$/)) {
+            // don't query empties, just clear style and ref
             $(this).removeClass('valid_value').removeClass('invalid_value');
+            $('#span_norm_txt').val('');
           } else {
             dispatcher.post('ajax', [ {
                             action: 'normGetName',
@@ -1604,7 +1619,10 @@ var AnnotatorUI = (function($, window, undefined) {
         var normDb = $('#span_norm_db').val();
         var normId = $('#span_norm_id').val();
         var normTxt = $('#span_norm_txt').val();
-        normalizations.push([normDb, normId, normTxt]);
+        // empty ID -> no normalization
+        if (!normId.match(/^\s*$/)) {
+          normalizations.push([normDb, normId, normTxt]);
+        }
         spanOptions.normalizations = $.toJSON(normalizations);
 
         // unfocus all elements to prevent focus being kept after

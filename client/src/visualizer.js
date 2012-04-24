@@ -62,6 +62,7 @@ var Visualizer = (function($, window, undefined) {
       this.attributeCues = {};
       this.attributeCueFor = {};
       this.attributeMerge = {}; // for box, cross, etc. that are span-global
+      this.normalizations = [];
     };
 
     Span.prototype.copy = function(id) {
@@ -501,18 +502,21 @@ var Visualizer = (function($, window, undefined) {
 	  var reftext = norm[5];
 
 	  // grab entity / event the normalization applies to
-	  var normAnn = data.spans[target];
-          if (!normAnn) {
+	  var span = data.spans[target];
+          if (!span) {
             dispatcher.post('messages', [[['Annotation ' + target + ', referenced from normalization ' + id + ', does not exist.', 'error']]]);
             return;
           }
 
+	  // TODO: do we have any possible use for the normType?
+	  span.normalizations.push([refdb, refid, reftext]);
+
 	  // quick initial norm visualization: just add to comment text
-	  if (!normAnn.comment) {
-	    normAnn.comment = { type: normType, text: reftext };
+	  if (!span.comment) {
+	    span.comment = { type: normType, text: reftext };
 	  } else {
-	    normAnn.comment.type = normType
-	    normAnn.comment.text += "\n" + reftext;
+	    span.comment.type = normType
+	    span.comment.text += "\n" + reftext;
 	  }
 
         });
