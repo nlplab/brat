@@ -218,6 +218,16 @@ path {
   background-color: #d7e7ee;
 }
 
+.shadow_Normalized {
+  /* fill: #00cc00; */
+  fill: #3aee37;
+}
+#commentpopup.comment_Normalized {
+  /* background-color: #00cc00; */
+  /* background-color: #DAF7DC; */
+  background-color: #d7eee7;
+}
+
 .shadow_AnnotationIncomplete {
   fill: #aaaaaa;
 }
