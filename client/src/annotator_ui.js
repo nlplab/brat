@@ -1419,6 +1419,21 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
+      var setupNormalizationUI = function(response) {
+        var norm_resources = response.normalization_config || [];
+        var $norm_select = $('#span_norm_db');
+        // clear possible existing
+        $norm_select.empty();
+        // fill in new
+        html = [];
+        $.each(norm_resources, function(normNo, norm) {
+          var norm_name = norm[0], norm_url = norm[1], norm_url_base = norm[2];
+          html.push('<option value="'+Util.escapeHTML(norm_name)+'">'+
+                    Util.escapeHTML(norm_name)+'</option>');
+        });
+        $norm_select.html(html.join(''));
+      }
+
       var spanAndAttributeTypesLoaded = function(_spanTypes, 
                                                  _entityAttributeTypes,
                                                  _eventAttributeTypes,
@@ -1833,6 +1848,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('dataReady', rememberData).
           on('collectionLoaded', rememberSpanSettings).
           on('collectionLoaded', setupTaggerUI).
+          on('collectionLoaded', setupNormalizationUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('newSourceData', onNewSourceData).
           on('hideForm', hideForm).
