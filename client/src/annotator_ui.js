@@ -807,6 +807,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // TODO: support for two (or more) dialogs open at the same time
         // so we don't need to hide this before showing normSearchDialog
         dispatcher.post('hideForm');
+        $('#norm_search_button').val('Search ' + $('#span_norm_db').val());
         dispatcher.post('showForm', [normSearchDialog]);
       }
       $('#span_norm_txt').click(showNormSearchDialog);
