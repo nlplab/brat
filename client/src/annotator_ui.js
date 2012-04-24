@@ -43,6 +43,10 @@ var AnnotatorUI = (function($, window, undefined) {
       // for double-click selection simulation hack
       var lastDoubleClickedChunkId = null;
 
+      // for normalization: URLs bases by norm DB name
+      var normDbUrlByDbName = {};
+      var normDbUrlBaseByDbName = {};
+
       that.user = null;
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
@@ -425,21 +429,24 @@ var AnnotatorUI = (function($, window, undefined) {
         // fill normalizations (if any)
         if (!reselectedSpan) {
           // clear first
-          var $normid = $('#span_norm_id');
-          var $normtxt = $('#span_norm_txt');
-          $normid.val('');
-          $normid.removeClass('valid_value').removeClass('invalid_value');
-          $normtxt.val('');
+          clearNormalizationUI();
+
+          var $normId = $('#span_norm_id');
+          var $normText = $('#span_norm_txt');
 
           // fill if found (NOTE: only shows last on multiple)
           $.each(span ? span.normalizations : [], function(normNo, norm) {
             // stored as array (sorry)
             var refdb = norm[0], refid = norm[1], reftext = norm[2];
-            $normid.val(refid);
-            $normtxt.val(reftext);
+            $normId.val(refid);
+            $normText.val(reftext);
             // just assume the ID is valid (TODO: check)
-            $normid.addClass('valid_value')
+            $normId.addClass('valid_value')
           });
+
+          // update links
+          updateNormalizationRefLink();
+          updateNormalizationDbLink();
         }
 
         var showAttributesFor = function(attrTypes, type) {
@@ -618,9 +625,7 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#clear_notes_button').click(clearSpanNotes);
 
       var clearSpanNorm = function(evt) {
-        $('#span_norm_id').val('');
-        $('#span_norm_id').removeClass('valid_value').removeClass('invalid_value');
-        $('#span_norm_txt').val('');
+        clearNormalizationUI();
       }
       $('#clear_norm_button').button();
       $('#clear_norm_button').click(clearSpanNorm);
@@ -645,6 +650,14 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#span_norm_txt').val(response.value);
       }
 
+      // on any change to the normalization DB, clear everything and
+      // update link
+      var spanNormDbUpdate = function(evt) {
+        clearNormalizationUI();
+        updateNormalizationDbLink();
+      }
+      $('#span_norm_db').change(spanNormDbUpdate);
+
       // on any change to the normalization ID, update the text of the
       // reference
       var oldSpanNormIdValue = '';
@@ -653,9 +666,8 @@ var AnnotatorUI = (function($, window, undefined) {
         var db = $('#span_norm_db').val();
         if (key != oldSpanNormIdValue) {
           if (key.match(/^\s*$/)) {
-            // don't query empties, just clear style and ref
-            $(this).removeClass('valid_value').removeClass('invalid_value');
-            $('#span_norm_txt').val('');
+            // don't query empties, just clear instead
+            clearNormalizationUI();
           } else {
             dispatcher.post('ajax', [ {
                             action: 'normGetName',
@@ -1427,9 +1439,12 @@ var AnnotatorUI = (function($, window, undefined) {
         // fill in new
         html = [];
         $.each(norm_resources, function(normNo, norm) {
-          var norm_name = norm[0], norm_url = norm[1], norm_url_base = norm[2];
-          html.push('<option value="'+Util.escapeHTML(norm_name)+'">'+
-                    Util.escapeHTML(norm_name)+'</option>');
+          var normName = norm[0], normUrl = norm[1], normUrlBase = norm[2];
+          html.push('<option value="'+Util.escapeHTML(normName)+'">'+
+                    Util.escapeHTML(normName)+'</option>');
+          // remember the urls for updates
+          normDbUrlByDbName[normName] = normUrl;
+          normDbUrlBaseByDbName[normName] = normUrlBase;
         });
         $norm_select.html(html.join(''));
         // if we have nothing, just hide the whole thing
@@ -1438,6 +1453,61 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           $('#norm_fieldset').show();
         }
+      }
+
+      // updates the reference link in the normalization UI according
+      // to the current value of the normalization DB and ID.
+      var updateNormalizationRefLink = function() {
+        var $normId = $('#span_norm_id');
+        var $normLink = $('#span_norm_ref_link');
+        var normId = $normId.val();
+        if (!normId || normId.match(/^\s*$/)) {
+          $normLink.hide();
+        } else {
+          var $normDb = $('#span_norm_db');
+          var normDb = $normDb.val();
+          var base = normDbUrlBaseByDbName[normDb];
+          // assume hidden unless everything goes through
+          $normLink.hide();
+          if (!base) {
+            dispatcher.post('messages', [[['No base URL for '+normDb, 'error']]]);
+          } else if (base.indexOf('%s') == -1) {
+            dispatcher.post('messages', [[['Base URL "'+base+'" for '+normDb+' does not contain "%s"', 'error']]]);
+          } else {
+            // TODO: protect against strange chars in ID
+            link = base.replace('%s', normId);
+            $normLink.attr('href', link);
+            $normLink.show();
+          }
+        }
+      }
+
+      // updates the DB search link in the normalization UI according
+      // to the current value of the normalization DB.
+      var updateNormalizationDbLink = function() {
+        var $dbLink = $('#span_norm_db_link');
+        var $normDb = $('#span_norm_db');
+        var normDb = $normDb.val();
+        var link = normDbUrlByDbName[normDb];
+        if (!link || link.match(/^\s*$/)) {
+          dispatcher.post('messages', [[['No URL for '+normDb, 'error']]]);
+          $dbLink.hide();
+        } else {
+          // TODO: protect against weirdness in DB link
+          $dbLink.attr('href', link);
+          $dbLink.show();
+        }
+      }
+
+      // resets all normalization-related UI elements to a blank
+      // state
+      var clearNormalizationUI = function() {
+        var $normId = $('#span_norm_id');
+        var $normText = $('#span_norm_txt');
+        $normId.val('');
+        $normId.removeClass('valid_value').removeClass('invalid_value');
+        $normText.val('');
+        updateNormalizationRefLink();
       }
 
       var spanAndAttributeTypesLoaded = function(_spanTypes, 
@@ -1642,10 +1712,10 @@ var AnnotatorUI = (function($, window, undefined) {
         var normalizations = [];
         var normDb = $('#span_norm_db').val();
         var normId = $('#span_norm_id').val();
-        var normTxt = $('#span_norm_txt').val();
+        var normText = $('#span_norm_txt').val();
         // empty ID -> no normalization
         if (!normId.match(/^\s*$/)) {
-          normalizations.push([normDb, normId, normTxt]);
+          normalizations.push([normDb, normId, normText]);
         }
         spanOptions.normalizations = $.toJSON(normalizations);
 
