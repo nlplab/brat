@@ -51,6 +51,14 @@ before running this script.
 """
     sys.exit(1)
 
+# Normalization DB version lookup string and value (for compatibility
+# checks)
+NORM_DB_STRING = 'NORM_DB_VERSION'
+NORM_DB_VERSION = '1.0.1'
+
+# Normalization option lookup strings
+NORM_DB_LOWERCASE = 'NORM_DB_LOWERCASE'
+
 # Default filename extension of the database
 DB_FILENAME_EXTENSION = 'kvdb'
 
@@ -116,6 +124,13 @@ def main(argv):
         bwdb = pytc.HDB()
         fwdb.open(fwdbfn, pytc.HDBOWRITER | pytc.HDBOREADER | pytc.HDBOCREAT)
         bwdb.open(bwdbfn, pytc.HDBOWRITER | pytc.HDBOREADER | pytc.HDBOCREAT)
+
+        # store special values in the "forward" DB identifying version
+        # and settings. The keys for these start with the separator,
+        # which should guarantee they will never clash with any other
+        # entry.
+        fwdb.put(DB_KEY_SEPARATOR+NORM_DB_STRING, NORM_DB_VERSION)
+        fwdb.put(DB_KEY_SEPARATOR+NORM_DB_LOWERCASE, str(arg.lowercase))
 
         for i, l in enumerate(kvf):
             l = l.rstrip('\n')

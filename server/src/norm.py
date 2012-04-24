@@ -6,11 +6,24 @@
 Normalization support.
 '''
 
+NORM_LOOKUP_DEBUG = True
+
 # Note: we only import DB support on invocation to avoid making the DB
 # a required dependency.
 
+# debugging
+def _check_DB_version(database):
+    import fbkvdb
+    if not fbkvdb.check_version(database):
+        from message import Messager
+        Messager.warning("Warning: norm DB version mismatch: expected %s, got %s for %s" % (fbkvdb.NORM_DB_VERSION, fbkvdb.get_version(database), database))
+
 def norm_get_name(database, key):
     import fbkvdb
+
+    if NORM_LOOKUP_DEBUG:
+        _check_DB_version(database)
+
     try:
         pairs = fbkvdb.get_pairs(database, key)
         # the first string is the name
@@ -28,6 +41,10 @@ def norm_get_name(database, key):
 
 def norm_get_ids(database, name):
     import fbkvdb
+
+    if NORM_LOOKUP_DEBUG:
+        _check_DB_version(database)
+
     try:
         keys = fbkvdb.get_keys(database, name)
     except KeyError:
@@ -43,6 +60,9 @@ def norm_get_ids(database, name):
 
 def norm_search(database, name):
     import fbkvdb
+
+    if NORM_LOOKUP_DEBUG:
+        _check_DB_version(database)
 
     # get all keys by name
     try:
