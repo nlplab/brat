@@ -696,6 +696,11 @@ var AnnotatorUI = (function($, window, undefined) {
           open: function(evt) {
             keymap = {};
           },
+          close: function(evt) {
+            // assume that we always want to return to the span dialog
+            // on normalization dialog close
+            dispatcher.post('showForm', [spanForm]);
+          },
       });
       var normSearchSubmit = function(evt) {
         var selectedId = $('#norm_search_id').val(); 
@@ -708,7 +713,6 @@ var AnnotatorUI = (function($, window, undefined) {
         // Switch dialogs. NOTE: assuming we closed the spanForm when
         // bringing up the normSearchDialog.
         normSearchDialog.dialog('close');
-        dispatcher.post('showForm', [spanForm]);
         return false;
       }
       normSearchDialog.submit(normSearchSubmit);
