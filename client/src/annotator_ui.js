@@ -644,8 +644,10 @@ var AnnotatorUI = (function($, window, undefined) {
         $idinput.removeClass('valid_value').removeClass('invalid_value');
         if (response.value === null) {
           $idinput.addClass('invalid_value');
+          hideNormalizationRefLink();
         } else {
           $idinput.addClass('valid_value');
+          updateNormalizationRefLink();
         }
         $('#span_norm_txt').val(response.value);
       }
@@ -697,9 +699,10 @@ var AnnotatorUI = (function($, window, undefined) {
         var selectedTxt = $('#norm_search_query').val();
         $('#span_norm_id').val(selectedId);
         $('#span_norm_txt').val(selectedTxt);
+        updateNormalizationRefLink();
+        // Switch dialogs. NOTE: assuming we closed the spanForm when
+        // bringing up the normSearchDialog.
         normSearchDialog.dialog('close');
-        // NOTE: assuming we closed the spanForm when bringing up
-        // the normSearchDialog.
         dispatcher.post('showForm', [spanForm]);
         return false;
       }
@@ -1453,6 +1456,11 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           $('#norm_fieldset').show();
         }
+      }
+
+      // hides the reference link in the normalization UI
+      var hideNormalizationRefLink = function() {
+        $('#span_norm_ref_link').hide();
       }
 
       // updates the reference link in the normalization UI according
