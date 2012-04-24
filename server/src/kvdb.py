@@ -18,8 +18,17 @@ try:
     environ['PYTHON_EGG_CACHE'] = WORK_DIR
     import pytc
 except ImportError:
-    # TODO: this is not really a good way to communicate this problem.
-    print >> sys.stderr, """Error: brat failed to import pytc, the Tokyo Cabinet python bindings.
+    try:
+        from sys import path as sys_path
+        from os.path import join as path_join
+        from os.path import dirname
+        # XXX hack; someone fix to work more generally
+        sys_path.append(path_join(dirname(__file__),
+                                  '../lib/pytc-0.8'))
+        import pytc
+    except ImportError:
+        # TODO: this is not really a good way to communicate this problem.
+        print >> sys.stderr, """Error: brat failed to import pytc, the Tokyo Cabinet python bindings.
 
 Tokyo Cabinet and pytc are required for brat key:value DBs.
 Please make sure that you have installed Tokyo Cabinet
@@ -32,7 +41,7 @@ and pytc
 
 before using the key:value database.
 """
-    raise
+        raise
 
 # the filename extension used for key:value DBs.
 DB_FILENAME_EXTENSION = 'kvdb'
