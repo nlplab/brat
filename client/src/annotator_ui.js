@@ -433,6 +433,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // clear first
           clearNormalizationUI();
 
+          var $normDb = $('#span_norm_db');
           var $normId = $('#span_norm_id');
           var $normText = $('#span_norm_txt');
 
@@ -440,6 +441,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $.each(span ? span.normalizations : [], function(normNo, norm) {
             // stored as array (sorry)
             var refDb = norm[0], refId = norm[1], refText = norm[2];
+            $normDb.val(refDb);
             $normId.val(refId);
             // don't forget to update this reference value
             oldSpanNormIdValue = refId
