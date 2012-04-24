@@ -1432,6 +1432,12 @@ var AnnotatorUI = (function($, window, undefined) {
                     Util.escapeHTML(norm_name)+'</option>');
         });
         $norm_select.html(html.join(''));
+        // if we have nothing, just hide the whole thing
+        if (!norm_resources.length) {
+          $('#norm_fieldset').hide();
+        } else {
+          $('#norm_fieldset').show();
+        }
       }
 
       var spanAndAttributeTypesLoaded = function(_spanTypes, 
