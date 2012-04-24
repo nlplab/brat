@@ -730,6 +730,14 @@ var AnnotatorUI = (function($, window, undefined) {
           return false;
         }
 
+        if (response.items.length == 0) {
+          // no results
+          $('#norm_search_result_select thead').empty();
+          $('#norm_search_result_select tbody').empty();
+          dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
+          return false;
+        }
+
         // TODO: avoid code duplication with showFileBrowser()
 
         var html = ['<tr>'];
