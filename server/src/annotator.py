@@ -425,23 +425,19 @@ def _set_attributes(ann_obj, ann, attributes, mods, undo_resp={}):
 
 # To unshadow Python internals like "type" and "id"
 def create_span(collection, document, start, end, type, attributes=None,
-        id=None, comment=None):
+                normalizations=None, id=None, comment=None):
     return _create_span(collection, document, start, end, type, attributes,
-            id, comment)
+                        normalizations, id, comment)
 
-#TODO: ONLY determine what action to take! Delegate to Annotations!
-def _create_span(collection, document, start, end, _type, attributes=None,
-        _id=None, comment=None):
-    directory = collection
-    undo_resp = {}
-
+# helper for _create_span
+def _parse_span_attributes(attributes):
     if attributes is None:
         _attributes = {}
     else:
         try:
             _attributes =  json_loads(attributes)
         except ValueError:
-            # Failed to parse attributes, warn the client
+            # Failed to parse, warn the client
             Messager.warning((u'Unable to parse attributes string "%s" for '
                     u'"createSpan", ignoring attributes for request and '
                     u'assuming no attributes set') % (attributes, ))
@@ -456,6 +452,32 @@ def _create_span(collection, document, start, end, _type, attributes=None,
         for _revalue in [k for k, v in _attributes.items() if v == True]:
             _attributes[_revalue] = True
         ###
+    return _attributes
+
+# helper for _create_span
+def _parse_span_normalizations(normalizations):
+    if normalizations is None:
+        _normalizations = {}
+    else:
+        try:
+            _normalizations = json_loads(normalizations)
+        except ValueError:
+            # Failed to parse, warn the client
+            Messager.warning((u'Unable to parse normalizations string "%s" for '
+                    u'"createSpan", ignoring normalizations for request and '
+                    u'assuming no normalizations set') % (normalizations, ))
+            _normalizations = {}
+
+    return _normalizations
+
+#TODO: ONLY determine what action to take! Delegate to Annotations!
+def _create_span(collection, document, start, end, _type, attributes=None,
+                 normalizations=None, _id=None, comment=None):
+    directory = collection
+    undo_resp = {}
+
+    _attributes = _parse_span_attributes(attributes)
+    _normalizations = _parse_span_normalizations(normalizations)
 
     #log_info('ATTR: %s' %(_attributes, ))
 
