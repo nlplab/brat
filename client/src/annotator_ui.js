@@ -696,6 +696,11 @@ var AnnotatorUI = (function($, window, undefined) {
           open: function(evt) {
             keymap = {};
           },
+          close: function(evt) {
+            // assume that we always want to return to the span dialog
+            // on normalization dialog close
+            dispatcher.post('showForm', [spanForm]);
+          },
       });
       var normSearchSubmit = function(evt) {
         var selectedId = $('#norm_search_id').val(); 
@@ -708,7 +713,6 @@ var AnnotatorUI = (function($, window, undefined) {
         // Switch dialogs. NOTE: assuming we closed the spanForm when
         // bringing up the normSearchDialog.
         normSearchDialog.dialog('close');
-        dispatcher.post('showForm', [spanForm]);
         return false;
       }
       normSearchDialog.submit(normSearchSubmit);
@@ -727,6 +731,14 @@ var AnnotatorUI = (function($, window, undefined) {
         if (response.exception) {
           // TODO: better response to failure
           dispatcher.post('messages', [[['Lookup error', 'warning', -1]]]);
+          return false;
+        }
+
+        if (response.items.length == 0) {
+          // no results
+          $('#norm_search_result_select thead').empty();
+          $('#norm_search_result_select tbody').empty();
+          dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
           return false;
         }
 
