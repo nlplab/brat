@@ -668,6 +668,9 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#span_norm_id').val(selectedId);
         $('#span_norm_txt').val(selectedTxt);
         normSearchDialog.dialog('close');
+        // NOTE: assuming we closed the spanForm when bringing up
+        // the normSearchDialog.
+        dispatcher.post('showForm', [spanForm]);
         return false;
       }
       normSearchDialog.submit(normSearchSubmit);
@@ -737,6 +740,9 @@ var AnnotatorUI = (function($, window, undefined) {
         // blank the table
         $('#norm_search_result_select thead').empty();
         $('#norm_search_result_select tbody').empty();        
+        // TODO: support for two (or more) dialogs open at the same time
+        // so we don't need to hide this before showing normSearchDialog
+        dispatcher.post('hideForm');
         dispatcher.post('showForm', [normSearchDialog]);
       }
       $('#span_norm_txt').click(showNormSearchDialog);
