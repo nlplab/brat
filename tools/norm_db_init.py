@@ -139,6 +139,8 @@ def main(argv):
                     # and use default (backward compatibility)
                     if ':' not in pair and i == 0:
                         label, string = 'Term', pair
+                        # patch "rest" too (sorry)
+                        rest = 'Term:'+rest
                     else:
                         label, string = pair.split(':', 1)
                     pairs.append((label, string))
