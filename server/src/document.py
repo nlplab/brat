@@ -398,6 +398,9 @@ def get_search_config(directory):
 def get_disambiguator_config(directory):
     return ProjectConfiguration(directory).get_disambiguator_config()
 
+def get_normalization_config(directory):
+    return ProjectConfiguration(directory).get_normalization_config()
+
 def get_annotator_config(directory):
     # TODO: "annotator" is a very confusing term for a web service
     # that does automatic annotation in the context of a tool
@@ -517,6 +520,9 @@ def get_directory_information(collection):
     # ... and the disambiguator config ... this is getting a bit much
     disambiguator_config = get_disambiguator_config(real_dir)
 
+    # ... and the normalization config (TODO: rethink)
+    normalization_config = get_normalization_config(real_dir)
+
     # read in README (if any) to send as a description of the
     # collection
     try:
@@ -547,6 +553,7 @@ def get_directory_information(collection):
             'description': readme_text,
             'search_config': search_config,
             'disambiguator_config' : disambiguator_config,
+            'normalization_config' : normalization_config,
             'annotation_logging': ann_logging,
             'ner_taggers': ner_taggers,
             }

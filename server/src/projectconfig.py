@@ -51,9 +51,10 @@ __optional_visual_sections = []
 SEARCH_SECTION     = "search"
 ANNOTATORS_SECTION = "annotators"
 DISAMBIGUATORS_SECTION = "disambiguators"
+NORMALIZATION_SECTION = "normalization"
 
-__expected_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION)
-__optional_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION)
+__expected_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
+__optional_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
 
 # special relation type for marking which entities can nest
 ENTITY_NESTING_TYPE = "ENTITY-NESTING"
@@ -118,7 +119,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "GLYPH-POS", "DEFAULT"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBase", "GLYPH-POS", "DEFAULT"]
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
@@ -657,7 +658,8 @@ def get_visual_configs(directory):
 __minimal_tools = {
     SEARCH_SECTION     : [TypeHierarchyNode(["google"], ["<URL>:http://www.google.com/search?q=%s"])],
     ANNOTATORS_SECTION : [],
-    DISAMBIGUATORS_SECTION : []
+    DISAMBIGUATORS_SECTION : [],
+    NORMALIZATION_SECTION : [],
     }
 
 def get_tools_configs(directory):
@@ -716,6 +718,9 @@ def get_annotator_config(directory):
 
 def get_disambiguator_config(directory):
     return get_tools_configs(directory)[DISAMBIGUATORS_SECTION]
+
+def get_normalization_config(directory):
+    return get_tools_configs(directory)[NORMALIZATION_SECTION]
 
 def get_access_control(directory):
     cache = get_access_control.__cache
@@ -810,6 +815,13 @@ def get_disambiguator_config_list(directory):
         cache[directory] = __type_hierarchy_to_list(get_disambiguator_config(directory))
     return cache[directory]
 get_disambiguator_config_list.__cache = {}    
+
+def get_normalization_config_list(directory):
+    cache = get_normalization_config_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_normalization_config(directory))
+    return cache[directory]
+get_normalization_config_list.__cache = {}    
 
 def get_node_by_storage_form(directory, term):
     cache = get_node_by_storage_form.__cache
@@ -1244,7 +1256,7 @@ class ProjectConfiguration(object):
         return search_config
 
     def _get_tool_config(self, tool_list):
-        disambiguator_config = []
+        tool_config = []
         for r in tool_list:
             if '<URL>' not in r.special_arguments:
                 Messager.warning('Project configuration: config error: missing <URL> specification for %s.' % r.storage_form())
@@ -1255,11 +1267,11 @@ class ProjectConfiguration(object):
             if 'model' not in r.arguments:
                 Messager.warning('Project configuration: config error: missing model name ("model") for %s.' % r.storage_form())
                 continue
-            disambiguator_config.append((r.storage_form(),
-                                         r.arguments['tool'][0],
-                                         r.arguments['model'][0],
-                                         r.special_arguments['<URL>'][0]))
-        return disambiguator_config
+            tool_config.append((r.storage_form(),
+                                r.arguments['tool'][0],
+                                r.arguments['model'][0],
+                                r.special_arguments['<URL>'][0]))
+        return tool_config
 
     def get_disambiguator_config(self):
         tool_list = get_disambiguator_config_list(self.directory)
@@ -1272,6 +1284,21 @@ class ProjectConfiguration(object):
         tool_list = get_annotator_config_list(self.directory)
         return self._get_tool_config(tool_list)
 
+    def get_normalization_config(self):
+        norm_list = get_normalization_config_list(self.directory)
+        norm_config = []
+        for n in norm_list:
+            if '<URL>' not in n.special_arguments:
+                Messager.warning('Project configuration: config error: missing <URL> specification for %s.' % n.storage_form())
+                continue
+            if '<URLBase>' not in n.special_arguments:
+                Messager.warning('Project configuration: config error: missing <URLBase> specification for %s.' % n.storage_form())
+                continue
+            norm_config.append((n.storage_form(),
+                                n.special_arguments['<URL>'][0],
+                                n.special_arguments['<URLBase>'][0]))
+        return norm_config
+        
     def get_entity_types(self):
         return [t.storage_form() for t in get_entity_type_list(self.directory)]
 
