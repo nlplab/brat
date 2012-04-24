@@ -227,6 +227,9 @@ path {
   /* background-color: #DAF7DC; */
   background-color: #d7eee7;
 }
+rect.Normalized {
+  stroke-width: 1.5;
+}
 
 .shadow_AnnotationIncomplete {
   fill: #aaaaaa;

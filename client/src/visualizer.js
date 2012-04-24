@@ -524,6 +524,8 @@ var Visualizer = (function($, window, undefined) {
 // 	  // TODO: this probably won't work for normalizations attached
 // 	  // to event annotations; fix
 // 	  span.shadowClass = 'Normalized';
+	  // alternate attempt
+	  span.normalized = 'Normalized';
         });
 
         // prepare span boundaries for token containment testing
@@ -1296,6 +1298,13 @@ Util.profileStart('chunks');
                 'data-span-id': span.id,
                 'strokeDashArray': span.attributeMerge.dashArray,
               });
+	    
+	    // TODO XXX: quick nasty hack to allow normalizations
+	    // to be marked visually; do something cleaner!
+	    if (span.normalized) {
+	      $(span.rect).addClass(span.normalized);
+	    }
+
             span.right = bx + bw; // TODO put it somewhere nicer?
             if (!(span.shadowClass || span.marked)) {
               chunkFrom = Math.min(bx, chunkFrom);
