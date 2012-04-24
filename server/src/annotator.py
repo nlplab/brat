@@ -19,7 +19,8 @@ from os.path import split as path_split
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, EquivAnnotation, open_textfile,
-        AnnotationsIsReadOnlyError, AttributeAnnotation)
+        AnnotationsIsReadOnlyError, AttributeAnnotation, 
+        NormalizationAnnotation)
 try:
     from config import DEBUG
 except ImportError:
@@ -423,6 +424,50 @@ def _set_attributes(ann_obj, ann, attributes, mods, undo_resp={}):
             ann_obj.add_annotation(new_attr)
             mods.addition(new_attr)
 
+def _set_normalizations(ann_obj, ann, normalizations, mods, undo_resp={}):
+    # Find existing normalizations (if any)
+    existing_norm_anns = set((a for a in ann_obj.get_attributes()
+            if a.target == ann.id))
+
+    # Note the existing annotations for undo
+    undo_resp['normalizations'] = json_dumps([(n.refdb, n.refid, n.reftext)
+                                              for n in existing_norm_anns])
+
+    # Organize into dictionaries for easier access
+    old_norms = dict([((n.refdb,n.refid),n) for n in existing_norm_anns])
+    new_norms = dict([((n[0],n[1]), n[2]) for n in normalizations])
+
+    #Messager.info("Old norms: "+str(old_norms))
+    #Messager.info("New norms: "+str(new_norms))
+
+    # Process deletions and updates of existing normalizations
+    for old_norm_id, old_norm in old_norms.items():
+        if old_norm_id not in new_norms:
+            # Delete IDs that were referenced previously but not anymore
+            ann_obj.del_annotation(old_norm)
+            mods.deletion(old_norm)
+        else:
+            # If the text value of the normalizations is different, update
+            # (this shouldn't happen on a stable norm DB, but anyway)
+            new_reftext = new_norms[old_norm_id]
+            if old_norm.reftext != new_reftext:
+                old = unicode(old_norm)
+                old_norm.reftext = new_reftext
+                mods.change(old, old_norm)
+
+    # Process new normalizations
+    for new_norm_id, new_reftext in new_norms.items():
+        if new_norm_id not in old_norms:
+            new_id = ann_obj.get_new_id('N')
+            # TODO: avoid magic string value
+            norm_type = u'Reference'
+            new_norm = NormalizationAnnotation(new_id, norm_type,
+                                               ann.id, new_norm_id[0],
+                                               new_norm_id[1],
+                                               u'\t'+new_reftext)
+            ann_obj.add_annotation(new_norm)
+            mods.addition(new_norm)
+
 # To unshadow Python internals like "type" and "id"
 def create_span(collection, document, start, end, type, attributes=None,
                 normalizations=None, id=None, comment=None):
@@ -524,7 +569,9 @@ def _create_span(collection, document, start, end, _type, attributes=None,
         _set_attributes(ann_obj, target_ann, _attributes, mods,
                         undo_resp=undo_resp)
 
-        # Set normalizations (TODO)
+        # Set normalizations
+        _set_normalizations(ann_obj, target_ann, _normalizations, mods,
+                            undo_resp=undo_resp)
 
         # Handle annotation comments
         if tb_ann is not None:
