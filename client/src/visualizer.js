@@ -519,10 +519,11 @@ var Visualizer = (function($, window, undefined) {
 	    span.comment.text += "\n" + reftext;
 	  }
 
-	  // quick hack for shadow class
-	  // TODO: this probably won't work for normalizations attached
-	  // to event annotations; fix
-	  span.shadowClass = 'Normalized';
+	  // this wasn't favored
+// 	  // quick hack for shadow class
+// 	  // TODO: this probably won't work for normalizations attached
+// 	  // to event annotations; fix
+// 	  span.shadowClass = 'Normalized';
         });
 
         // prepare span boundaries for token containment testing
