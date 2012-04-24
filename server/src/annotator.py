@@ -512,26 +512,25 @@ def _create_span(collection, document, start, end, _type, attributes=None,
             else:
                 undo_resp['id'] = tb_ann.id
 
-        # Set annotation attributes
+        # Determine which annotation attributes, normalizations,
+        # comments etc. should be attached to. If there's an event,
+        # attach to that; otherwise attach to the textbound.
         if e_ann is not None:
-            # Assign attributes to the event, not the trigger
-            _set_attributes(ann_obj, e_ann, _attributes, mods,
-                    undo_resp=undo_resp)
+            target_ann = e_ann
         else:
-            _set_attributes(ann_obj, tb_ann, _attributes, mods,
-                    undo_resp=undo_resp)
+            target_ann = tb_ann
+
+        # Set annotation attributes
+        _set_attributes(ann_obj, target_ann, _attributes, mods,
+                        undo_resp=undo_resp)
+
+        # Set normalizations (TODO)
 
         # Handle annotation comments
         if tb_ann is not None:
-            # If this is an event, we want to attach the comment to it
-            if e_ann is not None:
-                comment_on = e_ann
-            else:
-                comment_on = tb_ann
-
             # We are only interested in id;ed comments
             try:
-                comment_on.id
+                target_ann.id
                 has_id = True
             except AttributeError:
                 has_id = False
@@ -540,7 +539,7 @@ def _create_span(collection, document, start, end, _type, attributes=None,
                 # Check if there is already an annotation comment
                 for com_ann in ann_obj.get_oneline_comments():
                     if (com_ann.type == 'AnnotatorNotes'
-                            and com_ann.target == comment_on.id):
+                            and com_ann.target == target_ann.id):
                         found = com_ann
 
                         # Note the comment in the undo
@@ -559,7 +558,7 @@ def _create_span(collection, document, start, end, _type, attributes=None,
                     else:
                         # Create a new comment
                         new_comment = OnelineCommentAnnotation(
-                                comment_on.id, ann_obj.get_new_id('#'),
+                                target_ann.id, ann_obj.get_new_id('#'),
                                 # XXX: Note the ugly tab
                                 u'AnnotatorNotes', u'\t' + comment)
                         ann_obj.add_annotation(new_comment)
