@@ -496,8 +496,9 @@ var Visualizer = (function($, window, undefined) {
 	  var id = norm[0];
 	  var normType = norm[1];
 	  var target = norm[2];
-	  var refid = norm[3];
-	  var reftext = norm[4];
+	  var refdb = norm[3];
+	  var refid = norm[4];
+	  var reftext = norm[5];
 
 	  // grab entity / event the normalization applies to
 	  var normAnn = data.spans[target];

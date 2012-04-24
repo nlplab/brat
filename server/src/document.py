@@ -668,8 +668,9 @@ def _enrich_json_with_data(j_dic, ann_obj):
 
     for norm_ann in ann_obj.get_normalizations():
         j_dic['normalizations'].append(
-                [unicode(norm_ann.id), unicode(norm_ann.type), unicode(norm_ann.target), 
-                 unicode(norm_ann.reference), unicode(norm_ann.reftext)]
+                [unicode(norm_ann.id), unicode(norm_ann.type), 
+                 unicode(norm_ann.target), unicode(norm_ann.refdb), 
+                 unicode(norm_ann.refid), unicode(norm_ann.reftext)]
                 )
 
     for com_ann in ann_obj.get_oneline_comments():

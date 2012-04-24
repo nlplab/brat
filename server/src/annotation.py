@@ -754,12 +754,12 @@ class Annotations(object):
         return TextBoundAnnotation(start, end, _id, _type, data_tail, source_id=input_file_path)
 
     def _parse_normalization_annotation(self, _id, data, data_tail, input_file_path):
-        match = re_match(r'(\S+) (\S+) (\S+)', data)
+        match = re_match(r'(\S+) (\S+) (\S+?):(\S+)', data)
         if match is None:
             raise IdedAnnotationLineSyntaxError(_id, self.ann_line, self.ann_line_num + 1, input_file_path)
-        _type, target, reference = match.groups()
+        _type, target, refdb, refid = match.groups()
 
-        return NormalizationAnnotation(_id, _type, target, reference, data_tail, source_id=input_file_path)
+        return NormalizationAnnotation(_id, _type, target, refdb, refid, data_tail, source_id=input_file_path)
 
     def _parse_comment_annotation(self, _id, data, data_tail, input_file_path):
         try:
@@ -1247,19 +1247,21 @@ class AttributeAnnotation(IdedAnnotation):
         return [self.target]
 
 class NormalizationAnnotation(IdedAnnotation):
-    def __init__(self, _id, _type, target, reference, tail, source_id=None):
+    def __init__(self, _id, _type, target, refdb, refid, tail, source_id=None):
         IdedAnnotation.__init__(self, _id, _type, tail, source_id=source_id)
         self.target = target
-        self.reference = reference
+        self.refdb = refdb
+        self.refid = refid
         # "human-readable" text of referenced ID (optional)
         self.reftext = tail.lstrip('\t').rstrip('\n')
 
     def __str__(self):
-        return u'%s\t%s %s %s%s' % (
+        return u'%s\t%s %s %s:%s%s' % (
                 self.id,
                 self.type,
                 self.target,
-                self.reference,
+                self.refdb,
+                self.refid,
                 self.tail,
                 )
 
