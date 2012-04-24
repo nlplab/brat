@@ -18,7 +18,10 @@
 # P01258  Protein:Calcitonin      Organism:Human
 # P01257  Protein:Calcitonin      Organism:Rat
 
-# This script created the following databases:
+# (an alternate format where the second TAB-separated field does not
+# have a LABEL is also supported for backward compatibility.)
+
+# This script creates the following databases:
 
 # - NAME.fw.kvdb: key:ID, value:LABEL:STRING
 # - NAME.bw.kvdb: key:STRING value:IDs
@@ -131,8 +134,13 @@ def main(argv):
             # parse LABEL:STRING pairs
             try:
                 pairs = []
-                for pair in rest.split('\t'):
-                    label, string = pair.split(':', 1)
+                for i, pair in enumerate(rest.split('\t')):
+                    # exception: first field to be given without label
+                    # and use default (backward compatibility)
+                    if ':' not in pair and i == 0:
+                        label, string = 'Term', pair
+                    else:
+                        label, string = pair.split(':', 1)
                     pairs.append((label, string))
             except ValueError:
                 if error_count < MAX_ERROR_LINES:
