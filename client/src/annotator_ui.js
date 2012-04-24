@@ -707,7 +707,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var normSearchSubmit = function(evt) {
         var selectedId = $('#norm_search_id').val(); 
         var selectedTxt = $('#norm_search_query').val();
-        if (selectedId.length) {
+        if (normSearchSubmittable) {
           // we got a value; act if it was a submit
           $('#span_norm_id').val(selectedId);
           // don't forget to update this reference value
@@ -722,6 +722,11 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         return false;
       }
+      var normSearchSubmittable = false;
+      var setNormSearchSubmit = function(enable) {
+        $('#norm_search_dialog-ok').button(enable ? 'enable' : 'disable');
+        normSearchSubmittable = enable;
+      };
       normSearchDialog.submit(normSearchSubmit);
       var chooseNormId = function(evt) {
         var $element = $(evt.target).closest('tr');
@@ -729,6 +734,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $element.addClass('selected');
         $('#norm_search_query').val($element.attr('data-txt'));
         $('#norm_search_id').val($element.attr('data-id'));
+        setNormSearchSubmit(true);
       }
       var chooseNormIdAndSubmit = function(evt) {
         chooseNormId(evt);
@@ -789,6 +795,9 @@ var AnnotatorUI = (function($, window, undefined) {
                         name: val}, 'normSearchResult']);
       }
       $('#norm_search_button').click(performNormSearch);
+      $('#norm_search_query').focus(function() {
+        setNormSearchSubmit(false);
+      });
       var showNormSearchDialog = function() {
         // if we already have non-empty ID and normalized string,
         // use these as default; otherwise take default search string
@@ -808,6 +817,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // so we don't need to hide this before showing normSearchDialog
         dispatcher.post('hideForm');
         $('#norm_search_button').val('Search ' + $('#span_norm_db').val());
+        setNormSearchSubmit(false);
         dispatcher.post('showForm', [normSearchDialog]);
       }
       $('#span_norm_txt').click(showNormSearchDialog);
