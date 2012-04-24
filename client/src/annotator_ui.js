@@ -783,10 +783,17 @@ var AnnotatorUI = (function($, window, undefined) {
       }
       $('#norm_search_button').click(performNormSearch);
       var showNormSearchDialog = function() {
-        // take default search string from annotated span
-        $('#norm_search_query').val($('#span_selected').text());
-        // clear ID entry
-        $('#norm_search_id').val('');
+        // if we already have non-empty ID and normalized string,
+        // use these as default; otherwise take default search string
+        // from annotated span and clear ID entry
+        if (!$('#span_norm_id').val().match(/^\s*$/) &&
+            !$('#span_norm_txt').val().match(/^\s*$/)) {
+            $('#norm_search_id').val($('#span_norm_id').val());
+            $('#norm_search_query').val($('#span_norm_txt').val());
+        } else {
+            $('#norm_search_id').val('');
+            $('#norm_search_query').val($('#span_selected').text());
+        }
         // blank the table
         $('#norm_search_result_select thead').empty();
         $('#norm_search_result_select tbody').empty();        
