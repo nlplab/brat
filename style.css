@@ -542,6 +542,14 @@ input.invalid_value {
 #norm_search_result_select tr.selected {
   background-color: #cccccc;
 }
+#norm_search_container {
+  position: relative;
+}
+#norm_search_button {
+  position: absolute;
+  top: -6px;
+  right: -2px;
+}
 
 .comment_id {
   vertical-align: top;

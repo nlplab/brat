@@ -674,12 +674,14 @@
     <form id="norm_search_dialog" class="dialog" title="Search">
       <fieldset>
         <legend>Query</legend>
-        <input id="norm_search_query" placeholder="Query string" class="borderless"/>
-        <input id="norm_search_button" type="button" value="Search"/>
+        <div id="norm_search_container">
+          <input id="norm_search_query" placeholder="Query string" class="borderless"/>
+          <input id="norm_search_button" type="button" value="Search"/>
+        </div>
       </fieldset>
       <fieldset>
         <legend>ID</legend>
-        <input id="norm_search_id" placeholder="Identifier" class="borderless"/>
+        <input id="norm_search_id" placeholder="Identifier" class="borderless" readonly="readonly"/>
       </fieldset>
       <table id="norm_search_result_select" class="ui-widget unselectable">
         <thead class="ui-widget-header"/>
