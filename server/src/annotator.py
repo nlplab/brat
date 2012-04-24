@@ -440,6 +440,13 @@ def _set_normalizations(ann_obj, ann, normalizations, mods, undo_resp={}):
     #Messager.info("Old norms: "+str(old_norms))
     #Messager.info("New norms: "+str(new_norms))
 
+    # sanity check
+    for refdb, refid, refstr in normalizations:
+        # TODO: less aggressive failure
+        assert refdb.strip() != '', "Error: client sent empty norm DB"
+        assert refid.strip() != '', "Error: client sent empty norm ID"
+        # (the reference string is allwed to be empty)
+
     # Process deletions and updates of existing normalizations
     for old_norm_id, old_norm in old_norms.items():
         if old_norm_id not in new_norms:
