@@ -426,7 +426,7 @@ def _set_attributes(ann_obj, ann, attributes, mods, undo_resp={}):
 
 def _set_normalizations(ann_obj, ann, normalizations, mods, undo_resp={}):
     # Find existing normalizations (if any)
-    existing_norm_anns = set((a for a in ann_obj.get_attributes()
+    existing_norm_anns = set((a for a in ann_obj.get_normalizations()
             if a.target == ann.id))
 
     # Note the existing annotations for undo
