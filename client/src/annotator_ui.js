@@ -707,14 +707,19 @@ var AnnotatorUI = (function($, window, undefined) {
       var normSearchSubmit = function(evt) {
         var selectedId = $('#norm_search_id').val(); 
         var selectedTxt = $('#norm_search_query').val();
-        $('#span_norm_id').val(selectedId);
-        // don't forget to update this reference value
-        oldSpanNormIdValue = selectedId;
-        $('#span_norm_txt').val(selectedTxt);
-        updateNormalizationRefLink();
-        // Switch dialogs. NOTE: assuming we closed the spanForm when
-        // bringing up the normSearchDialog.
-        normSearchDialog.dialog('close');
+        if (selectedId.length) {
+          // we got a value; act if it was a submit
+          $('#span_norm_id').val(selectedId);
+          // don't forget to update this reference value
+          oldSpanNormIdValue = selectedId;
+          $('#span_norm_txt').val(selectedTxt);
+          updateNormalizationRefLink();
+          // Switch dialogs. NOTE: assuming we closed the spanForm when
+          // bringing up the normSearchDialog.
+          normSearchDialog.dialog('close');
+        } else {
+          performNormSearch();
+        }
         return false;
       }
       normSearchDialog.submit(normSearchSubmit);

@@ -36,7 +36,16 @@ from os.path import dirname, basename, splitext, join
 try:
     import pytc
 except ImportError:
-    print >> sys.stderr, """Error: failed to import pytc, the Tokyo Cabinet python bindings.
+    try:
+        from sys import path as sys_path
+        from os.path import join as path_join
+        from os.path import dirname
+        # XXX hack; someone fix to work more generally
+        sys_path.append(path_join(dirname(__file__),
+                                  '../server/lib/pytc-0.8'))
+        import pytc
+    except ImportError:
+        print >> sys.stderr, """Error: failed to import pytc, the Tokyo Cabinet python bindings.
 
 Tokyo Cabinet and pytc are required for brat key:value DBs.
 Please make sure that you have installed Tokyo Cabinet
@@ -49,7 +58,7 @@ and pytc
 
 before running this script.
 """
-    sys.exit(1)
+        sys.exit(1)
 
 # Normalization DB version lookup string and value (for compatibility
 # checks)
