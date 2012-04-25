@@ -27,6 +27,10 @@ var AnnotatorUI = (function($, window, undefined) {
       var allAttributeTypes = null; // TODO: temp workaround, remove
       var relationTypesHash = null;
       var showValidAttributes; // callback function
+      var dragStartedAt = null;
+      var selRect = null;
+      var lastStartRec = null;
+      var lastEndRec = null;
 
       var draggedArcHeight = 30;
 
@@ -56,6 +60,28 @@ var AnnotatorUI = (function($, window, undefined) {
       var hideForm = function() {
         keymap = null;
         rapidAnnotationDialogVisible = false;
+      };
+
+      var clearSelection = function() {
+        window.getSelection().removeAllRanges();
+        if (selRect != null) {
+          for(var s=0; s != selRect.length; s++) {
+            selRect[s].parentNode.removeChild(selRect[s]);
+          }
+          selRect = null;
+          lastStartRec = null;
+          lastEndRec = null;
+        }
+      };
+
+      var makeSelRect = function(rx, ry, rw, rh, col) {
+        var selRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        selRect.setAttributeNS(null, "width", rw);
+        selRect.setAttributeNS(null, "height", rh);
+        selRect.setAttributeNS(null, "x", rx);
+        selRect.setAttributeNS(null, "y", ry);
+        selRect.setAttributeNS(null, "fill", col == undefined ? "lightblue" : col);
+        return selRect;
       };
 
       var onKeyDown = function(evt) {
@@ -115,7 +141,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // do we edit an arc?
         if (id = target.attr('data-arc-role')) {
           // TODO
-          window.getSelection().removeAllRanges();
+          clearSelection();
           var originSpanId = target.attr('data-arc-origin');
           var targetSpanId = target.attr('data-arc-target');
           var type = target.attr('data-arc-role');
@@ -149,7 +175,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // if not an arc, then do we edit a span?
         } else if (id = target.attr('data-span-id')) {
-          window.getSelection().removeAllRanges();
+          clearSelection();
           editedSpan = data.spans[id];
           spanOptions = {
             action: 'createSpan',
@@ -174,7 +200,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var startArcDrag = function(originId) {
-        window.getSelection().removeAllRanges();
+        clearSelection();
         svgPosition = svgElement.offset();
         arcDragOrigin = originId;
         arcDragArc = svg.path(svg.createPath(), {
@@ -207,6 +233,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var onMouseDown = function(evt) {
+        dragStartedAt = evt; // XXX do we really need the whole evt?
         if (!that.user || arcDragOrigin) return;
         var target = $(evt.target);
         var id;
@@ -238,7 +265,7 @@ var AnnotatorUI = (function($, window, undefined) {
             // $(targetClasses.join(',')).not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
             $targets.not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
           }
-          window.getSelection().removeAllRanges();
+          clearSelection();
           var mx = evt.pageX - svgPosition.left;
           var my = evt.pageY - svgPosition.top + 5; // TODO FIXME why +5?!?
           var y = Math.min(arcDragOriginBox.y, my) - draggedArcHeight;
@@ -249,6 +276,226 @@ var AnnotatorUI = (function($, window, undefined) {
                 mx + dx, y,
                 mx, my);
           arcDragArc.setAttribute('d', path.path());
+        } else {
+          // A. Scerri FireFox chunk
+
+          // if not, then is it span selection? (ctrl key cancels)
+          var sel = window.getSelection();
+          var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
+          var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
+          // fallback for firefox (at least):
+          // it's unclear why, but for firefox the anchor and focus
+          // node parents are always undefined, the the anchor and
+          // focus nodes themselves do (often) have the necessary
+          // chunk ID. However, anchor offsets are almost always
+          // wrong, so we'll just make a guess at what the user might
+          // be interested in tagging instead of using what's given.
+          var anchorOffset = null;
+          var focusOffset = null;
+          if (chunkIndexFrom === undefined && chunkIndexTo === undefined &&
+              $(sel.anchorNode).attr('data-chunk-id') &&
+              $(sel.focusNode).attr('data-chunk-id')) {
+            // Lets take the actual selection range and work with that
+            // Note for visual line up and more accurate positions a vertical offset of 8 and horizontal of 2 has been used!
+            var range = sel.getRangeAt(0);
+            var svgOffset = $(svg._svg).offset();
+            var flip = false;
+            var tries = 0;
+            // First try and match the start offset with a position, if not try it against the other end
+            while (tries < 2) {
+              var sp = svg._svg.createSVGPoint();
+              sp.x = (flip ? evt.pageX : dragStartedAt.pageX) - svgOffset.left;
+              sp.y = (flip ? evt.pageY : dragStartedAt.pageY) - (svgOffset.top + 8);
+              var startsAt = range.startContainer;
+              anchorOffset = startsAt.getCharNumAtPosition(sp);
+              chunkIndexFrom = startsAt && $(startsAt).attr('data-chunk-id');
+              if (anchorOffset != -1) {
+                break;
+              }
+              flip = true;
+              tries++;
+            }
+
+            // Now grab the end offset
+            sp.x = (flip ? dragStartedAt.pageX : evt.pageX) - svgOffset.left;
+            sp.y = (flip ? dragStartedAt.pageY : evt.pageY) - (svgOffset.top + 8);
+            var endsAt = range.endContainer;
+            focusOffset = endsAt.getCharNumAtPosition(sp);
+
+            // If we cannot get a start and end offset stop here
+            if (anchorOffset == -1 || focusOffset == -1) {
+              return;
+            }
+            // If we are in the same container it does the selection back to front when dragged right to left, across different containers the start is the start and the end if the end!
+            if(range.startContainer == range.endContainer && anchorOffset > focusOffset) {
+              var t = anchorOffset;
+              anchorOffset = focusOffset;
+              focusOffset = t;
+              flip = false;
+            }
+            chunkIndexTo = endsAt && $(endsAt).attr('data-chunk-id');
+
+            // Now take the start and end character rectangles
+            startRec = startsAt.getExtentOfChar(anchorOffset);
+            startRec.y += 2;
+            endRec = endsAt.getExtentOfChar(focusOffset);
+            endRec.y += 2;
+
+            // If nothing has changed then stop here
+            if (lastStartRec != null && lastStartRec.x == startRec.x && lastStartRec.y == startRec.y && lastEndRec != null && lastEndRec.x == endRec.x && lastEndRec.y == endRec.y) {
+              return;
+            }
+
+            if (selRect == null) {
+              var rx = startRec.x;
+              var ry = startRec.y;
+              var rw = (endRec.x + endRec.width) - startRec.x;
+              if (rw < 0) {
+                rx += rw;
+                rw = -rw;
+              }
+              var rh = Math.max(startRec.height, endRec.height);
+
+              selRect = new Array();
+              var activeSelRect = makeSelRect(rx, ry, rw, rh);
+              selRect.push(activeSelRect);
+              startsAt.parentNode.parentNode.parentNode.insertBefore(activeSelRect, startsAt.parentNode.parentNode);
+            } else {
+              if (startRec.x != lastStartRec.x && endRec.x != lastEndRec.x && (startRec.y != lastStartRec.y || endRec.y != lastEndRec.y)) {
+                if (startRec.y < lastStartRec.y) {
+                  selRect[0].setAttributeNS(null, "width", lastStartRec.width);
+                  lastEndRec = lastStartRec;
+                } else if (endRec.y > lastEndRec.y) {
+                  selRect[selRect.length - 1].setAttributeNS(null, "x",
+                      parseFloat(selRect[selRect.length - 1].getAttributeNS(null, "x"))
+                      + parseFloat(selRect[selRect.length - 1].getAttributeNS(null, "width"))
+                      - lastEndRec.width);
+                  selRect[selRect.length - 1].setAttributeNS(null, "width", 0);
+                  lastStartRec=lastEndRec;
+                }
+              }
+
+              // Start has moved
+              var flip = !(startRec.x == lastStartRec.x && startRec.y == lastStartRec.y);
+              // If the height of the start or end changed we need to check whether
+              // to remove multi line highlights no longer needed if the user went back towards their start line
+              // and whether to create new ones if we moved to a newline
+              if (((endRec.y != lastEndRec.y)) || ((startRec.y != lastStartRec.y))) {
+                // First check if we have to remove the first highlights because we are moving towards the end on a different line
+                var ss = 0;
+                for (; ss != selRect.length; ss++) {
+                  if (startRec.y <= parseFloat(selRect[ss].getAttributeNS(null, "y"))) {
+                    break;
+                  }
+                }
+                // Next check for any end highlights if we are moving towards the start on a different line
+                var es = selRect.length - 1;
+                for (; es != -1; es--) {
+                  if (endRec.y >= parseFloat(selRect[es].getAttributeNS(null, "y"))) {
+                    break;
+                  }
+                }
+                // TODO put this in loops above, for efficiency the array slicing could be done separate still in single call
+                var trunc = false;
+                if (ss < selRect.length) {
+                  for (var s2 = 0; s2 != ss; s2++) {
+                    selRect[s2].parentNode.removeChild(selRect[s2]);
+                    es--;
+                    trunc = true;
+                  }
+                  selRect = selRect.slice(ss);
+                }
+                if (es > -1) {
+                  for (var s2 = selRect.length - 1; s2 != es; s2--) {
+                    selRect[s2].parentNode.removeChild(selRect[s2]);
+                    trunc = true;
+                  }
+                  selRect = selRect.slice(0, es + 1);
+                }
+
+                // If we have truncated the highlights we need to readjust the last one
+                if (trunc) {
+                  var activeSelRect = flip ? selRect[0] : selRect[selRect.length - 1];
+                  if (flip) {
+                    var rw = 0;
+                    if (startRec.y == endRec.y) {
+                      rw = (endRec.x + endRec.width) - startRec.x;
+                    } else {
+                      rw = (parseFloat(activeSelRect.getAttributeNS(null, "x"))
+                          + parseFloat(activeSelRect.getAttributeNS(null, "width")))
+                          - startRec.x;
+                    }
+                    activeSelRect.setAttributeNS(null, "x", startRec.x);
+                    activeSelRect.setAttributeNS(null, "y", startRec.y);
+                    activeSelRect.setAttributeNS(null, "width", rw);
+                  } else {
+                    var rw = (endRec.x + endRec.width) - parseFloat(activeSelRect.getAttributeNS(null, "x"));
+                    activeSelRect.setAttributeNS(null, "width", rw);
+                  }
+                } else {
+                  // We didnt truncate anything but we have moved to a new line so we need to create a new highlight
+                  var lastSel = flip ? selRect[0] : selRect[selRect.length - 1];
+                  var startBox = startsAt.parentNode.getBBox();
+                  var endBox = endsAt.parentNode.getBBox();
+
+                  if (flip) {
+                    lastSel.setAttributeNS(null, "width",
+                        (parseFloat(lastSel.getAttributeNS(null, "x"))
+                        + parseFloat(lastSel.getAttributeNS(null, "width")))
+                        - endBox.x);
+                    lastSel.setAttributeNS(null, "x", endBox.x);
+                  } else {
+                    lastSel.setAttributeNS(null, "width",
+                        (startBox.x + startBox.width)
+                        - parseFloat(lastSel.getAttributeNS(null, "x")));
+                  }
+                  var rx = 0;
+                  var ry = 0;
+                  var rw = 0;
+                  var rh = 0;
+                  if (flip) {
+                    rx = startRec.x;
+                    ry = startRec.y;
+                    rw = $(svg._svg).width() - startRec.x;
+                    rh = startRec.height;
+                  } else {
+                    rx = endBox.x;
+                    ry = endRec.y;
+                    rw = (endRec.x + endRec.width) - endBox.x;
+                    rh = endRec.height;
+                  }
+                  var newRect = makeSelRect(rx, ry, rw, rh);
+                  if (flip) {
+                    selRect.unshift(newRect);
+                  } else {
+                    selRect.push(newRect);
+                  }
+
+                  // Place new highlight in appropriate slot in SVG graph
+                  startsAt.parentNode.parentNode.parentNode.insertBefore(newRect, startsAt.parentNode.parentNode);
+                }
+              } else {
+                // The user simply moved left or right along the same line so just adjust the current highlight
+                var activeSelRect = flip ? selRect[0] : selRect[selRect.length - 1];
+                // If the start moved shift the highlight and adjust width
+                if (flip) {
+                  var rw = (parseFloat(activeSelRect.getAttributeNS(null, "x"))
+                      + parseFloat(activeSelRect.getAttributeNS(null, "width")))
+                      - startRec.x;
+                  activeSelRect.setAttributeNS(null, "x", startRec.x);
+                  activeSelRect.setAttributeNS(null, "y", startRec.y);
+                  activeSelRect.setAttributeNS(null, "width", rw);
+                } else {
+                  // If the end moved then simple change the width
+                  var rw = (endRec.x + endRec.width)
+                      - parseFloat(activeSelRect.getAttributeNS(null, "x"));
+                  activeSelRect.setAttributeNS(null, "width", rw);
+                }
+              }
+            }
+            lastStartRec = startRec;
+            lastEndRec = endRec;
+          }
         }
         arcDragJustStarted = false;
       };
@@ -1037,7 +1284,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var targetArcRole = target.data('arc-role');
         if (!(targetSpanId !== undefined || targetChunkId !== undefined || targetArcRole !== undefined)) {
           // misclick
-          window.getSelection().removeAllRanges();
+          clearSelection();
           stopArcDrag(target);
           return;
         }
@@ -1085,11 +1332,41 @@ var AnnotatorUI = (function($, window, undefined) {
           if (chunkIndexFrom === undefined && chunkIndexTo === undefined &&
               $(sel.anchorNode).attr('data-chunk-id') &&
               $(sel.focusNode).attr('data-chunk-id')) {
-            chunkIndexFrom = $(sel.anchorNode).attr('data-chunk-id');
-            chunkIndexTo = $(sel.focusNode).attr('data-chunk-id');
-            // guessing from start of first word to end of last
-            anchorOffset = 0;
-            focusOffset = chunkIndexTo ? data.chunks[chunkIndexTo].to - data.chunks[chunkIndexTo].from : 1;
+            // A. Scerri FireFox chunk
+
+            var range = sel.getRangeAt(0);
+            var svgOffset = $(svg._svg).offset();
+            var flip = false;
+            var tries = 0;
+            while (tries < 2) {
+              var sp = svg._svg.createSVGPoint();
+              sp.x = (flip ? evt.pageX : dragStartedAt.pageX) - svgOffset.left;
+              sp.y = (flip ? evt.pageY : dragStartedAt.pageY) - (svgOffset.top + 8);
+              var startsAt = range.startContainer;
+              anchorOffset = startsAt.getCharNumAtPosition(sp);
+              chunkIndexFrom = startsAt && $(startsAt).attr('data-chunk-id');
+              if (anchorOffset != -1) {
+                break;
+              }
+              flip = true;
+              tries++;
+            }
+            sp.x = (flip ? dragStartedAt.pageX : evt.pageX) - svgOffset.left;
+            sp.y = (flip ? dragStartedAt.pageY : evt.pageY) - (svgOffset.top + 8);
+            var endsAt = range.endContainer;
+            focusOffset = endsAt.getCharNumAtPosition(sp);
+
+            if (range.startContainer == range.endContainer && anchorOffset > focusOffset) {
+              var t = anchorOffset;
+              anchorOffset = focusOffset;
+              focusOffset = t;
+              flip = false;
+            }
+            if (focusOffset != -1) {
+              focusOffset++;
+            }
+            chunkIndexTo = endsAt && $(endsAt).attr('data-chunk-id');
+
             //console.log('fallback from', data.chunks[chunkIndexFrom], anchorOffset);
             //console.log('fallback to', data.chunks[chunkIndexTo], focusOffset);
           } else {
