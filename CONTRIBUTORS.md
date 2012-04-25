@@ -9,6 +9,7 @@ In order by changed lines of code ([Ballmer][ballmer] says [SLOC][sloc]
 * Goran Topić       &lt;REDACTED&gt;
 * Sampo Pyysalo     &lt;REDACTED&gt;
 * Pontus Stenetorp  &lt;REDACTED&gt;
+* Antony Scerri     &lt;REDACTED&gt; (Elsevier Labs)
 * Illes Solt        &lt;solt tmit bme hu&gt;
 * David McClosky    &lt;david.mcclosky gmail com&gt;
 
