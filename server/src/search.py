@@ -1389,12 +1389,21 @@ def main(argv=None):
         print >> sys.stderr, "Please specify action (-h for help)"
         return 1
 
+    # guessing at the likely URL
+    import getpass
+    username = getpass.getuser()
+
     for m in matches:
         print m.criterion
         for ann_obj, ann in m.get_matches():
             # TODO: get rid of specific URL hack and similar
-            baseurl='http://127.0.0.1/~smp/brat/#/'
-            print "\t%s%s?focus=%s (%s)" % (baseurl, ann_obj.get_document().replace("data/",""), ann.reference_id()[0], str(ann).rstrip())
+            baseurl='http://127.0.0.1/~%s/brat/#/' % username
+            # sorry about this
+            if isinstance(ann, TextMatch):
+                annp = "%s~%s" % (ann.reference_id()[0], ann.reference_id()[1])
+            else:
+                annp = ann.reference_id()[0]
+            print "\t%s%s?focus=%s (%s)" % (baseurl, ann_obj.get_document().replace("data/",""), annp, str(ann).rstrip())
 
 if __name__ == "__main__":
     import sys
