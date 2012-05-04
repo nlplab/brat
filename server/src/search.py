@@ -385,7 +385,12 @@ def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], neste
         # TODO: proper tokenization.
         # NOTE: this will include space.
         #tokens = re.split(r'(\s+)', doctext)
-        tokens = _split_and_tokenize(doctext)
+        try:
+            tokens = _split_and_tokenize(doctext)
+        except:
+            # TODO: proper error handling
+            print >> sys.stderr, "ERROR: failed tokenization in %s, skipping" % ann_obj._input_files[0]
+            continue
 
         # document-specific map
         offset_ann_map = _get_offset_ann_map([ann_obj])
