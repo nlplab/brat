@@ -1407,4 +1407,9 @@ def main(argv=None):
 
 if __name__ == "__main__":
     import sys
+
+    # on command-line invocations, don't limit the number of results
+    # as the user has direct control over the system.
+    MAX_SEARCH_RESULT_NUMBER = -1
+
     sys.exit(main(sys.argv))
