@@ -341,13 +341,18 @@ def _split_and_tokenize(s):
             # between-sentence space
             tokens.append(s[sprev:sstart])
         stext = s[sstart:send]
-        tprev = sstart
+        tprev = 0
         for tstart, tend in en_token_boundary_gen(stext):
             if tprev != tstart:
                 # between-token space
                 tokens.append(s[sstart+tprev:sstart+tstart])
             tokens.append(s[sstart+tstart:sstart+tend])
             tprev = tend
+
+        if tend != len(stext):
+            # sentence-final space
+            tokens.append(stext[tend:])
+
         sprev = send
 
     if sprev != len(s):
@@ -375,7 +380,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], neste
 
     text_type_ann_map = _get_text_type_ann_map(ann_objs, restrict_types, ignore_types, nested_types)
 
-    max_length_tagged = max([len(s) for s in text_type_ann_map])
+    max_length_tagged = max([len(s) for s in text_type_ann_map]+[0])
 
     # TODO: faster and less hacky way to detect missing annotations
     text_untagged_map = {}
