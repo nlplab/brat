@@ -77,7 +77,7 @@ __final.append((re.compile(r'\b(i\.)\n(v\.)'), r'\1 \2'))
 __final.append((re.compile(r'\b(e\. ?g\.|i\. ?e\.|i\. ?v\.|vs\.|cf\.|Dr\.|Mr\.|Ms\.|Mrs\.)\n'), r'\1 '))
 
 # or others taking a number after the abbrev
-__final.append((re.compile(r'\b([Aa]pprox\.|[Nn]o\.)\n(\d+)'), r'\1 \2'))
+__final.append((re.compile(r'\b([Aa]pprox\.|[Nn]o\.|[Ff]ig\.)\n(\d+)'), r'\1 \2'))
 
 def refine_split(s):
     """
