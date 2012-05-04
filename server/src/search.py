@@ -341,7 +341,7 @@ def _split_and_tokenize(s):
             # between-sentence space
             tokens.append(s[sprev:sstart])
         stext = s[sstart:send]
-        tprev = 0
+        tprev, tend = 0, 0
         for tstart, tend in en_token_boundary_gen(stext):
             if tprev != tstart:
                 # between-token space
