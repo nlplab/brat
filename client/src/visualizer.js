@@ -512,11 +512,12 @@ var Visualizer = (function($, window, undefined) {
 	  span.normalizations.push([refdb, refid, reftext]);
 
 	  // quick initial norm visualization: just add to comment text
+	  var commentText = refdb + ": " + reftext;
 	  if (!span.comment) {
-	    span.comment = { type: normType, text: reftext };
+	    span.comment = { type: normType, text: commentText };
 	  } else {
 	    span.comment.type = normType
-	    span.comment.text += "\n" + reftext;
+	    span.comment.text += "\n" + commentText;
 	  }
 
 	  // this wasn't favored
