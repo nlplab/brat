@@ -479,19 +479,30 @@ def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], neste
     
     return matches
 
-def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def check_type_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
     """
-    Searches for inconsistent annotations in given Annotations
+    Searches for inconsistent types in given Annotations
     objects.  Returns a list of SearchMatchSet objects, one for each
     checked criterion that generated matches for the search.
     """
 
     match_sets = []
 
-    print >> sys.stderr, "NOTE: TEMPORARILY SWITCHING OFF TYPE AGREEMENT CHECKING!"
-#     m = eq_text_neq_type_spans(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
-#     if len(m) != 0:
-#         match_sets.append(m)
+    m = eq_text_neq_type_spans(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+    if len(m) != 0:
+        match_sets.append(m)
+
+    return match_sets
+
+
+def check_missing_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+    """
+    Searches for potentially missing annotations in given Annotations
+    objects.  Returns a list of SearchMatchSet objects, one for each
+    checked criterion that generated matches for the search.
+    """
+
+    match_sets = []
 
     m = eq_text_partially_marked(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
     if len(m) != 0:
@@ -1338,19 +1349,27 @@ def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=
 
 # TODO: filename list interface functions for event and relation search
 
-def check_files_consistency(filenames, restrict_types=[], ignore_types=[], nested_types=[]):
+def check_files_type_consistency(filenames, restrict_types=[], ignore_types=[], nested_types=[]):
     """
     Searches for inconsistent annotations in the given set of files.
     """
     anns = __filenames_to_annotations(filenames)
-    return check_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+    return check_type_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+
+def check_files_missing_consistency(filenames, restrict_types=[], ignore_types=[], nested_types=[]):
+    """
+    Searches for potentially missing annotations in the given set of files.
+    """
+    anns = __filenames_to_annotations(filenames)
+    return check_missing_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
 def argparser():
     import argparse
 
     ap=argparse.ArgumentParser(description="Search BioNLP Shared Task annotations.")
     ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
-    ap.add_argument("-c", "--consistency", default=False, action="store_true", help="Search for inconsistent annotations.")
+    ap.add_argument("-ct", "--consistency-types", default=False, action="store_true", help="Search for inconsistently typed annotations.")
+    ap.add_argument("-cm", "--consistency-missing", default=False, action="store_true", help="Search for potentially missing annotations.")
     ap.add_argument("-t", "--text", metavar="TEXT", help="Search for matching text.")
     ap.add_argument("-b", "--textbound", metavar="TEXT", help="Search for textbound matching text.")
     ap.add_argument("-e", "--entity", metavar="TEXT", help="Search for entity matching text.")
@@ -1390,11 +1409,16 @@ def main(argv=None):
                                          restrict_types=arg.restrict,
                                          ignore_types=arg.ignore,
                                          nested_types=arg.nested)]
-    elif arg.consistency:
-        matches = check_files_consistency(arg.files,
-                                          restrict_types=arg.restrict,
-                                          ignore_types=arg.ignore,
-                                          nested_types=arg.nested)
+    elif arg.consistency_types:
+        matches = check_files_type_consistency(arg.files,
+                                               restrict_types=arg.restrict,
+                                               ignore_types=arg.ignore,
+                                               nested_types=arg.nested)
+    elif arg.consistency_missing:
+        matches = check_files_missing_consistency(arg.files,
+                                                  restrict_types=arg.restrict,
+                                                  ignore_types=arg.ignore,
+                                                  nested_types=arg.nested)
     else:
         print >> sys.stderr, "Please specify action (-h for help)"
         return 1
