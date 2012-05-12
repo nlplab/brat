@@ -1159,9 +1159,12 @@ Util.profileStart('measures');
 
         adjustTowerAnnotationSizes();
         var maxTextWidth = 0;
-        $.each(sizes.texts.widths, function(text, width) {
-          if (width > maxTextWidth) maxTextWidth = width;
-        });
+        for (var text in sizes.texts.widths) {
+          if (sizes.texts.widths.hasOwnProperty(text)) {
+            var width = sizes.texts.widths[text]
+            if (width > maxTextWidth) maxTextWidth = width;
+          }
+        }
 
 Util.profileEnd('measures');
 Util.profileStart('chunks');
