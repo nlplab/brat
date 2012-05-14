@@ -1,0 +1,273 @@
+---
+layout: base
+title:  "Features"
+---
+      <h1>brat features</h1> 
+
+      <p>This page presents an overview of brat features. For detailed
+	instructions, see the <a href="index.html">brat manual</a>.
+      </p>
+
+      <h2>Comprehensive visualization</h2>
+
+      <p>The brat annotation visualization is based on the concept
+	of &quot;what you see is what you get&quot;: all aspects of
+	the underlying annotation are visually represented in an
+	intuitive way.
+      </p>
+      <div class="image">
+	<img src="img/visualization-1.png" alt="feature example"/>
+	<div style="width: 800px" class="caption">Annotation visualization</div>
+      </div>
+
+      <h2>Intuitive editing</h2>
+
+      <p>Annotation editing is mouse-based and uses intuitive
+	&quot;gestures&quot; familiar from text editors, presentation
+	software, and many other tools. To mark a span of text, simply
+	select it with the mouse by &quot;dragging&quot; or by
+	double-clicking on a word.
+      </p>
+      <div class="image">
+	<img src="img/selection-1.png" alt="feature example"/>
+	<div style="width: 800px" class="caption">Selecting text for annotation</div>
+      </div>
+      <p>Connecting annotations, for example adding a relation between
+	two annotations, is equally simple: click with the mouse on
+	one annotation and drag a connection to the other.
+      </p>
+      <div class="image">
+	<img src="img/relation-1.png" alt="feature example"/>
+	<div style="width: 800px" class="caption">Connecting annotations</div>
+      </div>
+
+      <h2>Zero setup</h2>
+
+      <p>brat is built entirely on standard web technologies, and it
+	is not necessary to install any local software or browser
+	plugins to use it.
+      </p>
+      <p>An annotator can &quot;set up&quot; and start using brat
+	simply by entering the address of the brat installation into
+	the address bar of a browser.
+      </p>
+      <p>(Setting up an entirely new brat server does require some
+	action, but can be done in just five minutes on any system
+	running a web server.)
+      </p>
+
+      <h2>Annotation of texts in any language</h2>
+
+      <p>Both the brat server and client implement full
+	<a href="http://en.wikipedia.org/wiki/Unicode">Unicode</a>
+	support, thus supporting nearly 100 different scripts.
+      </p>
+      <div class="image">
+	<img class="bordered" src="img/japanese-example.png" alt="feature example"/>
+	<div style="width: 800px" class="caption">Annotation of text in kanji</div>
+      </div>
+      <p>Text documents in any language can be converted into 
+	<a href="http://en.wikipedia.org/wiki/UTF-8">UTF-8 encoded</a>
+	Unicode, which can be annotated in brat identically to texts
+	in <a href="http://en.wikipedia.org/wiki/ASCII">ASCII</a>
+	format.
+      </p>
+
+      <h2>An address for each annotation</h2>
+
+      <p>Every brat annotation can be uniquely addressed within the
+	brat server. Together with the URL of the server, this form
+	of addressing provides a globally unique address for every
+	brat annotation.
+      </p>
+      <div class="image">
+	<img class="bordered" src="img/URL-example.png" alt="feature example"/>
+	<div style="width: 800px" class="caption">Focusing an annotation with a given URL</div>
+      </div>
+      <img class="right" src="img/link-URL-emphasized.png" alt="feature example"/>
+      <p>Entering such an address into a browser will not only show
+	the relevant document, but brat will further highlight and
+	center the specific annotation. These addresses can thus be
+	used in email and online documentation and discussions to
+	simply and unambiguously refer to any annotation in brat.
+      </p>
+      <p>The address for each annotation can be easily accessed from
+	a dialog shown by double-clicking on an annotation.
+      </p>
+
+      <h2>Integration with automatic annotation tools</h2>
+
+      <p>brat implements a simple interface for integrating the output
+	of automatic text annotation tools accessible as web services
+	into annotation efforts.
+      </p>
+      <div class="image">
+	<img class="bordered" src="img/automatic-annotation-dialog.png" alt="feature example"/>
+	<div style="width: 476px" class="caption">Invoking automatic annotation tools as web services with one click</div>
+      </div>
+      <p>brat also features transparent integration with
+	state-of-the-art methods for basic annotation support such as
+	sentence splitting (English and Japanese) and tokenization
+	(Japanese).
+      </p>
+
+<!--       <h2>Ontology integration</h2> -->
+
+      <h2>High-quality visualization at any scale</h2>
+
+      <p>The visualization of brat is based on Scalable Vector
+	Graphics (SVG), which can be rendered in arbitrary detail and
+	precision.
+      </p>
+      <div class="image">
+	<img class="bordered" src="img/zoomin-example.png" alt="feature example"/>
+	<div style="width: 800px" class="caption">Zoomed in on an annotation</div>
+      </div>
+      <p>brat annotation visualizations are thus inherently print
+	quality and can be used as figures in publications to
+	illustrate annotations.
+      </p>
+      <p>SVG allows the built-in zoom functions of the browser to be
+	used for closeups or for a high-level view of the annotations
+	of a document.
+      </p>
+      <div class="image">
+	<img class="bordered" src="img/zoomout-example.png" alt="feature example"/>
+	<div style="width: 800px" class="caption">Zoomed out for an overview</div>
+      </div>
+
+      <h2>Easy export in multiple formats</h2>
+
+      <p>Annotations created in brat can be exported with a few clicks
+	from the interface in a simple
+	<a href="standoff.html">standoff format</a> that can be
+	easily analysed, processed, and converted into other formats.
+      </p>
+      <p>Visualizations can be similarly be exported in their native
+	SVG format, rendered as a bitmap
+	(<a href="http://en.wikipedia.org/wiki/Portable_Network_Graphics">PNG
+	format</a>), or converted into other vector formats for embedding
+	into documents (<a href="http://en.wikipedia.org/wiki/Portable_Document_Format">PDF</a> or <a href="http://en.wikipedia.org/wiki/Encapsulated_PostScript">EPS</a>).
+      </p>
+
+      <h2>Always saved, always up to date</h2>
+
+      <p>brat eliminates any risk of losing annotation efforts to tool
+	crashes, forgetting to save work, or even complete failure of
+	an annotator's computer by transparently communicating all
+	edit operations by annotators to the brat server as they are
+	done.
+      </p>
+      <p>Similarly, in maintaining a single authoritative version of
+	data shared by all annotators working on a project, the brat
+	server removes the possibility of conflicting versions of
+	annotations arising or out-of-date data being used as well as
+	the need for annotators to use a separate version control
+	system for coordinating their work.
+      </p>
+
+      <h2>Real-time collaboration</h2>
+
+      <p>The brat client-server architecture and design allow multiple
+	annotators to work simultaneously on the same collection of
+	document, or even on the same document, seeing each other's
+	edits nearly as they are made (some delay is inherent in the
+	communication).
+      </p>
+      <p>All edit operations are coordinated by the server to assure
+	that the annotation remains coherent even if multiple users
+	attempt to simultaneously modify a single annotation.
+      </p>
+
+      <h2>Detailed annotation process measurement</h2>
+
+      <p>brat can optionally be configured to record the precise time
+	that an annotator opens a document, each edit action, and even
+	the time spent selecting the type to assign to an annotation
+	after selecting where to place it.
+      </p>
+
+      <h2>Rich set of annotation primitives</h2>
+
+      <p>brat provides a rich set of basic categories of annotation:
+	marking for text spans (for e.g. entity annotation), binary
+	relations, equivalence classes, <i>n</i>-ary associations (for
+	e.g. event annotation) and attributes can be applied together
+	in any combination for defining specific annotation tasks.
+      </p>
+      <p>Some of the many annotation tasks to which brat can be applied
+	are presented on the page on <a href="case-studies.html">case
+	  studies</a>.
+      </p>
+
+      <h2>Fully configurable</h2>
+
+      <p>All aspects of annotation are configured using a simple
+	declarative configuration language. Each document collection
+	has its own configuration, allowing a single brat server to
+	host many projects with different annotation targets.
+      </p>
+      <p>Additionally, most aspects of the visualization such as font,
+	annotation &quot;box&quot; and &quot;arc&quot; colors as well
+	as arrow head and arc drawing style can be controlled in
+	detail using well-documented and widely known HTML/CSS style
+	specifications.
+      </p>
+      <p>For details on how to configure brat, see the
+	<a href="configuration.html">configuration page</a>
+      </p>
+
+      <h2>Always validated</h2>
+
+      <p>brat incorporates annotation validation capable of checking
+	all the constraints that can be defined in its expressive
+	configuration.
+      </p>
+      <p>The validation of annotations created in brat is not isolated
+	into a separate process but closely integrated into the
+	annotation process: the validity of annotations is checked
+	after every edit option, giving annotators immediate feedback
+	with simple visual hints.
+      </p>
+      <div class="image">
+	<img src="img/incomplete-ann-example.png" alt="feature example"/>
+	<div style="width: 800px" class="caption">Example incomplete annotation and details</div>
+      </div>
+      <p>Annotations that lack some mandatory part are not given a
+	colored fill and given a gray highlight. Placing the mouse
+	over such an annotation provides the details of the issues
+	detected by the annotation verifier.
+      </p>
+      <div class="image">
+	<img src="img/error-ann-example.png" alt="feature example"/>
+	<div style="width: 800px" class="caption">Example annotation with error and details</div>
+      </div>
+      <p>Annotations that have extra or erroneous parts are given a
+	red &quot;halo&quot; that indicates a problem with the
+	annotation. Again, placing the mouse over such an annotation
+	details the detected issues.
+      </p>
+      <h2>Search</h2>
+
+      <p>brat implements a full set of functions for searching
+	documents or document collections for annotation of any type
+	with a detailed set of configurable constraints.	
+      </p>
+      <div class="image">
+	<img src="img/search-dialog-only-advanced-1.png" alt="feature example"/>
+	<div style="width: 507px" class="caption">Text search with advanced settings shown</div>
+      </div>
+
+      <h2>Concordancing</h2>
+
+      <p>brat supports basic key-word-in-context (KWIC) style concordancing
+	of search results.
+      </p>
+      <div class="image">
+	<img src="img/concordancing-example.png" alt="feature example"/>
+	<div style="width: 770px" class="caption">Search results with concordancing</div>
+      </div>
+
+      <div>
+	<h2 style="text-align:right"><a href="manual.html">Next: how to use it</a></h2>
+      </div>

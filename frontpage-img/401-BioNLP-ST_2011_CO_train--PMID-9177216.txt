@@ -1,0 +1,2 @@
+Example: Coreference annotation
+BioNLP Shared Task 2011 (CO task)

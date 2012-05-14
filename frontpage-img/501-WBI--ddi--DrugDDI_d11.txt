@@ -1,0 +1,2 @@
+Example: Binary relation annotation
+Drug-Drug Interaction Extraction challenge task (2011)

@@ -1,0 +1,257 @@
+---
+layout: base
+title:  "Case Studies"
+---
+      <!-- ############################################################ -->
+      
+      <h1>annotation tasks compatible with brat</h1>
+
+      <p>A variety of annotation tasks that could be performed in brat
+	are introduced below using examples from annotated corpora.
+      </p>
+      <p>The examples discussed in this section have been originally
+	created in various tools other than brat and converted into
+	brat format. Converters for many of the original formats are
+	distributed with brat.
+      </p>
+      <p>In the selection of examples included here, priotity has been
+	given to tasks with freely available data. (For example, although
+	any CoNLL shared task dataset could be visualized in brat, we
+	have only selected freely available subsets of those datasets
+	that do not require a separate licence.)
+      </p>
+
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
+
+      <h2 class="nomargin">Entity mention detection</h2>
+
+      <a href="case-studies/esp.train-doc-536-full.png">
+	<img class="right" src="case-studies/esp.train-doc-536-small.png" alt="annotation example"/>
+      </a>
+      <h3>Example: CoNLL 2002 Shared Task: Language-Independent Named Entity Recognition</h3>
+
+
+      <p>The Conference on Computational Natural Language Learning
+	(CoNLL) 2002 shared task on Language-Independent Named Entity
+	Recognition provided two annotated corpora (Spanish and
+	Dutch) annotated with entities of four types (person,
+	organization, location and miscellaneous).
+      </p>
+      <p>A conversion script from the CoNLL 2002 shared task format into
+	the brat standoff format and a sample of the corpus annotations
+	are distributed with brat.
+      </p>
+      <p>The full shared task data are freely available from the shared
+	task website.
+      </p>
+
+      <div class="inforow">
+	<span class="infolabel">Examples in brat:</span>
+	<span class="infovalue"><a target="brat-example" href="http://weaver.nlplab.org/~brat/demo/latest/#/not-editable/CoNLL-ST_2002_train/">see it live on brat</a> (read-only data)</span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Project website:</span>
+	<span class="infovalue"><a href="http://www.cnts.ua.ac.be/conll2002/ner/">CoNLL 2002 shared task website</a></span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Publications:</span>
+	<span class="infovalue"><a href="http://www.cnts.ua.ac.be/conll2002/pdf/15558tjo.pdf">Tjong Kim Sang, 2002</a> [PDF]</span>
+      </div>
+      
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
+
+      <h2 class="nomargin">Event extraction</h2>
+      <a href="case-studies/PMID-20300060-full.png">
+	<img class="right" src="case-studies/PMID-20300060-small.png" alt="annotation example"/>
+      </a>
+      <h3>Example: BioNLP shared task: biomedical event extraction</h3>
+
+      <p>BioNLP shared task events held in 2009 and 2011 have included
+	four different event extraction tasks.
+      </p>
+      <p>The brat standoff format is compatible with the data
+	distribution format of the BioNLP shared task, and samples of
+	the annotations of the various corpora provided for the task
+	are distributed with brat.
+      </p>
+      <p>The full shared task data are freely available from the shared
+	task website.
+      </p>
+
+      <div class="inforow">
+	<span class="infolabel">Examples in brat:</span>
+	<span class="infovalue"><a target="brat-example" href="http://weaver.nlplab.org/~brat/demo/latest/#/not-editable/BioNLP-ST_2011_ID_devel/">see it live on brat</a> (read-only data)</span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Project website:</span>
+	<span class="infovalue"><a href="http://2011.bionlp-st.org">BioNLP shared task 2011 website</a></span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Publications:</span>
+	<span class="infovalue"><a href="http://aclweb.org/anthology-new/W/W09/W09-1401.pdf">Kim et al. 2009</a>, <a href="http://aclweb.org/anthology-new/W/W11/W11-1801.pdf">2011</a> [PDFs]</span>
+      </div>
+
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
+
+      <h2 class="nomargin">Coreference resolution</h2>
+      <a href="case-studies/PMID-1492121-full.png">
+	<img class="right" src="case-studies/PMID-1492121-small.png" alt="annotation example"/>
+      </a>
+      <h3>Example: CO supporting task: coreference in scientific publications</h3>
+
+      <p>The BioNLP shared task 2011 included a supporting task
+	on coreference in scientific publications.
+      </p>
+      <p>The brat standoff format is compatible with the
+	representation used in the coreference task, and samples of
+	the annotations of the corpus provided for the task are
+	distributed with brat.
+      </p>
+      <p>The full shared task data are freely available from the shared
+	task website.
+      </p>
+
+      <div class="inforow">
+	<span class="infolabel">Examples in brat:</span>
+	<span class="infovalue"><a target="brat-example" href="http://weaver.nlplab.org/~brat/demo/latest/#/not-editable/BioNLP-ST_2011_coreference_development_data/">see it live on brat</a> (read-only data)</span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Project website:</span>
+	<span class="infovalue"><a href="http://2011.bionlp-st.org/home/protein-gene-coreference-task">BioNLP ST 2011 CO task home page</a></span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Publications:</span>
+	<span class="infovalue"><a href="http://aclweb.org/anthology-new/W/W11/W11-1811.pdf">Nguyen et al. 2011</a> [PDF]</span>
+      </div>
+
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
+
+      <h2 class="nomargin">Chunking</h2>      
+      <p>Chunking is the task of dividing text into non-overlapping 
+	segments that are typically further assigned labels such as
+	<span class="tt">NP</span> (Noun Phrase).
+      </p>
+      <a href="case-studies/train.txt-doc-109-full.png">
+	<img class="right" src="case-studies/train.txt-doc-109-small.png" alt="annotation example"/>
+      </a>
+      <h3>Example: CoNLL 2000 Shared Task: Chunking</h3>
+      
+      <p>The Conference on Computational Natural Language
+	Learning 2000 (CoNLL 2000) shared task on chunking provides
+	freely available training and test data.
+      </p>
+      <p>A conversion script from the CoNLL 2000 shared task format
+	into the brat standoff format and a sample of the corpus
+	annotations are distributed with brat.
+      </p>
+      <p>The full shared task data are freely available from the shared
+	task website.
+      </p>
+
+      <div class="inforow">
+	<span class="infolabel">Examples in brat:</span>
+	<span class="infovalue"><a target="brat-example" href="http://weaver.nlplab.org/~brat/demo/latest/#/not-editable/CoNLL-00-Chunking">see it live on brat</a> (read-only data)</span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Project website:</span>
+	<span class="infovalue"><a href="http://www.clips.ua.ac.be/conll2000/chunking/">CoNLL 2000 shared task website</a></span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Publications:</span>
+	<span class="infovalue"><a href="http://www.clips.ua.ac.be/conll2000/pdf/12732tjo.pdf">Tjong Kim Sang and Buchholz (2000)</a> [PDF]</span>
+      </div>
+
+      <br style="clear:both"/>
+      <!-- ############################################################ -->
+
+      <h2 class="nomargin">Dependency syntax</h2>
+      <p>Dependency parsing (syntactic analysis) is the task of
+	assigning binary relations between words to mark their
+	head-dependent relations.
+      </p>
+      <a href="case-studies/swedish_talbanken05_train.conll-doc-880-full.png">
+	<img class="right" src="case-studies/swedish_talbanken05_train.conll-doc-880-small.png" alt="annotation example"/>
+      </a>
+      <h3>Example: CoNLL-X Shared Task: Multi-lingual Dependency Parsing</h3>
+      
+      <p>The Tenth Conference on Computational Natural Language
+	Learning (CoNLL-X) shared task on Multi-lingual Dependency
+	Parsing provided annotated corpora for 13 languages, four of
+	which are freely availabe (for Danish, Dutch, Portuguese and
+	Swedish).
+      </p>
+      <p>A conversion script from the CoNLL-X shared task format into
+	the brat standoff format and a sample of the corpus
+	annotations for these four languages are distributed with
+	brat.
+      </p>
+      <p>The full shared task data are freely available from the shared
+	task website.
+      </p>
+
+      <div class="inforow">
+	<span class="infolabel">Examples in brat:</span>
+	<span class="infovalue"><a target="brat-example" href="http://weaver.nlplab.org/~brat/demo/latest/#/not-editable/CoNLL-X-Swedish">see it live on brat</a> (read-only data)</span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Project website:</span>
+	<span class="infovalue"><a href="http://ilk.uvt.nl/conll/">CoNLL-X shared task website</a></span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Publications:</span>
+	<span class="infovalue"><a href="http://aclweb.org/anthology-new/W/W06/W06-2920.pdf">Buchholz and Marsi (2006)</a> [PDF]</span>
+      </div>
+
+      <br style="clear:both"/>
+
+      <!-- ############################################################ -->
+
+       <h2 class="nomargin">Meta-knowledge</h2>
+       <p>
+       Meta-knowledge annotation is the task of identifying how factual
+       statements should be interpreted, according to their textual context,
+       Examples include whether a statement describing a fact, a hypothesis,
+       an experimental result or an analysis of results, how confident the
+       author is regarding the validity of her analyses, etc.
+      </p>
+      <a href="case-studies/nactem-metaknowledge-1545132-full.png">
+	<img class="right" src="case-studies/nactem-metaknowledge-1545132-small.png" alt="annotation example"/>
+      </a>
+      <h3>Example: Meta-knowledge enrichment of the GENIA Event Corpus</h3>
+      
+          <p>
+      </p>
+      <p>
+        The complete GENIA event copus, consisting of 1,000 abstracts annotated with 36,858 events, has been manually enriched with meta-knowledge annotation. This will faciltate the training of more sophisticated IE systems, which allow interpretative information to be specified as part of the search criteria. Such systems can assist in a number of important tasks, e.g., finding new experimental knowledge to facilitate database curation, enabling textual inference to detect entailments and contradictions, etc.
+        </p>
+
+        <p>
+        Each event has been annotated with 5 different dimensions of meta-knowledge, i.e. knowledge type (KT), certainty level (CL), manner, polarity and source. The annotation consists of assigning an appopriate value for each dimension and identifying textual clues for each dimension, when they are present.
+        </p>
+
+        <p>
+        The meta-knowledge enririched GENIA corpus is freely available from the project website.
+        </p>
+
+      <div class="inforow">
+	<span class="infolabel">Examples in brat:</span>
+	<span class="infovalue"><a target="brat-example" href="http://www.nactem.ac.uk/brat/#/GENIA-Metaknowledge/">see it live on brat</a> (read-only data)</span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Project website:</span>
+	<span class="infovalue"><a href="http://www.nactem.ac.uk/meta-knowledge/">NaCTeM Meta-knowledge Project</a></span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Publications:</span>
+	<span class="infovalue"><a href="http://www.biomedcentral.com/1471-2105/12/393/abstract">Thompson et al. (2011)</a></span>
+      </div>
+
+      <br style="clear:both"/>
+
+      <div>
+	<h2 style="text-align:right"><a href="features.html">Next: features in overview</a></h2>
+      </div>

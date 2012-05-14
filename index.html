@@ -1,0 +1,124 @@
+---
+layout: base
+---
+<div id="downloadblock">
+  <p>Learn more:</p>
+  <ul>
+    <li><a href="introduction.html">What is it?</a></li>
+    <li><a href="case-studies.html">What can you do with it?</a></li>
+    <li><a href="features.html">What does it do?</a></li>
+    <li><a href="supported-browsers.html">What do I need to run it?</a></li>
+  </ul>
+  <br/>
+  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="http://weaver.nlplab.org/~brat/demo/latest/" onClick="javascript: _gaq.push(['_trackPageview', '/demo/']);" target="_blank">Try brat online</a>
+  <p><span style="color:gray; font-size: 80%">(username: "thelarch", password: "THElarch")</span></p>
+  <p style="display:none" id="oldbrowser">We're sorry, but your browser is not supported by brat. Please try with a <a href="supported-browsers.html">supported browser</a>.</p>
+  <p style="display:none" id="partialsupport">Please note: brat editing features are not supported for your browser. You may wish to consider trying with a <a href="supported-browsers.html">fully supported browser</a>.</p>
+  <p>Runs in your browser: no installation required</p>
+  <p>Intuitive annotation visualization and editing.</p>
+  <br/>
+<hr/>
+<br/>
+<p>Create your own local brat installation:</p>
+  <!-- The Javascript trickery is to track the number of downloads as per:
+         http://support.google.com/googleanalytics/bin/answer.py?hl=en&answer=55529
+  -->
+  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="http://weaver.nlplab.org/~brat/releases/brat-v1.2_The_Larch.tar.gz" onClick="javascript: _gaq.push(['_trackPageview', '/releases/brat-v1.2_The_Larch.tar.gz']);">Download brat</a>
+  <p><span style="color:gray; font-size: 80%">(checksums: <a style="color:gray" href="http://weaver.nlplab.org/~brat/releases/CHECKSUM.MD5" onClick="javascript: _gaq.push(['_trackPageview', '/releases/CHECKSUM.MD5']);">MD5</a>, <a style="color:gray" href="http://weaver.nlplab.org/~brat/releases/CHECKSUM.SHA512" onClick="javascript: _gaq.push(['_trackPageview', '/releases/CHECKSUM.SHA512']);">SHA512</a>, <a href="downloads.html">Older versions</a>)</span></p>
+  <p>Manage your own annotation effort</p>
+  <p>Easy to set up: <a href="installation.html">installation instructions</a></p>
+  <p>Open source (<a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>)</p>
+  <p>Current version: v1.2 The Larch (2012-03-09).</p>
+</div>
+<div id="titleblock">
+  <h1>brat rapid annotation tool</h1> 
+  <span class="h1subtitle">online environment for collaborative text annotation</span>
+</div>
+<div id="centerblock"> 
+  <noscript>
+    <img src="img/example-2-small.png" alt=""/>
+  </noscript>
+</div>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript" src="galleria/galleria-1.2.6.min.js"></script>
+<script type="text/javascript" src="galleria/themes/custom/galleria.classic.min.js"></script>
+<script type="text/javascript">
+  var data = [
+{
+    image: 'frontpage-img/001-BioNLP-ST_2011_ID_train--PMC2858072-00-TIAB.png',
+    title: 'Comprehensive visualization',
+    description: 'Event annotations, BioNLP Shared Task 2011 (ID task)'
+},
+{
+    image: 'frontpage-img/005-entity-mention-annotation-example.png',
+    title: 'Intuitive annotation',
+    description: ''
+},
+{
+    image: 'frontpage-img/008-relation-annotation-example.png',
+    title: 'Intuitive annotation',
+    description: ''
+},
+{
+    image: 'frontpage-img/101-CoNLL-ST_2002_train--esp.train-doc-503.png',
+    title: 'Example: Named Entity annotation',
+    description: 'CoNLL 2002 shared task (Spanish)'
+},
+{
+    image: 'frontpage-img/201-CoNLL-ST_2006--swedish--swedish_talbanken05_train.conll-doc-880.png',
+    title: 'Example: Dependency annotation',
+    description: 'CoNLL-X (2006) shared task (Swedish)'
+},
+{
+    image: 'frontpage-img/301-CoNLL-ST_2000_train--train.txt-doc-113.png',
+    title: 'Example: Chunking',
+    description: 'CoNLL 2000 shared task'
+},
+{
+    image: 'frontpage-img/401-BioNLP-ST_2011_CO_train--PMID-9177216.png',
+    title: 'Example: Coreference annotation',
+    description: 'BioNLP Shared Task 2011 (CO task)'
+},
+{
+    image: 'frontpage-img/501-WBI--ddi--DrugDDI_d11.png',
+    title: 'Example: Binary relation annotation',
+    description: 'Drug-Drug Interaction Extraction challenge task (2011)'
+},
+{
+    image: 'frontpage-img/BioNLP-ST_2011_EPI_train--PMID-19786094.png',
+    title: 'Example: Event annotation',
+    description: 'BioNLP Shared Task 2011 (EPI task)'
+},
+{
+    image: 'frontpage-img/BioNLP-ST_2011_GE_train--PMC-2791889-02-Results-01.png',
+    title: 'Example: Event annotation',
+    description: 'BioNLP Shared Task 2011 (GE task)'
+},
+{
+    image: 'frontpage-img/CoNLL-ST_2002_train--ned.train-doc-144.png',
+    title: 'Example: Named Entity annotation',
+    description: 'CoNLL 2002 shared task (Dutch)'
+}
+  ];
+
+$('#centerblock').galleria({
+  data_source: data,
+  width: 600,
+  height: 510,
+  extend: function() {
+    this.$('info-link,info-close,info-text').toggle();
+    this.play(10000);
+  }
+});
+
+if ($.browser.msie) {
+  if ($.browser.version < 9) {
+    $("#oldbrowser").show();
+  } else {
+    $("#partialsupport").show();
+  }
+}
+if ($.browser.mozilla) {
+  $("#partialsupport").show();
+}
+</script>

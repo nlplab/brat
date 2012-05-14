@@ -1,0 +1,890 @@
+---
+layout: base
+title:  "Configuration"
+---
+
+<h1>brat annotation configuration</h1> 
+
+<p>brat annotation configurations are currently controlled by
+  text-based configuration files that can be created and edited
+  in any text editor. This page documents the configuration
+  language.
+</p>
+<p style="color:gray">(Prefer to learn by example? Check out
+  configurations for various projects in
+  the <span class="tt">configurations/</span> directory of your brat
+  installation.)
+</p>
+<p><b>NOTE</b>: we are planning to introduce <b>GUI-based
+    configuration</b> in a future release, but have so far focused
+  development efforts on other aspects of the platform as the
+  need to alter configurations arises comparatively rarely and
+  the brat configuration language is simple enough to write even
+  by non-experts.
+</p>
+
+<h2>Table of contents</h2>
+<ul>
+  <li><a href="#configuration-basics">Configuration basics</a>
+  </li>
+  <li><a href="#annotation-configuration">Annotation configuration (<span class="tt">annotation.conf</span>)</a>
+  </li>
+  <li><a href="#visual-configuration">Visual configuration (<span class="tt">visual.conf</span>)</a>
+  </li>
+  <li><a href="#tool-configuration">Tool configuration (<span class="tt">tools.conf</span>)</a>
+  </li>
+  <li><a href="#additional-details">Additional details</a>
+  </li>
+</ul>
+
+
+<!-- ================================================================== -->  
+<!--                              BASIC                                 -->
+<!-- ================================================================== -->  
+
+<h2 id="configuration-basics">Configuration basics</h2>
+
+<h3>Configuration files</h3>
+
+<p>the configuration of an annotation project is controlled by
+  three files:
+  <ul>
+    <li><span class="tt">annotation.conf</span>: annotation type configuration
+    </li>
+    <li><span class="tt">visual.conf</span>: annotation display configuration
+    </li>
+    <li><span class="tt">tools.conf</span>: annotation tool configuration
+    </li>
+  </ul>
+</p>
+<p>Each annotation project typically defines its own
+  <span class="tt">annotation.conf</span>. Defining <span class="tt">visual.conf</span> and
+  <span class="tt">tools.conf</span> is not necessary, and the system falls back on
+  simple default visuals and tools if these files are not present.
+</p>
+<p>The configuration files can be placed anywhere in the brat data
+  directory, and are normally placed in the directory corresponding to
+  the base directory of the collection they apply to. (To determine
+  the configuration for a collection, the system searches up in the
+  directory tree from the directory in which the collection data is
+  toward the root of the brat <span class="tt">data/</span> directory, falling back
+  on default configurations if no configuration is present in any of
+  these locations.)
+</p>
+
+<h3>Configuration file structure</h3>
+
+<p>The configuration files follow a simple line-oriented structure and
+  a syntax familiar from many other text-based configuration systems.
+</p>
+
+<p>The top-level organization of the configuration files is
+  into <i>sections</i>, each marked with a line containing only
+  &quot;<span class="tt">[section-name]</span>&quot;, where <span class="tt">section-name</span> is
+  one of a set of predefined section names defined for the
+  configuration file.
+</p>
+
+<p>Within sections, each non-empty line defines one
+  configuration item, where with the first non-space sequence
+  names the item, and the rest of the line the specification,
+  which varies by section.
+</p>
+
+<p>Blank lines are ignored by the configuration
+  reader. Similarly, lines beginning with the number sign
+  &quot;#&quot; (also known as hash character) are ignored
+  as comments.
+</p>
+
+
+<p>An example of a simple annotation configuration file defining
+  two entity and two relation types is shown below.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[entities]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Person</td>
+	</tr><tr>
+	  <td>Organization</td>
+	</tr><tr>
+	  <td>&#160;</td>
+	</tr><tr>
+	  <td>[relations]</td>	
+	</tr><tr>
+	  <td>Family</td><td>Arg1:Person, Arg2:Person</td>
+	</tr><tr>
+	  <td>Employment</td><td>Arg1:Person, Arg2:Organization</td>
+	</tr><tr>
+	  <td>&#160;</td>
+	</tr><tr>
+	  <td colspan="2"># This is a comment line.
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+
+<!-- ================================================================== -->  
+<!--                           ANNOTATION                               -->
+<!-- ================================================================== -->  
+
+<h2 id="annotation-configuration">Annotation configuration (<span class="tt">annotation.conf</span>)</h2>
+
+<p>The annotation configuration file, <span class="tt">annotation.conf</span>,
+  is divided into the following sections:
+  <ul>
+    <li><span class="tt">[entities]</span></li>
+    <li><span class="tt">[relations]</span></li>
+    <li><span class="tt">[events]</span></li>
+    <li><span class="tt">[attributes]</span></li>
+  </ul>
+</p>
+<p>Each of these sections must be present in the configuration
+  file, but they can be empty. For example, a configuration can
+  define only entity annotation targets by leaving the other
+  three sections empty.
+</p>
+
+<h3>Entity definitions (<span class="tt">[entities]</span> section)</h3>
+
+<p>The <span class="tt">[entities]</span> section defines the types for the
+  things that can be marked in text as types text spans, such
+  as mentions of real-world &quot;things&quot; such as people
+  or locations.
+</p>
+
+<p>The basic format of the <span class="tt">[entities]</span> section is a
+  simple list, with one entity type per line. The following is
+  an example of a simple <span class="tt">[entities]</span> section:
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[entities]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Person</td>
+	</tr><tr>
+	  <td>Location</td>
+	</tr><tr>
+	  <td>Organization</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>In addition to listing the entity types,
+  the <span class="tt">[entities]</span> section can be used to define just one
+  additional aspect of the annotation: the hierarchy in which
+  the entities are organized. This is optional, and the syntax
+  specifying a hierarchy of entity organization consists simply 	
+  of TAB characters at the beginning of each line.
+</p>
+
+<img style="border:none" class="right" src="img/entity-type-hierarchy.png"/>
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[entities]</td>
+	</tr><tr>
+	  <td>Living-thing</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Person</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Animal</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Plant</td>
+	</tr><tr>
+	  <td>Nonliving-thing</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Building</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Vehicle</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>Such a hierarchy is interpreted an an <span class="tt">is-a</span> taxonomy
+  by the system.
+</p>
+
+<p>The most immediately visible difference that defining an
+  entity type hierarchy makes in annotation is that the type
+  selector shows the hierarchy and allows parts of it to be
+  collapsed (hidden) or opened to assist in navigating the
+  available entity types. (This feature is primarily useful for
+  larger numbers of defined types.)
+</p>
+
+<h3>Relation definitions (<span class="tt">[relations]</span> section)</h3>
+
+<p>The <span class="tt">[relations]</span> section defines binary relations
+  between annotations. Relation annotations can mark, for
+  example, a <span class="tt">Family</span> relationship between the entities
+  identified by two <span class="tt">Person</span> annotations.
+</p>
+
+<p>Each line in the <span class="tt">[relations]</span> section defines a
+  relation type, the entities it can associate and, optionally,
+  the properties of the relation. The types of annotations that
+  can be associated by the relation are identified using the
+  syntax <span class="tt">ARG:TYPE</span> (where <span class="tt">ARG</span> are, by convention,
+  <span class="tt">Arg1</span> and <span class="tt">Arg2</span>), separated by a comma.
+</p>
+<p>The following example shows a simple <span class="tt">[relations]</span>
+  section.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[relations]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Family</td><td>Arg1:Person, Arg2:Person</td>
+	</tr><tr>
+	  <td>Employment</td><td>Arg1:Person, Arg2:Organization</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>Relations can often take arguments of more than one type.
+  This can be defined in the configuration by listing all the
+  possible types separated by the pipe character &quot;|&quot;.
+  Cases where not all argument combinations are valid can be
+  constrained by defining one valid set of combinations per
+  line. These features are illustrated in the following example:
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[relations]</td><td>&#160;</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Located</td><td>Arg1:Person, </td><td>Arg2:Building|City|Country</td>
+	</tr><tr>
+	  <td>Located</td><td>Arg1:Building, </td><td>Arg2:City|Country</td>
+	</tr><tr>
+	  <td>Located</td><td>Arg1:City, </td><td>Arg2:Country</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>As for entities, a hierarchy of relation types can be defined
+  simply by placing TAB characters at the beginning of each
+  line.
+</p>
+
+<p>For further information on relation definitions, see
+  <a href="#advanced-relations">advanced relation
+    configuration</a>.
+</p>
+
+<h3>Event definitions (<span class="tt">[events]</span> section)</h3>
+
+<p>The <span class="tt">[events]</span> section defines <i>n</i>-ary
+  associations between other annotations (entities or events).
+  The &quot;event&quot category of annotations can be used
+  to mark things that are stated to happen in text, such as
+  two people getting married or a company going bankrupt.
+</p>
+
+<p>The basic syntax for defining events is similar to that for
+  relations. Each lines defined one event type (or, more
+  specifically, one event &quot;frame&quot; &mdash; possible
+  combination of arguments), with the event arguments specified
+  with a <span class="tt">ROLE:TYPE</span> syntax and separated by commas.  The
+  roles that event participants play in an event (<span class="tt">ROLE</span>)
+  in the definition can be freely defined.
+</p>
+
+<p>The following example shows a simple <span class="tt">[events]</span> section.</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[events]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Marriage</td><td>Participant1:Person, Participant2:Person</td>
+	</tr><tr>
+	  <td>Bankruptcy</td><td>Org:Company</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<h3>Attribute definitions (<span class="tt">[attributes]</span> section)</h3>
+
+<p>The <span class="tt">[attributes]</span> section defines binary or multi-valued
+  &quot;flags&quot; that can be used to mark other annotations. For
+  example, a <span class="tt">Negated</span> attribute could be used to mark the
+  occurrence of an annotated event as being explicitly denied in text,
+  or a <span class="tt">Confidence</span> attribute to mark an event as one
+  of <span class="tt">Certain</span>, <span class="tt">Probable</span> or <span class="tt">Doubtful</span>.
+</p>
+
+<p>Each line in the <span class="tt">[attributes]</span> section defines an attribute
+  type and the annotations it can attach to. For binary attributes, the
+  possible values, <span class="tt">true</span> and <span class="tt">false</span>, are implicit; for
+  multi-valued attributes, the possible values must also be specified.
+</p>
+
+<p>The annotation type (or types) an attribute can apply to are
+  defined using the <span class="tt">ARG:TYPE</span> syntax used also in the definition
+  of relations and events (<span class="tt">ARG</span> is, by convention,
+  &quot;<span class="tt">Arg</span>&quot;). The values a multi-valued attribute can
+  take are defined using the syntax <span class="tt">Value:VAL1|VAL2|VAL3[...]</span>,
+  where &quot;<span class="tt">Value</span>&quot; is a literal string and <span class="tt">VAL1</span>,
+  <span class="tt">VAL2</span> etc. are the possible values.
+</p>
+
+<p>The following example shows a simple <span class="tt">[attributes]</span> section.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[attributes]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Negated</td><td>Arg:&lt;EVENT&gt;</td>
+	</tr><tr>
+	  <td>Confidence</td><td>Arg:&lt;EVENT&gt;, Value:L1|L2|L3</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>For further information on configuring the visual display of
+  attributes, see <a href="#advanced-attributes">advanced attribute
+    configuration</a>.
+</p>
+
+
+<!-- ================================================================== -->  
+<!--                             VISUAL                                 -->
+<!-- ================================================================== -->  
+
+<h2 id="visual-configuration">Visual configuration (<span class="tt">visual.conf</span>)</h2>
+
+<p>The visual configuration file, <span class="tt">visual.conf</span>, is divided into
+  the following sections:
+</p>
+<ul>
+  <li><span class="tt">[labels]</span></li>
+  <li><span class="tt">[drawing]</span></li>
+</ul>
+<p>Each of these sections must be present in the configuration file,
+  but they can be empty.
+</p>
+
+<h3>Label definitions (<span class="tt">[labels]</span> section)</h3>
+
+<p>The <span class="tt">[labels]</span> section defines the labels to use in the
+  display of the defined annotation types on the user interface.  If
+  no labels are defined for a type, the system defaults do displaying
+  the configured type as defined in <span class="tt">annotation.conf</span>.
+</p>
+
+<p>The definition of labels has two primary uses: allowing labels used
+  in the user interface to use arbitrary characters (see the section
+  on <a href="#type-names">type names</a>), and defining abbreviations
+  to use when there is limited space in the layout.
+</p>
+
+<p>The format of the <span class="tt">[labels]</span> section is simple: each line
+  contains a set of strings, separated by pipe characters
+  (&quot;<span class="tt">|</span>&quot;). The first string should correspond to a
+  type defined in <span class="tt">annotation.conf</span>; the second is taken to be
+  the preferred, full form to use for the type, and the remaining (if
+  any) should correspond to its progressively shorter abbreviations.
+</p>
+
+<p>The following example shows a simple <span class="tt">[labels]</span> section.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td>[labels]</td>
+	</tr><tr>
+	  <td>Organization | Organization | Org</td>
+	</tr><tr>
+	  <td>Immaterial-thing | Immaterial thing | Immaterial | Immat</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>Note that the first and second strings will be identical in cases
+  where the type as defined in <span class="tt">annotation.conf</span> matches the
+  preferred way of displaying it. Also, space is permitted in labels,
+  and space surrounding labels is ignored.
+</p>
+
+<h3>Drawing configuration (<span class="tt">[drawing]</span> section)</h3>
+
+<p>The <span class="tt">[drawing]</span> section defines various non-textual aspects
+  of the visual presentation. If no visual configuration is defined
+  for a type, the system uses default settings, which can themselves
+  be configured.
+</p>
+
+<p>The format of the <span class="tt">[drawing]</span> section is similar to that
+  used in the other configurations. Each line contains the type of the
+  annotation that the visual configuration applies to, and a set
+  of <span class="tt">KEY:VALUE</span> pairs specifying the visual settings.
+</p>
+
+<p>The following example shows a simple <span class="tt">[drawing]</span> section.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[drawing]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Person</td><td>bgColor:#ffccaa</td>
+	</tr><tr>
+	  <td>Family</td><td>fgColor:darkgreen, arrowHead:triangle-5</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>This example specifies that annotations of the <span class="tt">Person</span> type
+  should be drawn with background of the
+  color <span class="tt"><span style="background-color:#ffccaa">#ffccaa</span></span>,
+  and that arcs representing <span class="tt">Family</span> relations should be drawn
+  with <span style="color:darkgreen">dark green</span> lines ending
+  with 5-pixel triangular arrowheads.
+</p>
+
+<p>The recognized visual configuration keys, their values, and purpose
+  are
+</p>
+<ul>
+<li><span class="tt">fgColor</span>:
+  any <a href="http://www.w3schools.com/html/html_colors.asp">HTML
+  color</a> specification (e.g. "black"), sets the color of a span
+  text in the visualization.
+</li>
+<li><span class="tt">bgColor</span>: any HTML color specification (e.g. "white"),
+  sets the color of a span "box" background in the visualization.
+</li>
+<li><span class="tt">borderColor</span>: any HTML color specification (e.g. "black"),
+  sets the color of a span "box" border in the visualization.  Also
+  supports special value "darken", which specifies to use a darker
+  shade of bgColor for the border.
+</li>
+<li><span class="tt">color</span>: any HTML color specification (e.g. "black"), sets
+  the color of an arc in the visualization.
+</li>
+<li><span class="tt">dashArray</span>: any valid 
+  <a href="http://www.w3.org/TR/SVG/painting.html#StrokeDasharrayProperty">SVG
+  stroke-dasharray</a> specification using dashes (instead of commas
+  or space) as separators (e.g. "3-3"), sets the dash/dot pattern for
+  lines in the span/arc visualization ("-" works for solid line)
+</li>
+</ul>
+<p>The special labels "SPAN_DEFAULT" and "ARC_DEFAULT" are recognized
+  as setting defaults that will be used for types without specific
+  settings. It is not necessary to define all aspects of the
+  visualization (e.g. just Color can be given): defaults will be used
+  for unspecified cases. The following example illustrates the use
+  of these defaults.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[drawing]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>SPAN_DEFAULT</td><td>fgColor:black, bgColor:lightgreen, borderColor:darken</td>
+	</tr><tr>
+	  <td>ARC_DEFAULT</td><td>color:black, dashArray:-, arrowHead:triangle-5</td>
+	</tr><tr>
+	  <td>Person</td><td>bgColor:#ffccaa</td>
+	</tr><tr>
+	  <td>Family</td><td>fgColor:darkgreen</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>In this configuration, all annotation types except <span class="tt">Person</span>
+  and <span class="tt">Family</span> will be draws using the specified default
+  values. Further <span class="tt">Person</span> and <span class="tt">Family</span> annotations will
+  also &quot;inherit&quot; the defaults for aspect of the visual
+  presentation that are not explicitly defined, so that e.g. for the
+  <span class="tt">borderColor</span> of <span class="tt">Person</span> annotations, the system,
+  will use the special value <span class="tt">darken</span>.
+</p>
+
+<!-- ================================================================== -->
+<!--                              TOOLS                                 -->
+<!-- ================================================================== -->  
+
+<h2 id="tool-configuration">Tool configuration (<span class="tt">tools.conf</span>)</h2>
+
+<p>The annotation tool configuration file, <span class="tt">tools.conf</span>, is
+  divided into the following sections:
+</p>
+<ul>
+  <li><span class="tt">[search]</span></li>
+  <li><span class="tt">[annotators]</span></li>
+  <li><span class="tt">[disambiguators]</span></li>
+</ul>
+<p>Each of these sections must be present in the configuration file,
+  but they can be empty.
+</p>
+
+<h3>Search configuration (<span class="tt">[search]</span> section)</h3>
+
+<p>The <span class="tt">[search]</span> section defines the online search services
+  that are made available in the annotation dialog.
+</p>
+
+<img style="border:none" class="right" src="img/search-config-1.png"/>
+
+<p>Each line in the <span class="tt">[search]</span> section contains the name used
+  in the user interface for the search service, and a single key:value
+  pair. The key should have the special value
+  &quot;<span class="tt">&lt;URL&gt;</span>&quot; and its value should be the URL URL
+  of the search service with the string to query for replaced by
+  <span class="tt">&quot;%s&quot;</span>.
+</p>
+
+<p>The following example shows a simple <span class="tt">[search]</span> section.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[search]</td><td width="350">&#160;</td>
+	</tr><tr>
+	  <td>Google</td><td>&lt;URL&gt;:http://www.google.com/search?q=%s</td>
+	</tr><tr>
+	  <td>Wikipedia</td><td>&lt;URL&gt;:http://en.wikipedia.org/wiki/%s</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>When selecting a span or editing an annotation, these search options
+  will then be shown in the brat annotation dialog.
+</p>
+
+<h3>Annotation tool configuration (<span class="tt">[annotators]</span> section)</h3>
+
+<p>The <span class="tt">[annotators]</span> section defines automatic annotation
+  services that can be invoked from brat.
+</p>
+
+<p>Each line in the <span class="tt">[annotators]</span> section contains a unique
+  name for the service and key:value pairs defining the way it is
+  presented in the user interface and the URL of the web service for
+  the tool. Values should be given for &quot;<span class="tt">tool</span>&quot;,
+  &quot;<span class="tt">model</span>&quot; and &quot;<span class="tt">&lt;URL&gt;</span>&quot;
+  (the first two are used for the user interface only).
+<p>
+
+<p>The following example shows a simple <span class="tt">[annotators]</span> section.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[annotators]</td><td width="600">&#160;</td>
+	</tr><tr>
+	  <td>SNER-CoNLL</td><td>tool:Stanford_NER, model:CoNLL, &lt;URL&gt;:http://example.com:80/tagger/</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<h3>Disambiguation tool configuration (<span class="tt">[disambiguators]</span> section)</h3>
+
+<p>The <span class="tt">[disambiguators]</span> section defines automatic semantic
+  class (annotation type) disambiguation services that can be invoked
+  from brat.
+</p>
+
+<p>Each line in the <span class="tt">[disambiguators]</span> section contains a
+  unique name for the service and key:value pairs defining the way it
+  is presented in the user interface and the URL of the web service
+  for the tool. Values should be given for &quot;<span class="tt">tool</span>&quot;,
+  &quot;<span class="tt">model</span>&quot; and &quot;<span class="tt">&lt;URL&gt;</span>&quot; (the
+  first two are used for the user interface only).
+<p>
+
+<p>The following example shows a simple <span class="tt">[disambiguators]</span> section.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[disambiguators]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>simsem-MUC</td><td>tool:simsem, model:MUC, &lt;URL&gt;:http://example.com:80/simsem/%s</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>As for search, the string to query for is identified by
+  <span class="tt">&quot;%s&quot;</span> in the URL.
+</p>
+
+
+<!-- ================================================================== -->  
+<!--                              OTHER                                 -->
+<!-- ================================================================== -->  
+
+<h2 id="additional-details">Additional details</h2>
+
+<h3 id="advanced-relations">Advanced relation configuration</h3>
+
+<p>Relation definitions support the ability to set relation
+  properties through the special
+  attribute <span class="tt">&lt;REL-TYPE&gt;</span> as shown in the following
+  example.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[relations]</td><td width="600">&#160;</td>
+	</tr><tr>
+	  <td>Equiv</td><td>Arg1:Person, Arg2:Person, &lt;REL-TYPE&gt;:symmetric-transitive</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>The <span class="tt">&lt;REL-TYPE&gt;</span> specification currently
+  supports two properties, <span class="tt">symmetric</span>
+  and <span class="tt">transitive</span>, which can apply either separately or
+  together. Multiple properties can be combined by using the dash
+  character (&quot;<span class="tt">-</span>&quot;), as in the above example.
+</p>
+
+<p>The combination <span class="tt">symmetric-transitive</span> defines an
+  <i>equivalence relation</i>.
+</p>
+
+<h3 id="advanced-attributes">Advanced attribute configuration</h3>
+
+<p>Multi-valued attributes can be defined using the syntax
+  illustrated in the following example (<span class="tt">annotation.conf</span>):
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[attributes]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Confidence</td><td>Arg:&lt;EVENT&gt;, Value:L1|L2|L3</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>The visual configuration of multi-valued attributes
+  in <span class="tt">visual.conf</span> can then specified as in one of the following
+  examples:
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[drawing]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Confidence</td><td>glyph:(1)|(2)|(3), &lt;GLYPH-POS&gt;:left</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>or</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[drawing]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Confidence</td><td>dashArray:-|3-3|3-6</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<h3>Shortcuts and macros</h3>
+
+<p>The following &quot;shortcuts&quot; are defined for
+  convenience for <span class="tt">annotation.conf</span> definitions:
+  <ul>
+    <li><span class="tt">&lt;ENTITY&gt;</span>: any entity type (any type appearing in the <span class="tt">[entities]</span> section)</li>
+    <li><span class="tt">&lt;RELATION&gt;</span>: any relation type (any type appearing in the <span class="tt">[relations]</span> section)</li>
+    <li><span class="tt">&lt;EVENT&gt;</span>: any event type (any type appearing in the <span class="tt">[events]</span> section)</li>
+    <li><span class="tt">&lt;ANY&gt;</span>: any type
+  </ul>
+</p>
+<p>These shortcuts can be used in definitions as in the
+  following partial <span class="tt">annotation.conf</span> example:
+</p>
+<table class="annotation_wrapper">
+  <tr><td>
+      <table class="annotation_table">
+	<tr><td width="100">[events]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Transport</td><td>Theme:&lt;ENTITY&gt;, Cause:&lt;ANY&gt;</td>
+	</tr><tr>
+	  <td>&#160;</td>
+	</tr><tr>
+	  <td>[attributes]</td>
+	</tr><tr>
+	  <td>Speculation</td><td>Arg:&lt;EVENT&gt;</td>
+	</tr><tr>
+	  <td>Name</td><td>Arg:&lt;ENTITY&gt;</td>
+	</tr>
+      </table>
+  </td></tr>
+</table>
+<p>Here, <span class="tt">Transport</span> events, for example, take
+  a <span class="tt">Theme</span> which is any entity type and a <span class="tt">Cause</span>
+  of any type.
+</p>      
+<p>The configuration files additionally support a syntax for
+  defining arbitrary &quot;macros&quot;, as illustrated in the
+  following:
+</p>
+<table class="annotation_wrapper">
+  <tr><td>
+      <table class="annotation_table">
+	<tr>
+	  <td>&lt;LIVING-THING&gt;=Person|Animal|Plant</td>
+	</tr>
+      </table>
+  </td></tr>
+</table>
+<p>Defined macros can then appear anywhere in the configuration,
+  and will be interpreted using simple textual replacement; any
+  occurrence of a string defined as a macro
+  (e.g. "<span class="tt">&lt;LIVING-THING&gt;</span>") in a configuration file
+  will be processed as if its value
+  (e.g. "<span class="tt">Person|Animal|Plant</span>") were written in its
+  place.
+</p>
+<p>These shortcuts can make configurations with many types more concise
+  and easier to read and write.
+</p>
+
+<h3 id="type-names">Type names</h3>
+
+<p>Each annotation type consists of one or more characters,
+  constrained to the set of alphanumeric characters
+  (&quot;a&quot;-&quot;z&quot;, &quot;A&quot;-&quot;Z&quot;,
+  &quot;0&quot;-&quot;9&quot;), the hyphen (&quot;-&quot;) and
+  the underscore (&quot;_&quot;) character.
+</p>
+<p>However, these restrictions apply only to 
+  <span class="tt">annotation.conf</span>, which defines the types used by the
+  system internally and in storage on disk. The corresponding
+  labels appearing on the user interface, defined
+  in <span class="tt">visual.conf</span>, have no such limitations, and can
+  contain, for example, space or arbitrary Unicode
+  characters.
+</p>
+<p>The following (partial) configuration examples illustrate
+  arbitrary characters in labels on the user interface.
+</p>
+<p><span class="tt">annotation.conf</span>:
+</p>
+<img style="border:none" class="right" src="img/nonascii-label-example.png"/>
+<table class="annotation_wrapper">
+  <tr><td>
+      <table class="annotation_table">
+	<tr><td width="300">[entities]</td>
+	</tr><tr>
+	  <td>Immaterial-thing</td>
+	</tr><tr>
+	  <td>Organization</td>
+	</tr><tr>
+	  <td># (rest of config omitted)</td>
+	</tr>
+      </table>
+  </td></tr>
+</table>
+<p><span class="tt">visual.conf</span>:
+</p>
+<table class="annotation_wrapper">
+  <tr><td>
+      <table class="annotation_table">
+	<tr><td width="300">[labels]</td>
+	</tr><tr>
+	  <td>Immaterial-thing | Immaterial thing</td>
+	</tr><tr>
+	  <td>Organization | &#x7D44;&#x7E54;</td>
+	</tr><tr>
+	  <td># (rest of config omitted)</td>
+	</tr>
+      </table>
+  </td></tr>
+</table>

@@ -1,0 +1,297 @@
+/* style for home page and manual. */
+
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600&subset=latin&effect=smoothing);
+
+img.bordered {
+  border: 1px solid black;
+}
+
+#oldbrowser {
+  color: red;
+}
+
+#partialsupport {
+  font-weight: bold;
+}
+
+a img {
+  border: 0;
+}
+
+span.tt {
+  font-family: 'Bitstream Vera Sans Mono','Courier',monospace;
+}
+
+pre {
+  display: block;
+  white-space: pre;
+  background-color: #F8F8F8;
+  border: 1px solid #CCC;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+code {
+  line-height: 1.4;
+  font: 12px 'Bitstream Vera Sans Mono','Courier',monospace;
+  margin: 0 2px;
+  padding: 0 5px;
+  border: 1px solid #EAEAEA;
+  background-color: #F8F8F8;
+  border-radius: 3px;
+}
+
+pre > code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+.unselectable {
+   -moz-user-select: -moz-none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -o-user-select: none;
+   user-select: none;
+   cursor: default;
+}
+
+#notebox {
+  width:50%;
+  margin:auto;
+  text-align:center;
+  background-color: #ffcccc;
+  padding: 10px;
+  margin: 20px;
+}
+
+.redacted {
+/*  background-color: #ffcccc; */
+  background-color: #cccccc;
+}
+
+img {
+  -moz-box-shadow: 5px 5px 5px #999999;
+  -webkit-box-shadow: 5px 5px 5px #999999;
+  box-shadow: 5px 5px 5px #999999;
+  margin-bottom: 0.5em;
+}
+
+img.right {
+  border: 1px solid black;
+  margin:auto;
+  float:right;
+  margin-left: 5em;
+  margin-bottom: 3em;
+  margin-top: 1em;
+}
+
+img.tinymargin {
+  margin: 0.3em;
+}
+
+img.icon {
+  vertical-align:bottom;
+  -moz-box-shadow: 0px 0px 0px #ffffff;
+  -webkit-box-shadow: 0px 0px 0px #ffffff;
+  box-shadow: 0px 0px 0px #ffffff;
+  margin-bottom: 0;
+}
+
+body { 
+  font-family: 'Open Sans', arial, sans-serif;
+  font-size: 13px;
+  overflow-y: scroll;
+}
+
+h2 {
+  margin-top: 2em;
+}
+
+h2.nomargin {
+  margin-top: 0em;
+}
+
+h3 {
+  margin-top: 1.5em;
+}
+
+.infolabel {
+  font-weight: bold;  
+  display: inline-block;
+  width: 10em;
+}
+
+.h1subtitle {
+  font-size: 15px;
+  color: gray;
+}
+
+div.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+#header {
+  padding: 10px 15px;
+  margin-bottom: 2em;
+  padding-left: 3em;
+  font-size: 120%;
+}
+#menulogo {
+  padding-top: 0.5em;
+  padding-right: 1em;
+  float: right;  
+}
+#header span a {
+  text-decoration: none; /* no underline in menu */
+}
+#header > span, #header > a {
+  margin-right: 10px;
+}
+
+.bigbutton {
+  font-size: 20px !important;
+  padding: 10px 15px !important;
+}
+
+#header > .logo {
+  font-size: 1.2em;
+  margin-top: -10px;
+  margin-bottom: -10px;
+  text-shadow: #000 0 0 3px;
+}
+
+#main {
+  width:1000px;
+  padding-left: 2em;
+  padding-right: 2em;
+}
+#content {
+  margin: 15px;
+}
+
+#manual-main {
+  max-width:960px;
+  padding-left: 2em;
+  padding-right: 2em;
+  padding-bottom: 5em;
+}
+
+#footer {
+  font-size: 10px;
+  color: gray;
+  border-top: 1px solid lightgray;
+  margin-top: 5em;
+  margin-bottom: 5em;
+  clear: both;
+}
+
+.footer-text {
+  float: left;
+}
+
+.footer-logo {
+  float: right;
+}
+
+.footer-logo img {
+  margin: 0;
+  -moz-box-shadow: 0px 0px 0px #fff;
+  -webkit-box-shadow: 0px 0px 0px #fff;
+  box-shadow: 0px 0px 0px #fff;
+}
+
+#titleblock {
+  height: 100px;
+}
+
+#downloadblock {
+  float: right;
+  width: 300px;
+  margin: 1em;
+}
+
+.image {
+  margin-left: 2em;    
+}
+
+.image .caption { 
+  font-size: 85%;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+#browsersupport {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.annotation_wrapper { 
+  margin-left: 2em;
+  border: 1px solid;
+  border-color: rgb(136, 136, 136);
+  background-color: rgb(207, 226, 243);
+}
+
+.annotation_wrapper td {
+  padding: 1em;
+}
+
+.annotation_table {
+  border: none;
+}
+
+.annotation_table th {
+  padding: 0em;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.annotation_table td {
+  padding: 0;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+td.support-ok {
+  background-color: lightgreen;
+}
+
+td.support-partial {
+  background-color: #F0F0B0;
+}
+
+td.support-no {
+  background-color: #FF9090;
+}
+
+.rounded {
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+}
+
+.logo {
+  font-family: 'Astloch', serif;
+  font-style: normal;
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0em;
+  word-spacing: 0em;
+  line-height: 1.2;
+
+  font-weight: bold;
+}
+@font-face {
+  font-family: 'Astloch';
+  font-style: normal;
+  font-weight: bold;
+  src: local('Astloch Bold'), local('Astloch-Bold'), url('fonts/Astloch-Bold.ttf') format('truetype');
+}

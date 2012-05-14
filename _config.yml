@@ -1,0 +1,10 @@
+# YAML Configuration file for bionlp.github.com
+
+auto:       true
+markdown:   maruku
+permalink:  date
+pygments:   true
+safe:       true
+server:     true
+
+exclude: CNAME, README.md

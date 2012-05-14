@@ -1,0 +1,2 @@
+Example: Named Entity annotation
+CoNLL 2002 shared task (Spanish)

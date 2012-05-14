@@ -1,0 +1,2 @@
+Example: Event annotation
+BioNLP Shared Task 2011 (EPI task)
