@@ -10,7 +10,7 @@ In order by changed lines of code ([Ballmer][ballmer] says [SLOC][sloc]
 * Sampo Pyysalo     &lt;smp is s u-tokyo ac jp&gt;
 * Pontus Stenetorp  &lt;pontus is s u-tokyo ac jp&gt;
 * Antony Scerri     &lt;a.scerri elsevier com&gt; (Elsevier Labs)
-* Illes Solt        &lt;solt tmit bme hu&gt;
+* Illés Solt        &lt;solt tmit bme hu&gt;
 * David McClosky    &lt;david.mcclosky gmail com&gt;
 
 Extracted using the following bash one-liner:
