@@ -24,11 +24,11 @@ brat aims to overcome short-comings of previous annotation tools such as:
 brat does this by:
 
 * Data and configurations on a central web server (as Mark Twain said:
-"Put all your eggs in one basket, and then guard that basket!")
+    "Put all your eggs in one basket, and then guard that basket!")
 * Present text as it would appear to a reader and maintain annotations close
-to the text
+    to the text
 * Zero set-up for annotators, leave configurations and server/data maintainence
-to other staff
+    to other staff
 
 ## Documentation ##
 
@@ -87,13 +87,27 @@ please cite the following publication:
       url       = {http://www.aclweb.org/anthology/W11-1816}
     }
 
-Lastly, if you have enough space we would be very happy if you also link to the brat
-repository:
+Lastly, if you have enough space we would be very happy if you also link to
+the brat repository:
 
     ...the brat rapid annotation tool\footnote{
         \url{http://brat.nlplab.org}
     }
 
+## Contributing ##
+
+As with any software brat is under continuous development. If you have
+requests for features please [file an issue][brat_issues] describing your
+request. Also, if you want to see work towards a specific feature feel free to
+contribute by working towards it. The standard procedure is to fork the
+repository, add a feature, fix a bug, then file a pull request that your
+changes are to be merged into the main repository and included in the next
+release. If you seek guidance or pointers please notify the brat developers
+and we will be more than happy to help.
+
+If you send a pull request you agree that the code will be distributed under
+the same license as brat (MIT). Additionally, all non-anonymous contributors
+are recognised in the CONTRIBUTORS.md file.
 
 ## Contact ##
 
