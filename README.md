@@ -88,7 +88,7 @@ please cite the following publication:
     }
 
 Lastly, if you have enough space we would be very happy if you also link to
-the brat repository:
+the brat homepage:
 
     ...the brat rapid annotation tool\footnote{
         \url{http://brat.nlplab.org}
