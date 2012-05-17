@@ -366,7 +366,8 @@ def __create_span(ann_obj, mods, type, start, end, txt_file_path,
 
         #TODO: Data tail should be optional
         if '\n' not in text:
-            ann = TextBoundAnnotationWithText(start, end, new_id, type, text)
+            spans = [(start, end)]
+            ann = TextBoundAnnotationWithText(spans, new_id, type, text)
             ann_obj.add_annotation(ann)
             mods.addition(ann)
         else:

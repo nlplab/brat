@@ -1326,7 +1326,7 @@ class TextBoundAnnotation(IdedAnnotation):
         raise NotImplementedError
 
     def __str__(self):
-        return u'%s\t%s %s %s%s' % (
+        return u'%s\t%s %s%s' % (
                 self.id,
                 self.type,
                 ';'.join(['%d %d' % (start, end) for start, end in self.spans]),
