@@ -1374,7 +1374,7 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
 
     def __str__(self):
         #log_info('TextBoundAnnotationWithText: __str__: "%s"' % self.text)
-        return u'%s\t%s %s %s\t%s%s' % (
+        return u'%s\t%s %s\t%s%s' % (
                 self.id,
                 self.type,
                 ';'.join(['%d %d' % (start, end) for start, end in self.spans]),
