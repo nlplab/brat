@@ -43,6 +43,11 @@ except ImportError:
     PERFORM_VERIFICATION = False
 
 try:
+    from config import NEWLINE_SS
+except ImportError:
+    NEWLINE_SS = False
+
+try:
     from config import JAPANESE
 except ImportError:
     JAPANESE = False
@@ -609,26 +614,27 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
     
     from logging import info as log_info
 
+    # First, generate tokenisation
     if JAPANESE:
-        from ssplit import jp_sentence_boundary_gen
         from tokenise import jp_token_boundary_gen
+        token_offsets = [o for o in jp_token_boundary_gen(text)]
+    else:
+        from tokenise import en_token_boundary_gen
+        token_offsets = [o for o in en_token_boundary_gen(text)]
+    j_dic['token_offsets'] = token_offsets
 
+    if NEWLINE_SS:
+        from ssplit import newline_sentence_boundary_gen
+        sentence_offsets = [o for o in newline_sentence_boundary_gen(text)]
+    elif JAPANESE:
+        from ssplit import jp_sentence_boundary_gen
         sentence_offsets = [o for o in jp_sentence_boundary_gen(text)]
         #log_info('offsets: ' + str(offsets))
-        j_dic['sentence_offsets'] = sentence_offsets
-
-        token_offsets = [o for o in jp_token_boundary_gen(text)]
-        j_dic['token_offsets'] = token_offsets
     else:
         from ssplit import en_sentence_boundary_gen
-        from tokenise import en_token_boundary_gen
-
         sentence_offsets = [o for o in en_sentence_boundary_gen(text)]
         #log_info('offsets: ' + str(sentence_offsets))
-        j_dic['sentence_offsets'] = sentence_offsets
-        
-        token_offsets = [o for o in en_token_boundary_gen(text)]
-        j_dic['token_offsets'] = token_offsets
+    j_dic['sentence_offsets'] = sentence_offsets
 
     return True
 
