@@ -102,14 +102,6 @@ def whoami():
     return json_dic
 
 def allowed_to_read(real_path):
-    try:
-        user = get_session().get('user')
-    except KeyError:
-        user = None
-
-    if user is None:
-        user = 'guest'
-
     data_path = path_join('/', relpath(real_path, DATA_DIR))
     # add trailing slash to directories, required to comply to robots.txt
     if isdir(real_path):
@@ -119,6 +111,14 @@ def allowed_to_read(real_path):
     robotparser = ProjectConfiguration(real_dir).get_access_control()
     if robotparser is None:
         return True # default allow
+
+    try:
+        user = get_session().get('user')
+    except KeyError:
+        user = None
+
+    if user is None:
+        user = 'guest'
 
     #display_message('Path: %s, dir: %s, user: %s, ' % (data_path, real_dir, user), type='error', duration=-1)
 
