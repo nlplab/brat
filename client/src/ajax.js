@@ -30,7 +30,7 @@ var Ajax = (function($, window, undefined) {
               console.error('Action ' + data.action +
                 ' returned the results of action ' + response.action);
               response.exception = true;
-              dispatcher.post('messages', [[['Protocol error: Action' + data.action + ' returned the results of action ' + response.action, 'error']]]);
+              dispatcher.post('messages', [[['Protocol error: Action' + data.action + ' returned the results of action ' + response.action + ' maybe the server is unable to run, please run tools/troubleshooting.sh from your installation to diagnose it', 'error']]]);
             }
 
             // If the request is obsolete, do nothing; if not...
