@@ -1318,12 +1318,41 @@ class TextBoundAnnotation(IdedAnnotation):
     end = property(get_end)
     # end hack
 
+    def first_start(self):
+        """
+        Return the first (min) start offset in the annotation spans.
+        """
+        return min([start for start, end in self.offsets])
+
+    def last_end(self):
+        """
+        Return the last (max) start offset in the annotation spans.
+        """
+        return max([end for start, end in self.offsets])
+
     def get_text(self):
         # If you're seeing this exception, you probably need a
         # TextBoundAnnotationWithText. The underlying issue may be
         # that you're creating an Annotations object instead of
         # TextAnnotations.
         raise NotImplementedError
+
+    def contains(self, other):
+        """
+        Determine if a given other TextBoundAnnotation is contained in
+        this one. Returns True if each (start, end) span of the other
+        annotation is inside (or equivalent with) at least one span
+        of this annotation, False otherwise.
+        """
+        for o_start, o_end in other.spans:
+            contained = False
+            for s_start, s_end in self.spans:
+                if o_start >= s_start and o_end <= s_end:
+                    contained = True
+                    break
+            if not contained:
+                return False
+        return True
 
     def __str__(self):
         return u'%s\t%s %s%s' % (

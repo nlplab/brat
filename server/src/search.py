@@ -75,6 +75,14 @@ class TextMatch(object):
         self.text = text
         self.sentence = sentence
 
+    def first_start():
+        # mimic first_start() for TextBoundAnnotation
+        return self.start
+
+    def last_end():
+        # mimic last_end() for TextBoundAnnotation
+        return self.end
+        
     def reference_id(self):
         # mimic reference_id for annotations
         # this is the form expected by client Util.param()
@@ -260,10 +268,11 @@ def _get_offset_ann_map(ann_objs, restrict_types=[], ignore_types=[]):
             if restrict_types != [] and t.type not in restrict_types:
                 continue
 
-            for o in range(t.start, t.end):
-                if o not in offset_ann_map:
-                    offset_ann_map[o] = set()
-                offset_ann_map[o].add(t)
+            for t_start, t_end in t.offsets:
+                for o in range(t_start, t_end):
+                    if o not in offset_ann_map:
+                        offset_ann_map[o] = set()
+                    offset_ann_map[o].add(t)
 
     return offset_ann_map
 
@@ -573,14 +582,16 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
                 continue
             if nested_types != []:
                 # TODO: massively inefficient
-                nested = [x for x in ann_obj.get_textbounds() if x != t and x.start >= t.start and x.end <= t.end]
+                nested = [x for x in ann_obj.get_textbounds() 
+                          if x != t and t.contains(x)]
                 if len([x for x in nested if x.type in nested_types]) == 0:
                     continue
 
             ann_matches.append(t)
 
         # sort by start offset
-        ann_matches.sort(lambda a,b: cmp((a.start,-a.end),(b.start,-b.end)))
+        ann_matches.sort(lambda a,b: cmp((a.first_start(),-a.last_end()),
+                                         (b.first_start(),-b.last_end())))
 
         # add to overall collection
         for t in ann_matches:
@@ -652,7 +663,8 @@ def search_anns_for_note(ann_objs, text, category,
 
             ann_matches.append(NoteMatch(n,a))
 
-        ann_matches.sort(lambda a,b: cmp((a.start,-a.end),(b.start,-b.end)))
+        ann_matches.sort(lambda a,b: cmp((a.first_start(),-a.last_end()),
+                                         (b.first_start(),-b.last_end())))
 
         # add to overall collection
         for t in ann_matches:
@@ -899,7 +911,8 @@ def search_anns_for_event(ann_objs, trigger_text, args,
             ann_matches.append((t_ann, e))
 
         # sort by trigger start offset
-        ann_matches.sort(lambda a,b: cmp((a[0].start,-a[0].end),(b[0].start,-b[0].end)))
+        ann_matches.sort(lambda a,b: cmp((a[0].first_start(),-a[0].last_end()),
+                                         (b[0].first_start(),-b[0].last_end())))
 
         # add to overall collection
         for t_obj, e in ann_matches:
@@ -967,7 +980,7 @@ def search_anns_for_text(ann_objs, text,
             # if there are no type restrictions, we can skip this bit
             if restrict_types != [] or ignore_types != []:
                 for t in ann_obj.get_textbounds():
-                    if t.start <= m.start() and t.end >= m.end():
+                    if t.contains(m):
                         embedding.append(t)
 
             # Note interpretation of ignore_types here: if the text
@@ -1058,8 +1071,8 @@ def format_results(matches, concordancing=False, context_length=50):
         include_context = True
         try:
             for ann_obj, ann in matches.get_matches():
-                ann.start
-                ann.end
+                ann.first_start()
+                ann.last_end()
         except AttributeError:
             include_context = False
 
@@ -1069,8 +1082,8 @@ def format_results(matches, concordancing=False, context_length=50):
         try:
             for ann_obj, ann in matches.get_matches():
                 trigger = ann_obj.get_ann_by_id(ann.trigger)
-                trigger.start
-                trigger.end
+                trigger.first_start()
+                trigger.last_end()
         except AttributeError:
             include_trigger_context = False
 
@@ -1135,8 +1148,9 @@ def format_results(matches, concordancing=False, context_length=50):
 
         if context_ann is not None:
             # left context
-            start = max(context_ann.start - context_length, 0)
-            items[-1].append(ann_obj.get_document_text()[start:context_ann.start])
+            start = max(context_ann.first_start() - context_length, 0)
+            doctext = ann_obj.get_document_text()
+            items[-1].append(doctext[start:context_ann.first_start()])
 
         if include_text:
             items[-1].append(ann.text)
@@ -1150,8 +1164,10 @@ def format_results(matches, concordancing=False, context_length=50):
 
         if context_ann is not None:
             # right context
-            end = min(context_ann.end + context_length, len(ann_obj.get_document_text()))
-            items[-1].append(ann_obj.get_document_text()[context_ann.end:end])
+            end = min(context_ann.last_end() + context_length, 
+                      len(ann_obj.get_document_text()))
+            doctext = ann_obj.get_document_text()
+            items[-1].append(doctext[context_ann.last_end():end])
 
 
     response['items'] = items
