@@ -152,8 +152,7 @@ var AnnotatorUI = (function($, window, undefined) {
             type: editedSpan.type,
             id: id,
           };
-          var spanText = data.text.substring(editedSpan.from, editedSpan.to);
-          fillSpanTypesAndDisplayForm(evt, spanText, editedSpan);
+          fillSpanTypesAndDisplayForm(evt, editedSpan.text, editedSpan);
           // for precise timing, log annotation display to user.
           dispatcher.post('logAction', ['spanEditSelected']);
         }
@@ -178,7 +177,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
         arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
         arcDragOriginGroup.addClass('highlight');
-        arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin]);
+        arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin].headFragment);
         arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
 
         arcDragJustStarted = true;
