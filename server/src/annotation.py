@@ -1322,13 +1322,13 @@ class TextBoundAnnotation(IdedAnnotation):
         """
         Return the first (min) start offset in the annotation spans.
         """
-        return min([start for start, end in self.offsets])
+        return min([start for start, end in self.spans])
 
     def last_end(self):
         """
         Return the last (max) start offset in the annotation spans.
         """
-        return max([end for start, end in self.offsets])
+        return max([end for start, end in self.spans])
 
     def get_text(self):
         # If you're seeing this exception, you probably need a

@@ -268,7 +268,7 @@ def _get_offset_ann_map(ann_objs, restrict_types=[], ignore_types=[]):
             if restrict_types != [] and t.type not in restrict_types:
                 continue
 
-            for t_start, t_end in t.offsets:
+            for t_start, t_end in t.spans:
                 for o in range(t_start, t_end):
                     if o not in offset_ann_map:
                         offset_ann_map[o] = set()
