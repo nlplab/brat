@@ -75,11 +75,11 @@ class TextMatch(object):
         self.text = text
         self.sentence = sentence
 
-    def first_start():
+    def first_start(self):
         # mimic first_start() for TextBoundAnnotation
         return self.start
 
-    def last_end():
+    def last_end(self):
         # mimic last_end() for TextBoundAnnotation
         return self.end
         
