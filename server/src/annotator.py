@@ -20,6 +20,7 @@ from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, EquivAnnotation, open_textfile,
         AnnotationsIsReadOnlyError, AttributeAnnotation)
+from common import ProtocolError
 try:
     from config import DEBUG
 except ImportError:
@@ -28,6 +29,10 @@ from document import real_directory
 from jsonwrap import loads as json_loads, dumps as json_dumps
 from message import Messager
 from projectconfig import ProjectConfiguration
+
+class ProtocolArgumentError(ProtocolError):
+    def json(self, json_dic):
+        json_dic['exception'] = 'protocolArgumentError'
 
 # TODO: remove once HTML generation done clientside
 def generate_empty_fieldset():
@@ -223,12 +228,33 @@ from logging import info as log_info
 from annotation import TextBoundAnnotation, TextBoundAnnotationWithText
 from copy import deepcopy
 
+def _offsets_equal(o1, o2):
+    """
+    Given two lists of (start, end) integer offset sets, returns
+    whether they identify the same sets of characters.
+    """
+    # TODO: full implementation; current doesn't check for special
+    # cases such as dup or overlapping (start, end) pairs in a single
+    # set.
+
+    # short-circuit (expected to be the most common case)
+    if o1 == o2:
+        return True
+    return sorted(o1) == sorted(o2)
+
+def _text_for_offsets(text, offsets):
+    """
+    Given a text and a list of (start, end) integer offsets, returns
+    the (catenated) text corresponding to those offsets.
+    """
+    try:
+        return "".join([text[s,e] for s,e in offsets])
+    except Exception:
+        Messager.error('_text_for_offsets: failed to get text for given offsets (%s)' % str(offsets))
+        raise ProtocolArgumentError
+
 def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
         undo_resp={}):
-    #TODO discont: actually use offsets instead of (start, end)!
-    Messager.warning('_edit_span(): using (start, end)')
-    start, end = offsets[0]
-
     #TODO: Handle failure to find!
     ann = ann_obj.get_ann_by_id(id)
 
@@ -247,8 +273,7 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
     undo_resp['offsets'] = tb_ann.spans[:]
     undo_resp['type'] = tb_ann.type
 
-    # TODO discont: use offsets instead (note need for int conversion)
-    if (int(start) != tb_ann.start or int(end) != tb_ann.end):
+    if not _offsets_equal(tb_ann.spans, offsets):
         if not isinstance(tb_ann, TextBoundAnnotation):
             # TODO XXX: the following comment is no longer valid 
             # (possibly related code also) since the introduction of
@@ -268,10 +293,8 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
             # TODO: Log modification too?
             before = unicode(tb_ann)
             #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
-            # TODO discont: use offsets instead (note need for int conversion)
-            tb_ann.start = int(start)
-            tb_ann.end = int(end)
-            tb_ann.text = ann_obj._document_text[tb_ann.start:tb_ann.end]
+            tb_ann.spans = offsets[:]
+            tb_ann.text = _text_for_offsets(ann_obj._document_text, tb_ann.spans)
             #log_info('Span altered')
             mods.change(before, tb_ann)
 
@@ -316,18 +339,14 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
                         # identical to our sought one already exist?
                         found = None
                         for tb_ann in ann_obj.get_textbounds():
-                            # TODO discont: use offsets instead (note
-                            # need for int conversion)
-                            if (tb_ann.start == ann_trig.start
-                                    and tb_ann.end == ann_trig.end
-                                    and tb_ann.type == ann.type):
+                            if (_offsets_equal(tb_ann.spans, ann_trib.spans) and
+                                tb_ann.type == ann.type):
                                 found = tb_ann
                                 break
 
                         if found is None:
                             # Just change the trigger type since we are the
                             # only users
-
                             before = unicode(ann_trig)
                             ann_trig.type = ann.type
                             mods.change(before, ann_trig)
@@ -347,21 +366,11 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
 
 def __create_span(ann_obj, mods, type, offsets, txt_file_path,
         projectconf, attributes):
-    #TODO discont: actually use offsets instead of (start, end)!
-    Messager.warning('__create_span(): using (start, end)')
-    start, end = offsets[0]
-
-    # TODO: Rip this out!
-    start = int(start)
-    end = int(end)
-
-    # Before we add a new trigger, does it already exist?
+    # Before we add a new trigger, does an equivalent one already exist?
     found = None
     for tb_ann in ann_obj.get_textbounds():
         try:
-            # TODO discont: use offsets instead (note need for int conversion)
-            if (tb_ann.start == start and tb_ann.end == end
-                    and tb_ann.type == type):
+            if _offsets_equal(tb_ann.spans, offsets) and tb_ann.type == type:
                 found = tb_ann
                 break
         except AttributeError:
@@ -374,13 +383,11 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
         # Get the text span
         with open_textfile(txt_file_path, 'r') as txt_file:
             # TODO discont: use offsets instead (note need for int conversion)
-            text = txt_file.read()[start:end]
+            text = _text_for_offsets(txt_file.read(), offsets)
 
         #TODO: Data tail should be optional
         if '\n' not in text:
-            # TODO discont: use offsets instead (note need for int conversion)
-            spans = [(start, end)]
-            ann = TextBoundAnnotationWithText(spans, new_id, type, text)
+            ann = TextBoundAnnotationWithText(offsets[:], new_id, type, text)
             ann_obj.add_annotation(ann)
             mods.addition(ann)
         else:
@@ -437,19 +444,22 @@ def _set_attributes(ann_obj, ann, attributes, mods, undo_resp={}):
             ann_obj.add_annotation(new_attr)
             mods.addition(new_attr)
 
-# To unshadow Python internals like "type" and "id"
+#TODO: unshadow Python internals like "type" and "id"
 def create_span(collection, document, offsets, type, attributes=None,
         id=None, comment=None):
+    # offsets should be (start, end) pairs; convert once at this interface
+    try:
+        offsets = [(int(s),int(e)) for s,e in offsets]
+    except Exception:
+        Messager.error('create_span: protocol argument error: expected offsets as list of int pairs, received "%s"' % str(offsets))
+        raise ProtocolArgumentError
+
     return _create_span(collection, document, offsets, type, attributes,
             id, comment)
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def _create_span(collection, document, offsets, _type, attributes=None,
         _id=None, comment=None):
-    #TODO discont: actually use offsets instead of (start, end)!
-    Messager.warning('_create_span(): using (start, end)')
-    start, end = offsets[0]
-
     directory = collection
     undo_resp = {}
 
@@ -511,11 +521,11 @@ def _create_span(collection, document, offsets, _type, attributes=None,
         # Set annotation attributes
         if e_ann is not None:
             # Assign attributes to the event, not the trigger
-            _set_attributes(ann_obj, e_ann, _attributes, mods,
-                    undo_resp=undo_resp)
+            attrib_on = e_ann
         else:
-            _set_attributes(ann_obj, tb_ann, _attributes, mods,
-                    undo_resp=undo_resp)
+            attrib_on = tb_ann
+        _set_attributes(ann_obj, attrib_on, _attributes, mods,
+                        undo_resp=undo_resp)
 
         # Handle annotation comments
         if tb_ann is not None:
