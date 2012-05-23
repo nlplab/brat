@@ -39,7 +39,9 @@ class SearchMatchSet(object):
     an ann an Annotation belonging to the corresponding ann_obj.
     """
 
-    def __init__(self, criterion, matches=[]):
+    def __init__(self, criterion, matches=None):
+        if matches is None:
+            matches = []
         self.criterion = criterion
         self.__matches = matches
 
@@ -215,7 +217,7 @@ def __doc_or_dir_to_annotations(directory, document, scope):
         Messager.error('Unrecognized search scope specification %s' % scope)
         return []
 
-def _get_text_type_ann_map(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def _get_text_type_ann_map(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Helper function for search. Given annotations, returns a
     dict-of-dicts, outer key annotation text, inner type, values
@@ -241,7 +243,7 @@ def _get_text_type_ann_map(ann_objs, restrict_types=[], ignore_types=[], nested_
 
     return text_type_ann_map
 
-def _get_offset_ann_map(ann_objs, restrict_types=[], ignore_types=[]):
+def _get_offset_ann_map(ann_objs, restrict_types=None, ignore_types=None):
     """
     Helper function for search. Given annotations, returns a dict
     mapping offsets in text into the set of annotations spanning each
@@ -267,7 +269,7 @@ def _get_offset_ann_map(ann_objs, restrict_types=[], ignore_types=[]):
 
     return offset_ann_map
 
-def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def eq_text_neq_type_spans(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for annotated spans that match in string content but
     disagree in type in given Annotations objects.
@@ -363,7 +365,7 @@ def _split_and_tokenize(s):
 
     return tokens
         
-def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for spans that match in string content but are not all
     marked.
@@ -479,7 +481,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], neste
     
     return matches
 
-def check_type_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def check_type_consistency(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for inconsistent types in given Annotations
     objects.  Returns a list of SearchMatchSet objects, one for each
@@ -495,7 +497,7 @@ def check_type_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_
     return match_sets
 
 
-def check_missing_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def check_missing_consistency(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for potentially missing annotations in given Annotations
     objects.  Returns a list of SearchMatchSet objects, one for each
@@ -543,8 +545,8 @@ def _get_match_regex(text, text_match="word", match_case=False,
         Messager.error('Unrecognized search match specification "%s"' % text_match)
         return None    
 
-def search_anns_for_textbound(ann_objs, text, restrict_types=[], 
-                              ignore_types=[], nested_types=[], 
+def search_anns_for_textbound(ann_objs, text, restrict_types=None, 
+                              ignore_types=None, nested_types=None, 
                               text_match="word", match_case=False,
                               entities_only=False):
     """
@@ -624,7 +626,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
     return matches
 
 def search_anns_for_note(ann_objs, text, category,
-                         restrict_types=[], ignore_types=[],
+                         restrict_types=None, ignore_types=None,
                          text_match="word", match_case=False):
     """
     Searches for the given text in the comment annotations in the
@@ -696,7 +698,7 @@ def search_anns_for_note(ann_objs, text, category,
     return matches
 
 def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, 
-                             restrict_types=[], ignore_types=[], 
+                             restrict_types=None, ignore_types=None, 
                              text_match="word", match_case=False):
     """
     Searches the given Annotations objects for relation annotations
@@ -814,7 +816,7 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
     return matches
 
 def search_anns_for_event(ann_objs, trigger_text, args, 
-                          restrict_types=[], ignore_types=[], 
+                          restrict_types=None, ignore_types=None, 
                           text_match="word", match_case=False):
     """
     Searches the given Annotations objects for Event annotations
@@ -943,7 +945,7 @@ def search_anns_for_event(ann_objs, trigger_text, args,
     return matches
 
 def search_anns_for_text(ann_objs, text, 
-                         restrict_types=[], ignore_types=[], nested_types=[], 
+                         restrict_types=None, ignore_types=None, nested_types=None, 
                          text_match="word", match_case=False):
     """
     Searches for the given text in the document texts of the given
@@ -1332,14 +1334,14 @@ def search_relation(collection, document, scope="collection",
 
 ### filename list interface functions (e.g. command line) ###
 
-def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[], nested_types=[]):
+def search_files_for_text(filenames, text, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for the given text in the given set of files.
     """
     anns = __filenames_to_annotations(filenames)
     return search_anns_for_text(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
-def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=[], nested_types=[], entities_only=False):
+def search_files_for_textbound(filenames, text, restrict_types=None, ignore_types=None, nested_types=None, entities_only=False):
     """
     Searches for the given text in textbound annotations in the given
     set of files.
@@ -1349,14 +1351,14 @@ def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=
 
 # TODO: filename list interface functions for event and relation search
 
-def check_files_type_consistency(filenames, restrict_types=[], ignore_types=[], nested_types=[]):
+def check_files_type_consistency(filenames, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for inconsistent annotations in the given set of files.
     """
     anns = __filenames_to_annotations(filenames)
     return check_type_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
-def check_files_missing_consistency(filenames, restrict_types=[], ignore_types=[], nested_types=[]):
+def check_files_missing_consistency(filenames, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for potentially missing annotations in the given set of files.
     """
