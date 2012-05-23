@@ -223,8 +223,12 @@ from logging import info as log_info
 from annotation import TextBoundAnnotation, TextBoundAnnotationWithText
 from copy import deepcopy
 
-def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type,
+def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
         undo_resp={}):
+    #TODO discont: actually use offsets instead of (start, end)!
+    Messager.warning('_edit_span(): using (start, end)')
+    start, end = offsets[0]
+
     #TODO: Handle failure to find!
     ann = ann_obj.get_ann_by_id(id)
 
@@ -240,12 +244,11 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type,
 
     # Store away what we need to restore the old annotation
     undo_resp['action'] = 'mod_tb'
-    undo_resp['start'] = tb_ann.start
-    undo_resp['end'] = tb_ann.end
+    undo_resp['offsets'] = tb_ann.spans[:]
     undo_resp['type'] = tb_ann.type
-        
-    if (int(start) != tb_ann.start
-            or int(end) != tb_ann.end):
+
+    # TODO discont: use offsets instead (note need for int conversion)
+    if (int(start) != tb_ann.start or int(end) != tb_ann.end):
         if not isinstance(tb_ann, TextBoundAnnotation):
             # TODO XXX: the following comment is no longer valid 
             # (possibly related code also) since the introduction of
@@ -265,6 +268,7 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type,
             # TODO: Log modification too?
             before = unicode(tb_ann)
             #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
+            # TODO discont: use offsets instead (note need for int conversion)
             tb_ann.start = int(start)
             tb_ann.end = int(end)
             tb_ann.text = ann_obj._document_text[tb_ann.start:tb_ann.end]
@@ -312,6 +316,8 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type,
                         # identical to our sought one already exist?
                         found = None
                         for tb_ann in ann_obj.get_textbounds():
+                            # TODO discont: use offsets instead (note
+                            # need for int conversion)
                             if (tb_ann.start == ann_trig.start
                                     and tb_ann.end == ann_trig.end
                                     and tb_ann.type == ann.type):
@@ -339,8 +345,12 @@ def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type,
             mods.change(before, ann)
     return tb_ann, e_ann
 
-def __create_span(ann_obj, mods, type, start, end, txt_file_path,
+def __create_span(ann_obj, mods, type, offsets, txt_file_path,
         projectconf, attributes):
+    #TODO discont: actually use offsets instead of (start, end)!
+    Messager.warning('__create_span(): using (start, end)')
+    start, end = offsets[0]
+
     # TODO: Rip this out!
     start = int(start)
     end = int(end)
@@ -349,6 +359,7 @@ def __create_span(ann_obj, mods, type, start, end, txt_file_path,
     found = None
     for tb_ann in ann_obj.get_textbounds():
         try:
+            # TODO discont: use offsets instead (note need for int conversion)
             if (tb_ann.start == start and tb_ann.end == end
                     and tb_ann.type == type):
                 found = tb_ann
@@ -362,10 +373,12 @@ def __create_span(ann_obj, mods, type, start, end, txt_file_path,
         new_id = ann_obj.get_new_id('T') #XXX: Cons
         # Get the text span
         with open_textfile(txt_file_path, 'r') as txt_file:
+            # TODO discont: use offsets instead (note need for int conversion)
             text = txt_file.read()[start:end]
 
         #TODO: Data tail should be optional
         if '\n' not in text:
+            # TODO discont: use offsets instead (note need for int conversion)
             spans = [(start, end)]
             ann = TextBoundAnnotationWithText(spans, new_id, type, text)
             ann_obj.add_annotation(ann)
@@ -425,14 +438,18 @@ def _set_attributes(ann_obj, ann, attributes, mods, undo_resp={}):
             mods.addition(new_attr)
 
 # To unshadow Python internals like "type" and "id"
-def create_span(collection, document, start, end, type, attributes=None,
+def create_span(collection, document, offsets, type, attributes=None,
         id=None, comment=None):
-    return _create_span(collection, document, start, end, type, attributes,
+    return _create_span(collection, document, offsets, type, attributes,
             id, comment)
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def _create_span(collection, document, start, end, _type, attributes=None,
+def _create_span(collection, document, offsets, _type, attributes=None,
         _id=None, comment=None):
+    #TODO discont: actually use offsets instead of (start, end)!
+    Messager.warning('_create_span(): using (start, end)')
+    start, end = offsets[0]
+
     directory = collection
     undo_resp = {}
 
@@ -478,11 +495,11 @@ def _create_span(collection, document, start, end, _type, attributes=None,
 
         if _id is not None:
             # We are to edit an existing annotation
-            tb_ann, e_ann = _edit_span(ann_obj, mods, _id, start, end, projectconf,
+            tb_ann, e_ann = _edit_span(ann_obj, mods, _id, offsets, projectconf,
                     _attributes, _type, undo_resp=undo_resp)
         else:
             # We are to create a new annotation
-            tb_ann, e_ann = __create_span(ann_obj, mods, _type, start, end, txt_file_path,
+            tb_ann, e_ann = __create_span(ann_obj, mods, _type, offsets, txt_file_path,
                     projectconf, _attributes)
 
             undo_resp['action'] = 'add_tb'
