@@ -269,7 +269,7 @@ Next, let's edit httpd.conf:
 If you are installing brat into your home directory, add the following lines:
 
     <Directory /home/*/public_html>
-        AllowOverride Options Indexes FileInfo
+        AllowOverride Options Indexes FileInfo Limit
         AddType application/xhtml+xml .xhtml
         AddType font/ttf .ttf
         # For CGI support
