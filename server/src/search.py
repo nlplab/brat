@@ -234,6 +234,8 @@ def _get_text_type_ann_map(ann_objs, restrict_types=None, ignore_types=None, nes
         for t in ann_obj.get_textbounds():
             if t.type in ignore_types:
                 continue
+            if restrict_types != [] and t.type not in restrict_types:
+                continue
 
             if t.text not in text_type_ann_map:
                 text_type_ann_map[t.text] = {}
