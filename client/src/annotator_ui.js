@@ -145,10 +145,13 @@ var AnnotatorUI = (function($, window, undefined) {
         } else if (id = target.attr('data-span-id')) {
           window.getSelection().removeAllRanges();
           editedSpan = data.spans[id];
+          var offsets = [];
+          $.each(editedSpan.fragments, function(fragmentNo, fragment) {
+            offsets.push([fragment.from, fragment.to]);
+          });
           spanOptions = {
             action: 'createSpan',
-            start: editedSpan.from,
-            end: editedSpan.to,
+            offsets: offsets,
             type: editedSpan.type,
             id: id,
           };
@@ -891,18 +894,22 @@ var AnnotatorUI = (function($, window, undefined) {
               return;
             }
 
+            var newOffsets;
+            var newOffset = [selectedFrom, selectedTo];
             if (reselectedSpan) {
-              spanOptions.old_start = spanOptions.start;
-              spanOptions.old_end = spanOptions.end;
+              spanOptions.old_offsets = spanOptions.offsets; // XXX: needed?
+              newOffsets = reselectedSpan.offsets.slice(0);
+              newOffsets.push(newOffset);
+              newOffsets.sort();
             } else {
               spanOptions = {
                 action: 'createSpan'
               }
+              newOffsets = [newOffset];
             }
 
             $.extend(spanOptions, {
-                start: selectedFrom,
-                end: selectedTo
+                offsets: newOffsets
               });
 
             var crossSentence = true;
@@ -1446,6 +1453,9 @@ var AnnotatorUI = (function($, window, undefined) {
         // hiding them
         spanForm.parent().find('*').blur();
         spanOptions.attributes = $.toJSON(attributes);
+        if (spanOptions.offsets) {
+          spanOptions.offsets = $.toJSON(spanOptions.offsets);
+        }
         $('#waiter').dialog('open');
         dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;
@@ -1472,8 +1482,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // the normal dialog should be brought up for the same span.
           spanOptions = {
             action: 'createSpan',
-            start: rapidSpanOptions.start,
-            end: rapidSpanOptions.end,
+            offsets: [[rapidSpanOptions.start, rapidSpanOptions.end]],
           };
           // TODO: avoid using the stored mouse event
           fillSpanTypesAndDisplayForm(lastRapidAnnotationEvent,
