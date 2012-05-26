@@ -2340,8 +2340,8 @@ Util.profileStart('chunkFinish');
         // draw the markedText
         $.each(textMarkedRows, function(textRowNo, textRowDesc) { // row, from, to
           var textHighlight = svg.rect(highlightGroup,
-              textRowDesc[1] - 2, textRowDesc[0].textY - sizes.fragment.height,
-              textRowDesc[2] - textRowDesc[1] + 4, sizes.fragment.height + 4,
+              textRowDesc[1] - 2, textRowDesc[0].textY - sizes.fragments.height,
+              textRowDesc[2] - textRowDesc[1] + 4, sizes.fragments.height + 4,
               { fill: 'yellow' } // TODO: put into css file, as default - turn into class
           );
           // NOTE: changing highlightTextSequence here will give
