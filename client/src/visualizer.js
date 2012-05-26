@@ -202,6 +202,9 @@ var Visualizer = (function($, window, undefined) {
       // different sequence for "mere" matches (as opposed to "focus" and
       // "edited" highlights)
       var highlightMatchSequence = '#FFFF00'; // plain yellow
+
+      var fragmentConnectorDashArray = '1,3,3,3';
+      var fragmentConnectorColor = '#000000';
       
       // END OPTIONS
 
@@ -2092,6 +2095,51 @@ Util.profileStart('arcs');
         }); // arcs
 
 Util.profileEnd('arcs');
+Util.profileStart('fragmentConnectors');
+
+        $.each(data.spans, function(spanNo, span) {
+          var numConnectors = span.fragments.length - 1;
+          for (var connectorNo = 0; connectorNo < numConnectors; connectorNo++) {
+            var left = span.fragments[connectorNo];
+            var right = span.fragments[connectorNo + 1];
+
+            var leftBox = rowBBox(left);
+            var rightBox = rowBBox(right);
+            var leftRow = left.chunk.row.index;
+            var rightRow = right.chunk.row.index;
+
+            for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
+              var row = rows[rowIndex];
+              row.hasAnnotations = true;
+
+              if (rowIndex == leftRow) {
+                from = leftBox.x + leftBox.width;
+              } else {
+                from = sentNumMargin;
+              }
+
+              if (rowIndex == rightRow) {
+                to = rightBox.x;
+              } else {
+                to = canvasWidth - 2 * Configuration.visual.margin.y;
+              }
+
+              var height = leftBox.y + leftBox.height - Configuration.visual.margin.y;
+              if (roundCoordinates) {
+                // don't ask
+                height = (height|0)+0.5;
+              }
+
+              var path = svg.createPath().move(from, height).line(to, height);
+              svg.path(row.arcs, path, {
+                style: 'stroke: ' + fragmentConnectorColor,
+                'strokeDashArray': fragmentConnectorDashArray
+              });
+            } // rowIndex
+          } // connectorNo
+        }); // spans
+
+Util.profileEnd('fragmentConnectors');
 Util.profileStart('rows');
 
         // position the rows
