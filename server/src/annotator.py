@@ -248,7 +248,7 @@ def _text_for_offsets(text, offsets):
     the (catenated) text corresponding to those offsets.
     """
     try:
-        return "".join([text[s,e] for s,e in offsets])
+        return "".join([text[s:e] for s,e in offsets])
     except Exception:
         Messager.error('_text_for_offsets: failed to get text for given offsets (%s)' % str(offsets))
         raise ProtocolArgumentError
@@ -444,15 +444,25 @@ def _set_attributes(ann_obj, ann, attributes, mods, undo_resp={}):
             ann_obj.add_annotation(new_attr)
             mods.addition(new_attr)
 
-#TODO: unshadow Python internals like "type" and "id"
-def create_span(collection, document, offsets, type, attributes=None,
-        id=None, comment=None):
-    # offsets should be (start, end) pairs; convert once at this interface
+def _json_offsets_to_list(offsets):
+    try:
+        offsets = json_loads(offsets)
+    except Exception:
+        Messager.error('create_span: protocol argument error: expected offsets as JSON, but failed to parse "%s"' % str(offsets))
+        raise ProtocolArgumentError
     try:
         offsets = [(int(s),int(e)) for s,e in offsets]
     except Exception:
         Messager.error('create_span: protocol argument error: expected offsets as list of int pairs, received "%s"' % str(offsets))
         raise ProtocolArgumentError
+    return offsets
+
+#TODO: unshadow Python internals like "type" and "id"
+def create_span(collection, document, offsets, type, attributes=None,
+        id=None, comment=None):
+    # offsets should be JSON string corresponding to a list of (start,
+    # end) pairs; convert once at this interface
+    offsets = _json_offsets_to_list(offsets)
 
     return _create_span(collection, document, offsets, type, attributes,
             id, comment)
