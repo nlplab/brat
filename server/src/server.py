@@ -168,7 +168,7 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
 
     # Do the necessary imports after enabling the logging, order critical
     try:
-        from common import ProtocolError, NoPrintJSONError
+        from common import ProtocolError, ProtocolArgumentError, NoPrintJSONError
         from dispatch import dispatch
         from jsonwrap import dumps
         from message import Messager
@@ -193,7 +193,7 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
                 http_args[k] = unicode(params.getvalue(k), encoding='utf-8')
             except TypeError:
                 Messager.error('protocol argument error: expected string argument %s, got %s' % (k, type(params.getvalue(k))))
-                raise
+                raise ProtocolArgumentError
 
         # Dispatch the request
         json_dic = dispatch(http_args, client_ip, client_hostname)
