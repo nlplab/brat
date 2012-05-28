@@ -20,7 +20,7 @@ from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, EquivAnnotation, open_textfile,
         AnnotationsIsReadOnlyError, AttributeAnnotation)
-from common import ProtocolError
+from common import ProtocolError, ProtocolArgumentError
 try:
     from config import DEBUG
 except ImportError:
@@ -29,10 +29,6 @@ from document import real_directory
 from jsonwrap import loads as json_loads, dumps as json_dumps
 from message import Messager
 from projectconfig import ProjectConfiguration
-
-class ProtocolArgumentError(ProtocolError):
-    def json(self, json_dic):
-        json_dic['exception'] = 'protocolArgumentError'
 
 # TODO: remove once HTML generation done clientside
 def generate_empty_fieldset():
