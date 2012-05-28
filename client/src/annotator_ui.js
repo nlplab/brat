@@ -1351,6 +1351,7 @@ var AnnotatorUI = (function($, window, undefined) {
             collection: coll,
             'document': doc,
           });
+        spanOptions.offsets = JSON.stringify(spanOptions.offsets);
         dispatcher.post('hideForm');
         dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;
