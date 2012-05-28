@@ -189,7 +189,11 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         for k in params:
             # Also take the opportunity to convert Strings into Unicode,
             #   according to HTTP they should be UTF-8
-            http_args[k] = unicode(params.getvalue(k), encoding='utf-8')
+            try:
+                http_args[k] = unicode(params.getvalue(k), encoding='utf-8')
+            except TypeError:
+                Messager.error('protocol argument error: expected string argument %s, got %s' % (k, type(params.getvalue(k))))
+                raise
 
         # Dispatch the request
         json_dic = dispatch(http_args, client_ip, client_hostname)
