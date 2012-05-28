@@ -679,6 +679,7 @@ var Visualizer = (function($, window, undefined) {
             towerId++;
           }
           fragment.towerId = towerId;
+          lastFragment = fragment;
         }); // sortedFragments
 
         $.each(data.spans, function(spanId, span) {
@@ -881,66 +882,6 @@ var Visualizer = (function($, window, undefined) {
         setData(sourceData);
         renderData();
       }
-
-      // TODO with fragments
-      var placeReservation = function(span, x, width, height, reservations) {
-        var newSlot = {
-          from: x,
-          to: x + width,
-          span: span,
-          height: height + (span.drawCurly ? Configuration.visual.curlyHeight : 0),
-        };
-        // TODO look at this, and remove if ugly
-        // example where it matters: the degenerate case of
-        // <REDACTED> look at @14ab7a68cb592821b8d3341957b8dfaa24540e22 for URL
-        // (again, it would be solved by individual box reservations instead
-        // of row-based)
-
-        // overlapping curly check: TODO delete or uncomment
-        /*
-        if (span.drawCurly) {
-          if (span.curly.from < newSlot.from) newSlot.from = span.curly.from;
-          if (span.curly.to > newSlot.to) newSlot.to = span.curly.to;
-        }
-        */
-        var resHeight = 0;
-        if (reservations.length) {
-          for (var resNo = 0, resLen = reservations.length; resNo < resLen; resNo++) {
-            var reservation = reservations[resNo];
-            var line = reservation.ranges;
-            resHeight = reservation.height;
-            var overlap = false;
-            $.each(line, function(slotNo, slot) {
-              var slot = line[slotNo];
-              // with the curly change above, we can live with sharing
-              // borders
-              if (slot.from < newSlot.to && newSlot.from < slot.to) {
-                overlap = true;
-                return false;
-              }
-            });
-            if (!overlap) {
-              if (!reservation.curly && span.drawCurly) {
-                // TODO: need to push up the boxes drawn so far
-                // (rare glitch)
-                // it would be prettier to track individual boxes (and not
-                // rows) but the cases when it matters are rare, and not
-                // worth the bother so far
-                reservation.height += Configuration.visual.curlyHeight;
-              }
-              line.push(newSlot);
-              return reservation.height;
-            }
-          }
-          resHeight += newSlot.height + Configuration.visual.boxSpacing;
-        }
-        reservations.push({
-          ranges: [newSlot],
-          height: resHeight,
-          curly: span.drawCurly,
-        });
-        return resHeight;
-      };
 
       var translate = function(element, x, y) {
         $(element.group).attr('transform', 'translate(' + x + ', ' + y + ')');
@@ -1194,6 +1135,7 @@ Util.profileStart('chunks');
 
         addArcTextMeasurements(sizes);
 
+        // reserve places for spans
         var reservations = [];
         for (var i = 0; i <= data.lastFragmentIndex; i++) {
           reservation[i] = {};
@@ -1211,6 +1153,8 @@ Util.profileStart('chunks');
           var x2 = (f2.curly.from + f2.curly.to + f2.width) / 2 +
               Configuration.visual.margin.x;
           var i2 = f2.chunk.index;
+
+          console.log("RESERVATION", span.text, span.drawCurly);
 
           // Start from the ground level, going up floor by floor.
           // If no more floors, make a new available one.
@@ -1496,7 +1440,7 @@ Util.profileStart('chunks');
                   if (!labels.length) labels = [arc.type];
                   if (origin.row.index == rowIndex) {
                     // same row, but before this
-                    border = origin.translation.x + leftSpan.right;
+                    border = origin.translation.x + leftSpan.fragments[leftSpan.fragments.length - 1].right;
                   } else {
                     border = Configuration.visual.margin.x + sentNumMargin + rowPadding;
                   }
@@ -1526,7 +1470,7 @@ Util.profileStart('chunks');
                   if (!labels.length) labels = [arc.type];
                   if (target.row.index == rowIndex) {
                     // same row, but before this
-                    border = target.translation.x + leftSpan.right;
+                    border = target.translation.x + leftSpan.fragments[leftSpan.fragments.length - 1].right;
                   } else {
                     border = Configuration.visual.margin.x + sentNumMargin + rowPadding;
                   }
