@@ -897,19 +897,15 @@ var AnnotatorUI = (function($, window, undefined) {
             var newOffsets;
             var newOffset = [selectedFrom, selectedTo];
             if (reselectedSpan) {
-              spanOptions.old_offsets = spanOptions.offsets; // XXX: needed?
-              newOffsets = reselectedSpan.offsets.slice(0);
-              newOffsets.push(newOffset);
-              newOffsets.sort();
+              spanOptions.old_offsets = JSON.stringify(spanOptions.offsets);
             } else {
               spanOptions = {
                 action: 'createSpan'
               }
-              newOffsets = [newOffset];
             }
 
             $.extend(spanOptions, {
-                offsets: newOffsets
+                offsets: [newOffset]
               });
 
             var crossSentence = true;
