@@ -66,8 +66,11 @@ apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
 
 group_ok=0
 if [ -n "$apache_group" -a -n "$apache_user" ] ; then
-    echo "Assigning owner of the following directories to apache ($apache_group):\n    \"$work_dir_abs/\" and\n    \"$data_dir_abs/\":"
-    echo "(this requires sudo; please enter your password)"    
+    echo "Assigning owner of the following directories to apache ($apache_group):"
+    echo "    \"$work_dir_abs/\""
+    echo "and"
+    echo "    \"$data_dir_abs/\""
+    echo "(this requires sudo; please enter your password if prompted)"
 
     sudo chgrp -R $apache_group $data_dir_abs $work_dir_abs
     RETVAL=$?
