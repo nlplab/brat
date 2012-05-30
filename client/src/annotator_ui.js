@@ -33,6 +33,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var lastEndRec = null;
 
       var draggedArcHeight = 30;
+      var spanTypesToShowBeforeCollapse = 30;
 
       // TODO: this is an ugly hack, remove (see comment with assignment)
       var lastRapidAnnotationEvent = null;
@@ -603,6 +604,14 @@ var AnnotatorUI = (function($, window, undefined) {
         // enable all inputs by default (see setSpanTypeSelectability)
         $('#span_form input:not([unused])').removeAttr('disabled');
 
+        // close span types if there's over spanTypesToShowBeforeCollapse
+        if ($('#entity_types .item').length > spanTypesToShowBeforeCollapse) {
+          $('#entity_types .open').removeClass('open');
+        }
+        if ($('#event_types .item').length > spanTypesToShowBeforeCollapse) {
+          $('#event_types .open').removeClass('open');
+        }
+
         var showAllAttributes = false;
         if (span) {
           var urlHash = URLHash.parse(window.location.hash);
@@ -616,6 +625,11 @@ var AnnotatorUI = (function($, window, undefined) {
               radio.checked = false;
             });
           }
+
+          // open the span type
+          $('#span_' + span.type).parents('.collapsible').each(function() {
+            toggleCollapsible($(this).parent().prev(), true);
+          });
 
           // count the repeating arc types
           var arcTypeCount = {};
@@ -1483,13 +1497,21 @@ var AnnotatorUI = (function($, window, undefined) {
         rapidFillSpanTypesAndDisplayForm(sugg.start, sugg.end, sugg.text, sugg.types);
       };
 
-      var collapseHandler = function(evt) {
-        var el = $(evt.target);
-        var open = el.hasClass('open');
-        var collapsible = el.parent().find('.collapsible').first();
-        el.toggleClass('open');
-        collapsible.toggleClass('open');
+      var toggleCollapsible = function($el, state) {
+        var opening = state !== undefined ? state : !$el.hasClass('open');
+        var $collapsible = $el.parent().find('.collapsible:first');
+        if (opening) {
+          $collapsible.addClass('open');
+          $el.addClass('open');
+        } else {
+          $collapsible.removeClass('open');
+          $el.removeClass('open');
+        }
       };
+
+      var collapseHandler = function(evt) {
+        toggleCollapsible($(evt.target));
+      }
 
       var spanFormSubmitRadio = function(evt) {
         if (Configuration.confirmModeOn) {
