@@ -21,6 +21,7 @@ var Visualizer = (function($, window, undefined) {
       this.from = from;
       this.to = to;
       // this.towerId = undefined;
+      // this.drawOrder = undefined;
     };
 
     var Span = function(id, type, offsets, generalType) {
@@ -31,7 +32,6 @@ var Visualizer = (function($, window, undefined) {
       this.generalType = generalType;
       this.offsets = offsets;
       this.headFragment = null;
-      this.drawOrder = null;
       // this.from = undefined;
       // this.to = undefined;
       // this.wholeFrom = undefined;
@@ -334,7 +334,7 @@ var Visualizer = (function($, window, undefined) {
         var ad = a.to - a.from;
         var bd = b.to - b.from;
         tmp = ad - bd;
-        if(aSpan.numArcs == 0 && bSpan.numArcs == 0) {
+        if (aSpan.numArcs == 0 && bSpan.numArcs == 0) {
           tmp = -tmp;
         }
         if (tmp) {
@@ -640,14 +640,14 @@ var Visualizer = (function($, window, undefined) {
             dispatcher.post('messages', [[['<strong>ERROR</strong><br/>Trigger for event "' + eventDesc.id + '" not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
             return;
           }
-          var here = origin.headFragment.chunk.index;
+          var here = origin.headFragment.from + origin.headFragment.to;
           $.each(eventDesc.roles, function(roleNo, role) {
             var target = data.spans[role.targetId];
             if (!target) {
               dispatcher.post('messages', [[['<strong>ERROR</strong><br/>"' + role.targetId + '" (referenced from "' + eventDesc.id + '") not found in ' + data.document + '<br/>(please correct the source data)', 'error', 5]]]);
               return;
             }
-            var there = target.headFragment.chunk.index;
+            var there = target.headFragment.from + target.headFragment.to;
             var dist = Math.abs(here - there);
             var arc = new Arc(eventDesc, role, dist, eventNo);
             origin.totalDist += dist;
@@ -692,8 +692,11 @@ var Visualizer = (function($, window, undefined) {
             // renumber
             $.each(chunk.fragments, function(fragmentNo, fragment) {
               fragment.indexNumber = fragmentNo;
-              fragment.refedIndexSum = 0;
             });
+          });
+          // nix the sums, so we can sum again
+          $.each(data.spans, function(spanNo, span) {
+            span.refedIndexSum = 0;
           });
           // resolved cases will now have indexNumber set
           // to indicate their relative order. Sum those for referencing cases
@@ -715,6 +718,24 @@ var Visualizer = (function($, window, undefined) {
           });
         });
 
+        data.spanDrawOrderPermutation = Object.keys(data.spans);
+        data.spanDrawOrderPermutation.sort(function(a, b) {
+          var spanA = data.spans[a];
+          var spanB = data.spans[b];
+
+          // We're jumping all over the chunks, but it's enough that
+          // we're doing everything inside each chunk in the right
+          // order. should it become necessary to actually do these in
+          // linear order, put in a similar condition for
+          // spanX.headFragment.chunk.index; but it should not be
+          // needed.
+
+          var tmp = spanA.headFragment.drawOrder - spanB.headFragment.drawOrder;
+          if (tmp) return tmp < 0 ? -1 : 1;
+
+          return 0;
+        });
+
         // resort the spans for linear order by center
         sortedFragments.sort(midpointComparator);
 
@@ -729,24 +750,26 @@ var Visualizer = (function($, window, undefined) {
           lastFragment = fragment;
         }); // sortedFragments
 
-        var spanAnnTexts = {};
-        $.each(data.chunks, function(chunkNo, chunk) {
-          chunk.markedTextStart = [];
-          chunk.markedTextEnd = [];
+        // find curlies (only the first fragment drawn in a tower)
+        $.each(data.spanDrawOrderPermutation, function(spanIdNo, spanId) {
+          var span = data.spans[spanId];
 
-          $.each(chunk.fragments, function(fragmentNo, fragment) {
-            // find out when we need to draw the span
-            if (!fragment.span.drawOrder || fragment.drawOrder < fragment.span.drawOrder) {
-              fragment.span.drawOrder = fragment.drawOrder;
-            }
-
+          $.each(span.fragments, function(fragmentNo, fragment) {
             if (!data.towers[fragment.towerId]) {
               data.towers[fragment.towerId] = [];
               fragment.drawCurly = true;
               fragment.span.drawCurly = true;
             }
             data.towers[fragment.towerId].push(fragment);
+          });
+        });
 
+        var spanAnnTexts = {};
+        $.each(data.chunks, function(chunkNo, chunk) {
+          chunk.markedTextStart = [];
+          chunk.markedTextEnd = [];
+
+          $.each(chunk.fragments, function(fragmentNo, fragment) {
             if (chunk.firstFragmentIndex == undefined) {
               chunk.firstFragmentIndex = fragment.towerId;
             }
@@ -1145,24 +1168,7 @@ Util.profileStart('chunks');
         var floors = [];
         var inf = 1.0/0.0;
 
-        var sortedSpanKeys = Object.keys(data.spans);
-        sortedSpanKeys.sort(function(a, b) {
-          var spanA = data.spans[a];
-          var spanB = data.spans[b];
-
-          // We're jumping all over the chunks, but it's enough that
-          // we're doing everything inside each chunk in the right
-          // order. should it become necessary to actually do these in
-          // linear order, put in a similar condition for
-          // spanX.headFragment.chunk.index; but it should not be
-          // needed.
-
-          var tmp = spanA.drawOrder - spanB.drawOrder;
-          if (tmp) return tmp < 0 ? -1 : 1;
-
-          return 0;
-        });
-        $.each(sortedSpanKeys, function(spanIdNo, spanId) {
+        $.each(data.spanDrawOrderPermutation, function(spanIdNo, spanId) {
           var span = data.spans[spanId];
 
           var f1 = span.fragments[0];
