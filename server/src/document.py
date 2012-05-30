@@ -356,7 +356,7 @@ def _fill_visual_configuration(types, project_conf):
     return items
 
 # TODO: this is not a good spot for this
-def get_span_types(directory):
+def get_base_types(directory):
     project_conf = ProjectConfiguration(directory)
 
     keymap = project_conf.get_kb_shortcuts()
@@ -375,12 +375,6 @@ def get_span_types(directory):
     entity_types = _fill_type_configuration(entity_hierarchy,
             project_conf, hotkey_by_type, all_connections)
 
-    entity_attribute_hierarchy = project_conf.get_entity_attribute_type_hierarchy()
-    entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf)
-    
-    event_attribute_hierarchy = project_conf.get_event_attribute_type_hierarchy()
-    event_attribute_types = _fill_attribute_configuration(event_attribute_hierarchy, project_conf)
-
     relation_hierarchy = project_conf.get_relation_type_hierarchy()
     relation_types = _fill_relation_configuration(relation_hierarchy,
             project_conf, hotkey_by_type)
@@ -393,9 +387,21 @@ def get_span_types(directory):
                     not project_conf.is_configured_type(l)]
     unconf_types = _fill_visual_configuration(unconfigured, project_conf)
 
-    # TODO: this is just horrible. What's all this doing in a function
-    # called get_span_types() anyway? Please fix.
-    return event_types, entity_types, event_attribute_types, entity_attribute_types, relation_types, unconf_types
+    return event_types, entity_types, relation_types, unconf_types
+
+def get_attribute_types(directory):
+    project_conf = ProjectConfiguration(directory)
+
+    entity_attribute_hierarchy = project_conf.get_entity_attribute_type_hierarchy()
+    entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf)
+    
+    relation_attribute_hierarchy = project_conf.get_relation_attribute_type_hierarchy()
+    relation_attribute_types = _fill_attribute_configuration(relation_attribute_hierarchy, project_conf)
+
+    event_attribute_hierarchy = project_conf.get_event_attribute_type_hierarchy()
+    event_attribute_types = _fill_attribute_configuration(event_attribute_hierarchy, project_conf)
+
+    return entity_attribute_types, relation_attribute_types, event_attribute_types
 
 def get_search_config(directory):
     return ProjectConfiguration(directory).get_search_config()
@@ -517,7 +523,8 @@ def get_directory_information(collection):
     for i in doclist:
         combolist.append(["d", None]+i)
 
-    event_types, entity_types, event_attribute_types, entity_attribute_types, relation_types, unconf_types = get_span_types(real_dir)
+    event_types, entity_types, relation_types, unconf_types = get_base_types(real_dir)
+    entity_attribute_types, relation_attribute_types, event_attribute_types = get_attribute_types(real_dir)
 
     # plug in the search config too
     search_config = get_search_config(real_dir)
@@ -552,6 +559,7 @@ def get_directory_information(collection):
             'entity_types': entity_types,
 #             'attribute_types': attribute_types,
             'event_attribute_types': event_attribute_types,
+            'relation_attribute_types': relation_attribute_types,
             'entity_attribute_types': entity_attribute_types,
             'relation_types': relation_types,
             'unconfigured_types': unconf_types,

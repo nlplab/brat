@@ -1198,7 +1198,9 @@ class ProjectConfiguration(object):
 
             if ((ann_type in types) or ('<ANY>' in types) or
                 (self.is_event_type(ann_type) and '<EVENT>' in types) or
-                (self.is_physical_entity_type(ann_type) and '<ENTITY>' in types)):
+                (self.is_physical_entity_type(ann_type) and '<ENTITY>' in types)
+                or
+                (self.is_relation_type(ann_type) and '<RELATION>' in types)):
                 attrs.append(attr.storage_form())
 
         return attrs
@@ -1345,6 +1347,14 @@ class ProjectConfiguration(object):
         only attributes that apply to at least one entity.
         """
         attr_types = self.attributes_for_types(self.get_entity_types())
+        return self._get_filtered_attribute_type_hierarchy(attr_types)
+
+    def get_relation_attribute_type_hierarchy(self):
+        """
+        Returns the attribute type hierarchy filtered to include
+        only attributes that apply to at least one relation.
+        """        
+        attr_types = self.attributes_for_types(self.get_relation_types())
         return self._get_filtered_attribute_type_hierarchy(attr_types)
 
     def get_event_attribute_type_hierarchy(self):
