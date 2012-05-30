@@ -2,7 +2,7 @@
 
 
 var Visualizer = (function($, window, undefined) {
-  
+
     var DocumentData = function(text) {
       this.text = text;
       this.chunks = [];
@@ -31,6 +31,7 @@ var Visualizer = (function($, window, undefined) {
       this.generalType = generalType;
       this.offsets = offsets;
       this.headFragment = null;
+      this.drawOrder = null;
       // this.from = undefined;
       // this.to = undefined;
       // this.wholeFrom = undefined;
@@ -49,7 +50,6 @@ var Visualizer = (function($, window, undefined) {
       // this.highlightPos = undefined;
       // this.indexNumber = undefined;
       // this.labelText = undefined;
-      // this.lineIndex = undefined;
       // this.nestingDepth = undefined;
       // this.nestingDepthLR = undefined;
       // this.nestingDepthRL = undefined;
@@ -176,7 +176,7 @@ var Visualizer = (function($, window, undefined) {
       var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
       var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
       var reverseArcControlx = 5;   // control point distance for "UFO catchers"
-      
+
       // "shadow" effect settings (note, error, incompelete)
       var rectShadowSize = 3;
       var rectShadowRounding = 2.5;
@@ -205,7 +205,7 @@ var Visualizer = (function($, window, undefined) {
 
       var fragmentConnectorDashArray = '1,3,3,3';
       var fragmentConnectorColor = '#000000';
-      
+
       // END OPTIONS
 
 
@@ -336,7 +336,7 @@ var Visualizer = (function($, window, undefined) {
         tmp = ad - bd;
         if(aSpan.numArcs == 0 && bSpan.numArcs == 0) {
           tmp = -tmp;
-        } 
+        }
         if (tmp) {
           return tmp < 0 ? 1 : -1;
         }
@@ -398,9 +398,8 @@ var Visualizer = (function($, window, undefined) {
 
         var midpointComparator = function(a, b) {
           var tmp = a.from + a.to - b.from - b.to;
-          if (tmp) {
-            return tmp < 0 ? -1 : 1;
-          }
+          if (!tmp) return 0;
+          return tmp < 0 ? -1 : 1;
         };
         // split spans into span fragments (for discontinuous spans)
         $.each(data.spans, function(spanNo, span) {
@@ -460,7 +459,7 @@ var Visualizer = (function($, window, undefined) {
 
           // TODO: might wish to check what's appropriate for the type
           // instead of using the first attribute def found
-          var attrType = (eventAttributeTypes[attr[1]] || 
+          var attrType = (eventAttributeTypes[attr[1]] ||
                           entityAttributeTypes[attr[1]]);
           var attrValue = attrType && attrType.values[attrType.bool || attr[3]];
           var span = data.spans[attr[2]];
@@ -486,7 +485,7 @@ var Visualizer = (function($, window, undefined) {
         // comments
         $.each(sourceData.comments, function(commentNo, comment) {
           // comment: [entityId, type, text]
-          
+
           // TODO error handling
 
           // sentence id: ['sent', sentId]
@@ -668,20 +667,6 @@ var Visualizer = (function($, window, undefined) {
         setMarked('matchfocus'); // set by search process, focused match
         setMarked('match'); // set by search process, other (non-focused) match
 
-        // resort the spans for linear order by center
-        sortedFragments.sort(midpointComparator);
-
-        // sort fragments into towers, calculate average arc distances
-        var lastFragment = null;
-        var towerId = -1;
-        $.each(sortedFragments, function(i, fragment) {
-          if (!lastFragment || (lastFragment.from != fragment.from || lastFragment.to != fragment.to)) {
-            towerId++;
-          }
-          fragment.towerId = towerId;
-          lastFragment = fragment;
-        }); // sortedFragments
-
         $.each(data.spans, function(spanId, span) {
           // calculate average arc distances
           // average distance of arcs (0 for no arcs)
@@ -718,7 +703,6 @@ var Visualizer = (function($, window, undefined) {
           });
         }
 
-        var spanAnnTexts = {};
         // Final sort of fragments in chunks for drawing purposes
         // Also identify the marked text boundaries regarding chunks
         $.each(data.chunks, function(chunkNo, chunk) {
@@ -726,17 +710,47 @@ var Visualizer = (function($, window, undefined) {
           // now resolve first-order dependencies between sort orders but not
           // second-order or higher.
           chunk.fragments.sort(fragmentComparator);
+          $.each(chunk.fragments, function(fragmentNo, fragment) {
+            fragment.drawOrder = fragmentNo;
+          });
+        });
 
+        // resort the spans for linear order by center
+        sortedFragments.sort(midpointComparator);
+
+        // sort fragments into towers, calculate average arc distances
+        var lastFragment = null;
+        var towerId = -1;
+        $.each(sortedFragments, function(i, fragment) {
+          if (!lastFragment || (lastFragment.from != fragment.from || lastFragment.to != fragment.to)) {
+            towerId++;
+          }
+          fragment.towerId = towerId;
+          lastFragment = fragment;
+        }); // sortedFragments
+
+        var spanAnnTexts = {};
+        $.each(data.chunks, function(chunkNo, chunk) {
           chunk.markedTextStart = [];
           chunk.markedTextEnd = [];
 
           $.each(chunk.fragments, function(fragmentNo, fragment) {
+            // find out when we need to draw the span
+            if (!fragment.span.drawOrder || fragment.drawOrder < fragment.span.drawOrder) {
+              fragment.span.drawOrder = fragment.drawOrder;
+            }
+
             if (!data.towers[fragment.towerId]) {
               data.towers[fragment.towerId] = [];
               fragment.drawCurly = true;
               fragment.span.drawCurly = true;
             }
             data.towers[fragment.towerId].push(fragment);
+
+            if (chunk.firstFragmentIndex == undefined) {
+              chunk.firstFragmentIndex = fragment.towerId;
+            }
+            chunk.lastFragmentIndex = fragment.towerId;
 
             var spanLabels = Util.getSpanLabels(spanTypes, fragment.span.type);
             fragment.labelText = Util.spanDisplayForm(spanTypes, fragment.span.type);
@@ -823,7 +837,7 @@ var Visualizer = (function($, window, undefined) {
         var currentChunk;
         // sort by "from"; we don't need to sort by "to" as well,
         // because unlike spans, chunks are disjunct
-        markedText.sort(function(a, b) { 
+        markedText.sort(function(a, b) {
           return Util.cmp(a[0], b[0]);
         });
         $.each(markedText, function(textNo, textPos) {
@@ -863,18 +877,6 @@ var Visualizer = (function($, window, undefined) {
           }
         }); // markedText
 
-        // TODO: can fragment.lineIndex be different from fragment.towerId?
-        // If not, this piece of code should replace the towerId piece above
-        var realFragmentNo = -1;
-        var lastFragment;
-        $.each(sortedFragments, function(fragmentNo, fragment) {
-          if (!lastFragment || fragment.from != lastFragment.from || fragment.to != lastFragment.to) realFragmentNo++;
-          fragment.lineIndex = realFragmentNo;
-          if (fragment.chunk.firstFragmentIndex == undefined) fragment.chunk.firstFragmentIndex = realFragmentNo;
-          fragment.chunk.lastFragmentIndex = realFragmentNo;
-          lastFragment = fragment;
-        });
-        data.lastLineIndex = lastFragment ? lastFragment.lineIndex : -1;
         dispatcher.post('dataReady', [data]);
       };
 
@@ -898,7 +900,7 @@ var Visualizer = (function($, window, undefined) {
             $('#document_mtime').css("display", "none");
         }
       };
-      
+
       var addHeaderAndDefs = function() {
         var commentName = (coll + '/' + doc).replace('--', '-\\-');
         $svg.append('<!-- document: ' + commentName + ' -->');
@@ -1074,7 +1076,7 @@ Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
 
-        if (!sourceData && !data) { 
+        if (!sourceData && !data) {
           dispatcher.post('doneRendering', [coll, doc, args]);
           return;
         }
@@ -1142,7 +1144,27 @@ Util.profileStart('chunks');
         }
         var floors = [];
         var inf = 1.0/0.0;
-        $.each(data.spans, function(spanNo, span) {
+
+        var sortedSpanKeys = Object.keys(data.spans);
+        sortedSpanKeys.sort(function(a, b) {
+          var spanA = data.spans[a];
+          var spanB = data.spans[b];
+
+          // We're jumping all over the chunks, but it's enough that
+          // we're doing everything inside each chunk in the right
+          // order. should it become necessary to actually do these in
+          // linear order, put in a similar condition for
+          // spanX.headFragment.chunk.index; but it should not be
+          // needed.
+
+          var tmp = spanA.drawOrder - spanB.drawOrder;
+          if (tmp) return tmp < 0 ? -1 : 1;
+
+          return 0;
+        });
+        $.each(sortedSpanKeys, function(spanIdNo, spanId) {
+          var span = data.spans[spanId];
+
           var f1 = span.fragments[0];
           var f2 = span.fragments[span.fragments.length - 1];
 
@@ -1153,8 +1175,6 @@ Util.profileStart('chunks');
           var x2 = (f2.curly.from + f2.curly.to + f2.width) / 2 +
               Configuration.visual.margin.x;
           var i2 = f2.chunk.index;
-
-          console.log("RESERVATION", span.text, span.drawCurly);
 
           // Start from the ground level, going up floor by floor.
           // If no more floors, make a new available one.
@@ -1263,13 +1283,13 @@ Util.profileStart('chunks');
           $.each(chunk.fragments, function(fragmentNo, fragment) {
             var span = fragment.span;
             var spanDesc = spanTypes[span.type];
-            var bgColor = ((spanDesc && spanDesc.bgColor) || 
+            var bgColor = ((spanDesc && spanDesc.bgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
-            var fgColor = ((spanDesc && spanDesc.fgColor) || 
+            var fgColor = ((spanDesc && spanDesc.fgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.fgColor) || '#000000');
-            var borderColor = ((spanDesc && spanDesc.borderColor) || 
+            var borderColor = ((spanDesc && spanDesc.borderColor) ||
                                (spanTypes.SPAN_DEFAULT &&
                                 spanTypes.SPAN_DEFAULT.borderColor) || '#000000');
 
@@ -1278,7 +1298,7 @@ Util.profileStart('chunks');
             if (borderColor == 'darken') {
                 borderColor = Util.adjustColorLightness(bgColor, -0.6);
             }
-            
+
             fragment.group = svg.group(chunk.group, {
               'class': 'span',
             });
@@ -1310,7 +1330,7 @@ Util.profileStart('chunks');
 
             if (roundCoordinates) {
               x  = (x|0)+0.5;
-              bx = (bx|0)+0.5;              
+              bx = (bx|0)+0.5;
             }
 
             var shadowRect;
@@ -1319,7 +1339,7 @@ Util.profileStart('chunks');
               markedRect = svg.rect(chunk.highlightGroup,
                   bx - markedSpanSize, by - markedSpanSize,
                   bw + 2 * markedSpanSize, bh + 2 * markedSpanSize, {
- 
+
                   // filter: 'url(#Gaussian_Blur)',
                   'class': "shadow_EditHighlight",
                   rx: markedSpanSize,
@@ -1371,9 +1391,9 @@ Util.profileStart('chunks');
 
             fragment.rectBox = { x: bx, y: by - span.floor, width: bw, height: bh };
             fragment.height = span.floor + hh + 3 * Configuration.visual.margin.y + Configuration.visual.curlyHeight + Configuration.visual.arcSpacing;
-            var dlineIndex = fragment.lineIndex * 2;
-            if (!fragmentHeights[dlineIndex] || fragmentHeights[dlineIndex] < fragment.height) {
-              fragmentHeights[dlineIndex] = fragment.height;
+            var spacedTowerId = fragment.towerId * 2;
+            if (!fragmentHeights[spacedTowerId] || fragmentHeights[spacedTowerId] < fragment.height) {
+              fragmentHeights[spacedTowerId] = fragment.height;
             }
             $(fragment.rect).attr('y', yy - Configuration.visual.margin.y - span.floor);
             if (shadowRect) {
@@ -1402,7 +1422,7 @@ Util.profileStart('chunks');
                 var spanDesc = spanTypes[span.type];
                 var bgColor = ((spanDesc && spanDesc.bgColor) ||
                                (spanTypes.SPAN_DEFAULT &&
-                                spanTypes.SPAN_DEFAULT.fgColor) || 
+                                spanTypes.SPAN_DEFAULT.fgColor) ||
                                '#000000');
                 curlyColor = Util.adjustColorLightness(bgColor, -0.6);
               }
@@ -1649,16 +1669,16 @@ Util.profileStart('arcsPrep');
           arc.jumpHeight = 0;
           var fromFragment = data.spans[arc.origin].headFragment;
           var toFragment = data.spans[arc.target].headFragment;
-          if (fromFragment.lineIndex > toFragment.lineIndex) {
+          if (fromFragment.towerId > toFragment.towerId) {
             var tmp = fromFragment; fromFragment = toFragment; toFragment = tmp;
           }
           var from, to;
           if (fromFragment.chunk.index == toFragment.chunk.index) {
-            from = fromFragment.lineIndex;
-            to = toFragment.lineIndex;
+            from = fromFragment.towerId;
+            to = toFragment.towerId;
           } else {
-            from = fromFragment.lineIndex + 1;
-            to = toFragment.lineIndex - 1;
+            from = fromFragment.towerId + 1;
+            to = toFragment.towerId - 1;
           }
           for (var i = from; i <= to; i++) {
             if (arc.jumpHeight < fragmentHeights[i * 2]) arc.jumpHeight = fragmentHeights[i * 2];
@@ -1709,7 +1729,7 @@ Util.profileStart('arcs');
           var originSpan = data.spans[arc.origin];
           var targetSpan = data.spans[arc.target];
 
-          var leftToRight = originSpan.headFragment.lineIndex < targetSpan.headFragment.lineIndex;
+          var leftToRight = originSpan.headFragment.towerId < targetSpan.headFragment.towerId;
           var left, right;
           if (leftToRight) {
             left = originSpan.headFragment;
@@ -1728,7 +1748,7 @@ Util.profileStart('arcs');
                 if (arcDescIter.type == arc.type) {
                   arcDesc = arcDescIter;
                 }
-              });            
+              });
           }
           // fall back on unnumbered type if not found in full
           if (!arcDesc && noNumArcType && noNumArcType != arc.type &&
@@ -1737,7 +1757,7 @@ Util.profileStart('arcs');
                 if (arcDescIter.type == noNumArcType) {
                   arcDesc = arcDescIter;
                 }
-              });            
+              });
           }
           // fall back on relation types in case origin span type is
           // undefined
@@ -1746,7 +1766,7 @@ Util.profileStart('arcs');
           // relation_types has more info!)
           $.extend(arcDesc, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
 
-          var color = ((arcDesc && arcDesc.color) || 
+          var color = ((arcDesc && arcDesc.color) ||
                        (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
                        '#000000');
           var symmetric = arcDesc && arcDesc.properties && arcDesc.properties.symmetric;
@@ -1771,11 +1791,11 @@ Util.profileStart('arcs');
 
           var fromIndex2, toIndex2;
           if (left.chunk.index == right.chunk.index) {
-            fromIndex2 = left.lineIndex * 2;
-            toIndex2 = right.lineIndex * 2;
+            fromIndex2 = left.towerId * 2;
+            toIndex2 = right.towerId * 2;
           } else {
-            fromIndex2 = left.lineIndex * 2 + 1;
-            toIndex2 = right.lineIndex * 2 - 1;
+            fromIndex2 = left.towerId * 2 + 1;
+            toIndex2 = right.towerId * 2 - 1;
           }
           for (var i = fromIndex2; i <= toIndex2; i++) {
             if (fragmentHeights[i] > height) height = fragmentHeights[i];
@@ -1808,7 +1828,7 @@ Util.profileStart('arcs');
                 'data-to': arc.target
             });
             var from, to;
-            
+
             if (rowIndex == leftRow) {
               from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
             } else {
@@ -1869,7 +1889,7 @@ Util.profileStart('arcs');
                 // are no problems with this.
                 svgText.span(noNumLabelText, options);
                 var subscriptSettings = {
-                  'dy': '0.3em', 
+                  'dy': '0.3em',
                   'font-size': '80%'
                 };
                 // alternate possibility
@@ -1915,9 +1935,9 @@ Util.profileStart('arcs');
             }
             if (arc.shadowClass) {
               svg.rect(shadowGroup,
-                  textBox.x - arcLabelShadowSize, 
+                  textBox.x - arcLabelShadowSize,
                   textBox.y - arcLabelShadowSize,
-                  textBox.width  + 2 * arcLabelShadowSize, 
+                  textBox.width  + 2 * arcLabelShadowSize,
                   textBox.height + 2 * arcLabelShadowSize, {
                     'class': 'shadow_' + arc.shadowClass,
                     filter: 'url(#Gaussian_Blur)',
@@ -1961,7 +1981,7 @@ Util.profileStart('arcs');
               path.line(from, -height);
             }
             var hashlessColor = color.replace('#', '');
-            var myArrowHead   = ((arcDesc && arcDesc.arrowHead) || 
+            var myArrowHead   = ((arcDesc && arcDesc.arrowHead) ||
                                  (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
             var arrowType = arrows[(leftToRight ?
                 symmetric && myArrowHead || 'none' :
@@ -2164,7 +2184,7 @@ Util.profileStart('rows');
                   '' + row.sentence, { 'data-sent': row.sentence });
             }
           }
-          
+
           var rowY = y - rowPadding;
           if (roundCoordinates) {
             rowY = rowY|0;
@@ -2182,13 +2202,13 @@ Util.profileStart('chunkFinish');
         // by start offset, second for right-to-left pass by end
         // offset. Secondary sort by fragment length in both cases.
         var currentChunk;
-        var lrChunkComp = function(a,b) { 
+        var lrChunkComp = function(a,b) {
           var ac = currentChunk.fragments[a];
           var bc = currentChunk.fragments[b]
           var startDiff = Util.cmp(ac.from, bc.from);
           return startDiff != 0 ? startDiff : Util.cmp(bc.to-bc.from, ac.to-ac.from);
         }
-        var rlChunkComp = function(a,b) { 
+        var rlChunkComp = function(a,b) {
           var ac = currentChunk.fragments[a];
           var bc = currentChunk.fragments[b]
           var endDiff = Util.cmp(bc.to, ac.to);
@@ -2231,8 +2251,8 @@ Util.profileStart('chunkFinish');
             // brackets in a (mostly) reasonable way, determine
             // depth/height separately in a left-to-right traversal
             // and a right-to-left traversal.
-            orderedIdx.sort(lrChunkComp);              
-            
+            orderedIdx.sort(lrChunkComp);
+
             var openFragments = [];
             for(var i=0; i<orderedIdx.length; i++) {
               var current = chunk.fragments[orderedIdx[i]];
@@ -2291,7 +2311,7 @@ Util.profileStart('chunkFinish');
               // Tweak for nesting depth/height. Recognize just three
               // levels for now: normal, nested, and nesting, where
               // nested+nesting yields normal. (Currently testing
-              // minor tweak: don't shrink for depth 1 as the nesting 
+              // minor tweak: don't shrink for depth 1 as the nesting
               // highlight will grow anyway [check nestingDepth > 1])
               var shrink = 0;
               if(fragment.nestingDepth > 1 && fragment.nestingHeight == 0) {
@@ -2307,11 +2327,11 @@ Util.profileStart('chunkFinish');
               // reduction): text rarely hits font max height, so this
               // tends to look better
               var yStartTweak = 1;
-              // store to have same mouseover highlight without recalc              
+              // store to have same mouseover highlight without recalc
               fragment.highlightPos = {
-                  x: chunk.textX + fragment.curly.from + xShrink, 
+                  x: chunk.textX + fragment.curly.from + xShrink,
                   y: chunk.row.textY + sizes.texts.y + yShrink + yStartTweak,
-                  w: fragment.curly.to - fragment.curly.from - 2*xShrink, 
+                  w: fragment.curly.to - fragment.curly.from - 2*xShrink,
                   h: sizes.texts.height - 2*yShrink - yStartTweak,
               };
               svg.rect(highlightGroup,
@@ -2467,7 +2487,7 @@ Util.profileStart('before render');
               span.comment && span.comment.type]);
 
           var spanDesc = spanTypes[span.type];
-          var bgColor = ((spanDesc && spanDesc.bgColor) || 
+          var bgColor = ((spanDesc && spanDesc.bgColor) ||
                          (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
                          '#ffffff');
           highlight = [];
@@ -2509,7 +2529,7 @@ Util.profileStart('before render');
           var originSpanId = target.attr('data-arc-origin');
           var targetSpanId = target.attr('data-arc-target');
           var role = target.attr('data-arc-role');
-          var symmetric = (relationTypesHash[role] && 
+          var symmetric = (relationTypesHash[role] &&
                            relationTypesHash[role].properties &&
                            relationTypesHash[role].properties.symmetric);
           // NOTE: no commentText, commentType for now
@@ -2600,7 +2620,7 @@ Util.profileStart('before render');
           // spacious
           Configuration.visual.margin = { x: 2, y: 1 };
           Configuration.visual.boxSpacing = 3;
-          Configuration.visual.curlyHeight = 6;          
+          Configuration.visual.curlyHeight = 6;
           Configuration.visual.arcSpacing = 12;
           Configuration.visual.arcStartHeight = 23;
         } else {
@@ -2665,7 +2685,7 @@ Util.profileStart('before render');
                   var node = this._svg.ownerDocument.createElementNS($.svg.svgNS, name);
                   for (var name in settings) {
                     var value = settings[name];
-                    if (value != null && value != null && 
+                    if (value != null && value != null &&
                         (typeof value != 'string' || value != '')) {
                       node.setAttribute($.svg._attrNames[name] || name, value);
                     }
