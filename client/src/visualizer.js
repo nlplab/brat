@@ -1199,9 +1199,8 @@ Util.profileStart('chunks');
           // actual positions of curlies
           var carpet = 0;
           var outside = true;
-          var height = sizes.fragments.height +
-              (span.drawCurly ? Configuration.visual.curlyHeight : 0)
-              + Configuration.visual.boxSpacing;
+          var thisCurlyHeight = span.drawCurly ? Configuration.visual.curlyHeight : 0;
+          var height = sizes.fragments.height + thisCurlyHeight + Configuration.visual.boxSpacing;
           $.each(floors, function(floorNo, floor) {
             var floorAvailable = true;
             for (var i = i1; i <= i2; i++) {
@@ -1267,7 +1266,7 @@ Util.profileStart('chunks');
               reservations[i][floor].push([from, to, headroom]); // XXX maybe add fragment; probably unnecessary
             }
           }
-          span.floor = carpet;
+          span.floor = carpet + thisCurlyHeight;
         });
 
         $.each(data.chunks, function(chunkNo, chunk) {
@@ -1311,7 +1310,7 @@ Util.profileStart('chunks');
 
             var fragmentHeight = 0;
 
-            if (!y) y = -sizes.texts.height - Configuration.visual.curlyHeight;
+            if (!y) y = -sizes.texts.height;
             var x = (fragment.curly.from + fragment.curly.to) / 2;
 
             // XXX is it maybe sizes.texts?
