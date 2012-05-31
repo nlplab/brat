@@ -481,8 +481,8 @@ def create_span(collection, document, start, end, type, attributes=None,
     return _create_span(collection, document, start, end, type, attributes,
                         normalizations, id, comment)
 
-# helper for _create_span
-def _parse_span_attributes(attributes):
+# helper for _create methods
+def _parse_attributes(attributes):
     if attributes is None:
         _attributes = {}
     else:
@@ -528,7 +528,7 @@ def _create_span(collection, document, start, end, _type, attributes=None,
     directory = collection
     undo_resp = {}
 
-    _attributes = _parse_span_attributes(attributes)
+    _attributes = _parse_attributes(attributes)
     _normalizations = _parse_span_normalizations(normalizations)
 
     #log_info('ATTR: %s' %(_attributes, ))
@@ -678,7 +678,9 @@ def _create_equiv(ann_obj, projectconf, mods, origin, target, type, attributes,
         assert attributes is None, "INTERNAL ERROR" # see above
 
 def _create_relation(ann_obj, projectconf, mods, origin, target, type,
-                     attributes, old_type, old_target):
+                     attributes, old_type, old_target, undo_resp={}):
+    attributes = _parse_attributes(attributes)
+
     if old_type is not None or old_target is not None:
         assert type in projectconf.get_relation_types(), (
                 ('attempting to convert relation to non-relation "%s" ' % (target.type, )) +
@@ -689,24 +691,29 @@ def _create_relation(ann_obj, projectconf, mods, origin, target, type,
         sought_type = (old_type
                 if old_type is not None else type)
 
-        # We are to change the type and/or target
+        # We are to change the type, target, and/or attributes
         found = None
         for ann in ann_obj.get_relations():
             if ann.arg2 == sought_target and ann.type == sought_type:
                 found = ann
                 break
 
-        # Did it exist and is changed?, otherwise we do nothing
-        if found is not None and (found.arg2 != target.id
-                or found.type != type):
+        if found is None:
+            # TODO: better response
+            Messager.error('_create_relation: failed to identify target relation (type %s, target %s) (deleted?)' % (str(old_type), str(old_target)))
+        elif found.arg2 == target.id and found.type != type:
+            # no changes to type or target
+            pass
+        else:
+            # type and/or target changed, mark.
             before = unicode(found)
             found.arg2 = target.id
             found.type = type
             mods.change(before, found)
+
+        target_ann = found
     else:
         # Create a new annotation
-
-        # TODO: Assign a suitable letter
         new_id = ann_obj.get_new_id('R')
         rel = projectconf.get_relation_by_type(type)
         assert rel is not None and len(rel.arg_list) == 2
@@ -714,6 +721,14 @@ def _create_relation(ann_obj, projectconf, mods, origin, target, type,
         ann = BinaryRelationAnnotation(new_id, type, a1l, origin.id, a2l, target.id, '\t')
         mods.addition(ann)
         ann_obj.add_annotation(ann)
+
+        target_ann = ann
+
+    # process attributes
+    if target_ann is not None:
+        _set_attributes(ann_obj, ann, attributes, mods, undo_resp)
+    elif attributes != None:
+        Messager.error('_create_relation: cannot set arguments: failed to identify target relation (type %s, target %s) (deleted?)' % (str(old_type), str(old_target)))        
 
 def _create_argument(ann_obj, projectconf, mods, origin, target, type,
                      attributes, old_type, old_target):
