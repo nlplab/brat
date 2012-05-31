@@ -677,7 +677,85 @@ def _create_equiv(ann_obj, projectconf, mods, origin, target, type, attributes,
         # TODO: attributes
         assert attributes is None, "INTERNAL ERROR" # see above
 
-#TODO: Should determine which step to call next
+def _create_relation(ann_obj, projectconf, mods, origin, target, type,
+                     attributes, old_type, old_target):
+    if old_type is not None or old_target is not None:
+        assert type in projectconf.get_relation_types(), (
+                ('attempting to convert relation to non-relation "%s" ' % (target.type, )) +
+                ('(legit types: %s)' % (unicode(projectconf.get_relation_types()), )))
+
+        sought_target = (old_target
+                if old_target is not None else target.id)
+        sought_type = (old_type
+                if old_type is not None else type)
+
+        # We are to change the type and/or target
+        found = None
+        for ann in ann_obj.get_relations():
+            if ann.arg2 == sought_target and ann.type == sought_type:
+                found = ann
+                break
+
+        # Did it exist and is changed?, otherwise we do nothing
+        if found is not None and (found.arg2 != target.id
+                or found.type != type):
+            before = unicode(found)
+            found.arg2 = target.id
+            found.type = type
+            mods.change(before, found)
+    else:
+        # Create a new annotation
+
+        # TODO: Assign a suitable letter
+        new_id = ann_obj.get_new_id('R')
+        rel = projectconf.get_relation_by_type(type)
+        assert rel is not None and len(rel.arg_list) == 2
+        a1l, a2l = rel.arg_list
+        ann = BinaryRelationAnnotation(new_id, type, a1l, origin.id, a2l, target.id, '\t')
+        mods.addition(ann)
+        ann_obj.add_annotation(ann)
+
+def _create_argument(ann_obj, projectconf, mods, origin, target, type,
+                     attributes, old_type, old_target):
+    try:
+        arg_tup = (type, unicode(target.id))
+
+        # Is this an addition or an update?
+        if old_type is None and old_target is None:
+            if arg_tup not in origin.args:
+                before = unicode(origin)
+                origin.add_argument(type, unicode(target.id))
+                mods.change(before, origin)
+            else:
+                # It already existed as an arg, we were called to do nothing...
+                pass
+        else:
+            # Construct how the old arg would have looked like
+            old_arg_tup = (type if old_type is None else old_type,
+                    target if old_target is None else old_target)
+
+            if old_arg_tup in origin.args and arg_tup not in origin.args:
+                before = unicode(origin)
+                origin.args.remove(old_arg_tup)
+                origin.add_argument(type, unicode(target.id))
+                mods.change(before, origin)
+            else:
+                # Collision etc. don't do anything
+                pass
+    except AttributeError:
+        # The annotation did not have args, it was most likely an entity
+        # thus we need to create a new Event...
+        new_id = ann_obj.get_new_id('E')
+        ann = EventAnnotation(
+                    origin.id,
+                    [arg_tup],
+                    new_id,
+                    origin.type,
+                    ''
+                    )
+        ann_obj.add_annotation(ann)
+        mods.addition(ann)
+
 def create_arc(collection, document, origin, target, type, attributes=None,
         old_type=None, old_target=None):
     directory = collection
@@ -705,80 +783,11 @@ def create_arc(collection, document, origin, target, type, attributes=None,
                           attributes, old_type, old_target)
 
         elif projectconf.is_relation_type(type):
-            if old_type is not None or old_target is not None:
-                assert type in projectconf.get_relation_types(), (
-                        ('attempting to convert relation to non-relation "%s" ' % (target.type, )) +
-                        ('(legit types: %s)' % (unicode(projectconf.get_relation_types()), )))
-
-                sought_target = (old_target
-                        if old_target is not None else target.id)
-                sought_type = (old_type
-                        if old_type is not None else type)
-
-                # We are to change the type and/or target
-                found = None
-                for ann in ann_obj.get_relations():
-                    if ann.arg2 == sought_target and ann.type == sought_type:
-                        found = ann
-                        break
-
-                # Did it exist and is changed?, otherwise we do nothing
-                if found is not None and (found.arg2 != target.id
-                        or found.type != type):
-                    before = unicode(found)
-                    found.arg2 = target.id
-                    found.type = type
-                    mods.change(before, found)
-            else:
-                # Create a new annotation
-
-                # TODO: Assign a suitable letter
-                new_id = ann_obj.get_new_id('R')
-                rel = projectconf.get_relation_by_type(type)
-                assert rel is not None and len(rel.arg_list) == 2
-                a1l, a2l = rel.arg_list
-                ann = BinaryRelationAnnotation(new_id, type, a1l, origin.id, a2l, target.id, '\t')
-                mods.addition(ann)
-                ann_obj.add_annotation(ann)
+            _create_relation(ann_obj, projectconf, mods, origin, target, type,
+                             attributes, old_type, old_target)
         else:
-            try:
-                arg_tup = (type, unicode(target.id))
-
-                # Is this an addition or an update?
-                if old_type is None and old_target is None:
-                    if arg_tup not in origin.args:
-                        before = unicode(origin)
-                        origin.add_argument(type, unicode(target.id))
-                        mods.change(before, origin)
-                    else:
-                        # It already existed as an arg, we were called to do nothing...
-                        pass
-                else:
-                    # Construct how the old arg would have looked like
-                    old_arg_tup = (type if old_type is None else old_type,
-                            target if old_target is None else old_target)
-
-                    if old_arg_tup in origin.args and arg_tup not in origin.args:
-                        before = unicode(origin)
-                        origin.args.remove(old_arg_tup)
-                        origin.add_argument(type, unicode(target.id))
-                        mods.change(before, origin)
-                    else:
-                        # Collision etc. don't do anything
-                        pass
-            except AttributeError:
-                # The annotation did not have args, it was most likely an entity
-                # thus we need to create a new Event...
-                new_id = ann_obj.get_new_id('E')
-                ann = EventAnnotation(
-                            origin.id,
-                            [arg_tup],
-                            new_id,
-                            origin.type,
-                            ''
-                            )
-                ann_obj.add_annotation(ann)
-                mods.addition(ann)
+            _create_argument(ann_obj, projectconf, mods, origin, target, type,
+                             attributes, old_type, old_target)
 
         mods_json = mods.json_response()
         mods_json['annotations'] = _json_from_ann(ann_obj)
