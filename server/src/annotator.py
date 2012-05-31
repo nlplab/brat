@@ -637,16 +637,55 @@ def _create_span(collection, document, start, end, _type, attributes=None,
 
 from annotation import BinaryRelationAnnotation
 
+def _create_equiv(ann_obj, projectconf, mods, origin, target, type, attributes,
+                  old_type, old_target):
+
+    # due to legacy representation choices for Equivs (i.e. no
+    # unique ID), support for attributes for Equivs would need
+    # some extra work. Getting the easy non-Equiv case first.
+    if attributes is not None:
+        Messager.warning('_create_equiv: attributes for Equiv annotation not supported yet, please tell the devs if you need this feature (mention "issue #799").')
+        attributes = None
+
+    if old_type is None:
+        # new annotation
+
+        # sanity
+        assert old_target is None, '_create_equiv: incoherent args: old_type is None, old_target is not None (client/protocol error?)'
+
+        ann = EquivAnnotation(type, [unicode(origin.id), 
+                                     unicode(target.id)], '')
+        ann_obj.add_annotation(ann)
+        mods.addition(ann)
+
+        # TODO: attributes
+        assert attributes is None, "INTERNAL ERROR" # see above
+    else:
+        # change to existing Equiv annotation. Other than the no-op
+        # case, this remains TODO.
+        assert projectconf.is_equiv_type(old_type), 'attempting to change equiv relation to non-equiv relation, operation not supported'
+
+        # sanity
+        assert old_target is not None, '_create_equiv: incoherent args: old_type is not None, old_target is None (client/protocol error?)'
+
+        if old_type != type:
+            Messager.warning('_create_equiv: equiv type change not supported yet, please tell the devs if you need this feature (mention "issue #798").')
+
+        if old_target != target.id:
+            Messager.warning('_create_equiv: equiv reselect not supported yet, please tell the devs if you need this feature (mention "issue #797").')
+
+        # TODO: attributes
+        assert attributes is None, "INTERNAL ERROR" # see above
+
 #TODO: Should determine which step to call next
-#def save_arc(directory, document, origin, target, type, old_type=None):
-def create_arc(collection, document, origin, target, type,
+def create_arc(collection, document, origin, target, type, attributes=None,
         old_type=None, old_target=None):
     directory = collection
 
     real_dir = real_directory(directory)
+
     mods = ModificationTracker()
 
-    real_dir = real_directory(directory)
     projectconf = ProjectConfiguration(real_dir)
 
     document = path_join(real_dir, document)
@@ -662,16 +701,9 @@ def create_arc(collection, document, origin, target, type,
         target = ann_obj.get_ann_by_id(target)
 
         if projectconf.is_equiv_type(type):
-            # It is an Equiv
-            if projectconf.is_equiv_type(old_type):
-                # "Change" from Equiv to Equiv is harmless
-                # TODO: some message needed?
-                pass
-            else:
-                assert old_type is None, 'attempting to change equiv relation to non-equiv relation, operation not supported'
-                ann = EquivAnnotation(type, [unicode(origin.id), unicode(target.id)], '')
-                ann_obj.add_annotation(ann)
-                mods.addition(ann)
+            _create_equiv(ann_obj, projectconf, mods, origin, target, type, 
+                          attributes, old_type, old_target)
+
         elif projectconf.is_relation_type(type):
             if old_type is not None or old_target is not None:
                 assert type in projectconf.get_relation_types(), (
