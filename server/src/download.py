@@ -34,7 +34,7 @@ def download_file(document, collection, extension):
         data = txt_file.read().encode('utf-8')
     raise NoPrintJSONError(hdrs, data)
 
-def download_collection(collection):
+def download_collection(collection, exclude_configs=False):
     directory = collection
     real_dir = real_directory(directory)
     dir_name = basename(dirname(real_dir))
@@ -43,7 +43,13 @@ def download_collection(collection):
     tmp_file_path = None
     try:
         _, tmp_file_path = mkstemp()
-        tar_cmd_split = ('tar', '-c', '-z', '-f', tmp_file_path, dir_name, )
+        tar_cmd_split = ['tar', '--exclude=.stats_cache']
+        if exclude_configs:
+            tar_cmd_split.extend(['--exclude=annotation.conf',
+                                  '--exclude=visual.conf',
+                                  '--exclude=tools.conf',
+                                  '--exclude=kb_shortcuts.conf'])
+        tar_cmd_split.extend(['-c', '-z', '-f', tmp_file_path, dir_name])
         tar_p = Popen(tar_cmd_split, cwd=path_join(real_dir, '..'))
         tar_p.wait()
 
