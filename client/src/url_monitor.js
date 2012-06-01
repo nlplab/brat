@@ -148,6 +148,7 @@ var URLHash = (function($, window, undefined) {
         }
         this.arguments[argument] = value;
         this.calcArgs();
+        return this;
       },
 
       setArguments: function(_arguments) {
@@ -156,14 +157,17 @@ var URLHash = (function($, window, undefined) {
         // could be e.g. the "args" of search results
         this.arguments = $.extend({}, _arguments || {});
         this.calcArgs();
+        return this;
       },
 
       setDocument: function(_document) {
         this.document = _document;
+        return this;
       },
 
       setCollection: function(collection) {
         this.collection = collection;
+        return this;
       },
 
       getHash: function() {

@@ -168,7 +168,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
           $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
-          var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
+          var arcId = [originSpanId, type, targetSpanId];
           var arcAnnotatorNotes = ''; // TODO fill from info to be provided by server
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId, arcAnnotatorNotes);
           // for precise timing, log dialog display to user.
@@ -614,9 +614,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
         var showAllAttributes = false;
         if (span) {
-          var urlHash = URLHash.parse(window.location.hash);
-          urlHash.setArgument('focus', [[span.id]]);
-          $('#span_highlight_link').show().attr('href', urlHash.getHash());
+          var hash = new URLHash(coll, doc, { focus: [[span.id]] }).getHash();
+          $('#span_highlight_link').attr('href', hash).show();
           var el = $('#span_' + span.type);
           if (el.length) {
             el[0].checked = true;
@@ -1184,7 +1183,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
         if (arcId) {
           // something was selected
-          $('#arc_highlight_link').attr('href', document.location + '/' + arcId).show(); // TODO incorrect
+          var hash = new URLHash(coll, doc, { focus: [arcId] }).getHash();
+          $('#arc_highlight_link').attr('href', hash).show(); // TODO incorrect
           var el = $('#arc_' + arcType)[0];
           if (el) {
             el.checked = true;
