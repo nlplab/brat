@@ -10,6 +10,7 @@ var Visualizer = (function($, window, undefined) {
       this.eventDescs = {};
       this.sentComment = {};
       this.arcs = [];
+      this.arcById = {};
       this.markedSent = {};
       this.spanAnnTexts = {};
       this.towers = {};
@@ -653,6 +654,10 @@ var Visualizer = (function($, window, undefined) {
             data.arcs.push(arc);
             target.incoming.push(arc);
             origin.outgoing.push(arc);
+	    // ID dict for easy access. TODO: have a function defining the 
+	    // (origin,type,target)->id mapping (see also annotator_ui.js)
+	    var arcId = origin.id + '--' + role.type + '--' + target.id;
+	    data.arcById[arcId] = arc;
           }); // roles
         }); // eventDescs
 
@@ -1791,7 +1796,8 @@ Util.profileStart('arcs');
               'data-arc-role': arc.type,
               'data-arc-origin': arc.origin,
               'data-arc-target': arc.target,
-              'data-arc-id': arc.id,
+	      // TODO: confirm this is unused and remove.
+              //'data-arc-id': arc.id,
               'data-arc-ed': arc.eventDescId,
             };
 

@@ -169,8 +169,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
           $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
           var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
-          var arcAnnotatorNotes = ''; // TODO fill from info to be provided by server
-          fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId, arcAnnotatorNotes);
+          fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
           // for precise timing, log dialog display to user.
           dispatcher.post('logAction', ['arcEditSelected']);
 
@@ -1100,7 +1099,7 @@ var AnnotatorUI = (function($, window, undefined) {
         return false;
       };
 
-      var fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId, arcAnnotatorNotes) {
+      var fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId) {
         var noArcs = true;
         keymap = {};
 
@@ -1218,6 +1217,16 @@ var AnnotatorUI = (function($, window, undefined) {
           arcForm.find('#arc_roles input:radio').click(arcFormSubmitRadio);
         }
 
+        var arcAnnotatorNotes;
+        if (arcId) {
+          // TODO: is this right? Does this make sense? Why is this so
+          // convoluted? What does "eventDesc" stand for?
+          var ed = (data.arcById[arcId] &&
+                    data.arcById[arcId].eventDescId ?
+                    data.eventDescs[data.arcById[arcId].eventDescId] :
+                    null);
+          arcAnnotatorNotes = ed ? ed.annotatorNotes : null;
+        }
         if (arcAnnotatorNotes) {
           $('#arc_notes').val(arcAnnotatorNotes);
         } else {
