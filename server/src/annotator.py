@@ -783,9 +783,11 @@ def _create_argument(ann_obj, projectconf, mods, origin, target, type,
     # No addressing mechanism for arguments at the moment
     return None
 
+# TODO: undo support
 def create_arc(collection, document, origin, target, type, attributes=None,
         old_type=None, old_target=None, comment=None):
     directory = collection
+    undo_resp = {}
 
     real_dir = real_directory(directory)
 
@@ -815,6 +817,14 @@ def create_arc(collection, document, origin, target, type, attributes=None,
         else:
             ann = _create_argument(ann_obj, projectconf, mods, origin, target,
                                    type, attributes, old_type, old_target)
+
+        # process comments
+        if ann is not None:
+            _set_comments(ann_obj, ann, comment, mods,
+                          undo_resp=undo_resp)
+        elif comment is not None:
+            Messager.warning('create_arc: non-empty comment for None annotation (unsupported type for comment?)')
+            
 
         mods_json = mods.json_response()
         mods_json['annotations'] = _json_from_ann(ann_obj)
