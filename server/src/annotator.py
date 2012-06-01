@@ -522,6 +522,47 @@ def _parse_span_normalizations(normalizations):
 
     return _normalizations
 
+# Helper for _create functions
+def _set_comments(ann_obj, ann, comment, mods, undo_resp={}):
+    # We are only interested in id;ed comments
+    try:
+        ann.id
+    except AttributeError:
+        return None
+
+    # Check if there is already an annotation comment
+    for com_ann in ann_obj.get_oneline_comments():
+        if (com_ann.type == 'AnnotatorNotes'
+                and com_ann.target == ann.id):
+            found = com_ann
+
+            # Note the comment in the undo
+            undo_resp['comment'] = found.tail[1:]
+            break
+    else:
+        found = None
+
+    if comment:
+        if found is not None:
+            # Change the comment
+            # XXX: Note the ugly tab, it is for parsing the tail
+            before = unicode(found)
+            found.tail = u'\t' + comment
+            mods.change(before, found)
+        else:
+            # Create a new comment
+            new_comment = OnelineCommentAnnotation(
+                    ann.id, ann_obj.get_new_id('#'),
+                    # XXX: Note the ugly tab
+                    u'AnnotatorNotes', u'\t' + comment)
+            ann_obj.add_annotation(new_comment)
+            mods.addition(new_comment)
+    else:
+        # We are to erase the annotation
+        if found is not None:
+            ann_obj.del_annotation(found)
+            mods.deletion(found)
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def _create_span(collection, document, start, end, _type, attributes=None,
                  normalizations=None, _id=None, comment=None):
@@ -582,51 +623,13 @@ def _create_span(collection, document, start, end, _type, attributes=None,
 
         # Handle annotation comments
         if tb_ann is not None:
-            # We are only interested in id;ed comments
-            try:
-                target_ann.id
-                has_id = True
-            except AttributeError:
-                has_id = False
-
-            if has_id:
-                # Check if there is already an annotation comment
-                for com_ann in ann_obj.get_oneline_comments():
-                    if (com_ann.type == 'AnnotatorNotes'
-                            and com_ann.target == target_ann.id):
-                        found = com_ann
-
-                        # Note the comment in the undo
-                        undo_resp['comment'] = found.tail[1:]
-                        break
-                else:
-                    found = None
-
-                if comment:
-                    if found is not None:
-                        # Change the comment
-                        # XXX: Note the ugly tab, it is for parsing the tail
-                        before = unicode(found)
-                        found.tail = u'\t' + comment
-                        mods.change(before, found)
-                    else:
-                        # Create a new comment
-                        new_comment = OnelineCommentAnnotation(
-                                target_ann.id, ann_obj.get_new_id('#'),
-                                # XXX: Note the ugly tab
-                                u'AnnotatorNotes', u'\t' + comment)
-                        ann_obj.add_annotation(new_comment)
-                        mods.addition(new_comment)
-                else:
-                    # We are to erase the annotation
-                    if found is not None:
-                        ann_obj.del_annotation(found)
-                        mods.deletion(found)
+            _set_comments(ann_obj, target_ann, comment, mods,
+                          undo_resp=undo_resp)
 
         if tb_ann is not None:
             mods_json = mods.json_response()
         else:
-            # Hack, we had a new-line in the span
+            # Hack, probably we had a new-line in the span
             mods_json = {}
             Messager.error('Text span contained new-line, rejected', duration=3)
 
@@ -646,6 +649,8 @@ def _create_equiv(ann_obj, projectconf, mods, origin, target, type, attributes,
     if attributes is not None:
         Messager.warning('_create_equiv: attributes for Equiv annotation not supported yet, please tell the devs if you need this feature (mention "issue #799").')
         attributes = None
+
+    ann = None
 
     if old_type is None:
         # new annotation
@@ -676,6 +681,8 @@ def _create_equiv(ann_obj, projectconf, mods, origin, target, type, attributes,
 
         # TODO: attributes
         assert attributes is None, "INTERNAL ERROR" # see above
+
+    return ann
 
 def _create_relation(ann_obj, projectconf, mods, origin, target, type,
                      attributes, old_type, old_target, undo_resp={}):
@@ -730,6 +737,8 @@ def _create_relation(ann_obj, projectconf, mods, origin, target, type,
     elif attributes != None:
         Messager.error('_create_relation: cannot set arguments: failed to identify target relation (type %s, target %s) (deleted?)' % (str(old_type), str(old_target)))        
 
+    return target_ann
+
 def _create_argument(ann_obj, projectconf, mods, origin, target, type,
                      attributes, old_type, old_target):
     try:
@@ -771,8 +780,11 @@ def _create_argument(ann_obj, projectconf, mods, origin, target, type,
         ann_obj.add_annotation(ann)
         mods.addition(ann)
 
+    # No addressing mechanism for arguments at the moment
+    return None
+
 def create_arc(collection, document, origin, target, type, attributes=None,
-        old_type=None, old_target=None):
+        old_type=None, old_target=None, comment=None):
     directory = collection
 
     real_dir = real_directory(directory)
@@ -794,15 +806,15 @@ def create_arc(collection, document, origin, target, type, attributes=None,
         target = ann_obj.get_ann_by_id(target)
 
         if projectconf.is_equiv_type(type):
-            _create_equiv(ann_obj, projectconf, mods, origin, target, type, 
-                          attributes, old_type, old_target)
+            ann =_create_equiv(ann_obj, projectconf, mods, origin, target, 
+                               type, attributes, old_type, old_target)
 
         elif projectconf.is_relation_type(type):
-            _create_relation(ann_obj, projectconf, mods, origin, target, type,
-                             attributes, old_type, old_target)
+            ann = _create_relation(ann_obj, projectconf, mods, origin, target, 
+                                   type, attributes, old_type, old_target)
         else:
-            _create_argument(ann_obj, projectconf, mods, origin, target, type,
-                             attributes, old_type, old_target)
+            ann = _create_argument(ann_obj, projectconf, mods, origin, target,
+                                   type, attributes, old_type, old_target)
 
         mods_json = mods.json_response()
         mods_json['annotations'] = _json_from_ann(ann_obj)
