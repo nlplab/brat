@@ -1441,7 +1441,10 @@ def main(argv=None):
                 annp = "%s~%s" % (ann.reference_id()[0], ann.reference_id()[1])
             else:
                 annp = ann.reference_id()[0]
-            print "\t%s%s?focus=%s (%s)" % (baseurl, ann_obj.get_document().replace("data/",""), annp, str(ann).rstrip())
+            anns = unicode(ann).rstrip()
+            annloc = ann_obj.get_document().replace("data/","")
+            outs = u"\t%s%s?focus=%s (%s)" % (baseurl, annloc, annp, anns)
+            print outs.encode('utf-8')
 
 if __name__ == "__main__":
     import sys
