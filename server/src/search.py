@@ -366,6 +366,32 @@ def _split_and_tokenize(s):
     assert "".join(tokens) == s, "INTERNAL ERROR\n'%s'\n'%s'" % ("".join(tokens),s)
 
     return tokens
+
+def _split_tokens_more(tokens):
+    """
+    Search-specific extra tokenization.
+    More aggressive than the general visualization-oriented tokenization.
+    """
+    pre_nonalnum_RE = re.compile(r'^(\W+)(.*)$')
+    post_nonalnum_RE = re.compile(r'^(.*?)(\W+)$')
+
+    new_tokens = []
+    for t in tokens:
+        m = pre_nonalnum_RE.match(t)
+        if m:
+            pre, t = m.groups()
+            new_tokens.append(pre)
+        m = post_nonalnum_RE.match(t)
+        if m:
+            t, post = m.groups()
+            new_tokens.append(t)
+            new_tokens.append(post)
+        else:
+            new_tokens.append(t)
+
+    # sanity
+    assert ''.join(tokens) == ''.join(new_tokens), "INTERNAL ERROR"
+    return new_tokens
         
 def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
@@ -396,6 +422,8 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
         #tokens = re.split(r'(\s+)', doctext)
         try:
             tokens = _split_and_tokenize(doctext)
+            tokens = _split_tokens_more(tokens)
+            print >> sys.stderr, tokens
         except:
             # TODO: proper error handling
             print >> sys.stderr, "ERROR: failed tokenization in %s, skipping" % ann_obj._input_files[0]
