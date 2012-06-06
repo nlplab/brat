@@ -372,8 +372,8 @@ def _split_tokens_more(tokens):
     Search-specific extra tokenization.
     More aggressive than the general visualization-oriented tokenization.
     """
-    pre_nonalnum_RE = re.compile(r'^(\W+)(.*)$')
-    post_nonalnum_RE = re.compile(r'^(.*?)(\W+)$')
+    pre_nonalnum_RE = re.compile(r'^(\W+)(.+)$')
+    post_nonalnum_RE = re.compile(r'^(.+?)(\W+)$')
 
     new_tokens = []
     for t in tokens:
