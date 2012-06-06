@@ -423,7 +423,6 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
         try:
             tokens = _split_and_tokenize(doctext)
             tokens = _split_tokens_more(tokens)
-            print >> sys.stderr, tokens
         except:
             # TODO: proper error handling
             print >> sys.stderr, "ERROR: failed tokenization in %s, skipping" % ann_obj._input_files[0]
