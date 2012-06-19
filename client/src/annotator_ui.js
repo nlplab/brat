@@ -1996,19 +1996,10 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('showForm', [splitForm]);
       };
 
-      var linkSpan = function() {
-        args.focus = [[spanOptions.id || spanOptions.start + '~' + spanOptions.end]];
-        dispatcher.post('setArguments', [args]);
-      };
-
       dispatcher.post('initForm', [spanForm, {
           alsoResize: '#entity_and_event_wrapper',
           width: 760,
           buttons: [{
-              id: 'span_form_link',
-              text: "Link",
-              click: linkSpan
-            }, {
               id: 'span_form_delete',
               text: "Delete",
               click: deleteSpan
