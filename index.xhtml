@@ -120,7 +120,7 @@
             <input id="auth_button" type="button" value="Login"/>
             <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
             <input id="data_button" type="button" value="Data" tabindex="-1" title="Import, Export Data; Manage Collection"/>
-            <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label for="search_button" title="Search text and annotations">Search</label>
+            <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label id="search_button_label" for="search_button" title="Search text and annotations">Search</label><input id="clear_search_button" type="button" value="✕" tabindex="-1" title="Clear search" style="display: none"/>
             <!--<input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/>-->
             <input id="options_button" type="button" value="Options" tabindex="-1" title="Set Visual, Annotation and Network Options"/>
           </div>
@@ -502,6 +502,7 @@
         </div>
       </fieldset>
     </form>
+    <!-- Span dialog (view only) -->
     <form id="viewspan_form" class="dialog" title="Span">
       <fieldset id="viewspan_selected_fset">
         <legend>Text</legend>
@@ -519,18 +520,20 @@
         <input id="viewspan_notes" class="borderless" readonly="readonly"/>
       </fieldset>
     </form>
+    <!-- Span dialog (view+edit) -->
     <form id="span_form" class="dialog" title="Span">
+      <!-- Span dialog annotated text -->
       <fieldset id="span_selected_fset">
         <legend>Text</legend>
         <a target="brat_linked" id="span_highlight_link" href="#">Link</a>
         <div id="span_selected"/>
       </fieldset>
-
+      <!-- Span dialog search links -->
       <fieldset id="span_search_fieldset">
         <legend>Search</legend>
         <div id="span_search_links"/>
       </fieldset>
-
+      <!-- Span dialog type selector -->
       <fieldset>
         <div id="entity_and_event_wrapper" class="split_wrapper">
           <div id="span_entity_section" class="wrapper_half_left">
@@ -559,16 +562,35 @@
           </div>
         </div>
       </fieldset>
-
+      <!-- Span dialog normalization -->
+      <fieldset id="norm_fieldset">
+        <legend>Normalization</legend>
+        <div id="norm_container">
+          <select id="span_norm_db"/>
+          <a id="span_norm_db_link" target="brat_linked" href="#" title="Search DB"><img src="static/img/Fugue-shadowless-magnifier.png" style="vertical-align: middle"/></a>
+          <span class="span_norm_label">ID:</span>
+          <input id="span_norm_id" class="span_norm_id_input"
+                 style="width:20%"/>
+          <span class="span_norm_label">Ref:</span>
+          <input id="span_norm_txt" class="span_norm_txt_input"
+                 readonly="readonly" style="width:45%"
+                 placeholder="Click here to search"/>
+          <a id="span_norm_ref_link" target="brat_linked" href="#" title="See in DB"><img src="static/img/Fugue-shadowless-external.png" style="vertical-align: middle"/></a>
+          <input id="clear_norm_button" type="button" 
+                 value="&#x2715;" title="Clear normalization"/>
+        </div>
+      </fieldset>
+      <!-- Span dialog notes -->
       <fieldset>
         <legend>Notes</legend>
         <div id="notes_container">
           <input id="span_notes" class="borderless"/>
-          <input id="clear_notes_button" type="button" value="&#x2715;"
-                 title="Clear notes"/>
+          <input id="clear_notes_button" type="button" 
+                 value="&#x2715;" title="Clear notes"/>
         </div>
       </fieldset>
     </form>
+    <!-- Rapid mode span dialog -->
     <form id="rapid_span_form" class="dialog" title="Span type">
       <fieldset id="rapid_span_selected_fset">
         <legend>Text</legend>
@@ -583,6 +605,7 @@
         </fieldset>
       </div>
     </form>
+    <!-- Arc dialog -->
     <form id="arc_form" class="dialog" title="Arc">
       <fieldset id="arc_origin_fset">
         <legend>From</legend>
@@ -608,6 +631,7 @@
       </fieldset>
 
     </form>
+    <!-- Login dialog -->
     <form id="auth_form" class="dialog" title="Login">
       <fieldset>
         <legend>Username</legend>
@@ -618,12 +642,14 @@
         <input id="auth_pass" type="password" placeholder="Password" class="borderless"/>
       </fieldset>
     </form>
+    <!-- Split span annotation dialog -->
     <form id="split_form" class="dialog" title="Split the Span">
       <fieldset>
         <legend>Split Roles</legend>
         <div id="split_roles" class="scroll_fset"/>
       </fieldset>
     </form>
+    <!-- Browser dialog -->
     <form id="collection_browser" class="dialog" title="Open">
       <fieldset>
         <legend>Collection</legend>
@@ -645,9 +671,29 @@
         <tbody class="ui-widget-content"/>
       </table>
     </form>
+    <!-- Normalization DB search dialog -->
+    <form id="norm_search_dialog" class="dialog" title="Search">
+      <fieldset>
+        <legend>Query</legend>
+        <div id="norm_search_container">
+          <input id="norm_search_query" placeholder="Query string" class="borderless"/>
+          <input id="norm_search_button" type="button" value="Search"/>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>ID</legend>
+        <input id="norm_search_id" placeholder="Identifier" class="borderless" readonly="readonly"/>
+      </fieldset>
+      <table id="norm_search_result_select" class="ui-widget unselectable">
+        <thead class="ui-widget-header"/>
+        <tbody class="ui-widget-content"/>
+      </table>
+    </form>
+    <!-- Spinner -->
     <div id="waiter" class="dialog" title="Please wait">
       <img src="static/img/spinner.gif"/>
     </div>
+    <!-- "About" dialog -->
     <div id="about" class="dialog unselectable" title="About brat">
       <div id="aboutlogo" class="logo">brat</div>
       <!--This software is distributed under the <a target="licence" href="http://www.opensource.org/licenses/isc-license">ISC Licence</a>.-->
@@ -655,6 +701,7 @@
       <div style="font-size:60%" align="center">version 1.2</div>
       <div id="copyright">&copy; 2010-2012 The brat contributors</div>
     </div>
+    <!-- Welcome/tutorial dialog -->
     <div id="tutorial" class="dialog unselectable" title="Tutorial">
       <h2>Welcome to the brat annotation tool!</h2>
       <div id="browserwarning">

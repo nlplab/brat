@@ -10,6 +10,7 @@ var Visualizer = (function($, window, undefined) {
       this.eventDescs = {};
       this.sentComment = {};
       this.arcs = [];
+      this.arcById = {};
       this.markedSent = {};
       this.spanAnnTexts = {};
       this.towers = {};
@@ -74,6 +75,7 @@ var Visualizer = (function($, window, undefined) {
       this.attributeCueFor = {};
       this.attributeMerge = {}; // for box, cross, etc. that are span-global
       this.fragments = [];
+      this.normalizations = [];
     };
 
     Span.prototype.copy = function(id) {
@@ -530,6 +532,43 @@ var Visualizer = (function($, window, undefined) {
           }
         });
 
+	// normalizations
+	$.each(sourceData.normalizations, function(normNo, norm) {
+	  var id = norm[0];
+	  var normType = norm[1];
+	  var target = norm[2];
+	  var refdb = norm[3];
+	  var refid = norm[4];
+	  var reftext = norm[5];
+
+	  // grab entity / event the normalization applies to
+	  var span = data.spans[target];
+          if (!span) {
+            dispatcher.post('messages', [[['Annotation ' + target + ', referenced from normalization ' + id + ', does not exist.', 'error']]]);
+            return;
+          }
+
+	  // TODO: do we have any possible use for the normType?
+	  span.normalizations.push([refdb, refid, reftext]);
+
+	  // quick initial norm visualization: just add to comment text
+	  var commentText = refdb + ": " + reftext;
+	  if (!span.comment) {
+	    span.comment = { type: normType, text: commentText };
+	  } else {
+	    span.comment.type = normType
+	    span.comment.text += "\n" + commentText;
+	  }
+
+	  // this wasn't favored
+// 	  // quick hack for shadow class
+// 	  // TODO: this probably won't work for normalizations attached
+// 	  // to event annotations; fix
+// 	  span.shadowClass = 'Normalized';
+	  // alternate attempt
+	  span.normalized = 'Normalized';
+        });
+
         // prepare span boundaries for token containment testing
         var sortedFragments = [];
         $.each(data.spans, function(spanNo, span) {
@@ -657,6 +696,10 @@ var Visualizer = (function($, window, undefined) {
             data.arcs.push(arc);
             target.incoming.push(arc);
             origin.outgoing.push(arc);
+	    // ID dict for easy access. TODO: have a function defining the 
+	    // (origin,type,target)->id mapping (see also annotator_ui.js)
+	    var arcId = origin.id + '--' + role.type + '--' + target.id;
+	    data.arcById[arcId] = arc;
           }); // roles
         }); // eventDescs
 
@@ -1137,9 +1180,12 @@ Util.profileStart('measures');
 
         adjustTowerAnnotationSizes();
         var maxTextWidth = 0;
-        $.each(sizes.texts.widths, function(text, width) {
-          if (width > maxTextWidth) maxTextWidth = width;
-        });
+        for (var text in sizes.texts.widths) {
+          if (sizes.texts.widths.hasOwnProperty(text)) {
+            var width = sizes.texts.widths[text]
+            if (width > maxTextWidth) maxTextWidth = width;
+          }
+        }
 
 Util.profileEnd('measures');
 Util.profileStart('chunks');
@@ -1393,6 +1439,13 @@ Util.profileStart('chunks');
                 'data-span-id': span.id,
                 'strokeDashArray': span.attributeMerge.dashArray,
               });
+	    
+            // TODO XXX: quick nasty hack to allow normalizations
+            // to be marked visually; do something cleaner!
+            if (span.normalized) {
+              $(fragment.rect).addClass(span.normalized);
+            }
+
             fragment.right = bx + bw; // TODO put it somewhere nicer?
             if (!(span.shadowClass || span.marked)) {
               chunkFrom = Math.min(bx, chunkFrom);
@@ -1878,7 +1931,8 @@ Util.profileStart('arcs');
               'data-arc-role': arc.type,
               'data-arc-origin': arc.origin,
               'data-arc-target': arc.target,
-              'data-arc-id': arc.id,
+	      // TODO: confirm this is unused and remove.
+              //'data-arc-id': arc.id,
               'data-arc-ed': arc.eventDescId,
             };
 

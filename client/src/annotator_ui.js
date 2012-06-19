@@ -27,8 +27,13 @@ var AnnotatorUI = (function($, window, undefined) {
       var allAttributeTypes = null; // TODO: temp workaround, remove
       var relationTypesHash = null;
       var showValidAttributes; // callback function
+      var dragStartedAt = null;
+      var selRect = null;
+      var lastStartRec = null;
+      var lastEndRec = null;
 
       var draggedArcHeight = 30;
+      var spanTypesToShowBeforeCollapse = 30;
 
       // TODO: this is an ugly hack, remove (see comment with assignment)
       var lastRapidAnnotationEvent = null;
@@ -43,6 +48,12 @@ var AnnotatorUI = (function($, window, undefined) {
       // for double-click selection simulation hack
       var lastDoubleClickedChunkId = null;
 
+      // for normalization: URLs bases by norm DB name
+      var normDbUrlByDbName = {};
+      var normDbUrlBaseByDbName = {};
+      // for normalization
+      var oldSpanNormIdValue = '';
+
       that.user = null;
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
@@ -50,6 +61,28 @@ var AnnotatorUI = (function($, window, undefined) {
       var hideForm = function() {
         keymap = null;
         rapidAnnotationDialogVisible = false;
+      };
+
+      var clearSelection = function() {
+        window.getSelection().removeAllRanges();
+        if (selRect != null) {
+          for(var s=0; s != selRect.length; s++) {
+            selRect[s].parentNode.removeChild(selRect[s]);
+          }
+          selRect = null;
+          lastStartRec = null;
+          lastEndRec = null;
+        }
+      };
+
+      var makeSelRect = function(rx, ry, rw, rh, col) {
+        var selRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        selRect.setAttributeNS(null, "width", rw);
+        selRect.setAttributeNS(null, "height", rh);
+        selRect.setAttributeNS(null, "x", rx);
+        selRect.setAttributeNS(null, "y", ry);
+        selRect.setAttributeNS(null, "fill", col == undefined ? "lightblue" : col);
+        return selRect;
       };
 
       var onKeyDown = function(evt) {
@@ -109,7 +142,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // do we edit an arc?
         if (id = target.attr('data-arc-role')) {
           // TODO
-          window.getSelection().removeAllRanges();
+          clearSelection();
           var originSpanId = target.attr('data-arc-origin');
           var targetSpanId = target.attr('data-arc-target');
           var type = target.attr('data-arc-role');
@@ -135,15 +168,14 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
           $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
-          var arcId = originSpanId + '--' + type + '--' + targetSpanId; // TODO
-          var arcAnnotatorNotes = ''; // TODO fill from info to be provided by server
-          fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId, arcAnnotatorNotes);
+          var arcId = [originSpanId, type, targetSpanId];
+          fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
           // for precise timing, log dialog display to user.
           dispatcher.post('logAction', ['arcEditSelected']);
 
         // if not an arc, then do we edit a span?
         } else if (id = target.attr('data-span-id')) {
-          window.getSelection().removeAllRanges();
+          clearSelection();
           editedSpan = data.spans[id];
           var offsets = [];
           $.each(editedSpan.fragments, function(fragmentNo, fragment) {
@@ -170,7 +202,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var startArcDrag = function(originId) {
-        window.getSelection().removeAllRanges();
+        clearSelection();
         svgPosition = svgElement.offset();
         arcDragOrigin = originId;
         arcDragArc = svg.path(svg.createPath(), {
@@ -203,6 +235,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var onMouseDown = function(evt) {
+        dragStartedAt = evt; // XXX do we really need the whole evt?
         if (!that.user || arcDragOrigin) return;
         var target = $(evt.target);
         var id;
@@ -234,7 +267,7 @@ var AnnotatorUI = (function($, window, undefined) {
             // $(targetClasses.join(',')).not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
             $targets.not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
           }
-          window.getSelection().removeAllRanges();
+          clearSelection();
           var mx = evt.pageX - svgPosition.left;
           var my = evt.pageY - svgPosition.top + 5; // TODO FIXME why +5?!?
           var y = Math.min(arcDragOriginBox.y, my) - draggedArcHeight;
@@ -245,6 +278,226 @@ var AnnotatorUI = (function($, window, undefined) {
                 mx + dx, y,
                 mx, my);
           arcDragArc.setAttribute('d', path.path());
+        } else {
+          // A. Scerri FireFox chunk
+
+          // if not, then is it span selection? (ctrl key cancels)
+          var sel = window.getSelection();
+          var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
+          var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
+          // fallback for firefox (at least):
+          // it's unclear why, but for firefox the anchor and focus
+          // node parents are always undefined, the the anchor and
+          // focus nodes themselves do (often) have the necessary
+          // chunk ID. However, anchor offsets are almost always
+          // wrong, so we'll just make a guess at what the user might
+          // be interested in tagging instead of using what's given.
+          var anchorOffset = null;
+          var focusOffset = null;
+          if (chunkIndexFrom === undefined && chunkIndexTo === undefined &&
+              $(sel.anchorNode).attr('data-chunk-id') &&
+              $(sel.focusNode).attr('data-chunk-id')) {
+            // Lets take the actual selection range and work with that
+            // Note for visual line up and more accurate positions a vertical offset of 8 and horizontal of 2 has been used!
+            var range = sel.getRangeAt(0);
+            var svgOffset = $(svg._svg).offset();
+            var flip = false;
+            var tries = 0;
+            // First try and match the start offset with a position, if not try it against the other end
+            while (tries < 2) {
+              var sp = svg._svg.createSVGPoint();
+              sp.x = (flip ? evt.pageX : dragStartedAt.pageX) - svgOffset.left;
+              sp.y = (flip ? evt.pageY : dragStartedAt.pageY) - (svgOffset.top + 8);
+              var startsAt = range.startContainer;
+              anchorOffset = startsAt.getCharNumAtPosition(sp);
+              chunkIndexFrom = startsAt && $(startsAt).attr('data-chunk-id');
+              if (anchorOffset != -1) {
+                break;
+              }
+              flip = true;
+              tries++;
+            }
+
+            // Now grab the end offset
+            sp.x = (flip ? dragStartedAt.pageX : evt.pageX) - svgOffset.left;
+            sp.y = (flip ? dragStartedAt.pageY : evt.pageY) - (svgOffset.top + 8);
+            var endsAt = range.endContainer;
+            focusOffset = endsAt.getCharNumAtPosition(sp);
+
+            // If we cannot get a start and end offset stop here
+            if (anchorOffset == -1 || focusOffset == -1) {
+              return;
+            }
+            // If we are in the same container it does the selection back to front when dragged right to left, across different containers the start is the start and the end if the end!
+            if(range.startContainer == range.endContainer && anchorOffset > focusOffset) {
+              var t = anchorOffset;
+              anchorOffset = focusOffset;
+              focusOffset = t;
+              flip = false;
+            }
+            chunkIndexTo = endsAt && $(endsAt).attr('data-chunk-id');
+
+            // Now take the start and end character rectangles
+            startRec = startsAt.getExtentOfChar(anchorOffset);
+            startRec.y += 2;
+            endRec = endsAt.getExtentOfChar(focusOffset);
+            endRec.y += 2;
+
+            // If nothing has changed then stop here
+            if (lastStartRec != null && lastStartRec.x == startRec.x && lastStartRec.y == startRec.y && lastEndRec != null && lastEndRec.x == endRec.x && lastEndRec.y == endRec.y) {
+              return;
+            }
+
+            if (selRect == null) {
+              var rx = startRec.x;
+              var ry = startRec.y;
+              var rw = (endRec.x + endRec.width) - startRec.x;
+              if (rw < 0) {
+                rx += rw;
+                rw = -rw;
+              }
+              var rh = Math.max(startRec.height, endRec.height);
+
+              selRect = new Array();
+              var activeSelRect = makeSelRect(rx, ry, rw, rh);
+              selRect.push(activeSelRect);
+              startsAt.parentNode.parentNode.parentNode.insertBefore(activeSelRect, startsAt.parentNode.parentNode);
+            } else {
+              if (startRec.x != lastStartRec.x && endRec.x != lastEndRec.x && (startRec.y != lastStartRec.y || endRec.y != lastEndRec.y)) {
+                if (startRec.y < lastStartRec.y) {
+                  selRect[0].setAttributeNS(null, "width", lastStartRec.width);
+                  lastEndRec = lastStartRec;
+                } else if (endRec.y > lastEndRec.y) {
+                  selRect[selRect.length - 1].setAttributeNS(null, "x",
+                      parseFloat(selRect[selRect.length - 1].getAttributeNS(null, "x"))
+                      + parseFloat(selRect[selRect.length - 1].getAttributeNS(null, "width"))
+                      - lastEndRec.width);
+                  selRect[selRect.length - 1].setAttributeNS(null, "width", 0);
+                  lastStartRec=lastEndRec;
+                }
+              }
+
+              // Start has moved
+              var flip = !(startRec.x == lastStartRec.x && startRec.y == lastStartRec.y);
+              // If the height of the start or end changed we need to check whether
+              // to remove multi line highlights no longer needed if the user went back towards their start line
+              // and whether to create new ones if we moved to a newline
+              if (((endRec.y != lastEndRec.y)) || ((startRec.y != lastStartRec.y))) {
+                // First check if we have to remove the first highlights because we are moving towards the end on a different line
+                var ss = 0;
+                for (; ss != selRect.length; ss++) {
+                  if (startRec.y <= parseFloat(selRect[ss].getAttributeNS(null, "y"))) {
+                    break;
+                  }
+                }
+                // Next check for any end highlights if we are moving towards the start on a different line
+                var es = selRect.length - 1;
+                for (; es != -1; es--) {
+                  if (endRec.y >= parseFloat(selRect[es].getAttributeNS(null, "y"))) {
+                    break;
+                  }
+                }
+                // TODO put this in loops above, for efficiency the array slicing could be done separate still in single call
+                var trunc = false;
+                if (ss < selRect.length) {
+                  for (var s2 = 0; s2 != ss; s2++) {
+                    selRect[s2].parentNode.removeChild(selRect[s2]);
+                    es--;
+                    trunc = true;
+                  }
+                  selRect = selRect.slice(ss);
+                }
+                if (es > -1) {
+                  for (var s2 = selRect.length - 1; s2 != es; s2--) {
+                    selRect[s2].parentNode.removeChild(selRect[s2]);
+                    trunc = true;
+                  }
+                  selRect = selRect.slice(0, es + 1);
+                }
+
+                // If we have truncated the highlights we need to readjust the last one
+                if (trunc) {
+                  var activeSelRect = flip ? selRect[0] : selRect[selRect.length - 1];
+                  if (flip) {
+                    var rw = 0;
+                    if (startRec.y == endRec.y) {
+                      rw = (endRec.x + endRec.width) - startRec.x;
+                    } else {
+                      rw = (parseFloat(activeSelRect.getAttributeNS(null, "x"))
+                          + parseFloat(activeSelRect.getAttributeNS(null, "width")))
+                          - startRec.x;
+                    }
+                    activeSelRect.setAttributeNS(null, "x", startRec.x);
+                    activeSelRect.setAttributeNS(null, "y", startRec.y);
+                    activeSelRect.setAttributeNS(null, "width", rw);
+                  } else {
+                    var rw = (endRec.x + endRec.width) - parseFloat(activeSelRect.getAttributeNS(null, "x"));
+                    activeSelRect.setAttributeNS(null, "width", rw);
+                  }
+                } else {
+                  // We didnt truncate anything but we have moved to a new line so we need to create a new highlight
+                  var lastSel = flip ? selRect[0] : selRect[selRect.length - 1];
+                  var startBox = startsAt.parentNode.getBBox();
+                  var endBox = endsAt.parentNode.getBBox();
+
+                  if (flip) {
+                    lastSel.setAttributeNS(null, "width",
+                        (parseFloat(lastSel.getAttributeNS(null, "x"))
+                        + parseFloat(lastSel.getAttributeNS(null, "width")))
+                        - endBox.x);
+                    lastSel.setAttributeNS(null, "x", endBox.x);
+                  } else {
+                    lastSel.setAttributeNS(null, "width",
+                        (startBox.x + startBox.width)
+                        - parseFloat(lastSel.getAttributeNS(null, "x")));
+                  }
+                  var rx = 0;
+                  var ry = 0;
+                  var rw = 0;
+                  var rh = 0;
+                  if (flip) {
+                    rx = startRec.x;
+                    ry = startRec.y;
+                    rw = $(svg._svg).width() - startRec.x;
+                    rh = startRec.height;
+                  } else {
+                    rx = endBox.x;
+                    ry = endRec.y;
+                    rw = (endRec.x + endRec.width) - endBox.x;
+                    rh = endRec.height;
+                  }
+                  var newRect = makeSelRect(rx, ry, rw, rh);
+                  if (flip) {
+                    selRect.unshift(newRect);
+                  } else {
+                    selRect.push(newRect);
+                  }
+
+                  // Place new highlight in appropriate slot in SVG graph
+                  startsAt.parentNode.parentNode.parentNode.insertBefore(newRect, startsAt.parentNode.parentNode);
+                }
+              } else {
+                // The user simply moved left or right along the same line so just adjust the current highlight
+                var activeSelRect = flip ? selRect[0] : selRect[selRect.length - 1];
+                // If the start moved shift the highlight and adjust width
+                if (flip) {
+                  var rw = (parseFloat(activeSelRect.getAttributeNS(null, "x"))
+                      + parseFloat(activeSelRect.getAttributeNS(null, "width")))
+                      - startRec.x;
+                  activeSelRect.setAttributeNS(null, "x", startRec.x);
+                  activeSelRect.setAttributeNS(null, "y", startRec.y);
+                  activeSelRect.setAttributeNS(null, "width", rw);
+                } else {
+                  // If the end moved then simple change the width
+                  var rw = (endRec.x + endRec.width)
+                      - parseFloat(activeSelRect.getAttributeNS(null, "x"));
+                  activeSelRect.setAttributeNS(null, "width", rw);
+                }
+              }
+            }
+            lastStartRec = startRec;
+            lastEndRec = endRec;
+          }
         }
         arcDragJustStarted = false;
       };
@@ -352,11 +605,18 @@ var AnnotatorUI = (function($, window, undefined) {
         // enable all inputs by default (see setSpanTypeSelectability)
         $('#span_form input:not([unused])').removeAttr('disabled');
 
+        // close span types if there's over spanTypesToShowBeforeCollapse
+        if ($('#entity_types .item').length > spanTypesToShowBeforeCollapse) {
+          $('#entity_types .open').removeClass('open');
+        }
+        if ($('#event_types .item').length > spanTypesToShowBeforeCollapse) {
+          $('#event_types .open').removeClass('open');
+        }
+
         var showAllAttributes = false;
         if (span) {
-          var urlHash = URLHash.parse(window.location.hash);
-          urlHash.setArgument('focus', [[span.id]]);
-          $('#span_highlight_link').show().attr('href', urlHash.getHash());
+          var hash = new URLHash(coll, doc, { focus: [[span.id]] }).getHash();
+          $('#span_highlight_link').attr('href', hash).show();
           var el = $('#span_' + span.type);
           if (el.length) {
             el[0].checked = true;
@@ -365,6 +625,11 @@ var AnnotatorUI = (function($, window, undefined) {
               radio.checked = false;
             });
           }
+
+          // open the span type
+          $('#span_' + span.type).parents('.collapsible').each(function() {
+            toggleCollapsible($(this).parent().prev(), true);
+          });
 
           // count the repeating arc types
           var arcTypeCount = {};
@@ -422,6 +687,33 @@ var AnnotatorUI = (function($, window, undefined) {
               $input.val(val || '').change();
             }
           });
+        }
+
+        // fill normalizations (if any)
+        if (!reselectedSpan) {
+          // clear first
+          clearNormalizationUI();
+
+          var $normDb = $('#span_norm_db');
+          var $normId = $('#span_norm_id');
+          var $normText = $('#span_norm_txt');
+
+          // fill if found (NOTE: only shows last on multiple)
+          $.each(span ? span.normalizations : [], function(normNo, norm) {
+            // stored as array (sorry)
+            var refDb = norm[0], refId = norm[1], refText = norm[2];
+            $normDb.val(refDb);
+            $normId.val(refId);
+            // don't forget to update this reference value
+            oldSpanNormIdValue = refId
+            $normText.val(refText);
+            // just assume the ID is valid (TODO: check)
+            $normId.addClass('valid_value')
+          });
+
+          // update links
+          updateNormalizationRefLink();
+          updateNormalizationDbLink();
         }
 
         var showAttributesFor = function(attrTypes, type) {
@@ -599,6 +891,199 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#clear_notes_button').button();
       $('#clear_notes_button').click(clearSpanNotes);
 
+      var clearSpanNorm = function(evt) {
+        clearNormalizationUI();
+      }
+      $('#clear_norm_button').button();
+      $('#clear_norm_button').click(clearSpanNorm);
+
+      // invoked on response to ajax request for id lookup
+      var setSpanNormText = function(response) {
+        if (response.exception) {
+          // TODO: better response to failure
+          dispatcher.post('messages', [[['Lookup error', 'warning', -1]]]);
+          return false;
+        }        
+        // set input style according to whether we have a valid value
+        var $idinput = $('#span_norm_id');
+        // TODO: make sure the key echo in the response matches the
+        // current value of the $idinput
+        $idinput.removeClass('valid_value').removeClass('invalid_value');
+        if (response.value === null) {
+          $idinput.addClass('invalid_value');
+          hideNormalizationRefLink();
+        } else {
+          $idinput.addClass('valid_value');
+          updateNormalizationRefLink();
+        }
+        $('#span_norm_txt').val(response.value);
+      }
+
+      // on any change to the normalization DB, clear everything and
+      // update link
+      var spanNormDbUpdate = function(evt) {
+        clearNormalizationUI();
+        updateNormalizationDbLink();
+      }
+      $('#span_norm_db').change(spanNormDbUpdate);
+
+      // on any change to the normalization ID, update the text of the
+      // reference
+      var spanNormIdUpdate = function(evt) {
+        var key = $(this).val();
+        var db = $('#span_norm_db').val();
+        if (key != oldSpanNormIdValue) {
+          if (key.match(/^\s*$/)) {
+            // don't query empties, just clear instead
+            clearNormalizationUI();
+          } else {
+            dispatcher.post('ajax', [ {
+                            action: 'normGetName',
+                            database: db,
+                            key: key}, 'normGetNameResult']);
+          }
+          oldSpanNormIdValue = key;
+        }
+      }
+      // see http://stackoverflow.com/questions/1948332/detect-all-changes-to-a-input-type-text-immediately-using-jquery
+      $('#span_norm_id').bind('propertychange keyup input paste', spanNormIdUpdate);
+      // nice-looking select for normalization
+      $('#span_norm_db').addClass('ui-widget ui-state-default ui-button-text');
+
+      var normSearchDialog = $('#norm_search_dialog');
+      initForm(normSearchDialog, {
+          width: 800,
+          width: 600,
+          resizable: true,
+          alsoResize: '#norm_search_result_select',
+          open: function(evt) {
+            keymap = {};
+          },
+          close: function(evt) {
+            // assume that we always want to return to the span dialog
+            // on normalization dialog close
+            dispatcher.post('showForm', [spanForm]);
+          },
+      });
+      var normSearchSubmit = function(evt) {
+        var selectedId = $('#norm_search_id').val(); 
+        var selectedTxt = $('#norm_search_query').val();
+        if (normSearchSubmittable) {
+          // we got a value; act if it was a submit
+          $('#span_norm_id').val(selectedId);
+          // don't forget to update this reference value
+          oldSpanNormIdValue = selectedId;
+          $('#span_norm_txt').val(selectedTxt);
+          updateNormalizationRefLink();
+          // Switch dialogs. NOTE: assuming we closed the spanForm when
+          // bringing up the normSearchDialog.
+          normSearchDialog.dialog('close');
+        } else {
+          performNormSearch();
+        }
+        return false;
+      }
+      var normSearchSubmittable = false;
+      var setNormSearchSubmit = function(enable) {
+        $('#norm_search_dialog-ok').button(enable ? 'enable' : 'disable');
+        normSearchSubmittable = enable;
+      };
+      normSearchDialog.submit(normSearchSubmit);
+      var chooseNormId = function(evt) {
+        var $element = $(evt.target).closest('tr');
+        $('#norm_search_result_select tr').removeClass('selected');
+        $element.addClass('selected');
+        $('#norm_search_query').val($element.attr('data-txt'));
+        $('#norm_search_id').val($element.attr('data-id'));
+        setNormSearchSubmit(true);
+      }
+      var chooseNormIdAndSubmit = function(evt) {
+        chooseNormId(evt);
+        normSearchSubmit(evt);
+      }
+      var setSpanNormSearchResults = function(response) {
+        if (response.exception) {
+          // TODO: better response to failure
+          dispatcher.post('messages', [[['Lookup error', 'warning', -1]]]);
+          return false;
+        }
+
+        if (response.items.length == 0) {
+          // no results
+          $('#norm_search_result_select thead').empty();
+          $('#norm_search_result_select tbody').empty();
+          dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
+          return false;
+        }
+
+        // TODO: avoid code duplication with showFileBrowser()
+
+        var html = ['<tr>'];
+        $.each(response.header, function(headNo, head) {
+          html.push('<th>' + Util.escapeHTML(head[0]) + '</th>');
+        });
+        html.push('</tr>');
+        $('#norm_search_result_select thead').html(html.join(''));
+
+        html = [];
+        var len = response.header.length;
+        $.each(response.items, function(itemNo, item) {
+          // NOTE: assuming ID is always the first datum in the item
+          // and that the preferred text is always the second
+          html.push('<tr'+
+                    ' data-id="'+Util.escapeHTML(item[0])+'"'+
+                    ' data-txt="'+Util.escapeHTML(item[1])+'"'+
+                    '>');
+          for (var i=0; i<len; i++) {
+            html.push('<td>' + Util.escapeHTML(item[i]) + '</td>');
+          }
+          html.push('</tr>');
+        });
+        $('#norm_search_result_select tbody').html(html.join(''));
+
+        $('#norm_search_result_select tbody').find('tr').
+            click(chooseNormId).
+            dblclick(chooseNormIdAndSubmit);
+
+        // TODO: sorting on click on header (see showFileBrowser())
+      }
+      var performNormSearch = function() {
+        var val = $('#norm_search_query').val();
+        var db = $('#span_norm_db').val();
+        dispatcher.post('ajax', [ {
+                        action: 'normSearch',
+                        database: db,
+                        name: val}, 'normSearchResult']);
+      }
+      $('#norm_search_button').click(performNormSearch);
+      $('#norm_search_query').focus(function() {
+        setNormSearchSubmit(false);
+      });
+      var showNormSearchDialog = function() {
+        // if we already have non-empty ID and normalized string,
+        // use these as default; otherwise take default search string
+        // from annotated span and clear ID entry
+        if (!$('#span_norm_id').val().match(/^\s*$/) &&
+            !$('#span_norm_txt').val().match(/^\s*$/)) {
+            $('#norm_search_id').val($('#span_norm_id').val());
+            $('#norm_search_query').val($('#span_norm_txt').val());
+        } else {
+            $('#norm_search_id').val('');
+            $('#norm_search_query').val($('#span_selected').text());
+        }
+        // blank the table
+        $('#norm_search_result_select thead').empty();
+        $('#norm_search_result_select tbody').empty();        
+        // TODO: support for two (or more) dialogs open at the same time
+        // so we don't need to hide this before showing normSearchDialog
+        dispatcher.post('hideForm');
+        $('#norm_search_button').val('Search ' + $('#span_norm_db').val());
+        setNormSearchSubmit(false);
+        dispatcher.post('showForm', [normSearchDialog]);
+      }
+      $('#span_norm_txt').click(showNormSearchDialog);
+      $('#norm_search_button').button();
+
       var arcFormSubmitRadio = function(evt) {
         // TODO: check for confirm_mode?
         arcFormSubmit(evt, $(evt.target));
@@ -615,7 +1100,7 @@ var AnnotatorUI = (function($, window, undefined) {
         return false;
       };
 
-      var fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId, arcAnnotatorNotes) {
+      var fillArcTypesAndDisplayForm = function(evt, originType, targetType, arcType, arcId) {
         var noArcs = true;
         keymap = {};
 
@@ -699,7 +1184,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
         if (arcId) {
           // something was selected
-          $('#arc_highlight_link').attr('href', document.location + '/' + arcId).show(); // TODO incorrect
+          var hash = new URLHash(coll, doc, { focus: [arcId] }).getHash();
+          $('#arc_highlight_link').attr('href', hash).show(); // TODO incorrect
           var el = $('#arc_' + arcType)[0];
           if (el) {
             el.checked = true;
@@ -733,6 +1219,16 @@ var AnnotatorUI = (function($, window, undefined) {
           arcForm.find('#arc_roles input:radio').click(arcFormSubmitRadio);
         }
 
+        var arcAnnotatorNotes;
+        if (arcId) {
+          // TODO: is this right? Does this make sense? Why is this so
+          // convoluted? What does "eventDesc" stand for?
+          var ed = (data.arcById[arcId] &&
+                    data.arcById[arcId].eventDescId ?
+                    data.eventDescs[data.arcById[arcId].eventDescId] :
+                    null);
+          arcAnnotatorNotes = ed ? ed.annotatorNotes : null;
+        }
         if (arcAnnotatorNotes) {
           $('#arc_notes').val(arcAnnotatorNotes);
         } else {
@@ -813,7 +1309,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var targetArcRole = target.data('arc-role');
         if (!(targetSpanId !== undefined || targetChunkId !== undefined || targetArcRole !== undefined)) {
           // misclick
-          window.getSelection().removeAllRanges();
+          clearSelection();
           stopArcDrag(target);
           return;
         }
@@ -861,11 +1357,41 @@ var AnnotatorUI = (function($, window, undefined) {
           if (chunkIndexFrom === undefined && chunkIndexTo === undefined &&
               $(sel.anchorNode).attr('data-chunk-id') &&
               $(sel.focusNode).attr('data-chunk-id')) {
-            chunkIndexFrom = $(sel.anchorNode).attr('data-chunk-id');
-            chunkIndexTo = $(sel.focusNode).attr('data-chunk-id');
-            // guessing from start of first word to end of last
-            anchorOffset = 0;
-            focusOffset = chunkIndexTo ? data.chunks[chunkIndexTo].to - data.chunks[chunkIndexTo].from : 1;
+            // A. Scerri FireFox chunk
+
+            var range = sel.getRangeAt(0);
+            var svgOffset = $(svg._svg).offset();
+            var flip = false;
+            var tries = 0;
+            while (tries < 2) {
+              var sp = svg._svg.createSVGPoint();
+              sp.x = (flip ? evt.pageX : dragStartedAt.pageX) - svgOffset.left;
+              sp.y = (flip ? evt.pageY : dragStartedAt.pageY) - (svgOffset.top + 8);
+              var startsAt = range.startContainer;
+              anchorOffset = startsAt.getCharNumAtPosition(sp);
+              chunkIndexFrom = startsAt && $(startsAt).attr('data-chunk-id');
+              if (anchorOffset != -1) {
+                break;
+              }
+              flip = true;
+              tries++;
+            }
+            sp.x = (flip ? dragStartedAt.pageX : evt.pageX) - svgOffset.left;
+            sp.y = (flip ? dragStartedAt.pageY : evt.pageY) - (svgOffset.top + 8);
+            var endsAt = range.endContainer;
+            focusOffset = endsAt.getCharNumAtPosition(sp);
+
+            if (range.startContainer == range.endContainer && anchorOffset > focusOffset) {
+              var t = anchorOffset;
+              anchorOffset = focusOffset;
+              focusOffset = t;
+              flip = false;
+            }
+            if (focusOffset != -1) {
+              focusOffset++;
+            }
+            chunkIndexTo = endsAt && $(endsAt).attr('data-chunk-id');
+
             //console.log('fallback from', data.chunks[chunkIndexFrom], anchorOffset);
             //console.log('fallback to', data.chunks[chunkIndexTo], focusOffset);
           } else {
@@ -982,13 +1508,21 @@ var AnnotatorUI = (function($, window, undefined) {
         rapidFillSpanTypesAndDisplayForm(sugg.start, sugg.end, sugg.text, sugg.types);
       };
 
-      var collapseHandler = function(evt) {
-        var el = $(evt.target);
-        var open = el.hasClass('open');
-        var collapsible = el.parent().find('.collapsible').first();
-        el.toggleClass('open');
-        collapsible.toggleClass('open');
+      var toggleCollapsible = function($el, state) {
+        var opening = state !== undefined ? state : !$el.hasClass('open');
+        var $collapsible = $el.parent().find('.collapsible:first');
+        if (opening) {
+          $collapsible.addClass('open');
+          $el.addClass('open');
+        } else {
+          $collapsible.removeClass('open');
+          $el.removeClass('open');
+        }
       };
+
+      var collapseHandler = function(evt) {
+        toggleCollapsible($(evt.target));
+      }
 
       var spanFormSubmitRadio = function(evt) {
         if (Configuration.confirmModeOn) {
@@ -1252,6 +1786,91 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
+      var setupNormalizationUI = function(response) {
+        var norm_resources = response.normalization_config || [];
+        var $norm_select = $('#span_norm_db');
+        // clear possible existing
+        $norm_select.empty();
+        // fill in new
+        html = [];
+        $.each(norm_resources, function(normNo, norm) {
+          var normName = norm[0], normUrl = norm[1], normUrlBase = norm[2];
+          html.push('<option value="'+Util.escapeHTML(normName)+'">'+
+                    Util.escapeHTML(normName)+'</option>');
+          // remember the urls for updates
+          normDbUrlByDbName[normName] = normUrl;
+          normDbUrlBaseByDbName[normName] = normUrlBase;
+        });
+        $norm_select.html(html.join(''));
+        // if we have nothing, just hide the whole thing
+        if (!norm_resources.length) {
+          $('#norm_fieldset').hide();
+        } else {
+          $('#norm_fieldset').show();
+        }
+      }
+
+      // hides the reference link in the normalization UI
+      var hideNormalizationRefLink = function() {
+        $('#span_norm_ref_link').hide();
+      }
+
+      // updates the reference link in the normalization UI according
+      // to the current value of the normalization DB and ID.
+      var updateNormalizationRefLink = function() {
+        var $normId = $('#span_norm_id');
+        var $normLink = $('#span_norm_ref_link');
+        var normId = $normId.val();
+        if (!normId || normId.match(/^\s*$/)) {
+          $normLink.hide();
+        } else {
+          var $normDb = $('#span_norm_db');
+          var normDb = $normDb.val();
+          var base = normDbUrlBaseByDbName[normDb];
+          // assume hidden unless everything goes through
+          $normLink.hide();
+          if (!base) {
+            dispatcher.post('messages', [[['No base URL for '+normDb, 'error']]]);
+          } else if (base.indexOf('%s') == -1) {
+            dispatcher.post('messages', [[['Base URL "'+base+'" for '+normDb+' does not contain "%s"', 'error']]]);
+          } else {
+            // TODO: protect against strange chars in ID
+            link = base.replace('%s', normId);
+            $normLink.attr('href', link);
+            $normLink.show();
+          }
+        }
+      }
+
+      // updates the DB search link in the normalization UI according
+      // to the current value of the normalization DB.
+      var updateNormalizationDbLink = function() {
+        var $dbLink = $('#span_norm_db_link');
+        var $normDb = $('#span_norm_db');
+        var normDb = $normDb.val();
+        var link = normDbUrlByDbName[normDb];
+        if (!link || link.match(/^\s*$/)) {
+          dispatcher.post('messages', [[['No URL for '+normDb, 'error']]]);
+          $dbLink.hide();
+        } else {
+          // TODO: protect against weirdness in DB link
+          $dbLink.attr('href', link);
+          $dbLink.show();
+        }
+      }
+
+      // resets all normalization-related UI elements to a blank
+      // state
+      var clearNormalizationUI = function() {
+        var $normId = $('#span_norm_id');
+        var $normText = $('#span_norm_txt');
+        $normId.val('');
+        oldSpanNormIdValue = '';
+        $normId.removeClass('valid_value').removeClass('invalid_value');
+        $normText.val('');
+        updateNormalizationRefLink();
+      }
+
       var spanAndAttributeTypesLoaded = function(_spanTypes, 
                                                  _entityAttributeTypes,
                                                  _eventAttributeTypes,
@@ -1437,6 +2056,7 @@ var AnnotatorUI = (function($, window, undefined) {
           comment: $('#span_notes').val()
         });
 
+        // fill attributes
         var attributes = {};
         // TODO: avoid allAttributeTypes; just check type-appropriate ones
         $.each(allAttributeTypes, function(attrNo, attr) {
@@ -1447,6 +2067,21 @@ var AnnotatorUI = (function($, window, undefined) {
             attributes[attr.type] = $input.val();
           }
         });
+        spanOptions.attributes = $.toJSON(attributes);
+
+        // fill normalizations. Note that the protocol supports any
+        // number, but only no or one normalization supported in UI at
+        // the moment.
+        var normalizations = [];
+        var normDb = $('#span_norm_db').val();
+        var normId = $('#span_norm_id').val();
+        var normText = $('#span_norm_txt').val();
+        // empty ID -> no normalization
+        if (!normId.match(/^\s*$/)) {
+          normalizations.push([normDb, normId, normText]);
+        }
+        spanOptions.normalizations = $.toJSON(normalizations);
+
         // unfocus all elements to prevent focus being kept after
         // hiding them
         spanForm.parent().find('*').blur();
@@ -1655,6 +2290,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('dataReady', rememberData).
           on('collectionLoaded', rememberSpanSettings).
           on('collectionLoaded', setupTaggerUI).
+          on('collectionLoaded', setupNormalizationUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('newSourceData', onNewSourceData).
           on('hideForm', hideForm).
@@ -1669,7 +2305,9 @@ var AnnotatorUI = (function($, window, undefined) {
           on('mouseup', onMouseUp).
           on('mousemove', onMouseMove).
           on('annotationSpeed', setAnnotationSpeed).
-          on('suggestedSpanTypes', receivedSuggestedSpanTypes);
+          on('suggestedSpanTypes', receivedSuggestedSpanTypes).
+          on('normGetNameResult', setSpanNormText).
+          on('normSearchResult', setSpanNormSearchResults);
     };
 
     return AnnotatorUI;

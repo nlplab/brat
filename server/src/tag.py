@@ -3,7 +3,7 @@
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 '''
-Tagging functionality.
+Functionality for invoking tagging services.
 
 Author:     Pontus Stenetorp
 Version:    2011-04-22
@@ -11,9 +11,10 @@ Version:    2011-04-22
 
 from __future__ import with_statement
 
+from httplib import HTTPConnection, HTTPSConnection
 from os.path import join as path_join
-from urllib import urlencode, quote_plus
-from urllib2 import urlopen, HTTPError, URLError
+from socket import error as SocketError
+from urlparse import urlparse
 
 from annotation import TextAnnotations, TextBoundAnnotationWithText
 from annotator import _json_from_ann, ModificationTracker
@@ -40,13 +41,41 @@ class UnknownTaggerError(ProtocolError):
         json_dic['exception'] = 'unknownTaggerError'
 
 
-class TaggerConnectionError(ProtocolError):
-    def __init__(self, tagger):
+class InvalidConnectionSchemeError(ProtocolError):
+    def __init__(self, tagger, scheme):
         self.tagger = tagger
+        self.scheme = scheme
 
     def __str__(self):
-        return ('Tagger service %s did not respond in %s seconds'
-                ' or not at all') % (self.tagger, QUERY_TIMEOUT, )
+        return ('The tagger "%s" uses the unsupported scheme "%s"'
+                ' "%s"') % (self.tagger, self.scheme, )
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'unknownTaggerError'
+
+
+class InvalidTaggerResponseError(ProtocolError):
+    def __init__(self, tagger, response):
+        self.tagger = tagger
+        self.response = response
+
+    def __str__(self):
+        return (('The tagger "%s" returned an invalid JSON response, please '
+            'contact the tagger service mantainer. Response: "%s"')
+            % (self.tagger, self.response, ))
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'unknownTaggerError'
+
+
+class TaggerConnectionError(ProtocolError):
+    def __init__(self, tagger, error):
+        self.tagger = tagger
+        self.error = error
+
+    def __str__(self):
+        return ('Tagger service %s returned the error: "%s"'
+                % (self.tagger, self.error, ))
 
     def json(self, json_dic):
         json_dic['exception'] = 'taggerConnectionError'
@@ -65,32 +94,72 @@ def tag(collection, document, tagger):
     with TextAnnotations(path_join(real_directory(collection),
             document)) as ann_obj:
 
-        try:
-            # Note: Can we actually fit a whole document in here?
-            quoted_doc_text = quote_plus(ann_obj.get_document_text())
-            resp = urlopen(tagger_service_url % quoted_doc_text, None)
-#             resp = urlopen(tagger_service_url % quoted_doc_text, None,
-#                 QUERY_TIMEOUT)
-        except URLError:
-            raise TaggerConnectionError(tagger_token)
+        url_soup = urlparse(tagger_service_url)
 
-        # TODO: Check for errors
-        json_resp = loads(resp.read())
+        if url_soup.scheme == 'http':
+            Connection = HTTPConnection
+        elif url_soup.scheme == 'https':
+            Connection = HTTPSConnection
+        else:
+            raise InvalidConnectionSchemeError(tagger_token, url_soup.scheme)
+
+        conn = None
+        try:
+            conn = Connection(url_soup.netloc)
+            req_headers = {
+                    'Content-type': 'text/plain; charset=utf-8',
+                    'Accept': 'application/json',
+                    }
+            # Build a new service URL since the request method doesn't accept
+            #   a parameters argument
+            service_url = url_soup.path + (
+                    '?' + url_soup.query if url_soup.query else '')
+            try:
+                conn.request('POST', url_soup.path,
+                        # The document text as body
+                        ann_obj.get_document_text().encode('utf8'),
+                        headers=req_headers)
+            except SocketError, e:
+                raise TaggerConnectionError(tagger_token, e)
+            resp = conn.getresponse()
+
+            # Did the request succeed?
+            if resp.status != 200:
+                raise TaggerConnectionError(tagger_token,
+                        '%s %s' % (resp.status, resp.reason))
+        finally:
+            if conn is not None:
+                conn.close()
+
+        resp_data = resp.read()
+        try:
+            json_resp = loads(resp_data)
+        except ValueError:
+            raise InvalidTaggerResponseError(tagger_token, resp_data)
 
         mods = ModificationTracker()
 
         for ann_data in json_resp.itervalues():
+            assert 'offsets' in ann_data, 'Tagger response lacks offsets'
             offsets = ann_data['offsets']
+            assert 'type' in ann_data, 'Tagger response lacks type'
+            _type = ann_data['type']
+            assert 'texts' in ann_data, 'Tagger response lacks texts'
+            texts = ann_data['texts']
+
+            # sanity
+            assert len(offsets) != 0, 'Tagger response has empty offsets'
+            assert len(texts) == len(offsets), 'Tagger response has different numbers of offsets and texts'
+
             # Note: We do not support discontinuous spans at this point
-            assert len(offsets) == 1, 'discontinuous/null spans'
+            assert len(offsets) < 2, 'Tagger response has multiple offsets (discontinuous spans not supported)'
             start, end = offsets[0]
+            text = texts[0]
+
             _id = ann_obj.get_new_id('T')
-            tb = TextBoundAnnotationWithText(
-                    start, end,
-                    _id,
-                    ann_data['type'],
-                    ann_data['text']
-                    )
+
+            tb = TextBoundAnnotationWithText(start, end, _id, _type, text)
+
             mods.addition(tb)
             ann_obj.add_annotation(tb)
 

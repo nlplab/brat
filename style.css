@@ -218,6 +218,19 @@ path {
   background-color: #d7e7ee;
 }
 
+.shadow_Normalized {
+  /* fill: #00cc00; */
+  fill: #3aee37;
+}
+#commentpopup.comment_Normalized {
+  /* background-color: #00cc00; */
+  /* background-color: #DAF7DC; */
+  background-color: #d7eee7;
+}
+rect.Normalized {
+  stroke-width: 1.5;
+}
+
 .shadow_AnnotationIncomplete {
   fill: #aaaaaa;
 }
@@ -499,10 +512,55 @@ fieldset legend {
 #notes_container {
   position: relative;
 }
-#clear_notes_button {                   
+#norm_container {
+  position: relative;
+}
+#clear_notes_button, #clear_norm_button {                   
   padding: 2px 5px;
   position: absolute;
   top: -2px;
+  right: -2px;
+}
+.span_norm_txt_input {
+  background-color: #eaf4fd;
+}
+input.valid_value {
+  background-color: #ccffcc;
+}
+input.invalid_value {
+  background-color: #ffcccc;
+}
+#norm_search_result_select {
+  height: 200px;
+  display: inline-block;
+  border: 2px inset;
+  background-color: #ffffff;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+  overflow: scroll;
+}
+#norm_search_result_select thead tr * {
+  padding: 2px 5px;
+}
+#norm_search_result_select tbody tr * {
+  padding: 0 5px;
+}
+#norm_search_result_select tr {
+  cursor: pointer;
+}
+#norm_search_result_select tr * {
+  white-space: nowrap;
+}
+#norm_search_result_select tr.selected {
+  background-color: #cccccc;
+}
+#norm_search_container {
+  position: relative;
+}
+#norm_search_button {
+  position: absolute;
+  top: -6px;
   right: -2px;
 }
 
@@ -735,6 +793,22 @@ div.scroll_wrapper_upper div.scroller {
 
 #logo:hover {
   opacity: 0.8;
+}
+
+#search_button {
+  margin-right: 0;
+}
+#search_button_label {
+  margin-right: 0;
+
+}
+#clear_search_button {
+  margin-left: 0;
+  padding-left: 0.4em;
+  padding-right: 0.4em;
+  -moz-border-radius: 0px 5px 5px 0px;
+  -webkit-border-radius: 0px 5px 5px 0px;
+  border-radius: 0px 5px 5px 0px;
 }
 
 #spinner {

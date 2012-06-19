@@ -106,12 +106,24 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
     revisedTagged = []
     prevTag = None
     for startoff, endoff, ttag, ttype in taggedTokens:
-        if prevTag =="O" and ttag == "I":
+        if prevTag == "O" and ttag == "I":
             print >> sys.stderr, "Note: rewriting \"I\" -> \"B\" after \"O\""
             ttag = "B"
         revisedTagged.append((startoff, endoff, ttag, ttype))
         prevTag = ttag
     taggedTokens = revisedTagged
+
+    # cleanup for tagger errors where an entity switches type
+    # without a "B" tag at the boundary
+    revisedTagged = []
+    prevTag, prevType = None, None
+    for startoff, endoff, ttag, ttype in taggedTokens:
+        if prevTag in ("B", "I") and ttag == "I" and prevType != ttype:
+            print >> sys.stderr, "Note: rewriting \"I\" -> \"B\" at type switch"
+            ttag = "B"
+        revisedTagged.append((startoff, endoff, ttag, ttype))
+        prevTag, prevType = ttag, ttype
+    taggedTokens = revisedTagged    
 
     idIdx = 1
     prevTag, prevEnd = "O", 0

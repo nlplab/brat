@@ -35,6 +35,7 @@ from predict import suggest_span_types
 from undo import undo
 from tag import tag
 from delete import delete_document, delete_collection
+from norm import norm_get_name, norm_search
 
 # no-op function that can be invoked by client to log a user action
 def logging_no_op(collection, document, log):
@@ -91,7 +92,11 @@ DISPATCHER = {
 
         'deleteDocument': delete_document,
         'deleteCollection': delete_collection,
-        }
+
+        # normalization support
+        'normGetName': norm_get_name,
+        'normSearch': norm_search,         
+       }
 
 # Actions that correspond to annotation functionality
 ANNOTATION_ACTION = set((

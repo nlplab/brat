@@ -43,6 +43,11 @@ except ImportError:
     PERFORM_VERIFICATION = False
 
 try:
+    from config import NEWLINE_SS
+except ImportError:
+    NEWLINE_SS = False
+
+try:
     from config import JAPANESE
 except ImportError:
     JAPANESE = False
@@ -351,7 +356,7 @@ def _fill_visual_configuration(types, project_conf):
     return items
 
 # TODO: this is not a good spot for this
-def get_span_types(directory):
+def get_base_types(directory):
     project_conf = ProjectConfiguration(directory)
 
     keymap = project_conf.get_kb_shortcuts()
@@ -370,12 +375,6 @@ def get_span_types(directory):
     entity_types = _fill_type_configuration(entity_hierarchy,
             project_conf, hotkey_by_type, all_connections)
 
-    entity_attribute_hierarchy = project_conf.get_entity_attribute_type_hierarchy()
-    entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf)
-    
-    event_attribute_hierarchy = project_conf.get_event_attribute_type_hierarchy()
-    event_attribute_types = _fill_attribute_configuration(event_attribute_hierarchy, project_conf)
-
     relation_hierarchy = project_conf.get_relation_type_hierarchy()
     relation_types = _fill_relation_configuration(relation_hierarchy,
             project_conf, hotkey_by_type)
@@ -388,15 +387,30 @@ def get_span_types(directory):
                     not project_conf.is_configured_type(l)]
     unconf_types = _fill_visual_configuration(unconfigured, project_conf)
 
-    # TODO: this is just horrible. What's all this doing in a function
-    # called get_span_types() anyway? Please fix.
-    return event_types, entity_types, event_attribute_types, entity_attribute_types, relation_types, unconf_types
+    return event_types, entity_types, relation_types, unconf_types
+
+def get_attribute_types(directory):
+    project_conf = ProjectConfiguration(directory)
+
+    entity_attribute_hierarchy = project_conf.get_entity_attribute_type_hierarchy()
+    entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf)
+    
+    relation_attribute_hierarchy = project_conf.get_relation_attribute_type_hierarchy()
+    relation_attribute_types = _fill_attribute_configuration(relation_attribute_hierarchy, project_conf)
+
+    event_attribute_hierarchy = project_conf.get_event_attribute_type_hierarchy()
+    event_attribute_types = _fill_attribute_configuration(event_attribute_hierarchy, project_conf)
+
+    return entity_attribute_types, relation_attribute_types, event_attribute_types
 
 def get_search_config(directory):
     return ProjectConfiguration(directory).get_search_config()
 
 def get_disambiguator_config(directory):
     return ProjectConfiguration(directory).get_disambiguator_config()
+
+def get_normalization_config(directory):
+    return ProjectConfiguration(directory).get_normalization_config()
 
 def get_annotator_config(directory):
     # TODO: "annotator" is a very confusing term for a web service
@@ -509,13 +523,17 @@ def get_directory_information(collection):
     for i in doclist:
         combolist.append(["d", None]+i)
 
-    event_types, entity_types, event_attribute_types, entity_attribute_types, relation_types, unconf_types = get_span_types(real_dir)
+    event_types, entity_types, relation_types, unconf_types = get_base_types(real_dir)
+    entity_attribute_types, relation_attribute_types, event_attribute_types = get_attribute_types(real_dir)
 
     # plug in the search config too
     search_config = get_search_config(real_dir)
 
     # ... and the disambiguator config ... this is getting a bit much
     disambiguator_config = get_disambiguator_config(real_dir)
+
+    # ... and the normalization config (TODO: rethink)
+    normalization_config = get_normalization_config(real_dir)
 
     # read in README (if any) to send as a description of the
     # collection
@@ -541,12 +559,14 @@ def get_directory_information(collection):
             'entity_types': entity_types,
 #             'attribute_types': attribute_types,
             'event_attribute_types': event_attribute_types,
+            'relation_attribute_types': relation_attribute_types,
             'entity_attribute_types': entity_attribute_types,
             'relation_types': relation_types,
             'unconfigured_types': unconf_types,
             'description': readme_text,
             'search_config': search_config,
             'disambiguator_config' : disambiguator_config,
+            'normalization_config' : normalization_config,
             'annotation_logging': ann_logging,
             'ner_taggers': ner_taggers,
             }
@@ -602,30 +622,34 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
     
     from logging import info as log_info
 
+    # First, generate tokenisation
     if JAPANESE:
-        from ssplit import jp_sentence_boundary_gen
         from tokenise import jp_token_boundary_gen
+        token_offsets = [o for o in jp_token_boundary_gen(text)]
+    else:
+        from tokenise import en_token_boundary_gen
+        token_offsets = [o for o in en_token_boundary_gen(text)]
+    j_dic['token_offsets'] = token_offsets
 
+    if NEWLINE_SS:
+        from ssplit import newline_sentence_boundary_gen
+        sentence_offsets = [o for o in newline_sentence_boundary_gen(text)]
+    elif JAPANESE:
+        from ssplit import jp_sentence_boundary_gen
         sentence_offsets = [o for o in jp_sentence_boundary_gen(text)]
         #log_info('offsets: ' + str(offsets))
-        j_dic['sentence_offsets'] = sentence_offsets
-
-        token_offsets = [o for o in jp_token_boundary_gen(text)]
-        j_dic['token_offsets'] = token_offsets
     else:
         from ssplit import en_sentence_boundary_gen
-        from tokenise import en_token_boundary_gen
-
         sentence_offsets = [o for o in en_sentence_boundary_gen(text)]
         #log_info('offsets: ' + str(sentence_offsets))
-        j_dic['sentence_offsets'] = sentence_offsets
-        
-        token_offsets = [o for o in en_token_boundary_gen(text)]
-        j_dic['token_offsets'] = token_offsets
+    j_dic['sentence_offsets'] = sentence_offsets
 
     return True
 
 def _enrich_json_with_data(j_dic, ann_obj):
+    # TODO: figure out if there's a reason for all the unicode()
+    # invocations here; remove if not.
+
     # We collect trigger ids to be able to link the textbound later on
     trigger_ids = set()
     for event_ann in ann_obj.get_events():
@@ -661,12 +685,19 @@ def _enrich_json_with_data(j_dic, ann_obj):
 
     for att_ann in ann_obj.get_attributes():
         j_dic['attributes'].append(
-                [unicode(att_ann.id), att_ann.type, att_ann.target, att_ann.value]
+                [unicode(att_ann.id), unicode(att_ann.type), unicode(att_ann.target), att_ann.value]
+                )
+
+    for norm_ann in ann_obj.get_normalizations():
+        j_dic['normalizations'].append(
+                [unicode(norm_ann.id), unicode(norm_ann.type), 
+                 unicode(norm_ann.target), unicode(norm_ann.refdb), 
+                 unicode(norm_ann.refid), unicode(norm_ann.reftext)]
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
         j_dic['comments'].append(
-                [com_ann.target, com_ann.type, com_ann.tail.strip()]
+                [unicode(com_ann.target), unicode(com_ann.type), com_ann.tail.strip()]
                 )
 
     if ann_obj.failed_lines:
@@ -713,16 +744,24 @@ def _enrich_json_with_data(j_dic, ann_obj):
 
 def _enrich_json_with_base(j_dic):
     # TODO: Make the names here and the ones in the Annotations object conform
-    # This is the from offset
-    j_dic['offset'] = 0
-    j_dic['entities'] = []
-    j_dic['events'] = []
-    j_dic['relations'] = []
-    j_dic['triggers'] = []
-    j_dic['modifications'] = []
-    j_dic['attributes'] = []
-    j_dic['equivs'] = []
-    j_dic['comments'] = []
+
+    # TODO: "from offset" of what? Commented this out, remove once
+    # sure that nothing is actually using this.
+#     # This is the from offset
+#     j_dic['offset'] = 0
+
+    for d in (
+        'entities',
+        'events',
+        'relations',
+        'triggers',
+        'modifications',
+        'attributes',
+        'equivs',
+        'normalizations',
+        'comments',
+        ):
+        j_dic[d] = []
 
 def _document_json_dict(document):
     #TODO: DOC!

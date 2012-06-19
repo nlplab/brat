@@ -19,6 +19,7 @@ from subprocess import Popen, PIPE
 from shlex import split as shlex_split
 
 ### Constants
+# Reasonably well-behaved sentence end regular expression
 SENTENCE_END_REGEX = re_compile(ur'''
         # Require a leading non-whitespace character for the sentence
         \S
@@ -31,6 +32,21 @@ SENTENCE_END_REGEX = re_compile(ur'''
             (:?(\.|!|\?|。|！|？)+(?=\s+))
         | # Or...
             # Newlines, to respect file formatting
+            (:?(?=\n+))
+        | # Or...
+            # End-of-file, excluding whitespaces before it
+            (:?(?=\s*$))
+        )
+    ''', DOTALL | VERBOSE)
+# Only newlines can end a sentence to preserve pre-processed formatting
+SENTENCE_END_NEWLINE_REGEX = re_compile(ur'''
+        # Require a leading non-whitespace character for the sentence
+        \S
+        # Then, anything goes, but don't be greedy
+        .*?
+        # Anchor the sentence at...
+        (:?
+            # One (or multiple) newlines
             (:?(?=\n+))
         | # Or...
             # End-of-file, excluding whitespaces before it
@@ -114,6 +130,10 @@ def jp_sentence_boundary_gen(text):
 def en_sentence_boundary_gen(text):
     for o in _refine_split([_o for _o in _sentence_boundary_gen(
                 text, SENTENCE_END_REGEX)], text):
+        yield o
+
+def newline_sentence_boundary_gen(text):
+    for o in _sentence_boundary_gen(text, SENTENCE_END_NEWLINE_REGEX):
         yield o
 
 if __name__ == '__main__':

@@ -97,7 +97,7 @@ def _apply_tagger(text):
         anns["T%d" % t.idNum] = {
             'type': t.eType,
             'offsets': ((t.startOff, t.endOff), ),
-            'text': t.eText,
+            'texts': (t.eText, ),
             }
 
     return anns

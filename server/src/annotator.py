@@ -19,7 +19,8 @@ from os.path import split as path_split
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, EquivAnnotation, open_textfile,
-        AnnotationsIsReadOnlyError, AttributeAnnotation)
+        AnnotationsIsReadOnlyError, AttributeAnnotation, 
+        NormalizationAnnotation)
 from common import ProtocolError, ProtocolArgumentError
 try:
     from config import DEBUG
@@ -469,13 +470,66 @@ def _create_span(collection, document, offsets, _type, attributes=None,
     directory = collection
     undo_resp = {}
 
+def _set_normalizations(ann_obj, ann, normalizations, mods, undo_resp={}):
+    # Find existing normalizations (if any)
+    existing_norm_anns = set((a for a in ann_obj.get_normalizations()
+            if a.target == ann.id))
+
+    # Note the existing annotations for undo
+    undo_resp['normalizations'] = json_dumps([(n.refdb, n.refid, n.reftext)
+                                              for n in existing_norm_anns])
+
+    # Organize into dictionaries for easier access
+    old_norms = dict([((n.refdb,n.refid),n) for n in existing_norm_anns])
+    new_norms = dict([((n[0],n[1]), n[2]) for n in normalizations])
+
+    #Messager.info("Old norms: "+str(old_norms))
+    #Messager.info("New norms: "+str(new_norms))
+
+    # sanity check
+    for refdb, refid, refstr in normalizations:
+        # TODO: less aggressive failure
+        assert refdb.strip() != '', "Error: client sent empty norm DB"
+        assert refid.strip() != '', "Error: client sent empty norm ID"
+        # (the reference string is allwed to be empty)
+
+    # Process deletions and updates of existing normalizations
+    for old_norm_id, old_norm in old_norms.items():
+        if old_norm_id not in new_norms:
+            # Delete IDs that were referenced previously but not anymore
+            ann_obj.del_annotation(old_norm)
+            mods.deletion(old_norm)
+        else:
+            # If the text value of the normalizations is different, update
+            # (this shouldn't happen on a stable norm DB, but anyway)
+            new_reftext = new_norms[old_norm_id]
+            if old_norm.reftext != new_reftext:
+                old = unicode(old_norm)
+                old_norm.reftext = new_reftext
+                mods.change(old, old_norm)
+
+    # Process new normalizations
+    for new_norm_id, new_reftext in new_norms.items():
+        if new_norm_id not in old_norms:
+            new_id = ann_obj.get_new_id('N')
+            # TODO: avoid magic string value
+            norm_type = u'Reference'
+            new_norm = NormalizationAnnotation(new_id, norm_type,
+                                               ann.id, new_norm_id[0],
+                                               new_norm_id[1],
+                                               u'\t'+new_reftext)
+            ann_obj.add_annotation(new_norm)
+            mods.addition(new_norm)
+
+# helper for _create methods
+def _parse_attributes(attributes):
     if attributes is None:
         _attributes = {}
     else:
         try:
             _attributes =  json_loads(attributes)
         except ValueError:
-            # Failed to parse attributes, warn the client
+            # Failed to parse, warn the client
             Messager.warning((u'Unable to parse attributes string "%s" for '
                     u'"createSpan", ignoring attributes for request and '
                     u'assuming no attributes set') % (attributes, ))
@@ -490,6 +544,73 @@ def _create_span(collection, document, offsets, _type, attributes=None,
         for _revalue in [k for k, v in _attributes.items() if v == True]:
             _attributes[_revalue] = True
         ###
+    return _attributes
+
+# helper for _create_span
+def _parse_span_normalizations(normalizations):
+    if normalizations is None:
+        _normalizations = {}
+    else:
+        try:
+            _normalizations = json_loads(normalizations)
+        except ValueError:
+            # Failed to parse, warn the client
+            Messager.warning((u'Unable to parse normalizations string "%s" for '
+                    u'"createSpan", ignoring normalizations for request and '
+                    u'assuming no normalizations set') % (normalizations, ))
+            _normalizations = {}
+
+    return _normalizations
+
+# Helper for _create functions
+def _set_comments(ann_obj, ann, comment, mods, undo_resp={}):
+    # We are only interested in id;ed comments
+    try:
+        ann.id
+    except AttributeError:
+        return None
+
+    # Check if there is already an annotation comment
+    for com_ann in ann_obj.get_oneline_comments():
+        if (com_ann.type == 'AnnotatorNotes'
+                and com_ann.target == ann.id):
+            found = com_ann
+
+            # Note the comment in the undo
+            undo_resp['comment'] = found.tail[1:]
+            break
+    else:
+        found = None
+
+    if comment:
+        if found is not None:
+            # Change the comment
+            # XXX: Note the ugly tab, it is for parsing the tail
+            before = unicode(found)
+            found.tail = u'\t' + comment
+            mods.change(before, found)
+        else:
+            # Create a new comment
+            new_comment = OnelineCommentAnnotation(
+                    ann.id, ann_obj.get_new_id('#'),
+                    # XXX: Note the ugly tab
+                    u'AnnotatorNotes', u'\t' + comment)
+            ann_obj.add_annotation(new_comment)
+            mods.addition(new_comment)
+    else:
+        # We are to erase the annotation
+        if found is not None:
+            ann_obj.del_annotation(found)
+            mods.deletion(found)
+
+#TODO: ONLY determine what action to take! Delegate to Annotations!
+def _create_span(collection, document, start, end, _type, attributes=None,
+                 normalizations=None, _id=None, comment=None):
+    directory = collection
+    undo_resp = {}
+
+    _attributes = _parse_attributes(attributes)
+    _normalizations = _parse_span_normalizations(normalizations)
 
     #log_info('ATTR: %s' %(_attributes, ))
 
@@ -524,7 +645,9 @@ def _create_span(collection, document, offsets, _type, attributes=None,
             else:
                 undo_resp['id'] = tb_ann.id
 
-        # Set annotation attributes
+        # Determine which annotation attributes, normalizations,
+        # comments etc. should be attached to. If there's an event,
+        # attach to that; otherwise attach to the textbound.
         if e_ann is not None:
             # Assign attributes to the event, not the trigger
             attrib_on = e_ann
@@ -541,51 +664,23 @@ def _create_span(collection, document, offsets, _type, attributes=None,
             else:
                 comment_on = tb_ann
 
-            # We are only interested in id;ed comments
-            try:
-                comment_on.id
-                has_id = True
-            except AttributeError:
-                has_id = False
+        # Set annotation attributes
+        _set_attributes(ann_obj, target_ann, _attributes, mods,
+                        undo_resp=undo_resp)
 
-            if has_id:
-                # Check if there is already an annotation comment
-                for com_ann in ann_obj.get_oneline_comments():
-                    if (com_ann.type == 'AnnotatorNotes'
-                            and com_ann.target == comment_on.id):
-                        found = com_ann
+        # Set normalizations
+        _set_normalizations(ann_obj, target_ann, _normalizations, mods,
+                            undo_resp=undo_resp)
 
-                        # Note the comment in the undo
-                        undo_resp['comment'] = found.tail[1:]
-                        break
-                else:
-                    found = None
-
-                if comment:
-                    if found is not None:
-                        # Change the comment
-                        # XXX: Note the ugly tab, it is for parsing the tail
-                        before = unicode(found)
-                        found.tail = u'\t' + comment
-                        mods.change(before, found)
-                    else:
-                        # Create a new comment
-                        new_comment = OnelineCommentAnnotation(
-                                comment_on.id, ann_obj.get_new_id('#'),
-                                # XXX: Note the ugly tab
-                                u'AnnotatorNotes', u'\t' + comment)
-                        ann_obj.add_annotation(new_comment)
-                        mods.addition(new_comment)
-                else:
-                    # We are to erase the annotation
-                    if found is not None:
-                        ann_obj.del_annotation(found)
-                        mods.deletion(found)
+        # Handle annotation comments
+        if tb_ann is not None:
+            _set_comments(ann_obj, target_ann, comment, mods,
+                          undo_resp=undo_resp)
 
         if tb_ann is not None:
             mods_json = mods.json_response()
         else:
-            # Hack, we had a new-line in the span
+            # Hack, probably we had a new-line in the span
             mods_json = {}
             Messager.error('Text span contained new-line, rejected', duration=3)
 
@@ -596,16 +691,159 @@ def _create_span(collection, document, offsets, _type, attributes=None,
 
 from annotation import BinaryRelationAnnotation
 
-#TODO: Should determine which step to call next
-#def save_arc(directory, document, origin, target, type, old_type=None):
-def create_arc(collection, document, origin, target, type,
-        old_type=None, old_target=None):
+def _create_equiv(ann_obj, projectconf, mods, origin, target, type, attributes,
+                  old_type, old_target):
+
+    # due to legacy representation choices for Equivs (i.e. no
+    # unique ID), support for attributes for Equivs would need
+    # some extra work. Getting the easy non-Equiv case first.
+    if attributes is not None:
+        Messager.warning('_create_equiv: attributes for Equiv annotation not supported yet, please tell the devs if you need this feature (mention "issue #799").')
+        attributes = None
+
+    ann = None
+
+    if old_type is None:
+        # new annotation
+
+        # sanity
+        assert old_target is None, '_create_equiv: incoherent args: old_type is None, old_target is not None (client/protocol error?)'
+
+        ann = EquivAnnotation(type, [unicode(origin.id), 
+                                     unicode(target.id)], '')
+        ann_obj.add_annotation(ann)
+        mods.addition(ann)
+
+        # TODO: attributes
+        assert attributes is None, "INTERNAL ERROR" # see above
+    else:
+        # change to existing Equiv annotation. Other than the no-op
+        # case, this remains TODO.
+        assert projectconf.is_equiv_type(old_type), 'attempting to change equiv relation to non-equiv relation, operation not supported'
+
+        # sanity
+        assert old_target is not None, '_create_equiv: incoherent args: old_type is not None, old_target is None (client/protocol error?)'
+
+        if old_type != type:
+            Messager.warning('_create_equiv: equiv type change not supported yet, please tell the devs if you need this feature (mention "issue #798").')
+
+        if old_target != target.id:
+            Messager.warning('_create_equiv: equiv reselect not supported yet, please tell the devs if you need this feature (mention "issue #797").')
+
+        # TODO: attributes
+        assert attributes is None, "INTERNAL ERROR" # see above
+
+    return ann
+
+def _create_relation(ann_obj, projectconf, mods, origin, target, type,
+                     attributes, old_type, old_target, undo_resp={}):
+    attributes = _parse_attributes(attributes)
+
+    if old_type is not None or old_target is not None:
+        assert type in projectconf.get_relation_types(), (
+                ('attempting to convert relation to non-relation "%s" ' % (target.type, )) +
+                ('(legit types: %s)' % (unicode(projectconf.get_relation_types()), )))
+
+        sought_target = (old_target
+                if old_target is not None else target.id)
+        sought_type = (old_type
+                if old_type is not None else type)
+
+        # We are to change the type, target, and/or attributes
+        found = None
+        for ann in ann_obj.get_relations():
+            if ann.arg2 == sought_target and ann.type == sought_type:
+                found = ann
+                break
+
+        if found is None:
+            # TODO: better response
+            Messager.error('_create_relation: failed to identify target relation (type %s, target %s) (deleted?)' % (str(old_type), str(old_target)))
+        elif found.arg2 == target.id and found.type != type:
+            # no changes to type or target
+            pass
+        else:
+            # type and/or target changed, mark.
+            before = unicode(found)
+            found.arg2 = target.id
+            found.type = type
+            mods.change(before, found)
+
+        target_ann = found
+    else:
+        # Create a new annotation
+        new_id = ann_obj.get_new_id('R')
+        rel = projectconf.get_relation_by_type(type)
+        assert rel is not None and len(rel.arg_list) == 2
+        a1l, a2l = rel.arg_list
+        ann = BinaryRelationAnnotation(new_id, type, a1l, origin.id, a2l, target.id, '\t')
+        mods.addition(ann)
+        ann_obj.add_annotation(ann)
+
+        target_ann = ann
+
+    # process attributes
+    if target_ann is not None:
+        _set_attributes(ann_obj, ann, attributes, mods, undo_resp)
+    elif attributes != None:
+        Messager.error('_create_relation: cannot set arguments: failed to identify target relation (type %s, target %s) (deleted?)' % (str(old_type), str(old_target)))        
+
+    return target_ann
+
+def _create_argument(ann_obj, projectconf, mods, origin, target, type,
+                     attributes, old_type, old_target):
+    try:
+        arg_tup = (type, unicode(target.id))
+
+        # Is this an addition or an update?
+        if old_type is None and old_target is None:
+            if arg_tup not in origin.args:
+                before = unicode(origin)
+                origin.add_argument(type, unicode(target.id))
+                mods.change(before, origin)
+            else:
+                # It already existed as an arg, we were called to do nothing...
+                pass
+        else:
+            # Construct how the old arg would have looked like
+            old_arg_tup = (type if old_type is None else old_type,
+                    target if old_target is None else old_target)
+
+            if old_arg_tup in origin.args and arg_tup not in origin.args:
+                before = unicode(origin)
+                origin.args.remove(old_arg_tup)
+                origin.add_argument(type, unicode(target.id))
+                mods.change(before, origin)
+            else:
+                # Collision etc. don't do anything
+                pass
+    except AttributeError:
+        # The annotation did not have args, it was most likely an entity
+        # thus we need to create a new Event...
+        new_id = ann_obj.get_new_id('E')
+        ann = EventAnnotation(
+                    origin.id,
+                    [arg_tup],
+                    new_id,
+                    origin.type,
+                    ''
+                    )
+        ann_obj.add_annotation(ann)
+        mods.addition(ann)
+
+    # No addressing mechanism for arguments at the moment
+    return None
+
+# TODO: undo support
+def create_arc(collection, document, origin, target, type, attributes=None,
+        old_type=None, old_target=None, comment=None):
     directory = collection
+    undo_resp = {}
 
     real_dir = real_directory(directory)
+
     mods = ModificationTracker()
 
-    real_dir = real_directory(directory)
     projectconf = ProjectConfiguration(real_dir)
 
     document = path_join(real_dir, document)
@@ -621,91 +859,23 @@ def create_arc(collection, document, origin, target, type,
         target = ann_obj.get_ann_by_id(target)
 
         if projectconf.is_equiv_type(type):
-            # It is an Equiv
-            if projectconf.is_equiv_type(old_type):
-                # "Change" from Equiv to Equiv is harmless
-                # TODO: some message needed?
-                pass
-            else:
-                assert old_type is None, 'attempting to change equiv relation to non-equiv relation, operation not supported'
-                ann = EquivAnnotation(type, [unicode(origin.id), unicode(target.id)], '')
-                ann_obj.add_annotation(ann)
-                mods.addition(ann)
+            ann =_create_equiv(ann_obj, projectconf, mods, origin, target, 
+                               type, attributes, old_type, old_target)
+
         elif projectconf.is_relation_type(type):
-            if old_type is not None or old_target is not None:
-                assert type in projectconf.get_relation_types(), (
-                        ('attempting to convert relation to non-relation "%s" ' % (target.type, )) +
-                        ('(legit types: %s)' % (unicode(projectconf.get_relation_types()), )))
-
-                sought_target = (old_target
-                        if old_target is not None else target.id)
-                sought_type = (old_type
-                        if old_type is not None else type)
-
-                # We are to change the type and/or target
-                found = None
-                for ann in ann_obj.get_relations():
-                    if ann.arg2 == sought_target and ann.type == sought_type:
-                        found = ann
-                        break
-
-                # Did it exist and is changed?, otherwise we do nothing
-                if found is not None and (found.arg2 != target.id
-                        or found.type != type):
-                    before = unicode(found)
-                    found.arg2 = target.id
-                    found.type = type
-                    mods.change(before, found)
-            else:
-                # Create a new annotation
-
-                # TODO: Assign a suitable letter
-                new_id = ann_obj.get_new_id('R')
-                rel = projectconf.get_relation_by_type(type)
-                assert rel is not None and len(rel.arg_list) == 2
-                a1l, a2l = rel.arg_list
-                ann = BinaryRelationAnnotation(new_id, type, a1l, origin.id, a2l, target.id, '\t')
-                mods.addition(ann)
-                ann_obj.add_annotation(ann)
+            ann = _create_relation(ann_obj, projectconf, mods, origin, target, 
+                                   type, attributes, old_type, old_target)
         else:
-            try:
-                arg_tup = (type, unicode(target.id))
+            ann = _create_argument(ann_obj, projectconf, mods, origin, target,
+                                   type, attributes, old_type, old_target)
 
-                # Is this an addition or an update?
-                if old_type is None and old_target is None:
-                    if arg_tup not in origin.args:
-                        before = unicode(origin)
-                        origin.add_argument(type, unicode(target.id))
-                        mods.change(before, origin)
-                    else:
-                        # It already existed as an arg, we were called to do nothing...
-                        pass
-                else:
-                    # Construct how the old arg would have looked like
-                    old_arg_tup = (type if old_type is None else old_type,
-                            target if old_target is None else old_target)
-
-                    if old_arg_tup in origin.args and arg_tup not in origin.args:
-                        before = unicode(origin)
-                        origin.args.remove(old_arg_tup)
-                        origin.add_argument(type, unicode(target.id))
-                        mods.change(before, origin)
-                    else:
-                        # Collision etc. don't do anything
-                        pass
-            except AttributeError:
-                # The annotation did not have args, it was most likely an entity
-                # thus we need to create a new Event...
-                new_id = ann_obj.get_new_id('E')
-                ann = EventAnnotation(
-                            origin.id,
-                            [arg_tup],
-                            new_id,
-                            origin.type,
-                            ''
-                            )
-                ann_obj.add_annotation(ann)
-                mods.addition(ann)
+        # process comments
+        if ann is not None:
+            _set_comments(ann_obj, ann, comment, mods,
+                          undo_resp=undo_resp)
+        elif comment is not None:
+            Messager.warning('create_arc: non-empty comment for None annotation (unsupported type for comment?)')
+            
 
         mods_json = mods.json_response()
         mods_json['annotations'] = _json_from_ann(ann_obj)

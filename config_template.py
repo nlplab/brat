@@ -121,6 +121,12 @@ except NameError:
     pass # BACKUP_DIR most likely not defined
 
 
+### Sentence splitting
+# brat does its best to get splitting right on its own, but if you have
+# pre-processed data with newline sentence splits enable the variable below.
+
+NEWLINE_SS = False
+
 ### TOKENIZATION
 # If tokenization other than whitespace is desired, this can be used
 

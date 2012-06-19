@@ -16,15 +16,17 @@ Version:    2011-01-25
 from logging import info as log_info
 from codecs import open as codecs_open
 from functools import partial
-from itertools import chain
+from itertools import chain, takewhile
 from os import utime
 from time import time
 from os.path import join as path_join
 from os.path import basename, splitext
+from re import match as re_match
 
 from common import ProtocolError
 from filelock import file_lock
 from message import Messager
+
 
 ### Constants
 # The only suffix we allow to write to, which is the joined annotation file
@@ -191,14 +193,11 @@ def open_textfile(filename, mode='rU'):
     return codecs_open(filename, mode, encoding='utf8', errors='strict')
 
 def __split_annotation_id(id):
-    import re
-    m = re.match(r'^([A-Za-z]+|#)([0-9]+)(.*?)$', id)
+    m = re_match(r'^([A-Za-z]+|#)([0-9]+)(.*?)$', id)
     if m is None:
         raise InvalidIdError(id)
     pre, num_str, suf = m.groups()
     return pre, num_str, suf
-
-from itertools import takewhile
 
 def annotation_id_prefix(id):
     pre = ''.join(c for c in takewhile(lambda x : not x.isdigit(), id))
@@ -289,6 +288,19 @@ class Annotations(object):
             
     #TODO: DOC!
     def __init__(self, document, read_only=False):
+        # this decides which parsing function is invoked by annotation
+        # ID prefix (first letter)
+        self._parse_function_by_id_prefix = {
+            'T': self._parse_textbound_annotation,
+            'M': self._parse_modifier_annotation,
+            'A': self._parse_attribute_annotation,
+            'N': self._parse_normalization_annotation,
+            'R': self._parse_relation_annotation,
+            '*': self._parse_equiv_annotation,
+            'E': self._parse_event_annotation,
+            '#': self._parse_comment_annotation,
+            }
+
         #TODO: DOC!
         #TODO: Incorparate file locking! Is the destructor called upon inter crash?
         from collections import defaultdict
@@ -396,6 +408,9 @@ class Annotations(object):
 
     def get_relations(self):
         return (a for a in self if isinstance(a, BinaryRelationAnnotation))
+
+    def get_normalizations(self):
+        return (a for a in self if isinstance(a, NormalizationAnnotation))
 
     def get_entities(self):
         # Entities are textbounds that are not triggers
@@ -525,6 +540,7 @@ class Annotations(object):
             not isinstance(d, AttributeAnnotation)
             and not isinstance(d, EquivAnnotation)
             and not isinstance(d, OnelineCommentAnnotation)
+            and not isinstance(d, NormalizationAnnotation)
             ))):
 
             for d in ann_deps:
@@ -549,6 +565,16 @@ class Annotations(object):
                     self._atomic_del_annotation(d)
                     if tracker is not None:
                         tracker.deletion(d)
+                elif isinstance(d, NormalizationAnnotation):
+                    # Nothing should be able to reference normalizations
+                    self._atomic_del_annotation(d)
+                    if tracker is not None:
+                        tracker.deletion(d)
+                else:
+                    # all types we allow to be deleted along with
+                    # annotations they depend on should have been
+                    # covered above.
+                    assert False, "INTERNAL ERROR"
             ann_deps = []
             
         if ann_deps:
@@ -621,12 +647,10 @@ class Annotations(object):
 
     # XXX: This syntax is subject to change
     def _parse_attribute_annotation(self, id, data, data_tail, input_file_path):
-        import re
-
-        match = re.match(r'(.+?) (.+?) (.+?)$', data)
+        match = re_match(r'(.+?) (.+?) (.+?)$', data)
         if match is None:
             # Is it an old format without value?
-            match = re.match(r'(.+?) (.+?)$', data)
+            match = re_match(r'(.+?) (.+?)$', data)
 
             if match is None:
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line,
@@ -697,7 +721,9 @@ class Annotations(object):
                                         args[1][0], args[1][1],
                                         data_tail, source_id=input_file_path)
 
-    def _parse_equiv_annotation(self, data, data_tail, input_file_path):
+    def _parse_equiv_annotation(self, dummy, data, data_tail, input_file_path):
+        # NOTE: first dummy argument to have a uniform signature with other
+        # parse_* functions
         # TODO: this will split on any space, which is likely not correct
         type, type_tail = data.split(None, 1)
         equivs = type_tail.split(None)
@@ -734,20 +760,26 @@ class Annotations(object):
 
         return type, spans
 
-    def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
-        type, spans = self._split_textbound_data(id, data, input_file_path)
-        return TextBoundAnnotation(spans, id, type, data_tail, source_id=input_file_path)
+    def _parse_textbound_annotation(self, _id, data, data_tail, input_file_path):
+        _type, spans = self._split_textbound_data(_id, data, input_file_path)
+        return TextBoundAnnotation(spans, _id, _type, data_tail, source_id=input_file_path)
 
-    def _parse_comment_line(self, id, data, data_tail, input_file_path):
+    def _parse_normalization_annotation(self, _id, data, data_tail, input_file_path):
+        match = re_match(r'(\S+) (\S+) (\S+?):(\S+)', data)
+        if match is None:
+            raise IdedAnnotationLineSyntaxError(_id, self.ann_line, self.ann_line_num + 1, input_file_path)
+        _type, target, refdb, refid = match.groups()
+
+        return NormalizationAnnotation(_id, _type, target, refdb, refid, data_tail, source_id=input_file_path)
+
+    def _parse_comment_annotation(self, _id, data, data_tail, input_file_path):
         try:
-            type, target = data.split()
+            _type, target = data.split()
         except ValueError:
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-        return OnelineCommentAnnotation(target, id, type, data_tail, source_id=input_file_path)
+            raise IdedAnnotationLineSyntaxError(_id, self.ann_line, self.ann_line_num+1, input_file_path)
+        return OnelineCommentAnnotation(target, _id, _type, data_tail, source_id=input_file_path)
     
     def _parse_ann_file(self):
-        from itertools import takewhile
-
         self.ann_line_num = -1
         for input_file_path in self._input_files:
             with open_textfile(input_file_path) as input_file:
@@ -788,30 +820,13 @@ class Annotations(object):
 
                         #log_info('Will evaluate prefix: ' + pre)
 
-                        if pre == '*':
-                            new_ann = self._parse_equiv_annotation(
-                                    data, data_tail, input_file_path)
-                        elif pre == 'E':
-                            new_ann = self._parse_event_annotation(
-                                    id, data, data_tail, input_file_path)
-                        elif pre == 'M':
-                            new_ann = self._parse_modifier_annotation(
-                                    id, data, data_tail, input_file_path)
+                        assert len(pre) >= 1, "INTERNAL ERROR"
+                        pre_first = pre[0]
 
-                        # XXX: This syntax is subject to change, limit to only T?
-                        elif pre.startswith('T'):
-                            new_ann = self._parse_textbound_annotation(
-                                    id, data, data_tail, input_file_path)
-                        elif pre == '#':
-                            new_ann = self._parse_comment_line(
-                                    id, data, data_tail, input_file_path)
-                        elif pre == 'R':
-                            new_ann = self._parse_relation_annotation(
-                                    id, data, data_tail, input_file_path)
-                        elif pre.startswith('A'):
-                            new_ann = self._parse_attribute_annotation(
-                                    id, data, data_tail, input_file_path)
-                        else:
+                        try:
+                            parse_func = self._parse_function_by_id_prefix[pre_first]
+                            new_ann = parse_func(id, data, data_tail, input_file_path)
+                        except KeyError:
                             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
                         assert new_ann is not None, "INTERNAL ERROR"
@@ -908,7 +923,6 @@ class Annotations(object):
                                 #XXX: Disabled for now!
                                 #utime(DATA_DIR, (now, now))
                         except Exception, e:
-                            from message import Messager
                             Messager.error('ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' % e, -1)
                             raise
                 finally:
@@ -916,7 +930,6 @@ class Annotations(object):
                         from os import remove
                         remove(tmp_fname)
                     except Exception, e:
-                        from message import Messager
                         Messager.error("Error removing temporary file '%s'" % tmp_fname)
             return
 
@@ -1016,7 +1029,7 @@ class TextAnnotations(Annotations):
         # TODO: this is too naive; document may be e.g. "PMID.a1",
         # in which case the reasonable text file name guess is
         # "PMID.txt", not "PMID.a1.txt"
-        textfn = document+"."+TEXT_FILE_SUFFIX
+        textfn = document + '.' + TEXT_FILE_SUFFIX
         try:
             with open_textfile(textfn, 'r') as f:
                 text = f.read()
@@ -1255,6 +1268,35 @@ class AttributeAnnotation(IdedAnnotation):
     def reference_id(self):
         # TODO: can't currently ID modifier in isolation; return
         # reference to modified instead
+        return [self.target]
+
+class NormalizationAnnotation(IdedAnnotation):
+    def __init__(self, _id, _type, target, refdb, refid, tail, source_id=None):
+        IdedAnnotation.__init__(self, _id, _type, tail, source_id=source_id)
+        self.target = target
+        self.refdb = refdb
+        self.refid = refid
+        # "human-readable" text of referenced ID (optional)
+        self.reftext = tail.lstrip('\t').rstrip('\n')
+
+    def __str__(self):
+        return u'%s\t%s %s %s:%s%s' % (
+                self.id,
+                self.type,
+                self.target,
+                self.refdb,
+                self.refid,
+                self.tail,
+                )
+
+    def get_deps(self):
+        soft_deps, hard_deps = IdedAnnotation.get_deps(self)
+        hard_deps.add(self.target)
+        return (soft_deps, hard_deps)
+
+    def reference_id(self):
+        # TODO: can't currently ID normalization in isolation; return
+        # reference to target instead
         return [self.target]
 
 class OnelineCommentAnnotation(IdedAnnotation):

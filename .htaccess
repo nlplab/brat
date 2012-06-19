@@ -1,3 +1,20 @@
+# Block access to some (potentially) sensitive files.
+# Note: if apache gives you an "order not allowed here" error,
+# please make sure that your apache configuration contains
+# "AllowOverride Limit" for this directory, i.e. something
+# like the following:
+#
+# <Directory /home/*/public_html>
+#     AllowOverride Options Indexes FileInfo Limit
+#     [...]
+# </Directory>
+#
+# (See also http://brat.nlplab.org/troubleshooting.html)
+<FilesMatch "^(\.htaccess|config\.py)$>
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
 Options +ExecCGI
 DirectoryIndex index.xhtml
 

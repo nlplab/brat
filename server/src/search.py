@@ -39,7 +39,9 @@ class SearchMatchSet(object):
     an ann an Annotation belonging to the corresponding ann_obj.
     """
 
-    def __init__(self, criterion, matches=[]):
+    def __init__(self, criterion, matches=None):
+        if matches is None:
+            matches = []
         self.criterion = criterion
         self.__matches = matches
 
@@ -223,7 +225,7 @@ def __doc_or_dir_to_annotations(directory, document, scope):
         Messager.error('Unrecognized search scope specification %s' % scope)
         return []
 
-def _get_text_type_ann_map(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def _get_text_type_ann_map(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Helper function for search. Given annotations, returns a
     dict-of-dicts, outer key annotation text, inner type, values
@@ -240,6 +242,8 @@ def _get_text_type_ann_map(ann_objs, restrict_types=[], ignore_types=[], nested_
         for t in ann_obj.get_textbounds():
             if t.type in ignore_types:
                 continue
+            if restrict_types != [] and t.type not in restrict_types:
+                continue
 
             if t.text not in text_type_ann_map:
                 text_type_ann_map[t.text] = {}
@@ -249,7 +253,7 @@ def _get_text_type_ann_map(ann_objs, restrict_types=[], ignore_types=[], nested_
 
     return text_type_ann_map
 
-def _get_offset_ann_map(ann_objs, restrict_types=[], ignore_types=[]):
+def _get_offset_ann_map(ann_objs, restrict_types=None, ignore_types=None):
     """
     Helper function for search. Given annotations, returns a dict
     mapping offsets in text into the set of annotations spanning each
@@ -276,7 +280,7 @@ def _get_offset_ann_map(ann_objs, restrict_types=[], ignore_types=[]):
 
     return offset_ann_map
 
-def eq_text_neq_type_spans(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def eq_text_neq_type_spans(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for annotated spans that match in string content but
     disagree in type in given Annotations objects.
@@ -350,13 +354,18 @@ def _split_and_tokenize(s):
             # between-sentence space
             tokens.append(s[sprev:sstart])
         stext = s[sstart:send]
-        tprev = sstart
+        tprev, tend = 0, 0
         for tstart, tend in en_token_boundary_gen(stext):
             if tprev != tstart:
                 # between-token space
                 tokens.append(s[sstart+tprev:sstart+tstart])
             tokens.append(s[sstart+tstart:sstart+tend])
             tprev = tend
+
+        if tend != len(stext):
+            # sentence-final space
+            tokens.append(stext[tend:])
+
         sprev = send
 
     if sprev != len(s):
@@ -366,8 +375,34 @@ def _split_and_tokenize(s):
     assert "".join(tokens) == s, "INTERNAL ERROR\n'%s'\n'%s'" % ("".join(tokens),s)
 
     return tokens
+
+def _split_tokens_more(tokens):
+    """
+    Search-specific extra tokenization.
+    More aggressive than the general visualization-oriented tokenization.
+    """
+    pre_nonalnum_RE = re.compile(r'^(\W+)(.+)$')
+    post_nonalnum_RE = re.compile(r'^(.+?)(\W+)$')
+
+    new_tokens = []
+    for t in tokens:
+        m = pre_nonalnum_RE.match(t)
+        if m:
+            pre, t = m.groups()
+            new_tokens.append(pre)
+        m = post_nonalnum_RE.match(t)
+        if m:
+            t, post = m.groups()
+            new_tokens.append(t)
+            new_tokens.append(post)
+        else:
+            new_tokens.append(t)
+
+    # sanity
+    assert ''.join(tokens) == ''.join(new_tokens), "INTERNAL ERROR"
+    return new_tokens
         
-def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for spans that match in string content but are not all
     marked.
@@ -384,7 +419,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], neste
 
     text_type_ann_map = _get_text_type_ann_map(ann_objs, restrict_types, ignore_types, nested_types)
 
-    max_length_tagged = max([len(s) for s in text_type_ann_map])
+    max_length_tagged = max([len(s) for s in text_type_ann_map]+[0])
 
     # TODO: faster and less hacky way to detect missing annotations
     text_untagged_map = {}
@@ -394,7 +429,13 @@ def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], neste
         # TODO: proper tokenization.
         # NOTE: this will include space.
         #tokens = re.split(r'(\s+)', doctext)
-        tokens = _split_and_tokenize(doctext)
+        try:
+            tokens = _split_and_tokenize(doctext)
+            tokens = _split_tokens_more(tokens)
+        except:
+            # TODO: proper error handling
+            print >> sys.stderr, "ERROR: failed tokenization in %s, skipping" % ann_obj._input_files[0]
+            continue
 
         # document-specific map
         offset_ann_map = _get_offset_ann_map([ann_obj])
@@ -478,19 +519,30 @@ def eq_text_partially_marked(ann_objs, restrict_types=[], ignore_types=[], neste
     
     return matches
 
-def check_consistency(ann_objs, restrict_types=[], ignore_types=[], nested_types=[]):
+def check_type_consistency(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
-    Searches for inconsistent annotations in given Annotations
+    Searches for inconsistent types in given Annotations
     objects.  Returns a list of SearchMatchSet objects, one for each
     checked criterion that generated matches for the search.
     """
 
     match_sets = []
 
-    print >> sys.stderr, "NOTE: TEMPORARILY SWITCHING OFF TYPE AGREEMENT CHECKING!"
-#     m = eq_text_neq_type_spans(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
-#     if len(m) != 0:
-#         match_sets.append(m)
+    m = eq_text_neq_type_spans(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+    if len(m) != 0:
+        match_sets.append(m)
+
+    return match_sets
+
+
+def check_missing_consistency(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
+    """
+    Searches for potentially missing annotations in given Annotations
+    objects.  Returns a list of SearchMatchSet objects, one for each
+    checked criterion that generated matches for the search.
+    """
+
+    match_sets = []
 
     m = eq_text_partially_marked(ann_objs, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
     if len(m) != 0:
@@ -531,8 +583,8 @@ def _get_match_regex(text, text_match="word", match_case=False,
         Messager.error('Unrecognized search match specification "%s"' % text_match)
         return None    
 
-def search_anns_for_textbound(ann_objs, text, restrict_types=[], 
-                              ignore_types=[], nested_types=[], 
+def search_anns_for_textbound(ann_objs, text, restrict_types=None, 
+                              ignore_types=None, nested_types=None, 
                               text_match="word", match_case=False,
                               entities_only=False):
     """
@@ -614,7 +666,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=[],
     return matches
 
 def search_anns_for_note(ann_objs, text, category,
-                         restrict_types=[], ignore_types=[],
+                         restrict_types=None, ignore_types=None,
                          text_match="word", match_case=False):
     """
     Searches for the given text in the comment annotations in the
@@ -687,7 +739,7 @@ def search_anns_for_note(ann_objs, text, category,
     return matches
 
 def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, 
-                             restrict_types=[], ignore_types=[], 
+                             restrict_types=None, ignore_types=None, 
                              text_match="word", match_case=False):
     """
     Searches the given Annotations objects for relation annotations
@@ -805,7 +857,7 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
     return matches
 
 def search_anns_for_event(ann_objs, trigger_text, args, 
-                          restrict_types=[], ignore_types=[], 
+                          restrict_types=None, ignore_types=None, 
                           text_match="word", match_case=False):
     """
     Searches the given Annotations objects for Event annotations
@@ -935,7 +987,7 @@ def search_anns_for_event(ann_objs, trigger_text, args,
     return matches
 
 def search_anns_for_text(ann_objs, text, 
-                         restrict_types=[], ignore_types=[], nested_types=[], 
+                         restrict_types=None, ignore_types=None, nested_types=None, 
                          text_match="word", match_case=False):
     """
     Searches for the given text in the document texts of the given
@@ -1327,14 +1379,14 @@ def search_relation(collection, document, scope="collection",
 
 ### filename list interface functions (e.g. command line) ###
 
-def search_files_for_text(filenames, text, restrict_types=[], ignore_types=[], nested_types=[]):
+def search_files_for_text(filenames, text, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for the given text in the given set of files.
     """
     anns = __filenames_to_annotations(filenames)
     return search_anns_for_text(anns, text, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
-def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=[], nested_types=[], entities_only=False):
+def search_files_for_textbound(filenames, text, restrict_types=None, ignore_types=None, nested_types=None, entities_only=False):
     """
     Searches for the given text in textbound annotations in the given
     set of files.
@@ -1344,19 +1396,27 @@ def search_files_for_textbound(filenames, text, restrict_types=[], ignore_types=
 
 # TODO: filename list interface functions for event and relation search
 
-def check_files_consistency(filenames, restrict_types=[], ignore_types=[], nested_types=[]):
+def check_files_type_consistency(filenames, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for inconsistent annotations in the given set of files.
     """
     anns = __filenames_to_annotations(filenames)
-    return check_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+    return check_type_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
+
+def check_files_missing_consistency(filenames, restrict_types=None, ignore_types=None, nested_types=None):
+    """
+    Searches for potentially missing annotations in the given set of files.
+    """
+    anns = __filenames_to_annotations(filenames)
+    return check_missing_consistency(anns, restrict_types=restrict_types, ignore_types=ignore_types, nested_types=nested_types)
 
 def argparser():
     import argparse
 
     ap=argparse.ArgumentParser(description="Search BioNLP Shared Task annotations.")
     ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
-    ap.add_argument("-c", "--consistency", default=False, action="store_true", help="Search for inconsistent annotations.")
+    ap.add_argument("-ct", "--consistency-types", default=False, action="store_true", help="Search for inconsistently typed annotations.")
+    ap.add_argument("-cm", "--consistency-missing", default=False, action="store_true", help="Search for potentially missing annotations.")
     ap.add_argument("-t", "--text", metavar="TEXT", help="Search for matching text.")
     ap.add_argument("-b", "--textbound", metavar="TEXT", help="Search for textbound matching text.")
     ap.add_argument("-e", "--entity", metavar="TEXT", help="Search for entity matching text.")
@@ -1396,22 +1456,44 @@ def main(argv=None):
                                          restrict_types=arg.restrict,
                                          ignore_types=arg.ignore,
                                          nested_types=arg.nested)]
-    elif arg.consistency:
-        matches = check_files_consistency(arg.files,
-                                          restrict_types=arg.restrict,
-                                          ignore_types=arg.ignore,
-                                          nested_types=arg.nested)
+    elif arg.consistency_types:
+        matches = check_files_type_consistency(arg.files,
+                                               restrict_types=arg.restrict,
+                                               ignore_types=arg.ignore,
+                                               nested_types=arg.nested)
+    elif arg.consistency_missing:
+        matches = check_files_missing_consistency(arg.files,
+                                                  restrict_types=arg.restrict,
+                                                  ignore_types=arg.ignore,
+                                                  nested_types=arg.nested)
     else:
         print >> sys.stderr, "Please specify action (-h for help)"
         return 1
+
+    # guessing at the likely URL
+    import getpass
+    username = getpass.getuser()
 
     for m in matches:
         print m.criterion
         for ann_obj, ann in m.get_matches():
             # TODO: get rid of specific URL hack and similar
-            baseurl='http://127.0.0.1/~smp/brat/#/'
-            print "\t%s%s?focus=%s (%s)" % (baseurl, ann_obj.get_document().replace("data/",""), ann.reference_id()[0], str(ann).rstrip())
+            baseurl='http://127.0.0.1/~%s/brat/#/' % username
+            # sorry about this
+            if isinstance(ann, TextMatch):
+                annp = "%s~%s" % (ann.reference_id()[0], ann.reference_id()[1])
+            else:
+                annp = ann.reference_id()[0]
+            anns = unicode(ann).rstrip()
+            annloc = ann_obj.get_document().replace("data/","")
+            outs = u"\t%s%s?focus=%s (%s)" % (baseurl, annloc, annp, anns)
+            print outs.encode('utf-8')
 
 if __name__ == "__main__":
     import sys
+
+    # on command-line invocations, don't limit the number of results
+    # as the user has direct control over the system.
+    MAX_SEARCH_RESULT_NUMBER = -1
+
     sys.exit(main(sys.argv))
