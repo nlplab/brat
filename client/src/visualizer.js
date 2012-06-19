@@ -1228,12 +1228,18 @@ Util.profileStart('chunks');
           });
           var ceiling = carpet + height;
           var carpetNo = $.inArray(carpet, floors);
-          if (outside) {
+          var ceilingNo = $.inArray(ceiling, floors);
+          if (ceilingNo == -1) {
             floors.push(ceiling);
           }
           if (carpetNo == -1) {
-            // new floor
             floors.push(carpet);
+          }
+          if (ceilingNo == -1 || carpetNo == -1) {
+            floors.sort();
+          }
+          if (carpetNo == -1) {
+            // new floor
             floors.sort();
             carpetNo = $.inArray(carpet, floors);
             if (carpetNo != 0) {
