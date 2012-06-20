@@ -318,15 +318,23 @@ var Visualizer = (function($, window, undefined) {
       };
 
       var fragmentComparator = function(a, b) {
+        var tmp;
         var aSpan = a.span;
         var bSpan = b.span;
+
+        // spans with more fragments go first
+        tmp = aSpan.fragments.length - bSpan.fragments.length;
+        if (tmp) {
+          return tmp < 0 ? 1 : -1;
+        }
+
         // longer arc distances go last
-        var tmp = aSpan.avgDist - bSpan.avgDist;
+        tmp = aSpan.avgDist - bSpan.avgDist;
         if (tmp) {
           return tmp < 0 ? -1 : 1;
         }
         // spans with more arcs go last
-        var tmp = aSpan.numArcs - bSpan.numArcs;
+        tmp = aSpan.numArcs - bSpan.numArcs;
         if (tmp) {
           return tmp < 0 ? -1 : 1;
         }
@@ -1207,11 +1215,11 @@ Util.profileStart('chunks');
         addArcTextMeasurements(sizes);
 
         // reserve places for spans
-        var reservations = [];
+        var floors = [];
+        var reservations = []; // reservations[chunk][floor] = [[from, to, headroom]...]
         for (var i = 0; i <= data.lastFragmentIndex; i++) {
           reservation[i] = {};
         }
-        var floors = [];
         var inf = 1.0/0.0;
 
         $.each(data.spanDrawOrderPermutation, function(spanIdNo, spanId) {
@@ -1250,7 +1258,7 @@ Util.profileStart('chunks');
           $.each(floors, function(floorNo, floor) {
             var floorAvailable = true;
             for (var i = i1; i <= i2; i++) {
-              if (!(reservations[i] && reservations[i][floor])) break;
+              if (!(reservations[i] && reservations[i][floor])) continue;
               var from = (i == i1) ? x1 : -inf;
               var to = (i == i2) ? x2 : inf;
               $.each(reservations[i][floor], function(resNo, res) {
