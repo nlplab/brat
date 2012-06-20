@@ -456,19 +456,13 @@ def _json_offsets_to_list(offsets):
 
 #TODO: unshadow Python internals like "type" and "id"
 def create_span(collection, document, offsets, type, attributes=None,
-        id=None, comment=None):
+                normalizations=None, id=None, comment=None):
     # offsets should be JSON string corresponding to a list of (start,
     # end) pairs; convert once at this interface
     offsets = _json_offsets_to_list(offsets)
 
     return _create_span(collection, document, offsets, type, attributes,
-            id, comment)
-
-#TODO: ONLY determine what action to take! Delegate to Annotations!
-def _create_span(collection, document, offsets, _type, attributes=None,
-        _id=None, comment=None):
-    directory = collection
-    undo_resp = {}
+                        normalizations, id, comment)
 
 def _set_normalizations(ann_obj, ann, normalizations, mods, undo_resp={}):
     # Find existing normalizations (if any)
@@ -604,7 +598,7 @@ def _set_comments(ann_obj, ann, comment, mods, undo_resp={}):
             mods.deletion(found)
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def _create_span(collection, document, start, end, _type, attributes=None,
+def _create_span(collection, document, offsets, _type, attributes=None,
                  normalizations=None, _id=None, comment=None):
     directory = collection
     undo_resp = {}
@@ -649,22 +643,12 @@ def _create_span(collection, document, start, end, _type, attributes=None,
         # comments etc. should be attached to. If there's an event,
         # attach to that; otherwise attach to the textbound.
         if e_ann is not None:
-            # Assign attributes to the event, not the trigger
-            attrib_on = e_ann
+            # Assign to the event, not the trigger
+            target_ann = e_ann
         else:
-            attrib_on = tb_ann
-        _set_attributes(ann_obj, attrib_on, _attributes, mods,
-                        undo_resp=undo_resp)
+            target_ann = tb_ann
 
-        # Handle annotation comments
-        if tb_ann is not None:
-            # If this is an event, we want to attach the comment to it
-            if e_ann is not None:
-                comment_on = e_ann
-            else:
-                comment_on = tb_ann
-
-        # Set annotation attributes
+        # Set attributes
         _set_attributes(ann_obj, target_ann, _attributes, mods,
                         undo_resp=undo_resp)
 
@@ -672,7 +656,7 @@ def _create_span(collection, document, start, end, _type, attributes=None,
         _set_normalizations(ann_obj, target_ann, _normalizations, mods,
                             undo_resp=undo_resp)
 
-        # Handle annotation comments
+        # Set comments
         if tb_ann is not None:
             _set_comments(ann_obj, target_ann, comment, mods,
                           undo_resp=undo_resp)

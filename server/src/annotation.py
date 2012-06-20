@@ -1368,7 +1368,7 @@ class TextBoundAnnotation(IdedAnnotation):
 
     def last_end(self):
         """
-        Return the last (max) start offset in the annotation spans.
+        Return the last (max) end offset in the annotation spans.
         """
         return max([end for start, end in self.spans])
 
@@ -1378,6 +1378,15 @@ class TextBoundAnnotation(IdedAnnotation):
         # that you're creating an Annotations object instead of
         # TextAnnotations.
         raise NotImplementedError
+
+    def same_span(self, other):
+        """
+        Determine if a given other TextBoundAnnotation has the same
+        span as this one. Returns True if each (start, end) span of
+        the other annotation is equivalent with at least one span of
+        this annotation, False otherwise.
+        """
+        return set(self.spans) == set(other.spans)
 
     def contains(self, other):
         """
