@@ -647,8 +647,6 @@ def _create_span(collection, document, offsets, _type, attributes=None,
             target_ann = e_ann
         else:
             target_ann = tb_ann
-        _set_attributes(ann_obj, target_ann, _attributes, mods,
-                        undo_resp=undo_resp)
 
         # Set attributes
         _set_attributes(ann_obj, target_ann, _attributes, mods,
