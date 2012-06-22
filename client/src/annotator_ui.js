@@ -224,7 +224,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var originType = data.spans[arcDragOrigin].type;
         var spanType = spanTypes[originType];
         var result = [];
-        if (spanType) {
+        if (spanType && spanType.arcs) {
           $.each(spanType.arcs, function(arcNo, arc) {
             if ($.inArray(targetType, arc.targets) != -1) {
               result.push(arc.type);
