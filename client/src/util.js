@@ -535,7 +535,7 @@ var Util = (function(window, undefined) {
       var visualizer = new Visualizer(dispatcher, container);
       docData.collection = null;
       dispatcher.post('collectionLoaded', [collData]);
-      dispatcher.post('renderData', [docData]);
+      dispatcher.post('requestRenderData', [docData]);
       return dispatcher;
     };
 
