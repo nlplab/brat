@@ -524,6 +524,33 @@ var Util = (function(window, undefined) {
       }
     }; // profileReport
 
+    var embed = function(container, collData, docData) {
+      var dispatcher = new Dispatcher();
+      var visualizer = new Visualizer(dispatcher, container);
+      docData.collection = null;
+      dispatcher.post('collectionLoaded', [collData]);
+      dispatcher.post('renderData', [docData]);
+      return dispatcher;
+    };
+
+    var embedByURL = function(container, collDataURL, docDataURL, callback) {
+      var requests = 2;
+      if (typeof(container) !== 'string') {
+        requests = 1;
+        collData = collDataURL;
+      }
+      var collData, docData;
+      var handler = function() {
+        if (!(--requests)) {
+          embed(container, collData, docData);
+        }
+      };
+      $.getJSON(collDataURL, function(data) { collData = data; handler(); });
+      $.getJSON(docDataURL, function(data) { docData = data; handler(); });
+      if (callback) callback();
+    };
+
+
     return {
       profileEnable: profileEnable,
       profileClear: profileClear,
@@ -548,6 +575,8 @@ var Util = (function(window, undefined) {
       paramArray: paramArray,
       param: param,
       deparam: deparam,
+      embed: embed,
+      embedByURL: embedByURL,
     };
 
 })(window);

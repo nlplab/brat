@@ -343,6 +343,7 @@ var Visualizer = (function($, window, undefined) {
 
 
       var setData = function(_sourceData) {
+        if (!args) args = {};
         sourceData = _sourceData;
         dispatcher.post('newSourceData', [sourceData]);
         data = new DocumentData(sourceData.text);
@@ -1131,7 +1132,7 @@ Util.profileStart('init');
           return;
         }
         $svgDiv.show();
-        if ((sourceData && (sourceData.document !== doc || sourceData.collection !== coll)) || drawing) {
+        if ((sourceData && sourceData.collection && (sourceData.document !== doc || sourceData.collection !== coll)) || drawing) {
           redraw = true;
           dispatcher.post('doneRendering', [coll, doc, args]);
           return;
