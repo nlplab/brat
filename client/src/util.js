@@ -524,6 +524,12 @@ var Util = (function(window, undefined) {
       }
     }; // profileReport
 
+    // container: ID or jQuery element
+    // collData: the collection data (in the format of the result of
+    //   http://.../brat/ajax.cgi?action=getCollectionInformation&collection=...
+    // docData: the document data (in the format of the result of
+    //   http://.../brat/ajax.cgi?action=getDocument&collection=...&document=...
+    // returns the embedded visualizer's dispatcher object
     var embed = function(container, collData, docData) {
       var dispatcher = new Dispatcher();
       var visualizer = new Visualizer(dispatcher, container);
@@ -533,21 +539,27 @@ var Util = (function(window, undefined) {
       return dispatcher;
     };
 
+    // container: ID or jQuery element
+    // collDataURL: the URL of the collection data, or collection data
+    //   object (if pre-fetched)
+    // docDataURL: the url of the document data (if pre-fetched, use
+    //   simple `embed` instead)
+    // callback: optional; the callback to call afterwards; it will be
+    //   passed the embedded visualizer's dispatcher object
     var embedByURL = function(container, collDataURL, docDataURL, callback) {
-      var requests = 2;
-      if (typeof(container) !== 'string') {
-        requests = 1;
-        collData = collDataURL;
-      }
       var collData, docData;
       var handler = function() {
-        if (!(--requests)) {
-          embed(container, collData, docData);
+        if (collData && docData) {
+          var dispatcher = embed(container, collData, docData);
+          if (callback) callback(dispatcher);
         }
       };
-      $.getJSON(collDataURL, function(data) { collData = data; handler(); });
+      if (typeof(container) == 'string') {
+        $.getJSON(collDataURL, function(data) { collData = data; handler(); });
+      } else {
+        collData = collDataURL;
+      }
       $.getJSON(docDataURL, function(data) { docData = data; handler(); });
-      if (callback) callback();
     };
 
 
