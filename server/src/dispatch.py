@@ -20,7 +20,7 @@ from common import ProtocolError
 from config import DATA_DIR
 from docimport import save_import
 from document import (get_directory_information, get_document,
-        get_document_timestamp)
+        get_document_timestamp, get_configuration)
 from download import download_file, download_collection
 from inspect import getargspec
 from itertools import izip
@@ -95,7 +95,10 @@ DISPATCHER = {
 
         # normalization support
         'normGetName': norm_get_name,
-        'normSearch': norm_search,         
+        'normSearch': norm_search,
+
+        # Visualisation support
+        'getConfiguration': get_configuration,
        }
 
 # Actions that correspond to annotation functionality
