@@ -1290,11 +1290,10 @@ Util.profileStart('chunks');
             floors.push(carpet);
           }
           if (ceilingNo == -1 || carpetNo == -1) {
-            floors.sort();
+            floors.sort(Util.cmp);
           }
           if (carpetNo == -1) {
             // new floor
-            floors.sort();
             carpetNo = $.inArray(carpet, floors);
             if (carpetNo != 0) {
               // copy reservations from the floor below
