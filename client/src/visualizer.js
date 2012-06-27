@@ -200,12 +200,12 @@ var Visualizer = (function($, window, undefined) {
       var $svg;
       var data = null;
       var sourceData = null;
+      var requestedData = null;
       var coll, doc, args;
       var spanTypes;
       var relationTypesHash;
       var isRenderRequested;
       var isCollectionLoaded = false;
-      var areFontsLoaded = false;
       var entityAttributeTypes = null;
       var eventAttributeTypes = null;
       var spanTypes = null;
@@ -343,6 +343,7 @@ var Visualizer = (function($, window, undefined) {
 
 
       var setData = function(_sourceData) {
+        if (!args) args = {};
         sourceData = _sourceData;
         dispatcher.post('newSourceData', [sourceData]);
         data = new DocumentData(sourceData.text);
@@ -1131,7 +1132,7 @@ Util.profileStart('init');
           return;
         }
         $svgDiv.show();
-        if ((sourceData && (sourceData.document !== doc || sourceData.collection !== coll)) || drawing) {
+        if ((sourceData && sourceData.collection && (sourceData.document !== doc || sourceData.collection !== coll)) || drawing) {
           redraw = true;
           dispatcher.post('doneRendering', [coll, doc, args]);
           return;
@@ -2326,9 +2327,15 @@ Util.profileReport();
       };
 
       var triggerRender = function() {
-        if (svg && isRenderRequested && isCollectionLoaded && areFontsLoaded) {
+        if (svg && ((isRenderRequested && isCollectionLoaded) || requestedData) && Visualizer.areFontsLoaded) {
           isRenderRequested = false;
-          if (doc.length) {
+          if (requestedData) {
+
+Util.profileClear();
+Util.profileStart('before render');
+
+            renderData(requestedData);
+          } else if (doc.length) {
 
 Util.profileClear();
 Util.profileStart('before render');
@@ -2338,6 +2345,11 @@ Util.profileStart('before render');
             dispatcher.post(0, 'renderError:noFileSpecified');
           }
         }
+      };
+
+      var requestRenderData = function(sourceData) {
+        requestedData = sourceData;
+        triggerRender();
       };
 
       var collectionChanged = function() {
@@ -2639,43 +2651,12 @@ Util.profileStart('before render');
         return !drawing;
       };
 
-      var proceedWithFonts = function() {
-        areFontsLoaded = true;
-        console.log("fonts done");
-        triggerRender();
-      };
-
-      WebFontConfig = {
-        custom: {
-          families: [
-            'Astloch',
-            'PT Sans Caption',
-            //        'Ubuntu',
-            'Liberation Sans'
-          ],
-          urls: [
-            'static/fonts/Astloch-Bold.ttf',
-            'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
-            //
-            'static/fonts/Liberation_Sans-Regular.ttf'
-          ],
-        },
-        active: proceedWithFonts,
-        inactive: proceedWithFonts,
-        fontactive: function(fontFamily, fontDescription) {
-          console.log("font active: ", fontFamily, fontDescription);
-        },
-        fontloading: function(fontFamily, fontDescription) {
-          console.log("font loading:", fontFamily, fontDescription);
-        },
-      };
-      $.getScript('client/lib/webfont.js');
-
 
       dispatcher.
           on('collectionChanged', collectionChanged).
           on('collectionLoaded', collectionLoaded).
           on('renderData', renderData).
+          on('requestRenderData', requestRenderData).
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
@@ -2687,6 +2668,40 @@ Util.profileStart('before render');
           on('mouseover', onMouseOver).
           on('mouseout', onMouseOut);
     };
+
+    Visualizer.areFontsLoaded = false;
+
+    var proceedWithFonts = function() {
+      Visualizer.areFontsLoaded = true;
+      console.log("fonts done");
+      Dispatcher.post('triggerRender');
+    };
+
+    WebFontConfig = {
+      custom: {
+        families: [
+          'Astloch',
+          'PT Sans Caption',
+          //        'Ubuntu',
+          'Liberation Sans'
+        ],
+        urls: [
+          'static/fonts/Astloch-Bold.ttf',
+          'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+          //
+          'static/fonts/Liberation_Sans-Regular.ttf'
+        ],
+      },
+      active: proceedWithFonts,
+      inactive: proceedWithFonts,
+      fontactive: function(fontFamily, fontDescription) {
+        console.log("font active: ", fontFamily, fontDescription);
+      },
+      fontloading: function(fontFamily, fontDescription) {
+        console.log("font loading:", fontFamily, fontDescription);
+      },
+    };
+    $.getScript('client/lib/webfont.js');
 
     return Visualizer;
 })(jQuery, window);
