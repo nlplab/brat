@@ -700,7 +700,11 @@ def _enrich_json_with_data(j_dic, ann_obj):
         if unicode(tb_ann.id) in trigger_ids:
             j_dic['triggers'].append(j_tb)
         else: 
-            j_dic['entities'].append(j_tb)
+            try:
+                j_dic['entities'].append(j_tb)
+            except KeyError:
+                j_dic['entities'] = [j_tb, ]
+
 
     for eq_ann in ann_obj.get_equivs():
         j_dic['equivs'].append(
@@ -721,9 +725,12 @@ def _enrich_json_with_data(j_dic, ann_obj):
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
-        j_dic['comments'].append(
-                [unicode(com_ann.target), unicode(com_ann.type), com_ann.tail.strip()]
-                )
+        comment = [unicode(com_ann.target), unicode(com_ann.type),
+                com_ann.tail.strip()]
+        try:
+            j_dic['comments'].append(comment)
+        except KeyError:
+            j_dic['comments'] = [comment, ]
 
     if ann_obj.failed_lines:
         error_msg = 'Unable to parse the following line(s):\n%s' % (
@@ -756,7 +763,11 @@ def _enrich_json_with_data(j_dic, ann_obj):
         Messager.error('Error: verify_annotation() failed: %s' % e, -1)
 
     for i in issues:
-        j_dic['comments'].append((unicode(i.ann_id), i.type, i.description))
+        issue = (unicode(i.ann_id), i.type, i.description)
+        try:
+            j_dic['comments'].append(issue)
+        except:
+            j_dic['comments'] = [issue, ]
 
     # Attach the source files for the annotations and text
     from os.path import splitext
