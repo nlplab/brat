@@ -12,11 +12,24 @@ from tempfile import mkdtemp
 from annotation import Annotations
 from common import ProtocolError
 from document import _document_json_dict
-from stanford import ner as stanford_ner, text as stanford_text
+from stanford import (
+        basic_dep as stanford_basic_dep,
+        collapsed_ccproc_dep as stanford_collapsed_ccproc_dep,
+        collapsed_dep as stanford_collapsed_dep,
+        coref as stanford_coref,
+        ner as stanford_ner,
+        pos as stanford_pos,
+        text as stanford_text
+        )
 
 ### Constants
 CONV_BY_SRC = {
+        'stanford-pos': (stanford_text, stanford_pos, ),
         'stanford-ner': (stanford_text, stanford_ner, ),
+        'stanford-coref': (stanford_text, stanford_coref, ),
+        'stanford-basic_dep': (stanford_text, stanford_basic_dep, ),
+        'stanford-collapsed_dep': (stanford_text, stanford_collapsed_dep, ),
+        'stanford-collapsed_ccproc_dep': (stanford_text, stanford_collapsed_ccproc_dep, ),
         }
 ###
 
@@ -49,7 +62,12 @@ def convert(data, src):
             for ann in conv_ann(data):
                 ann_obj.add_annotation(ann)
 
-        return _document_json_dict(doc_base)
+        json_dic = _document_json_dict(doc_base)
+        # Note: Blank the comments, they rarely do anything good but whine
+        #   about configuration when we use the tool solely for visualisation
+        #   purposes
+        json_dic['comments'] = []
+        return json_dic
     finally:
         if tmp_dir is not None:
             rmtree(tmp_dir)
