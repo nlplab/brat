@@ -18,9 +18,10 @@ from annotator import split_span
 from auth import login, logout, whoami, NotAuthorisedError
 from common import ProtocolError
 from config import DATA_DIR
+from convert.convert import convert
 from docimport import save_import
 from document import (get_directory_information, get_document,
-        get_document_timestamp)
+        get_document_timestamp, get_configuration)
 from download import download_file, download_collection
 from inspect import getargspec
 from itertools import izip
@@ -95,7 +96,11 @@ DISPATCHER = {
 
         # normalization support
         'normGetName': norm_get_name,
-        'normSearch': norm_search,         
+        'normSearch': norm_search,
+
+        # Visualisation support
+        'getConfiguration': get_configuration,
+        'convert': convert,
        }
 
 # Actions that correspond to annotation functionality
