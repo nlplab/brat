@@ -2,6 +2,7 @@
 
 
 var Visualizer = (function($, window, undefined) {
+    var fontLoadTimeout = 2000; // 2 seconds
   
     var DocumentData = function(text) {
       this.text = text;
@@ -2656,6 +2657,7 @@ Util.profileStart('before render');
           on('collectionChanged', collectionChanged).
           on('collectionLoaded', collectionLoaded).
           on('renderData', renderData).
+          on('triggerRender', triggerRender).
           on('requestRenderData', requestRenderData).
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
@@ -2702,6 +2704,12 @@ Util.profileStart('before render');
       },
     };
     WebFont.load(webFontConfig);
+    setTimeout(function() {
+      if (!Visualizer.areFontsLoaded) {
+        console.error('Timeout in loading fonts');
+        proceedWithFonts();
+      }
+    }, fontLoadTimeout);
 
     return Visualizer;
 })(jQuery, window);
