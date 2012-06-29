@@ -2,7 +2,7 @@
 
 
 var Visualizer = (function($, window, undefined) {
-    var fontLoadTimeout = 2000; // 2 seconds
+    var fontLoadTimeout = 5000; // 5 seconds
   
     var DocumentData = function(text) {
       this.text = text;
