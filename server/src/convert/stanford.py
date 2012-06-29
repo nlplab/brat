@@ -11,14 +11,16 @@ Version:    2012-06-26
 # TODO: We could potentially put the lemma into a comment
 
 from collections import defaultdict
-try:
-    from collections import namedtuple
-except ImportError:
-    from altnamedtuple import namedtuple
 from itertools import chain
 from sys import path as sys_path
 from os.path import dirname, join as path_join
 from xml.etree import ElementTree
+
+try:
+    from collections import namedtuple
+except ImportError:
+    sys_path.append(path_join(dirname(__file__), '..', '..', 'lib'))
+    from altnamedtuple import namedtuple
 
 try:
     from annotation import (BinaryRelationAnnotation, EquivAnnotation,
