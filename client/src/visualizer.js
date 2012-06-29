@@ -2,6 +2,7 @@
 
 
 var Visualizer = (function($, window, undefined) {
+    var fontLoadTimeout = 5000; // 5 seconds
   
     var DocumentData = function(text) {
       this.text = text;
@@ -2656,6 +2657,7 @@ Util.profileStart('before render');
           on('collectionChanged', collectionChanged).
           on('collectionLoaded', collectionLoaded).
           on('renderData', renderData).
+          on('triggerRender', triggerRender).
           on('requestRenderData', requestRenderData).
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
@@ -2677,7 +2679,7 @@ Util.profileStart('before render');
       Dispatcher.post('triggerRender');
     };
 
-    WebFontConfig = {
+    var webFontConfig = {
       custom: {
         families: [
           'Astloch',
@@ -2701,7 +2703,13 @@ Util.profileStart('before render');
         console.log("font loading:", fontFamily, fontDescription);
       },
     };
-    $.getScript('client/lib/webfont.js');
+    WebFont.load(webFontConfig);
+    setTimeout(function() {
+      if (!Visualizer.areFontsLoaded) {
+        console.error('Timeout in loading fonts');
+        proceedWithFonts();
+      }
+    }, fontLoadTimeout);
 
     return Visualizer;
 })(jQuery, window);

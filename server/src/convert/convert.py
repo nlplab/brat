@@ -5,6 +5,8 @@ Author:     Pontus Stenetorp    <pontus stenetorp>
 Version:    2012-06-26
 '''
 
+from __future__ import with_statement
+
 from os.path import join as path_join
 from shutil import rmtree
 from tempfile import mkdtemp
