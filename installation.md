@@ -266,7 +266,8 @@ Next, let's edit httpd.conf:
 
     sudo vim /etc/apache2/httpd.conf
 
-If you are installing brat into your home directory, add the following lines:
+If you are installing brat into the `public_html` subdirectory of your home
+directory, add the following lines:
 
     <Directory /home/*/public_html>
         AllowOverride Options Indexes FileInfo Limit
@@ -281,9 +282,10 @@ If you are installing brat into your home directory, add the following lines:
     # For FastCGI, Single user installs should be fine with anything over 8
     #FastCgiConfig -maxProcesses 16
 
-If you are not installing into your home directory adjust the above lines
-accordingly. If you installed into your home directory make sure that you have
-the `userdir` module enabled.
+If you are not installing into `public_html` in your home directory, adjust 
+the above (in particular the line `<Directory /home/*/public_html>`) 
+accordingly. If you installed into `public_html` in your home
+directory, make sure that you have the `userdir` module enabled:
 
     sudo a2enmod userdir
 
@@ -309,8 +311,8 @@ Next, let's edit the apache httpd.conf:
 
 where `USER` is your username.
 
-If you are installing brat into your home directory, make sure the
-following is included:
+If you are installing brat into the `Sites` directory in your home
+directory, make sure the following is included:
 
     <Directory "/Users/USER/Sites/">
        Options Indexes MultiViews FollowSymLinks
