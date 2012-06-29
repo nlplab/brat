@@ -2677,7 +2677,7 @@ Util.profileStart('before render');
       Dispatcher.post('triggerRender');
     };
 
-    WebFontConfig = {
+    var webFontConfig = {
       custom: {
         families: [
           'Astloch',
@@ -2701,7 +2701,7 @@ Util.profileStart('before render');
         console.log("font loading:", fontFamily, fontDescription);
       },
     };
-    $.getScript('client/lib/webfont.js');
+    WebFont.load(webFontConfig);
 
     return Visualizer;
 })(jQuery, window);
