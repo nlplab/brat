@@ -38,7 +38,8 @@ following quick start should work.
 
 First, download a brat package from the [brat home page](index.html).
 
-Then, unpack the package
+Then, unpack the package (e.g. in the `public_html` subdirectory of
+your home directory)
 
     tar xzf brat-VERSION.tar.gz
 
