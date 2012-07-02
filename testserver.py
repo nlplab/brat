@@ -27,7 +27,7 @@ class BRATCGIHTTPRequestHandler(CGIHTTPRequestHandler):
             return CGIHTTPRequestHandler.is_cgi(self)
 
 def main(args):
-    # BaseHTTPServer will look for the port in argv[1] or default to 8080
+    # BaseHTTPServer will look for the port in argv[1] or default to 8000
     try:
         try:
             port = int(args[1])
