@@ -37,10 +37,13 @@ Token = namedtuple('Token', ('word', 'lemma', 'start', 'end', 'pos', 'ner', ))
 def _escape_pos_tags(pos):
     pos_res = pos
     for _from, to in (
-            ('$', '__DOLLAR__'),
-            ('.', '__DOT__'),
-            (':', '__COLON__'),
-            (',', '__COMMA__'),
+            ("'", '__SINGLEQUOTE__', ),
+            ('"', '__DOUBLEQUOTE__', ),
+            ('$', '__DOLLAR__', ),
+            (',', '__COMMA__', ),
+            ('.', '__DOT__', ),
+            (':', '__COLON__', ),
+            ('`', '__BACKTICK__', ),
             ):
         pos_res = pos_res.replace(_from, to)
     return pos_res
@@ -76,13 +79,16 @@ def _tok_it(token_by_ids):
         for t_id in sorted(k for k in token_by_ids[s_id]):
             yield s_id, t_id, token_by_ids[s_id][t_id]
 
+def _soup(xml):
+    return ElementTree.fromstring(xml.encode('utf-8'))
+
 def token_offsets(xml):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
     return [(tok.start, tok.end) for _, _, tok in _tok_it(token_by_ids)]
 
 def sentence_offsets(xml):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
     sent_min_max = defaultdict(lambda : (2**32, -1, ))
     for s_id, _, tok in _tok_it(token_by_ids):
@@ -96,7 +102,7 @@ def text(xml):
     # would have to assume that each "missing" character is a space, but you
     # don't really have any guarantee that this is the case...
     
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
 
     # Get the presumed length of the text
@@ -116,7 +122,7 @@ def text(xml):
     return ''.join(text)
 
 def _pos(xml, start_id=1):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
 
     curr_id = start_id
@@ -129,7 +135,7 @@ def pos(xml, start_id=1):
     return (a for _, _, a in _pos(xml, start_id=start_id))
 
 def ner(xml, start_id=1):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
 
     # Stanford only has Inside and Outside tags, so conversion is easy
@@ -164,7 +170,7 @@ def ner(xml, start_id=1):
         curr_id += 1
        
 def coref(xml, start_id=1):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
     
     docs_e = soup.findall('document')
@@ -216,7 +222,7 @@ def _find_sentences_element(soup):
     return sents_e
 
 def _dep(xml, source_element='basic-dependencies'):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
 
     ann_by_ids = defaultdict(dict)
