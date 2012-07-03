@@ -202,7 +202,7 @@ def coref(xml, start_id=1):
                     token_by_ids[sentence_id][start_tok_id].end,
                     mention_id, 'Mention', '')
 
-        yield EquivAnnotation('Co-reference', chain, '')
+        yield EquivAnnotation('Coreference', chain, '')
 
 def _find_sentences_element(soup):
     # Find the right portion of the XML and do some limited sanity checking
