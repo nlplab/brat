@@ -11,7 +11,7 @@ from os.path import join as path_join
 from shutil import rmtree
 from tempfile import mkdtemp
 
-from annotation import Annotations
+from annotation import open_textfile, Annotations
 from common import ProtocolError
 from document import _document_json_dict
 from stanford import (
@@ -57,7 +57,7 @@ def convert(data, src):
     try:
         tmp_dir = mkdtemp()
         doc_base = path_join(tmp_dir, 'tmp')
-        with open(doc_base + '.txt', 'w') as txt_file:
+        with open_textfile(doc_base + '.txt', 'w') as txt_file:
             txt_file.write(conv_text(data))
         with open(doc_base + '.ann', 'w'):
             pass
