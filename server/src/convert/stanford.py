@@ -251,8 +251,8 @@ def _dep(xml, source_element='basic-dependencies'):
 
             yield BinaryRelationAnnotation(
                     'R%s' % curr_rel_id, dep_type,
-                    'Governor', ann_by_ids[sent_id][gov_tok_id].id,
                     'Dependent', ann_by_ids[sent_id][dep_tok_id].id,
+                    'Governor', ann_by_ids[sent_id][gov_tok_id].id,
                     ''
                     )
             curr_rel_id += 1
