@@ -2378,11 +2378,13 @@ Util.profileStart('before render');
         if (id = target.attr('data-span-id')) {
           commentId = id;
           var span = data.spans[id];
+	  var norm = span.normalizations[0];
           dispatcher.post('displaySpanComment', [
               evt, target, id, span.type, span.attributeText,
               data.text.substring(span.from, span.to),
               span.comment && span.comment.text,
-              span.comment && span.comment.type]);
+              span.comment && span.comment.type,
+              norm]);
 
           var spanDesc = spanTypes[span.type];
           var bgColor = ((spanDesc && spanDesc.bgColor) || 
