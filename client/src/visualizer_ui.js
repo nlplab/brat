@@ -329,8 +329,10 @@ var VisualizerUI = (function($, window, undefined) {
                 for (var j = 0; j < response.value[i].length; j++) {
                   var label = response.value[i][j][0];
                   var value = response.value[i][j][1];
-                  norminfo += ('<b>'+Util.escapeHTML(label)+'</b>:'+
-                               Util.escapeHTML(value)+'<br/>');
+                  if (label && value) {
+                      norminfo += ('<b>'+Util.escapeHTML(label)+'</b>:'+
+                                   Util.escapeHTML(value)+'<br/>');
+                  }
                 }
               }
               var drop=$('#norm_info_drop_point_'+commentPopupNormInfoSeqId);
