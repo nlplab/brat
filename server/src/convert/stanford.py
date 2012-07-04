@@ -12,9 +12,11 @@ Version:    2012-06-26
 
 from collections import defaultdict
 from itertools import chain
-from sys import path as sys_path
+from sys import path as sys_path, stderr
 from os.path import dirname, join as path_join
 from xml.etree import ElementTree
+
+from ptbesc import unescape as ptb_unescape
 
 try:
     from collections import namedtuple
@@ -31,6 +33,20 @@ except ImportError:
             TextBoundAnnotation)
 
 Token = namedtuple('Token', ('word', 'lemma', 'start', 'end', 'pos', 'ner', ))
+
+def _escape_pos_tags(pos):
+    pos_res = pos
+    for _from, to in (
+            ("'", '__SINGLEQUOTE__', ),
+            ('"', '__DOUBLEQUOTE__', ),
+            ('$', '__DOLLAR__', ),
+            (',', '__COMMA__', ),
+            ('.', '__DOT__', ),
+            (':', '__COLON__', ),
+            ('`', '__BACKTICK__', ),
+            ):
+        pos_res = pos_res.replace(_from, to)
+    return pos_res
 
 def _token_by_ids(soup):
     token_by_ids = defaultdict(dict)
@@ -51,7 +67,8 @@ def _token_by_ids(soup):
                     lemma=tok_lemma,
                     start=tok_start,
                     end=tok_end,
-                    pos=tok_pos,
+                    # Escape the PoS since brat dislike $ and .
+                    pos=_escape_pos_tags(tok_pos),
                     ner=tok_ner
                     )
 
@@ -62,13 +79,30 @@ def _tok_it(token_by_ids):
         for t_id in sorted(k for k in token_by_ids[s_id]):
             yield s_id, t_id, token_by_ids[s_id][t_id]
 
+def _soup(xml):
+    return ElementTree.fromstring(xml.encode('utf-8'))
+
+def token_offsets(xml):
+    soup = _soup(xml)
+    token_by_ids = _token_by_ids(soup)
+    return [(tok.start, tok.end) for _, _, tok in _tok_it(token_by_ids)]
+
+def sentence_offsets(xml):
+    soup = _soup(xml)
+    token_by_ids = _token_by_ids(soup)
+    sent_min_max = defaultdict(lambda : (2**32, -1, ))
+    for s_id, _, tok in _tok_it(token_by_ids):
+        s_entry = sent_min_max[s_id]
+        sent_min_max[s_id] = (min(tok.start, s_entry[0]), max(tok.end, s_entry[1]), )
+    return sorted((s_start, s_end) for s_start, s_end in sent_min_max.itervalues())
+
 def text(xml):
     # It would be nice to have access to the original text, but this actually
     # isn't a part of the XML. Constructing it isn't that easy either, you
     # would have to assume that each "missing" character is a space, but you
     # don't really have any guarantee that this is the case...
     
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
 
     # Get the presumed length of the text
@@ -79,12 +113,16 @@ def text(xml):
     # Then re-construct what we believe the text to be
     text = list(' ' * max_offset)
     for _, _, tok in _tok_it(token_by_ids):
-        text[tok.start:tok.end] = tok.word
+        # Also unescape any PTB escapes in the text while we are at it
+        # Note: Since Stanford actually doesn't do all the escapings properly
+        # this will sometimes fail! Hint: Try "*/\*".
+        unesc_word = ptb_unescape(tok.word)
+        text[tok.start:len(unesc_word)] = unesc_word
 
     return ''.join(text)
 
 def _pos(xml, start_id=1):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
 
     curr_id = start_id
@@ -97,7 +135,7 @@ def pos(xml, start_id=1):
     return (a for _, _, a in _pos(xml, start_id=start_id))
 
 def ner(xml, start_id=1):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
 
     # Stanford only has Inside and Outside tags, so conversion is easy
@@ -132,7 +170,7 @@ def ner(xml, start_id=1):
         curr_id += 1
        
 def coref(xml, start_id=1):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
     
     docs_e = soup.findall('document')
@@ -140,6 +178,9 @@ def coref(xml, start_id=1):
     docs_e = docs_e[0]
     # Despite the name, this element contains conferences (note the "s")
     corefs_e = docs_e.findall('coreference')
+    if not corefs_e:
+        # No coreferences to process
+        raise StopIteration
     assert len(corefs_e) == 1
     corefs_e = corefs_e[0]
 
@@ -167,7 +208,7 @@ def coref(xml, start_id=1):
                     token_by_ids[sentence_id][start_tok_id].end,
                     mention_id, 'Mention', '')
 
-        yield EquivAnnotation('Co-reference', chain, '')
+        yield EquivAnnotation('Coreference', chain, '')
 
 def _find_sentences_element(soup):
     # Find the right portion of the XML and do some limited sanity checking
@@ -181,7 +222,7 @@ def _find_sentences_element(soup):
     return sents_e
 
 def _dep(xml, source_element='basic-dependencies'):
-    soup = ElementTree.fromstring(xml)
+    soup = _soup(xml)
     token_by_ids = _token_by_ids(soup)
 
     ann_by_ids = defaultdict(dict)
@@ -210,8 +251,8 @@ def _dep(xml, source_element='basic-dependencies'):
 
             yield BinaryRelationAnnotation(
                     'R%s' % curr_rel_id, dep_type,
-                    'Governor', ann_by_ids[sent_id][gov_tok_id].id,
                     'Dependent', ann_by_ids[sent_id][dep_tok_id].id,
+                    'Governor', ann_by_ids[sent_id][gov_tok_id].id,
                     ''
                     )
             curr_rel_id += 1
@@ -516,3 +557,11 @@ if __name__ == '__main__':
     print 'Collapsed CC-processed dependencies:'
     for ann in collapsed_ccproc_dep(STANFORD_XML):
         print ann
+
+    print
+    print 'Token boundaries:'
+    print token_offsets(STANFORD_XML)
+
+    print
+    print 'Sentence boundaries:'
+    print sentence_offsets(STANFORD_XML)
