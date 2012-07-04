@@ -1408,5 +1408,14 @@ class BinaryRelationAnnotation(IdedAnnotation):
         return soft_deps, hard_deps
 
 if __name__ == '__main__':
-    #TODO: Unit-testing
-    pass
+    from sys import stderr, argv
+    for ann_path_i, ann_path in enumerate(argv[1:]):
+        print >> stderr, ("%s.) '%s' " % (ann_path_i, ann_path, )
+                ).ljust(80, '#')
+        try:
+            with Annotations(ann_path) as anns:
+                for ann in anns:
+                    print >> stderr, unicode(ann).rstrip('\n')
+        except ImportError:
+            # Will try to load the config, probably not available
+            pass
