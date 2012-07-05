@@ -82,10 +82,19 @@ var Dispatcher = (function($, window, undefined) {
         return results;
       };
 
-      return {
+      var dispatcher = {
         on: on,
         post: post,
       };
+      Dispatcher.dispatchers.push(dispatcher);
+      return dispatcher;
+    };
+
+    Dispatcher.dispatchers = [];
+    Dispatcher.post = function(asynch, message, args, returnType) {
+      $.each(Dispatcher.dispatchers, function(dispatcherNo, dispatcher) {
+        dispatcher.post(asynch, message, args, returnType);
+      });
     };
 
     return Dispatcher;

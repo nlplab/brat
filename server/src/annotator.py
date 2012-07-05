@@ -818,6 +818,16 @@ def _create_argument(ann_obj, projectconf, mods, origin, target, type,
     # No addressing mechanism for arguments at the moment
     return None
 
+def reverse_arc(collection, document, origin, target, type, attributes=None):
+    directory = collection
+    real_dir = real_directory(directory)
+    document = path_join(real_dir, document)
+    with TextAnnotations(document) as ann_obj:
+        Messager.warning('TODO: reverse_arc implementation')
+        json_response = {}
+        json_response['annotations'] = _json_from_ann(ann_obj)
+        return json_response
+
 # TODO: undo support
 def create_arc(collection, document, origin, target, type, attributes=None,
         old_type=None, old_target=None, comment=None):

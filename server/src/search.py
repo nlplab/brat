@@ -479,8 +479,8 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
         tagged   = []
         untagged = []
 
-        for type in text_type_ann_map[text]:
-            for ann_obj, ann in text_type_ann_map[text][type]:
+        for type_ in text_type_ann_map[text]:
+            for ann_obj, ann in text_type_ann_map[text][type_]:
                 #matches.add_match(ann_obj, ann)
                 tagged.append((ann_obj, ann))
 
@@ -502,7 +502,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
                 matches.add_match(ann_obj, m)
             for ann_obj, m in untagged:
                 matches.add_match(ann_obj, m)
-            print "(note: omitting %d instances of tagged '%s')" % (len(tagged)-cutoff_limit, text)
+            print "(note: omitting %d instances of tagged '%s')" % (len(tagged)-cutoff_limit, text.encode('utf-8'))
         elif (len(untagged) > freq_ratio_cutoff * len(tagged) and
               len(untagged) > cutoff_limit):
             # cut off all but cutoff_limit from tagged
@@ -510,7 +510,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
                 matches.add_match(ann_obj, m)
             for ann_obj, m in untagged[:cutoff_limit]:
                 matches.add_match(ann_obj, m)
-            print "(note: omitting %d instances of untagged '%s')" % (len(untagged)-cutoff_limit, text)
+            print "(note: omitting %d instances of untagged '%s')" % (len(untagged)-cutoff_limit, text.encode('utf-8'))
         else:
             # include all
             for ann_obj, m in tagged + untagged:
