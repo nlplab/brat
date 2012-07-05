@@ -965,20 +965,59 @@ var AnnotatorUI = (function($, window, undefined) {
             dispatcher.post('showForm', [spanForm]);
           },
       });
-      $('#norm_search_query').autocomplete({ source: [] });
+      $('#norm_search_query').autocomplete({
+        source: function(request, callback) {
+          var query = $.ui.autocomplete.escapeRegex(request.term);
+          var pattern = new RegExp('\\b' + query, 'i');
+          callback($.grep(lastNormSearches, function(search) {
+            return pattern.test(search.value) || pattern.test(search.id);
+          }));
+        },
+        minLength: 0,
+        select: function(evt, ui) {
+          evt.stopPropagation();
+          normSubmit(ui.item.id, ui.item.value);
+        },
+        focus: function(evt, ui) {
+          // do nothing
+        },
+      }).data('autocomplete')._renderItem = function($ul, item) {
+        return $('<li></li>').
+          data('item.autocomplete', item).
+          append('<a>' + Util.escapeHTML(item.value) + '<div class="autocomplete-id">' + Util.escapeHTML(item.id) + "</div></a>").
+          appendTo($ul);
+      };
+      var normSubmit = function(selectedId, selectedTxt) {
+        // we got a value; act if it was a submit
+        $('#span_norm_id').val(selectedId);
+        // don't forget to update this reference value
+        oldSpanNormIdValue = selectedId;
+        $('#span_norm_txt').val(selectedTxt);
+        updateNormalizationRefLink();
+        // update history
+        var nextLastNormSearches = [
+          {
+            value: selectedTxt,
+            id: selectedId,
+          },
+        ];
+        $.each(lastNormSearches, function(searchNo, search) {
+          if (search.id != selectedId || search.value != selectedTxt) {
+            nextLastNormSearches.push(search);
+          }
+        });
+        lastNormSearches = nextLastNormSearches;
+        lastNormSearches.slice(0, maxNormSearchHistory);
+        // Switch dialogs. NOTE: assuming we closed the spanForm when
+        // bringing up the normSearchDialog.
+        normSearchDialog.dialog('close');
+      };
       var normSearchSubmit = function(evt) {
-        var selectedId = $('#norm_search_id').val(); 
-        var selectedTxt = $('#norm_search_query').val();
         if (normSearchSubmittable) {
-          // we got a value; act if it was a submit
-          $('#span_norm_id').val(selectedId);
-          // don't forget to update this reference value
-          oldSpanNormIdValue = selectedId;
-          $('#span_norm_txt').val(selectedTxt);
-          updateNormalizationRefLink();
-          // Switch dialogs. NOTE: assuming we closed the spanForm when
-          // bringing up the normSearchDialog.
-          normSearchDialog.dialog('close');
+          var selectedId = $('#norm_search_id').val(); 
+          var selectedTxt = $('#norm_search_query').val();
+
+          normSubmit(selectedId, selectedTxt);
         } else {
           performNormSearch();
         }
@@ -1050,9 +1089,6 @@ var AnnotatorUI = (function($, window, undefined) {
       }
       var performNormSearch = function() {
         var val = $('#norm_search_query').val();
-        lastNormSearches.unshift(val);
-        lastNormSearches.slice(0, maxNormSearchHistory);
-        $('#norm_search_query').autocomplete('option', 'source', lastNormSearches);
         var db = $('#span_norm_db').val();
         dispatcher.post('ajax', [ {
                         action: 'normSearch',
@@ -1069,11 +1105,11 @@ var AnnotatorUI = (function($, window, undefined) {
         // from annotated span and clear ID entry
         if (!$('#span_norm_id').val().match(/^\s*$/) &&
             !$('#span_norm_txt').val().match(/^\s*$/)) {
-            $('#norm_search_id').val($('#span_norm_id').val());
-            $('#norm_search_query').val($('#span_norm_txt').val());
+          $('#norm_search_id').val($('#span_norm_id').val());
+          $('#norm_search_query').val($('#span_norm_txt').val());
         } else {
-            $('#norm_search_id').val('');
-            $('#norm_search_query').val($('#span_selected').text());
+          $('#norm_search_id').val('');
+          $('#norm_search_query').val($('#span_selected').text());
         }
         // blank the table
         $('#norm_search_result_select thead').empty();
@@ -1084,6 +1120,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#norm_search_button').val('Search ' + $('#span_norm_db').val());
         setNormSearchSubmit(false);
         dispatcher.post('showForm', [normSearchDialog]);
+        $('#norm_search_query').focus().select();
       }
       $('#span_norm_txt').click(showNormSearchDialog);
       $('#norm_search_button').button();
