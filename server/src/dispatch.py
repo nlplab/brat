@@ -12,7 +12,7 @@ Version:    2011-04-21
 from os.path import abspath, normpath
 from os.path import join as path_join
 
-from annotator import create_arc, delete_arc, possible_arc_types
+from annotator import create_arc, delete_arc, reverse_arc, possible_arc_types
 from annotator import create_span, delete_span
 from annotator import split_span
 from auth import login, logout, whoami, NotAuthorisedError
@@ -36,7 +36,7 @@ from predict import suggest_span_types
 from undo import undo
 from tag import tag
 from delete import delete_document, delete_collection
-from norm import norm_get_name, norm_search
+from norm import norm_get_name, norm_search, norm_get_data
 
 # no-op function that can be invoked by client to log a user action
 def logging_no_op(collection, document, log):
@@ -65,6 +65,7 @@ DISPATCHER = {
         'splitSpan' : split_span,
 
         'createArc': create_arc,
+        'reverseArc': reverse_arc,
         'deleteArc': delete_arc,
         'possibleArcTypes': possible_arc_types,
 
@@ -97,6 +98,7 @@ DISPATCHER = {
         # normalization support
         'normGetName': norm_get_name,
         'normSearch': norm_search,
+        'normData' : norm_get_data,
 
         # Visualisation support
         'getConfiguration': get_configuration,

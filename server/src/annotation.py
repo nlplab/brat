@@ -711,7 +711,6 @@ class Annotations(object):
             Messager.error('Error parsing relation: must have exactly two arguments')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
-        args.sort()
         if args[0][0] == args[1][0]:
             Messager.error('Error parsing relation: arguments must not be identical')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
@@ -1409,5 +1408,14 @@ class BinaryRelationAnnotation(IdedAnnotation):
         return soft_deps, hard_deps
 
 if __name__ == '__main__':
-    #TODO: Unit-testing
-    pass
+    from sys import stderr, argv
+    for ann_path_i, ann_path in enumerate(argv[1:]):
+        print >> stderr, ("%s.) '%s' " % (ann_path_i, ann_path, )
+                ).ljust(80, '#')
+        try:
+            with Annotations(ann_path) as anns:
+                for ann in anns:
+                    print >> stderr, unicode(ann).rstrip('\n')
+        except ImportError:
+            # Will try to load the config, probably not available
+            pass
