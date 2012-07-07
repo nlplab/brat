@@ -2082,7 +2082,7 @@ var AnnotatorUI = (function($, window, undefined) {
               click: linkSpan
             }, {
               id: 'span_form_add_fragment',
-              text: "Add Fragment",
+              text: "Add Frag.",
               click: addFragment
             }, {
               id: 'span_form_delete',
@@ -2090,7 +2090,7 @@ var AnnotatorUI = (function($, window, undefined) {
               click: deleteSpan
             }, {
               id: 'span_form_delete_fragment',
-              text: "Delete Fragment",
+              text: "Delete Frag.",
               click: deleteFragment
             }, {
               id: 'span_form_reselect',
@@ -2098,7 +2098,7 @@ var AnnotatorUI = (function($, window, undefined) {
               click: reselectSpan
             }, {
               id: 'span_form_reselect_fragment',
-              text: 'Move Fragment',
+              text: 'Move Frag.',
               click: reselectFragment
             }, {
               id: 'span_form_split',
