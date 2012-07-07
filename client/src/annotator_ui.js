@@ -1971,7 +1971,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanForm = $('#span_form');
       var rapidSpanForm = $('#rapid_span_form');
     
-      var deleteSpan = function(evt) {
+      var deleteSpan = function() {
         if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
         }
@@ -1986,7 +1986,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#waiter').dialog('open');
       };
 
-      var reselectSpan = function(evt) {
+      var reselectSpan = function() {
         dispatcher.post('hideForm');
         svgElement.addClass('reselect');
         $(editedSpan.rect).addClass('reselect');
