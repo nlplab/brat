@@ -17,7 +17,8 @@ var Visualizer = (function($, window, undefined) {
       // this.sizes = {};
     };
 
-    var Fragment = function(span, from, to) {
+    var Fragment = function(id, span, from, to) {
+      this.id = id;
       this.span = span;
       this.from = from;
       this.to = to;
@@ -416,7 +417,7 @@ var Visualizer = (function($, window, undefined) {
           $.each(span.offsets, function(offsetsNo, offsets) {
             var from = parseInt(offsets[0], 10);
             var to = parseInt(offsets[1], 10);
-            var fragment = new Fragment(span, from, to);
+            var fragment = new Fragment(offsetsNo, span, from, to);
             span.fragments.push(fragment);
           });
           // ensure ascending order
@@ -1444,6 +1445,7 @@ Util.profileStart('chunks');
                 rx: Configuration.visual.margin.x,
                 ry: Configuration.visual.margin.y,
                 'data-span-id': span.id,
+                'data-fragment-id': fragment.id,
                 'strokeDashArray': span.attributeMerge.dashArray,
               });
 	    

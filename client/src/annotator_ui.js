@@ -19,7 +19,9 @@ var AnnotatorUI = (function($, window, undefined) {
       var coll = null;
       var doc = null;
       var reselectedSpan = null;
+      var selectedFragment = null;
       var editedSpan = null;
+      var editedFragment = null;
       var repeatingArcTypes = [];
       var spanTypes = null;
       var entityAttributeTypes = null;
@@ -119,15 +121,26 @@ var AnnotatorUI = (function($, window, undefined) {
         if (nodeName == 'input' && (nodeType == 'text' || nodeType == 'password')) return;
         if (nodeName == 'textarea' || nodeName == 'select') return;
 
-        var binding = keymap[code];
-        if (!binding) binding = keymap[String.fromCharCode(code)];
+        var prefix = '';
+        if (evt.altKey) {
+          prefix = "A-";
+        }
+        if (evt.ctrlKey) {
+          prefix = "C-";
+        }
+        if (evt.shiftKey) {
+          prefix = "S-";
+        }
+        var binding = keymap[prefix + code];
+        if (!binding) binding = keymap[prefix + String.fromCharCode(code)];
         if (binding) {
           var boundInput = $('#' + binding)[0];
           if (boundInput && !boundInput.disabled) {
             boundInput.click();
+            evt.preventDefault();
+            return false;
           }
         }
-        return false;
       };
 
       var onDblClick = function(evt) {
@@ -177,6 +190,7 @@ var AnnotatorUI = (function($, window, undefined) {
         } else if (id = target.attr('data-span-id')) {
           clearSelection();
           editedSpan = data.spans[id];
+          editedFragment = target.attr('data-fragment-id');
           var offsets = [];
           $.each(editedSpan.fragments, function(fragmentNo, fragment) {
             offsets.push([fragment.from, fragment.to]);
@@ -663,14 +677,25 @@ var AnnotatorUI = (function($, window, undefined) {
           showAllAttributes = true;
         }
         if (span && !reselectedSpan) {
-          $('#span_form_reselect, #span_form_delete').show();
+          $('#span_form_reselect, #span_form_delete, #span_form_add_fragment').show();
           keymap[$.ui.keyCode.DELETE] = 'span_form_delete';
           keymap[$.ui.keyCode.INSERT] = 'span_form_reselect';
+          keymap['S-' + $.ui.keyCode.ENTER] = 'span_form_add_fragment';
           $('#span_notes').val(span.annotatorNotes || '');
         } else {
-          $('#span_form_reselect, #span_form_delete').hide();
+          $('#span_form_reselect, #span_form_delete, #span_form_add_fragment').hide();
           keymap[$.ui.keyCode.DELETE] = null;
           keymap[$.ui.keyCode.INSERT] = null;
+          keymap['S-' + $.ui.keyCode.ENTER] = null;
+        }
+        if (span && !reselectedSpan && span.offsets.length > 1) {
+          $('#span_form_reselect_fragment, #span_form_delete_fragment').show();
+          keymap['S-' + $.ui.keyCode.DELETE] = 'span_form_delete_fragment';
+          keymap['S-' + $.ui.keyCode.INSERT] = 'span_form_reselect_fragment';
+        } else {
+          $('#span_form_reselect_fragment, #span_form_delete_fragment').hide();
+          keymap['S-' + $.ui.keyCode.DELETE] = null;
+          keymap['S-' + $.ui.keyCode.INSERT] = null;
         }
         if (!reselectedSpan) {
           // TODO: avoid allAttributeTypes; just check type-appropriate ones
@@ -774,16 +799,18 @@ var AnnotatorUI = (function($, window, undefined) {
         // annotation in its old location in the background (check it).
         // The fix of skipping confirm is not really good either, though.
         if (reselectedSpan) { // && !Configuration.confirmModeOn) {
-          if (reselectedSpan) {
-            $(reselectedSpan.rect).removeClass('reselect');
-          }
-          reselectedSpan = null;
-          spanForm.submit();
+          submitReselect();
         } else {
           dispatcher.post('showForm', [spanForm]);
           $('#span_form-ok').focus();
           adjustToCursor(evt, spanForm.parent());
         }
+      };
+
+      var submitReselect = function() {
+        $(reselectedSpan.rect).removeClass('reselect');
+        reselectedSpan = null;
+        spanForm.submit();
       };
 
       var rapidFillSpanTypesAndDisplayForm = function(start, end, text, types) {
@@ -1420,19 +1447,25 @@ var AnnotatorUI = (function($, window, undefined) {
               return;
             }
 
-            var newOffsets;
             var newOffset = [selectedFrom, selectedTo];
             if (reselectedSpan) {
-              spanOptions.old_offsets = JSON.stringify(spanOptions.offsets);
+              spanOptions.old_offsets = JSON.stringify(reselectedSpan.offsets);
+              if (selectedFragment !== null) {
+                if (selectedFragment !== false) {
+                  reselectedSpan.offsets.splice(selectedFragment, 1);
+                }
+                reselectedSpan.offsets.push(newOffset);
+                reselectedSpan.offsets.sort(Util.cmpArrayOnFirstElement);
+                spanOptions.offsets = reselectedSpan.offsets;
+              } else {
+                spanOptions.offsets = [newOffset];
+              }
             } else {
               spanOptions = {
-                action: 'createSpan'
+                action: 'createSpan',
+                offsets: [newOffset]
               }
             }
-
-            $.extend(spanOptions, {
-                offsets: [newOffset]
-              });
 
             var crossSentence = true;
             $.each(sourceData.sentence_offsets, function(sentNo, startEnd) {
@@ -1932,7 +1965,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanForm = $('#span_form');
       var rapidSpanForm = $('#rapid_span_form');
     
-      var deleteSpan = function() {
+      var deleteSpan = function(evt) {
         if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
         }
@@ -1947,11 +1980,12 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#waiter').dialog('open');
       };
 
-      var reselectSpan = function() {
+      var reselectSpan = function(evt) {
         dispatcher.post('hideForm');
         svgElement.addClass('reselect');
         $(editedSpan.rect).addClass('reselect');
         reselectedSpan = editedSpan;
+        selectedFragment = null;
       };
 
       var splitForm = $('#split_form');
@@ -1996,22 +2030,76 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('showForm', [splitForm]);
       };
 
+      var linkSpan = function() {
+        args.focus = [[spanOptions.id || spanOptions.start + '~' + spanOptions.end]];
+        dispatcher.post('setArguments', [args]);
+      };
+
+      var addFragment = function() {
+        dispatcher.post('hideForm');
+        svgElement.addClass('reselect');
+        $(editedSpan.rect).addClass('reselect');
+        reselectedSpan = editedSpan;
+        selectedFragment = false;
+      };
+
+      var reselectFragment = function() {
+        addFragment();
+        selectedFragment = editedFragment;
+      };
+
+      var deleteFragment = function() {
+        if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this fragment?")) {
+          return;
+        }
+        var offsets = editedSpan.offsets;
+        spanOptions.old_offsets = JSON.stringify(offsets);
+        offsets.splice(editedFragment, 1);
+
+        $.extend(spanOptions, {
+          collection: coll,
+          'document': doc,
+          offsets: JSON.stringify(offsets),
+        });
+
+        dispatcher.post('ajax', [spanOptions, 'edited']);
+        dispatcher.post('hideForm');
+        $('#waiter').dialog('open');
+      };
+
       dispatcher.post('initForm', [spanForm, {
           alsoResize: '#entity_and_event_wrapper',
           width: 760,
           buttons: [{
+              id: 'span_form_link',
+              text: "Link",
+              click: linkSpan
+            }, {
+              id: 'span_form_add_fragment',
+              text: "Add Fragment",
+              click: addFragment
+            }, {
               id: 'span_form_delete',
               text: "Delete",
               click: deleteSpan
+            }, {
+              id: 'span_form_delete_fragment',
+              text: "Delete Fragment",
+              click: deleteFragment
             }, {
               id: 'span_form_reselect',
               text: 'Move',
               click: reselectSpan
             }, {
+              id: 'span_form_reselect_fragment',
+              text: 'Move Fragment',
+              click: reselectFragment
+            }, {
               id: 'span_form_split',
               text: 'Split',
               click: splitSpan
-          }],
+            }
+          ],
           close: function(evt) {
             keymap = null;
             if (reselectedSpan) {
