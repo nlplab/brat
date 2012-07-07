@@ -26,7 +26,7 @@ from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         JOINED_ANN_FILE_SUFF,
         open_textfile)
 from common import ProtocolError, CollectionNotAccessibleError
-from config import DATA_DIR
+from config import BASE_DIR, DATA_DIR
 from projectconfig import (ProjectConfiguration, SEPARATOR_STR, 
         SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
         VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, 
@@ -466,6 +466,44 @@ def _getmtime(file_path):
             # We are unable to handle this exception, pass it one
             raise
 
+
+class InvalidConfiguration(ProtocolError):
+    def json(self, json_dic):
+        json_dic['exception'] = 'invalidConfiguration'
+        return json_dic
+
+
+# TODO: Is this what we would call the configuration? It is minimal.
+def get_configuration(name):
+    # TODO: Rip out this path somewhere
+    config_dir = path_join(BASE_DIR, 'configurations')
+    for conf_name in listdir(config_dir):
+        if conf_name == name:
+            config_path = path_join(config_dir, conf_name)
+            break
+    else:
+        raise InvalidConfiguration
+
+    return _inject_event_rel_conf(config_path)
+
+def _inject_event_rel_conf(dir_path, json_dic=None):
+    if json_dic is None:
+        json_dic = {}
+
+    (event_types, entity_types, rel_types,
+            unconf_types) = get_base_types(dir_path)
+    (entity_attr_types, rel_attr_types,
+            event_attr_types) = get_attribute_types(dir_path)
+
+    json_dic['event_types'] = event_types
+    json_dic['entity_types'] = entity_types
+    json_dic['relation_types'] = rel_types
+    json_dic['event_attribute_types'] = event_attr_types
+    json_dic['relation_attribute_types'] = rel_attr_types
+    json_dic['entity_attribute_types'] = entity_attr_types
+    json_dic['unconfigured_types'] = unconf_types
+    return json_dic
+
 # TODO: This is not the prettiest of functions
 def get_directory_information(collection):
     directory = collection
@@ -523,9 +561,6 @@ def get_directory_information(collection):
     for i in doclist:
         combolist.append(["d", None]+i)
 
-    event_types, entity_types, relation_types, unconf_types = get_base_types(real_dir)
-    entity_attribute_types, relation_attribute_types, event_attribute_types = get_attribute_types(real_dir)
-
     # plug in the search config too
     search_config = get_search_config(real_dir)
 
@@ -550,27 +585,18 @@ def get_directory_information(collection):
     # fill in NER services, if any
     ner_taggers = get_annotator_config(real_dir)
 
-    json_dic = {
+    return _inject_event_rel_conf(real_dir, json_dic={
             'items': combolist,
             'header' : doclist_header,
             'parent': parent,
             'messages': [],
-            'event_types': event_types,
-            'entity_types': entity_types,
-#             'attribute_types': attribute_types,
-            'event_attribute_types': event_attribute_types,
-            'relation_attribute_types': relation_attribute_types,
-            'entity_attribute_types': entity_attribute_types,
-            'relation_types': relation_types,
-            'unconfigured_types': unconf_types,
             'description': readme_text,
             'search_config': search_config,
             'disambiguator_config' : disambiguator_config,
             'normalization_config' : normalization_config,
             'annotation_logging': ann_logging,
             'ner_taggers': ner_taggers,
-            }
-    return json_dic
+            })
 
 class UnableToReadTextFile(ProtocolError):
     def __init__(self, path):
@@ -675,7 +701,11 @@ def _enrich_json_with_data(j_dic, ann_obj):
         if unicode(tb_ann.id) in trigger_ids:
             j_dic['triggers'].append(j_tb)
         else: 
-            j_dic['entities'].append(j_tb)
+            try:
+                j_dic['entities'].append(j_tb)
+            except KeyError:
+                j_dic['entities'] = [j_tb, ]
+
 
     for eq_ann in ann_obj.get_equivs():
         j_dic['equivs'].append(
@@ -696,9 +726,12 @@ def _enrich_json_with_data(j_dic, ann_obj):
                 )
 
     for com_ann in ann_obj.get_oneline_comments():
-        j_dic['comments'].append(
-                [unicode(com_ann.target), unicode(com_ann.type), com_ann.tail.strip()]
-                )
+        comment = [unicode(com_ann.target), unicode(com_ann.type),
+                com_ann.tail.strip()]
+        try:
+            j_dic['comments'].append(comment)
+        except KeyError:
+            j_dic['comments'] = [comment, ]
 
     if ann_obj.failed_lines:
         error_msg = 'Unable to parse the following line(s):\n%s' % (
@@ -731,7 +764,11 @@ def _enrich_json_with_data(j_dic, ann_obj):
         Messager.error('Error: verify_annotation() failed: %s' % e, -1)
 
     for i in issues:
-        j_dic['comments'].append((unicode(i.ann_id), i.type, i.description))
+        issue = (unicode(i.ann_id), i.type, i.description)
+        try:
+            j_dic['comments'].append(issue)
+        except:
+            j_dic['comments'] = [issue, ]
 
     # Attach the source files for the annotations and text
     from os.path import splitext

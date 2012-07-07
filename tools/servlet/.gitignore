@@ -1,0 +1,4 @@
+brat.war
+# There is no easy way to exclude benign files, sorry, but this keeps it all
+#   clean when there is a full-blown brat installation in the brat directory
+brat/*

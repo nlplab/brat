@@ -36,6 +36,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var draggedArcHeight = 30;
       var spanTypesToShowBeforeCollapse = 30;
+      var maxNormSearchHistory = 10;
 
       // TODO: this is an ugly hack, remove (see comment with assignment)
       var lastRapidAnnotationEvent = null;
@@ -55,6 +56,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var normDbUrlBaseByDbName = {};
       // for normalization
       var oldSpanNormIdValue = '';
+      var lastNormSearches = [];
 
       that.user = null;
       var svgElement = $(svg._svg);
@@ -992,6 +994,7 @@ var AnnotatorUI = (function($, window, undefined) {
             dispatcher.post('showForm', [spanForm]);
           },
       });
+      $('#norm_search_query').autocomplete({ source: [] });
       var normSearchSubmit = function(evt) {
         var selectedId = $('#norm_search_id').val(); 
         var selectedTxt = $('#norm_search_query').val();
@@ -1076,6 +1079,9 @@ var AnnotatorUI = (function($, window, undefined) {
       }
       var performNormSearch = function() {
         var val = $('#norm_search_query').val();
+        lastNormSearches.unshift(val);
+        lastNormSearches.slice(0, maxNormSearchHistory);
+        $('#norm_search_query').autocomplete('option', 'source', lastNormSearches);
         var db = $('#span_norm_db').val();
         dispatcher.post('ajax', [ {
                         action: 'normSearch',

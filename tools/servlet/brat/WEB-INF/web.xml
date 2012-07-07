@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Probably a minimal configuration for Python CGI servlet. -->
+<web-app>
+    <display-name>brat rapid annotation tool (brat)</display-name>
+    <description>brat rapid annotation tool (brat)</description>
+    <servlet>
+        <servlet-name>brat</servlet-name>
+        <servlet-class>org.apache.catalina.servlets.CGIServlet</servlet-class>
+        <init-param>
+            <param-name>executable</param-name>
+            <param-value>python</param-value>
+        </init-param>
+    </servlet>
+    <!-- Serve what is necessary to run brat statically
+         Note: If anyone know a better way than to list things explicitly,
+            please do tell me. -->
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*.css</url-pattern>
+        <url-pattern>*.gif</url-pattern>
+        <url-pattern>*.html</url-pattern>
+        <url-pattern>*.ico</url-pattern>
+        <url-pattern>*.js</url-pattern>
+        <url-pattern>*.png</url-pattern>
+        <url-pattern>*.xhtml</url-pattern>
+    </servlet-mapping>
+    <!-- But serve CGI as, well, CGI. -->
+    <servlet-mapping>
+        <servlet-name>brat</servlet-name>
+        <url-pattern>*.cgi</url-pattern>
+    </servlet-mapping> 
+</web-app>

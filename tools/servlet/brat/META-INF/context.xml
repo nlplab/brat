@@ -1,0 +1,4 @@
+<!-- Executing CGI requires us to run in privileged mode, this tells Tomcat to
+     enable this option. -->
+<Context privileged="true">
+</Context>

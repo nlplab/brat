@@ -39,6 +39,9 @@ def norm_get_name(database, key):
         }
     return json_dic
 
+def norm_get_data(database, key):
+    return norm_get_name(database, key)
+
 def norm_get_ids(database, name):
     import fbkvdb
 

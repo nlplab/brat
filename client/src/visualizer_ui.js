@@ -274,8 +274,11 @@ var VisualizerUI = (function($, window, undefined) {
         }, immediately ? 0 : 500);
       };
 
+      // to avoid clobbering on delayed response
+      var commentPopupNormInfoSeqId = 0;
+
       var displaySpanComment = function(
-          evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
+          evt, target, spanId, spanType, mods, spanText, commentText, commentType, norm) {
 
         var immediately = false;
         var comment = ( '<div><span class="comment_type_id_wrapper">' +
@@ -304,7 +307,44 @@ var VisualizerUI = (function($, window, undefined) {
           }
           immediately = true;
         }
+        commentPopupNormInfoSeqId++;
+        comment += ('<div id="norm_info_drop_point_'+commentPopupNormInfoSeqId+
+                    '"/>');
         displayComment(evt, target, comment, commentText, commentType, immediately);
+        if (norm) {
+          // TODO: cache some number of most recent norm_get_data results
+          dispatcher.post('ajax', [{
+            action: 'normData',
+            database: norm[0],
+            key: norm[1],
+          },
+          function(response) {
+            if (response.exception) {
+              ; // TODO: response to error
+            } else if (!response.value) {
+              ; // TODO: response to missing key
+            } else {
+              // extend comment popup with normalization data
+              norminfo = '<hr/>';
+              for (var i = 0; i < response.value.length; i++) {
+                for (var j = 0; j < response.value[i].length; j++) {
+                  var label = response.value[i][j][0];
+                  var value = response.value[i][j][1];
+                  if (label && value) {
+                      norminfo += ('<b>'+Util.escapeHTML(label)+'</b>:'+
+                                   Util.escapeHTML(value)+'<br/>');
+                  }
+                }
+              }
+              var drop=$('#norm_info_drop_point_'+commentPopupNormInfoSeqId);
+              if (drop) {
+                drop.html(norminfo);
+              } else {
+                console.log('norm info drop point not found!'); //TODO XXX
+              }
+            }
+          }]);
+        }
       };
 
       var onDocChanged = function() {
