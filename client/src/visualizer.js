@@ -1283,37 +1283,39 @@ Util.profileStart('chunks');
               carpet = null;
             }
           });
-          var ceiling = carpet + height;
-          var carpetNo = $.inArray(carpet, floors);
-          var ceilingNo = $.inArray(ceiling, floors);
-          if (ceilingNo == -1) {
-            floors.push(ceiling);
-          }
-          if (carpetNo == -1) {
-            floors.push(carpet);
-          }
-          if (ceilingNo == -1 || carpetNo == -1) {
-            floors.sort(Util.cmp);
-          }
-          if (carpetNo == -1) {
-            // new floor
-            carpetNo = $.inArray(carpet, floors);
-            if (carpetNo != 0) {
-              // copy reservations from the floor below
-              var parquet = floors[carpetNo - 1];
-              for (var i = i1; i <= i2; i++) {
-                if (!reservations[i][parquet]) {
-                  reservations[i][parquet] = [];
-                }
-                var footroom = carpet - parquet;
-                $.each(reservations[i][parquet], function(resNo, res) {
-                  if (res[2] > footroom) {
-                    reservations[i][carpet].push([res[0], res[1], res[2] - footroom]);
+          var reslen = reservations.length;
+          var makeNewFloorIfNeeded = function(floor) {
+            var floorNo = $.inArray(floor, floors);
+            if (floorNo == -1) {
+              floors.push(floor);
+              floors.sort(Util.cmp);
+              floorNo = $.inArray(floor, floors);
+              if (floorNo != 0) {
+                // copy reservations from the floor below
+                var parquet = floors[floorNo - 1];
+                for (var i = 0; i <= reslen; i++) {
+                  if (reservations[i]) {
+                    if (!reservations[i][parquet]) {
+                      reservations[i][parquet] = [];
+                    }
+                    var footroom = floor - parquet;
+                    $.each(reservations[i][parquet], function(resNo, res) {
+                      if (res[2] > footroom) {
+                        if (!reservations[i][floor]) {
+                          reservations[i][floor] = [];
+                        }
+                        reservations[i][floor].push([res[0], res[1], res[2] - footroom]);
+                      }
+                    });
                   }
-                });
+                }
               }
             }
+            return floorNo;
           }
+          var ceiling = carpet + height;
+          var ceilingNo = makeNewFloorIfNeeded(ceiling);
+          var carpetNo = makeNewFloorIfNeeded(carpet);
           // make the reservation
           var floor, floorNo;
           for (floorNo = carpetNo;
