@@ -514,21 +514,7 @@ var Visualizer = (function($, window, undefined) {
 	  // TODO: do we have any possible use for the normType?
 	  span.normalizations.push([refdb, refid, reftext]);
 
-	  // quick initial norm visualization: just add to comment text
-	  var commentText = refdb + ": " + reftext;
-	  if (!span.comment) {
-	    span.comment = { type: normType, text: commentText };
-	  } else {
-	    span.comment.type = normType
-	    span.comment.text += "\n" + commentText;
-	  }
-
-	  // this wasn't favored
-// 	  // quick hack for shadow class
-// 	  // TODO: this probably won't work for normalizations attached
-// 	  // to event annotations; fix
-// 	  span.shadowClass = 'Normalized';
-	  // alternate attempt
+	  // quick hack for span box visual style
 	  span.normalized = 'Normalized';
         });
 

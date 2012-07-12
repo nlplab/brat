@@ -306,9 +306,15 @@ var VisualizerUI = (function($, window, undefined) {
           }
           immediately = true;
         }
-        commentPopupNormInfoSeqId++;
-        comment += ('<div id="norm_info_drop_point_'+commentPopupNormInfoSeqId+
-                    '"/>');
+        if (norm) {
+          commentPopupNormInfoSeqId++;
+          comment += ( '<hr/>' +
+                       '<span class="comment_id">' +
+                       Util.escapeHTML(norm[0]) + ':' +
+                       Util.escapeHTML(norm[1]) + '</span><br/>' +
+                       '<div id="norm_info_drop_point_'+
+                       commentPopupNormInfoSeqId+'"/>');
+        }
         displayComment(evt, target, comment, commentText, commentType, immediately);
         if (norm) {
           // TODO: cache some number of most recent norm_get_data results
@@ -324,7 +330,7 @@ var VisualizerUI = (function($, window, undefined) {
               ; // TODO: response to missing key
             } else {
               // extend comment popup with normalization data
-              norminfo = '<hr/>';
+              norminfo = '';
               for (var i = 0; i < response.value.length; i++) {
                 for (var j = 0; j < response.value[i].length; j++) {
                   var label = response.value[i][j][0];
