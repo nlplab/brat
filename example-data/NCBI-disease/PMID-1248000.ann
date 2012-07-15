@@ -1,0 +1,44 @@
+T1	Disease 0 19	Malignant neoplasms
+A1	Category T1 DiseaseClass
+T2	Disease 53 74	ataxia-telangiectasia
+A2	Category T2 SpecificDisease
+T3	Disease 76 97	Ataxia-telangiectasia
+A3	Category T3 SpecificDisease
+T4	Disease 100 103	A-T
+A4	Category T4 SpecificDisease
+T5	Disease 112 140	autosomal recessive syndrome
+A5	Category T5 DiseaseClass
+T6	Disease 190 209	malignant neoplasms
+A6	Category T6 DiseaseClass
+T7	Disease 278 281	A-T
+A7	Category T7 SpecificDisease
+T8	Disease 447 454	cancers
+A8	Category T8 DiseaseClass
+T9	Disease 546 549	A-T
+A9	Category T9 SpecificDisease
+T10	Disease 707 726	malignant neoplasms
+A10	Category T10 DiseaseClass
+T11	Disease 758 761	A-T
+A11	Category T11 SpecificDisease
+T12	Disease 852 871	malignant neoplasms
+A12	Category T12 DiseaseClass
+T13	Disease 964 967	A-T
+A13	Category T13 Modifier
+T14	Disease 1029 1047	malignant neoplasm
+A14	Category T14 DiseaseClass
+T15	Disease 1127 1130	A-T
+A15	Category T15 Modifier
+T16	Disease 1200 1206	cancer
+A16	Category T16 DiseaseClass
+T17	Disease 1240 1289	ovarian , gastric , and biliary system carcinomas
+A17	Category T17 CompositeMention
+T18	Disease 1297 1305	leukemia
+A18	Category T18 DiseaseClass
+T19	Disease 1310 1318	lymphoma
+A19	Category T19 DiseaseClass
+T20	Disease 1342 1345	A-T
+A20	Category T20 Modifier
+T21	Disease 1363 1372	neoplasms
+A21	Category T21 DiseaseClass
+T22	Disease 1436 1504	pancreatic , basal cell , colonic , breast , and cervical carcinomas
+A22	Category T22 CompositeMention

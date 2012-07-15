@@ -1,0 +1,22 @@
+T1	Disease 89 101	Prader-Willi
+A1	Category T1 Modifier
+T2	Disease 110 131	Prader-Willi syndrome
+A2	Category T2 SpecificDisease
+T3	Disease 134 137	PWS
+A3	Category T3 SpecificDisease
+T4	Disease 153 174	neurogenetic disorder
+A4	Category T4 DiseaseClass
+T5	Disease 209 233	contiguous gene syndrome
+A5	Category T5 DiseaseClass
+T6	Disease 349 352	PWS
+A6	Category T6 SpecificDisease
+T7	Disease 501 504	PWS
+A7	Category T7 SpecificDisease
+T8	Disease 582 585	PWS
+A8	Category T8 Modifier
+T9	Disease 644 647	PWS
+A9	Category T9 SpecificDisease
+T10	Disease 773 776	PWS
+A10	Category T10 SpecificDisease
+T11	Disease 1497 1500	PWS
+A11	Category T11 SpecificDisease

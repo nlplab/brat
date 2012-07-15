@@ -1,0 +1,16 @@
+T1	Disease 77 94	neonatal jaundice
+A1	Category T1 SpecificDisease
+T2	Disease 137 155	lamellar cataracts
+A2	Category T2 SpecificDisease
+T3	Disease 330 347	neonatal jaundice
+A3	Category T3 SpecificDisease
+T4	Disease 756 784	bilateral lamellar cataracts
+A4	Category T4 SpecificDisease
+T5	Disease 827 841	G6PD deficient
+A5	Category T5 SpecificDisease
+T6	Disease 924 932	cataract
+A6	Category T6 Modifier
+T7	Disease 1249 1264	G6PD deficiency
+A7	Category T7 SpecificDisease
+T8	Disease 1275 1283	cataract
+A8	Category T8 Modifier

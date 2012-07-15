@@ -1,0 +1,16 @@
+T1	Disease 46 63	anhaptoglobinemia
+A1	Category T1 SpecificDisease
+T2	Disease 154 171	anhaptoglobinemia
+A2	Category T2 SpecificDisease
+T3	Disease 465 482	anhaptoglobinemia
+A3	Category T3 SpecificDisease
+T4	Disease 691 710	hypohaptoglobinemia
+A4	Category T4 SpecificDisease
+T5	Disease 896 915	hypohaptoglobinemic
+A5	Category T5 Modifier
+T6	Disease 1011 1030	hypohaptoglobinemic
+A6	Category T6 Modifier
+T7	Disease 1829 1846	anhaptoglobinemia
+A7	Category T7 SpecificDisease
+T8	Disease 1956 1975	hypohaptoglobinemia
+A8	Category T8 SpecificDisease

@@ -1,0 +1,14 @@
+T1	Disease 92 120	metachromatic leukodystrophy
+A1	Category T1 SpecificDisease
+T2	Disease 240 268	metachromatic leukodystrophy
+A2	Category T2 SpecificDisease
+T3	Disease 271 274	MLD
+A3	Category T3 SpecificDisease
+T4	Disease 591 594	MLD
+A4	Category T4 Modifier
+T5	Disease 1324 1327	MLD
+A5	Category T5 Modifier
+T6	Disease 1478 1481	MLD
+A6	Category T6 SpecificDisease
+T7	Disease 1597 1600	MLD
+A7	Category T7 Modifier

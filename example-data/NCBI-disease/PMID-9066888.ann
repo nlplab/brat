@@ -1,0 +1,18 @@
+T1	Disease 0 16	Kniest dysplasia
+A1	Category T1 SpecificDisease
+T2	Disease 68 84	Kniest dysplasia
+A2	Category T2 SpecificDisease
+T3	Disease 97 113	chondrodysplasia
+A3	Category T3 DiseaseClass
+T4	Disease 128 167	defective formation of type II collagen
+A4	Category T4 DiseaseClass
+T5	Disease 294 314	severely handicapped
+A5	Category T5 DiseaseClass
+T6	Disease 320 333	short stature
+A6	Category T6 DiseaseClass
+T7	Disease 336 361	restricted joint mobility
+A7	Category T7 DiseaseClass
+T8	Disease 368 377	blindness
+A8	Category T8 DiseaseClass
+T9	Disease 673 689	Kniest dysplasia
+A9	Category T9 SpecificDisease
