@@ -926,6 +926,17 @@ div.scroll_wrapper_upper div.scroller {
   width: 100%;
 }
 
+.autocomplete-id {
+  font-size: 80%;
+  float: right;
+}
+.ui-autocomplete {
+  max-height: 100px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 20px;
+}
+
 #waiter {
   text-align: center;
 }

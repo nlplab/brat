@@ -965,20 +965,59 @@ var AnnotatorUI = (function($, window, undefined) {
             dispatcher.post('showForm', [spanForm]);
           },
       });
-      $('#norm_search_query').autocomplete({ source: [] });
+      $('#norm_search_query').autocomplete({
+        source: function(request, callback) {
+          var query = $.ui.autocomplete.escapeRegex(request.term);
+          var pattern = new RegExp('\\b' + query, 'i');
+          callback($.grep(lastNormSearches, function(search) {
+            return pattern.test(search.value) || pattern.test(search.id);
+          }));
+        },
+        minLength: 0,
+        select: function(evt, ui) {
+          evt.stopPropagation();
+          normSubmit(ui.item.id, ui.item.value);
+        },
+        focus: function(evt, ui) {
+          // do nothing
+        },
+      }).data('autocomplete')._renderItem = function($ul, item) {
+        return $('<li></li>').
+          data('item.autocomplete', item).
+          append('<a>' + Util.escapeHTML(item.value) + '<div class="autocomplete-id">' + Util.escapeHTML(item.id) + "</div></a>").
+          appendTo($ul);
+      };
+      var normSubmit = function(selectedId, selectedTxt) {
+        // we got a value; act if it was a submit
+        $('#span_norm_id').val(selectedId);
+        // don't forget to update this reference value
+        oldSpanNormIdValue = selectedId;
+        $('#span_norm_txt').val(selectedTxt);
+        updateNormalizationRefLink();
+        // update history
+        var nextLastNormSearches = [
+          {
+            value: selectedTxt,
+            id: selectedId,
+          },
+        ];
+        $.each(lastNormSearches, function(searchNo, search) {
+          if (search.id != selectedId || search.value != selectedTxt) {
+            nextLastNormSearches.push(search);
+          }
+        });
+        lastNormSearches = nextLastNormSearches;
+        lastNormSearches.slice(0, maxNormSearchHistory);
+        // Switch dialogs. NOTE: assuming we closed the spanForm when
+        // bringing up the normSearchDialog.
+        normSearchDialog.dialog('close');
+      };
       var normSearchSubmit = function(evt) {
-        var selectedId = $('#norm_search_id').val(); 
-        var selectedTxt = $('#norm_search_query').val();
         if (normSearchSubmittable) {
-          // we got a value; act if it was a submit
-          $('#span_norm_id').val(selectedId);
-          // don't forget to update this reference value
-          oldSpanNormIdValue = selectedId;
-          $('#span_norm_txt').val(selectedTxt);
-          updateNormalizationRefLink();
-          // Switch dialogs. NOTE: assuming we closed the spanForm when
-          // bringing up the normSearchDialog.
-          normSearchDialog.dialog('close');
+          var selectedId = $('#norm_search_id').val(); 
+          var selectedTxt = $('#norm_search_query').val();
+
+          normSubmit(selectedId, selectedTxt);
         } else {
           performNormSearch();
         }
@@ -1050,9 +1089,6 @@ var AnnotatorUI = (function($, window, undefined) {
       }
       var performNormSearch = function() {
         var val = $('#norm_search_query').val();
-        lastNormSearches.unshift(val);
-        lastNormSearches.slice(0, maxNormSearchHistory);
-        $('#norm_search_query').autocomplete('option', 'source', lastNormSearches);
         var db = $('#span_norm_db').val();
         dispatcher.post('ajax', [ {
                         action: 'normSearch',
@@ -1069,11 +1105,11 @@ var AnnotatorUI = (function($, window, undefined) {
         // from annotated span and clear ID entry
         if (!$('#span_norm_id').val().match(/^\s*$/) &&
             !$('#span_norm_txt').val().match(/^\s*$/)) {
-            $('#norm_search_id').val($('#span_norm_id').val());
-            $('#norm_search_query').val($('#span_norm_txt').val());
+          $('#norm_search_id').val($('#span_norm_id').val());
+          $('#norm_search_query').val($('#span_norm_txt').val());
         } else {
-            $('#norm_search_id').val('');
-            $('#norm_search_query').val($('#span_selected').text());
+          $('#norm_search_id').val('');
+          $('#norm_search_query').val($('#span_selected').text());
         }
         // blank the table
         $('#norm_search_result_select thead').empty();
@@ -1084,6 +1120,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#norm_search_button').val('Search ' + $('#span_norm_db').val());
         setNormSearchSubmit(false);
         dispatcher.post('showForm', [normSearchDialog]);
+        $('#norm_search_query').focus().select();
       }
       $('#span_norm_txt').click(showNormSearchDialog);
       $('#norm_search_button').button();
@@ -1186,6 +1223,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         }
 
+        var reversalPossible = false;
         if (arcId) {
           // something was selected
           var hash = new URLHash(coll, doc, { focus: [arcId] }).getHash();
@@ -1205,6 +1243,16 @@ var AnnotatorUI = (function($, window, undefined) {
           keymap[$.ui.keyCode.DELETE] = 'arc_form_delete';
           keymap[$.ui.keyCode.INSERT] = 'arc_form_reselect';
 
+          var backTargetType = spanTypes[targetType];
+          if (backTargetType) {
+            $.each(backTargetType.arcs || [], function(backArcTypeNo, backArcDesc) {
+              if ($.inArray(originType, backArcDesc.targets || []) != -1) {
+                reversalPossible = true;
+                return false; // terminate the loop
+              }
+            });
+          }
+
           arcForm.dialog('option', { title: 'Edit Annotation' });
         } else {
           // new arc
@@ -1214,9 +1262,15 @@ var AnnotatorUI = (function($, window, undefined) {
             el.checked = true;
           }
 
-          $('#arc_form_reselect, #arc_form_delete').hide();
+          $('#arc_form_reselect, #arc_form_delete, #arc_form_reverse').hide();
 
           arcForm.dialog('option', { title: 'New Annotation' });
+        }
+        if (reversalPossible) {
+          $('#arc_form_reverse').show();
+          keymap['S-' + $.ui.keyCode.INSERT] = 'arc_form_reverse';
+        } else {
+          $('#arc_form_reverse').hide();
         }
 
         if (!Configuration.confirmModeOn) {
@@ -1244,6 +1298,15 @@ var AnnotatorUI = (function($, window, undefined) {
         adjustToCursor(evt, arcForm.parent());
       };
 
+      var reverseArc = function(evt) {
+        var eventDataId = $(evt.target).attr('data-arc-ed');
+        dispatcher.post('hideForm');
+        arcOptions.action = 'reverseArc';
+        delete arcOptions.old_target;
+        delete arcOptions.old_type;
+        dispatcher.post('ajax', [arcOptions, 'edited']);
+      };
+
       var deleteArc = function(evt) {
         if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
@@ -1265,6 +1328,10 @@ var AnnotatorUI = (function($, window, undefined) {
       dispatcher.post('initForm', [arcForm, {
           width: 500,
           buttons: [{
+              id: 'arc_form_reverse',
+              text: "Reverse",
+              click: reverseArc
+            }, {
               id: 'arc_form_delete',
               text: "Delete",
               click: deleteArc
