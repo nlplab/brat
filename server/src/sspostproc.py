@@ -79,6 +79,9 @@ __final.append((re.compile(r'\b(e\. ?g\.|i\. ?e\.|i\. ?v\.|vs\.|cf\.|Dr\.|Mr\.|M
 # or others taking a number after the abbrev
 __final.append((re.compile(r'\b([Aa]pprox\.|[Nn]o\.|[Ff]igs?\.)\n(\d+)'), r'\1 \2'))
 
+# no break before comma (e.g. Smith, A., Black, B., ...)
+__final.append((re.compile(r'(\.\s*)\n(\s*,)'), r'\1 \2'))
+
 def refine_split(s):
     """
     Given a string with sentence splits as newlines, attempts to

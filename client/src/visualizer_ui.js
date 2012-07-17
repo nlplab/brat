@@ -293,6 +293,7 @@ var VisualizerUI = (function($, window, undefined) {
         if (mods.length) {
           comment += '<div>' + Util.escapeHTML(mods.join(', ')) + '</div>';
         }
+
         comment += '</div>';
         comment += ('<div class="comment_text">"' + 
                     Util.escapeHTML(spanText) + 

@@ -79,16 +79,11 @@ def check_textbound_overlap(anns):
         for a2 in anns:
             if a1 is a2:
                 continue
-            if a2.start < a1.end and a2.end > a1.start:
+            if (a2.first_start() < a1.last_end() and
+                a2.last_end() > a1.first_start()):
                 overlapping.append((a1,a2))
 
     return overlapping
-
-def contained_in_span(a1, a2):
-    """
-    Returns True if the first given TextBoundAnnotation is contained in the second, False otherwise.
-    """
-    return a1.start >= a2.start and a1.end <= a2.end
 
 def verify_equivs(ann_obj, projectconf):
     issues = []
@@ -145,12 +140,12 @@ def verify_entity_overlap(ann_obj, projectconf):
     physical_entities = [a for a in ann_obj.get_textbounds() if projectconf.is_physical_entity_type(a.type)]
     overlapping = check_textbound_overlap(physical_entities)
     for a1, a2 in overlapping:
-        if a1.start == a2.start and a1.end == a2.end:
+        if a1.same_span(a2):
             issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s has identical span with %s %s" % (disp(a1.type), disp(a2.type), a2.id)))            
-        elif contained_in_span(a1, a2):
+        elif a2.contains(a1):
             if ENTITY_NESTING_TYPE not in projectconf.relation_types_from_to(a1.type, a2.type, include_special=True):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in %s (%s)" % (disp(a1.type), disp(a2.type), a2.id)))
-        elif contained_in_span(a2, a1):
+        elif a1.contains(a2):
             if ENTITY_NESTING_TYPE not in projectconf.relation_types_from_to(a2.type, a1.type, include_special=True):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain %s (%s)" % (disp(a1.type), disp(a2.type), a2.id)))
         else:
@@ -204,7 +199,7 @@ def verify_triggers(ann_obj, projectconf):
         if t.id not in events_by_trigger:
             issues.append(AnnotationIssue(t.id, AnnotationIncomplete, "Warning: trigger %s is not referenced from any event" % t.id))
 
-        spt = (t.start, t.end, t.type)
+        spt = tuple(set(t.spans))+(t.type,)
         if spt not in trigger_by_span_and_type:
             trigger_by_span_and_type[spt] = []
         trigger_by_span_and_type[spt].append(t)

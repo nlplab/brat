@@ -19,7 +19,9 @@ var AnnotatorUI = (function($, window, undefined) {
       var coll = null;
       var doc = null;
       var reselectedSpan = null;
+      var selectedFragment = null;
       var editedSpan = null;
+      var editedFragment = null;
       var repeatingArcTypes = [];
       var spanTypes = null;
       var entityAttributeTypes = null;
@@ -121,15 +123,26 @@ var AnnotatorUI = (function($, window, undefined) {
         if (nodeName == 'input' && (nodeType == 'text' || nodeType == 'password')) return;
         if (nodeName == 'textarea' || nodeName == 'select') return;
 
-        var binding = keymap[code];
-        if (!binding) binding = keymap[String.fromCharCode(code)];
+        var prefix = '';
+        if (evt.altKey) {
+          prefix = "A-";
+        }
+        if (evt.ctrlKey) {
+          prefix = "C-";
+        }
+        if (evt.shiftKey) {
+          prefix = "S-";
+        }
+        var binding = keymap[prefix + code];
+        if (!binding) binding = keymap[prefix + String.fromCharCode(code)];
         if (binding) {
           var boundInput = $('#' + binding)[0];
           if (boundInput && !boundInput.disabled) {
             boundInput.click();
+            evt.preventDefault();
+            return false;
           }
         }
-        return false;
       };
 
       var onDblClick = function(evt) {
@@ -168,8 +181,8 @@ var AnnotatorUI = (function($, window, undefined) {
               arcOptions['right'] = eventDesc.rightSpans.join(',');
             }
           }
-          $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + data.text.substring(originSpan.from, originSpan.to) + '")');
-          $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + data.text.substring(targetSpan.from, targetSpan.to) + '")');
+          $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + originSpan.text + '")');
+          $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + targetSpan.text + '")');
           var arcId = [originSpanId, type, targetSpanId];
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
           // for precise timing, log dialog display to user.
@@ -179,15 +192,18 @@ var AnnotatorUI = (function($, window, undefined) {
         } else if (id = target.attr('data-span-id')) {
           clearSelection();
           editedSpan = data.spans[id];
+          editedFragment = target.attr('data-fragment-id');
+          var offsets = [];
+          $.each(editedSpan.fragments, function(fragmentNo, fragment) {
+            offsets.push([fragment.from, fragment.to]);
+          });
           spanOptions = {
             action: 'createSpan',
-            start: editedSpan.from,
-            end: editedSpan.to,
+            offsets: offsets,
             type: editedSpan.type,
             id: id,
           };
-          var spanText = data.text.substring(editedSpan.from, editedSpan.to);
-          fillSpanTypesAndDisplayForm(evt, spanText, editedSpan);
+          fillSpanTypesAndDisplayForm(evt, editedSpan.text, editedSpan);
           // for precise timing, log annotation display to user.
           dispatcher.post('logAction', ['spanEditSelected']);
         }
@@ -212,7 +228,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
         arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
         arcDragOriginGroup.addClass('highlight');
-        arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin]);
+        arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin].headFragment);
         arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
 
         arcDragJustStarted = true;
@@ -224,7 +240,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var originType = data.spans[arcDragOrigin].type;
         var spanType = spanTypes[originType];
         var result = [];
-        if (spanType) {
+        if (spanType && spanType.arcs) {
           $.each(spanType.arcs, function(arcNo, arc) {
             if ($.inArray(targetType, arc.targets) != -1) {
               result.push(arc.type);
@@ -663,14 +679,25 @@ var AnnotatorUI = (function($, window, undefined) {
           showAllAttributes = true;
         }
         if (span && !reselectedSpan) {
-          $('#span_form_reselect, #span_form_delete').show();
+          $('#span_form_reselect, #span_form_delete, #span_form_add_fragment').show();
           keymap[$.ui.keyCode.DELETE] = 'span_form_delete';
           keymap[$.ui.keyCode.INSERT] = 'span_form_reselect';
+          keymap['S-' + $.ui.keyCode.ENTER] = 'span_form_add_fragment';
           $('#span_notes').val(span.annotatorNotes || '');
         } else {
-          $('#span_form_reselect, #span_form_delete').hide();
+          $('#span_form_reselect, #span_form_delete, #span_form_add_fragment').hide();
           keymap[$.ui.keyCode.DELETE] = null;
           keymap[$.ui.keyCode.INSERT] = null;
+          keymap['S-' + $.ui.keyCode.ENTER] = null;
+        }
+        if (span && !reselectedSpan && span.offsets.length > 1) {
+          $('#span_form_reselect_fragment, #span_form_delete_fragment').show();
+          keymap['S-' + $.ui.keyCode.DELETE] = 'span_form_delete_fragment';
+          keymap['S-' + $.ui.keyCode.INSERT] = 'span_form_reselect_fragment';
+        } else {
+          $('#span_form_reselect_fragment, #span_form_delete_fragment').hide();
+          keymap['S-' + $.ui.keyCode.DELETE] = null;
+          keymap['S-' + $.ui.keyCode.INSERT] = null;
         }
         if (!reselectedSpan) {
           // TODO: avoid allAttributeTypes; just check type-appropriate ones
@@ -774,16 +801,18 @@ var AnnotatorUI = (function($, window, undefined) {
         // annotation in its old location in the background (check it).
         // The fix of skipping confirm is not really good either, though.
         if (reselectedSpan) { // && !Configuration.confirmModeOn) {
-          if (reselectedSpan) {
-            $(reselectedSpan.rect).removeClass('reselect');
-          }
-          reselectedSpan = null;
-          spanForm.submit();
+          submitReselect();
         } else {
           dispatcher.post('showForm', [spanForm]);
           $('#span_form-ok').focus();
           adjustToCursor(evt, spanForm.parent());
         }
+      };
+
+      var submitReselect = function() {
+        $(reselectedSpan.rect).removeClass('reselect');
+        reselectedSpan = null;
+        spanForm.submit();
       };
 
       var rapidFillSpanTypesAndDisplayForm = function(start, end, text, types) {
@@ -1491,19 +1520,25 @@ var AnnotatorUI = (function($, window, undefined) {
               return;
             }
 
+            var newOffset = [selectedFrom, selectedTo];
             if (reselectedSpan) {
-              spanOptions.old_start = spanOptions.start;
-              spanOptions.old_end = spanOptions.end;
+              spanOptions.old_offsets = JSON.stringify(reselectedSpan.offsets);
+              if (selectedFragment !== null) {
+                if (selectedFragment !== false) {
+                  reselectedSpan.offsets.splice(selectedFragment, 1);
+                }
+                reselectedSpan.offsets.push(newOffset);
+                reselectedSpan.offsets.sort(Util.cmpArrayOnFirstElement);
+                spanOptions.offsets = reselectedSpan.offsets;
+              } else {
+                spanOptions.offsets = [newOffset];
+              }
             } else {
               spanOptions = {
-                action: 'createSpan'
+                action: 'createSpan',
+                offsets: [newOffset]
               }
             }
-
-            $.extend(spanOptions, {
-                start: selectedFrom,
-                end: selectedTo
-              });
 
             var crossSentence = true;
             $.each(sourceData.sentence_offsets, function(sentNo, startEnd) {
@@ -2012,6 +2047,7 @@ var AnnotatorUI = (function($, window, undefined) {
           collection: coll,
           'document': doc,
         });
+        spanOptions.offsets = JSON.stringify(spanOptions.offsets);
         dispatcher.post('ajax', [spanOptions, 'edited']);
         dispatcher.post('hideForm');
         $('#waiter').dialog('open');
@@ -2022,6 +2058,7 @@ var AnnotatorUI = (function($, window, undefined) {
         svgElement.addClass('reselect');
         $(editedSpan.rect).addClass('reselect');
         reselectedSpan = editedSpan;
+        selectedFragment = null;
       };
 
       var splitForm = $('#split_form');
@@ -2036,6 +2073,7 @@ var AnnotatorUI = (function($, window, undefined) {
             collection: coll,
             'document': doc,
           });
+        spanOptions.offsets = JSON.stringify(spanOptions.offsets);
         dispatcher.post('hideForm');
         dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;
@@ -2070,6 +2108,38 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('setArguments', [args]);
       };
 
+      var addFragment = function() {
+        dispatcher.post('hideForm');
+        svgElement.addClass('reselect');
+        $(editedSpan.rect).addClass('reselect');
+        reselectedSpan = editedSpan;
+        selectedFragment = false;
+      };
+
+      var reselectFragment = function() {
+        addFragment();
+        selectedFragment = editedFragment;
+      };
+
+      var deleteFragment = function() {
+        if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this fragment?")) {
+          return;
+        }
+        var offsets = editedSpan.offsets;
+        spanOptions.old_offsets = JSON.stringify(offsets);
+        offsets.splice(editedFragment, 1);
+
+        $.extend(spanOptions, {
+          collection: coll,
+          'document': doc,
+          offsets: JSON.stringify(offsets),
+        });
+
+        dispatcher.post('ajax', [spanOptions, 'edited']);
+        dispatcher.post('hideForm');
+        $('#waiter').dialog('open');
+      };
+
       dispatcher.post('initForm', [spanForm, {
           alsoResize: '#entity_and_event_wrapper',
           width: 760,
@@ -2078,18 +2148,31 @@ var AnnotatorUI = (function($, window, undefined) {
               text: "Link",
               click: linkSpan
             }, {
+              id: 'span_form_add_fragment',
+              text: "Add Frag.",
+              click: addFragment
+            }, {
               id: 'span_form_delete',
               text: "Delete",
               click: deleteSpan
+            }, {
+              id: 'span_form_delete_fragment',
+              text: "Delete Frag.",
+              click: deleteFragment
             }, {
               id: 'span_form_reselect',
               text: 'Move',
               click: reselectSpan
             }, {
+              id: 'span_form_reselect_fragment',
+              text: 'Move Frag.',
+              click: reselectFragment
+            }, {
               id: 'span_form_split',
               text: 'Split',
               click: splitSpan
-          }],
+            }
+          ],
           close: function(evt) {
             keymap = null;
             if (reselectedSpan) {
@@ -2154,6 +2237,10 @@ var AnnotatorUI = (function($, window, undefined) {
         // unfocus all elements to prevent focus being kept after
         // hiding them
         spanForm.parent().find('*').blur();
+        spanOptions.attributes = $.toJSON(attributes);
+        if (spanOptions.offsets) {
+          spanOptions.offsets = $.toJSON(spanOptions.offsets);
+        }
         $('#waiter').dialog('open');
         dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;
@@ -2180,8 +2267,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // the normal dialog should be brought up for the same span.
           spanOptions = {
             action: 'createSpan',
-            start: rapidSpanOptions.start,
-            end: rapidSpanOptions.end,
+            offsets: [[rapidSpanOptions.start, rapidSpanOptions.end]],
           };
           // TODO: avoid using the stored mouse event
           fillSpanTypesAndDisplayForm(lastRapidAnnotationEvent,
