@@ -1257,7 +1257,8 @@ Util.profileStart('chunks');
           var carpet = 0;
           var outside = true;
           var thisCurlyHeight = span.drawCurly ? Configuration.visual.curlyHeight : 0;
-          var height = sizes.fragments.height + thisCurlyHeight + Configuration.visual.boxSpacing;
+          var height = sizes.fragments.height + thisCurlyHeight + Configuration.visual.boxSpacing +
+              2 * Configuration.visual.margin.y - 3;
           $.each(floors, function(floorNo, floor) {
             var floorAvailable = true;
             for (var i = i1; i <= i2; i++) {
