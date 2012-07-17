@@ -1,0 +1,18 @@
+T1	Disease 51 78	Duchenne muscular dystrophy
+A1	Category T1 SpecificDisease
+T2	Disease 102 129	Duchenne muscular dystrophy
+A2	Category T2 SpecificDisease
+T3	Disease 132 135	DMD
+A3	Category T3 SpecificDisease
+T4	Disease 313 316	DMD
+A4	Category T4 Modifier
+T5	Disease 441 444	DMD
+A5	Category T5 Modifier
+T6	Disease 573 576	DMD
+A6	Category T6 Modifier
+T7	Disease 908 911	DMD
+A7	Category T7 Modifier
+T8	Disease 1018 1021	DMD
+A8	Category T8 Modifier
+T9	Disease 1197 1200	DMD
+A9	Category T9 Modifier

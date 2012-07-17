@@ -1,0 +1,18 @@
+T1	Disease 39 63	sporadic ovarian tumours
+A1	Category T1 SpecificDisease
+T2	Disease 122 149	autosomal dominant syndrome
+A2	Category T2 DiseaseClass
+T3	Disease 181 206	breast and ovarian cancer
+A3	Category T3 CompositeMention
+T4	Disease 235 242	tumours
+A4	Category T4 DiseaseClass
+T5	Disease 366 372	tumour
+A5	Category T5 DiseaseClass
+T6	Disease 400 415	ovarian cancers
+A6	Category T6 SpecificDisease
+T7	Disease 554 561	tumours
+A7	Category T7 DiseaseClass
+T8	Disease 658 664	tumour
+A8	Category T8 Modifier
+T9	Disease 790 805	ovarian cancers
+A9	Category T9 SpecificDisease

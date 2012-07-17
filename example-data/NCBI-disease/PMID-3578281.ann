@@ -1,0 +1,32 @@
+T1	Disease 0 16	Hypopigmentation
+A1	Category T1 DiseaseClass
+T2	Disease 24 45	Prader-Willi syndrome
+A2	Category T2 SpecificDisease
+T3	Disease 47 80	Cutaneous and ocular pigmentation
+A3	Category T3 CompositeMention
+T4	Disease 123 144	Prader-Willi syndrome
+A4	Category T4 SpecificDisease
+T5	Disease 147 150	PWS
+A5	Category T5 SpecificDisease
+T6	Disease 168 184	hypopigmentation
+A6	Category T6 DiseaseClass
+T7	Disease 376 379	PWS
+A7	Category T7 Modifier
+T8	Disease 397 410	hypopigmented
+A8	Category T8 Modifier
+T9	Disease 429 445	hypopigmentation
+A9	Category T9 DiseaseClass
+T10	Disease 629 645	hypopigmentation
+A10	Category T10 DiseaseClass
+T11	Disease 758 761	PWS
+A11	Category T11 Modifier
+T12	Disease 791 807	hypopigmentation
+A12	Category T12 DiseaseClass
+T13	Disease 865 881	hypopigmentation
+A13	Category T13 DiseaseClass
+T14	Disease 939 942	PWS
+A14	Category T14 SpecificDisease
+T15	Disease 956 972	hypopigmentation
+A15	Category T15 DiseaseClass
+T16	Disease 1064 1080	hypopigmentation
+A16	Category T16 DiseaseClass

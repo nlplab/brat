@@ -785,10 +785,36 @@ def _create_argument(ann_obj, projectconf, mods, origin, target, type,
 
 def reverse_arc(collection, document, origin, target, type, attributes=None):
     directory = collection
+    #undo_resp = {} # TODO
     real_dir = real_directory(directory)
+    #mods = ModificationTracker() # TODO
+    projectconf = ProjectConfiguration(real_dir)
     document = path_join(real_dir, document)
     with TextAnnotations(document) as ann_obj:
-        Messager.warning('TODO: reverse_arc implementation')
+        # bail as quick as possible if read-only 
+        if ann_obj._read_only:
+            raise AnnotationsIsReadOnlyError(ann_obj.get_document())
+
+        if projectconf.is_equiv_type(type):
+            Messager.warning('Cannot reverse Equiv arc')
+        elif not projectconf.is_relation_type(type):
+            Messager.warning('Can only reverse configured binary relations')
+        else:
+            # OK to reverse
+            found = None
+            # TODO: more sensible lookup
+            for ann in ann_obj.get_relations():
+                if (ann.arg1 == origin and ann.arg2 == target and
+                    ann.type == type):
+                    found = ann
+                    break
+            if found is None:
+                Messager.error('reverse_arc: failed to identify target relation (from %s to %s, type %s) (deleted?)' % (str(origin), str(target), str(type)))
+            else:
+                # found it; just adjust this
+                found.arg1, found.arg2 = found.arg2, found.arg1
+                # TODO: modification tracker
+
         json_response = {}
         json_response['annotations'] = _json_from_ann(ann_obj)
         return json_response

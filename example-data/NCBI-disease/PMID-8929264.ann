@@ -1,0 +1,30 @@
+T1	Disease 33 50	colorectal cancer
+A1	Category T1 SpecificDisease
+T2	Disease 136 162	stage II colorectal cancer
+A2	Category T2 SpecificDisease
+T3	Disease 272 289	colorectal cancer
+A3	Category T3 SpecificDisease
+T4	Disease 375 380	tumor
+A4	Category T4 Modifier
+T5	Disease 413 433	colorectal carcinoma
+A5	Category T5 SpecificDisease
+T6	Disease 575 613	stage II and III colorectal carcinomas
+A6	Category T6 CompositeMention
+T7	Disease 707 712	tumor
+A7	Category T7 Modifier
+T8	Disease 730 735	tumor
+A8	Category T8 Modifier
+T9	Disease 876 920	stage II and stage III colorectal carcinomas
+A9	Category T9 CompositeMention
+T10	Disease 963 969	tumors
+A10	Category T10 DiseaseClass
+T11	Disease 1060 1079	DCC-negative tumors
+A11	Category T11 SpecificDisease
+T12	Disease 1154 1171	stage III disease
+A12	Category T12 SpecificDisease
+T13	Disease 1317 1356	stage II or stage III colorectal cancer
+A13	Category T13 CompositeMention
+T14	Disease 1362 1392	stage II colorectal carcinomas
+A14	Category T14 SpecificDisease
+T15	Disease 1478 1495	stage III cancers
+A15	Category T15 DiseaseClass

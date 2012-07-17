@@ -1,0 +1,14 @@
+T1	Disease 81 99	myotonic dystrophy
+A1	Category T1 Modifier
+T2	Disease 128 146	myotonic dystrophy
+A2	Category T2 Modifier
+T3	Disease 149 151	DM
+A3	Category T3 Modifier
+T4	Disease 270 272	DM
+A4	Category T4 Modifier
+T5	Disease 447 449	DM
+A5	Category T5 Modifier
+T6	Disease 764 766	DM
+A6	Category T6 Modifier
+T7	Disease 1261 1279	myotonic dystrophy
+A7	Category T7 Modifier

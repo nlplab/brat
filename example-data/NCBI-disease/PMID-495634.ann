@@ -1,0 +1,16 @@
+T1	Disease 0 47	Deficiency of the fifth component of complement
+A1	Category T1 SpecificDisease
+T2	Disease 179 226	deficiency of the fifth component of complement
+A2	Category T2 SpecificDisease
+T3	Disease 414 434	gonococcal infection
+A3	Category T3 SpecificDisease
+T4	Disease 990 1002	C5-deficient
+A4	Category T4 Modifier
+T5	Disease 1540 1553	C5 deficiency
+A5	Category T5 SpecificDisease
+T6	Disease 1697 1710	C5 deficiency
+A6	Category T6 SpecificDisease
+T7	Disease 1713 1729	Deficiency of C5
+A7	Category T7 SpecificDisease
+T8	Disease 1815 1835	gonococcal infection
+A8	Category T8 SpecificDisease

@@ -1,0 +1,26 @@
+T1	Disease 12 20	aniridia
+A1	Category T1 Modifier
+T2	Disease 55 63	Aniridia
+A2	Category T2 SpecificDisease
+T3	Disease 66 81	iris hypoplasia
+A3	Category T3 SpecificDisease
+T4	Disease 90 139	autosomal dominant congenital disorder of the eye
+A4	Category T4 DiseaseClass
+T5	Disease 165 173	aniridia
+A5	Category T5 Modifier
+T6	Disease 358 366	aniridia
+A6	Category T6 SpecificDisease
+T7	Disease 685 694	cataracts
+A7	Category T7 SpecificDisease
+T8	Disease 701 709	aniridia
+A8	Category T8 Modifier
+T9	Disease 776 784	aniridia
+A9	Category T9 Modifier
+T10	Disease 798 805	anosmia
+A10	Category T10 SpecificDisease
+T11	Disease 843 851	aniridia
+A11	Category T11 Modifier
+T12	Disease 980 988	aniridia
+A12	Category T12 SpecificDisease
+T13	Disease 1002 1028	haploinsufficiency of PAX6
+A13	Category T13 SpecificDisease

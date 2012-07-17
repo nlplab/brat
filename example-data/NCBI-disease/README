@@ -1,0 +1,20 @@
+Small sample of data from NCBI disease corpus.
+
+Contains PubMed abstracts with annotations marking four categories of disease mentions.
+
+Homepage:
+
+    TODO
+
+Annotations:
+
+    Islamaj Dogan, R. and Lu, Z. (2012)
+    An improved corpus of disease mentions in PubMed citations.
+    in Proceedings of BioNLP 2012.
+
+Texts: 
+
+    from PubMed, a database of the U.S. National Library of
+    Medicine (NLM). For copyright information, see
+    http://www.nlm.nih.gov/databases/download.html.
+

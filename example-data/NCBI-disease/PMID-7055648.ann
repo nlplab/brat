@@ -1,0 +1,16 @@
+T1	Disease 0 58	Severe-glucose-6-phosphate dehydrogenase (G6PD) deficiency
+A1	Category T1 SpecificDisease
+T2	Disease 83 99	hemolytic anemia
+A2	Category T2 SpecificDisease
+T3	Disease 101 124	granulocyte dysfunction
+A3	Category T3 DiseaseClass
+T4	Disease 343 358	G6PD deficiency
+A4	Category T4 SpecificDisease
+T5	Disease 361 403	congenital nonspherocytic hemolytic anemia
+A5	Category T5 SpecificDisease
+T6	Disease 406 411	CNSHA
+A6	Category T6 SpecificDisease
+T7	Disease 1343 1348	CNSHA
+A7	Category T7 SpecificDisease
+T8	Disease 1515 1533	deficiency of G6PD
+A8	Category T8 SpecificDisease

@@ -1,0 +1,46 @@
+T1	Disease 94 130	phenylalanine hydroxylase deficiency
+A1	Category T1 SpecificDisease
+T2	Disease 148 172	Maternal Phenylketonuria
+A2	Category T2 Modifier
+T3	Disease 334 358	maternal phenylketonuria
+A3	Category T3 SpecificDisease
+T4	Disease 361 364	PKU
+A4	Category T4 SpecificDisease
+T5	Disease 422 443	hyperphenylalaninemic
+A5	Category T5 Modifier
+T6	Disease 468 480	Maternal PKU
+A6	Category T6 Modifier
+T7	Disease 770 773	PKU
+A7	Category T7 SpecificDisease
+T8	Disease 785 788	PKU
+A8	Category T8 SpecificDisease
+T9	Disease 796 799	PKU
+A9	Category T9 SpecificDisease
+T10	Disease 806 832	mild hyperphenylalaninemia
+A10	Category T10 SpecificDisease
+T11	Disease 835 838	MHP
+A11	Category T11 SpecificDisease
+T12	Disease 1401 1414	PAH-deficient
+A12	Category T12 Modifier
+T13	Disease 1437 1440	PKU
+A13	Category T13 Modifier
+T14	Disease 1472 1475	MHP
+A14	Category T14 Modifier
+T15	Disease 1495 1498	PKU
+A15	Category T15 Modifier
+T16	Disease 1557 1560	PKU
+A16	Category T16 Modifier
+T17	Disease 1585 1588	PKU
+A17	Category T17 Modifier
+T18	Disease 1635 1638	PKU
+A18	Category T18 Modifier
+T19	Disease 1700 1703	PKU
+A19	Category T19 SpecificDisease
+T20	Disease 1894 1897	PKU
+A20	Category T20 SpecificDisease
+T21	Disease 2047 2071	maternal phenylketonuria
+A21	Category T21 SpecificDisease
+T22	Disease 2228 2231	PKU
+A22	Category T22 SpecificDisease
+T23	Disease 2457 2460	PKU
+A23	Category T23 SpecificDisease

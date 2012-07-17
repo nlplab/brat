@@ -1,0 +1,28 @@
+T1	Disease 54 75	Prader-willi syndrome
+A1	Category T1 SpecificDisease
+T2	Disease 124 145	Prader-Willi syndrome
+A2	Category T2 SpecificDisease
+T3	Disease 148 151	PWS
+A3	Category T3 SpecificDisease
+T4	Disease 264 282	neonatal hypotonia
+A4	Category T4 SpecificDisease
+T5	Disease 285 304	developmental delay
+A5	Category T5 DiseaseClass
+T6	Disease 309 332	childhood-onset obesity
+A6	Category T6 DiseaseClass
+T7	Disease 422 425	PWS
+A7	Category T7 Modifier
+T8	Disease 663 666	PWS
+A8	Category T8 Modifier
+T9	Disease 761 764	PWS
+A9	Category T9 SpecificDisease
+T10	Disease 1015 1018	PWS
+A10	Category T10 Modifier
+T11	Disease 1602 1605	PWS
+A11	Category T11 SpecificDisease
+T12	Disease 1642 1676	abnormalities in brain development
+A12	Category T12 DiseaseClass
+T13	Disease 1681 1700	dysmorphic features
+A13	Category T13 DiseaseClass
+T14	Disease 1721 1724	PWS
+A14	Category T14 SpecificDisease

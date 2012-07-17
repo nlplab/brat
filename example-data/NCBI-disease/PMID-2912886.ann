@@ -1,0 +1,22 @@
+T1	Disease 0 39	Chronic nonspherocytic hemolytic anemia
+A1	Category T1 SpecificDisease
+T2	Disease 41 46	CNSHA
+A2	Category T2 SpecificDisease
+T3	Disease 52 103	glucose 6 phosphate dehydrogenase (G6PD) deficiency
+A3	Category T3 SpecificDisease
+T4	Disease 122 157	familial amyloidotic polyneuropathy
+A4	Category T4 SpecificDisease
+T5	Disease 159 162	FAP
+A5	Category T5 SpecificDisease
+T6	Disease 314 342	erythrocytic G6PD deficiency
+A6	Category T6 SpecificDisease
+T7	Disease 404 443	chronic nonspherocytic hemolytic anemia
+A7	Category T7 SpecificDisease
+T8	Disease 446 451	CNSHA
+A8	Category T8 SpecificDisease
+T9	Disease 458 493	familial amyloidotic polyneuropathy
+A9	Category T9 SpecificDisease
+T10	Disease 496 499	FAP
+A10	Category T10 SpecificDisease
+T11	Disease 504 521	Chronic hemolysis
+A11	Category T11 SpecificDisease
