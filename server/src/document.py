@@ -690,7 +690,8 @@ def _enrich_json_with_data(j_dic, ann_obj):
             )
 
     for tb_ann in ann_obj.get_textbounds():
-        j_tb = [unicode(tb_ann.id), unicode(tb_ann.type), tb_ann.start, tb_ann.end]
+        #j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
+        j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.spans]
 
         # If we spotted it in the previous pass as a trigger for an
         # event or if the type is known to be an event type, we add it
@@ -826,8 +827,14 @@ def _document_json_dict(document):
             s_i = 0
             while s_i < len(s_breaks):
                 s_start, s_end = s_breaks[s_i]
-                # Does the annotation strech over the end of the sentence?
-                if tb_ann.start < s_end and tb_ann.end > s_end:
+                # Does any subspan of the annotation strech over the
+                # end of the sentence?
+                found_spanning = False
+                for tb_start, tb_end in tb_ann.spans:
+                    if tb_start < s_end and tb_end > s_end:
+                        found_spanning = True
+                        break
+                if found_spanning:
                     # Merge this sentence and the next sentence
                     s_breaks[s_i] = (s_start, s_breaks[s_i + 1][1])
                     del s_breaks[s_i + 1]

@@ -5,7 +5,13 @@ var Util = (function(window, undefined) {
     var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     var cmp = function(a,b) {
-        return a < b ? -1 : a > b ? 1 : 0;
+      return a < b ? -1 : a > b ? 1 : 0;
+    }
+
+    var cmpArrayOnFirstElement = function(a,b) {
+      a = a[0];
+      b = b[0];
+      return a < b ? -1 : a > b ? 1 : 0;
     }
 
     var unitAgo = function(n, unit) {

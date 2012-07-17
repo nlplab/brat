@@ -67,6 +67,8 @@ def sentencebreaks_to_newlines(text):
 def main(argv):
     while True:        
         text = sys.stdin.readline()
+        if len(text) == 0:
+            break
         sys.stdout.write(sentencebreaks_to_newlines(text))
 
 if __name__ == "__main__":

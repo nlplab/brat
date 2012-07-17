@@ -735,22 +735,33 @@ class Annotations(object):
 
     def _split_textbound_data(self, id, data, input_file_path):
         try:
-            _type, start_str, end_str = data.split(None, 2)
-            # ignore trailing whitespace
-            end_str = end_str.rstrip()
-            # Abort if we have trailing values, i.e. space-separated tail in end_str
-            if any((c.isspace() for c in end_str)):
-                #Messager.error('Error parsing textbound "%s\t%s". (Using space instead of tab?)' % (id, data))
-                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-            start, end = (int(start_str), int(end_str))
+            # first space-separated string is type
+            type, rest = data.split(' ', 1)
+
+            # rest should be semicolon-separated list of "START END"
+            # pairs, where START and END are integers
+            spans = []
+            for span_str in rest.split(';'):
+                start_str, end_str = span_str.split(' ', 2)
+
+                # ignore trailing whitespace
+                end_str = end_str.rstrip()
+
+                if any((c.isspace() for c in end_str)):
+                    Messager.error('Error parsing textbound "%s\t%s". (Using space instead of tab?)' % (id, data))
+                    raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
+                start, end = (int(start_str), int(end_str))
+                spans.append((start, end))
+
         except:
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-            
-        return _type, start, end
+
+        return type, spans
 
     def _parse_textbound_annotation(self, _id, data, data_tail, input_file_path):
-        _type, start, end = self._split_textbound_data(_id, data, input_file_path)
-        return TextBoundAnnotation(start, end, _id, _type, data_tail, source_id=input_file_path)
+        _type, spans = self._split_textbound_data(_id, data, input_file_path)
+        return TextBoundAnnotation(spans, _id, _type, data_tail, source_id=input_file_path)
 
     def _parse_normalization_annotation(self, _id, data, data_tail, input_file_path):
         match = re_match(r'(\S+) (\S+) (\S+?):(\S+)', data)
@@ -953,49 +964,62 @@ class TextAnnotations(Annotations):
         Annotations.__init__(self, document, read_only)
 
     def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
-        type, start, end = self._split_textbound_data(id, data, input_file_path)
+        type, spans = self._split_textbound_data(id, data, input_file_path)
 
-        # Verify annotation extent
-        if start > end:
-            Messager.error('Text-bound annotation start > end.')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-        if start < 0:
-            Messager.error('Text-bound annotation start < 0.')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-        if end > len(self._document_text):
-            Messager.error('Text-bound annotation offset exceeds text length.')
-            raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+        # Verify spans
+        seen_spans = []
+        for start, end in spans:
+            if start > end:
+                Messager.error('Text-bound annotation start > end.')
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+            if start < 0:
+                Messager.error('Text-bound annotation start < 0.')
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+            if end > len(self._document_text):
+                Messager.error('Text-bound annotation offset exceeds text length.')
+                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
+            for ostart, oend in seen_spans:
+                if end >= ostart and start <= oend:
+                    Messager.error('Text-bound annotation spans overlap')
+                    raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
+            seen_spans.append((start,end))
+
+        spanlen = sum([end-start for start, end in spans])
 
         # Require tail to be either empty or to begin with the text
-        # corresponding to the start:end span. If the tail is empty,
-        # force a fill with the corresponding text.
-        if data_tail.strip() == '' and end - start > 0:
+        # corresponding to the catenation of the start:end spans. 
+        # If the tail is empty, force a fill with the corresponding text.
+        if data_tail.strip() == '' and spanlen > 0:
             Messager.error(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.", "warning")
-            text = self._document_text[start:end]
+            text = "".join([self._document_text[start:end] for start, end in spans])
+
         elif data_tail[0] != '\t':
             Messager.error('Text-bound annotation missing tab before text (expected format "ID\\tTYPE START END\\tTEXT").')
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-        elif end-start > len(data_tail)-1: # -1 for tab
-            Messager.error('Text-bound annotation text "%s" shorter than marked span %d:%d' % (data_tail[1:], start, end))
+
+        elif spanlen > len(data_tail)-1: # -1 for tab
+            Messager.error('Text-bound annotation text "%s" shorter than marked span(s) %s' % (data_tail[1:], str(spans)))
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
         else:
-            text = data_tail[1:end-start+1] # shift 1 for tab
-            data_tail = data_tail[end-start+1:]
-            if text != self._document_text[start:end]:
-                #log_info(text.__class__.__name__)
+            text = data_tail[1:spanlen+1] # shift 1 for tab
+            data_tail = data_tail[spanlen+1:]
+
+            reftext = ''.join([self._document_text[start:end] for start, end in spans])
+
+            if text != reftext:
                 Messager.error((u'Text-bound annotation text "%s" does not '
-                                u'match marked span (%d:%d) text "%s" in document') % (
-                        text,
-                        start,
-                        end,
-                        self._document_text[start:end], 
-                        ))
+                                u'match marked span(s) %s text "%s" in document') % (
+                        text, str(spans), reftext))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+
             if data_tail != '' and not data_tail[0].isspace():
                 Messager.error(u'Text-bound annotation text "%s" not separated from rest of line ("%s") by space!' % (text, data_tail))
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
-        return TextBoundAnnotationWithText(start, end, id, type, text, data_tail, source_id=input_file_path)
+        return TextBoundAnnotationWithText(spans, id, type, text, data_tail, source_id=input_file_path)
 
     def get_document_text(self):
         return self._document_text
@@ -1310,14 +1334,42 @@ class TextBoundAnnotation(IdedAnnotation):
     ID\tTYPE START END
 
     Where START and END are positive integer offsets identifying the
-    span of the annotation in text.
+    span of the annotation in text. Discontinuous annotations can be
+    represented as
+
+    ID\tTYPE START1 END1;START2 END2;...
+
+    with multiple START END pairs separated by semicolons.
     """
 
-    def __init__(self, start, end, id, type, tail, source_id=None):
+    def __init__(self, spans, id, type, tail, source_id=None):
         # Note: if present, the text goes into tail
         IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
-        self.start = start
-        self.end = end
+        self.spans = spans
+
+    # TODO: temp hack while building support for discontinuous
+    # annotations; remove once done
+    def get_start(self):
+        Messager.warning('TextBoundAnnotation.start access')
+        return self.spans[0][0]
+    def get_end(self):
+        Messager.warning('TextBoundAnnotation.end access')
+        return self.spans[-1][1]
+    start = property(get_start)
+    end = property(get_end)
+    # end hack
+
+    def first_start(self):
+        """
+        Return the first (min) start offset in the annotation spans.
+        """
+        return min([start for start, end in self.spans])
+
+    def last_end(self):
+        """
+        Return the last (max) end offset in the annotation spans.
+        """
+        return max([end for start, end in self.spans])
 
     def get_text(self):
         # If you're seeing this exception, you probably need a
@@ -1326,12 +1378,37 @@ class TextBoundAnnotation(IdedAnnotation):
         # TextAnnotations.
         raise NotImplementedError
 
+    def same_span(self, other):
+        """
+        Determine if a given other TextBoundAnnotation has the same
+        span as this one. Returns True if each (start, end) span of
+        the other annotation is equivalent with at least one span of
+        this annotation, False otherwise.
+        """
+        return set(self.spans) == set(other.spans)
+
+    def contains(self, other):
+        """
+        Determine if a given other TextBoundAnnotation is contained in
+        this one. Returns True if each (start, end) span of the other
+        annotation is inside (or equivalent with) at least one span
+        of this annotation, False otherwise.
+        """
+        for o_start, o_end in other.spans:
+            contained = False
+            for s_start, s_end in self.spans:
+                if o_start >= s_start and o_end <= s_end:
+                    contained = True
+                    break
+            if not contained:
+                return False
+        return True
+
     def __str__(self):
-        return u'%s\t%s %s %s%s' % (
+        return u'%s\t%s %s%s' % (
                 self.id,
                 self.type,
-                self.start,
-                self.end,
+                ';'.join(['%d %d' % (start, end) for start, end in self.spans]),
                 self.tail
                 )
 
@@ -1347,24 +1424,39 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
 
     Where START and END are positive integer offsets identifying the
     span of the annotation in text and TEXT is the corresponding text.
+    Discontinuous annotations can be represented as
+
+    ID\tTYPE START1 END1;START2 END2;...
+
+    with multiple START END pairs separated by semicolons.
     """
-    def __init__(self, start, end, id, type, text, text_tail="", source_id=None):
+    def __init__(self, spans, id, type, text, text_tail="", source_id=None):
         IdedAnnotation.__init__(self, id, type, '\t'+text+text_tail, source_id=source_id)
-        self.start = start
-        self.end = end
+        self.spans = spans
         self.text = text
         self.text_tail = text_tail
+
+    # TODO: temp hack while building support for discontinuous
+    # annotations; remove once done
+    def get_start(self):
+        Messager.warning('TextBoundAnnotationWithText.start access')
+        return self.spans[0][0]
+    def get_end(self):
+        Messager.warning('TextBoundAnnotationWithText.end access')
+        return self.spans[-1][1]
+    start = property(get_start)
+    end = property(get_end)
+    # end hack
 
     def get_text(self):
         return self.text
 
     def __str__(self):
         #log_info('TextBoundAnnotationWithText: __str__: "%s"' % self.text)
-        return u'%s\t%s %s %s\t%s%s' % (
+        return u'%s\t%s %s\t%s%s' % (
                 self.id,
                 self.type,
-                self.start,
-                self.end,
+                ';'.join(['%d %d' % (start, end) for start, end in self.spans]),
                 self.text,
                 self.text_tail
                 )
