@@ -1,0 +1,41 @@
+T1	Protein 41 75	human retinoic acid receptor alpha
+T2	Protein 163 172	RAR alpha
+T3	Protein 174 182	RAR beta
+T4	Protein 188 197	RAR gamma
+T5	Protein 524 534	hRAR alpha
+T6	Protein 536 546	hRAR alpha
+T7	Protein 859 869	hRAR alpha
+T8	Protein 1528 1537	RAR alpha
+T9	Protein 1767 1776	RAR alpha
+T10	Entity 16 37	ligand-binding domain
+T11	Entity 251 269	structural domains
+T12	Entity 461 469	cysteine
+T13	Entity 474 491	arginine residues
+T14	Entity 499 520	ligand-binding domain
+T15	Entity 546 550	-LBD
+T16	Entity 552 574	amino acids 154 to 462
+T17	Entity 591 599	cysteine
+T18	Entity 604 621	arginine residues
+T19	Entity 653 657	site
+T20	Entity 835 851	cysteine residue
+T21	Entity 869 873	-LBD
+T22	Entity 962 975	residue C-235
+T23	Entity 1041 1058	arginine residues
+T24	Entity 1093 1098	R-276
+T25	Entity 1103 1108	R-394
+T26	Entity 1112 1119	alanine
+T27	Entity 1193 1198	R272A
+T28	Entity 1251 1259	arginine
+T29	Entity 1333 1338	R217A
+T30	Entity 1343 1348	R294A
+T31	Entity 1537 1541	-LBD
+R1	Protein-Component Arg1:T1 Arg2:T10
+R2	Protein-Component Arg1:T6 Arg2:T16
+R3	Protein-Component Arg1:T5 Arg2:T14
+R4	Protein-Component Arg1:T5 Arg2:T16
+R5	Protein-Component Arg1:T5 Arg2:T13
+R6	Protein-Component Arg1:T5 Arg2:T12
+R7	Protein-Component Arg1:T6 Arg2:T15
+R8	Protein-Component Arg1:T7 Arg2:T20
+R9	Protein-Component Arg1:T7 Arg2:T21
+R10	Protein-Component Arg1:T8 Arg2:T31

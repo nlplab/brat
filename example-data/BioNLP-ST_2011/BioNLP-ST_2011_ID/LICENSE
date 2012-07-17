@@ -1,0 +1,78 @@
+License Terms for BioNLP Shared Task 2011 Data
+
+
+1. Copyright of abstracts
+
+The abstracts contained in the BioNLP Shared Task 2011 (BioNLP-ST'11)
+corpora are from PubMed(R), a database of the U.S. National Library of
+Medicine (NLM).
+
+NLM data are produced by a U.S. Government agency and include works of the
+United States Government that are not protected by U.S. copyright law but
+may be protected by non-US copyright law, as well as abstracts originating
+from publications that may be protected by U.S. copyright law.
+
+NLM assumes no responsibility or liability associated with use of
+copyrighted material, including transmitting, reproducing, redistributing,
+or making commercial use of the data. NLM does not provide legal advice
+regarding copyright, fair use, or other aspects of intellectual property
+rights. Persons contemplating any type of transmission or reproduction of
+copyrighted material such as abstracts are advised to consult legal counsel.
+
+
+2. Copyright of full texts
+
+The full texts contained in the BioNLP-ST'11 corpora are from the
+PMC Open Access Subset of PubMed Central (PMC), the U.S. National Institutes
+of Health (NIH) free digital archive of biomedical and life sciences journal
+literature.
+
+Articles in the PMC Open Access Subset are protected by copyright, but are
+made available under a Creative Commons or similar license that generally
+allows more liberal redistribution and reuse than a traditional copyrighted
+work. Please refer to the README file in this distribution for attribution
+and the license of each article for specific terms of use.
+
+
+3. Copyright of annotations
+
+The annotations attached to the documents are the results of
+considerable effort by the BioNLP-ST'11 organizers. The copyrights of
+annotations belong in their entirety to the organizers.
+
+
+4. Distribution
+
+Distribution of BioNLP-ST'11 abstracts drawn from PubMed is subject to
+the PubMed(R) license terms as stated in Clause 1. Distribution of
+BioNLP-ST'11 full texts is subject to the license terms applying to
+each publication.
+
+Under these conditions, the BioNLP-ST'11 data and annotation may be
+distributed, with the understanding that the annotations are to be
+used primarily for scholarly research in natural language processing
+(NLP), information extraction (IE), and other relevant disciplines.
+
+
+5. Reproduction
+
+The annotations in the BioNLP-ST'11 corpora may be used to produce
+other data, information systems or services only for bona fide
+research of a non-profit nature. Users of those derived data, systems
+or services must be provided a clear description of how the
+data/system/service was derived, indicating the sources of data.
+
+
+6. Commercial Use
+
+Commercial or non-academic organisations wishing to make public use of
+part or all of the corpus must obtain permission from the BioNLP-ST'11
+organizers.
+
+
+7. References
+
+- BioNLP Shared Task: https://sites.google.com/site/bionlpst/
+- PubMed : http://www.pubmed.gov/
+- PubMed Central: http://www.ncbi.nlm.nih.gov/pmc/
+- NLM (United States National Library of Medicine): http://www.nlm.nih.gov/

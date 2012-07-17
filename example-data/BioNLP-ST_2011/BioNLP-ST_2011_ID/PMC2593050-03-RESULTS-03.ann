@@ -1,0 +1,42 @@
+T26	Regulation 3 9	Effect
+T27	Process 34 44	Resistance
+T28	Regulation 125 132	affects
+T29	Process 137 147	resistance
+T30	Process 621 630	resistant
+T31	Process 859 869	resistance
+T32	Process 1151 1157	resist
+E1	Regulation:T26 Theme:E2
+M1	Negation E1
+E2	Process:T27 Participant:T2
+E3	Regulation:T28 Theme:E4
+M2	Speculation E3
+E4	Process:T29 Participant:T4
+E5	Process:T30 Participant:T13
+M3	Negation E5
+E6	Process:T31 
+E7	Process:T32 Participant:T25
+T1	Protein 17 21	vicK
+T2	Organism 48 55	S. equi
+T3	Protein 111 115	vicK
+T4	Organism 151 158	S. equi
+T5	Organism 218 227	DeltavicK
+T6	Protein 223 227	vicK
+T7	Organism 319 326	S. equi
+T8	Organism 328 344	DeltavicK mutant
+T9	Protein 333 337	vicK
+T10	Organism 362 381	spy1718::aad mutant
+T11	Protein 362 369	spy1718
+T12	Protein 371 374	aad
+T13	Organism 566 585	spy1718::aad mutant
+T14	Protein 566 573	spy1718
+T15	Protein 575 578	aad
+T16	Organism 589 600	S. pyogenes
+T17	Organism 751 758	S. equi
+T18	Organism 763 775	spy1718::aad
+T19	Protein 763 770	spy1718
+T20	Protein 772 775	aad
+T21	Organism 996 1005	DeltavicK
+T22	Protein 1001 1005	vicK
+T23	Organism 1100 1116	DeltavicK mutant
+T24	Protein 1105 1109	vicK
+T25	Organism 1140 1147	S. equi

@@ -1,0 +1,9 @@
+T6	Hydroxylation 26 38	hydroxylated
+T7	Hydroxylation 116 128	hydroxylated
+E1	Hydroxylation:T6 Theme:T1
+E2	Hydroxylation:T7 Theme:T2
+T1	Protein 45 62	type III collagen
+T2	Protein 147 164	type III collagen
+T3	Protein 547 551	ADH2
+T4	Protein 577 581	TRP1
+T5	Protein 812 816	URA3

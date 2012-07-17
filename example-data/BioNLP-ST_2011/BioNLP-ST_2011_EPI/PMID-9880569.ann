@@ -1,0 +1,9 @@
+T1	Protein 93 96	P69
+T2	Protein 206 209	P69
+T3	Protein 304 307	P69
+T4	Protein 669 672	P69
+T5	Protein 776 779	P69
+T6	Protein 1126 1129	P69
+T7	Protein 1257 1260	P69
+T8	Glycosylation 652 665	glycosylation
+E1	Glycosylation:T8 Theme:T4

@@ -1,0 +1,132 @@
+T1	Chemical 0 4	Iron
+T2	Chemical 84 88	iron
+T3	Chemical 143 147	iron
+T4	Chemical 223 227	iron
+T5	Chemical 245 249	heme
+T6	Chemical 331 345	yersiniabactin
+T7	Organism 396 413	Y. enterocolitica
+T8	Organism 445 459	P. luminescens
+T9	Organism 520 537	Y. enterocolitica
+T10	Organism 560 562	1B
+T11	Chemical 640 646	hemine
+T12	Protein 662 668	ye0323
+T13	Protein 669 673	0332
+T14	Protein 674 681	plu2631
+T15	Protein 682 686	2636
+T16	Protein 693 697	YfeA
+T17	Protein 697 698	B
+T18	Protein 698 699	C
+T19	Protein 699 700	D
+T20	Chemical 732 736	iron
+T21	Chemical 742 761	ferrous (Fe2+) iron
+T22	Protein 783 787	FeoA
+T23	Protein 787 788	B
+T24	Protein 794 798	AfuA
+T25	Protein 798 799	B
+T26	Protein 799 800	C
+T27	Protein 801 805	SfuA
+T28	Protein 805 806	B
+T29	Protein 806 807	C
+T30	Chemical 808 814	ferric
+T31	Chemical 816 820	Fe3+
+T32	Chemical 839 851	enterobactin
+T33	Protein 873 877	FepB
+T34	Protein 877 878	D
+T35	Protein 878 879	C
+T36	Protein 879 880	G
+T37	Protein 887 891	FecA
+T38	Protein 891 892	B
+T39	Protein 892 893	C
+T40	Protein 893 894	D
+T41	Protein 894 895	E
+T42	Chemical 941 946	hemin
+T43	Chemical 947 958	siderophore
+T44	Chemical 959 963	iron
+T45	Protein 981 987	YE1459
+T46	Protein 988 992	1461
+T47	Protein 993 1000	Plu2850
+T48	Protein 1001 1005	2852
+T49	Protein 1008 1014	YE3190
+T50	Protein 1015 1022	Plu2853
+T51	Protein 1028 1034	YE0555
+T52	Protein 1035 1042	Plu3738
+T53	Organism 1073 1087	P. luminescens
+T54	Regulon-operon 1088 1098	fecIRABCDE
+T55	Protein 1088 1092	fecI
+T56	Protein 1092 1093	R
+T57	Protein 1093 1094	A
+T58	Protein 1094 1095	B
+T59	Protein 1095 1096	C
+T60	Protein 1096 1097	D
+T61	Protein 1097 1098	E
+T62	Organism 1143 1150	E. coli
+T63	Chemical 1151 1155	Fe3+
+T64	Organism 1224 1241	Y. enterocolitica
+T65	Organism 1291 1308	Y. enterocolitica
+T66	Chemical 1322 1326	heme
+T67	Protein 1355 1361	YE0123
+T68	Protein 1362 1365	126
+T69	Protein 1367 1373	YE2180
+T70	Protein 1374 1378	2182
+T71	Protein 1390 1394	SfuA
+T72	Protein 1394 1395	B
+T73	Protein 1395 1396	C
+T74	Chemical 1409 1420	ferrichrome
+T75	Protein 1453 1459	YE0730
+T76	Protein 1460 1464	0732
+T77	Chemical 1478 1489	siderophore
+T78	Protein 1491 1497	YE0704
+T79	Chemical 1506 1511	hemin
+T80	Protein 1528 1534	YE2481
+T81	Protein 1535 1539	2484
+T82	Chemical 1556 1560	iron
+T83	Organism 1595 1609	P. luminescens
+T84	Chemical 1641 1652	siderophore
+T85	Organism 1685 1699	P. luminescens
+T86	Chemical 1721 1725	heme
+T87	Protein 1775 1779	PpxA
+T88	Protein 1781 1788	Plu4242
+T89	Protein 1794 1798	PpxB
+T90	Protein 1800 1807	Plu4243
+T91	Organism 1912 1926	P. luminescens
+T92	Chemical 1939 1943	iron
+T93	Chemical 2028 2032	iron
+T94	Chemical 2076 2081	hemin
+T95	Chemical 2102 2116	yersiniabactin
+T96	Chemical 2125 2137	enterobactin
+T97	Protein 2150 2154	FepG
+T98	Organism 2227 2236	Y. pestis
+T99	Organism 2240 2250	Y. ruckeri
+T100	Chemical 2294 2298	iron
+T101	Chemical 2300 2305	hemin
+T102	Chemical 2307 2311	heme
+T103	Chemical 2370 2374	iron
+T104	Organism 2411 2425	P. luminescens
+T105	Organism 2430 2447	Y. enterocolitica
+T106	Chemical 2472 2476	iron
+T107	Organism 2701 2715	P. luminescens
+*	Equiv T30 T31
+*	Equiv T87 T88
+*	Equiv T89 T90
+T108	Gene_expression 1309 1317	produces
+T109	Binding 1421 1428	binding
+T110	Positive_regulation 2185 2197	up-regulated
+T111	Process 2515 2524	infection
+T112	Process 2743 2752	virulence
+E1	Gene_expression:T108 Theme:T67
+E2	Gene_expression:T108 Theme:T75
+E3	Gene_expression:T108 Theme:T76
+E4	Gene_expression:T108 Theme:T78
+E5	Gene_expression:T108 Theme:T80
+E6	Gene_expression:T108 Theme:T81
+E7	Gene_expression:T108 Theme:T68
+E8	Gene_expression:T108 Theme:T69
+E9	Gene_expression:T108 Theme:T70
+E10	Gene_expression:T108 Theme:T71
+E11	Gene_expression:T108 Theme:T72
+E12	Gene_expression:T108 Theme:T73
+E13	Binding:T109 Theme:T75
+E14	Binding:T109 Theme:T76
+E15	Positive_regulation:T110 Theme:T97
+E16	Process:T111 
+E17	Process:T112 

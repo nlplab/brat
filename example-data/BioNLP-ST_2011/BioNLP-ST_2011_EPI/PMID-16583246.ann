@@ -1,0 +1,36 @@
+T26	Glycosylation 10 23	glycosylation
+T27	Glycosylation 596 609	glycosylation
+T28	Entity 617 633	dermatan sulfate
+T29	Glycosylation 1449 1463	monoglycanated
+T30	Glycosylation 2131 2144	glycosylation
+E1	Glycosylation:T26 Theme:T1
+E2	Glycosylation:T26 Theme:T2
+E3	Glycosylation:T27 Theme:T6 Sidechain:T28
+E4	Glycosylation:T29 Theme:T15
+E5	Glycosylation:T30 Theme:T23
+E6	Glycosylation:T30 Theme:T24
+T1	Protein 27 34	decorin
+T2	Protein 39 47	biglycan
+T3	Protein 231 242	beta4GalT-7
+T4	Protein 466 476	tenascin X
+T5	Protein 560 567	B4GALT7
+T6	Protein 647 654	decorin
+T7	Protein 779 786	decorin
+T8	Protein 788 796	biglycan
+T9	Protein 928 935	B4GALT7
+T10	Protein 984 995	beta4GalT-7
+T11	Protein 1064 1075	beta4GalT-7
+T12	Protein 1269 1276	decorin
+T13	Protein 1292 1303	beta4GalT-7
+T14	Protein 1344 1351	decorin
+T15	Protein 1425 1433	Biglycan
+T16	Protein 1580 1591	beta4GalT-7
+T17	Protein 1656 1663	decorin
+T18	Protein 1668 1676	biglycan
+T19	Protein 1705 1716	beta4GalT-7
+T20	Protein 1953 1964	beta4GalT-7
+T21	Protein 2045 2056	beta4GalT-7
+T22	Protein 2087 2098	beta4GalT-7
+T23	Protein 2148 2155	decorin
+T24	Protein 2160 2168	biglycan
+T25	Protein 2227 2238	beta4GalT-7

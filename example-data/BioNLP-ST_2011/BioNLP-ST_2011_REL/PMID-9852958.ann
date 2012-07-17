@@ -1,0 +1,16 @@
+T1	Protein 21 29	FKHRL1P2
+T2	Protein 465 471	fkhrl1
+T3	Protein 908 914	fkhrl1
+T4	Protein 949 955	fkhrl1
+T5	Protein 1075 1081	FKHRL1
+T6	Entity 235 249	fork head cDNA
+T7	Entity 335 373	546-nucleotide (nt) open reading frame
+T8	Entity 375 378	ORF
+T9	Entity 399 432	carboxyl-terminal 180 amino acids
+T10	Entity 483 486	ORF
+T11	Entity 523 541	DNA-binding domain
+T12	Entity 634 638	cDNA
+T13	Entity 1173 1197	fork head gene subfamily
+R1	Protein-Component Arg1:T2 Arg2:T8
+R2	Protein-Component Arg1:T2 Arg2:T9
+R3	Protein-Component Arg1:T2 Arg2:T7

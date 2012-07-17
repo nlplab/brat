@@ -1,0 +1,76 @@
+T1	Organism 119 124	mouse
+T2	Protein 251 255	lacZ
+T3	Protein 282 286	ssaG
+T4	Protein 532 536	rpoD
+T5	Protein 541 545	gyrB
+T6	Protein 692 696	ssaG
+T7	Organism 714 724	Salmonella
+T8	Protein 829 833	ssaG
+T9	Protein 1513 1517	gyrB
+T10	Protein 1659 1663	spvR
+T11	Protein 1665 1669	fruR
+T12	Protein 1675 1679	rpoS
+T13	Two-component-system 1713 1722	phoP/phoQ
+T14	Protein 1713 1717	phoP
+T15	Protein 1718 1722	phoQ
+T16	Two-component-system 1724 1733	ssrA/ssrB
+T17	Protein 1724 1728	ssrA
+T18	Protein 1729 1733	ssrB
+T19	Protein 1735 1739	slyA
+T20	Two-component-system 1745 1754	ompR/envZ
+T21	Protein 1745 1749	ompR
+T22	Protein 1750 1754	envZ
+T23	Protein 1851 1854	ihf
+T24	Protein 1856 1860	himD
+T25	Protein 1866 1870	csrA
+T26	Protein 1945 1948	hnr
+T27	Protein 1950 1954	rpoE
+T28	Protein 1956 1960	smpB
+T29	Protein 1962 1965	crp
+T30	Protein 1970 1973	hfq
+T31	Protein 2213 2217	rpoE
+T32	Organism 2213 2217	rpoE
+T33	Organism 2222 2233	hfq mutants
+T34	Protein 2222 2225	hfq
+T35	Protein 2425 2428	Hfq
+T36	Protein 2455 2459	RpoE
+T37	Protein 2537 2540	Hfq
+T38	Organism 2587 2597	Salmonella
+*	Equiv T23 T24
+T39	Gene_expression 339 349	expression
+T40	Transcription 515 526	transcripts
+T41	Transcription 675 688	transcription
+T42	Regulation 799 805	effect
+T43	Gene_expression 834 844	expression
+T44	Process 963 972	virulence
+T45	Transcription 1518 1528	transcript
+T46	Negative_regulation 1913 1922	decreased
+T47	Transcription 1923 1936	transcription
+T48	Negative_regulation 1990 1998	decrease
+T49	Regulation 2430 2439	regulates
+T50	Process 2963 2972	virulence
+E1	Gene_expression:T39 Theme:T2
+E2	Gene_expression:T39 Theme:T3
+E3	Transcription:T40 Theme:T4
+E4	Transcription:T40 Theme:T5
+E5	Transcription:T41 Theme:T6
+E6	Regulation:T42 Theme:E7
+E7	Gene_expression:T43 Theme:T8
+E8	Process:T44 
+E9	Transcription:T45 Theme:T9
+E10	Negative_regulation:T46 Theme:E18
+E11	Negative_regulation:T46 Theme:E12
+E12	Transcription:T47 Theme:T25
+E13	Transcription:T47 Theme:T26
+E14	Transcription:T47 Theme:T27
+E15	Transcription:T47 Theme:T28
+E16	Transcription:T47 Theme:T29
+E17	Transcription:T47 Theme:T30
+E18	Transcription:T47 Theme:T23
+E19	Negative_regulation:T48 Theme:E13
+E20	Negative_regulation:T48 Theme:E14
+E21	Negative_regulation:T48 Theme:E15
+E22	Negative_regulation:T48 Theme:E16
+E23	Negative_regulation:T48 Theme:E17
+E24	Regulation:T49 Theme:T36 Cause:T35
+E25	Process:T50 

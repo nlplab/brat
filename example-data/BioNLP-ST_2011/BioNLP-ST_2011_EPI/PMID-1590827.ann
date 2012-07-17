@@ -1,0 +1,21 @@
+T7	Glycosylation 15 30	N-glycosylation
+T8	Glycosylation 186 194	N-linked
+T9	Entity 195 207	sugar chains
+T10	Glycosylation 398 406	N-linked
+T11	Entity 407 419	sugar chains
+T12	Glycosylation 494 509	N-glycosylation
+T13	Glycosylation 573 581	N-linked
+T14	Entity 582 594	sugar chains
+T15	Glycosylation 1297 1312	N-glycosylation
+E1	Glycosylation:T7 Theme:T1
+E2	Glycosylation:T8 Theme:T2 Sidechain:T9
+E3	Glycosylation:T10 Theme:T3 Sidechain:T11
+E4	Glycosylation:T12 Theme:T4
+E5	Glycosylation:T13 Theme:T5 Sidechain:T14
+E6	Glycosylation:T15 Theme:T6
+T1	Protein 34 54	apolipoprotein B-100
+T2	Protein 211 237	apolipoprotein (apo) B-100
+T3	Protein 423 432	apo B-100
+T4	Protein 513 522	apo B-100
+T5	Protein 598 607	apo B-100
+T6	Protein 1316 1325	apo B-100

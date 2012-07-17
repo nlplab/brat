@@ -1,0 +1,23 @@
+T18	Process 2014 2023	virulence
+T19	Process 2107 2116	virulence
+T20	Process 2340 2349	infection
+E1	Process:T18 
+E2	Process:T19 Participant:T17
+E3	Process:T20 
+T1	Organism 28 52	Photorhabdus luminescens
+T2	Organism 61 84	Yersinia enterocolitica
+T3	Organism 166 190	Photorhabdus luminescens
+T4	Organism 195 218	Yersinia enterocolitica
+T5	Organism 280 294	P. luminescens
+T6	Organism 386 392	humans
+T7	Organism 407 424	Y. enterocolitica
+T8	Organism 505 508	men
+T9	Chemical 857 865	c-di-GMP
+T10	Protein 1111 1115	LuxR
+T11	Organism 1309 1321	Photorhabdus
+T12	Organism 1326 1334	Yersinia
+T13	Organism 1873 1887	P. luminescens
+T14	Organism 1892 1909	Y. enterocolitica
+T15	Organism 2035 2049	P. luminescens
+T16	Organism 2062 2079	Y. enterocolitica
+T17	Organism 2120 2134	P. luminescens

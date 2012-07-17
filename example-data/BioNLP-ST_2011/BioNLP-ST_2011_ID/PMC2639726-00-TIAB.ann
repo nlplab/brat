@@ -1,0 +1,44 @@
+*	Equiv T4 T5
+T18	Process 26 35	Virulence
+T19	Process 52 61	Infection
+T20	Process 126 135	infection
+T21	Process 201 210	infection
+T22	Process 561 570	virulence
+T23	Process 596 605	virulence
+T24	Negative_regulation 777 787	attenuated
+T25	Process 788 797	virulence
+T26	Process 882 891	infection
+T27	Process 912 921	virulence
+T28	Process 1505 1514	infection
+T29	Process 1637 1646	virulence
+T30	Process 2088 2097	virulence
+E1	Process:T18 Participant:T1
+E2	Process:T19 Participant:T1
+E3	Process:T20 
+E4	Process:T21 Participant:T2
+E5	Process:T22 Participant:T4
+E6	Process:T23 
+E7	Negative_regulation:T24 Theme:E8
+E8	Process:T25 
+E9	Process:T26 
+E10	Process:T27 
+E11	Process:T28 Participant:T9
+E12	Process:T29 
+E13	Process:T30 
+T1	Organism 65 104	Salmonella enterica Serovar Typhimurium
+T2	Organism 137 147	Salmonella
+T3	Organism 195 200	mouse
+T4	Organism 520 554	Salmonella enteriditis Typhimurium
+T5	Organism 556 559	STM
+T6	Organism 675 686	BALB/c mice
+T7	Organism 707 721	129X1/SvJ mice
+T8	Organism 876 881	mouse
+T9	Organism 1476 1486	Salmonella
+T10	Organism 1670 1680	Salmonella
+T11	Protein 1801 1805	SsrB
+T12	Protein 1814 1818	MarR
+T13	Protein 1835 1839	SlyA
+T14	Protein 1992 1996	SsrB
+T15	Protein 2009 2013	SlyA
+T16	Protein 2034 2038	SlyA
+T17	Protein 2051 2055	SsrB

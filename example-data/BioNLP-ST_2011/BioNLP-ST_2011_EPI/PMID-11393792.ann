@@ -1,0 +1,14 @@
+T1	Protein 7 13	COL1A2
+T2	Protein 381 387	COL1A2
+T3	Protein 401 413	C-propeptide
+T4	Protein 639 645	COL1A2
+T5	Protein 1190 1202	pC-alpha2(I)
+T6	Protein 1254 1263	alpha2(I)
+T7	Protein 1357 1366	alpha1(I)
+T8	Protein 1367 1376	alpha2(I)
+T9	Protein 1420 1429	alpha1(I)
+T10	Protein 1455 1461	COL1A2
+T11	Protein 1562 1571	alpha2(I)
+T12	Hydroxylation 1323 1339	overhydroxylated
+E1	Hydroxylation:T12 Theme:T7
+E2	Hydroxylation:T12 Theme:T8

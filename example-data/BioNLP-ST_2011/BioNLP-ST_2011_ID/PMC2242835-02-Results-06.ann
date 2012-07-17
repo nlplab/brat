@@ -1,0 +1,136 @@
+*	Equiv T54 T55
+T74	Gene_expression 106 116	production
+T75	Localization 199 207	secreted
+T76	Gene_expression 412 419	express
+T77	Localization 424 431	secrete
+T78	Localization 550 557	contain
+T79	Gene_expression 623 632	expressed
+T80	Localization 762 769	secrete
+T81	Gene_expression 835 845	expression
+T82	Localization 1066 1074	secreted
+T83	Gene_expression 1174 1184	expression
+T84	Localization 1217 1225	secreted
+T85	Gene_expression 1611 1621	expression
+T86	Positive_regulation 1660 1669	dependent
+T87	Localization 1678 1687	secretion
+T88	Gene_expression 2137 2147	expression
+T89	Negative_regulation 2183 2190	reduced
+T90	Gene_expression 2225 2235	expression
+T91	Positive_regulation 2411 2420	essential
+T92	Localization 2439 2448	secretion
+T93	Gene_expression 2498 2507	expressed
+T94	Gene_expression 2577 2587	expression
+T95	Positive_regulation 2700 2709	regulated
+T96	Gene_expression 2734 2744	expression
+T97	Negative_regulation 2931 2943	downregulate
+T98	Gene_expression 2952 2962	expression
+T99	Regulation 2971 2979	affected
+T100	Gene_expression 3062 3072	expression
+E1	Gene_expression:T74 Theme:T1
+E2	Localization:T75 Theme:T2
+E3	Gene_expression:T76 Theme:T7
+E4	Localization:T77 Theme:T7
+E5	Localization:T78 Theme:T11
+E6	Gene_expression:T79 Theme:T11
+E7	Localization:T80 Theme:T13
+M1	Negation E7
+E8	Gene_expression:T81 Theme:T13
+E9	Localization:T82 Theme:T19
+E10	Gene_expression:T83 Theme:T21
+E11	Localization:T84 Theme:T22
+E12	Gene_expression:T85 Theme:T31
+M2	Negation E12
+E13	Positive_regulation:T86 Theme:E14 Cause:T32
+E14	Localization:T87 Theme:T33
+M3	Negation E14
+E15	Gene_expression:T88 Theme:T45
+E16	Gene_expression:T88 Theme:T46
+E17	Negative_regulation:T89 Theme:E15
+E18	Negative_regulation:T89 Theme:E16
+E19	Gene_expression:T90 Theme:T47
+E20	Positive_regulation:T91 Theme:E23 Cause:T52
+E21	Positive_regulation:T91 Theme:E23 Cause:T53
+E22	Positive_regulation:T91 Theme:E23 Cause:T54
+E23	Localization:T92 Theme:T56
+E24	Gene_expression:T93 Theme:T57
+E25	Gene_expression:T94 Theme:T60
+E26	Positive_regulation:T95 Theme:T63 Cause:T65
+E27	Positive_regulation:T95 Theme:T64 Cause:T65
+E28	Gene_expression:T96 Theme:T66
+E29	Negative_regulation:T97 Theme:E30 Cause:T69
+E30	Gene_expression:T98 Theme:T69
+E31	Regulation:T99 Theme:E29
+E32	Gene_expression:T100 Theme:T71
+T1	Protein 96 105	IFN-gamma
+T2	Protein 188 194	ESAT-6
+T3	Organism 310 315	H37Ra
+T4	Protein 326 332	ESAT-6
+T5	Organism 353 358	H37Rv
+T6	Organism 363 368	H37Ra
+T7	Protein 432 438	ESAT-6
+T8	Organism 528 533	H37Ra
+T9	Organism 538 549	H37Ra::rpsL
+T10	Protein 545 549	rpsL
+T11	Protein 575 581	ESAT-6
+T12	Protein 654 660	ESAT-6
+T13	Protein 770 776	ESAT-6
+T14	Organism 881 893	H37Ra::fadE5
+T15	Protein 888 893	fadE5
+T16	Organism 968 995	M. tuberculosis H37Ra::phoP
+T17	Protein 991 995	phoP
+T18	Organism 1000 1005	H37Rv
+T19	Protein 1048 1054	ESAT-6
+T20	Organism 1119 1159	M. tuberculosis MT103 phoP ko strain SO2
+T21	Protein 1188 1194	ESAT-6
+T22	Protein 1226 1232	ESAT-6
+T23	Protein 1288 1294	ESAT-6
+T24	Protein 1496 1502	ESAT-6
+T25	Organism 1535 1540	H37Ra
+T26	Organism 1542 1554	H37Ra::fadE5
+T27	Protein 1549 1554	fadE5
+T28	Organism 1556 1567	H37Ra::rpsL
+T29	Protein 1563 1567	rpsL
+T30	Organism 1573 1576	SO2
+T31	Protein 1604 1610	ESAT-6
+T32	Protein 1655 1659	phoP
+T33	Protein 1671 1677	ESAT-6
+T34	Protein 1726 1731	ESX-1
+T35	Organism 1742 1747	H37Rv
+T36	Organism 1753 1758	H37Ra
+T37	Organism 1760 1779	H37Ra::RD1-ppe68-ko
+T38	Protein 1767 1770	RD1
+T39	Protein 1771 1776	ppe68
+T40	Protein 1830 1836	ESAT-6
+T41	Protein 1896 1900	PhoP
+T42	Organism 2077 2090	H37Rv-phoP ko
+T43	Protein 2083 2087	phoP
+T44	Organism 2107 2112	H37Ra
+T45	Protein 2164 2171	rv3612c
+T46	Protein 2172 2179	rv3616c
+T47	Protein 2245 2252	rv3614c
+T48	Organism 2256 2261	H37Rv
+T49	Organism 2263 2268	H37Ra
+T50	Organism 2274 2285	H37Ra::phoP
+T51	Protein 2281 2285	phoP
+T52	Protein 2347 2354	rv3614c
+T53	Protein 2356 2363	rv3615c
+T54	Protein 2365 2372	rv3616c
+T55	Protein 2374 2378	espA
+T56	Protein 2432 2438	ESAT-6
+T57	Protein 2486 2493	rv3614c
+T58	Organism 2522 2527	H37Ra
+T59	Organism 2540 2545	H37Rv
+T60	Protein 2591 2598	rv3614c
+T61	Organism 2602 2613	H37Ra::phoP
+T62	Protein 2609 2613	phoP
+T63	Protein 2668 2675	rv3612c
+T64	Protein 2676 2683	rv3616c
+T65	Protein 2713 2717	PhoP
+T66	Protein 2748 2752	phoP
+T67	Organism 2767 2772	H37Ra
+T68	Organism 2781 2786	H37Rv
+T69	Protein 2923 2927	PhoP
+T70	Protein 2993 2997	phoP
+T71	Protein 3057 3061	phoP
+T72	Protein 3093 3097	phoP
+T73	Organism 3120 3125	H37Ra

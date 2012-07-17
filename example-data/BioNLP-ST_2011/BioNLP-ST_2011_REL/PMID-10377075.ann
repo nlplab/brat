@@ -1,0 +1,22 @@
+*	Equiv T2 T3
+*	Equiv T5 T6
+T20	Entity 1335 1344	NF-kappaB
+T1	Protein 46 79	vascular cell adhesion molecule-1
+T2	Protein 397 445	Peroxisome proliferator-activated receptor-alpha
+T3	Protein 447 456	PPARalpha
+T4	Protein 621 630	PPARalpha
+T5	Protein 679 712	vascular cell adhesion molecule-1
+T6	Protein 714 720	VCAM-1
+T7	Protein 812 821	PPARalpha
+T8	Protein 867 876	PPARalpha
+T9	Protein 921 930	TNF-alpha
+T10	Protein 939 945	VCAM-1
+T11	Protein 1017 1026	PPARgamma
+T12	Protein 1044 1053	PPARalpha
+T13	Protein 1092 1098	VCAM-1
+T14	Protein 1189 1195	VCAM-1
+T15	Protein 1292 1298	VCAM-1
+T16	Protein 1355 1364	PPARalpha
+T17	Protein 1475 1484	PPARalpha
+T18	Protein 1576 1582	VCAM-1
+T19	Protein 1728 1737	PPARalpha

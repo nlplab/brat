@@ -1,0 +1,72 @@
+*	Equiv T9 T10
+*	Equiv T4 T5
+*	Equiv T7 T6
+T24	Gene_expression 14 24	expression
+T25	Regulation 92 101	regulated
+T26	Gene_expression 302 311	expressed
+T27	Positive_regulation 493 503	sufficient
+T28	Binding 701 706	bound
+T29	Gene_expression 783 790	absence
+T30	Binding 811 816	bound
+T31	Entity 828 836	promoter
+T32	Negative_regulation 862 869	reduced
+T33	Gene_expression 874 884	expression
+T34	Regulation 963 969	effect
+T35	Gene_expression 1039 1048	expressed
+T36	Positive_regulation 1097 1110	transactivate
+T37	Gene_expression 1115 1125	expression
+T38	Gene_expression 1198 1208	expression
+T39	Negative_regulation 1220 1227	reduced
+T40	Negative_regulation 1254 1263	abolished
+T41	Gene_expression 1300 1310	expression
+T42	Regulation 1330 1339	regulated
+E1	Gene_expression:T24 Theme:T2
+E2	Regulation:T25 Theme:E1 Cause:T4
+E3	Regulation:T25 Theme:E1 Cause:T3
+E4	Gene_expression:T26 Theme:T7
+E5	Positive_regulation:T27 Theme:E4
+E6	Binding:T28 Theme:T9
+E7	Binding:T28 Theme:T11
+E8	Gene_expression:T29 Theme:T12
+E9	Binding:T30 Theme:T13 Theme2:T14 Site2:T31
+E10	Negative_regulation:T32 Theme:E11
+E11	Gene_expression:T33 Theme:T7
+E12	Regulation:T34 Theme:E11
+E13	Gene_expression:T35 Theme:T15
+E14	Positive_regulation:T36 Theme:E16 Cause:T16
+E15	Positive_regulation:T36 Theme:E16 Cause:T17
+E16	Gene_expression:T37 Theme:T18
+E17	Gene_expression:T38 Theme:T20
+E18	Negative_regulation:T39 Theme:E17
+E19	Negative_regulation:T40 Theme:E17
+E20	Gene_expression:T41 Theme:T21
+E21	Regulation:T42 Theme:E20 Cause:T23
+E22	Regulation:T42 Theme:E20 Cause:T22
+M1	Negation E4
+M2	Negation E8
+M3	Negation E12
+M4	Negation E13
+M5	Negation E19
+T1	Protein 34 77	Bruton's agammaglobulinemia tyrosine kinase
+T2	Protein 84 87	Btk
+T3	Protein 105 108	Sp1
+T4	Protein 114 119	Spi-1
+T5	Protein 120 124	PU.1
+T6	Protein 142 185	Bruton's agammaglobulinemia tyrosine kinase
+T7	Protein 187 190	Btk
+T8	Protein 582 585	Sp1
+T9	Protein 646 651	Spi-1
+T10	Protein 652 656	PU.1
+T11	Protein 695 700	Spi-B
+T12	Protein 794 799	Spi-B
+T13	Protein 806 810	PU.1
+T14	Protein 824 827	Btk
+T15	Protein 1015 1020	Spi-1
+T16	Protein 1062 1067	Spi-B
+T17	Protein 1079 1083	PU.1
+T18	Protein 1111 1114	Btk
+T19	Protein 1145 1149	PU.1
+T20	Protein 1212 1215	Btk
+T21	Protein 1318 1321	Btk
+T22	Protein 1366 1369	Sp1
+T23	Protein 1375 1379	PU.1

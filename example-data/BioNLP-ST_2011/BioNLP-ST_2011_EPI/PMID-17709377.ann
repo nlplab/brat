@@ -1,0 +1,22 @@
+*	Equiv T2 T3 T4
+T20	Ubiquitination 285 298	ubiquitylated
+E1	Ubiquitination:T20 Theme:T2
+T1	Protein 0 23	T-cell ubiquitin ligand
+T2	Protein 177 200	T-cell ubiquitin ligand
+T3	Protein 202 206	TULA
+T4	Protein 208 255	suppressor of T-cell receptor signaling (Sts)-2
+T5	Protein 275 280	c-Cbl
+T6	Protein 452 456	TULA
+T7	Protein 636 640	TULA
+T8	Protein 659 663	TULA
+T9	Protein 704 707	AIF
+T10	Protein 847 850	AIF
+T11	Protein 892 896	TULA
+T12	Protein 942 946	TULA
+T13	Protein 951 954	AIF
+T14	Protein 996 1000	TULA
+T15	Protein 1042 1046	TULA
+T16	Protein 1080 1083	AIF
+T17	Protein 1120 1123	AIF
+T18	Protein 1253 1257	TULA
+T19	Protein 1361 1364	AIF

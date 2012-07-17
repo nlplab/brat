@@ -1,0 +1,30 @@
+*	Equiv T6 T7
+T22	Catalysis 5 13	mediated
+T23	Ubiquitination 14 28	ubiquitination
+T24	Catalysis 961 975	ubiquitinating
+T25	Ubiquitination 961 975	ubiquitinating
+E1	Catalysis:T22 Theme:E2 Cause:T1
+E2	Ubiquitination:T23 Theme:T2
+E3	Ubiquitination:T25 Theme:T14
+E4	Catalysis:T24 Theme:E3 Cause:T12
+T1	Protein 0 4	COP1
+T2	Protein 32 40	CONSTANS
+T3	Protein 433 437	COP1
+T4	Protein 506 523	FLOWERING LOCUS T
+T5	Protein 525 527	FT
+T6	Protein 545 553	CONSTANS
+T7	Protein 555 557	CO
+T8	Protein 576 578	FT
+T9	Protein 632 634	CO
+T10	Protein 808 810	CO
+T11	Protein 842 846	COP1
+T12	Protein 896 900	COP1
+T13	Protein 927 929	CO
+T14	Protein 976 978	CO
+T15	Protein 1001 1003	CO
+T16	Protein 1047 1051	COP1
+T17	Protein 1102 1111	ubiquitin
+T18	Protein 1136 1138	CO
+T19	Protein 1204 1208	COP1
+T20	Protein 1230 1232	CO
+T21	Protein 1245 1247	FT

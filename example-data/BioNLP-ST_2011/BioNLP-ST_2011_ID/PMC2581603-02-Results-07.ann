@@ -1,0 +1,122 @@
+T58	Process 12 22	resistance
+T59	Gene_expression 80 90	expression
+T60	Positive_regulation 108 116	resulted
+T61	Process 130 140	resistance
+T62	Process 1160 1169	resistant
+T63	Process 1276 1285	resistant
+T64	Process 1337 1347	resistance
+T65	Positive_regulation 1531 1540	simulated
+T66	Process 1545 1555	resistance
+T67	Process 2025 2034	resistant
+T68	Process 2074 2083	resistant
+T69	Process 2158 2167	tolerance
+T70	Process 2361 2371	resistance
+T71	Process 2595 2605	resistance
+T72	Positive_regulation 2706 2714	required
+T73	Process 2719 2729	resistance
+T74	Process 2861 2871	resistance
+T75	Process 2910 2920	resistance
+T76	Positive_regulation 3008 3015	induced
+T77	Process 3020 3030	resistance
+T78	Process 3116 3126	resistance
+T79	Negative_regulation 3208 3217	decreased
+T80	Positive_regulation 3222 3229	induced
+T81	Process 3230 3240	resistance
+T82	Process 3334 3344	resistance
+T83	Positive_regulation 3378 3385	induced
+T84	Process 3386 3396	resistance
+T85	Positive_regulation 3441 3450	induction
+T86	Process 3663 3673	resistance
+T87	Process 3948 3958	resistance
+T88	Positive_regulation 4066 4073	induced
+T89	Process 4074 4084	resistance
+E1	Process:T58 
+E2	Gene_expression:T59 Theme:T3
+E3	Positive_regulation:T60 Theme:E2 Cause:E4
+E4	Process:T61 
+E5	Process:T62 
+E6	Process:T63 
+E7	Process:T64 
+E8	Positive_regulation:T65 Theme:E9
+E9	Process:T66 
+E10	Process:T67 
+E11	Process:T68 
+E12	Process:T69 
+E13	Process:T70 
+E14	Process:T71 
+E15	Positive_regulation:T72 Theme:E16 Cause:T27
+E16	Process:T73 
+E17	Process:T74 
+E18	Process:T75 Participant:T31
+E19	Positive_regulation:T76 Theme:E20
+M1	Negation E19
+E20	Process:T77 Participant:T34
+E21	Process:T78 
+E22	Negative_regulation:T79 Theme:E23
+E23	Positive_regulation:T80 Theme:E24
+E24	Process:T81 Participant:T39
+E25	Process:T82 Participant:T45
+E26	Positive_regulation:T83 Theme:E27
+E27	Process:T84 
+E28	Positive_regulation:T85 Theme:T49
+E29	Process:T86 
+E30	Process:T87 
+E31	Positive_regulation:T88 Theme:E32
+E32	Process:T89 
+T1	Chemical 26 30	CAPs
+T2	Chemical 35 50	aminoglycosides
+T3	Regulon-operon 94 107	PA3552-PA3559
+T4	Protein 94 100	PA3552
+T5	Protein 101 107	PA3559
+T6	Organism 197 210	P. aeruginosa
+T7	Chemical 850 859	magnesium
+T8	Chemical 896 900	CAPs
+T9	Chemical 902 913	polymyxin B
+T10	Chemical 915 923	colistin
+T11	Chemical 928 943	aminoglycosides
+T12	Chemical 945 955	gentamycin
+T13	Chemical 957 967	tobramycin
+T14	Chemical 1137 1140	CAP
+T15	Chemical 1145 1159	aminoglycoside
+T16	Chemical 1361 1365	CAPs
+T17	Chemical 1370 1385	aminoglycosides
+T18	Chemical 1623 1634	polymyxin B
+T19	Chemical 1639 1649	gentamicin
+T20	Chemical 2013 2024	polymyxin B
+T21	Chemical 2059 2073	aminoglycoside
+T22	Chemical 2171 2182	ceftazidime
+T23	Chemical 2184 2195	beta-lactam
+T24	Chemical 2200 2213	ciprofloxacin
+T25	Chemical 2215 2230	fluoroquinolone
+T26	Organism 2307 2311	PAO1
+T27	Regulon-operon 2682 2695	PA3552-PA3559
+T28	Protein 2682 2688	PA3552
+T29	Protein 2689 2695	PA3559
+T30	Chemical 2806 2815	magnesium
+T31	Organism 2938 2956	PA3553::lux mutant
+T32	Protein 2938 2944	PA3553
+T33	Protein 2946 2949	lux
+T34	Organism 2973 2984	PA3553::lux
+T35	Protein 2973 2979	PA3553
+T36	Protein 2981 2984	lux
+T37	Chemical 3016 3019	CAP
+T38	Chemical 3112 3115	CAP
+T39	Organism 3179 3192	PA3553 mutant
+T40	Protein 3179 3185	PA3553
+T41	Chemical 3244 3259	aminoglycosides
+T42	Organism 3272 3276	PAO1
+T43	Chemical 3311 3314	CAP
+T44	Chemical 3319 3333	aminoglycoside
+T45	Organism 3348 3359	PA3553::lux
+T46	Protein 3348 3354	PA3553
+T47	Protein 3356 3359	lux
+T48	Chemical 3400 3415	aminoglycosides
+T49	Protein 3434 3440	PA3553
+T50	Organism 3479 3497	PA3553::lux mutant
+T51	Protein 3479 3485	PA3553
+T52	Protein 3487 3490	lux
+T53	Organism 3525 3529	PAO1
+T54	Chemical 3659 3662	CAP
+T55	Chemical 3714 3723	magnesium
+T56	Chemical 3804 3813	magnesium
+T57	Chemical 4004 4013	magnesium

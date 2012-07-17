@@ -1,0 +1,23 @@
+*	Equiv T3 T4
+*	Equiv T5 T6
+T8	Entity 46 54	tyrosine
+T9	Entity 131 134	CD3
+T10	Entity 521 524	CD3
+T11	Entity 586 589	CD3
+T12	Entity 841 849	tyrosine
+T13	Entity 1102 1105	CD3
+T14	Entity 1162 1172	NF-kappa B
+T15	Entity 1231 1241	NF-kappa B
+T16	Entity 1242 1245	DNA
+T17	Entity 1510 1518	tyrosine
+T18	Entity 1591 1601	NF-kappa B
+R1	Subunit-Complex Arg1:T2 Arg2:T14
+R2	Subunit-Complex Arg1:T5 Arg2:T14
+R3	Subunit-Complex Arg1:T3 Arg2:T14
+T1	Protein 88 92	IL-2
+T2	Protein 1185 1190	c-Rel
+T3	Protein 1192 1195	p65
+T4	Protein 1197 1201	RelA
+T5	Protein 1208 1211	p50
+T6	Protein 1213 1224	NF-kappa B1
+T7	Protein 1404 1408	IL-2

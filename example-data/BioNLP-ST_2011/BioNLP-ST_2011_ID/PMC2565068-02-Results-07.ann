@@ -1,0 +1,56 @@
+T1	Protein 0 4	scpC
+T2	Protein 9 12	slo
+T3	Protein 147 151	scpC
+T4	Protein 159 162	slo
+T5	Organism 190 195	mouse
+T6	Organism 224 234	NIH230scpC
+T7	Protein 230 234	scpC
+T8	Organism 239 248	NIH230slo
+T9	Protein 245 248	slo
+T10	Organism 305 330	non-invasive isolate 1566
+T11	Organism 421 431	NIH230scpC
+T12	Protein 427 431	scpC
+T13	Organism 436 445	NIH230slo
+T14	Protein 442 445	slo
+T15	Organism 514 518	1566
+T16	Organism 523 536	NIH230::csrS+
+T17	Protein 531 536	csrS+
+T18	Protein 631 635	ScpC
+T19	Protein 640 643	SLO
+T20	Organism 647 659	invasive GAS
+T21	Organism 705 708	GAS
+T22	Process 70 80	infections
+T23	Regulation 107 116	influence
+T24	Positive_regulation 120 128	enhanced
+T25	Gene_expression 129 139	expression
+T26	Process 175 184	virulence
+T27	Process 464 472	infected
+T28	Process 558 567	infection
+T29	Positive_regulation 608 616	enhanced
+T30	Gene_expression 617 627	expression
+T31	Regulation 669 683	important role
+T32	Process 692 701	virulence
+T33	Process 709 718	infection
+E1	Process:T22 
+E2	Regulation:T23 Theme:E8 Cause:E4
+M1	Speculation E2
+E3	Regulation:T23 Theme:E8 Cause:E5
+M2	Speculation E3
+E4	Positive_regulation:T24 Theme:E6
+E5	Positive_regulation:T24 Theme:E7
+E6	Gene_expression:T25 Theme:T3
+E7	Gene_expression:T25 Theme:T4
+E8	Process:T26 
+E9	Process:T27 Participant:T13
+E10	Process:T27 Participant:T15
+E11	Process:T27 Participant:T16
+E12	Process:T27 Participant:T11
+E13	Process:T28 
+E14	Positive_regulation:T29 Theme:E16
+E15	Positive_regulation:T29 Theme:E17
+E16	Gene_expression:T30 Theme:T18
+E17	Gene_expression:T30 Theme:T19
+E18	Regulation:T31 Theme:E20 Cause:E14
+E19	Regulation:T31 Theme:E20 Cause:E15
+E20	Process:T32 Participant:T21
+E21	Process:T33 Participant:T21

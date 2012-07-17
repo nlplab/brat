@@ -1,0 +1,18 @@
+T1	Protein 39 44	DAPK2
+T2	Protein 117 150	Death-associated protein kinase 2
+T3	Protein 152 157	DAPK2
+T4	Protein 172 182	calmodulin
+T5	Protein 281 286	DAPK2
+T6	Protein 413 418	DAPK2
+T7	Protein 482 487	DAPK2
+T8	Protein 593 604	CD30 ligand
+T9	Protein 627 632	DAPK2
+T10	Protein 633 643	calmodulin
+T11	Protein 692 697	DAPK2
+T12	Protein 699 704	CD30L
+T13	Protein 900 904	CD30
+T14	Protein 905 910	DAPK2
+*	Equiv T2 T3
+T15	Entity 359 374	promoter-region
+T16	DNA_methylation 375 391	hypermethylation
+E1	DNA_methylation:T16 Theme:T5 Site:T15

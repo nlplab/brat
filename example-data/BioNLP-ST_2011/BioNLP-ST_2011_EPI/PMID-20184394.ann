@@ -1,0 +1,66 @@
+T1	Protein 0 4	TACI
+T2	Protein 13 18	cIAP1
+T3	Protein 46 49	NIK
+T4	Protein 53 58	TRAF2
+T5	Protein 63 67	TANK
+T6	Protein 113 137	B-cell-activating factor
+T7	Protein 157 161	BAFF
+T8	Protein 286 311	NF-kappaB inducing kinase
+T9	Protein 313 316	NIK
+T10	Protein 358 368	NF-kappaB2
+T11	Protein 369 373	p100
+T12	Protein 386 389	p52
+T13	Protein 397 401	BAFF
+T14	Protein 425 438	BAFF receptor
+T15	Protein 440 446	BAFF-R
+T16	Protein 453 496	transmembrane activator and CAML interactor
+T17	Protein 498 502	TACI
+T18	Protein 528 532	BAFF
+T19	Protein 613 617	TACI
+T20	Protein 628 638	NF-kappaB2
+T21	Protein 725 729	TACI
+T22	Protein 751 757	BAFF-R
+T23	Protein 767 777	NF-kappaB2
+T24	Protein 778 782	p100
+T25	Protein 820 854	cellular inhibitors of apoptosis 1
+T26	Protein 856 861	cIAP1
+T27	Protein 867 935	TNF receptor associated factor (TRAF)-associated NF-kappaB activator
+T28	Protein 937 941	TANK
+T29	Protein 966 969	NIK
+T30	Protein 973 978	cIAP1
+T31	Protein 1014 1019	TRAF2
+T32	Protein 1045 1050	cIAP1
+T33	Protein 1052 1056	TANK
+T34	Protein 1110 1114	TACI
+T35	Protein 1139 1149	NF-kappaB2
+T36	Protein 1150 1154	p100
+T37	Protein 1167 1171	TANK
+T38	Protein 1187 1192	TRAF2
+T39	Protein 1202 1207	cIAP1
+T40	Protein 1251 1256	TRAF2
+T41	Protein 1260 1264	TACI
+T42	Protein 1295 1298	NIK
+T43	Protein 1334 1337	NIK
+T44	Protein 1341 1345	TACI
+T45	Protein 1373 1377	TANK
+T46	Protein 1378 1383	TRAF2
+T47	Protein 1384 1389	cIAP1
+*	Equiv T6 T7
+*	Equiv T8 T9
+*	Equiv T10 T11 T12
+*	Equiv T14 T15
+*	Equiv T16 T17
+*	Equiv T23 T24
+*	Equiv T25 T26
+*	Equiv T27 T28
+*	Equiv T35 T36
+T48	Catalysis 19 27	mediated
+T49	Ubiquitination 28 42	ubiquitination
+T50	Catalysis 948 962	ubiquitination
+T51	Ubiquitination 948 962	ubiquitination
+T52	Ubiquitination 1277 1291	ubiquitination
+E1	Catalysis:T48 Theme:E2 Cause:T2
+E2	Ubiquitination:T49 Theme:T3
+E3	Ubiquitination:T51 Theme:T29
+E4	Catalysis:T50 Theme:E3 Cause:T30
+E5	Ubiquitination:T52 Theme:T42

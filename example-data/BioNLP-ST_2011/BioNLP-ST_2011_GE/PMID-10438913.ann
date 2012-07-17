@@ -1,0 +1,35 @@
+T19	Negative_regulation 470 494	resulted in very limited
+T20	Positive_regulation 470 478	resulted
+T21	Positive_regulation 495 506	stimulation
+T22	Entity 566 574	promoter
+T23	Positive_regulation 575 586	stimulation
+T24	Regulation 628 635	effects
+T25	Entity 700 708	promoter
+T26	Negative_regulation 894 902	blocking
+E1	Negative_regulation:T19 Theme:E3
+E2	Positive_regulation:T20 Theme:E4
+E3	Positive_regulation:T21 Theme:T8
+E4	Positive_regulation:T23 Theme:T9 Site:T22
+E5	Regulation:T24 Theme:T11 Cause:T10 Site:T25
+E6	Negative_regulation:T26 Theme:T12
+M1	Negation E3
+M2	Negation E4
+M3	Negation E5
+T1	Protein 0 4	IL-2
+T2	Protein 74 78	CD28
+T3	Protein 102 106	CD28
+T4	Protein 298 302	CD28
+T5	Protein 349 353	IL-2
+T6	Protein 407 411	CD28
+T7	Protein 460 464	CD80
+T8	Protein 510 514	IL-2
+T9	Protein 561 565	IL-2
+T10	Protein 613 617	CD28
+T11	Protein 695 699	IL-2
+T12	Protein 915 919	IL-2
+T13	Protein 992 996	CD28
+T14	Protein 1016 1020	IL-2
+T15	Protein 1089 1093	CD80
+T16	Protein 1151 1155	IL-2
+T17	Protein 1189 1193	CD28
+T18	Protein 1269 1273	IL-2

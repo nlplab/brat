@@ -1,0 +1,36 @@
+T1	Protein 0 8	Thrombin
+T2	Protein 129 133	CD69
+T3	Protein 149 162	interleukin 2
+T4	Protein 176 184	Thrombin
+T5	Protein 371 379	thrombin
+T6	Protein 438 450	thrombin III
+T7	Protein 465 473	thrombin
+T8	Protein 622 630	thrombin
+T9	Protein 730 738	Thrombin
+T10	Protein 880 888	thrombin
+T11	Protein 974 982	Thrombin
+T12	Protein 1119 1127	thrombin
+T13	Protein 1308 1316	thrombin
+T14	Protein 1422 1430	thrombin
+T15	Protein 1472 1480	thrombin
+T16	Protein 1551 1568	thrombin receptor
+T17	Protein 1638 1656	phytohemagglutinin
+T18	Protein 1725 1742	thrombin receptor
+T19	Protein 1792 1800	thrombin
+T20	Protein 1840 1848	thrombin
+T21	Protein 1866 1870	CD69
+T22	Protein 1886 1899	interleukin 2
+T23	Protein 2046 2054	thrombin
+T24	Entity 13 46	thrombin receptor agonist peptide
+T25	Entity 107 110	TCR
+T26	Entity 421 428	hirudin
+T27	Entity 526 559	thrombin receptor agonist peptide
+T28	Entity 561 564	TRP
+T29	Entity 569 579	7 residues
+T30	Entity 581 588	SFLLRNP
+T31	Entity 750 758	tyrosine
+T32	Entity 897 905	tyrosine
+T33	Entity 987 990	TRP
+T34	Entity 1142 1162	nuclear factor NF-kB
+T35	Entity 1434 1437	TRP
+T36	Entity 1853 1856	TRP

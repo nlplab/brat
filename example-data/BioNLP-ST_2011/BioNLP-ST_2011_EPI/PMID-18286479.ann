@@ -1,0 +1,50 @@
+*	Equiv T5 T6
+*	Equiv T7 T8
+T35	Ubiquitination 21 40	multiubiquitination
+T36	Catalysis 447 457	stimulated
+T37	Ubiquitination 458 472	ubiquitination
+T38	Ubiquitination 767 781	ubiquitination
+T39	Ubiquitination 893 912	multiubiquitination
+T40	Ubiquitination 1012 1026	ubiquitination
+T41	Ubiquitination 1656 1675	multiubiquitination
+E1	Ubiquitination:T35 Theme:T3
+E2	Catalysis:T36 Theme:E3 Cause:T14
+E3	Ubiquitination:T37 Theme:T15
+E4	Ubiquitination:T38 Theme:T16
+E5	Ubiquitination:T39 Theme:T19
+E6	Ubiquitination:T40 Theme:T21
+E7	Ubiquitination:T41 Theme:T34
+T1	Protein 0 5	Grb10
+T2	Protein 6 11	Nedd4
+T3	Protein 48 83	insulin-like growth factor receptor
+T4	Protein 141 146	Grb10
+T5	Protein 180 194	IGF-I receptor
+T6	Protein 196 202	IGF-IR
+T7	Protein 212 228	insulin receptor
+T8	Protein 230 232	IR
+T9	Protein 297 302	Grb10
+T10	Protein 330 336	IGF-IR
+T11	Protein 386 391	Grb10
+T12	Protein 405 414	ubiquitin
+T13	Protein 422 427	Nedd4
+T14	Protein 441 446	IGF-I
+T15	Protein 514 520	IGF-IR
+T16	Protein 789 795	IGF-IR
+T17	Protein 840 845	Grb10
+T18	Protein 846 851	Nedd4
+T19	Protein 920 926	IGF-IR
+T20	Protein 986 991	Nedd4
+T21	Protein 1005 1011	IGF-IR
+T22	Protein 1064 1069	Grb10
+T23	Protein 1093 1099	IGF-IR
+T24	Protein 1159 1165	IGF-IR
+T25	Protein 1235 1240	Grb10
+T26	Protein 1245 1250	Nedd4
+T27	Protein 1278 1284	IGF-IR
+T28	Protein 1382 1387	Grb10
+T29	Protein 1392 1397	Nedd4
+T30	Protein 1410 1416	IGF-IR
+T31	Protein 1553 1558	Grb10
+T32	Protein 1563 1568	Nedd4
+T33	Protein 1603 1609	IGF-IR
+T34	Protein 1683 1689	IGF-IR

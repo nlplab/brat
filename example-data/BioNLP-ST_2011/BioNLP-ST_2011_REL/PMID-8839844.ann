@@ -1,0 +1,23 @@
+T1	Protein 0 2	E3
+T2	Protein 66 94	retinoic acid receptor alpha
+T3	Protein 151 179	retinoic acid receptor alpha
+T4	Protein 181 190	RAR alpha
+T5	Protein 457 459	E3
+T6	Protein 605 607	E3
+T7	Protein 720 729	RAR alpha
+T8	Protein 808 817	RAR alpha
+T9	Protein 857 859	E3
+T10	Protein 873 875	E3
+T11	Protein 1165 1167	E3
+T12	Protein 1328 1330	E3
+T13	Protein 1410 1419	RAR alpha
+*	Equiv T3 T4
+T14	Entity 290 302	cDNA library
+T15	Entity 384 405	immediate-early genes
+T16	Entity 1006 1057	hydrophobic, potentially phosphorylated polypeptide
+T17	Entity 1046 1057	polypeptide
+T18	Entity 1168 1176	promoter
+T19	Entity 1194 1234	bipartite retinoic acid response element
+T20	Entity 1336 1363	hematopoietic-specific gene
+R1	Protein-Component Arg1:T11 Arg2:T19
+R2	Protein-Component Arg1:T11 Arg2:T18

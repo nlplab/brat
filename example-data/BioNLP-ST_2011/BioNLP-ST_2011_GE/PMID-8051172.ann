@@ -1,0 +1,25 @@
+T8	Negative_regulation 659 668	deficient
+T9	Gene_expression 684 694	expression
+T10	Regulation 886 896	responsive
+T11	Regulation 930 944	responsiveness
+T12	Gene_expression 960 970	expression
+T13	Regulation 1031 1039	response
+T14	Positive_regulation 1272 1281	increased
+T15	Entity 1282 1290	tyrosine
+T16	Phosphorylation 1291 1306	phosphorylation
+E1	Negative_regulation:T8 Theme:E2
+E2	Gene_expression:T9 Theme:T3
+E3	Regulation:T10 Theme:T4
+E4	Regulation:T10 Theme:T5
+E5	Regulation:T11 Theme:T5
+E6	Gene_expression:T12 Theme:T6
+E7	Regulation:T13 Theme:T5
+E8	Positive_regulation:T14 Theme:E9
+E9	Phosphorylation:T16 Theme:T7 Site:T15
+T1	Protein 0 6	ZAP-70
+T2	Protein 24 28	CD45
+T3	Protein 679 683	CD45
+T4	Protein 856 862	ZAP-70
+T5	Protein 923 929	ZAP-70
+T6	Protein 987 991	CD45
+T7	Protein 1229 1261	epidermal growth factor receptor

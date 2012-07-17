@@ -1,0 +1,51 @@
+*	Equiv T4 T7
+*	Equiv T12 T15
+*	Equiv T18 T21
+*	Equiv T31 T32
+T34	Process 199 209	infections
+T35	Negative_regulation 645 657	Inactivation
+T36	Negative_regulation 902 917	discontinuation
+T37	Gene_expression 942 952	expression
+E1	Process:T34 Participant:T3
+E2	Negative_regulation:T35 Theme:T25
+E3	Negative_regulation:T35 Theme:T26
+E4	Negative_regulation:T35 Theme:T27
+E5	Negative_regulation:T36 Theme:E9
+E6	Negative_regulation:T36 Theme:E10
+E7	Negative_regulation:T36 Theme:E8
+E8	Gene_expression:T37 Theme:T30
+E9	Gene_expression:T37 Theme:T28
+E10	Gene_expression:T37 Theme:T29
+T1	Organism 51 73	Pseudomonas aeruginosa
+T2	Organism 109 114	human
+T3	Organism 124 146	Pseudomonas aeruginosa
+T4	Two-component-system 382 387	BfiSR
+T5	Protein 382 386	BfiS
+T6	Protein 386 387	R
+T7	Two-component-system 389 400	PA4196-4197
+T8	Protein 389 395	PA4196
+T9	Protein 396 400	4197
+T10	Protein 415 419	RpoD
+T11	Protein 436 440	OmpR
+T12	Two-component-system 446 451	BfmSR
+T13	Protein 446 450	BfmS
+T14	Protein 450 451	R
+T15	Two-component-system 453 464	PA4101-4102
+T16	Protein 453 459	PA4101
+T17	Protein 460 464	4102
+T18	Two-component-system 471 476	MifSR
+T19	Protein 471 475	MifS
+T20	Protein 475 476	R
+T21	Two-component-system 478 489	PA5511-5512
+T22	Protein 478 484	PA5511
+T23	Protein 485 489	5512
+T24	Protein 518 522	NtrC
+T25	Protein 661 665	bfiS
+T26	Protein 667 671	bfmR
+T27	Protein 677 681	mifR
+T28	Protein 921 925	bfiS
+T29	Protein 927 931	bfmR
+T30	Protein 937 941	mifR
+T31	Protein 1380 1384	GacS
+T32	Protein 1386 1392	PA0928
+T33	Organism 1750 1763	P. aeruginosa

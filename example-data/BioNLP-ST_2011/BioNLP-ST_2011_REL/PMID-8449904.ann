@@ -1,0 +1,39 @@
+T10	Entity 34 77	pyruvate kinase erythroid-specific promoter
+T11	Entity 232 241	promoters
+T12	Entity 281 285	cis-
+T13	Entity 290 311	trans-acting elements
+T14	Entity 377 385	promoter
+T15	Entity 450 458	cap site
+T16	Entity 494 507	reporter gene
+T17	Entity 541 557	minimal promoter
+T18	Entity 630 647	DNA binding sites
+T19	Entity 791 808	GATA binding site
+T20	Entity 810 816	AGATAA
+T21	Entity 838 856	TFIID binding site
+T22	Entity 838 843	TFIID
+T23	Entity 875 880	TFIID
+T24	Entity 920 937	GATA binding site
+T25	Entity 953 971	TFIID binding site
+T26	Entity 953 958	TFIID
+T27	Entity 1101 1114	binding sites
+T28	Entity 1179 1195	minimal promoter
+T29	Entity 1251 1259	elements
+T30	Entity 1312 1320	promoter
+R1	Protein-Component Arg1:T1 Arg2:T11
+R2	Protein-Component Arg1:T4 Arg2:T13
+R3	Protein-Component Arg1:T4 Arg2:T12
+R4	Protein-Component Arg1:T4 Arg2:T14
+R5	Protein-Component Arg1:T5 Arg2:T15
+R6	Protein-Component Arg1:T7 Arg2:T27
+R7	Protein-Component Arg1:T7 Arg2:T28
+R8	Protein-Component Arg1:T9 Arg2:T29
+R9	Protein-Component Arg1:T9 Arg2:T30
+T1	Protein 134 135	L
+T2	Protein 165 169	R-PK
+T3	Protein 187 191	L-PK
+T4	Protein 360 361	L
+T5	Protein 389 393	R-PK
+T6	Protein 766 772	GATA-1
+T7	Protein 1174 1178	R-PK
+T8	Protein 1276 1283	hGATA-1
+T9	Protein 1307 1311	R-PK

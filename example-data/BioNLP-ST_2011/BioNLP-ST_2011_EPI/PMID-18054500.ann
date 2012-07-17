@@ -1,0 +1,12 @@
+T1	Protein 959 990	hypoxia-inducible factor-1alpha
+T2	Protein 992 1002	HIF-1alpha
+T3	Protein 1227 1236	protein G
+T4	Protein 1238 1239	G
+T5	Protein 1377 1387	HIF-1alpha
+*	Equiv T1 T2
+*	Equiv T3 T4
+T6	Hydroxylation 1008 1020	hydroxylated
+T7	Entity 1024 1031	Asn-803
+T8	Hydroxylation 1360 1373	hydroxylation
+E1	Hydroxylation:T6 Theme:T1 Site:T7
+E2	Hydroxylation:T8 Theme:T5

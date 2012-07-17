@@ -1,0 +1,25 @@
+T9	Regulation 52 60	modulate
+T10	Transcription 65 78	transcription
+T11	Positive_regulation 528 534	induce
+T12	Transcription 539 552	transcription
+T13	Positive_regulation 704 714	Activation
+T14	Transcription 729 742	transcription
+T15	Negative_regulation 763 767	loss
+T16	Binding 771 787	binding activity
+T17	Entity 885 893	promoter
+E1	Regulation:T9 Theme:E2
+E2	Transcription:T10 Theme:T1
+E3	Positive_regulation:T11 Theme:E4
+E4	Transcription:T12 Theme:T2
+E5	Positive_regulation:T13 Theme:E6
+E6	Transcription:T14 Theme:T3
+E7	Negative_regulation:T15 Theme:E8
+E8	Binding:T16 Theme:T4 Theme2:T5 Site2:T17
+T1	Protein 113 123	TGF-beta 2
+T2	Protein 575 585	TGF-beta 2
+T3	Protein 718 728	TGF-beta 2
+T4	Protein 834 838	GLRP
+T5	Protein 874 884	TFG-beta 2
+T6	Protein 904 908	GLRP
+T7	Protein 1140 1150	TGF-beta 2
+T8	Protein 1248 1258	TGF-beta 2

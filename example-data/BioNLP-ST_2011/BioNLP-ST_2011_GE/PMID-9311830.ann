@@ -1,0 +1,40 @@
+T1	Protein 15 20	BHRF1
+T2	Protein 181 184	Fas
+T3	Protein 405 410	BHRF1
+T4	Protein 491 496	Bcl-2
+T5	Protein 542 547	BHRF1
+T6	Protein 620 623	Fas
+T7	Protein 674 679	BHRF1
+T8	Protein 835 840	BHRF1
+T9	Protein 933 938	Bcl-2
+T10	Protein 943 949	Bcl-xL
+T11	Protein 988 993	BHRF1
+T12	Protein 1012 1017	Bcl-2
+T13	Protein 1022 1028	Bcl-xL
+T14	Protein 1059 1062	Fas
+T15	Protein 1137 1163	cytosolic phospholipase A2
+T16	Protein 1168 1177	caspase-3
+T17	Protein 1178 1183	CPP32
+T18	Protein 1291 1296	BHRF1
+T19	Protein 1391 1394	Fas
+T20	Protein 1490 1495	BHRF1
+T21	Protein 1500 1505	Bcl-2
+T22	Protein 1560 1563	Fas
+T23	Protein 1676 1681	BHRF1
+T24	Protein 1718 1723	Bcl-2
+*	Equiv T16 T17
+T25	Gene_expression 528 538	Expression
+T26	Negative_regulation 1035 1044	inhibited
+T27	Positive_regulation 1071 1081	activation
+T28	Gene_expression 1468 1478	expression
+E1	Gene_expression:T25 Theme:T5
+E2	Negative_regulation:T26 Theme:E8 Cause:T13
+E3	Negative_regulation:T26 Theme:E9 Cause:T12
+E4	Negative_regulation:T26 Theme:E9 Cause:T13
+E5	Negative_regulation:T26 Theme:E8 Cause:T11
+E6	Negative_regulation:T26 Theme:E8 Cause:T12
+E7	Negative_regulation:T26 Theme:E9 Cause:T11
+E8	Positive_regulation:T27 Theme:T15
+E9	Positive_regulation:T27 Theme:T16
+E10	Gene_expression:T28 Theme:T21
+E11	Gene_expression:T28 Theme:T20

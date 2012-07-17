@@ -1,0 +1,61 @@
+*	Equiv T3 T4 T5
+*	Equiv T23 T24
+T35	Gene_expression 629 639	expression
+T36	Gene_expression 721 731	production
+T37	Positive_regulation 812 821	dependent
+T38	Negative_regulation 856 865	decreased
+T39	Gene_expression 866 876	expression
+T40	Process 880 889	virulence
+T41	Negative_regulation 1332 1342	attenuated
+T42	Process 1343 1352	virulence
+E1	Gene_expression:T35 Theme:T16
+E2	Gene_expression:T35 Theme:T17
+E3	Gene_expression:T36 Theme:T18
+E4	Positive_regulation:T37 Theme:E1 Cause:T19
+E5	Positive_regulation:T37 Theme:E2 Cause:T19
+E6	Positive_regulation:T37 Theme:E3 Cause:T19
+E7	Negative_regulation:T38 Theme:E11
+E8	Negative_regulation:T38 Theme:E12
+E9	Negative_regulation:T38 Theme:E13
+E10	Negative_regulation:T38 Theme:E14
+E11	Gene_expression:T39 Theme:T23
+E12	Gene_expression:T39 Theme:T26
+E13	Gene_expression:T39 Theme:T27
+E14	Gene_expression:T39 Theme:T22
+E15	Process:T40 
+E16	Negative_regulation:T41 Theme:E17
+E17	Process:T42 Participant:T30
+T1	Chemical 14 18	AI-2
+T2	Chemical 27 30	AHL
+T3	Chemical 120 134	autoinductor 2
+T4	Chemical 136 140	AI-2
+T5	Chemical 143 167	furanosyl borate diester
+T6	Protein 197 201	luxS
+T7	Organism 253 267	P. luminescens
+T8	Organism 272 289	Y. enterocolitica
+T9	Protein 291 298	plu1253
+T10	Protein 300 306	ye0839
+T11	Protein 336 340	luxS
+T12	Chemical 397 407	carbapenem
+T13	Organism 435 449	P. luminescens
+T14	Chemical 479 483	AI-2
+T15	Organism 591 605	P. luminescens
+T16	Protein 643 648	tcdA1
+T17	Protein 653 658	tccC1
+T18	Protein 735 739	mcf2
+T19	Protein 807 811	luxS
+T20	Organism 827 843	DeltaluxS mutant
+T21	Protein 832 836	luxS
+T22	Protein 928 932	CcdB
+T23	Protein 966 970	HlyD
+T24	Protein 972 979	Plu0635
+T25	Two-component-system 1021 1030	RtxD/RtxB
+T26	Protein 1021 1025	RtxD
+T27	Protein 1026 1030	RtxB
+T28	Organism 1076 1093	Y. enterocolitica
+T29	Chemical 1151 1155	AI-2
+T30	Organism 1197 1232	P. luminescens luxS-negative strain
+T31	Protein 1212 1216	luxS
+T32	Chemical 1411 1415	AI-2
+T33	Chemical 1581 1585	AI-2
+T34	Chemical 1678 1681	AHL

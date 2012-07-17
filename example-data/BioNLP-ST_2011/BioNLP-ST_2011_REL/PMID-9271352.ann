@@ -1,0 +1,32 @@
+T1	Protein 0 25	CholecystokininB receptor
+T2	Protein 195 212	(CCK(B)) receptor
+T3	Protein 529 539	luciferase
+T4	Protein 887 902	CCK(B) receptor
+T5	Protein 984 999	CCK(B) receptor
+T6	Protein 1093 1108	CCK(B) receptor
+T7	Protein 1177 1187	luciferase
+T8	Protein 1255 1286	serine/threonine phosphatases-1
+T9	Protein 1291 1294	-2A
+T10	Protein 1496 1506	luciferase
+T11	Protein 1533 1549	CCK(B) receptors
+T12	Protein 1617 1630	interleukin-2
+T13	Protein 1782 1800	phytohemagglutinin
+T14	Protein 1816 1820	IL-2
+T15	Protein 1974 1990	CCK(B) receptors
+T16	Entity 179 194	cholecystokinin
+T17	Entity 345 358	reporter gene
+T18	Entity 487 492	CCK-8
+T19	Entity 562 581	activator protein-1
+T20	Entity 583 587	AP-1
+T21	Entity 684 696	AP-1 complex
+T22	Entity 1162 1166	AP-1
+T23	Entity 1482 1487	CCK-8
+T24	Entity 1566 1570	AP-1
+T25	Entity 1601 1606	CCK-8
+T26	Entity 1653 1668	endogenous gene
+T27	Entity 1709 1713	AP-1
+T28	Entity 1802 1807	CCK-8
+T29	Entity 1903 1908	CCK-8
+T30	Entity 2022 2042	AP-1-regulated genes
+T31	Entity 2022 2026	AP-1
+T32	Entity 2037 2042	genes

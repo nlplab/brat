@@ -1,0 +1,32 @@
+T21	Entity 444 484	acidic transcriptional activation domain
+T22	Entity 522 525	DNA
+T23	Entity 585 608	GAL4 DNA binding domain
+T24	Entity 753 761	plasmids
+T25	Entity 1006 1014	plasmids
+T26	Entity 1540 1591	class II major histocompatibility complex promoters
+T27	Entity 1610 1618	promoter
+T28	Entity 1652 1670	DNA binding domain
+T29	Entity 1739 1763	acidic activation domain
+R1	Protein-Component Arg1:T6 Arg2:T23
+R2	Protein-Component Arg1:T19 Arg2:T28
+R3	Protein-Component Arg1:T20 Arg2:T29
+T1	Protein 99 104	CIITA
+T2	Protein 109 113	RFX5
+T3	Protein 321 325	RFX5
+T4	Protein 398 403	CIITA
+T5	Protein 567 571	RFX5
+T6	Protein 585 589	GAL4
+T7	Protein 670 674	GAL4
+T8	Protein 835 851	interferon gamma
+T9	Protein 905 910	CIITA
+T10	Protein 1110 1115	CIITA
+T11	Protein 1165 1169	RFX5
+T12	Protein 1239 1244	CIITA
+T13	Protein 1303 1307	RFX5
+T14	Protein 1312 1317	CIITA
+T15	Protein 1392 1396	RFX5
+T16	Protein 1449 1454	CIITA
+T17	Protein 1456 1460	RFX5
+T18	Protein 1465 1470	CIITA
+T19	Protein 1674 1678	RFX5
+T20	Protein 1767 1772	CIITA

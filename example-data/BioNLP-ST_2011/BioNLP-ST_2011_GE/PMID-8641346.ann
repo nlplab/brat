@@ -1,0 +1,96 @@
+*	Equiv T2 T3
+T33	Negative_regulation 472 487	down regulation
+T34	Positive_regulation 879 888	increased
+T35	Transcription 889 899	expression
+T36	Regulation 1021 1027	effect
+T37	Transcription 1047 1057	expression
+T38	Regulation 1110 1116	affect
+T39	Transcription 1121 1131	expression
+T40	Positive_regulation 1156 1164	enhanced
+T41	Transcription 1169 1179	expression
+T42	Positive_regulation 1277 1285	increase
+T43	Transcription 1293 1303	expression
+T44	Positive_regulation 1326 1332	due to
+T45	Positive_regulation 1336 1344	increase
+T46	Gene_expression 1496 1505	expressed
+T47	Positive_regulation 1556 1564	resulted
+T48	Gene_expression 1572 1582	expression
+T49	Gene_expression 1784 1793	contained
+T50	Positive_regulation 1814 1828	in response to
+T51	Positive_regulation 1912 1920	enhanced
+T52	Gene_expression 1941 1951	expression
+T53	Regulation 2031 2037	change
+T54	Gene_expression 2058 2068	expression
+E1	Negative_regulation:T33 Theme:T6
+E2	Negative_regulation:T33 Theme:T7
+E3	Positive_regulation:T34 Theme:E4
+E4	Transcription:T35 Theme:T9
+E5	Regulation:T36 Theme:E6
+E6	Transcription:T37 Theme:T11
+E7	Regulation:T38 Theme:E8
+E8	Transcription:T39 Theme:T13
+E9	Positive_regulation:T40 Theme:E10
+E10	Transcription:T41 Theme:T14
+E11	Positive_regulation:T42 Theme:E12
+E12	Transcription:T43 Theme:T16
+E13	Positive_regulation:T44 Theme:E11 Cause:E14
+E14	Positive_regulation:T45 Theme:T17
+E15	Gene_expression:T46 Theme:T18
+E16	Positive_regulation:T47 Theme:E20
+E17	Positive_regulation:T47 Theme:E20 Cause:T19
+E18	Positive_regulation:T47 Theme:E21 Cause:T19
+E19	Positive_regulation:T47 Theme:T19
+E20	Gene_expression:T48 Theme:T20
+E21	Gene_expression:T48 Theme:T21
+E22	Gene_expression:T49 Theme:T24
+E23	Gene_expression:T49 Theme:T23
+E24	Positive_regulation:T50 Theme:E23 Cause:T25
+E25	Positive_regulation:T50 Theme:E22 Cause:T25
+E26	Positive_regulation:T50 Theme:E23
+E27	Positive_regulation:T50 Theme:E22
+E28	Positive_regulation:T51 Theme:E31 Cause:T25
+E29	Positive_regulation:T51 Theme:E30 Cause:T25
+E30	Gene_expression:T52 Theme:T27
+E31	Gene_expression:T52 Theme:T26
+E32	Regulation:T53 Theme:E34 Cause:T28
+E33	Regulation:T53 Theme:E35 Cause:T28
+E34	Gene_expression:T54 Theme:T30
+E35	Gene_expression:T54 Theme:T29
+M1	Negation E5
+M2	Negation E7
+M3	Negation E28
+M4	Negation E29
+M5	Negation E32
+M6	Negation E33
+T1	Protein 0 16	Interferon-gamma
+T2	Protein 143 159	Interferon-gamma
+T3	Protein 161 170	IFN-gamma
+T4	Protein 321 330	IFN-gamma
+T5	Protein 446 455	IFN-gamma
+T6	Protein 491 496	c-fos
+T7	Protein 501 506	c-jun
+T8	Protein 833 842	IFN-gamma
+T9	Protein 903 907	p105
+T10	Protein 935 938	p50
+T11	Protein 1061 1064	p65
+T12	Protein 1084 1093	IFN-gamma
+T13	Protein 1135 1139	p105
+T14	Protein 1183 1186	p65
+T15	Protein 1217 1226	IFN-gamma
+T16	Protein 1307 1310	p65
+T17	Protein 1365 1368	p65
+T18	Protein 1506 1509	p50
+T19	Protein 1546 1555	IFN-gamma
+T20	Protein 1586 1589	p50
+T21	Protein 1594 1597	p65
+T22	Protein 1633 1642	IFN-gamma
+T23	Protein 1794 1797	p50
+T24	Protein 1802 1805	p65
+T25	Protein 1837 1846	IFN-gamma
+T26	Protein 1921 1924	p50
+T27	Protein 1929 1932	p65
+T28	Protein 1968 1977	IFN-gamma
+T29	Protein 2072 2079	NF-IL-6
+T30	Protein 2083 2098	I kappa B alpha
+T31	Protein 2161 2170	IFN-gamma
+T32	Protein 2285 2294	IFN-gamma

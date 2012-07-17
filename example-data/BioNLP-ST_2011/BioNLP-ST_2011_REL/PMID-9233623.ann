@@ -1,0 +1,20 @@
+T1	Protein 0 3	RP1
+T2	Protein 162 166	CD28
+T3	Protein 482 486	CD28
+T4	Protein 604 608	CD28
+T5	Protein 790 794	CD28
+T6	Protein 873 876	RP1
+T7	Protein 937 977	adenomatous polyposis coli (APC) protein
+T8	Protein 986 989	EB1
+T9	Protein 1065 1068	RP1
+T10	Protein 1135 1138	APC
+T11	Protein 1175 1178	RP1
+T12	Protein 1388 1391	RP1
+T13	Entity 25 80	adenomatous polyposis coli-binding EB1-like gene family
+T14	Entity 474 477	CD3
+T15	Entity 740 754	cDNA fragments
+T16	Entity 828 831	RP1
+T17	Entity 837 869	predictive protein-coding region
+T18	Entity 990 1001	gene family
+T19	Entity 1258 1285	immediate/early gene family
+T20	Entity 1531 1551	EB1-like gene family

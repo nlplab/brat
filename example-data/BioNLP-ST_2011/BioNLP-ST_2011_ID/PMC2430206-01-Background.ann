@@ -1,0 +1,61 @@
+T1	Organism 12 33	Staphylococcus aureus
+T2	Organism 55 60	human
+T3	Organism 566 575	S. aureus
+T4	Protein 745 761	phospholipase A2
+T5	Protein 767 782	myeloperoxidase
+T6	Chemical 958 978	phosphatidylglycerol
+T7	Protein 986 990	MprF
+T8	Regulon-operon 1119 1126	dltABCD
+T9	Protein 1119 1123	dltA
+T10	Protein 1123 1124	B
+T11	Protein 1124 1125	C
+T12	Protein 1125 1126	D
+T13	Chemical 1273 1287	teichoic acids
+T14	Organism 1455 1464	S. aureus
+T15	Two-component-system 1497 1502	graRS
+T16	Protein 1497 1501	graR
+T17	Protein 1501 1502	S
+T18	Regulon-operon 1542 1545	dlt
+T19	Organism 1559 1596	S. aureus SA113 graRS deletion mutant
+T20	Two-component-system 1575 1580	graRS
+T21	Protein 1575 1579	graR
+T22	Protein 1579 1580	S
+T23	Chemical 1626 1640	teichoic acids
+T24	Chemical 1734 1745	polymyxin B
+T25	Chemical 1747 1758	gallidermin
+T26	Chemical 1764 1774	vancomycin
+T27	Two-component-system 1797 1802	graRS
+T28	Protein 1797 1801	graR
+T29	Protein 1801 1802	S
+T30	Chemical 1852 1862	vancomycin
+T31	Regulon-operon 1900 1903	dlt
+T32	Organism 1931 1940	S. aureus
+T33	Two-component-system 1998 2003	graRS
+T34	Protein 1998 2002	graR
+T35	Protein 2002 2003	S
+T36	Process 61 71	infections
+T37	Process 83 92	resistant
+T38	Process 662 672	resistance
+T39	Positive_regulation 1145 1156	responsible
+T40	Process 1342 1352	resistance
+T41	Positive_regulation 1503 1523	positively regulates
+T42	Gene_expression 1524 1534	expression
+T43	Negative_regulation 1682 1689	reduced
+T44	Process 1690 1700	resistance
+T45	Regulation 1838 1848	regulation
+T46	Process 1876 1886	resistance
+T47	Regulation 1911 1927	plays a key role
+T48	Process 1941 1951	resistance
+E1	Process:T36 Participant:T1
+E2	Process:T37 Participant:T1
+E3	Process:T38 Participant:T3
+E4	Positive_regulation:T39 Theme:T8
+E5	Process:T40 
+E6	Positive_regulation:T41 Theme:E7 Cause:T15
+E7	Gene_expression:T42 Theme:T18
+E8	Negative_regulation:T43 Theme:E9
+E9	Process:T44 Participant:T19
+E10	Regulation:T45 Theme:E11 Cause:T27
+E11	Process:T46 
+E12	Regulation:T47 Theme:E13 Cause:T31
+E13	Process:T48 Participant:T32

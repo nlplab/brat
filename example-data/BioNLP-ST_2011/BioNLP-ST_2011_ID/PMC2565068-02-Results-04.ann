@@ -1,0 +1,58 @@
+T1	Protein 51 55	IL-8
+T2	Protein 77 81	ScpC
+T3	Organism 92 101	NIH230slo
+T4	Protein 98 101	slo
+T5	Protein 169 173	IL-8
+T6	Organism 289 301	invasive GAS
+T7	Protein 339 343	IL-8
+T8	Protein 393 397	IL-8
+T9	Organism 462 465	GAS
+T10	Organism 469 480	its mutants
+T11	Protein 517 521	IL-8
+T12	Organism 574 580	NIH230
+T13	Organism 593 602	NIH230slo
+T14	Protein 599 602	slo
+T15	Organism 617 638	non-invasive GAS 1556
+T16	Organism 679 682	GAS
+T17	Protein 702 706	ScpC
+T18	Protein 722 728	SpyCEP
+T19	Organism 767 772	human
+T20	Protein 773 777	IL-8
+T21	Protein 779 787	Groalpha
+T22	Organism 789 795	murine
+T23	Protein 796 798	KC
+T24	Protein 803 808	MIP-2
+T25	Organism 837 850	NIH230 mutant
+T26	Protein 866 870	ScpC
+T27	Organism 872 882	NIH230scpC
+T28	Protein 878 882	scpC
+T29	Organism 960 970	NIH230scpC
+T30	Protein 966 970	scpC
+T31	Protein 988 992	IL-8
+T32	Organism 999 1010	1566 strain
+T33	Protein 1074 1078	IL-8
+T34	Organism 1094 1105	1566 strain
+T35	Organism 1177 1197	parent strain NIH230
+T36	Organism 1267 1279	invasive GAS
+T37	Protein 1353 1357	ScpC
+T38	Protein 1362 1365	SLO
+*	Equiv T17 T18
+T39	Positive_regulation 36 47	degradation
+T40	Protein_catabolism 36 47	degradation
+T41	Positive_regulation 730 738	degrades
+T42	Protein_catabolism 730 738	degrades
+T43	Protein_catabolism 979 987	digested
+T44	Gene_expression 1338 1349	productions
+E1	Protein_catabolism:T40 Theme:T1
+E2	Positive_regulation:T39 Theme:E1 Cause:T2
+E3	Positive_regulation:T41 Theme:E10 Cause:T17
+E4	Protein_catabolism:T42 Theme:T20
+E5	Positive_regulation:T41 Theme:E4 Cause:T17
+E6	Protein_catabolism:T42 Theme:T21
+E7	Positive_regulation:T41 Theme:E6 Cause:T17
+E8	Protein_catabolism:T42 Theme:T23
+E9	Positive_regulation:T41 Theme:E8 Cause:T17
+E10	Protein_catabolism:T42 Theme:T24
+E11	Protein_catabolism:T43 Theme:T31
+E12	Gene_expression:T44 Theme:T37
+E13	Gene_expression:T44 Theme:T38

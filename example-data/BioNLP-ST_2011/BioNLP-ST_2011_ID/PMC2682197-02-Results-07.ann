@@ -1,0 +1,53 @@
+T30	Binding 88 92	bind
+T31	Gene_expression 313 319	levels
+T32	Gene_expression 421 435	overexpression
+T33	Binding 588 595	binding
+T34	Negative_regulation 596 605	deficient
+T35	Negative_regulation 973 982	defective
+T36	Binding 990 997	binding
+T37	Binding 1063 1070	binding
+T38	Gene_expression 1118 1132	overexpression
+T39	Process 1176 1184	virulent
+T40	Gene_expression 1243 1257	overexpressing
+T41	Gene_expression 1460 1474	overexpression
+E1	Binding:T30 Theme1:T2 Theme2:T3
+E2	Gene_expression:T31 Theme:T5
+E3	Gene_expression:T32 Theme:T6
+E4	Binding:T33 Theme1:T7 Theme2:T8
+E5	Negative_regulation:T34 Theme:E4
+E6	Negative_regulation:T35 Theme:E7
+E7	Binding:T36 Theme:T12
+E8	Binding:T37 Theme:T13
+E9	Gene_expression:T38 Theme:T14
+E10	Process:T39 Participant:T16
+E11	Gene_expression:T40 Theme:T18
+E12	Gene_expression:T41 Theme:T22
+T1	Organism 34 49	M. tuberculosis
+T2	Protein 50 56	Rv2623
+T3	Chemical 93 96	ATP
+T4	Organism 290 309	M. smegmatis mc2155
+T5	Protein 352 358	Rv2623
+T6	Protein 448 454	Rv2623
+T7	Chemical 584 587	ATP
+T8	Protein 613 619	Rv2623
+T9	Organism 932 941	wild type
+T10	Organism 950 955	G117A
+T11	Organism 960 972	D15E mutants
+T12	Chemical 986 989	ATP
+T13	Chemical 1059 1062	ATP
+T14	Protein 1136 1142	Rv2623
+T15	Organism 1146 1158	M. smegmatis
+T16	Organism 1185 1200	M. tuberculosis
+T17	Organism 1229 1235	Erdman
+T18	Protein 1267 1273	Rv2623
+T19	Protein 1290 1296	Rv2623
+T20	Protein 1310 1316	Rv2623
+T21	Organism 1416 1428	M. smegmatis
+T22	Protein 1478 1484	Rv2623
+T23	Organism 1488 1503	M. tuberculosis
+T24	Organism 1601 1616	M. tuberculosis
+T25	Protein 1669 1675	Rv2623
+T26	Protein 1753 1759	Rv2623
+T27	Organism 1782 1794	M. smegmatis
+T28	Organism 1799 1814	M. tuberculosis
+T29	Chemical 1834 1837	ATP

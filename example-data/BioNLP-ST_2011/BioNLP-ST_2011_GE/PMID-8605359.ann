@@ -1,0 +1,57 @@
+*	Equiv T9 T10
+*	Equiv T4 T3
+T26	Positive_regulation 0 15	Transactivation
+T27	Entity 42 50	promoter
+T28	Gene_expression 197 204	produce
+T29	Positive_regulation 205 216	high levels
+T30	Gene_expression 295 305	expression
+T31	Positive_regulation 424 434	activation
+T32	Gene_expression 621 628	produce
+T33	Negative_regulation 1400 1407	reduced
+T34	Positive_regulation 1454 1469	transactivation
+T35	Entity 1487 1495	promoter
+T36	Regulation 1565 1577	general role
+T37	Positive_regulation 1586 1595	induction
+T38	Transcription 1614 1627	transcription
+T39	Positive_regulation 1628 1630	by
+T40	Gene_expression 1654 1664	Expression
+E1	Positive_regulation:T26 Theme:T1 Cause:T2 Site:T27
+E2	Gene_expression:T28 Theme:T4
+E3	Positive_regulation:T29 Theme:E2
+E4	Gene_expression:T30 Theme:T5
+E5	Positive_regulation:T31 Theme:T7
+E6	Gene_expression:T32 Theme:T11
+E7	Negative_regulation:T33 Theme:E9
+E8	Negative_regulation:T33 Theme:E10
+E9	Positive_regulation:T34 Theme:T21 Site:T35
+E10	Positive_regulation:T34 Theme:T21 Cause:T22 Site:T35
+E11	Regulation:T36 Theme:E14 Cause:E12
+E12	Positive_regulation:T37 Theme:T23
+E13	Transcription:T38 Theme:T24
+E14	Positive_regulation:T39 Theme:E13
+E15	Gene_expression:T40 Theme:T25
+T1	Protein 23 41	interleukin-1alpha
+T2	Protein 101 104	Tax
+T3	Protein 220 238	interleukin-1alpha
+T4	Protein 240 249	IL-1alpha
+T5	Protein 309 318	IL-1alpha
+T6	Protein 393 402	IL-1alpha
+T7	Protein 442 451	IL-1alpha
+T8	Protein 458 467	IL-1alpha
+T9	Protein 515 548	chloramphenicol acetyltransferase
+T10	Protein 550 553	CAT
+T11	Protein 629 638	IL-1alpha
+T12	Protein 671 674	Tax
+T13	Protein 756 765	IL-1alpha
+T14	Protein 819 822	Tax
+T15	Protein 960 969	IL-1alpha
+T16	Protein 979 982	CAT
+T17	Protein 1037 1040	p65
+T18	Protein 1041 1044	p50
+T19	Protein 1074 1083	IL-1alpha
+T20	Protein 1408 1417	IL-1alpha
+T21	Protein 1477 1486	IL-1alpha
+T22	Protein 1523 1526	Tax
+T23	Protein 1582 1585	Tax
+T24	Protein 1599 1608	IL-1alpha
+T25	Protein 1668 1677	IL-1alpha

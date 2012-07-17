@@ -1,0 +1,94 @@
+*	Equiv T6 T7
+T33	Negative_regulation 12 19	inhibit
+T34	Positive_regulation 20 30	activation
+T35	Positive_regulation 79 87	inducing
+T36	Gene_expression 100 110	expression
+T37	Positive_regulation 313 321	inducing
+T38	Entity 322 330	tyrosine
+T39	Phosphorylation 331 346	phosphorylation
+T40	Binding 348 364	homodimerization
+T41	Entity 370 377	nuclear
+T42	Localization 378 391	translocation
+T43	Positive_regulation 601 611	activation
+T44	Regulation 713 721	regulate
+T45	Positive_regulation 722 732	activation
+T46	Negative_regulation 981 991	suppressed
+T47	Positive_regulation 992 1002	activation
+T48	Negative_regulation 1057 1066	decreased
+T49	Entity 1067 1075	tyrosine
+T50	Phosphorylation 1076 1091	phosphorylation
+T51	Entity 1096 1103	nuclear
+T52	Localization 1104 1117	translocation
+T53	Positive_regulation 1347 1356	induction
+T54	Gene_expression 1405 1415	expression
+T55	Negative_regulation 1628 1635	inhibit
+T56	Positive_regulation 1649 1659	activation
+T57	Positive_regulation 1727 1735	inducing
+T58	Gene_expression 1736 1746	expression
+E1	Negative_regulation:T33 Theme:E2 Cause:E3
+E2	Positive_regulation:T34 Theme:T1 Cause:T2
+E3	Positive_regulation:T35 Theme:E4
+E4	Gene_expression:T36 Theme:T3
+E5	Positive_regulation:T37 Theme:E9 Cause:T5
+E6	Positive_regulation:T37 Theme:E10 Cause:T5
+E7	Positive_regulation:T37 Theme:E8 Cause:T5
+E8	Phosphorylation:T39 Theme:T6 Site:T38
+E9	Binding:T40 Theme:T6
+E10	Localization:T42 Theme:T6 ToLoc:T41
+E11	Positive_regulation:T43 Theme:T10
+E12	Regulation:T44 Theme:E13
+E13	Positive_regulation:T45 Theme:T12 Cause:T13
+E14	Negative_regulation:T46 Theme:E20 Cause:T14
+E15	Negative_regulation:T46 Theme:E20 Cause:T16
+E16	Negative_regulation:T46 Theme:E20 Cause:T15
+E17	Negative_regulation:T46 Theme:E20 Cause:T18
+E18	Negative_regulation:T46 Theme:E20 Cause:T19
+E19	Negative_regulation:T46 Theme:E20 Cause:T17
+E20	Positive_regulation:T47 Theme:T20 Cause:T21
+E21	Negative_regulation:T48 Theme:E23
+E22	Negative_regulation:T48 Theme:E24
+E23	Phosphorylation:T50 Theme:T22 Site:T49
+E24	Localization:T52 Theme:T22 ToLoc:T51
+E25	Positive_regulation:T53 Theme:T24
+E26	Gene_expression:T54 Theme:T25
+E27	Negative_regulation:T55 Theme:E28 Cause:E29
+E28	Positive_regulation:T56 Theme:T30 Cause:T29
+E29	Positive_regulation:T57 Theme:E30
+E30	Gene_expression:T58 Theme:T32
+M1	Speculation E12
+M2	Negation E15
+M3	Negation E17
+M4	Negation E18
+M5	Negation E19
+T1	Protein 34 39	STAT6
+T2	Protein 43 56	interleukin 4
+T3	Protein 88 94	SOCS-1
+T4	Protein 153 157	IL-4
+T5	Protein 279 283	IL-4
+T6	Protein 428 433	STAT6
+T7	Protein 435 485	signal transducer and activator of transcription-6
+T8	Protein 488 493	STAT6
+T9	Protein 565 569	IL-4
+T10	Protein 595 600	STAT6
+T11	Protein 629 633	IL-4
+T12	Protein 736 741	STAT6
+T13	Protein 745 749	IL-4
+T14	Protein 809 817	IFN-beta
+T15	Protein 821 830	IFN-gamma
+T16	Protein 840 844	IL-1
+T17	Protein 846 850	IL-2
+T18	Protein 940 944	IL-6
+T19	Protein 949 980	transforming growth factor beta
+T20	Protein 1006 1011	STAT6
+T21	Protein 1015 1019	IL-4
+T22	Protein 1121 1126	STAT6
+T23	Protein 1216 1220	IL-4
+T24	Protein 1390 1396	SOCS-1
+T25	Protein 1419 1425	SOCS-1
+T26	Protein 1504 1508	IL-4
+T27	Protein 1539 1543	IL-6
+T28	Protein 1549 1558	IFN-gamma
+T29	Protein 1636 1640	IL-4
+T30	Protein 1663 1668	STAT6
+T31	Protein 1673 1678	STAT6
+T32	Protein 1750 1756	SOCS-1

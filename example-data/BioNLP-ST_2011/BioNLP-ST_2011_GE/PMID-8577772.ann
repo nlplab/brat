@@ -1,0 +1,52 @@
+*	Equiv T2 T3
+*	Equiv T7 T6
+T26	Positive_regulation 548 555	induces
+T27	Gene_expression 573 583	production
+T28	Negative_regulation 735 742	reduced
+T29	Transcription 765 769	mRNA
+T30	Gene_expression 774 781	protein
+T31	Binding 1117 1133	binding activity
+T32	Negative_regulation 1238 1245	reduced
+T33	Gene_expression 1458 1468	expression
+T34	Gene_expression 1547 1556	expressed
+T35	Negative_regulation 1679 1689	repression
+E1	Positive_regulation:T26 Theme:E2
+E2	Gene_expression:T27 Theme:T7
+E3	Negative_regulation:T28 Theme:E5
+E4	Negative_regulation:T28 Theme:E6
+E5	Transcription:T29 Theme:T11
+E6	Gene_expression:T30 Theme:T11
+E7	Binding:T31 Theme:T15
+E8	Binding:T31 Theme:T16
+E9	Negative_regulation:T32 Theme:T19
+E10	Negative_regulation:T32 Theme:T18
+E11	Gene_expression:T33 Theme:T22
+E12	Gene_expression:T33 Theme:T21
+E13	Gene_expression:T34 Theme:T24
+E14	Negative_regulation:T35 Theme:T25 Cause:E13
+M1	Speculation E14
+T1	Protein 18 21	CD4
+T2	Protein 310 338	staphylococcal enterotoxin A
+T3	Protein 340 343	SEA
+T4	Protein 426 429	SEA
+T5	Protein 454 457	CD4
+T6	Protein 587 600	interleukin 2
+T7	Protein 602 606	IL-2
+T8	Protein 645 648	SEA
+T9	Protein 655 658	CD4
+T10	Protein 704 707	CD4
+T11	Protein 757 761	IL-2
+T12	Protein 936 940	IL-2
+T13	Protein 1054 1057	SEA
+T14	Protein 1068 1071	CD4
+T15	Protein 1097 1102	Oct-1
+T16	Protein 1107 1112	Oct-2
+T17	Protein 1206 1209	CD4
+T18	Protein 1265 1268	Fos
+T19	Protein 1269 1272	Jun
+T20	Protein 1379 1382	SEA
+T21	Protein 1472 1475	p50
+T22	Protein 1476 1479	p65
+T23	Protein 1506 1509	CD4
+T24	Protein 1588 1591	p50
+T25	Protein 1693 1697	IL-2

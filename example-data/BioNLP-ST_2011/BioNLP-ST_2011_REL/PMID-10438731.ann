@@ -1,0 +1,63 @@
+T1	Protein 0 9	C/EBPbeta
+T2	Protein 14 20	GATA-1
+T3	Protein 62 100	eosinophil granule major basic protein
+T4	Protein 127 136	C/EBPbeta
+T5	Protein 178 216	Eosinophil granule major basic protein
+T6	Protein 218 221	MBP
+T7	Protein 377 383	GATA-1
+T8	Protein 419 425	GATA-2
+T9	Protein 429 432	MBP
+T10	Protein 477 480	MBP
+T11	Protein 629 632	MBP
+T12	Protein 786 796	C/EBPalpha
+T13	Protein 909 918	C/EBPbeta
+T14	Protein 1024 1033	C/EBPbeta
+T15	Protein 1112 1115	MBP
+T16	Protein 1170 1179	C/EBPbeta
+T17	Protein 1184 1190	GATA-1
+T18	Protein 1259 1262	MBP
+T19	Protein 1368 1377	C/EBPbeta
+T20	Protein 1382 1388	GATA-1
+T21	Protein 1407 1410	MBP
+T22	Protein 1427 1436	C/EBPbeta
+T23	Protein 1441 1447	GATA-1
+T24	Protein 1497 1506	C/EBPbeta
+T25	Protein 1511 1517	GATA-1
+T26	Protein 1602 1611	C/EBPbeta
+T27	Protein 1615 1621	GATA-1
+T28	Protein 1744 1750	GATA-1
+T29	Protein 1755 1764	C/EBPbeta
+T30	Protein 1812 1818	GATA-1
+T31	Protein 1907 1913	GATA-1
+T32	Protein 1922 1925	MBP
+T33	Protein 2012 2018	GATA-1
+T34	Protein 2023 2032	C/EBPbeta
+*	Equiv T5 T6
+T35	Entity 101 109	promoter
+T36	Entity 149 164	eosinophil gene
+T37	Entity 481 496	promoter region
+T38	Entity 510 571	C/EBP (CCAAT/enhancer-binding protein) consensus binding site
+T39	Entity 604 621	GATA-binding site
+T40	Entity 1070 1088	C/EBP-binding site
+T41	Entity 1090 1103	bp -90 to -82
+T42	Entity 1116 1124	promoter
+T43	Entity 1238 1251	binding sites
+T44	Entity 1263 1271	promoter
+T45	Entity 1333 1346	binding sites
+T46	Entity 1411 1419	promoter
+T47	Entity 1926 1934	promoter
+T48	Entity 2067 2122	promoter of an eosinophil-specific granule protein gene
+T49	Entity 2067 2075	promoter
+T50	Entity 2082 2122	eosinophil-specific granule protein gene
+R1	Protein-Component Arg1:T3 Arg2:T35
+R2	Protein-Component Arg1:T11 Arg2:T39
+R3	Protein-Component Arg1:T11 Arg2:T38
+R4	Protein-Component Arg1:T10 Arg2:T38
+R5	Protein-Component Arg1:T10 Arg2:T37
+R6	Protein-Component Arg1:T15 Arg2:T40
+R7	Protein-Component Arg1:T15 Arg2:T41
+R8	Protein-Component Arg1:T15 Arg2:T42
+R9	Protein-Component Arg1:T18 Arg2:T43
+R10	Protein-Component Arg1:T18 Arg2:T44
+R11	Protein-Component Arg1:T21 Arg2:T46
+R12	Protein-Component Arg1:T32 Arg2:T47

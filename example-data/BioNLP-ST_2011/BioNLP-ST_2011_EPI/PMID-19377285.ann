@@ -1,0 +1,29 @@
+T1	Protein 165 172	histone
+T2	Protein 419 427	histones
+T3	Protein 752 762	histone H3
+T4	Protein 764 766	H3
+T5	Protein 937 939	H3
+T6	Protein 944 946	H3
+T7	Protein 1128 1130	H3
+T8	Protein 1245 1247	H3
+T9	Protein 1280 1282	H3
+T10	Protein 1374 1376	H3
+T11	Protein 1471 1478	histone
+*	Equiv T14 T15
+*	Equiv T3 T4
+*	Equiv T5 T6
+*	Equiv T18 T19
+T12	Methylation 173 184	methylation
+T13	Methylation 728 738	methylated
+T14	Entity 739 748	lysine 27
+T15	Entity 766 769	K27
+T16	Methylation 911 914	di-
+T17	Methylation 919 933	trimethylation
+T18	Entity 939 942	K27
+T19	Entity 946 949	K27
+T20	Demethylation 1492 1505	demethylation
+E1	Methylation:T12 Theme:T1
+E2	Methylation:T13 Theme:T3 Site:T14
+E3	Methylation:T16 Theme:T5 Site:T18
+E4	Methylation:T17 Theme:T5 Site:T18
+E5	Demethylation:T20 Theme:T11

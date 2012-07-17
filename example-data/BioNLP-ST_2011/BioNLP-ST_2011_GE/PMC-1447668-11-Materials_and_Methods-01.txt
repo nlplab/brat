@@ -1,0 +1,2 @@
+Cell culture.
+HEK 293T cells were cultured in Dulbecco's modified Eagle medium (Invitrogen, Carlsbad, California, United States). Jurkat T cells and primary human CD4+ T cells were cultured in RPMI-1640 medium (Invitrogen). Media were supplemented with 2 mM L-glutamine, 100 U/ml penicillin, 100 mug/ml streptomycin (Cambrex, East Rutherford, New Jersey, United States), and 10% fetal bovine serum (Atlanta Biologicals, Norcross, Georgia, United States). 

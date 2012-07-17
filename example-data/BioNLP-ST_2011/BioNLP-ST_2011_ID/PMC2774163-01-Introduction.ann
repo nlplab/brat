@@ -1,0 +1,108 @@
+T1	Organism 577 585	patients
+T2	Organism 599 604	human
+T3	Organism 614 636	Pseudomonas aeruginosa
+T4	Organism 693 701	patients
+T5	Organism 799 812	P. aeruginosa
+T6	Organism 1178 1183	human
+T7	Organism 1425 1438	P. aeruginosa
+T8	Protein 2210 2214	MvaT
+T9	Organism 2218 2231	P. aeruginosa
+T10	Protein 2334 2338	MvaT
+T11	Organism 2400 2412	type IV pili
+T12	Organism 2417 2442	flagella deletion mutants
+T13	Chemical 2629 2682	bis-(3'-5')-cyclic diguanylic guanosine monophosphate
+T14	Chemical 2684 2697	cyclic-di-GMP
+T15	Organism 2767 2786	Acetobacter xylinum
+T16	Organism 3030 3043	P. aeruginosa
+T17	Chemical 3100 3113	cyclic-di-GMP
+T18	Protein 3263 3267	BifA
+T19	Protein 3318 3322	SadC
+T20	Protein 3351 3355	SadB
+T21	Chemical 3408 3421	cyclic-di-GMP
+T22	Protein 3446 3449	Pel
+T23	Protein 3454 3457	Psl
+T24	Organism 3490 3503	P. aeruginosa
+T25	Protein 3574 3577	Pel
+T26	Protein 3582 3585	Psl
+T27	Protein 3750 3753	pel
+T28	Protein 3758 3761	psl
+T29	Protein 3807 3811	RetS
+T30	Protein 4008 4012	RetS
+T31	Protein 4235 4239	RetS
+T32	Protein 4333 4337	GacS
+T33	Protein 4342 4346	LadS
+T34	Organism 4487 4500	P. aeruginosa
+T35	Protein 4530 4534	rsmZ
+T36	Protein 4562 4566	RetS
+T37	Protein 4674 4678	LadS
+T38	Protein 4683 4687	GacS
+T39	Organism 4885 4898	P. aeruginosa
+T40	Two-component-system 4965 4974	GacA/GacS
+T41	Protein 4965 4969	GacA
+T42	Protein 4970 4974	GacS
+T43	Organism 5643 5656	P. aeruginosa
+T44	Two-component-system 5846 5851	BfiRS
+T45	Protein 5846 5850	BfiR
+T46	Protein 5850 5851	S
+T47	Protein 5853 5859	PA4196
+T48	Protein 5860 5864	4197
+T49	Two-component-system 5867 5872	BfmRS
+T50	Protein 5867 5871	BfmR
+T51	Protein 5871 5872	S
+T52	Protein 5874 5880	PA4101
+T53	Protein 5881 5885	4102
+T54	Two-component-system 5892 5897	MifRS
+T55	Protein 5892 5896	MifR
+T56	Protein 5896 5897	S
+T57	Protein 5899 5905	PA5511
+T58	Protein 5906 5910	5512
+T59	Organism 5983 5996	P. aeruginosa
+T60	Organism 6149 6162	P. aeruginosa
+T61	Two-component-system 6326 6331	BfiRS
+T62	Protein 6326 6330	BfiR
+T63	Protein 6330 6331	S
+T64	Two-component-system 6354 6359	BfmRS
+T65	Protein 6354 6358	BfmR
+T66	Protein 6358 6359	S
+T67	Two-component-system 6389 6394	MifRS
+T68	Protein 6389 6393	MifR
+T69	Protein 6393 6394	S
+*	Equiv T13 T14
+T70	Process 513 523	infections
+T71	Process 542 552	infections
+T72	Process 872 882	infections
+T73	Process 1144 1154	resistance
+T74	Regulation 3091 3099	modulate
+T75	Positive_regulation 3422 3431	dependent
+T76	Regulation 3432 3442	regulation
+T77	Gene_expression 3732 3742	Expression
+T78	Regulation 3771 3782	coordinated
+T79	Process 3918 3927	virulence
+T80	Process 3992 4001	infection
+T81	Negative_regulation 4546 4558	Inactivation
+T82	Negative_regulation 4653 4665	inactivation
+T83	Positive_regulation 4688 4695	results
+T84	Positive_regulation 4699 4708	increased
+T85	Process 4709 4718	virulence
+E1	Process:T70 
+E2	Process:T71 
+E3	Process:T72 Participant:T5
+E4	Process:T73 
+E5	Regulation:T74 Theme:T17
+E6	Positive_regulation:T75 Theme:E8 Cause:T21
+E7	Positive_regulation:T75 Theme:E9 Cause:T21
+E8	Regulation:T76 Theme:T22
+E9	Regulation:T76 Theme:T23
+E10	Gene_expression:T77 Theme:T28
+E11	Gene_expression:T77 Theme:T27
+E12	Regulation:T78 Theme:E11 Cause:T29
+E13	Regulation:T78 Theme:E10 Cause:T29
+E14	Process:T79 
+E15	Process:T80 
+E16	Negative_regulation:T81 Theme:T36
+E17	Negative_regulation:T82 Theme:T37
+E18	Negative_regulation:T82 Theme:T38
+E19	Positive_regulation:T83 Theme:E21 Cause:E17
+E20	Positive_regulation:T83 Theme:E21 Cause:E18
+E21	Positive_regulation:T84 Theme:E22
+E22	Process:T85 

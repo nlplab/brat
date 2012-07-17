@@ -1,0 +1,44 @@
+T1	Protein 131 134	CD4
+T2	Protein 184 205	tumor necrosis factor
+T3	Protein 210 223	interleukin-7
+T4	Protein 595 598	CD4
+T5	Protein 628 649	Tumor necrosis factor
+T6	Protein 651 654	TNF
+T7	Protein 660 673	interleukin-7
+T8	Protein 675 679	IL-7
+T9	Protein 824 827	TNF
+T10	Protein 886 889	p50
+T11	Protein 890 893	p65
+T12	Protein 911 915	IL-7
+T13	Protein 971 987	p75 TNF receptor
+T14	Protein 1009 1012	TNF
+T15	Protein 1092 1095	CD4
+T16	Protein 1178 1181	TNF
+T17	Protein 1349 1352	TNF
+T18	Protein 1537 1540	CD4
+T19	Protein 1584 1587	CD4
+T20	Protein 1740 1743	TNF
+T21	Protein 1748 1752	IL-7
+T22	Protein 1848 1851	CD4
+T23	Protein 1936 1939	CD4
+T24	Protein 2047 2050	TNF
+*	Equiv T8 T7
+*	Equiv T6 T5
+T25	Localization 682 690	secreted
+T26	Positive_regulation 841 848	inducer
+T27	Positive_regulation 916 948	acts as a cofactor by sustaining
+T28	Gene_expression 953 963	expression
+T29	Gene_expression 1182 1192	production
+T30	Gene_expression 1522 1532	expressing
+T31	Gene_expression 2065 2072	present
+E1	Localization:T25 Theme:T6
+E2	Localization:T25 Theme:T8
+E3	Positive_regulation:T26 Theme:T11 Cause:T9
+E4	Positive_regulation:T26 Theme:T10 Cause:T9
+E5	Positive_regulation:T27 Theme:E6 Cause:T12
+E6	Gene_expression:T28 Theme:T13
+E7	Gene_expression:T29 Theme:T16
+E8	Gene_expression:T30 Theme:T18
+E9	Gene_expression:T31 Theme:T24
+M1	Negation E7
+M2	Speculation E9

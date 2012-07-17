@@ -1,0 +1,190 @@
+T1	Protein 0 4	LMP1
+T2	Protein 17 21	IL10
+T3	Protein 51 56	Stat3
+T4	Protein 213 217	CD19
+T5	Protein 269 272	IL4
+T6	Protein 274 277	IL5
+T7	Protein 279 283	IL10
+T8	Protein 285 289	IL13
+T9	Protein 291 295	IL15
+T10	Protein 297 300	IL9
+T11	Protein 302 305	IL2
+T12	Protein 307 310	IL6
+T13	Protein 316 324	IFNgamma
+T14	Protein 432 435	L32
+T15	Protein 525 528	L32
+T16	Protein 606 610	IL10
+T17	Protein 612 616	IL15
+T18	Protein 622 630	IFNgamma
+T19	Protein 661 665	LMP1
+T20	Protein 846 850	IL15
+T21	Protein 855 863	IFNgamma
+T22	Protein 872 876	LMP1
+T23	Protein 904 918	lymphoma cells
+T24	Protein 952 956	IL15
+T25	Protein 961 969	IFNgamma
+T26	Protein 984 988	LMP1
+T27	Protein 1090 1094	IL10
+T28	Protein 1183 1187	LMP1
+T29	Protein 1226 1230	LMP1
+T30	Protein 1281 1285	IL15
+T31	Protein 1290 1298	IFNgamma
+T32	Protein 1512 1516	IL10
+T33	Protein 1548 1552	IL10
+T34	Protein 1671 1675	LMP1
+T35	Protein 1717 1721	LMP1
+T36	Protein 1838 1843	Stat3
+T37	Protein 1861 1865	IL10
+T38	Protein 1979 1983	IL10
+T39	Protein 2012 2017	Stat3
+T40	Protein 2067 2072	Stat3
+T41	Protein 2098 2102	IL10
+T42	Protein 2111 2116	Stat3
+T43	Protein 2210 2214	LMP1
+T44	Protein 2244 2248	IL10
+T45	Protein 2317 2321	IL10
+T46	Protein 2417 2421	LMP1
+T47	Protein 2450 2454	IL10
+T48	Protein 2590 2595	Stat3
+T49	Protein 2673 2677	IL10
+T50	Protein 2703 2709	pStat3
+T51	Protein 2782 2786	LMP1
+T52	Protein 2843 2847	IL10
+T53	Protein 2857 2863	pStat3
+T54	Protein 2951 2955	IL10
+T55	Protein 3041 3046	Stat3
+T56	Protein 3089 3093	IL10
+T57	Protein 3141 3145	IL10
+T58	Protein 3190 3194	IL10
+T59	Protein 3205 3209	IL10
+T60	Protein 3297 3303	pStat3
+T61	Protein 3348 3354	pStat3
+T62	Protein 3460 3466	pStat3
+T63	Protein 3485 3489	LMP1
+T64	Protein 3569 3573	LMP1
+T65	Protein 3639 3645	pStat3
+T66	Protein 3667 3672	Stat3
+T67	Protein 3687 3692	Stat3
+T68	Protein 3718 3722	LMP1
+T69	Positive_regulation 5 16	Upregulates
+T70	Positive_regulation 41 50	Activates
+T71	Gene_expression 471 479	detected
+T72	Transcription 589 602	Transcription
+T73	Positive_regulation 716 722	higher
+T74	Gene_expression 832 842	expression
+T75	Positive_regulation 936 948	upregulation
+T76	Positive_regulation 973 980	induced
+T77	Gene_expression 989 999	expression
+T78	Positive_regulation 1137 1146	increased
+T79	Gene_expression 1267 1277	Production
+T80	Positive_regulation 1496 1508	upregulation
+T81	Positive_regulation 1553 1565	upregulation
+T82	Positive_regulation 1766 1775	increased
+T83	Phosphorylation 1786 1800	phosphorylated
+T84	Positive_regulation 1828 1837	activated
+T85	Regulation 1847 1853	target
+T86	Regulation 1945 1956	correlation
+T87	Positive_regulation 1984 1993	induction
+T88	Positive_regulation 2018 2028	activation
+T89	Positive_regulation 2053 2063	activation
+T90	Positive_regulation 2087 2094	induced
+T91	Regulation 2176 2187	correlation
+T92	Gene_expression 2215 2225	expression
+T93	Positive_regulation 2249 2258	induction
+T94	Positive_regulation 2304 2313	induction
+T95	Regulation 2405 2413	affected
+T96	Negative_regulation 2423 2435	Neutralizing
+T97	Positive_regulation 2576 2586	activation
+T98	Positive_regulation 2726 2735	activated
+T99	Positive_regulation 2848 2856	enhanced
+T100	Positive_regulation 2864 2874	activation
+T101	Positive_regulation 3047 3057	activation
+T102	Positive_regulation 3077 3085	enhanced
+T103	Negative_regulation 3109 3128	neutralizing effect
+T104	Entity 3272 3279	Nuclear
+T105	Localization 3280 3293	translocation
+T106	Positive_regulation 3309 3320	consequence
+T107	Positive_regulation 3324 3334	activation
+T108	Entity 3340 3347	nuclear
+T109	Localization 3363 3371	detected
+T110	Entity 3452 3459	nuclear
+T111	Localization 3471 3481	detectable
+T112	Localization 3538 3546	detected
+T113	Positive_regulation 3625 3635	activation
+E1	Positive_regulation:T69 Theme:T2 Cause:T1
+E2	Positive_regulation:T70 Theme:T3 Cause:T1
+E3	Gene_expression:T71 Theme:T5
+E4	Gene_expression:T71 Theme:T6
+E5	Gene_expression:T71 Theme:T7
+E6	Gene_expression:T71 Theme:T8
+E7	Gene_expression:T71 Theme:T9
+E8	Gene_expression:T71 Theme:T10
+E9	Gene_expression:T71 Theme:T11
+E10	Gene_expression:T71 Theme:T12
+E11	Gene_expression:T71 Theme:T13
+E12	Transcription:T72 Theme:T16
+E13	Transcription:T72 Theme:T17
+E14	Transcription:T72 Theme:T18
+E15	Positive_regulation:T73 Theme:E12
+E16	Positive_regulation:T73 Theme:E13
+E17	Positive_regulation:T73 Theme:E14
+E18	Gene_expression:T74 Theme:T20
+E19	Gene_expression:T74 Theme:T21
+E20	Positive_regulation:T75 Theme:T24
+E21	Positive_regulation:T75 Theme:T25
+E22	Positive_regulation:T76 Theme:E20 Cause:E23
+E24	Positive_regulation:T76 Theme:E21 Cause:E23
+E23	Gene_expression:T77 Theme:T26
+E25	Positive_regulation:T78 Theme:T27
+E26	Gene_expression:T79 Theme:T30
+E27	Gene_expression:T79 Theme:T31
+E28	Positive_regulation:T80 Theme:T32
+E29	Positive_regulation:T81 Theme:T33
+E30	Positive_regulation:T82 Theme:E31
+E31	Phosphorylation:T83 Theme:T36
+E32	Positive_regulation:T84 Theme:T36
+E33	Regulation:T85 Theme:T36
+E34	Regulation:T86 Theme:E35 Cause:E36
+E36	Positive_regulation:T87 Theme:T38
+E35	Positive_regulation:T88 Theme:T39
+E37	Positive_regulation:T89 Theme:T40
+E38	Positive_regulation:T90 Theme:E37 Cause:T41
+E39	Regulation:T91 Theme:E40 Cause:E41
+E41	Gene_expression:T92 Theme:T43
+E40	Positive_regulation:T93 Theme:T44
+E42	Positive_regulation:T94 Theme:T45
+E43	Regulation:T95 Theme:E42 Cause:T46
+E44	Negative_regulation:T96 Theme:T47
+E45	Positive_regulation:T97 Theme:T48
+E46	Positive_regulation:T98 Theme:T50
+E47	Positive_regulation:T99 Theme:E48 Cause:T52
+E48	Positive_regulation:T100 Theme:T53
+E49	Positive_regulation:T101 Theme:T55
+E50	Positive_regulation:T102 Theme:E49
+E51	Negative_regulation:T103 Theme:T57
+E52	Localization:T105 Theme:T60 ToLoc:T104
+E53	Positive_regulation:T106 Theme:E52 Cause:E54
+E54	Positive_regulation:T107 Theme:T60
+E55	Localization:T109 Theme:T61 ToLoc:T108
+E56	Localization:T111 Theme:T62 ToLoc:T110
+E57	Localization:T112 Theme:T62 ToLoc:T110
+E58	Positive_regulation:T113 Theme:T65
+M1	Negation E3
+M2	Negation E4
+M3	Negation E5
+M4	Negation E6
+M5	Negation E7
+M6	Negation E8
+M7	Negation E9
+M8	Negation E10
+M9	Negation E11
+M10	Speculation E22
+M11	Speculation E24
+M12	Negation E34
+M13	Negation E38
+M14	Speculation E38
+M15	Negation E39
+M16	Speculation E43
+M17	Speculation E45
+M18	Speculation E50
+M19	Negation E55

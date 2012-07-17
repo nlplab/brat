@@ -1,0 +1,13 @@
+T1	Protein 905 911	ICAM-1
+T2	Protein 913 919	VCAM-1
+T3	Protein 944 948	IL-6
+T4	Protein 963 967	iNOS
+T5	Protein 1076 1090	26S proteasome
+T6	Entity 412 451	nuclear transcription factor kappa beta
+T7	Entity 453 484	Nuclear transcription factor kB
+T8	Entity 486 496	NF-kappa B
+T9	Entity 564 578	numerous genes
+T10	Entity 797 807	NF-kappa B
+T11	Entity 1091 1098	complex
+T12	Entity 1167 1177	NF-kappa B
+R1	Subunit-Complex Arg1:T5 Arg2:T11

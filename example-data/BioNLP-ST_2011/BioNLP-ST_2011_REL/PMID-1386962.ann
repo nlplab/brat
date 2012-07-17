@@ -1,0 +1,14 @@
+T6	Entity 171 174	TCR
+T7	Entity 255 269	response genes
+T8	Entity 579 587	TCR gene
+T9	Entity 667 671	loci
+T10	Entity 750 764	TCR gamma loci
+T11	Entity 887 895	TCR beta
+T12	Entity 1122 1144	cellular response gene
+T13	Entity 1819 1828	chromatin
+T14	Entity 1834 1839	genes
+T1	Protein 1766 1770	IL-2
+T2	Protein 2063 2074	IL-2R alpha
+T3	Protein 2129 2133	IL-2
+T4	Protein 2226 2242	IL-2R beta chain
+T5	Protein 2308 2313	Bcl-2

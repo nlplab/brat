@@ -1,0 +1,164 @@
+T1	Organism 24 40	Brucella mutants
+T2	Two-component-system 48 57	BvrR/BvrS
+T3	Protein 48 52	BvrR
+T4	Protein 53 57	BvrS
+T5	Two-component-system 200 209	BvrR/BvrS
+T6	Protein 200 204	BvrR
+T7	Protein 205 209	BvrS
+T8	Organism 244 252	Brucella
+T9	Organism 254 264	B. abortus
+T10	Organism 336 347	bvrR mutant
+T11	Protein 336 340	bvrR
+T12	Organism 668 676	Brucella
+T13	Organism 1157 1168	bvrR mutant
+T14	Protein 1157 1161	bvrR
+T15	Organism 1318 1329	bvrR mutant
+T16	Protein 1318 1322	bvrR
+T17	Organism 1561 1572	bvrR mutant
+T18	Protein 1561 1565	bvrR
+T19	Organism 2008 2016	Brucella
+T20	Organism 2295 2303	Brucella
+T21	Organism 2498 2509	bvrR mutant
+T22	Protein 2498 2502	bvrR
+T23	Protein 2595 2599	fliM
+T24	Protein 2601 2610	BAB2_0124
+T25	Protein 2616 2620	motB
+T26	Protein 2622 2631	BAB2_1103
+T27	Protein 2642 2646	pckA
+T28	Protein 2653 2662	BAB1_2091
+T29	Organism 2688 2699	bvrR mutant
+T30	Protein 2688 2692	bvrR
+T31	Protein 2720 2724	exoR
+T32	Protein 2726 2735	BAB1_0891
+T33	Protein 2738 2744	omp25a
+T34	Protein 2746 2755	BAB1_0722
+T35	Protein 2758 2763	hpr-K
+T36	Protein 2765 2774	BAB1_2094
+T37	Protein 2777 2781	bvrS
+T38	Protein 2783 2792	BAB1_2093
+T39	Protein 2816 2825	BAB1_2147
+T40	Protein 2827 2836	BAB1_0589
+T41	Protein 2838 2847	BAB1_0358
+T42	Organism 3067 3078	bvrR mutant
+T43	Protein 3067 3071	bvrR
+T44	Protein 3233 3239	omp25a
+T45	Protein 3242 3247	omp22
+T46	Two-component-system 3282 3291	BvrR/BvrS
+T47	Protein 3282 3286	BvrR
+T48	Protein 3287 3291	BvrS
+T49	Organism 3309 3326	bvrR/bvrS mutants
+T50	Two-component-system 3309 3318	bvrR/bvrS
+T51	Protein 3309 3313	bvrR
+T52	Protein 3314 3318	bvrS
+T53	Chemical 3366 3373	lipid A
+T54	Chemical 3389 3392	LPS
+T55	Organism 3438 3446	Brucella
+T56	Two-component-system 3634 3643	BvrR/BvrS
+T57	Protein 3634 3638	BvrR
+T58	Protein 3639 3643	BvrS
+T59	Organism 3892 3903	bvrR mutant
+T60	Protein 3892 3896	bvrR
+T61	Protein 3962 3968	Omp25a
+T62	Protein 3970 3979	BAB1_0722
+T63	Protein 3985 3991	Omp25d
+T64	Protein 3993 4002	BAB1_0115
+T65	Protein 4037 4041	bvrR
+T66	Protein 4116 4125	BAB1_0358
+T67	Protein 4127 4136	BAB1_0589
+T68	Protein 4138 4147	BAB1_2147
+T69	Protein 4228 4232	htpX
+T70	Protein 4254 4263	BAB1_1821
+T71	Protein 4265 4269	clpA
+T72	Protein 4274 4278	clpB
+T73	Protein 4306 4315	BAB1_1573
+T74	Protein 4320 4329	BAB1_1868
+T75	Protein 4345 4354	BAB2_1107
+T76	Protein 4356 4365	BAB1_0505
+T77	Protein 4367 4376	BAB1_1022
+T78	Chemical 4430 4433	LPS
+T79	Protein 4470 4479	BAB1_1620
+T80	Protein 4551 4555	fabG
+T81	Protein 4598 4607	BAB1_2043
+T82	Protein 4609 4613	fabF
+T83	Protein 4654 4663	BAB1_0872
+T84	Protein 4665 4669	fadD
+T85	Chemical 4671 4685	fatty-acyl-CoA
+T86	Protein 4696 4705	BAB1_0320
+T87	Protein 4707 4710	cfa
+T88	Chemical 4712 4748	cyclopropane-fatty-acyl-phospholipid
+T89	Protein 4759 4768	BAB1_0476
+T90	Protein 4770 4779	BAB1_1357
+T91	Two-component-system 4806 4815	BvrR/BvrS
+T92	Protein 4806 4810	BvrR
+T93	Protein 4811 4815	BvrS
+T94	Organism 4903 4911	Brucella
+*	Equiv T23 T24
+*	Equiv T25 T26
+*	Equiv T27 T28
+*	Equiv T31 T32
+*	Equiv T33 T34
+*	Equiv T35 T36
+*	Equiv T37 T38
+*	Equiv T61 T62
+*	Equiv T63 T63
+*	Equiv T69 T70
+*	Equiv T71 T73
+*	Equiv T72 T74
+*	Equiv T80 T81
+*	Equiv T82 T83
+*	Equiv T84 T86
+*	Equiv T87 T89
+T95	Transcription 2539 2552	transcription
+T96	Gene_expression 2869 2878	expressed
+T97	Transcription 3216 3229	transcription
+T98	Regulation 3267 3274	control
+T99	Negative_regulation 4015 4029	down-regulated
+T100	Negative_regulation 4042 4051	regulated
+T101	Positive_regulation 4042 4051	regulated
+T102	Regulation 4042 4051	regulated
+T103	Negative_regulation 4161 4175	down-regulated
+T104	Positive_regulation 4394 4406	up-regulated
+T105	Positive_regulation 4492 4504	up-regulated
+T106	Process 4912 4921	virulence
+E1	Transcription:T95 Theme:T23
+E2	Transcription:T95 Theme:T25
+E3	Transcription:T95 Theme:T27
+E4	Gene_expression:T96 Theme:T41
+E5	Gene_expression:T96 Theme:T31
+E6	Gene_expression:T96 Theme:T33
+E7	Gene_expression:T96 Theme:T35
+E8	Gene_expression:T96 Theme:T37
+E9	Gene_expression:T96 Theme:T39
+E10	Gene_expression:T96 Theme:T40
+E11	Transcription:T97 Theme:T44
+E12	Transcription:T97 Theme:T45
+E13	Regulation:T98 Theme:E11 Cause:T46
+E14	Regulation:T98 Theme:E12 Cause:T46
+E15	Negative_regulation:T99 Theme:T61
+E16	Negative_regulation:T99 Theme:T63
+E17	Regulation:T102 Theme:T80 Cause:T65
+E18	Regulation:T102 Theme:T82 Cause:T65
+E19	Regulation:T102 Theme:T84 Cause:T65
+E20	Regulation:T102 Theme:T87 Cause:T65
+E21	Regulation:T102 Theme:T90 Cause:T65
+E22	Negative_regulation:T100 Theme:T66 Cause:T65
+E23	Negative_regulation:T100 Theme:T67 Cause:T65
+E24	Negative_regulation:T100 Theme:T68 Cause:T65
+E25	Positive_regulation:T101 Theme:T69 Cause:T65
+E26	Positive_regulation:T101 Theme:T71 Cause:T65
+E27	Positive_regulation:T101 Theme:T72 Cause:T65
+E28	Positive_regulation:T101 Theme:T75 Cause:T65
+E29	Positive_regulation:T101 Theme:T76 Cause:T65
+E30	Positive_regulation:T101 Theme:T77 Cause:T65
+E31	Positive_regulation:T101 Theme:T79 Cause:T65
+E32	Negative_regulation:T103 Theme:T66 Cause:T65
+E33	Negative_regulation:T103 Theme:T67 Cause:T65
+E34	Negative_regulation:T103 Theme:T68 Cause:T65
+E35	Positive_regulation:T104 Theme:T69 Cause:T65
+E36	Positive_regulation:T104 Theme:T71 Cause:T65
+E37	Positive_regulation:T104 Theme:T72 Cause:T65
+E38	Positive_regulation:T104 Theme:T75 Cause:T65
+E39	Positive_regulation:T104 Theme:T76 Cause:T65
+E40	Positive_regulation:T104 Theme:T77 Cause:T65
+E41	Positive_regulation:T105 Theme:T79 Cause:T65
+E42	Process:T106 Participant:T94

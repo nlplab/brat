@@ -1,0 +1,86 @@
+T1	Organism 238 251	P. aeruginosa
+T2	Protein 488 494	PA4101
+T3	Protein 496 502	PA4197
+T4	Protein 508 514	PA5511
+T5	Organism 852 865	P. aeruginosa
+T6	Protein 1043 1049	PA4197
+T7	Organism 1043 1049	PA4197
+T8	Organism 1054 1067	PA4101 mutant
+T9	Protein 1054 1060	PA4101
+T10	Organism 1291 1304	PA4197 mutant
+T11	Protein 1291 1297	PA4197
+T12	Organism 1315 1328	PA4101 mutant
+T13	Protein 1315 1321	PA4101
+T14	Protein 1619 1625	PA4101
+T15	Organism 1619 1625	PA4101
+T16	Organism 1630 1644	PA4197 mutants
+T17	Protein 1630 1636	PA4197
+T18	Protein 1821 1827	PA4197
+T19	Protein 1832 1838	PA4101
+T20	Protein 1865 1871	PA4197
+T21	Protein 1925 1931	PA4197
+T22	Protein 1970 1974	BfiS
+T23	Protein 2280 2284	BfiR
+T24	Protein 2286 2292	PA4196
+T25	Protein 2343 2347	LuxR
+T26	Protein 2437 2441	LasR
+T27	Protein 2443 2447	RhlR
+T28	Protein 2453 2457	QscR
+T29	Protein 2530 2534	GacA
+T30	Protein 2536 2541	RocA1
+T31	Protein 2542 2546	SadA
+T32	Protein 2554 2558	BfiR
+T33	Protein 2584 2592	Sigma-70
+T34	Protein 2594 2598	RpoD
+T35	Protein 2732 2738	PA4101
+T36	Protein 2773 2777	BfmR
+T37	Protein 2803 2807	OmpR
+T38	Protein 2944 2948	BfmS
+T39	Protein 2950 2956	PA4102
+T40	Protein 3111 3117	PA5511
+T41	Protein 3183 3189	PA5511
+T42	Organism 3447 3451	PAO1
+T43	Organism 3464 3476	PAO1/pJN5511
+T44	Protein 3497 3503	PA5511
+T45	Organism 3648 3666	P. aeruginosa PAO1
+T46	Protein 3721 3727	PA5511
+T47	Protein 3756 3762	PA5511
+T48	Protein 3796 3800	MifR
+T49	Protein 3803 3807	MifR
+T50	Protein 3818 3822	CheY
+T51	Protein 3843 3851	sigma-54
+T52	Organism 3929 3942	P. aeruginosa
+T53	Protein 3943 3947	NtrC
+T54	Protein 3989 3993	PilR
+T55	Protein 3995 3999	FleQ
+T56	Protein 4001 4005	FleR
+T57	Protein 4007 4011	AlgB
+T58	Protein 4013 4017	CbrB
+T59	Protein 4023 4027	NtrC
+T60	Protein 4059 4063	MifS
+T61	Protein 4065 4071	PA5512
+T62	Chemical 4189 4195	carbon
+T63	Chemical 4200 4208	nitrogen
+T64	Organism 4252 4265	P. aeruginosa
+T65	Organism 4355 4368	P. aeruginosa
+T66	Chemical 4601 4607	carbon
+*	Equiv T23 T24
+*	Equiv T33 T34
+*	Equiv T35 T36
+*	Equiv T38 T39
+*	Equiv T47 T48
+*	Equiv T60 T61
+T67	Phosphorylation 532 546	phosphorylated
+T68	Phosphorylation 2144 2163	autophosphorylation
+T69	Binding 2641 2648	binding
+T70	Phosphorylation 3122 3136	phosphorylated
+T71	Gene_expression 3479 3493	overexpression
+T72	Gene_expression 3728 3738	expression
+E1	Phosphorylation:T67 Theme:T2
+E2	Phosphorylation:T67 Theme:T3
+E3	Phosphorylation:T67 Theme:T4
+E4	Phosphorylation:T68 Theme:T22
+E5	Binding:T69 Theme:T32
+E6	Phosphorylation:T70 Theme:T40
+E7	Gene_expression:T71 Theme:T44
+E8	Gene_expression:T72 Theme:T46

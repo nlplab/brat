@@ -1,0 +1,38 @@
+*	Equiv T4 T5
+*	Equiv T15 T16
+T32	Deacetylation 821 834	deacetylation
+T33	Entity 842 877	oxygen-dependent degradation domain
+T34	Deacetylation 1054 1067	deacetylation
+E1	Deacetylation:T32 Theme:T20 Site:T33
+E2	Deacetylation:T34 Theme:T24
+T1	Protein 18 19	X
+T2	Protein 54 58	MTA1
+T3	Protein 63 68	HDAC1
+T4	Protein 159 190	metastasis-associated protein 1
+T5	Protein 192 196	MTA1
+T6	Protein 307 311	MTA1
+T7	Protein 368 372	MTA1
+T8	Protein 392 399	histone
+T9	Protein 527 530	HBx
+T10	Protein 566 570	MTA1
+T11	Protein 575 580	HDAC1
+T12	Protein 611 615	MTA1
+T13	Protein 620 625	HDAC1
+T14	Protein 626 627	2
+T15	Protein 655 687	hypoxia-inducible factor-1 alpha
+T16	Protein 689 700	HIF-1 alpha
+T17	Protein 729 732	HBx
+T18	Protein 770 774	MTA1
+T19	Protein 809 812	HBx
+T20	Protein 881 892	HIF-1 alpha
+T21	Protein 961 995	von Hippel-Lindau tumor suppressor
+T22	Protein 1001 1012	HIF-1 alpha
+T23	Protein 1042 1045	HBx
+T24	Protein 1112 1123	HIF-1 alpha
+T25	Protein 1169 1173	MTA1
+T26	Protein 1178 1183	HDAC1
+T27	Protein 1215 1218	HBx
+T28	Protein 1275 1280	HDAC1
+T29	Protein 1450 1453	HBx
+T30	Protein 1462 1466	MTA1
+T31	Protein 1495 1506	HIF-1 alpha

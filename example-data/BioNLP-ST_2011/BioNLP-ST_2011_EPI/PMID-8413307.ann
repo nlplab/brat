@@ -1,0 +1,24 @@
+T7	Phosphorylation 16 31	phosphorylation
+T8	Phosphorylation 606 621	phosphorylation
+T9	Phosphorylation 684 699	phosphorylation
+T10	Phosphorylation 925 940	phosphorylation
+T11	Phosphorylation 1055 1070	phosphorylation
+T12	Phosphorylation 1217 1232	phosphorylation
+T13	Phosphorylation 1368 1383	phosphorylation
+T14	Phosphorylation 1469 1484	phosphorylation
+T15	Phosphorylation 1679 1694	phosphorylation
+E1	Phosphorylation:T7 Theme:T1
+E2	Phosphorylation:T8 Theme:T2
+E3	Phosphorylation:T9 Theme:T2
+E4	Phosphorylation:T10 Theme:T2
+E5	Phosphorylation:T11 Theme:T2
+E6	Phosphorylation:T12 Theme:T3
+E7	Phosphorylation:T13 Theme:T4
+E8	Phosphorylation:T14 Theme:T5
+E9	Phosphorylation:T15 Theme:T6
+T1	Protein 39 90	luteinizing hormone/chorionic gonadotropin receptor
+T2	Protein 520 534	LH/CG receptor
+T3	Protein 1202 1216	LH/CG receptor
+T4	Protein 1353 1367	LH/CG receptor
+T5	Protein 1492 1506	LH/CG receptor
+T6	Protein 1604 1618	LH/CG receptor

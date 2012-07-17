@@ -1,0 +1,39 @@
+T1	Organism 159 164	Typhi
+T2	Organism 278 288	Salmonella
+T3	Organism 320 328	children
+T4	Organism 336 355	HIV infected adults
+T5	Organism 336 339	HIV
+T6	Organism 424 467	Salmonella enteriditis serotype Typhimurium
+T7	Organism 491 501	Salmonella
+T8	Organism 505 516	Typhimurium
+T9	Organism 665 670	mouse
+T10	Organism 687 709	Salmonella enteriditis
+T11	Organism 899 910	Typhimurium
+T12	Organism 925 930	mouse
+T13	Organism 1203 1208	mouse
+T14	Organism 1442 1452	Salmonella
+T15	Organism 2131 2136	mouse
+T16	Organism 2203 2207	mice
+T17	Organism 2391 2396	mouse
+T18	Organism 2412 2422	Salmonella
+T19	Organism 2923 2933	Salmonella
+T20	Organism 3059 3069	Salmonella
+T21	Organism 3823 3830	E. coli
+T22	Process 31 41	infections
+T23	Process 914 920	infect
+T24	Process 1209 1218	infection
+T25	Process 1254 1263	virulence
+T26	Process 2114 2123	infection
+T27	Process 2190 2199	infection
+T28	Process 2484 2493	virulence
+T29	Process 2540 2549	infection
+T30	Process 3090 3099	infection
+E1	Process:T22 
+E2	Process:T23 Participant:T11
+E3	Process:T24 
+E4	Process:T25 
+E5	Process:T26 
+E6	Process:T27 
+E7	Process:T28 
+E8	Process:T29 Participant:T18
+E9	Process:T30 Participant:T20

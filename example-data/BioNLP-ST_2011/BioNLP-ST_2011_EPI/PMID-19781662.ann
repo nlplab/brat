@@ -1,0 +1,44 @@
+T1	Protein 77 91	5-lipoxygenase
+T2	Protein 118 132	5-lipoxygenase
+T3	Protein 134 138	5-LO
+T4	Protein 205 209	5-LO
+T5	Protein 310 324	5-lipoxygenase
+T6	Protein 454 458	5-LO
+T7	Protein 571 575	5-LO
+T8	Protein 651 655	MBD1
+T9	Protein 657 661	MBD2
+T10	Protein 666 671	MeCP2
+T11	Protein 695 699	5-LO
+T12	Protein 772 776	5-LO
+T13	Protein 871 875	5-LO
+T14	Protein 931 935	5-LO
+T15	Protein 971 975	5-LO
+T16	Protein 1064 1068	MBD1
+T17	Protein 1094 1098	5-LO
+T18	Protein 1143 1146	Sp1
+T19	Protein 1267 1270	Sp1
+*	Equiv T2 T3
+T20	DNA_methylation 8 23	DNA methylation
+T21	Entity 92 100	promoter
+T22	Entity 325 333	promoter
+T23	DNA_methylation 359 374	DNA methylation
+T24	DNA_methylation 424 439	DNA methylation
+T25	Entity 459 467	promoter
+T26	DNA_methylation 684 694	methylated
+T27	Entity 700 713	core promoter
+T28	DNA_methylation 920 930	methylated
+T29	Entity 936 944	promoter
+T30	Entity 976 984	promoter
+T31	DNA_methylation 985 996	methylation
+T32	Entity 1126 1135	CpG sites
+T33	DNA_methylation 1211 1221	methylated
+T34	Entity 1279 1291	binding site
+T35	DNA_methylation 1308 1319	methylation
+E1	DNA_methylation:T20 Theme:T1 Site:T21
+E2	DNA_methylation:T23 Theme:T5 Site:T22
+E3	DNA_methylation:T24 Theme:T6 Site:T25
+E4	DNA_methylation:T26 Theme:T11 Site:T27
+E5	DNA_methylation:T28 Theme:T14 Site:T29
+E6	DNA_methylation:T31 Theme:T15 Site:T30
+E7	DNA_methylation:T33 Theme:T17 Site:T32
+E8	DNA_methylation:T35 Theme:T17 Site:T34

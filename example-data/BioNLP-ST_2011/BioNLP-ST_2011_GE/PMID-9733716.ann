@@ -1,0 +1,39 @@
+T1	Protein 47 51	CD14
+T2	Protein 216 221	mCD14
+T3	Protein 232 236	CD14
+T4	Protein 324 329	mCD14
+T5	Protein 488 493	mCD14
+T6	Protein 566 571	mCD14
+T7	Protein 713 718	mCD14
+T8	Protein 746 751	mCD14
+T9	Protein 775 779	CD14
+T10	Protein 819 824	mCD14
+T11	Protein 866 871	mCD14
+T12	Protein 960 965	mCD14
+T13	Protein 1080 1085	mCD14
+T14	Binding 23 27	bind
+T15	Binding 208 212	bind
+T16	Binding 480 484	bind
+T17	Binding 557 562	binds
+T18	Positive_regulation 681 692	facilitates
+T19	Binding 719 726	binding
+T20	Binding 735 742	binding
+T21	Negative_regulation 759 766	blocked
+T22	Negative_regulation 807 814	inhibit
+T23	Binding 825 832	binding
+T24	Negative_regulation 849 856	inhibit
+T25	Binding 872 879	binding
+T26	Gene_expression 966 976	expressing
+E1	Binding:T14 Theme:T1
+E2	Binding:T15 Theme:T2
+E3	Binding:T16 Theme:T5
+E4	Binding:T17 Theme:T6
+E5	Positive_regulation:T18 Theme:E6
+E6	Binding:T19 Theme:T7
+E7	Binding:T20 Theme:T8
+E8	Negative_regulation:T21 Theme:E7 Cause:E9
+E9	Negative_regulation:T22 Theme:E10
+E10	Binding:T23 Theme:T10
+E11	Negative_regulation:T24 Theme:E12
+E12	Binding:T25 Theme:T11
+E13	Gene_expression:T26 Theme:T12

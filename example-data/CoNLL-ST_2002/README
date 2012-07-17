@@ -1,0 +1,32 @@
+Sample CoNLL 2002 shared task training set documents.
+
+A set of documents drawn from the freely available data of the
+Conference on Computational Natural Language Learning (CoNLL) 2002
+shared task Language-Independent Named Entity Recognition.
+
+Originals available from
+
+    http://www.cnts.ua.ac.be/conll2002/ner/
+
+Dataset descriptions from the CoNLL 2002 shared task website:
+
+    The Spanish data is a collection of news wire articles made
+    available by the Spanish EFE News Agency. The articles are from
+    May 2000. The annotation was carried out by the TALP Research
+    Center of the Technical University of Catalonia (UPC) and the
+    Center of Language and Computation (CLiC) of the University of
+    Barcelona (UB), and funded by the European Commission through the
+    NAMIC project (IST-1999-12392).
+
+    The Dutch data consist of four editions of the Belgian newspaper
+    "De Morgen" of 2000 (June 2, July 1, August 1 and September
+    1). The data was annotated as a part of the Atranos project at the
+    University of Antwerp.
+
+Converted into standoff using the script conll02tostandoff.py
+distributed with brat.
+
+Note that this is a subset of the training sets only. To access the full
+data, please download it from the shared task website:
+
+    http://www.cnts.ua.ac.be/conll2002/ner/

@@ -1,0 +1,19 @@
+T1	Protein 14 25	Ah receptor
+T2	Protein 27 40	TCDD receptor
+T3	Protein 135 146	Ah receptor
+T4	Protein 148 161	TCDD receptor
+T5	Protein 364 375	Ah receptor
+T6	Protein 437 440	AhR
+T7	Protein 528 535	P450IA1
+T8	Protein 537 540	AhR
+T9	Protein 840 843	AhR
+T10	Protein 1056 1059	AhR
+T11	Protein 1086 1119	transforming growth factor beta 1
+T12	Protein 1194 1197	AhR
+T13	Protein 1256 1259	AhR
+T14	Protein 1561 1564	AhR
+T15	Protein 1596 1603	P450IA1
+T16	Protein 1653 1656	AhR
+T17	Protein 1812 1815	AhR
+*	Equiv T1 T2
+*	Equiv T3 T4

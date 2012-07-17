@@ -1,0 +1,14 @@
+T6	Entity 20 30	NF-kappa B
+T7	Entity 128 138	NF-kappa B
+T8	Entity 327 337	NF-kappa B
+T9	Entity 338 341	DNA
+T10	Entity 487 497	NF-kappa B
+T11	Entity 735 745	NF-kappa B
+T12	Entity 797 833	selected epitopes of HLA-DR antigens
+T13	Entity 806 814	epitopes
+T14	Entity 994 1004	NF-kappa B
+T1	Protein 393 402	TNF-alpha
+T2	Protein 566 575	TNF-alpha
+T3	Protein 658 667	TNF-alpha
+T4	Protein 919 947	toxic shock syndrome toxin-I
+T5	Protein 951 979	staphylococcal enterotoxin B

@@ -1,0 +1,8 @@
+T1	Protein 230 233	Env
+T2	Protein 234 239	gp120
+T3	Protein 443 446	env
+T4	Protein 1241 1244	Env
+T5	Protein 1445 1448	Env
+T6	Protein 1547 1550	CD4
+T7	Protein 1767 1770	env
+*	Equiv T1 T2

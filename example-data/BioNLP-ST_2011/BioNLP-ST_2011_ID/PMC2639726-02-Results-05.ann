@@ -1,0 +1,17 @@
+T7	Process 78 87	virulence
+T8	Process 347 356	virulence
+T9	Process 774 783	virulence
+T10	Process 3044 3053	virulence
+T11	Negative_regulation 3457 3477	negatively regulated
+E1	Process:T7 
+E2	Process:T8 
+E3	Process:T9 
+E4	Process:T10 Participant:T4
+E5	Negative_regulation:T11 Theme:T5
+E6	Negative_regulation:T11 Theme:T6
+T1	Organism 1123 1133	Salmonella
+T2	Organism 1734 1741	E. coli
+T3	Organism 2869 2879	Salmonella
+T4	Organism 2964 2974	Salmonella
+T5	Protein 3438 3442	pepA
+T6	Protein 3447 3451	mopB

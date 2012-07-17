@@ -1,0 +1,34 @@
+T1	LOC 0 6	Madrid
+T2	ORG 16 19	EFE
+T3	PER 42 61	Martina Navratilova
+T4	MISC 168 201	Abierto de España Villa de Madrid
+T5	PER 257 264	Martina
+T6	PER 282 299	Mariaan de Swardt
+T7	PER 328 339	Rika Hiraki
+T8	PER 360 380	Meghaan Shaughnessey
+T9	LOC 495 504	Wimbledon
+T10	PER 532 549	Conchita Martínez
+T11	PER 613 620	Martina
+T12	LOC 654 683	Club de Campo Villa de Madrid
+T13	MISC 762 775	Roland Garros
+T14	MISC 812 821	Wimbledon
+T15	PER 924 935	Navratilova
+T16	LOC 1059 1068	Wimbledon
+T17	PER 1113 1124	Navratilova
+T18	PER 1437 1444	Martina
+T19	MISC 1506 1513	US Open
+T20	PER 1539 1556	Gabriela Sabatini
+T21	PER 1740 1749	Gala León
+T22	PER 1752 1781	María Antonia Sánchez Lorenzo
+T23	PER 1784 1798	Virginia Ruano
+T24	PER 1801 1813	Paola Suárez
+T25	PER 1948 1955	Martina
+T26	PER 1957 1963	Hingis
+T27	PER 2109 2120	Navratilova
+T28	PER 2264 2271	Martina
+T29	PER 2274 2283	de Swardt
+T30	PER 2437 2444	Martina
+T31	MISC 2808 2828	Hiraki. Shaughnessey
+T32	PER 2915 2924	de Swardt
+T33	PER 2950 2961	Navratilova
+T34	PER 3040 3047	Martina

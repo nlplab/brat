@@ -1,0 +1,37 @@
+T22	Process 74 84	Resistance
+T23	Process 182 190	infected
+T24	Process 404 413	virulence
+T25	Process 447 457	resistance
+T26	Process 777 786	infective
+T27	Process 1101 1111	resistance
+T28	Process 1208 1216	infected
+T29	Process 1233 1242	resistant
+E1	Process:T22 Participant:T2
+E2	Process:T23 Participant:T3
+E3	Process:T24 Participant:T7
+E4	Process:T25 
+E5	Process:T26 Participant:T12
+E6	Process:T27 
+E7	Process:T28 Participant:T16
+E8	Process:T29 Participant:T17
+T1	Organism 20 24	Flea
+T2	Organism 98 113	Yersinia pestis
+T3	Organism 115 130	Yersinia pestis
+T4	Organism 191 196	fleas
+T5	Organism 198 207	Y. pestis
+T6	Organism 246 250	flea
+T7	Organism 425 434	Y. pestis
+T8	Organism 551 555	flea
+T9	Organism 582 591	Y. pestis
+T10	Organism 663 667	flea
+T11	Organism 742 751	Y. pestis
+T12	Organism 787 792	fleas
+T13	Organism 951 954	rat
+T14	Organism 1022 1026	flea
+T15	Organism 1187 1191	flea
+T16	Organism 1193 1202	Y. pestis
+T17	Organism 1217 1222	fleas
+T18	Organism 1410 1414	flea
+T19	Organism 1461 1465	flea
+T20	Organism 1537 1546	Y. pestis
+T21	Organism 1583 1587	host

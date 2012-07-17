@@ -1,0 +1,11 @@
+T1	Protein 770 773	p50
+T2	Protein 774 777	p65
+T3	Protein 1005 1027	inhibitor kappaB alpha
+T4	Positive_regulation 702 711	activates
+T5	Binding 721 728	binding
+T6	Negative_regulation 984 992	decrease
+E1	Positive_regulation:T4 Theme:E4
+E2	Positive_regulation:T4 Theme:E3
+E3	Binding:T5 Theme:T2
+E4	Binding:T5 Theme:T1
+E5	Negative_regulation:T6 Theme:T3

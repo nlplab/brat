@@ -1,0 +1,16 @@
+*	Equiv T1 T2
+*	Equiv T3 T4
+T8	Entity 23 33	HIV-1 gene
+T9	Entity 355 364	HIV-1-LTR
+T10	Entity 477 486	HIV-1-LTR
+T11	Entity 577 599	nuclear factor-kappa B
+T12	Entity 600 603	DNA
+T13	Entity 808 818	HIV-1 gene
+T14	Entity 1029 1039	HIV-1 gene
+T1	Protein 269 297	toxic shock syndrome toxin-1
+T2	Protein 299 305	TSST-1
+T3	Protein 311 339	staphylococcal enterotoxin A
+T4	Protein 341 344	SEA
+T5	Protein 389 423	chloramphenicol acetyl transferase
+T6	Protein 684 732	granulocyte-macrophage colony-stimulating factor
+T7	Protein 879 906	tumor necrosis factor-alpha

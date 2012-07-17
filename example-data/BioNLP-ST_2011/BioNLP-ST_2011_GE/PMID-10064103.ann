@@ -1,0 +1,6 @@
+T1	Protein 889 901	NF-kappaBp65
+T2	Protein 1035 1049	thrombomodulin
+T3	Positive_regulation 838 846	stronger
+T4	Positive_regulation 879 888	activated
+E1	Positive_regulation:T3 Theme:E2
+E2	Positive_regulation:T4 Theme:T1

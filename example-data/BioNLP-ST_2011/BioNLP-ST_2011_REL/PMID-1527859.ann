@@ -1,0 +1,22 @@
+T11	Entity 57 67	NF-kappa B
+T12	Entity 774 784	NF-kappa B
+T13	Entity 923 933	NF-kappa B
+T14	Entity 934 937	DNA
+T15	Entity 1009 1012	DNA
+T16	Entity 1284 1307	NF-kappa B-binding site
+T17	Entity 1284 1294	NF-kappa B
+T18	Entity 1362 1372	NF-kappa B
+T19	Entity 1456 1465	promoters
+T20	Entity 1511 1521	NF-kappa B
+T21	Entity 1578 1601	T-cell receptor complex
+R1	Protein-Component Arg1:T9 Arg2:T19
+T1	Protein 36 39	Nef
+T2	Protein 192 195	CD4
+T3	Protein 885 888	Nef
+T4	Protein 985 988	Nef
+T5	Protein 1103 1107	SP-1
+T6	Protein 1144 1147	Nef
+T7	Protein 1185 1198	interleukin 2
+T8	Protein 1386 1389	Nef
+T9	Protein 1442 1455	interleukin 2
+T10	Protein 1498 1501	Nef

@@ -1,0 +1,15 @@
+T1	Protein 53 58	REF-1
+T2	Protein 795 800	REF-1
+T3	Protein 1049 1054	REF-1
+T4	Protein 1077 1082	REF-1
+T5	Protein 1334 1339	REF-1
+T6	Negative_regulation 40 49	deficient
+T7	Binding 72 88	binding activity
+T8	Gene_expression 756 770	in the amounts
+T9	Negative_regulation 1028 1037	decreased
+T10	Negative_regulation 1326 1330	loss
+E1	Negative_regulation:T6 Theme:E2
+E2	Binding:T7 Theme:T1
+E3	Gene_expression:T8 Theme:T2
+E4	Negative_regulation:T9 Theme:T3
+E5	Negative_regulation:T10 Theme:T5
