@@ -1388,6 +1388,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           if (arcDragArc) {
             svg.remove(arcDragArc);
+            arcDrag = null;
           }
           arcDragOrigin = null;
           if (arcOptions) {
