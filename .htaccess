@@ -15,7 +15,7 @@
     Deny from all
 </FilesMatch>
 
-Options +ExecCGI
+Options +ExecCGI +FollowSymLinks
 DirectoryIndex index.xhtml
 
 # When using FastCGI, uncomment the following three lines and replace
