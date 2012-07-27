@@ -127,7 +127,7 @@ def _pos(xml, start_id=1):
 
     curr_id = start_id
     for s_id, t_id, tok in _tok_it(token_by_ids):
-        yield s_id, t_id, TextBoundAnnotation(tok.start, tok.end,
+        yield s_id, t_id, TextBoundAnnotation(((tok.start, tok.end, ), ),
                 'T%s' % curr_id, tok.pos, '')
         curr_id += 1
 
@@ -166,7 +166,7 @@ def ner(xml, start_id=1):
 
     curr_id = start_id
     for start, end, _type in nes:
-        yield TextBoundAnnotation(start, end, 'T%s' % curr_id, _type, '')
+        yield TextBoundAnnotation(((start, end), ), 'T%s' % curr_id, _type, '')
         curr_id += 1
        
 def coref(xml, start_id=1):
@@ -204,8 +204,8 @@ def coref(xml, start_id=1):
             chain.append(mention_id)
             curr_id += 1
             yield TextBoundAnnotation(
-                    token_by_ids[sentence_id][start_tok_id].start,
-                    token_by_ids[sentence_id][start_tok_id].end,
+                    ((token_by_ids[sentence_id][start_tok_id].start,
+                    token_by_ids[sentence_id][start_tok_id].end), ),
                     mention_id, 'Mention', '')
 
         yield EquivAnnotation('Coreference', chain, '')
