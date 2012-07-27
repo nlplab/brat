@@ -570,13 +570,17 @@ if __name__ == '__main__':
         print sentence_offsets(xml_string)
 
     if len(argv) < 2:
-        xml_strings = (STANFORD_XML, )
+        xml_strings = (('<string>', STANFORD_XML), )
     else:
         def _xml_gen():
             for xml_path in argv[1:]:
                 with open(xml_path, 'r') as xml_file:
-                    yield xml_file.read()
+                    yield (xml_path, xml_file.read())
         xml_strings = _xml_gen()
 
-    for xml_string in xml_strings:
-        _test_xml(xml_string)
+    for xml_source, xml_string in xml_strings:
+        try:
+            _test_xml(xml_string)
+        except:
+            print >> stderr, xml_source
+            raise
