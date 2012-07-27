@@ -267,6 +267,8 @@ def collapsed_ccproc_dep(xml):
     return _dep(xml, source_element='collapsed-ccprocessed-dependencies')
 
 if __name__ == '__main__':
+    from sys import argv
+
     STANFORD_XML = '''<?xml version="1.0" encoding="UTF-8"?>
     <?xml-stylesheet href="CoreNLP-to-HTML.xsl" type="text/xsl"?>
     <root>
@@ -525,43 +527,56 @@ if __name__ == '__main__':
     </root>
     '''
 
-    print 'Text:'
-    print text(STANFORD_XML)
+    def _test_xml(xml_string):
+        print 'Text:'
+        print text(xml_string)
 
-    print
-    print 'Part-of-speech:'    
-    for ann in pos(STANFORD_XML):
-        print ann
+        print
+        print 'Part-of-speech:'
+        for ann in pos(xml_string):
+            print ann
 
-    print
-    print 'Named Entity Recoginiton:'
-    for ann in ner(STANFORD_XML):
-        print ann
-        
-    print
-    print 'Co-reference:'
-    for ann in coref(STANFORD_XML):
-        print ann
+        print
+        print 'Named Entity Recoginiton:'
+        for ann in ner(xml_string):
+            print ann
 
-    print
-    print 'Basic dependencies:'
-    for ann in basic_dep(STANFORD_XML):
-        print ann
-        
-    print
-    print 'Collapsed dependencies:'
-    for ann in collapsed_dep(STANFORD_XML):
-        print ann
-        
-    print
-    print 'Collapsed CC-processed dependencies:'
-    for ann in collapsed_ccproc_dep(STANFORD_XML):
-        print ann
+        print
+        print 'Co-reference:'
+        for ann in coref(xml_string):
+            print ann
 
-    print
-    print 'Token boundaries:'
-    print token_offsets(STANFORD_XML)
+        print
+        print 'Basic dependencies:'
+        for ann in basic_dep(xml_string):
+            print ann
 
-    print
-    print 'Sentence boundaries:'
-    print sentence_offsets(STANFORD_XML)
+        print
+        print 'Collapsed dependencies:'
+        for ann in collapsed_dep(xml_string):
+            print ann
+
+        print
+        print 'Collapsed CC-processed dependencies:'
+        for ann in collapsed_ccproc_dep(xml_string):
+            print ann
+
+        print
+        print 'Token boundaries:'
+        print token_offsets(xml_string)
+
+        print
+        print 'Sentence boundaries:'
+        print sentence_offsets(xml_string)
+
+    if len(argv) < 2:
+        xml_strings = (STANFORD_XML, )
+    else:
+        def _xml_gen():
+            for xml_path in argv[1:]:
+                with open(xml_path, 'r') as xml_file:
+                    yield xml_file.read()
+        xml_strings = _xml_gen()
+
+    for xml_string in xml_strings:
+        _test_xml(xml_string)
