@@ -12,7 +12,7 @@ Version:    2012-06-26
 
 from collections import defaultdict
 from itertools import chain
-from sys import path as sys_path, stderr
+from sys import argv, path as sys_path, stderr, stdout
 from os.path import dirname, join as path_join
 from xml.etree import ElementTree
 
@@ -55,12 +55,12 @@ def _token_by_ids(soup):
         sent_id = int(sent_e.get('id'))
         for tok_e in sent_e.iter('token'):
             tok_id = int(tok_e.get('id'))
-            tok_word = tok_e.find('word').text
-            tok_lemma = tok_e.find('lemma').text
+            tok_word = unicode(tok_e.find('word').text)
+            tok_lemma = unicode(tok_e.find('lemma').text)
             tok_start = int(tok_e.find('CharacterOffsetBegin').text)
             tok_end = int(tok_e.find('CharacterOffsetEnd').text)
-            tok_pos = tok_e.find('POS').text
-            tok_ner = tok_e.find('NER').text
+            tok_pos = unicode(tok_e.find('POS').text)
+            tok_ner = unicode(tok_e.find('NER').text)
 
             token_by_ids[sent_id][tok_id] = Token(
                     word=tok_word,
@@ -119,7 +119,7 @@ def text(xml):
         unesc_word = ptb_unescape(tok.word)
         text[tok.start:len(unesc_word)] = unesc_word
 
-    return ''.join(text)
+    return u''.join(text)
 
 def _pos(xml, start_id=1):
     soup = _soup(xml)
@@ -267,8 +267,6 @@ def collapsed_ccproc_dep(xml):
     return _dep(xml, source_element='collapsed-ccprocessed-dependencies')
 
 if __name__ == '__main__':
-    from sys import argv
-
     STANFORD_XML = '''<?xml version="1.0" encoding="UTF-8"?>
     <?xml-stylesheet href="CoreNLP-to-HTML.xsl" type="text/xsl"?>
     <root>
@@ -528,46 +526,62 @@ if __name__ == '__main__':
     '''
 
     def _test_xml(xml_string):
-        print 'Text:'
-        print text(xml_string)
+        stdout.write('Text:\n')
+        print >> stderr, type(text(xml_string))
+        stdout.write(text(xml_string).encode('utf-8'))
+        stdout.write('\n')
 
-        print
-        print 'Part-of-speech:'
+        stdout.write('\n')
+        stdout.write('Part-of-speech:\n')
         for ann in pos(xml_string):
-            print ann
+            stdout.write(unicode(ann))
+            stdout.write('\n')
 
-        print
-        print 'Named Entity Recoginiton:'
+        stdout.write('\n')
+        stdout.write('Named Entity Recoginiton:\n')
         for ann in ner(xml_string):
-            print ann
+            stdout.write(unicode(ann))
+            stdout.write('\n')
 
-        print
-        print 'Co-reference:'
+        stdout.write('\n')
+        stdout.write('Co-reference:\n')
         for ann in coref(xml_string):
-            print ann
+            stdout.write(unicode(ann))
+            stdout.write('\n')
 
-        print
-        print 'Basic dependencies:'
+        stdout.write('\n')
+        stdout.write('Basic dependencies:\n')
         for ann in basic_dep(xml_string):
-            print ann
+            stdout.write(unicode(ann))
+            stdout.write('\n')
 
-        print
-        print 'Collapsed dependencies:'
+        stdout.write('\n')
+        stdout.write('Basic dependencies:\n')
+        for ann in basic_dep(xml_string):
+            stdout.write(unicode(ann))
+            stdout.write('\n')
+
+        stdout.write('\n')
+        stdout.write('Collapsed dependencies:\n')
         for ann in collapsed_dep(xml_string):
-            print ann
+            stdout.write(unicode(ann))
+            stdout.write('\n')
 
-        print
-        print 'Collapsed CC-processed dependencies:'
+        stdout.write('\n')
+        stdout.write('Collapsed CC-processed dependencies:\n')
         for ann in collapsed_ccproc_dep(xml_string):
-            print ann
+            stdout.write(unicode(ann))
+            stdout.write('\n')
 
-        print
-        print 'Token boundaries:'
-        print token_offsets(xml_string)
+        stdout.write('\n')
+        stdout.write('Token boundaries:\n')
+        stdout.write(unicode(token_offsets(xml_string)))
+        stdout.write('\n')
 
-        print
-        print 'Sentence boundaries:'
-        print sentence_offsets(xml_string)
+        stdout.write('\n')
+        stdout.write('Sentence boundaries:\n')
+        stdout.write(unicode(sentence_offsets(xml_string)))
+        stdout.write('\n')
 
     if len(argv) < 2:
         xml_strings = (('<string>', STANFORD_XML), )
@@ -575,12 +589,14 @@ if __name__ == '__main__':
         def _xml_gen():
             for xml_path in argv[1:]:
                 with open(xml_path, 'r') as xml_file:
-                    yield (xml_path, xml_file.read())
+                    # We assume UTF-8 here, otherwise ElemenTree will bork
+                    yield (xml_path, xml_file.read().decode('utf-8'))
         xml_strings = _xml_gen()
 
     for xml_source, xml_string in xml_strings:
         try:
+            print >> stderr, xml_source
             _test_xml(xml_string)
         except:
-            print >> stderr, xml_source
+            print >> stderr, 'Crashed on:', xml_source
             raise
