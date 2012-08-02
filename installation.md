@@ -320,7 +320,7 @@ directory, make sure the following is included:
        Order allow,deny
        Allow from all
 
-       AllowOverride Options Indexes
+       AllowOverride Options Indexes FileInfo Limit
        AddHandler cgi-script .cgi
        AddType application/xhtml+xml .xhtml
        AddType font/ttf .ttf
