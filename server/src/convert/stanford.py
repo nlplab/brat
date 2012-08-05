@@ -198,14 +198,14 @@ def coref(xml, start_id=1):
             # Note: We don't use the head information for each mention
             sentence_id = int(mention_e.find('sentence').text)
             start_tok_id = int(mention_e.find('start').text)
-            end_tok_id = int(mention_e.find('end').text)
+            end_tok_id = int(mention_e.find('end').text) - 1
 
             mention_id = 'T%s' % (curr_id, )
             chain.append(mention_id)
             curr_id += 1
             yield TextBoundAnnotation(
                     ((token_by_ids[sentence_id][start_tok_id].start,
-                    token_by_ids[sentence_id][start_tok_id].end), ),
+                    token_by_ids[sentence_id][end_tok_id].end), ),
                     mention_id, 'Mention', '')
 
         yield EquivAnnotation('Coreference', chain, '')
@@ -527,7 +527,6 @@ if __name__ == '__main__':
 
     def _test_xml(xml_string):
         stdout.write('Text:\n')
-        print >> stderr, type(text(xml_string))
         stdout.write(text(xml_string).encode('utf-8'))
         stdout.write('\n')
 
