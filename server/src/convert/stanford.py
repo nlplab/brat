@@ -205,7 +205,7 @@ def coref(xml, start_id=1):
             curr_id += 1
             yield TextBoundAnnotation(
                     ((token_by_ids[sentence_id][start_tok_id].start,
-                    token_by_ids[sentence_id][start_tok_id].end), ),
+                    token_by_ids[sentence_id][end_tok_id].end), ),
                     mention_id, 'Mention', '')
 
         yield EquivAnnotation('Coreference', chain, '')
@@ -527,7 +527,6 @@ if __name__ == '__main__':
 
     def _test_xml(xml_string):
         stdout.write('Text:\n')
-        print >> stderr, type(text(xml_string))
         stdout.write(text(xml_string).encode('utf-8'))
         stdout.write('\n')
 
