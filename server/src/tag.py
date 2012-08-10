@@ -158,7 +158,7 @@ def tag(collection, document, tagger):
 
             _id = ann_obj.get_new_id('T')
 
-            tb = TextBoundAnnotationWithText(start, end, _id, _type, text)
+            tb = TextBoundAnnotationWithText(((start, end),), _id, _type, text)
 
             mods.addition(tb)
             ann_obj.add_annotation(tb)
