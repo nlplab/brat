@@ -1433,8 +1433,8 @@ var AnnotatorUI = (function($, window, undefined) {
                 collection: coll,
                 'document': doc
               };
-              $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type)+' ("'+data.text.substring(originSpan.from, originSpan.to)+'")');
-              $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type)+' ("'+data.text.substring(targetSpan.from, targetSpan.to)+'")');
+              $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type)+' ("'+originSpan.text+'")');
+              $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type)+' ("'+targetSpan.text+'")');
               fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type);
               // for precise timing, log dialog display to user.
               dispatcher.post('logAction', ['arcSelected']);
@@ -1763,7 +1763,6 @@ var AnnotatorUI = (function($, window, undefined) {
         // TODO: support for entity attributes
         $('#span_form input:not([unused])').removeAttr('disabled');
         var $toDisable;
-        var $category;
         if (category == "event") {
           $toDisable = $('#span_form input[category="entity"]');
         } else if (category == "entity") {
@@ -1772,12 +1771,14 @@ var AnnotatorUI = (function($, window, undefined) {
           console.error('Unrecognized attribute category:', category)
           $toDisable = $();
         }
+        var $checkedToDisable = $toDisable.filter(':checked');
         $toDisable.attr('disabled', true);
         // the disable may leave the dialog in a state where nothing
         // is checked, which would cause error on "OK". In this case,
         // check the first valid choice.
-        if ($toDisable.is(':checked')) {
-          $('#span_form input:not(:disabled):first').attr('checked', 'checked');
+        if ($checkedToDisable.length) {
+          var $toCheck = $('#span_form input[category="' + category + '"]:first');
+          $toCheck.attr('checked', 'checked');
         }
       }
 
