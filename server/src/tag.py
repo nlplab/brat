@@ -132,11 +132,12 @@ def tag(collection, document, tagger):
             if resp.status != 200:
                 raise TaggerConnectionError(tagger_token,
                         '%s %s' % (resp.status, resp.reason))
+            # Finally, we can read the response data
+            resp_data = resp.read()
         finally:
             if conn is not None:
                 conn.close()
 
-        resp_data = resp.read()
         try:
             json_resp = loads(resp_data)
         except ValueError:
