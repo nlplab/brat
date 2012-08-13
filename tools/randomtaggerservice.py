@@ -119,7 +119,7 @@ def main(args):
 
     server_class = HTTPServer
     httpd = server_class(('localhost', argp.port), RandomTaggerHandler)
-    print >> stderr, 'Random tagger service started'
+    print >> stderr, 'Random tagger service started on port %s' % (argp.port)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
