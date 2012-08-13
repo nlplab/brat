@@ -115,9 +115,14 @@ def tag(collection, document, tagger):
             service_url = url_soup.path + (
                     '?' + url_soup.query if url_soup.query else '')
             try:
-                conn.request('POST', url_soup.path,
-                        # The document text as body
-                        ann_obj.get_document_text().encode('utf8'),
+                data = ann_obj.get_document_text().encode('utf-8')
+                req_headers['Content-length'] = len(data)
+                # Note: Trout slapping for anyone sending Unicode objects here
+                conn.request('POST',
+                        # As per: http://bugs.python.org/issue11898
+                        # Force the url to be an ascii string
+                        str(url_soup.path),
+                        data,
                         headers=req_headers)
             except SocketError, e:
                 raise TaggerConnectionError(tagger_token, e)
