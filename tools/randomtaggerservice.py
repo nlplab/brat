@@ -92,13 +92,13 @@ class RandomTaggerHandler(BaseHTTPRequestHandler):
                 headers=self.headers,
                 environ={
                     'REQUEST_METHOD':'POST',
-                    'CONTENT_TYPE':self.headers['Content-Type'],
+                    'CONTENT_TYPE':self.headers['Content-type'],
                     },
                 fp=self.rfile)
 
         # Do your random tagging magic
         try:
-            json_dic = _random_tagger(field_storage.value)
+            json_dic = _random_tagger(field_storage.value.decode('utf-8'))
         except KeyError:
             # We weren't given any text to tag, such is life, return nothing
             json_dic = {}
