@@ -955,11 +955,7 @@ class TextAnnotations(Annotations):
             else:
                 textfile_path = document[:len(document) - len(file_ext)]
 
-        document_text = self._read_document_text(textfile_path)
-        # TODO: Will fire for blank text files, not desireable
-        if not document_text:
-            raise AnnotationTextFileNotFoundError(document)
-        self._document_text = document_text
+        self._document_text = self._read_document_text(textfile_path)
         
         Annotations.__init__(self, document, read_only)
 
@@ -1031,11 +1027,10 @@ class TextAnnotations(Annotations):
         textfn = document + '.' + TEXT_FILE_SUFFIX
         try:
             with open_textfile(textfn, 'r') as f:
-                text = f.read()
-                return text
-        except:
+                return f.read()
+        except IOError:
             Messager.error('Error reading document text from %s' % textfn)
-        return None
+        raise AnnotationTextFileNotFoundError(document)
 
 class Annotation(object):
     """
