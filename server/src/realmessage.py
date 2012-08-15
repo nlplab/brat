@@ -65,9 +65,9 @@ class Messager:
         convertable_messages = []
         for m in Messager.__pending_messages:
             try:
-                encoded = m[0].encode("UTF-8")
+                encoded = m[0].encode('utf-8')
                 convertable_messages.append(m)
-            except:
+            except UnicodeDecodeError:
                 convertable_messages.append((u'[ERROR: MESSAGE THAT CANNOT BE ENCODED AS UTF-8 OMITTED]', 'error', 5))
         Messager.__pending_messages = convertable_messages
 
@@ -93,7 +93,7 @@ class Messager:
                 del msgcount[m]
                 s, t, r = m
                 if count > 1:
-                    s = s + "<br/><b>[message repeated %d times]</b>" % count
+                    s = s + '<br/><b>[message repeated %d times]</b>' % count
                 merged_messages.append((s,t,r))
 
         if 'messages' not in json_dict:
@@ -113,3 +113,10 @@ class Messager:
             msg = Messager.__escape(msg)
         Messager.__pending_messages.append((msg, type, duration))
     __message = staticmethod(__message)
+
+if __name__ == '__main__':
+    # Try out Unicode, that is always fun
+    Messager.warning(u'Hello 世界！')
+    json_dic = {}
+    Messager.output_json(json_dic)
+    print json_dic

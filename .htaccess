@@ -10,7 +10,7 @@
 # </Directory>
 #
 # (See also http://brat.nlplab.org/troubleshooting.html)
-<FilesMatch "^(\.htaccess|config\.py)$>
+<FilesMatch "^(\.htaccess|config\.py)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
