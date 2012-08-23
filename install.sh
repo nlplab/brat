@@ -107,7 +107,9 @@ fi
 
 if [ $group_ok -eq 0 ]; then
     echo
-    echo "Setting global read and write permissions to directories\n    \"$work_dir_abs/\" and\n    \"$data_dir_abs/\""
+    echo "Setting global read and write permissions to directories"
+    echo "    \"$work_dir_abs/\" and"
+    echo "    \"$data_dir_abs/\""
     echo "(you may wish to consider fixing this manually)"
     chmod -R 777 $data_dir_abs $work_dir_abs
 fi
