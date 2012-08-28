@@ -15,8 +15,6 @@ Author:     Pontus Stenetorp   <pontus is s u-tokyo ac jp>
 Version:    2011-09-29
 '''
 
-from __future__ import with_statement
-
 # Standard library version
 from os.path import abspath
 from os.path import join as path_join
@@ -296,8 +294,12 @@ def serve(params, client_ip, client_hostname, cookie_data):
     try:
         # We need to lock here since flup uses threads for each request and
         # can thus manipulate each other's global variables
-        with CONFIG_CHECK_LOCK:
+        try:
+            CONFIG_CHECK_LOCK.acquire()
             _config_check()
+        except:
+            CONFIG_CHECK_LOCK.release()
+            raise
     except ConfigurationError, e:
         json_dic = {}
         e.json(json_dic)
