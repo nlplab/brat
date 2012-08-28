@@ -83,6 +83,10 @@ mkdir -p $data_dir_abs
 apache_user=`ps aux | grep '[a]pache\|[h]ttpd' | cut -d ' ' -f 1 | grep -v '^root$' | head -n 1`
 apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
 
+# Place some example data
+
+cp -r ${base_dir}/example-data ${DATA_DIR}
+
 # Make $work_dir_abs and $data_dir_abs writable by apache
 
 group_ok=0
@@ -133,7 +137,8 @@ echo 'brat developers and/or file a bug to the brat bug tracker:'
 echo
 echo '    https://github.com/nlplab/brat/issues'
 echo
-echo '2.) Once brat is running, put your data in the data directory:'
+echo '2.) Once brat is running, put your data in the data directory. Or use'
+echo '    the example data placed there by the installation:'
 echo
 echo "    ${data_dir_abs}"
 echo
