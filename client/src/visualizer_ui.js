@@ -1752,9 +1752,8 @@ var VisualizerUI = (function($, window, undefined) {
           urlHash.setArgument('focus', [[span.id]]);
           $('#viewspan_highlight_link').show().attr('href', urlHash.getHash());
 
-          var spanText = data.text.substring(span.from, span.to);
-          $('#viewspan_selected').text(spanText);
-          var encodedText = encodeURIComponent(spanText);
+          $('#viewspan_selected').text(span.text);
+          var encodedText = encodeURIComponent(span.text);
           $.each(searchConfig, function(searchNo, search) {
             $('#viewspan_'+search[0]).attr('href', search[1].replace('%s', encodedText));
           });
