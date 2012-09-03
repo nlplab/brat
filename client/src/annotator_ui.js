@@ -1963,6 +1963,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var $dbLink = $('#span_norm_db_link');
         var $normDb = $('#span_norm_db');
         var normDb = $normDb.val();
+        if (!normDb) return; // no normalisation configured
         var link = normDbUrlByDbName[normDb];
         if (!link || link.match(/^\s*$/)) {
           dispatcher.post('messages', [[['No URL for '+normDb, 'error']]]);
