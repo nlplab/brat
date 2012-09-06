@@ -85,7 +85,7 @@ apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
 
 # Place some example data
 
-cp -r ${base_dir}/example-data ${DATA_DIR}
+cp -r ${base_dir}/example-data/corpora ${DATA_DIR}/examples
 
 # Make $work_dir_abs and $data_dir_abs writable by apache
 

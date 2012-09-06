@@ -1,0 +1,12 @@
+Example normalization reference resources extracted from ontologies
+from the OBO Foundry (http://www.obofoundry.org).
+
+NOTE: to reduce the size of this data, only subsets of some of the
+larger reference resources have been extracted, as follows:
+
+- Gene Ontology (GO.txt): terms from the three roots of GO
+  (molecular_function, biological_process, cellular_component) up to
+  depth 4.
+
+- Foundational Model of Anatomy (FMA.txt): terms from the FMA root
+  up to depth 7.
