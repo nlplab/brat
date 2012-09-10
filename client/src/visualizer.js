@@ -228,7 +228,11 @@ var Visualizer = (function($, window, undefined) {
       var spanTypes = null;
       var highlightGroup;
 
-      var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
+      // var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
+      // XXX Might need to be tweaked - inserted diff levels
+      var commentPrioLevels = [
+        'Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes',
+        'AddedAnnotation', 'MissingAnnotation', 'ChangedAnnotation'];
 
       this.arcDragOrigin = null; // TODO
 
