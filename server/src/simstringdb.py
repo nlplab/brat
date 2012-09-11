@@ -1,21 +1,12 @@
 #!/usr/bin/env python
 
+import glob
+import os
 import sys
-from os.path import join as path_join
-from message import Messager    
 
-try:
-    import simstring
-except ImportError:
-    errorstr = """
-    Error: failed to import the simstring library.
-    This library is required for approximate string matching DB lookup.
-    Please install simstring and its python bindings from 
-    http://www.chokkan.org/software/simstring/
-"""
-    print >> sys.stderr, errorstr
-    Messager.error(errorstr)
-    raise
+from common import ProtocolError
+from message import Messager
+from os.path import join as path_join
 
 try:
     from config import WORK_DIR
@@ -30,7 +21,7 @@ except ImportError:
 SS_DB_FILENAME_EXTENSION = 'ss.db'
 
 # Default similarity measure
-DEFAULT_SIMILARITY_MEASURE = simstring.cosine
+DEFAULT_SIMILARITY_MEASURE = 'cosine'
 
 # Default similarity threshold
 DEFAULT_THRESHOLD = 0.7
@@ -40,6 +31,36 @@ DEFAULT_NGRAM_LENGTH = 3
 
 # Whether to include marks for begins and ends of strings
 DEFAULT_INCLUDE_MARKS = False
+
+
+class NoSimStringError(ProtocolError):
+    def __str__(self):
+        return (u'No SimString bindings found, please install them from: '
+                u'http://www.chokkan.org/software/simstring/')
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'noSimStringError'
+
+
+def __import_simstring():
+    try:
+        import simstring
+    except ImportError:
+        Messager.error('''Error: failed to import the simstring library.
+        This library is required for approximate string matching DB lookup.
+        Please install simstring and its Python bindings from
+        http://www.chokkan.org/software/simstring/''', duration=-1)
+        raise NoSimStringError
+
+# Note: The only reason we use a function call for this is to delay the import
+def __set_db_measure(db, measure):
+    __import_simstring()
+
+    ss_measure_by_str = {
+            'cosine': simstring.cosine,
+            'overlap': simstring.overlap,
+            }
+    db.measure = ss_measure_by_str[measure]
 
 def __ssdb_filename(dbname):
     '''
@@ -54,6 +75,8 @@ def ssdb_build(strs, dbname, ngram_length=DEFAULT_NGRAM_LENGTH,
     Given a list of strings, a DB name, and simstring options, builds
     a simstring DB for the strings.
     '''
+    __import_simstring()
+
     dbfn = __ssdb_filename(dbname)
     try:
         # only library defaults (n=3, no marks) supported just now (TODO)
@@ -74,8 +97,6 @@ def ssdb_delete(dbname):
     Given a DB name, deletes all files associated with the simstring
     DB.
     '''
-    import os
-    import glob
 
     dbfn = __ssdb_filename(dbname)
     os.remove(dbfn)
@@ -87,6 +108,8 @@ def ssdb_open(dbname):
     Given a DB name, opens it as a simstring DB and returns the handle.
     The caller is responsible for invoking close() on the handle.
     '''
+    __import_simstring()
+
     try:
         return simstring.reader(__ssdb_filename(dbname))
     except IOError:
@@ -101,7 +124,7 @@ def ssdb_lookup(s, dbname, measure=DEFAULT_SIMILARITY_MEASURE,
     '''
     db = ssdb_open(dbname)
 
-    db.measure = measure
+    __set_db_measure(db, measure)
     db.threshold = threshold
 
     result = db.retrieve(s)
@@ -163,9 +186,11 @@ def ssdb_supstring_lookup(s, dbname, threshold=DEFAULT_THRESHOLD,
     where score is the fraction of n-grams in s that are also found in
     the matched string.
     '''
+    __import_simstring()
+
     db = ssdb_open(str(dbname))
 
-    db.measure = simstring.overlap
+    __set_db_measure(db, 'overlap')
     db.threshold = threshold
 
     result = db.retrieve(s)
@@ -201,11 +226,13 @@ def ssdb_supstring_exists(s, dbname, threshold=DEFAULT_THRESHOLD):
     string in the associated simstring DB likely contains s as an
     (approximate) substring.
     '''
+    __import_simstring()
+
     if threshold == 1.0:
         # optimized (not hugely, though) for this common case
         db = ssdb_open(str(dbname))
 
-        db.measure = simstring.overlap
+        __set_db_measure(db, 'overlap')
         db.threshold = threshold
 
         result = db.retrieve(s)
