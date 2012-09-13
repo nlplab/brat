@@ -978,3 +978,31 @@ div.scroll_wrapper_upper div.scroller {
    -webkit-text-size-adjust: none;
    select: none;
 }
+
+
+
+
+.span rect.IncorrectAnnotation {
+  stroke: #ff4141;
+  stroke-width: 2;
+}
+.shadow_IncorrectAnnotation {
+  fill: #ff4141;
+}
+#commentpopup.comment_IncorrectAnnotation {
+  background-color: #ff4141;
+}
+.span rect.MissingAnnotation {
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.shadow_MissingAnnotation {
+  fill: #ff4141;
+  opacity: 0.3;
+}
+#commentpopup.comment_MissingAnnotation {
+  background-color: #ccffcc;
+}
+.span rect.MissingAnnotation + text {
+  opacity: 0.5;
+}
