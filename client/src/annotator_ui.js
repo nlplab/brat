@@ -219,6 +219,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var startArcDrag = function(originId) {
         clearSelection();
+        svgElement.addClass('unselectable');
         svgPosition = svgElement.offset();
         arcDragOrigin = originId;
         arcDragArc = svg.path(svg.createPath(), {
@@ -235,6 +236,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var getValidArcTypesForDrag = function(targetId, targetType) {
+        var arcType = arcOptions && arcOptions.type;
         if (!arcDragOrigin || targetId == arcDragOrigin) return null;
 
         var originType = data.spans[arcDragOrigin].type;
@@ -242,6 +244,8 @@ var AnnotatorUI = (function($, window, undefined) {
         var result = [];
         if (spanType && spanType.arcs) {
           $.each(spanType.arcs, function(arcNo, arc) {
+            if (arcType && arcType != arc.type) return;
+
             if ($.inArray(targetType, arc.targets) != -1) {
               result.push(arc.type);
             }
@@ -272,13 +276,15 @@ var AnnotatorUI = (function($, window, undefined) {
             // var targetClasses = [];
             var $targets = $();
             $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
-              $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
-                // speedup for #642: relevant browsers should support
-                // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
-                // so we get off jQuery and get down to the metal:
-                // targetClasses.push('.span_' + possibleTarget);
-                $targets = $targets.add(svgElement[0].getElementsByClassName('span_' + possibleTarget));
-              });
+              if ((arcOptions && possibleArc.type == arcOptions.type) || !(arcOptions && arcOptions.old_target)) {
+                $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
+                  // speedup for #642: relevant browsers should support
+                  // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
+                  // so we get off jQuery and get down to the metal:
+                  // targetClasses.push('.span_' + possibleTarget);
+                  $targets = $targets.add(svgElement[0].getElementsByClassName('span_' + possibleTarget));
+                });
+              }
             });
             // $(targetClasses.join(',')).not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
             $targets.not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
@@ -1396,6 +1402,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           svgElement.removeClass('reselect');
         }
+        svgElement.removeClass('unselectable');
         $('.reselectTarget').removeClass('reselectTarget');
       };
 
@@ -1418,8 +1425,9 @@ var AnnotatorUI = (function($, window, undefined) {
         // is it arc drag end?
         if (arcDragOrigin) {
           var origin = arcDragOrigin;
+          var targetValid = target.hasClass('reselectTarget');
           stopArcDrag(target);
-          if ((id = target.attr('data-span-id')) && origin != id) {
+          if ((id = target.attr('data-span-id')) && origin != id && targetValid) {
             var originSpan = data.spans[origin];
             var targetSpan = data.spans[id];
             if (arcOptions && arcOptions.old_target) {
@@ -1955,6 +1963,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var $dbLink = $('#span_norm_db_link');
         var $normDb = $('#span_norm_db');
         var normDb = $normDb.val();
+        if (!normDb) return; // no normalisation configured
         var link = normDbUrlByDbName[normDb];
         if (!link || link.match(/^\s*$/)) {
           dispatcher.post('messages', [[['No URL for '+normDb, 'error']]]);
