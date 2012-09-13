@@ -982,14 +982,14 @@ div.scroll_wrapper_upper div.scroller {
 
 
 
-.span rect.AddedAnnotation {
+.span rect.IncorrectAnnotation {
   stroke: #ff4141;
   stroke-width: 2;
 }
-.shadow_AddedAnnotation {
+.shadow_IncorrectAnnotation {
   fill: #ff4141;
 }
-#commentpopup.comment_AddedAnnotation {
+#commentpopup.comment_IncorrectAnnotation {
   background-color: #ff4141;
 }
 .span rect.MissingAnnotation {
@@ -1001,21 +1001,8 @@ div.scroll_wrapper_upper div.scroller {
   opacity: 0.3;
 }
 #commentpopup.comment_MissingAnnotation {
-  background-color: #ff4141;
+  background-color: #ccffcc;
 }
 .span rect.MissingAnnotation + text {
   opacity: 0.5;
-}
-.span rect.MissingAnnotation:hover + text {
-  opacity: 1;
-}
-.span rect.ChangedAnnotation {
-  stroke: #cccc33;
-  stroke-width: 2;
-}
-.shadow_ChangedAnnotation {
-  fill: #ff4141;
-}
-#commentpopup.comment_ChangedAnnotation {
-  background-color: #ff4141;
 }

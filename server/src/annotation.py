@@ -390,9 +390,9 @@ class Annotations(object):
         for tr_ann in self.get_triggers():
             if tr_ann.id in referenced_to_referencer:
                 conflict_ann_ids = referenced_to_referencer[tr_ann.id]
-                # Note: Only reporting the first conflict
+                # Note: Only reporting one of the conflicts
                 raise TriggerReferenceError(tr_ann,
-                        self.get_ann_by_id(conflict_ann_ids[0]))
+                        self.get_ann_by_id(list(conflict_ann_ids)[0]))
         
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
