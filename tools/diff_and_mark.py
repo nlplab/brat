@@ -25,7 +25,7 @@ except ImportError:
     import os.path
     from sys import path as sys_path
     # We are most likely on an old Python and need to use our internal version
-    sys_path.append(os.path.join(os.path.basename(__file__), '../server/lib'))
+    sys_path.append(os.path.join(os.path.dirname(__file__), '../server/lib'))
     import argparse
 
 # this seems to be necessary for annotations to find its config
@@ -170,7 +170,7 @@ class AnnotationDiff: # {{{
         for role in second_roles - first_roles:
             self.add_changed(event_id, 'Added role %s' % role)
         for role in first_roles - second_roles:
-            self.add_changed(event_id, 'Missing role %s (%s)' % (role, first_args_dict(role)))
+            self.add_changed(event_id, 'Missing role %s (%s)' % (role, first_args_dict[role]))
         for role in first_roles & second_roles:
             if first_args_dict[role] != second_args_dict[role]:
                 self.add_changed(event_id, 'Changed role %s (from %s)' % (role, first_args_dict[role]))
@@ -411,7 +411,7 @@ def diff_files_and_dirs(firsts, second, result, force=False):
 
     if fatal_errors == []:
 
-        if not single_first and second_dir == False and result_dir is None:
+        if not single_first and second_dir and result_dir is None:
             os.mkdir(result)
             result_dir = True
 
@@ -436,7 +436,7 @@ def diff_files_and_dirs(firsts, second, result, force=False):
                 if force:
                     delete_annotations(result_name)
                 else:
-                    errors.append('Error: %s already exists (use --forcee to overwrite)' % result_name)
+                    errors.append('Error: %s already exists (use --force to overwrite)' % result_name)
                     continue
 
             diff_files(first_name, second_name, result_name)
