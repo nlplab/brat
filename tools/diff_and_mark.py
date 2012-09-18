@@ -49,9 +49,9 @@ class Mapping: # {{{
         return self.second_by_first[first] if first in self.second_by_first else None
     def get_first(self, second):
         return self.first_by_second[second] if second in self.first_by_second else None
-    def is_only_in_second(second):
+    def is_only_in_second(self, second):
         return second in self.only_in_second
-    def is_only_in_first(first):
+    def is_only_in_first(self, first):
         return first in self.second_by_first
 # }}}
 
@@ -105,19 +105,19 @@ class AnnotationDiff: # {{{
                 return entity
         return None
 
-    def has_entity(self, haystack, needle):
-        return (self.find_entity(haystack, needle) is not None)
-
     def diff_entities(self):
+        found_first_ids = set()
+
         for entity in self.second.get_entities():
             found_first = self.find_entity(self.first, entity)
             if found_first is None:
                 self.add_added(entity.id, 'Added entity')
             else:
-                self.mapping.add(entity.id, found_first.id)
+                found_first_ids.add(found_first.id)
+                self.mapping.add(found_first.id, entity.id)
         import copy
         for entity in self.first.get_entities():
-            if not self.has_entity(self.second, entity):
+            if not entity.id in found_first_ids:
                 clone = copy.copy(entity)
                 clone.id = self.result.get_new_id('T')
                 self.result.add_annotation(clone)
@@ -153,46 +153,69 @@ class AnnotationDiff: # {{{
     
 
     # Events {{{
-    def find_event(self, haystack, needle, trigger):
-        for event in haystack.get_events():
-            if event.trigger == trigger and event.type == needle.type:
-                return event
-        return None
+    def find_closest_events(self, second_event, found_events_dict):
+        second_args = dict(second_event.args)
+        second_roles = set(second_args.keys())
 
-    def has_event(self, haystack, needle, trigger):
-        return (self.find_event(haystack, needle, trigger) is not None)
+        for first_event in self.first.get_events():
+            if self.mapping.get_second(first_event.trigger) == second_event.trigger and first_event.type == second_event.type:
+                first_args = dict((role, self.mapping.get_second(target)) for (role, target) in first_event.args)
+                first_roles = set(first_args.keys())
+                
+                only_first = set(role for role in first_roles if first_args.get(role) != second_args.get(role))
+                only_second = set(role for role in second_roles if first_args.get(role) != second_args.get(role))
 
-    def diff_args(self, event_id, first_args, second_args):
-        first_roles = set(role for (role, target) in first_args)
-        first_args_dict = dict(first_args)
-        second_roles = set(role for (role, target) in second_args)
-        second_args_dict = dict(second_args)
-        for role in second_roles - first_roles:
-            self.add_changed(event_id, 'Added role %s' % role)
-        for role in first_roles - second_roles:
-            self.add_changed(event_id, 'Missing role %s (%s)' % (role, first_args_dict[role]))
-        for role in first_roles & second_roles:
-            if first_args_dict[role] != second_args_dict[role]:
-                self.add_changed(event_id, 'Changed role %s (from %s)' % (role, first_args_dict[role]))
+                match = (first_event.id, first_args, second_args, only_first, only_second)
+                score = len(only_first) + len(only_second)
+
+                # XXX this is horrible; what's more Pythonic way?
+                try:
+                    found_events_dict[score]
+                except KeyError:
+                    found_events_dict[score] = dict()
+                try:
+                    found_events_dict[score][second_event.id]
+                except KeyError:
+                    found_events_dict[score][second_event.id] = []
+                found_events_dict[score][second_event.id].append(match)
 
     def diff_events(self):
-        found_first_ids = []
-        args_to_check = []
+        found_first_ids = set()
+        found_second_ids = set()
+
+        found_events_dict = dict()
+
+        # first pass, collect exact matches
         for event in self.second.get_events():
-            trigger_in_first = self.mapping.get_first(event.trigger)
-            found_first = self.find_event(self.first, event, trigger_in_first)
-            if found_first is None:
+            self.find_closest_events(event, found_events_dict)
+
+        # XXX Pythonize
+        for score in sorted(found_events_dict.keys()):
+            for second_event_id in found_events_dict[score].keys():
+                if not second_event_id in found_second_ids:
+                    for match in found_events_dict[score][second_event_id]:
+                        first_event_id, first_args, second_args, only_first, only_second = match
+
+                        if not first_event_id in found_first_ids:
+                            found_first_ids.add(first_event_id)
+                            found_second_ids.add(second_event_id)
+                            self.mapping.add(first_event_id, second_event_id)
+                            for role in only_first:
+                                if role in only_second:
+                                    self.add_changed(second_event_id, 'Changed role %s (from %s)' % (role, first_args[role]))
+                                else:
+                                    self.add_changed(second_event_id, 'Missing role %s (%s)' % (role, first_args[role]))
+                            for role in only_second - only_first:
+                                self.add_changed(second_event_id, 'Added role %s' % role)
+
+        for event in self.second.get_events():
+            if not event.id in found_second_ids:
                 self.add_added(event.id, 'Added event')
-            else:
-                self.mapping.add(event.id, found_first.id)
-                found_first_ids.append(found_first.id)
-                first_args = [(role, self.mapping.get_second(target)) for (role, target) in found_first.args]
-                args_to_check.append((event.id, first_args, event.args))
-        for (event_id, first_args, second_args) in args_to_check:
-            self.diff_args(event_id, first_args, second_args)
+
         for event in self.first.get_events():
             if not event.id in found_first_ids:
                 self.add_missing(self.mapping.get_second(event.id), 'Missing event')
+
     # }}}
     
 
@@ -211,12 +234,13 @@ class AnnotationDiff: # {{{
             target_in_first = self.mapping.get_first(attribute.target)
             found_first = self.find_attribute(self.first, attribute, target_in_first)
             if found_first is None:
-                self.add_changed(attribute.target, 'Added attribute %s' % attribute.type)
+                if target_in_first:
+                    self.add_changed(attribute.target, 'Added attribute %s' % attribute.type)
             elif found_first.value != attribute.value:
                 self.add_changed(attribute.target, 'Changed attribute %s (from %s)' % (attribute.type, found_first.value))
         for attribute in self.first.get_attributes():
             target_in_second = self.mapping.get_second(attribute.target)
-            if not self.has_attribute(self.second, attribute, target_in_second):
+            if not self.has_attribute(self.second, attribute, target_in_second) and target_in_second:
                 self.add_changed(attribute.target, 'Missing attribute %s (%s)' % (attribute.type, attribute.value))
     # }}}
     
