@@ -22,10 +22,10 @@ except ImportError:
 try:
     import argparse
 except ImportError:
-    from os.path import basename
+    import os.path
     from sys import path as sys_path
     # We are most likely on an old Python and need to use our internal version
-    sys_path.append(join_path(basename(__file__), '../server/lib'))
+    sys_path.append(os.path.join_path(os.path.basename(__file__), '../server/lib'))
     import argparse
 
 # this seems to be necessary for annotations to find its config
