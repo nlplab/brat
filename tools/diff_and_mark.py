@@ -62,6 +62,7 @@ class AnnotationDiff: # {{{
         self.second = second
         self.result = result
         self.mapping = Mapping()
+        self.first_textbounds = dict((textbound.id, textbound) for textbound in first.get_textbounds())
     # }}}
 
     def diff(self): # {{{
@@ -191,7 +192,7 @@ class AnnotationDiff: # {{{
 
         # XXX Pythonize
         for score in sorted(found_events_dict.keys()):
-            for second_event_id in found_events_dict[score].keys():
+            for second_event_id in found_events_dict[score]:
                 if not second_event_id in found_second_ids:
                     for match in found_events_dict[score][second_event_id]:
                         first_event_id, first_args, second_args, only_first, only_second = match
@@ -201,10 +202,11 @@ class AnnotationDiff: # {{{
                             found_second_ids.add(second_event_id)
                             self.mapping.add(first_event_id, second_event_id)
                             for role in only_first:
+                                first_text = self.first_textbounds[self.mapping.get_first(first_args[role])].get_text()
                                 if role in only_second:
-                                    self.add_changed(second_event_id, 'Changed role %s (from %s)' % (role, first_args[role]))
+                                    self.add_changed(second_event_id, 'Changed role %s (from %s "%s")' % (role, first_args[role], first_text))
                                 else:
-                                    self.add_changed(second_event_id, 'Missing role %s (%s)' % (role, first_args[role]))
+                                    self.add_changed(second_event_id, 'Missing role %s (%s "%s")' % (role, first_args[role], first_text))
                             for role in only_second - only_first:
                                 self.add_changed(second_event_id, 'Added role %s' % role)
 
@@ -243,6 +245,7 @@ class AnnotationDiff: # {{{
                 if target_in_first:
                     self.add_changed(attribute.target, 'Added attribute %s' % attribute.type)
             elif found_first.value != attribute.value:
+                first_text = self.first_textbounds[first_args[role]].get_text()
                 self.add_changed(attribute.target, 'Changed attribute %s (from %s)' % (attribute.type, found_first.value))
         for attribute in self.first.get_attributes():
             target_in_second = self.mapping.get_second(attribute.target)
@@ -282,6 +285,9 @@ class AnnotationDiff: # {{{
 
     # Equivs {{{
     def diff_equivs(self):
+        # first we find out for each entity how they map between equiv
+        # groups in the first vs. second (like, "T1 is group 2 in second,
+        # but its corresponding entity in first is group 3": `"T1": [3, 2]`)
         correspondence_map = dict()
         second_equivs = [equiv.entities for equiv in self.second.get_equivs()]
         for equiv_group, equiv in enumerate(second_equivs):
@@ -315,10 +321,10 @@ class AnnotationDiff: # {{{
                 if first_group is None:
                     self.add_changed(entity, 'Added to equiv')
                 elif second_group is None:
-                    rest = [other for other in first_equivs[first_group] if other != entity]
+                    rest = ["%s (%s)" % (self.mapping.get_second(other), self.first_textbounds[other].get_text()) for other in first_equivs[first_group] if other != entity]
                     self.add_changed(entity, 'Missing from equiv with %s' % ', '.join(rest))
                 elif entity in seen:
-                    rest = [other for other in first_equivs[first_group] if other != entity]
+                    rest = ["%s (%s)" % (self.mapping.get_second(other), self.first_textbounds[other].get_text()) for other in first_equivs[first_group] if other != entity]
                     self.add_changed(entity, 'Changed from equiv %s' % ', '.join(rest))
                 else:
                     seen.append(entity)
@@ -337,7 +343,8 @@ class AnnotationDiff: # {{{
             self.add_changed(source, 'Added relation %s to %s' % (relation_type, target))
         for relation in first_relations_set - second_relations_set:
             source, target, relation_type = relation
-            self.add_changed(source, 'Missing relation %s to %s' % (relation_type, target))
+            first_text = self.first_textbounds[self.mapping.get_first(target)].get_text()
+            self.add_changed(source, 'Missing relation %s to %s "%s"' % (relation_type, target, first_text))
     # }}}
     
 
@@ -375,7 +382,7 @@ def copy_annotations(original_name, new_name):
             shutil.copyfile('%s.%s' % (original_name, extension), '%s.%s' % (new_name, extension))
         except IOError as e:
             pass # that extension file does not exist
-    return annotation.Annotations(new_name)
+    return annotation.TextAnnotations(new_name)
 
 def delete_annotations(name):
     bare_name = name_without_extension(name)
@@ -390,8 +397,8 @@ def diff_files(first_name, second_name, result_name):
     second_bare = name_without_extension(second_name)
     result_bare = name_without_extension(result_name)
 
-    first = annotation.Annotations(first_bare)
-    second = annotation.Annotations(second_bare)
+    first = annotation.TextAnnotations(first_bare)
+    second = annotation.TextAnnotations(second_bare)
     result = copy_annotations(second_bare, result_bare)
 
     with result:
