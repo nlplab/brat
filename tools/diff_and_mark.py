@@ -133,18 +133,18 @@ class AnnotationDiff: # {{{
                 return trigger
         return None
 
-    def has_trigger(self, haystack, needle):
-        return (self.find_trigger(haystack, needle) is not None)
-
     def diff_triggers(self):
+        found_first_ids = set()
+
         for trigger in self.second.get_triggers():
             found_first = self.find_trigger(self.first, trigger)
             if found_first:
-                self.mapping.add(trigger.id, found_first.id)
+                found_first_ids.add(found_first.id)
+                self.mapping.add(found_first.id, trigger.id)
                 # no `else`; the comments are handled by diff_events();
         import copy
         for trigger in self.first.get_triggers():
-            if not self.has_trigger(self.second, trigger):
+            if not trigger.id in found_first_ids:
                 clone = copy.copy(trigger)
                 clone.id = self.result.get_new_id('T')
                 self.result.add_annotation(clone)
@@ -214,8 +214,14 @@ class AnnotationDiff: # {{{
 
         for event in self.first.get_events():
             if not event.id in found_first_ids:
-                self.add_missing(self.mapping.get_second(event.id), 'Missing event')
-
+                import copy
+                clone = copy.copy(event)
+                clone.id = self.result.get_new_id('E')
+                clone.trigger = self.mapping.get_second(event.trigger)
+                clone.args = [(role, self.mapping.get_second(trigger)) for (role, trigger) in clone.args]
+                self.result.add_annotation(clone)
+                self.mapping.add(event.id, clone.id, True)
+                self.add_missing(clone.id, 'Missing event')
     # }}}
     
 
@@ -240,8 +246,18 @@ class AnnotationDiff: # {{{
                 self.add_changed(attribute.target, 'Changed attribute %s (from %s)' % (attribute.type, found_first.value))
         for attribute in self.first.get_attributes():
             target_in_second = self.mapping.get_second(attribute.target)
-            if not self.has_attribute(self.second, attribute, target_in_second) and target_in_second:
-                self.add_changed(attribute.target, 'Missing attribute %s (%s)' % (attribute.type, attribute.value))
+            if self.mapping.is_only_in_first(attribute.target):
+                # clone the attribute, since the event was cloned too;
+                # no need to note it's missing, since the whole event is
+                # missing
+                import copy
+                clone = copy.copy(attribute)
+                clone.id = self.result.get_new_id('A')
+                clone.target = target_in_second
+                self.result.add_annotation(clone)
+            else:
+                if not self.has_attribute(self.second, attribute, target_in_second) and target_in_second:
+                    self.add_changed(attribute.target, 'Missing attribute %s (%s)' % (attribute.type, attribute.value))
     # }}}
     
 
