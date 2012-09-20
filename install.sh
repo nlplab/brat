@@ -80,7 +80,7 @@ mkdir -p $data_dir_abs
 
 # Try to determine apache group
 
-apache_user=`ps aux | grep '[a]pache\|[h]ttpd' | cut -d ' ' -f 1 | grep -v '^root$' | head -n 1`
+apache_user=`ps aux | grep -v 'tomcat' | grep '[a]pache\|[h]ttpd' | cut -d ' ' -f 1 | grep -v '^root$' | head -n 1`
 apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
 
 # Place some example data
