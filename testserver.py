@@ -13,6 +13,7 @@ from CGIHTTPServer import CGIHTTPRequestHandler
 #   a choice if we want to emulate the super-class is_cgi method.
 from CGIHTTPServer import _url_collapse_path_split
 from sys import stderr
+from urlparse import urlparse
 
 # Note: The only reason that we sub-class in order to pull is the stupid
 #   is_cgi method that assumes the usage of specific CGI directories, I simply
@@ -20,7 +21,7 @@ from sys import stderr
 class BRATCGIHTTPRequestHandler(CGIHTTPRequestHandler):
     def is_cgi(self):
         # Having a CGI suffix is really a big hint of being a CGI script.
-        if self.path.endswith('.cgi'):
+        if urlparse(self.path).path.endswith('.cgi'):
             self.cgi_info = _url_collapse_path_split(self.path)
             return True
         else:
