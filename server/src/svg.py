@@ -196,7 +196,7 @@ def retrieve_stored(document, suffix):
     elif suffix == EPS_SUFFIX:
         content_type = 'application/postscript'
     else:
-        Messager.error('Unknown suffix "%s"; cannot determine Contenxt-Type' % suffix)
+        Messager.error('Unknown suffix "%s"; cannot determine Content-Type' % suffix)
         # TODO: reasonable backoff value
         content_type = None
 
