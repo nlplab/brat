@@ -1314,7 +1314,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         var arcAnnotatorNotes;
-        if (arcId && arcId instanceof Array) {
+        if (arcId && !(arcId instanceof Array)) {
           // only for relation arcs
           var ed = data.eventDescs[arcId];
           arcAnnotatorNotes = ed && ed.annotatorNotes;
