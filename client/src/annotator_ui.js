@@ -183,7 +183,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + originSpan.text + '")');
           $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + targetSpan.text + '")');
-          var arcId = [originSpanId, type, targetSpanId];
+          var arcId = eventDescId || [originSpanId, type, targetSpanId];
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
           // for precise timing, log dialog display to user.
           dispatcher.post('logAction', ['arcEditSelected']);
@@ -1261,7 +1261,8 @@ var AnnotatorUI = (function($, window, undefined) {
         var reversalPossible = false;
         if (arcId) {
           // something was selected
-          var hash = new URLHash(coll, doc, { focus: [arcId] }).getHash();
+          var focus = arcId instanceof Array ? arcId : [arcId];
+          var hash = new URLHash(coll, doc, { focus: [focus] }).getHash();
           $('#arc_highlight_link').attr('href', hash).show(); // TODO incorrect
           var el = $('#arc_' + arcType)[0];
           if (el) {
@@ -1313,14 +1314,10 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         var arcAnnotatorNotes;
-        if (arcId) {
-          // TODO: is this right? Does this make sense? Why is this so
-          // convoluted? What does "eventDesc" stand for?
-          var ed = (data.arcById[arcId] &&
-                    data.arcById[arcId].eventDescId ?
-                    data.eventDescs[data.arcById[arcId].eventDescId] :
-                    null);
-          arcAnnotatorNotes = ed ? ed.annotatorNotes : null;
+        if (arcId && arcId instanceof Array) {
+          // only for relation arcs
+          var ed = data.eventDescs[arcId];
+          arcAnnotatorNotes = ed && ed.annotatorNotes;
         }
         if (arcAnnotatorNotes) {
           $('#arc_notes').val(arcAnnotatorNotes);
