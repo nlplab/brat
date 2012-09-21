@@ -29,7 +29,7 @@ except ImportError:
 from document import real_directory
 from jsonwrap import loads as json_loads, dumps as json_dumps
 from message import Messager
-from projectconfig import ProjectConfiguration
+from projectconfig import ProjectConfiguration, ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY
 
 # TODO: remove once HTML generation done clientside
 def generate_empty_fieldset():
@@ -260,10 +260,12 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
         tb_ann = ann_obj.get_ann_by_id(ann.trigger)
         e_ann = ann
         undo_resp['id'] = e_ann.id
+        ann_category = EVENT_CATEGORY
     else:
         tb_ann = ann
         e_ann = None
         undo_resp['id'] = tb_ann.id
+        ann_category = ENTITY_CATEGORY
 
     # Store away what we need to restore the old annotation
     undo_resp['action'] = 'mod_tb'
@@ -296,7 +298,9 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
             mods.change(before, tb_ann)
 
     if ann.type != type:
-        if projectconf.type_category(ann.type) != projectconf.type_category(type):
+        if ann_category != projectconf.type_category(type):
+            # Can't convert event to entity etc. (The client should protect
+            # against this in any case.)
             # TODO: Raise some sort of protocol error
             Messager.error("Cannot convert %s (%s) into %s (%s)"
                     % (ann.type, projectconf.type_category(ann.type),
@@ -732,11 +736,13 @@ def _create_relation(ann_obj, projectconf, mods, origin, target, type,
                 if old_target is not None else target.id)
         sought_type = (old_type
                 if old_type is not None else type)
+        sought_origin = origin.id
 
         # We are to change the type, target, and/or attributes
         found = None
         for ann in ann_obj.get_relations():
-            if ann.arg2 == sought_target and ann.type == sought_type:
+            if (ann.arg1 == sought_origin and ann.arg2 == sought_target and 
+                ann.type == sought_type):
                 found = ann
                 break
 
