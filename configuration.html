@@ -32,6 +32,7 @@ title:  "Configuration"
   <li><a href="#visual-configuration">Visual configuration (<span class="tt">visual.conf</span>)</a>
   </li>
   <li><a href="#tool-configuration">Tool configuration (<span class="tt">tools.conf</span>)</a>
+  <li><a href="#keyboard-configuration">Keyboard shortcut configuration (<span class="tt">kb_shortcuts.conf</span>)</a>
   </li>
   <li><a href="#additional-details">Additional details</a>
   </li>
@@ -47,7 +48,7 @@ title:  "Configuration"
 <h3>Configuration files</h3>
 
 <p>the configuration of an annotation project is controlled by
-  three files:
+  four files:
   <ul>
     <li><span class="tt">annotation.conf</span>: annotation type configuration
     </li>
@@ -55,12 +56,14 @@ title:  "Configuration"
     </li>
     <li><span class="tt">tools.conf</span>: annotation tool configuration
     </li>
+    <li><span class="tt">kb_shortcuts.conf</span>: keyboard shortcut tool configuration
+    </li>
   </ul>
 </p>
 <p>Each annotation project typically defines its own
-  <span class="tt">annotation.conf</span>. Defining <span class="tt">visual.conf</span> and
-  <span class="tt">tools.conf</span> is not necessary, and the system falls back on
-  simple default visuals and tools if these files are not present.
+  <span class="tt">annotation.conf</span>. Defining <span class="tt">visual.conf</span>,
+  <span class="tt">tools.conf</span> and <span class="tt">kb_shortcuts.conf</span> is not necessary, and the system falls back on
+  simple default visuals, tools and shortcuts if these files are not present.
 </p>
 <p>The configuration files can be placed anywhere in the brat data
   directory, and are normally placed in the directory corresponding to
@@ -680,6 +683,42 @@ title:  "Configuration"
   <span class="tt">&quot;%s&quot;</span> in the URL.
 </p>
 
+<!-- ================================================================== -->
+<!--                           KEYBOARD                                 -->
+<!-- ================================================================== -->  
+
+<h2 id="keyboard-configuration">Keyboard shortcut configuration (<span class="tt">kb_shortcuts.conf</span>)</h2>
+
+<p>The keyboard shortcut configuration file, <span class="tt">kb_shortcuts.conf</span>, contains no section structure and has a very simple syntax:
+each line contains a single character and an annotation type, specifying
+that the key for the given character should be used as a shortcut for
+selecting the given type. For example:
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">P</td><td>Person</td>
+	</tr><tr>
+	  <td width="100">O</td><td>Organization</td>
+	</tr><tr>
+	  <td width="100">F</td><td>Family</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>These shortcuts can then be used in the appropriate annotation
+dialogs to rapidly select the associated type.</p>
+
+<p><b>Hint</b>: well-configured keyboard shortcuts can speed up simple
+annotation tasks a lot in particular when used with the <i>Normal</i>
+and <i>Rapid</i> annotation modes, which can be selected from
+the <i>Options</i> menu in the brat UI.
+</p>
 
 <!-- ================================================================== -->  
 <!--                              OTHER                                 -->
