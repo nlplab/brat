@@ -21,6 +21,8 @@ import sys
 from annotation import open_textfile
 from message import Messager
 
+ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY = range(4)
+
 class InvalidProjectConfigException(Exception):
     pass
 
@@ -1405,11 +1407,11 @@ class ProjectConfiguration(object):
         no other interface.
         """
         if self.is_physical_entity_type(t):
-            return "PHYSICAL"
+            return ENTITY_CATEGORY
         elif self.is_event_type(t):
-            return "EVENT"
+            return EVENT_CATEGORY
         elif self.is_relation_type(t):
-            return "RELATION"
+            return RELATION_CATEGORY
         else:
-            # TODO:
-            return "OTHER"
+            # TODO: others
+            return UNKNOWN_CATEGORY
