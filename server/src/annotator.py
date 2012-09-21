@@ -732,11 +732,13 @@ def _create_relation(ann_obj, projectconf, mods, origin, target, type,
                 if old_target is not None else target.id)
         sought_type = (old_type
                 if old_type is not None else type)
+        sought_origin = origin.id
 
         # We are to change the type, target, and/or attributes
         found = None
         for ann in ann_obj.get_relations():
-            if ann.arg2 == sought_target and ann.type == sought_type:
+            if (ann.arg1 == sought_origin and ann.arg2 == sought_target and 
+                ann.type == sought_type):
                 found = ann
                 break
 
