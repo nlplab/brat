@@ -21,7 +21,7 @@ import sys
 from annotation import open_textfile
 from message import Messager
 
-ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY = range(4)
+ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY = xrange(4)
 
 class InvalidProjectConfigException(Exception):
     pass
