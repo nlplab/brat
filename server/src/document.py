@@ -80,6 +80,7 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
             item['unused'] = node.unused
             item['labels'] = project_conf.get_labels_by_type(_type)
             item['attributes'] = project_conf.attributes_for(_type)
+            item['normalizations'] = node.normalizations()
 
             span_drawing_conf = project_conf.get_drawing_config_by_type(_type) 
             if span_drawing_conf is None:
