@@ -340,7 +340,7 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
                         # identical to our sought one already exist?
                         found = None
                         for tb_ann in ann_obj.get_textbounds():
-                            if (_offsets_equal(tb_ann.spans, ann_trib.spans) and
+                            if (_offsets_equal(tb_ann.spans, ann_trig.spans) and
                                 tb_ann.type == ann.type):
                                 found = tb_ann
                                 break
