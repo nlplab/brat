@@ -12,8 +12,8 @@ Version:    2011-11-17
 
 ### Constants
 CUT_OFF = 0.95
-# In seconds, we are rather strict here
-QUERY_TIMEOUT = 3
+# In seconds
+QUERY_TIMEOUT = 30
 ###
 
 from urllib import urlencode, quote_plus
