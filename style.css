@@ -582,6 +582,17 @@ input.invalid_value {
   /* padding for floating ID */
   padding-right: 2em;
 }
+.norm_info_label {
+  font-weight: bold;
+  font-size: 80%;
+}
+.norm_info_value {
+  font-size: 80%;
+}
+.norm_info_img {
+  float: right;
+  margin-left: 1em;
+}
 
 #span_form .collapser {
     float: left;

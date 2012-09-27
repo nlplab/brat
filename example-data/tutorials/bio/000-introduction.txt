@@ -1,0 +1,11 @@
+Welcome to the Brat Rapid Annotation Tool (brat) tutorial!
+
+brat is a web-based tool for text annotation and visualization, as shown in the following example.
+
+
+This is an example sentence mentioning some proteins: p53 and p64 XXX: more examples!
+
+
+This tutorial will interactively introduce the key features of brat, with each document presenting one or a few features.
+
+Try moving to the next document now by clicking on the arrow to the right on the blue bar at the top left corner of the page.

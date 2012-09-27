@@ -29,6 +29,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var allAttributeTypes = null; // TODO: temp workaround, remove
       var relationTypesHash = null;
       var showValidAttributes; // callback function
+      var showValidNormalizations; // callback function
       var dragStartedAt = null;
       var selRect = null;
       var lastStartRec = null;
@@ -54,6 +55,8 @@ var AnnotatorUI = (function($, window, undefined) {
       // for normalization: URLs bases by norm DB name
       var normDbUrlByDbName = {};
       var normDbUrlBaseByDbName = {};
+      // for normalization: appropriate DBs per type
+      var normDbsByType = {};
       // for normalization
       var oldSpanNormIdValue = '';
       var lastNormSearches = [];
@@ -722,6 +725,23 @@ var AnnotatorUI = (function($, window, undefined) {
           });
         }
 
+        var showValidNormalizationsFor = function(type) {
+          // set DB selector to the first appropriate for the type.
+          // TODO: actually disable inappropriate ones.
+          // TODO: support specific IDs, not just DB specifiers
+          var firstDb = type && normDbsByType[type] ? normDbsByType[type][0] : null;
+          if (firstDb) {
+            $('#span_norm_db').val(firstDb);
+          }
+        }
+
+        showValidNormalizations = function() {
+          // set norm DB selector according to the first selected type
+          var firstSelected = $('#entity_and_event_wrapper input:radio:checked')[0];
+          var selectedType = firstSelected ? firstSelected.value : null;
+          showValidNormalizationsFor(selectedType);
+        }
+
         // fill normalizations (if any)
         if (!reselectedSpan) {
           // clear first
@@ -732,6 +752,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var $normText = $('#span_norm_txt');
 
           // fill if found (NOTE: only shows last on multiple)
+          var normFilled = false;
           $.each(span ? span.normalizations : [], function(normNo, norm) {
             // stored as array (sorry)
             var refDb = norm[0], refId = norm[1], refText = norm[2];
@@ -742,7 +763,13 @@ var AnnotatorUI = (function($, window, undefined) {
             $normText.val(refText);
             // just assume the ID is valid (TODO: check)
             $normId.addClass('valid_value')
+            normFilled = true;
           });
+
+          // if there is no existing normalization, show valid ones
+          if (!normFilled) {
+            showValidNormalizations();
+          }
 
           // update links
           updateNormalizationRefLink();
@@ -1642,6 +1669,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanFormSubmitRadio = function(evt) {
         if (Configuration.confirmModeOn) {
           showValidAttributes();
+          showValidNormalizations();
           $('#span_form-ok').focus();
         } else {
           spanFormSubmit(evt, $(evt.target));
@@ -1901,6 +1929,23 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
+      // recursively traverses type hierarchy (entity_types or
+      // event_types) and stores normalizations in normDbsByType.
+      var rememberNormDbsForType = function(types) {
+        if (!types) return;
+
+        $.each(types, function(typeNo, type) {
+          if (type === null) {
+            // spacer, no-op
+          } else {
+            normDbsByType[type.type] = type.normalizations || [];
+            if (type.children.length) {
+              rememberNormDbsForType(type.children);
+            }
+          }
+        });
+      };
+
       var setupNormalizationUI = function(response) {
         var norm_resources = response.normalization_config || [];
         var $norm_select = $('#span_norm_db');
@@ -1916,6 +1961,11 @@ var AnnotatorUI = (function($, window, undefined) {
           normDbUrlByDbName[normName] = normUrl;
           normDbUrlBaseByDbName[normName] = normUrlBase;
         });
+        // remember per-type appropriate DBs
+        normDbsByType = {};
+        rememberNormDbsForType(response.entity_types);
+        rememberNormDbsForType(response.event_types);
+        // set up HTML
         $norm_select.html(html.join(''));
         // if we have nothing, just hide the whole thing
         if (!norm_resources.length) {

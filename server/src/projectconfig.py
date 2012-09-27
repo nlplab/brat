@@ -21,6 +21,8 @@ import sys
 from annotation import open_textfile
 from message import Messager
 
+ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY = xrange(4)
+
 class InvalidProjectConfigException(Exception):
     pass
 
@@ -119,7 +121,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBase", "GLYPH-POS", "DEFAULT"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBase", "GLYPH-POS", "DEFAULT", "NORM"]
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
@@ -170,7 +172,7 @@ class TypeHierarchyNode:
         self.terms, self.args = terms, args
 
         if len(terms) == 0 or len([t for t in terms if t == ""]) != 0:
-            Messager.debug("Empty term in configuration" % (a, args), duration=-1)
+            Messager.debug("Empty term in configuration", duration=-1)
             raise InvalidProjectConfigException
 
         # unused if any of the terms marked with "!"
@@ -322,14 +324,14 @@ class TypeHierarchyNode:
         Returns the minumum number of times the given argument is
         required to appear for this type.
         """
-        return self.arg_min_count[arg]
+        return self.arg_min_count.get(arg, 0)
 
     def argument_maximum_count(self, arg):
         """
         Returns the maximum number of times the given argument is
         allowed to appear for this type.
         """
-        return self.arg_max_count[arg]
+        return self.arg_max_count.get(arg, 0)
 
     def mandatory_arguments(self):
         """
@@ -350,6 +352,12 @@ class TypeHierarchyNode:
         Returns the form of the term used for storage serverside.
         """
         return self.__primary_term
+
+    def normalizations(self):
+        """
+        Returns the normalizations applicable to this node, if any.
+        """
+        return self.special_arguments.get('<NORM>', [])
 
 def __require_tab_separator(section):
     """    
@@ -1405,11 +1413,11 @@ class ProjectConfiguration(object):
         no other interface.
         """
         if self.is_physical_entity_type(t):
-            return "PHYSICAL"
+            return ENTITY_CATEGORY
         elif self.is_event_type(t):
-            return "EVENT"
+            return EVENT_CATEGORY
         elif self.is_relation_type(t):
-            return "RELATION"
+            return RELATION_CATEGORY
         else:
-            # TODO:
-            return "OTHER"
+            # TODO: others
+            return UNKNOWN_CATEGORY
