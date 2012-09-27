@@ -158,6 +158,9 @@ var Visualizer = (function($, window, undefined) {
 
     var Visualizer = function(dispatcher, svgId) {
       var $svgDiv = $('#' + svgId);
+      if (!$svgDiv.length) {
+        throw Error('Could not find container with id="' + svgId + '"');
+      }
       var that = this;
 
       // OPTIONS
