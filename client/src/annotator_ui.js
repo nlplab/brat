@@ -1641,8 +1641,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // initialize for submission
         // TODO: is this a reasonable place to do this?
         rapidSpanOptions = {
-          start: sugg.start,
-          end: sugg.end,  
+          offsets: [[sugg.start, sugg.end]],
         };
         rapidFillSpanTypesAndDisplayForm(sugg.start, sugg.end, sugg.text, sugg.types);
       };
@@ -2324,7 +2323,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // the normal dialog should be brought up for the same span.
           spanOptions = {
             action: 'createSpan',
-            offsets: [[rapidSpanOptions.start, rapidSpanOptions.end]],
+            offsets: rapidSpanOptions.offsets,
           };
           // TODO: avoid using the stored mouse event
           fillSpanTypesAndDisplayForm(lastRapidAnnotationEvent,
@@ -2339,6 +2338,7 @@ var AnnotatorUI = (function($, window, undefined) {
             type: type,
           });
           $('#waiter').dialog('open');
+          rapidSpanOptions.offsets = JSON.stringify(rapidSpanOptions.offsets);
           dispatcher.post('ajax', [rapidSpanOptions, 'edited']);
         }
         return false;
