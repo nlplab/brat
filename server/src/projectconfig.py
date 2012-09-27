@@ -1099,7 +1099,7 @@ class ProjectConfiguration(object):
             assert t1 not in connections, "INTERNAL ERROR"
             connections[t1] = {}
 
-            completed = {}
+            processed_as_relation = {}
 
             # relations
 
@@ -1108,28 +1108,26 @@ class ProjectConfiguration(object):
             for r in rels:
                 a = r.storage_form()
 
-                if a in completed:
-                    continue
-
-                assert a not in connections[t1], "INTERNAL ERROR"
+                conns = connections[t1].get(a, [])
 
                 # magic number "1" is for 2nd argument
                 args = r.arguments[r.arg_list[1]]
 
                 if "<ANY>" in args or "<ENTITY>" in args:
                     # NOTE: assuming relations only between entities
-                    connections[t1][a] = entity_types[:]
+                    conns.extend(entity_types[:])
                 else:
-                    connections[t1][a] = args[:]
+                    conns.extend(args[:])
+                connections[t1][a] = unique_preserve_order(conns)
 
-                completed[a] = True
+                processed_as_relation[a] = True
 
             # event arguments
 
             n1 = get_node_by_storage_form(self.directory, t1)
                         
             for a, args in n1.arguments.items():
-                if a in completed:
+                if a in processed_as_relation:
                     Messager.warning("Project configuration: %s appears both as role and relation. Configuration may be wrong." % a)
                     # won't try to resolve
                     continue
@@ -1148,8 +1146,6 @@ class ProjectConfiguration(object):
                         else:
                             conns.append(t2)
                     connections[t1][a] = unique_preserve_order(conns)
-
-                completed[a] = True
 
         return connections
 
