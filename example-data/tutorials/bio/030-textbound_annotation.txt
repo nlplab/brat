@@ -1,0 +1,28 @@
+Text span annotations
+
+Annotations marking a text span and associating it with a type are the fundamental building block of most brat annotations.
+
+These annotations can be created simply by selecting a span of text using the mouse, as in most text editors and similar software, and selecting a type from the dialog that pops up after selection.
+
+Try creating text span annotations marking the proteins in the following sentence!
+
+
+1 ) These are obviously proteins: p53, p60 and p105
+
+
+If you succeded in creating annotations so that the sentence above looks like the one below, please move to the next document.
+
+
+2 ) These are obviously proteins: p53, p60 and p105
+
+
+
+Troubleshooting
+
+If you have difficulty following the above instructions:
+
+* If the first sentence was already annotated, you are likely working with a "used" tutorial: please ask your administrator to reset it.
+
+* If nothing happens when selecting text, you may not be logged in: try clicking the rightmost button ("Login" button) in the menu.
+
+* If you get an error message like "This document is read-only and can't be edited", there is an issue with your brat installation: please contact your administrator.

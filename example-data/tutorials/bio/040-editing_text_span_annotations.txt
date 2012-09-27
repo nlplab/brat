@@ -1,0 +1,19 @@
+Editing text span annotations
+
+To modify or delete text span annotations, double-click on the "box" containing the annotation type.
+
+This will open a dialog similar to the one you saw when creating the annotations (hint: like all dialogs in brat, this can be closed also by pressing ESC).
+
+The following sentence contains some extra annotations; use the "Delete" button in the "Edit Annotation" dialog to remove these.
+
+
+1 ) This sentence contains no mentions of anything of interest and shouldn't have any annotations.
+
+
+The annotations in the following sentence are otherwise OK, but their spans include some extra words; use the "Move" button in the "Edit Annotation" dialog to move the spans to the right places.
+
+
+2 ) This sentence mentions some proteins, but they are misannotated: we study p53 and p105 phosphorylation.
+
+
+Foo.
