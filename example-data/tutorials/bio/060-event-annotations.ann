@@ -1,0 +1,14 @@
+T1	Protein 242 246	PI3K
+T2	Protein 263 266	p21
+T4	Positive_regulation 250 258	required
+E2	Positive_regulation:T4 Cause:T1 Theme:E1
+T3	Gene_expression 267 277	expression
+E1	Gene_expression:T3 Theme:T2
+T5	Protein 691 695	PI3K
+T6	Protein 712 715	p21
+T7	Protein 1015 1022	PI3K is
+T8	Positive_regulation 1023 1035	required for
+E3	Positive_regulation:T8 Theme:T7 Cause:E4
+T9	Gene_expression 1040 1050	expression
+E4	Gene_expression:T9 Theme:T7
+T10	Protein 1036 1039	p21

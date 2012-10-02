@@ -11,9 +11,3 @@ You create relational annotations by single-clicking on an annotation box and th
 You can also remove relational annotations similarily to how you removed textual spans. Simply double-click on an arc between two members and select delete in the dialog. Try this out on the sentence below that marks two different chemicals as being the same.
 
 3 ) Paracetamol, or acetaminophen; is not the same as aspirin.
-
-XXX: OTHER TYPES, non-symentric, etc.
-
-XXX: Move an existing arc!
-
-XXX: Type change.
