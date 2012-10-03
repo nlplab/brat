@@ -965,8 +965,6 @@ def delete_span(collection, document, id):
         mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
 
-from common import ProtocolError
-
 class AnnotationSplitError(ProtocolError):
     def __init__(self, message):
         self.message = message
