@@ -665,7 +665,7 @@ def _create_relation(ann_obj, projectconf, mods, origin, target, type,
         if found is None:
             # TODO: better response
             Messager.error('_create_relation: failed to identify target relation (type %s, target %s) (deleted?)' % (str(old_type), str(old_target)))
-        elif found.arg2 == target.id and found.type != type:
+        elif found.arg2 == target.id and found.type == type:
             # no changes to type or target
             pass
         else:
@@ -800,6 +800,18 @@ def create_arc(collection, document, origin, target, type, attributes=None,
         origin = ann_obj.get_ann_by_id(origin) 
         target = ann_obj.get_ann_by_id(target)
 
+        # if there is a previous annotation and the arcs aren't in
+        # the same category (e.g. relation vs. event arg), process
+        # as delete + create instead of update.
+        if old_type is not None and (
+            projectconf.is_relation_type(old_type) != 
+            projectconf.is_relation_type(type) or
+            projectconf.is_equiv_type(old_type) !=
+            projectconf.is_equiv_type(type)):
+            _delete_arc_with_ann(origin.id, old_target, old_type, mods, 
+                                 ann_obj, projectconf)
+            old_target, old_type = None, None
+
         if projectconf.is_equiv_type(type):
             ann =_create_equiv(ann_obj, projectconf, mods, origin, target, 
                                type, attributes, old_type, old_target)
@@ -872,36 +884,38 @@ def _delete_arc_event_arg(origin, target, type_, mods, ann_obj):
         # TODO: warn on failure to delete?
         pass
 
-#TODO: ONLY determine what action to take! Delegate to Annotations!
+def _delete_arc_with_ann(origin, target, type_, mods, ann_obj, projectconf):
+    origin_ann = ann_obj.get_ann_by_id(origin)
+
+    # specifics of delete determined by arc type (equiv relation,
+    # other relation, event argument)
+    if projectconf.is_relation_type(type_):
+        if projectconf.is_equiv_type(type_):
+            _delete_arc_equiv(origin, target, type_, mods, ann_obj)
+        else:
+            _delete_arc_nonequiv_rel(origin, target, type_, mods, ann_obj)
+    elif projectconf.is_event_type(origin_ann.type):
+        _delete_arc_event_arg(origin, target, type_, mods, ann_obj)
+    else:
+        Messager.error('Unknown annotation types for delete')
+
 def delete_arc(collection, document, origin, target, type):
     directory = collection
 
     real_dir = real_directory(directory)
-    document = path_join(real_dir, document)
 
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+    mods = ModificationTracker()
+
+    projectconf = ProjectConfiguration(real_dir)
+
+    document = path_join(real_dir, document)
 
     with TextAnnotations(document) as ann_obj:
         # bail as quick as possible if read-only 
         if ann_obj._read_only:
             raise AnnotationsIsReadOnlyError(ann_obj.get_document())
 
-        mods = ModificationTracker()
-
-        projectconf = ProjectConfiguration(real_dir)
-        origin_ann = ann_obj.get_ann_by_id(origin)
-
-        # specifics of delete determined by arc type (equiv relation,
-        # other relation, event argument)
-        if projectconf.is_relation_type(type):
-            if projectconf.is_equiv_type(type):
-                _delete_arc_equiv(origin, target, type, mods, ann_obj)
-            else:
-                _delete_arc_nonequiv_rel(origin, target, type, mods, ann_obj)
-        elif projectconf.is_event_type(origin_ann.type):
-            _delete_arc_event_arg(origin, target, type, mods, ann_obj)
-        else:
-            Messager.error('Unknown annotation types for delete')
+        _delete_arc_with_ann(origin, target, type, mods, ann_obj, projectconf)
 
         mods_json = mods.json_response()
         mods_json['annotations'] = _json_from_ann(ann_obj)
@@ -914,10 +928,9 @@ def delete_span(collection, document, id):
     directory = collection
 
     real_dir = real_directory(directory)
+
     document = path_join(real_dir, document)
     
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-
     with TextAnnotations(document) as ann_obj:
         # bail as quick as possible if read-only 
         if ann_obj._read_only:
@@ -973,8 +986,6 @@ def split_span(collection, document, args, id):
     # TODO don't know how to pass an array directly, so doing extra catenate and split
     tosplit_args = json_loads(args)
     
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-
     with TextAnnotations(document) as ann_obj:
         # bail as quick as possible if read-only 
         if ann_obj._read_only:
