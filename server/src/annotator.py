@@ -843,7 +843,7 @@ def _delete_arc_equiv(origin, target, type_, mods, ann_obj):
         # keep on going since the data "could" be corrupted
         if (unicode(origin) in eq_ann.entities and 
             unicode(target) in eq_ann.entities and
-            type_ == eq_all.type):
+            type_ == eq_ann.type):
             before = unicode(eq_ann)
             eq_ann.entities.remove(unicode(origin))
             eq_ann.entities.remove(unicode(target))
