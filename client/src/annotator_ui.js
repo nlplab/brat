@@ -1576,6 +1576,7 @@ var AnnotatorUI = (function($, window, undefined) {
               }
             }
 
+/* In relation to #786, removed the cross-sentence checking code
             var crossSentence = true;
             $.each(sourceData.sentence_offsets, function(sentNo, startEnd) {
               if (selectedTo <= startEnd[1]) {
@@ -1596,7 +1597,9 @@ var AnnotatorUI = (function($, window, undefined) {
               }
               reselectedSpan = null;
               svgElement.removeClass('reselect');
-            } else if (!Configuration.rapidModeOn || reselectedSpan != null) {
+            } else
+*/
+            if (!Configuration.rapidModeOn || reselectedSpan != null) {
               // normal span select in standard annotation mode
               // or reselect: show selector
               var spanText = data.text.substring(selectedFrom, selectedTo);
