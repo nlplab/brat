@@ -487,8 +487,8 @@ def _set_normalizations(ann_obj, ann, normalizations, mods, undo_resp={}):
     # sanity check
     for refdb, refid, refstr in normalizations:
         # TODO: less aggressive failure
-        assert refdb.strip() != '', "Error: client sent empty norm DB"
-        assert refid.strip() != '', "Error: client sent empty norm ID"
+        assert refdb is not None and refdb.strip() != '', "Error: client sent empty norm DB"
+        assert refid is not None and refid.strip() != '', "Error: client sent empty norm ID"
         # (the reference string is allwed to be empty)
 
     # Process deletions and updates of existing normalizations
@@ -907,6 +907,55 @@ def create_arc(collection, document, origin, target, type, attributes=None,
         mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
 
+# helper for delete_arc
+def _delete_arc_equiv(origin, target, type_, mods, ann_obj):
+    # TODO: this is slow, we should have a better accessor
+    for eq_ann in ann_obj.get_equivs():
+        # We don't assume that the ids only occur in one Equiv, we
+        # keep on going since the data "could" be corrupted
+        if (unicode(origin) in eq_ann.entities and 
+            unicode(target) in eq_ann.entities and
+            type_ == eq_all.type):
+            before = unicode(eq_ann)
+            eq_ann.entities.remove(unicode(origin))
+            eq_ann.entities.remove(unicode(target))
+            mods.change(before, eq_ann)
+
+        if len(eq_ann.entities) < 2:
+            # We need to delete this one
+            try:
+                ann_obj.del_annotation(eq_ann)
+                mods.deletion(eq_ann)
+            except DependingAnnotationDeleteError, e:
+                #TODO: This should never happen, dep on equiv
+                raise
+
+    # TODO: warn on failure to delete?
+
+# helper for delete_arc
+def _delete_arc_nonequiv_rel(origin, target, type_, mods, ann_obj):
+    # TODO: this is slow, we should have a better accessor
+    for ann in ann_obj.get_relations():
+        if ann.type == type_ and ann.arg1 == origin and ann.arg2 == target:
+            ann_obj.del_annotation(ann)
+            mods.deletion(ann)
+
+    # TODO: warn on failure to delete?
+
+# helper for delete_arc
+def _delete_arc_event_arg(origin, target, type_, mods, ann_obj):
+    event_ann = ann_obj.get_ann_by_id(origin)
+    # Try if it is an event
+    arg_tup = (type_, unicode(target))
+    if arg_tup in event_ann.args:
+        before = unicode(event_ann)
+        event_ann.args.remove(arg_tup)
+        mods.change(before, event_ann)
+    else:
+        # What we were to remove did not even exist in the first place
+        # TODO: warn on failure to delete?
+        pass
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def delete_arc(collection, document, origin, target, type):
     directory = collection
@@ -923,71 +972,26 @@ def delete_arc(collection, document, origin, target, type):
 
         mods = ModificationTracker()
 
-        # This can be an event or an equiv
-        #TODO: Check for None!
-        try:
-            event_ann = ann_obj.get_ann_by_id(origin)
-            # Try if it is an event
-            arg_tup = (type, unicode(target))
-            if arg_tup in event_ann.args:
-                before = unicode(event_ann)
-                event_ann.args.remove(arg_tup)
-                mods.change(before, event_ann)
+        projectconf = ProjectConfiguration(real_dir)
+        origin_ann = ann_obj.get_ann_by_id(origin)
 
-                '''
-                if not event_ann.args:
-                    # It was the last argument tuple, remove it all
-                    try:
-                        ann_obj.del_annotation(event_ann)
-                        mods.deletion(event_ann)
-                    except DependingAnnotationDeleteError, e:
-                        #XXX: Old message api
-                        print 'Content-Type: application/json\n'
-                        print dumps(e.json_error_response())
-                        return
-                '''
-            else:
-                # What we were to remove did not even exist in the first place
-                pass
-
-        except AttributeError:
-            projectconf = ProjectConfiguration(real_dir)
+        # specifics of delete determined by arc type (equiv relation,
+        # other relation, event argument)
+        if projectconf.is_relation_type(type):
             if projectconf.is_equiv_type(type):
-                # It is an equiv then?
-                #XXX: Slow hack! Should have a better accessor! O(eq_ann)
-                for eq_ann in ann_obj.get_equivs():
-                    # We don't assume that the ids only occur in one Equiv, we
-                    # keep on going since the data "could" be corrupted
-                    if (unicode(origin) in eq_ann.entities
-                            and unicode(target) in eq_ann.entities):
-                        before = unicode(eq_ann)
-                        eq_ann.entities.remove(unicode(origin))
-                        eq_ann.entities.remove(unicode(target))
-                        mods.change(before, eq_ann)
-
-                    if len(eq_ann.entities) < 2:
-                        # We need to delete this one
-                        try:
-                            ann_obj.del_annotation(eq_ann)
-                            mods.deletion(eq_ann)
-                        except DependingAnnotationDeleteError, e:
-                            #TODO: This should never happen, dep on equiv
-                            #print 'Content-Type: application/json\n'
-                            # TODO: Proper exception here!
-                            Messager.error(e.json_error_response())
-                            return {}
-            elif type in projectconf.get_relation_types():
-                for ann in ann_obj.get_relations():
-                    if ann.type == type and ann.arg1 == origin and ann.arg2 == target:
-                        ann_obj.del_annotation(ann)
-                        mods.deletion(ann)
-                        break
+                _delete_arc_equiv(origin, target, type, mods, ann_obj)
             else:
-                assert False, 'unknown annotation'
+                _delete_arc_nonequiv_rel(origin, target, type, mods, ann_obj)
+        elif projectconf.is_event_type(origin_ann.type):
+            _delete_arc_event_arg(origin, target, type, mods, ann_obj)
+        else:
+            Messager.error('Unknown annotation types for delete')
 
         mods_json = mods.json_response()
         mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
+
+    # TODO: error handling?
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def delete_span(collection, document, id):
