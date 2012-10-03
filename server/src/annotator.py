@@ -20,7 +20,7 @@ from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, EquivAnnotation, open_textfile,
         AnnotationsIsReadOnlyError, AttributeAnnotation, 
-        NormalizationAnnotation)
+        NormalizationAnnotation, DISCONT_SEP)
 from common import ProtocolError, ProtocolArgumentError
 try:
     from config import DEBUG
@@ -158,10 +158,11 @@ def _offsets_equal(o1, o2):
 def _text_for_offsets(text, offsets):
     """
     Given a text and a list of (start, end) integer offsets, returns
-    the (catenated) text corresponding to those offsets.
+    the (catenated) text corresponding to those offsets, joined
+    appropriately for use in a TextBoundAnnotation(WithText).
     """
     try:
-        return "".join([text[s:e] for s,e in offsets])
+        return DISCONT_SEP.join(text[s:e] for s,e in offsets)
     except Exception:
         Messager.error('_text_for_offsets: failed to get text for given offsets (%s)' % str(offsets))
         raise ProtocolArgumentError
