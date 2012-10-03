@@ -708,11 +708,44 @@ var AnnotatorUI = (function($, window, undefined) {
           keymap['S-' + $.ui.keyCode.DELETE] = null;
           keymap['S-' + $.ui.keyCode.INSERT] = null;
         }
-        if (!reselectedSpan) {
-          // TODO: avoid allAttributeTypes; just check type-appropriate ones
-          $.each(allAttributeTypes, function(attrNo, attr) {
-            $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
-            var val = span && span.attributes[attr.type];
+        // TODO: lots of redundancy in the next two blocks, clean up
+        if (!span) {
+          // no existing annotation, reset attributes
+          var attrCategoryAndTypes = [['entity', entityAttributeTypes],
+                                      ['event', eventAttributeTypes]];
+          $.each(attrCategoryAndTypes, function(ctNo, ct) {
+            var category = ct[0];
+            var attributeTypes = ct[1];
+            $.each(attributeTypes, function(attrNo, attr) {
+              $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
+              if (attr.unused) {
+                $input.val('');
+              } else if (attr.bool) {
+                $input[0].checked = false;
+                updateCheckbox($input);
+                $input.button('refresh');
+              } else {
+                $input.val('').change();
+              }
+            });
+          });
+        } else if (!reselectedSpan) {
+          // existing annotation, fill attribute values from span
+          var attributeTypes;
+          var category;
+          if (span.generalType == 'entity') {
+            attributeTypes = entityAttributeTypes;
+            category = 'entity';
+          } else if (span.generalType == 'trigger') {
+            attributeTypes = entityAttributeTypes;
+            // TODO: unify category/generalType values ('trigger' vs. 'event')
+            category = 'event';
+          } else {
+            console.error('Unrecognized generalType:', span.generalType);
+          }
+          $.each(attributeTypes, function(attrNo, attr) {
+            $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
+            var val = span.attributes[attr.type];
             if (attr.unused) {
               $input.val(val || '');
             } else if (attr.bool) {
@@ -776,11 +809,11 @@ var AnnotatorUI = (function($, window, undefined) {
           updateNormalizationDbLink();
         }
 
-        var showAttributesFor = function(attrTypes, type) {
+        var showAttributesFor = function(attrTypes, category, type) {
           var validAttrs = type ? spanTypes[type].attributes : [];
           var shownCount = 0;
           $.each(attrTypes, function(attrNo, attr) {
-            var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+            var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
             var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
             if (showAttr) {
               $input.button('widget').show();
@@ -794,8 +827,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
-          var entityAttrCount = showAttributesFor(entityAttributeTypes, type);
-          var eventAttrCount = showAttributesFor(eventAttributeTypes, type);
+          var entityAttrCount = showAttributesFor(entityAttributeTypes, 'entity', type);
+          var eventAttrCount = showAttributesFor(eventAttributeTypes, 'event', type);
           
           showAllAttributes = false;
           // show attribute frames only if at least one attribute is
@@ -1760,7 +1793,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var addAttributeTypesToDiv = function($top, types, category) {
         $.each(types, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
-          var attrId = 'span_attr_' + escapedType;
+          var attrId = category+'_attr_'+escapedType;
           if (attr.unused) {
             var $input = $('<input type="hidden" id="'+attrId+'" value=""/>');
             $top.append($input);
@@ -1799,15 +1832,15 @@ var AnnotatorUI = (function($, window, undefined) {
         
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
+        // TODO2: the above comment is almost certainly false, check and remove
         $('#span_form input:not([unused])').removeAttr('disabled');
         var $toDisable;
-        var $category;
         if (category == "event") {
           $toDisable = $('#span_form input[category="entity"]');
         } else if (category == "entity") {
           $toDisable = $('#span_form input[category="event"]');
         } else {
-          console.error('Unrecognized attribute category:', category)
+          console.error('Unrecognized attribute category:', category);
           $toDisable = $();
         }
         $toDisable.attr('disabled', true);
@@ -2272,9 +2305,17 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // fill attributes
         var attributes = {};
-        // TODO: avoid allAttributeTypes; just check type-appropriate ones
-        $.each(allAttributeTypes, function(attrNo, attr) {
-          var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+        var attributeTypes;
+        var category = typeRadio.attr('category');
+        if (category == 'entity') {
+          attributeTypes = entityAttributeTypes;
+        } else if (category == 'event') {
+          attributeTypes = eventAttributeTypes;
+        } else {
+          console.error('Unrecognized type category:', category);
+        }
+        $.each(attributeTypes, function(attrNo, attr) {
+          var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
           if (attr.bool) {
             attributes[attr.type] = $input[0].checked;
           } else if ($input[0].selectedIndex) {
