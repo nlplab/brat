@@ -122,6 +122,8 @@ Disallow: /confidential/
 
 # Reserved strings with special meanings in configuration.
 reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBase", "GLYPH-POS", "DEFAULT", "NORM"]
+# TODO: "GLYPH-POS" is no longer used, warn if encountered and
+# recommend to use "position" instead.
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config

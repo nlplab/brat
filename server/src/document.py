@@ -255,10 +255,6 @@ def _fill_attribute_configuration(nodes, project_conf):
 
             # TODO: "special" <DEFAULT> argument
             
-            # send "special" arguments in addition to standard drawing
-            # arguments
-            ALL_ATTR_ARGS = ATTR_DRAWING_ATTRIBUTES + ["<GLYPH-POS>"]
-
             # Check if the possible values for the argument are specified
             # TODO: avoid magic string
             if "Value" in node.arguments:
@@ -270,7 +266,7 @@ def _fill_attribute_configuration(nodes, project_conf):
             if len(args) == 0:
                 # binary; use drawing config directly
                 item['values'] = { _type : {} }
-                for k in ALL_ATTR_ARGS:
+                for k in ATTR_DRAWING_ATTRIBUTES:
                     if k in attr_drawing_conf:
                         # protect against error from binary attribute
                         # having multi-valued visual config (#698)
@@ -291,7 +287,7 @@ def _fill_attribute_configuration(nodes, project_conf):
                     # "Values:L1|L2|L3" can have the visual config
                     # "glyph:[1]|[2]|[3]". If only a single value is
                     # defined, apply to all.
-                    for k in ALL_ATTR_ARGS:
+                    for k in ATTR_DRAWING_ATTRIBUTES:
                         if k in attr_drawing_conf:
                             # (sorry about this)
                             if isinstance(attr_drawing_conf[k], list):
@@ -309,18 +305,6 @@ def _fill_attribute_configuration(nodes, project_conf):
                     if len([k for k in ATTR_DRAWING_ATTRIBUTES if
                             k in item['values'][v]]) == 0:
                         item['values'][v]['glyph'] = '['+v+']'
-
-            # special treatment for special args ...
-            # TODO: why don't we just use the same string on client as in conf?
-            vals = item['values']
-            for v in vals:
-                if '<GLYPH-POS>' in vals[v]:
-                    if vals[v]['<GLYPH-POS>'] not in ('left', 'right'):
-                        Messager.warning('Configuration error: "%s" is not a valid glyph position for %s %s' % (vals[v]['<GLYPH-POS>'], _type, v))
-                    else:
-                        # rename
-                        vals[v]['position'] = vals[v]['<GLYPH-POS>']
-                    del vals[v]['<GLYPH-POS>']
 
             items.append(item)
     return items
