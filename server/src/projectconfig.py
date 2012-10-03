@@ -904,6 +904,11 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
 
     rels = []
 
+    entity_types = set([t.storage_form() 
+                        for t in get_entity_type_list(directory)])
+    event_types = set([t.storage_form() 
+                       for t in get_event_type_list(directory)])
+
     for r in get_relation_type_list(directory):
         # "Special" nesting relation ignored unless specifically
         # requested
@@ -916,13 +921,17 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
                 Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(r.arg_list)))
         else:
             types = r.arguments[r.arg_list[num]]
-            for type in types:
-                # TODO: don't just assume that we're dealing with an
-                # entity type
-                if (type in ("<ANY>", "<ENTITY>") or 
-                    atype in ("<ANY>", "<ENTITY>") or 
-                    type == atype):
+            for type_ in types:
+                # TODO: there has to be a better way
+                if (type_ == atype or
+                    type_ == "<ANY>" or
+                    atype == "<ANY>" or
+                    (type_ in entity_types and atype == "<ENTITY>") or
+                    (type_ in event_types and atype == "<EVENT>") or
+                    (atype in entity_types and type_ == "<ENTITY>") or
+                    (atype in event_types and type_ == "<EVENT>")):
                     rels.append(r)
+                    # TODO: why not break here?
 
     return rels
 
@@ -1113,12 +1122,17 @@ class ProjectConfiguration(object):
                 # magic number "1" is for 2nd argument
                 args = r.arguments[r.arg_list[1]]
 
-                if "<ANY>" in args or "<ENTITY>" in args:
-                    # NOTE: assuming relations only between entities
-                    conns.extend(entity_types[:])
+                if "<ANY>" in args:
+                    connections[t1][a] = all_types[:]
                 else:
-                    conns.extend(args[:])
-                connections[t1][a] = unique_preserve_order(conns)
+                    for t2 in args:
+                        if t2 == "<ENTITY>":
+                            conns.extend(entity_types)
+                        elif t2 == "<EVENT>":
+                            conns.extend(event_types)
+                        else:
+                            conns.append(t2)
+                    connections[t1][a] = unique_preserve_order(conns)
 
                 processed_as_relation[a] = True
 
@@ -1134,6 +1148,7 @@ class ProjectConfiguration(object):
 
                 assert a not in connections[t1], "INTERNAL ERROR"
 
+                # TODO: dedup w/above
                 if "<ANY>" in args:
                     connections[t1][a] = all_types[:]
                 else:
