@@ -15,6 +15,7 @@ from __future__ import with_statement
 
 from os.path import join as path_join
 from os.path import split as path_split
+from re import compile as re_compile
 
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
@@ -30,6 +31,10 @@ from document import real_directory
 from jsonwrap import loads as json_loads, dumps as json_dumps
 from message import Messager
 from projectconfig import ProjectConfiguration, ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY
+
+### Constants
+MUL_NL_REGEX = re_compile(r'\n+')
+###
 
 #TODO: Couldn't we incorporate this nicely into the Annotations class?
 #TODO: Yes, it is even gimped compared to what it should do when not. This
@@ -303,13 +308,27 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
             # TODO discont: use offsets instead (note need for int conversion)
             text = _text_for_offsets(txt_file.read(), offsets)
 
-        #TODO: Data tail should be optional
-        if '\n' not in text:
-            ann = TextBoundAnnotationWithText(offsets[:], new_id, type, text)
-            ann_obj.add_annotation(ann)
-            mods.addition(ann)
-        else:
-            ann = None
+        # The below code resolves cases where there are newlines in the
+        #   offsets by creating discontinuous annotations for each span
+        #   separated by newlines. For most cases it preserves the offsets.
+        seg_offsets = []
+        for o_start, o_end in offsets:
+            pos = o_start
+            for text_seg in text.split('\n'):
+                if not text_seg:
+                    # Double new-line, skip ahead
+                    pos += 1
+                    continue
+                end = pos + len(text_seg)
+                seg_offsets.append((pos, end))
+                # Our current position is after the newline
+                pos = end + 1
+
+        ann = TextBoundAnnotationWithText(seg_offsets, new_id, type,
+                # Replace any newlines with the discontinuous separator
+                MUL_NL_REGEX.sub(DISCONT_SEP, text))
+        ann_obj.add_annotation(ann)
+        mods.addition(ann)
     else:
         ann = found
 
@@ -964,8 +983,6 @@ def delete_span(collection, document, id):
         mods_json = mods.json_response()
         mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
-
-from common import ProtocolError
 
 class AnnotationSplitError(ProtocolError):
     def __init__(self, message):
