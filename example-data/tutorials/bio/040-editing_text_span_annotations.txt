@@ -16,4 +16,6 @@ The annotations in the following sentence are otherwise OK, but their spans incl
 2 ) This sentence mentions some proteins, but they are misannotated: we study p53 and p105 phosphorylation.
 
 
-Foo.
+Similarily you can also change the type of an existing annotation by opening the "Edit Annotation" dialog and select a different type than the current one. Try it out on the sentence below.
+
+3 ) No matter what the annotation says, p53 is a protein and not a chemical.
