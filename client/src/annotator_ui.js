@@ -2271,6 +2271,10 @@ var AnnotatorUI = (function($, window, undefined) {
           offsets: JSON.stringify(offsets),
         });
 
+        spanOptions.attributes = $.toJSON(spanAttributes());
+
+        spanOptions.normalizations = $.toJSON(spanNormalizations());
+
         dispatcher.post('ajax', [spanOptions, 'edited']);
         dispatcher.post('hideForm');
         $('#waiter').dialog('open');
