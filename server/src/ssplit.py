@@ -121,13 +121,7 @@ def _sentence_boundary_gen(text, regex):
     for match in regex.finditer(text):
         yield match.span()
 
-def jp_sentence_boundary_gen(text):
-    # TODO: We need to "refine" the split to avoid violating parentheses etc.
-    #       This pretty much means writing a new refine script.
-    for o in _sentence_boundary_gen(text, SENTENCE_END_REGEX):
-        yield o
-       
-def en_sentence_boundary_gen(text):
+def regex_sentence_boundary_gen(text):
     for o in _refine_split([_o for _o in _sentence_boundary_gen(
                 text, SENTENCE_END_REGEX)], text):
         yield o

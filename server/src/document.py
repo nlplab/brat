@@ -15,7 +15,7 @@ Version:    2011-04-21
 '''
 
 from os import listdir
-from os.path import abspath, isabs, isdir, normpath, getmtime
+from os.path import abspath, dirname, isabs, isdir, normpath, getmtime
 from os.path import join as path_join
 from re import match,sub
 from errno import ENOENT, EACCES
@@ -31,21 +31,12 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
         SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
         VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, 
         ATTR_DRAWING_ATTRIBUTES, VISUAL_ATTR_DEFAULT,
-        ENTITY_NESTING_TYPE, options_get_validation)
+        ENTITY_NESTING_TYPE, options_get_validation, options_get_tokenization,
+        options_get_ssplitter)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
 from annlog import annotation_logging_active
-
-try:
-    from config import NEWLINE_SS
-except ImportError:
-    NEWLINE_SS = False
-
-try:
-    from config import JAPANESE
-except ImportError:
-    JAPANESE = False
 
 from itertools import chain
 
@@ -628,27 +619,38 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
     
     from logging import info as log_info
 
-    # First, generate tokenisation
-    if JAPANESE:
-        from tokenise import jp_token_boundary_gen
-        token_offsets = [o for o in jp_token_boundary_gen(text)]
-    else:
-        from tokenise import en_token_boundary_gen
-        token_offsets = [o for o in en_token_boundary_gen(text)]
-    j_dic['token_offsets'] = token_offsets
+    tokeniser = options_get_tokenization(dirname(txt_file_path))
 
-    if NEWLINE_SS:
-        from ssplit import newline_sentence_boundary_gen
-        sentence_offsets = [o for o in newline_sentence_boundary_gen(text)]
-    elif JAPANESE:
-        from ssplit import jp_sentence_boundary_gen
-        sentence_offsets = [o for o in jp_sentence_boundary_gen(text)]
-        #log_info('offsets: ' + str(offsets))
+    # First, generate tokenisation
+    if tokeniser == 'mecab':
+        from tokenise import jp_token_boundary_gen
+        tok_offset_gen = jp_token_boundary_gen
+    elif tokeniser == 'whitespace':
+        from tokenise import whitespace_token_boundary_gen
+        tok_offset_gen = whitespace_token_boundary_gen
+    elif tokeniser == 'ptblike':
+        from tokenise import gtb_token_boundary_gen
+        tok_offset_gen = gtb_token_boundary_gen
     else:
-        from ssplit import en_sentence_boundary_gen
-        sentence_offsets = [o for o in en_sentence_boundary_gen(text)]
-        #log_info('offsets: ' + str(sentence_offsets))
-    j_dic['sentence_offsets'] = sentence_offsets
+        Messager.warning('Unrecognized tokenisation option '
+                ', reverting to whitespace tokenisation.')
+        from tokenise import whitespace_token_boundary_gen
+        tok_offset_gen = whitespace_token_boundary_gen
+    j_dic['token_offsets'] = [o for o in tok_offset_gen(text)]
+
+    ssplitter = options_get_ssplitter(dirname(txt_file_path))
+    if ssplitter == 'newline':
+        from ssplit import newline_sentence_boundary_gen
+        ss_offset_gen = newline_sentence_boundary_gen
+    elif ssplitter == 'regex':
+        from ssplit import regex_sentence_boundary_gen
+        ss_offset_gen = regex_sentence_boundary_gen
+    else:
+        Messager.warning('Unrecognized sentence splitting option '
+                ', reverting to newline sentence splitting.')
+        from ssplit import newline_sentence_boundary_gen
+        ss_offset_gen = newline_sentence_boundary_gen
+    j_dic['sentence_offsets'] = [o for o in ss_offset_gen(text)]
 
     return True
 
