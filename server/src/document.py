@@ -31,16 +31,11 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
         SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
         VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, 
         ATTR_DRAWING_ATTRIBUTES, VISUAL_ATTR_DEFAULT,
-        ENTITY_NESTING_TYPE)
+        ENTITY_NESTING_TYPE, options_get_validation)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
 from annlog import annotation_logging_active
-
-try:
-    from config import PERFORM_VERIFICATION
-except ImportError:
-    PERFORM_VERIFICATION = False
 
 try:
     from config import NEWLINE_SS
@@ -734,12 +729,12 @@ def _enrich_json_with_data(j_dic, ann_obj):
     j_dic['ctime'] = ann_obj.ann_ctime
 
     try:
-        if PERFORM_VERIFICATION:
-            # XXX avoid digging the directory from the ann_obj
-            import os
-            docdir = os.path.dirname(ann_obj._document)
-            projectconf = ProjectConfiguration(docdir)
+        # XXX avoid digging the directory from the ann_obj
+        import os
+        docdir = os.path.dirname(ann_obj._document)
+        if options_get_validation(docdir) in ('all', ):
             from verify_annotations import verify_annotation
+            projectconf = ProjectConfiguration(docdir)
             issues = verify_annotation(ann_obj, projectconf)
         else:
             issues = []

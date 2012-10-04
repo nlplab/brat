@@ -22,12 +22,7 @@ from os.path import join as path_join
 from annotation import Annotations, open_textfile
 from config import DATA_DIR, BASE_DIR
 from message import Messager
-from projectconfig import get_config_path
-
-try:
-    from config import PERFORM_VERIFICATION
-except ImportError:
-    PERFORM_VERIFICATION = False
+from projectconfig import get_config_path, options_get_validation
 
 ### Constants
 STATS_CACHE_FILE_NAME = '.stats_cache'
@@ -85,7 +80,8 @@ def get_statistics(directory, base_names, use_cache=True):
 
     # "header" and types
     stat_types = [("Entities", "int"), ("Relations", "int"), ("Events", "int")]
-    if PERFORM_VERIFICATION:
+
+    if options_get_validation(directory) != 'none':
         stat_types.append(("Issues", "int"))
             
     if generate:
@@ -102,7 +98,8 @@ def get_statistics(directory, base_names, use_cache=True):
                                  len([a for a in ann_obj.get_equivs()]))
                     event_count = len([a for a in ann_obj.get_events()])
 
-                    if not PERFORM_VERIFICATION:
+
+                    if options_get_validation(directory) == 'none':
                         docstats.append([tb_count, rel_count, event_count])
                     else:
                         # verify and include verification issue count
