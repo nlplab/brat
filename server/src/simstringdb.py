@@ -32,6 +32,10 @@ DEFAULT_NGRAM_LENGTH = 3
 # Whether to include marks for begins and ends of strings
 DEFAULT_INCLUDE_MARKS = False
 
+SIMSTRING_MISSING_ERROR = '''Error: failed to import the simstring library.
+This library is required for approximate string matching DB lookup.
+Please install simstring and its Python bindings from
+http://www.chokkan.org/software/simstring/'''
 
 class NoSimStringError(ProtocolError):
     def __str__(self):
@@ -42,19 +46,13 @@ class NoSimStringError(ProtocolError):
         json_dic['exception'] = 'noSimStringError'
 
 
-def __import_simstring():
+# Note: The only reason we use a function call for this is to delay the import
+def __set_db_measure(db, measure):
     try:
         import simstring
     except ImportError:
-        Messager.error('''Error: failed to import the simstring library.
-        This library is required for approximate string matching DB lookup.
-        Please install simstring and its Python bindings from
-        http://www.chokkan.org/software/simstring/''', duration=-1)
+        Messager.error(SIMSTRING_MISSING_ERROR, duration=-1)
         raise NoSimStringError
-
-# Note: The only reason we use a function call for this is to delay the import
-def __set_db_measure(db, measure):
-    __import_simstring()
 
     ss_measure_by_str = {
             'cosine': simstring.cosine,
@@ -75,7 +73,11 @@ def ssdb_build(strs, dbname, ngram_length=DEFAULT_NGRAM_LENGTH,
     Given a list of strings, a DB name, and simstring options, builds
     a simstring DB for the strings.
     '''
-    __import_simstring()
+    try:
+        import simstring
+    except ImportError:
+        Messager.error(SIMSTRING_MISSING_ERROR, duration=-1)
+        raise NoSimStringError
 
     dbfn = __ssdb_filename(dbname)
     try:
@@ -108,7 +110,11 @@ def ssdb_open(dbname):
     Given a DB name, opens it as a simstring DB and returns the handle.
     The caller is responsible for invoking close() on the handle.
     '''
-    __import_simstring()
+    try:
+        import simstring
+    except ImportError:
+        Messager.error(SIMSTRING_MISSING_ERROR, duration=-1)
+        raise NoSimStringError
 
     try:
         return simstring.reader(__ssdb_filename(dbname))
@@ -186,7 +192,11 @@ def ssdb_supstring_lookup(s, dbname, threshold=DEFAULT_THRESHOLD,
     where score is the fraction of n-grams in s that are also found in
     the matched string.
     '''
-    __import_simstring()
+    try:
+        import simstring
+    except ImportError:
+        Messager.error(SIMSTRING_MISSING_ERROR, duration=-1)
+        raise NoSimStringError
 
     db = ssdb_open(str(dbname))
 
@@ -226,7 +236,11 @@ def ssdb_supstring_exists(s, dbname, threshold=DEFAULT_THRESHOLD):
     string in the associated simstring DB likely contains s as an
     (approximate) substring.
     '''
-    __import_simstring()
+    try:
+        import simstring
+    except ImportError:
+        Messager.error(SIMSTRING_MISSING_ERROR, duration=-1)
+        raise NoSimStringError
 
     if threshold == 1.0:
         # optimized (not hugely, though) for this common case
