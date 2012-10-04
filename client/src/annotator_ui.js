@@ -2340,7 +2340,9 @@ var AnnotatorUI = (function($, window, undefined) {
         // unfocus all elements to prevent focus being kept after
         // hiding them
         spanForm.parent().find('*').blur();
-        spanOptions.attributes = $.toJSON(attributes);
+        // TODO XXX make sure this redundant set of spanOptions.attributes
+        // isn't actually needed and remove
+//         spanOptions.attributes = $.toJSON(attributes);
         if (spanOptions.offsets) {
           spanOptions.offsets = $.toJSON(spanOptions.offsets);
         }
