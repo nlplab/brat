@@ -96,6 +96,16 @@ class ModificationTracker(object):
             except AttributeError:
                 pass # not all implement reference_id()
 
+        # unique, preserve order
+        seen = set()
+        uniqued = []
+        for i in response['edited']:
+            s = str(i)
+            if s not in seen:
+                uniqued.append(i)
+                seen.add(s)
+        response['edited'] = uniqued
+
         return response
 
 # TODO: revive the "unconfirmed annotation" functionality;
