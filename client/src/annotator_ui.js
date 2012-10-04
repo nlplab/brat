@@ -737,7 +737,7 @@ var AnnotatorUI = (function($, window, undefined) {
             attributeTypes = entityAttributeTypes;
             category = 'entity';
           } else if (span.generalType == 'trigger') {
-            attributeTypes = entityAttributeTypes;
+            attributeTypes = eventAttributeTypes;
             // TODO: unify category/generalType values ('trigger' vs. 'event')
             category = 'event';
           } else {
