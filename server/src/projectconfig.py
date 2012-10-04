@@ -878,6 +878,18 @@ def options_get_validation(directory):
     v = get_option_config_by_storage_form(directory, 'Validation')
     return 'none' if v is None else v.get('validate', 'none')        
 
+def options_get_tokenization(directory):
+    v = get_option_config_by_storage_form(directory, 'Tokens')
+    return 'whitespace' if v is None else v.get('tokenizer', 'whitespace')
+
+def options_get_ssplitter(directory):
+    v = get_option_config_by_storage_form(directory, 'Sentences')
+    return 'regex' if v is None else v.get('splitter', 'regex')
+
+def options_get_annlogfile(directory):
+    v = get_option_config_by_storage_form(directory, 'Annotation-log')
+    return '<NONE>' if v is None else v.get('logfile', '<NONE>')
+
 def get_drawing_config_by_storage_form(directory, term):
     cache = get_drawing_config_by_storage_form.__cache
     if directory not in cache:
