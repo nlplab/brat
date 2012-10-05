@@ -2021,11 +2021,11 @@ var AnnotatorUI = (function($, window, undefined) {
         var $normId = $('#span_norm_id');
         var $normLink = $('#span_norm_ref_link');
         var normId = $normId.val();
-        if (!normId || normId.match(/^\s*$/)) {
+        var $normDb = $('#span_norm_db');
+        var normDb = $normDb.val();
+        if (!normId || !normDb || normId.match(/^\s*$/)) {
           $normLink.hide();
         } else {
-          var $normDb = $('#span_norm_db');
-          var normDb = $normDb.val();
           var base = normDbUrlBaseByDbName[normDb];
           // assume hidden unless everything goes through
           $normLink.hide();
