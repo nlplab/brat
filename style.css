@@ -109,24 +109,12 @@ path {
   pointer-events: none;
 }
 
-/* alternative font test */
-/*
-.span text {
-  font-size: 10.5px;
-  font-family: helvetica,arial,freesans,clean,sans-serif;
-  text-anchor: middle;
-  pointer-events: none;
-}
-*/
-
 /* "basic" font */
 .span text {
   /*  font-size: 10.5px; */
   font-size: 10px;
   text-anchor: middle;
-  /* font-family: Ubuntu, sans-serif; */
   font-family: 'PT Sans Caption', sans-serif;
-  /* font-family: 'Anonymous Pro', monospace; */
   pointer-events: none;
 }
 
@@ -322,9 +310,7 @@ rect.shadow_EditHighlight {
 .arcs text {
   font-size: 9px;
   text-anchor: middle;
-  /* font-family: Ubuntu, sans-serif; */
   font-family: 'PT Sans Caption', sans-serif;
-  /* font-family: 'Anonymous Pro', monospace; */
   /* dominant-baseline: central; */
   cursor: default;
 }
