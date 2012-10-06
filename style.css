@@ -472,7 +472,8 @@ fieldset legend {
   padding: 10px;
   display: none;
   border: 1px outset #000000;
-  background-color: #d7e7ee;
+  background-color: #f5f5f9;
+  /* background-color: #d7e7ee; */
   /* background-color: #eeeeee; */
   color: #000000;
   z-index: 20;
