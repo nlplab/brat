@@ -122,7 +122,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBase", "GLYPH-POS", "DEFAULT", "NORM"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM"]
 # TODO: "GLYPH-POS" is no longer used, warn if encountered and
 # recommend to use "position" instead.
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
@@ -1357,12 +1357,12 @@ class ProjectConfiguration(object):
             if '<URL>' not in n.special_arguments:
                 Messager.warning('Project configuration: config error: missing <URL> specification for %s.' % n.storage_form())
                 continue
-            if '<URLBase>' not in n.special_arguments:
-                Messager.warning('Project configuration: config error: missing <URLBase> specification for %s.' % n.storage_form())
+            if '<URLBASE>' not in n.special_arguments:
+                Messager.warning('Project configuration: config error: missing <URLBASE> specification for %s.' % n.storage_form())
                 continue
             norm_config.append((n.storage_form(),
                                 n.special_arguments['<URL>'][0],
-                                n.special_arguments['<URLBase>'][0]))
+                                n.special_arguments['<URLBASE>'][0]))
         return norm_config
         
     def get_entity_types(self):
