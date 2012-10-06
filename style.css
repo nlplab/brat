@@ -468,7 +468,7 @@ fieldset legend {
   position: fixed;
   top: 0;
   left: 0;
-  opacity: 0.9;
+  opacity: 0.95;
   padding: 10px;
   display: none;
   border: 1px outset #000000;
@@ -483,6 +483,7 @@ fieldset legend {
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
+  max-width: 80%;
 }
 #more_info_readme {
   height: 350px;
