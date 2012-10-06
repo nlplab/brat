@@ -35,6 +35,7 @@
 from __future__ import with_statement
 
 import sys
+import codecs
 from datetime import datetime
 from os.path import dirname, basename, splitext, join
 
@@ -52,6 +53,9 @@ except ImportError:
 """
     print >> sys.stderr, errorstr
     sys.exit(1)
+
+# Default encoding for input text
+DEFAULT_INPUT_ENCODING = 'UTF-8'
 
 # Normalization DB version lookup string and value (for compatibility
 # checks)
@@ -185,6 +189,7 @@ def argparser():
     ap=argparse.ArgumentParser(description="Create normalization DBs for given file")
     ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output")
     ap.add_argument("-d", "--database", default=None, help="Base name of databases to create (default by input file name in brat work directory)")
+    ap.add_argument("-e", "--encoding", default=DEFAULT_INPUT_ENCODING, help="Input text encoding (default "+DEFAULT_INPUT_ENCODING+")")
     ap.add_argument("file", metavar="FILE", help="Normalization data")
     return ap
 
@@ -227,7 +232,7 @@ def main(argv):
 
     import_count, duplicate_count, error_count, simstring_count = 0, 0, 0, 0
 
-    with open(infn, 'rU') as inf:        
+    with codecs.open(infn, 'rU', encoding=arg.encoding) as inf:        
 
         # create SQL DB
         try:
@@ -356,8 +361,8 @@ def main(argv):
         try:
             ssdb = simstring.writer(ssdbfn)
             for row in cursor.execute(SELECT_SIMSTRING_STRINGS_COMMAND):
-                s = str(row[0]) # TODO: unicode support
-                #print >> sys.stderr, "fetched '%s'" % s, type(s)
+                # encode as UTF-8 for simstring
+                s = row[0].encode('utf-8')
                 ssdb.insert(s)
                 simstring_count += 1
             ssdb.close()

@@ -136,6 +136,9 @@ def ssdb_lookup(s, dbname, measure=DEFAULT_SIMILARITY_MEASURE,
     result = db.retrieve(s)
     db.close()
 
+    # assume simstring DBs always contain UTF-8 - encoded strings
+    result = [r.decode('UTF-8') for r in result]
+
     return result
 
 def ngrams(s, out=None, n=DEFAULT_NGRAM_LENGTH, be=DEFAULT_INCLUDE_MARKS):
@@ -198,13 +201,16 @@ def ssdb_supstring_lookup(s, dbname, threshold=DEFAULT_THRESHOLD,
         Messager.error(SIMSTRING_MISSING_ERROR, duration=-1)
         raise NoSimStringError
 
-    db = ssdb_open(str(dbname))
+    db = ssdb_open(dbname.encode('UTF-8'))
 
     __set_db_measure(db, 'overlap')
     db.threshold = threshold
 
     result = db.retrieve(s)
     db.close()
+
+    # assume simstring DBs always contain UTF-8 - encoded strings
+    result = [r.decode('UTF-8') for r in result]
 
     # The simstring overlap measure is symmetric and thus does not
     # differentiate between substring and superstring matches.
@@ -244,13 +250,16 @@ def ssdb_supstring_exists(s, dbname, threshold=DEFAULT_THRESHOLD):
 
     if threshold == 1.0:
         # optimized (not hugely, though) for this common case
-        db = ssdb_open(str(dbname))
+        db = ssdb_open(dbname.encode('UTF-8'))
 
         __set_db_measure(db, 'overlap')
         db.threshold = threshold
 
         result = db.retrieve(s)
         db.close()
+
+        # assume simstring DBs always contain UTF-8 - encoded strings
+        result = [r.decode('UTF-8') for r in result]
 
         for r in result:
             if s in r:
