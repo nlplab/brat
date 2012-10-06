@@ -15,14 +15,6 @@ from os.path import dirname
 from subprocess import Popen, PIPE
 from shlex import split as shlex_split
 
-try:
-    from config import (TOKENIZATION, WHITESPACE_TOKENIZATION,
-            PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION)
-except ImportError:
-    (WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION,
-            JAPANESE_TOKENIZATION) = range(3)
-    TOKENIZATION = None
-
 def _token_boundaries_by_alignment(tokens, original_text):
     curr_pos = 0
     for tok in tokens:
@@ -33,36 +25,20 @@ def _token_boundaries_by_alignment(tokens, original_text):
         curr_pos = end_pos
 
 def jp_token_boundary_gen(text):
-    # TODO: consider honoring WHITESPACE_TOKENIZATION for japanese also
-    if TOKENIZATION is not None and TOKENIZATION != JAPANESE_TOKENIZATION:
-        from message import Messager
-        Messager.warning('Ignoring unexpected TOKENIZATION '
-                'specification for Japanese.')
     from mecab import token_offsets_gen
     for o in token_offsets_gen(text):
         yield o
 
-def en_token_boundary_gen_gtb(text):
+def gtb_token_boundary_gen(text):
     from gtbtokenize import tokenize
     tokens = tokenize(text).split()
     for o in _token_boundaries_by_alignment(tokens, text):
         yield o
 
-def en_token_boundary_gen_simple(text):
+def whitespace_token_boundary_gen(text):
     tokens = text.split()
     for o in _token_boundaries_by_alignment(tokens, text):
         yield o
-
-def en_token_boundary_gen(text):
-    if TOKENIZATION is None or TOKENIZATION == WHITESPACE_TOKENIZATION:
-        return en_token_boundary_gen_simple(text)        
-    elif TOKENIZATION == PTBLIKE_TOKENIZATION:
-        return en_token_boundary_gen_gtb(text)
-    else:
-        from message import Messager
-        Messager.warning('Unrecognized Engligh tokenization options '
-                'for English, reverting to simple tokenization.')
-        return en_token_boundary_gen_simple(text)
 
 if __name__ == '__main__':
     from sys import argv
@@ -82,7 +58,7 @@ if __name__ == '__main__':
             print '# Original text:'
             print text.replace('\n', '\\n')
             #offsets = [o for o in jp_token_boundary_gen(text)]
-            offsets = [o for o in en_token_boundary_gen(text)]
+            offsets = [o for o in whitespace_token_boundary_gen(text)]
             print '# Offsets:'
             print offsets
             print '# Tokens:'
