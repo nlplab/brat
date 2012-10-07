@@ -15,7 +15,7 @@ from message import Messager
 from normdb import string_norm_form
 
 # whether to display alignment scores in search result table
-DISPLAY_SEARCH_SCORES = True
+DISPLAY_SEARCH_SCORES = False
 
 # maximum alignment score (tsuruoka_local)
 MAX_SCORE = 1000
@@ -30,7 +30,7 @@ MAX_SEARCH_RESULT_NUMBER = 1000
 
 NORM_LOOKUP_DEBUG = True
 
-REPORT_LOOKUP_TIMINGS = True
+REPORT_LOOKUP_TIMINGS = False
 
 # debugging
 def _check_DB_version(database):
