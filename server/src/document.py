@@ -551,7 +551,7 @@ def get_directory_information(collection):
 
     # fill in a flag for whether annotator logging is active so that
     # the client knows whether to invoke timing actions
-    ann_logging = annotation_logging_active()
+    ann_logging = annotation_logging_active(real_dir)
 
     # fill in NER services, if any
     ner_taggers = get_annotator_config(real_dir)
