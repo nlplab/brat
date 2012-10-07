@@ -10,11 +10,11 @@ title:  "Introduction"
       <p>brat is designed in particular for <i>structured</i>
 	annotation, where the notes are not freeform text but have a
 	fixed form that can be automatically processed and
-	&quot;interpreted&quot; by a computer.
+	interpreted by a computer.
       </p>
       <p>the following screenshot shows a simple example where a
 	sentence has been annotated to identify mentions of some
-	real-world entities (&quot;things&quot;) and their types, and
+	real-world entities (things) and their types, and
 	a relation between two.
       </p>
       <div class="image">
@@ -31,7 +31,7 @@ title:  "Introduction"
 	  relation in the example
 	</li>
       </ul>
-      <p>The simple typed text span category is suitable for creating
+      <p>the simple typed text span category is suitable for creating
 	annotations for <a href="http://en.wikipedia.org/wiki/Named-entity_recognition">named entity recognition</a>, and binary relations for
 	simple relational <a href="http://en.wikipedia.org/wiki/Information_extraction">information extraction</a> tasks, among others.
       </p>
@@ -52,14 +52,23 @@ title:  "Introduction"
 	being factual or speculative, or marking an entity mention as
 	referring to a group or an individual.
       </p>
-      <p>Finally, although not a primary focus of the tool, brat does
-	also allow freeform text &quot;<b>notes</b>&quot; to be added
-	to an annotation:
+      <p>to allow the real-world entities referred to by specific text
+	expressions to be uniquely identified, brat support also
+	<b>normalization</b> anonotations that associate other
+	annotations with entries in resources such as Wikipedia:
       </p>
       <div class="image">
-	<img src="img/annotation-note.png" alt="example annotation"/>
-	<div style="width: 790px" class="caption">annotation with text note</div>
+	<img src="img/normalization-example.png" alt="example annotation"/>
+	<div style="width: 790px" class="caption">example normalization annotation showing information from Wikipedia</div>
       </div>
+      <p>finally, although not a primary focus of the tool, brat does
+	also allow freeform text &quot;<b>notes</b>&quot; to be added
+	to an annotation.
+      </p>
+<!--       <div class="image"> -->
+<!-- 	<img src="img/annotation-note.png" alt="example annotation"/> -->
+<!-- 	<div style="width: 790px" class="caption">annotation with text note</div> -->
+<!--       </div> -->
       <p>
 	the applied categories of annotations, their types, and the
 	<b>constraints</b> regarding their use (for example, that a
