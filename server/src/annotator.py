@@ -1073,6 +1073,7 @@ def split_span(collection, document, args, id):
                 newann.args = nonsplit_args[:] + arg_combo
                 ann_obj.add_annotation(newann)
                 new_events.append(newann)
+                mods.addition(newann)
 
         # then, go through all the annotations referencing the original
         # event, and create appropriate copies
@@ -1097,6 +1098,7 @@ def split_span(collection, document, args, id):
                         newmod.target = newe.id
                         newmod.id = ann_obj.get_new_id("A") # TODO: avoid hard-coding ID prefix
                         ann_obj.add_annotation(newmod)
+                        mods.addition(newmod)
 
                 elif isinstance(a, BinaryRelationAnnotation):
                     # TODO
@@ -1108,6 +1110,14 @@ def split_span(collection, document, args, id):
                         newcomm.target = newe.id
                         newcomm.id = ann_obj.get_new_id("#") # TODO: avoid hard-coding ID prefix
                         ann_obj.add_annotation(newcomm)
+                        mods.addition(newcomm)
+                elif isinstance(a, NormalizationAnnotation):
+                    for newe in new_events:
+                        newnorm = deepcopy(a)
+                        newnorm.target = newe.id
+                        newnorm.id = ann_obj.get_new_id("N") # TODO: avoid hard-coding ID prefix
+                        ann_obj.add_annotation(newnorm)
+                        mods.addition(newnorm)
                 else:
                     raise AnnotationSplitError("Cannot adjust annotation referencing split: not implemented for %s! (Please complain to the lazy developers to fix this!)" % a.__class__)
 
