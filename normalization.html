@@ -20,10 +20,10 @@ title:  "Normalization"
 
 <p>The identification of the real-world entities that are referred to
   in text is an important part of analysing the meaning of text.  Many
-  specific task formulations that involve the association of entries
-  in external resources such as ontologies and entity databases with
-  specific mentions in text are are studied, with tasks termed
-  variously as <i>normalization</i>, <i>grounding</i>,
+  specific task formulations that involve the association of text with
+  entries in external resources such as ontologies and entity
+  databases are studied, with tasks termed variously as 
+  <i>normalization</i>, <i>grounding</i>,
   <i>entity linking</i> and <i>wikification</i>.
 </p>
 
@@ -89,12 +89,67 @@ title:  "Normalization"
 
 <p>That's all! Now, when creating annotations, you will be able to
   search (a sample of) Wikipedia from within brat and attach
-  normalization annotations to other annotations.
+  normalization annotations to other annotations, as shown in the next
+  section.
 </p>
 
-<p>For instructions on how to use this functionality in the brat
-  editor, skip over to the <a href="#norm-annotation">normalization
-  annotation</a> section.
+<h2 id="norm-annotation">Normalization annotation</h2>
+
+<p>After setting up a normalization database and editing
+  <code>tools.conf</code> to configure brat to use it, brat is ready
+  to create normalization annotations. Note that you should reload any
+  open brat windows for the configuration change to take effect.
+</p>
+
+<p>When creating any annotation marking a text span such as an entity
+  annotation, the "Edit annotation" dialog should now include an
+  additional section for normalization:
+</p>
+<div class="image">
+  <img src="img/span-dialog-with-normalization-1.png" alt="edit annotation dialog with normalization"/>
+  <div style="width: 800px" class="caption">"Edit annotation" dialog configured for normalization.</div>
+</div>
+
+<p>To create a normalization annotation, it's often necessary to
+  search for the unique identifier (ID) of the intended entry, as IDs
+  are typically just meaningless sequences of numbers. The brat UI
+  provides access to two alternative searches:
+</p>
+<ul>
+  <li>clicking on the box with "Click here to search" opens the built-in
+    normalization DB search functionality within brat (shown below)
+  </li>
+  <li>clicking on the magnifying glass logo opens a separate page with
+    the resource URL (as <a href="#norm-config">configured
+    in <code>tools.conf</code></a> by the &lt;URL&gt; setting),
+    providing fast access to "native" search functionality that can
+    be used to determine the ID, which can then be copied into the brat
+    dialog.
+  </li>
+</ul>
+<div class="image">
+  <img src="img/normalization-search-example.png" alt="normalization search dialog"/>
+  <div style="width: 800px" class="caption">Normalization search dialog showing search results from Wikipedia.</div>
+</div>
+
+<p>The search dialog can be used to query the brat normalization DB
+  using approximate string matching, which allows for variation and
+  typos (e.g. "Barak Obama"). The correct entry can be selected and
+  its ID associated with the annotation simply by double-clicking on
+  it.
+</p>
+
+<p>After filling in the ID, the brat annotation dialog is updated to
+  show also a direct link to the entry in the resource
+  (as <a href="#norm-config">configured in <code>tools.conf</code></a>
+  by the &lt;URLBASE&gt; setting).
+  <!-- TODO image -->
+</p>
+
+<p>If you're going to be working on normalization annotation on a brat
+  server administered by someone else, that's all you need to know!
+  If you need to set up a normalization database and configure brat
+  for normalization yourself, read on.
 </p>
 
 <h2 id="setup">Database setup</h2>
@@ -106,17 +161,19 @@ title:  "Normalization"
 
 <p>Given a file with the normalization data in the
   <a href="#norm-file-format">text-based brat normalization data
-  format</a>, a new normalization DB can be set up simply by running
-  the following in the brat root directory:
+  format</a> (examples are found in 
+  <code>example-data/normalisation/</code>), a new normalization DB
+  can be set up simply by running the following command in the brat
+  root directory:
 </p>
 
 <p><pre><code>    python tools/norm_db_init.py FILE</code></pre>
 </p>
 
 <p>where <code>FILE</code> is the name of the file containing the
-  normalization data. This will create a brat normalization DB
-  with the same name as FILE, by default storing the DB in the
-  brat <code>work/</code> directory.
+  normalization data. This will create a brat normalization DB, by
+  default with the same name as FILE (without filename suffix),
+  storing the DB in the brat <code>work/</code> directory.
 </p>
 
 <p>To see the options for this tool, run
@@ -130,8 +187,7 @@ title:  "Normalization"
 </p>
 
 <p>After creating a normalization DB, it's necessary to edit the
-  <code>tools.conf</code> file to <a href="#norm-config">configure
-    normalization</a> before starting annotation.
+  <code>tools.conf</code> file to configure normalization.
 </p>
 
 <h2 id="norm-config">Configuration</h2>
@@ -186,6 +242,12 @@ title:  "Normalization"
 <p>Note that it's individual collections can have their
   own <code>tools.conf</code> files, so different annotation projects
   can have different normalization settings.
+</p>
+
+<p>After creating a normalization DB and configuring brat to use it,
+  brat is ready for <a href="#norm-annotation">normalization
+  annotation</a>. For information on how to format any dataset for use
+  for brat normalization, see the next section.
 </p>
 
 <h2 id="norm-file-format">Normalization DB file format</h2>
@@ -245,58 +307,6 @@ title:  "Normalization"
   files in this format are found in 
   <code>example-data/normalisation/</code> directory in the brat
   installation.
-</p>
-
-<h2 id="norm-annotation">Normalization annotation</h2>
-
-<p>After setting up a normalization database and editing
-  <code>tools.conf</code> to configure brat to use it, brat is ready
-  to create normalization annotations.
-</p>
-
-<p>When creating any annotation marking a text span such as an entity
-  annotation, the "Edit annotation" dialog should now include an
-  additional section for normalization:
-</p>
-<div class="image">
-  <img src="img/span-dialog-with-normalization-1.png" alt="edit annotation dialog with normalization"/>
-  <div style="width: 800px" class="caption">"Edit annotation" dialog configured for normalization.</div>
-</div>
-
-<p>To create a normalization annotation, it's normally necessary to
-  search for the unique identifier (ID) of the intended entry, as IDs
-  are frequenty just meaningless sequences of numbers. The brat UI
-  provides access to two alternative searches:
-</p>
-<ul>
-  <li>clicking on the magnifying glass logo opens a separate page with
-    the resource URL (as <a href="#norm-config">configured
-    in <code>tools.conf</code></a> by the &lt;URL&gt; setting),
-    providing fast access to "native" search functionality that can
-    be used to find the ID, which can then be copied into the brat
-    dialog.
-  </li>
-  <li>clicking on the box with "Click here to search" opens the built-in
-    normalization DB search functionality within brat:
-  </li>
-</ul>
-<div class="image">
-  <img src="img/normalization-search-example.png" alt="normalization search dialog"/>
-  <div style="width: 800px" class="caption">Normalization search dialog showing search results from Wikipedia.</div>
-</div>
-
-<p>The search dialog can be used to query the brat normalization DB
-  using approximate string matching, which allows for variation and
-  typos (e.g. "Barak Obama"). The correct entry can be selected and
-  its ID associated with the annotation simply by double-clicking on
-  it.
-</p>
-
-<p>After filling in the ID, the brat annotation dialog is updated to
-  show also a direct link to the entry in the resource
-  (as <a href="#norm-config">configured in <code>tools.conf</code></a>
-  by the &lt;URLBASE&gt; setting).
-  <!-- TODO image -->
 </p>
 
 <h2 id="norm-db-tools">Normalization DB tools</h2>
