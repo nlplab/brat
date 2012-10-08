@@ -787,16 +787,22 @@ var AnnotatorUI = (function($, window, undefined) {
           // fill if found (NOTE: only shows last on multiple)
           var normFilled = false;
           $.each(span ? span.normalizations : [], function(normNo, norm) {
-            // stored as array (sorry)
             var refDb = norm[0], refId = norm[1], refText = norm[2];
             $normDb.val(refDb);
-            $normId.val(refId);
-            // don't forget to update this reference value
-            oldSpanNormIdValue = refId
-            $normText.val(refText);
-            // just assume the ID is valid (TODO: check)
-            $normId.addClass('valid_value')
-            normFilled = true;
+            // could the DB selector be set? (i.e. is refDb configured?)
+            if ($normDb.val() == refDb) {
+              // DB is OK, set the rest also
+              $normId.val(refId);
+              oldSpanNormIdValue = refId;
+              $normText.val(refText);
+              // TODO: check if ID is valid
+              $normId.addClass('valid_value')
+              normFilled = true;
+            } else {
+              // can't set the DB selector; assume DB is not configured,
+              // warn and leave blank (will remove norm when dialog is OK'd)
+              dispatcher.post('messages', [[['Warning: '+refDb+' not configured, removing normalization.', 'warning']]]);
+            }
           });
 
           // if there is no existing normalization, show valid ones
@@ -2060,8 +2066,8 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
-      // resets all normalization-related UI elements to a blank
-      // state
+      // resets user-settable normalization-related UI elements to a
+      // blank state (does not blank #span_norm_db <select>).
       var clearNormalizationUI = function() {
         var $normId = $('#span_norm_id');
         var $normText = $('#span_norm_txt');
