@@ -1778,7 +1778,9 @@ var AnnotatorUI = (function($, window, undefined) {
         // check the first valid choice.
         if ($checkedToDisable.length) {
           var $toCheck = $('#span_form input[category="' + category + '"]:first');
-          $toCheck.attr('checked', 'checked');
+          // so weird, attr('checked', 'checked') fails sometimes, so
+          // replaced with more "metal" version
+          $toCheck[0].checked = true
         }
       }
 
