@@ -10,6 +10,8 @@ Version:    2012-06-26
 # TODO: Currently pretty much every single call re-parses the XML, optimise?
 # TODO: We could potentially put the lemma into a comment
 
+from __future__ import with_statement
+
 from collections import defaultdict
 from itertools import chain
 from sys import argv, path as sys_path, stderr, stdout

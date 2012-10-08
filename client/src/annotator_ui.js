@@ -29,6 +29,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var allAttributeTypes = null; // TODO: temp workaround, remove
       var relationTypesHash = null;
       var showValidAttributes; // callback function
+      var showValidNormalizations; // callback function
       var dragStartedAt = null;
       var selRect = null;
       var lastStartRec = null;
@@ -54,6 +55,8 @@ var AnnotatorUI = (function($, window, undefined) {
       // for normalization: URLs bases by norm DB name
       var normDbUrlByDbName = {};
       var normDbUrlBaseByDbName = {};
+      // for normalization: appropriate DBs per type
+      var normDbsByType = {};
       // for normalization
       var oldSpanNormIdValue = '';
       var lastNormSearches = [];
@@ -183,7 +186,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           $('#arc_origin').text(Util.spanDisplayForm(spanTypes, originSpan.type) + ' ("' + originSpan.text + '")');
           $('#arc_target').text(Util.spanDisplayForm(spanTypes, targetSpan.type) + ' ("' + targetSpan.text + '")');
-          var arcId = [originSpanId, type, targetSpanId];
+          var arcId = eventDescId || [originSpanId, type, targetSpanId];
           fillArcTypesAndDisplayForm(evt, originSpan.type, targetSpan.type, type, arcId);
           // for precise timing, log dialog display to user.
           dispatcher.post('logAction', ['arcEditSelected']);
@@ -219,6 +222,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var startArcDrag = function(originId) {
         clearSelection();
+        svgElement.addClass('unselectable');
         svgPosition = svgElement.offset();
         arcDragOrigin = originId;
         arcDragArc = svg.path(svg.createPath(), {
@@ -235,6 +239,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var getValidArcTypesForDrag = function(targetId, targetType) {
+        var arcType = arcOptions && arcOptions.type;
         if (!arcDragOrigin || targetId == arcDragOrigin) return null;
 
         var originType = data.spans[arcDragOrigin].type;
@@ -242,6 +247,8 @@ var AnnotatorUI = (function($, window, undefined) {
         var result = [];
         if (spanType && spanType.arcs) {
           $.each(spanType.arcs, function(arcNo, arc) {
+            if (arcType && arcType != arc.type) return;
+
             if ($.inArray(targetType, arc.targets) != -1) {
               result.push(arc.type);
             }
@@ -272,13 +279,15 @@ var AnnotatorUI = (function($, window, undefined) {
             // var targetClasses = [];
             var $targets = $();
             $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
-              $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
-                // speedup for #642: relevant browsers should support
-                // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
-                // so we get off jQuery and get down to the metal:
-                // targetClasses.push('.span_' + possibleTarget);
-                $targets = $targets.add(svgElement[0].getElementsByClassName('span_' + possibleTarget));
-              });
+              if ((arcOptions && possibleArc.type == arcOptions.type) || !(arcOptions && arcOptions.old_target)) {
+                $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
+                  // speedup for #642: relevant browsers should support
+                  // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
+                  // so we get off jQuery and get down to the metal:
+                  // targetClasses.push('.span_' + possibleTarget);
+                  $targets = $targets.add(svgElement[0].getElementsByClassName('span_' + possibleTarget));
+                });
+              }
             });
             // $(targetClasses.join(',')).not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
             $targets.not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
@@ -699,11 +708,44 @@ var AnnotatorUI = (function($, window, undefined) {
           keymap['S-' + $.ui.keyCode.DELETE] = null;
           keymap['S-' + $.ui.keyCode.INSERT] = null;
         }
-        if (!reselectedSpan) {
-          // TODO: avoid allAttributeTypes; just check type-appropriate ones
-          $.each(allAttributeTypes, function(attrNo, attr) {
-            $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
-            var val = span && span.attributes[attr.type];
+        // TODO: lots of redundancy in the next two blocks, clean up
+        if (!span) {
+          // no existing annotation, reset attributes
+          var attrCategoryAndTypes = [['entity', entityAttributeTypes],
+                                      ['event', eventAttributeTypes]];
+          $.each(attrCategoryAndTypes, function(ctNo, ct) {
+            var category = ct[0];
+            var attributeTypes = ct[1];
+            $.each(attributeTypes, function(attrNo, attr) {
+              $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
+              if (attr.unused) {
+                $input.val('');
+              } else if (attr.bool) {
+                $input[0].checked = false;
+                updateCheckbox($input);
+                $input.button('refresh');
+              } else {
+                $input.val('').change();
+              }
+            });
+          });
+        } else if (!reselectedSpan) {
+          // existing annotation, fill attribute values from span
+          var attributeTypes;
+          var category;
+          if (span.generalType == 'entity') {
+            attributeTypes = entityAttributeTypes;
+            category = 'entity';
+          } else if (span.generalType == 'trigger') {
+            attributeTypes = eventAttributeTypes;
+            // TODO: unify category/generalType values ('trigger' vs. 'event')
+            category = 'event';
+          } else {
+            console.error('Unrecognized generalType:', span.generalType);
+          }
+          $.each(attributeTypes, function(attrNo, attr) {
+            $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
+            var val = span.attributes[attr.type];
             if (attr.unused) {
               $input.val(val || '');
             } else if (attr.bool) {
@@ -716,6 +758,23 @@ var AnnotatorUI = (function($, window, undefined) {
           });
         }
 
+        var showValidNormalizationsFor = function(type) {
+          // set DB selector to the first appropriate for the type.
+          // TODO: actually disable inappropriate ones.
+          // TODO: support specific IDs, not just DB specifiers
+          var firstDb = type && normDbsByType[type] ? normDbsByType[type][0] : null;
+          if (firstDb) {
+            $('#span_norm_db').val(firstDb);
+          }
+        }
+
+        showValidNormalizations = function() {
+          // set norm DB selector according to the first selected type
+          var firstSelected = $('#entity_and_event_wrapper input:radio:checked')[0];
+          var selectedType = firstSelected ? firstSelected.value : null;
+          showValidNormalizationsFor(selectedType);
+        }
+
         // fill normalizations (if any)
         if (!reselectedSpan) {
           // clear first
@@ -726,6 +785,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var $normText = $('#span_norm_txt');
 
           // fill if found (NOTE: only shows last on multiple)
+          var normFilled = false;
           $.each(span ? span.normalizations : [], function(normNo, norm) {
             // stored as array (sorry)
             var refDb = norm[0], refId = norm[1], refText = norm[2];
@@ -736,18 +796,24 @@ var AnnotatorUI = (function($, window, undefined) {
             $normText.val(refText);
             // just assume the ID is valid (TODO: check)
             $normId.addClass('valid_value')
+            normFilled = true;
           });
+
+          // if there is no existing normalization, show valid ones
+          if (!normFilled) {
+            showValidNormalizations();
+          }
 
           // update links
           updateNormalizationRefLink();
           updateNormalizationDbLink();
         }
 
-        var showAttributesFor = function(attrTypes, type) {
+        var showAttributesFor = function(attrTypes, category, type) {
           var validAttrs = type ? spanTypes[type].attributes : [];
           var shownCount = 0;
           $.each(attrTypes, function(attrNo, attr) {
-            var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+            var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
             var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
             if (showAttr) {
               $input.button('widget').show();
@@ -761,8 +827,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
-          var entityAttrCount = showAttributesFor(entityAttributeTypes, type);
-          var eventAttrCount = showAttributesFor(eventAttributeTypes, type);
+          var entityAttrCount = showAttributesFor(entityAttributeTypes, 'entity', type);
+          var eventAttrCount = showAttributesFor(eventAttributeTypes, 'event', type);
           
           showAllAttributes = false;
           // show attribute frames only if at least one attribute is
@@ -1255,7 +1321,8 @@ var AnnotatorUI = (function($, window, undefined) {
         var reversalPossible = false;
         if (arcId) {
           // something was selected
-          var hash = new URLHash(coll, doc, { focus: [arcId] }).getHash();
+          var focus = arcId instanceof Array ? arcId : [arcId];
+          var hash = new URLHash(coll, doc, { focus: [focus] }).getHash();
           $('#arc_highlight_link').attr('href', hash).show(); // TODO incorrect
           var el = $('#arc_' + arcType)[0];
           if (el) {
@@ -1307,14 +1374,10 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         var arcAnnotatorNotes;
-        if (arcId) {
-          // TODO: is this right? Does this make sense? Why is this so
-          // convoluted? What does "eventDesc" stand for?
-          var ed = (data.arcById[arcId] &&
-                    data.arcById[arcId].eventDescId ?
-                    data.eventDescs[data.arcById[arcId].eventDescId] :
-                    null);
-          arcAnnotatorNotes = ed ? ed.annotatorNotes : null;
+        if (arcId && !(arcId instanceof Array)) {
+          // only for relation arcs
+          var ed = data.eventDescs[arcId];
+          arcAnnotatorNotes = ed && ed.annotatorNotes;
         }
         if (arcAnnotatorNotes) {
           $('#arc_notes').val(arcAnnotatorNotes);
@@ -1381,6 +1444,9 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var stopArcDrag = function(target) {
         if (arcDragOrigin) {
+          if (!target) {
+            target = $('.badTarget');
+          }
           target.removeClass('badTarget');
           arcDragOriginGroup.removeClass('highlight');
           if (target) {
@@ -1396,6 +1462,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           svgElement.removeClass('reselect');
         }
+        svgElement.removeClass('unselectable');
         $('.reselectTarget').removeClass('reselectTarget');
       };
 
@@ -1418,8 +1485,9 @@ var AnnotatorUI = (function($, window, undefined) {
         // is it arc drag end?
         if (arcDragOrigin) {
           var origin = arcDragOrigin;
+          var targetValid = target.hasClass('reselectTarget');
           stopArcDrag(target);
-          if ((id = target.attr('data-span-id')) && origin != id) {
+          if ((id = target.attr('data-span-id')) && origin != id && targetValid) {
             var originSpan = data.spans[origin];
             var targetSpan = data.spans[id];
             if (arcOptions && arcOptions.old_target) {
@@ -1541,6 +1609,7 @@ var AnnotatorUI = (function($, window, undefined) {
               }
             }
 
+/* In relation to #786, removed the cross-sentence checking code
             var crossSentence = true;
             $.each(sourceData.sentence_offsets, function(sentNo, startEnd) {
               if (selectedTo <= startEnd[1]) {
@@ -1561,7 +1630,9 @@ var AnnotatorUI = (function($, window, undefined) {
               }
               reselectedSpan = null;
               svgElement.removeClass('reselect');
-            } else if (!Configuration.rapidModeOn || reselectedSpan != null) {
+            } else
+*/
+            if (!Configuration.rapidModeOn || reselectedSpan != null) {
               // normal span select in standard annotation mode
               // or reselect: show selector
               var spanText = data.text.substring(selectedFrom, selectedTo);
@@ -1609,8 +1680,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // initialize for submission
         // TODO: is this a reasonable place to do this?
         rapidSpanOptions = {
-          start: sugg.start,
-          end: sugg.end,  
+          offsets: [[sugg.start, sugg.end]],
         };
         rapidFillSpanTypesAndDisplayForm(sugg.start, sugg.end, sugg.text, sugg.types);
       };
@@ -1634,6 +1704,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanFormSubmitRadio = function(evt) {
         if (Configuration.confirmModeOn) {
           showValidAttributes();
+          showValidNormalizations();
           $('#span_form-ok').focus();
         } else {
           spanFormSubmit(evt, $(evt.target));
@@ -1722,7 +1793,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var addAttributeTypesToDiv = function($top, types, category) {
         $.each(types, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
-          var attrId = 'span_attr_' + escapedType;
+          var attrId = category+'_attr_'+escapedType;
           if (attr.unused) {
             var $input = $('<input type="hidden" id="'+attrId+'" value=""/>');
             $top.append($input);
@@ -1761,6 +1832,7 @@ var AnnotatorUI = (function($, window, undefined) {
         
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
+        // TODO2: the above comment is almost certainly false, check and remove
         $('#span_form input:not([unused])').removeAttr('disabled');
         var $toDisable;
         if (category == "event") {
@@ -1768,7 +1840,7 @@ var AnnotatorUI = (function($, window, undefined) {
         } else if (category == "entity") {
           $toDisable = $('#span_form input[category="event"]');
         } else {
-          console.error('Unrecognized attribute category:', category)
+          console.error('Unrecognized attribute category:', category);
           $toDisable = $();
         }
         var $checkedToDisable = $toDisable.filter(':checked');
@@ -1896,6 +1968,23 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
+      // recursively traverses type hierarchy (entity_types or
+      // event_types) and stores normalizations in normDbsByType.
+      var rememberNormDbsForType = function(types) {
+        if (!types) return;
+
+        $.each(types, function(typeNo, type) {
+          if (type === null) {
+            // spacer, no-op
+          } else {
+            normDbsByType[type.type] = type.normalizations || [];
+            if (type.children.length) {
+              rememberNormDbsForType(type.children);
+            }
+          }
+        });
+      };
+
       var setupNormalizationUI = function(response) {
         var norm_resources = response.normalization_config || [];
         var $norm_select = $('#span_norm_db');
@@ -1911,6 +2000,11 @@ var AnnotatorUI = (function($, window, undefined) {
           normDbUrlByDbName[normName] = normUrl;
           normDbUrlBaseByDbName[normName] = normUrlBase;
         });
+        // remember per-type appropriate DBs
+        normDbsByType = {};
+        rememberNormDbsForType(response.entity_types);
+        rememberNormDbsForType(response.event_types);
+        // set up HTML
         $norm_select.html(html.join(''));
         // if we have nothing, just hide the whole thing
         if (!norm_resources.length) {
@@ -1931,11 +2025,11 @@ var AnnotatorUI = (function($, window, undefined) {
         var $normId = $('#span_norm_id');
         var $normLink = $('#span_norm_ref_link');
         var normId = $normId.val();
-        if (!normId || normId.match(/^\s*$/)) {
+        var $normDb = $('#span_norm_db');
+        var normDb = $normDb.val();
+        if (!normId || !normDb || normId.match(/^\s*$/)) {
           $normLink.hide();
         } else {
-          var $normDb = $('#span_norm_db');
-          var normDb = $normDb.val();
           var base = normDbUrlBaseByDbName[normDb];
           // assume hidden unless everything goes through
           $normLink.hide();
@@ -1958,6 +2052,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var $dbLink = $('#span_norm_db_link');
         var $normDb = $('#span_norm_db');
         var normDb = $normDb.val();
+        if (!normDb) return; // no normalisation configured
         var link = normDbUrlByDbName[normDb];
         if (!link || link.match(/^\s*$/)) {
           dispatcher.post('messages', [[['No URL for '+normDb, 'error']]]);
@@ -1979,6 +2074,47 @@ var AnnotatorUI = (function($, window, undefined) {
         $normId.removeClass('valid_value').removeClass('invalid_value');
         $normText.val('');
         updateNormalizationRefLink();
+      }
+
+      // returns the normalizations currently filled in the span
+      // dialog, or empty list if there are none
+      var spanNormalizations = function() {
+        // Note that only no or one normalization is supported in the
+        // UI at the moment.
+        var normalizations = [];
+        var normDb = $('#span_norm_db').val();
+        var normId = $('#span_norm_id').val();
+        var normText = $('#span_norm_txt').val();
+        // empty ID -> no normalization
+        if (!normId.match(/^\s*$/)) {
+          normalizations.push([normDb, normId, normText]);
+        }
+        return normalizations;
+      }
+
+      // returns attributes that are valid for the selected type in
+      // the span dialog
+      var spanAttributes = function(typeRadio) {
+        typeRadio = typeRadio || $('#span_form input:radio:checked');
+        var attributes = {};
+        var attributeTypes;
+        var category = typeRadio.attr('category');
+        if (category == 'entity') {
+          attributeTypes = entityAttributeTypes;
+        } else if (category == 'event') {
+          attributeTypes = eventAttributeTypes;
+        } else {
+          console.error('Unrecognized type category:', category);
+        }
+        $.each(attributeTypes, function(attrNo, attr) {
+          var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
+          if (attr.bool) {
+            attributes[attr.type] = $input[0].checked;
+          } else if ($input[0].selectedIndex) {
+            attributes[attr.type] = $input.val();
+          }
+        });
+        return attributes;
       }
 
       var spanAndAttributeTypesLoaded = function(_spanTypes, 
@@ -2139,6 +2275,10 @@ var AnnotatorUI = (function($, window, undefined) {
           offsets: JSON.stringify(offsets),
         });
 
+        spanOptions.attributes = $.toJSON(spanAttributes());
+
+        spanOptions.normalizations = $.toJSON(spanNormalizations());
+
         dispatcher.post('ajax', [spanOptions, 'edited']);
         dispatcher.post('hideForm');
         $('#waiter').dialog('open');
@@ -2212,39 +2352,18 @@ var AnnotatorUI = (function($, window, undefined) {
           comment: $('#span_notes').val()
         });
 
-        // fill attributes
-        var attributes = {};
-        // TODO: avoid allAttributeTypes; just check type-appropriate ones
-        $.each(allAttributeTypes, function(attrNo, attr) {
-          var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
-          if (attr.bool) {
-            attributes[attr.type] = $input[0].checked;
-          } else if ($input[0].selectedIndex) {
-            attributes[attr.type] = $input.val();
-          }
-        });
-        spanOptions.attributes = $.toJSON(attributes);
+        spanOptions.attributes = $.toJSON(spanAttributes());
 
-        // fill normalizations. Note that the protocol supports any
-        // number, but only no or one normalization supported in UI at
-        // the moment.
-        var normalizations = [];
-        var normDb = $('#span_norm_db').val();
-        var normId = $('#span_norm_id').val();
-        var normText = $('#span_norm_txt').val();
-        // empty ID -> no normalization
-        if (!normId.match(/^\s*$/)) {
-          normalizations.push([normDb, normId, normText]);
+        spanOptions.normalizations = $.toJSON(spanNormalizations());
+
+        if (spanOptions.offsets) {
+          spanOptions.offsets = $.toJSON(spanOptions.offsets);
         }
-        spanOptions.normalizations = $.toJSON(normalizations);
 
         // unfocus all elements to prevent focus being kept after
         // hiding them
         spanForm.parent().find('*').blur();
-        spanOptions.attributes = $.toJSON(attributes);
-        if (spanOptions.offsets) {
-          spanOptions.offsets = $.toJSON(spanOptions.offsets);
-        }
+
         $('#waiter').dialog('open');
         dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;
@@ -2271,7 +2390,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // the normal dialog should be brought up for the same span.
           spanOptions = {
             action: 'createSpan',
-            offsets: [[rapidSpanOptions.start, rapidSpanOptions.end]],
+            offsets: rapidSpanOptions.offsets,
           };
           // TODO: avoid using the stored mouse event
           fillSpanTypesAndDisplayForm(lastRapidAnnotationEvent,
@@ -2286,6 +2405,7 @@ var AnnotatorUI = (function($, window, undefined) {
             type: type,
           });
           $('#waiter').dialog('open');
+          rapidSpanOptions.offsets = JSON.stringify(rapidSpanOptions.offsets);
           dispatcher.post('ajax', [rapidSpanOptions, 'edited']);
         }
         return false;

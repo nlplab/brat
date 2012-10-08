@@ -109,24 +109,12 @@ path {
   pointer-events: none;
 }
 
-/* alternative font test */
-/*
-.span text {
-  font-size: 10.5px;
-  font-family: helvetica,arial,freesans,clean,sans-serif;
-  text-anchor: middle;
-  pointer-events: none;
-}
-*/
-
 /* "basic" font */
 .span text {
   /*  font-size: 10.5px; */
   font-size: 10px;
   text-anchor: middle;
-  /* font-family: Ubuntu, sans-serif; */
   font-family: 'PT Sans Caption', sans-serif;
-  /* font-family: 'Anonymous Pro', monospace; */
   pointer-events: none;
 }
 
@@ -322,9 +310,7 @@ rect.shadow_EditHighlight {
 .arcs text {
   font-size: 9px;
   text-anchor: middle;
-  /* font-family: Ubuntu, sans-serif; */
   font-family: 'PT Sans Caption', sans-serif;
-  /* font-family: 'Anonymous Pro', monospace; */
   /* dominant-baseline: central; */
   cursor: default;
 }
@@ -482,11 +468,12 @@ fieldset legend {
   position: fixed;
   top: 0;
   left: 0;
-  opacity: 0.9;
+  opacity: 0.95;
   padding: 10px;
   display: none;
   border: 1px outset #000000;
-  background-color: #d7e7ee;
+  background-color: #f5f5f9;
+  /* background-color: #d7e7ee; */
   /* background-color: #eeeeee; */
   color: #000000;
   z-index: 20;
@@ -496,6 +483,7 @@ fieldset legend {
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
+  max-width: 80%;
 }
 #more_info_readme {
   height: 350px;
@@ -581,6 +569,17 @@ input.invalid_value {
 .comment_type_id_wrapper {
   /* padding for floating ID */
   padding-right: 2em;
+}
+.norm_info_label {
+  font-weight: bold;
+  font-size: 80%;
+}
+.norm_info_value {
+  font-size: 80%;
+}
+.norm_info_img {
+  float: right;
+  margin-left: 1em;
 }
 
 #span_form .collapser {
@@ -977,4 +976,42 @@ div.scroll_wrapper_upper div.scroller {
    -webkit-tap-highlight-color: rgba(0,0,0,0);
    -webkit-text-size-adjust: none;
    select: none;
+}
+
+
+
+
+.span rect.AddedAnnotation {
+  stroke: #ff4141;
+  stroke-width: 2;
+}
+.shadow_AddedAnnotation {
+  fill: #ff4141;
+}
+#commentpopup.comment_AddedAnnotation {
+  background-color: #ffcccc;
+}
+.span rect.MissingAnnotation {
+  stroke: #ffffff;
+  stroke-width: 2;
+}
+.shadow_MissingAnnotation {
+  fill: #ff4141;
+  opacity: 0.3;
+}
+#commentpopup.comment_MissingAnnotation {
+  background-color: #ffcccc;
+}
+.span rect.MissingAnnotation + text {
+  opacity: 0.5;
+}
+.span rect.ChangedAnnotation {
+  stroke: #ffff99;
+  stroke-width: 2;
+}
+.shadow_ChangedAnnotation {
+  fill: #ff4141;
+}
+#commentpopup.comment_ChangedAnnotation {
+  background-color: #ffcccc;
 }

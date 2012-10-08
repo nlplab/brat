@@ -158,6 +158,9 @@ var Visualizer = (function($, window, undefined) {
 
     var Visualizer = function(dispatcher, svgId) {
       var $svgDiv = $('#' + svgId);
+      if (!$svgDiv.length) {
+        throw Error('Could not find container with id="' + svgId + '"');
+      }
       var that = this;
 
       // OPTIONS
@@ -228,7 +231,11 @@ var Visualizer = (function($, window, undefined) {
       var spanTypes = null;
       var highlightGroup;
 
-      var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
+      // var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
+      // XXX Might need to be tweaked - inserted diff levels
+      var commentPrioLevels = [
+        'Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes',
+        'AddedAnnotation', 'MissingAnnotation', 'ChangedAnnotation'];
 
       this.arcDragOrigin = null; // TODO
 
@@ -1029,12 +1036,12 @@ var Visualizer = (function($, window, undefined) {
                 firstChar = 0;
                 dispatcher.post('messages', [[['<strong>WARNING</strong>' +
                   '<br/> ' +
-                  'The span [' + span.from + ', ' + span.to + '] (' + span.text + ') is not ' +
+                  'The fragment [' + fragment.from + ', ' + fragment.to + '] (' + fragment.text + ') is not ' +
                   'contained in its designated chunk [' +
-                  span.chunk.from + ', ' + span.chunk.to + '] most likely ' +
-                  'due to the span starting or ending with a space, please ' +
+                  fragment.chunk.from + ', ' + fragment.chunk.to + '] most likely ' +
+                  'due to the fragment starting or ending with a space, please ' +
                   'verify the sanity of your data since we are unable to ' +
-                  'visualise this span correctly and will drop leading ' +
+                  'visualise this fragment correctly and will drop leading ' +
                   'space characters'
                   , 'warning', 15]]]);
               }

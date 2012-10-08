@@ -277,6 +277,14 @@ var VisualizerUI = (function($, window, undefined) {
       // to avoid clobbering on delayed response
       var commentPopupNormInfoSeqId = 0;
 
+      var normInfoSortFunction = function(a, b) {
+        // images at the top
+        if (a[0].toLowerCase() == '<img>') return -1;
+        if (b[0].toLowerCase() == '<img>') return 1;
+        // otherwise stable
+        return Util.cmp(a[2],b[2]);
+      }
+
       var displaySpanComment = function(
           evt, target, spanId, spanType, mods, spanText, commentText, commentType, norm) {
 
@@ -332,13 +340,44 @@ var VisualizerUI = (function($, window, undefined) {
             } else {
               // extend comment popup with normalization data
               norminfo = '';
+              // flatten outer (name, attr, info) array (idx for sort)
+              infos = [];
+              var idx = 0;
               for (var i = 0; i < response.value.length; i++) {
                 for (var j = 0; j < response.value[i].length; j++) {
                   var label = response.value[i][j][0];
                   var value = response.value[i][j][1];
-                  if (label && value) {
-                      norminfo += ('<b>'+Util.escapeHTML(label)+'</b>:'+
-                                   Util.escapeHTML(value)+'<br/>');
+                  infos.push([label, value, idx++]);
+                }
+              }
+              // sort, prioritizing images (to get floats right)
+              infos = infos.sort(normInfoSortFunction);
+              // generate HTML
+              for (var i = 0; i < infos.length; i++) {
+                var label = infos[i][0];
+                var value = infos[i][1];
+                if (label && value) {
+                  // special treatment for some label values
+                  if (label.toLowerCase() == '<img>') {
+                    // image
+                    norminfo += ('<img class="norm_info_img" src="'+
+                                 value+
+                                 '"/>');
+                  } else {
+                    // normal, as text
+
+                    // max length restriction
+                    if (value.length > 300) {
+                      value = value.substr(0, 300) + ' ...';
+                    }                          
+
+                    norminfo += ('<span class="norm_info_label">'+
+                                 Util.escapeHTML(label)+
+                                 '</span>'+
+                                 '<span class="norm_info_value">'+':'+
+                                 Util.escapeHTML(value)+
+                                 '</span>'+
+                                 '<br/>');
                   }
                 }
               }
@@ -1752,9 +1791,8 @@ var VisualizerUI = (function($, window, undefined) {
           urlHash.setArgument('focus', [[span.id]]);
           $('#viewspan_highlight_link').show().attr('href', urlHash.getHash());
 
-          var spanText = data.text.substring(span.from, span.to);
-          $('#viewspan_selected').text(spanText);
-          var encodedText = encodeURIComponent(spanText);
+          $('#viewspan_selected').text(span.text);
+          var encodedText = encodeURIComponent(span.text);
           $.each(searchConfig, function(searchNo, search) {
             $('#viewspan_'+search[0]).attr('href', search[1].replace('%s', encodedText));
           });

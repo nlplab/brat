@@ -82,9 +82,16 @@ var Dispatcher = (function($, window, undefined) {
         return results;
       };
 
+      var proxy = function(destination, message) {
+        this.on(message, function() {
+          destination.post(message, Array.prototype.slice.call(arguments));
+        });
+      };
+
       var dispatcher = {
         on: on,
         post: post,
+        proxy: proxy,
       };
       Dispatcher.dispatchers.push(dispatcher);
       return dispatcher;

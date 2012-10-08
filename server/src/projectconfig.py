@@ -21,6 +21,8 @@ import sys
 from annotation import open_textfile
 from message import Messager
 
+ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY = xrange(4)
+
 class InvalidProjectConfigException(Exception):
     pass
 
@@ -48,13 +50,14 @@ __expected_visual_sections = (LABEL_SECTION, DRAWING_SECTION)
 __optional_visual_sections = []
 
 # tools config section name constants
+OPTIONS_SECTION    = "options"
 SEARCH_SECTION     = "search"
 ANNOTATORS_SECTION = "annotators"
 DISAMBIGUATORS_SECTION = "disambiguators"
 NORMALIZATION_SECTION = "normalization"
 
-__expected_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
-__optional_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
+__expected_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
+__optional_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
 
 # special relation type for marking which entities can nest
 ENTITY_NESTING_TYPE = "ENTITY-NESTING"
@@ -119,7 +122,9 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBase", "GLYPH-POS", "DEFAULT"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM"]
+# TODO: "GLYPH-POS" is no longer used, warn if encountered and
+# recommend to use "position" instead.
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
@@ -170,7 +175,7 @@ class TypeHierarchyNode:
         self.terms, self.args = terms, args
 
         if len(terms) == 0 or len([t for t in terms if t == ""]) != 0:
-            Messager.debug("Empty term in configuration" % (a, args), duration=-1)
+            Messager.debug("Empty term in configuration", duration=-1)
             raise InvalidProjectConfigException
 
         # unused if any of the terms marked with "!"
@@ -322,14 +327,14 @@ class TypeHierarchyNode:
         Returns the minumum number of times the given argument is
         required to appear for this type.
         """
-        return self.arg_min_count[arg]
+        return self.arg_min_count.get(arg, 0)
 
     def argument_maximum_count(self, arg):
         """
         Returns the maximum number of times the given argument is
         allowed to appear for this type.
         """
-        return self.arg_max_count[arg]
+        return self.arg_max_count.get(arg, 0)
 
     def mandatory_arguments(self):
         """
@@ -350,6 +355,12 @@ class TypeHierarchyNode:
         Returns the form of the term used for storage serverside.
         """
         return self.__primary_term
+
+    def normalizations(self):
+        """
+        Returns the normalizations applicable to this node, if any.
+        """
+        return self.special_arguments.get('<NORM>', [])
 
 def __require_tab_separator(section):
     """    
@@ -656,6 +667,7 @@ def get_visual_configs(directory):
 
 # final fallback for tools configuration; minimal known-good config
 __minimal_tools = {
+    OPTIONS_SECTION    : [],
     SEARCH_SECTION     : [TypeHierarchyNode(["google"], ["<URL>:http://www.google.com/search?q=%s"])],
     ANNOTATORS_SECTION : [],
     DISAMBIGUATORS_SECTION : [],
@@ -706,6 +718,9 @@ def get_drawing_types(directory):
         cache[directory] = list(l)
     return cache[directory]
 get_drawing_types.__cache = {}
+
+def get_option_config(directory):
+    return get_tools_configs(directory)[OPTIONS_SECTION]
 
 def get_drawing_config(directory):
     return get_visual_configs(directory)[DRAWING_SECTION]
@@ -837,6 +852,44 @@ def get_node_by_storage_form(directory, term):
     return cache[directory].get(term, None)
 get_node_by_storage_form.__cache = {}
 
+def get_option_config_by_storage_form(directory, term):
+    cache = get_option_config_by_storage_form.__cache
+    if directory not in cache:
+        d = {}
+        for n in get_option_config(directory):
+            t = n.storage_form()
+            if t in d:
+                Messager.warning("Project configuration: %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
+            d[t] = {}
+            for a in n.arguments:
+                if len(n.arguments[a]) != 1:
+                    Messager.warning("Project configuration: %s key %s has multiple values, only using first. Configuration may be wrong." % (t, a), 5)
+                d[t][a] = n.arguments[a][0]
+
+        cache[directory] = d
+
+    return cache[directory].get(term, None)
+get_option_config_by_storage_form.__cache = {}    
+
+# access for settings for specific options in tools.conf
+# TODO: avoid fixed string values here, define vars earlier
+
+def options_get_validation(directory):
+    v = get_option_config_by_storage_form(directory, 'Validation')
+    return 'none' if v is None else v.get('validate', 'none')        
+
+def options_get_tokenization(directory):
+    v = get_option_config_by_storage_form(directory, 'Tokens')
+    return 'whitespace' if v is None else v.get('tokenizer', 'whitespace')
+
+def options_get_ssplitter(directory):
+    v = get_option_config_by_storage_form(directory, 'Sentences')
+    return 'regex' if v is None else v.get('splitter', 'regex')
+
+def options_get_annlogfile(directory):
+    v = get_option_config_by_storage_form(directory, 'Annotation-log')
+    return '<NONE>' if v is None else v.get('logfile', '<NONE>')
+
 def get_drawing_config_by_storage_form(directory, term):
     cache = get_drawing_config_by_storage_form.__cache
     if directory not in cache:
@@ -896,6 +949,11 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
 
     rels = []
 
+    entity_types = set([t.storage_form() 
+                        for t in get_entity_type_list(directory)])
+    event_types = set([t.storage_form() 
+                       for t in get_event_type_list(directory)])
+
     for r in get_relation_type_list(directory):
         # "Special" nesting relation ignored unless specifically
         # requested
@@ -908,13 +966,17 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
                 Messager.warning("Relation type %s has %d arguments in configuration (%s; expected 2). Please fix configuration." % (r.storage_form(), len(r.arg_list), ",".join(r.arg_list)))
         else:
             types = r.arguments[r.arg_list[num]]
-            for type in types:
-                # TODO: don't just assume that we're dealing with an
-                # entity type
-                if (type in ("<ANY>", "<ENTITY>") or 
-                    atype in ("<ANY>", "<ENTITY>") or 
-                    type == atype):
+            for type_ in types:
+                # TODO: there has to be a better way
+                if (type_ == atype or
+                    type_ == "<ANY>" or
+                    atype == "<ANY>" or
+                    (type_ in entity_types and atype == "<ENTITY>") or
+                    (type_ in event_types and atype == "<EVENT>") or
+                    (atype in entity_types and type_ == "<ENTITY>") or
+                    (atype in event_types and type_ == "<EVENT>")):
                     rels.append(r)
+                    # TODO: why not break here?
 
     return rels
 
@@ -1091,7 +1153,7 @@ class ProjectConfiguration(object):
             assert t1 not in connections, "INTERNAL ERROR"
             connections[t1] = {}
 
-            completed = {}
+            processed_as_relation = {}
 
             # relations
 
@@ -1100,34 +1162,38 @@ class ProjectConfiguration(object):
             for r in rels:
                 a = r.storage_form()
 
-                if a in completed:
-                    continue
-
-                assert a not in connections[t1], "INTERNAL ERROR"
+                conns = connections[t1].get(a, [])
 
                 # magic number "1" is for 2nd argument
                 args = r.arguments[r.arg_list[1]]
 
-                if "<ANY>" in args or "<ENTITY>" in args:
-                    # NOTE: assuming relations only between entities
-                    connections[t1][a] = entity_types[:]
+                if "<ANY>" in args:
+                    connections[t1][a] = all_types[:]
                 else:
-                    connections[t1][a] = args[:]
+                    for t2 in args:
+                        if t2 == "<ENTITY>":
+                            conns.extend(entity_types)
+                        elif t2 == "<EVENT>":
+                            conns.extend(event_types)
+                        else:
+                            conns.append(t2)
+                    connections[t1][a] = unique_preserve_order(conns)
 
-                completed[a] = True
+                processed_as_relation[a] = True
 
             # event arguments
 
             n1 = get_node_by_storage_form(self.directory, t1)
                         
             for a, args in n1.arguments.items():
-                if a in completed:
+                if a in processed_as_relation:
                     Messager.warning("Project configuration: %s appears both as role and relation. Configuration may be wrong." % a)
                     # won't try to resolve
                     continue
 
                 assert a not in connections[t1], "INTERNAL ERROR"
 
+                # TODO: dedup w/above
                 if "<ANY>" in args:
                     connections[t1][a] = all_types[:]
                 else:
@@ -1140,8 +1206,6 @@ class ProjectConfiguration(object):
                         else:
                             conns.append(t2)
                     connections[t1][a] = unique_preserve_order(conns)
-
-                completed[a] = True
 
         return connections
 
@@ -1293,12 +1357,12 @@ class ProjectConfiguration(object):
             if '<URL>' not in n.special_arguments:
                 Messager.warning('Project configuration: config error: missing <URL> specification for %s.' % n.storage_form())
                 continue
-            if '<URLBase>' not in n.special_arguments:
-                Messager.warning('Project configuration: config error: missing <URLBase> specification for %s.' % n.storage_form())
+            if '<URLBASE>' not in n.special_arguments:
+                Messager.warning('Project configuration: config error: missing <URLBASE> specification for %s.' % n.storage_form())
                 continue
             norm_config.append((n.storage_form(),
                                 n.special_arguments['<URL>'][0],
-                                n.special_arguments['<URLBase>'][0]))
+                                n.special_arguments['<URLBASE>'][0]))
         return norm_config
         
     def get_entity_types(self):
@@ -1405,11 +1469,11 @@ class ProjectConfiguration(object):
         no other interface.
         """
         if self.is_physical_entity_type(t):
-            return "PHYSICAL"
+            return ENTITY_CATEGORY
         elif self.is_event_type(t):
-            return "EVENT"
+            return EVENT_CATEGORY
         elif self.is_relation_type(t):
-            return "RELATION"
+            return RELATION_CATEGORY
         else:
-            # TODO:
-            return "OTHER"
+            # TODO: others
+            return UNKNOWN_CATEGORY

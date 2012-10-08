@@ -1,0 +1,4 @@
+This directory contains example datasets compatible with brat.
+
+Unpack these in your DATA directory and set permissions appropriately
+to visualize and/or annotate.

@@ -15,7 +15,7 @@ Version:    2011-04-21
 '''
 
 from os import listdir
-from os.path import abspath, isabs, isdir, normpath, getmtime
+from os.path import abspath, dirname, isabs, isdir, normpath, getmtime
 from os.path import join as path_join
 from re import match,sub
 from errno import ENOENT, EACCES
@@ -31,26 +31,12 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
         SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
         VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, 
         ATTR_DRAWING_ATTRIBUTES, VISUAL_ATTR_DEFAULT,
-        ENTITY_NESTING_TYPE)
+        ENTITY_NESTING_TYPE, options_get_validation, options_get_tokenization,
+        options_get_ssplitter)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
 from annlog import annotation_logging_active
-
-try:
-    from config import PERFORM_VERIFICATION
-except ImportError:
-    PERFORM_VERIFICATION = False
-
-try:
-    from config import NEWLINE_SS
-except ImportError:
-    NEWLINE_SS = False
-
-try:
-    from config import JAPANESE
-except ImportError:
-    JAPANESE = False
 
 from itertools import chain
 
@@ -80,6 +66,7 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
             item['unused'] = node.unused
             item['labels'] = project_conf.get_labels_by_type(_type)
             item['attributes'] = project_conf.attributes_for(_type)
+            item['normalizations'] = node.normalizations()
 
             span_drawing_conf = project_conf.get_drawing_config_by_type(_type) 
             if span_drawing_conf is None:
@@ -254,10 +241,6 @@ def _fill_attribute_configuration(nodes, project_conf):
 
             # TODO: "special" <DEFAULT> argument
             
-            # send "special" arguments in addition to standard drawing
-            # arguments
-            ALL_ATTR_ARGS = ATTR_DRAWING_ATTRIBUTES + ["<GLYPH-POS>"]
-
             # Check if the possible values for the argument are specified
             # TODO: avoid magic string
             if "Value" in node.arguments:
@@ -269,7 +252,7 @@ def _fill_attribute_configuration(nodes, project_conf):
             if len(args) == 0:
                 # binary; use drawing config directly
                 item['values'] = { _type : {} }
-                for k in ALL_ATTR_ARGS:
+                for k in ATTR_DRAWING_ATTRIBUTES:
                     if k in attr_drawing_conf:
                         # protect against error from binary attribute
                         # having multi-valued visual config (#698)
@@ -290,7 +273,7 @@ def _fill_attribute_configuration(nodes, project_conf):
                     # "Values:L1|L2|L3" can have the visual config
                     # "glyph:[1]|[2]|[3]". If only a single value is
                     # defined, apply to all.
-                    for k in ALL_ATTR_ARGS:
+                    for k in ATTR_DRAWING_ATTRIBUTES:
                         if k in attr_drawing_conf:
                             # (sorry about this)
                             if isinstance(attr_drawing_conf[k], list):
@@ -308,18 +291,6 @@ def _fill_attribute_configuration(nodes, project_conf):
                     if len([k for k in ATTR_DRAWING_ATTRIBUTES if
                             k in item['values'][v]]) == 0:
                         item['values'][v]['glyph'] = '['+v+']'
-
-            # special treatment for special args ...
-            # TODO: why don't we just use the same string on client as in conf?
-            vals = item['values']
-            for v in vals:
-                if '<GLYPH-POS>' in vals[v]:
-                    if vals[v]['<GLYPH-POS>'] not in ('left', 'right'):
-                        Messager.warning('Configuration error: "%s" is not a valid glyph position for %s %s' % (vals[v]['<GLYPH-POS>'], _type, v))
-                    else:
-                        # rename
-                        vals[v]['position'] = vals[v]['<GLYPH-POS>']
-                    del vals[v]['<GLYPH-POS>']
 
             items.append(item)
     return items
@@ -580,7 +551,7 @@ def get_directory_information(collection):
 
     # fill in a flag for whether annotator logging is active so that
     # the client knows whether to invoke timing actions
-    ann_logging = annotation_logging_active()
+    ann_logging = annotation_logging_active(real_dir)
 
     # fill in NER services, if any
     ner_taggers = get_annotator_config(real_dir)
@@ -648,27 +619,38 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
     
     from logging import info as log_info
 
-    # First, generate tokenisation
-    if JAPANESE:
-        from tokenise import jp_token_boundary_gen
-        token_offsets = [o for o in jp_token_boundary_gen(text)]
-    else:
-        from tokenise import en_token_boundary_gen
-        token_offsets = [o for o in en_token_boundary_gen(text)]
-    j_dic['token_offsets'] = token_offsets
+    tokeniser = options_get_tokenization(dirname(txt_file_path))
 
-    if NEWLINE_SS:
-        from ssplit import newline_sentence_boundary_gen
-        sentence_offsets = [o for o in newline_sentence_boundary_gen(text)]
-    elif JAPANESE:
-        from ssplit import jp_sentence_boundary_gen
-        sentence_offsets = [o for o in jp_sentence_boundary_gen(text)]
-        #log_info('offsets: ' + str(offsets))
+    # First, generate tokenisation
+    if tokeniser == 'mecab':
+        from tokenise import jp_token_boundary_gen
+        tok_offset_gen = jp_token_boundary_gen
+    elif tokeniser == 'whitespace':
+        from tokenise import whitespace_token_boundary_gen
+        tok_offset_gen = whitespace_token_boundary_gen
+    elif tokeniser == 'ptblike':
+        from tokenise import gtb_token_boundary_gen
+        tok_offset_gen = gtb_token_boundary_gen
     else:
-        from ssplit import en_sentence_boundary_gen
-        sentence_offsets = [o for o in en_sentence_boundary_gen(text)]
-        #log_info('offsets: ' + str(sentence_offsets))
-    j_dic['sentence_offsets'] = sentence_offsets
+        Messager.warning('Unrecognized tokenisation option '
+                ', reverting to whitespace tokenisation.')
+        from tokenise import whitespace_token_boundary_gen
+        tok_offset_gen = whitespace_token_boundary_gen
+    j_dic['token_offsets'] = [o for o in tok_offset_gen(text)]
+
+    ssplitter = options_get_ssplitter(dirname(txt_file_path))
+    if ssplitter == 'newline':
+        from ssplit import newline_sentence_boundary_gen
+        ss_offset_gen = newline_sentence_boundary_gen
+    elif ssplitter == 'regex':
+        from ssplit import regex_sentence_boundary_gen
+        ss_offset_gen = regex_sentence_boundary_gen
+    else:
+        Messager.warning('Unrecognized sentence splitting option '
+                ', reverting to newline sentence splitting.')
+        from ssplit import newline_sentence_boundary_gen
+        ss_offset_gen = newline_sentence_boundary_gen
+    j_dic['sentence_offsets'] = [o for o in ss_offset_gen(text)]
 
     return True
 
@@ -749,12 +731,12 @@ def _enrich_json_with_data(j_dic, ann_obj):
     j_dic['ctime'] = ann_obj.ann_ctime
 
     try:
-        if PERFORM_VERIFICATION:
-            # XXX avoid digging the directory from the ann_obj
-            import os
-            docdir = os.path.dirname(ann_obj._document)
-            projectconf = ProjectConfiguration(docdir)
+        # XXX avoid digging the directory from the ann_obj
+        import os
+        docdir = os.path.dirname(ann_obj._document)
+        if options_get_validation(docdir) in ('all', ):
             from verify_annotations import verify_annotation
+            projectconf = ProjectConfiguration(docdir)
             issues = verify_annotation(ann_obj, projectconf)
         else:
             issues = []
