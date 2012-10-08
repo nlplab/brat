@@ -182,8 +182,8 @@ title:  "Normalization"
 <p><pre><code>    python tools/norm_db_init.py -h</code></pre>
 </p>
 
-<p>For information on testing a normalization DB, see
-  <a href="#norm-db-tools">normalization DB tools</a>.
+<p>For information on testing a normalization DB using command-line
+  tools, see <a href="#norm-db-tools">normalization DB tools</a>.
 </p>
 
 <p>After creating a normalization DB, it's necessary to edit the
@@ -198,13 +198,18 @@ title:  "Normalization"
   in this section is as follows:
 </p>
 
-<p><pre><code>    DBNAME    &lt;URL&gt;:HOMEURL, &lt;URLBASE&gt;:ENTRYURL, &lt;PATH&gt;:DBPATH</code></pre>
+<!-- TODO: support alternative locations for norm DB in conf (DBPATH) -->
+<!-- <p><pre><code>    DBNAME    &lt;URL&gt;:HOMEURL, &lt;URLBASE&gt;:ENTRYURL, &lt;PATH&gt;:DBPATH</code></pre> -->
+<!-- </p> -->
+<p><pre><code>    DBNAME    &lt;URL&gt;:HOMEURL, &lt;URLBASE&gt;:ENTRYURL</code></pre>
 </p>
 
 <p>Here, "<code>&lt;URL&gt;</code>", "<code>&lt;URLBASE&gt;</code>"
   and "<code>&lt;PATH&gt;</code>" are literal strings (they should appear
-  as written here), while <code>DBNAME</code>, <code>HOMEURL</code>
-  <code>ENTRYURL</code> and <code>DBPATH</code> should be replaced
+  as written here), while <code>DBNAME</code>, <code>HOMEURL</code> and
+  <code>ENTRYURL</code> 
+<!--   and <code>DBPATH</code>  -->
+  should be replaced
   with specific values appropriate for the database being configured:
 </p>
 
@@ -224,7 +229,7 @@ title:  "Normalization"
     <a href="#norm-annotation">annotation UI</a> for accessing the
     resource.
   </li>
-  <li><code>URLBASE</code> (optional): sets an URL template
+  <li><code>URLBASE</code> (optional): sets a URL template
     (e.g. "http://en.wikipedia.org/?curid=%s") that can be filled in
     to generate a direct link in
     the <a href="#norm-annotation">annotation UI</a> to an entry in
@@ -232,11 +237,12 @@ title:  "Normalization"
     characters "%s" as a placeholder that will be replaced with the ID
     of the entry.
   </li>
-  <li><code>PATH</code> (optional): provides the file system path to
-    the normalization DB data on the server. If <code>PATH</code>
-    isn't set, the system assumes the DB can be found in the default
-    location under the given <code>DBNAME</code>.
-  </li>
+<!-- TODO: support alternative locations for norm DB in conf (DBPATH) -->
+<!--   <li><code>DBPATH</code> (optional): provides the file system path to -->
+<!--     the normalization DB data on the server. If <code>DBPATH</code> -->
+<!--     isn't set, the system assumes the DB can be found in the default -->
+<!--     location under the given <code>DBNAME</code>. -->
+<!--   </li> -->
 </ul>
 
 <p>Note that it's individual collections can have their
