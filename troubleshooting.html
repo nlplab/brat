@@ -216,7 +216,10 @@ title:  "Troubleshooting"
 <h3>An "Open" dialog is shown, but there is nothing to open</h3>
 
 <p>This indicates that there is no data set up on your server. This is
-  expected immediately after setting up a new brat server.
+  expected immediately after setting up a new brat server on older
+  versions of brat. For version 1.3 and above, the 
+  <code>example-data/</code> directory should be set up during
+  installation.
 </p>
 <p>You can either set up data as indicated in
   the <a href="installation.html">installation instructions</a> or
@@ -224,27 +227,8 @@ title:  "Troubleshooting"
   accessible from the blue bar on top.
 </p>
 
-<h3>A working brat server stopped working when upgraded to version 1.3 </h3>
+<h3>A working brat installation failed when upgrading to version 1.3 </h3>
 
-<p>One likely cause of this issue is that version 1.3 features some
-  new access limits for security, which requires permission to limit
-  access in the <tt>.htaccess</tt> file.
+<p>Please see the <a href="upgrading-to-1.3.html">page on upgrading to
+    version 1.3</a> for information on issues relating to upgrading.
 </p>
-<p>If you have previously set up an older version of brat according
-  to older <a href="installation.html">installation instructions</a>,
-  make sure that you update your <tt>httpd.conf</tt> file to include
-  <code>AllowOverride Limit</code> for the brat directory.
-</p>
-<p>For example, if your <tt>httpd.conf</tt> file previously included
-  the line
-</p>
-
-<pre><code>AllowOverride Options Indexes FileInfo</code></pre>
-  
-<p>change this line to read</p>
-
-<pre><code>AllowOverride Options Indexes FileInfo Limit</code></pre>
-
-<p>and then restart apache to read the updated configuration</p>
-
-<pre><code>sudo /etc/init.d/apache2 reload</code></pre>
