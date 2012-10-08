@@ -1358,8 +1358,8 @@ class ProjectConfiguration(object):
                 Messager.warning('Project configuration: config error: missing <URL> specification for %s.' % n.storage_form())
                 continue
             if '<URLBASE>' not in n.special_arguments:
-                Messager.warning('Project configuration: config error: missing <URLBASE> specification for %s.' % n.storage_form())
-                continue
+                # now optional, client skips link generation if None
+                n.special_arguments['<URLBASE>'] = [None]
             norm_config.append((n.storage_form(),
                                 n.special_arguments['<URL>'][0],
                                 n.special_arguments['<URLBASE>'][0]))

@@ -83,11 +83,7 @@ def norm_get_data(database, key):
         data = None
 
     if data is None:
-        Messager.warning("Failed to get data for " + key)
-
-    # TODO: remove this, testing image display
-#     if data is not None:
-#         data[2].append(('<IMG>', 'http://127.0.0.1/~smp/brat/dummy.png'))
+        Messager.warning("Failed to get data for " + database + ":" + key)
 
     if REPORT_LOOKUP_TIMINGS:
         _report_timings(database, lookup_start)
