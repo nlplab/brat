@@ -380,7 +380,7 @@ def copy_annotations(original_name, new_name):
     for extension in KNOWN_FILE_SUFF:
         try:
             shutil.copyfile('%s.%s' % (original_name, extension), '%s.%s' % (new_name, extension))
-        except IOError as e:
+        except IOError, e:
             pass # that extension file does not exist
     return annotation.TextAnnotations(new_name)
 
@@ -389,7 +389,7 @@ def delete_annotations(name):
     for extension in KNOWN_FILE_SUFF:
         try:
             os.remove('%s.%s' % (name, extension))
-        except OSError as e:
+        except OSError, e:
             pass # that extension file does not exist
 
 def diff_files(first_name, second_name, result_name):
