@@ -48,7 +48,7 @@ title: "Standoff format"
 
   Document texts may contain newlines, which will be shown as line
   breaks by brat. However, it is not necessary for the documents
-  to contain any newlines: brat performs its own sentence
+  to contain any newlines: brat can perform its own sentence
   segmentation for display using a reliable algorithm. (Whether
   or not newlines are included in the original text documents,
   the text files themselves are not modified.)
@@ -127,6 +127,30 @@ title: "Standoff format"
   character.
 </p>
 
+<p>As of <strong>version 1.3</strong>, brat supports also
+  <i>discontinuous</i> text-bound annotations, where the annotation
+  involves more than one continuous span of characters. The standoff
+  representation for these annotations is a straightforward extension
+  of the single-span case. For example, one possible annotation for
+  "North and South America" would be represented as follows:
+</p>
+
+<table class="annotation_wrapper"><tr><td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">T1</td><td width="250">Location 0 5;16 23</td><td>North America</td>
+	</tr><tr>
+	  <td>T2</td><td>Location 10 23</td><td>South America</td>
+	</tr>
+      </table>
+</td></tr></table>
+
+<p>The (start-offset, end-offset) pairs forming a discontinuous
+  annotation are separated by semicolons, and the texts of by these
+  spans are joined by single space characters to form the reference
+  text of the annotation.
+</p>
+
 <h3>Annotation ID conventions</h3>
 <p>All annotations IDs consist of a single upper-case character
   identifying the annotation type and a number. The initial ID
@@ -136,8 +160,10 @@ title: "Standoff format"
   <li><span class="tt">T</span>: text-bound annotation</li>
   <li><span class="tt">R</span>: relation</li>
   <li><span class="tt">E</span>: event</li>
-  <li><span class="tt">M</span>: event modification</li>
   <li><span class="tt">A</span>: attribute</li>
+  <li><span class="tt">M</span>: modification (alias for attribute, for backward compatibility)</li>
+  <li><span class="tt">N</span>: normalization <strong>[new in v1.3]</strong></li>
+  <li><span class="tt">#</span>: note</li>
 </ul>
 <p>Additionally, an asterisk ("*") can be used as a placeholder
   for an ID in special cases.
@@ -263,7 +289,7 @@ title: "Standoff format"
 </p>
 
 
-<h3>Attribute annotations</h3>
+<h3>Attribute and modification annotations</h3>
 
 <p>Attribute annotations are binary or multi-valued
   &quot;flags&quot; that specify further aspects of other
@@ -300,6 +326,44 @@ title: "Standoff format"
 <p>For backward compatibility with existing standoff formats, brat
   also recognizes the ID prefix &quot;<span class="tt">M</span>&quot; for
   attributes.
+</p>
+
+<h3>Normalization annotations</h3>
+
+<p>Normalization annotations are supported as of <strong>version
+  1.3</strong>. Each normalization annotation has a unique ID and is
+  defined by reference to the ID of the annotation that the
+  normalization attaches to and a <code>RID:EID</code> pair
+  identifying the external resource (<code>RID</code>) and the entry
+  within that resource (<code>EID</code>). Additionally, each
+  normalization annotation has the type <code>Reference</code> (no
+  other values for the type are currently defined) and a
+  human-readable string value for the entry referred to.
+</p>
+
+<p>The following example shows a normalization annotation attached to
+  the text-bound annotation "T1" (not shown) and associates it with
+  the Wikipedia entry with the Wikipedia ID "534366" ("Barack Obama").
+</p>
+
+<table class="annotation_wrapper"><tr><td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">N1</td><td width="250">Reference T1 Wikipedia:534366</td><td>Barack Obama</td>
+	</tr>
+      </table>
+</td></tr></table>
+
+<p>(Note that the association of the <code>EID</code> values such as
+  "Wikipedia" or "GO" with the relevant external resources is not
+  represented in the standoff but controlled by the
+  <a href="configuration.html"><code>tools.conf</code> configuration
+    file</a>.)
+</p>
+
+<p>As for text-bound annotations, the ID and the text are separated by
+  TAB characters, and other fields (here, "Reference", "T1" and
+  "Wikipedia:534366") by SPACE.
 </p>
 
 <h3>Note annotations</h3>
