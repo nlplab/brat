@@ -2261,6 +2261,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanFormSubmit = function(evt, typeRadio) {
         typeRadio = typeRadio || $('#span_form input:radio:checked');
         var type = typeRadio.val();
+        $('#span_form-ok').blur();
         dispatcher.post('hideForm');
         $.extend(spanOptions, {
           action: 'createSpan',
