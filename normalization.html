@@ -222,7 +222,7 @@ title:  "Normalization"
     (&quot;a&quot;-&quot;z&quot;, &quot;A&quot;-&quot;Z&quot;,
     &quot;0&quot;-&quot;9&quot;), hyphen (&quot;-&quot;) and underscore
     (&quot;_&quot;). This name will be used both in the brat UI and in
-    the <a href="#standoff">annotation file</a> to identify the DB.
+    the <a href="#norm-standoff">annotation file</a> to identify the DB.
   </li>
   <li><code>HOMEURL</code>: sets the URL for the home page of the
     normalization resource (e.g. "http://en.wikipedia.org/wiki/").
@@ -293,8 +293,8 @@ title:  "Normalization"
   contain lines such as the following:
 </p>
 
-<p><pre><code>    7323451      name:Title:A Clockwork Orange      attr:Category:book
-    8247254      name:Title:A Clockwork Orange      attr:Category:film</code></pre>
+<p><pre><code>    843          name:Title:A Clockwork Orange      attr:Category:book
+    1659954      name:Title:A Clockwork Orange      attr:Category:film</code></pre>
 </p>
 
 <p>Specifying that "A Clockwork Orance" is the title of a book and a
@@ -307,7 +307,7 @@ title:  "Normalization"
   to be unique; for example, the following is a valid entry:
 </p>
 
-<p><pre><code>    4244571      name:Name:Barack Obama      name:Name:Obama      attr:Category:person      attr:Category:US president</code></pre>
+<p><pre><code>    534366       name:Name:Barack Obama      name:Name:Obama      attr:Category:person      attr:Category:US president</code></pre>
 </p>
 
 <p>Given a file in this format, a normalization DB can be created as
@@ -344,6 +344,57 @@ title:  "Normalization"
 <p>(Note that this tool does not perform approximate string matching.)</p>
 
 <!-- TODO: deleting norm DBs -->
+
+<h2 id="norm-standoff">Standoff format for normalization</h2>
+
+<p>The brat normalization support involves a new category of annotation
+  in the <a href="standoff.html">standoff format</a> used to store brat
+  annotations. (If you don't work directly with the brat standoff format,
+  you can skip these technical details.)
+</p>
+
+<p>First, brat 1.3 is fully backward compatible with previous
+  versions, and any standoff file created in previous versions of brat
+  is also valid for 1.3. The text file format and the standoff format
+  for annotation primitives defined in previous versions of brat
+  (text-bound annotations, relations, etc.) are also unchanged in
+  version 1.3. To understand the basic brat standoff format, see the
+  <a href="standoff.html">standoff format description</a>.
+</p>
+
+<p>To support normalization, version 1.3 introduces a new category of
+  annotation, <i>normalization</i>. Each normalization annotation has
+  a unique ID and is defined by reference to the ID of the annotation
+  that the normalization attaches to and a <code>RID:EID</code> pair
+  identifying the external resource (<code>RID</code>) and the entry
+  within that resource (<code>EID</code>). Additionally, each
+  normalization annotation has the type <code>Reference</code> (no
+  other values for the type are currently defined) and a
+  human-readable string value for the entry referred to.
+</p>
+
+<p>The following example shows a normalization annotation attached to
+  the text-bound annotation "T1" (not shown) and associates it with
+  the Wikipedia entry with the Wikipedia ID "534366" ("Barack Obama").
+</p>
+
+<table class="annotation_wrapper"><tr><td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">N1</td><td width="250">Reference T1 Wikipedia:534366</td><td>Barack Obama</td>
+	</tr>
+      </table>
+</td></tr></table>
+
+<p>As for text-bound annotations, the ID and the text are separated by
+  TAB characters, and other fields (here, "Reference", "T1" and
+  "Wikipedia:534366") by SPACE.
+</p>
+
+<p>The IDs of normalization annotations follow the general ID
+  conventions in brat and consist of the upper-case character "N" an a
+  number.
+</p>
 
 <h2 id="norm-trouble">Troubleshooting</h2>
 
