@@ -1171,9 +1171,13 @@ var AnnotatorUI = (function($, window, undefined) {
         $.each(response.items, function(itemNo, item) {
           // NOTE: assuming ID is always the first datum in the item
           // and that the preferred text is always the second
+          // TODO: Util.escapeQuotes would be expected to be
+          // sufficient here, but that appears to give "DOM Exception
+          // 11" in cases (try e.g. $x.html('<p a="A&B"/>'). Why? Is
+          // this workaround OK?
           html.push('<tr'+
-                    ' data-id="'+Util.escapeHTML(item[0])+'"'+
-                    ' data-txt="'+Util.escapeHTML(item[1])+'"'+
+                    ' data-id="'+Util.escapeHTMLandQuotes(item[0])+'"'+
+                    ' data-txt="'+Util.escapeHTMLandQuotes(item[1])+'"'+
                     '>');
           for (var i=0; i<len; i++) {
             html.push('<td>' + Util.escapeHTML(item[i]) + '</td>');
