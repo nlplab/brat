@@ -587,11 +587,13 @@ var VisualizerUI = (function($, window, undefined) {
           width: 500
       });
 
+      /* XXX removed per #900
       // insert the Save link
       var $fileBrowserButtonset = fileBrowser.
           parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset').prepend(' ');
       $('<a href="ajax.cgi?action=downloadSearchFile" id="save_search">Save</a>').
           prependTo($fileBrowserButtonset).button().css('display', 'none');
+      */
 
       var docInputHandler = function(evt) {
         selectElementInTable('#document_select', $(this).val());
