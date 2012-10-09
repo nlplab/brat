@@ -15,12 +15,13 @@ from __future__ import with_statement
 
 from os.path import join as path_join
 from os.path import split as path_split
+from re import compile as re_compile
 
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, EquivAnnotation, open_textfile,
         AnnotationsIsReadOnlyError, AttributeAnnotation, 
-        NormalizationAnnotation)
+        NormalizationAnnotation, DISCONT_SEP)
 from common import ProtocolError, ProtocolArgumentError
 try:
     from config import DEBUG
@@ -31,89 +32,9 @@ from jsonwrap import loads as json_loads, dumps as json_dumps
 from message import Messager
 from projectconfig import ProjectConfiguration, ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY
 
-# TODO: remove once HTML generation done clientside
-def generate_empty_fieldset():
-    return "<fieldset><legend>Type</legend>(No valid arc types)</fieldset>"
-
-# TODO: remove once HTML generation done clientside
-def escape(s):
-    from cgi import escape as cgi_escape
-    return cgi_escape(s).replace('"', '&quot;');
-
-# TODO: remove once HTML generation done clientside
-def __generate_input_and_label(t, dt, keymap, indent, disabled, prefix):
-    l = []
-    # TODO: remove check once debugged; the storage form t should not
-    # require any sort of escaping
-    assert " " not in t, "INTERNAL ERROR: space in storage form"
-    if not disabled:
-        dstr = ""
-    else:
-        dstr = ' disabled="disabled"'
-    s  = indent+'    <input id="%s%s" type="radio" name="%stype" value="%s" %s/>' % (prefix, t, prefix, t, dstr)
-    s += '<label for="%s%s">' % (prefix, t)
-
-    if t in keymap:
-        # -1 if not found (i.e. key unrelated to string)
-        key_offset= dt.lower().find(keymap[t].lower())
-    else:
-        key_offset = -1
-
-    if key_offset == -1:
-        s += '%s</label>' % escape(dt)
-    else:        
-        s += '%s<span class="accesskey">%s</span>%s</label>' % (escape(dt[:key_offset]), escape(dt[key_offset:key_offset+1]), escape(dt[key_offset+1:]))
-    l.append(s)
-    return l
-
-# TODO: remove once HTML generation done clientside
-def __generate_arc_input_and_label(t, dt, keymap):
-    return __generate_input_and_label(t, dt, keymap, "", False, "arc_")
-
-# TODO: remove once HTML generation done clientside
-def generate_arc_type_html(projectconf, types, keyboard_shortcuts):
-    # XXX TODO: intentionally breaking this; KB shortcuts
-    # should no longer be sent here. Remove code
-    # once clientside generation done.
-    keymap = {} #kb_shortcuts_to_keymap(keyboard_shortcuts)
-    return ("<fieldset><legend>Type</legend>" + 
-            "\n".join(["\n".join(__generate_arc_input_and_label(t, projectconf.preferred_display_form(t), keymap)) for t in types]) +
-            "</fieldset>")
-
-def possible_arc_types(collection, origin_type, target_type):
-    directory = collection
-
-    real_dir = real_directory(directory)
-    projectconf = ProjectConfiguration(real_dir)
-    response = {}
-
-    try:
-        possible = projectconf.arc_types_from_to(origin_type, target_type)
-
-        # TODO: proper error handling
-        if possible is None:
-            Messager.error('Error selecting arc types!', -1)
-        elif possible == []:
-            # nothing to select
-            response['html'] = generate_empty_fieldset()
-            response['keymap'] = {}
-            response['empty'] = True
-        else:
-            # XXX TODO: intentionally breaking this; KB shortcuts
-            # should no longer be sent here. Remove 'keymap' and
-            # 'html' args once clientside generation done.
-            arc_kb_shortcuts = {} #select_keyboard_shortcuts(possible)
-
-            response['keymap'] = {}
-            for k, p in arc_kb_shortcuts.items():
-                response['keymap'][k] = "arc_"+p
-
-            response['html']  = generate_arc_type_html(projectconf, possible, arc_kb_shortcuts)
-    except:
-        Messager.error('Error selecting arc types!', -1)
-        raise
-
-    return response
+### Constants
+MUL_NL_REGEX = re_compile(r'\n+')
+###
 
 #TODO: Couldn't we incorporate this nicely into the Annotations class?
 #TODO: Yes, it is even gimped compared to what it should do when not. This
@@ -174,6 +95,16 @@ class ModificationTracker(object):
                 response['edited'].append(a.reference_id())
             except AttributeError:
                 pass # not all implement reference_id()
+
+        # unique, preserve order
+        seen = set()
+        uniqued = []
+        for i in response['edited']:
+            s = str(i)
+            if s not in seen:
+                uniqued.append(i)
+                seen.add(s)
+        response['edited'] = uniqued
 
         return response
 
@@ -242,10 +173,11 @@ def _offsets_equal(o1, o2):
 def _text_for_offsets(text, offsets):
     """
     Given a text and a list of (start, end) integer offsets, returns
-    the (catenated) text corresponding to those offsets.
+    the (catenated) text corresponding to those offsets, joined
+    appropriately for use in a TextBoundAnnotation(WithText).
     """
     try:
-        return "".join([text[s:e] for s,e in offsets])
+        return DISCONT_SEP.join(text[s:e] for s,e in offsets)
     except Exception:
         Messager.error('_text_for_offsets: failed to get text for given offsets (%s)' % str(offsets))
         raise ProtocolArgumentError
@@ -386,13 +318,27 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
             # TODO discont: use offsets instead (note need for int conversion)
             text = _text_for_offsets(txt_file.read(), offsets)
 
-        #TODO: Data tail should be optional
-        if '\n' not in text:
-            ann = TextBoundAnnotationWithText(offsets[:], new_id, type, text)
-            ann_obj.add_annotation(ann)
-            mods.addition(ann)
-        else:
-            ann = None
+        # The below code resolves cases where there are newlines in the
+        #   offsets by creating discontinuous annotations for each span
+        #   separated by newlines. For most cases it preserves the offsets.
+        seg_offsets = []
+        for o_start, o_end in offsets:
+            pos = o_start
+            for text_seg in text.split('\n'):
+                if not text_seg:
+                    # Double new-line, skip ahead
+                    pos += 1
+                    continue
+                end = pos + len(text_seg)
+                seg_offsets.append((pos, end))
+                # Our current position is after the newline
+                pos = end + 1
+
+        ann = TextBoundAnnotationWithText(seg_offsets, new_id, type,
+                # Replace any newlines with the discontinuous separator
+                MUL_NL_REGEX.sub(DISCONT_SEP, text))
+        ann_obj.add_annotation(ann)
+        mods.addition(ann)
     else:
         ann = found
 
@@ -487,8 +433,8 @@ def _set_normalizations(ann_obj, ann, normalizations, mods, undo_resp={}):
     # sanity check
     for refdb, refid, refstr in normalizations:
         # TODO: less aggressive failure
-        assert refdb.strip() != '', "Error: client sent empty norm DB"
-        assert refid.strip() != '', "Error: client sent empty norm ID"
+        assert refdb is not None and refdb.strip() != '', "Error: client sent empty norm DB"
+        assert refid is not None and refid.strip() != '', "Error: client sent empty norm ID"
         # (the reference string is allwed to be empty)
 
     # Process deletions and updates of existing normalizations
@@ -749,7 +695,7 @@ def _create_relation(ann_obj, projectconf, mods, origin, target, type,
         if found is None:
             # TODO: better response
             Messager.error('_create_relation: failed to identify target relation (type %s, target %s) (deleted?)' % (str(old_type), str(old_target)))
-        elif found.arg2 == target.id and found.type != type:
+        elif found.arg2 == target.id and found.type == type:
             # no changes to type or target
             pass
         else:
@@ -884,6 +830,18 @@ def create_arc(collection, document, origin, target, type, attributes=None,
         origin = ann_obj.get_ann_by_id(origin) 
         target = ann_obj.get_ann_by_id(target)
 
+        # if there is a previous annotation and the arcs aren't in
+        # the same category (e.g. relation vs. event arg), process
+        # as delete + create instead of update.
+        if old_type is not None and (
+            projectconf.is_relation_type(old_type) != 
+            projectconf.is_relation_type(type) or
+            projectconf.is_equiv_type(old_type) !=
+            projectconf.is_equiv_type(type)):
+            _delete_arc_with_ann(origin.id, old_target, old_type, mods, 
+                                 ann_obj, projectconf)
+            old_target, old_type = None, None
+
         if projectconf.is_equiv_type(type):
             ann =_create_equiv(ann_obj, projectconf, mods, origin, target, 
                                type, attributes, old_type, old_target)
@@ -907,97 +865,102 @@ def create_arc(collection, document, origin, target, type, attributes=None,
         mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
 
-#TODO: ONLY determine what action to take! Delegate to Annotations!
+# helper for delete_arc
+def _delete_arc_equiv(origin, target, type_, mods, ann_obj):
+    # TODO: this is slow, we should have a better accessor
+    for eq_ann in ann_obj.get_equivs():
+        # We don't assume that the ids only occur in one Equiv, we
+        # keep on going since the data "could" be corrupted
+        if (unicode(origin) in eq_ann.entities and 
+            unicode(target) in eq_ann.entities and
+            type_ == eq_ann.type):
+            before = unicode(eq_ann)
+            eq_ann.entities.remove(unicode(origin))
+            eq_ann.entities.remove(unicode(target))
+            mods.change(before, eq_ann)
+
+        if len(eq_ann.entities) < 2:
+            # We need to delete this one
+            try:
+                ann_obj.del_annotation(eq_ann)
+                mods.deletion(eq_ann)
+            except DependingAnnotationDeleteError, e:
+                #TODO: This should never happen, dep on equiv
+                raise
+
+    # TODO: warn on failure to delete?
+
+# helper for delete_arc
+def _delete_arc_nonequiv_rel(origin, target, type_, mods, ann_obj):
+    # TODO: this is slow, we should have a better accessor
+    for ann in ann_obj.get_relations():
+        if ann.type == type_ and ann.arg1 == origin and ann.arg2 == target:
+            ann_obj.del_annotation(ann)
+            mods.deletion(ann)
+
+    # TODO: warn on failure to delete?
+
+# helper for delete_arc
+def _delete_arc_event_arg(origin, target, type_, mods, ann_obj):
+    event_ann = ann_obj.get_ann_by_id(origin)
+    # Try if it is an event
+    arg_tup = (type_, unicode(target))
+    if arg_tup in event_ann.args:
+        before = unicode(event_ann)
+        event_ann.args.remove(arg_tup)
+        mods.change(before, event_ann)
+    else:
+        # What we were to remove did not even exist in the first place
+        # TODO: warn on failure to delete?
+        pass
+
+def _delete_arc_with_ann(origin, target, type_, mods, ann_obj, projectconf):
+    origin_ann = ann_obj.get_ann_by_id(origin)
+
+    # specifics of delete determined by arc type (equiv relation,
+    # other relation, event argument)
+    if projectconf.is_relation_type(type_):
+        if projectconf.is_equiv_type(type_):
+            _delete_arc_equiv(origin, target, type_, mods, ann_obj)
+        else:
+            _delete_arc_nonequiv_rel(origin, target, type_, mods, ann_obj)
+    elif projectconf.is_event_type(origin_ann.type):
+        _delete_arc_event_arg(origin, target, type_, mods, ann_obj)
+    else:
+        Messager.error('Unknown annotation types for delete')
+
 def delete_arc(collection, document, origin, target, type):
     directory = collection
 
     real_dir = real_directory(directory)
-    document = path_join(real_dir, document)
 
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+    mods = ModificationTracker()
+
+    projectconf = ProjectConfiguration(real_dir)
+
+    document = path_join(real_dir, document)
 
     with TextAnnotations(document) as ann_obj:
         # bail as quick as possible if read-only 
         if ann_obj._read_only:
             raise AnnotationsIsReadOnlyError(ann_obj.get_document())
 
-        mods = ModificationTracker()
-
-        # This can be an event or an equiv
-        #TODO: Check for None!
-        try:
-            event_ann = ann_obj.get_ann_by_id(origin)
-            # Try if it is an event
-            arg_tup = (type, unicode(target))
-            if arg_tup in event_ann.args:
-                before = unicode(event_ann)
-                event_ann.args.remove(arg_tup)
-                mods.change(before, event_ann)
-
-                '''
-                if not event_ann.args:
-                    # It was the last argument tuple, remove it all
-                    try:
-                        ann_obj.del_annotation(event_ann)
-                        mods.deletion(event_ann)
-                    except DependingAnnotationDeleteError, e:
-                        #XXX: Old message api
-                        print 'Content-Type: application/json\n'
-                        print dumps(e.json_error_response())
-                        return
-                '''
-            else:
-                # What we were to remove did not even exist in the first place
-                pass
-
-        except AttributeError:
-            projectconf = ProjectConfiguration(real_dir)
-            if projectconf.is_equiv_type(type):
-                # It is an equiv then?
-                #XXX: Slow hack! Should have a better accessor! O(eq_ann)
-                for eq_ann in ann_obj.get_equivs():
-                    # We don't assume that the ids only occur in one Equiv, we
-                    # keep on going since the data "could" be corrupted
-                    if (unicode(origin) in eq_ann.entities
-                            and unicode(target) in eq_ann.entities):
-                        before = unicode(eq_ann)
-                        eq_ann.entities.remove(unicode(origin))
-                        eq_ann.entities.remove(unicode(target))
-                        mods.change(before, eq_ann)
-
-                    if len(eq_ann.entities) < 2:
-                        # We need to delete this one
-                        try:
-                            ann_obj.del_annotation(eq_ann)
-                            mods.deletion(eq_ann)
-                        except DependingAnnotationDeleteError, e:
-                            #TODO: This should never happen, dep on equiv
-                            #print 'Content-Type: application/json\n'
-                            # TODO: Proper exception here!
-                            Messager.error(e.json_error_response())
-                            return {}
-            elif type in projectconf.get_relation_types():
-                for ann in ann_obj.get_relations():
-                    if ann.type == type and ann.arg1 == origin and ann.arg2 == target:
-                        ann_obj.del_annotation(ann)
-                        mods.deletion(ann)
-                        break
-            else:
-                assert False, 'unknown annotation'
+        _delete_arc_with_ann(origin, target, type, mods, ann_obj, projectconf)
 
         mods_json = mods.json_response()
         mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
+
+    # TODO: error handling?
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def delete_span(collection, document, id):
     directory = collection
 
     real_dir = real_directory(directory)
+
     document = path_join(real_dir, document)
     
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-
     with TextAnnotations(document) as ann_obj:
         # bail as quick as possible if read-only 
         if ann_obj._read_only:
@@ -1031,8 +994,6 @@ def delete_span(collection, document, id):
         mods_json['annotations'] = _json_from_ann(ann_obj)
         return mods_json
 
-from common import ProtocolError
-
 class AnnotationSplitError(ProtocolError):
     def __init__(self, message):
         self.message = message
@@ -1053,8 +1014,6 @@ def split_span(collection, document, args, id):
     # TODO don't know how to pass an array directly, so doing extra catenate and split
     tosplit_args = json_loads(args)
     
-    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
-
     with TextAnnotations(document) as ann_obj:
         # bail as quick as possible if read-only 
         if ann_obj._read_only:
@@ -1114,6 +1073,7 @@ def split_span(collection, document, args, id):
                 newann.args = nonsplit_args[:] + arg_combo
                 ann_obj.add_annotation(newann)
                 new_events.append(newann)
+                mods.addition(newann)
 
         # then, go through all the annotations referencing the original
         # event, and create appropriate copies
@@ -1138,6 +1098,7 @@ def split_span(collection, document, args, id):
                         newmod.target = newe.id
                         newmod.id = ann_obj.get_new_id("A") # TODO: avoid hard-coding ID prefix
                         ann_obj.add_annotation(newmod)
+                        mods.addition(newmod)
 
                 elif isinstance(a, BinaryRelationAnnotation):
                     # TODO
@@ -1149,6 +1110,14 @@ def split_span(collection, document, args, id):
                         newcomm.target = newe.id
                         newcomm.id = ann_obj.get_new_id("#") # TODO: avoid hard-coding ID prefix
                         ann_obj.add_annotation(newcomm)
+                        mods.addition(newcomm)
+                elif isinstance(a, NormalizationAnnotation):
+                    for newe in new_events:
+                        newnorm = deepcopy(a)
+                        newnorm.target = newe.id
+                        newnorm.id = ann_obj.get_new_id("N") # TODO: avoid hard-coding ID prefix
+                        ann_obj.add_annotation(newnorm)
+                        mods.addition(newnorm)
                 else:
                     raise AnnotationSplitError("Cannot adjust annotation referencing split: not implemented for %s! (Please complain to the lazy developers to fix this!)" % a.__class__)
 

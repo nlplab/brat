@@ -708,11 +708,44 @@ var AnnotatorUI = (function($, window, undefined) {
           keymap['S-' + $.ui.keyCode.DELETE] = null;
           keymap['S-' + $.ui.keyCode.INSERT] = null;
         }
-        if (!reselectedSpan) {
-          // TODO: avoid allAttributeTypes; just check type-appropriate ones
-          $.each(allAttributeTypes, function(attrNo, attr) {
-            $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
-            var val = span && span.attributes[attr.type];
+        // TODO: lots of redundancy in the next two blocks, clean up
+        if (!span) {
+          // no existing annotation, reset attributes
+          var attrCategoryAndTypes = [['entity', entityAttributeTypes],
+                                      ['event', eventAttributeTypes]];
+          $.each(attrCategoryAndTypes, function(ctNo, ct) {
+            var category = ct[0];
+            var attributeTypes = ct[1];
+            $.each(attributeTypes, function(attrNo, attr) {
+              $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
+              if (attr.unused) {
+                $input.val('');
+              } else if (attr.bool) {
+                $input[0].checked = false;
+                updateCheckbox($input);
+                $input.button('refresh');
+              } else {
+                $input.val('').change();
+              }
+            });
+          });
+        } else if (!reselectedSpan) {
+          // existing annotation, fill attribute values from span
+          var attributeTypes;
+          var category;
+          if (span.generalType == 'entity') {
+            attributeTypes = entityAttributeTypes;
+            category = 'entity';
+          } else if (span.generalType == 'trigger') {
+            attributeTypes = eventAttributeTypes;
+            // TODO: unify category/generalType values ('trigger' vs. 'event')
+            category = 'event';
+          } else {
+            console.error('Unrecognized generalType:', span.generalType);
+          }
+          $.each(attributeTypes, function(attrNo, attr) {
+            $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
+            var val = span.attributes[attr.type];
             if (attr.unused) {
               $input.val(val || '');
             } else if (attr.bool) {
@@ -754,16 +787,22 @@ var AnnotatorUI = (function($, window, undefined) {
           // fill if found (NOTE: only shows last on multiple)
           var normFilled = false;
           $.each(span ? span.normalizations : [], function(normNo, norm) {
-            // stored as array (sorry)
             var refDb = norm[0], refId = norm[1], refText = norm[2];
             $normDb.val(refDb);
-            $normId.val(refId);
-            // don't forget to update this reference value
-            oldSpanNormIdValue = refId
-            $normText.val(refText);
-            // just assume the ID is valid (TODO: check)
-            $normId.addClass('valid_value')
-            normFilled = true;
+            // could the DB selector be set? (i.e. is refDb configured?)
+            if ($normDb.val() == refDb) {
+              // DB is OK, set the rest also
+              $normId.val(refId);
+              oldSpanNormIdValue = refId;
+              $normText.val(refText);
+              // TODO: check if ID is valid
+              $normId.addClass('valid_value')
+              normFilled = true;
+            } else {
+              // can't set the DB selector; assume DB is not configured,
+              // warn and leave blank (will remove norm when dialog is OK'd)
+              dispatcher.post('messages', [[['Warning: '+refDb+' not configured, removing normalization.', 'warning']]]);
+            }
           });
 
           // if there is no existing normalization, show valid ones
@@ -776,11 +815,11 @@ var AnnotatorUI = (function($, window, undefined) {
           updateNormalizationDbLink();
         }
 
-        var showAttributesFor = function(attrTypes, type) {
+        var showAttributesFor = function(attrTypes, category, type) {
           var validAttrs = type ? spanTypes[type].attributes : [];
           var shownCount = 0;
           $.each(attrTypes, function(attrNo, attr) {
-            var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
+            var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
             var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
             if (showAttr) {
               $input.button('widget').show();
@@ -794,8 +833,8 @@ var AnnotatorUI = (function($, window, undefined) {
 
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
-          var entityAttrCount = showAttributesFor(entityAttributeTypes, type);
-          var eventAttrCount = showAttributesFor(eventAttributeTypes, type);
+          var entityAttrCount = showAttributesFor(entityAttributeTypes, 'entity', type);
+          var eventAttrCount = showAttributesFor(eventAttributeTypes, 'event', type);
           
           showAllAttributes = false;
           // show attribute frames only if at least one attribute is
@@ -1760,7 +1799,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var addAttributeTypesToDiv = function($top, types, category) {
         $.each(types, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
-          var attrId = 'span_attr_' + escapedType;
+          var attrId = category+'_attr_'+escapedType;
           if (attr.unused) {
             var $input = $('<input type="hidden" id="'+attrId+'" value=""/>');
             $top.append($input);
@@ -1799,23 +1838,27 @@ var AnnotatorUI = (function($, window, undefined) {
         
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
+        // TODO2: the above comment is almost certainly false, check and remove
         $('#span_form input:not([unused])').removeAttr('disabled');
         var $toDisable;
-        var $category;
         if (category == "event") {
           $toDisable = $('#span_form input[category="entity"]');
         } else if (category == "entity") {
           $toDisable = $('#span_form input[category="event"]');
         } else {
-          console.error('Unrecognized attribute category:', category)
+          console.error('Unrecognized attribute category:', category);
           $toDisable = $();
         }
+        var $checkedToDisable = $toDisable.filter(':checked');
         $toDisable.attr('disabled', true);
         // the disable may leave the dialog in a state where nothing
         // is checked, which would cause error on "OK". In this case,
         // check the first valid choice.
-        if ($toDisable.is(':checked')) {
-          $('#span_form input:not(:disabled):first').attr('checked', 'checked');
+        if ($checkedToDisable.length) {
+          var $toCheck = $('#span_form input[category="' + category + '"]:first');
+          // so weird, attr('checked', 'checked') fails sometimes, so
+          // replaced with more "metal" version
+          $toCheck[0].checked = true
         }
       }
 
@@ -1988,16 +2031,17 @@ var AnnotatorUI = (function($, window, undefined) {
         var $normId = $('#span_norm_id');
         var $normLink = $('#span_norm_ref_link');
         var normId = $normId.val();
-        if (!normId || normId.match(/^\s*$/)) {
+        var $normDb = $('#span_norm_db');
+        var normDb = $normDb.val();
+        if (!normId || !normDb || normId.match(/^\s*$/)) {
           $normLink.hide();
         } else {
-          var $normDb = $('#span_norm_db');
-          var normDb = $normDb.val();
           var base = normDbUrlBaseByDbName[normDb];
           // assume hidden unless everything goes through
           $normLink.hide();
           if (!base) {
-            dispatcher.post('messages', [[['No base URL for '+normDb, 'error']]]);
+            // base URL is now optional, just skip link generation if not set
+            ;
           } else if (base.indexOf('%s') == -1) {
             dispatcher.post('messages', [[['Base URL "'+base+'" for '+normDb+' does not contain "%s"', 'error']]]);
           } else {
@@ -2027,8 +2071,8 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       }
 
-      // resets all normalization-related UI elements to a blank
-      // state
+      // resets user-settable normalization-related UI elements to a
+      // blank state (does not blank #span_norm_db <select>).
       var clearNormalizationUI = function() {
         var $normId = $('#span_norm_id');
         var $normText = $('#span_norm_txt');
@@ -2037,6 +2081,47 @@ var AnnotatorUI = (function($, window, undefined) {
         $normId.removeClass('valid_value').removeClass('invalid_value');
         $normText.val('');
         updateNormalizationRefLink();
+      }
+
+      // returns the normalizations currently filled in the span
+      // dialog, or empty list if there are none
+      var spanNormalizations = function() {
+        // Note that only no or one normalization is supported in the
+        // UI at the moment.
+        var normalizations = [];
+        var normDb = $('#span_norm_db').val();
+        var normId = $('#span_norm_id').val();
+        var normText = $('#span_norm_txt').val();
+        // empty ID -> no normalization
+        if (!normId.match(/^\s*$/)) {
+          normalizations.push([normDb, normId, normText]);
+        }
+        return normalizations;
+      }
+
+      // returns attributes that are valid for the selected type in
+      // the span dialog
+      var spanAttributes = function(typeRadio) {
+        typeRadio = typeRadio || $('#span_form input:radio:checked');
+        var attributes = {};
+        var attributeTypes;
+        var category = typeRadio.attr('category');
+        if (category == 'entity') {
+          attributeTypes = entityAttributeTypes;
+        } else if (category == 'event') {
+          attributeTypes = eventAttributeTypes;
+        } else {
+          console.error('Unrecognized type category:', category);
+        }
+        $.each(attributeTypes, function(attrNo, attr) {
+          var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
+          if (attr.bool) {
+            attributes[attr.type] = $input[0].checked;
+          } else if ($input[0].selectedIndex) {
+            attributes[attr.type] = $input.val();
+          }
+        });
+        return attributes;
       }
 
       var spanAndAttributeTypesLoaded = function(_spanTypes, 
@@ -2197,6 +2282,10 @@ var AnnotatorUI = (function($, window, undefined) {
           offsets: JSON.stringify(offsets),
         });
 
+        spanOptions.attributes = $.toJSON(spanAttributes());
+
+        spanOptions.normalizations = $.toJSON(spanNormalizations());
+
         dispatcher.post('ajax', [spanOptions, 'edited']);
         dispatcher.post('hideForm');
         $('#waiter').dialog('open');
@@ -2271,39 +2360,18 @@ var AnnotatorUI = (function($, window, undefined) {
           comment: $('#span_notes').val()
         });
 
-        // fill attributes
-        var attributes = {};
-        // TODO: avoid allAttributeTypes; just check type-appropriate ones
-        $.each(allAttributeTypes, function(attrNo, attr) {
-          var $input = $('#span_attr_' + Util.escapeQuotes(attr.type));
-          if (attr.bool) {
-            attributes[attr.type] = $input[0].checked;
-          } else if ($input[0].selectedIndex) {
-            attributes[attr.type] = $input.val();
-          }
-        });
-        spanOptions.attributes = $.toJSON(attributes);
+        spanOptions.attributes = $.toJSON(spanAttributes());
 
-        // fill normalizations. Note that the protocol supports any
-        // number, but only no or one normalization supported in UI at
-        // the moment.
-        var normalizations = [];
-        var normDb = $('#span_norm_db').val();
-        var normId = $('#span_norm_id').val();
-        var normText = $('#span_norm_txt').val();
-        // empty ID -> no normalization
-        if (!normId.match(/^\s*$/)) {
-          normalizations.push([normDb, normId, normText]);
+        spanOptions.normalizations = $.toJSON(spanNormalizations());
+
+        if (spanOptions.offsets) {
+          spanOptions.offsets = $.toJSON(spanOptions.offsets);
         }
-        spanOptions.normalizations = $.toJSON(normalizations);
 
         // unfocus all elements to prevent focus being kept after
         // hiding them
         spanForm.parent().find('*').blur();
-        spanOptions.attributes = $.toJSON(attributes);
-        if (spanOptions.offsets) {
-          spanOptions.offsets = $.toJSON(spanOptions.offsets);
-        }
+
         $('#waiter').dialog('open');
         dispatcher.post('ajax', [spanOptions, 'edited']);
         return false;

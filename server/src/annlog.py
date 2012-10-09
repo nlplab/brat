@@ -10,32 +10,37 @@ Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
 Version:    2011-11-22
 '''
 
-try:
-    from config import ANNOTATION_LOG
-except ImportError:
-    # annotation logging switched off not defined
-    ANNOTATION_LOG = None
-
 import logging
 from session import get_session
 from message import Messager
 from inspect import getargspec
+from os.path import isabs
+from os.path import join as path_join
 
-def annotation_logging_active():
-    """
-    Returns true if annotation logging is being performed, false
-    otherwise.
-    """
-    return ann_logger() is not None
+from config import DATA_DIR
+from projectconfig import options_get_annlogfile
 
-def ann_logger():
+def real_directory(directory, rel_to=DATA_DIR):
+    assert isabs(directory), 'directory "%s" is not absolute' % directory
+    return path_join(rel_to, directory[1:])
+
+def annotation_logging_active(directory):
+    """
+    Returns true if annotation logging is being performed for the
+    given directory, false otherwise.
+    """
+    return ann_logger(directory) is not None
+
+def ann_logger(directory):
     """
     Lazy initializer for the annotation logger. Returns None if
-    annotation logging is not configured and a logger otherwise.
+    annotation logging is not configured for the given directory and a
+    logger otherwise.
     """
     if ann_logger.__logger == False:
         # not initialized
-        if ANNOTATION_LOG is None:
+        annlogfile = options_get_annlogfile(directory)
+        if annlogfile == '<NONE>':
             # not configured
             ann_logger.__logger = None
         else:
@@ -43,7 +48,7 @@ def ann_logger():
             try:
                 l = logging.getLogger('annotation')
                 l.setLevel(logging.INFO)
-                handler = logging.FileHandler(ANNOTATION_LOG)
+                handler = logging.FileHandler(annlogfile)
                 handler.setLevel(logging.INFO)
                 formatter = logging.Formatter('%(asctime)s\t%(message)s')
                 handler.setFormatter(formatter)
@@ -52,9 +57,9 @@ def ann_logger():
             except IOError, e:
                 Messager.error("""Error: failed to initialize annotation log %s: %s.
 Edit action not logged.
-Please check ANNOTATION_LOG setting in config.py""" % (ANNOTATION_LOG, e))
+Please check the Annotation-log logfile setting in tools.conf""" % (annlogfile, e))
                 logging.error("Failed to initialize annotation log %s: %s" % 
-                              (ANNOTATION_LOG, e))
+                              (annlogfile, e))
                 ann_logger.__logger = None                
                 
     return ann_logger.__logger
@@ -72,7 +77,9 @@ def log_annotation(collection, document, status, action, args):
     the arguments of the action.
     """
 
-    l = ann_logger()
+    real_dir = real_directory(collection)
+
+    l = ann_logger(real_dir)
 
     if not l:
         return False

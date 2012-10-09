@@ -50,13 +50,14 @@ __expected_visual_sections = (LABEL_SECTION, DRAWING_SECTION)
 __optional_visual_sections = []
 
 # tools config section name constants
+OPTIONS_SECTION    = "options"
 SEARCH_SECTION     = "search"
 ANNOTATORS_SECTION = "annotators"
 DISAMBIGUATORS_SECTION = "disambiguators"
 NORMALIZATION_SECTION = "normalization"
 
-__expected_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
-__optional_tools_sections = (SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
+__expected_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
+__optional_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
 
 # special relation type for marking which entities can nest
 ENTITY_NESTING_TYPE = "ENTITY-NESTING"
@@ -121,7 +122,9 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBase", "GLYPH-POS", "DEFAULT", "NORM"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM"]
+# TODO: "GLYPH-POS" is no longer used, warn if encountered and
+# recommend to use "position" instead.
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
@@ -664,6 +667,7 @@ def get_visual_configs(directory):
 
 # final fallback for tools configuration; minimal known-good config
 __minimal_tools = {
+    OPTIONS_SECTION    : [],
     SEARCH_SECTION     : [TypeHierarchyNode(["google"], ["<URL>:http://www.google.com/search?q=%s"])],
     ANNOTATORS_SECTION : [],
     DISAMBIGUATORS_SECTION : [],
@@ -714,6 +718,9 @@ def get_drawing_types(directory):
         cache[directory] = list(l)
     return cache[directory]
 get_drawing_types.__cache = {}
+
+def get_option_config(directory):
+    return get_tools_configs(directory)[OPTIONS_SECTION]
 
 def get_drawing_config(directory):
     return get_visual_configs(directory)[DRAWING_SECTION]
@@ -844,6 +851,44 @@ def get_node_by_storage_form(directory, term):
 
     return cache[directory].get(term, None)
 get_node_by_storage_form.__cache = {}
+
+def get_option_config_by_storage_form(directory, term):
+    cache = get_option_config_by_storage_form.__cache
+    if directory not in cache:
+        d = {}
+        for n in get_option_config(directory):
+            t = n.storage_form()
+            if t in d:
+                Messager.warning("Project configuration: %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
+            d[t] = {}
+            for a in n.arguments:
+                if len(n.arguments[a]) != 1:
+                    Messager.warning("Project configuration: %s key %s has multiple values, only using first. Configuration may be wrong." % (t, a), 5)
+                d[t][a] = n.arguments[a][0]
+
+        cache[directory] = d
+
+    return cache[directory].get(term, None)
+get_option_config_by_storage_form.__cache = {}    
+
+# access for settings for specific options in tools.conf
+# TODO: avoid fixed string values here, define vars earlier
+
+def options_get_validation(directory):
+    v = get_option_config_by_storage_form(directory, 'Validation')
+    return 'none' if v is None else v.get('validate', 'none')        
+
+def options_get_tokenization(directory):
+    v = get_option_config_by_storage_form(directory, 'Tokens')
+    return 'whitespace' if v is None else v.get('tokenizer', 'whitespace')
+
+def options_get_ssplitter(directory):
+    v = get_option_config_by_storage_form(directory, 'Sentences')
+    return 'regex' if v is None else v.get('splitter', 'regex')
+
+def options_get_annlogfile(directory):
+    v = get_option_config_by_storage_form(directory, 'Annotation-log')
+    return '<NONE>' if v is None else v.get('logfile', '<NONE>')
 
 def get_drawing_config_by_storage_form(directory, term):
     cache = get_drawing_config_by_storage_form.__cache
@@ -1312,12 +1357,12 @@ class ProjectConfiguration(object):
             if '<URL>' not in n.special_arguments:
                 Messager.warning('Project configuration: config error: missing <URL> specification for %s.' % n.storage_form())
                 continue
-            if '<URLBase>' not in n.special_arguments:
-                Messager.warning('Project configuration: config error: missing <URLBase> specification for %s.' % n.storage_form())
-                continue
+            if '<URLBASE>' not in n.special_arguments:
+                # now optional, client skips link generation if None
+                n.special_arguments['<URLBASE>'] = [None]
             norm_config.append((n.storage_form(),
                                 n.special_arguments['<URL>'][0],
-                                n.special_arguments['<URLBase>'][0]))
+                                n.special_arguments['<URLBASE>'][0]))
         return norm_config
         
     def get_entity_types(self):

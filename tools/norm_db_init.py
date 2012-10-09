@@ -1,91 +1,177 @@
 #!/usr/bin/env python
 
-# Creates key:value DBs for brat normalization support.
+# Creates SQL and simstring DBs for brat normalization support.
 
 # Each line in the input file should have the following format:
 
-# ID<TAB>LABEL1:STRING1<TAB>LABEL2:STRING2[...]
+# ID<TAB>TYPE1:LABEL1:STRING1<TAB>TYPE2:LABEL2:STRING2[...]
 
-# Where the ID is the unique ID normalized to, and the LABEL:STRING
-# pairs provide strings associated with the ID as specified by each
-# string. Each line must provide at least one LABEL:STRING pair, and
-# only the first LABEL:STRING pair is indexed for lookup; the rest
-# provide meta-information used to differentiate entries.
+# Where the ID is the unique ID normalized to, and the
+# TYPE:LABEL:STRING triplets provide various information associated
+# with the ID.
 
-# For example, for normalization to the UniProt protein DB the
-# input could contain the following lines:
+# Each TYPE must be one of the following:
 
-# P01258  Protein:Calcitonin      Organism:Human
-# P01257  Protein:Calcitonin      Organism:Rat
+# - "name": STRING is name or alias
+# - "attr": STRING is non-name attribute
+# - "info": STRING is non-searchable additional information
 
-# (an alternate format where the second TAB-separated field does not
-# have a LABEL is also supported for backward compatibility.)
+# Each LABEL provides a human-readable label for the STRING. LABEL
+# values are not used for querying.
 
-# This script creates the following databases:
+# For example, for normalization to the UniProt protein DB the input
+# could contain lines such as the following:
 
-# - NAME.fw.kvdb: key:ID, value:LABEL:STRING
-# - NAME.bw.kvdb: key:STRING value:IDs
-# - (TODO)
+# P01258  name:Protein:Calcitonin      attr:Organism:Human
+# P01257  name:Protein:Calcitonin      attr:Organism:Rat
+
+# In search, each query string must match at least part of some "name"
+# field to retrieve an ID. Parts of query strings not matching a name
+# are used to query "attr" fields, allowing these to be used to
+# differentiate between ambiguous names. Thus, for the above example,
+# a search for "Human Calcitonin" would match P01258 but not P01257.
+# Fields with TYPE "info" are not used for querying.
 
 from __future__ import with_statement
 
 import sys
+import codecs
 from datetime import datetime
 from os.path import dirname, basename, splitext, join
 
+import sqlite3 as sqlite
+
 try:
-    import pytc
+    import simstring
 except ImportError:
-    try:
-        from sys import path as sys_path
-        from os.path import join as path_join
-        from os.path import dirname
-        # XXX hack; someone fix to work more generally
-        sys_path.append(path_join(dirname(__file__),
-                                  '../server/lib/pytc-0.8'))
-        import pytc
-    except ImportError:
-        print >> sys.stderr, """Error: failed to import pytc, the Tokyo Cabinet python bindings.
-
-Tokyo Cabinet and pytc are required for brat key:value DBs.
-Please make sure that you have installed Tokyo Cabinet
-
-    http://fallabs.com/tokyocabinet/
-
-and pytc
-
-    http://pypi.python.org/pypi/pytc
-
-before running this script.
+    from message import Messager    
+    errorstr = """
+    Error: failed to import the simstring library.
+    This library is required for approximate string matching DB lookup.
+    Please install simstring and its python bindings from 
+    http://www.chokkan.org/software/simstring/
 """
-        sys.exit(1)
+    print >> sys.stderr, errorstr
+    sys.exit(1)
+
+# Default encoding for input text
+DEFAULT_INPUT_ENCODING = 'UTF-8'
 
 # Normalization DB version lookup string and value (for compatibility
 # checks)
 NORM_DB_STRING = 'NORM_DB_VERSION'
 NORM_DB_VERSION = '1.0.1'
 
-# Normalization option lookup strings
-NORM_DB_LOWERCASE = 'NORM_DB_LOWERCASE'
+# Default filename extension of the SQL database
+SQL_DB_FILENAME_EXTENSION = 'db'
 
-# Default filename extension of the database
-DB_FILENAME_EXTENSION = 'kvdb'
+# Filename extension used for simstring database file.
+SS_DB_FILENAME_EXTENSION = 'ss.db'
 
-# Default affix for "forward" (key->value) database
-FW_DB_AFFIX = '.fw'
+# Length of n-grams in simstring DBs
+DEFAULT_NGRAM_LENGTH = 3
 
-# Default affix for "backward" (value->keys) database
-BW_DB_AFFIX = '.bw'
-
-# Character separating entries in "backward" DB. This must be
-# guaranteed never to occur in a key.
-DB_KEY_SEPARATOR = '\t'
+# Whether to include marks for begins and ends of strings
+DEFAULT_INCLUDE_MARKS = False
 
 # Maximum number of "error" lines to output
 MAX_ERROR_LINES = 100
 
+# Supported TYPE values
+TYPE_VALUES = ["name", "attr", "info"]
+
+# Which SQL DB table to enter type into
+TABLE_FOR_TYPE = {
+    "name" : "names",
+    "attr" : "attributes",
+    "info" : "infos",
+}
+
+# Whether SQL table includes a normalized string form
+TABLE_HAS_NORMVALUE = {
+    "names" : True,
+    "attributes" : True,
+    "infos" : False,
+}
+
+# sanity
+assert set(TYPE_VALUES) == set(TABLE_FOR_TYPE.keys())
+assert set(TABLE_FOR_TYPE.values()) == set(TABLE_HAS_NORMVALUE.keys())
+
+# SQL for creating tables and indices
+CREATE_TABLE_COMMANDS = [
+"""
+CREATE TABLE entities (
+  id INTEGER PRIMARY KEY,
+  uid VARCHAR(255) UNIQUE
+);
+""",
+"""
+CREATE TABLE labels (
+  id INTEGER PRIMARY KEY,
+  text VARCHAR(255)
+);
+""",
+"""
+CREATE TABLE names (
+  id INTEGER PRIMARY KEY,
+  entity_id INTEGER REFERENCES entities (id),
+  label_id INTEGER REFERENCES labels (id),
+  value VARCHAR(255),
+  normvalue VARCHAR(255)
+);
+""",
+"""
+CREATE TABLE attributes (
+  id INTEGER PRIMARY KEY,
+  entity_id INTEGER REFERENCES entities (id),
+  label_id INTEGER REFERENCES labels (id),
+  value VARCHAR(255),
+  normvalue VARCHAR(255)
+);
+""",
+"""
+CREATE TABLE infos (
+  id INTEGER PRIMARY KEY,
+  entity_id INTEGER REFERENCES entities (id),
+  label_id INTEGER REFERENCES labels (id),
+  value VARCHAR(255)
+);
+""",
+]
+CREATE_INDEX_COMMANDS = [
+"CREATE INDEX entities_uid ON entities (uid);",
+"CREATE INDEX names_value ON names (value);",
+"CREATE INDEX names_normvalue ON names (normvalue);",
+"CREATE INDEX names_entity_id ON names (entity_id);",
+"CREATE INDEX attributes_value ON attributes (value);",
+"CREATE INDEX attributes_normvalue ON attributes (normvalue);",
+"CREATE INDEX attributes_entity_id ON attributes (entity_id);",
+#"CREATE INDEX infos_value ON infos (value);", # unnecessary, not searchable
+"CREATE INDEX infos_entity_id ON infos (entity_id);",
+]
+
+# SQL for selecting strings to be inserted into the simstring DB for
+# approximate search
+SELECT_SIMSTRING_STRINGS_COMMAND = """
+SELECT DISTINCT(normvalue) FROM names
+UNION 
+SELECT DISTINCT(normvalue) from attributes;
+"""
+
+# Normalizes a given string for search. Used to implement
+# case-insensitivity and similar in search.
+# NOTE: this is a different sense of "normalization" than that
+# implemented by a normalization DB as a whole: this just applies to
+# single strings.
+# NOTE2: it is critically important that this function is performed
+# identically during DB initialization and actual lookup.
+# TODO: enforce a single implementation.
+def string_norm_form(s):
+    return s.lower().strip().replace('-', ' ')
+
 def default_db_dir():
-    # Returns the default directory into which to store the created DB.
+    # Returns the default directory into which to store the created DBs.
     # This is taken from the brat configuration, config.py.
 
     # (Guessing we're in the brat tools/ directory...)
@@ -100,53 +186,89 @@ def default_db_dir():
 def argparser():
     import argparse
 
-    ap=argparse.ArgumentParser(description="Create key->value and value->key(s) DBs from given file.")
-    ap.add_argument("-l", "--lowercase", default=False, action="store_true", help="Lowercase strings before DB entry.")
-    ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
+    ap=argparse.ArgumentParser(description="Create normalization DBs for given file")
+    ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output")
     ap.add_argument("-d", "--database", default=None, help="Base name of databases to create (default by input file name in brat work directory)")
-    ap.add_argument("file", metavar="FILE", help="Normalization data (line format ID<TAB>LABEL:STRING[<TAB>LABEL:STRING...])")
+    ap.add_argument("-e", "--encoding", default=DEFAULT_INPUT_ENCODING, help="Input text encoding (default "+DEFAULT_INPUT_ENCODING+")")
+    ap.add_argument("file", metavar="FILE", help="Normalization data")
     return ap
+
+def sqldb_filename(dbname):
+    '''
+    Given a DB name, returns the name of the file that is expected to
+    contain the SQL DB.
+    '''
+    return join(default_db_dir(), dbname+'.'+SQL_DB_FILENAME_EXTENSION)
+
+def ssdb_filename(dbname):
+    '''
+    Given a DB name, returns the  name of the file that is expected to
+    contain the simstring DB.
+    '''
+    return join(default_db_dir(), dbname+'.'+SS_DB_FILENAME_EXTENSION)
 
 def main(argv):
     arg = argparser().parse_args(argv[1:])
 
-    kvfn = arg.file
+    # only simstring library default supported at the moment (TODO)
+    assert DEFAULT_NGRAM_LENGTH == 3, "Error: unsupported n-gram length"
+    assert DEFAULT_INCLUDE_MARKS == False, "Error: begin/end marks not supported"
+
+    infn = arg.file
 
     if arg.database is None:
         # default database file name
-        bn = splitext(basename(kvfn))[0]
-        fwdbfn = join(default_db_dir(), bn+FW_DB_AFFIX+'.'+DB_FILENAME_EXTENSION)
-        bwdbfn = join(default_db_dir(), bn+BW_DB_AFFIX+'.'+DB_FILENAME_EXTENSION)
+        bn = splitext(basename(infn))[0]
+        sqldbfn = sqldb_filename(bn)
+        ssdbfn = ssdb_filename(bn)
     else:
-        fwdbfn = arg.database+FW_DB_AFFIX
-        bwdbfn = arg.database+BW_DB_AFFIX
+        sqldbfn = arg.database+'.'+SQL_DB_FILENAME_EXTENSION
+        ssdbfn = arg.database+'.'+SS_DB_FILENAME_EXTENSION
 
     if arg.verbose:
-        print >> sys.stderr, "Storing DBs as %s and %s" % (fwdbfn, bwdbfn)
-        print >> sys.stderr, "Importing",
+        print >> sys.stderr, "Storing SQL DB as %s and" % sqldbfn
+        print >> sys.stderr, "  simstring DB as %s" % ssdbfn
     start_time = datetime.now()
 
-    import_count, duplicate_count, error_count = 0, 0, 0
+    import_count, duplicate_count, error_count, simstring_count = 0, 0, 0, 0
 
-    with open(kvfn, 'rU') as kvf:        
-        fwdb = pytc.HDB()
-        bwdb = pytc.HDB()
-        fwdb.open(fwdbfn, pytc.HDBOWRITER | pytc.HDBOREADER | pytc.HDBOCREAT)
-        bwdb.open(bwdbfn, pytc.HDBOWRITER | pytc.HDBOREADER | pytc.HDBOCREAT)
+    with codecs.open(infn, 'rU', encoding=arg.encoding) as inf:        
 
-        # store special values in the "forward" DB identifying version
-        # and settings. The keys for these start with the separator,
-        # which should guarantee they will never clash with any other
-        # entry.
-        fwdb.put(DB_KEY_SEPARATOR+NORM_DB_STRING, NORM_DB_VERSION)
-        fwdb.put(DB_KEY_SEPARATOR+NORM_DB_LOWERCASE, str(arg.lowercase))
+        # create SQL DB
+        try:
+            connection = sqlite.connect(sqldbfn)
+        except sqlite.OperationalError, e:
+            print >> sys.stderr, "Error connecting to DB %s:" % sqldbfn, e
+            return 1
+        cursor = connection.cursor()
 
-        for i, l in enumerate(kvf):
+        # create SQL tables
+        if arg.verbose:
+            print >> sys.stderr, "Creating tables ...",
+
+        for command in CREATE_TABLE_COMMANDS:
+            try:
+                cursor.execute(command)
+            except sqlite.OperationalError, e:
+                print >> sys.stderr, "Error creating %s:" % sqldbfn, e, "(DB exists?)"
+                return 1
+
+        # import data
+        if arg.verbose:
+            print >> sys.stderr, "done."
+            print >> sys.stderr, "Importing data ...",
+
+        next_eid = 1
+        label_id = {}
+        next_lid = 1
+        next_pid = dict([(t,1) for t in TYPE_VALUES])
+
+        for i, l in enumerate(inf):
             l = l.rstrip('\n')
 
-            # parse line into ID and LABEL:STRING pairs
+            # parse line into ID and TYPE:LABEL:STRING triples
             try:
-                _id, rest = l.split('\t', 1)
+                id_, rest = l.split('\t', 1)
             except ValueError:
                 if error_count < MAX_ERROR_LINES:
                     print >> sys.stderr, "Error: skipping line %d: expected tab-separated fields, got '%s'" % (i+1, l)
@@ -155,67 +277,112 @@ def main(argv):
                 error_count += 1
                 continue
 
-            # parse LABEL:STRING pairs
+            # parse TYPE:LABEL:STRING triples
             try:
-                pairs = []
-                for i, pair in enumerate(rest.split('\t')):
-                    # exception: first field to be given without label
-                    # and use default (backward compatibility)
-                    if ':' not in pair and i == 0:
-                        label, string = 'Term', pair
-                        # patch "rest" too (sorry)
-                        rest = 'Term:'+rest
-                    else:
-                        label, string = pair.split(':', 1)
-                    pairs.append((label, string))
+                triples = []
+                for triple in rest.split('\t'):
+                    type_, label, string = triple.split(':', 2)
+                    if type_ not in TYPE_VALUES:
+                        print >> sys.stderr, "Unknown TYPE %s" % type_
+                    triples.append((type_, label, string))
             except ValueError:
                 if error_count < MAX_ERROR_LINES:
-                    print >> sys.stderr, "Error: skipping line %d: expected tab-separated LABEL:STRING pairs, got '%s'" % (i+1, l)
+                    print >> sys.stderr, "Error: skipping line %d: expected tab-separated TYPE:LABEL:STRING triples, got '%s'" % (i+1, rest)
                 elif error_count == MAX_ERROR_LINES:
                     print >> sys.stderr, "(Too many errors; suppressing further error messages)"
                 error_count += 1
                 continue
 
-            if arg.lowercase:
-                pairs = [(l,s.lower()) for l,s in pairs]
-
-            # enter ID->rest mapping into DB
+            # insert entity
+            eid = next_eid
+            next_eid += 1
             try:
-                fwdb.putkeep(_id, rest)
-                import_count += 1
-            except pytc.Error, e:
-                if e[0] == pytc.TCEKEEP:
-                    # existing key, count dup but ignore
-                    duplicate_count += 1
+                cursor.execute("INSERT into entities VALUES (?, ?)", (eid, id_))
+            except sqlite.IntegrityError, e:
+                if error_count < MAX_ERROR_LINES:
+                    print >> sys.stderr, "Error inserting %s (skipping): %s" % (id_, e)
+                elif error_count == MAX_ERROR_LINES:
+                    print >> sys.stderr, "(Too many errors; suppressing further error messages)"
+                error_count += 1
+                continue
+
+            # insert new labels (if any)
+            labels = set([l for t,l,s in triples])
+            new_labels = [l for l in labels if l not in label_id]
+            for label in new_labels:
+                lid = next_lid
+                next_lid += 1
+                cursor.execute("INSERT into labels VALUES (?, ?)", (lid, label))
+                label_id[label] = lid
+
+            # insert associated strings
+            for type_, label, string in triples:
+                table = TABLE_FOR_TYPE[type_]
+                pid = next_pid[type_]
+                next_pid[type_] += 1
+                lid = label_id[label] # TODO
+                if TABLE_HAS_NORMVALUE[table]:
+                    normstring = string_norm_form(string)
+                    cursor.execute("INSERT into %s VALUES (?, ?, ?, ?, ?)" % table,
+                                   (pid, eid, lid, string, normstring))
                 else:
-                    # unexpected error, abort
-                    raise
+                    cursor.execute("INSERT into %s VALUES (?, ?, ?, ?)" % table,
+                                   (pid, eid, lid, string))
 
-            # enter mapping from indexed string(s) to ID into DB
-
-            # split into "indexed" pairs available for lookup and
-            # "meta-information" pairs used only to differentiate
-            # between entries
-            indexed, meta = pairs[:1], pairs[1:]
-
-            # TODO: protect against indexing the same thing
-            # multiple times
-            for label, value in indexed:
-                bwdb.putcat(value, _id+DB_KEY_SEPARATOR)
+            import_count += 1
 
             if arg.verbose and (i+1)%10000 == 0:
                 print >> sys.stderr, '.',
 
+        if arg.verbose:
+            print >> sys.stderr, "done."
+
+        # create SQL indices
+        if arg.verbose:
+            print >> sys.stderr, "Creating indices ...",
+
+        for command in CREATE_INDEX_COMMANDS:
+            try:
+                cursor.execute(command)
+            except sqlite.OperationalError, e:
+                print >> sys.stderr, "Error creating index", e
+                return 1
+
+        if arg.verbose:
+            print >> sys.stderr, "done."
+
+        # wrap up SQL table creation
+        connection.commit()
+
+        # create simstring DB
+        if arg.verbose:
+            print >> sys.stderr, "Creating simstring DB ...",
+        
+        try:
+            ssdb = simstring.writer(ssdbfn)
+            for row in cursor.execute(SELECT_SIMSTRING_STRINGS_COMMAND):
+                # encode as UTF-8 for simstring
+                s = row[0].encode('utf-8')
+                ssdb.insert(s)
+                simstring_count += 1
+            ssdb.close()
+        except:
+            print >> sys.stderr, "Error building simstring DB"
+            raise
+
+        if arg.verbose:
+            print >> sys.stderr, "done."
+
+        cursor.close()
+
     # done
-    fwdb.close()
-    bwdb.close()
     delta = datetime.now() - start_time
 
     if arg.verbose:
         print >> sys.stderr
         print >> sys.stderr, "Done in:", str(delta.seconds)+"."+str(delta.microseconds/10000), "seconds"
     
-    print "Done, imported %d, skipped %d duplicate keys, skipped %d invalid lines" % (import_count, duplicate_count, error_count)
+    print "Done, imported %d entries (%d strings), skipped %d duplicate keys, skipped %d invalid lines" % (import_count, simstring_count, duplicate_count, error_count)
 
     return 0
     

@@ -36,6 +36,8 @@ JOINED_ANN_FILE_SUFF = 'ann'
 PARTIAL_ANN_FILE_SUFF = ['a1', 'a2', 'co', 'rel']
 KNOWN_FILE_SUFF = [JOINED_ANN_FILE_SUFF]+PARTIAL_ANN_FILE_SUFF
 TEXT_FILE_SUFFIX = 'txt'
+# String used to catenate texts of discontinuous annotations in reference text
+DISCONT_SEP = ' '
 ###
 
 
@@ -982,13 +984,14 @@ class TextAnnotations(Annotations):
 
             seen_spans.append((start,end))
 
-        spanlen = sum([end-start for start, end in spans])
+        # first part is text, second connecting separators
+        spanlen = sum([end-start for start, end in spans]) + (len(spans)-1)*len(DISCONT_SEP)
 
         # Require tail to be either empty or to begin with the text
         # corresponding to the catenation of the start:end spans. 
         # If the tail is empty, force a fill with the corresponding text.
         if data_tail.strip() == '' and spanlen > 0:
-            Messager.error(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.", "warning")
+            Messager.error(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.")
             text = "".join([self._document_text[start:end] for start, end in spans])
 
         elif data_tail[0] != '\t':
@@ -1003,13 +1006,23 @@ class TextAnnotations(Annotations):
             text = data_tail[1:spanlen+1] # shift 1 for tab
             data_tail = data_tail[spanlen+1:]
 
-            reftext = ''.join([self._document_text[start:end] for start, end in spans])
+            spantexts = [self._document_text[start:end] for start, end in spans]
+            reftext = DISCONT_SEP.join(spantexts)
 
             if text != reftext:
-                Messager.error((u'Text-bound annotation text "%s" does not '
-                                u'match marked span(s) %s text "%s" in document') % (
-                        text, str(spans), reftext))
-                raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
+                # just in case someone has been running an old version of
+                # discont that catenated spans without DISCONT_SEP
+                oldstylereftext = ''.join(spantexts)
+                if text[:len(oldstylereftext)] == oldstylereftext:
+                    Messager.warning(u'NOTE: replacing old-style (pre-1.3) discontinuous annotation text span with new-style one, i.e. adding space to "%s" in .ann' % text[:len(oldstylereftext)], -1)
+                    text = reftext
+                    data_tail = ''
+                else:
+                    # unanticipated mismatch
+                    Messager.error((u'Text-bound annotation text "%s" does not '
+                                    u'match marked span(s) %s text "%s" in document') % (
+                            text, str(spans), reftext))
+                    raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
             if data_tail != '' and not data_tail[0].isspace():
                 Messager.error(u'Text-bound annotation text "%s" not separated from rest of line ("%s") by space!' % (text, data_tail))

@@ -75,14 +75,6 @@ USER_PASSWORD = {
 MAX_SEARCH_RESULT_NUMBER = 1000
 
 
-### ANNOTATION_LOG
-# If ANNOTATION_LOG is defined, the system will log annotator actions into
-# this file.
-
-#from os.path import join 
-#ANNOTATION_LOG = join(WORK_DIR, 'annotation.log')
-
-
 ### DEBUG
 # Set to True to enable additional debug output
 
@@ -97,18 +89,6 @@ LL_DEBUG, LL_INFO, LL_WARNING, LL_ERROR, LL_CRITICAL = range(5)
 LOG_LEVEL = LL_WARNING
 #LOG_LEVEL = LL_DEBUG
 
-### JAPANESE
-# If the source data is in Japanese enable word segmentation enable this flag
-#   which is necessary for the `JAPANESE_TOKENIZATION` flag also in this file.
-#
-# To install support for Japanese tokenisation use the following command:
-#
-#   ( cd external && ./mecab.sh )
-#
-# Once installation is done set this variable to `True`.
-
-#JAPANESE = True
-
 ### BACKUP_DIR
 # Define to enable backups
 
@@ -119,19 +99,6 @@ try:
     assert DATA_DIR != BACKUP_DIR, 'DATA_DIR cannot equal BACKUP_DIR'
 except NameError:
     pass # BACKUP_DIR most likely not defined
-
-
-### Sentence splitting
-# brat does its best to get splitting right on its own, but if you have
-# pre-processed data with newline sentence splits enable the variable below.
-
-NEWLINE_SS = False
-
-### TOKENIZATION
-# If tokenization other than whitespace is desired, this can be used
-
-#WHITESPACE_TOKENIZATION, PTBLIKE_TOKENIZATION, JAPANESE_TOKENIZATION = range(3)
-#TOKENIZATION = PTBLIKE_TOKENIZATION
 
 
 ### SVG_CONVERSION_COMMANDS
