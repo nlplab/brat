@@ -1,0 +1,143 @@
+---
+layout: base
+title:  "New in version 1.3"
+---
+
+<h1>Upgrading to version 1.3</h1>
+
+<p>This page provides information on upgrading from older versions of
+  brat to a version 1.3 (Crunchy Frog).
+</p>
+
+<p>Excepting a few minor changes (see below), upgrading to brat 1.3
+  from older versions should only require installing the new version
+  of brat and copying (or linking) your
+  <code>data/</code> directory from the old version to the new.
+</p>
+
+<h2>brat configuration</h2>
+
+<p>The following features, previously set
+  using <code>config.py</code>, are now controlled by settings
+  in <code>tools.conf</code>: sentence splitting, tokenization,
+  annotation validation, and annotation logging. Due to this change,
+  the following settings in <code>config.py</code> are deprecated and
+  no longer have any effect:
+</p>
+<p><pre><code>    NEWLINE_SS, TOKENIZATION, JAPANESE, ANNOTATION_LOG, PERFORM_VERIFICATION</code></pre>
+</p>
+<p>These features can now be configured in the <code>[options]</code>
+  section in <code>tools.conf</code> using the following settings:
+</p>
+<ul>
+<li><code>Tokens tokenizer:VALUE</code>, where <code>VALUE</code>=
+  <ul>
+    <li><code>whitespace</code>: split by whitespace characters in source text (only) </li>
+    <li><code>ptblike</code>: emulate Penn Treebank tokenization</li>
+    <li><code>mecab</code>: perform Japanese tokenization using MeCab</li>
+  </ul>
+</li>
+<li><code>Sentences splitter:VALUE</code>, where <code>VALUE</code>=
+  <ul>
+    <li><code>regex</code>: regular expression-based sentence splitting</li>
+    <li><code>newline</code>: split by newline characters in source text (only)</li>
+  </ul>
+</li>
+<li><code>Validation validate:VALUE</code>, where <code>VALUE</code>=
+  <ul>
+    <li><code>all</code>: perform full validation</li>
+    <li><code>none</code>: don't perform any validation</li>
+  </ul>
+</li>
+<li><code>Annotation-log logfile:VALUE</code>, where <code>VALUE</code>=
+  <ul>
+    <li><code>&lt;NONE&gt;</code>: no annotation logging</li>
+    <li><code>NAME</code>: log into file NAME (e.g. "/home/brat/work/annotation.log")</li>
+  </ul>
+</li>
+</ul>
+
+<p>For example, the following <code>[options]</code> section gives the
+  default brat configuration before version 1.3:
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="150">[options]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Tokens</td><td>tokenizer:whitespace</td>
+	</tr><tr>
+	  <td>Sentences</td><td>splitter:regex</td>
+	</tr><tr>
+	  <td>Validation</td><td>validate:none</td>
+	</tr><tr>
+	  <td>Annotation-log</td><td>logfile:&lt;NONE&gt;</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>The following <code>[options]</code> section enables Japanese
+  tokenization using MeCab, sentence splitting only by newlines, full
+  validation, and annotation logging into the given file. (In
+  setting <code>Annotation-log logfile</code>, remember to make sure
+  the web server has appropriate write permissions to the file.)
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="150">[options]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Tokens</td><td>tokenizer:mecap</td>
+	</tr><tr>
+	  <td>Sentences</td><td>splitter:newline</td>
+	</tr><tr>
+	  <td>Validation</td><td>validate:full</td>
+	</tr><tr>
+	  <td>Annotation-log</td><td>logfile:/home/brat/work/annotation.log</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>If you find any other issues upgrading to version 1.3, please
+  see the <a href="troubleshooting.html">troubleshooting page</a> for
+  general instructions and use the 
+  <a href="http://github.org/nlplab/brat/issues">brat issue
+  tracker</a> to report any issues.
+</p>
+
+<h2>web server configuration</h2>
+
+<p>In cases, a brat server may stop working when upgrading to version
+  1.3. One likely cause of this issue is that version 1.3 features
+  some new access limits for security, which requires permission to
+  limit access in the <tt>.htaccess</tt> file.
+</p>
+<p>If you have previously set up an older version of brat according
+  to older <a href="installation.html">installation instructions</a>,
+  make sure that you update your <tt>httpd.conf</tt> file to include
+  <code>AllowOverride Limit</code> for the brat directory.
+</p>
+<p>For example, if your <tt>httpd.conf</tt> file previously included
+  the line
+</p>
+
+<pre><code>AllowOverride Options Indexes FileInfo</code></pre>
+  
+<p>change this line to read</p>
+
+<pre><code>AllowOverride Options Indexes FileInfo Limit</code></pre>
+
+<p>and then restart apache to read the updated configuration</p>
+
+<pre><code>sudo /etc/init.d/apache2 reload</code></pre>
+
