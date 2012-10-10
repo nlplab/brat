@@ -65,6 +65,17 @@ var AnnotatorUI = (function($, window, undefined) {
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
 
+      var stripNumericSuffix = function(s) {
+        // utility function, originally for stripping numerix suffixes
+        // from arc types (e.g. "Theme2" -> "Theme"). For values
+        // without suffixes (including non-strings), returns given value.
+        if (typeof(s) != "string") {          
+          return s; // can't strip
+        }
+        var m = s.match(/^(.*?)(\d*)$/);
+        return m[1]; // always matches
+      }
+
       var hideForm = function() {
         keymap = null;
         rapidAnnotationDialogVisible = false;
@@ -239,7 +250,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var getValidArcTypesForDrag = function(targetId, targetType) {
-        var arcType = arcOptions && arcOptions.type;
+        var arcType = stripNumericSuffix(arcOptions && arcOptions.type);
         if (!arcDragOrigin || targetId == arcDragOrigin) return null;
 
         var originType = data.spans[arcDragOrigin].type;
@@ -276,10 +287,14 @@ var AnnotatorUI = (function($, window, undefined) {
             // show the possible targets
             var span = data.spans[arcDragOrigin] || {};
             var spanDesc = spanTypes[span.type] || {};
+
+            // separate out possible numeric suffix from type for highight
+            // (instead of e.g. "Theme3", need to look for "Theme")
+            var noNumArcType = stripNumericSuffix(arcOptions && arcOptions.type);
             // var targetClasses = [];
             var $targets = $();
             $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
-              if ((arcOptions && possibleArc.type == arcOptions.type) || !(arcOptions && arcOptions.old_target)) {
+              if ((arcOptions && possibleArc.type == noNumArcType) || !(arcOptions && arcOptions.old_target)) {
                 $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
                   // speedup for #642: relevant browsers should support
                   // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
