@@ -55,11 +55,12 @@ run the installation script
 and follow the instructions. You will be prompted for the following
 information:
 
-<ul>
-<li>brat username (e.g. "editor")</li>
-<li>brat password (for the given user, e.g. "annotate")</li>
-<li>administrator contact email (e.g. "admin@example.com")</li>
-</ul>
+* brat username (e.g. "editor")
+* brat password (for the given user, e.g. "annotate")
+* administrator contact email (e.g. "admin@example.com")
+
+If at a later stage want to add additional users you can edit the `config.py`
+file that contains further instructions.
 
 Finally, if you are not running the installation as superuser, the
 script will prompt you for the sudo password. (This is necessary to
