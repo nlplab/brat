@@ -1,12 +1,8 @@
-In brat, documents are organized into collections, like files are organized into directories on your computer.
+In brat, documents are organized into COLLECTIONS, like files are organized into directories (or folders) on your computer.
 
-Within a single collection, you can move between different documents using the forward and backward arrows on your keyboard, or by clicking on the arrow buttons on the blue bar at the top left corner of the page.
+Within a single collection, you can move between different documents using the forward and backward arrows on your keyboard, or by clicking on the arrow buttons on the blue bar at the top left corner of the page, as you did just now.
 
-To change collections or to jump straight to a specific document in a collection, you can use the collection browser.
-
-The collection browser can be opened by moving the mouse cursor over the top bar to show the menu and clicking on "Collection", or by pressing the TAB key on your keyboard.
-
-To select a document in the collection browser, just double-click on it; to close the collection browser without changing documents, either click on "Cancel" or press the ESC key.
+To change collections or to jump straight to a specific document in a collection, you can use the COLLECTION BROWSER. The collection browser can be opened by moving the mouse cursor over the top bar to show the menu and clicking on "Collection", or by pressing the TAB key on your keyboard. To select a document in the collection browser, just double-click on it. To close the collection browser without changing documents, either click on "Cancel" or press the ESC key.
 
 If at any time you get lost in this tutorial, you can use the collection browser to find your way back.
 

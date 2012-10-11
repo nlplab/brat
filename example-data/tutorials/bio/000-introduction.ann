@@ -1,2 +1,15 @@
-T1	Protein 215 218	p53
-T2	Protein 223 226	p64
+T1	Gene_expression 447 457	expression
+E1	Gene_expression:T1 Theme:T2
+T2	Protein 461 470	IkB-alpha
+T3	Negative_regulation 475 482	inhibit
+E2	Negative_regulation:T3 Cause:E1 Theme:E3
+T4	Positive_regulation 487 499	upregulation
+E3	Positive_regulation:T4 Theme:E4
+T5	Protein 503 509	VCAM-1
+T6	Gene_expression 510 520	expression
+E4	Gene_expression:T6 Theme:T5
+A1	Confidence E2 Possible
+A2	Confidence E1 Certain
+A3	Confidence E3 Certain
+A4	Confidence E4 Certain
+#1	AnnotatorNotes E1	The "suggest that" applies to the "inhibit", this expression event is certain.
