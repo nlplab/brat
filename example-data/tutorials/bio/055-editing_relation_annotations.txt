@@ -1,0 +1,32 @@
+Editing relation annotations
+
+Relation annotations can be modified or deleted similarly to text span annotations, using the Edit Annotation dialog that is shown when double-clicking on the relation type.
+
+To try this out: first, delete the extra relation annotations in the following sentences:
+
+
+1 ) p53 is not a part of the protein complex NF-kappa B.
+
+2 ) Aspirin, paracetamol and morphine are all analgesic, but not the same thing.
+
+
+In the Edit Annotation dialog for relations, "Reselect" is similar to "Move" for spans. Try using this function to correct the annotation in the next sentence.
+
+
+3) c-Rel is a component of NF-kappa B but not of IkB kinase.
+
+
+Relation annotation types can also be changed similarly to text span annotation types.
+
+
+4) c-Rel is a component of NF-kappa B.
+
+
+Easy, isn't it?
+
+
+
+
+Hints
+
+* As in the Edit Annotation dialog for text span annotations, DEL and INS can also be used for deleting and re-selecting in the edit dialog for relation annotations.

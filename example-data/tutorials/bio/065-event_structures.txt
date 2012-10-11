@@ -1,0 +1,23 @@
+Structured event annotation
+
+One important property of event annotation is the ability to annotate events as participants in other events, creating complex event structures. This allows the annotation to express, for example, that one event is the cause of another. Consider the following example:
+
+
+1 ) LMP1 upregulates IL-10 expression.
+
+
+Here, one event is marked as participating in another. For a more involved example, consider the following:
+
+
+2 ) Expression of IkB-alpha inhibited the upregulation of VCAM-1 expression.
+
+
+These annotations can be created using the brat functionality you are already familiar with: simply first create event annotations that do not involve other event annotations as participants, and then create the "upper layers" of annotation to make the full structure. Try this to reconstruct the examples above, and make sure you have all the details right!
+
+
+3 ) LMP1 upregulates IL-10 expression.
+
+4 ) Expression of IkB-alpha inhibited the upregulation of VCAM-1 expression.
+
+
+It may take a bit of practice to get used to "reading" event annotations such as these, but they're easy enough to understand once you've seen a few.

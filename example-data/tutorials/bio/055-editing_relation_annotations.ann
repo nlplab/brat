@@ -1,0 +1,14 @@
+T1	Protein 301 304	p53
+T2	Complex 342 352	NF-kappa B
+R1	Part-of Arg1:T1 Arg2:T2	
+T3	Simple_chemical 359 366	Aspirin
+T4	Simple_chemical 368 379	paracetamol
+T5	Simple_chemical 384 392	morphine
+*	Equiv T3 T4 T5
+T6	Protein 603 608	c-Rel
+T7	Complex 627 637	NF-kappa B
+T8	Complex 649 659	IkB kinase
+R2	Part-of Arg1:T6 Arg2:T8	
+T9	Protein 755 760	c-Rel
+T10	Complex 779 789	NF-kappa B
+R3	Member-of Arg1:T9 Arg2:T10	
