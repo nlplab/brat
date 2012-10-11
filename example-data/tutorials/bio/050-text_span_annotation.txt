@@ -6,7 +6,7 @@ Annotations marking a text span are a basic building block for most brat annotat
 1 ) These are obviously proteins: p53, c-Rel and Foxp3.
 
 
-Note that in addition to identifying a span of text, each of these annotations also has a type, shown in the annotation "box". All brat annotations have some type, and the specific types used can be separately configured for each annotation project.
+Note that in addition to identifying a span of text, each of these annotations also has a type, shown in the "box" above the text. All brat annotations have some type, and the specific types used can be separately configured for each annotation project.
 
 Text span annotations can be created simply by selecting text using the mouse, as in most text editors and similar software, selecting a type from the NEW ANNOTATION DIALOG that pops up after selection, and pressing OK (the dialog may look a bit complex, but you only need the "Entity type" selection and the "OK" button now). Try this now to create text span annotations for the following sentence!
 

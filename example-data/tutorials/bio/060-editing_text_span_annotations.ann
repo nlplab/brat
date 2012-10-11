@@ -1,6 +1,6 @@
-T1	Protein 380 388	sentence
-T2	Protein 413 421	anything
-T3	Protein 448 452	have
-T4	Protein 849 858	study p53
-T5	Protein 863 883	p105 phosphorylation
-T6	Organism 1111 1114	p53
+T1	Protein 401 409	sentence
+T2	Protein 434 442	anything
+T3	Protein 469 473	have
+T4	Protein 870 879	study p53
+T5	Protein 884 904	p105 phosphorylation
+T6	Organism 1132 1135	p53

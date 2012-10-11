@@ -31,6 +31,10 @@ If you succeeded in creating annotations so that the last two sentences match th
 
 Hints
 
+* Note that the annotation types shown in the New Annotation dialog vary depending on the annotations you are connecting. (The types of relations allowed are fully configurable.)
+
+* When no relation types are allowed by the configuration for a pair of annotations, the "target" annotation will be highlighted in red and the New Annotation dialog will not be shown.
+
 * The type selection in the New Annotation dialog for relation annotations can be configured to use keyboard shortcuts similarly to that for text span annotations.
 
 * Details on different categories of relations (symmetric, transitive) can be found in the brat documentation.
