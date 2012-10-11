@@ -121,9 +121,15 @@ class NoteMatch(object):
             # nevermind
             pass
 
+    def first_start(self):
+        return self.start
+
+    def last_end(self):
+        return self.end
+
     def reference_id(self):
-        # return reference to annotation that the comment is attached
-        # to, not the comment itself
+        # return reference to annotation that the note is attached to
+        # (not the note itself)
         return self.ann.reference_id()
 
     def reference_text(self):
