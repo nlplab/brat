@@ -14,3 +14,7 @@ T9	Positive_regulation 493 505	upregulation
 E5	Positive_regulation:T9 Theme:E4
 T10	Negative_regulation 479 488	inhibited
 E6	Negative_regulation:T10 Cause:E3 Theme:E5
+T11	Protein 895 899	LMP1
+T12	Protein 912 917	IL-10
+T13	Protein 949 958	IkB-alpha
+T14	Protein 989 995	VCAM-1

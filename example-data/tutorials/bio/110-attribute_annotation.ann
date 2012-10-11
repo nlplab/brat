@@ -29,14 +29,9 @@ T19	Protein 937 939	P2
 T20	Protein 971 973	P2
 T21	Binding 870 874	bind
 E5	Binding:T21 Theme:T13 Theme2:T17
-A6	Confidence E5 Possible
 T22	Binding 900 904	bind
 E6	Binding:T22 Theme:T14 Theme2:T18
-A7	Confidence E6 Likely
 T23	Binding 927 931	does
 E7	Binding:T23 Theme:T15 Theme2:T19
-A8	Confidence E7 Certain
 T24	Binding 966 970	bind
 E8	Binding:T24 Theme:T16 Theme2:T20
-A9	Confidence E8 Likely
-A10	Negation E8
