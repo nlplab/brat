@@ -73,7 +73,10 @@ title:  "Normalization"
 </p>
 
 <p>This will create a normalization DB using a small sample of data
-  from the <a href="http://en.wikipedia.org">English Wikipedia</a>.
+  from the <a href="http://en.wikipedia.org">English Wikipedia</a>
+  (generated from a
+  <a href="http://wiki.freebase.com/wiki/Data_dumps">Freebase Wikipedia 
+    data dump</a>).
 </p>
 
 <p>Next, open the <code>tools.conf</code> file using your favorite
@@ -90,7 +93,7 @@ title:  "Normalization"
 </p>
 
 <p>That's all! Now, when creating annotations, you will be able to
-  search (a sample of) Wikipedia from within brat and attach
+  search (a small sample of) Wikipedia from within brat and attach
   normalization annotations to other annotations, as shown in the next
   section.
 </p>
@@ -331,7 +334,7 @@ title:  "Normalization"
   <span style="color:blue">blue</span>)
 </p>
 
-<p><pre><code>python tools/norm_db_lookup.py Wikipedia
+<p><pre><code>python tools/norm_db_lookup.py Wiki
 >>> <span style="color:blue">Google</span>
  1092923	Name:Google		Info:Google Inc. is an American multinational Internet and software corporation [...]
 >>> <span style="color:blue">Barak Obama</span>
