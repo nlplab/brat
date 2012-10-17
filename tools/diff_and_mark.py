@@ -154,13 +154,26 @@ class AnnotationDiff: # {{{
     
 
     # Events {{{
-    def find_closest_events(self, second_event, found_events_dict):
-        second_args = dict(second_event.args)
+    #
+    # Events are a problem, since there can be multiple events for the
+    # same trigger which are only distinguished by their arguments.
+    # An additional problem is that arguments can also be events, so we
+    # don't necessarily know the mapping of the arguments.
+    # Thus, when comparing events-as-arguments, we compare only their
+    # triggers.
+    def trigger_or_self(self, target, triggers):
+        try:
+            return triggers[target]
+        except KeyError:
+            return target
+
+    def find_closest_events(self, second_event, found_events_dict, first_triggers, second_triggers):
+        second_args = dict((role, self.trigger_or_self(target, second_triggers)) for (role, target) in second_event.args)
         second_roles = set(second_args.keys())
 
         for first_event in self.first.get_events():
             if self.mapping.get_second(first_event.trigger) == second_event.trigger and first_event.type == second_event.type:
-                first_args = dict((role, self.mapping.get_second(target)) for (role, target) in first_event.args)
+                first_args = dict((role, self.mapping.get_second(self.trigger_or_self(target, first_triggers))) for (role, target) in first_event.args)
                 first_roles = set(first_args.keys())
                 
                 only_first = set(role for role in first_roles if first_args.get(role) != second_args.get(role))
@@ -181,6 +194,9 @@ class AnnotationDiff: # {{{
                 found_events_dict[score][second_event.id].append(match)
 
     def diff_events(self):
+        second_triggers = dict((event.id, event.trigger) for event in self.second.get_events())
+        first_triggers = dict((event.id, event.trigger) for event in self.first.get_events())
+
         found_first_ids = set()
         found_second_ids = set()
 
@@ -188,7 +204,7 @@ class AnnotationDiff: # {{{
 
         # first pass, collect exact matches
         for event in self.second.get_events():
-            self.find_closest_events(event, found_events_dict)
+            self.find_closest_events(event, found_events_dict, first_triggers, second_triggers)
 
         # XXX Pythonize
         for score in sorted(found_events_dict.keys()):
