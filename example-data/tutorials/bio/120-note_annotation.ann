@@ -1,0 +1,21 @@
+T1	Protein 421 424	IgG
+#1	AnnotatorNotes T1	Check: is this a Protein or a Complex?
+T2	Protein 431 436	IL-10
+T3	Protein 443 450	IL-10R1
+T4	Protein 455 462	IL-10R2
+T5	Binding 437 442	binds
+E1	Binding:T5 Theme:T2 Theme2:T3 Theme3:T4
+#2	AnnotatorNotes E1	Single ternary binding event or two binary ones?  
+T6	Complex 469 479	NF-kappa B
+T7	Protein 480 485	c-Rel
+R1	Part-of Arg1:T7 Arg2:T6	
+#3	AnnotatorNotes R1	Should this be annotated? There's no particularly explicit statement of the Part-of relation here.
+T8	Protein 567 570	IgG
+T9	Protein 577 582	IL-10
+T10	Protein 589 596	IL-10R1
+T11	Protein 601 608	IL-10R2
+T12	Complex 615 625	NF-kappa B
+T13	Protein 626 631	c-Rel
+R2	Part-of Arg1:T13 Arg2:T12	
+T14	Binding 583 588	binds
+E2	Binding:T14 Theme:T9 Theme2:T10 Theme3:T11

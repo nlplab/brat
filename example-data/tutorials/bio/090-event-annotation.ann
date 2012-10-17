@@ -1,0 +1,24 @@
+T1	Protein 282 285	p53
+T2	Protein 292 297	Foxp3
+T3	Protein 307 310	Tax
+T4	Protein 317 322	IL-10
+T5	Protein 324 331	IL-10R1
+T6	Protein 336 343	IL-10R2
+T7	Binding 265 272	binding
+E1	Binding:T7 Theme:T1
+T8	Binding 298 303	binds
+E2	Binding:T8 Theme:T2 Theme2:T3
+T9	Binding 344 348	bind
+E3	Binding:T9 Theme:T4 Theme2:T5 Theme3:T6
+T10	Protein 1116 1119	p53
+T11	Protein 1126 1131	Foxp3
+T12	Protein 1141 1144	Tax
+T13	Protein 1151 1156	IL-10
+T14	Protein 1158 1165	IL-10R1
+T15	Protein 1170 1177	IL-10R2
+T16	Protein 1430 1435	IL-10
+T17	Protein 1437 1444	IL-10R1
+T18	Protein 1449 1456	IL-10R2
+T19	Protein 1512 1515	p53
+T20	Binding 1472 1479	ternary
+E4	Binding:T20 Theme:T16 Theme2:T17 Theme3:T19

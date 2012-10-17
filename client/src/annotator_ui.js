@@ -65,6 +65,17 @@ var AnnotatorUI = (function($, window, undefined) {
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
 
+      var stripNumericSuffix = function(s) {
+        // utility function, originally for stripping numerix suffixes
+        // from arc types (e.g. "Theme2" -> "Theme"). For values
+        // without suffixes (including non-strings), returns given value.
+        if (typeof(s) != "string") {          
+          return s; // can't strip
+        }
+        var m = s.match(/^(.*?)(\d*)$/);
+        return m[1]; // always matches
+      }
+
       var hideForm = function() {
         keymap = null;
         rapidAnnotationDialogVisible = false;
@@ -239,7 +250,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var getValidArcTypesForDrag = function(targetId, targetType) {
-        var arcType = arcOptions && arcOptions.type;
+        var arcType = stripNumericSuffix(arcOptions && arcOptions.type);
         if (!arcDragOrigin || targetId == arcDragOrigin) return null;
 
         var originType = data.spans[arcDragOrigin].type;
@@ -276,10 +287,14 @@ var AnnotatorUI = (function($, window, undefined) {
             // show the possible targets
             var span = data.spans[arcDragOrigin] || {};
             var spanDesc = spanTypes[span.type] || {};
+
+            // separate out possible numeric suffix from type for highight
+            // (instead of e.g. "Theme3", need to look for "Theme")
+            var noNumArcType = stripNumericSuffix(arcOptions && arcOptions.type);
             // var targetClasses = [];
             var $targets = $();
             $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
-              if ((arcOptions && possibleArc.type == arcOptions.type) || !(arcOptions && arcOptions.old_target)) {
+              if ((arcOptions && possibleArc.type == noNumArcType) || !(arcOptions && arcOptions.old_target)) {
                 $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
                   // speedup for #642: relevant browsers should support
                   // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
@@ -1171,9 +1186,13 @@ var AnnotatorUI = (function($, window, undefined) {
         $.each(response.items, function(itemNo, item) {
           // NOTE: assuming ID is always the first datum in the item
           // and that the preferred text is always the second
+          // TODO: Util.escapeQuotes would be expected to be
+          // sufficient here, but that appears to give "DOM Exception
+          // 11" in cases (try e.g. $x.html('<p a="A&B"/>'). Why? Is
+          // this workaround OK?
           html.push('<tr'+
-                    ' data-id="'+Util.escapeHTML(item[0])+'"'+
-                    ' data-txt="'+Util.escapeHTML(item[1])+'"'+
+                    ' data-id="'+Util.escapeHTMLandQuotes(item[0])+'"'+
+                    ' data-txt="'+Util.escapeHTMLandQuotes(item[1])+'"'+
                     '>');
           for (var i=0; i<len; i++) {
             html.push('<td>' + Util.escapeHTML(item[i]) + '</td>');

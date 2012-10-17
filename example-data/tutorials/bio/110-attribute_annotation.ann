@@ -1,0 +1,37 @@
+T1	Protein 515 517	P1
+T2	Protein 545 547	P1
+T3	Protein 536 538	P2
+T4	Protein 566 568	P2
+T5	Protein 575 577	P1
+T6	Protein 598 600	P2
+T7	Protein 607 609	P1
+T8	Protein 632 634	P2
+T9	Binding 531 535	bind
+E1	Binding:T9 Theme:T1 Theme2:T3
+A1	Confidence E1 Possible
+T10	Binding 561 565	bind
+E2	Binding:T10 Theme:T2 Theme2:T4
+A2	Confidence E2 Likely
+T11	Binding 593 597	bind
+E3	Binding:T11 Theme:T5 Theme2:T6
+T12	Binding 627 631	bind
+E4	Binding:T12 Theme:T7 Theme2:T8
+A3	Confidence E4 Likely
+A4	Negation E4
+A5	Confidence E3 Certain
+T13	Protein 854 856	P1
+T14	Protein 884 886	P1
+T15	Protein 914 916	P1
+T16	Protein 946 948	P1
+T17	Protein 875 877	P2
+T18	Protein 905 907	P2
+T19	Protein 937 939	P2
+T20	Protein 971 973	P2
+T21	Binding 870 874	bind
+E5	Binding:T21 Theme:T13 Theme2:T17
+T22	Binding 900 904	bind
+E6	Binding:T22 Theme:T14 Theme2:T18
+T23	Binding 927 931	does
+E7	Binding:T23 Theme:T15 Theme2:T19
+T24	Binding 966 970	bind
+E8	Binding:T24 Theme:T16 Theme2:T20

@@ -57,6 +57,10 @@ var Util = (function(window, undefined) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
+    var escapeHTMLandQuotes = function(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');
+    }
+
     var escapeHTMLwithNewlines = function(str) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
     }
@@ -583,6 +587,7 @@ var Util = (function(window, undefined) {
       arcDisplayForm: arcDisplayForm,
       escapeQuotes: escapeQuotes,
       escapeHTML: escapeHTML,
+      escapeHTMLandQuotes: escapeHTMLandQuotes,
       escapeHTMLwithNewlines: escapeHTMLwithNewlines,
       cmp: cmp,
       rgbToHsl: rgbToHsl,

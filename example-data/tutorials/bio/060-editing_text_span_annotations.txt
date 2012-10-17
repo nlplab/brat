@@ -1,0 +1,36 @@
+Editing text span annotations
+
+To modify or delete text span annotations, double-click on the annotation (the "box" above the text). This will the EDIT ANNOTATION DIALOG, which is similar to the New Annotation dialog you saw when creating text span annotations.
+
+The following sentence contains some extra annotations. Use the "Delete" button in the Edit Annotation dialog to remove these.
+
+
+1 ) This sentence contains no mentions of anything of interest and shouldn't have any annotations.
+
+
+The annotations in the following sentence are otherwise OK, but their spans include some extra words. The move "Move" button in the Edit Annotation dialog allows you to move the spans to the right places. After clicking on Move, just select the correct span as you would when creating a new annotation.
+
+
+2 ) This sentence mentions some proteins, but they are misannotated: we study p53 and p105 phosphorylation.
+
+
+You can also change the type of an existing annotation in the Edit Annotation dialog by selecting a type, just like when creating a new annotation. Try it out on the sentence below.
+
+
+3 ) No matter what the annotation says, p53 is a protein and not an organism.
+
+
+That's all you need for working with text span annotations! Next, let's move on to ways of associating annotations with other annotations.
+
+
+
+
+Hints
+
+* Note that the border of the brat annotation area will turn red while in the "move annotation" mode.
+
+* The ESC key can be used to cancel most active operations in brat. Pressing ESC will dismiss open dialogs and cancel "Move" operations.
+
+* When in the Edit Annotation dialog, the DEL key can be used to delete the annotation and the INS key to move it.
+
+* In the Edit Annotation dialog, the keys corresponding to the underlined characters in the type texts can be used to quickly select each type. (If nothing is underlined or you want to change the configuration, ask your administrator to edit the kb_shortcuts.conf file.)

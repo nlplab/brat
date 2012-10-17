@@ -396,7 +396,7 @@ def copy_annotations(original_name, new_name):
     for extension in KNOWN_FILE_SUFF:
         try:
             shutil.copyfile('%s.%s' % (original_name, extension), '%s.%s' % (new_name, extension))
-        except IOError as e:
+        except IOError, e:
             pass # that extension file does not exist
     return annotation.TextAnnotations(new_name)
 
@@ -405,7 +405,7 @@ def delete_annotations(name):
     for extension in KNOWN_FILE_SUFF:
         try:
             os.remove('%s.%s' % (name, extension))
-        except OSError as e:
+        except OSError, e:
             pass # that extension file does not exist
 
 def diff_files(first_name, second_name, result_name):
@@ -452,7 +452,7 @@ def add_files(files, dir_or_file, errors):
         if not found:
             errors.append('Error: no annotation files found in %s' % dir_or_file)
 
-def diff_files_and_dirs(firsts, second, result, force=False):
+def diff_files_and_dirs(firsts, second, result, force=False, verbose=False):
     import os.path
     errors = []
     fatal_errors = []
@@ -480,6 +480,9 @@ def diff_files_and_dirs(firsts, second, result, force=False):
 
         for first_name in first_files:
             basename = os.path.basename(first_name)
+
+            if verbose:
+                print "Comparing", basename
 
             if second_dir:
                 second_name = os.path.join(second, basename)
@@ -520,7 +523,7 @@ def argparser():
     import argparse
 
     ap=argparse.ArgumentParser(description="Diff two annotation files, creating a diff annotation file")
-    # ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
+    ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
     ap.add_argument("firsts", metavar="<first>", nargs="+", help="Original (or gold standard) directories/files")
     ap.add_argument("second", metavar="<second>", help="Changed (or tested) directory/file")
     ap.add_argument("result", metavar="<result>", help="Output file/directory")
@@ -532,7 +535,7 @@ def main(argv=None):
         argv = sys.argv
     args = argparser().parse_args(argv[1:])
 
-    diff_files_and_dirs(args.firsts, args.second, args.result, args.force)
+    diff_files_and_dirs(args.firsts, args.second, args.result, args.force, args.verbose)
 
 if __name__ == "__main__":
     import sys

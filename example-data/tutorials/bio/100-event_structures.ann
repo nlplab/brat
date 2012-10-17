@@ -1,0 +1,20 @@
+T1	Protein 304 308	LMP1
+T2	Protein 321 326	IL-10
+T3	Gene_expression 327 337	expression
+E1	Gene_expression:T3 Theme:T2
+T4	Positive_regulation 309 320	upregulates
+E2	Positive_regulation:T4 Cause:T1 Theme:E1
+T5	Protein 469 478	IkB-alpha
+T6	Protein 509 515	VCAM-1
+T7	Gene_expression 455 465	Expression
+E3	Gene_expression:T7 Theme:T5
+T8	Gene_expression 516 526	expression
+E4	Gene_expression:T8 Theme:T6
+T9	Positive_regulation 493 505	upregulation
+E5	Positive_regulation:T9 Theme:E4
+T10	Negative_regulation 479 488	inhibited
+E6	Negative_regulation:T10 Cause:E3 Theme:E5
+T11	Protein 895 899	LMP1
+T12	Protein 912 917	IL-10
+T13	Protein 949 958	IkB-alpha
+T14	Protein 989 995	VCAM-1

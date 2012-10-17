@@ -1,0 +1,29 @@
+Attribute annotation
+
+To support the annotation of properties in more detail than just annotation type, brat supports ATTRIBUTE ANNOTATION. Attributes are either binary (on/off) flags or values selected from a set of possible alternatives.
+
+Some examples are shown in the following sentence. Take a moment to study these settings by hovering over the annotations with the mouse cursor to see the information display, and then double-click to open the Edit Annotation dialog to see how the attributes are set.
+
+
+1 ) P1 may possibly bind P2.
+
+2 ) P1 is likely to bind P2.
+
+3 ) P1 certainly does bind P2.
+
+4 ) P1 is likely not to bind P2.
+
+
+As you may have noted earlier, there are separate controls under the annotation type selector for attributes. Try using these now to make the attribute settings for the following annotations match those above.
+
+
+1 ) P1 may possibly bind P2.
+
+2 ) P1 is likely to bind P2.
+
+3 ) P1 certainly does bind P2.
+
+4 ) P1 is likely not to bind P2.
+
+
+Attributes can be set when creating a new annotation in exactly the same way that they can be set when editing an existing one.

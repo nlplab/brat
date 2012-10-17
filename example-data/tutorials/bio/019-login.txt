@@ -1,9 +1,0 @@
-Logging in
-
-Many functions in brat, such as adding and changing annotations, can only be performed by users who are logged in.
-
-User and password management is handled by the administrator of your brat installation, and you may have already received a username and password from your administrator.
-
-Much of the remainder of this tutorial assumes that you have a username and password; if you do not have one already, this would be a good time to ask your brat installation administrator for this information.
-
-Try logging in and out now, and make sure you are logged in before proceeding with this tutorial.

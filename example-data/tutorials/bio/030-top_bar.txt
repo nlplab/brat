@@ -1,0 +1,7 @@
+Top bar and menu
+
+As you may have already noticed, brat has a blue TOP BAR that opens the MENU when you place the mouse cursor over it. Once the mouse pointer leaves the menu area the menu will disappear, allowing more screen space for text and annotations.
+
+The menu provides access to various dialogs for working with text and annotations, as well as a button for logging in in and out of brat.
+
+Finally, you should find a "help" link in the menu, which will open the brat manual in a separate page if clicked. You won't need the manual for this tutorial, but it may be helpful for reference later.

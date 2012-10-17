@@ -1,0 +1,40 @@
+Event annotation
+
+For capturing associations of arbitrary numbers of annotations, brat implements a number of features supporting EVENT ANNOTATION: text-bound, n-ary associations of annotations. As this is a bit of a mouthful, let's us use some examples.
+
+
+1 ) The binding involves p53.
+
+2 ) Foxp3 binds to Tax.
+
+3 ) IL-10, IL-10R1 and IL-10R2 bind to form a ternary complex.
+
+
+Each of the above sentences contains a single event annotation, with different numbers of participants. It may be helpful to think of a brat event annotation as a text span annotation together with binary relations identifying the participants in the event (this is a reasonable approximation of the actual representation). In many event annotation efforts, the text span annotation is termed the "event trigger" and the relation types "participant roles".
+
+It is straightforward to create event annotations: first create a text span annotation and assign it an event type; then annotate the participants by dragging and dropping, just as for binary relations. Try to recreate the above event structures below.
+
+
+4 ) The binding involves p53.
+
+5 ) Foxp3 binds to Tax.
+
+6 ) IL-10, IL-10R1 and IL-10R2 bind to form a ternary complex.
+
+
+The trigger and event arguments can be edited just as any text span and relation annotation, using the same methods we learned in the previous parts of this tutorial. Try it out to correct the annotations below.
+
+
+3 ) IL-10, IL-10R1 and IL-10R2 bind to form a ternary complex, which does not involve p53.
+
+
+That's all there is to basic event annotation!
+
+
+
+
+Hints
+
+* Deleting the event annotation (the "box" identifying the trigger) deletes also all the relations identifying its participants.
+
+* When a single event involves multiple participants in the same role (relation type), the roles are differentiated by numeric suffixes (e.g. "Theme2", "Theme3"). This can be used to pair up event participants (e.g. "Theme2" is associated with "Site2"), but can be ignored in annotation efforts not involving such pairs.

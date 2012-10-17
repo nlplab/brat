@@ -1,0 +1,12 @@
+T1	Protein 139 144	c-Rel
+T2	Complex 163 173	NF-kappa B
+R1	Part-of Arg1:T1 Arg2:T2	
+T3	Protein 485 489	p105
+T4	Protein 507 511	KBF1
+T5	Protein 516 521	EBP-1
+*	Equiv T3 T4 T5
+T6	Protein 1204 1209	c-Rel
+T7	Complex 1228 1238	NF-kappa B
+T8	Protein 1245 1249	p105
+T9	Protein 1267 1271	KBF1
+T10	Protein 1276 1281	EBP-1

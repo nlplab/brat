@@ -151,6 +151,10 @@ path {
   stroke-width: 2;
 }
 
+.shadow_True_positive {
+  fill: #00ff00;
+}
+
 .shadow_False_positive {
   fill: #ff4141;
 }

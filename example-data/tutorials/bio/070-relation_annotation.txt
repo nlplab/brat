@@ -1,0 +1,46 @@
+Relation annotation
+
+The simplest form of connection between annotations is a binary RELATION ANNOTATION. An example is shown below.
+
+
+1 ) c-Rel is a component of NF-kappa B.
+
+
+The relation in the above example is directed: the annotation that the relation is "from" is distinguished from the annotation that the relation is "to". Another important category is symmetric, transitive relations, used for EQUIVALENCE RELATION ANNOTATION. This is illustrated in the sentence below.
+
+
+2 ) p105 is also known as KBF1 and EBP-1.
+
+
+The above annotation implies that the relation holds between all pairs in the "chain". (We'll skip more detailed explanations of this now.)
+
+Relation annotations can be created by clicking on an annotation "box" and dragging the mouse pointer to another annotation box. During the drag an arrow originating from the box that you started dragging from is shown, and the annotations that can be connected to are shown with thicker borders. If you release the mouse button when the arrow connects annotations that can be connected, a New Annotation dialog is shown for selecting the type of the relation.
+
+Try this now: create relation annotations for the next two sentences!
+
+
+3 ) c-Rel is a component of NF-kappa B.
+
+4 ) p105 is also known as KBF1 and EBP-1.
+
+
+If you succeeded in creating annotations so that the last two sentences match the first two, move on to the next document.
+
+
+
+
+Hints
+
+* Note that the annotation types shown in the New Annotation dialog vary depending on the annotations you are connecting. (The types of relations allowed are fully configurable.)
+
+* When no relation types are allowed by the configuration for a pair of annotations, the "target" annotation will be highlighted in red and the New Annotation dialog will not be shown.
+
+* The type selection in the New Annotation dialog for relation annotations can be configured to use keyboard shortcuts similarly to that for text span annotations.
+
+* Details on different categories of relations (symmetric, transitive) can be found in the brat documentation.
+
+
+
+Troubleshooting
+
+* If you can't create relation annotations, make sure that you are logged in and note that you have to single-click and hold the mouse button down ("drag") to create a relation annotation.

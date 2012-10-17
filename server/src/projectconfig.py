@@ -39,6 +39,11 @@ RELATION_SECTION  = "relations"
 EVENT_SECTION     = "events"
 ATTRIBUTE_SECTION = "attributes"
 
+# aliases for config section names
+SECTION_ALIAS = {
+    "spans" : ENTITY_SECTION,
+}
+
 __expected_annotation_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTION, ATTRIBUTE_SECTION)
 __optional_annotation_sections = []
 
@@ -536,6 +541,10 @@ def __parse_configs(configstr, source, expected_sections, optional_sections):
         m = re.match(r'^\s*\[(.*)\]\s*$', l)
         if m:
             section = m.group(1)
+
+            # map section name aliases (e.g. "spans" -> "entities")
+            section = SECTION_ALIAS.get(section, section)
+
             if section not in expected_sections:
                 Messager.warning("Project configuration: unexpected section [%s] in %s. Ignoring contents." % (section, source), 5)
             if section not in section_lines:
