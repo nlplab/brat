@@ -49,16 +49,21 @@ if __name__ == '__main__':
         for start, end in offsets:
             yield text[start:end]
 
+    if len(argv) == 1:
+        argv.append('/dev/stdin')
+
     try:
         for txt_file_path in argv[1:]:
             print
             print '### Tokenising:', txt_file_path
-            with open_textfile(txt_file_path, 'r') as txt_file:
+            with open(txt_file_path, 'r') as txt_file:
                 text = txt_file.read()
+                print text
             print '# Original text:'
             print text.replace('\n', '\\n')
             #offsets = [o for o in jp_token_boundary_gen(text)]
-            offsets = [o for o in whitespace_token_boundary_gen(text)]
+            #offsets = [o for o in whitespace_token_boundary_gen(text)]
+            offsets = [o for o in gtb_token_boundary_gen(text)]
             print '# Offsets:'
             print offsets
             print '# Tokens:'
@@ -68,4 +73,4 @@ if __name__ == '__main__':
                         'tokens may not start or end with white-space "%s"' % tok)
                 print '"%s"' % tok
     except IOError:
-        pass # Most likely a broken pipe
+        raise
