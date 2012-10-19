@@ -127,7 +127,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "EMPTY", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM"]
 # TODO: "GLYPH-POS" is no longer used, warn if encountered and
 # recommend to use "position" instead.
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
@@ -956,11 +956,17 @@ def get_drawing_config_by_storage_form(directory, term):
                     d[t][k] = d[t].get(k, default_dict[k])
 
         # Kind of a special case: recognize <NONE> as "deleting" an
-        # attribute (prevents default propagation)
+        # attribute (prevents default propagation) and <EMPTY> as
+        # specifying that a value should be the empty string
+        # (can't be written as such directly).
         for t in d:
             todelete = [k for k in d[t] if d[t][k] == '<NONE>']
             for k in todelete:
                 del d[t][k]
+
+            for k in d[t]:
+                if d[t][k] == '<EMPTY>':
+                    d[t][k] = ''
 
         cache[directory] = d
 
