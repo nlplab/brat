@@ -1115,23 +1115,36 @@ var Visualizer = (function($, window, undefined) {
         var type = parsedSpec[0];
         if (type == 'none') return;
 
-        var size = parsedSpec[1];
-        var color = parsedSpec[2];
-        if (!color) {
-          color = size;
-          size = 5;
-        }
+	var width = 5;
+	var height = 5;
+	var color = "black";
+	if ($.isNumeric(parsedSpec[1])) {
+	  if ($.isNumeric(parsedSpec[2])) {
+	    // 2 numeric args: assume width, height, color
+	    width = parsedSpec[1];
+	    height = parsedSpec[2];
+	    color = parsedSpec[3] || 'black';
+	  } else {
+	    // 1 numeric arg: assume width/height, color
+	    width = height = parsedSpec[1];
+	    color = parsedSpec[2] || 'black';
+	  }
+	} else {
+	  // no numeric args: assume color only
+	  width = height = 5;
+	  color = parsedSpec[1] || 'black';
+	}
         var arrowId = 'arrow_' + spec.replace(/,/g, '_');
 
         var arrow;
         if (type == 'triangle') {
           arrow = svg.marker(defs, arrowId,
-            size, size / 2, size, size, 'auto',
+            width, height / 2, width, height, 'auto',
             {
               markerUnits: 'strokeWidth',
               'fill': color,
             });
-          svg.polyline(arrow, [[0, 0], [size, size / 2], [0, size], [size / 25, size / 2]]);
+          svg.polyline(arrow, [[0, 0], [width, height / 2], [0, height], [width / 12, height / 2]]);
         }
         return arrowId;
       }
@@ -1421,7 +1434,11 @@ Util.profileStart('chunks');
               chunkTo = Math.max(bx + bw + markedSpanSize, chunkTo);
               fragmentHeight = Math.max(bh + 2 * markedSpanSize, fragmentHeight);
             }
-            if (span.shadowClass) {
+            // .match() removes unconfigured shadows, which were
+            // always showing up as black.
+            // TODO: don't hard-code configured shadowclasses.
+            if (span.shadowClass &&
+		span.shadowClass.match('True_positive|False_positive|False_negative|AnnotationError|AnnotationWarning|AnnotatorNotes|Normalized|AnnotationIncomplete|AnnotationUnconfirmed|rectEditHighlight|EditHighlight_arc|MissingAnnotation|ChangedAnnotation ')) {
               shadowRect = svg.rect(fragment.group,
                   bx - rectShadowSize, by - rectShadowSize,
                   bw + 2 * rectShadowSize, bh + 2 * rectShadowSize, {

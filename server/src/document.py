@@ -32,7 +32,7 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
         VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, 
         ATTR_DRAWING_ATTRIBUTES, VISUAL_ATTR_DEFAULT,
         ENTITY_NESTING_TYPE, options_get_validation, options_get_tokenization,
-        options_get_ssplitter)
+        options_get_ssplitter, get_annotation_config_section_labels)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -455,9 +455,9 @@ def get_configuration(name):
     else:
         raise InvalidConfiguration
 
-    return _inject_event_rel_conf(config_path)
+    return _inject_annotation_type_conf(config_path)
 
-def _inject_event_rel_conf(dir_path, json_dic=None):
+def _inject_annotation_type_conf(dir_path, json_dic=None):
     if json_dic is None:
         json_dic = {}
 
@@ -473,6 +473,14 @@ def _inject_event_rel_conf(dir_path, json_dic=None):
     json_dic['relation_attribute_types'] = rel_attr_types
     json_dic['entity_attribute_types'] = entity_attr_types
     json_dic['unconfigured_types'] = unconf_types
+
+    # inject annotation category aliases (e.g. "entities" -> "spans")
+    # used in config (#903).
+    section_labels = get_annotation_config_section_labels(dir_path)
+    json_dic['ui_names'] = {}
+    for c in ['entities', 'relations', 'events', 'attributes']:
+        json_dic['ui_names'][c] = section_labels.get(c,c)
+
     return json_dic
 
 # TODO: This is not the prettiest of functions
@@ -556,7 +564,7 @@ def get_directory_information(collection):
     # fill in NER services, if any
     ner_taggers = get_annotator_config(real_dir)
 
-    return _inject_event_rel_conf(real_dir, json_dic={
+    return _inject_annotation_type_conf(real_dir, json_dic={
             'items': combolist,
             'header' : doclist_header,
             'parent': parent,

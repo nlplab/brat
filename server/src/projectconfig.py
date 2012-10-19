@@ -127,7 +127,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "EMPTY", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM"]
 # TODO: "GLYPH-POS" is no longer used, warn if encountered and
 # recommend to use "position" instead.
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
@@ -533,17 +533,21 @@ def __parse_configs(configstr, source, expected_sections, optional_sections):
     # separated by lines consisting of "[SECTION]" where SECTION is
     # e.g.  "entities", "relations", etc.
 
-    # start by splitting config file lines by section
+    # start by splitting config file lines by section, also storing
+    # the label (default name or alias) used for each section.
 
     section = "general"
     section_lines = { section: [] }
+    section_labels = {}
     for ln, l in enumerate(configstr.split("\n")):
         m = re.match(r'^\s*\[(.*)\]\s*$', l)
         if m:
             section = m.group(1)
 
-            # map section name aliases (e.g. "spans" -> "entities")
-            section = SECTION_ALIAS.get(section, section)
+            # map and store section name/alias (e.g. "spans" -> "entities")
+            section_name = SECTION_ALIAS.get(section, section)
+            section_labels[section_name] = section
+            section = section_name
 
             if section not in expected_sections:
                 Messager.warning("Project configuration: unexpected section [%s] in %s. Ignoring contents." % (section, source), 5)
@@ -568,7 +572,7 @@ def __parse_configs(configstr, source, expected_sections, optional_sections):
                 Messager.warning("Project configuration: missing section [%s] in %s. Configuration may be wrong." % (s, source), 5)
             configs[s] = []
 
-    return configs
+    return (configs, section_labels)
             
 def get_configs(directory, filename, defaultstr, minconf, sections, optional_sections):
     if (directory, filename) not in get_configs.__cache:
@@ -585,10 +589,11 @@ def get_configs(directory, filename, defaultstr, minconf, sections, optional_sec
 
         # try to parse what was found, fall back to minimal config
         try: 
-            configs = __parse_configs(configstr, source, sections, optional_sections)        
+            configs, section_labels = __parse_configs(configstr, source, sections, optional_sections)        
         except:
             Messager.warning("Project configuration: Falling back to minimal default. Configuration is likely wrong.", 5)
             configs = minconf
+            section_labels = dict(map(lambda a: (a,a), sections))
 
         # very, very special case processing: if we have a type
         # "Equiv" defined in a "relations" section that doesn't
@@ -607,7 +612,7 @@ def get_configs(directory, filename, defaultstr, minconf, sections, optional_sec
 #                     Messager.warning('Note: "Equiv" defined in config without "<REL-TYPE>"; assuming symmetric and transitive. Consider revising config to add "<REL-TYPE>:symmetric-transitive" to definition.')
                     r.special_arguments["<REL-TYPE>"] = ["symmetric", "transitive"]
 
-        get_configs.__cache[(directory, filename)] = configs
+        get_configs.__cache[(directory, filename)] = (configs, section_labels)
 
     return get_configs.__cache[(directory, filename)]
 get_configs.__cache = {}
@@ -692,23 +697,26 @@ def get_tools_configs(directory):
                        __optional_tools_sections)
 
 def get_entity_type_hierarchy(directory):    
-    return get_annotation_configs(directory)[ENTITY_SECTION]
+    return get_annotation_configs(directory)[0][ENTITY_SECTION]
 
 def get_relation_type_hierarchy(directory):    
-    return get_annotation_configs(directory)[RELATION_SECTION]
+    return get_annotation_configs(directory)[0][RELATION_SECTION]
 
 def get_event_type_hierarchy(directory):    
-    return get_annotation_configs(directory)[EVENT_SECTION]
+    return get_annotation_configs(directory)[0][EVENT_SECTION]
 
 def get_attribute_type_hierarchy(directory):    
-    return get_annotation_configs(directory)[ATTRIBUTE_SECTION]
+    return get_annotation_configs(directory)[0][ATTRIBUTE_SECTION]
+
+def get_annotation_config_section_labels(directory):
+    return get_annotation_configs(directory)[1]
 
 # TODO: too much caching?
 def get_labels(directory):
     cache = get_labels.__cache
     if directory not in cache:
         l = {}
-        for t in get_visual_configs(directory)[LABEL_SECTION]:
+        for t in get_visual_configs(directory)[0][LABEL_SECTION]:
             if t.storage_form() in l:
                 Messager.warning("In configuration, labels for '%s' defined more than once. Only using the last set." % t.storage_form(), -1)
             # first is storage for, rest are labels.
@@ -729,22 +737,28 @@ def get_drawing_types(directory):
 get_drawing_types.__cache = {}
 
 def get_option_config(directory):
-    return get_tools_configs(directory)[OPTIONS_SECTION]
+    return get_tools_configs(directory)[0][OPTIONS_SECTION]
 
 def get_drawing_config(directory):
-    return get_visual_configs(directory)[DRAWING_SECTION]
+    return get_visual_configs(directory)[0][DRAWING_SECTION]
+
+def get_visual_config_section_labels(directory):
+    return get_visual_configs(directory)[1]
 
 def get_search_config(directory):
-    return get_tools_configs(directory)[SEARCH_SECTION]
+    return get_tools_configs(directory)[0][SEARCH_SECTION]
 
 def get_annotator_config(directory):
-    return get_tools_configs(directory)[ANNOTATORS_SECTION]
+    return get_tools_configs(directory)[0][ANNOTATORS_SECTION]
 
 def get_disambiguator_config(directory):
-    return get_tools_configs(directory)[DISAMBIGUATORS_SECTION]
+    return get_tools_configs(directory)[0][DISAMBIGUATORS_SECTION]
 
 def get_normalization_config(directory):
-    return get_tools_configs(directory)[NORMALIZATION_SECTION]
+    return get_tools_configs(directory)[0][NORMALIZATION_SECTION]
+
+def get_tools_config_section_labels(directory):
+    return get_tools_configs(directory)[1]
 
 def get_access_control(directory):
     cache = get_access_control.__cache
@@ -942,11 +956,17 @@ def get_drawing_config_by_storage_form(directory, term):
                     d[t][k] = d[t].get(k, default_dict[k])
 
         # Kind of a special case: recognize <NONE> as "deleting" an
-        # attribute (prevents default propagation)
+        # attribute (prevents default propagation) and <EMPTY> as
+        # specifying that a value should be the empty string
+        # (can't be written as such directly).
         for t in d:
             todelete = [k for k in d[t] if d[t][k] == '<NONE>']
             for k in todelete:
                 del d[t][k]
+
+            for k in d[t]:
+                if d[t][k] == '<EMPTY>':
+                    d[t][k] = ''
 
         cache[directory] = d
 
@@ -1010,6 +1030,9 @@ def get_labels_by_storage_form(directory, term):
     if directory not in cache:
         cache[directory] = {}
         for l, labels in get_labels(directory).items():
+            # recognize <EMPTY> as specifying that a label should
+            # be the empty string
+            labels = [lab if lab != '<EMPTY>' else ' ' for lab in labels]
             cache[directory][l] = labels
     return cache[directory].get(term, None)
 get_labels_by_storage_form.__cache = {}

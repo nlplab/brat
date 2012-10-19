@@ -259,7 +259,14 @@ var VisualizerUI = (function($, window, undefined) {
       var displayComment = function(evt, target, comment, commentText, commentType, immediately) {
         var idtype;
         if (commentType) {
-          comment += Util.escapeHTMLwithNewlines(commentText);
+          // label comment by type, with special case for default note type
+          var commentLabel;
+          if (commentType == 'AnnotatorNotes') {
+            commentLabel = '<b>Note:</b> ';
+          } else {
+            commentLabel = '<b>'+Util.escapeHTML(commentType)+':</b> ';
+          }
+          comment += commentLabel + Util.escapeHTMLwithNewlines(commentText);
           idtype = 'comment_' + commentType;
         }
         commentPopup[0].className = idtype;
