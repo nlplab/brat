@@ -101,3 +101,45 @@ title:  "Tweaking"
   refresh</a> (CTRL+SHIFT+R on many browsers) of the brat page in your
   browser.
 </p>
+
+
+<h2>Highlight effects</h2>
+
+<img class="right" src="img/highlight-example.png" alt="highlight example"/>
+
+<p>This section describes how to adjust brat annotation highlighting.</p>
+
+<p>brat applies a variety of effects to visually mark aspects of
+  annotations such as having an
+  associated <a href="normalization.html">normalization
+  annotation</a>, an error detected in annotation validation, or an
+  annotator note. The visual appearance of these markings is
+  controlled by settings in <code>style.css</code> and variables
+  in <code>client/src/visualizer.js</code>.
+</p>
+<p>In brief, to adjust the "halo" effects for validation errors,
+  annotations with notes, and similar, look for something like the
+  following in <code>style.css</code>:
+</p>
+<p><pre><code>.shadow_AnnotatorNotes {
+  fill: #3ab7ee;
+}</code></pre>
+</p>
+<p>and these settings in <code>client/src/visualizer.css</code>:
+</p>
+<p><pre><code>var rectShadowSize = 3;
+var rectShadowRounding = 2.5;
+var arcLabelShadowSize = 1;
+var arcLabelShadowRounding = 5;</code></pre>
+</p>
+<p>For changing the emphasis given to annotations with an associated
+  normalization annotation, look for this in <code>style.css</code>:
+</p>
+<p><pre><code>rect.Normalized {
+  stroke-width: 1.5;
+}</code></pre>
+</p>
+<p>See any online documentation on
+  <a href="http://en.wikipedia.org/wiki/Cascading_Style_Sheets">style
+  sheets</a> on how to edit <code>style.css</code>.
+</p>
