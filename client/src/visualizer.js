@@ -2036,11 +2036,23 @@ Util.profileStart('arcs');
             }
             if (height > row.maxArcHeight) row.maxArcHeight = height;
 
-            path = svg.createPath().move(textStart, -height);
+            var hashlessColor = color.replace('#', '');
+            var myArrowHead   = ((arcDesc && arcDesc.arrowHead) ||
+                                 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
+            var arrowName = (leftToRight ?
+                symmetric && myArrowHead || 'none' :
+                myArrowHead || 'triangle,5') + ',' + hashlessColor
+            var arrowType = arrows[arrowName];
+            var arrowDecl = arrowType && ('url(#' + arrowType + ')');
+            var arrowSplit = arrowName.split(',');
+            var arrowAtLabelAdjust = Configuration.arrowAtLabel && arrowSplit[0] != 'none' && parseInt(arrowSplit[1], 10) || 0;
+            if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
+            var arrowStart = textStart - arrowAtLabelAdjust;
+            path = svg.createPath().move(arrowStart, -height);
             if (rowIndex == leftRow) {
               var cornerx = from + ufoCatcherMod * arcSlant;
               // for normal cases, should not be past textStart even if narrow
-              if (!ufoCatcher && cornerx > textStart) { cornerx = textStart; }
+              if (!ufoCatcher && cornerx > arrowStart - 1) { cornerx = arrowStart - 1; }
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
                 line = path.line(cornerx, -height).
@@ -2052,16 +2064,11 @@ Util.profileStart('arcs');
             } else {
               path.line(from, -height);
             }
-            var hashlessColor = color.replace('#', '');
-            var myArrowHead   = ((arcDesc && arcDesc.arrowHead) ||
-                                 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
-            var arrowType = arrows[(leftToRight ?
-                symmetric && myArrowHead || 'none' :
-                myArrowHead || 'triangle,5') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
-              markerEnd: arrowType && ('url(#' + arrowType + ')'),
-              style: 'stroke: ' + color,
-              'strokeDashArray': dashArray,
+                markerEnd: arrowDecl,
+                markerStart: Configuration.arrowAtLabel && arrowDecl,
+                style: 'stroke: ' + color,
+                'strokeDashArray': dashArray,
             });
             if (arc.marked) {
               svg.path(shadowGroup, path, {
@@ -2086,12 +2093,23 @@ Util.profileStart('arcs');
                   'strokeDashArray': dashArray,
               });
             }
-            path = svg.createPath().move(textEnd, -height);
+            var myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
+                               (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
+            var arrowName = (leftToRight ?
+                myArrowHead || 'triangle,5' :
+                symmetric && myArrowHead || 'none') + ',' + hashlessColor;
+            var arrowType = arrows[arrowName];
+            var arrowDecl = arrowType && ('url(#' + arrowType + ')');
+            var arrowSplit = arrowName.split(',');
+            var arrowAtLabelAdjust = Configuration.arrowAtLabel && arrowSplit[0] != 'none' && parseInt(arrowSplit[1], 10) || 0;
+            if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
+            var arrowEnd = textEnd + arrowAtLabelAdjust;
+            path = svg.createPath().move(arrowEnd, -height);
             if (rowIndex == rightRow) {
-              // TODO: duplicates above in part, make funcs
               var cornerx  = to - ufoCatcherMod * arcSlant;
+              // TODO: duplicates above in part, make funcs
               // for normal cases, should not be past textEnd even if narrow
-              if (!ufoCatcher && cornerx < textEnd) { cornerx = textEnd; }
+              if (!ufoCatcher && cornerx < arrowEnd + 1) { cornerx = arrowEnd + 1; }
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
                 path.line(cornerx, -height).
@@ -2103,13 +2121,9 @@ Util.profileStart('arcs');
             } else {
               path.line(to, -height);
             }
-            var myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
-                               (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
-            var arrowType = arrows[(leftToRight ?
-                myArrowHead || 'triangle,5' :
-                symmetric && myArrowHead || 'none') + ',' + hashlessColor];
             svg.path(arcGroup, path, {
-                markerEnd: arrowType && ('url(#' + arrowType + ')'),
+                markerEnd: arrowDecl,
+                markerStart: Configuration.arrowAtLabel && arrowDecl,
                 style: 'stroke: ' + color,
                 'strokeDashArray': dashArray,
             });
@@ -2685,6 +2699,12 @@ Util.profileStart('before render');
         dispatcher.post('configurationChanged');
       }
 
+      var setArrowAtLabel = function(_arrowAtLabelOn) {
+        // TODO: this is a slightly weird place to tweak the configuration
+        Configuration.arrowAtLabel = _arrowAtLabelOn;
+        dispatcher.post('configurationChanged');
+      }
+
       var setTextBackgrounds = function(_textBackgrounds) {
         Configuration.textBackgrounds = _textBackgrounds;
         dispatcher.post('configurationChanged');
@@ -2854,6 +2874,7 @@ Util.profileStart('before render');
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
+          on('arrowAtLabel', setArrowAtLabel).
           on('textBackgrounds', setTextBackgrounds).
           on('layoutDensity', setLayoutDensity).
           on('svgWidth', setSvgWidth).

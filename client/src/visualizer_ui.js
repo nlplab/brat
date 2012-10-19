@@ -1719,6 +1719,23 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post(1, 'resetData');
       });
 
+      $('#arrow_at_label input').click(function(evt) {
+        var val = this.value;
+        val = val === 'on';
+        if (val) {
+          dispatcher.post('messages', [[['Arrows at label are now on', 'comment']]]);
+        } else {
+          dispatcher.post('messages', [[['Arrows at label are now off', 'comment']]]);
+        }
+        dispatcher.post('arrowAtLabel', [val]);
+        // TODO: XXX: for some insane reason, doing the following call
+        // synchronously breaks the checkbox (#456). If you ever figure
+        // out why, it would make more sense to call
+        //    dispatcher.post('resetData');
+        // without the asynch.
+        dispatcher.post(1, 'resetData');
+      });
+
       $('#text_backgrounds input').click(function(evt) {
         var val = this.value;
         dispatcher.post('textBackgrounds', [val]);
@@ -2100,6 +2117,11 @@ var VisualizerUI = (function($, window, undefined) {
         // Text backgrounds        
         $('#text_backgrounds input[value="'+Configuration.textBackgrounds+'"]')[0].checked = true;
         $('#text_backgrounds input').button('refresh');
+
+        // Arrow at Label
+        $('#arrow_at_label_on')[0].checked  = Configuration.arrowOnLabel;
+        $('#arrow_at_label_off')[0].checked = !Configuration.arrowOnLabel; 
+        $('#arrow_at_label input').button('refresh');
 
         // SVG width
         var splitSvgWidth = Configuration.svgWidth.match(/^(.*?)(px|\%)$/);
