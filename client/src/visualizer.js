@@ -1434,7 +1434,11 @@ Util.profileStart('chunks');
               chunkTo = Math.max(bx + bw + markedSpanSize, chunkTo);
               fragmentHeight = Math.max(bh + 2 * markedSpanSize, fragmentHeight);
             }
-            if (span.shadowClass) {
+            // .match() removes unconfigured shadows, which were
+            // always showing up as black.
+            // TODO: don't hard-code configured shadowclasses.
+            if (span.shadowClass &&
+		span.shadowClass.match('True_positive|False_positive|False_negative|AnnotationError|AnnotationWarning|AnnotatorNotes|Normalized|AnnotationIncomplete|AnnotationUnconfirmed|rectEditHighlight|EditHighlight_arc|MissingAnnotation|ChangedAnnotation ')) {
               shadowRect = svg.rect(fragment.group,
                   bx - rectShadowSize, by - rectShadowSize,
                   bw + 2 * rectShadowSize, bh + 2 * rectShadowSize, {
