@@ -1,0 +1,103 @@
+---
+layout: base
+title:  "Tweaking"
+---
+
+<h1>tweaking brat</h1> 
+
+<p>This page contains miscellaneous information regarding various
+  tweaks to brat. These are not part of standard configuration, and
+  there is currently no easy user-friendly way to make these
+  adjustments.
+</p>
+
+<h2>Fonts</h2>
+
+<p>This section describes how to adjust brat fonts.</p>
+
+<p>brat primarily uses
+  <a href="http://en.wikipedia.org/wiki/TrueType">TrueType</a> (.ttf)
+  fonts. Additionally, SVG fonts (.svg) are used in embedding when
+  generating SVG for export and conversion to other formats such as
+  PNG. With a bit of work and help from conversion tools such as
+  <a href="http://xmlgraphics.apache.org/batik/tools/font-converter.html">ttf2svg</a>
+  (see also helper script <code>tools/ttf2svg.sh</code> distributed
+  with brat), it should be possible to set up brat to use almost any
+  font. For simplicity, the following assumes that you are setting up
+  a font named FONT and already have the TrueType and SVG
+  files, <code>FONT.ttf</code> and <code>FONT.svg</code> (the latter
+  is not needed if you don't care about SVG export).
+</p>
+
+<p>First, copy the font files to <tt>static/fonts/</tt> in the brat
+  base directory.
+</p>
+
+<p><pre><code>cp FONT.ttf FONT.svg static/fonts/</code></pre>
+</p>
+
+<p>Next, open
+  the <a href="http://en.wikipedia.org/wiki/Cascading_Style_Sheets">style
+  sheet</a> file <code>style.css</code> using your favorite text
+  editor and edit as follows:
+</p>
+
+<p><strong>1)</strong> add a <a href="http://www.w3schools.com/cssref/css3_pr_font-face_rule.asp"><code>@font-face</code></a> rule (e.g. where other similar ones are found in the <code>.css</code>):
+</p>
+
+<p><pre><code>@font-face {
+  font-family: 'FONTNAME';
+  src: url('static/fonts/FONT.ttf') format('truetype');
+}</code></pre>
+
+<p>(Here, <code>FONTNAME</code> can be anything you like as long as you
+  use the name consistently also in the following.)
+</p>
+
+<p><strong>2)</strong> change the <a href="http://www.w3schools.com/cssref/pr_font_font-family.asp"><code>font-family</code></a> properties
+  you are interested in to refer to <code>FONTNAME</code>. For example,
+  if you want to change the primary text font, edit the lines
+</p>
+
+<p><pre><code>text {
+  font-size: 13px;
+  font-family: 'Liberation Sans', Verdana, Arial, Helvetica, sans-serif;
+}
+</code></pre>
+
+<p>to read e.g.</p>
+
+<p><pre><code>text {
+  font-size: 13px;
+  font-family: 'FONTNAME', Verdana, Arial, Helvetica, sans-serif;
+}
+</code></pre>
+
+<p>You may want to also change the list of "fallback" fonts
+  (here, <code>Verdana, Arial, Helvetica, sans-serif</code>) to
+  something resembling your font for the benefit of browsers that
+  don't support <code>.ttf</code> fonts.
+</p>
+
+<p>Hint: as of this writing, brat uses the <code>font-family</code>
+  'Liberation Sans' for standard text and 'PT Sans Caption' for
+  annotations. Searching for these strings in <code>style.css</code>
+  should allow you to find all the locations where the font is set.
+</p>
+
+<p>If you need to support SVG export using your font, you should
+  add <code>'FONT.svg'</code> to the list <code>SVG_FONTS</code> in
+  the brat source file <code>server/src/svg.py</code>:
+</p>
+
+<p><pre><code>SVG_FONTS = (
+        path_join(FONT_DIR, 'FONT.svg'),
+        [...]
+        )
+</code></pre>
+
+<p>Finally, to have the font change take effect, you may need to do a
+  <a href="http://en.wikipedia.org/wiki/Wikipedia:Bypass_your_cache">"hard"
+  refresh</a> (CTRL+SHIFT+R on many browsers) of the brat page in your
+  browser.
+</p>
