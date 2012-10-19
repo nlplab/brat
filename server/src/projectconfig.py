@@ -1030,6 +1030,9 @@ def get_labels_by_storage_form(directory, term):
     if directory not in cache:
         cache[directory] = {}
         for l, labels in get_labels(directory).items():
+            # recognize <EMPTY> as specifying that a label should
+            # be the empty string
+            labels = [lab if lab != '<EMPTY>' else ' ' for lab in labels]
             cache[directory][l] = labels
     return cache[directory].get(term, None)
 get_labels_by_storage_form.__cache = {}
