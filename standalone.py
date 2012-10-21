@@ -18,6 +18,41 @@ from CGIHTTPServer import CGIHTTPRequestHandler
 sys.path.append(os.path.join(os.path.dirname(__file__), 'server/src'))
 from server import serve
 
+# pre-import everything possible (TODO: prune unnecessary)
+import annlog
+import annotation
+import annotator
+import auth
+import common
+import delete
+import dispatch
+import docimport
+import document
+import download
+import filelock
+import gtbtokenize
+import jsonwrap
+import message
+import normdb
+import norm
+import predict
+import projectconfig
+import realmessage
+import sdistance
+import search
+import server
+import session
+import simstringdb
+import sosmessage
+import ssplit
+import sspostproc
+import stats
+import svg
+import tag
+import tokenise
+import undo
+import verify_annotations
+
 _SERVER_ADDR = ''
 _SERVER_PORT = 8001
 
