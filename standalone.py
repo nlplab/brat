@@ -8,10 +8,6 @@
 import sys
 import os
 
-from urlparse import urlparse
-from posixpath import normpath
-from urllib import unquote
-
 from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from SocketServer import ForkingMixIn
@@ -34,12 +30,43 @@ class BratHTTPRequestHandler(CGIHTTPRequestHandler):
         else:
             return False    
 
+    def run_brat(self):
+        """Execute brat server."""
+
+        # stipped down from CGIHTTPRequestHandler run_cgi()
+
+        scriptname = '/ajax.cgi'
+        scriptfile = self.translate_path(scriptname)
+
+        env = {}
+        env['REQUEST_METHOD'] = 'POST'
+        env['REMOTE_HOST'] = self.address_string()
+        env['REMOTE_ADDR'] = self.client_address[0]
+        env['CONTENT_LENGTH'] = self.headers.getheader('content-length')
+        env['HTTP_COOKIE'] = ', '.join(filter(None, self.headers.getheaders('cookie')))
+        os.environ.update(env)
+
+        self.send_response(200)
+
+        try:
+            saved = sys.stdin, sys.stdout, sys.stderr
+            sys.stdin, sys.stdout = self.rfile, self.wfile
+            sys.argv = [scriptfile]
+            try:
+                execfile(scriptfile, {'__name__': '__main__',
+                                      '__file__': __file__ })
+            finally:
+                sys.stdin, sys.stdout, sys.stderr = saved
+        except SystemExit, sts:
+            print >> sys.stderr, 'exit status', sts
+        else:
+            print >> sys.stderr, 'exit OK'
+
     def do_POST(self):
         """Serve a POST request. Only implemented for brat server."""
 
         if self.is_brat():
-            self.cgi_info = '', 'ajax.cgi'
-            self.run_cgi()
+            self.run_brat()
         else:
             self.send_error(501, "Can only POST to brat")
 
