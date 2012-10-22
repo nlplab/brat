@@ -1120,19 +1120,19 @@ var Visualizer = (function($, window, undefined) {
 	var width = 5;
 	var height = 5;
 	var color = "black";
-	if ($.isNumeric(parsedSpec[1])) {
-	  if ($.isNumeric(parsedSpec[2])) {
-	    // 2 numeric args: assume width, height, color
+	if ($.isNumeric(parsedSpec[1]) && parsedSpec[2]) {
+	  if ($.isNumeric(parsedSpec[2] && parsedSpec[3])) {
+	    // 3 args, 2 numeric: assume width, height, color
 	    width = parsedSpec[1];
 	    height = parsedSpec[2];
 	    color = parsedSpec[3] || 'black';
 	  } else {
-	    // 1 numeric arg: assume width/height, color
+	    // 2 args, 1 numeric: assume width/height, color
 	    width = height = parsedSpec[1];
 	    color = parsedSpec[2] || 'black';
 	  }
 	} else {
-	  // no numeric args: assume color only
+	  // other: assume color only
 	  width = height = 5;
 	  color = parsedSpec[1] || 'black';
 	}
