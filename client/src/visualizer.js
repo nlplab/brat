@@ -2894,6 +2894,18 @@ Util.profileStart('before render');
         return processed;
       }
 
+      var loadRelationTypes = function(relation_types) {
+        $.each(relation_types, function(relTypeNo, relType) {
+          if (relType) {
+            relationTypesHash[relType.type] = relType;
+            var children = relType.children;
+            if (children && children.length) {
+              loadRelationTypes(children);
+            }
+          }
+        });
+      }
+
       var collectionLoaded = function(response) {
         if (!response.exception) {
           eventAttributeTypes = loadAttributeTypes(response.event_attribute_types);
@@ -2903,6 +2915,7 @@ Util.profileStart('before render');
           loadSpanTypes(response.event_types);
           loadSpanTypes(response.unconfigured_types);
           relationTypesHash = {};
+          loadRelationTypes(response.relation_types);
           $.each(response.relation_types, function(relTypeNo, relType) {
             relationTypesHash[relType.type] = relType;
           });
