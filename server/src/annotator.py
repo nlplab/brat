@@ -709,7 +709,10 @@ def _create_relation(ann_obj, projectconf, mods, origin, target, type,
     else:
         # Create a new annotation
         new_id = ann_obj.get_new_id('R')
-        rel = projectconf.get_relation_by_type(type)
+        # TODO: do we need to support different relation arg labels
+        # depending on participant types? This doesn't.         
+        rels = projectconf.get_relations_by_type(type) 
+        rel = rels[0] if rels else None
         assert rel is not None and len(rel.arg_list) == 2
         a1l, a2l = rel.arg_list
         ann = BinaryRelationAnnotation(new_id, type, a1l, origin.id, a2l, target.id, '\t')

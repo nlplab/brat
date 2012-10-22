@@ -219,6 +219,13 @@ def verify_triggers(ann_obj, projectconf):
 
     return issues
 
+def _relation_labels_match(rel, rel_conf):
+    if len(rel_conf.arg_list) != 2:
+        # likely misconfigured relation, can't match
+        return False
+    return (rel.arg1l == rel_conf.arg_list[0] and
+            rel.arg2l == rel_conf.arg_list[1])
+
 def verify_relations(ann_obj, projectconf):
     issues = []
 
@@ -226,13 +233,36 @@ def verify_relations(ann_obj, projectconf):
     def disp(s):
         return projectconf.preferred_display_form(s)
 
+    # TODO: rethink this function.
     for r in ann_obj.get_relations():
-        # check for disallowed argument types
         a1 = ann_obj.get_ann_by_id(r.arg1)
         a2 = ann_obj.get_ann_by_id(r.arg2)
-        reltypes = projectconf.relation_types_from_to(a1.type, a2.type)
-        if r.type not in reltypes:
-            issues.append(AnnotationIssue(r.id, AnnotationError, "Error: %s relation not allowed between %s and %s" % (disp(r.type), disp(a1.type), disp(a2.type))))
+        match_found = False
+
+        # check for argument order a1, a2
+        if r.type in projectconf.relation_types_from_to(a1.type, a2.type):
+            # found for argument order a1, a2; check labels
+            conf_rels = projectconf.get_relations_by_type(r.type)
+            if any(c for c in conf_rels if _relation_labels_match(r, c)):
+                match_found = True
+                break
+        if match_found:
+            continue
+
+        # no match for argument order a1, a2; try a2, a1
+        # temp inversion for check
+        r.arg1, r.arg2, r.arg1l, r.arg2l = r.arg2, r.arg1, r.arg2l, r.arg1l
+        if r.type in projectconf.relation_types_from_to(a2.type, a1.type):
+            conf_rels = projectconf.get_relations_by_type(r.type)
+            if any(c for c in conf_rels if _relation_labels_match(r, c)):
+                match_found = True
+                break
+        r.arg1, r.arg2, r.arg1l, r.arg2l = r.arg2, r.arg1, r.arg2l, r.arg1l
+        if match_found:
+            continue            
+
+        # not found for either argument order
+        issues.append(AnnotationIssue(r.id, AnnotationError, "Error: %s relation %s:%s %s:%s not allowed" % (disp(r.type), r.arg1l, disp(a1.type), r.arg2l, disp(a2.type))))
 
     return issues
 

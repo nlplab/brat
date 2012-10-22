@@ -1025,6 +1025,22 @@ def get_relations_by_arg2(directory, atype, include_special=False):
     return cache[directory][(atype, include_special)]
 get_relations_by_arg2.__cache = {}
 
+def get_relations_by_storage_form(directory, rtype, include_special=False):
+    cache = get_relations_by_storage_form.__cache
+    cache[directory] = cache.get(directory, {})
+    if include_special not in cache[directory]:
+        cache[directory][include_special] = {}
+        for r in get_relation_type_list(directory):
+            if r.storage_form() == ENTITY_NESTING_TYPE and not include_special:
+                continue
+            if r.unused:
+                continue
+            if r.storage_form() not in cache[directory][include_special]:
+                cache[directory][include_special][r.storage_form()] = []
+            cache[directory][include_special][r.storage_form()].append(r)
+    return cache[directory][include_special].get(rtype, [])
+get_relations_by_storage_form.__cache = {}
+
 def get_labels_by_storage_form(directory, term):
     cache = get_labels_by_storage_form.__cache
     if directory not in cache:
@@ -1328,12 +1344,8 @@ class ProjectConfiguration(object):
                 "symmetric" in t.special_arguments["<REL-TYPE>"] and
                 "transitive" in t.special_arguments["<REL-TYPE>"]]
 
-    def get_relation_by_type(self, _type):
-        # TODO: dict storage
-        for r in get_relation_type_list(self.directory):
-            if r.storage_form() == _type:
-                return r
-        return None
+    def get_relations_by_type(self, _type):
+        return get_relations_by_storage_form(self.directory, _type)
 
     def get_labels_by_type(self, _type):
         return get_labels_by_storage_form(self.directory, _type)
