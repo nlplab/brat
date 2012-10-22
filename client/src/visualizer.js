@@ -473,7 +473,6 @@ var Visualizer = (function($, window, undefined) {
 //              new EventDesc(rel[2], rel[2],    [[rel[1], rel[3]]], 'relation');
               //           (id,           triggerId,    roles,                    klass)
               new EventDesc(rel[2][0][1], rel[2][0][1], [[rel[1], rel[2][1][1]]], 'relation');
-	  console.log(rel, data.eventDescs[rel[0]]);
         });
 
         // attributes
