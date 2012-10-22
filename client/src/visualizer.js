@@ -468,11 +468,25 @@ var Visualizer = (function($, window, undefined) {
           }
         });
         $.each(sourceData.relations, function(relNo, rel) {
-	  // rel[2] is args, rel[2][a][0] is role and rel[2][a][1] is value for a in (0,1)
-          data.eventDescs[rel[0]] =	      
-//              new EventDesc(rel[2], rel[2],    [[rel[1], rel[3]]], 'relation');
-              //           (id,           triggerId,    roles,                    klass)
-              new EventDesc(rel[2][0][1], rel[2][0][1], [[rel[1], rel[2][1][1]]], 'relation');
+          // rel[2] is args, rel[2][a][0] is role and rel[2][a][1] is value for a in (0,1)
+          var argsDesc = relationTypesHash[rel[1]];
+          argsDesc = argsDesc && argsDesc.args;
+          var t1, t2;
+          if (argsDesc) {
+            // sort the arguments according to the config
+            var args = {}
+            args[rel[2][0][0]] = rel[2][0][1];
+            args[rel[2][1][0]] = rel[2][1][1];
+            t1 = args[argsDesc[0].role];
+            t2 = args[argsDesc[1].role];
+          } else {
+            // (or leave as-is in its absence)
+            t1 = rel[2][0][1];
+            t2 = rel[2][1][1];
+          }
+          data.eventDescs[rel[0]] =
+              //           (id, triggerId, roles,          klass)
+              new EventDesc(t1, t1,        [[rel[1], t2]], 'relation');
         });
 
         // attributes
