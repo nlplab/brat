@@ -744,7 +744,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
         # XXX avoid digging the directory from the ann_obj
         import os
         docdir = os.path.dirname(ann_obj._document)
-        if options_get_validation(docdir) in ('all', ):
+        if options_get_validation(docdir) in ('all', 'full', ):
             from verify_annotations import verify_annotation
             projectconf = ProjectConfiguration(docdir)
             issues = verify_annotation(ann_obj, projectconf)
