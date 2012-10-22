@@ -676,7 +676,9 @@ def _enrich_json_with_data(j_dic, ann_obj):
 
     for rel_ann in ann_obj.get_relations():
         j_dic['relations'].append(
-            [unicode(rel_ann.id), unicode(rel_ann.type), rel_ann.arg1, rel_ann.arg2]
+            [unicode(rel_ann.id), unicode(rel_ann.type), 
+             [(rel_ann.arg1l, rel_ann.arg1),
+              (rel_ann.arg2l, rel_ann.arg2)]]
             )
 
     for tb_ann in ann_obj.get_textbounds():
