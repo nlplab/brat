@@ -60,6 +60,7 @@ _SERVER_ADDR = ''
 _SERVER_PORT = 8001
 
 _PERMISSIONS = """
+Allow: /ajax.cgi
 Disallow: *.py
 Disallow: *.cgi
 Disallow: /.htaccess
@@ -156,7 +157,12 @@ class BratHTTPRequestHandler(CGIHTTPRequestHandler):
     permissions = PathPermissions().parse(_PERMISSIONS.split('\n'))
 
     def is_brat(self):
-        if self.path == '/ajax.cgi':
+        # minimal cleanup
+        path = self.path
+        path = path.split('?', 1)[0]
+        path = path.split('#', 1)[0]
+
+        if path == '/ajax.cgi':
             return True
         else:
             return False    
@@ -164,19 +170,26 @@ class BratHTTPRequestHandler(CGIHTTPRequestHandler):
     def run_brat_direct(self):
         """Execute brat server directly."""
 
-        # following ajax.cgi
-
         remote_addr = self.client_address[0]
         remote_host = self.address_string()
         cookie_data = ', '.join(filter(None, self.headers.getheaders('cookie')))
 
+        query_string = ''
+        i = self.path.find('?')
+        if i != -1:
+            query_string = self.path[i+1:]
+            
         saved = sys.stdin, sys.stdout, sys.stderr
         sys.stdin, sys.stdout = self.rfile, self.wfile
 
-        # set env to get FieldStorage to read params from STDIN
+        # set env to get FieldStorage to read params
         env = {}
-        env['REQUEST_METHOD'] = 'POST'
-        env['CONTENT_LENGTH'] = self.headers.getheader('content-length')
+        env['REQUEST_METHOD'] = self.command
+        content_length = self.headers.getheader('content-length')
+        if content_length:
+            env['CONTENT_LENGTH'] = content_length
+        if query_string:
+            env['QUERY_STRING'] = query_string
         os.environ.update(env)
         params = FieldStorage()
 
@@ -212,7 +225,7 @@ class BratHTTPRequestHandler(CGIHTTPRequestHandler):
         scriptfile = self.translate_path('/ajax.cgi')
 
         env = {}
-        env['REQUEST_METHOD'] = 'POST'
+        env['REQUEST_METHOD'] = self.command
         env['REMOTE_HOST'] = self.address_string()
         env['REMOTE_ADDR'] = self.client_address[0]
         env['CONTENT_LENGTH'] = self.headers.getheader('content-length')
@@ -269,6 +282,8 @@ class BratHTTPRequestHandler(CGIHTTPRequestHandler):
         """Serve a GET request."""
         if not self.allow_path():
             self.send_error(403)
+        if self.is_brat():
+            self.run_brat_direct()
         else:
             CGIHTTPRequestHandler.do_GET(self)
 
