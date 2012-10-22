@@ -1879,6 +1879,9 @@ Util.profileStart('arcs');
           var arrowHead = ((arcDesc && arcDesc.arrowHead) ||
                            (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead) ||
                            'triangle,5') + ',' + hashlessColor;
+          var labelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
+                                (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow) ||
+                                'triangle,5') + ',' + hashlessColor;
 
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
@@ -1888,6 +1891,10 @@ Util.profileStart('arcs');
           if (!arrows[arrowHead]) {
             var arrow = makeArrow(defs, arrowHead);
             if (arrow) arrows[arrowHead] = arrow;
+          }
+          if (!arrows[labelArrowHead]) {
+            var arrow = makeArrow(defs, labelArrowHead);
+            if (arrow) arrows[labelArrowHead] = arrow;
           }
 
           // find the next height
@@ -2074,12 +2081,24 @@ Util.profileStart('arcs');
                                  (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
             var arrowName = (leftToRight ?
                 symmetric && myArrowHead || 'none' :
-                myArrowHead || 'triangle,5') + ',' + hashlessColor
+                myArrowHead || 'triangle,5') + ',' + hashlessColor;
             var arrowType = arrows[arrowName];
             var arrowDecl = arrowType && ('url(#' + arrowType + ')');
-            var arrowSplit = arrowName.split(',');
-            var arrowAtLabelAdjust = Configuration.arrowAtLabel && arrowSplit[0] != 'none' && parseInt(arrowSplit[1], 10) || 0;
-            if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
+
+            var arrowAtLabelAdjust = 0;
+            var labelArrowDecl = null;
+            var myLabelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
+                                    (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow));
+            if (myLabelArrowHead) {
+              var labelArrowName = (leftToRight ?
+                  symmetric && myLabelArrowHead || 'none' :
+                  myLabelArrowHead || 'triangle,5') + ',' + hashlessColor;
+              var labelArrowSplit = labelArrowName.split(',');
+              arrowAtLabelAdjust = labelArrowSplit[0] != 'none' && parseInt(labelArrowSplit[1], 10) || 0;
+              var labelArrowType = arrows[labelArrowName];
+              var labelArrowDecl = labelArrowType && ('url(#' + labelArrowType + ')');
+              if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
+            }
             var arrowStart = textStart - arrowAtLabelAdjust;
             path = svg.createPath().move(arrowStart, -height);
             if (rowIndex == leftRow) {
@@ -2099,7 +2118,7 @@ Util.profileStart('arcs');
             }
             svg.path(arcGroup, path, {
                 markerEnd: arrowDecl,
-                markerStart: Configuration.arrowAtLabel && arrowDecl,
+                markerStart: labelArrowDecl,
                 style: 'stroke: ' + color,
                 'strokeDashArray': dashArray,
             });
@@ -2133,9 +2152,21 @@ Util.profileStart('arcs');
                 symmetric && myArrowHead || 'none') + ',' + hashlessColor;
             var arrowType = arrows[arrowName];
             var arrowDecl = arrowType && ('url(#' + arrowType + ')');
-            var arrowSplit = arrowName.split(',');
-            var arrowAtLabelAdjust = Configuration.arrowAtLabel && arrowSplit[0] != 'none' && parseInt(arrowSplit[1], 10) || 0;
-            if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
+
+            var arrowAtLabelAdjust = 0;
+            var labelArrowDecl = null;
+            var myLabelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
+                                    (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow));
+            if (myLabelArrowHead) {
+              var labelArrowName = (leftToRight ?
+                  myLabelArrowHead || 'triangle,5' :
+                  symmetric && myLabelArrowHead || 'none') + ',' + hashlessColor;
+              var labelArrowSplit = labelArrowName.split(',');
+              arrowAtLabelAdjust = labelArrowSplit[0] != 'none' && parseInt(labelArrowSplit[1], 10) || 0;
+              var labelArrowType = arrows[labelArrowName];
+              var labelArrowDecl = labelArrowType && ('url(#' + labelArrowType + ')');
+              if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
+            }
             var arrowEnd = textEnd + arrowAtLabelAdjust;
             path = svg.createPath().move(arrowEnd, -height);
             if (rowIndex == rightRow) {
@@ -2156,7 +2187,7 @@ Util.profileStart('arcs');
             }
             svg.path(arcGroup, path, {
                 markerEnd: arrowDecl,
-                markerStart: Configuration.arrowAtLabel && arrowDecl,
+                markerStart: labelArrowDecl,
                 style: 'stroke: ' + color,
                 'strokeDashArray': dashArray,
             });
@@ -2732,12 +2763,6 @@ Util.profileStart('before render');
         dispatcher.post('configurationChanged');
       }
 
-      var setArrowAtLabel = function(_arrowAtLabelOn) {
-        // TODO: this is a slightly weird place to tweak the configuration
-        Configuration.arrowAtLabel = _arrowAtLabelOn;
-        dispatcher.post('configurationChanged');
-      }
-
       var setTextBackgrounds = function(_textBackgrounds) {
         Configuration.textBackgrounds = _textBackgrounds;
         dispatcher.post('configurationChanged');
@@ -2907,7 +2932,6 @@ Util.profileStart('before render');
           on('isReloadOkay', isReloadOkay).
           on('resetData', resetData).
           on('abbrevs', setAbbrevs).
-          on('arrowAtLabel', setArrowAtLabel).
           on('textBackgrounds', setTextBackgrounds).
           on('layoutDensity', setLayoutDensity).
           on('svgWidth', setSvgWidth).
