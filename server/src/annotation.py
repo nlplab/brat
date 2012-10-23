@@ -22,6 +22,7 @@ from time import time
 from os.path import join as path_join
 from os.path import basename, splitext
 from re import match as re_match
+from re import compile as re_compile
 
 from common import ProtocolError
 from filelock import file_lock
@@ -40,6 +41,16 @@ TEXT_FILE_SUFFIX = 'txt'
 DISCONT_SEP = ' '
 ###
 
+# If True, allow normalization annotations to be parsed using the
+# BioNLP Shared Task 2013 format in addition to the brat format.
+# NOTE: Alternate format supported only for reading normalization
+# annotations, not for creating new ones. Don't change this setting
+# unless you are sure you know what you are doing.
+READ_BIONLP_ST_2013_NORMALIZATION = False
+BIONLP_ST_2013_NORMALIZATION_RES = [
+    (re_compile(r'^(Reference) Annotation:(\S+) Referent:(\S+)'), r'\1 \2 \3'),
+    (re_compile(r'^(Reference) Referent:(\S+) Annotation:(\S+)'), r'\1 \3 \2'),
+    ]
 
 class AnnotationLineSyntaxError(Exception):
     def __init__(self, line, line_num, filepath):
@@ -726,7 +737,11 @@ class Annotations(object):
         # NOTE: first dummy argument to have a uniform signature with other
         # parse_* functions
         # TODO: this will split on any space, which is likely not correct
-        type, type_tail = data.split(None, 1)
+        try:
+            type, type_tail = data.split(None, 1)
+        except ValueError:
+            # no space: Equiv without arguments?
+            raise AnnotationLineSyntaxError(self.ann_line, self.ann_line_num+1, input_file_path)
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail, source_id=input_file_path)
 
@@ -766,6 +781,15 @@ class Annotations(object):
         return TextBoundAnnotation(spans, _id, _type, data_tail, source_id=input_file_path)
 
     def _parse_normalization_annotation(self, _id, data, data_tail, input_file_path):
+        # special-case processing for BioNLP ST 2013 variant of
+        # normalization format
+        if READ_BIONLP_ST_2013_NORMALIZATION:
+            for r, s in BIONLP_ST_2013_NORMALIZATION_RES:
+                d = r.sub(s, data, count=1)
+                if d != data:
+                    data = d
+                    break
+            
         match = re_match(r'(\S+) (\S+) (\S+?):(\S+)', data)
         if match is None:
             raise IdedAnnotationLineSyntaxError(_id, self.ann_line, self.ann_line_num + 1, input_file_path)
@@ -1021,7 +1045,7 @@ class TextAnnotations(Annotations):
                     # unanticipated mismatch
                     Messager.error((u'Text-bound annotation text "%s" does not '
                                     u'match marked span(s) %s text "%s" in document') % (
-                            text, str(spans), reftext))
+                            text, str(spans), reftext.replace('\n','\\n')))
                     raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
             if data_tail != '' and not data_tail[0].isspace():
