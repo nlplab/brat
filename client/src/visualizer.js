@@ -2107,8 +2107,15 @@ Util.profileStart('arcs');
               if (!ufoCatcher && cornerx > arrowStart - 1) { cornerx = arrowStart - 1; }
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
+		var endy = leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y);
+		// no curving for short lines covering short vertical
+		// distances, the arrowheads can go off (#925)
+		if (Math.abs(-height-endy) < 2 &&
+		    Math.abs(cornerx-from) < 5) {
+		  endy = -height;
+		}
                 line = path.line(cornerx, -height).
-                    curveQ(controlx, -height, from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
+                    curveQ(controlx, -height, from, endy);
               } else {
                 path.line(cornerx, -height).
                     line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
@@ -2176,8 +2183,15 @@ Util.profileStart('arcs');
               if (!ufoCatcher && cornerx < arrowEnd + 1) { cornerx = arrowEnd + 1; }
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
+		var endy = rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2);
+		// no curving for short lines covering short vertical
+		// distances, the arrowheads can go off (#925)
+		if (Math.abs(-height-endy) < 2 &&
+		    Math.abs(cornerx-to) < 5) {
+		  endy = -height;
+		}
                 path.line(cornerx, -height).
-                    curveQ(controlx, -height, to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
+                    curveQ(controlx, -height, to, endy);
               } else {
                 path.line(cornerx, -height).
                     line(to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
