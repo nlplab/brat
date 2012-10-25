@@ -718,7 +718,7 @@ def search_anns_for_note(ann_objs, text, category,
             if restrict_types != [] and a.type not in restrict_types:
                 continue
             if (text != None and text != "" and 
-                text != DEFAULT_EMPTY_STRING and not match_regex.search(a.get_text())):
+                text != DEFAULT_EMPTY_STRING and not match_regex.search(n.get_text())):
                 continue
 
             ann_matches.append(NoteMatch(n,a))
