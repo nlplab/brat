@@ -1135,7 +1135,7 @@ var Visualizer = (function($, window, undefined) {
 	var height = 5;
 	var color = "black";
 	if ($.isNumeric(parsedSpec[1]) && parsedSpec[2]) {
-	  if ($.isNumeric(parsedSpec[2] && parsedSpec[3])) {
+	  if ($.isNumeric(parsedSpec[2]) && parsedSpec[3]) {
 	    // 3 args, 2 numeric: assume width, height, color
 	    width = parsedSpec[1];
 	    height = parsedSpec[2];
