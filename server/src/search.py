@@ -12,9 +12,11 @@ import annotation
 
 from message import Messager
 
+### Constants
 DEFAULT_EMPTY_STRING = "***"
-
 REPORT_SEARCH_TIMINGS = False
+DEFAULT_RE_FLAGS = re.UNICODE
+###
 
 if REPORT_SEARCH_TIMINGS:
     from sys import stderr
@@ -387,8 +389,8 @@ def _split_tokens_more(tokens):
     Search-specific extra tokenization.
     More aggressive than the general visualization-oriented tokenization.
     """
-    pre_nonalnum_RE = re.compile(r'^(\W+)(.+)$')
-    post_nonalnum_RE = re.compile(r'^(.+?)(\W+)$')
+    pre_nonalnum_RE = re.compile(r'^(\W+)(.+)$', flags=DEFAULT_RE_FLAGS)
+    post_nonalnum_RE = re.compile(r'^(.+?)(\W+)$', flags=DEFAULT_RE_FLAGS)
 
     new_tokens = []
     for t in tokens:
@@ -561,10 +563,10 @@ def _get_match_regex(text, text_match="word", match_case=False,
     """
     Helper for the various search_anns_for_ functions.
     """
-    if match_case:
-        regex_flags = 0
-    else:
-        regex_flags = re.IGNORECASE
+
+    regex_flags = DEFAULT_RE_FLAGS
+    if not match_case:
+        regex_flags = regex_flags | re.IGNORECASE
 
     if text is None:
         text = ''
