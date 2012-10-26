@@ -1,0 +1,23 @@
+Small sample of data from the Turku Dependency Treebank (TDT).
+
+Contains part-of-speech, lemma and dependency annotation for Finnish
+texts from a number of different genres, including among others
+legalese, encyclopedic text, fiction, and news.
+
+
+Homepage:
+
+    http://bionlp.utu.fi/fintreebank.html
+
+Annotations:
+
+    Haverinen, K., Viljanen, T., Laippala, V., Kohonen, S., Ginter, F. 
+    and Salakoski, T (2010)
+    Treebanking Finnish. 
+    in Proceedings of The Ninth International Workshop on Treebanks and 
+    Linguistic Theories (TLT9).
+
+Texts: 
+
+    For text sources and licenses, see
+    http://bionlp.utu.fi/static/fintreebank-online/index.html#copyright

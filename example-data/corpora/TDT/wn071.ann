@@ -1,0 +1,447 @@
+T1	N 0 7	Halonen
+#1	Lemma T1	 Halonen
+A1	SUBCAT T1 Prop
+A2	NUM T1 Sg
+A3	CASE T1 Nom
+A4	CASECHANGE T1 cap
+T2	Null 8 14	*null*
+#2	Lemma T2	 *null*
+T3	N 15 24	Irlantiin
+#3	Lemma T3	 Irlanti
+A5	SUBCAT T3 Prop
+A6	NUM T3 Sg
+A7	CASE T3 Ill
+A8	CASECHANGE T3 cap
+R1	nommod Arg1:T2 Arg2:T3
+R2	nsubj Arg1:T2 Arg2:T1
+T4	N 25 35	Tasavallan
+#4	Lemma T4	 tasa|valta
+A9	NUM T4 Sg
+A10	CASE T4 Gen
+A11	CASECHANGE T4 Cap
+T5	N 36 47	presidentti
+#5	Lemma T5	 presidentti
+A12	NUM T5 Sg
+A13	CASE T5 Nom
+A14	CASECHANGE T5 cap
+T6	N 48 53	Tarja
+#6	Lemma T6	 Tarja
+A15	SUBCAT T6 Prop
+A16	NUM T6 Sg
+A17	CASE T6 Nom
+A18	CASECHANGE T6 cap
+T7	N 54 61	Halonen
+#7	Lemma T7	 Halonen
+A19	SUBCAT T7 Prop
+A20	NUM T7 Sg
+A21	CASE T7 Nom
+A22	CASECHANGE T7 cap
+T8	V 62 71	matkustaa
+#8	Lemma T8	 matkustaa
+A23	PRS T8 Sg3
+A24	VOICE T8 Act
+A25	TENSE T8 Prs
+A26	MOOD T8 Ind
+A27	CASECHANGE T8 cap
+T9	Adv 72 78	tänään
+#9	Lemma T9	 tänään
+A28	CASECHANGE T9 cap
+T10	N 79 96	valtiovierailulle
+#10	Lemma T10	 valtio|vierailu
+A29	NUM T10 Sg
+A30	CASE T10 All
+A31	CASECHANGE T10 cap
+T11	N 97 106	Irlantiin
+#11	Lemma T11	 Irlanti
+A32	SUBCAT T11 Prop
+A33	NUM T11 Sg
+A34	CASE T11 Ill
+A35	CASECHANGE T11 cap
+T12	Punct 107 108	.
+#12	Lemma T12	 .
+R3	nn Arg1:T7 Arg2:T5
+R4	poss Arg1:T5 Arg2:T4
+R5	punct Arg1:T8 Arg2:T12
+R6	nommod Arg1:T10 Arg2:T11
+R7	nommod Arg1:T8 Arg2:T10
+R8	name Arg1:T7 Arg2:T6
+R9	nsubj Arg1:T8 Arg2:T7
+R10	advmod Arg1:T8 Arg2:T9
+T13	A 109 122	Nelipäiväisen
+#13	Lemma T13	 neli|päivä
+A36	NUM T13 Sg
+A37	CASE T13 Gen
+A38	DRV T13 Der_inen
+A39	CMP T13 Pos
+A40	CASECHANGE T13 Cap
+T14	N 123 132	vierailun
+#14	Lemma T14	 vierailu
+A41	NUM T14 Sg
+A42	CASE T14 Gen
+A43	CASECHANGE T14 cap
+T15	N 133 139	aikana
+#15	Lemma T15	 aika
+A44	NUM T15 Sg
+A45	CASE T15 Ess
+A46	CASECHANGE T15 cap
+T16	N 140 147	Halonen
+#16	Lemma T16	 Halonen
+A47	SUBCAT T16 Prop
+A48	NUM T16 Sg
+A49	CASE T16 Nom
+A50	CASECHANGE T16 cap
+T17	V 148 153	tapaa
+#17	Lemma T17	 tavata
+A51	PRS T17 Sg3
+A52	VOICE T17 Act
+A53	TENSE T17 Prs
+A54	MOOD T17 Ind
+A55	CASECHANGE T17 cap
+T18	N 154 162	Irlannin
+#18	Lemma T18	 Irlanti
+A56	SUBCAT T18 Prop
+A57	NUM T18 Sg
+A58	CASE T18 Gen
+A59	CASECHANGE T18 cap
+T19	N 163 174	presidentin
+#19	Lemma T19	 presidentti
+A60	NUM T19 Sg
+A61	CASE T19 Gen
+A62	CASECHANGE T19 cap
+T20	N 175 179	Mary
+#20	Lemma T20	 Mary
+A63	SUBCAT T20 Prop
+A64	NUM T20 Sg
+A65	CASE T20 Nom
+A66	CASECHANGE T20 cap
+T21	N 180 189	McAleesen
+#21	Lemma T21	 McAleese
+A67	SUBCAT T21 Prop
+A68	NUM T21 Sg
+A69	CASE T21 Gen
+A70	OTHER T21 UNK
+T22	Punct 190 191	,
+#22	Lemma T22	 ,
+T23	N 192 196	maan
+#23	Lemma T23	 maa
+A71	NUM T23 Sg
+A72	CASE T23 Gen
+A73	CASECHANGE T23 cap
+T24	N 197 210	pääministerin
+#24	Lemma T24	 pää|ministeri
+A74	NUM T24 Sg
+A75	CASE T24 Gen
+A76	CASECHANGE T24 cap
+T25	C 211 213	ja
+#25	Lemma T25	 ja
+A77	SUBCAT T25 CC
+A78	CASECHANGE T25 cap
+T26	A 214 219	muita
+#26	Lemma T26	 muu
+A79	NUM T26 Pl
+A80	CASE T26 Par
+A81	CMP T26 Pos
+A82	CASECHANGE T26 cap
+T27	N 220 232	poliitikkoja
+#27	Lemma T27	 poliitikko
+A83	NUM T27 Pl
+A84	CASE T27 Par
+A85	CASECHANGE T27 cap
+T28	Punct 233 234	.
+#28	Lemma T28	 .
+R11	conj Arg1:T19 Arg2:T27
+R12	poss Arg1:T24 Arg2:T23
+R13	amod Arg1:T14 Arg2:T13
+R14	poss Arg1:T15 Arg2:T14
+R15	conj Arg1:T19 Arg2:T24
+R16	poss Arg1:T19 Arg2:T18
+R17	nommod Arg1:T17 Arg2:T15
+R18	punct Arg1:T17 Arg2:T28
+R19	name Arg1:T21 Arg2:T20
+R20	cc Arg1:T19 Arg2:T25
+R21	punct Arg1:T19 Arg2:T22
+R22	dobj Arg1:T17 Arg2:T19
+R23	nsubj Arg1:T17 Arg2:T16
+R24	dobj-exp Arg1:T17 Arg2:T24
+R25	dobj-exp Arg1:T17 Arg2:T27
+R26	det Arg1:T27 Arg2:T26
+R27	appos Arg1:T19 Arg2:T21
+T29	N 235 245	Ohjelmassa
+#29	Lemma T29	 ohjelma
+A86	NUM T29 Sg
+A87	CASE T29 Ine
+A88	CASECHANGE T29 Cap
+T30	V 246 248	on
+#30	Lemma T30	 olla
+A89	PRS T30 Sg3
+A90	VOICE T30 Act
+A91	TENSE T30 Prs
+A92	MOOD T30 Ind
+A93	CASECHANGE T30 cap
+T31	N 249 261	tutustuminen
+#31	Lemma T31	 tutustua
+A94	NUM T31 Sg
+A95	CASE T31 Nom
+A96	DRV T31 Der_minen
+A97	CASECHANGE T31 cap
+T32	N 262 268	Boynen
+#32	Lemma T32	 Boyne
+A98	SUBCAT T32 Prop
+A99	NUM T32 Sg
+A100	CASE T32 Gen
+A101	OTHER T32 UNK
+T33	N 269 277	laaksoon
+#33	Lemma T33	 laakso
+A102	NUM T33 Sg
+A103	CASE T33 Ill
+A104	CASECHANGE T33 cap
+T34	C 278 280	ja
+#34	Lemma T34	 ja
+A105	SUBCAT T34 CC
+A106	CASECHANGE T34 cap
+T35	N 281 289	Dublinin
+#35	Lemma T35	 Dublin
+A107	SUBCAT T35 Prop
+A108	NUM T35 Sg
+A109	CASE T35 Gen
+A110	CASECHANGE T35 cap
+T36	N 290 300	yliopiston
+#36	Lemma T36	 yli|opisto
+A111	NUM T36 Sg
+A112	CASE T36 Gen
+A113	CASECHANGE T36 cap
+T37	V 301 309	tarjoama
+#37	Lemma T37	 tarjota
+A114	NUM T37 Sg
+A115	CASE T37 Nom
+A116	VOICE T37 Act
+A117	PCP T37 AgPcp
+A118	CMP T37 Pos
+A119	CASECHANGE T37 cap
+T38	N 310 325	lounastilaisuus
+#38	Lemma T38	 lounas|tilaisuus
+A120	NUM T38 Sg
+A121	CASE T38 Nom
+A122	CASECHANGE T38 cap
+T39	Punct 326 327	.
+#39	Lemma T39	 .
+R28	cc Arg1:T31 Arg2:T34
+R29	partmod Arg1:T38 Arg2:T37
+R30	conj Arg1:T31 Arg2:T38
+R31	nommod Arg1:T31 Arg2:T33
+R32	nsubj Arg1:T30 Arg2:T31
+R33	nsubj-exp Arg1:T30 Arg2:T38
+R34	poss Arg1:T33 Arg2:T32
+R35	nommod Arg1:T30 Arg2:T29
+R36	poss Arg1:T36 Arg2:T35
+R37	nsubj Arg1:T37 Arg2:T36
+R38	punct Arg1:T30 Arg2:T39
+R39	name Arg1:T36 Arg2:T35
+T40	N 328 335	Halosen
+#40	Lemma T40	 Halonen
+A123	SUBCAT T40 Prop
+A124	NUM T40 Sg
+A125	CASE T40 Gen
+A126	CASECHANGE T40 cap
+T41	N 336 344	seurueen
+#41	Lemma T41	 seurue
+A127	NUM T41 Sg
+A128	CASE T41 Gen
+A129	CASECHANGE T41 cap
+T42	Adp 345 351	mukana
+#42	Lemma T42	 mukana
+A130	SUBCAT T42 Po
+A131	CASECHANGE T42 cap
+T43	V 352 361	matkustaa
+#43	Lemma T43	 matkustaa
+A132	PRS T43 Sg3
+A133	VOICE T43 Act
+A134	TENSE T43 Prs
+A135	MOOD T43 Ind
+A136	CASECHANGE T43 cap
+T44	N 362 390	työmarkkinakeskusjärjestöjen
+#44	Lemma T44	 työmarkkinat|keskus|järjestö
+A137	NUM T44 Pl
+A138	CASE T44 Gen
+A139	CASECHANGE T44 cap
+T45	N 391 400	edustajia
+#45	Lemma T45	 edustaja
+A140	NUM T45 Pl
+A141	CASE T45 Par
+A142	CASECHANGE T45 cap
+T46	Punct 401 402	.
+#46	Lemma T46	 .
+R40	poss Arg1:T41 Arg2:T40
+R41	poss Arg1:T45 Arg2:T44
+R42	nsubj Arg1:T43 Arg2:T45
+R43	punct Arg1:T43 Arg2:T46
+R44	adpos Arg1:T41 Arg2:T42
+R45	nommod Arg1:T43 Arg2:T41
+T47	Pron 403 406	Sen
+#47	Lemma T47	 se
+A143	SUBCAT T47 Dem
+A144	NUM T47 Sg
+A145	CASE T47 Gen
+A146	CASECHANGE T47 Cap
+T48	Adp 407 413	sijaan
+#48	Lemma T48	 sijaan
+A147	SUBCAT T48 Po
+A148	CASECHANGE T48 cap
+T49	N 414 426	työministeri
+#49	Lemma T49	 työministeri
+A149	NUM T49 Sg
+A150	CASE T49 Nom
+A151	CASECHANGE T49 cap
+T50	N 427 432	Tarja
+#50	Lemma T50	 Tarja
+A152	SUBCAT T50 Prop
+A153	NUM T50 Sg
+A154	CASE T50 Nom
+A155	CASECHANGE T50 cap
+T51	N 433 441	Cronberg
+#51	Lemma T51	 Cronberg
+A156	SUBCAT T51 Prop
+A157	NUM T51 Sg
+A158	CASE T51 Nom
+A159	OTHER T51 UNK
+T52	Punct 442 443	(
+#52	Lemma T52	 (
+T53	N 444 449	vihr.
+#53	Lemma T53	 vihr.
+A160	SUBCAT T53 Abbr
+A161	OTHER T53 UNK
+T54	Punct 450 451	)
+#54	Lemma T54	 )
+T55	V 452 454	on
+#55	Lemma T55	 olla
+A162	PRS T55 Sg3
+A163	VOICE T55 Act
+A164	TENSE T55 Prs
+A165	MOOD T55 Ind
+A166	CASECHANGE T55 cap
+T56	V 455 462	perunut
+#56	Lemma T56	 perua
+A167	NUM T56 Sg
+A168	CASE T56 Nom
+A169	VOICE T56 Act
+A170	PCP T56 PrfPrc
+A171	CMP T56 Pos
+A172	CASECHANGE T56 cap
+T57	N 463 479	osallistumisensa
+#57	Lemma T57	 osallistua
+A173	NUM T57 Sg
+A174	CASE T57 Gen
+A175	POSS T57 PxSg3
+A176	DRV T57 Der_minen
+A177	CASECHANGE T57 cap
+T58	N 480 488	matkalle
+#58	Lemma T58	 matka
+A178	NUM T58 Sg
+A179	CASE T58 All
+A180	CASECHANGE T58 cap
+T59	N 489 494	Tehyn
+#59	Lemma T59	 Tehy
+A181	SUBCAT T59 Prop
+A182	NUM T59 Sg
+A183	CASE T59 Gen
+A184	CASECHANGE T59 cap
+T60	N 495 513	työkiistatilanteen
+#60	Lemma T60	 työ|kiista|tilanne
+A185	NUM T60 Sg
+A186	CASE T60 Gen
+A187	CASECHANGE T60 cap
+T61	Adp 514 520	vuoksi
+#61	Lemma T61	 vuoksi
+A188	SUBCAT T61 Po
+A189	CASECHANGE T61 cap
+T62	Punct 521 522	.
+#62	Lemma T62	 .
+R46	dobj Arg1:T56 Arg2:T57
+R47	name Arg1:T51 Arg2:T50
+R48	punct Arg1:T56 Arg2:T62
+R49	adpos Arg1:T60 Arg2:T61
+R50	punct Arg1:T53 Arg2:T52
+R51	nn Arg1:T51 Arg2:T49
+R52	nommod Arg1:T57 Arg2:T58
+R53	poss Arg1:T60 Arg2:T59
+R54	adpos Arg1:T47 Arg2:T48
+R55	nommod Arg1:T56 Arg2:T60
+R56	aux Arg1:T56 Arg2:T55
+R57	nsubj Arg1:T56 Arg2:T51
+R58	nommod Arg1:T51 Arg2:T47
+R59	punct Arg1:T53 Arg2:T54
+R60	appos Arg1:T51 Arg2:T53
+T63	N 523 531	Hallitus
+#63	Lemma T63	 hallitus
+A190	NUM T63 Sg
+A191	CASE T63 Nom
+A192	CASECHANGE T63 Cap
+T64	V 532 542	käsittelee
+#64	Lemma T64	 käsitellä
+A193	PRS T64 Sg3
+A194	VOICE T64 Act
+A195	TENSE T64 Prs
+A196	MOOD T64 Ind
+A197	CASECHANGE T64 cap
+T65	N 543 554	viikonlopun
+#65	Lemma T65	 viikon|loppu
+A198	NUM T65 Sg
+A199	CASE T65 Gen
+A200	CASECHANGE T65 cap
+T66	N 555 561	aikana
+#66	Lemma T66	 aika
+A201	NUM T66 Sg
+A202	CASE T66 Ess
+A203	CASECHANGE T66 cap
+T67	N 562 575	poikkeuslakia
+#67	Lemma T67	 poikkeus|laki
+A204	NUM T67 Pl
+A205	CASE T67 Par
+A206	CASECHANGE T67 cap
+T68	Punct 576 577	,
+#68	Lemma T68	 ,
+T69	Pron 578 582	joka
+#69	Lemma T69	 joka
+A207	SUBCAT T69 Rel
+A208	NUM T69 Sg
+A209	CASE T69 Nom
+A210	CASECHANGE T69 cap
+T70	V 583 590	rajaisi
+#70	Lemma T70	 rajata
+A211	PRS T70 Sg3
+A212	VOICE T70 Act
+A213	MOOD T70 Cond
+A214	CASECHANGE T70 cap
+T71	N 591 596	Tehyn
+#71	Lemma T71	 Tehy
+A215	SUBCAT T71 Prop
+A216	NUM T71 Sg
+A217	CASE T71 Gen
+A218	CASECHANGE T71 cap
+T72	V 597 608	ilmoittamia
+#72	Lemma T72	 ilmoittaa
+A219	NUM T72 Pl
+A220	CASE T72 Par
+A221	VOICE T72 Act
+A222	PCP T72 AgPcp
+A223	CMP T72 Pos
+A224	CASECHANGE T72 cap
+T73	N 609 626	työtaistelutoimia
+#73	Lemma T73	 työ|taistelu|toimi
+A225	NUM T73 Pl
+A226	CASE T73 Par
+A227	CASECHANGE T73 cap
+T74	Punct 627 628	.
+#74	Lemma T74	 .
+R61	poss Arg1:T66 Arg2:T65
+R62	punct Arg1:T64 Arg2:T74
+R63	dobj Arg1:T64 Arg2:T67
+R64	rcmod Arg1:T67 Arg2:T70
+R65	nommod Arg1:T64 Arg2:T66
+R66	punct Arg1:T70 Arg2:T68
+R67	nsubj Arg1:T70 Arg2:T69
+R68	nsubj Arg1:T72 Arg2:T71
+R69	dobj Arg1:T70 Arg2:T73
+R70	rel Arg1:T70 Arg2:T69
+R71	partmod Arg1:T73 Arg2:T72
+R72	nsubj Arg1:T64 Arg2:T63
