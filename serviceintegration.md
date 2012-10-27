@@ -1,6 +1,7 @@
 ---
 layout: base
 title:  "Service Integration"
+cmeta:  "Description of how to integrate tagging services into brat."
 ---
 
 # {{ page.title }} #
