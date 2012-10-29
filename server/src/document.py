@@ -24,7 +24,8 @@ from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
         AnnotationFileNotFoundError, 
         AnnotationCollectionNotFoundError,
         JOINED_ANN_FILE_SUFF,
-        open_textfile)
+        open_textfile,
+        BIONLP_ST_2013_COMPATIBILITY)
 from common import ProtocolError, CollectionNotAccessibleError
 from config import BASE_DIR, DATA_DIR
 from projectconfig import (ProjectConfiguration, SEPARATOR_STR, 
@@ -692,6 +693,15 @@ def _enrich_json_with_data(j_dic, ann_obj):
         # these will be erroneously passed as 'entities'
         if unicode(tb_ann.id) in trigger_ids:
             j_dic['triggers'].append(j_tb)
+            # special case for BioNLP ST 2013 format: send triggers
+            # also as entities for those triggers that are referenced
+            # from annotations other than events (#926).
+            if BIONLP_ST_2013_COMPATIBILITY:
+                if tb_ann.id in ann_obj.externally_referenced_triggers:
+                    try:
+                        j_dic['entities'].append(j_tb)
+                    except KeyError:
+                        j_dic['entities'] = [j_tb, ]
         else: 
             try:
                 j_dic['entities'].append(j_tb)

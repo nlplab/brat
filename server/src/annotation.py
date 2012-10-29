@@ -41,12 +41,13 @@ TEXT_FILE_SUFFIX = 'txt'
 DISCONT_SEP = ' '
 ###
 
-# If True, allow normalization annotations to be parsed using the
-# BioNLP Shared Task 2013 format in addition to the brat format.
-# NOTE: Alternate format supported only for reading normalization
-# annotations, not for creating new ones. Don't change this setting
-# unless you are sure you know what you are doing.
-READ_BIONLP_ST_2013_NORMALIZATION = False
+# If True, use BioNLP Shared Task 2013 compatibilty mode, allowing
+# normalization annotations to be parsed using the BioNLP Shared Task
+# 2013 format in addition to the brat format and allowing relations to
+# reference event triggers. NOTE: Alternate format supported only for
+# reading normalization annotations, not for creating new ones. Don't
+# change this setting unless you are sure you know what you are doing.
+BIONLP_ST_2013_COMPATIBILITY = True
 BIONLP_ST_2013_NORMALIZATION_RES = [
     (re_compile(r'^(Reference) Annotation:(\S+) Referent:(\S+)'), r'\1 \2 \3'),
     (re_compile(r'^(Reference) Referent:(\S+) Annotation:(\S+)'), r'\1 \3 \2'),
@@ -324,6 +325,7 @@ class Annotations(object):
         self._document = document
 
         self.failed_lines = []
+        self.externally_referenced_triggers = set()
 
         ### Here be dragons, these objects need constant updating and syncing
         # Annotation for each line of the file
@@ -403,9 +405,21 @@ class Annotations(object):
         for tr_ann in self.get_triggers():
             if tr_ann.id in referenced_to_referencer:
                 conflict_ann_ids = referenced_to_referencer[tr_ann.id]
-                # Note: Only reporting one of the conflicts
-                raise TriggerReferenceError(tr_ann,
-                        self.get_ann_by_id(list(conflict_ann_ids)[0]))
+                if BIONLP_ST_2013_COMPATIBILITY:
+                    # Special-case processing for BioNLP ST 2013: allow
+                    # Relations to reference event triggers (#926).
+                    remaining_confict_ann_ids = set()
+                    for rid in conflict_ann_ids:
+                        referencer = self.get_ann_by_id(rid)
+                        if not isinstance(referencer, BinaryRelationAnnotation):
+                            remaining_confict_ann_ids.add(rid)
+                        else:
+                            self.externally_referenced_triggers.add(tr_ann.id)
+                    conflict_ann_ids = remaining_confict_ann_ids
+                # Note: Only reporting one of the conflicts (TODO)
+                if conflict_ann_ids:
+                    referencer = self.get_ann_by_id(list(conflict_ann_ids)[0])
+                    raise TriggerReferenceError(tr_ann, referencer)
         
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
@@ -783,7 +797,7 @@ class Annotations(object):
     def _parse_normalization_annotation(self, _id, data, data_tail, input_file_path):
         # special-case processing for BioNLP ST 2013 variant of
         # normalization format
-        if READ_BIONLP_ST_2013_NORMALIZATION:
+        if BIONLP_ST_2013_COMPATIBILTY:
             for r, s in BIONLP_ST_2013_NORMALIZATION_RES:
                 d = r.sub(s, data, count=1)
                 if d != data:
