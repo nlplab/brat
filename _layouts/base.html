@@ -11,6 +11,10 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>{{ page.title }}{% if page.title %} - {% endif %}brat rapid annotation tool</title>
+    {% if page.cmeta %}
+      <!-- Include potential meta content to help search engines -->
+      <meta name="description" content="{{ page.cmeta }}"/>
+    {% endif %}
     <link rel="stylesheet" type="text/css" href="style.css"/>
     <link rel="stylesheet" type="text/css" href="jquery-theme/jquery-ui-redmond.css"/>
     <link rel="shortcut icon" href="favicon.ico"/>

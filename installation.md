@@ -1,6 +1,7 @@
 ---
 layout: base
 title:  "Installation"
+cmeta:  "Instructions on how to install brat on your system."
 ---
 # brat installation #
 
