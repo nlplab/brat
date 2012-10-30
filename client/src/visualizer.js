@@ -208,7 +208,7 @@ var Visualizer = (function($, window, undefined) {
       }
       // Do we have a trailing token?
       if (tokenStart != null) {
-        tokenOffsets.push([tokenStart, lastCharPos]);
+        tokenOffsets.push([tokenStart, lastCharPos + 1]);
       }
 
       return tokenOffsets;
@@ -237,7 +237,7 @@ var Visualizer = (function($, window, undefined) {
       }
       // Do we have a trailing sentence without a closing newline?
       if (sentStart != null) {
-        sentenceOffsets.push([sentStart, lastCharPos]);
+        sentenceOffsets.push([sentStart, lastCharPos + 1]);
       }
 
       return sentenceOffsets;
