@@ -52,7 +52,7 @@ pre > code {
   background: transparent;
 }
 
-.unselectable {
+.hp-unselectable {
    -moz-user-select: -moz-none;
    -khtml-user-select: none;
    -webkit-user-select: none;
@@ -137,7 +137,7 @@ div.center {
   margin-left: auto;
   margin-right: auto;
 }
-#header {
+#hp-header {
   padding: 10px 15px;
   margin-bottom: 2em;
   padding-left: 3em;
@@ -148,10 +148,10 @@ div.center {
   padding-right: 1em;
   float: right;  
 }
-#header span a {
+#hp-header span a {
   text-decoration: none; /* no underline in menu */
 }
-#header > span, #header > a {
+#hp-header > span, #hp-header > a {
   margin-right: 10px;
 }
 
@@ -160,7 +160,7 @@ div.center {
   padding: 10px 15px !important;
 }
 
-#header > .logo {
+#hp-header > .logo {
   font-size: 1.2em;
   margin-top: -10px;
   margin-bottom: -10px;
@@ -278,7 +278,7 @@ td.support-no {
   border-radius: 10px;
 }
 
-.logo {
+.hp-logo {
   font-family: 'Astloch', serif;
   font-style: normal;
   text-decoration: none;
