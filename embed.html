@@ -1,0 +1,95 @@
+---
+layout: base
+xhtml:  true
+---
+
+<h1>embedding brat visualisations</h1>
+
+<!-- head.js still isn't on a reliable CDN? -->
+<script type="text/javascript" src="http://weaver.nlplab.org/~brat/demo/master/client/lib/head.load.min.js"></script>
+
+<p>Below is a neat(?) example:</p>
+
+<link href="http://weaver.nlplab.org/~brat/demo/latest/style.css" rel="stylesheet" type="text/css"/>
+<div id="embedding-example"/>
+
+<script type="text/javascript">
+    // XXX: We use the development version of brat for this demo to get
+    var bratLocation = "http://weaver.nlplab.org/~brat/demo/master/";
+    head.js(
+        // External libraries
+        bratLocation + '/client/lib/jquery.min.js',
+        bratLocation + '/client/lib/jquery.svg.min.js',
+        bratLocation + '/client/lib/jquery.svgdom.min.js',
+        // brat helper modules
+        bratLocation + '/client/src/configuration.js',
+        bratLocation + '/client/src/util.js',
+        bratLocation + '/client/src/annotation_log.js',
+        bratLocation + '/client/lib/webfont.js',
+        // brat modules
+        bratLocation + '/client/src/dispatcher.js',
+        bratLocation + '/client/src/url_monitor.js',
+        bratLocation + '/client/src/visualizer.js'
+    );
+
+    var webFontURLs = [
+        bratLocation + 'static/fonts/Astloch-Bold.ttf',
+        bratLocation + 'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+        bratLocation + 'static/fonts/Liberation_Sans-Regular.ttf'
+    ];
+
+    head.ready(function() {
+        // TODO: Try to strip away as much as possible from data and collection
+        var docData = {
+            "modifications":[],
+            "normalizations":[],
+            "triggers":[],
+            "text":"Test!\n",
+            "source_files":[
+                "ann",
+                "txt"
+            ],
+            "ctime":0.0,
+            "mtime":0.0,
+            "messages":[],
+            "sentence_offsets":[],
+            "relations":[],
+            "entities":[],
+            "token_offsets":[],
+            "action":"getDocument",
+            "attributes":[],
+            "equivs":[],
+            "events":[],
+            "comments": [],
+        };
+
+        var collData = {
+            "description":"",
+            "parent":"",
+            "disambiguator_config":[],
+            "header":[],
+            "entity_attribute_types":[],
+            "event_types":[],
+            "ui_names":{
+                "entities":"entities",
+                "events":"events",
+                "relations":"relations",
+                "attributes":"attributes"
+            },
+            "action":"getCollectionInformation",
+            "normalization_config":[],
+            "items":[],
+            "unconfigured_types":[],
+            "messages":[],
+            "event_attribute_types":[],
+            "annotation_logging":false,
+            "search_config":[],
+            "ner_taggers":[],
+            "relation_types":[],
+            "entity_types":[],
+            "relation_attribute_types":[]
+        };
+
+        Util.embed("embedding-example", collData, docData, webFontURLs);
+    });
+</script>
