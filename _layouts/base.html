@@ -1,5 +1,13 @@
+<!-- We use the same base template for both HTML5 and XHTML, so make sure not
+    to put any HTML silliness in the template or some pages will break -->
+{% if page.xhtml %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-GB" xml:lang="en-GB" xmlns="http://www.w3.org/1999/xhtml">
+{% else %}
 <!DOCTYPE html>
-<html lang="en-US">
+<html lang="en-GB">
+{% endif %}
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>{{ page.title }}{% if page.title %} - {% endif %}brat rapid annotation tool</title>
