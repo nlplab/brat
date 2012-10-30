@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+# vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 # Implements a GENIA Treebank - like tokenization. 
 
@@ -216,20 +218,20 @@ def tokenize(s, ptb_escaping=False, use_single_quotes_only=False,
     if ptb_escaping:
         if use_single_quotes_only:
             # special case for McCCJ: escape into single quotes. 
-	    s = re.sub(r'([ \(\[\{\<])\"', r'\1 '+"' ", s)
+            s = re.sub(r'([ \(\[\{\<])\"', r'\1 '+"' ", s)
         else:
-	    # standard PTB quote escaping
+            # standard PTB quote escaping
             s = re.sub(r'([ \(\[\{\<])\"', r'\1 `` ', s)
     else:
         # no escaping, just separate
-	s = re.sub(r'([ \(\[\{\<])\"', r'\1 " ', s)
+        s = re.sub(r'([ \(\[\{\<])\"', r'\1 " ', s)
 
     s = _tokenize(s)
 
     # as above (not quite sure why this is after primary tokenization...)
     if ptb_escaping:
         if use_single_quotes_only:
-	    s = s.replace('"', " ' ")
+            s = s.replace('"', " ' ")
         else:
             s = s.replace('"', " '' ")
     else:
@@ -241,14 +243,14 @@ def tokenize(s, ptb_escaping=False, use_single_quotes_only=False,
             # tokenization
             s = PTB_unescape(s)
         else:
-	    # only unescape if a space can be matched on both
-	    # sides of the bracket.
-	    s = re.sub(r'(?<= )-LRB-(?= )', '(', s)
-	    s = re.sub(r'(?<= )-RRB-(?= )', ')', s)
-	    s = re.sub(r'(?<= )-LSB-(?= )', '[', s)
-	    s = re.sub(r'(?<= )-RSB-(?= )', ']', s)
-	    s = re.sub(r'(?<= )-LCB-(?= )', '{', s)
-	    s = re.sub(r'(?<= )-RCB-(?= )', '}', s)
+            # only unescape if a space can be matched on both
+            # sides of the bracket.
+            s = re.sub(r'(?<= )-LRB-(?= )', '(', s)
+            s = re.sub(r'(?<= )-RRB-(?= )', ')', s)
+            s = re.sub(r'(?<= )-LSB-(?= )', '[', s)
+            s = re.sub(r'(?<= )-RSB-(?= )', ']', s)
+            s = re.sub(r'(?<= )-LCB-(?= )', '{', s)
+            s = re.sub(r'(?<= )-RCB-(?= )', '}', s)
 
     # Clean up added space (well, maybe other also)
     s = re.sub(r'  +', ' ', s)
@@ -291,12 +293,12 @@ def main(argv):
         ptb_escaping = True
     if arg.mccc:
         ptb_escaping = True 
-	# current version of McCCJ has trouble with double quotes
+        # current version of McCCJ has trouble with double quotes
         use_single_quotes_only = True
     if arg.sp:
-	# current version of Stanford parser PTBEscapingProcessor
-	# doesn't correctly escape word-internal parentheses
-	escape_token_internal_parens = True
+        # current version of Stanford parser PTBEscapingProcessor
+        # doesn't correctly escape word-internal parentheses
+        escape_token_internal_parens = True
     
     # for testing, read stdin if no args
     if len(arg.files) == 0:
