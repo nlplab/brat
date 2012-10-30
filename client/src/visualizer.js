@@ -156,6 +156,26 @@ var Visualizer = (function($, window, undefined) {
       this.y = y;
     };
 
+    // Sets default values for a wide range of optional attributes
+    var setSourceDateDefaults = function(sourceData) {
+      // The following are empty lists if not set
+      $.each([
+          'attributes',
+          'comments',
+          'entities',
+          'equivs',
+          'events',
+          'modifications',
+          'normalizations',
+          'relations',
+          'triggers',
+          ], function(attrNo, attr) {
+        if (sourceData[attr] === undefined) {
+          sourceData[attr] = [];
+        }
+      });
+    };
+
     var Visualizer = function(dispatcher, svgId, webFontURLs) {
       var $svgDiv = $('#' + svgId);
       if (!$svgDiv.length) {
@@ -2583,6 +2603,9 @@ Util.profileReport();
             dispatcher.post('unknownError', [sourceData.exception]);
           }
         } else {
+          // Fill in default values that don't necessarily go over the protocol
+          setSourceDateDefaults(sourceData);
+
           dispatcher.post('startedRendering', [coll, doc, args]);
           dispatcher.post('spin');
           setTimeout(function() {
