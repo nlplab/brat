@@ -174,6 +174,73 @@ var Visualizer = (function($, window, undefined) {
           sourceData[attr] = [];
         }
       });
+
+      // If we lack sentence offsets we fall back on naive sentence splitting
+      if (sourceData.sentence_offsets === undefined) {
+        sourceData.sentence_offsets = sentenceSplit(sourceData.text);
+      }
+      // Similarily we fall back on whitespace tokenisation
+      if (sourceData.token_offsets === undefined) {
+        sourceData.token_offsets = tokenise(sourceData.text);
+      }
+    };
+
+    // A naive whitespace tokeniser
+    var tokenise = function(text) {
+      var tokenOffsets = [];
+      var tokenStart = null;
+      var lastCharPos = null;
+
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        // Have we found the start of a token?
+        if (tokenStart == null && !/\s/.test(c)) {
+          tokenStart = i;
+          lastCharPos = i;
+        // Have we found the end of a token?
+        } else if (/\s/.test(c) && tokenStart != null) {
+          tokenOffsets.push([tokenStart, i]);
+          tokenStart = null;
+        // Is it a non-whitespace character?
+        } else if (!/\s/.test(c)) {
+          lastCharPos = i;
+        }
+      }
+      // Do we have a trailing token?
+      if (tokenStart != null) {
+        tokenOffsets.push([tokenStart, lastCharPos]);
+      }
+
+      return tokenOffsets;
+    };
+
+    // A naive newline sentence splitter
+    var sentenceSplit = function(text) {
+      var sentenceOffsets = [];
+      var sentStart = null;
+      var lastCharPos = null;
+
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        // Have we found the start of a sentence?
+        if (sentStart == null && !/\s/.test(c)) {
+          sentStart = i;
+          lastCharPos = i;
+        // Have we found the end of a sentence?
+        } else if (c == '\n' && sentStart != null) {
+          sentenceOffsets.push([sentStart, i]);
+          sentStart = null;
+        // Is it a non-whitespace character?
+        } else if (!/\s/.test(c)) {
+          lastCharPos = i;
+        }
+      }
+      // Do we have a trailing sentence without a closing newline?
+      if (sentStart != null) {
+        sentenceOffsets.push([sentStart, lastCharPos]);
+      }
+
+      return sentenceOffsets;
     };
 
     var Visualizer = function(dispatcher, svgId, webFontURLs) {
