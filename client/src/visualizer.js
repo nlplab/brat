@@ -1,5 +1,5 @@
+// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
-
 
 var Visualizer = (function($, window, undefined) {
     var fontLoadTimeout = 5000; // 5 seconds
@@ -566,27 +566,27 @@ var Visualizer = (function($, window, undefined) {
           }
         });
 
-	// normalizations
-	$.each(sourceData.normalizations, function(normNo, norm) {
-	  var id = norm[0];
-	  var normType = norm[1];
-	  var target = norm[2];
-	  var refdb = norm[3];
-	  var refid = norm[4];
-	  var reftext = norm[5];
+        // normalizations
+        $.each(sourceData.normalizations, function(normNo, norm) {
+          var id = norm[0];
+          var normType = norm[1];
+          var target = norm[2];
+          var refdb = norm[3];
+          var refid = norm[4];
+          var reftext = norm[5];
 
-	  // grab entity / event the normalization applies to
-	  var span = data.spans[target];
+          // grab entity / event the normalization applies to
+          var span = data.spans[target];
           if (!span) {
             dispatcher.post('messages', [[['Annotation ' + target + ', referenced from normalization ' + id + ', does not exist.', 'error']]]);
             return;
           }
 
-	  // TODO: do we have any possible use for the normType?
-	  span.normalizations.push([refdb, refid, reftext]);
+          // TODO: do we have any possible use for the normType?
+          span.normalizations.push([refdb, refid, reftext]);
 
-	  // quick hack for span box visual style
-	  span.normalized = 'Normalized';
+          // quick hack for span box visual style
+          span.normalized = 'Normalized';
         });
 
         // prepare span boundaries for token containment testing
@@ -716,10 +716,10 @@ var Visualizer = (function($, window, undefined) {
             data.arcs.push(arc);
             target.incoming.push(arc);
             origin.outgoing.push(arc);
-	    // ID dict for easy access. TODO: have a function defining the 
-	    // (origin,type,target)->id mapping (see also annotator_ui.js)
-	    var arcId = origin.id + '--' + role.type + '--' + target.id;
-	    data.arcById[arcId] = arc;
+            // ID dict for easy access. TODO: have a function defining the
+            // (origin,type,target)->id mapping (see also annotator_ui.js)
+            var arcId = origin.id + '--' + role.type + '--' + target.id;
+            data.arcById[arcId] = arc;
           }); // roles
         }); // eventDescs
 
@@ -1131,25 +1131,25 @@ var Visualizer = (function($, window, undefined) {
         var type = parsedSpec[0];
         if (type == 'none') return;
 
-	var width = 5;
-	var height = 5;
-	var color = "black";
-	if ($.isNumeric(parsedSpec[1]) && parsedSpec[2]) {
-	  if ($.isNumeric(parsedSpec[2]) && parsedSpec[3]) {
-	    // 3 args, 2 numeric: assume width, height, color
-	    width = parsedSpec[1];
-	    height = parsedSpec[2];
-	    color = parsedSpec[3] || 'black';
-	  } else {
-	    // 2 args, 1 numeric: assume width/height, color
-	    width = height = parsedSpec[1];
-	    color = parsedSpec[2] || 'black';
-	  }
-	} else {
-	  // other: assume color only
-	  width = height = 5;
-	  color = parsedSpec[1] || 'black';
-	}
+        var width = 5;
+        var height = 5;
+        var color = "black";
+        if ($.isNumeric(parsedSpec[1]) && parsedSpec[2]) {
+          if ($.isNumeric(parsedSpec[2]) && parsedSpec[3]) {
+            // 3 args, 2 numeric: assume width, height, color
+            width = parsedSpec[1];
+            height = parsedSpec[2];
+            color = parsedSpec[3] || 'black';
+          } else {
+            // 2 args, 1 numeric: assume width/height, color
+            width = height = parsedSpec[1];
+            color = parsedSpec[2] || 'black';
+          }
+        } else {
+          // other: assume color only
+          width = height = 5;
+          color = parsedSpec[1] || 'black';
+        }
         var arrowId = 'arrow_' + spec.replace(/,/g, '_');
 
         var arrow;
@@ -1454,7 +1454,7 @@ Util.profileStart('chunks');
             // always showing up as black.
             // TODO: don't hard-code configured shadowclasses.
             if (span.shadowClass &&
-		span.shadowClass.match('True_positive|False_positive|False_negative|AnnotationError|AnnotationWarning|AnnotatorNotes|Normalized|AnnotationIncomplete|AnnotationUnconfirmed|rectEditHighlight|EditHighlight_arc|MissingAnnotation|ChangedAnnotation ')) {
+                span.shadowClass.match('True_positive|False_positive|False_negative|AnnotationError|AnnotationWarning|AnnotatorNotes|Normalized|AnnotationIncomplete|AnnotationUnconfirmed|rectEditHighlight|EditHighlight_arc|MissingAnnotation|ChangedAnnotation ')) {
               shadowRect = svg.rect(fragment.group,
                   bx - rectShadowSize, by - rectShadowSize,
                   bw + 2 * rectShadowSize, bh + 2 * rectShadowSize, {
@@ -1479,7 +1479,7 @@ Util.profileStart('chunks');
                 'data-fragment-id': fragment.id,
                 'strokeDashArray': span.attributeMerge.dashArray,
               });
-	    
+
             // TODO XXX: quick nasty hack to allow normalizations
             // to be marked visually; do something cleaner!
             if (span.normalized) {
@@ -1978,7 +1978,7 @@ Util.profileStart('arcs');
               'data-arc-role': arc.type,
               'data-arc-origin': arc.origin,
               'data-arc-target': arc.target,
-	      // TODO: confirm this is unused and remove.
+              // TODO: confirm this is unused and remove.
               //'data-arc-id': arc.id,
               'data-arc-ed': arc.eventDescId,
             };
@@ -2107,13 +2107,13 @@ Util.profileStart('arcs');
               if (!ufoCatcher && cornerx > arrowStart - 1) { cornerx = arrowStart - 1; }
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-		var endy = leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y);
-		// no curving for short lines covering short vertical
-		// distances, the arrowheads can go off (#925)
-		if (Math.abs(-height-endy) < 2 &&
-		    Math.abs(cornerx-from) < 5) {
-		  endy = -height;
-		}
+                var endy = leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y);
+                // no curving for short lines covering short vertical
+                // distances, the arrowheads can go off (#925)
+                if (Math.abs(-height-endy) < 2 &&
+                    Math.abs(cornerx-from) < 5) {
+                  endy = -height;
+                }
                 line = path.line(cornerx, -height).
                     curveQ(controlx, -height, from, endy);
               } else {
@@ -2183,13 +2183,13 @@ Util.profileStart('arcs');
               if (!ufoCatcher && cornerx < arrowEnd + 1) { cornerx = arrowEnd + 1; }
               if (smoothArcCurves) {
                 var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-		var endy = rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2);
-		// no curving for short lines covering short vertical
-		// distances, the arrowheads can go off (#925)
-		if (Math.abs(-height-endy) < 2 &&
-		    Math.abs(cornerx-to) < 5) {
-		  endy = -height;
-		}
+                var endy = rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2);
+                // no curving for short lines covering short vertical
+                // distances, the arrowheads can go off (#925)
+                if (Math.abs(-height-endy) < 2 &&
+                    Math.abs(cornerx-to) < 5) {
+                  endy = -height;
+                }
                 path.line(cornerx, -height).
                     curveQ(controlx, -height, to, endy);
               } else {
@@ -2655,7 +2655,7 @@ Util.profileStart('before render');
         if (id = target.attr('data-span-id')) {
           commentId = id;
           var span = data.spans[id];
-	  var norm = span.normalizations[0];
+          var norm = span.normalizations[0];
           dispatcher.post('displaySpanComment', [
               evt, target, id, span.type, span.attributeText,
               span.text,
