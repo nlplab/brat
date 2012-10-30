@@ -797,7 +797,7 @@ class Annotations(object):
     def _parse_normalization_annotation(self, _id, data, data_tail, input_file_path):
         # special-case processing for BioNLP ST 2013 variant of
         # normalization format
-        if BIONLP_ST_2013_COMPATIBILTY:
+        if BIONLP_ST_2013_COMPATIBILITY:
             for r, s in BIONLP_ST_2013_NORMALIZATION_RES:
                 d = r.sub(s, data, count=1)
                 if d != data:
