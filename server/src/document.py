@@ -32,7 +32,8 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
         SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
         VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, 
         ATTR_DRAWING_ATTRIBUTES, VISUAL_ATTR_DEFAULT,
-        ENTITY_NESTING_TYPE, options_get_validation, options_get_tokenization,
+        SPECIAL_RELATION_TYPES, 
+        options_get_validation, options_get_tokenization,
         options_get_ssplitter, get_annotation_config_section_labels)
 from stats import get_statistics
 from message import Messager
@@ -56,10 +57,10 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
             _type = node.storage_form() 
 
             # This isn't really a great place to put this, but we need
-            # to block this magic value from getting to the client.
+            # to block these magic values from getting to the client.
             # TODO: resolve cleanly, preferably by not storing this with
             # other relations at all.
-            if _type == ENTITY_NESTING_TYPE:
+            if _type in SPECIAL_RELATION_TYPES:
                 continue
 
             item['name'] = project_conf.preferred_display_form(_type)
@@ -172,7 +173,7 @@ def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
             item = {}
             _type = node.storage_form() 
 
-            if _type == ENTITY_NESTING_TYPE:
+            if _type in SPECIAL_RELATION_TYPES:
                 continue
 
             item['name'] = project_conf.preferred_display_form(_type)

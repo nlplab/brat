@@ -8,7 +8,7 @@ from __future__ import with_statement
 
 import annotation
 
-from projectconfig import ProjectConfiguration, ENTITY_NESTING_TYPE
+from projectconfig import ProjectConfiguration
 
 # Issue types. Values should match with annotation interface.
 AnnotationError = "AnnotationError"
@@ -141,16 +141,17 @@ def verify_entity_overlap(ann_obj, projectconf):
     overlapping = check_textbound_overlap(physical_entities)
     for a1, a2 in overlapping:
         if a1.same_span(a2):
-            issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s has identical span with %s %s" % (disp(a1.type), disp(a2.type), a2.id)))            
+            if not projectconf.spans_can_be_equal(a1.type, a2.type):
+                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot have identical span with %s %s" % (disp(a1.type), disp(a2.type), a2.id)))            
         elif a2.contains(a1):
-            if ENTITY_NESTING_TYPE not in projectconf.relation_types_from_to(a1.type, a2.type, include_special=True):
+            if not projectconf.span_can_contain(a1.type, a2.type):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot be contained in %s (%s)" % (disp(a1.type), disp(a2.type), a2.id)))
         elif a1.contains(a2):
-            if ENTITY_NESTING_TYPE not in projectconf.relation_types_from_to(a2.type, a1.type, include_special=True):
+            if not projectconf.span_can_contain(a2.type, a1.type):
                 issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: %s cannot contain %s (%s)" % (disp(a1.type), disp(a2.type), a2.id)))
         else:
-            # crossing boundaries; never allowed for physical entities.
-            issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: annotation has crossing span with %s" % a2.id))
+            if not projectconf.spans_can_cross(a1.type, a2.type):
+                issues.append(AnnotationIssue(a1.id, AnnotationError, "Error: annotation cannot have crossing span with %s" % a2.id))
     
     # TODO: generalize to other cases
     return issues

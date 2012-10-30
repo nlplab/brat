@@ -64,8 +64,14 @@ NORMALIZATION_SECTION = "normalization"
 __expected_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
 __optional_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
 
-# special relation type for marking which entities can nest
+# special relation types for marking which spans can overlap
+# ENTITY_NESTING_TYPE used up to version 1.3, now deprecated
 ENTITY_NESTING_TYPE = "ENTITY-NESTING"
+# TEXTBOUND_OVERLAP_TYPE used from version 1.3 onward
+TEXTBOUND_OVERLAP_TYPE = "<OVERLAP>"
+SPECIAL_RELATION_TYPES = set([ENTITY_NESTING_TYPE,
+                              TEXTBOUND_OVERLAP_TYPE])
+OVERLAP_TYPE_ARG = '<OVL-TYPE>'
 
 # visual config default value names
 VISUAL_SPAN_DEFAULT = "SPAN_DEFAULT"
@@ -127,7 +133,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "EMPTY", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "EMPTY", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM", "OVERLAP", "OVL-TYPE"]
 # TODO: "GLYPH-POS" is no longer used, warn if encountered and
 # recommend to use "position" instead.
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
@@ -192,9 +198,13 @@ class TypeHierarchyNode:
         self.children = []
 
         # The first of the listed terms is used as the primary term for
-        # storage. Due to format restrictions, this form must not have
-        # e.g. space or other forms.
-        self.__primary_term = normalize_to_storage_form(self.terms[0])
+        # storage (excepting for "special" config-only types). Due to
+        # format restrictions, this form must not have e.g. space or
+        # various special characters.
+        if self.terms[0] not in SPECIAL_RELATION_TYPES:
+            self.__primary_term = normalize_to_storage_form(self.terms[0])
+        else:
+            self.__primary_term = self.terms[0]
         # TODO: this might not be the ideal place to put this warning
         if self.__primary_term != self.terms[0]:
             Messager.warning("Note: in configuration, term '%s' is not appropriate for storage (should match '^[a-zA-Z0-9_-]*$'), using '%s' instead. (Revise configuration file to get rid of this message. Terms other than the first are not subject to this restriction.)" % (self.terms[0], self.__primary_term), -1)
@@ -984,9 +994,9 @@ def __directory_relations_by_arg_num(directory, num, atype, include_special=Fals
                        for t in get_event_type_list(directory)])
 
     for r in get_relation_type_list(directory):
-        # "Special" nesting relation ignored unless specifically
+        # "Special" nesting relations ignored unless specifically
         # requested
-        if r.storage_form() == ENTITY_NESTING_TYPE and not include_special:
+        if r.storage_form() in SPECIAL_RELATION_TYPES and not include_special:
             continue
 
         if len(r.arg_list) != 2:
@@ -1031,7 +1041,8 @@ def get_relations_by_storage_form(directory, rtype, include_special=False):
     if include_special not in cache[directory]:
         cache[directory][include_special] = {}
         for r in get_relation_type_list(directory):
-            if r.storage_form() == ENTITY_NESTING_TYPE and not include_special:
+            if (r.storage_form() in SPECIAL_RELATION_TYPES and 
+                not include_special):
                 continue
             if r.unused:
                 continue
@@ -1173,6 +1184,97 @@ class ProjectConfiguration(object):
                 types.append(r.storage_form())
 
         return types
+
+    def overlap_types(self, inner, outer):
+        """
+        Returns the set of annotation overlap types that have been
+        configured for the given pair of annotations.
+        """
+        # TODO: this is O(NM) for relation counts N and M and goes
+        # past much of the implemented caching. Might become a
+        # bottleneck for annotations with large type systems.
+        t1r = get_relations_by_arg1(self.directory, inner, True)
+        t2r = get_relations_by_arg2(self.directory, outer, True)
+
+        types = []
+        for r in (s for s in t1r if s.storage_form() in SPECIAL_RELATION_TYPES):
+            if r in t2r:
+                types.append(r)
+
+        # new-style overlap configuration ("<OVERLAP>") takes precedence
+        # over old-style configuration ("ENTITY-NESTING").
+        ovl_types = set()
+
+        ovl = [r for r in types if r.storage_form() == TEXTBOUND_OVERLAP_TYPE]
+        nst = [r for r in types if r.storage_form() == ENTITY_NESTING_TYPE]
+
+        if ovl:
+            if nst:
+                Messager.warning('Warning: both '+TEXTBOUND_OVERLAP_TYPE+
+                                 ' and '+ENTITY_NESTING_TYPE+' defined for '+
+                                 '('+inner+','+outer+') in config. '+
+                                 'Ignoring latter.')
+            for r in ovl:
+                if OVERLAP_TYPE_ARG not in r.special_arguments:
+                    Messager.warning('Warning: missing '+OVERLAP_TYPE_ARG+
+                                     ' for '+TEXTBOUND_OVERLAP_TYPE+
+                                     ', ignoring specification.')
+                    continue
+                for val in r.special_arguments[OVERLAP_TYPE_ARG]:
+                    ovl_types |= set(val.split('|'))
+        elif nst:
+            # translate into new-style configuration
+            ovl_types = set(['contain'])
+        else:
+            ovl_types = set()
+
+        undefined_types = [t for t in ovl_types if 
+                           t not in ('contain', 'equal', 'cross', 'any')]
+        if undefined_types:
+            Messager.warning('Undefined '+OVERLAP_TYPE_ARG+' value(s) '+
+                             str(undefined_types)+' for '+
+                             '('+inner+','+outer+') in config. ')
+        return ovl_types
+
+    def span_can_contain(self, inner, outer):
+        """
+        Returns True if the configuration allows the span of an
+        annotation of type inner to (properly) contain an annotation
+        of type outer, False otherwise.
+        """
+        ovl_types = self.overlap_types(inner, outer)
+        if 'contain' in ovl_types or '<ANY>' in ovl_types:
+            return True
+        ovl_types = self.overlap_types(outer, inner)
+        if '<ANY>' in ovl_types:
+            return True
+        return False
+
+    def spans_can_be_equal(self, t1, t2):
+        """
+        Returns True if the configuration allows the spans of
+        annotations of type t1 and t2 to be equal, False otherwise.
+        """
+        ovl_types = self.overlap_types(t1, t2)
+        if 'equal' in ovl_types or '<ANY>' in ovl_types:
+            return True
+        ovl_types = self.overlap_types(t2, t1)
+        if 'equal' in ovl_types or '<ANY>' in ovl_types:
+            return True
+        return False
+
+    def spans_can_cross(self, t1, t2):
+        """
+        Returns True if the configuration allows the spans of
+        annotations of type t1 and t2 to cross, False otherwise.
+        """
+        ovl_types = self.overlap_types(t1, t2)
+        if 'cross' in ovl_types or '<ANY>' in ovl_types:
+            return True
+        ovl_types = self.overlap_types(t2, t1)
+        if 'cross' in ovl_types or '<ANY>' in ovl_types:
+            return True
+        return False
 
     def all_connections(self, include_special=False):
         """
