@@ -156,7 +156,94 @@ var Visualizer = (function($, window, undefined) {
       this.y = y;
     };
 
-    var Visualizer = function(dispatcher, svgId) {
+    // Sets default values for a wide range of optional attributes
+    var setSourceDateDefaults = function(sourceData) {
+      // The following are empty lists if not set
+      $.each([
+          'attributes',
+          'comments',
+          'entities',
+          'equivs',
+          'events',
+          'modifications',
+          'normalizations',
+          'relations',
+          'triggers',
+          ], function(attrNo, attr) {
+        if (sourceData[attr] === undefined) {
+          sourceData[attr] = [];
+        }
+      });
+
+      // If we lack sentence offsets we fall back on naive sentence splitting
+      if (sourceData.sentence_offsets === undefined) {
+        sourceData.sentence_offsets = sentenceSplit(sourceData.text);
+      }
+      // Similarily we fall back on whitespace tokenisation
+      if (sourceData.token_offsets === undefined) {
+        sourceData.token_offsets = tokenise(sourceData.text);
+      }
+    };
+
+    // A naive whitespace tokeniser
+    var tokenise = function(text) {
+      var tokenOffsets = [];
+      var tokenStart = null;
+      var lastCharPos = null;
+
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        // Have we found the start of a token?
+        if (tokenStart == null && !/\s/.test(c)) {
+          tokenStart = i;
+          lastCharPos = i;
+        // Have we found the end of a token?
+        } else if (/\s/.test(c) && tokenStart != null) {
+          tokenOffsets.push([tokenStart, i]);
+          tokenStart = null;
+        // Is it a non-whitespace character?
+        } else if (!/\s/.test(c)) {
+          lastCharPos = i;
+        }
+      }
+      // Do we have a trailing token?
+      if (tokenStart != null) {
+        tokenOffsets.push([tokenStart, lastCharPos + 1]);
+      }
+
+      return tokenOffsets;
+    };
+
+    // A naive newline sentence splitter
+    var sentenceSplit = function(text) {
+      var sentenceOffsets = [];
+      var sentStart = null;
+      var lastCharPos = null;
+
+      for (var i = 0; i < text.length; i++) {
+        var c = text[i];
+        // Have we found the start of a sentence?
+        if (sentStart == null && !/\s/.test(c)) {
+          sentStart = i;
+          lastCharPos = i;
+        // Have we found the end of a sentence?
+        } else if (c == '\n' && sentStart != null) {
+          sentenceOffsets.push([sentStart, i]);
+          sentStart = null;
+        // Is it a non-whitespace character?
+        } else if (!/\s/.test(c)) {
+          lastCharPos = i;
+        }
+      }
+      // Do we have a trailing sentence without a closing newline?
+      if (sentStart != null) {
+        sentenceOffsets.push([sentStart, lastCharPos + 1]);
+      }
+
+      return sentenceOffsets;
+    };
+
+    var Visualizer = function(dispatcher, svgId, webFontURLs) {
       var $svgDiv = $('#' + svgId);
       if (!$svgDiv.length) {
         throw Error('Could not find container with id="' + svgId + '"');
@@ -2583,6 +2670,9 @@ Util.profileReport();
             dispatcher.post('unknownError', [sourceData.exception]);
           }
         } else {
+          // Fill in default values that don't necessarily go over the protocol
+          setSourceDateDefaults(sourceData);
+
           dispatcher.post('startedRendering', [coll, doc, args]);
           dispatcher.post('spin');
           setTimeout(function() {
@@ -2949,6 +3039,42 @@ Util.profileStart('before render');
         return !drawing;
       };
 
+      // If we are yet to load our fonts, dispatch them
+      if (!Visualizer.areFontsLoaded) {
+        var webFontConfig = {
+          custom: {
+            families: [
+              'Astloch',
+              'PT Sans Caption',
+              //        'Ubuntu',
+              'Liberation Sans'
+            ],
+            /* For some cases, in particular for embedding, we need to
+              allow for fonts being hosted elsewhere */
+            urls: webFontURLs !== undefined ? webFontURLs : [
+              'static/fonts/Astloch-Bold.ttf',
+              'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+              //
+              'static/fonts/Liberation_Sans-Regular.ttf'
+            ],
+          },
+          active: proceedWithFonts,
+          inactive: proceedWithFonts,
+          fontactive: function(fontFamily, fontDescription) {
+            console.log("font active: ", fontFamily, fontDescription);
+          },
+          fontloading: function(fontFamily, fontDescription) {
+            console.log("font loading:", fontFamily, fontDescription);
+          },
+        };
+        WebFont.load(webFontConfig);
+        setTimeout(function() {
+          if (!Visualizer.areFontsLoaded) {
+            console.error('Timeout in loading fonts');
+            proceedWithFonts();
+          }
+        }, fontLoadTimeout);
+      }
 
       dispatcher.
           on('collectionChanged', collectionChanged).
@@ -2975,38 +3101,6 @@ Util.profileStart('before render');
       console.log("fonts done");
       Dispatcher.post('triggerRender');
     };
-
-    var webFontConfig = {
-      custom: {
-        families: [
-          'Astloch',
-          'PT Sans Caption',
-          //        'Ubuntu',
-          'Liberation Sans'
-        ],
-        urls: [
-          'static/fonts/Astloch-Bold.ttf',
-          'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
-          //
-          'static/fonts/Liberation_Sans-Regular.ttf'
-        ],
-      },
-      active: proceedWithFonts,
-      inactive: proceedWithFonts,
-      fontactive: function(fontFamily, fontDescription) {
-        console.log("font active: ", fontFamily, fontDescription);
-      },
-      fontloading: function(fontFamily, fontDescription) {
-        console.log("font loading:", fontFamily, fontDescription);
-      },
-    };
-    WebFont.load(webFontConfig);
-    setTimeout(function() {
-      if (!Visualizer.areFontsLoaded) {
-        console.error('Timeout in loading fonts');
-        proceedWithFonts();
-      }
-    }, fontLoadTimeout);
 
     return Visualizer;
 })(jQuery, window);
