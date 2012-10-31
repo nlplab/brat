@@ -570,6 +570,9 @@ def _get_match_regex(text, text_match="word", match_case=False,
 
     if text is None:
         text = ''
+    # interpret special value standing in for empty string (#924)
+    if text == DEFAULT_EMPTY_STRING:
+        text = ''
 
     if text_match == "word":
         # full word match: require word boundaries or, optionally,
