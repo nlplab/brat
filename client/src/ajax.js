@@ -19,6 +19,11 @@ var Ajax = (function($, window, undefined) {
         pendingList[id] = merge.keep || false;
         delete merge.keep;
 
+        // If no protocol version is explicitly set, set it to current
+        if (data['protocol'] === undefined) {
+          data['protocol'] = 1;
+        }
+
         $.ajax({
           url: 'ajax.cgi',
           data: data,
@@ -36,11 +41,26 @@ var Ajax = (function($, window, undefined) {
             // If the request is obsolete, do nothing; if not...
             if (pendingList.hasOwnProperty(id)) {
               dispatcher.post('messages', [response.messages]);
-              if (response.exception == 'configurationError') {
+              if (response.exception == 'configurationError'
+                  || response.exception == 'protocolVersionMismatch') {
                 // this is a no-rescue critical failure.
                 // Stop *everything*.
                 pendingList = {};
                 dispatcher.post('screamingHalt');
+                // If we had a protocol mismatch, prompt the user for a reload
+                if (response.exception == 'protocolVersionMismatch') {
+                  if(confirm('The server is running a different version ' +
+                      'from brat than your client, possibly due to a ' +
+                      'server upgrade. Would you like to reload the ' +
+                      'current page to update your client to the latest ' +
+                      'version?')) {
+                    window.location.reload(true);
+                  } else {
+                    dispatcher.post('messages', [[['Fatal Error: Protocol ' +
+                        'version mismatch, please contact the administrator',
+                        'error', -1]]]);
+                  }
+                }
                 return;
               }
 
