@@ -204,7 +204,7 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         # Add a human-readable version of the error
         err_str = str(e)
         if err_str != '':
-            Messager.error(err_str)
+            Messager.error(err_str, duration=-1)
 
         response_data = ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
     except NoPrintJSONError, e:
