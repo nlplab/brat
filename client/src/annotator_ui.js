@@ -1056,7 +1056,8 @@ var AnnotatorUI = (function($, window, undefined) {
             dispatcher.post('ajax', [ {
                             action: 'normGetName',
                             database: db,
-                            key: key}, 'normGetNameResult']);
+                            key: key,
+                            collection: coll}, 'normGetNameResult']);
           }
           oldSpanNormIdValue = key;
         }
@@ -1213,7 +1214,8 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('ajax', [ {
                         action: 'normSearch',
                         database: db,
-                        name: val}, 'normSearchResult']);
+                        name: val,
+                        collection: coll}, 'normSearchResult']);
       }
       $('#norm_search_button').click(performNormSearch);
       $('#norm_search_query').focus(function() {
@@ -2019,6 +2021,7 @@ var AnnotatorUI = (function($, window, undefined) {
         html = [];
         $.each(norm_resources, function(normNo, norm) {
           var normName = norm[0], normUrl = norm[1], normUrlBase = norm[2];
+          var serverDb = norm[3];
           html.push('<option value="'+Util.escapeHTML(normName)+'">'+
                     Util.escapeHTML(normName)+'</option>');
           // remember the urls for updates

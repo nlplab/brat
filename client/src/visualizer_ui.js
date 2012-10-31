@@ -34,6 +34,9 @@ var VisualizerUI = (function($, window, undefined) {
       var currentDocumentSVGsaved = false;
       var fileBrowserClosedWithSubmit = false;
 
+      // normalization: server-side DB by norm DB name
+      var normServerDbByNormDbName = {};
+
       var matchFocus = '';
       var matches = '';
 
@@ -322,22 +325,41 @@ var VisualizerUI = (function($, window, undefined) {
           }
           immediately = true;
         }
+        var queryNormInfo = false;
+        if (norm) {
+          var dbName = norm[0];
+          if (dbName in normServerDbByNormDbName &&
+              normServerDbByNormDbName[dbName] != '<NONE>') {
+            queryNormInfo = true;
+          }
+        }
         if (norm) {
           commentPopupNormInfoSeqId++;
           comment += ( '<hr/>' +
                        '<span class="comment_id">' +
                        Util.escapeHTML(norm[0]) + ':' +
-                       Util.escapeHTML(norm[1]) + '</span><br/>' +
-                       '<div id="norm_info_drop_point_'+
-                       commentPopupNormInfoSeqId+'"/>');
+                       Util.escapeHTML(norm[1]) + '</span>');
+          if (queryNormInfo) {
+            // DB available, add drop-off point to HTML
+            comment += ('<br/><div id="norm_info_drop_point_'+
+                        commentPopupNormInfoSeqId+'"/>');
+          } else {
+            // no DB, just attach "human-readable" text provided
+            // with the annotation, if any
+            if (norm[2]) {
+                comment += ('<br/><span class="norm_info_value">'+
+                            Util.escapeHTML(norm[2])+'</span>');
+            }
+          }
         }
         displayComment(evt, target, comment, commentText, commentType, immediately);
-        if (norm) {
+        if (queryNormInfo) {
           // TODO: cache some number of most recent norm_get_data results
           dispatcher.post('ajax', [{
             action: 'normData',
             database: norm[0],
             key: norm[1],
+            collection: coll,
           },
           function(response) {
             if (response.exception) {
@@ -857,6 +879,18 @@ var VisualizerUI = (function($, window, undefined) {
           }
         });
       };
+
+      var rememberNormDb = function(response) {
+        // the visualizer needs to remember aspects of the norm setup
+        // so that it can avoid making queries for unconfigured or
+        // missing normalization DBs.
+        var norm_resources = response.normalization_config || [];
+        $.each(norm_resources, function(normNo, norm) {
+          var normName = norm[0];
+          var serverDb = norm[3];
+          normServerDbByNormDbName[normName] = serverDb;
+        });
+      }
 
       var setupSearchTypes = function(response) {
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
@@ -2157,6 +2191,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('showForm', showForm).
           on('hideForm', hideForm).
           on('initForm', initForm).
+          on('collectionLoaded', rememberNormDb).
           on('collectionLoaded', collectionLoaded).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('isReloadOkay', isReloadOkay).

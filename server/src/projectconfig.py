@@ -1500,6 +1500,9 @@ class ProjectConfiguration(object):
         norm_list = get_normalization_config_list(self.directory)
         norm_config = []
         for n in norm_list:
+            if 'DB' not in n.arguments:
+                # optional, server looks in default location if None
+                n.arguments['DB'] = [None]
             if '<URL>' not in n.special_arguments:
                 Messager.warning('Project configuration: config error: missing <URL> specification for %s.' % n.storage_form())
                 continue
@@ -1508,7 +1511,8 @@ class ProjectConfiguration(object):
                 n.special_arguments['<URLBASE>'] = [None]
             norm_config.append((n.storage_form(),
                                 n.special_arguments['<URL>'][0],
-                                n.special_arguments['<URLBASE>'][0]))
+                                n.special_arguments['<URLBASE>'][0],
+                                n.arguments['DB'][0]))
         return norm_config
         
     def get_entity_types(self):

@@ -13,6 +13,8 @@ from datetime import datetime
 from message import Messager
 
 from normdb import string_norm_form
+from document import real_directory
+from projectconfig import ProjectConfiguration
 
 # whether to display alignment scores in search result table
 DISPLAY_SEARCH_SCORES = False
@@ -45,13 +47,45 @@ def _report_timings(dbname, start, msg=None):
     Messager.info("Processed " + str(queries) + " queries in " + strdelta +
                   (msg if msg is not None else ""))
 
-def norm_get_name(database, key):
+def _get_db_path(database, collection):
+    if collection is None:
+        # TODO: default to WORK_DIR config?
+        return None
+    else:
+        try:
+            conf_dir = real_directory(collection)
+            projectconf = ProjectConfiguration(conf_dir)
+            norm_conf = projectconf.get_normalization_config()
+            for entry in norm_conf:
+                dbname, dbpath = entry[0], entry[3]
+                if dbname == database:                    
+                    return dbpath
+            # not found in config.
+            Messager.warning('DB '+database+' not defined in config for '+
+                             collection+', falling back on default.')
+            return None
+        except Exception:
+            # whatever goes wrong, just warn and fall back on the default.
+            Messager.warning('Failed to get DB path from config for '+
+                             collection+', falling back on default.')
+            return None
+
+def norm_get_name(database, key, collection=None):
     if NORM_LOOKUP_DEBUG:
         _check_DB_version(database)
     if REPORT_LOOKUP_TIMINGS:
         lookup_start = datetime.now()
 
-    data = normdb.data_by_id(database, key)
+    dbpath = _get_db_path(database, collection)
+    if dbpath is None:
+        # full path not configured, fall back on name as default
+        dbpath = database
+
+    try:
+        data = normdb.data_by_id(dbpath, key)
+    except normdb.dbNotFoundError, e:
+        Messager.warning(str(e))
+        data = None
 
     # just grab the first one (sorry, this is a bit opaque)
     if data is not None:
@@ -70,14 +104,19 @@ def norm_get_name(database, key):
         }
     return json_dic
 
-def norm_get_data(database, key):
+def norm_get_data(database, key, collection=None):
     if NORM_LOOKUP_DEBUG:
         _check_DB_version(database)
     if REPORT_LOOKUP_TIMINGS:
         lookup_start = datetime.now()
 
+    dbpath = _get_db_path(database, collection)
+    if dbpath is None:
+        # full path not configured, fall back on name as default
+        dbpath = database
+
     try:
-        data = normdb.data_by_id(database, key)
+        data = normdb.data_by_id(dbpath, key)
     except normdb.dbNotFoundError, e:
         Messager.warning(str(e))
         data = None
@@ -96,24 +135,30 @@ def norm_get_data(database, key):
         }
     return json_dic    
 
-def norm_get_ids(database, name):
-    if NORM_LOOKUP_DEBUG:
-        _check_DB_version(database)
-    if REPORT_LOOKUP_TIMINGS:
-        lookup_start = datetime.now()
-
-    keys = normdb.ids_by_name(database, name)
-
-    if REPORT_LOOKUP_TIMINGS:
-        _report_timings(database, lookup_start)
-
-    # echo request for sync
-    json_dic = {
-        'database' : database,
-        'value' : name,
-        'keys' : keys,
-        }
-    return json_dic
+# TODO: deprecated, confirm unnecessary and remove.
+# def norm_get_ids(database, name, collection=None):
+#     if NORM_LOOKUP_DEBUG:
+#         _check_DB_version(database)
+#     if REPORT_LOOKUP_TIMINGS:
+#         lookup_start = datetime.now()
+#
+#     dbpath = _get_db_path(database, collection)
+#     if dbpath is None:
+#         # full path not configured, fall back on name as default
+#         dbpath = database
+#
+#     keys = normdb.ids_by_name(dbpath, name)
+#
+#     if REPORT_LOOKUP_TIMINGS:
+#         _report_timings(database, lookup_start)
+#
+#     # echo request for sync
+#     json_dic = {
+#         'database' : database,
+#         'value' : name,
+#         'keys' : keys,
+#         }
+#     return json_dic
 
 def _format_datas(datas, scores=None, matched=None):
     # helper for norm_search(), formats data from DB into a table
@@ -296,11 +341,16 @@ def _norm_search_name_attr(database, name, attr,
 
     return best_score
 
-def norm_search(database, name, exactmatch=False):
+def _norm_search_impl(database, name, collection=None, exactmatch=False):
     if NORM_LOOKUP_DEBUG:
         _check_DB_version(database)
     if REPORT_LOOKUP_TIMINGS:
         lookup_start = datetime.now()
+
+    dbpath = _get_db_path(database, collection)
+    if dbpath is None:
+        # full path not configured, fall back on name as default
+        dbpath = database
 
     # maintain map from searched names to matching IDs and scores for
     # ranking
@@ -309,14 +359,14 @@ def norm_search(database, name, exactmatch=False):
     score_by_str = {}
 
     # look up hits where name appears in full
-    best_score = _norm_search_name_attr(database, name, None,
+    best_score = _norm_search_name_attr(dbpath, name, None,
                                         matched, score_by_id, score_by_str,
                                         0, exactmatch)
 
     # if there are no hits and we only have a simple candidate string,
     # look up with a low threshold
     if best_score == 0 and len(name.split()) == 1:
-        best_score = _norm_search_name_attr(database, name, None,
+        best_score = _norm_search_name_attr(dbpath, name, None,
                                             matched, score_by_id, score_by_str,
                                             0, exactmatch, 0.5)
 
@@ -338,11 +388,11 @@ def norm_search(database, name, exactmatch=False):
             end   = ' '.join(parts[i:])            
 
             # query both ways (start is name, end is attr and vice versa)
-            best_score = _norm_search_name_attr(database, start, end,
+            best_score = _norm_search_name_attr(dbpath, start, end,
                                                 matched, score_by_id, 
                                                 score_by_str,
                                                 best_score, exactmatch)
-            best_score = _norm_search_name_attr(database, end, start,
+            best_score = _norm_search_name_attr(dbpath, end, start,
                                                 matched, score_by_id, 
                                                 score_by_str,
                                                 best_score, exactmatch)
@@ -357,7 +407,7 @@ def norm_search(database, name, exactmatch=False):
 
     # TODO: avoid unnecessary queries: datas_by_ids queries for names,
     # attributes and infos, but _format_datas only uses the first two.
-    datas = normdb.datas_by_ids(database, ids)
+    datas = normdb.datas_by_ids(dbpath, ids)
     
     header, items = _format_datas(datas, score_by_id, matched)
 
@@ -373,6 +423,18 @@ def norm_search(database, name, exactmatch=False):
         'items'    : items,
         }
     return json_dic
+
+def norm_search(database, name, collection=None, exactmatch=False):
+    try:
+        return _norm_search_impl(database, name, collection, exactmatch)
+    except simstringdb.ssdbNotFoundError, e:
+        Messager.warning(str(e))
+        return { 
+            'database' : database,
+            'query' : name,
+            'header' : [],
+            'items' : []
+            }
 
 def _test():
     # test

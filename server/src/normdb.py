@@ -7,17 +7,17 @@ Functionality for normalization SQL database access.
 '''
 
 import sys
-from os.path import join as path_join, exists
+from os.path import join as path_join, exists, sep as path_sep
 import sqlite3 as sqlite
 
 try:
-    from config import WORK_DIR
+    from config import BASE_DIR, WORK_DIR
 except ImportError:
     # for CLI use; assume we're in brat server/src/ and config is in root
     from sys import path as sys_path
     from os.path import dirname
     sys_path.append(path_join(dirname(__file__), '../..'))
-    from config import WORK_DIR
+    from config import BASE_DIR, WORK_DIR
 
 # Filename extension used for DB file.
 DB_FILENAME_EXTENSION = 'db'
@@ -51,12 +51,20 @@ class dbNotFoundError(Exception):
 def string_norm_form(s):
     return s.lower().strip().replace('-', ' ')
 
-def __db_filename(dbname):
+def __db_path(db):
     '''
-    Given a DB name, returns the name of the file that is expected to
-    contain the DB.
+    Given a DB name/path, returns the path for the file that is
+    expected to contain the DB.
     '''
-    return path_join(WORK_DIR, dbname+'.'+DB_FILENAME_EXTENSION)
+    # Assume we have a path relative to the brat root if the value
+    # contains a separator, name only otherwise. 
+    # TODO: better treatment of name / path ambiguity, this doesn't
+    # allow e.g. DBs to be located in brat root
+    if path_sep in db:
+        base = BASE_DIR
+    else:
+        base = WORK_DIR
+    return path_join(base, db+'.'+DB_FILENAME_EXTENSION)
 
 def reset_query_count(dbname):
     global __query_count
@@ -72,7 +80,7 @@ def __increment_query_count(dbname):
 
 def _get_connection_cursor(dbname):
     # helper for DB access functions
-    dbfn = __db_filename(dbname)
+    dbfn = __db_path(dbname)
 
     # open DB
     if not exists(dbfn):

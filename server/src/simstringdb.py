@@ -6,16 +6,16 @@ import sys
 
 from common import ProtocolError
 from message import Messager
-from os.path import join as path_join
+from os.path import join as path_join, sep as path_sep
 
 try:
-    from config import WORK_DIR
+    from config import BASE_DIR, WORK_DIR
 except ImportError:
     # for CLI use; assume we're in brat server/src/ and config is in root
     from sys import path as sys_path
     from os.path import dirname
     sys_path.append(path_join(dirname(__file__), '../..'))
-    from config import WORK_DIR
+    from config import BASE_DIR, WORK_DIR
 
 # Filename extension used for DB file.
 SS_DB_FILENAME_EXTENSION = 'ss.db'
@@ -45,6 +45,12 @@ class NoSimStringError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'noSimStringError'
 
+class ssdbNotFoundError(Exception):
+    def __init__(self, fn):
+        self.fn = fn
+
+    def __str__(self):
+        return u'Simstring database file "%s" not found' % self.fn
 
 # Note: The only reason we use a function call for this is to delay the import
 def __set_db_measure(db, measure):
@@ -60,12 +66,20 @@ def __set_db_measure(db, measure):
             }
     db.measure = ss_measure_by_str[measure]
 
-def __ssdb_filename(dbname):
+def __ssdb_path(db):
     '''
-    Given a simstring DB name, returns the name of the file that is
-    expected to contain the simstring DB.
+    Given a simstring DB name/path, returns the path for the file that
+    is expected to contain the simstring DB.
     '''
-    return path_join(WORK_DIR, dbname+'.'+SS_DB_FILENAME_EXTENSION)
+    # Assume we have a path relative to the brat root if the value
+    # contains a separator, name only otherwise. 
+    # TODO: better treatment of name / path ambiguity, this doesn't
+    # allow e.g. DBs to be located in brat root
+    if path_sep in db:
+        base = BASE_DIR
+    else:
+        base = WORK_DIR
+    return path_join(base, db+'.'+SS_DB_FILENAME_EXTENSION)
 
 def ssdb_build(strs, dbname, ngram_length=DEFAULT_NGRAM_LENGTH,
                include_marks=DEFAULT_INCLUDE_MARKS):
@@ -79,7 +93,7 @@ def ssdb_build(strs, dbname, ngram_length=DEFAULT_NGRAM_LENGTH,
         Messager.error(SIMSTRING_MISSING_ERROR, duration=-1)
         raise NoSimStringError
 
-    dbfn = __ssdb_filename(dbname)
+    dbfn = __ssdb_path(dbname)
     try:
         # only library defaults (n=3, no marks) supported just now (TODO)
         assert ngram_length == 3, "Error: unsupported n-gram length"
@@ -100,7 +114,7 @@ def ssdb_delete(dbname):
     DB.
     '''
 
-    dbfn = __ssdb_filename(dbname)
+    dbfn = __ssdb_path(dbname)
     os.remove(dbfn)
     for fn in glob.glob(dbfn+'.*.cdb'):
         os.remove(fn)
@@ -117,10 +131,10 @@ def ssdb_open(dbname):
         raise NoSimStringError
 
     try:
-        return simstring.reader(__ssdb_filename(dbname))
+        return simstring.reader(__ssdb_path(dbname))
     except IOError:
         Messager.error('Failed to open simstring DB %s' % dbname)
-        raise # TODO: raise specific exception
+        raise ssdbNotFoundError(dbname)
 
 def ssdb_lookup(s, dbname, measure=DEFAULT_SIMILARITY_MEASURE, 
                 threshold=DEFAULT_THRESHOLD):
