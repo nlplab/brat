@@ -157,7 +157,7 @@ var Visualizer = (function($, window, undefined) {
     };
 
     // Sets default values for a wide range of optional attributes
-    var setSourceDateDefaults = function(sourceData) {
+    var setSourceDataDefaults = function(sourceData) {
       // The following are empty lists if not set
       $.each([
           'attributes',
@@ -2671,7 +2671,9 @@ Util.profileReport();
           }
         } else {
           // Fill in default values that don't necessarily go over the protocol
-          setSourceDateDefaults(sourceData);
+          if (sourceData) {
+            setSourceDataDefaults(sourceData);
+          }
 
           dispatcher.post('startedRendering', [coll, doc, args]);
           dispatcher.post('spin');
