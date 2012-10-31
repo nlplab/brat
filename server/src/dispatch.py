@@ -191,6 +191,26 @@ class DirectorySecurityError(ProtocolError):
         json_dic['exception'] = 'directorySecurity',
         return json_dic
 
+
+class ProtocolVersionMismatchError(ProtocolError):
+    def __init__(self, was, correct):
+        self.was = was
+        self.correct = correct
+
+    def __str__(self):
+        return '\n'.join((
+            ('Client-server mismatch, please reload the page to update your '
+                'client. If this does not work, please contact your '
+                'administrator'),
+            ('Client sent request with version "%s", server is using version '
+                '%s') % (self.was, self.correct, ),
+            ))
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'protocolVersionMismatch',
+        return json_dic
+
+
 def _directory_is_safe(dir_path):
     # TODO: Make this less naive
     if not dir_path.startswith('/'):
@@ -205,6 +225,19 @@ def dispatch(http_args, client_ip, client_hostname):
     action = http_args['action']
 
     log_info('dispatcher handling action: %s' % (action, ));
+
+    # Verify that we don't have a protocol version mismatch
+    PROTOCOL_VERSION = 1
+    try:
+        protocol_version = int(http_args['protocol'])
+        if protocol_version != PROTOCOL_VERSION:
+            raise ProtocolVersionMismatchError(protocol_version,
+                    PROTOCOL_VERSION)
+    except TypeError:
+        raise ProtocolVersionMismatchError('None', PROTOCOL_VERSION)
+    except ValueError:
+        raise ProtocolVersionMismatchError(http_args['protocol'],
+                PROTOCOL_VERSION)
     
     # Was an action supplied?
     if action is None:
@@ -282,4 +315,6 @@ def dispatch(http_args, client_ip, client_hostname):
 
     # Assign which action that was performed to the json_dic
     json_dic['action'] = action
+    # Return the protocol version for symmetry
+    json_dic['protocol'] = PROTOCOL_VERSION
     return json_dic
