@@ -11,7 +11,7 @@ cmeta: "A web-based annotation tool for all your textual annotation needs."
     <li><a href="supported-browsers.html">What do I need to run it?</a></li>
   </ul>
   <br/>
-  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="http://weaver.nlplab.org/~brat/demo/latest/" onClick="javascript: _gaq.push(['_trackPageview', '/demo/']);" target="_blank">Try brat online</a>
+  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="{{ site.dist.demo_url }}/latest/" onClick="javascript: _gaq.push(['_trackPageview', '/demo/']);" target="_blank">Try brat online</a>
   <p><span style="color:gray; font-size: 80%">(username: "thelarch", password: "THElarch")</span></p>
   <p style="display:none" id="oldbrowser">We're sorry, but your browser is not supported by brat. Please try with a <a href="supported-browsers.html">supported browser</a>.</p>
   <p style="display:none" id="partialsupport">Please note: brat editing features are not supported for your browser. You may wish to consider trying with a <a href="supported-browsers.html">fully supported browser</a>.</p>
@@ -24,10 +24,10 @@ cmeta: "A web-based annotation tool for all your textual annotation needs."
   <!-- The Javascript trickery is to track the number of downloads as per:
          http://support.google.com/googleanalytics/bin/answer.py?hl=en&answer=55529
   -->
-  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="http://weaver.nlplab.org/~brat/releases/brat-v1.3b2.tar.gz" onClick="javascript: _gaq.push(['_trackPageview', '/releases/brat-v1.3b2.tar.gz']);">Download v1.3 2nd beta</a>
+  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="{{ site.dist.release_dir_url }}brat-v1.3b2.tar.gz" onClick="javascript: _gaq.push(['_trackPageview', '/releases/brat-v1.3b2.tar.gz']);">Download v1.3 2nd beta</a>
   <p><a href="upgrading-to-1.3.html">Instructions for upgrading to 1.3</a></p>
-  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="http://weaver.nlplab.org/~brat/releases/brat-v1.2_The_Larch.tar.gz" onClick="javascript: _gaq.push(['_trackPageview', '/releases/brat-v1.2_The_Larch.tar.gz']);">Download v1.2 (stable)</a>
-  <p><span style="color:gray; font-size: 80%">(checksums: <a style="color:gray" href="http://weaver.nlplab.org/~brat/releases/CHECKSUM.MD5" onClick="javascript: _gaq.push(['_trackPageview', '/releases/CHECKSUM.MD5']);">MD5</a>, <a style="color:gray" href="http://weaver.nlplab.org/~brat/releases/CHECKSUM.SHA512" onClick="javascript: _gaq.push(['_trackPageview', '/releases/CHECKSUM.SHA512']);">SHA512</a>, <a href="https://github.com/nlplab/brat">Repository (GitHub)</a>, <a href="downloads.html">Older versions</a>)</span></p>
+  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="{{ site.dist.release_dir_url }}{{ site.dist.latest_stable_tgz }}" onClick="javascript: _gaq.push(['_trackPageview', '/releases/{{ site.dist.latest_stable_tgz }}']);">Download v1.2 (stable)</a>
+  <p><span style="color:gray; font-size: 80%">(checksums: <a style="color:gray" href="{{ site.dist.release_dir_url }}CHECKSUM.MD5" onClick="javascript: _gaq.push(['_trackPageview', '/releases/CHECKSUM.MD5']);">MD5</a>, <a style="color:gray" href="{{ site.dist.release_dir_url }}CHECKSUM.SHA512" onClick="javascript: _gaq.push(['_trackPageview', '/releases/CHECKSUM.SHA512']);">SHA512</a>, <a href="https://github.com/nlplab/brat">Repository (GitHub)</a>, <a href="downloads.html">Older versions</a>)</span></p>
   <p>Manage your own annotation effort</p>
   <p>Easy to set up: <a href="installation.html">installation instructions</a></p>
   <p>Open source (<a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a>)</p>

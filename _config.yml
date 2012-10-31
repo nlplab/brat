@@ -1,4 +1,11 @@
-# YAML Configuration file for bionlp.github.com
+# -*- Mode: YAML; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+# vim:set ft=yaml ts=4 sw=4 sts=4 autoindent:
+#
+# YAML Configuration file for brat.nlplab.com
+#
+# Note: You need to restart Jekyll for ANY changes to take place.
+
+### Jekyll configuration
 
 auto:       true
 markdown:   maruku
@@ -8,3 +15,13 @@ safe:       true
 server:     true
 
 exclude: CNAME, README.md
+
+### Website configuration
+
+dist:
+    # Sadly, YAML doesn't do string concatenation, so you will have to do
+    #   some additional typing
+    release_dir_url: 'http://weaver.nlplab.org/~brat/releases/'
+    # Note: Change the below line when releasing a new stable version
+    latest_stable_tgz: 'brat-v1.2_The_Larch.tar.gz'
+    demo_url: 'http://weaver.nlplab.org/~brat/demo/'
