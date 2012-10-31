@@ -204,19 +204,14 @@ cmeta:  "Introduction to the brat normalisation feature."
   in this section is as follows:
 </p>
 
-<!-- TODO: support alternative locations for norm DB in conf (DBPATH) -->
-<!-- <p><pre><code>    DBNAME    &lt;URL&gt;:HOMEURL, &lt;URLBASE&gt;:ENTRYURL, &lt;PATH&gt;:DBPATH</code></pre> -->
-<!-- </p> -->
-<p><pre><code>    DBNAME    &lt;URL&gt;:HOMEURL, &lt;URLBASE&gt;:ENTRYURL</code></pre>
+<p><pre><code>    DBNAME     DB:DBPATH, &lt;URL&gt;:HOMEURL, &lt;URLBASE&gt;:ENTRYURL</code></pre>
 </p>
 
-<p>Here, "<code>&lt;URL&gt;</code>", "<code>&lt;URLBASE&gt;</code>"
-  and "<code>&lt;PATH&gt;</code>" are literal strings (they should appear
-  as written here), while <code>DBNAME</code>, <code>HOMEURL</code> and
-  <code>ENTRYURL</code> 
-<!--   and <code>DBPATH</code>  -->
-  should be replaced
-  with specific values appropriate for the database being configured:
+<p>Here, <code>DB</code>, <code>&lt;URL&gt;</code>, 
+  <code>&lt;URLBASE&gt;</code> and <code>&lt;PATH&gt;</code> are
+  literal strings (they should appear as written here), while
+  "DBNAME", "DBPATH", "HOMEURL" and "ENTRYURL" should be replaced with
+  specific values appropriate for the database being configured:
 </p>
 
 <ul>
@@ -227,6 +222,12 @@ cmeta:  "Introduction to the brat normalisation feature."
     &quot;0&quot;-&quot;9&quot;), hyphen (&quot;-&quot;) and underscore
     (&quot;_&quot;). This name will be used both in the brat UI and in
     the <a href="#norm-standoff">annotation file</a> to identify the DB.
+  </li>
+  <li><code>DBPATH</code> (optional): provides the file system path to
+    the normalization DB data on the server, relative to the brat
+    server root. If <code>DBPATH</code> isn't set, the system assumes
+    the DB can be found in the default location under the
+    given <code>DBNAME</code>.
   </li>
   <li><code>HOMEURL</code>: sets the URL for the home page of the
     normalization resource (e.g. "http://en.wikipedia.org/wiki/").
@@ -243,12 +244,6 @@ cmeta:  "Introduction to the brat normalisation feature."
     characters "%s" as a placeholder that will be replaced with the ID
     of the entry.
   </li>
-<!-- TODO: support alternative locations for norm DB in conf (DBPATH) -->
-<!--   <li><code>DBPATH</code> (optional): provides the file system path to -->
-<!--     the normalization DB data on the server. If <code>DBPATH</code> -->
-<!--     isn't set, the system assumes the DB can be found in the default -->
-<!--     location under the given <code>DBNAME</code>. -->
-<!--   </li> -->
 </ul>
 
 <p>Note that it's individual collections can have their
