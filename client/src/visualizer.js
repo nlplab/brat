@@ -156,35 +156,6 @@ var Visualizer = (function($, window, undefined) {
       this.y = y;
     };
 
-    // Sets default values for a wide range of optional attributes
-    var setSourceDataDefaults = function(sourceData) {
-      // The following are empty lists if not set
-      $.each([
-          'attributes',
-          'comments',
-          'entities',
-          'equivs',
-          'events',
-          'modifications',
-          'normalizations',
-          'relations',
-          'triggers',
-          ], function(attrNo, attr) {
-        if (sourceData[attr] === undefined) {
-          sourceData[attr] = [];
-        }
-      });
-
-      // If we lack sentence offsets we fall back on naive sentence splitting
-      if (sourceData.sentence_offsets === undefined) {
-        sourceData.sentence_offsets = sentenceSplit(sourceData.text);
-      }
-      // Similarily we fall back on whitespace tokenisation
-      if (sourceData.token_offsets === undefined) {
-        sourceData.token_offsets = tokenise(sourceData.text);
-      }
-    };
-
     // A naive whitespace tokeniser
     var tokenise = function(text) {
       var tokenOffsets = [];
@@ -241,6 +212,53 @@ var Visualizer = (function($, window, undefined) {
       }
 
       return sentenceOffsets;
+    };
+
+    // Sets default values for a wide range of optional attributes
+    var setSourceDataDefaults = function(sourceData) {
+      // The following are empty lists if not set
+      $.each([
+          'attributes',
+          'comments',
+          'entities',
+          'equivs',
+          'events',
+          'modifications',
+          'normalizations',
+          'relations',
+          'triggers',
+          ], function(attrNo, attr) {
+        if (sourceData[attr] === undefined) {
+          sourceData[attr] = [];
+        }
+      });
+
+      // If we lack sentence offsets we fall back on naive sentence splitting
+      if (sourceData.sentence_offsets === undefined) {
+        sourceData.sentence_offsets = sentenceSplit(sourceData.text);
+      }
+      // Similarily we fall back on whitespace tokenisation
+      if (sourceData.token_offsets === undefined) {
+        sourceData.token_offsets = tokenise(sourceData.text);
+      }
+    };
+
+    // Set default values for a variety of collection attributes
+    var setCollectionDefaults = function(collectionData) {
+      // The following are empty lists if not set
+      $.each([
+          'entity_attribute_types',
+          'entity_types',
+          'event_attribute_types',
+          'event_types',
+          'relation_attribute_types',
+          'relation_types',
+          'unconfigured_types',
+          ], function(attrNo, attr) {
+        if (collectionData[attr] === undefined) {
+          collectionData[attr] = [];
+        }
+      });
     };
 
     var Visualizer = function(dispatcher, svgId, webFontURLs) {
@@ -3014,6 +3032,7 @@ Util.profileStart('before render');
 
       var collectionLoaded = function(response) {
         if (!response.exception) {
+          setCollectionDefaults(response);
           eventAttributeTypes = loadAttributeTypes(response.event_attribute_types);
           entityAttributeTypes = loadAttributeTypes(response.entity_attribute_types);
           spanTypes = {};
