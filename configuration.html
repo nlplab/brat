@@ -571,18 +571,190 @@ cmeta:  "Describes how brat can be configured for a variety of annotation
   divided into the following sections:
 </p>
 <ul>
+  <li><span class="tt">[options]</li>
   <li><span class="tt">[search]</span></li>
+  <li><span class="tt">[normalization]</span></li>
   <li><span class="tt">[annotators]</span></li>
   <li><span class="tt">[disambiguators]</span></li>
 </ul>
-<p>Each of these sections must be present in the configuration file,
-  but they can be empty.
+<p>These sections are all optional: an empty file is a valid 
+  <span class="tt">tools.conf</span>.
+</p>
+
+<h3>Option configuration (<span class="tt">[options]</span> section)</h3>
+
+<p><strong>Note:</strong> the <span class="tt">[options]</span> section
+  is supported since version 1.3. See the page on
+  <a href="upgrading-to-1.3.html">upgrading to 1.3</a> for information
+  on how these options relate to settings in earlier versions.
+</p>
+
+<p>The <span class="tt">[options]</span> section can be used to set
+  how the brat server performs sentence segmentation (splitting),
+  tokenization, annotation validation, and logging, as follows:
+</p>
+<ul>
+<li><code>Tokens tokenizer:VALUE</code>, where <code>VALUE</code>=
+  <ul>
+    <li><code>whitespace</code>: split by whitespace characters in source text (only) </li>
+    <li><code>ptblike</code>: emulate Penn Treebank tokenization</li>
+    <li><code>mecab</code>: perform Japanese tokenization using MeCab</li>
+  </ul>
+</li>
+<li><code>Sentences splitter:VALUE</code>, where <code>VALUE</code>=
+  <ul>
+    <li><code>regex</code>: regular expression-based sentence splitting</li>
+    <li><code>newline</code>: split by newline characters in source text (only)</li>
+  </ul>
+</li>
+<li><code>Validation validate:VALUE</code>, where <code>VALUE</code>=
+  <ul>
+    <li><code>all</code>: perform full validation</li>
+    <li><code>none</code>: don't perform any validation</li>
+  </ul>
+</li>
+<li><code>Annotation-log logfile:VALUE</code>, where <code>VALUE</code>=
+  <ul>
+    <li><code>&lt;NONE&gt;</code>: no annotation logging</li>
+    <li><code>NAME</code>: log into file NAME (e.g. "/home/brat/work/annotation.log")</li>
+  </ul>
+</li>
+</ul>
+<p>For example, the following <span class="tt">[options]</span>
+  section gives the default brat configuration before version 1.3:
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="150">[options]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Tokens</td><td>tokenizer:whitespace</td>
+	</tr><tr>
+	  <td>Sentences</td><td>splitter:regex</td>
+	</tr><tr>
+	  <td>Validation</td><td>validate:none</td>
+	</tr><tr>
+	  <td>Annotation-log</td><td>logfile:&lt;NONE&gt;</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>The following <span class="tt">[options]</span> section enables Japanese
+  tokenization using MeCab, sentence splitting only by newlines, full
+  validation, and annotation logging into the given file. (In
+  setting <code>Annotation-log logfile</code>, remember to make sure
+  the web server has appropriate write permissions to the file.)
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="150">[options]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Tokens</td><td>tokenizer:mecab</td>
+	</tr><tr>
+	  <td>Sentences</td><td>splitter:newline</td>
+	</tr><tr>
+	  <td>Validation</td><td>validate:all</td>
+	</tr><tr>
+	  <td>Annotation-log</td><td>logfile:/home/brat/work/annotation.log</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<h3>Normalization DB configuration (<span class="tt">[normalization]</span> section)</h3>
+
+<p>The <span class="tt">[normalization]</span> section defines the
+  normalization resources that are available. For information on
+  setting up normalization DBs, see the 
+  <a href="normalization.html">brat normalization documentation</a>.
+</p>
+
+<p>Each line in the <span class="tt">[normalization]</span> section
+  has the following syntax:
+</p>
+
+<p><pre><code>    DBNAME     DB:DBPATH, &lt;URL&gt;:HOMEURL, &lt;URLBASE&gt;:ENTRYURL</code></pre>
+</p>
+
+<p>Here, <code>DB</code>, <code>&lt;URL&gt;</code>, 
+  <code>&lt;URLBASE&gt;</code> and <code>&lt;PATH&gt;</code> are
+  literal strings (they should appear as written here), while
+  "DBNAME", "DBPATH", "HOMEURL" and "ENTRYURL" should be replaced with
+  specific values appropriate for the database being configured:
+</p>
+
+<ul>
+  <li><code>DBNAME</code>: sets the database name (e.g. "Wiki",
+    "GO"). The name can be otherwise freely selected, but should not
+    contain characters other than alphanumeric
+    (&quot;a&quot;-&quot;z&quot;, &quot;A&quot;-&quot;Z&quot;,
+    &quot;0&quot;-&quot;9&quot;), hyphen (&quot;-&quot;) and underscore
+    (&quot;_&quot;). This name will be used both in the brat UI and in
+    the <a href="#norm-standoff">annotation file</a> to identify the DB.
+  </li>
+  <li><code>DBPATH</code> (optional): provides the file system path to
+    the normalization DB data on the server, relative to the brat
+    server root. If <code>DBPATH</code> isn't set, the system assumes
+    the DB can be found in the default location under the
+    given <code>DBNAME</code>.
+  </li>
+  <li><code>HOMEURL</code>: sets the URL for the home page of the
+    normalization resource (e.g. "http://en.wikipedia.org/wiki/").
+    Used both to identify the resource more specifically
+    than <code>DBNAME</code> and to provide a link in the
+    <a href="#norm-annotation">annotation UI</a> for accessing the
+    resource.
+  </li>
+  <li><code>URLBASE</code> (optional): sets a URL template
+    (e.g. "http://en.wikipedia.org/?curid=%s") that can be filled in
+    to generate a direct link in
+    the <a href="#norm-annotation">annotation UI</a> to an entry in
+    the normalization resource. The value should contain the
+    characters "%s" as a placeholder that will be replaced with the ID
+    of the entry.
+  </li>
+</ul>
+
+<p>The following example shows examples of configured normalization
+  DBs.
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="150">[normalization]</td><td>&#160;</td>
+	</tr><tr>
+	  <td>Wiki</td><td>DB:dbs/wiki, &lt;URL&gt;:http://en.wikipedia.org, &lt;URLBASE&gt;:http://en.wikipedia.org/?curid=%s</td>
+	</tr><tr>
+	  <td>UniProt</td><td>&lt;URL&gt;:http://www.uniprot.org/, &lt;URLBASE&gt;:http://www.uniprot.org/uniprot/%s</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>The first line sets configuration for a database called "Wiki",
+  found as "dbs/wiki" in the brat server directory, and the second for
+  a DB called "UniProt", found in the default location for a DB with
+  this name.
 </p>
 
 <h3>Search configuration (<span class="tt">[search]</span> section)</h3>
 
-<p>The <span class="tt">[search]</span> section defines the online search services
-  that are made available in the annotation dialog.
+<p>The <span class="tt">[search]</span> section defines the online
+  search services that are made available in the annotation dialog.
 </p>
 
 <img style="border:none" class="right" src="img/search-config-1.png"/>
