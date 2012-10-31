@@ -1,26 +1,35 @@
 ---
 layout: base
-title:  "Case Studies"
+title:  "Annotation examples"
 cmeta:  "Examples and case-studies of annotations produced or visualised using
     brat."
 ---
+      <h1>examples</h1>
+      <p>brat can be applied in many way and is used in several
+	completed and ongoing annotation efforts and other tasks:
+      </p>
+      <ul>
+	<li><a href="#annotation-examples">annotation examples in brat</a></li>
+	<li><a href="#corpus-examples-brat">corpora annotated using brat</a></li>
+	<li><a href="#other-uses">other uses of brat</a></li>
+      </ul>
+
       <!-- ############################################################ -->
       
-      <h1>annotation tasks compatible with brat</h1>
+      <h1 id="annotation-examples">annotation examples in brat</h1>
 
       <p>A variety of annotation tasks that could be performed in brat
-	are introduced below using examples from annotated corpora.
-      </p>
-      <p>The examples discussed in this section have been originally
+	are introduced below using examples from available corpora.
+	The examples discussed in this section have been originally
 	created in various tools other than brat and converted into
 	brat format. Converters for many of the original formats are
 	distributed with brat.
-      </p>
-      <p>In the selection of examples included here, priority has been
-	given to tasks with freely available data. (For example, although
-	any CoNLL shared task dataset could be visualized in brat, we
-	have only selected freely available subsets of those datasets
-	that do not require a separate licence.)
+	In the selection of examples included here, priority has been
+	given to tasks with freely available data.
+<!-- 	(For example, although -->
+<!-- 	any CoNLL shared task dataset could be visualized in brat, we -->
+<!-- 	have only selected freely available subsets of those datasets -->
+<!-- 	that do not require a separate licence.) -->
       </p>
 
       <br style="clear:both"/>
@@ -62,6 +71,7 @@ cmeta:  "Examples and case-studies of annotations produced or visualised using
       </div>
       
       <br style="clear:both"/>
+
       <!-- ############################################################ -->
 
       <h2 class="nomargin">Event extraction</h2>
@@ -70,8 +80,9 @@ cmeta:  "Examples and case-studies of annotations produced or visualised using
       </a>
       <h3>Example: BioNLP shared task: biomedical event extraction</h3>
 
-      <p>BioNLP shared task events held in 2009 and 2011 have included
-	four different event extraction tasks.
+      <p>BioNLP shared task events held in 2009 and 2011 and the ongoing
+	<a href="http://2013.bionlp-st.org">BioNLP Shared Task 2013</a>
+	a have included several event extraction tasks.
       </p>
       <p>The brat standoff format is compatible with the data
 	distribution format of the BioNLP shared task, and samples of
@@ -332,7 +343,7 @@ cmeta:  "Examples and case-studies of annotations produced or visualised using
 
       <!-- ############################################################ -->
 
-      <h1>Corpora annotated using brat</h1>
+      <h1 id="corpus-examples-brat">corpora annotated using brat</h1>
 
       <p>This section presents a selection of corpora annotated using
 	brat.
@@ -433,6 +444,90 @@ cmeta:  "Examples and case-studies of annotations produced or visualised using
       <br style="clear:both"/>
 
       <!-- ############################################################ -->
+
+      <h1 id="other-uses">other uses of brat</h1>
+
+      <p>brat can be used also for tasks other than manual annotation.
+      </p>
+
+      <br style="clear:both"/>
+
+      <!-- ############################################################ -->
+
+      <a href="case-studies/Stanford-CoreNLP-full.png">
+	<img class="right" src="case-studies/Stanford-CoreNLP-small.png" alt="visualization example"/>
+      </a>
+      <h2 class="nomargin">Natural language analysis tool visualization</h2>
+      <p>The <a href="http://nlp.stanford.edu/">Standford NLP
+	group</a> is using brat to provide visualizations of the
+	annotations created by the 
+	<a href="http://nlp.stanford.edu:8080/corenlp/">live online
+	demo of the Stanford CoreNLP</a> natural language analysis
+	tools.
+      </p>
+      <p>The 
+	<a href="http://nlp.stanford.edu/software/corenlp.shtml">CoreNLP</a>
+	tools perform part-of-speech tagging, named entity
+	recognition, coreference resolution, and syntactic analysis.
+	The demonstration provides separate visualizations of all of
+	these annotation layers using
+<!-- 	<a href="embed.html">embedded brat</a>. -->
+        embedded brat.
+      </p>
+
+      <div class="inforow">
+	<span class="infolabel">Examples in brat:</span>
+	<span class="infovalue"><a target="brat-example" href="http://nlp.stanford.edu:8080/corenlp/">see it live</a> (online demo)</span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Project website:</span>
+	<span class="infovalue"><a href="http://nlp.stanford.edu/software/corenlp.shtml">Stanford CoreNLP home page</a></span>
+      </div>
+      <div class="inforow">
+	<span class="infolabel">Publications:</span>
+	<span class="infovalue">
+	  <a href="http://nlp.stanford.edu/~manning/papers/tagging.pdf">Toutanova et al. 2003</a>,
+	  <a href="http://nlp.stanford.edu/~manning/papers/gibbscrf3.pdf">Finkel et al. 2005</a>,
+	  <a href="http://nlp.stanford.edu/~manning/papers/unlexicalized-parsing.pdf">Klein and Manning 2003</a>,
+	  <a href="http://nlp.stanford.edu/pubs/coreference-emnlp10.pdf">Raghunathan et al. 2010</a> [PDFs].</span>
+      </div>
+
+      <br style="clear:both"/>
+
+      <!-- ############################################################ -->
+
+      <h2 class="nomargin">Information Extraction system evaluation</h2>
+      <a href="case-studies/PMID-10860807-eval-full.png">
+	<img class="right" src="case-studies/PMID-10860807-eval-small.png" alt="evaluation example"/>
+      </a>
+      <h3>Example: BioNLP shared task: biomedical event extraction</h3>
+
+      <p>BioNLP Shared Task 2011 and the ongoing
+	<a href="http://2013.bionlp-st.org">BioNLP Shared Task 2013</a>
+	are using brat to provide visualizations of the results of
+	information extraction system predictions compared to
+	gold standard annotations.
+      </p>
+      <p>The evaluation system evaluates differences between two sets
+	of annotations and generates a visual comparison in brat
+	format, using brat features to make differences visually
+	obvious.
+      </p>
+
+<!--       <div class="inforow"> -->
+<!-- 	<span class="infolabel">Examples in brat:</span> -->
+<!-- 	<span class="infovalue"><a target="brat-example" href="http://weaver.nlplab.org/~brat/demo/latest/#/not-editable/BioNLP-ST_2011_ID_devel/">see it live on brat</a> (read-only data)</span> -->
+<!--       </div> -->
+<!--       <div class="inforow"> -->
+<!-- 	<span class="infolabel">Project website:</span> -->
+<!-- 	<span class="infovalue"><a href="http://2011.bionlp-st.org">BioNLP shared task 2011 website</a></span> -->
+<!--       </div> -->
+<!--       <div class="inforow"> -->
+<!-- 	<span class="infolabel">Publications:</span> -->
+<!-- 	<span class="infovalue"><a href="http://aclweb.org/anthology-new/W/W09/W09-1401.pdf">Kim et al. 2009</a>, <a href="http://aclweb.org/anthology-new/W/W11/W11-1801.pdf">2011</a> [PDFs]</span> -->
+<!--       </div> -->
+
+      <br style="clear:both"/>
 
       <div>
 	<h2 style="text-align:right"><a href="features.html">Next: features in overview</a></h2>
