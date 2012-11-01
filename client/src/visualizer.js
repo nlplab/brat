@@ -2812,7 +2812,8 @@ Util.profileStart('before render');
           var originSpanId = target.attr('data-arc-origin');
           var targetSpanId = target.attr('data-arc-target');
           var role = target.attr('data-arc-role');
-          var symmetric = (relationTypesHash[role] &&
+          var symmetric = (relationTypesHash &&
+                           relationTypesHash[role] &&
                            relationTypesHash[role].properties &&
                            relationTypesHash[role].properties.symmetric);
           // NOTE: no commentText, commentType for now
@@ -3038,6 +3039,8 @@ Util.profileStart('before render');
           relationTypesHash = {};
           loadRelationTypes(response.relation_types);
           loadRelationTypes(response.unconfigured_types);
+          // TODO XXX: isn't the following completely redundant with
+          // loadRelationTypes?
           $.each(response.relation_types, function(relTypeNo, relType) {
             relationTypesHash[relType.type] = relType;
           });

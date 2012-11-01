@@ -1277,6 +1277,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var isEquiv =
           relationTypesHash &&
           relationTypesHash[noNumArcType] &&
+          relationTypesHash[noNumArcType].properties &&
           relationTypesHash[noNumArcType].properties.symmetric &&
           relationTypesHash[noNumArcType].properties.transitive;
 
@@ -1292,6 +1293,7 @@ var AnnotatorUI = (function($, window, undefined) {
               var isThisEquiv =
                 relationTypesHash &&
                 relationTypesHash[arcTypeName] &&
+                relationTypesHash[arcTypeName].properties &&
                 relationTypesHash[arcTypeName].properties.symmetric &&
                 relationTypesHash[arcTypeName].properties.transitive;
 
