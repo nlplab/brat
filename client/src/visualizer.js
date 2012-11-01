@@ -1974,8 +1974,7 @@ Util.profileStart('arcs');
           // then final fallback to unnumbered relation
           // HACK: instead of falling back, extend (since
           // relation_types has more info!)
-          $.extend(arcDesc, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
-
+          arcDesc = $.extend(arcDesc, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
           var color = ((arcDesc && arcDesc.color) ||
                        (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
                        '#000000');
@@ -3040,6 +3039,7 @@ Util.profileStart('before render');
           loadSpanTypes(response.unconfigured_types);
           relationTypesHash = {};
           loadRelationTypes(response.relation_types);
+          loadRelationTypes(response.unconfigured_types);
           $.each(response.relation_types, function(relTypeNo, relType) {
             relationTypesHash[relType.type] = relType;
           });
