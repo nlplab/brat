@@ -1,0 +1,42 @@
+T1	Person 497 505	Somebody
+T2	Organization 519 526	YouTube
+T3	Organization 542 548	Google
+T4	Organization 572 579	YouTube
+T5	Organization 584 590	Google
+T6	Organization 597 600	CNN
+T7	Organization 614 621	YouTube
+T8	Organization 638 644	Google
+T9	Person 864 872	Somebody
+T10	Organization 886 893	YouTube
+T11	Organization 909 915	Google
+T12	Organization 939 946	YouTube
+T13	Organization 951 957	Google
+T14	Organization 964 967	CNN
+T15	Organization 981 988	YouTube
+T16	Organization 1005 1011	Google
+T17	Report 506 513	twitted
+E1	Report:T17 Reporter-Arg:T1 Event-Arg:E2
+T18	Merge-org 531 536	merge
+E2	Merge-org:T18 Org-Arg:T2 Org-Arg2:T3
+T19	Merge-org 557 563	merger
+E3	Merge-org:T19 Org-Arg:T4 Org-Arg2:T5
+T20	Report 601 608	reports
+E4	Report:T20 Reporter-Arg:T6 Event-Arg:E5
+T21	Merge-org 626 632	merged
+E5	Merge-org:T21 Org-Arg:T7 Org-Arg2:T8
+A1	Confidence E1 Neutral
+A2	Confidence E2 Low
+A3	Confidence E3 Neutral
+A4	Individual T1
+T22	Report 873 880	twitted
+E6	Report:T22 Reporter-Arg:T9 Event-Arg:E7
+T23	Merge-org 898 903	merge
+E7	Merge-org:T23 Org-Arg:T10 Org-Arg2:T11
+T24	Merge-org 924 930	merger
+E8	Merge-org:T24 Org-Arg:T12 Org-Arg2:T13
+T25	Report 968 975	reports
+E9	Report:T25 Reporter-Arg:T14 Event-Arg:E10
+T26	Merge-org 993 999	merged
+E10	Merge-org:T26 Org-Arg:T15 Org-Arg2:T16
+A5	Confidence E5 High
+A6	Confidence E4 Neutral

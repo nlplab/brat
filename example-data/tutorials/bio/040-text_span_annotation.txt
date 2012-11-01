@@ -1,0 +1,42 @@
+Text span annotation
+
+Annotations marking a text span are a basic building block for most brat annotations. Examples of TEXT SPAN ANNOTATION are shown in the following sentence.
+
+
+1 ) These are obviously proteins: p53, c-Rel and Foxp3.
+
+
+Note that in addition to identifying a span of text, each of these annotations also has a type. All brat annotations have some type, and the specific types used can be separately configured for each annotation project.
+
+Text span annotations can be created simply by selecting text using the mouse, as in most text editors and similar software, selecting a type from the NEW ANNOTATION DIALOG that pops up after selection, and pressing OK (the dialog may look a bit complex, but you only need the "Entity type" selection and the "OK" button now). Try this now to create text span annotations for the following sentence!
+
+
+2 ) These are obviously proteins: p53, c-Rel and Foxp3.
+
+
+If you succeded in creating annotations so that above sentence looks like the first example, you can move to the next document. If you want to learn more or have some trouble with the annotation, see the "hints" and "troubleshooting" sections below.
+
+
+
+
+Hints
+
+Some documents in this tutorial have a "hints" section like this. These sections provide additional information on how to use brat effectively. If you're only looking to understand basic usage, you can skip these sections.
+
+* Single words can be quickly selected for annotation by double-clicking.
+
+* If you want to select text but not annotate it (e.g. for copying it), hold down CTRL while selecting.
+
+* Multi-word spans can be quickly selected with two double-clicks by holding down CTRL during the first and SHIFT during the second double click.
+
+
+
+Troubleshooting
+
+* If you made some mistakes in annotation and don't know how to change them: see the instructions in the next document in this tutorial, and come back to try again.
+
+* If the second sentence was already annotated: please ask your administrator to reset the tutorial.
+
+* If nothing happens when selecting text: it may be that you are not logged in. Try clicking the rightmost button ("Login" button) in the menu.
+
+* If you get an error message like "This document is read-only and can't be edited": there is an issue with your brat installation. Please ask your administrator to check file permissions.

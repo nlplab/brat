@@ -3,15 +3,15 @@ Text span annotation
 Annotations marking a text span are a basic building block for most brat annotations. Examples of TEXT SPAN ANNOTATION are shown in the following sentence.
 
 
-1 ) These are obviously proteins: p53, c-Rel and Foxp3.
+1 ) Google was founded by Larry Page and Sergey Brin in California.
 
 
-Note that in addition to identifying a span of text, each of these annotations also has a type, shown in the "box" above the text. All brat annotations have some type, and the specific types used can be separately configured for each annotation project.
+Note that in addition to identifying a span of text, each of these annotations also has a type. All brat annotations have some type, and the specific types used can be separately configured for each annotation project.
 
 Text span annotations can be created simply by selecting text using the mouse, as in most text editors and similar software, selecting a type from the NEW ANNOTATION DIALOG that pops up after selection, and pressing OK (the dialog may look a bit complex, but you only need the "Entity type" selection and the "OK" button now). Try this now to create text span annotations for the following sentence!
 
 
-2 ) These are obviously proteins: p53, c-Rel and Foxp3.
+2 )  Google was founded by Larry Page and Sergey Brin in California.
 
 
 If you succeded in creating annotations so that above sentence looks like the first example, you can move to the next document. If you want to learn more or have some trouble with the annotation, see the "hints" and "troubleshooting" sections below.

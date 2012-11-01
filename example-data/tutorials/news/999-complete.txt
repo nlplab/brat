@@ -1,0 +1,5 @@
+Congratulations!
+
+You have completed the brat annotation tutorial. We hope this has been helpful for getting to know the basic brat annotation functionality. Thanks for taking the time to go through this tutorial.
+
+Bye!

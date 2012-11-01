@@ -1,0 +1,25 @@
+T1	Organization 281 288	YouTube
+T2	Merge-org 265 271	merger
+E1	Merge-org:T2 Org-Arg:T1
+T3	Merge-org 303 309	merged
+E2	Merge-org:T3 Org-Arg:T4 Org-Arg2:T5
+T4	Organization 295 302	YouTube
+T5	Organization 315 321	Google
+T6	Organization 346 352	Amazon
+T7	Organization 354 359	Apple
+T8	Organization 361 367	Google
+T9	Organization 373 381	Facebook
+T10	Merge-org 382 388	merged
+E3	Merge-org:T10 Org-Arg:T6 Org-Arg2:T7 Org-Arg3:T8 Org-Arg4:T9
+T11	Organization 1129 1136	YouTube
+T12	Organization 1143 1150	YouTube
+T13	Organization 1163 1169	Google
+T14	Organization 1194 1200	Amazon
+T15	Organization 1202 1207	Apple
+T16	Organization 1209 1215	Google
+T17	Organization 1221 1229	Facebook
+T18	Organization 1458 1466	WikiNews
+T19	Organization 1480 1486	Google
+T20	Organization 1491 1499	Facebook
+T21	Merge-org 1467 1474	reports
+E4	Merge-org:T21 Org-Arg:T18 Org-Arg2:T19 Org-Arg3:T20

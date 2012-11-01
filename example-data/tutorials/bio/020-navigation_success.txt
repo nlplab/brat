@@ -1,3 +1,0 @@
-Good job, you can now navigate between documents in brat!
-
-From now on, the documents in this tutorial will no longer contain instructions about navigating between documents. When you finish reading a document (like now), just navigate to the next one.

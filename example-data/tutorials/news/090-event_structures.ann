@@ -1,0 +1,28 @@
+T1	Organization 327 333	Google
+T2	Organization 338 345	YouTube
+T3	Merge-org 346 352	merged
+E1	Merge-org:T3 Org-Arg:T1 Org-Arg2:T2
+T4	Organization 304 312	Wikinews
+T5	Report 313 321	reported
+E2	Report:T5 Reporter-Arg:T4 Event-Arg:E1
+T6	Person 461 470	My friend
+T7	Organization 484 490	Reddit
+T8	Organization 503 511	Wikinews
+T9	Organization 526 532	Google
+T10	Organization 537 544	YouTube
+T11	Report 471 475	told
+E3	Report:T11 Reporter-Arg:T6 Event-Arg:E4
+T12	Report 491 497	posted
+E4	Report:T12 Event-Arg:E5 Reporter-Arg:T7
+T13	Report 512 520	reported
+E5	Report:T13 Event-Arg:E6 Reporter-Arg:T8
+T14	Merge-org 545 551	merged
+E6	Merge-org:T14 Org-Arg:T9 Org-Arg2:T10
+T15	Organization 920 928	Wikinews
+T16	Organization 943 949	Google
+T17	Organization 954 961	YouTube
+T18	Person 975 984	My friend
+T19	Organization 998 1004	Reddit
+T20	Organization 1017 1025	Wikinews
+T21	Organization 1040 1046	Google
+T22	Organization 1051 1058	YouTube

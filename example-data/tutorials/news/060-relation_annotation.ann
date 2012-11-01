@@ -1,0 +1,12 @@
+T1	Person 139 154	Terry Pratchett
+T2	GPE 164 171	England
+T3	Person 483 497	Joanne Rowling
+T4	Person 515 525	Jo Rowling
+T5	Person 530 543	J. K. Rowling
+*	Alias T3 T4 T5
+T6	Person 1225 1240	Terry Pratchett
+T7	GPE 1250 1257	England
+T8	Person 1264 1278	Joanne Rowling
+T9	Person 1296 1306	Jo Rowling
+T10	Person 1311 1324	J. K. Rowling
+R1	Located Arg1:T1 Arg2:T2	

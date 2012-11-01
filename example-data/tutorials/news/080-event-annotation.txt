@@ -1,0 +1,40 @@
+Event annotation
+
+For capturing associations of arbitrary numbers of annotations, brat implements a number of features supporting EVENT ANNOTATION: text-bound, n-ary associations of annotations. As this is a bit of a mouthful, let's us use some examples.
+
+
+1 ) The merger involved YouTube.
+
+2 ) YouTube merged with Google.
+
+3 ) Would you believe Amazon, Apple, Google, and Facebook merged?
+
+
+Each of the above sentences contains a single event annotation, with different numbers of participants. It may be helpful to think of a brat event annotation as a text span annotation together with binary relations identifying the participants in the event (this is a reasonable approximation of the actual representation). In many event annotation efforts, the text span annotation is termed the "event trigger" and the relation types "participant roles".
+
+It is straightforward to create event annotations: first create a text span annotation and assign it an event type; then annotate the participants by dragging and dropping, just as for binary relations. Try to recreate the above event structures below.
+
+
+4 ) The merger involved YouTube.
+
+5 ) YouTube merged with Google.
+
+6 ) Would you believe Amazon, Apple, Google, and Facebook merged?
+
+
+The trigger and event arguments can be edited just as any text span and relation annotation, using the same methods we learned in the previous parts of this tutorial. Try it out to correct the annotations below.
+
+
+7 ) WikiNews reports that Google and Facebook merged.
+
+
+That's all there is to basic event annotation!
+
+
+
+
+Hints
+
+* Deleting the event annotation (the "box" identifying the trigger) deletes also all the relations identifying its participants.
+
+* When a single event involves multiple participants in the same role (relation type), the roles are differentiated by numeric suffixes (e.g. "Org2", "Org3"). This can be used to pair up event participants (e.g. "Org2" is associated with "Loc2"), but can be ignored in annotation efforts not involving such pairs.
