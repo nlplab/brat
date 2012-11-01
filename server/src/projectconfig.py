@@ -1229,7 +1229,7 @@ class ProjectConfiguration(object):
             ovl_types = set()
 
         undefined_types = [t for t in ovl_types if 
-                           t not in ('contain', 'equal', 'cross', 'any')]
+                           t not in ('contain', 'equal', 'cross', '<ANY>')]
         if undefined_types:
             Messager.warning('Undefined '+OVERLAP_TYPE_ARG+' value(s) '+
                              str(undefined_types)+' for '+
