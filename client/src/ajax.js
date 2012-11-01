@@ -21,6 +21,7 @@ var Ajax = (function($, window, undefined) {
 
         // If no protocol version is explicitly set, set it to current
         if (data['protocol'] === undefined) {
+          // TODO: Extract the protocol version somewhere global
           data['protocol'] = 1;
         }
 
