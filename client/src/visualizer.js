@@ -1969,12 +1969,11 @@ Util.profileStart('arcs');
                 }
               });
           }
-          // fall back on relation types in case origin span type is
-          // undefined
-          // then final fallback to unnumbered relation
-          // HACK: instead of falling back, extend (since
-          // relation_types has more info!)
-          arcDesc = $.extend(arcDesc, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
+          // fall back on relation types in case we still don't have
+          // an arc description, with final fallback to unnumbered relation
+          if (!arcDesc) {
+            arcDesc = $.extend({}, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
+          }
           var color = ((arcDesc && arcDesc.color) ||
                        (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
                        '#000000');
