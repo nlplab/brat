@@ -327,7 +327,6 @@ var Visualizer = (function($, window, undefined) {
       var sourceData = null;
       var requestedData = null;
       var coll, doc, args;
-      var spanTypes;
       var relationTypesHash;
       var isRenderRequested;
       var isCollectionLoaded = false;
@@ -1207,7 +1206,7 @@ var Visualizer = (function($, window, undefined) {
         // get the arc annotation text sizes (for all labels)
         var arcTexts = {};
         $.each(data.arcs, function(arcNo, arc) {
-          var labels = Util.getArcLabels(spanTypes, data.spans[arc.origin].type, arc.type);
+          var labels = Util.getArcLabels(spanTypes, data.spans[arc.origin].type, arc.type, relationTypesHash);
           if (!labels.length) labels = [arc.type];
           $.each(labels, function(labelNo, label) {
             arcTexts[label] = true;
@@ -1666,7 +1665,7 @@ Util.profileStart('chunks');
                   hasInternalArcs = true;
                 }
                 if (origin.row) {
-                  var labels = Util.getArcLabels(spanTypes, leftSpan.type, arc.type);
+                  var labels = Util.getArcLabels(spanTypes, leftSpan.type, arc.type, relationTypesHash);
                   if (!labels.length) labels = [arc.type];
                   if (origin.row.index == rowIndex) {
                     // same row, but before this
@@ -1696,7 +1695,7 @@ Util.profileStart('chunks');
                 var target = leftSpan.headFragment.chunk;
                 var border;
                 if (target.row) {
-                  var labels = Util.getArcLabels(spanTypes, span.type, arc.type);
+                  var labels = Util.getArcLabels(spanTypes, span.type, arc.type, relationTypesHash);
                   if (!labels.length) labels = [arc.type];
                   if (target.row.index == rowIndex) {
                     // same row, but before this
@@ -2056,8 +2055,8 @@ Util.profileStart('arcs');
             }
 
             var originType = data.spans[arc.origin].type;
-            var arcLabels = Util.getArcLabels(spanTypes, originType, arc.type);
-            var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type);
+            var arcLabels = Util.getArcLabels(spanTypes, originType, arc.type, relationTypesHash);
+            var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type, relationTypesHash);
             // if (Configuration.abbrevsOn && !ufoCatcher && arcLabels) {
             if (Configuration.abbrevsOn && arcLabels) {
               var labelIdx = 1; // first abbreviation

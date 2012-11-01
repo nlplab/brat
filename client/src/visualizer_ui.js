@@ -15,6 +15,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var currentForm;
       var spanTypes = null;
+      var relationTypesHash = null;
       // TODO: confirm unnecessary and remove
 //       var attributeTypes = null;
       var data = null;
@@ -436,7 +437,8 @@ var VisualizerUI = (function($, window, undefined) {
         var arrowStr = symmetric ? '&#8212;' : '&#8594;';
         var arcDisplayForm = Util.arcDisplayForm(spanTypes, 
                                                  data.spans[originSpanId].type, 
-                                                 arcRole);
+                                                 arcRole,
+                                                 relationTypesHash);
         var comment = "";
         comment += ('<span class="comment_type_id_wrapper">' +
                     '<span class="comment_type">' +
@@ -2019,8 +2021,11 @@ var VisualizerUI = (function($, window, undefined) {
 //         spanTypes = _spanTypes;
 //         attributeTypes = _attributeTypes;
 //       };
-      var spanAndAttributeTypesLoaded = function(_spanTypes) {
+      // TODO: spanAndAttributeTypesLoaded is obviously not descriptive of
+      // the full function. Rename reasonably.
+      var spanAndAttributeTypesLoaded = function(_spanTypes, _entityAttributeTypes, _eventAttributeTypes, _relationTypesHash) {
         spanTypes = _spanTypes;
+        relationTypesHash = _relationTypesHash;
       };
 
       var annotationIsAvailable = function() {

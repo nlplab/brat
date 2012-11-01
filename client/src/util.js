@@ -80,7 +80,7 @@ var Util = (function(window, undefined) {
       return labels[0] || spanType;
     }
 
-    var getArcLabels = function(spanTypes, spanType, arcType) {
+    var getArcLabels = function(spanTypes, spanType, arcType, relationTypesHash) {
       var type = spanTypes[spanType];
       var arcTypes = type && type.arcs || [];
       var arcDesc = null;
@@ -96,11 +96,15 @@ var Util = (function(window, undefined) {
           return false;
         }
       });
-      return arcDesc && arcDesc.labels && arcDesc.labels || [];
+      // fall back to relation types for unconfigured or missing def
+      if (!arcDesc) {
+        arcDesc = $.extend({}, relationTypesHash[arcType] || relationTypesHash[noNumArcType]);
+      }
+      return arcDesc && arcDesc.labels || [];
     }
 
-    var arcDisplayForm = function(spanTypes, spanType, arcType) {
-      var labels = getArcLabels(spanTypes, spanType, arcType);
+    var arcDisplayForm = function(spanTypes, spanType, arcType, relationTypesHash) {
+      var labels = getArcLabels(spanTypes, spanType, arcType, relationTypesHash);
       return labels[0] || arcType;
     }
 
