@@ -1599,9 +1599,11 @@ var VisualizerUI = (function($, window, undefined) {
         var $downloadStored = $('#download_stored').empty().show();
         $.each(response.stored, function(storedNo, stored) {
           var params = {
-            action: 'retrieveStored',
+            'action': 'retrieveStored',
             'document': doc,
             'suffix': stored.suffix,
+            // TODO: Extract the protocol version into somewhere global
+            'protocol': 1
           };
           var $downloadLink = $('<a id="download_'+stored.name+'"' +
                                 ' target="'+stored.name+'"' +
@@ -1632,7 +1634,9 @@ var VisualizerUI = (function($, window, undefined) {
               text(ext).
               attr('href',
                   'ajax.cgi?action=downloadFile&collection=' + encodeURIComponent(coll) +
-                  '&document=' + encodeURIComponent(doc) + '&extension=' + encodeURIComponent(ext));
+                  '&document=' + encodeURIComponent(doc) + '&extension=' + encodeURIComponent(ext) +
+                  // TODO: Extract the protocol version into somewhere global
+                  '&protocol=' + 1);
           $link.button();
           if (extNo) $sourceFiles.append(' ');
           $sourceFiles.append($link);
@@ -1668,7 +1672,9 @@ var VisualizerUI = (function($, window, undefined) {
           var $sourceCollection = $('#source_collection').empty();
           var $collectionDownloadLink = $('<a target="brat_search"/>')
             .text('Download tar.gz')
-            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + encodeURIComponent(coll));
+            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + encodeURIComponent(coll)
+            // TODO: Extract the protocol version into somewhere global
+            + '&protocol=' + 1);
           $sourceCollection.append($collectionDownloadLink);
           $collectionDownloadLink.button();
         }
