@@ -1,0 +1,23 @@
+Annotation notes
+
+Although brat is primarily oriented toward structured annotation that can be automatically interpreted, it also supports free-text NOTES that can be attached to annotations. Annotations with notes are emphasized with a visual highlight, and notes can be read either by hovering the mouse cursor over the annotation or by opening the Edit Annotation dialog. Some examples are shown below.
+
+
+1 ) Discworld is balanced on the backs of four elephants.
+
+2 ) YouTube and DoubleClick merged with Google.
+
+3 ) Orville Wright and Wilbur Wright were pioneers in aviation.
+
+
+Try out this functionality by adding some notes below.
+
+
+4 ) Discworld is balanced on the backs of four elephants.
+
+5 ) YouTube and DoubleClick merged with Google.
+
+6 ) Orville Wright and Wilbur Wright were pioneers in aviation.
+
+
+Notes can be useful for communicating between annotators collaborating on a single project or for leaving yourself reminders. However, to make automatic processing of your annotations easier, it's recommended to use explicitly structured annotation whenever possible!

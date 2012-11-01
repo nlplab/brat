@@ -1,0 +1,19 @@
+Logging in
+
+Many functions in brat, such as adding and changing annotations, can only be performed by users who are LOGGED IN.
+
+User and password management is handled by the administrator of your brat installation. The remainder of this tutorial assumes that you have a username and password. If you do not have one already, this would be a good time to ask your brat installation administrator for this information.
+
+Try logging in and out now, and make sure you are logged in before proceeding with the tutorial.
+
+
+
+
+Troubleshooting
+
+Some documents in this tutorial have a "troubleshooting" section like this at the bottom. These sections provide help for resolving possible issues following the instructions in the document. Feel free to skip over these sections unless you are having trouble with some of the instructions.
+
+* If the login fails to take effect, you may be blocking cookies. brat uses a cookie to detect if users are logged in, and you should allow this cookie to be set to use brat for annotation.
+
+* If you are administering the brat installation and don't know where to set usernames and passwords: edit the file config.py in the brat installation root using a text editor.
+

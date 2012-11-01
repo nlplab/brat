@@ -1,0 +1,17 @@
+T1	Organization 418 426	Citibank
+T2	Money 456 468	$100 million
+T3	Transfer-money 443 449	moving
+E1	Transfer-money:T3 Giver-Arg:T1 Money-Arg:T2 Beneficiary-Arg:T4 Recipient-Arg:T6
+T4	Person 473 496	Raul Salinas de Gortari
+T5	Person 511 535	former Mexican president
+T6	Organization 540 545	banks
+T7	GPE 549 560	Switzerland
+R2	Origin Arg1:T6 Arg2:T7	
+#1	AnnotatorNotes T2	100000000 USD
+R1	Family Arg1:T4 Arg2:T5	
+A1	Mention T4 Name
+A2	Individual T4
+A3	Mention T5 Nominal
+A4	Individual T5
+A5	Confidence E1 High
+N1	Reference T5 Wikipedia:64488	Carlos Salinas de Gortari

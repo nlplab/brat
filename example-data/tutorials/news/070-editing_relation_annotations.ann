@@ -1,0 +1,13 @@
+T1	Person 301 316	Terry Pratchett
+T2	Person 367 382	Terry Pratchett
+T3	GPE 352 360	Yokohama
+R1	Located Arg1:T1 Arg2:T3	
+T4	Person 387 400	J. K. Rowling
+*	Alias T2 T4
+T5	Person 603 618	Terry Pratchett
+T6	GPE 628 643	Buckinghamshire
+T7	GPE 659 670	Oxfordshire
+R2	Located Arg1:T5 Arg2:T7	
+T8	Person 766 781	Terry Pratchett
+T9	GPE 791 806	Buckinghamshire
+R3	Employment Arg1:T8 Arg2:T9	

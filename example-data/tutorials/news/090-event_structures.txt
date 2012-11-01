@@ -1,0 +1,23 @@
+Structured event annotation
+
+One important property of event annotation is the ability to annotate events as participants in other events, creating complex event structures. This allows the annotation to express, for example, that one event is the cause of another. Consider the following example:
+
+
+1 ) Wikinews reported that Google and YouTube merged.
+
+
+Here, one event is marked as participating in another. Such "nesting" can involve arbitrary depth:
+
+
+2 ) My friend told me that Reddit posted that Wikinews reported that Google and YouTube merged.
+
+
+These annotations can be created using the brat functionality you are already familiar with: simply first create event annotations that do not involve other event annotations as participants, and then create the "upper layers" of annotation to make the full structure. Try this to reconstruct the examples above, and make sure you have all the details right!
+
+
+3 ) Wikinews reported that Google and YouTube merged.
+
+4 ) My friend told me that Reddit posted that Wikinews reported that Google and YouTube merged.
+
+
+It may take a bit of practice to get used to "reading" event annotations such as these, but they're easy enough to understand once you've seen a few.

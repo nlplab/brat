@@ -1,0 +1,21 @@
+T1	GPE 412 421	Discworld
+#1	AnnotatorNotes T1	Should fictional places be annotated?
+T2	Organization 471 478	YouTube
+T3	Organization 483 494	DoubleClick
+T4	Organization 507 513	Google
+T5	Merge-org 495 501	merged
+E1	Merge-org:T5 Org-Arg:T2 Org-Arg2:T3 Org-Arg3:T4
+#2	AnnotatorNotes E1	Annotate as one merge event with three participants or two events with two participants each?
+T6	Person 520 534	Orville Wright
+T7	Person 539 552	Wilbur Wright
+R1	Family Arg1:T6 Arg2:T7	
+#3	AnnotatorNotes R1	Should this be marked? It's not explicitly stated.
+T8	GPE 643 652	Discworld
+T9	Organization 702 709	YouTube
+T10	Organization 714 725	DoubleClick
+T11	Organization 738 744	Google
+T12	Merge-org 726 732	merged
+E2	Merge-org:T12 Org-Arg:T9 Org-Arg2:T10 Org-Arg3:T11
+T13	Person 751 765	Orville Wright
+T14	Person 770 783	Wilbur Wright
+R2	Family Arg1:T13 Arg2:T14	

@@ -1,0 +1,6 @@
+T1	Person 401 409	sentence
+T2	Organization 434 442	anything
+T3	GPE 478 489	annotations
+T4	Organization 867 877	Google was
+T5	GPE 886 899	in California
+T6	Person 1127 1133	Google
