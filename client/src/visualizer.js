@@ -3082,10 +3082,12 @@ Util.profileStart('before render');
           active: proceedWithFonts,
           inactive: proceedWithFonts,
           fontactive: function(fontFamily, fontDescription) {
-            console.log("font active: ", fontFamily, fontDescription);
+            // Note: Enable for font debugging
+            //console.log("font active: ", fontFamily, fontDescription);
           },
           fontloading: function(fontFamily, fontDescription) {
-            console.log("font loading:", fontFamily, fontDescription);
+            // Note: Enable for font debugging
+            //console.log("font loading:", fontFamily, fontDescription);
           },
         };
         WebFont.load(webFontConfig);
@@ -3119,7 +3121,8 @@ Util.profileStart('before render');
 
     var proceedWithFonts = function() {
       Visualizer.areFontsLoaded = true;
-      console.log("fonts done");
+      // Note: Enable for font debugging
+      //console.log("fonts done");
       Dispatcher.post('triggerRender');
     };
 
