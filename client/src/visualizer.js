@@ -1276,6 +1276,7 @@ var Visualizer = (function($, window, undefined) {
 
       var renderDataReal = function(sourceData) {
 
+
 Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
@@ -2692,7 +2693,15 @@ Util.profileReport();
           dispatcher.post('startedRendering', [coll, doc, args]);
           dispatcher.post('spin');
           setTimeout(function() {
-              renderDataReal(sourceData);
+              try {
+                renderDataReal(sourceData);
+              } catch (e) {
+                // We are sure not to be drawing anymore, reset the state
+                drawing = false;
+                // TODO: Hook printout into dispatch elsewhere?
+                console.warn('Rendering terminated due to:', e);
+                dispatcher.post('renderError: Fatal', [sourceData, e]);
+              }
               dispatcher.post('unspin');
           }, 0);
         }
@@ -3082,10 +3091,12 @@ Util.profileStart('before render');
           active: proceedWithFonts,
           inactive: proceedWithFonts,
           fontactive: function(fontFamily, fontDescription) {
-            console.log("font active: ", fontFamily, fontDescription);
+            // Note: Enable for font debugging
+            //console.log("font active: ", fontFamily, fontDescription);
           },
           fontloading: function(fontFamily, fontDescription) {
-            console.log("font loading:", fontFamily, fontDescription);
+            // Note: Enable for font debugging
+            //console.log("font loading:", fontFamily, fontDescription);
           },
         };
         WebFont.load(webFontConfig);
@@ -3119,7 +3130,8 @@ Util.profileStart('before render');
 
     var proceedWithFonts = function() {
       Visualizer.areFontsLoaded = true;
-      console.log("fonts done");
+      // Note: Enable for font debugging
+      //console.log("fonts done");
       Dispatcher.post('triggerRender');
     };
 
