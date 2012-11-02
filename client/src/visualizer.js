@@ -1276,6 +1276,7 @@ var Visualizer = (function($, window, undefined) {
 
       var renderDataReal = function(sourceData) {
 
+
 Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
@@ -2692,7 +2693,15 @@ Util.profileReport();
           dispatcher.post('startedRendering', [coll, doc, args]);
           dispatcher.post('spin');
           setTimeout(function() {
-              renderDataReal(sourceData);
+              try {
+                renderDataReal(sourceData);
+              } catch (e) {
+                // We are sure not to be drawing anymore, reset the state
+                drawing = false;
+                // TODO: Hook printout into dispatch elsewhere?
+                console.warn('Rendering terminated due to:', e);
+                dispatcher.post('renderError:' + e, [sourceData]);
+              }
               dispatcher.post('unspin');
           }, 0);
         }
