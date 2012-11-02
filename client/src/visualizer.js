@@ -2700,7 +2700,7 @@ Util.profileReport();
                 drawing = false;
                 // TODO: Hook printout into dispatch elsewhere?
                 console.warn('Rendering terminated due to:', e);
-                dispatcher.post('renderError:' + e, [sourceData]);
+                dispatcher.post('renderError: Fatal', [sourceData, e]);
               }
               dispatcher.post('unspin');
           }, 0);
