@@ -109,6 +109,8 @@ class Messager:
     __escape = staticmethod(__escape)
 
     def __message(msg, type, duration, escaped):
+        if not isinstance(msg, str) and not isinstance(msg, unicode):
+            msg = str(msg)
         if not escaped:
             msg = Messager.__escape(msg)
         Messager.__pending_messages.append((msg, type, duration))
