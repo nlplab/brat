@@ -87,7 +87,9 @@ var docData = {
 };
 </code></pre></p>
 
-<div id="embedding-entity-example"></div>
+<p>
+    <div id="embedding-entity-example"></div>
+</p>
 
 <h2>attributes</h2>
 
@@ -118,7 +120,9 @@ docData['attributes'] = [
 ];
 </code></pre></p>
 
-<div id="embedding-attribute-example"></div>
+<p>
+    <div id="embedding-attribute-example"></div>
+</p>
 
 <h2>relations</h2>
 
@@ -168,7 +172,9 @@ docData['relations'] = [
 ];
 </code></pre></p>
 
-<div id="embedding-relation-example"/></div>
+<p>
+    <div id="embedding-relation-example"/></div>
+</p>
 
 <h2>events</h2>
 
@@ -255,7 +261,9 @@ docData['events'] = [
 ];
 </code></pre></p>
 
-<div id="embedding-event-example"/></div>
+<p>
+    <div id="embedding-event-example"/></div>
+</p>
 
 <p>
     Foo bar, baz. XXX: More things can be done...
@@ -267,22 +275,26 @@ docData['events'] = [
     Foo bar, baz. XXX: Interactive JSON...
 </p>
 
-<div id="embedding-live-example"/></div>
+<p>
+    <div id="embedding-live-example"/></div>
+</p>
 
-<div id="live-io">
-    <textarea id="coll-input" style="width:45%;height:400px;"
-        placeholder="Enter JSON for the collection object here..."></textarea>
-    <textarea id="doc-input" style="width:45%;height:400px;"
-        placeholder="Enter JSON for the document object here..."></textarea>
-</div>
+<p>
+    <div id="live-io">
+        <textarea id="coll-input" style="width:45%;height:400px;"
+            placeholder="Enter JSON for the collection object here..."></textarea>
+        <textarea id="doc-input" style="width:45%;height:400px;"
+            placeholder="Enter JSON for the document object here..."></textarea>
+    </div>
+</p>
 
 <!-- head.js still isn't on a reliable CDN? -->
 <script type="text/javascript" src="http://weaver.nlplab.org/~brat/demo/master/client/lib/head.load.min.js"></script>
-<link href="CHANGE_ME/style-vis.css" rel="stylesheet" type="text/css"/>
+<link href="http://weaver.nlplab.org/~brat/demo/master/style-vis.css" rel="stylesheet" type="text/css"/>
 
 <script type="text/javascript">
     // XXX: We use the development version of brat for this demo to get
-    var bratLocation = 'CHANGE_ME';
+    var bratLocation = 'http://weaver.nlplab.org/~brat/demo/master';
     head.js(
         // External libraries
         bratLocation + '/client/lib/jquery.min.js',
@@ -303,9 +315,9 @@ docData['events'] = [
     );
 
     var webFontURLs = [
-        bratLocation + 'static/fonts/Astloch-Bold.ttf',
-        bratLocation + 'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
-        bratLocation + 'static/fonts/Liberation_Sans-Regular.ttf'
+        bratLocation + '/static/fonts/Astloch-Bold.ttf',
+        bratLocation + '/static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+        bratLocation + '/static/fonts/Liberation_Sans-Regular.ttf'
     ];
 
     head.ready(function() {
@@ -335,34 +347,62 @@ docData['events'] = [
         // Fuck it! We'll do it live!
         var collInput = $('#coll-input');
         var docInput = $('#doc-input');
+        var liveDiv = $('#embedding-live-example');
 
         // Time for some "real" brat coding, let's hook into the dispatcher
         var liveDispatcher = Util.embed('embedding-live-example',
                 $.extend({'collection': null}, collData),
                 $.extend({}, docData), webFontURLs);
 
-        var handleError = function(error) {
-            // XXX: TODO: Set an area to red and give an option to restore the default values
-            console.log(error);
+        var renderError = function() {
+            liveDiv.css({'border': '2px solid red'});
+            collInput.css({'border': '2px solid red'});
+            docInput.css({'border': '2px solid red'});
         };
 
+        liveDispatcher.on('renderError: Fatal', renderError);
+
         var collInputHandler = function() {
-            var collJSON = JSON.parse($('#coll-input').val());
-            // TODO: Doesn't appear to work...
+            var collJSON;
+            try {
+                collJSON = JSON.parse(collInput.val());
+                collInput.css({'border': 'none'});
+            } catch (e) {
+                // Not properly formatted JSON...
+                collInput.css({'border': '2px solid red'});
+                return;
+            }
+
             try {
                 liveDispatcher.post('collectionLoaded',
                         [$.extend({'collection': null}, collJSON)]);
+                liveDiv.css({'border': 'none'});
+                docInput.css({'border': 'none'});
             } catch(e) {
+                console.error('collectionLoaded went down with:', e);
+                collInput.css({'border': '2px solid red'});
+                liveDiv.css({'border': '2px solid red'});
             }
         };
 
         var docInputHandler = function() {
-            var docJSON = JSON.parse($('#doc-input').val());
-            // TODO: Doesn't appear to work...
+            var docJSON;
+            try {
+                docJSON = JSON.parse(docInput.val());
+                docInput.css({'border': 'none'});
+            } catch (e) {
+                docInput.css({'border': '2px solid red'});
+                return;
+            }
+
             try {
                 liveDispatcher.post('requestRenderData', [$.extend({}, docJSON)]);
+                liveDiv.css({'border': 'none'});
+                collInput.css({'border': 'none'});
             } catch(e) {
-                console.log(e);
+                console.error('requestRenderData went down with:', e);
+                collInput.css({'border': '2px solid red'});
+                liveDiv.css({'border': '2px solid red'});
             }
         };
 
@@ -370,8 +410,7 @@ docData['events'] = [
         collInput.text(JSON.stringify(collData, undefined, '    '));
         docInput.text(JSON.stringify(docData, undefined, '    '));
 
-        //var listenTo = 'propertychange keyup input paste';
-        var listenTo = 'propertychange blur paste';
+        var listenTo = 'propertychange keyup input paste';
         collInput.bind(listenTo, collInputHandler);
         docInput.bind(listenTo, docInputHandler);
     });
