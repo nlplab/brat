@@ -376,6 +376,15 @@ class Annotations(object):
     def _sanity(self):
         # Beware, we ONLY do format checking, leave your semantics hat at home
 
+        # Check that referenced IDs are defined
+        for ann in self:
+            for rid in chain(*ann.get_deps()):
+                try:
+                    self.get_ann_by_id(rid)
+                except AnnotationNotFoundError:
+                    # TODO: do more than just send a message for this error?
+                    Messager.error('ID '+rid+' not defined, referenced from annotation '+str(ann))
+
         # Check that each event has a trigger
         for e_ann in self.get_events():
             try:
