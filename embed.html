@@ -5,22 +5,292 @@ xhtml:  true
 
 <h1>embedding brat visualisations</h1>
 
+<noscript>
+    <div id="noscript">
+        It appears that you have Javascript disabled, while this is a sane
+        default it makes an our demo slightly difficult (if not impossible).
+        Please consider enabling Javascript for this page to try out the demo.
+    </div>
+</noscript>
+
+<p>
+    This document gives an example on how to embed brat visualisations in
+    any homepage and can be used as a stand-alone server-less visualisation
+    of the output of your own tools or to illustrate examples of text
+    annotations.
+</p>
+
+<p>
+    Throughout this document we will use <i>"Ed O'Kelley was the man
+    who shot the man who shot Jesse James."</i> as our example text, we will
+    produce both annotation configurations and annotations that are given to
+    brat using JSON.
+    We will also take the opportunity to embed the very same examples
+    into this page to give you an instant preview of the end
+    results.
+</p>
+
+<h2>prerequisites</h2>
+
+<p>
+    Foo bar, baz. XXX: Prerequisites... XXX: Recommend Chrome...
+</p>
+    
+<h2>entities</h2>
+
+<p>
+    Foo bar, baz. XXX: Entities...
+</p>
+
+<p><pre><code id="embedding-entity-coll">
+var collData = {
+    'entity_types': [
+        {
+            'type': 'Person',
+            'labels': [
+                'Person',
+                'Per',
+                'P',
+            ],
+            'bgColor': '#7fa2ff'
+        }
+    ]
+};
+</code></pre></p>
+
+<p><pre><code id="embedding-entity-doc">
+var docData = {
+    'text': "Ed O'Kelley was the man who shot the man who shot Jesse James.",
+    'entities': [
+        [
+            'T1',
+            'Person',
+            [[0, 11]]
+        ],
+
+        [
+            'T2',
+            'Person',
+            [[20, 23]]
+        ],
+        [
+            'T3',
+            'Person',
+            [[37, 40]]
+        ],
+        [
+            'T4',
+            'Person',
+            [[50, 61]]
+        ],
+    ],
+};
+</code></pre></p>
+
+<div id="embedding-entity-example"></div>
+
+<h2>attributes</h2>
+
+<p>
+    Foo bar, baz. XXX: Attributes...
+</p>
+       
+<p><pre><code id="embedding-attribute-coll">
+collData['entity_attribute_types'] = [
+    {
+        'type': 'Notorious',
+        'values': {
+            'Notorious': {
+                'glyph': '★'
+            }
+        }
+    }
+];
+</code></pre></p>
+
+<p><pre><code id="embedding-attribute-doc">
+docData['attributes'] = [
+    [
+        'A1',
+        'Notorious',
+        'T4'
+    ]
+];
+</code></pre></p>
+
+<div id="embedding-attribute-example"></div>
+
+<h2>relations</h2>
+
+<p>
+    Foo bar, baz. XXX: Relations...
+    </p>
+
+<p><pre><code id="embedding-relation-coll">
+collData['relation_types'] = [
+    {
+        'type': 'Anaphora',
+        'labels': [
+            'Anaphora',
+            'Ana'
+        ],
+        'arrowHead': 'triangle,5',
+        'dashArray': '3,3',
+        'color': 'purple',
+        'args': [
+            {
+                'role': 'Anaphor',
+                'targets': [
+                    'Person'
+                ]
+            },
+            {
+                'role': 'Entity',
+                'targets': [
+                    'Person'
+                ]
+            }
+        ]
+    }
+];
+</code></pre></p>
+
+<p><pre><code id="embedding-relation-doc">
+docData['relations'] = [
+    [
+        'R1',
+        'Anaphora',
+        [
+            ['Anaphor', 'T2'],
+            ['Entity', 'T1']
+        ]
+    ]
+];
+</code></pre></p>
+
+<div id="embedding-relation-example"/></div>
+
+<h2>events</h2>
+
+<p>
+    Foo bar, baz. XXX: Events...
+</p>
+
+<p><pre><code id="embedding-event-coll">
+collData['event_types'] = [
+    {
+        'type': 'Assassination',
+        'labels': [
+            'Assassination',
+            'Assas'
+        ],
+        'bgColor': 'lightgreen',
+        'arcs': [
+            {
+                'type': 'Perpetrator',
+                'labels': [
+                    'Perpetrator',
+                    'Perp'
+                ],
+                'arrowHead': 'triangle,5',
+                'color': 'green'
+            },
+            {
+                'type': 'Victim',
+                'labels': [
+                    'Victim',
+                    'Vict'
+                ],
+                'arrowHead': 'triangle,5',
+                'color': 'black'
+            }
+        ]
+    }
+];
+</code></pre></p>
+
+<p><pre><code id="embedding-event-doc">
+docData['triggers'] = [
+[
+        'T5',
+        'Assassination',
+        [[45, 49]]
+    ],
+    [
+        'T6',
+        'Assassination',
+        [[28, 32]]
+    ]
+];
+
+docData['events'] = [
+    [
+        'E1',
+        'T5',
+        [
+            [
+                'Perpetrator',
+                'T3'
+            ],
+            [
+                'Victim',
+                'T4'
+            ]
+        ]
+    ],
+    [
+        'E2',
+        'T6',
+        [
+            [
+                'Perpetrator',
+                'T2'
+            ],
+            [
+                'Victim',
+                'T3'
+            ]
+        ]
+    ]
+];
+</code></pre></p>
+
+<div id="embedding-event-example"/></div>
+
+<p>
+    Foo bar, baz. XXX: More things can be done...
+</p>
+
+<h2>live embedding</h2>
+
+<p>
+    Foo bar, baz. XXX: Interactive JSON...
+</p>
+
+<div id="embedding-live-example"/></div>
+
+<div id="live-io">
+    <textarea id="coll-input" style="width:45%;height:400px;"
+        placeholder="Enter JSON for the collection object here..."></textarea>
+    <textarea id="doc-input" style="width:45%;height:400px;"
+        placeholder="Enter JSON for the document object here..."></textarea>
+</div>
+
 <!-- head.js still isn't on a reliable CDN? -->
 <script type="text/javascript" src="http://weaver.nlplab.org/~brat/demo/master/client/lib/head.load.min.js"></script>
-
-<p>Below is a neat(?) example:</p>
-
-<link href="http://weaver.nlplab.org/~brat/demo/latest/style.css" rel="stylesheet" type="text/css"/>
-<div id="embedding-example"/>
+<link href="CHANGE_ME/style-vis.css" rel="stylesheet" type="text/css"/>
 
 <script type="text/javascript">
     // XXX: We use the development version of brat for this demo to get
-    var bratLocation = "http://weaver.nlplab.org/~brat/demo/master/";
+    var bratLocation = 'CHANGE_ME';
     head.js(
         // External libraries
         bratLocation + '/client/lib/jquery.min.js',
         bratLocation + '/client/lib/jquery.svg.min.js',
         bratLocation + '/client/lib/jquery.svgdom.min.js',
+        // Note: For our own coding needs, not for visualisation
+        'json2.js',
+
         // brat helper modules
         bratLocation + '/client/src/configuration.js',
         bratLocation + '/client/src/util.js',
@@ -39,57 +309,70 @@ xhtml:  true
     ];
 
     head.ready(function() {
-        // TODO: Try to strip away as much as possible from data and collection
-        var docData = {
-            "modifications":[],
-            "normalizations":[],
-            "triggers":[],
-            "text":"Test!\n",
-            "source_files":[
-                "ann",
-                "txt"
-            ],
-            "ctime":0.0,
-            "mtime":0.0,
-            "messages":[],
-            "sentence_offsets":[],
-            "relations":[],
-            "entities":[],
-            "token_offsets":[],
-            "action":"getDocument",
-            "attributes":[],
-            "equivs":[],
-            "events":[],
-            "comments": [],
+        // Evaluate the code from the examples and show it to the user
+        eval($('#embedding-entity-coll').text());
+        eval($('#embedding-entity-doc').text());
+        /* Make damn sure to copy the objects before handing them to brat
+            since we will modify them later on */
+        Util.embed('embedding-entity-example', $.extend({}, collData),
+                $.extend({}, docData), webFontURLs);
+
+        eval($('#embedding-attribute-coll').text());
+        eval($('#embedding-attribute-doc').text());
+        Util.embed('embedding-attribute-example', $.extend({}, collData),
+                $.extend({}, docData), webFontURLs);
+
+        eval($('#embedding-relation-coll').text());
+        eval($('#embedding-relation-doc').text());
+        Util.embed('embedding-relation-example', $.extend({}, collData),
+                $.extend({}, docData), webFontURLs);
+        
+        eval($('#embedding-event-coll').text());
+        eval($('#embedding-event-doc').text());
+        Util.embed('embedding-event-example', $.extend({}, collData),
+                $.extend({}, docData), webFontURLs);
+
+        // Fuck it! We'll do it live!
+        var collInput = $('#coll-input');
+        var docInput = $('#doc-input');
+
+        // Time for some "real" brat coding, let's hook into the dispatcher
+        var liveDispatcher = Util.embed('embedding-live-example',
+                $.extend({'collection': null}, collData),
+                $.extend({}, docData), webFontURLs);
+
+        var handleError = function(error) {
+            // XXX: TODO: Set an area to red and give an option to restore the default values
+            console.log(error);
         };
 
-        var collData = {
-            "description":"",
-            "parent":"",
-            "disambiguator_config":[],
-            "header":[],
-            "entity_attribute_types":[],
-            "event_types":[],
-            "ui_names":{
-                "entities":"entities",
-                "events":"events",
-                "relations":"relations",
-                "attributes":"attributes"
-            },
-            "action":"getCollectionInformation",
-            "normalization_config":[],
-            "items":[],
-            "unconfigured_types":[],
-            "messages":[],
-            "event_attribute_types":[],
-            "annotation_logging":false,
-            "search_config":[],
-            "ner_taggers":[],
-            "relation_types":[],
-            "entity_types":[],
-            "relation_attribute_types":[]
+        var collInputHandler = function() {
+            var collJSON = JSON.parse($('#coll-input').val());
+            // TODO: Doesn't appear to work...
+            try {
+                liveDispatcher.post('collectionLoaded',
+                        [$.extend({'collection': null}, collJSON)]);
+            } catch(e) {
+            }
         };
 
-        Util.embed("embedding-example", collData, docData, webFontURLs);
+        var docInputHandler = function() {
+            var docJSON = JSON.parse($('#doc-input').val());
+            // TODO: Doesn't appear to work...
+            try {
+                liveDispatcher.post('requestRenderData', [$.extend({}, docJSON)]);
+            } catch(e) {
+                console.log(e);
+            }
+        };
+
+        // Inject our current example as a start
+        collInput.text(JSON.stringify(collData, undefined, '    '));
+        docInput.text(JSON.stringify(docData, undefined, '    '));
+
+        //var listenTo = 'propertychange keyup input paste';
+        var listenTo = 'propertychange blur paste';
+        collInput.bind(listenTo, collInputHandler);
+        docInput.bind(listenTo, docInputHandler);
     });
 </script>
