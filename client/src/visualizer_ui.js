@@ -1669,7 +1669,8 @@ var VisualizerUI = (function($, window, undefined) {
           hideNoDocMessage();
         }
 
-        // if we have a collection change, update "collection download" button
+        // if we have a collection change, update "collection download" and
+        // "side-by-side comparison" buttons
         if (oldColl != coll) {
           var $sourceCollection = $('#source_collection').empty();
           var $collectionDownloadLink = $('<a target="brat_search"/>')
@@ -1679,6 +1680,13 @@ var VisualizerUI = (function($, window, undefined) {
             + '&protocol=' + 1);
           $sourceCollection.append($collectionDownloadLink);
           $collectionDownloadLink.button();
+
+          $cmpButton = $('#side-by-side_cmp').empty();
+          var $cmpLink = $('<a/>')
+            .text('Comparison mode')
+            .attr('href', 'diff.xhtml?diff=' + encodeURIComponent(coll));
+          $cmpButton.append($cmpLink);
+          $cmpLink.button();
         }
           
         $docName = $('#document_name input').val(coll + doc);
