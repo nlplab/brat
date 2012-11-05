@@ -299,17 +299,19 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
 
 def __create_span(ann_obj, mods, type, offsets, txt_file_path,
         projectconf, attributes):
-    # Before we add a new trigger, does an equivalent one already exist?
+    # For event types, reuse trigger if a matching one exists.
     found = None
-    for tb_ann in ann_obj.get_textbounds():
-        try:
-            if _offsets_equal(tb_ann.spans, offsets) and tb_ann.type == type:
-                found = tb_ann
-                break
-        except AttributeError:
-            # Not a trigger then
-            pass
-
+    if projectconf.is_event_type(type):
+        for tb_ann in ann_obj.get_textbounds():
+            try:
+                if (_offsets_equal(tb_ann.spans, offsets)
+                    and tb_ann.type == type):
+                    found = tb_ann
+                    break
+            except AttributeError:
+                # Not a trigger then
+                pass
+        
     if found is None:
         # Get a new ID
         new_id = ann_obj.get_new_id('T') #XXX: Cons
