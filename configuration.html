@@ -933,6 +933,85 @@ the <i>Options</i> menu in the brat UI.
   <i>equivalence relation</i>.
 </p>
 
+<p>The <span class="tt">[relations]</span> section is also used to
+  define rules regarding which entities are allowed to overlap in
+  their spans (checked in annotation validation). The syntax for
+  defining this feature is the following (supported since version
+  1.3):
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="100">[relations]</td><td width="600">&#160;</td>
+	</tr><tr>
+	  <td>&lt;OVERLAP&gt;</td><td>Arg1:TYPE1, Arg2:TYPE2, &lt;OVL-TYPE&gt;:TYPE-SPEC</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>i.e. standard relation configuration syntax with the type
+  <span class="tt">&lt;OVERLAP&gt;</span> and the additional special
+  attribute <span class="tt">&lt;OVL-TYPE&gt;</span>.  The 
+  <span class="tt">TYPE-SPEC</span> can have any of the
+  values <span class="tt">contain</span>, <span class="tt">equal</span>
+  or <span class="tt">cross</span>, interpreted as follows:
+</p>
+
+<ul>
+  <li><span class="tt">contain</span>: <span class="tt">TYPE1</span> entity spans may be contained (fully) inside the spans of <span class="tt">TYPE2</span> entities</li>
+  <li><span class="tt">equal</span>: the spans of <span class="tt">TYPE1</span> and <span class="tt">TYPE2</span> entities may be equal</li>
+  <li><span class="tt">cross</span>: the spans of <span class="tt">TYPE1</span> and <span class="tt">TYPE2</span> entities may cross</li>
+</ul>
+
+<p><span class="tt">contain</span>, <span class="tt">equal</span>
+  and <span class="tt">cross</span> can be combined by the
+  "<span class="tt">|</span>" character to express e.g. 
+  <span class="tt">equal|cross</span> for "may be equal or cross",
+  and the value <span class="tt">&lt;ANY&gt;</span> can be used
+  to express that any overlap is allowed.
+</p>
+  
+<p>Any entity overlap not specifically allowed in an &lt;OVERLAP&gt;
+  setting is assumed by the annotation validation to be an error.
+</p>
+
+<p>A few example <span class="tt">&lt;OVERLAP&gt;</span> relation
+  definitions are shown in the following:
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td>&lt;OVERLAP&gt;</td>
+	  <td>Arg1:Country, Arg2:Organization, &lt;OVL-TYPE&gt;:contain</td>
+	</tr>
+	<tr>
+	  <td>&lt;OVERLAP&gt;</td>
+	  <td>Arg1:Person, Arg2:Person, &lt;OVL-TYPE&gt;:equal</td>
+	</tr>
+	<tr>
+	  <td>&lt;OVERLAP&gt;</td>
+	  <td>Arg1:&lt;ENTITY&gt;, Arg2:&lt;ENTITY&gt, &lt;OVL-TYPE&gt;:&lt;ANY&gt</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>These are interpreted, respectively, as "a Contry annotation can be
+contained in an Organization annotation" (e.g. [Bank of [England]]),
+"Person annotations can have identical spans" (e.g. [[the Johnsons]]),
+and "any entity annotation may overlap in any way with any other" (see
+below for the <span class="tt">&lt;ENTITY&gt;</span> shortcut
+definition).
+
 <h3 id="advanced-attributes">Advanced attribute configuration</h3>
 
 <p>Multi-valued attributes can be defined using the syntax
