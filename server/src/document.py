@@ -486,7 +486,7 @@ def _inject_annotation_type_conf(dir_path, json_dic=None):
 
     # inject general visual options (currently just arc bundling) (#949)
     visual_options = {}
-    visual_options['arc-bundle'] = visual_options_get_arc_bundle(dir_path)
+    visual_options['arc_bundle'] = visual_options_get_arc_bundle(dir_path)
     json_dic['visual_options'] = visual_options
 
     return json_dic
