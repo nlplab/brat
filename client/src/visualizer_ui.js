@@ -297,7 +297,8 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var displaySpanComment = function(
-          evt, target, spanId, spanType, mods, spanText, commentText, commentType, norm) {
+          evt, target, spanId, spanType, mods, spanText, commentText, 
+          commentType, normalizations) {
 
         var immediately = false;
         var comment = ( '<div><span class="comment_type_id_wrapper">' +
@@ -326,24 +327,22 @@ var VisualizerUI = (function($, window, undefined) {
           }
           immediately = true;
         }
-        var queryNormInfo = false;
-        if (norm) {
-          var dbName = norm[0];
-          if (dbName in normServerDbByNormDbName &&
-              normServerDbByNormDbName[dbName] != '<NONE>') {
-            queryNormInfo = true;
-          }
-        }
-        if (norm) {
-          commentPopupNormInfoSeqId++;
+        // process normalizations
+        var normsToQuery = [];
+        $.each(normalizations, function(normNo, norm) {
+          var dbName = norm[0], dbKey = norm[1];
           comment += ( '<hr/>' +
                        '<span class="comment_id">' +
-                       Util.escapeHTML(norm[0]) + ':' +
-                       Util.escapeHTML(norm[1]) + '</span>');
-          if (queryNormInfo) {
-            // DB available, add drop-off point to HTML
+                       Util.escapeHTML(dbName) + ':' +
+                       Util.escapeHTML(dbKey) + '</span>');
+          if (dbName in normServerDbByNormDbName &&
+              normServerDbByNormDbName[dbName] != '<NONE>') {
+            // DB available, add drop-off point to HTML and store
+            // query parameters
+            commentPopupNormInfoSeqId++;
             comment += ('<br/><div id="norm_info_drop_point_'+
                         commentPopupNormInfoSeqId+'"/>');
+            normsToQuery.push([dbName, dbKey, commentPopupNormInfoSeqId]);
           } else {
             // no DB, just attach "human-readable" text provided
             // with the annotation, if any
@@ -352,14 +351,20 @@ var VisualizerUI = (function($, window, undefined) {
                             Util.escapeHTML(norm[2])+'</span>');
             }
           }
-        }
-        displayComment(evt, target, comment, commentText, commentType, immediately);
-        if (queryNormInfo) {
+        });
+
+        // display initial comment HTML 
+        displayComment(evt, target, comment, commentText, commentType, 
+                       immediately);
+
+        // initiate AJAX calls for the normalization data to query
+        $.each(normsToQuery, function(normqNo, normq) {
           // TODO: cache some number of most recent norm_get_data results
+          var dbName = normq[0], dbKey = normq[1], infoSeqId = normq[2];
           dispatcher.post('ajax', [{
             action: 'normData',
-            database: norm[0],
-            key: norm[1],
+            database: dbName,
+            key: dbKey,
             collection: coll,
           },
           function(response) {
@@ -411,7 +416,7 @@ var VisualizerUI = (function($, window, undefined) {
                   }
                 }
               }
-              var drop=$('#norm_info_drop_point_'+commentPopupNormInfoSeqId);
+              var drop=$('#norm_info_drop_point_'+infoSeqId);
               if (drop) {
                 drop.html(norminfo);
               } else {
@@ -419,7 +424,7 @@ var VisualizerUI = (function($, window, undefined) {
               }
             }
           }]);
-        }
+        });
       };
 
       var onDocChanged = function() {
