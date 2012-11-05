@@ -1281,9 +1281,10 @@ var AnnotatorUI = (function($, window, undefined) {
           relationTypesHash[noNumArcType].properties.symmetric &&
           relationTypesHash[noNumArcType].properties.transitive;
 
+        var $scroller = $();
         if (spanTypes[originType]) {
           var arcTypes = spanTypes[originType].arcs;
-          var $scroller = $('#arc_roles .scroller').empty();
+          $scroller = $('#arc_roles .scroller').empty();
 
           // lay them out into the form
           $.each(arcTypes || [], function(arcTypeNo, arcDesc) {
