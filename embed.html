@@ -44,45 +44,23 @@ xhtml:  true
 
 <p><pre><code id="embedding-entity-coll">
 var collData = {
-    'entity_types': [
-        {
-            'type': 'Person',
-            'labels': [
-                'Person',
-                'Per',
-                'P',
-            ],
-            'bgColor': '#7fa2ff'
-        }
-    ]
+    entity_types: [ {
+            type   : 'Person',
+            labels : ['Person', 'Per'],
+            bgColor: '#7fa2ff',
+            borderColor: 'darken'
+    } ]
 };
 </code></pre></p>
 
 <p><pre><code id="embedding-entity-doc">
 var docData = {
-    'text': "Ed O'Kelley was the man who shot the man who shot Jesse James.",
-    'entities': [
-        [
-            'T1',
-            'Person',
-            [[0, 11]]
-        ],
-
-        [
-            'T2',
-            'Person',
-            [[20, 23]]
-        ],
-        [
-            'T3',
-            'Person',
-            [[37, 40]]
-        ],
-        [
-            'T4',
-            'Person',
-            [[50, 61]]
-        ],
+    text     : "Ed O'Kelley was the man who shot the man who shot Jesse James.",
+    entities : [
+        ['T1', 'Person', [[0, 11]]],
+        ['T2', 'Person', [[20, 23]]],
+        ['T3', 'Person', [[37, 40]]],
+        ['T4', 'Person', [[50, 61]]],
     ],
 };
 </code></pre></p>
@@ -98,25 +76,15 @@ var docData = {
 </p>
        
 <p><pre><code id="embedding-attribute-coll">
-collData['entity_attribute_types'] = [
-    {
-        'type': 'Notorious',
-        'values': {
-            'Notorious': {
-                'glyph': '★'
-            }
-        }
-    }
-];
+collData['entity_attribute_types'] = [ {
+    type  : 'Notorious',
+    values: { 'Notorious': { 'glyph': '★' } }
+} ];
 </code></pre></p>
 
 <p><pre><code id="embedding-attribute-doc">
 docData['attributes'] = [
-    [
-        'A1',
-        'Notorious',
-        'T4'
-    ]
+    ['A1', 'Notorious', 'T4']
 ];
 </code></pre></p>
 
@@ -131,44 +99,21 @@ docData['attributes'] = [
     </p>
 
 <p><pre><code id="embedding-relation-coll">
-collData['relation_types'] = [
-    {
-        'type': 'Anaphora',
-        'labels': [
-            'Anaphora',
-            'Ana'
-        ],
-        'arrowHead': 'triangle,5',
-        'dashArray': '3,3',
-        'color': 'purple',
-        'args': [
-            {
-                'role': 'Anaphor',
-                'targets': [
-                    'Person'
-                ]
-            },
-            {
-                'role': 'Entity',
-                'targets': [
-                    'Person'
-                ]
-            }
-        ]
-    }
-];
+collData['relation_types'] = [ {
+    type     : 'Anaphora',
+    labels   : ['Anaphora', 'Ana'],
+    dashArray: '3,3',
+    color    : 'purple',
+    args     : [ 
+        {role: 'Anaphor', targets: ['Person'] },
+        {role: 'Entity',  targets: ['Person'] }
+    ]
+} ];
 </code></pre></p>
 
 <p><pre><code id="embedding-relation-doc">
-docData['relations'] = [
-    [
-        'R1',
-        'Anaphora',
-        [
-            ['Anaphor', 'T2'],
-            ['Entity', 'T1']
-        ]
-    ]
+docData['relations'] = [ 
+    ['R1', 'Anaphora', [['Anaphor', 'T2'], ['Entity', 'T1']]]
 ];
 </code></pre></p>
 
@@ -183,81 +128,27 @@ docData['relations'] = [
 </p>
 
 <p><pre><code id="embedding-event-coll">
-collData['event_types'] = [
-    {
-        'type': 'Assassination',
-        'labels': [
-            'Assassination',
-            'Assas'
-        ],
-        'bgColor': 'lightgreen',
-        'arcs': [
-            {
-                'type': 'Perpetrator',
-                'labels': [
-                    'Perpetrator',
-                    'Perp'
-                ],
-                'arrowHead': 'triangle,5',
-                'color': 'green'
-            },
-            {
-                'type': 'Victim',
-                'labels': [
-                    'Victim',
-                    'Vict'
-                ],
-                'arrowHead': 'triangle,5',
-                'color': 'black'
-            }
-        ]
-    }
-];
+collData['event_types'] = [ {
+    type   : 'Assassination',
+    labels : ['Assassination', 'Assas'],
+    bgColor: 'lightgreen',
+    borderColor: 'darken',
+    arcs   : [
+        {type: 'Victim', labels: ['Victim','Vict'] },
+        {type: 'Perpetrator', labels: ['Perpetrator','Perp'], color: 'green' }
+    ]
+} ];
 </code></pre></p>
 
 <p><pre><code id="embedding-event-doc">
 docData['triggers'] = [
-[
-        'T5',
-        'Assassination',
-        [[45, 49]]
-    ],
-    [
-        'T6',
-        'Assassination',
-        [[28, 32]]
-    ]
+    ['T5', 'Assassination', [[45, 49]]],
+    ['T6', 'Assassination', [[28, 32]]]
 ];
 
 docData['events'] = [
-    [
-        'E1',
-        'T5',
-        [
-            [
-                'Perpetrator',
-                'T3'
-            ],
-            [
-                'Victim',
-                'T4'
-            ]
-        ]
-    ],
-    [
-        'E2',
-        'T6',
-        [
-            [
-                'Perpetrator',
-                'T2'
-            ],
-            [
-                'Victim',
-                'T3'
-            ]
-        ]
-    ]
+    ['E1', 'T5', [['Perpetrator', 'T3'], ['Victim', 'T4']]],
+    ['E2', 'T6', [['Perpetrator', 'T2'], ['Victim', 'T3']]]
 ];
 </code></pre></p>
 
@@ -281,9 +172,9 @@ docData['events'] = [
 
 <p>
     <div id="live-io">
-        <textarea id="coll-input" style="width:45%;height:400px;"
+        <textarea id="coll-input" style="display:block;float:left;width:40%;height:400px;font-size:11px;border:2px inset"
             placeholder="Enter JSON for the collection object here..."></textarea>
-        <textarea id="doc-input" style="width:45%;height:400px;"
+        <textarea id="doc-input" style="display:block;float:right;width:55%;height:400px;font-size:11px;border:2px inset"
             placeholder="Enter JSON for the document object here..."></textarea>
     </div>
 </p>
@@ -291,6 +182,12 @@ docData['events'] = [
 <!-- head.js still isn't on a reliable CDN? -->
 <script type="text/javascript" src="http://weaver.nlplab.org/~brat/demo/master/client/lib/head.load.min.js"></script>
 <link href="http://weaver.nlplab.org/~brat/demo/master/style-vis.css" rel="stylesheet" type="text/css"/>
+<!-- override a few style-vis.css settings for the embedded version -->
+<style>
+text { font-size: 15px; }
+.span text { font-size: 10px; }
+.arcs text { font-size: 9px; }
+</style>
 
 <script type="text/javascript">
     // XXX: We use the development version of brat for this demo to get
@@ -355,7 +252,7 @@ docData['events'] = [
                 $.extend({}, docData), webFontURLs);
 
         var renderError = function() {
-            liveDiv.css({'border': '2px solid red'});
+            // liveDiv.css({'border': '2px solid red'}); // setting this blows the layout
             collInput.css({'border': '2px solid red'});
             docInput.css({'border': '2px solid red'});
         };
@@ -366,7 +263,7 @@ docData['events'] = [
             var collJSON;
             try {
                 collJSON = JSON.parse(collInput.val());
-                collInput.css({'border': 'none'});
+                collInput.css({'border': '2px inset'});
             } catch (e) {
                 // Not properly formatted JSON...
                 collInput.css({'border': '2px solid red'});
@@ -376,12 +273,12 @@ docData['events'] = [
             try {
                 liveDispatcher.post('collectionLoaded',
                         [$.extend({'collection': null}, collJSON)]);
-                liveDiv.css({'border': 'none'});
-                docInput.css({'border': 'none'});
+                //liveDiv.css({'border': '2px inset'});  // setting this blows the layout
+                docInput.css({'border': '2px inset'});
             } catch(e) {
                 console.error('collectionLoaded went down with:', e);
+                //liveDiv.css({'border': '2px solid red'});
                 collInput.css({'border': '2px solid red'});
-                liveDiv.css({'border': '2px solid red'});
             }
         };
 
@@ -389,7 +286,7 @@ docData['events'] = [
             var docJSON;
             try {
                 docJSON = JSON.parse(docInput.val());
-                docInput.css({'border': 'none'});
+                docInput.css({'border': '2px inset'});
             } catch (e) {
                 docInput.css({'border': '2px solid red'});
                 return;
@@ -397,18 +294,30 @@ docData['events'] = [
 
             try {
                 liveDispatcher.post('requestRenderData', [$.extend({}, docJSON)]);
-                liveDiv.css({'border': 'none'});
-                collInput.css({'border': 'none'});
+                // liveDiv.css({'border': '2px inset'});  // setting this blows the layout
+                collInput.css({'border': '2px inset'});
             } catch(e) {
                 console.error('requestRenderData went down with:', e);
+                // liveDiv.css({'border': '2px solid red'});
                 collInput.css({'border': '2px solid red'});
-                liveDiv.css({'border': '2px solid red'});
             }
         };
 
         // Inject our current example as a start
-        collInput.text(JSON.stringify(collData, undefined, '    '));
-        docInput.text(JSON.stringify(docData, undefined, '    '));
+        var collJSON = JSON.stringify(collData, undefined, '    ');
+        docJSON = JSON.stringify(docData, undefined, '    ')
+        // pack those just a bit
+        var packJSON = function(s) {
+            // replace any space with ' ' in non-nested curly brackets
+            s = s.replace(/(\{[^\{\}\[\]]*\})/g, 
+                          function(a, b) { return b.replace(/\s+/g, ' '); });
+            // replace any space with ' ' in [] up to nesting depth 1
+            s = s.replace(/(\[(?:[^\[\]\{\}]|\[[^\[\]\{\}]*\])*\])/g, 
+                          function(a, b) { return b.replace(/\s+/g, ' '); });
+            return s
+        }
+        collInput.text(packJSON(collJSON));
+        docInput.text(packJSON(docJSON));
 
         var listenTo = 'propertychange keyup input paste';
         collInput.bind(listenTo, collInputHandler);
