@@ -109,6 +109,15 @@ html {
 #norm_container {
   position: relative;
 }
+#arc_notes:disabled {
+  background-color:#FCFDFD;
+}
+#arc_notes_fieldset:disabled {
+  border: 1px solid #BBBBBB;
+}
+#arc_notes_fieldset:disabled legend {
+  background-color: #BBBBBB;
+}
 #clear_notes_button, #clear_norm_button {                   
   padding: 2px 5px;
   position: absolute;

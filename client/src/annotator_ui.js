@@ -1404,7 +1404,8 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         var arcAnnotatorNotes;
-        if (arcId && !(arcId instanceof Array)) {
+        var isBinaryRelation = arcId && !(arcId instanceof Array);
+        if (isBinaryRelation) {
           // only for relation arcs
           var ed = data.eventDescs[arcId];
           arcAnnotatorNotes = ed && ed.annotatorNotes;
@@ -1413,6 +1414,17 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#arc_notes').val(arcAnnotatorNotes);
         } else {
           $('#arc_notes').val('');
+        }
+
+        // disable notes for arc types that don't support storage (#945)
+        if(!isBinaryRelation || isEquiv) {
+          // disable the actual input
+          $('#arc_notes').attr('disabled', 'disabled');
+          // add to fieldset for style
+          $('#arc_notes_fieldset').attr('disabled', 'disabled');
+        } else {
+          $('#arc_notes').removeAttr('disabled')
+          $('#arc_notes_fieldset').removeAttr('disabled')
         }
 
         dispatcher.post('showForm', [arcForm]);
