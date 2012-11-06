@@ -57,6 +57,7 @@ import tokenise
 import undo
 import verify_annotations
 
+_VERBOSE_HANDLER = False
 _DEFAULT_SERVER_ADDR = ''
 _DEFAULT_SERVER_PORT = 8001
 
@@ -156,6 +157,13 @@ class BratHTTPRequestHandler(CGIHTTPRequestHandler):
     """Minimal handler for brat server."""
 
     permissions = PathPermissions().parse(_PERMISSIONS.split('\n'))
+
+    def log_request(self, code='-', size='-'):
+        if _VERBOSE_HANDLER:
+            CGIHTTPRequestHandler.log_request(self, code, size)
+        else:
+            # just ignore logging
+            pass
 
     def is_brat(self):
         # minimal cleanup
