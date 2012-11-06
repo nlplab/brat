@@ -1,4 +1,7 @@
 ---
+# -*- Mode: Markdown; tab-width: 4; indent-tabs-mode: nil; -*-
+# vim:set ft=markdown ts=4 sw=4 sts=4 autoindent:
+
 layout: base
 title:  "Installation"
 cmeta:  "Instructions on how to install brat on your system."
@@ -208,7 +211,7 @@ First, you can determine the version of python you are running with
     python --version
 
 if your python version is 2.5 or lower, you will need to install
-an external JSON library. As of version 1.2, brat supports two
+an external JSON library. As of v1.2, brat supports two
 JSON libraries, [UltraJSON](http://pypi.python.org/pypi/ujson/)
 and [simplejson](http://pypi.python.org/pypi/ujson/). You only
 need to set up one of these, and UltraJSON is recommended as it

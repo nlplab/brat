@@ -1,4 +1,7 @@
 ---
+# -*- Mode: HTML; tab-width: 4; indent-tabs-mode: nil; -*-
+# vim:set ft=html ts=4 sw=4 sts=4 autoindent:
+
 layout: base
 cmeta: "A web-based annotation tool for all your textual annotation needs."
 nocache: "true"
@@ -7,7 +10,7 @@ nocache: "true"
   <p>Learn more:</p>
   <ul>
     <li><a href="introduction.html">What is it?</a></li>
-    <li><a href="case-studies.html">What can you do with it?</a></li>
+    <li><a href="examples.html">What can you do with it?</a></li>
     <li><a href="features.html">What does it do?</a></li>
     <li><a href="supported-browsers.html">What do I need to run it?</a></li>
   </ul>
@@ -25,8 +28,8 @@ nocache: "true"
   <!-- The Javascript trickery is to track the number of downloads as per:
          http://support.google.com/googleanalytics/bin/answer.py?hl=en&answer=55529
   -->
-  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="{{ site.dist.release_dir_url }}brat-v1.3b2.tar.gz" onClick="javascript: _gaq.push(['_trackPageview', '/releases/brat-v1.3b2.tar.gz']);">Download v1.3 2nd beta</a>
-  <p><a href="upgrading-to-1.3.html">Instructions for upgrading to 1.3</a></p>
+  <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="{{ site.dist.release_dir_url }}brat-v1.3rc1.tar.gz" onClick="javascript: _gaq.push(['_trackPageview', '/releases/brat-v1.3rc1.tar.gz']);">Download v1.3 rc1</a>
+  <p><a href="upgrading-to-v1.3.html">Instructions for upgrading to v1.3 (Crunchy Frog)</a></p>
   <a class="ui-button ui-widget ui-state-default ui-corner-all bigbutton" href="{{ site.dist.release_dir_url }}{{ site.dist.latest_stable_tgz }}" onClick="javascript: _gaq.push(['_trackPageview', '/releases/{{ site.dist.latest_stable_tgz }}']);">Download v1.2 (stable)</a>
   <p><span style="color:gray; font-size: 80%">(checksums: <a style="color:gray" href="{{ site.dist.release_dir_url }}CHECKSUM.MD5" onClick="javascript: _gaq.push(['_trackPageview', '/releases/CHECKSUM.MD5']);">MD5</a>, <a style="color:gray" href="{{ site.dist.release_dir_url }}CHECKSUM.SHA512" onClick="javascript: _gaq.push(['_trackPageview', '/releases/CHECKSUM.SHA512']);">SHA512</a>, <a href="https://github.com/nlplab/brat">Repository (GitHub)</a>, <a href="downloads.html">Older versions</a>)</span></p>
   <p>Manage your own annotation effort</p>
@@ -44,67 +47,67 @@ nocache: "true"
   </noscript>
 </div>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script type="text/javascript" src="galleria/galleria-1.2.6.min.js"></script>
-<script type="text/javascript" src="galleria/themes/custom/galleria.classic.min.js"></script>
+<script type="text/javascript" src="js/galleria/galleria-1.2.6.min.js"></script>
+<script type="text/javascript" src="js/galleria/themes/custom/galleria.classic.min.js"></script>
 <script type="text/javascript">
   var data = [
 //{
-//    image: 'frontpage-img/001-BioNLP-ST_2011_ID_train--PMC2858072-00-TIAB.png',
+//    image: 'img/frontpage/001-BioNLP-ST_2011_ID_train--PMC2858072-00-TIAB.png',
 //    title: 'Comprehensive visualization',
 //    description: 'Event annotations, BioNLP Shared Task 2011 (ID task)'
 //},
 {
-    image: 'frontpage-img/005-entity-mention-annotation-example.png',
+    image: 'img/frontpage/005-entity-mention-annotation-example.png',
     title: 'Intuitive annotation',
     description: ''
 },
 {
-    image: 'frontpage-img/008-relation-annotation-example.png',
+    image: 'img/frontpage/008-relation-annotation-example.png',
     title: 'Intuitive annotation',
     description: ''
 },
 {
-    image: 'frontpage-img/015-normalization-annotation-example.png',
+    image: 'img/frontpage/015-normalization-annotation-example.png',
     title: 'Normalization to external resources',
     description: 'New in v1.3!'
 },
 {
-    image: 'frontpage-img/101-CoNLL-ST_2002_train--esp.train-doc-503.png',
+    image: 'img/frontpage/101-CoNLL-ST_2002_train--esp.train-doc-503.png',
     title: 'Example: Named Entity annotation',
     description: 'CoNLL 2002 shared task (Spanish)'
 },
 {
-    image: 'frontpage-img/201-CoNLL-ST_2006--swedish--swedish_talbanken05_train.conll-doc-880.png',
+    image: 'img/frontpage/201-CoNLL-ST_2006--swedish--swedish_talbanken05_train.conll-doc-880.png',
     title: 'Example: Dependency annotation',
     description: 'CoNLL-X (2006) shared task (Swedish)'
 },
 {
-    image: 'frontpage-img/301-CoNLL-ST_2000_train--train.txt-doc-113.png',
+    image: 'img/frontpage/301-CoNLL-ST_2000_train--train.txt-doc-113.png',
     title: 'Example: Chunking',
     description: 'CoNLL 2000 shared task'
 },
 {
-    image: 'frontpage-img/401-BioNLP-ST_2011_CO_train--PMID-9177216.png',
+    image: 'img/frontpage/401-BioNLP-ST_2011_CO_train--PMID-9177216.png',
     title: 'Example: Coreference annotation',
     description: 'BioNLP Shared Task 2011 (CO task)'
 },
 {
-    image: 'frontpage-img/501-WBI--ddi--DrugDDI_d11.png',
+    image: 'img/frontpage/501-WBI--ddi--DrugDDI_d11.png',
     title: 'Example: Binary relation annotation',
     description: 'Drug-Drug Interaction Extraction challenge task (2011)'
 },
 {
-    image: 'frontpage-img/BioNLP-ST_2011_EPI_train--PMID-19786094.png',
+    image: 'img/frontpage/BioNLP-ST_2011_EPI_train--PMID-19786094.png',
     title: 'Example: Event annotation',
     description: 'BioNLP Shared Task 2011 (EPI task)'
 },
 {
-    image: 'frontpage-img/BioNLP-ST_2011_GE_train--PMC-2791889-02-Results-01.png',
+    image: 'img/frontpage/BioNLP-ST_2011_GE_train--PMC-2791889-02-Results-01.png',
     title: 'Example: Event annotation',
     description: 'BioNLP Shared Task 2011 (GE task)'
 },
 {
-    image: 'frontpage-img/CoNLL-ST_2002_train--ned.train-doc-144.png',
+    image: 'img/frontpage/CoNLL-ST_2002_train--ned.train-doc-144.png',
     title: 'Example: Named Entity annotation',
     description: 'CoNLL 2002 shared task (Dutch)'
 }

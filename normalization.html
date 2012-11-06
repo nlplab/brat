@@ -1,4 +1,7 @@
 ---
+# -*- Mode: HTML; tab-width: 4; indent-tabs-mode: nil; -*-
+# vim:set ft=html ts=4 sw=4 sts=4 autoindent:
+
 layout: base
 title:  "Normalization"
 cmeta:  "Introduction to the brat normalisation feature."
@@ -7,8 +10,8 @@ cmeta:  "Introduction to the brat normalisation feature."
 <h1>brat normalization</h1>
 
 <p><strong>Note:</strong> normalization features are new
-  in <strong>version 1.3 (Crunchy Frog)</strong>. Please make sure
-  you're running version 1.3 or newer before attempting to set up
+  in <strong>v1.3 (Crunchy Frog)</strong>. Please make sure
+  you're running v1.3 or newer before attempting to set up
   normalization.
 <p>
 
@@ -28,7 +31,7 @@ cmeta:  "Introduction to the brat normalisation feature."
   <i>entity linking</i> and <i>wikification</i>.
 </p>
 
-<p>As of version 1.3, brat implements a number of features for supporting
+<p>As of v1.3, brat implements a number of features for supporting
   the visualization and manual creation of such annotations:
 </p>
 
@@ -352,16 +355,16 @@ cmeta:  "Introduction to the brat normalisation feature."
   you can skip these technical details.)
 </p>
 
-<p>First, brat 1.3 is fully backward compatible with previous
+<p>First, brat v1.3 is fully backward compatible with previous
   versions, and any standoff file created in previous versions of brat
-  is also valid for 1.3. The text file format and the standoff format
+  is also valid for v1.3. The text file format and the standoff format
   for annotation primitives defined in previous versions of brat
   (text-bound annotations, relations, etc.) are also unchanged in
-  version 1.3. To understand the basic brat standoff format, see the
+  v1.3. To understand the basic brat standoff format, see the
   <a href="standoff.html">standoff format description</a>.
 </p>
 
-<p>To support normalization, version 1.3 introduces a new category of
+<p>To support normalization, v1.3 introduces a new category of
   annotation, <i>normalization</i>. Each normalization annotation has
   a unique ID and is defined by reference to the ID of the annotation
   that the normalization attaches to and a <code>RID:EID</code> pair
