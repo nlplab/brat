@@ -207,7 +207,7 @@ def open_textfile(filename, mode='rU'):
     return codecs_open(filename, mode, encoding='utf8', errors='strict')
 
 def __split_annotation_id(id):
-    m = re_match(r'^([A-Za-z]+|#)([0-9]+)(.*?)$', id)
+    m = re_match(r'^([A-Za-z]+|#[A-Za-z]*)([0-9]+)(.*?)$', id)
     if m is None:
         raise InvalidIdError(id)
     pre, num_str, suf = m.groups()
