@@ -2,7 +2,7 @@
 
 # Script for determining the (likely) apache group
 
-apache_user=`ps aux | grep -v 'tomcat' | grep '[a]pache\|[h]ttpd' | cut -d ' ' -f 1 | grep -v '^root$' | head -n 1`
+apache_user=`./apache-user.sh`
 apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
 
 echo $apache_group
