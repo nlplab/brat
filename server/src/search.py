@@ -159,9 +159,9 @@ def __filenames_to_annotations(filenames):
     anns = []
     for fn in filenames:
         try:
-            # remove suffixes for Annotations to prompt parsing of .a1
-            # also.
-            nosuff_fn = fn.replace(".ann","").replace(".a2","").replace(".rel","")
+            # remove suffixes for Annotations to prompt parsing of all
+            # annotation files.
+            nosuff_fn = fn.replace(".ann","").replace(".a1","").replace(".a2","").replace(".rel","")
             ann_obj = annotation.TextAnnotations(nosuff_fn, read_only=True)
             anns.append(ann_obj)
         except annotation.AnnotationFileNotFoundError:
