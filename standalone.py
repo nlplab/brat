@@ -291,7 +291,7 @@ class BratHTTPRequestHandler(CGIHTTPRequestHandler):
         """Serve a GET request."""
         if not self.allow_path():
             self.send_error(403)
-        if self.is_brat():
+        elif self.is_brat():
             self.run_brat_direct()
         else:
             CGIHTTPRequestHandler.do_GET(self)
