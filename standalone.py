@@ -16,6 +16,7 @@ from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from SocketServer import ForkingMixIn
 from CGIHTTPServer import CGIHTTPRequestHandler
+import socket
 
 # brat imports
 sys.path.append(os.path.join(os.path.dirname(__file__), 'server/src'))
@@ -56,8 +57,8 @@ import tokenise
 import undo
 import verify_annotations
 
-_SERVER_ADDR = ''
-_SERVER_PORT = 8001
+_DEFAULT_SERVER_ADDR = ''
+_DEFAULT_SERVER_PORT = 8001
 
 _PERMISSIONS = """
 Allow: /ajax.cgi
@@ -299,11 +300,26 @@ class BratServer(ForkingMixIn, HTTPServer):
         HTTPServer.__init__(self, server_address, BratHTTPRequestHandler)
 
 def main(argv):
+    if len(argv) > 1:
+        try:
+            port = int(argv[1])
+        except ValueError:
+            print >> sys.stderr, "Failed to parse", argv[1], "as port number."
+            return 1
+    else:
+        port = _DEFAULT_SERVER_PORT
+
     try:
-        server = BratServer((_SERVER_ADDR, _SERVER_PORT))
+        server = BratServer((_DEFAULT_SERVER_ADDR, port))
+        print >> sys.stderr, "Serving brat at http://127.0.0.1:%d" % port
         server.serve_forever()
-    except:
-        print >> sys.stderr, "Server error"
+    except KeyboardInterrupt:
+        # normal exit
+        pass
+    except socket.error, why:
+        print >> sys.stderr, "Error binding to port", port, ":", why[1]
+    except Exception, e:
+        print >> sys.stderr, "Server error", e
         raise
     return 0
 
