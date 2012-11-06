@@ -331,11 +331,11 @@ def _get_offset_sentence_map(s):
     Helper, sentence-splits and returns a mapping from character
     offsets to sentence number.
     """
-    from ssplit import en_sentence_boundary_gen
+    from ssplit import regex_sentence_boundary_gen
 
     m = {} # TODO: why is this a dict and not an array?
     sprev, snum = 0, 1 # note: sentences indexed from 1
-    for sstart, send in en_sentence_boundary_gen(s):
+    for sstart, send in regex_sentence_boundary_gen(s):
         # if there are extra newlines (i.e. more than one) in between
         # the previous end and the current start, those need to be
         # added to the sentence number
@@ -351,19 +351,19 @@ def _split_and_tokenize(s):
     Helper, sentence-splits and tokenizes, returns array comparable to
     what you would get from re.split(r'(\s+)', s).
     """
-    from ssplit import en_sentence_boundary_gen
-    from tokenise import en_token_boundary_gen
+    from ssplit import regex_sentence_boundary_gen
+    from tokenise import gtb_token_boundary_gen
 
     tokens = []
 
     sprev = 0
-    for sstart, send in en_sentence_boundary_gen(s):
+    for sstart, send in regex_sentence_boundary_gen(s):
         if sprev != sstart:
             # between-sentence space
             tokens.append(s[sprev:sstart])
         stext = s[sstart:send]
         tprev, tend = 0, 0
-        for tstart, tend in en_token_boundary_gen(stext):
+        for tstart, tend in gtb_token_boundary_gen(stext):
             if tprev != tstart:
                 # between-token space
                 tokens.append(s[sstart+tprev:sstart+tstart])
