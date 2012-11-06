@@ -179,7 +179,7 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         raise
 
     init_session(client_ip, cookie_data=cookie_data)
-
+    response_is_JSON = True
     try:
         # Unpack the arguments into something less obscure than the
         #   Python FieldStorage object (part dictonary, part list, part FUBAR)
@@ -195,7 +195,6 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
 
         # Dispatch the request
         json_dic = dispatch(http_args, client_ip, client_hostname)
-        response_data = ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
     except ProtocolError, e:
         # Internal error, only reported to client not to log
         json_dic = {}
@@ -205,21 +204,22 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         err_str = str(e)
         if err_str != '':
             Messager.error(err_str, duration=-1)
-
-        response_data = ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
     except NoPrintJSONError, e:
         # Terrible hack to serve other things than JSON
         response_data = (e.hdrs, e.data)
+        response_is_JSON = False
 
     # Get the potential cookie headers and close the session (if any)
     try:
         cookie_hdrs = get_session().cookie.hdrs()
         close_session()
     except SessionStoreError:
-        # TODO: warn user (messager already output?)
-        pass
+        Messager.error("Failed to store cookie (missing write permission to brat work directory)?", -1)
     except NoSessionError:
         cookie_hdrs = None
+
+    if response_is_JSON:
+        response_data = ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
 
     return (cookie_hdrs, response_data)
 
