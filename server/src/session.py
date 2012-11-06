@@ -44,6 +44,9 @@ EXPIRATION_DELTA = timedelta(days=30)
 class NoSessionError(Exception):
     pass
 
+# Raised if a session could not be stored on close
+class SessionStoreError(Exception):
+    pass
 
 class SessionCookie(SimpleCookie):
     def __init__(self, sid=None):
@@ -185,6 +188,9 @@ def close_session():
         with open(tmp_file_path, 'wb') as tmp_file:
             pickle_dump(CURRENT_SESSION, tmp_file)
         copy(tmp_file_path, get_session_pickle_path(CURRENT_SESSION.get_sid()))
+    except IOError:
+        # failed store: no permissions?
+        raise SessionStoreError
     finally:
         if tmp_file_path is not None:
             remove(tmp_file_path)

@@ -170,7 +170,7 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         from dispatch import dispatch
         from jsonwrap import dumps
         from message import Messager
-        from session import get_session, init_session, close_session, NoSessionError
+        from session import get_session, init_session, close_session, NoSessionError, SessionStoreError
     except ImportError:
         # Note: Heisenbug trap for #612, remove after resolved
         from logging import critical as log_critical
@@ -215,6 +215,9 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
     try:
         cookie_hdrs = get_session().cookie.hdrs()
         close_session()
+    except SessionStoreError:
+        # TODO: warn user (messager already output?)
+        pass
     except NoSessionError:
         cookie_hdrs = None
 
