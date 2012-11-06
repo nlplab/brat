@@ -1,0 +1,27 @@
+Sample CoNLL 2006 shared task training set documents.
+
+A set of documents drawn from the freely available data of the
+Conference on Computational Natural Language Learning (CoNLL) 2006
+(CoNLL-X) shared task on Multi-lingual Dependency Parsing.
+
+Originals available from
+
+    http://ilk.uvt.nl/conll/free_data.html
+
+Dataset descriptions from the CoNLL 2006 shared task website:
+
+    This is data that you can download for free ("open source") from
+    this page. Please note that 'free' does not imply that there is no
+    license. The relevant license is included with the data.
+
+From the README files of the individual datasets:
+
+Portuguese:
+
+    Bosque 7.3 by the Floresta sintá(c)tica project, see
+    http://acdc.linguateca.pt/treebank/info_floresta_English.html
+    Afonso, Susana, Eckhard Bick, Renato Haber & Diana Santos.
+    ""Floresta sintá(c)tica": a treebank for Portuguese",
+    Floresta Sintá(c)tica (syntactic forest) is a publicly available treebank.
+
+(other languages TODO)

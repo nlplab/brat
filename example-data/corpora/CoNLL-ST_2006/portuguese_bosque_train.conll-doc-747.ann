@@ -1,0 +1,298 @@
+T1	ROOT 0 4	ROOT
+T2	v-pcp 5 15	Importados
+T3	prp 16 19	por
+T4	art 20 21	a
+T5	prop 22 29	Céramus
+T6	punc 30 31	,
+T7	art 32 34	os
+T8	n 35 40	pisos
+T9	prp 41 43	de
+T10	n 44 47	uso
+T11	adj 48 57	comercial
+T12	punc 58 59	(
+T13	prp 60 64	para
+T14	n 65 71	hotéis
+T15	conj-c 72 73	e
+T16	n 74 90	shopping_centers
+T17	punc 91 92	)
+T18	v-fin 93 102	destacam-
+T19	pron-pers 103 105	se
+T20	prp 106 109	por
+T21	art 110 111	a
+T22	adj 112 118	grande
+T23	n 119 130	resistência
+T24	punc 131 132	.
+R1	PRED Arg1:T18 Arg2:T2
+R2	PASS Arg1:T2 Arg2:T3
+R3	_gt_N Arg1:T5 Arg2:T4
+R4	P_lt_ Arg1:T3 Arg2:T5
+R5	PUNC Arg1:T18 Arg2:T6
+R6	_gt_N Arg1:T8 Arg2:T7
+R7	SUBJ Arg1:T18 Arg2:T8
+R8	N_lt_ Arg1:T8 Arg2:T9
+R9	P_lt_ Arg1:T9 Arg2:T10
+R10	N_lt_ Arg1:T10 Arg2:T11
+R11	PUNC Arg1:T10 Arg2:T12
+R12	N_lt_PRED Arg1:T10 Arg2:T13
+R13	P_lt_ Arg1:T13 Arg2:T14
+R14	CO Arg1:T14 Arg2:T15
+R15	CJT Arg1:T14 Arg2:T16
+R16	PUNC Arg1:T10 Arg2:T17
+R17	STA Arg1:T1 Arg2:T18
+R18	ACC Arg1:T18 Arg2:T19
+R19	ADVL Arg1:T18 Arg2:T20
+R20	_gt_N Arg1:T23 Arg2:T21
+R21	_gt_N Arg1:T23 Arg2:T22
+R22	P_lt_ Arg1:T20 Arg2:T23
+R23	PUNC Arg1:T18 Arg2:T24
+T25	ROOT 133 137	ROOT
+T26	pron-det 138 145	Algumas
+T27	adv 146 151	ainda
+T28	v-fin 152 157	estão
+T29	v-ger 158 163	sendo
+T30	v-pcp 164 174	calculadas
+T31	prp 175 178	por
+T32	art 179 180	a
+T33	prop 181 186	Caixa
+T34	punc 187 188	.
+R24	SUBJ Arg1:T28 Arg2:T26
+R25	ADVL Arg1:T30 Arg2:T27
+R26	STA Arg1:T25 Arg2:T28
+R27	AUX Arg1:T28 Arg2:T29
+R28	MV Arg1:T29 Arg2:T30
+R29	PASS Arg1:T30 Arg2:T31
+R30	_gt_N Arg1:T33 Arg2:T32
+R31	P_lt_ Arg1:T31 Arg2:T33
+R32	PUNC Arg1:T28 Arg2:T34
+T35	ROOT 189 193	ROOT
+T36	pron-pers 194 198	Eles
+T37	v-fin 199 204	terão
+T38	adv 205 210	ainda
+T39	prp 211 213	de
+T40	v-inf 214 219	pagar
+T41	n 220 225	multa
+T42	adj 226 237	equivalente
+T43	prp 238 239	a
+T44	n 240 242	R$
+T45	num 243 249	647,90
+T46	punc 250 251	.
+R33	SUBJ Arg1:T37 Arg2:T36
+R34	STA Arg1:T35 Arg2:T37
+R35	ADVL Arg1:T37 Arg2:T38
+R36	ACC Arg1:T37 Arg2:T39
+R37	P_lt_ Arg1:T39 Arg2:T40
+R38	ACC Arg1:T40 Arg2:T41
+R39	N_lt_ Arg1:T41 Arg2:T42
+R40	A_lt_ Arg1:T42 Arg2:T43
+R41	P_lt_ Arg1:T43 Arg2:T44
+R42	N_lt_ Arg1:T44 Arg2:T45
+R43	PUNC Arg1:T37 Arg2:T46
+T47	ROOT 252 256	ROOT
+T48	prp 257 264	Além_de
+T49	art 265 267	os
+T50	num 268 272	dois
+T51	punc 273 274	,
+T52	adv 275 281	também
+T53	v-fin 282 287	foram
+T54	v-pcp 288 298	condenados
+T55	pron-det 299 305	outros
+T56	num 306 308	12
+T57	n 309 318	diretores
+T58	prp 319 321	de
+T59	art 322 323	a
+T60	prop 324 327	CEF
+T61	punc 328 329	.
+R44	ADVL Arg1:T54 Arg2:T48
+R45	_gt_N Arg1:T50 Arg2:T49
+R46	P_lt_ Arg1:T48 Arg2:T50
+R47	PUNC Arg1:T53 Arg2:T51
+R48	ADVL Arg1:T54 Arg2:T52
+R49	STA Arg1:T47 Arg2:T53
+R50	MV Arg1:T53 Arg2:T54
+R51	_gt_N Arg1:T57 Arg2:T55
+R52	_gt_N Arg1:T57 Arg2:T56
+R53	SUBJ Arg1:T53 Arg2:T57
+R54	N_lt_ Arg1:T57 Arg2:T58
+R55	_gt_N Arg1:T60 Arg2:T59
+R56	P_lt_ Arg1:T58 Arg2:T60
+R57	PUNC Arg1:T53 Arg2:T61
+T62	ROOT 330 334	ROOT
+T63	art 335 336	A
+T64	n 337 348	necessidade
+T65	prp 349 351	de
+T66	v-inf 352 359	reparar
+T67	art 360 362	os
+T68	n 363 375	equipamentos
+T69	prp 376 383	durante
+T70	art 384 385	a
+T71	n 386 392	viagem
+T72	v-fin 393 398	teria
+T73	v-pcp 399 407	alterado
+T74	art 408 410	os
+T75	n 411 417	planos
+T76	prp 418 420	de
+T77	n 421 429	trabalho
+T78	punc 430 431	.
+R58	_gt_N Arg1:T64 Arg2:T63
+R59	SUBJ Arg1:T72 Arg2:T64
+R60	N_lt_ Arg1:T64 Arg2:T65
+R61	P_lt_ Arg1:T65 Arg2:T66
+R62	_gt_N Arg1:T68 Arg2:T67
+R63	ACC Arg1:T66 Arg2:T68
+R64	ADVL Arg1:T66 Arg2:T69
+R65	_gt_N Arg1:T71 Arg2:T70
+R66	P_lt_ Arg1:T69 Arg2:T71
+R67	STA Arg1:T62 Arg2:T72
+R68	MV Arg1:T72 Arg2:T73
+R69	_gt_N Arg1:T75 Arg2:T74
+R70	ACC Arg1:T73 Arg2:T75
+R71	N_lt_ Arg1:T75 Arg2:T76
+R72	P_lt_ Arg1:T76 Arg2:T77
+R73	PUNC Arg1:T72 Arg2:T78
+T79	ROOT 432 436	ROOT
+T80	prop 437 446	Damascene
+T81	v-fin 447 452	viaja
+T82	adv 453 462	raramente
+T83	prp 463 465	de
+T84	n 466 471	navio
+T85	punc 472 473	,
+T86	conj-c 474 477	mas
+T87	adv 478 481	não
+T88	v-fin 482 483	é
+T89	art 484 486	um
+T90	adj 487 495	estranho
+T91	prp 496 497	a
+T92	art 498 499	o
+T93	n 500 503	mar
+T94	punc 504 505	.
+R74	SUBJ Arg1:T81 Arg2:T80
+R75	STA Arg1:T79 Arg2:T81
+R76	ADVL Arg1:T81 Arg2:T82
+R77	ADVL Arg1:T81 Arg2:T83
+R78	P_lt_ Arg1:T83 Arg2:T84
+R79	PUNC Arg1:T81 Arg2:T85
+R80	CO Arg1:T81 Arg2:T86
+R81	ADVL Arg1:T88 Arg2:T87
+R82	CJT Arg1:T81 Arg2:T88
+R83	_gt_N Arg1:T90 Arg2:T89
+R84	SC Arg1:T88 Arg2:T90
+R85	ADVL Arg1:T88 Arg2:T91
+R86	_gt_N Arg1:T93 Arg2:T92
+R87	P_lt_ Arg1:T91 Arg2:T93
+R88	PUNC Arg1:T81 Arg2:T94
+T95	ROOT 506 510	ROOT
+T96	adv 511 517	Quando
+T97	adj 518 523	jovem
+T98	punc 524 525	,
+T99	v-fin 526 532	esteve
+T100	v-pcp 533 541	engajado
+T101	prp 542 544	em
+T102	art 545 546	a
+T103	prop 547 554	Marinha
+T104	adj 555 560	grega
+T105	punc 561 562	.
+R89	ADVL Arg1:T99 Arg2:T96
+R90	SC Arg1:T96 Arg2:T97
+R91	PUNC Arg1:T99 Arg2:T98
+R92	STA Arg1:T95 Arg2:T99
+R93	SC Arg1:T99 Arg2:T100
+R94	ADVL Arg1:T100 Arg2:T101
+R95	_gt_N Arg1:T103 Arg2:T102
+R96	P_lt_ Arg1:T101 Arg2:T103
+R97	N_lt_ Arg1:T103 Arg2:T104
+R98	PUNC Arg1:T99 Arg2:T105
+T106	ROOT 563 567	ROOT
+T107	v-fin 568 576	Conhecia
+T108	adv 577 580	bem
+T109	adj 581 588	grandes
+T110	n 589 600	embarcações
+T111	conj-c 601 602	e
+T112	v-fin 603 610	saberia
+T113	adv 611 615	como
+T114	v-inf 616 620	agir
+T115	prp 621 623	em
+T116	art 624 627	uma
+T117	n 628 638	emergência
+T118	punc 639 640	.
+R99	STA Arg1:T106 Arg2:T107
+R100	ADVL Arg1:T107 Arg2:T108
+R101	_gt_N Arg1:T110 Arg2:T109
+R102	ACC Arg1:T107 Arg2:T110
+R103	CO Arg1:T107 Arg2:T111
+R104	CJT Arg1:T107 Arg2:T112
+R105	ADVL Arg1:T114 Arg2:T113
+R106	ACC Arg1:T112 Arg2:T114
+R107	ADVL Arg1:T114 Arg2:T115
+R108	_gt_N Arg1:T117 Arg2:T116
+R109	P_lt_ Arg1:T115 Arg2:T117
+R110	PUNC Arg1:T107 Arg2:T118
+T119	ROOT 641 645	ROOT
+T120	art 646 647	A
+T121	n 648 656	situação
+T122	v-fin 657 662	tende
+T123	prp 663 664	a
+T124	pron-pers 665 667	se
+T125	v-inf 668 675	agravar
+T126	punc 676 677	,
+T127	conj-s 678 689	uma_vez_que
+T128	pron-det 690 697	nenhuma
+T129	prp 698 700	de
+T130	art 701 703	as
+T131	n 704 710	partes
+T132	v-fin 711 717	parece
+T133	v-inf 718 725	mostrar
+T134	n 726 736	disposição
+T135	prp 737 739	de
+T136	v-inf 740 746	recuar
+T137	punc 747 748	.
+R111	_gt_N Arg1:T121 Arg2:T120
+R112	SUBJ Arg1:T122 Arg2:T121
+R113	STA Arg1:T119 Arg2:T122
+R114	PIV Arg1:T122 Arg2:T123
+R115	ACC Arg1:T125 Arg2:T124
+R116	P_lt_ Arg1:T123 Arg2:T125
+R117	PUNC Arg1:T122 Arg2:T126
+R118	SUB Arg1:T132 Arg2:T127
+R119	SUBJ Arg1:T132 Arg2:T128
+R120	N_lt_ Arg1:T128 Arg2:T129
+R121	_gt_N Arg1:T131 Arg2:T130
+R122	P_lt_ Arg1:T129 Arg2:T131
+R123	ADVL Arg1:T122 Arg2:T132
+R124	MV Arg1:T132 Arg2:T133
+R125	ACC Arg1:T133 Arg2:T134
+R126	N_lt_ Arg1:T134 Arg2:T135
+R127	P_lt_ Arg1:T135 Arg2:T136
+R128	PUNC Arg1:T122 Arg2:T137
+T138	ROOT 749 753	ROOT
+T139	art 754 755	O
+T140	n 756 763	governo
+T141	v-fin 764 771	recebeu
+T142	adv 772 777	ontem
+T143	pron-det 778 783	outra
+T144	adj 784 786	má
+T145	n 787 794	notícia
+T146	punc 795 796	:
+T147	n 797 808	empresários
+T148	pron-pers 809 811	se
+T149	v-fin 812 822	declararam
+T150	adj 823 833	contrários
+T151	prp 834 835	a
+T152	art 836 837	o
+T153	prop 838 841	CIP
+T154	punc 842 843	.
+R129	_gt_N Arg1:T140 Arg2:T139
+R130	SUBJ Arg1:T141 Arg2:T140
+R131	STA Arg1:T138 Arg2:T141
+R132	ADVL Arg1:T141 Arg2:T142
+R133	_gt_N Arg1:T145 Arg2:T143
+R134	_gt_N Arg1:T145 Arg2:T144
+R135	ACC Arg1:T141 Arg2:T145
+R136	PUNC Arg1:T145 Arg2:T146
+R137	SUBJ Arg1:T149 Arg2:T147
+R138	ACC Arg1:T149 Arg2:T148
+R139	N_lt_PRED Arg1:T145 Arg2:T149
+R140	OC Arg1:T149 Arg2:T150
+R141	A_lt_ Arg1:T150 Arg2:T151
+R142	_gt_N Arg1:T153 Arg2:T152
+R143	P_lt_ Arg1:T151 Arg2:T153
+R144	PUNC Arg1:T141 Arg2:T154

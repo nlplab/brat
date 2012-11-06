@@ -1,0 +1,212 @@
+T1	ROOT 0 4	ROOT
+T2	prop 5 15	Carrington
+T3	v-fin 16 19	fez
+T4	adv 20 26	sempre
+T5	n 27 34	questão
+T6	prp 35 37	de
+T7	v-inf 38 47	salientar
+T8	conj-s 48 51	que
+T9	art 52 54	as
+T10	n 55 64	hipóteses
+T11	prp 65 67	de
+T12	n 68 75	sucesso
+T13	prp 76 78	de
+T14	art 79 80	o
+T15	n 81 92	cessar-fogo
+T16	v-fin 93 101	dependem
+T17	adv 102 111	sobretudo
+T18	prp 112 114	de
+T19	art 115 117	os
+T20	n 118 130	beligerantes
+T21	punc 131 132	.
+R1	SUBJ Arg1:T3 Arg2:T2
+R2	STA Arg1:T1 Arg2:T3
+R3	ADVL Arg1:T3 Arg2:T4
+R4	ACC Arg1:T3 Arg2:T5
+R5	N_lt_ Arg1:T5 Arg2:T6
+R6	P_lt_ Arg1:T6 Arg2:T7
+R7	SUB Arg1:T16 Arg2:T8
+R8	_gt_N Arg1:T10 Arg2:T9
+R9	SUBJ Arg1:T16 Arg2:T10
+R10	N_lt_ Arg1:T10 Arg2:T11
+R11	P_lt_ Arg1:T11 Arg2:T12
+R12	N_lt_ Arg1:T12 Arg2:T13
+R13	_gt_N Arg1:T15 Arg2:T14
+R14	P_lt_ Arg1:T13 Arg2:T15
+R15	ACC Arg1:T7 Arg2:T16
+R16	_gt_A Arg1:T18 Arg2:T17
+R17	PIV Arg1:T16 Arg2:T18
+R18	_gt_N Arg1:T20 Arg2:T19
+R19	P_lt_ Arg1:T18 Arg2:T20
+R20	PUNC Arg1:T3 Arg2:T21
+T22	ROOT 133 137	ROOT
+T23	punc 138 139	«
+T24	conj-s 140 142	Se
+T25	v-fin 143 146	for
+T26	v-pcp 147 154	firmado
+T27	punc 155 156	,
+T28	pron-indp 157 164	ninguém
+T29	v-fin 165 171	ficará
+T30	adv 172 176	mais
+T31	adj 177 185	contente
+T32	conj-s 186 192	do_que
+T33	pron-pers 193 196	nós
+T34	punc 197 198	.
+R21	PUNC Arg1:T29 Arg2:T23
+R22	SUB Arg1:T25 Arg2:T24
+R23	ADVL Arg1:T29 Arg2:T25
+R24	MV Arg1:T25 Arg2:T26
+R25	PUNC Arg1:T29 Arg2:T27
+R26	SUBJ Arg1:T29 Arg2:T28
+R27	STA Arg1:T22 Arg2:T29
+R28	_gt_A Arg1:T31 Arg2:T30
+R29	SC Arg1:T29 Arg2:T31
+R30	KOMP_lt_ Arg1:T31 Arg2:T32
+R31	SUBJ Arg1:T32 Arg2:T33
+R32	PUNC Arg1:T29 Arg2:T34
+T35	ROOT 199 203	ROOT
+T36	pron-pers 204 206	Eu
+T37	v-fin 207 213	tentei
+T38	punc 214 215	,
+T39	art 216 217	o
+T40	n 218 224	senhor
+T41	prop 225 230	Vance
+T42	v-fin 231 237	tentou
+T43	punc 238 239	,
+T44	conj-s 240 242	se
+T45	v-fin 243 246	for
+T46	v-pcp 247 257	respeitado
+T47	punc 258 259	,
+T48	in 260 265	urrah
+T49	punc 266 267	!
+T50	punc 268 270	»"
+T51	punc 271 272	,
+T52	v-fin 273 281	comentou
+T53	punc 282 283	.
+R33	SUBJ Arg1:T37 Arg2:T36
+R34	ACC Arg1:T52 Arg2:T37
+R35	PUNC Arg1:T37 Arg2:T38
+R36	_gt_N Arg1:T40 Arg2:T39
+R37	SUBJ Arg1:T42 Arg2:T40
+R38	N_lt_ Arg1:T40 Arg2:T41
+R39	CJT Arg1:T37 Arg2:T42
+R40	PUNC Arg1:T37 Arg2:T43
+R41	SUB Arg1:T45 Arg2:T44
+R42	CJT Arg1:T37 Arg2:T45
+R43	MV Arg1:T45 Arg2:T46
+R44	PUNC Arg1:T45 Arg2:T47
+R45	ADVL Arg1:T46 Arg2:T48
+R46	PUNC Arg1:T45 Arg2:T49
+R47	PUNC Arg1:T52 Arg2:T50
+R48	PUNC Arg1:T52 Arg2:T51
+R49	STA Arg1:T35 Arg2:T52
+R50	PUNC Arg1:T52 Arg2:T53
+T54	ROOT 284 288	ROOT
+T55	conj-c 289 292	Mas
+T56	conj-s 293 295	se
+T57	v-fin 296 302	falhar
+T58	punc 303 304	?
+R51	UTT Arg1:T54 Arg2:T55
+R52	SUB Arg1:T57 Arg2:T56
+R53	ADVL Arg1:T55 Arg2:T57
+R54	PUNC Arg1:T55 Arg2:T58
+T59	ROOT 305 309	ROOT
+T60	punc 310 311	«
+T61	pron-indp 312 319	Ninguém
+T62	v-fin 320 323	fez
+T63	adv 324 328	mais
+T64	prp 329 332	até
+T65	adv 333 338	agora
+T66	conj-s 339 345	do_que
+T67	art 346 347	o
+T68	n 348 358	secretário
+T69	prop 359 364	Vance
+T70	punc 365 366	.
+R55	PUNC Arg1:T62 Arg2:T60
+R56	SUBJ Arg1:T62 Arg2:T61
+R57	STA Arg1:T59 Arg2:T62
+R58	ACC Arg1:T62 Arg2:T63
+R59	ADVL Arg1:T62 Arg2:T64
+R60	P_lt_ Arg1:T64 Arg2:T65
+R61	KOMP_lt_ Arg1:T63 Arg2:T66
+R62	_gt_N Arg1:T68 Arg2:T67
+R63	SUBJ Arg1:T66 Arg2:T68
+R64	N_lt_ Arg1:T68 Arg2:T69
+R65	PUNC Arg1:T62 Arg2:T70
+T71	ROOT 367 371	ROOT
+T72	v-fin 372 379	Devemos
+T73	v-inf 380 386	tentar
+T74	punc 387 388	»
+T75	punc 389 390	.
+R66	STA Arg1:T71 Arg2:T72
+R67	MV Arg1:T72 Arg2:T73
+R68	PUNC Arg1:T73 Arg2:T74
+R69	PUNC Arg1:T73 Arg2:T75
+T76	ROOT 391 395	ROOT
+T77	conj-c 396 397	E
+T78	v-fin 398 404	lançou
+T79	art 405 407	um
+T80	n 408 414	alerta
+T81	punc 415 416	:
+R70	CO Arg1:T78 Arg2:T77
+R71	STA Arg1:T76 Arg2:T78
+R72	_gt_N Arg1:T80 Arg2:T79
+R73	ACC Arg1:T78 Arg2:T80
+R74	PUNC Arg1:T78 Arg2:T81
+T82	ROOT 417 421	ROOT
+T83	punc 422 423	«
+T84	art 424 425	A
+T85	n 426 434	situação
+T86	v-fin 435 439	pode
+T87	v-inf 440 443	ser
+T88	adv 444 458	potencialmente
+T89	adj 459 467	horrível
+T90	punc 468 469	.
+R75	PUNC Arg1:T86 Arg2:T83
+R76	_gt_N Arg1:T85 Arg2:T84
+R77	SUBJ Arg1:T86 Arg2:T85
+R78	STA Arg1:T82 Arg2:T86
+R79	MV Arg1:T86 Arg2:T87
+R80	_gt_A Arg1:T89 Arg2:T88
+R81	SC Arg1:T87 Arg2:T89
+R82	PUNC Arg1:T86 Arg2:T90
+T91	ROOT 470 474	ROOT
+T92	v-fin 475 480	Sabe-
+T93	pron-pers 481 483	se
+T94	adv 484 486	lá
+T95	pron-indp 487 492	o_que
+T96	v-fin 493 497	pode
+T97	v-inf 498 507	acontecer
+T98	prp 508 510	em
+T99	art 511 512	a
+T100	prop 513 519	Bósnia
+T101	conj-s 520 522	se
+T102	art 523 524	o
+T103	n 525 531	acordo
+T104	v-fin 532 538	falhar
+T105	punc 539 541	..
+T106	punc 542 544	»"
+R83	STA Arg1:T91 Arg2:T92
+R84	SUBJ Arg1:T92 Arg2:T93
+R85	ADVL Arg1:T92 Arg2:T94
+R86	SUBJ Arg1:T96 Arg2:T95
+R87	ACC Arg1:T92 Arg2:T96
+R88	MV Arg1:T96 Arg2:T97
+R89	ADVL Arg1:T97 Arg2:T98
+R90	_gt_N Arg1:T100 Arg2:T99
+R91	P_lt_ Arg1:T98 Arg2:T100
+R92	SUB Arg1:T104 Arg2:T101
+R93	_gt_N Arg1:T103 Arg2:T102
+R94	SUBJ Arg1:T104 Arg2:T103
+R95	ADVL Arg1:T97 Arg2:T104
+R96	PUNC Arg1:T92 Arg2:T105
+R97	PUNC Arg1:T92 Arg2:T106
+T107	ROOT 545 549	ROOT
+T108	n 550 560	Religiosos
+T109	adj 561 570	haitianos
+T110	v-fin 571 576	dizem
+T111	in 577 582	basta
+R98	SUBJ Arg1:T110 Arg2:T108
+R99	N_lt_ Arg1:T108 Arg2:T109
+R100	STA Arg1:T107 Arg2:T110
+R101	ACC Arg1:T110 Arg2:T111

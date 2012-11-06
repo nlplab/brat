@@ -1,0 +1,266 @@
+T1	ROOT 0 4	ROOT
+T2	n 5 10	Notas
+R1	UTT Arg1:T1 Arg2:T2
+T3	ROOT 11 15	ROOT
+T4	prop 16 34	Rubens_Barrichello
+T5	v-fin 35 42	promete
+T6	art 43 45	um
+T7	n 46 53	anúncio
+T8	prp 54 56	em
+T9	art 57 59	os
+T10	adj 60 68	próximos
+T11	n 69 73	dias
+T12	punc 74 75	.
+R2	SUBJ Arg1:T5 Arg2:T4
+R3	STA Arg1:T3 Arg2:T5
+R4	_gt_N Arg1:T7 Arg2:T6
+R5	ACC Arg1:T5 Arg2:T7
+R6	ADVL Arg1:T5 Arg2:T8
+R7	_gt_N Arg1:T11 Arg2:T9
+R8	_gt_N Arg1:T11 Arg2:T10
+R9	P_lt_ Arg1:T8 Arg2:T11
+R10	PUNC Arg1:T5 Arg2:T12
+T13	ROOT 76 80	ROOT
+T14	v-fin 81 85	Fica
+T15	prp 86 89	com
+T16	art 90 91	o
+T17	n 92 98	pacote
+T18	prop 99 113	Jordan-Peugeot
+T19	punc 114 115	.
+R11	STA Arg1:T13 Arg2:T14
+R12	SC Arg1:T14 Arg2:T15
+R13	_gt_N Arg1:T17 Arg2:T16
+R14	P_lt_ Arg1:T15 Arg2:T17
+R15	N_lt_ Arg1:T17 Arg2:T18
+R16	PUNC Arg1:T14 Arg2:T19
+T20	ROOT 116 120	ROOT
+T21	adv 121 133	Por_enquanto
+T22	punc 134 135	,
+T23	pron-pers 136 138	se
+T24	v-fin 139 145	dedica
+T25	prp 146 147	a
+T26	art 148 149	a
+T27	n 150 160	preparação
+T28	adj 161 167	física
+T29	punc 168 169	.
+R17	ADVL Arg1:T24 Arg2:T21
+R18	PUNC Arg1:T24 Arg2:T22
+R19	ACC Arg1:T24 Arg2:T23
+R20	STA Arg1:T20 Arg2:T24
+R21	PIV Arg1:T24 Arg2:T25
+R22	_gt_N Arg1:T27 Arg2:T26
+R23	P_lt_ Arg1:T25 Arg2:T27
+R24	N_lt_ Arg1:T27 Arg2:T28
+R25	PUNC Arg1:T24 Arg2:T29
+T30	ROOT 170 174	ROOT
+T31	v-fin 175 179	Está
+T32	prp 180 183	com
+T33	n 184 190	quilos
+T34	prp 191 193	de
+T35	n 194 199	sobra
+T36	punc 200 201	.
+R26	STA Arg1:T30 Arg2:T31
+R27	SC Arg1:T31 Arg2:T32
+R28	P_lt_ Arg1:T32 Arg2:T33
+R29	N_lt_ Arg1:T33 Arg2:T34
+R30	P_lt_ Arg1:T34 Arg2:T35
+R31	PUNC Arg1:T31 Arg2:T36
+T37	ROOT 202 206	ROOT
+T38	prop 207 227	Christian_Fittipaldi
+T39	punc 228 229	,
+T40	adv 230 241	por_sua_vez
+T41	punc 242 243	,
+T42	v-fin 244 251	negocia
+T43	prp 252 255	com
+T44	art 256 257	a
+T45	prop 258 265	Tyrrell
+T46	punc 266 267	.
+R32	SUBJ Arg1:T42 Arg2:T38
+R33	PUNC Arg1:T42 Arg2:T39
+R34	ADVL Arg1:T42 Arg2:T40
+R35	PUNC Arg1:T42 Arg2:T41
+R36	STA Arg1:T37 Arg2:T42
+R37	ADVL Arg1:T42 Arg2:T43
+R38	_gt_N Arg1:T45 Arg2:T44
+R39	P_lt_ Arg1:T43 Arg2:T45
+R40	PUNC Arg1:T42 Arg2:T46
+T47	ROOT 268 272	ROOT
+T48	pron-det 273 276	Seu
+T49	prop 277 283	Sauber
+T50	v-fin 284 288	pode
+T51	v-inf 289 295	acabar
+T52	v-ger 296 304	trocando
+T53	art 305 306	o
+T54	adj 307 312	certo
+T55	prp 313 316	por
+T56	art 317 318	o
+T57	adj 319 326	incerto
+T58	prp 327 329	ao
+T59	v-inf 330 337	esperar
+T60	prp 338 341	por
+T61	prop 342 357	Karl_Wendlinger
+T62	punc 358 359	.
+R41	_gt_N Arg1:T49 Arg2:T48
+R42	SUBJ Arg1:T50 Arg2:T49
+R43	STA Arg1:T47 Arg2:T50
+R44	AUX Arg1:T50 Arg2:T51
+R45	MV Arg1:T51 Arg2:T52
+R46	_gt_N Arg1:T54 Arg2:T53
+R47	ACC Arg1:T52 Arg2:T54
+R48	PIV Arg1:T52 Arg2:T55
+R49	_gt_N Arg1:T57 Arg2:T56
+R50	P_lt_ Arg1:T55 Arg2:T57
+R51	ADVL Arg1:T52 Arg2:T58
+R52	P_lt_ Arg1:T58 Arg2:T59
+R53	PIV Arg1:T59 Arg2:T60
+R54	P_lt_ Arg1:T60 Arg2:T61
+R55	PUNC Arg1:T50 Arg2:T62
+T63	ROOT 360 364	ROOT
+T64	prop 365 372	Sergipe
+T65	v-fin 373 382	registrou
+T66	num 383 385	87
+T67	n 386 391	casos
+T68	prp 392 394	de
+T69	n 395 401	cólera
+T70	prp 402 404	em
+T71	num 405 407	94
+R56	SUBJ Arg1:T65 Arg2:T64
+R57	STA Arg1:T63 Arg2:T65
+R58	_gt_N Arg1:T67 Arg2:T66
+R59	ACC Arg1:T65 Arg2:T67
+R60	N_lt_ Arg1:T67 Arg2:T68
+R61	P_lt_ Arg1:T68 Arg2:T69
+R62	ADVL Arg1:T65 Arg2:T70
+R63	P_lt_ Arg1:T70 Arg2:T71
+T72	ROOT 408 412	ROOT
+T73	art 413 414	A
+T74	prop 415 446	Divisão_de_Vigilância_Sanitária
+T75	prp 447 449	de
+T76	prop 450 457	Sergipe
+T77	v-fin 458 467	registrou
+T78	prp 468 470	em
+T79	art 471 473	os
+T80	adj 474 483	primeiros
+T81	num 484 487	115
+T82	n 488 492	dias
+T83	prp 493 495	de
+T84	pron-det 496 500	este
+T85	n 501 504	ano
+T86	num 505 507	87
+T87	n 508 513	casos
+T88	prp 514 516	de
+T89	n 517 523	cólera
+T90	prp 524 527	com
+T91	art 528 531	uma
+T92	n 532 537	morte
+T93	punc 538 539	.
+R64	_gt_N Arg1:T74 Arg2:T73
+R65	SUBJ Arg1:T77 Arg2:T74
+R66	N_lt_ Arg1:T74 Arg2:T75
+R67	P_lt_ Arg1:T75 Arg2:T76
+R68	STA Arg1:T72 Arg2:T77
+R69	ADVL Arg1:T77 Arg2:T78
+R70	_gt_N Arg1:T82 Arg2:T79
+R71	_gt_N Arg1:T82 Arg2:T80
+R72	_gt_N Arg1:T82 Arg2:T81
+R73	P_lt_ Arg1:T78 Arg2:T82
+R74	N_lt_ Arg1:T82 Arg2:T83
+R75	_gt_N Arg1:T85 Arg2:T84
+R76	P_lt_ Arg1:T83 Arg2:T85
+R77	_gt_N Arg1:T87 Arg2:T86
+R78	ACC Arg1:T77 Arg2:T87
+R79	N_lt_ Arg1:T87 Arg2:T88
+R80	P_lt_ Arg1:T88 Arg2:T89
+R81	ADVL Arg1:T77 Arg2:T90
+R82	_gt_N Arg1:T92 Arg2:T91
+R83	P_lt_ Arg1:T90 Arg2:T92
+R84	PUNC Arg1:T77 Arg2:T93
+T94	ROOT 540 544	ROOT
+T95	art 545 546	A
+T96	n 547 552	chefe
+T97	prp 553 555	de
+T98	art 556 557	a
+T99	n 558 568	Vigilância
+T100	punc 569 570	,
+T101	prop 571 584	Noélia_Soares
+T102	punc 585 586	,
+T103	v-fin 587 592	disse
+T104	conj-s 593 596	que
+T105	punc 597 598	,
+T106	prp 599 608	apesar_de
+T107	art 609 610	a
+T108	n 611 621	existência
+T109	prp 622 624	de
+T110	art 625 627	um
+T111	n 628 633	surto
+T112	prp 634 636	de
+T113	art 637 638	a
+T114	n 639 645	doença
+T115	punc 646 647	,
+T116	art 648 649	o
+T117	n 650 658	controle
+T118	prp 659 661	de
+T119	art 662 663	a
+T120	n 664 673	qualidade
+T121	prp 674 676	de
+T122	art 677 679	as
+T123	n 680 685	águas
+T124	prp 686 688	de
+T125	art 689 691	os
+T126	n 692 696	rios
+T127	punc 697 698	,
+T128	n 699 704	poços
+T129	conj-c 705 706	e
+T130	n 707 712	lagos
+T131	v-fin 713 716	tem
+T132	v-pcp 717 724	evitado
+T133	art 725 726	a
+T134	n 727 737	propagação
+T135	prp 738 740	de
+T136	art 741 742	o
+T137	n 743 750	vibrião
+T138	punc 751 752	.
+R85	_gt_N Arg1:T96 Arg2:T95
+R86	SUBJ Arg1:T103 Arg2:T96
+R87	N_lt_ Arg1:T96 Arg2:T97
+R88	_gt_N Arg1:T99 Arg2:T98
+R89	P_lt_ Arg1:T97 Arg2:T99
+R90	PUNC Arg1:T96 Arg2:T100
+R91	APP Arg1:T96 Arg2:T101
+R92	PUNC Arg1:T96 Arg2:T102
+R93	STA Arg1:T94 Arg2:T103
+R94	SUB Arg1:T131 Arg2:T104
+R95	PUNC Arg1:T131 Arg2:T105
+R96	ADVL Arg1:T132 Arg2:T106
+R97	_gt_N Arg1:T108 Arg2:T107
+R98	P_lt_ Arg1:T106 Arg2:T108
+R99	N_lt_ Arg1:T108 Arg2:T109
+R100	_gt_N Arg1:T111 Arg2:T110
+R101	P_lt_ Arg1:T109 Arg2:T111
+R102	N_lt_ Arg1:T111 Arg2:T112
+R103	_gt_N Arg1:T114 Arg2:T113
+R104	P_lt_ Arg1:T112 Arg2:T114
+R105	PUNC Arg1:T131 Arg2:T115
+R106	_gt_N Arg1:T117 Arg2:T116
+R107	SUBJ Arg1:T131 Arg2:T117
+R108	N_lt_ Arg1:T117 Arg2:T118
+R109	_gt_N Arg1:T120 Arg2:T119
+R110	P_lt_ Arg1:T118 Arg2:T120
+R111	N_lt_ Arg1:T120 Arg2:T121
+R112	_gt_N Arg1:T123 Arg2:T122
+R113	P_lt_ Arg1:T121 Arg2:T123
+R114	N_lt_ Arg1:T123 Arg2:T124
+R115	_gt_N Arg1:T126 Arg2:T125
+R116	P_lt_ Arg1:T124 Arg2:T126
+R117	PUNC Arg1:T126 Arg2:T127
+R118	CJT Arg1:T126 Arg2:T128
+R119	CO Arg1:T126 Arg2:T129
+R120	CJT Arg1:T126 Arg2:T130
+R121	ACC Arg1:T103 Arg2:T131
+R122	MV Arg1:T131 Arg2:T132
+R123	_gt_N Arg1:T134 Arg2:T133
+R124	ACC Arg1:T132 Arg2:T134
+R125	N_lt_ Arg1:T134 Arg2:T135
+R126	_gt_N Arg1:T137 Arg2:T136
+R127	P_lt_ Arg1:T135 Arg2:T137
+R128	PUNC Arg1:T103 Arg2:T138

@@ -1,0 +1,392 @@
+T1	ROOT 0 4	ROOT
+T2	adv 5 7	Já
+T3	v-ger 8 16	pensando
+T4	prp 17 19	em
+T5	art 20 21	o
+T6	adj 22 29	Mundial
+T7	prp 30 32	de
+T8	art 33 34	a
+T9	prop 35 41	Grécia
+T10	punc 42 43	,
+T11	pron-indp 44 47	que
+T12	v-fin 48 52	será
+T13	v-pcp 53 62	disputado
+T14	prp 63 65	em
+T15	n 66 74	setembro
+T16	prp 75 77	em
+T17	prop 78 84	Atenas
+T18	punc 85 86	,
+T19	art 87 88	o
+T20	n 89 96	técnico
+T21	adj 97 107	brasileiro
+T22	v-fin 108 114	retoma
+T23	art 115 116	o
+T24	n 117 124	comando
+T25	prp 125 127	de
+T26	art 128 130	os
+T27	n 131 138	treinos
+T28	prp 139 141	de
+T29	art 142 143	a
+T30	n 144 150	equipe
+T31	prp 151 162	a_partir_de
+T32	art 163 164	a
+T33	adj 165 172	próxima
+T34	n 173 186	segunda-feira
+T35	punc 187 188	.
+R1	ADVL Arg1:T3 Arg2:T2
+R2	ADVL Arg1:T22 Arg2:T3
+R3	PIV Arg1:T3 Arg2:T4
+R4	_gt_N Arg1:T6 Arg2:T5
+R5	P_lt_ Arg1:T4 Arg2:T6
+R6	N_lt_ Arg1:T6 Arg2:T7
+R7	_gt_N Arg1:T9 Arg2:T8
+R8	P_lt_ Arg1:T7 Arg2:T9
+R9	PUNC Arg1:T9 Arg2:T10
+R10	SUBJ Arg1:T12 Arg2:T11
+R11	N_lt_PRED Arg1:T9 Arg2:T12
+R12	MV Arg1:T12 Arg2:T13
+R13	ADVL Arg1:T13 Arg2:T14
+R14	P_lt_ Arg1:T14 Arg2:T15
+R15	ADVL Arg1:T13 Arg2:T16
+R16	P_lt_ Arg1:T16 Arg2:T17
+R17	PUNC Arg1:T9 Arg2:T18
+R18	_gt_N Arg1:T20 Arg2:T19
+R19	SUBJ Arg1:T22 Arg2:T20
+R20	N_lt_ Arg1:T20 Arg2:T21
+R21	STA Arg1:T1 Arg2:T22
+R22	_gt_N Arg1:T24 Arg2:T23
+R23	ACC Arg1:T22 Arg2:T24
+R24	N_lt_ Arg1:T24 Arg2:T25
+R25	_gt_N Arg1:T27 Arg2:T26
+R26	P_lt_ Arg1:T25 Arg2:T27
+R27	N_lt_ Arg1:T27 Arg2:T28
+R28	_gt_N Arg1:T30 Arg2:T29
+R29	P_lt_ Arg1:T28 Arg2:T30
+R30	ADVL Arg1:T22 Arg2:T31
+R31	_gt_N Arg1:T34 Arg2:T32
+R32	_gt_N Arg1:T34 Arg2:T33
+R33	P_lt_ Arg1:T31 Arg2:T34
+R34	PUNC Arg1:T22 Arg2:T35
+T36	ROOT 189 193	ROOT
+T37	punc 194 195	(
+T38	prop 196 209	Barbara_Boxer
+T39	punc 210 211	,
+T40	n 212 220	deputada
+T41	prp 221 224	por
+T42	art 225 226	a
+T43	prop 227 237	Califórnia
+T44	punc 238 239	)
+R35	PUNC Arg1:T38 Arg2:T37
+R36	UTT Arg1:T36 Arg2:T38
+R37	PUNC Arg1:T38 Arg2:T39
+R38	N_lt_PRED Arg1:T38 Arg2:T40
+R39	N_lt_ Arg1:T40 Arg2:T41
+R40	_gt_N Arg1:T43 Arg2:T42
+R41	P_lt_ Arg1:T41 Arg2:T43
+R42	PUNC Arg1:T38 Arg2:T44
+T45	ROOT 240 244	ROOT
+T46	punc 245 246	«
+T47	pron-pers 247 250	Nós
+T48	v-fin 251 256	temos
+T49	conj-s 257 260	que
+T50	v-inf 261 266	parar
+T51	prp 267 270	por
+T52	num 271 273	um
+T53	n 274 281	momento
+T54	conj-c 282 283	e
+T55	v-inf 284 293	perguntar
+T56	prp 294 295	a
+T57	pron-pers 296 299	nós
+T58	pron-det 300 306	mesmos
+T59	punc 307 308	:
+T60	prp 309 311	De
+T61	pron-det 312 318	quanto
+T62	n 319 321	ar
+T63	v-pcp 322 327	limpo
+T64	v-fin 328 338	precisamos
+T65	punc 339 340	?
+T66	punc 341 342	»
+R43	PUNC Arg1:T48 Arg2:T46
+R44	SUBJ Arg1:T48 Arg2:T47
+R45	STA Arg1:T45 Arg2:T48
+R46	PRT-AUX_lt_ Arg1:T48 Arg2:T49
+R47	_question_ Arg1:T48 Arg2:T50
+R48	ADVL Arg1:T50 Arg2:T51
+R49	_gt_N Arg1:T53 Arg2:T52
+R50	P_lt_ Arg1:T51 Arg2:T53
+R51	CO Arg1:T50 Arg2:T54
+R52	PMV Arg1:T64 Arg2:T55
+R53	PIV Arg1:T64 Arg2:T56
+R54	P_lt_ Arg1:T56 Arg2:T57
+R55	N_lt_ Arg1:T57 Arg2:T58
+R56	PUNC Arg1:T64 Arg2:T59
+R57	ACC Arg1:T64 Arg2:T60
+R58	_gt_N Arg1:T62 Arg2:T61
+R59	P_lt_ Arg1:T60 Arg2:T62
+R60	N_lt_ Arg1:T62 Arg2:T63
+R61	CJT Arg1:T50 Arg2:T64
+R62	PUNC Arg1:T48 Arg2:T65
+R63	PUNC Arg1:T48 Arg2:T66
+T67	ROOT 343 347	ROOT
+T68	punc 348 349	(
+T69	prop 350 361	Lee_Iacocca
+T70	punc 362 363	,
+T71	n 364 373	executivo
+T72	prp 374 376	de
+T73	art 377 378	a
+T74	n 379 388	indústria
+T75	adj 389 404	automobilística
+T76	punc 405 406	)
+R64	PUNC Arg1:T69 Arg2:T68
+R65	UTT Arg1:T67 Arg2:T69
+R66	PUNC Arg1:T69 Arg2:T70
+R67	N_lt_PRED Arg1:T69 Arg2:T71
+R68	N_lt_ Arg1:T71 Arg2:T72
+R69	_gt_N Arg1:T74 Arg2:T73
+R70	P_lt_ Arg1:T72 Arg2:T74
+R71	N_lt_ Arg1:T74 Arg2:T75
+R72	PUNC Arg1:T69 Arg2:T76
+T77	ROOT 407 411	ROOT
+T78	punc 412 413	«
+T79	n 414 422	Correção
+T80	punc 423 424	:
+T81	adv 425 429	hoje
+T82	v-fin 430 438	trazemos
+T83	art 439 441	as
+T84	n 442 451	respostas
+T85	prp 452 454	de
+T86	art 455 457	as
+T87	n 458 475	palavras_cruzadas
+T88	prp 476 478	de
+T89	n 479 485	sábado
+T90	punc 486 487	.
+R73	PUNC Arg1:T79 Arg2:T78
+R74	UTT Arg1:T77 Arg2:T79
+R75	PUNC Arg1:T79 Arg2:T80
+R76	ADVL Arg1:T82 Arg2:T81
+R77	N_lt_PRED Arg1:T79 Arg2:T82
+R78	_gt_N Arg1:T84 Arg2:T83
+R79	ACC Arg1:T82 Arg2:T84
+R80	N_lt_ Arg1:T84 Arg2:T85
+R81	_gt_N Arg1:T87 Arg2:T86
+R82	P_lt_ Arg1:T85 Arg2:T87
+R83	N_lt_ Arg1:T87 Arg2:T88
+R84	P_lt_ Arg1:T88 Arg2:T89
+R85	PUNC Arg1:T79 Arg2:T90
+T91	ROOT 488 492	ROOT
+T92	art 493 494	A
+T93	n 495 503	resposta
+T94	prp 504 508	para
+T95	art 509 511	as
+T96	n 512 529	palavras_cruzadas
+T97	prp 530 532	de
+T98	adv 533 537	hoje
+T99	v-fin 538 543	foram
+T100	v-pcp 544 554	publicadas
+T101	adv 555 560	ontem
+T102	punc 561 562	.
+R86	_gt_N Arg1:T93 Arg2:T92
+R87	SUBJ Arg1:T99 Arg2:T93
+R88	N_lt_ Arg1:T93 Arg2:T94
+R89	_gt_N Arg1:T96 Arg2:T95
+R90	P_lt_ Arg1:T94 Arg2:T96
+R91	N_lt_ Arg1:T96 Arg2:T97
+R92	P_lt_ Arg1:T97 Arg2:T98
+R93	STA Arg1:T91 Arg2:T99
+R94	MV Arg1:T99 Arg2:T100
+R95	ADVL Arg1:T100 Arg2:T101
+R96	PUNC Arg1:T99 Arg2:T102
+T103	ROOT 563 567	ROOT
+T104	prp 568 575	Segundo
+T105	prop 576 580	Rosa
+T106	punc 581 582	,
+T107	n 583 596	nutricionista
+T108	conj-c 597 598	e
+T109	n 599 609	professora
+T110	prp 610 612	de
+T111	art 613 614	a
+T112	prop 615 618	PUC
+T113	prp 619 621	de
+T114	n 622 630	Campinas
+T115	punc 631 632	,
+T116	prp 633 642	junto_com
+T117	art 643 645	os
+T118	n 646 655	alimentos
+T119	punc 656 657	«
+T120	pron-pers 658 660	se
+T121	v-fin 661 668	ingerem
+T122	conj-c 669 670	e
+T123	v-fin 671 678	digerem
+T124	n 679 685	afetos
+T125	punc 686 687	»
+T126	punc 688 689	.
+R97	ADVL Arg1:T121 Arg2:T104
+R98	P_lt_ Arg1:T104 Arg2:T105
+R99	PUNC Arg1:T105 Arg2:T106
+R100	N_lt_PRED Arg1:T105 Arg2:T107
+R101	CO Arg1:T107 Arg2:T108
+R102	CJT Arg1:T107 Arg2:T109
+R103	N_lt_ Arg1:T107 Arg2:T110
+R104	_gt_N Arg1:T112 Arg2:T111
+R105	P_lt_ Arg1:T110 Arg2:T112
+R106	N_lt_ Arg1:T112 Arg2:T113
+R107	P_lt_ Arg1:T113 Arg2:T114
+R108	PUNC Arg1:T121 Arg2:T115
+R109	ADVL Arg1:T121 Arg2:T116
+R110	_gt_N Arg1:T118 Arg2:T117
+R111	P_lt_ Arg1:T116 Arg2:T118
+R112	PUNC Arg1:T121 Arg2:T119
+R113	ACC Arg1:T121 Arg2:T120
+R114	STA Arg1:T103 Arg2:T121
+R115	CO Arg1:T121 Arg2:T122
+R116	CJT Arg1:T121 Arg2:T123
+R117	SUBJ Arg1:T123 Arg2:T124
+R118	PUNC Arg1:T121 Arg2:T125
+R119	PUNC Arg1:T121 Arg2:T126
+T127	ROOT 690 694	ROOT
+T128	adv 695 701	Isto_é
+T129	punc 702 703	:
+T130	art 704 706	os
+T131	adj 707 715	diversos
+T132	n 716 721	tipos
+T133	prp 722 724	de
+T134	n 725 734	refeições
+T135	v-fin 735 738	são
+T136	v-pcp 739 749	investidos
+T137	prp 750 752	de
+T138	n 753 761	símbolos
+T139	pron-indp 762 765	que
+T140	v-fin 766 773	alteram
+T141	art 774 775	o
+T142	n 776 781	valor
+T143	pron-indp 782 785	que
+T144	art 786 788	as
+T145	n 789 796	pessoas
+T146	v-fin 797 805	atribuem
+T147	prp 806 807	a
+T148	pron-det 808 809	o
+T149	pron-indp 810 813	que
+T150	v-fin 814 819	comem
+T151	punc 820 821	.
+R120	ADVL Arg1:T136 Arg2:T128
+R121	PUNC Arg1:T135 Arg2:T129
+R122	_gt_N Arg1:T132 Arg2:T130
+R123	_gt_N Arg1:T132 Arg2:T131
+R124	SUBJ Arg1:T135 Arg2:T132
+R125	N_lt_ Arg1:T132 Arg2:T133
+R126	P_lt_ Arg1:T133 Arg2:T134
+R127	STA Arg1:T127 Arg2:T135
+R128	MV Arg1:T135 Arg2:T136
+R129	PIV Arg1:T136 Arg2:T137
+R130	P_lt_ Arg1:T137 Arg2:T138
+R131	SUBJ Arg1:T140 Arg2:T139
+R132	N_lt_ Arg1:T138 Arg2:T140
+R133	_gt_N Arg1:T142 Arg2:T141
+R134	ACC Arg1:T140 Arg2:T142
+R135	ACC Arg1:T146 Arg2:T143
+R136	_gt_N Arg1:T145 Arg2:T144
+R137	SUBJ Arg1:T146 Arg2:T145
+R138	N_lt_ Arg1:T142 Arg2:T146
+R139	PIV Arg1:T146 Arg2:T147
+R140	P_lt_ Arg1:T147 Arg2:T148
+R141	ACC Arg1:T150 Arg2:T149
+R142	N_lt_ Arg1:T148 Arg2:T150
+R143	PUNC Arg1:T135 Arg2:T151
+T152	ROOT 822 826	ROOT
+T153	prp 827 831	Para
+T154	v-inf 832 838	chegar
+T155	prp 839 840	a
+T156	pron-det 841 845	suas
+T157	n 846 856	conclusões
+T158	punc 857 858	,
+T159	prop 859 863	Rosa
+T160	v-fin 864 875	entrevistou
+T161	art 876 878	um
+T162	n 879 884	grupo
+T163	prp 885 887	de
+T164	n 888 900	funcionários
+T165	adj 901 909	públicos
+T166	punc 910 911	(
+T167	n 912 920	técnicos
+T168	adj 921 936	administrativos
+T169	punc 937 938	)
+T170	pron-indp 939 942	que
+T171	v-fin 943 952	trabalham
+T172	conj-c 953 954	e
+T173	v-fin 955 960	comem
+T174	prp 961 963	em
+T175	art 964 965	o
+T176	n 966 972	centro
+T177	adj 973 978	velho
+T178	prp 979 981	de
+T179	art 982 983	a
+T180	n 984 990	cidade
+T181	prp 991 993	de
+T182	prop 994 1003	São_Paulo
+T183	punc 1004 1005	(
+T184	n 1006 1010	ruas
+T185	prop 1011 1024	Líbero_Badaró
+T186	punc 1025 1026	,
+T187	prop 1027 1036	São_Bento
+T188	conj-c 1037 1038	e
+T189	n 1039 1050	adjacências
+T190	punc 1051 1052	)
+T191	punc 1053 1054	.
+R144	ADVL Arg1:T160 Arg2:T153
+R145	P_lt_ Arg1:T153 Arg2:T154
+R146	PIV Arg1:T154 Arg2:T155
+R147	_gt_N Arg1:T157 Arg2:T156
+R148	P_lt_ Arg1:T155 Arg2:T157
+R149	PUNC Arg1:T160 Arg2:T158
+R150	SUBJ Arg1:T160 Arg2:T159
+R151	STA Arg1:T152 Arg2:T160
+R152	_gt_N Arg1:T162 Arg2:T161
+R153	ACC Arg1:T160 Arg2:T162
+R154	N_lt_ Arg1:T162 Arg2:T163
+R155	P_lt_ Arg1:T163 Arg2:T164
+R156	N_lt_ Arg1:T164 Arg2:T165
+R157	PUNC Arg1:T164 Arg2:T166
+R158	N_lt_PRED Arg1:T164 Arg2:T167
+R159	N_lt_ Arg1:T167 Arg2:T168
+R160	PUNC Arg1:T164 Arg2:T169
+R161	SUBJ Arg1:T171 Arg2:T170
+R162	N_lt_ Arg1:T164 Arg2:T171
+R163	CO Arg1:T171 Arg2:T172
+R164	CJT Arg1:T171 Arg2:T173
+R165	ADVL Arg1:T173 Arg2:T174
+R166	_gt_N Arg1:T176 Arg2:T175
+R167	P_lt_ Arg1:T174 Arg2:T176
+R168	N_lt_ Arg1:T176 Arg2:T177
+R169	N_lt_ Arg1:T176 Arg2:T178
+R170	_gt_N Arg1:T180 Arg2:T179
+R171	P_lt_ Arg1:T178 Arg2:T180
+R172	N_lt_ Arg1:T180 Arg2:T181
+R173	P_lt_ Arg1:T181 Arg2:T182
+R174	PUNC Arg1:T176 Arg2:T183
+R175	N_lt_PRED Arg1:T176 Arg2:T184
+R176	N_lt_ Arg1:T184 Arg2:T185
+R177	PUNC Arg1:T185 Arg2:T186
+R178	CJT Arg1:T185 Arg2:T187
+R179	CO Arg1:T185 Arg2:T188
+R180	CJT Arg1:T185 Arg2:T189
+R181	PUNC Arg1:T176 Arg2:T190
+R182	PUNC Arg1:T160 Arg2:T191
+T192	ROOT 1055 1059	ROOT
+T193	v-fin 1060 1068	Observou
+T194	adv 1069 1075	também
+T195	art 1076 1078	os
+T196	n 1079 1086	lugares
+T197	adv 1087 1091	onde
+T198	pron-det 1092 1097	essas
+T199	n 1098 1105	pessoas
+T200	v-fin 1106 1113	almoçam
+T201	punc 1114 1115	.
+R183	STA Arg1:T192 Arg2:T193
+R184	ADVL Arg1:T193 Arg2:T194
+R185	_gt_N Arg1:T196 Arg2:T195
+R186	ACC Arg1:T193 Arg2:T196
+R187	ADVL Arg1:T200 Arg2:T197
+R188	_gt_N Arg1:T199 Arg2:T198
+R189	SUBJ Arg1:T200 Arg2:T199
+R190	N_lt_ Arg1:T196 Arg2:T200
+R191	PUNC Arg1:T193 Arg2:T201
