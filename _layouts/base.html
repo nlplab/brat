@@ -13,7 +13,12 @@ vim:set ft=xhtml ts=4 sw=4 sts=4 autoindent:
 <!DOCTYPE html>
 <html lang="en-GB">
 {% endif %}
-  <head>
+    <head>
+
+    {% if page.redirect %}
+        <meta http-equiv="Refresh" content="0; {{ page.redirect }}"/>
+    {% endif %}
+
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <title>{{ page.title }}{% if page.title %} - {% endif %}brat rapid annotation tool</title>
     {% if page.cmeta %}
