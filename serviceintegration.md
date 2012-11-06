@@ -1,4 +1,7 @@
 ---
+# -*- Mode: Markdown; tab-width: 4; indent-tabs-mode: nil; -*-
+# vim:set ft=markdown ts=4 sw=4 sts=4 autoindent:
+
 layout: base
 title:  "Service Integration"
 cmeta:  "Description of how to integrate tagging services into brat."

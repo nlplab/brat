@@ -1,4 +1,7 @@
 ---
+# -*- Mode: Markdown; tab-width: 4; indent-tabs-mode: nil; -*-
+# vim:set ft=markdown ts=4 sw=4 sts=4 autoindent:
+
 layout: base
 title:  "Installation"
 cmeta:  "Instructions on how to install brat on your system."
