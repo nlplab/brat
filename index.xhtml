@@ -190,7 +190,7 @@
         </fieldset>
         <fieldset id="no_tagger_message" style="display:none">
           <legend>Automatic annotation</legend>
-          <div style="color:gray; font-size:80%; text-align:center; margin:1em">(No tools set up. Please contact server maintainer if needed.)</div>
+          <div style="color:gray; font-size:80%; text-align:center; margin:1em">(No tools set up. Please contact server administrator if needed.)</div>
         </fieldset>
       </div>
       <!-- Data dialog import section -->
@@ -206,17 +206,19 @@
         </div>
       </fieldset>
       <!-- Data dialog delete section -->
-      <fieldset class="login small-buttons">
-        <legend>Delete</legend>
-        <div class="optionRow">
-          <span class="optionLabel">Current document</span>
-          <input id="delete_document_button" type="button" class="login ui-button-text" value="Delete document" tabindex="-1" title="Permanently remove the current document and its annotations from the collection."/>
-        </div>
-        <div class="optionRow">
-          <span class="optionLabel">Current collection</span>
-          <input id="delete_collection_button" type="button" class="login ui-button-text" value="Delete collection" tabindex="-1" title="Permanently remove the entire current collection and all documents in it."/>
-        </div>
-      </fieldset>
+      <div style="display: none;">
+        <fieldset class="login small-buttons">
+          <legend>Delete</legend>
+          <div class="optionRow">
+            <span class="optionLabel">Current document</span>
+            <input id="delete_document_button" type="button" class="login ui-button-text" value="Delete document" tabindex="-1" title="Permanently remove the current document and its annotations from the collection."/>
+          </div>
+          <div class="optionRow">
+            <span class="optionLabel">Current collection</span>
+            <input id="delete_collection_button" type="button" class="login ui-button-text" value="Delete collection" tabindex="-1" title="Permanently remove the entire current collection and all documents in it."/>
+          </div>
+        </fieldset>
+      </div>
     </form>
     <!-- Options dialog -->
     <form id="options_form" class="dialog" title="Options">
