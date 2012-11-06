@@ -1687,7 +1687,7 @@ var VisualizerUI = (function($, window, undefined) {
           $collectionDownloadLink.button();
 
           $cmpButton = $('#side-by-side_cmp').empty();
-          var $cmpLink = $('<a/>')
+          var $cmpLink = $('<a target="_blank"/>')
             .text('Comparison mode')
             .attr('href', 'diff.xhtml?diff=' + encodeURIComponent(coll));
           $cmpButton.append($cmpLink);
