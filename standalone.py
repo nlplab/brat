@@ -3,7 +3,9 @@
 # Minimal standalone brat server based on CGIHTTPRequestHandler.
 
 # Run as apache, e.g. as
-#     sudo -u www-data python standalone.py
+#
+#     APACHE_USER=`./apache-user.sh`
+#     sudo -u $APACHE_USER python standalone.py
 
 import sys
 import os
