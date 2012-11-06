@@ -24,4 +24,5 @@ dist:
     release_dir_url: 'http://weaver.nlplab.org/~brat/releases/'
     # Note: Change the below line when releasing a new stable version
     latest_stable_tgz: 'brat-v1.2_The_Larch.tar.gz'
+    latest_stable: 'brat-v1.2_The_Larch'
     demo_url: 'http://weaver.nlplab.org/~brat/demo/'
