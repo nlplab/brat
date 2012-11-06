@@ -300,6 +300,23 @@ class BratServer(ForkingMixIn, HTTPServer):
         HTTPServer.__init__(self, server_address, BratHTTPRequestHandler)
 
 def main(argv):
+    # warn if root/admin
+    try:
+        if os.getuid() == 0:
+            print >> sys.stderr, """
+! WARNING: running as root. The brat standalone server is experimental   !
+! and may be a security risk. It is recommend to run the standalone      !
+! server as a non-root user with write permissions to the brat work/ and !
+! data/ directories (e.g. apache if brat is set up using standard        !
+! installation).                                                         !
+"""
+    except AttributeError:
+        # not on UNIX
+        print >> sys.stderr, """
+Warning: could not determine user. Note that the brat standalone
+server is experimental and should not be run as administrator.
+"""
+
     if len(argv) > 1:
         try:
             port = int(argv[1])
