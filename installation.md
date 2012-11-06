@@ -21,6 +21,15 @@ linked form the [brat home page](index.html).
 If you wish to set up your own local brat installation for your
 annotation project, please follow the instructions below.
 
+## Table of contents ##
+
+<ul>
+<li><a href="#quick_start">Quick start</a></li>
+<li><a href="#detailed_instructions">Detailed instructions</a></li>
+<li><a href="#thirdparty_components">Third-party components</a></li>
+<li><a href="#backups">Back-ups</a></li>
+</ul>
+
 ## Quick start ##
 
 The following brief technical instructions present a quick minimal way
@@ -30,26 +39,34 @@ instructions below.
 
 The brat server is a
 [Python](http://en.wikipedia.org/wiki/Python_%28programming_language%29)
-(version 2.5+) program that runs as a
+(version 2.5+) program that runs by default as a
 [CGI](http://en.wikipedia.org/wiki/Common_Gateway_Interface)
 application, and the installation script assumes a UNIX-like
 environment. If you are setting up brat server in a compatible
-environment with an existing web server that supports CGI, the
-following quick start should work.
+environment with an existing web server that supports CGI, the quick
+start instructions for "using CGI" should work.  If you don't have a
+web server installed and want to try brat out locally, you may want
+try out the instructions for "standalone server". (For security
+reasons, we strongly recommend serving brat via a full web server such
+as Apache in production environments.)
 
 First, download a brat package from the [brat home page](index.html).
 
 Then, unpack the package (e.g. in the `public_html` subdirectory of
 your home directory)
 
-    tar xzf brat-VERSION.tar.gz
+    tar xzf {{ site.dist.latest_stable_tgz }}
 
-(where `VERSION` is the version string, like "v1.1_Albatross").
 Next, enter the created brat directory
 
-    cd brat-VERSION
+    cd {{ site.dist.latest_stable }}
 
-run the installation script
+The next step depends on whether you intend to run brat in a CGI
+environment or as a standalone server.
+
+### Quick start installation: using CGI ###
+
+Run the installation script
 
     ./install.sh
 
@@ -60,9 +77,6 @@ information:
 * brat password (for the given user, e.g. "annotate")
 * administrator contact email (e.g. "admin@example.com")
 
-If at a later stage want to add additional users you can edit the `config.py`
-file that contains further instructions.
-
 Finally, if you are not running the installation as superuser, the
 script will prompt you for the sudo password. (This is necessary to
 assign write permissions to the `work` and `data` directories to the
@@ -70,8 +84,35 @@ web server.)
 
 If this works, the installation is complete. You then only need to
 make sure that CGI is permitted for the brat directory
-(see the Apache 2.x section below for instructions). 
-You can then proceed to the "Placing Data" section.
+(see the Apache 2.x section below for instructions).
+
+### Quick start installation: standalone server ###
+
+First, please note the following:
+
+* The brat standalone server only is available in brat v1.3 and above.
+* The standalone server is experimental and should not be used for sensitive data or systems accessible from the internet.
+
+Run the installation script in "unprivileged" mode
+
+    ./install.sh -u
+
+and follow the instructions (as above). Then, start the standalone
+server
+
+    python standalone.py
+
+You should then be able to access the brat server from the address
+printed out by standalone.py.
+
+### Quick start: next steps ###
+
+After initial installation, you may want to set up some data of your
+own in your brat installation. For this, look in the "Placing Data"
+section below.
+
+If you want to add additional users, you can edit the `config.py`
+file, which contains further instructions.
 
 If you feel that your installation requires a more fine-tuned
 configuration, please see the section "Manual Installation" below.
@@ -84,10 +125,12 @@ read on for detailed instructions. You may also wish to check the
 
 ### Preliminaries ###
 
-brat is a served through a web server. If you are installing brat
-server on a machine that is not currently running a web server, you
-should start by installing one. brat is currently developed against
+In its standard setup, brat is a served through a web server. 
+If you are installing brat server on a machine that is not currently 
+running a web server, you should consider starting by installing one. 
+brat is currently developed against
 Apache 2.x, and we recommend using [Apache](http://httpd.apache.org/).
+
 
 These instructions primarily assume Apache, but we do have also
 LigHTTPD configuration files in the repository if you prefer this
@@ -232,7 +275,7 @@ You can now access your brat installation by retrieving the brat directory or
 `index.xhtml` file from your web server using a
 [supported web browser](supported-browsers.html).
 
-## Installing third-party components ##
+## Third-party components ##
 
 This part largely focuses on Ubuntu, but the instructions should be
 readily applicable to other \*NIX-based systems.
