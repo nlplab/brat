@@ -2187,6 +2187,10 @@ var AnnotatorUI = (function($, window, undefined) {
         if (x) {
           if (x == 'annotationIsReadOnly') {
             dispatcher.post('messages', [[["This document is read-only and can't be edited.", 'error']]]);
+          } else if (x == 'spanOffsetOverlapError') {
+            // createSpan with overlapping frag offsets; reset offsets
+            // @amadanmath: who holds the list of offsets for a span?
+            // how to reset this?
           } else {
             dispatcher.post('messages', [[['Unknown error '+x, 'error']]]);
           }
