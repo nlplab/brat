@@ -4,6 +4,11 @@
 
 layout: base
 xhtml:  true
+extra_css:
+- http://weaver.nlplab.org/~brat/demo/master/style-vis.css
+extra_js:
+# head.js still isn't on a reliable CDN?
+- http://weaver.nlplab.org/~brat/demo/master/client/lib/head.load.min.js
 ---
 
 <h1>embedding brat visualisations</h1>
@@ -182,9 +187,6 @@ docData['events'] = [
     </div>
 </p>
 
-<!-- head.js still isn't on a reliable CDN? -->
-<script type="text/javascript" src="http://weaver.nlplab.org/~brat/demo/master/client/lib/head.load.min.js"></script>
-<link href="http://weaver.nlplab.org/~brat/demo/master/style-vis.css" rel="stylesheet" type="text/css"/>
 <!-- override a few style-vis.css settings for the embedded version -->
 <style>
 text { font-size: 15px; }
