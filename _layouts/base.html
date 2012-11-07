@@ -27,9 +27,15 @@ vim:set ft=xhtml ts=4 sw=4 sts=4 autoindent:
     {% endif %}
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
     <link rel="stylesheet" type="text/css" href="css/jquery-theme/jquery-ui-redmond.css"/>
+    {% for extra_css in page.extra_css %}
+        <link rel="stylesheet" type="text/css" href="{{ extra_css }}"/>
+    {% endfor %}
     <link rel="shortcut icon" href="favicon.ico"/>
     <!-- Google Analytics -->
     <script type="text/javascript" src="js/google_analytics.js"></script>
+    {% for extra_js in page.extra_js %}
+        <script type="text/javascript" src="{{ extra_js }}"></script>
+    {% endfor %}
     <!-- Google Webmaster Tools -->
     <meta name="google-site-verification" content="YJkZhvWcgZNvVX2HY3TXG1OcEWJHMy7Bi_ossuqKvRE"/>
   </head>
