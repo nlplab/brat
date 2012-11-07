@@ -1633,14 +1633,15 @@ var AnnotatorUI = (function($, window, undefined) {
 
             var newOffset = [selectedFrom, selectedTo];
             if (reselectedSpan) {
+              var newOffsets = reselectedSpan.offsets.slice(0); // clone
               spanOptions.old_offsets = JSON.stringify(reselectedSpan.offsets);
               if (selectedFragment !== null) {
                 if (selectedFragment !== false) {
-                  reselectedSpan.offsets.splice(selectedFragment, 1);
+                  newOffsets.splice(selectedFragment, 1);
                 }
-                reselectedSpan.offsets.push(newOffset);
-                reselectedSpan.offsets.sort(Util.cmpArrayOnFirstElement);
-                spanOptions.offsets = reselectedSpan.offsets;
+                newOffsets.push(newOffset);
+                newOffsets.sort(Util.cmpArrayOnFirstElement);
+                spanOptions.offsets = newOffsets;
               } else {
                 spanOptions.offsets = [newOffset];
               }
