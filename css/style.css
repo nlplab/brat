@@ -296,5 +296,5 @@ td.support-no {
   font-family: 'Astloch';
   font-style: normal;
   font-weight: bold;
-  src: local('Astloch Bold'), local('Astloch-Bold'), url('fonts/Astloch-Bold.ttf') format('truetype');
+  src: local('Astloch Bold'), local('Astloch-Bold'), url('../fonts/Astloch-Bold.ttf') format('truetype');
 }
