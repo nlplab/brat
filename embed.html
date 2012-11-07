@@ -7,6 +7,7 @@ xhtml:  true
 extra_css:
 - http://weaver.nlplab.org/~brat/demo/master/style-vis.css
 extra_js:
+- js/lib/json2.js
 # head.js still isn't on a reliable CDN?
 - http://weaver.nlplab.org/~brat/demo/master/client/lib/head.load.min.js
 ---
@@ -41,169 +42,335 @@ extra_js:
 <h2>prerequisites</h2>
 
 <p>
-    Foo bar, baz. XXX: Prerequisites... XXX: Recommend Chrome...
+    Since brat embeds an SVG image in your document, your document should be
+    XHTML compliant, otherwise the embedding won't show up properly.
+    The first step necessary is to embed the brat visualisation style-sheet.
+    Do so by including the line below in the head of your XHTML document.
+</p>
+
+<pre><code id="embedding-css">
+&lt;link rel="stylesheet" type="text/css" href="http://${YOUR_BRAT_INSTALLATION}/style-vis.css"/&gt;
+</code></pre>
+
+<p>
+    brat uses head.js to load its scripts in parallel, thus for the purpose of
+    this tutorial you also need to include head.js the head of your XHTML
+    document.
+    If you are an experienced developer and prefer to load scripts in a
+    different fashion, feel free to skip this step and adjust the rest of the
+    tutorial accordingly.
+</p>
+
+<pre><code id="embedding-head">
+&lt;script type="text/javascript" src="http://${YOUR_BRAT_INSTALLATION}/client/lib/head.load.min.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<h2>initialisation</h2>
+
+<p>
+    From this point onwards all examples are given as Javascript code.
+    These should be embedded in a script tag after you have imported head.js.
+    The following tells head.js to include the visualisation components of the
+    brat client and its dependencies.
 </p>
     
+<pre><code id="embedding-initialisation">
+var bratLocation = '${YOUR_BRAT_INSTALLATION}';
+head.js(
+    // External libraries
+    bratLocation + '/client/lib/jquery.min.js',
+    bratLocation + '/client/lib/jquery.svg.min.js',
+    bratLocation + '/client/lib/jquery.svgdom.min.js',
+
+    // brat helper modules
+    bratLocation + '/client/src/configuration.js',
+    bratLocation + '/client/src/util.js',
+    bratLocation + '/client/src/annotation_log.js',
+    bratLocation + '/client/lib/webfont.js',
+
+    // brat modules
+    bratLocation + '/client/src/dispatcher.js',
+    bratLocation + '/client/src/url_monitor.js',
+    bratLocation + '/client/src/visualizer.js'
+);
+</code></pre>
+
+<p>
+    brat also needs to have access to the location the fonts it uses for
+    rendering.
+    The code below declares where the client can find them relative to your
+    brat installation.
+</p>
+
+<pre><code id="embedding-webfonts">
+var webFontURLs = [
+    bratLocation + '/static/fonts/Astloch-Bold.ttf',
+    bratLocation + '/static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+    bratLocation + '/static/fonts/Liberation_Sans-Regular.ttf'
+];
+}
+</code></pre>
+
+<p>
+    Now, we can call upon brat once the scripts have been sucessfully loaded.
+    The relevant call is to Util.embed with the data that you want to
+    visualise, we will go through the structure of these objects in the
+    following sections.
+</p>
+
+<pre><code id="embedding-call">
+head.ready(function() {
+    Util.embed(
+        // id of the div element where brat should embed the visualisations
+        '${DIV_ID}',
+        // object containing collection data
+        collData,
+        // object containing document data
+        docData,
+        // Array containing locations of the visualisation fonts
+        webFontURLs
+        );
+});
+</code></pre>
+
 <h2>entities</h2>
 
 <p>
-    Foo bar, baz. XXX: Entities...
+    The simplest form of annotation is brat are spans (internally referred to
+    as entities).
+    They can be used to represent named entities, part-of-speech tags and much
+    more and as with all annotations in brat they can be configured to your
+    liking.
+    Below is an example of a configuration of a person annotation that is to
+    be added to the collection data object.
 </p>
 
-<p><pre><code id="embedding-entity-coll">
+<pre><code id="embedding-entity-coll">
 var collData = {
     entity_types: [ {
             type   : 'Person',
+            /* The labels are used when displaying the annotion, in this case
+                we also provide a short-hand "Per" for cases where
+                abbreviations are preferable */
             labels : ['Person', 'Per'],
+            // Blue is a nice colour for a person, maybe?
             bgColor: '#7fa2ff',
+            // Use a slightly darker version of the bgColor for the border
             borderColor: 'darken'
     } ]
 };
-</code></pre></p>
+</code></pre>
 
-<p><pre><code id="embedding-entity-doc">
+<p>
+    Now that we have instructed brat as to how we want the annotations to be
+    displayed, we can add person annotations to the document object.
+</p>
+
+<pre><code id="embedding-entity-doc">
 var docData = {
+    // Our text of choice
     text     : "Ed O'Kelley was the man who shot the man who shot Jesse James.",
+    // The entities entry holds all entity annotations
     entities : [
+        /* Format: [${ID}, ${TYPE}, [[${START}, ${END}]]]
+            note that the offsets are on the form [${START},${END}) */
         ['T1', 'Person', [[0, 11]]],
         ['T2', 'Person', [[20, 23]]],
         ['T3', 'Person', [[37, 40]]],
         ['T4', 'Person', [[50, 61]]],
     ],
 };
-</code></pre></p>
+</code></pre>
 
 <p>
-    <div id="embedding-entity-example"></div>
+    Below is how brat visualises the above example.
 </p>
+
+<div id="embedding-entity-example"></div>
 
 <h2>attributes</h2>
 
 <p>
-    Foo bar, baz. XXX: Attributes...
+    brat supports several other annotation primitives, let's look at the
+    simplest annotation type that references another annotation, attributes.
+    Now, our example contained three pretty notorious historical figures,
+    however one must be said to be a lot more notorious than the others so,
+    let's create an attribute "Notorious" to mark him as such.
 </p>
        
-<p><pre><code id="embedding-attribute-coll">
+<pre><code id="embedding-attribute-coll">
 collData['entity_attribute_types'] = [ {
     type  : 'Notorious',
+    /* brat supports multi-valued attributes, but in our case we will only
+        use a single value and add a glyph to the visualisation to indicate
+        that the entity carries that attribute */
     values: { 'Notorious': { 'glyph': '★' } }
 } ];
-</code></pre></p>
-
-<p><pre><code id="embedding-attribute-doc">
-docData['attributes'] = [
-    ['A1', 'Notorious', 'T4']
-];
-</code></pre></p>
+</code></pre>
 
 <p>
-    <div id="embedding-attribute-example"></div>
+    Once we have the configuration in place, we can add an attribute
+    annotation similarily to how we added the entity annotations.
+    The main difference is that we will reference "Jesse James" who had
+    id "T4" among the entity annotations.
 </p>
+
+<pre><code id="embedding-attribute-doc">
+docData['attributes'] = [
+    // Format: [${ID}, ${TYPE}, ${TARGET}]
+    ['A1', 'Notorious', 'T4']
+];
+</code></pre>
+
+<p>
+    And we can now see that "Jesse James" has been marked with a neat Unicode
+    star.
+</p>
+
+<div id="embedding-attribute-example"></div>
 
 <h2>relations</h2>
 
 <p>
-    Foo bar, baz. XXX: Relations...
-    </p>
+    Let us now consider relational annotations, these are more complex than
+    attributes but are far more powerful.
+    We could use them for dependency, part-of and instance-of relations, but
+    in our example we will use it to annotate anaphoras.
+</p>
 
-<p><pre><code id="embedding-relation-coll">
+<pre><code id="embedding-relation-coll">
 collData['relation_types'] = [ {
     type     : 'Anaphora',
     labels   : ['Anaphora', 'Ana'],
+    // dashArray allows you to adjust the style of the relation arc
     dashArray: '3,3',
     color    : 'purple',
-    args     : [ 
+    /* A relation takes two arguments, both are named and can be constrained
+        as to which types they may apply to */
+    args     : [
+        // 
         {role: 'Anaphor', targets: ['Person'] },
         {role: 'Entity',  targets: ['Person'] }
     ]
 } ];
-</code></pre></p>
+</code></pre>
 
-<p><pre><code id="embedding-relation-doc">
+<pre><code id="embedding-relation-doc">
 docData['relations'] = [ 
+    // Format: [${ID}, ${TYPE}, [[${ARGNAME}, ${TARGET}], [${ARGNAME}, ${TARGET}]]]
     ['R1', 'Anaphora', [['Anaphor', 'T2'], ['Entity', 'T1']]]
 ];
-</code></pre></p>
+</code></pre>
+
 
 <p>
-    <div id="embedding-relation-example"/></div>
+    And the annotation visualisation now clearly shows that the first man in
+    "the man who shot the man who shot..." clearly was "Ed O'Kelley".
 </p>
+
+<div id="embedding-relation-example"></div>
 
 <h2>events</h2>
 
 <p>
-    Foo bar, baz. XXX: Events...
+    Now, to the most interesting and involved annotation primitive, the N-ary
+    event structures.
 </p>
 
-<p><pre><code id="embedding-event-coll">
+<pre><code id="embedding-event-coll">
 collData['event_types'] = [ {
     type   : 'Assassination',
     labels : ['Assassination', 'Assas'],
     bgColor: 'lightgreen',
     borderColor: 'darken',
+    /* Unlike relations, events originate from a span of text and can take
+        several arguments */
     arcs   : [
         {type: 'Victim', labels: ['Victim','Vict'] },
+        // Just like the event, its arguments can be styled
         {type: 'Perpetrator', labels: ['Perpetrator','Perp'], color: 'green' }
     ]
 } ];
-</code></pre></p>
+</code></pre>
 
-<p><pre><code id="embedding-event-doc">
+<pre><code id="embedding-event-doc">
+/* Events also have trigger annotations, these are spans that are not
+    visualised. This enables sharing of triggers when this is desirable, such
+    as in the sentence "He robbed the bank and the post office", where
+    "robbed" gives rice to two separate events that shares a single trigger */
 docData['triggers'] = [
+    // The format is identical to that of entities
     ['T5', 'Assassination', [[45, 49]]],
     ['T6', 'Assassination', [[28, 32]]]
 ];
 
 docData['events'] = [
+    // Format: [${ID}, ${TRIGGER}, [[${ARGTYPE}, ${ARGID}], ...]]
     ['E1', 'T5', [['Perpetrator', 'T3'], ['Victim', 'T4']]],
     ['E2', 'T6', [['Perpetrator', 'T2'], ['Victim', 'T3']]]
 ];
-</code></pre></p>
+</code></pre>
 
 <p>
-    <div id="embedding-event-example"/></div>
+    And now... our little western example fully captures our murderous trio.
 </p>
 
-<p>
-    Foo bar, baz. XXX: More things can be done...
-</p>
+<div id="embedding-event-example"></div>
 
 <h2>live embedding</h2>
 
 <p>
-    Foo bar, baz. XXX: Interactive JSON...
+    brat has a lot more functionality than what we have had time to cover in
+    this tutorial.
+    Below is two interactive text areas that are coupled to the visualisation
+    above, inside them is a JSON version of the collection and document object
+    respectively.
 </p>
 
 <p>
-    <div id="embedding-live-example"/></div>
+    As you change the JSON, the visualisation will change accordingly within
+    a second, you can use this to experiment.
+    Some things you may want to try out is to change the target of the event
+    arguments and relations, removing the entire style to see that brat still
+    does its best to visualise your annotations.
+    We hope that at this point you may already have some ideas on how you
+    could use brat for your own visualisation needs and how it can be used
+    separately from its original visualisation/annotation application.
 </p>
 
 <p>
-    <div id="live-io">
+    If you feel up to it, you can also view the XHTML and Javascript source
+    contained in this very page and see how we embedded brat to create a
+    tutorial on how to embed brat.
+</p>
+
+<div id="embedding-live-example"></div>
+
+<div id="live-io">
+    <p>
         <textarea id="coll-input" style="display:block;float:left;width:40%;height:400px;font-size:11px;border:2px inset"
             placeholder="Enter JSON for the collection object here..."></textarea>
         <textarea id="doc-input" style="display:block;float:right;width:55%;height:400px;font-size:11px;border:2px inset"
             placeholder="Enter JSON for the document object here..."></textarea>
-    </div>
-</p>
+    </p>
+</div>
 
-<!-- override a few style-vis.css settings for the embedded version -->
-<style>
+<!-- override a few style-vis.css settings for the embedded version to make things larger -->
+<style type="text/css">
 text { font-size: 15px; }
 .span text { font-size: 10px; }
 .arcs text { font-size: 9px; }
 </style>
 
 <script type="text/javascript">
-    // XXX: We use the development version of brat for this demo to get
+    // XXX: We use the development version of brat for this demo to get all the new features
     var bratLocation = 'http://weaver.nlplab.org/~brat/demo/master';
     head.js(
         // External libraries
         bratLocation + '/client/lib/jquery.min.js',
         bratLocation + '/client/lib/jquery.svg.min.js',
         bratLocation + '/client/lib/jquery.svgdom.min.js',
-        // Note: For our own coding needs, not for visualisation
-        'js/lib/json2.js',
+
 
         // brat helper modules
         bratLocation + '/client/src/configuration.js',
