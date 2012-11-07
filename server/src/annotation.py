@@ -198,6 +198,19 @@ class DependingAnnotationDeleteError(Exception):
         %s''' % (unicode(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
 
 
+class SpanOffsetOverlapError(ProtocolError):
+    def __init__(self, offsets):
+        self.offsets = offsets
+
+    def __str__(self):
+        return u'The offsets [%s] overlap' % (', '.join(unicode(e)
+            for e in self.offsets, ))
+
+    def json(self, json_dic):
+        json_dic['exception'] = 'spanOffsetOverlapError'
+        return json_dic
+
+
 # Open function that enforces strict, utf-8, and universal newlines for reading
 # TODO: Could have another wrapping layer raising an appropriate ProtocolError
 def open_textfile(filename, mode='rU'):

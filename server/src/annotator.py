@@ -21,7 +21,7 @@ from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, EquivAnnotation, open_textfile,
         AnnotationsIsReadOnlyError, AttributeAnnotation, 
-        NormalizationAnnotation, DISCONT_SEP)
+        NormalizationAnnotation, SpanOffsetOverlapError, DISCONT_SEP)
 from common import ProtocolError, ProtocolArgumentError
 try:
     from config import DEBUG
@@ -549,9 +549,24 @@ def _set_comments(ann_obj, ann, comment, mods, undo_resp={}):
             ann_obj.del_annotation(found)
             mods.deletion(found)
 
+# Sanity check, a span can't overlap itself
+def _offset_overlaps(offsets):
+    for i in xrange(len(offsets)):
+        i_start, i_end = offsets[i]
+        for j in xrange(i + 1, len(offsets)):
+            j_start, j_end = offsets[j]
+            if (j_start <= i_start < j_end) or (j_start <= i_end < j_end):
+                return True
+    # No overlap detected
+    return False
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def _create_span(collection, document, offsets, _type, attributes=None,
                  normalizations=None, _id=None, comment=None):
+
+    if _offset_overlaps(offsets):
+        raise SpanOffsetOverlapError(offsets)
+
     directory = collection
     undo_resp = {}
 
