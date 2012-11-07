@@ -1038,7 +1038,7 @@ class TextAnnotations(Annotations):
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
             for ostart, oend in seen_spans:
-                if end >= ostart and start <= oend:
+                if end >= ostart and start < oend:
                     Messager.error('Text-bound annotation spans overlap')
                     raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
 
