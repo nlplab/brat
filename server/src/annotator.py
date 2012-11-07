@@ -555,7 +555,13 @@ def _offset_overlaps(offsets):
         i_start, i_end = offsets[i]
         for j in xrange(i + 1, len(offsets)):
             j_start, j_end = offsets[j]
-            if (j_start <= i_start < j_end) or (j_start <= i_end < j_end):
+            if (
+                    # i overlapping or in j
+                    (j_start <= i_start < j_end) or (j_start < i_end < j_end)
+                    or
+                    # j overlapping or in i
+                    (i_start <= j_start < i_end) or (i_start < j_end < i_end)
+                    ):
                 return True
     # No overlap detected
     return False
