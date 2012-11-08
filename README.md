@@ -114,6 +114,6 @@ are recognised in the CONTRIBUTORS.md file.
 For help and feedback please contact the authors below, preferably with all on
 them on CC since their responsibilities and availability may vary:
 
-* Goran Topić       &lt;goran is s u-tokyo ac jp&gt;
-* Sampo Pyysalo     &lt;smp is s u-tokyo ac jp&gt;
-* Pontus Stenetorp  &lt;pontus is s u-tokyo ac jp&gt;
+* Goran Topić       &lt;goran_topic nii ac jp&gt;
+* Sampo Pyysalo     &lt;sampo.pyysalo gmail com&gt;
+* Pontus Stenetorp  &lt;pontus stenetorp se&gt;
