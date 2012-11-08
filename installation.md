@@ -109,7 +109,9 @@ server
     python standalone.py
 
 You should then be able to access the brat server from the address
-printed out by standalone.py.
+printed out by standalone.py. For more detail, see the
+<a href="#brat_standalone_server">standalone server instructions</a>
+below.
 
 ### Quick start: next steps ###
 
