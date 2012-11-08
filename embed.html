@@ -23,10 +23,10 @@ extra_js:
 </noscript>
 
 <p>
-    This document gives an example on how to embed brat visualisations in
-    any homepage and can be used as a stand-alone server-less visualisation
-    of the output of your own tools or to illustrate examples of text
-    annotations.
+    This document provides an example of how to embed brat visualisations into
+    any homepage and how it can be used as a stand-alone server-less
+    visualisation of the output of your own tools or to illustrate examples of
+    text annotations.
 </p>
 
 <p>
@@ -35,8 +35,8 @@ extra_js:
     produce both annotation configurations and annotations that are given to
     brat using JSON.
     We will also take the opportunity to embed the very same examples
-    into this page to give you an instant preview of the end
-    results.
+    that we are creating into this page to give you an instant preview of the
+    end results.
 </p>
 
 <p>
@@ -50,7 +50,7 @@ extra_js:
 <p>
     Since brat embeds an SVG image in your document, your document should be
     XHTML compliant, otherwise the embedding won't show up properly.
-    The first step necessary is to embed the brat visualisation style-sheet.
+    The first step necessary is to include the brat visualisation style-sheet.
     Do so by including the line below in the head of your XHTML document.
 </p>
 
@@ -60,8 +60,11 @@ extra_js:
 
 <p>
     brat uses head.js to load its scripts in parallel, thus for the purpose of
-    this tutorial you also need to include head.js the head of your XHTML
+    this tutorial you also need to include head.js into the head of your XHTML
     document.
+</p>
+
+<p>
     If you are an experienced developer and prefer to load scripts in a
     different fashion, feel free to skip this step and adjust the rest of the
     tutorial accordingly.
@@ -76,8 +79,8 @@ extra_js:
 <p>
     From this point onwards all examples are given as Javascript code.
     These should be embedded in a script tag after you have imported head.js.
-    The following tells head.js to include the visualisation components of the
-    brat client and its dependencies.
+    The code below tells head.js to include the visualisation components of
+    the brat client and its dependencies.
 </p>
     
 <pre><code id="embedding-initialisation">
@@ -118,7 +121,7 @@ var webFontURLs = [
 </code></pre>
 
 <p>
-    Now, we can call upon brat once the scripts have been sucessfully loaded.
+    Now, we can call upon brat once the scripts have been successfully loaded.
     The relevant call is to Util.embed with the data that you want to
     visualise, we will go through the structure of these objects in the
     following sections.
@@ -142,12 +145,12 @@ head.ready(function() {
 <h2>entities</h2>
 
 <p>
-    The simplest form of annotation is brat are spans (internally referred to
+    The simplest form of annotation in brat are spans (internally referred to
     as entities).
     They can be used to represent named entities, part-of-speech tags and much
-    more and as with all annotations in brat they can be configured to your
-    liking.
-    Below is an example of a configuration of a person annotation that is to
+    more.
+    As with all annotations in brat they can be configured to your liking.
+    Below is an example configuration of a person annotation that is to
     be added to the collection data object.
 </p>
 
@@ -159,7 +162,7 @@ var collData = {
                 we also provide a short-hand "Per" for cases where
                 abbreviations are preferable */
             labels : ['Person', 'Per'],
-            // Blue is a nice colour for a person, maybe?
+            // Blue is a nice colour for a person?
             bgColor: '#7fa2ff',
             // Use a slightly darker version of the bgColor for the border
             borderColor: 'darken'
@@ -179,7 +182,7 @@ var docData = {
     // The entities entry holds all entity annotations
     entities : [
         /* Format: [${ID}, ${TYPE}, [[${START}, ${END}]]]
-            note that the offsets are on the form [${START},${END}) */
+            note that range of the offsets are [${START},${END}) */
         ['T1', 'Person', [[0, 11]]],
         ['T2', 'Person', [[20, 23]]],
         ['T3', 'Person', [[37, 40]]],
@@ -189,7 +192,7 @@ var docData = {
 </code></pre>
 
 <p>
-    Below is how brat visualises the above example.
+    Below is how brat visualises the entity example.
 </p>
 
 <div id="embedding-entity-example"></div>
@@ -200,7 +203,7 @@ var docData = {
     brat supports several other annotation primitives, let's look at the
     simplest annotation type that references another annotation, attributes.
     Now, our example contained three pretty notorious historical figures,
-    however one must be said to be a lot more notorious than the others so,
+    however, one must be said to be a lot more notorious than the others so,
     let's create an attribute "Notorious" to mark him as such.
 </p>
        
@@ -216,9 +219,9 @@ collData['entity_attribute_types'] = [ {
 
 <p>
     Once we have the configuration in place, we can add an attribute
-    annotation similarily to how we added the entity annotations.
-    The main difference is that we will reference "Jesse James" who had
-    id "T4" among the entity annotations.
+    annotation similarity to how we added the entity annotations.
+    The main difference is that we will have a reference to the "Jesse James"
+    person annotation that had the id "T4".
 </p>
 
 <pre><code id="embedding-attribute-doc">
@@ -230,7 +233,7 @@ docData['attributes'] = [
 
 <p>
     And we can now see that "Jesse James" has been marked with a neat Unicode
-    star.
+    star to signify his notoriety.
 </p>
 
 <div id="embedding-attribute-example"></div>
@@ -239,9 +242,9 @@ docData['attributes'] = [
 
 <p>
     Let us now consider relational annotations, these are more complex than
-    attributes but are far more powerful.
-    We could use them for dependency, part-of and instance-of relations, but
-    in our example we will use it to annotate anaphoras.
+    attributes but are also far more powerful.
+    We could use them to visualise dependency, part-of and instance-of
+    relations, but in our example we will use them to annotate anaphoras.
 </p>
 
 <pre><code id="embedding-relation-coll">
@@ -270,8 +273,9 @@ docData['relations'] = [
 
 
 <p>
-    And the annotation visualisation now clearly shows that the first man in
-    "the man who shot the man who shot..." clearly was "Ed O'Kelley".
+    And the annotation visualisation now clearly shows that the first man
+    mentioned in "the man who shot the man who shot..." clearly was
+    "Ed O'Kelley".
 </p>
 
 <div id="embedding-relation-example"></div>
@@ -293,7 +297,7 @@ collData['event_types'] = [ {
         several arguments */
     arcs   : [
         {type: 'Victim', labels: ['Victim','Vict'] },
-        // Just like the event, its arguments can be styled
+        // Just like the event itself, its arguments can be styled
         {type: 'Perpetrator', labels: ['Perpetrator','Perp'], color: 'green' }
     ]
 } ];
@@ -328,14 +332,14 @@ docData['events'] = [
 <p>
     brat has a lot more functionality than what we have had time to cover in
     this tutorial.
-    Below is two interactive text areas that are coupled to the visualisation
-    above, inside them is a JSON version of the collection and document object
-    respectively.
+    Below are two interactive text areas that are coupled to the visualisation
+    above them, inside the text areas is a JSON version of the collection and
+    document object respectively.
 </p>
 
 <p>
-    As you change the JSON, the visualisation will change accordingly within
-    a second, you can use this to experiment.
+    As you change the JSON, the visualisation will change accordingly, you can
+    use this to experiment with how the visualisation works.
     Some things you may want to try out is to change the target of the event
     arguments and relations, removing the entire style to see that brat still
     does its best to visualise your annotations.
