@@ -5,11 +5,11 @@
 layout: base
 xhtml:  true
 extra_css:
-- http://weaver.nlplab.org/~brat/demo/master/style-vis.css
+- http://weaver.nlplab.org/~brat/demo/v1.3/style-vis.css
 extra_js:
 - js/lib/json2.js
 # head.js still isn't on a reliable CDN?
-- http://weaver.nlplab.org/~brat/demo/master/client/lib/head.load.min.js
+- http://weaver.nlplab.org/~brat/demo/v1.3/client/lib/head.load.min.js
 ---
 
 <h1>embedding brat visualisations</h1>
@@ -373,8 +373,7 @@ text { font-size: 15px; }
 </style>
 
 <script type="text/javascript">
-    // XXX: We use the development version of brat for this demo to get all the new features
-    var bratLocation = 'http://weaver.nlplab.org/~brat/demo/master';
+    var bratLocation = 'http://weaver.nlplab.org/~brat/demo/v1.3';
     head.js(
         // External libraries
         bratLocation + '/client/lib/jquery.min.js',
