@@ -298,3 +298,76 @@ td.support-no {
   font-weight: bold;
   src: local('Astloch Bold'), local('Astloch-Bold'), url('../fonts/Astloch-Bold.ttf') format('truetype');
 }
+/* "starburst" CSS adapted from
+   http://matthewjamestaylor.com/blog/css3-starbursts */
+.starburst {
+  z-index:1000;
+  position: relative;
+  top: 0px;
+  left: 600px;
+  margin-left:-2.5em;
+  margin-top: -0.5em;
+  background: none;
+  text-align: center;
+  text-decoration: none;
+  -webkit-transform:rotate(-90deg);
+  -moz-transform:rotate(-90deg);
+  rotation: -90deg;
+}
+.starburst span {
+  display: block;
+  -webkit-transform:rotate(22.5deg);
+  -moz-transform:rotate(22.5deg);
+  rotation: 22.5deg;
+}
+.starburst,
+.starburst span {
+  width: 5em;
+  height: 5em;
+  display: block;
+  /* border-radius: 3em; */
+  font-size: 13px;
+  -webkit-transition: 0.3s ease;
+  -moz-transition: 0.3s ease;
+  transition: 0.3s ease;
+}
+.starburst span.star,
+.starburst span.sshadow {
+  position: absolute;
+}
+.starburst span.star {
+  color: white;
+  font-weight: bold;
+  background: #6da6d1;
+}
+.starburst span.sshadow {
+  -moz-box-shadow: 0px 0px 0px 2px #fff;
+  -webkit-box-shadow: 0px 0px 0px 2px #fff;
+  box-shadow: 0px 0px 0px 2px #fff;
+}
+.starburst:hover {
+  -webkit-transform:rotate(-112.5deg);
+  -moz-transform:rotate(-112.5deg);
+  rotation: -112.5deg;
+}
+.starburst:hover span {
+  border-radius: 0px;
+}
+.starburst:hover span.star {
+  text-shadow: 0 0 6px #fff, 0 0 2px #fff;
+}
+.starburst:hover span.sshadow {
+  -moz-box-shadow: 0px 0px 10px 10px #fff;
+  -webkit-box-shadow: 0px 0px 10px 10px #fff;
+  box-shadow: 0px 0px 10px 10px #fff;
+}
+.center-wrapper {
+  width: 5em;
+  height: 5em; 
+  display: table;
+}
+.center-wrapper p {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+}
