@@ -47,9 +47,12 @@ The brat server is a
 application, and the installation script assumes a UNIX-like
 environment. If you are setting up brat server in a compatible
 environment with an existing web server that supports CGI, the quick
-start instructions for "using CGI" should work.  If you don't have a
+start instructions for 
+<a href="#quick_start_installation_using_cgi">using CGI</a> should work.
+If you don't have a
 web server installed and want to try brat out locally, you may want
-try out the instructions for "standalone server". (For security
+try out the quick start instructions for the
+<a href="#quick_start_installation_standalone_server">standalone server</a>. (For security
 reasons, we strongly recommend serving brat via a full web server such
 as Apache in production environments.)
 
@@ -106,19 +109,23 @@ server
     python standalone.py
 
 You should then be able to access the brat server from the address
-printed out by standalone.py.
+printed out by standalone.py. For more detail, see the
+<a href="#brat_standalone_server">standalone server instructions</a>
+below.
 
 ### Quick start: next steps ###
 
 After initial installation, you may want to set up some data of your
-own in your brat installation. For this, look in the "Placing Data"
+own in your brat installation. For this, look in the 
+<a href="#placing_data">Placing Data</a>
 section below.
 
 If you want to add additional users, you can edit the `config.py`
 file, which contains further instructions.
 
 If you feel that your installation requires a more fine-tuned
-configuration, please see the section "Manual Installation" below.
+configuration, please see the section 
+<a href="#manual_installation">Manual Installation</a> below.
 
 If you encountered any issues with these quick start instructions,
 read on for detailed instructions. You may also wish to check the
@@ -128,22 +135,26 @@ read on for detailed instructions. You may also wish to check the
 
 ### Preliminaries ###
 
-In its standard setup, brat is a served through a web server. 
+The brat server is implemented in Python, and requires version 2.5 (or
+higher in the 2.x series) of python to run. If you do not currently
+have python installed, we recommend installing the most recent version
+of python in the 2.x series from [python.org](http://www.python.org/).
+
+In its standard setup, brat is a served through a web server.
 If you are installing brat server on a machine that is not currently 
 running a web server, you should consider starting by installing one. 
 brat is currently developed against
 Apache 2.x, and we recommend using [Apache](http://httpd.apache.org/).
 
-
+For serving brat via a web server,
 These instructions primarily assume Apache, but we do have also
 LigHTTPD configuration files in the repository if you prefer this
 alternative, and any CGI-capable web server can be configured to run
 the brat server.
 
-The brat server is implemented in Python, and requires version 2.5 (or
-higher in the 2.x series) of python to run. If you do not currently
-have python installed, we recommend installing the most recent version
-of python in the 2.x series from [python.org](http://www.python.org/).
+Alternatively, you may wish to consider running brat using the
+experimental standalone server included in version 1.3 and above.
+In this case, no web server is required.
 
 Finally, these installation instructions and parts of the brat server
 assume a UNIX-like environment. These instructions should work without
@@ -232,7 +243,7 @@ No other library setup is required for standard brat operation.
 [MeCab](http://mecab.googlecode.com/svn/trunk/mecab/doc/index.html),
 included in the `external/` directory.)
 
-#### Brat server configuration ####
+#### brat server configuration ####
 
 The overall configuration of the brat server is controlled by
 `config.py` in the brat root directory. This configuration file is
@@ -250,6 +261,46 @@ text editor, e.g.
 
 Detailed instructions for setup are contained in the configuration
 file itself.
+
+#### brat standalone server ####
+
+As of version 1.3, brat includes an experimental standalone server.
+This is an alternative for running the brat server that doesn't
+require a separate web server such as Apache, and can be substantially
+faster, reducing server response times by 90% in some cases.
+
+However, the standalone server is not currently security-hardened or
+as comprehensively tested as the rest of brat. For these reason, we
+strongly recommend serving brat via a full web server such as Apache
+in production environments, projects involving sensitive data, and
+on systems accessible from the internet.
+
+On a standard installation, the brat standalone server can typically
+be run simply as
+
+    APACHE_USER=`./apache-user.sh`
+    sudo -u $APACHE_USER python standalone.py
+
+(this command will prompt for your password.)
+
+In more detail: to run the standalone server, you need to execute the
+script `standalone.py` in the brat directory. This script should have
+write permissing to the working directories (normally `work/` and
+`data/`). If you have set these directories up using `install.sh` or
+per the instructions in the section on
+<a href="#setting_up_working_directories">working directories</a>,
+they should be writable by the Apache user (if one exists). The
+above attempts to determine the username for Apache
+(`./apache-user.sh`), and then run `standalone.py` as this user
+(`sudo -u`).
+
+If you do not have Apache installed, you may instead run the
+standalone server with
+
+    sudo -u USER python standalone.py
+
+where `USER` is any user with write permissions to the brat work
+and data directories.
 
 ### Placing Data ###
 

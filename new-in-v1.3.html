@@ -1,0 +1,153 @@
+---
+# -*- Mode: HTML; tab-width: 4; indent-tabs-mode: nil; -*-
+# vim:set ft=html ts=4 sw=4 sts=4 autoindent:
+
+layout: base
+title:  'New in v1.3 (Crunchy Frog)'
+cmeta:  'Describes features added for the v1.3 (Crunchy Frog) release'
+---
+
+<h1>new features in v1.3 (Crunchy Frog)</h1>
+
+<p>In addition to the many
+  <a href="features.html">features in previous versions</a> of brat,
+  the following are new in version v1.3 (Crunchy Frog):
+</p>
+
+<ul>
+<li><a href="#normalization">Normalization annotation</a></li>
+<li><a href="#discontinuous">Discontinuous annotations</a></li>
+<li><a href="#embedding">Embedded brat</a></li>
+<li><a href="#comparison">Annotation comparisons</a></li>
+<li><a href="#tutorial">Tutorials within brat</a></li>
+<li><a href="#standalone">Standalone server</a></li>
+<li><a href="#configuration">Configuration improvements</a></li>
+<li><a href="#and-more">... and many more</a></li>
+</ul>
+
+
+<h2 id="normalization">Normalization annotation</h2>
+
+<p>brat now implements various features for the visualization and
+  creation of annotations linking text to external lexical,
+  ontological, and database resources.
+</p>
+
+<div class="image">
+  <img src="img/normalization-example-1.png" alt="Information popup for normalized annotation"/>
+  <div style="width: 800px" class="caption">Popup showing additional information from Wikipedia for a normalized annotation.</div>
+</div>
+
+<p>These features allow brat to be used to create annotation for
+  normalization (or entity linking/grounding) tasks such as
+  <a href="http://www.cse.unt.edu/~rada/papers/mihalcea.cikm07.pdf">Wikification</a> [PDF].
+  For details, see the <a href="normalization.html">brat normalization</a>
+  page and <a href="http://www.zora.uzh.ch/64476/17/12_Normalisation_with_the_BRAT_rapid_annotation_tool.pdf">Stenetorp et al. 2012</a> [PDF].
+</p>
+
+<h2 id="discontinuous">Discontinuous annotations</h2>
+
+<p>all text-bound annotations can now mark discontinuous regions of
+  text as well as continuous spans.
+</p>
+
+<div class="image">
+  <img src="img/discont-example-1.png" style="border: solid 1px black" alt="example annotation"/>
+  <div style="width: 550px" class="caption">Example with discontinuous annotation ("North [...] America")</div>
+</div>
+
+<p>This feature allows single annotations to mark arbitrary extents of
+  text, including multi-sentence or multi-paragraph regions.
+</p>
+
+<h2 id="embedding">Embedded brat</h2>
+
+<p>several improvements have been implemented to the brat client and
+  its API to make it easier to
+  <a href="embed.html">embed brat</a> in web pages and other
+  browser-based applications.
+</p>
+
+<div class="image">
+  <a href="http://nlp.stanford.edu:8080/corenlp/"><img src="img/embedding.png" style="border: solid 1px black" alt="example annotation"/></a>
+  <div style="width: 800px" class="caption">Two embedded brat visualizations showing different layers of annotation created by the <a href="http://nlp.stanford.edu:8080/corenlp/">Stanford CoreNLP tools</a>.</div>
+</div>
+
+<p>For more information, see the page on
+  <a href="embed.html">embedded brat</a>.
+</p>
+
+<h2 id="comparison">Annotation comparisons</h2>
+
+<p>A number of features for supporting the comparison of multiple sets
+  of annotations for the same documents have been introduced in
+  brat v1.3.
+</p>
+
+<div class="image">
+  <img src="img/comparison-example-1.png" alt="comparison example"/></a>
+  <div style="width: 800px" class="caption">Screenshot of brat in side-by-side comparison mode showing two sets of annotations for a single document.</div>
+</div>
+
+<h2 id="tutorial">Tutorials within brat</h2>
+
+<p>To help annotators start using brat, the tool now includes hands-on
+  tutorials.
+</p>
+
+<div class="image">
+  <img src="img/tutorial-example-1.png" alt="tutorial example"/></a>
+  <div style="width: 800px" class="caption">Screenshot from a brat tutorial document.</div>
+</div>
+
+<p>Collections containing tutorials are automatically set up along
+  with example corpus annotations on all new brat installations.
+</p>
+
+<h2 id="standalone">Standalone brat server</h2>
+
+<p>brat v1.3 includes an experimental standalone server implementation
+  that avoids the computational costs of serving brat over CGI using a
+  separarte web server such as apache. By preloading the brat
+  server-side software, the standalone brat server can reduce response
+  times by up to 90% compared to conventional use via CGI.
+</p>
+
+<p>The standalone brat server allows is easy to set up and allows brat
+  to run on machines that do not have a separate web server installed.
+</p>
+
+<p>For more information, see the
+  <a href="installation.html#quick_start_installation_standalone_server">quick start
+    with standalone server</a> instructions.
+</p>
+
+<h2 id="configuration">Configuration improvements</h2>
+
+<p>Many aspects of the <a href="configuration.html">brat
+  configuration</a> have been improved in v1.3, allowing easier
+  and more fine-grained control of both the visualization and
+  annotation functionality.
+</p>
+
+<div class="image">
+  <img src="img/config-example-1.png" style="border: solid 1px black" alt="example annotation"/></a>
+  <div style="width: 800px" class="caption">Example configured to show additional arrow heads with labels for dependency annotation visualization.</div>
+</div>
+
+<p>See the page on <a href="upgrading-to-v1.3.html">upgrading to v1.3 (Crunchy Frog)</a>
+  for a brief summary of changes in the configuration.
+</p>
+
+<h2 id="and-more">... and more</h2>
+
+<p>brat v1.3 features dozens of fixes to minor issues, optimizations,
+  and improvements to usability and documentation. As the brat
+  development process is fully open, like brat itself, you can see the
+  full detail of everything that went into this release on the
+  <a href="http://github.com/nlplab/brat/issues">brat issue tracker</a>.
+</p>
+
+<div>
+  <h2 style="text-align:right"><a href="index.html">Return to the brat home page to try it out!</a></h2>
+</div>
