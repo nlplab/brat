@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 
+'''
+Initiate a tutorial session.
+
+Author:     Goran Topic
+            Sampo Pyysalo
+            Pontus Stenetorp
+Version:    2012-11-12
+'''
+
 from sys import path as sys_path
 from os.path import join as path_join
 from os.path import dirname, isdir
@@ -27,7 +36,7 @@ if not TUTORIALS:
     exit(0)
 
 TUTORIAL_BASE = '.tutorials'
-TUTORIAL_START = "000-introduction"
+TUTORIAL_START = '000-introduction'
 TUTORIAL_DATA_DIR = DATA_DIR
 TUTORIAL_SKELETON = 'example-data/tutorials/'
 DEFAULT_TUTORIAL_TYPE = 'news'
@@ -75,6 +84,7 @@ if not isdir(dir) or overwrite:
 
 start = path_join(reldir, tutorial_type, TUTORIAL_START)
 
-print "Content-Type: text/plain"
-print "Refresh: 0; url=index.xhtml#/%s" % start
-print "\n"
+print 'Content-Type: text/plain'
+print 'Refresh: 0; url=index.xhtml#/%s' % start
+print ''
+print ''
