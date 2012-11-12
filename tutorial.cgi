@@ -13,6 +13,19 @@ from session import init_session, get_session
 
 from config import DATA_DIR
 
+# Tutorials have to be enabled explicitly since it modifies the disk
+try:
+    from config import TUTORIALS
+except ImportError:
+    TUTORIALS = False
+
+if not TUTORIALS:
+    print 'Content-Type: text/plain'
+    print ''
+    print 'Tutorials disabled on this server, please enable it in config.py'
+    print ''
+    exit(0)
+
 TUTORIAL_BASE = '.tutorials'
 TUTORIAL_START = "000-introduction"
 TUTORIAL_DATA_DIR = DATA_DIR
