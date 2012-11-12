@@ -74,8 +74,8 @@ else:
 assert re.match(r'^[a-zA-Z0-9_-]+$', tutorial_type)
 
 init_session(remote_addr, cookie_data=cookie_data)
-sid = get_session().get_sid()
-reldir = path_join(TUTORIAL_BASE, '.' + sid)
+_id = str(hash(get_session().get_sid()))
+reldir = path_join(TUTORIAL_BASE, '.' + _id)
 userdir = path_join(TUTORIAL_DATA_DIR, reldir)
 tutorial_dir = path_join(userdir, tutorial_type)
 
