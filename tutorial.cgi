@@ -12,7 +12,7 @@ Version:    2012-11-12
 from sys import path as sys_path
 from os.path import join as path_join
 from os.path import dirname, isdir
-from shutil import copytree
+from shutil import copytree, rmtree
 from os import environ, makedirs, errno
 from cgi import FieldStorage
 import re
@@ -77,11 +77,13 @@ init_session(remote_addr, cookie_data=cookie_data)
 sid = get_session().get_sid()
 reldir = path_join(TUTORIAL_BASE, '.' + sid)
 userdir = path_join(TUTORIAL_DATA_DIR, reldir)
-dir = path_join(userdir, tutorial_type)
+tutorial_dir = path_join(userdir, tutorial_type)
 
-if not isdir(dir) or overwrite:
-    mkdir_p(userdir)    
-    copytree(path_join(TUTORIAL_SKELETON, tutorial_type), dir)
+if not isdir(tutorial_dir) or overwrite:
+    mkdir_p(userdir)
+    if isdir(tutorial_dir) and overwrite:
+        rmtree(tutorial_dir)
+    copytree(path_join(TUTORIAL_SKELETON, tutorial_type), tutorial_dir)
 
 start = path_join(reldir, tutorial_type, TUTORIAL_START)
 
