@@ -675,7 +675,7 @@ var VisualizerUI = (function($, window, undefined) {
         fileBrowser.find('#document_select tbody').empty();
 
         if (coll != _coll || doc != _doc ||
-            Util.paramArray(args.matchfocus) != matchFocus) {
+            !Util.isEqual(Util.paramArray(args.matchfocus), (matchFocus || []))) {
           // something changed
 
           // set to allow keeping "blind" down during reload
