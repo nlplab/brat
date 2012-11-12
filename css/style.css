@@ -21,6 +21,14 @@ a img {
   border: 0;
 }
 
+.smallgray {
+  font-size: 80%;
+  color:gray; 
+}
+.smallgray a {
+  color:gray; 
+}
+
 span.tt {
   font-family: 'Bitstream Vera Sans Mono','Courier',monospace;
 }
