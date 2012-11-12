@@ -20,13 +20,18 @@ img.bordered {
 a img {
   border: 0;
 }
-
+a.fronta:visited {
+  color: #2200cc;
+}
 .smallgray {
   font-size: 80%;
   color:gray; 
 }
 .smallgray a {
   color:gray; 
+}
+.smallgray a:visited {
+  color:#aaaaaa; 
 }
 
 span.tt {
