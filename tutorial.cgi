@@ -33,6 +33,7 @@ if not TUTORIALS:
     print ''
     print 'Tutorials disabled on this server, please enable it in config.py'
     print ''
+    print ''
     exit(0)
 
 TUTORIAL_BASE = '.tutorials'
