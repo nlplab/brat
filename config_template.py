@@ -80,6 +80,9 @@ MAX_SEARCH_RESULT_NUMBER = 1000
 
 DEBUG = False
 
+### TUTORIALS
+# Unauthorised users can create tutorials (but not edit without a login)
+TUTORIALS = False
 
 ### LOG_LEVEL
 # If you are a developer you may want to turn on extensive server

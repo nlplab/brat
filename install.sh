@@ -42,7 +42,7 @@ shift `expr $OPTIND - 1`
 # Ask details for config
 
 while true; do
-    echo "Please enter a brat username"
+    echo 'Please the user name that you want to use when logging into brat'
     read user_name
     if [ -n "$user_name" ]; then
 	break
@@ -78,7 +78,7 @@ cat "$base_dir/$CONFIG_TEMPLATE" | \
 mkdir -p $work_dir_abs
 mkdir -p $data_dir_abs
 
-# Try to determine apache group
+# Try to determine Apache group
 
 apache_user=`ps aux | grep -v 'tomcat' | grep '[a]pache\|[h]ttpd' | cut -d ' ' -f 1 | grep -v '^root$' | head -n 1`
 apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
@@ -88,7 +88,7 @@ apache_group=`groups $apache_user | head -n 1 | sed 's/ .*//'`
 cp -r ${base_dir}/example-data/corpora ${DATA_DIR}/examples
 cp -r ${base_dir}/example-data/tutorials ${DATA_DIR}/tutorials
 
-# Make $work_dir_abs and $data_dir_abs writable by apache
+# Make $work_dir_abs and $data_dir_abs writable by Apache
 
 group_ok=0
 if [ "${UNPRIVILEGED}" != 'true' -a -n "$apache_group" -a -n "$apache_user" ] ; then
@@ -107,7 +107,7 @@ if [ "${UNPRIVILEGED}" != 'true' -a -n "$apache_group" -a -n "$apache_user" ] ; 
 	echo "WARNING: failed to change group."
     fi
 else
-    echo "WARNING: failed to determine apache group."
+    echo "WARNING: failed to determine Apache group."
 fi
 
 if [ $group_ok -eq 0 ]; then
@@ -126,7 +126,12 @@ fi
 # Dump some last instructions to the user
 echo 'The installation has finished, you are almost done.'
 echo
-echo '1.) Please verify that brat is running by accessing your installation'
+echo '1.) If you are installing brat on a webserver, make sure you have '
+echo '    followed the steps described in the brat manual to enable CGI:'
+echo
+echo '    http://brat.nlplab.org/installation.html'
+echo
+echo '2.) Please verify that brat is running by accessing your installation'
 echo '    using a web browser.'
 echo
 echo 'You can automatically diagnose some common installation issues using:'
@@ -138,14 +143,14 @@ echo 'brat developers and/or file a bug to the brat bug tracker:'
 echo
 echo '    https://github.com/nlplab/brat/issues'
 echo
-echo '2.) Once brat is running, put your data in the data directory. Or use'
+echo '3.) Once brat is running, put your data in the data directory. Or use'
 echo '    the example data placed there by the installation:'
 echo
 echo "    ${data_dir_abs}"
 echo
-echo '3.) You can find configuration files to place in your data directory in'
+echo '4.) You can find configuration files to place in your data directory in'
 echo '    the configurations directory, see the manual for further details:'
 echo
 echo "    ${base_dir}/configurations"
 echo
-echo '4.) Then, you (and your team?) are ready to start annotating!'
+echo '5.) Then, you (and your team?) are ready to start annotating!'
