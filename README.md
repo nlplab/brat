@@ -1,6 +1,21 @@
 # brat rapid annotation tool (brat) #
 
-## About ##
+## Documentation ##
+
+In an attempt to keep all user-facing documentation in one place, please visit
+the [brat homepage][brat] which contains extensive documentation and examples
+of how to use and configure brat. We apologise for only providing minimal
+documentation along with the installation package but the risk of having
+out-dated documentation delivered to our end-users is unacceptable.
+
+If you find bugs in your brat installation or errors in the documentation,
+please file an issue at our [issue tracker][brat_issues] and we will strive to
+address it promptly.
+
+[brat]:         http://brat.nlplab.org
+[brat_issues]:  https://github.com/nlplab/brat/issues
+
+## About brat ##
 
 *brat* (brat rapid annotation tool) is based on the [stav][stav] visualiser
 which was originally made in order to visualise
@@ -29,21 +44,6 @@ brat does this by:
     to the text
 * Zero set-up for annotators, leave configurations and server/data maintainence
     to other staff
-
-## Documentation ##
-
-In an attempt to keep all user-facing documentation in one place, please visit
-the [brat homepage][brat] which contains extensive documentation and examples
-of how to use and configure brat. We apologise for only providing minimal
-documentation along with the installation package but the risk of having
-out-dated documentation delivered to our end-users is unacceptable.
-
-If you find bugs in your brat installation or errors in the documentation,
-please file an issue at our [issue tracker][brat_issues] and we will strive to
-address it promptly.
-
-[brat]:         http://brat.nlplab.org
-[brat_issues]:  https://github.com/nlplab/brat/issues
 
 ## License ##
 

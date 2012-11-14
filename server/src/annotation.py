@@ -953,7 +953,8 @@ class Annotations(object):
             
             # Protect the write so we don't corrupt the file
             with file_lock(path_join(WORK_DIR,
-                    basename(self._input_files[0].replace('/', '_')))
+                    str(hash(self._input_files[0].replace('/', '_')))
+                        + '.lock')
                     ) as lock_file:
                 #from tempfile import NamedTemporaryFile
                 from tempfile import mkstemp
