@@ -4,6 +4,8 @@ var Util = (function(window, undefined) {
 
     var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+    var isMac = navigator.platform == 'MacIntel'; // XXX should we go broader?
+
     var cmp = function(a,b) {
       return a < b ? -1 : a > b ? 1 : 0;
     }
@@ -604,6 +606,7 @@ var Util = (function(window, undefined) {
       deparam: deparam,
       embed: embed,
       embedByURL: embedByURL,
+      isMac: isMac,
     };
 
 })(window);

@@ -280,6 +280,8 @@ var AnnotatorUI = (function($, window, undefined) {
         if (id = target.attr('data-span-id')) {
           arcOptions = null;
           startArcDrag(id);
+          evt.stopPropagation();
+          evt.preventDefault();
           return false;
         }
       };
@@ -1527,8 +1529,11 @@ var AnnotatorUI = (function($, window, undefined) {
           return;
         }
 
-        // is it arc drag end?
-        if (arcDragOrigin) {
+        if (arcDragJustStarted && (evt.altKey || evt.ctrlKey)) {
+          // is it arc drag start (with ctrl or alt)? do nothing special
+
+        } else if (arcDragOrigin) {
+          // is it arc drag end?
           var origin = arcDragOrigin;
           var targetValid = target.hasClass('reselectTarget');
           stopArcDrag(target);
@@ -1553,7 +1558,7 @@ var AnnotatorUI = (function($, window, undefined) {
               dispatcher.post('logAction', ['arcSelected']);
             }
           }
-        } else if (!evt.ctrlKey) {
+        } else if (!(evt.ctrlKey || evt.altKey) {
           // if not, then is it span selection? (ctrl key cancels)
           var sel = window.getSelection();
           var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
