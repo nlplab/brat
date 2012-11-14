@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Minimal standalone brat server based on CGIHTTPRequestHandler.
+# Minimal standalone brat server based on SimpleHTTPRequestHandler.
 
 # Run as apache, e.g. as
 #
@@ -17,7 +17,7 @@ from cgi import FieldStorage
 from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from SocketServer import ForkingMixIn
-from CGIHTTPServer import CGIHTTPRequestHandler
+from SimpleHTTPServer import SimpleHTTPRequestHandler
 import socket
 
 # brat imports
@@ -155,14 +155,14 @@ class PathPermissions(object):
 
         return self
 
-class BratHTTPRequestHandler(CGIHTTPRequestHandler):
+class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
     """Minimal handler for brat server."""
 
     permissions = PathPermissions().parse(_PERMISSIONS.split('\n'))
 
     def log_request(self, code='-', size='-'):
         if _VERBOSE_HANDLER:
-            CGIHTTPRequestHandler.log_request(self, code, size)
+            SimpleHTTPRequestHandler.log_request(self, code, size)
         else:
             # just ignore logging
             pass
@@ -265,14 +265,14 @@ class BratHTTPRequestHandler(CGIHTTPRequestHandler):
         elif self.is_brat():
             self.run_brat_direct()
         else:
-            CGIHTTPRequestHandler.do_GET(self)
+            SimpleHTTPRequestHandler.do_GET(self)
 
     def do_HEAD(self):
         """Serve a HEAD request."""
         if not self.allow_path():
             self.send_error(403)
         else:
-            CGIHTTPRequestHandler.do_HEAD(self)
+            SimpleHTTPRequestHandler.do_HEAD(self)
        
 class BratServer(ForkingMixIn, HTTPServer):
     def __init__(self, server_address):
