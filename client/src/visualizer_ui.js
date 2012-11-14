@@ -394,9 +394,8 @@ var VisualizerUI = (function($, window, undefined) {
                 if (label && value) {
                   // special treatment for some label values
                   if (label.toLowerCase() == '<img>') {
-                    // image
                     norminfo += ('<img class="norm_info_img" src="'+
-                                 value+
+                                 Util.escapeHTML(value)+
                                  '"/>');
                   } else {
                     // normal, as text
