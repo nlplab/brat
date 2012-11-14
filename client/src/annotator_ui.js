@@ -141,7 +141,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (evt.altKey) {
           prefix = "A-";
         }
-        if (evt.ctrlKey) {
+        if (Util.isMac ? evt.metaKey : evt.ctrlKey) {
           prefix = "C-";
         }
         if (evt.shiftKey) {
@@ -1529,7 +1529,7 @@ var AnnotatorUI = (function($, window, undefined) {
           return;
         }
 
-        if (arcDragJustStarted && (evt.altKey || evt.ctrlKey)) {
+        if (arcDragJustStarted && (Util.isMac ? evt.metaKey : evt.ctrlKey)) {
           // is it arc drag start (with ctrl or alt)? do nothing special
 
         } else if (arcDragOrigin) {
@@ -1558,7 +1558,7 @@ var AnnotatorUI = (function($, window, undefined) {
               dispatcher.post('logAction', ['arcSelected']);
             }
           }
-        } else if (!(evt.ctrlKey || evt.altKey) {
+        } else if (!(Util.isMac ? evt.metaKey : evt.ctrlKey)) {
           // if not, then is it span selection? (ctrl key cancels)
           var sel = window.getSelection();
           var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');

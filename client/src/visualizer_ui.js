@@ -1429,7 +1429,7 @@ var VisualizerUI = (function($, window, undefined) {
               currentForm.trigger('submit');
               return false;
             }
-          } else if (evt.ctrlKey &&
+          } else if ((Util.isMac ? evt.metaKey : evt.ctrlKey) &&
                 (code == 'F'.charCodeAt(0) || code == 'G'.charCodeAt(0))) {
             // prevent Ctrl-F/Ctrl-G in forms
             evt.preventDefault();
@@ -1449,13 +1449,13 @@ var VisualizerUI = (function($, window, undefined) {
           autoPaging(true);
         } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
           autoPaging(false);
-        } else if (evt.ctrlKey && code == 'F'.charCodeAt(0)) {
+        } else if ((Util.isMac ? evt.metaKey : evt.ctrlKey) && code == 'F'.charCodeAt(0)) {
           evt.preventDefault();
           showSearchForm();
-        } else if (searchActive && evt.ctrlKey && code == 'G'.charCodeAt(0)) {
+        } else if (searchActive && (Util.isMac ? evt.metaKey : evt.ctrlKey) && code == 'G'.charCodeAt(0)) {
           evt.preventDefault();
           return moveInFileBrowser(+1);
-        } else if (searchActive && evt.ctrlKey && code == 'K'.charCodeAt(0)) {
+        } else if (searchActive && (Util.isMac ? evt.metaKey : evt.ctrlKey) && code == 'K'.charCodeAt(0)) {
           evt.preventDefault();
           clearSearchResults();
         }
