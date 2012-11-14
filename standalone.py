@@ -17,7 +17,6 @@ from cgi import FieldStorage
 from BaseHTTPServer import HTTPServer
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 from SocketServer import ForkingMixIn
-from SimpleHTTPServer import SimpleHTTPRequestHandler
 import socket
 
 # brat imports
