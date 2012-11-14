@@ -228,37 +228,6 @@ class BratHTTPRequestHandler(CGIHTTPRequestHandler):
             self.wfile.write(response_data[1])
         return 0
 
-    def run_brat_exec(self):
-        """Execute brat server using execfile('ajax.cgi')."""
-
-        # stipped down from CGIHTTPRequestHandler run_cgi()
-
-        scriptfile = self.translate_path('/ajax.cgi')
-
-        env = {}
-        env['REQUEST_METHOD'] = self.command
-        env['REMOTE_HOST'] = self.address_string()
-        env['REMOTE_ADDR'] = self.client_address[0]
-        env['CONTENT_LENGTH'] = self.headers.getheader('content-length')
-        env['HTTP_COOKIE'] = ', '.join(filter(None, self.headers.getheaders('cookie')))
-        os.environ.update(env)
-
-        self.send_response(200)
-
-        try:
-            saved = sys.stdin, sys.stdout, sys.stderr
-            sys.stdin, sys.stdout = self.rfile, self.wfile
-            sys.argv = [scriptfile]
-            try:
-                execfile(scriptfile, {'__name__': '__main__',
-                                      '__file__': __file__ })
-            finally:
-                sys.stdin, sys.stdout, sys.stderr = saved
-        except SystemExit, sts:
-            print >> sys.stderr, 'exit status', sts
-        else:
-            print >> sys.stderr, 'exit OK'
-
     def allow_path(self):
         """Test whether to allow a request for self.path."""
 
