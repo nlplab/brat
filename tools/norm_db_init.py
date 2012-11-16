@@ -44,7 +44,6 @@ import sqlite3 as sqlite
 try:
     import simstring
 except ImportError:
-    from message import Messager    
     errorstr = """
     Error: failed to import the simstring library.
     This library is required for approximate string matching DB lookup.
