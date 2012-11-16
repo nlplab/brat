@@ -48,14 +48,14 @@ __expected_annotation_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTIO
 __optional_annotation_sections = []
 
 # visual config section name constants
+OPTIONS_SECTION    = "options"
 LABEL_SECTION     = "labels"
 DRAWING_SECTION   = "drawing"
 
-__expected_visual_sections = (LABEL_SECTION, DRAWING_SECTION)
-__optional_visual_sections = []
+__expected_visual_sections = (OPTIONS_SECTION, LABEL_SECTION, DRAWING_SECTION)
+__optional_visual_sections = [OPTIONS_SECTION]
 
 # tools config section name constants
-OPTIONS_SECTION    = "options"
 SEARCH_SECTION     = "search"
 ANNOTATORS_SECTION = "annotators"
 DISAMBIGUATORS_SECTION = "disambiguators"
@@ -752,6 +752,9 @@ def get_option_config(directory):
 def get_drawing_config(directory):
     return get_visual_configs(directory)[0][DRAWING_SECTION]
 
+def get_visual_option_config(directory):
+    return get_visual_configs(directory)[0][OPTIONS_SECTION]
+
 def get_visual_config_section_labels(directory):
     return get_visual_configs(directory)[1]
 
@@ -885,11 +888,10 @@ def get_node_by_storage_form(directory, term):
     return cache[directory].get(term, None)
 get_node_by_storage_form.__cache = {}
 
-def get_option_config_by_storage_form(directory, term):
-    cache = get_option_config_by_storage_form.__cache
+def _get_option_by_storage_form(directory, term, config, cache):
     if directory not in cache:
         d = {}
-        for n in get_option_config(directory):
+        for n in config:
             t = n.storage_form()
             if t in d:
                 Messager.warning("Project configuration: %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
@@ -902,7 +904,18 @@ def get_option_config_by_storage_form(directory, term):
         cache[directory] = d
 
     return cache[directory].get(term, None)
+
+def get_option_config_by_storage_form(directory, term):
+    cache = get_option_config_by_storage_form.__cache
+    config = get_option_config(directory)
+    return _get_option_by_storage_form(directory, term, config, cache)
 get_option_config_by_storage_form.__cache = {}    
+
+def get_visual_option_config_by_storage_form(directory, term):
+    cache = get_visual_option_config_by_storage_form.__cache
+    config = get_visual_option_config(directory)
+    return _get_option_by_storage_form(directory, term, config, cache)
+get_visual_option_config_by_storage_form.__cache = {}    
 
 # access for settings for specific options in tools.conf
 # TODO: avoid fixed string values here, define vars earlier
@@ -922,6 +935,12 @@ def options_get_ssplitter(directory):
 def options_get_annlogfile(directory):
     v = get_option_config_by_storage_form(directory, 'Annotation-log')
     return '<NONE>' if v is None else v.get('logfile', '<NONE>')
+
+# access for settings for specific options in visual.conf
+
+def visual_options_get_arc_bundle(directory):
+    v = get_visual_option_config_by_storage_form(directory, 'Arcs')
+    return 'none' if v is None else v.get('bundle', 'none')
 
 def get_drawing_config_by_storage_form(directory, term):
     cache = get_drawing_config_by_storage_form.__cache

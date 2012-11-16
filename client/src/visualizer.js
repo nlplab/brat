@@ -334,6 +334,8 @@ var Visualizer = (function($, window, undefined) {
       var eventAttributeTypes = null;
       var spanTypes = null;
       var highlightGroup;
+      var collapseArcs = false;
+      var collapseArcSpace = false;
 
       // var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
       // XXX Might need to be tweaked - inserted diff levels
@@ -429,6 +431,21 @@ var Visualizer = (function($, window, undefined) {
           }
         });
       };
+
+      var findArcHeight = function(fromIndex, toIndex, fragmentHeights) {
+        var height = 0;
+        for (var i = fromIndex; i <= toIndex; i++) {
+          if (fragmentHeights[i] > height) height = fragmentHeights[i];
+        }
+        height += Configuration.visual.arcSpacing;
+        return height;
+      }
+
+      var adjustFragmentHeights = function(fromIndex, toIndex, fragmentHeights, height) {
+        for (var i = fromIndex; i <= toIndex; i++) {
+          if (fragmentHeights[i] < height) fragmentHeights[i] = height;
+        }
+      }
 
       var fragmentComparator = function(a, b) {
         var tmp;
@@ -1914,6 +1931,36 @@ Util.profileStart('arcsPrep');
           return 0;
         });
 
+        // see which fragments are in each row
+        var heightsStart = 0;
+        var heightsRowsAdded = 0;
+        $.each(rows, function(rowId, row) {
+          var seenFragment = false;
+          row.heightsStart = row.heightsEnd = heightsStart;
+          $.each(row.chunks, function(chunkId, chunk) {
+            if (chunk.lastFragmentIndex !== undefined) {
+              // fragmentful chunk
+              seenFragment = true;
+              var heightsIndex = chunk.lastFragmentIndex * 2 + heightsRowsAdded;
+              if (row.heightsEnd < heightsIndex) {
+                row.heightsEnd = heightsIndex;
+              }
+              var heightsIndex = chunk.firstFragmentIndex * 2 + heightsRowsAdded;
+              if (row.heightsStart > heightsIndex) {
+                row.heightsStart = heightsIndex;
+              }
+            }
+          });
+          fragmentHeights.splice(row.heightsStart, 0, Configuration.visual.arcStartHeight);
+          heightsRowsAdded++;
+
+          row.heightsAdjust = heightsRowsAdded;
+          if (seenFragment) {
+            row.heightsEnd += 2;
+          }
+          heightsStart = row.heightsEnd + 1;
+        });
+
         // draw the drag arc marker
         var arrowhead = svg.marker(defs, 'drag_arrow',
           5, 2.5, 5, 5, 'auto',
@@ -1926,6 +1973,7 @@ Util.profileStart('arcsPrep');
 Util.profileEnd('arcsPrep');
 Util.profileStart('arcs');
 
+        var arcCache = {};
         // add the arcs
         $.each(data.arcs, function(arcNo, arc) {
           // separate out possible numeric suffix from type
@@ -2001,30 +2049,27 @@ Util.profileStart('arcs');
           }
 
           // find the next height
-          var height = 0;
+          var height;
 
           var fromIndex2, toIndex2;
           if (left.chunk.index == right.chunk.index) {
-            fromIndex2 = left.towerId * 2;
-            toIndex2 = right.towerId * 2;
+            fromIndex2 = left.towerId * 2 + left.chunk.row.heightsAdjust;
+            toIndex2 = right.towerId * 2 + right.chunk.row.heightsAdjust;
           } else {
-            fromIndex2 = left.towerId * 2 + 1;
-            toIndex2 = right.towerId * 2 - 1;
+            fromIndex2 = left.towerId * 2 + 1 + left.chunk.row.heightsAdjust;
+            toIndex2 = right.towerId * 2 - 1 + right.chunk.row.heightsAdjust;
           }
-          for (var i = fromIndex2; i <= toIndex2; i++) {
-            if (fragmentHeights[i] > height) height = fragmentHeights[i];
+          if (!collapseArcSpace) {
+            height = findArcHeight(fromIndex2, toIndex2, fragmentHeights);
+            adjustFragmentHeights(fromIndex2, toIndex2, fragmentHeights, height);
+
+            // Adjust the height to align with pixels when rendered
+
+            // TODO: on at least Chrome, this doesn't make a difference:
+            // the lines come out pixel-width even without it. Check.
+            height += 0.5;
           }
-          height += Configuration.visual.arcSpacing;
           var leftSlantBound, rightSlantBound;
-          for (var i = fromIndex2; i <= toIndex2; i++) {
-            if (fragmentHeights[i] < height) fragmentHeights[i] = height;
-          }
-
-          // Adjust the height to align with pixels when rendered
-
-          // TODO: on at least Chrome, this doesn't make a difference:
-          // the lines come out pixel-width even without it. Check.
-          height += 0.5
 
           var chunkReverse = false;
           var ufoCatcher = originSpan.headFragment.chunk.index == targetSpan.headFragment.chunk.index;
@@ -2037,6 +2082,13 @@ Util.profileStart('arcs');
           for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
             var row = rows[rowIndex];
             row.hasAnnotations = true;
+
+            if (collapseArcSpace) {
+              var fromIndex2R = rowIndex == leftRow ? fromIndex2 : row.heightsStart;
+              var toIndex2R = rowIndex == rightRow ? toIndex2 : row.heightsEnd;
+              height = findArcHeight(fromIndex2R, toIndex2R, fragmentHeights);
+            }
+
             var arcGroup = svg.group(row.arcs, {
                 'data-from': arc.origin,
                 'data-to': arc.target
@@ -2053,6 +2105,30 @@ Util.profileStart('arcs');
               to = rightBox.x + (chunkReverse ? rightBox.width : 0);
             } else {
               to = canvasWidth - 2 * Configuration.visual.margin.y;
+            }
+
+            var adjustHeight = true;
+            if (collapseArcs) {
+              var arcCacheKey = arc.type + ' ' + rowIndex + ' ' + from + ' ' + to;
+              if (rowIndex == leftRow) arcCacheKey = left.span.id + ' ' + arcCacheKey;
+              if (rowIndex == rightRow) arcCacheKey += ' ' + right.span.id;
+              var rowHeight = arcCache[arcCacheKey];
+              if (rowHeight !== undefined) {
+                height = rowHeight;
+                adjustHeight = false;
+              } else {
+                arcCache[arcCacheKey] = height;
+              }
+            }
+
+            if (collapseArcSpace && adjustHeight) {
+              adjustFragmentHeights(fromIndex2R, toIndex2R, fragmentHeights, height);
+
+              // Adjust the height to align with pixels when rendered
+
+              // TODO: on at least Chrome, this doesn't make a difference:
+              // the lines come out pixel-width even without it. Check.
+              height += 0.5;
             }
 
             var originType = data.spans[arc.origin].type;
@@ -2377,6 +2453,7 @@ Util.profileStart('rows');
         var sentNumGroup = svg.group({'class': 'sentnum'});
         var currentSent;
         $.each(rows, function(rowId, row) {
+          // find the maximum fragment height
           $.each(row.chunks, function(chunkId, chunk) {
             $.each(chunk.fragments, function(fragmentId, fragment) {
               if (row.maxSpanHeight < fragment.height) row.maxSpanHeight = fragment.height;
@@ -2699,7 +2776,7 @@ Util.profileReport();
                 // We are sure not to be drawing anymore, reset the state
                 drawing = false;
                 // TODO: Hook printout into dispatch elsewhere?
-                console.warn('Rendering terminated due to:', e);
+                console.warn('Rendering terminated due to: ' + e, e.stack);
                 dispatcher.post('renderError: Fatal', [sourceData, e]);
               }
               dispatcher.post('unspin');
@@ -3052,6 +3129,9 @@ Util.profileStart('before render');
           $.each(response.relation_types, function(relTypeNo, relType) {
             relationTypesHash[relType.type] = relType;
           });
+          var arcBundle = response.visual_options.arc_bundle;
+          collapseArcs = arcBundle == "all";
+          collapseArcSpace = arcBundle != "none";
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, entityAttributeTypes, eventAttributeTypes, relationTypesHash]);
 

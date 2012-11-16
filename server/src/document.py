@@ -34,7 +34,8 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
         ATTR_DRAWING_ATTRIBUTES, VISUAL_ATTR_DEFAULT,
         SPECIAL_RELATION_TYPES, 
         options_get_validation, options_get_tokenization,
-        options_get_ssplitter, get_annotation_config_section_labels)
+        options_get_ssplitter, get_annotation_config_section_labels,
+        visual_options_get_arc_bundle)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -482,6 +483,11 @@ def _inject_annotation_type_conf(dir_path, json_dic=None):
     json_dic['ui_names'] = {}
     for c in ['entities', 'relations', 'events', 'attributes']:
         json_dic['ui_names'][c] = section_labels.get(c,c)
+
+    # inject general visual options (currently just arc bundling) (#949)
+    visual_options = {}
+    visual_options['arc_bundle'] = visual_options_get_arc_bundle(dir_path)
+    json_dic['visual_options'] = visual_options
 
     return json_dic
 
