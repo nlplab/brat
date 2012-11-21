@@ -327,7 +327,7 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
         for o_start, o_end in offsets:
             pos = o_start
             for text_seg in text.split('\n'):
-                if not text_seg:
+                if not text_seg and o_start != o_end:
                     # Double new-line, skip ahead
                     pos += 1
                     continue
