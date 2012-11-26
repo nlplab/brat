@@ -660,8 +660,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         var showAllAttributes = false;
         if (span) {
-          var hash = new URLHash(coll, doc, { focus: [[span.id]] }).getHash();
-          $('#span_highlight_link').attr('href', hash).show();
+          var linkHash = new URLHash(coll, doc, { focus: [[span.id]] }).getHash();
           var el = $('#span_' + span.type);
           if (el.length) {
             el[0].checked = true;
@@ -694,7 +693,8 @@ var AnnotatorUI = (function($, window, undefined) {
             $('#span_form_split').hide();
           }
         } else {
-          $('#span_highlight_link').hide();
+          var offsets = spanOptions.offsets[0];
+          var linkHash = new URLHash(coll, doc, { focus: [[offsets[0], offsets[1]]] }).getHash();
           var firstRadio = $('#span_form input:radio:not([unused]):first')[0];
           if (firstRadio) {
             firstRadio.checked = true;
@@ -707,6 +707,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#span_notes').val('');
           showAllAttributes = true;
         }
+        $('#span_highlight_link').attr('href', linkHash);
         if (span && !reselectedSpan) {
           $('#span_form_reselect, #span_form_delete, #span_form_add_fragment').show();
           keymap[$.ui.keyCode.DELETE] = 'span_form_delete';
