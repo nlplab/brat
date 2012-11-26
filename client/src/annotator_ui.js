@@ -299,7 +299,7 @@ var AnnotatorUI = (function($, window, undefined) {
             // var targetClasses = [];
             var $targets = $();
             $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
-              if ((arcOptions && possibleArc.type == noNumArcType) || !(arcOptions && arcOptions.old_target)) {
+              if (arcOptions ? arcOptions.old_target : possibleArc.type == noNumArcType) {
                 $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
                   // speedup for #642: relevant browsers should support
                   // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
@@ -1378,7 +1378,8 @@ var AnnotatorUI = (function($, window, undefined) {
           if (backTargetType) {
             $.each(backTargetType.arcs || [], function(backArcTypeNo, backArcDesc) {
               if ($.inArray(originType, backArcDesc.targets || []) != -1) {
-                reversalPossible = true;
+                var relType = relationTypesHash[backArcDesc.type];
+                reversalPossible = !(relType && relType.properties.symmetric);
                 return false; // terminate the loop
               }
             });
