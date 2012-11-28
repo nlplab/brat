@@ -299,7 +299,7 @@ var AnnotatorUI = (function($, window, undefined) {
             // var targetClasses = [];
             var $targets = $();
             $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
-              if (arcOptions ? arcOptions.old_target : possibleArc.type == noNumArcType) {
+              if ((arcOptions && possibleArc.type == noNumArcType) || !(arcOptions && arcOptions.old_target)) {
                 $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
                   // speedup for #642: relevant browsers should support
                   // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
