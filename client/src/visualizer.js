@@ -1997,18 +1997,23 @@ Util.profileStart('arcs');
             right = originSpan.headFragment;
           }
 
-          var spanDesc = spanTypes[originSpan.type];
+          // fall back on relation types in case we still don't have
+          // an arc description, with final fallback to unnumbered relation
+          var arcDesc = relationTypesHash[arc.type] || relationTypesHash[noNumArcType];
+
+          // if it's not a relationship, see if we can find it in span
+          // descriptions
           // TODO: might make more sense to reformat this as dict instead
           // of searching through the list every type
-          var arcDesc;
-          if (spanDesc && spanDesc.arcs) {
+          var spanDesc = spanTypes[originSpan.type];
+          if (!arcDesc && spanDesc && spanDesc.arcs) {
             $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
                 if (arcDescIter.type == arc.type) {
                   arcDesc = arcDescIter;
                 }
               });
           }
-          // fall back on unnumbered type if not found in full
+          // last fall back on unnumbered type if not found in full
           if (!arcDesc && noNumArcType && noNumArcType != arc.type &&
             spanDesc && spanDesc.arcs) {
             $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
@@ -2017,11 +2022,9 @@ Util.profileStart('arcs');
                 }
               });
           }
-          // fall back on relation types in case we still don't have
-          // an arc description, with final fallback to unnumbered relation
-          if (!arcDesc) {
-            arcDesc = $.extend({}, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
-          }
+          // empty default
+          if (!arcDesc) arcDesc = {};
+
           var color = ((arcDesc && arcDesc.color) ||
                        (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
                        '#000000');
@@ -2257,9 +2260,9 @@ Util.profileStart('arcs');
 
             var myArrowHead   = ((arcDesc && arcDesc.arrowHead) ||
                                  (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
-            var arrowName = (leftToRight ?
-                symmetric && myArrowHead || 'none' :
-                myArrowHead || 'triangle,5') + ',' + color;
+            var arrowName = (symmetric ? myArrowHead || 'none' :
+                  (leftToRight ? 'none' : myArrowHead || 'triangle,5')
+                ) + ',' + color;
             var arrowType = arrows[arrowName];
             var arrowDecl = arrowType && ('url(#' + arrowType + ')');
 
@@ -2330,11 +2333,13 @@ Util.profileStart('arcs');
                   'strokeDashArray': dashArray,
               });
             }
-            var myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
-                               (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
-            var arrowName = (leftToRight ?
-                myArrowHead || 'triangle,5' :
-                symmetric && myArrowHead || 'none') + ',' + color;
+            if (!symmetric) {
+              myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
+                             (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
+              arrowName = (leftToRight ?
+                  myArrowHead || 'triangle,5' :
+                  'none') + ',' + color;
+            }
             var arrowType = arrows[arrowName];
             var arrowDecl = arrowType && ('url(#' + arrowType + ')');
 
