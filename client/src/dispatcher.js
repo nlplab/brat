@@ -56,7 +56,7 @@ var Dispatcher = (function($, window, undefined) {
               try {
                 message.apply(host, args);
               } catch(e) {
-                that.handleAsynchError(e);
+                handleAsynchError(e);
               }
             }, asynch);
           } else {
@@ -74,7 +74,7 @@ var Dispatcher = (function($, window, undefined) {
                   try {
                     item[1].apply(item[0], args);
                   } catch (e) {
-                    that.handleAsynchError(e);
+                    handleAsynchError(e);
                   }
                 }, asynch);
               } else {
