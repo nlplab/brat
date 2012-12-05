@@ -586,11 +586,36 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
-      var showForm = function(form) {
+      var unsafeDialogOpen = function($dialog) {
+        // does not restrict tab key to the dialog
+        // does not set the focus
+
+        var widget = $dialog.data('dialog');
+        if (widget._isOpen) { return; }
+
+        var self = widget,
+                options = self.options,
+                uiDialog = self.uiDialog;
+
+        self.overlay = options.modal ? new $.ui.dialog.overlay(self) : null;
+        self._size();
+        self._position(options.position);
+        uiDialog.show(options.show);
+        self.moveToTop(true);
+
+        self._isOpen = true;
+        self._trigger('open');
+      };
+
+      var showForm = function(form, unsafe) {
         currentForm = form;
         // as suggested in http://stackoverflow.com/questions/2657076/jquery-ui-dialog-fixed-positioning
         form.parent().css({position:"fixed"});
-        form.dialog('open');
+        if (unsafe) {
+          unsafeDialogOpen(form);
+        } else {
+          form.dialog('open');
+        }
         slideToggle($('#pulldown').stop(), false);
         return form;
       };

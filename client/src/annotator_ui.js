@@ -896,7 +896,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (reselectedSpan) { // && !Configuration.confirmModeOn) {
           submitReselect();
         } else {
-          dispatcher.post('showForm', [spanForm]);
+          dispatcher.post('showForm', [spanForm, true]);
           $('#span_form-ok').focus();
           adjustToCursor(evt, spanForm.parent());
         }
@@ -1085,7 +1085,7 @@ var AnnotatorUI = (function($, window, undefined) {
           close: function(evt) {
             // assume that we always want to return to the span dialog
             // on normalization dialog close
-            dispatcher.post('showForm', [spanForm]);
+            dispatcher.post('showForm', [spanForm, true]);
           },
       });
       $('#norm_search_query').autocomplete({
