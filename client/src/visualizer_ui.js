@@ -588,7 +588,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var unsafeDialogOpen = function($dialog) {
         // does not restrict tab key to the dialog
-        // does not set the focus
+        // does not set the focus, nor change position
         // but is much faster than dialog('open') for large dialogs, see
         // https://github.com/nlplab/brat/issues/934
 
@@ -601,10 +601,8 @@ var VisualizerUI = (function($, window, undefined) {
 
         self.overlay = options.modal ? new $.ui.dialog.overlay(self) : null;
         self._size();
-        self._position(options.position);
         uiDialog.show(options.show);
         self.moveToTop(true);
-
         self._isOpen = true;
         self._trigger('open');
       };
