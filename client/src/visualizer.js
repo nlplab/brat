@@ -3134,7 +3134,7 @@ Util.profileStart('before render');
           $.each(response.relation_types, function(relTypeNo, relType) {
             relationTypesHash[relType.type] = relType;
           });
-          var arcBundle = response.visual_options.arc_bundle;
+          var arcBundle = response.visual_options.arc_bundle || 'none';
           collapseArcs = arcBundle == "all";
           collapseArcSpace = arcBundle != "none";
 
