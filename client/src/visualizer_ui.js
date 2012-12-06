@@ -589,6 +589,8 @@ var VisualizerUI = (function($, window, undefined) {
       var unsafeDialogOpen = function($dialog) {
         // does not restrict tab key to the dialog
         // does not set the focus
+        // but is much faster than dialog('open') for large dialogs, see
+        // https://github.com/nlplab/brat/issues/934
 
         var widget = $dialog.data('dialog');
         if (widget._isOpen) { return; }
