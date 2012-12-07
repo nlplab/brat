@@ -1292,8 +1292,6 @@ var Visualizer = (function($, window, undefined) {
       var redraw = false;
 
       var renderDataReal = function(sourceData) {
-
-
 Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
@@ -1640,7 +1638,7 @@ Util.profileStart('chunks');
                   line(xx, yy + hh + Configuration.visual.margin.y - span.floor),
                   { 'class': 'boxcross' });
             }
-            var fragmentText = svg.text(fragment.group, x, y - span.floor, data.spanAnnTexts[fragment.glyphedLabelText], { fill: fgColor });
+            svg.text(fragment.group, x, y - span.floor, data.spanAnnTexts[fragment.glyphedLabelText], { fill: fgColor });
 
             // Make curlies to show the fragment
             if (fragment.drawCurly) {

@@ -65,6 +65,9 @@ var AnnotatorUI = (function($, window, undefined) {
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
 
+      var arcTargets;
+      var arcTargetRects;
+
       var stripNumericSuffix = function(s) {
         // utility function, originally for stripping numerix suffixes
         // from arc types (e.g. "Theme2" -> "Theme"). For values
@@ -296,21 +299,26 @@ var AnnotatorUI = (function($, window, undefined) {
             // separate out possible numeric suffix from type for highight
             // (instead of e.g. "Theme3", need to look for "Theme")
             var noNumArcType = stripNumericSuffix(arcOptions && arcOptions.type);
-            // var targetClasses = [];
-            var $targets = $();
+            var targetTypes = [];
             $.each(spanDesc.arcs || [], function(possibleArcNo, possibleArc) {
               if ((arcOptions && possibleArc.type == noNumArcType) || !(arcOptions && arcOptions.old_target)) {
                 $.each(possibleArc.targets || [], function(possibleTargetNo, possibleTarget) {
-                  // speedup for #642: relevant browsers should support
-                  // this function: http://www.quirksmode.org/dom/w3c_core.html#t11
-                  // so we get off jQuery and get down to the metal:
-                  // targetClasses.push('.span_' + possibleTarget);
-                  $targets = $targets.add(svgElement[0].getElementsByClassName('span_' + possibleTarget));
+                  targetTypes.push(possibleTarget);
                 });
               }
             });
-            // $(targetClasses.join(',')).not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
-            $targets.not('[data-span-id="' + arcDragOrigin + '"]').addClass('reselectTarget');
+            arcTargets = [];
+            arcTargetRects = [];
+            $.each(data.spans, function(spanNo, span) {
+              if (span.id == arcDragOrigin) return;
+              if (targetTypes.indexOf(span.type) != -1) {
+                arcTargets.push(span.id);
+                $.each(span.fragments, function(fragmentNo, fragment) {
+                  arcTargetRects.push(fragment.rect);
+                });
+              }
+            });
+            $(arcTargetRects).addClass('reselectTarget');
           }
           clearSelection();
           var mx = evt.pageX - svgPosition.left;
@@ -1510,9 +1518,11 @@ var AnnotatorUI = (function($, window, undefined) {
               $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').removeClass('reselect');
           }
           svgElement.removeClass('reselect');
+          $(arcTargetRects).removeClass('reselectTarget');
+          arcTargets = [];
+          arcTargetRects = [];
         }
         svgElement.removeClass('unselectable');
-        $('.reselectTarget').removeClass('reselectTarget');
       };
 
       var onMouseUp = function(evt) {
@@ -1537,9 +1547,10 @@ var AnnotatorUI = (function($, window, undefined) {
         } else if (arcDragOrigin) {
           // is it arc drag end?
           var origin = arcDragOrigin;
-          var targetValid = target.hasClass('reselectTarget');
+          var id = target.attr('data-span-id');
+          var targetValid = arcTargets.indexOf(id) != -1;
           stopArcDrag(target);
-          if ((id = target.attr('data-span-id')) && origin != id && targetValid) {
+          if (id && origin != id && targetValid) {
             var originSpan = data.spans[origin];
             var targetSpan = data.spans[id];
             if (arcOptions && arcOptions.old_target) {
