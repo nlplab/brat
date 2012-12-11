@@ -239,18 +239,21 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var startArcDrag = function(originId) {
         clearSelection();
-        svgElement.addClass('unselectable');
         svgPosition = svgElement.offset();
+        svgElement.addClass('unselectable');
         arcDragOrigin = originId;
-        arcDragArc = svg.path(svg.createPath(), {
-          markerEnd: 'url(#drag_arrow)',
-          'class': 'drag_stroke',
-          fill: 'none',
-        });
         arcDragOriginGroup = $(data.spans[arcDragOrigin].group);
         arcDragOriginGroup.addClass('highlight');
-        arcDragOriginBox = Util.realBBox(data.spans[arcDragOrigin].headFragment);
-        arcDragOriginBox.center = arcDragOriginBox.x + arcDragOriginBox.width / 2;
+        var headFragment = data.spans[arcDragOrigin].headFragment;
+        var chunk = headFragment.chunk;
+        var fragBox = headFragment.rectBox;
+        arcDragOriginBox = {
+            x: fragBox.x + chunk.translation.x,
+            y: fragBox.y + chunk.row.translation.y,
+            height: fragBox.height,
+            width: fragBox.width,
+            center: fragBox.x + chunk.translation.x + fragBox.width / 2,
+          };
 
         arcDragJustStarted = true;
       };
@@ -292,6 +295,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var onMouseMove = function(evt) {
         if (arcDragOrigin) {
           if (arcDragJustStarted) {
+            arcDragArc.setAttribute('visibility', 'visible');
             // show the possible targets
             var span = data.spans[arcDragOrigin] || {};
             var spanDesc = spanTypes[span.type] || {};
@@ -1509,10 +1513,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (target) {
             target.parent().removeClass('highlight');
           }
-          if (arcDragArc) {
-            svg.remove(arcDragArc);
-            arcDrag = null;
-          }
+          arcDragArc.setAttribute('visibility', 'hidden');
           arcDragOrigin = null;
           if (arcOptions) {
               $('g[data-from="' + arcOptions.origin + '"][data-to="' + arcOptions.target + '"]').removeClass('reselect');
@@ -2621,8 +2622,13 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('annotationIsAvailable');
       };
 
+      var arcDragArcDrawn = function(arc) {
+        arcDragArc = arc;
+      };
+
       dispatcher.
           on('init', init).
+          on('arcDragArcDrawn', arcDragArcDrawn).
           on('getValidArcTypesForDrag', getValidArcTypesForDrag).
           on('dataReady', rememberData).
           on('collectionLoaded', rememberSpanSettings).

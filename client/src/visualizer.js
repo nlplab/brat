@@ -1967,6 +1967,13 @@ Util.profileStart('arcsPrep');
             'class': 'drag_fill',
           });
         svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
+        var arcDragArc = svg.path(svg.createPath(), {
+          markerEnd: 'url(#drag_arrow)',
+          'class': 'drag_stroke',
+          fill: 'none',
+          visibility: 'hidden',
+        });
+        dispatcher.post('arcDragArcDrawn', [arcDragArc]);
 
 Util.profileEnd('arcsPrep');
 Util.profileStart('arcs');
