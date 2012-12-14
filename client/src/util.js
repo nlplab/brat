@@ -562,11 +562,11 @@ var Util = (function(window, undefined) {
     //   simple `embed` instead)
     // callback: optional; the callback to call afterwards; it will be
     //   passed the embedded visualizer's dispatcher object
-    var embedByURL = function(container, collDataURL, docDataURL, callback) {
+    var embedByURL = function(container, collDataURL, docDataURL, webFontURLs, callback) {
       var collData, docData;
       var handler = function() {
         if (collData && docData) {
-          var dispatcher = embed(container, collData, docData);
+          var dispatcher = embed(container, collData, docData, webFontURLs);
           if (callback) callback(dispatcher);
         }
       };
