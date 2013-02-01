@@ -138,6 +138,8 @@ def parse_event(fields):
     type_trigger_args = type_trigger_args.split(' ')
     type_trigger, args = type_trigger_args[0], type_trigger_args[1:]
     type_, trigger = type_trigger.split(':')
+    # remove empty "arguments"
+    args = [a for a in args if a]
     return Event(id_, type_, trigger, args)
 
 def parse_attribute(fields):
