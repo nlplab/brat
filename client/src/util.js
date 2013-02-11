@@ -539,6 +539,39 @@ var Util = (function(window, undefined) {
         console.log("-------");
       }
     }; // profileReport
+    
+    var splitMultilineFragments = function(docData) {
+		  for (var ei = 0; ei < docData.entities.length; ei++) {
+			  var segmentedFragments = [];
+
+			  var fragments = docData.entities[ei][2];
+			  for (var fi = 0; fi < fragments.length; fi++) {
+				
+				  var fragment = fragments[fi];
+				  var begin = fragment[0];
+				  var end = fragment[1];
+				
+				  for (var ti = begin; ti < end; ti++) {
+					  var c = docData.text.charAt(ti);
+					  if (c == '\n' || c == '\r') {
+						  if (begin != -1) {
+	  						segmentedFragments.push([begin, ti])
+  							begin = -1;
+						  }
+					  }
+					  else if (begin == -1) {
+						  begin = ti;
+					  }
+				  }
+				
+				  if (end - begin > 0) {
+					  segmentedFragments.push([begin, end]);
+				  }
+				
+				  docData.entities[ei][2] = segmentedFragments;
+			  }
+		  }
+    };
 
     // container: ID or jQuery element
     // collData: the collection data (in the format of the result of
@@ -547,6 +580,7 @@ var Util = (function(window, undefined) {
     //   http://.../brat/ajax.cgi?action=getDocument&collection=...&document=...
     // returns the embedded visualizer's dispatcher object
     var embed = function(container, collData, docData, webFontURLs) {
+      splitMultilineFragments(docData);
       var dispatcher = new Dispatcher();
       var visualizer = new Visualizer(dispatcher, container, webFontURLs);
       docData.collection = null;
