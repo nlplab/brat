@@ -540,46 +540,6 @@ var Util = (function(window, undefined) {
       }
     }; // profileReport
     
-    var splitMultilineFragments = function(docData) {
-      docData.segmentedFragmentsMap = {};
-      docData.unsegmentedFragments = {};
-
-		  for (var ei = 0; ei < docData.entities.length; ei++) {
-			  var segmentedFragments = [];
-
-			  var fragments = docData.entities[ei][2];
-        var spanId = docData.entities[ei][0];
-        docData.unsegmentedFragments[spanId] = fragments;
-        var segmentedFragmentsMap = docData.segmentedFragmentsMap[spanId] = {};
-
-			  for (var fi = 0, nfi = 0; fi < fragments.length; fi++) {
-				  var fragment = fragments[fi];
-				  var begin = fragment[0];
-				  var end = fragment[1];
-				
-				  for (var ti = begin; ti < end; ti++) {
-					  var c = docData.text.charAt(ti);
-					  if (c == '\n' || c == '\r') {
-						  if (begin != -1) {
-	  						segmentedFragments.push([begin, ti])
-                segmentedFragmentsMap[nfi++] = fi;
-  							begin = -1;
-						  }
-					  }
-					  else if (begin == -1) {
-						  begin = ti;
-					  }
-				  }
-				
-				  if (end - begin > 0) {
-					  segmentedFragments.push([begin, end]);
-            segmentedFragmentsMap[nfi++] = fi;
-				  }
-				  docData.entities[ei][2] = segmentedFragments;
-			  }
-		  }
-    };
-
     // container: ID or jQuery element
     // collData: the collection data (in the format of the result of
     //   http://.../brat/ajax.cgi?action=getCollectionInformation&collection=...
@@ -587,7 +547,6 @@ var Util = (function(window, undefined) {
     //   http://.../brat/ajax.cgi?action=getDocument&collection=...&document=...
     // returns the embedded visualizer's dispatcher object
     var embed = function(container, collData, docData, webFontURLs) {
-      splitMultilineFragments(docData);
       var dispatcher = new Dispatcher();
       var visualizer = new Visualizer(dispatcher, container, webFontURLs);
       docData.collection = null;

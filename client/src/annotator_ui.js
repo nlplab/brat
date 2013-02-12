@@ -213,13 +213,11 @@ var AnnotatorUI = (function($, window, undefined) {
           clearSelection();
           editedSpan = data.spans[id];
           editedFragment = target.attr('data-fragment-id');
-          var offsets = [];
-          $.each(editedSpan.fragments, function(fragmentNo, fragment) {
-            offsets.push([fragment.from, fragment.to]);
-          });
+          // XXX we went from collecting fragment offsets to copying
+          // them from data. Does anything break?
           spanOptions = {
             action: 'createSpan',
-            offsets: offsets,
+            offsets: editedSpan.unsegmentedOffsets,
             type: editedSpan.type,
             id: id,
           };

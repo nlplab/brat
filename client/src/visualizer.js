@@ -33,8 +33,11 @@ var Visualizer = (function($, window, undefined) {
       this.totalDist = 0;
       this.numArcs = 0;
       this.generalType = generalType;
-      this.offsets = offsets;
       this.headFragment = null;
+      this.unsegmentedOffsets = offsets;
+      this.offsets = [];
+      this.segmentedOffsetsMap = {};
+      // this.unsegmentedOffsets = undefined;
       // this.from = undefined;
       // this.to = undefined;
       // this.wholeFrom = undefined;
@@ -65,10 +68,10 @@ var Visualizer = (function($, window, undefined) {
       // this.right = undefined;
       // this.totaldist = undefined;
       // this.width = undefined;
-      this.initContainers(offsets);
+      this.initContainers();
     };
 
-    Span.prototype.initContainers = function() {
+    Span.prototype.initContainers = function(offsets) {
       this.incoming = [];
       this.outgoing = [];
       this.attributes = {};
@@ -80,10 +83,43 @@ var Visualizer = (function($, window, undefined) {
       this.normalizations = [];
     };
 
+    Span.prototype.splitMultilineOffsets = function(text) {
+      this.segmentedOffsetsMap = {};
+
+      for (var fi = 0, nfi = 0; fi < this.unsegmentedOffsets.length; fi++) {
+        var begin = this.unsegmentedOffsets[fi][0];
+        var end = this.unsegmentedOffsets[fi][1];
+      
+        for (var ti = begin; ti < end; ti++) {
+          var c = text.charAt(ti);
+          if (c == '\n' || c == '\r') {
+            if (begin !== null) {
+              this.offsets.push([begin, ti])
+              this.segmentedOffsetsMap[nfi++] = fi;
+              begin = null;
+            }
+          }
+          else if (begin === null) {
+            begin = ti;
+          }
+        }
+      
+        if (begin !== null) {
+          this.offsets.push([begin, end]);
+          this.segmentedOffsetsMap[nfi++] = fi;
+        }
+      }
+    };
+
     Span.prototype.copy = function(id) {
       var span = $.extend(new Span(), this); // clone
       span.id = id;
-      span.initContainers(); // protect from shallow copy
+      // protect from shallow copy
+      span.initContainers();
+      span.unsegmentedOffsets = this.unsegmentedOffsets.slice();
+      // read-only; shallow copy is fine
+      span.offsets = this.offsets;
+      span.segmentedOffsetsMap = this.segmentedOffsetsMap;
       return span;
     };
 
@@ -509,13 +545,15 @@ var Visualizer = (function($, window, undefined) {
           var span =
               //      (id,        type,      offsets,   generalType)
               new Span(entity[0], entity[1], entity[2], 'entity');
+          span.splitMultilineOffsets(data.text);
           data.spans[entity[0]] = span;
         });
         var triggerHash = {};
         $.each(sourceData.triggers, function(triggerNo, trigger) {
-          triggerHash[trigger[0]] =
-              //       (id,         type,       offsets,    generalType), eventList
-              [new Span(trigger[0], trigger[1], trigger[2], 'trigger'), []];
+                       //       (id,         type,       offsets,    generalType)
+          var triggerSpan = new Span(trigger[0], trigger[1], trigger[2], 'trigger');
+          triggerSpan.splitMultilineOffsets(data.text);
+          triggerHash[trigger[0]] = [triggerSpan, []]; // triggerSpan, eventlist
         });
         $.each(sourceData.events, function(eventNo, eventRow) {
           var eventDesc = data.eventDescs[eventRow[0]] =
@@ -1597,7 +1635,7 @@ Util.profileStart('chunks');
                 rx: Configuration.visual.margin.x,
                 ry: Configuration.visual.margin.y,
                 'data-span-id': span.id,
-                'data-fragment-id': fragment.id,
+                'data-fragment-id': span.segmentedOffsetsMap[fragment.id],
                 'strokeDashArray': span.attributeMerge.dashArray,
               });
 
