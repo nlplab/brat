@@ -541,12 +541,18 @@ var Util = (function(window, undefined) {
     }; // profileReport
     
     var splitMultilineFragments = function(docData) {
+      docData.segmentedFragmentsMap = {};
+      docData.unsegmentedFragments = {};
+
 		  for (var ei = 0; ei < docData.entities.length; ei++) {
 			  var segmentedFragments = [];
 
 			  var fragments = docData.entities[ei][2];
-			  for (var fi = 0; fi < fragments.length; fi++) {
-				
+        var spanId = docData.entities[ei][0];
+        docData.unsegmentedFragments[spanId] = fragments;
+        var segmentedFragmentsMap = docData.segmentedFragmentsMap[spanId] = {};
+
+			  for (var fi = 0, nfi = 0; fi < fragments.length; fi++) {
 				  var fragment = fragments[fi];
 				  var begin = fragment[0];
 				  var end = fragment[1];
@@ -556,6 +562,7 @@ var Util = (function(window, undefined) {
 					  if (c == '\n' || c == '\r') {
 						  if (begin != -1) {
 	  						segmentedFragments.push([begin, ti])
+                segmentedFragmentsMap[nfi++] = fi;
   							begin = -1;
 						  }
 					  }
@@ -566,8 +573,8 @@ var Util = (function(window, undefined) {
 				
 				  if (end - begin > 0) {
 					  segmentedFragments.push([begin, end]);
+            segmentedFragmentsMap[nfi++] = fi;
 				  }
-				
 				  docData.entities[ei][2] = segmentedFragments;
 			  }
 		  }
