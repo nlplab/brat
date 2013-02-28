@@ -2475,13 +2475,11 @@ var AnnotatorUI = (function($, window, undefined) {
       var importForm = $('#import_form');
       var importFormSubmit = function(evt) {
         var _docid = $('#import_docid').val();
-        var _doctitle = $('#import_title').val();
         var _doctext = $('#import_text').val();
         var opts = {
           action : 'importDocument',
           collection : coll,
           docid  : _docid,
-          title : _doctitle,
           text  : _doctext,
         };
         dispatcher.post('ajax', [opts, function(response) {
