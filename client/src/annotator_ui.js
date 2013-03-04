@@ -213,13 +213,11 @@ var AnnotatorUI = (function($, window, undefined) {
           clearSelection();
           editedSpan = data.spans[id];
           editedFragment = target.attr('data-fragment-id');
-          var offsets = [];
-          $.each(editedSpan.fragments, function(fragmentNo, fragment) {
-            offsets.push([fragment.from, fragment.to]);
-          });
+          // XXX we went from collecting fragment offsets to copying
+          // them from data. Does anything break?
           spanOptions = {
             action: 'createSpan',
-            offsets: offsets,
+            offsets: editedSpan.unsegmentedOffsets,
             type: editedSpan.type,
             id: id,
           };
@@ -2477,13 +2475,11 @@ var AnnotatorUI = (function($, window, undefined) {
       var importForm = $('#import_form');
       var importFormSubmit = function(evt) {
         var _docid = $('#import_docid').val();
-        var _doctitle = $('#import_title').val();
         var _doctext = $('#import_text').val();
         var opts = {
           action : 'importDocument',
           collection : coll,
           docid  : _docid,
-          title : _doctitle,
           text  : _doctext,
         };
         dispatcher.post('ajax', [opts, function(response) {

@@ -539,7 +539,7 @@ var Util = (function(window, undefined) {
         console.log("-------");
       }
     }; // profileReport
-
+    
     // container: ID or jQuery element
     // collData: the collection data (in the format of the result of
     //   http://.../brat/ajax.cgi?action=getCollectionInformation&collection=...
