@@ -751,6 +751,15 @@ var AnnotatorUI = (function($, window, undefined) {
               $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
               if (attr.unused) {
                 $input.val('');
+              } else if (attr.default) {
+                  if (attr.bool) {
+                    // take any non-empty default value as "true"
+                    $input[0].checked = true;
+                    updateCheckbox($input);
+                    $input.button('refresh');
+                  } else {
+                    $input.val(attr.default).change();
+                  }
               } else if (attr.bool) {
                 $input[0].checked = false;
                 updateCheckbox($input);

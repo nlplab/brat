@@ -242,15 +242,21 @@ def _fill_attribute_configuration(nodes, project_conf):
             if attr_drawing_conf is None:
                 attr_drawing_conf = {}
 
-            # TODO: "special" <DEFAULT> argument
-            
             # Check if the possible values for the argument are specified
-            # TODO: avoid magic string
+            # TODO: avoid magic strings
             if "Value" in node.arguments:
                 args = node.arguments["Value"]
             else:
                 # no "Value" defined; assume binary.
                 args = []
+
+            # Check if a default value is specified for the attribute
+            if '<DEFAULT>' in node.special_arguments:
+                try:
+                    item['default'] = node.special_arguments['<DEFAULT>'][0]
+                except IndexError:
+                    Messager.warning("Config error: empty <DEFAULT> for %s" % item['name'])
+                    pass
 
             if len(args) == 0:
                 # binary; use drawing config directly
