@@ -11,7 +11,7 @@ Version:    2011-04-22
 
 from __future__ import with_statement
 
-from httplib import HTTPConnection, HTTPSConnection
+from httplib import HTTPConnection
 from os.path import join as path_join
 from socket import error as SocketError
 from urlparse import urlparse
@@ -99,6 +99,11 @@ def tag(collection, document, tagger):
         if url_soup.scheme == 'http':
             Connection = HTTPConnection
         elif url_soup.scheme == 'https':
+            # Delayed HTTPS import since it relies on SSL which is commonly
+            #   missing if you roll your own Python, for once we should not
+            #   fail early since tagging is currently an edge case and we
+            #   can't allow it to bring down the whole server.
+            from httplib import HTTPSConnection
             Connection = HTTPSConnection
         else:
             raise InvalidConnectionSchemeError(tagger_token, url_soup.scheme)
