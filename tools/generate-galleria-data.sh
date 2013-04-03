@@ -5,14 +5,14 @@
 # page.
 
 # Assumes files to display are .png files contained in the directory
-# site/img/frontpage/. Further, for each "FILENAME.png" file, acts on the
+# img/frontpage/. Further, for each "FILENAME.png" file, acts on the
 # following files (if present):
 #
 # - FILENAME.ignore: skips FILENAME.png in processing
 # - FILENAME.txt: uses content as title (first line) and description (lines
 #   other than the first) in the galleria data
 
-IMGDIR='site/img/frontpage'
+IMGDIR='img/frontpage'
 
 first=1
 for f in $IMGDIR/*.png; do
