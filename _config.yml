@@ -14,7 +14,7 @@ pygments:   true
 safe:       true
 server:     true
 
-exclude: CNAME, README.md, tools
+source:     site
 
 ### Website configuration
 
