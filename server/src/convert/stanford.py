@@ -236,7 +236,15 @@ def _dep(xml, source_element='basic-dependencies'):
     for sent_e in _find_sentences_element(soup).getiterator('sentence'):
         sent_id = int(sent_e.get('id'))
 
+        # Attempt to find dependencies as distinctly named elements as they
+        #   were stored in the Stanford XML format prior to 2013.
         deps_e = sent_e.findall(source_element)
+        if len(deps_e) == 0:
+            # Perhaps we are processing output following the newer standard,
+            #   check for the same identifier but as a type attribute for
+            #   general "dependencies" elements.
+            deps_e = list(e for e in sent_e.iter('dependencies')
+                    if e.attrib['type'] == source_element)
         assert len(deps_e) == 1
         deps_e = deps_e[0]
         
@@ -247,6 +255,11 @@ def _dep(xml, source_element='basic-dependencies'):
 
             dep_type = dep_e.get('type')
             assert dep_type is not None
+
+            if dep_type == 'root':
+                # Skip dependencies to the root node, this behaviour conforms
+                #   with how we treated the pre-2013 format.
+                continue
             
             gov_tok_id = int(dep_e.find('governor').get('idx'))
             dep_tok_id = int(dep_e.find('dependent').get('idx'))
