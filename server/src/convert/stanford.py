@@ -53,9 +53,9 @@ def _escape_pos_tags(pos):
 def _token_by_ids(soup):
     token_by_ids = defaultdict(dict)
 
-    for sent_e in _find_sentences_element(soup).iter('sentence'):
+    for sent_e in _find_sentences_element(soup).getiterator('sentence'):
         sent_id = int(sent_e.get('id'))
-        for tok_e in sent_e.iter('token'):
+        for tok_e in sent_e.getiterator('token'):
             tok_id = int(tok_e.get('id'))
             tok_word = unicode(tok_e.find('word').text)
             tok_lemma = unicode(tok_e.find('lemma').text)
@@ -194,7 +194,7 @@ def coref(xml, start_id=1):
 
         # This tag is now a full corference chain
         chain = []
-        for mention_e in coref_e.iter('mention'):
+        for mention_e in coref_e.getiterator('mention'):
             # Note: There is a "representative" attribute signalling the most
             #   "suitable" mention, we are currently not using this
             # Note: We don't use the head information for each mention
@@ -233,7 +233,7 @@ def _dep(xml, source_element='basic-dependencies'):
         yield ann
 
     curr_rel_id = 1
-    for sent_e in _find_sentences_element(soup).iter('sentence'):
+    for sent_e in _find_sentences_element(soup).getiterator('sentence'):
         sent_id = int(sent_e.get('id'))
 
         deps_e = sent_e.findall(source_element)
