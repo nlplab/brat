@@ -243,7 +243,7 @@ def _dep(xml, source_element='basic-dependencies'):
             # Perhaps we are processing output following the newer standard,
             #   check for the same identifier but as a type attribute for
             #   general "dependencies" elements.
-            deps_e = list(e for e in sent_e.iter('dependencies')
+            deps_e = list(e for e in sent_e.getiterator('dependencies')
                     if e.attrib['type'] == source_element)
         assert len(deps_e) == 1
         deps_e = deps_e[0]
