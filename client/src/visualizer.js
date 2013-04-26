@@ -1221,7 +1221,7 @@ var Visualizer = (function($, window, undefined) {
                   , 'warning', 15]]]);
               }
               var startPos = text.getStartPositionOfChar(firstChar).x;
-              var lastChar = text.getNumberOfChars() - 1;
+              var lastChar = fragment.to - fragment.chunk.from - 1;
               var endPos = (lastChar < 0)
                 ? startPos
                 : text.getEndPositionOfChar(lastChar).x;
