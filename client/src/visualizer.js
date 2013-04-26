@@ -1220,8 +1220,17 @@ var Visualizer = (function($, window, undefined) {
                   'space characters'
                   , 'warning', 15]]]);
               }
-              var startPos = text.getStartPositionOfChar(firstChar).x;
               var lastChar = fragment.to - fragment.chunk.from - 1;
+
+              // Adjust for XML whitespace (#832, #1009)
+              var textUpToFirstChar = fragment.chunk.text.substring(0, firstChar);
+              var textUpToLastChar = fragment.chunk.text.substring(0, lastChar);
+              var textUpToFirstCharUnspaced = textUpToFirstChar.replace(/\s\s+/g, ' ');
+              var textUpToLastCharUnspaced = textUpToLastChar.replace(/\s\s+/g, ' ');
+              firstChar -= textUpToFirstChar.length - textUpToFirstCharUnspaced.length;
+              lastChar -= textUpToLastChar.length - textUpToLastCharUnspaced.length;
+
+              var startPos = text.getStartPositionOfChar(firstChar).x;
               var endPos = (lastChar < 0)
                 ? startPos
                 : text.getEndPositionOfChar(lastChar).x;
