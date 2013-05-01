@@ -629,14 +629,6 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
             Messager.error('Error reading text file: nonstandard encoding or binary?', -1)
             raise UnableToReadTextFile(txt_file_path)
 
-    # TODO XXX huge hack, sorry, the client currently crashing on
-    # chrome for two or more consecutive space, so replace every
-    # second with literal non-breaking space. Note that this is just
-    # for the client display -- server-side storage is not affected.
-    # NOTE: it might be possible to fix this in a principled way by
-    # having xml:space="preserve" on the relevant elements.
-    text = text.replace("  ", ' '+unichr(0x00A0))
-
     j_dic['text'] = text
     
     from logging import info as log_info
