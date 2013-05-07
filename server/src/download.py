@@ -7,7 +7,7 @@ Version:    2011-10-03
 
 from __future__ import with_statement
 
-from os import remove
+from os import close as os_close, remove
 from os.path import join as path_join, dirname, basename
 from tempfile import mkstemp
 
@@ -42,7 +42,9 @@ def download_collection(collection, exclude_configs=False):
 
     tmp_file_path = None
     try:
-        _, tmp_file_path = mkstemp()
+        tmp_file_fh, tmp_file_path = mkstemp()
+        os_close(tmp_file_fh)
+
         tar_cmd_split = ['tar', '--exclude=.stats_cache']
         if exclude_configs:
             tar_cmd_split.extend(['--exclude=annotation.conf',
