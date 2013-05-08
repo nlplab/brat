@@ -461,7 +461,7 @@ fieldset legend {
   height: 100%;
 }
 
-#span_highlight_link, #arc_highlight_link, #viewspan_highlight_link {
+#span_highlight_link, #arc_highlight_link, #viewspan_highlight_link, #feedback_span_highlight_link {
   float: right;
 }
 

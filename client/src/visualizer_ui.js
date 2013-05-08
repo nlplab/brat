@@ -41,6 +41,9 @@ var VisualizerUI = (function($, window, undefined) {
       var normInfoCacheSize = 0;
       var normInfoCacheMaxSize = 100;
 
+      // feedback forms
+      var useFeedbackForm = true;
+
       var matchFocus = '';
       var matches = '';
 
@@ -1907,6 +1910,7 @@ var VisualizerUI = (function($, window, undefined) {
         element.css({ top: y, left: x });
       };
       var viewspanForm = $('#viewspan_form');
+      var feedbackSpanForm = $('#feedback_span_form');
       var onDblClick = function(evt) {
         if (user && annotationAvailable) return;
         var target = $(evt.target);
@@ -1918,23 +1922,45 @@ var VisualizerUI = (function($, window, undefined) {
           var urlHash = URLHash.parse(window.location.hash);
           urlHash.setArgument('focus', [[span.id]]);
           $('#viewspan_highlight_link').show().attr('href', urlHash.getHash());
+          $('#feedback_span_highlight_link').show().attr('href', urlHash.getHash());
 
           $('#viewspan_selected').text(span.text);
+          $('#feedback_span_selected').text(span.text);
+
           var encodedText = encodeURIComponent(span.text);
           $.each(searchConfig, function(searchNo, search) {
             $('#viewspan_'+search[0]).attr('href', search[1].replace('%s', encodedText));
           });
           // annotator comments
           $('#viewspan_notes').val(span.annotatorNotes || '');
-          dispatcher.post('showForm', [viewspanForm]);
-          $('#viewspan_form-ok').focus();
-          adjustFormToCursor(evt, viewspanForm.parent());
+
+          if (!useFeedbackForm) {
+              dispatcher.post('showForm', [viewspanForm]);
+              $('#viewspan_form-ok').focus();
+              adjustFormToCursor(evt, viewspanForm.parent());
+          } else {
+              dispatcher.post('showForm', [feedbackSpanForm]);
+              $('#feedback_span_form-ok').focus();
+              adjustFormToCursor(evt, feedbackSpanForm.parent());
+          }
         }
       };
       viewspanForm.submit(function(evt) {
         dispatcher.post('hideForm');
         return false;
       });
+      feedbackSpanForm.submit(function(evt) {
+        dispatcher.post('hideForm');
+        return false;
+      });
+
+      /* feedback form */
+      $('#feedback_span_radio_group input').click(function(evt) {
+        var val = this.value;
+        dispatcher.post('messages', [[['Annotation judged ' + val, 'comment']]]);
+      });
+      $('#feedback_span_form').find('.radio_group').buttonset();
+      /* END feedback form */
 
       var authForm = $('#auth_form');
       initForm(authForm, { resizable: false });
@@ -2005,6 +2031,9 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('initForm', [viewspanForm, {
             width: 760,
             no_cancel: true
+          }]);
+        dispatcher.post('initForm', [feedbackSpanForm, {
+            width: 320,
           }]);
         dispatcher.post('ajax', [{
             action: 'whoami'

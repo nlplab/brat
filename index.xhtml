@@ -532,6 +532,46 @@
         <input id="viewspan_notes" class="borderless" readonly="readonly"/>
       </fieldset>
     </form>
+    <!-- Span dialog (feedback only) -->    
+    <form id="feedback_span_form" class="dialog" title="Span">
+      <fieldset id="feedback_span_selected_fset">
+        <legend>Text</legend>
+        <a target="brat_linked" id="feedback_span_highlight_link" href="#">Link</a>
+        <div id="feedback_span_selected"/>
+      </fieldset>
+<!--       <fieldset id="feedback_span_search_fieldset"> -->
+<!--         <legend>Search</legend> -->
+<!--         <div id="feedback_span_search_links"/> -->
+<!--       </fieldset> -->
+<!--       <fieldset> -->
+<!--         <legend>Notes</legend> -->
+<!--         <input id="feedback_span_notes" class="borderless" readonly="readonly"/> -->
+<!--       </fieldset> -->
+      <div>
+        <fieldset>
+          <legend>Feedback</legend>
+          <div id="feedback_span_input_div">
+            <div class="optionRow">
+              <span class="optionLabel">This annotation is</span>
+              <span id="feedback_span_radio_group" class="radio_group small-buttons">
+                <input type="radio" id="feedback_span_bad" value="bad"
+                       name="feedback_span_radio"/>
+                <label for="feedback_span_bad"
+                       title="Bad annotation.">Bad</label>
+                <input type="radio" id="feedback_span_ok" value="ok"
+                       name="feedback_span_radio"/>
+                <label for="feedback_span_ok"
+                       title="Acceptable annotation.">OK</label>
+                <input type="radio" id="feedback_span_good" value="good"
+                       name="feedback_span_radio"/>
+                <label for="feedback_span_good"
+                       title="Good annotation.">Good</label>
+              </span>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </form>
     <!-- Span dialog (view+edit) -->
     <form id="span_form" class="dialog" title="Span">
       <!-- Span dialog annotated text -->
