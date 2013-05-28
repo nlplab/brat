@@ -78,6 +78,9 @@ def get_statistics(directory, base_names, use_cache=True):
         Messager.warning('Failed checking file modification times for stats cache check; regenerating')
         generate = True
 
+    if not use_cache:
+        generate = True
+
     # "header" and types
     stat_types = [("Entities", "int"), ("Relations", "int"), ("Events", "int")]
 
