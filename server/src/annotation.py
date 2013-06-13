@@ -17,7 +17,7 @@ from logging import info as log_info
 from codecs import open as codecs_open
 from functools import partial
 from itertools import chain, takewhile
-from os import utime
+from os import close as os_close, utime
 from time import time
 from os.path import join as path_join
 from os.path import basename, splitext
@@ -964,7 +964,8 @@ class Annotations(object):
                 #       so we hack around it.
                 #with NamedTemporaryFile('w', suffix='.ann') as tmp_file:
                 # Grab the filename, but discard the handle
-                _, tmp_fname = mkstemp(suffix='.ann')
+                tmp_fh, tmp_fname = mkstemp(suffix='.ann')
+                os_close(tmp_fh)
                 try:
                     with open_textfile(tmp_fname, 'w') as tmp_file:
                         #XXX: Temporary hack to make sure we don't write corrupted

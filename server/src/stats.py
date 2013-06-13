@@ -67,6 +67,10 @@ def get_statistics(directory, base_names, use_cache=True):
             try:
                 with open(cache_file_path, 'rb') as cache_file:
                     docstats = pickle_load(cache_file)
+                if len(docstats) != len(base_names):
+                    Messager.warning('Stats cache %s was incomplete; regenerating' % cache_file_path)
+                    generate = True
+                    docstats = []
             except UnpicklingError:
                 # Corrupt data, re-generate
                 Messager.warning('Stats cache %s was corrupted; regenerating' % cache_file_path, -1)
@@ -76,6 +80,9 @@ def get_statistics(directory, base_names, use_cache=True):
                 generate = True
     except OSError, e:
         Messager.warning('Failed checking file modification times for stats cache check; regenerating')
+        generate = True
+
+    if not use_cache:
         generate = True
 
     # "header" and types

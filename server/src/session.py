@@ -231,7 +231,8 @@ if __name__ == '__main__':
     init_session('127.0.0.1')
     tmp_file_path = None
     try:
-        _, tmp_file_path = mkstemp()
+        tmp_file_fh, tmp_file_path = mkstemp()
+        os_close(tmp_file_fh)
         session = get_session()
         session['foo'] = 'bar'
         with open(tmp_file_path, 'wb') as tmp_file:
