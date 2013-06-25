@@ -2933,18 +2933,39 @@ Util.profileStart('before render');
           if (that.arcDragOrigin) {
             target.parent().addClass('highlight');
           } else {
-            highlightArcs = $svg.
-                find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
-                addClass('highlight');
+            var equivs = {};
             var spans = {};
             spans[id] = true;
             var spanIds = [];
-            $.each(span.incoming, function(arcNo, arc) {
+            // find all arcs, normal and equiv. Equivs need to go far (#1023)
+            var addArcAndSpan = function(arc, span) {
+              if (arc.equiv) {
+                equivs[arc.eventDescId.substr(0, arc.eventDescId.indexOf('*', 2) + 1)] = true;
+                var eventDesc = data.eventDescs[arc.eventDescId];
+                $.each(eventDesc.leftSpans.concat(eventDesc.rightSpans), function(ospanId, ospan) {
+                  spans[ospan] = true;
+                });
+              } else {
                 spans[arc.origin] = true;
+              }
+            }
+            $.each(span.incoming, function(arcNo, arc) {
+                addArcAndSpan(arc, arc.origin);
             });
             $.each(span.outgoing, function(arcNo, arc) {
-                spans[arc.target] = true;
+                addArcAndSpan(arc, arc.target);
             });
+            var equivSelector = [];
+            $.each(equivs, function(equiv, dummy) {
+              equivSelector.push('[data-arc-ed^="' + equiv + '"]');
+            });
+
+            highlightArcs = $svg.
+                find(equivSelector.join(', ')).
+                parent().
+                add('g[data-from="' + id + '"], g[data-to="' + id + '"]' + equivSelector).
+                addClass('highlight');
+
             $.each(spans, function(spanId, dummy) {
                 spanIds.push('rect[data-span-id="' + spanId + '"]');
             });
