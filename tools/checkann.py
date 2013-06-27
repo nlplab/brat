@@ -5,6 +5,7 @@
 
 import sys
 import re
+import codecs
 
 from collections import namedtuple
 from os.path import basename
@@ -33,7 +34,7 @@ def parse_textbound(s):
 def process(fn):
     textbounds = []
 
-    with open(fn, 'rU') as f:
+    with codecs.open(fn, 'rU', encoding='utf8', errors='strict') as f:
         for l in f:
             l = l.rstrip('\n')
 
@@ -48,7 +49,8 @@ def process(fn):
     # debugging
 #    print >> sys.stderr, '%s: %d textbounds' % (basename(fn), len(textbounds))
 
-    with open(txt_for_ann(fn), 'rU') as f:
+    with codecs.open(txt_for_ann(fn), 'rU', encoding='utf8',
+                     errors='strict') as f:
         text = f.read()
 
     for id_, type_, start, end, ttext in textbounds:
@@ -56,8 +58,11 @@ def process(fn):
             assert text[start:end] == ttext
         except:
             print 'Mismatch in %s: %s %d %d' % (basename(fn), id_, start, end)
-            print '     reference: %s' % ttext
-            print '     document : %s' % text[start:end]
+            print '     reference: %s' % \
+                ttext.encode('utf-8').replace('\n', '\\n')
+            print '     document : %s' % \
+                text[start:end].encode('utf-8').replace('\n', '\\n')
+
 
 def main(argv=None):
     if argv is None:
