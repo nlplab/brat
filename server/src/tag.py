@@ -162,14 +162,12 @@ def tag(collection, document, tagger):
             assert len(offsets) != 0, 'Tagger response has empty offsets'
             assert len(texts) == len(offsets), 'Tagger response has different numbers of offsets and texts'
 
-            # Note: We do not support discontinuous spans at this point
-            assert len(offsets) < 2, 'Tagger response has multiple offsets (discontinuous spans not supported)'
             start, end = offsets[0]
             text = texts[0]
 
             _id = ann_obj.get_new_id('T')
 
-            tb = TextBoundAnnotationWithText(((start, end),), _id, _type, text)
+            tb = TextBoundAnnotationWithText(offsets, _id, _type, text, " " + ' '.join(texts[1:]))
 
             mods.addition(tb)
             ann_obj.add_annotation(tb)
