@@ -126,7 +126,7 @@ def tag(collection, document, tagger):
                 conn.request('POST',
                         # As per: http://bugs.python.org/issue11898
                         # Force the url to be an ascii string
-                        str(url_soup.path),
+                        str(service_url),
                         data,
                         headers=req_headers)
             except SocketError, e:
