@@ -313,6 +313,7 @@ var Visualizer = (function($, window, undefined) {
         '\u00a0': 4,
         '\u200b': 0,
         '\u3000': 8,
+        '\t': 12,
         '\n': 4
       };
       var coloredCurlies = true; // color curlies by box BG
