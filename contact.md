@@ -40,7 +40,7 @@ release and nightly build.
 You are encouraged to use the mailing list or the issue tracker, however, if
 you feel that your issue/question requires direct communication with the brat
 developers rather than the developers and the user-base please feel free to
-contact us personally. We will attempt to reply promptly, but do keep in mind
+contact us directly. We will attempt to reply promptly, but do keep in mind
 that a response may take some time. Also, make sure to send your mail to all
 of the developers below to make sure that your response is not delayed due to
 a single developer not being available at the given time.
