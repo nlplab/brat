@@ -2558,6 +2558,34 @@ var AnnotatorUI = (function($, window, undefined) {
         importForm.find('input, textarea').val('');
       });
 
+      var importCollForm = $('#import_coll_form');
+      var importCollDone = function() {
+        // TODO
+      };
+      var importCollFormSubmit = function(evt) {
+        var data = new FormData(importCollForm[0]);
+        data.append('action', 'upload_collection')
+        dispatcher.post('ajax', [data, importCollDone, undefined, {
+          cache: false,
+          contentType: false,
+          processData: false,
+        }]);
+        return false;
+      };
+      importCollForm.submit(importCollFormSubmit);
+      dispatcher.post('initForm', [importCollForm, {
+          width: 500,
+          open: function(evt) {
+            keymap = {};
+          },
+        }]);
+      $('#import_collection_button').click(function() {
+        dispatcher.post('hideForm');
+        dispatcher.post('showForm', [importCollForm]);
+        importCollForm.find('input').val('');
+      });
+
+
       /* BEGIN delete button - related */
 
       $('#delete_document_button').click(function() {
