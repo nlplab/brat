@@ -811,6 +811,7 @@ var Visualizer = (function($, window, undefined) {
           if (chunk) chunk.nextSpace = space;
           //               (index,     text, from,      to, space) {
           chunk = new Chunk(chunkNo++, text, firstFrom, to, space);
+          chunk.lastSpace = space;
           data.chunks.push(chunk);
           lastTo = to;
           firstFrom = null;
@@ -1526,6 +1527,22 @@ Util.profileStart('chunks');
         });
 
         $.each(data.chunks, function(chunkNo, chunk) {
+          var spaceWidth = 0;
+          if (chunk.lastSpace) {
+            var spaceLen = chunk.lastSpace.length || 0;
+            var spacePos = chunk.lastSpace.lastIndexOf("\n") + 1;
+            if (spacePos || !chunkNo || !chunk.sentence) {
+              // indent if
+              // * non-first paragraph first word
+              // * first paragraph first word
+              // * non-first word in a line
+              // don't indent if
+              // * the first word in a non-paragraph line
+              for (var i = spacePos; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.lastSpace[i]] || 0;
+              currentX += spaceWidth;
+            }
+          }
+
           reservations = new Array();
           chunk.group = svg.group(row.group);
           chunk.highlightGroup = svg.group(chunk.group);
@@ -1829,7 +1846,8 @@ Util.profileStart('chunks');
             // TODO: related to issue #571
             // replace arcHorizontalSpacing with a calculated value
             currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding +
-                (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
+                (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0)) +
+                spaceWidth;
             if (hasLeftArcs) {
               var adjustedCurTextWidth = sizes.texts.widths[chunk.text] + arcHorizontalSpacing;
               if (adjustedCurTextWidth > maxTextWidth) {
@@ -1913,10 +1931,7 @@ Util.profileStart('chunks');
           translate(chunk, currentX + boxX, 0);
           chunk.textX = currentX + boxX;
 
-          var spaceWidth = 0;
-          var spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
-          for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
-          currentX += spaceWidth + boxWidth;
+          currentX += boxWidth;
         }); // chunks
 
         // finish the last row
