@@ -1191,7 +1191,7 @@ var Visualizer = (function($, window, undefined) {
         var chunkTexts = {}; // set of span texts
         $.each(data.chunks, function(chunkNo, chunk) {
           chunk.row = undefined; // reset
-          if (!(chunk.text in chunkTexts)) chunkTexts[chunk.text] = []
+          if (!chunkTexts.hasOwnProperty(chunk.text)) chunkTexts[chunk.text] = []
           var chunkText = chunkTexts[chunk.text];
 
           // here we also need all the spans that are contained in
