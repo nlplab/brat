@@ -331,10 +331,20 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
                     # Double new-line, skip ahead
                     pos += 1
                     continue
-                end = pos + len(text_seg)
-                seg_offsets.append((pos, end))
-                # Our current position is after the newline
+                start = pos
+                end = start + len(text_seg)
+
+                # For the next iteration the position is after the newline.
                 pos = end + 1
+
+                # Adjust the offsets to compensate for any potential leading
+                #   and trailing whitespace.
+                start += len(text_seg) - len(text_seg.lstrip())
+                end -= len(text_seg) - len(text_seg.rstrip())
+
+                # If there is any segment left, add it to the offsets.
+                if start != end:
+                    seg_offsets.append((start, end, ))
 
         ann = TextBoundAnnotationWithText(seg_offsets, new_id, type,
                 # Replace any newlines with the discontinuous separator
