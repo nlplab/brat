@@ -317,8 +317,8 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
         new_id = ann_obj.get_new_id('T') #XXX: Cons
         # Get the text span
         with open_textfile(txt_file_path, 'r') as txt_file:
-            # TODO discont: use offsets instead (note need for int conversion)
-            text = _text_for_offsets(txt_file.read(), offsets)
+            text = txt_file.read()
+            text_span = _text_for_offsets(text, offsets)
 
         # The below code resolves cases where there are newlines in the
         #   offsets by creating discontinuous annotations for each span
@@ -326,19 +326,29 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
         seg_offsets = []
         for o_start, o_end in offsets:
             pos = o_start
-            for text_seg in text.split('\n'):
+            for text_seg in text_span.split('\n'):
                 if not text_seg and o_start != o_end:
                     # Double new-line, skip ahead
                     pos += 1
                     continue
-                end = pos + len(text_seg)
-                seg_offsets.append((pos, end))
-                # Our current position is after the newline
+                start = pos
+                end = start + len(text_seg)
+
+                # For the next iteration the position is after the newline.
                 pos = end + 1
 
-        ann = TextBoundAnnotationWithText(seg_offsets, new_id, type,
-                # Replace any newlines with the discontinuous separator
-                MUL_NL_REGEX.sub(DISCONT_SEP, text))
+                # Adjust the offsets to compensate for any potential leading
+                #   and trailing whitespace.
+                start += len(text_seg) - len(text_seg.lstrip())
+                end -= len(text_seg) - len(text_seg.rstrip())
+
+                # If there is any segment left, add it to the offsets.
+                if start != end:
+                    seg_offsets.append((start, end, ))
+
+        ann_text = DISCONT_SEP.join((text[start:end]
+            for start, end in seg_offsets))
+        ann = TextBoundAnnotationWithText(seg_offsets, new_id, type, ann_text)
         ann_obj.add_annotation(ann)
         mods.addition(ann)
     else:

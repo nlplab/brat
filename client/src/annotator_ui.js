@@ -34,6 +34,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var selRect = null;
       var lastStartRec = null;
       var lastEndRec = null;
+      var inForm = false;
 
       var draggedArcHeight = 30;
       var spanTypesToShowBeforeCollapse = 30;
@@ -65,7 +66,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var svgElement = $(svg._svg);
       var svgId = svgElement.parent().attr('id');
 
-      var arcTargets;
+      var arcTargets = [];
       var arcTargetRects;
 
       var stripNumericSuffix = function(s) {
@@ -79,7 +80,12 @@ var AnnotatorUI = (function($, window, undefined) {
         return m[1]; // always matches
       }
 
+      var showForm = function() {
+        inForm = true;
+      };
+
       var hideForm = function() {
+        inForm = false;
         keymap = null;
         rapidAnnotationDialogVisible = false;
       };
@@ -111,6 +117,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         if (code === $.ui.keyCode.ESCAPE) {
           stopArcDrag();
+          hideForm();
           if (reselectedSpan) {
             $(reselectedSpan.rect).removeClass('reselect');
             reselectedSpan = null;
@@ -128,6 +135,12 @@ var AnnotatorUI = (function($, window, undefined) {
           if ($input.length) {
             $input.click();
           }
+        }
+
+        if (!inForm && code == $.ui.keyCode.ENTER) {
+          evt.preventDefault();
+          tryToAnnotate(evt);
+          return;
         }
 
         if (!keymap) return;
@@ -1533,6 +1546,180 @@ var AnnotatorUI = (function($, window, undefined) {
         svgElement.removeClass('unselectable');
       };
 
+      var tryToAnnotate = function(evt) {
+        var sel = window.getSelection();
+        var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
+        var theFocusNode = sel.focusNode;
+        var chunkIndexTo;
+        if (theFocusNode) {
+          chunkIndexTo = $(theFocusNode.parentNode).attr('data-chunk-id');
+          if (!chunkIndexTo) {
+            theFocusNode = $(theFocusNode).children()[0].firstChild;
+            chunkIndexTo = $(theFocusNode.parentNode).attr('data-chunk-id');
+          }
+        }
+        // var chunkIndexTo = sel.focusNode && ($(sel.focusNode.parentNode).attr('data-chunk-id') || $(sel.focusNode).children().first().attr('data-chunk-id'));
+
+        // fallback for firefox (at least):
+        // it's unclear why, but for firefox the anchor and focus
+        // node parents are always undefined, the the anchor and
+        // focus nodes themselves do (often) have the necessary
+        // chunk ID. However, anchor offsets are almost always
+        // wrong, so we'll just make a guess at what the user might
+        // be interested in tagging instead of using what's given.
+        var anchorOffset = null;
+        var focusOffset = null;
+        if (chunkIndexFrom === undefined && chunkIndexTo === undefined &&
+            $(sel.anchorNode).attr('data-chunk-id') &&
+            $(theFocusNode).attr('data-chunk-id')) {
+          // A. Scerri FireFox chunk
+
+          var range = sel.getRangeAt(0);
+          var svgOffset = $(svg._svg).offset();
+          var flip = false;
+          var tries = 0;
+          while (tries < 2) {
+            var sp = svg._svg.createSVGPoint();
+            sp.x = (flip ? evt.pageX : dragStartedAt.pageX) - svgOffset.left;
+            sp.y = (flip ? evt.pageY : dragStartedAt.pageY) - (svgOffset.top + 8);
+            var startsAt = range.startContainer;
+            anchorOffset = startsAt.getCharNumAtPosition(sp);
+            chunkIndexFrom = startsAt && $(startsAt).attr('data-chunk-id');
+            if (anchorOffset != -1) {
+              break;
+            }
+            flip = true;
+            tries++;
+          }
+          sp.x = (flip ? dragStartedAt.pageX : evt.pageX) - svgOffset.left;
+          sp.y = (flip ? dragStartedAt.pageY : evt.pageY) - (svgOffset.top + 8);
+          var endsAt = range.endContainer;
+          focusOffset = endsAt.getCharNumAtPosition(sp);
+
+          if (range.startContainer == range.endContainer && anchorOffset > focusOffset) {
+            var t = anchorOffset;
+            anchorOffset = focusOffset;
+            focusOffset = t;
+            flip = false;
+          }
+          if (focusOffset != -1) {
+            focusOffset++;
+          }
+          chunkIndexTo = endsAt && $(endsAt).attr('data-chunk-id');
+
+          //console.log('fallback from', data.chunks[chunkIndexFrom], anchorOffset);
+          //console.log('fallback to', data.chunks[chunkIndexTo], focusOffset);
+        } else {
+          // normal case, assume the exact offsets are usable
+          anchorOffset = sel.anchorOffset;
+          focusOffset = sel.focusOffset;
+        }
+
+        if (evt.type == 'keydown') {
+          var offset = sel.focusOffset;
+          if (offset >= theFocusNode.length) {
+            offset = theFocusNode.length - 1;
+          }
+          var endpos = theFocusNode.parentNode.getEndPositionOfChar(offset);
+          var svgpos = $(svg._svg).offset();
+          evt.clientX = endpos.x + svgpos.left - window.scrollX;
+          evt.clientY = endpos.y + svgpos.top - window.scrollY;
+        }
+
+        if (chunkIndexFrom !== undefined && chunkIndexTo !== undefined) {
+          var chunkFrom = data.chunks[chunkIndexFrom];
+          var chunkTo = data.chunks[chunkIndexTo];
+          var selectedFrom = chunkFrom.from + anchorOffset;
+          var selectedTo = chunkTo.from + focusOffset;
+          sel.removeAllRanges();
+
+          if (selectedFrom > selectedTo) {
+            var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
+          }
+          // trim
+          while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedFrom, 1)) !== -1) selectedFrom++;
+          while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedTo - 1, 1)) !== -1) selectedTo--;
+
+          // shift+click allows zero-width spans
+          if (selectedFrom === selectedTo && !evt.shiftKey) {
+            // simple click (zero-width span)
+            return;
+          }
+
+          var newOffset = [selectedFrom, selectedTo];
+          if (reselectedSpan) {
+            var newOffsets = reselectedSpan.offsets.slice(0); // clone
+            spanOptions.old_offsets = JSON.stringify(reselectedSpan.offsets);
+            if (selectedFragment !== null) {
+              if (selectedFragment !== false) {
+                newOffsets.splice(selectedFragment, 1);
+              }
+              newOffsets.push(newOffset);
+              newOffsets.sort(Util.cmpArrayOnFirstElement);
+              spanOptions.offsets = newOffsets;
+            } else {
+              spanOptions.offsets = [newOffset];
+            }
+          } else {
+            spanOptions = {
+              action: 'createSpan',
+              offsets: [newOffset]
+            }
+          }
+
+
+/* In relation to #786, removed the cross-sentence checking code
+          var crossSentence = true;
+          $.each(sourceData.sentence_offsets, function(sentNo, startEnd) {
+            if (selectedTo <= startEnd[1]) {
+              // this is the sentence
+
+              if (selectedFrom >= startEnd[0]) {
+                crossSentence = false;
+              }
+              return false;
+            }
+          });
+
+          if (crossSentence) {
+            // attempt to annotate across sentence boundaries; not supported
+            dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
+            if (reselectedSpan) {
+              $(reselectedSpan.rect).removeClass('reselect');
+            }
+            reselectedSpan = null;
+            svgElement.removeClass('reselect');
+          } else
+*/
+          if (!Configuration.rapidModeOn || reselectedSpan != null) {
+            // normal span select in standard annotation mode
+            // or reselect: show selector
+            var spanText = data.text.substring(selectedFrom, selectedTo);
+            fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
+            // for precise timing, log annotation display to user.
+            dispatcher.post('logAction', ['spanSelected']);
+          } else {
+            // normal span select in rapid annotation mode: call
+            // server for span type candidates
+            var spanText = data.text.substring(selectedFrom, selectedTo);
+            // TODO: we're currently storing the event to position the
+            // span form using adjustToCursor() (which takes an event),
+            // but this is clumsy and suboptimal (user may have scrolled
+            // during the ajax invocation); think of a better way.
+            lastRapidAnnotationEvent = evt;
+            dispatcher.post('ajax', [ { 
+                            action: 'suggestSpanTypes',
+                            collection: coll,
+                            'document': doc,
+                            start: selectedFrom,
+                            end: selectedTo,
+                            text: spanText,
+                            model: $('#rapid_model').val(),
+                            }, 'suggestedSpanTypes']);
+          }
+        }
+      };      
+
       var onMouseUp = function(evt) {
         if (that.user === null) return;
 
@@ -1581,156 +1768,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         } else if (!(Util.isMac ? evt.metaKey : evt.ctrlKey)) {
           // if not, then is it span selection? (ctrl key cancels)
-          var sel = window.getSelection();
-          var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
-          var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
-
-          // fallback for firefox (at least):
-          // it's unclear why, but for firefox the anchor and focus
-          // node parents are always undefined, the the anchor and
-          // focus nodes themselves do (often) have the necessary
-          // chunk ID. However, anchor offsets are almost always
-          // wrong, so we'll just make a guess at what the user might
-          // be interested in tagging instead of using what's given.
-          var anchorOffset = null;
-          var focusOffset = null;
-          if (chunkIndexFrom === undefined && chunkIndexTo === undefined &&
-              $(sel.anchorNode).attr('data-chunk-id') &&
-              $(sel.focusNode).attr('data-chunk-id')) {
-            // A. Scerri FireFox chunk
-
-            var range = sel.getRangeAt(0);
-            var svgOffset = $(svg._svg).offset();
-            var flip = false;
-            var tries = 0;
-            while (tries < 2) {
-              var sp = svg._svg.createSVGPoint();
-              sp.x = (flip ? evt.pageX : dragStartedAt.pageX) - svgOffset.left;
-              sp.y = (flip ? evt.pageY : dragStartedAt.pageY) - (svgOffset.top + 8);
-              var startsAt = range.startContainer;
-              anchorOffset = startsAt.getCharNumAtPosition(sp);
-              chunkIndexFrom = startsAt && $(startsAt).attr('data-chunk-id');
-              if (anchorOffset != -1) {
-                break;
-              }
-              flip = true;
-              tries++;
-            }
-            sp.x = (flip ? dragStartedAt.pageX : evt.pageX) - svgOffset.left;
-            sp.y = (flip ? dragStartedAt.pageY : evt.pageY) - (svgOffset.top + 8);
-            var endsAt = range.endContainer;
-            focusOffset = endsAt.getCharNumAtPosition(sp);
-
-            if (range.startContainer == range.endContainer && anchorOffset > focusOffset) {
-              var t = anchorOffset;
-              anchorOffset = focusOffset;
-              focusOffset = t;
-              flip = false;
-            }
-            if (focusOffset != -1) {
-              focusOffset++;
-            }
-            chunkIndexTo = endsAt && $(endsAt).attr('data-chunk-id');
-
-            //console.log('fallback from', data.chunks[chunkIndexFrom], anchorOffset);
-            //console.log('fallback to', data.chunks[chunkIndexTo], focusOffset);
-          } else {
-            // normal case, assume the exact offsets are usable
-            anchorOffset = sel.anchorOffset;
-            focusOffset = sel.focusOffset;
-          }
-
-          if (chunkIndexFrom !== undefined && chunkIndexTo !== undefined) {
-            var chunkFrom = data.chunks[chunkIndexFrom];
-            var chunkTo = data.chunks[chunkIndexTo];
-            var selectedFrom = chunkFrom.from + anchorOffset;
-            var selectedTo = chunkTo.from + focusOffset;
-            sel.removeAllRanges();
-
-            if (selectedFrom > selectedTo) {
-              var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
-            }
-            // trim
-            while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedFrom, 1)) !== -1) selectedFrom++;
-            while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedTo - 1, 1)) !== -1) selectedTo--;
-
-            // shift+click allows zero-width spans
-            if (selectedFrom === selectedTo && !evt.shiftKey) {
-              // simple click (zero-width span)
-              return;
-            }
-
-            var newOffset = [selectedFrom, selectedTo];
-            if (reselectedSpan) {
-              var newOffsets = reselectedSpan.offsets.slice(0); // clone
-              spanOptions.old_offsets = JSON.stringify(reselectedSpan.offsets);
-              if (selectedFragment !== null) {
-                if (selectedFragment !== false) {
-                  newOffsets.splice(selectedFragment, 1);
-                }
-                newOffsets.push(newOffset);
-                newOffsets.sort(Util.cmpArrayOnFirstElement);
-                spanOptions.offsets = newOffsets;
-              } else {
-                spanOptions.offsets = [newOffset];
-              }
-            } else {
-              spanOptions = {
-                action: 'createSpan',
-                offsets: [newOffset]
-              }
-            }
-
-/* In relation to #786, removed the cross-sentence checking code
-            var crossSentence = true;
-            $.each(sourceData.sentence_offsets, function(sentNo, startEnd) {
-              if (selectedTo <= startEnd[1]) {
-                // this is the sentence
-
-                if (selectedFrom >= startEnd[0]) {
-                  crossSentence = false;
-                }
-                return false;
-              }
-            });
-
-            if (crossSentence) {
-              // attempt to annotate across sentence boundaries; not supported
-              dispatcher.post('messages', [[['Error: cannot annotate across a sentence break', 'error']]]);
-              if (reselectedSpan) {
-                $(reselectedSpan.rect).removeClass('reselect');
-              }
-              reselectedSpan = null;
-              svgElement.removeClass('reselect');
-            } else
-*/
-            if (!Configuration.rapidModeOn || reselectedSpan != null) {
-              // normal span select in standard annotation mode
-              // or reselect: show selector
-              var spanText = data.text.substring(selectedFrom, selectedTo);
-              fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
-              // for precise timing, log annotation display to user.
-              dispatcher.post('logAction', ['spanSelected']);
-            } else {
-              // normal span select in rapid annotation mode: call
-              // server for span type candidates
-              var spanText = data.text.substring(selectedFrom, selectedTo);
-              // TODO: we're currently storing the event to position the
-              // span form using adjustToCursor() (which takes an event),
-              // but this is clumsy and suboptimal (user may have scrolled
-              // during the ajax invocation); think of a better way.
-              lastRapidAnnotationEvent = evt;
-              dispatcher.post('ajax', [ { 
-                              action: 'suggestSpanTypes',
-                              collection: coll,
-                              'document': doc,
-                              start: selectedFrom,
-                              end: selectedTo,
-                              text: spanText,
-                              model: $('#rapid_model').val(),
-                              }, 'suggestedSpanTypes']);
-            }
-          }
+          tryToAnnotate(evt);
         }
       };
 
@@ -2520,6 +2558,34 @@ var AnnotatorUI = (function($, window, undefined) {
         importForm.find('input, textarea').val('');
       });
 
+      var importCollForm = $('#import_coll_form');
+      var importCollDone = function() {
+        // TODO
+      };
+      var importCollFormSubmit = function(evt) {
+        var data = new FormData(importCollForm[0]);
+        data.append('action', 'upload_collection')
+        dispatcher.post('ajax', [data, importCollDone, undefined, {
+          cache: false,
+          contentType: false,
+          processData: false,
+        }]);
+        return false;
+      };
+      importCollForm.submit(importCollFormSubmit);
+      dispatcher.post('initForm', [importCollForm, {
+          width: 500,
+          open: function(evt) {
+            keymap = {};
+          },
+        }]);
+      $('#import_collection_button').click(function() {
+        dispatcher.post('hideForm');
+        dispatcher.post('showForm', [importCollForm]);
+        importCollForm.find('input').val('');
+      });
+
+
       /* BEGIN delete button - related */
 
       $('#delete_document_button').click(function() {
@@ -2641,6 +2707,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('collectionLoaded', setupNormalizationUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('newSourceData', onNewSourceData).
+          on('showForm', showForm).
           on('hideForm', hideForm).
           on('user', userReceived).
           on('edited', edited).

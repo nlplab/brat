@@ -313,6 +313,7 @@ var Visualizer = (function($, window, undefined) {
         '\u00a0': 4,
         '\u200b': 0,
         '\u3000': 8,
+        '\t': 12,
         '\n': 4
       };
       var coloredCurlies = true; // color curlies by box BG
@@ -810,6 +811,7 @@ var Visualizer = (function($, window, undefined) {
           if (chunk) chunk.nextSpace = space;
           //               (index,     text, from,      to, space) {
           chunk = new Chunk(chunkNo++, text, firstFrom, to, space);
+          chunk.lastSpace = space;
           data.chunks.push(chunk);
           lastTo = to;
           firstFrom = null;
@@ -1189,7 +1191,7 @@ var Visualizer = (function($, window, undefined) {
         var chunkTexts = {}; // set of span texts
         $.each(data.chunks, function(chunkNo, chunk) {
           chunk.row = undefined; // reset
-          if (!(chunk.text in chunkTexts)) chunkTexts[chunk.text] = []
+          if (!chunkTexts.hasOwnProperty(chunk.text)) chunkTexts[chunk.text] = []
           var chunkText = chunkTexts[chunk.text];
 
           // here we also need all the spans that are contained in
@@ -1525,6 +1527,22 @@ Util.profileStart('chunks');
         });
 
         $.each(data.chunks, function(chunkNo, chunk) {
+          var spaceWidth = 0;
+          if (chunk.lastSpace) {
+            var spaceLen = chunk.lastSpace.length || 0;
+            var spacePos = chunk.lastSpace.lastIndexOf("\n") + 1;
+            if (spacePos || !chunkNo || !chunk.sentence) {
+              // indent if
+              // * non-first paragraph first word
+              // * first paragraph first word
+              // * non-first word in a line
+              // don't indent if
+              // * the first word in a non-paragraph line
+              for (var i = spacePos; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.lastSpace[i]] || 0;
+              currentX += spaceWidth;
+            }
+          }
+
           reservations = new Array();
           chunk.group = svg.group(row.group);
           chunk.highlightGroup = svg.group(chunk.group);
@@ -1828,7 +1846,8 @@ Util.profileStart('chunks');
             // TODO: related to issue #571
             // replace arcHorizontalSpacing with a calculated value
             currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding +
-                (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
+                (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0)) +
+                spaceWidth;
             if (hasLeftArcs) {
               var adjustedCurTextWidth = sizes.texts.widths[chunk.text] + arcHorizontalSpacing;
               if (adjustedCurTextWidth > maxTextWidth) {
@@ -1912,10 +1931,7 @@ Util.profileStart('chunks');
           translate(chunk, currentX + boxX, 0);
           chunk.textX = currentX + boxX;
 
-          var spaceWidth = 0;
-          var spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
-          for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
-          currentX += spaceWidth + boxWidth;
+          currentX += boxWidth;
         }); // chunks
 
         // finish the last row
@@ -2933,18 +2949,39 @@ Util.profileStart('before render');
           if (that.arcDragOrigin) {
             target.parent().addClass('highlight');
           } else {
-            highlightArcs = $svg.
-                find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
-                addClass('highlight');
+            var equivs = {};
             var spans = {};
             spans[id] = true;
             var spanIds = [];
-            $.each(span.incoming, function(arcNo, arc) {
+            // find all arcs, normal and equiv. Equivs need to go far (#1023)
+            var addArcAndSpan = function(arc, span) {
+              if (arc.equiv) {
+                equivs[arc.eventDescId.substr(0, arc.eventDescId.indexOf('*', 2) + 1)] = true;
+                var eventDesc = data.eventDescs[arc.eventDescId];
+                $.each(eventDesc.leftSpans.concat(eventDesc.rightSpans), function(ospanId, ospan) {
+                  spans[ospan] = true;
+                });
+              } else {
                 spans[arc.origin] = true;
+              }
+            }
+            $.each(span.incoming, function(arcNo, arc) {
+                addArcAndSpan(arc, arc.origin);
             });
             $.each(span.outgoing, function(arcNo, arc) {
-                spans[arc.target] = true;
+                addArcAndSpan(arc, arc.target);
             });
+            var equivSelector = [];
+            $.each(equivs, function(equiv, dummy) {
+              equivSelector.push('[data-arc-ed^="' + equiv + '"]');
+            });
+
+            highlightArcs = $svg.
+                find(equivSelector.join(', ')).
+                parent().
+                add('g[data-from="' + id + '"], g[data-to="' + id + '"]' + equivSelector).
+                addClass('highlight');
+
             $.each(spans, function(spanId, dummy) {
                 spanIds.push('rect[data-span-id="' + spanId + '"]');
             });

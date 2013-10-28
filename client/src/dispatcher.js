@@ -1,6 +1,5 @@
 // -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
-// TODO: does 'arguments.callee.caller' work?
 
 var Dispatcher = (function($, window, undefined) {
     var Dispatcher = function() {
@@ -8,10 +7,10 @@ var Dispatcher = (function($, window, undefined) {
 
       var table = {};
 
-      var on = function(message, host, handler) {
+      var on = function on(message, host, handler) {
         if (handler === undefined) {
           handler = host;
-          host = arguments.callee.caller;
+          host = on.caller;
         }
         if (table[message] === undefined) {
           table[message] = [];
@@ -34,7 +33,7 @@ var Dispatcher = (function($, window, undefined) {
         }
       };
 
-      var post = function(asynch, message, args, returnType) {
+      var post = function post(asynch, message, args, returnType) {
         if (typeof(asynch) !== 'number') {
           // no asynch parameter
           returnType = args;
@@ -50,7 +49,7 @@ var Dispatcher = (function($, window, undefined) {
 
         if (typeof(message) === 'function') {
           // someone was lazy and sent a simple function
-          var host = arguments.callee.caller;
+          var host = post.caller;
           if (asynch !== null) {
             result = setTimeout(function() {
               try {

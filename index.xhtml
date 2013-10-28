@@ -144,6 +144,12 @@
         <textarea id="import_text" class="borderless"/>
       </fieldset>
     </form>
+    <form id="import_coll_form" class="dialog" title="Import collection">
+      <fieldset id="import_coll_form_text">
+        <legend>Collection archive (.zip, .tar.gz)</legend>
+        <input type="file" id="import_coll" class="borderless" accept="application/zip,application/x-gzip" />
+      </fieldset>
+    </form>
     <!-- Data dialog -->
     <form id="data_form" class="dialog" title="Data">
       <!-- Data dialog export section -->
@@ -196,10 +202,14 @@
           <span class="optionLabel">New document</span>
           <input id="import_button" type="button" class="login ui-button-text" value="Enter text" tabindex="-1" title="Import a new document into the current collection"/>
         </div>
+        <!-- XXX Taken out until such time when serverside is
+                 implemented, pending resolution of issues
+                 raised in #216
         <div class="optionRow">
           <span class="optionLabel">New collection</span>
-          <input id="import_collection_button" type="button" class="login ui-button-text" value="Upload tar.gz" tabindex="-1" title="Import an entire collection into the current installation"/>
+          <input id="import_collection_button" type="button" class="login ui-button-text" value="Upload archive" tabindex="-1" title="Import an entire collection into the current installation"/>
         </div>
+        -->
       </fieldset>
       <!-- Data dialog delete section -->
       <div style="display: none;">
