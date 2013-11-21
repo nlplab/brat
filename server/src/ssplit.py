@@ -148,7 +148,7 @@ if __name__ == '__main__':
                     text = txt_file.read()
                 print '# Original text:'
                 print text.replace('\n', '\\n')
-                offsets = [o for o in en_sentence_boundary_gen(text)]
+                offsets = [o for o in newline_sentence_boundary_gen(text)]
                 print '# Offsets:'
                 print offsets
                 print '# Sentences:'
