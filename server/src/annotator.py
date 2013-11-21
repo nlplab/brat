@@ -346,6 +346,10 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
                 if start != end:
                     seg_offsets.append((start, end, ))
 
+        # if we're dealing with a null-span
+        if not seg_offsets:
+            seg_offsets = offsets
+
         ann_text = DISCONT_SEP.join((text[start:end]
             for start, end in seg_offsets))
         ann = TextBoundAnnotationWithText(seg_offsets, new_id, type, ann_text)
