@@ -1246,6 +1246,8 @@ var VisualizerUI = (function($, window, undefined) {
             opts.arg1type = $('#search_form_relation_arg1_type').val() || '';
             opts.arg2 = $('#search_form_relation_arg2_text').val();
             opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
+            opts.show_text = $('#search_form_relation_show_arg_text_on').is(':checked');
+            opts.show_type = $('#search_form_relation_show_arg_type_on').is(':checked');
             break;
           case 'searchNote':
             opts.category = $('#search_form_note_category').val() || '';
