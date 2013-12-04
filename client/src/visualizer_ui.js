@@ -1728,6 +1728,8 @@ var VisualizerUI = (function($, window, undefined) {
         }
       }
 
+      $('#source_collection_conf').buttonset();
+
       var gotCurrent = function(_coll, _doc, _args) {
         var oldColl = coll;
 
@@ -1747,6 +1749,7 @@ var VisualizerUI = (function($, window, undefined) {
           var $collectionDownloadLink = $('<a target="brat_search"/>')
             .text('Download tar.gz')
             .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + encodeURIComponent(coll)
+            + '&conf=' + ($('#source_collection_conf_on').is(':checked') ? 1 : 0)
             // TODO: Extract the protocol version into somewhere global
             + '&protocol=' + 1);
           $sourceCollection.append($collectionDownloadLink);
@@ -2255,6 +2258,14 @@ var VisualizerUI = (function($, window, undefined) {
         return moveInFileBrowser(+1);
       });
       $('#footer').show();
+
+      $('#source_collection_conf_on, #source_collection_conf_off').change(function() {
+        var conf = $('#source_collection_conf_on').is(':checked') ? 1 : 0;
+        var $source_collection_link = $('#source_collection a');
+        var link = $source_collection_link.attr('href').replace(/&conf=./, '&conf=' + conf);
+        $source_collection_link.attr('href', link);
+      });
+
 
       var rememberData = function(_data) {
         if (_data && !_data.exception) {
