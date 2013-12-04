@@ -246,7 +246,6 @@ def verify_relations(ann_obj, projectconf):
             conf_rels = projectconf.get_relations_by_type(r.type)
             if any(c for c in conf_rels if _relation_labels_match(r, c)):
                 match_found = True
-                break
         if match_found:
             continue
 
@@ -257,7 +256,6 @@ def verify_relations(ann_obj, projectconf):
             conf_rels = projectconf.get_relations_by_type(r.type)
             if any(c for c in conf_rels if _relation_labels_match(r, c)):
                 match_found = True
-                break
         r.arg1, r.arg2, r.arg1l, r.arg2l = r.arg2, r.arg1, r.arg2l, r.arg1l
         if match_found:
             continue            
