@@ -1233,7 +1233,7 @@ var Visualizer = (function($, window, undefined) {
               lastChar -= textUpToLastChar.length - textUpToLastCharUnspaced.length;
 
               var startPos = text.getStartPositionOfChar(firstChar).x;
-              var endPos = (lastChar < 0)
+              var endPos = (lastChar < firstChar)
                 ? startPos
                 : text.getEndPositionOfChar(lastChar).x;
               fragment.curly = {
