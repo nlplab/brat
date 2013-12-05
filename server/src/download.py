@@ -34,7 +34,7 @@ def download_file(document, collection, extension):
         data = txt_file.read().encode('utf-8')
     raise NoPrintJSONError(hdrs, data)
 
-def download_collection(collection, exclude_configs=False):
+def download_collection(collection, include_conf=False):
     directory = collection
     real_dir = real_directory(directory)
     dir_name = basename(dirname(real_dir))
@@ -46,7 +46,7 @@ def download_collection(collection, exclude_configs=False):
         os_close(tmp_file_fh)
 
         tar_cmd_split = ['tar', '--exclude=.stats_cache']
-        if exclude_configs:
+        if not include_conf:
             tar_cmd_split.extend(['--exclude=annotation.conf',
                                   '--exclude=visual.conf',
                                   '--exclude=tools.conf',
