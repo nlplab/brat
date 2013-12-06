@@ -133,7 +133,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "EMPTY", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM", "OVERLAP", "OVL-TYPE"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "EMPTY", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM", "OVERLAP", "OVL-TYPE", "INHERIT"]
 # TODO: "GLYPH-POS" is no longer used, warn if encountered and
 # recommend to use "position" instead.
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
@@ -389,6 +389,7 @@ def __require_tab_separator(section):
 def __read_term_hierarchy(input, section=None):
     root_nodes    = []
     last_node_at_depth = {}
+    last_args_at_depth = {}
 
     macros = {}
     for l in input:
@@ -461,15 +462,31 @@ def __read_term_hierarchy(input, section=None):
         # spaces in the initial indent.
         depth = len(indent)
 
+        # expand <INHERIT> into parent arguments
+        expanded_args = []
+        for a in args:
+            if a != '<INHERIT>':
+                expanded_args.append(a)
+            else:
+                assert depth-1 in last_args_at_depth, \
+                    "Error no parent for '%s'" % l
+                expanded_args.extend(last_args_at_depth[depth-1])
+        # TODO: remove, debugging
+#         if expanded_args != args:
+#             Messager.info('expand: %s --> %s' % (str(args), str(expanded_args)))
+        args = expanded_args
+
         n = TypeHierarchyNode(terms, args)
         if depth == 0:
             # root level, no children assignments
             root_nodes.append(n)
         else:
             # assign as child of last node at the depth of the parent
-            assert depth-1 in last_node_at_depth, "Error: no parent for '%s'" % l
+            assert depth-1 in last_node_at_depth, \
+                "Error: no parent for '%s'" % l
             last_node_at_depth[depth-1].children.append(n)
         last_node_at_depth[depth] = n
+        last_args_at_depth[depth] = args
 
     return root_nodes
 
