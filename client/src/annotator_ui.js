@@ -886,10 +886,12 @@ var AnnotatorUI = (function($, window, undefined) {
 
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
+          
+          showAllAttributes = false;
+          
           var entityAttrCount = showAttributesFor(entityAttributeTypes, 'entity', type);
           var eventAttrCount = showAttributesFor(eventAttributeTypes, 'event', type);
           
-          showAllAttributes = false;
           // show attribute frames only if at least one attribute is
           // shown, and set size classes appropriately
           if (eventAttrCount > 0) {
