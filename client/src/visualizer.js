@@ -1232,14 +1232,11 @@ var Visualizer = (function($, window, undefined) {
               firstChar -= textUpToFirstChar.length - textUpToFirstCharUnspaced.length;
               lastChar -= textUpToLastChar.length - textUpToLastCharUnspaced.length;
 
-console.log(text.textContent, fragment.chunk.text, firstChar, lastChar);
               var startPos, endPos;
               if (firstChar < fragment.chunk.text.length) {
                 startPos = text.getStartPositionOfChar(firstChar).x;
-                console.log("S: start of firstChar", startPos, "len", fragment.chunk.text.length)
               } else {
                 startPos = text.getComputedTextLength();
-                console.log("S: computed", startPos, "len", fragment.chunk.text.length)
               }
               endPos = (lastChar < firstChar)
                 ? startPos

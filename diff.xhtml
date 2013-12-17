@@ -37,7 +37,8 @@
           'client/src/spinner.js'
       );
       head.ready(function() {
-          // var dispatcher = new Dispatcher(); // XXX DEBUG
+          var diffColl, curColl, curDoc;
+
           var dispatcher = new Dispatcher();
           var urlMonitor = new URLMonitor(dispatcher);
           var ajax = new Ajax(dispatcher);
@@ -53,12 +54,22 @@
           var visualizer_left = new Visualizer(dispatcher_left, 'svg_first');
           var ajax_left = new Ajax(dispatcher_left);
 
+          $('#side-by-side_switch').click(function(evt) {
+            dispatcher.post('hideForm');
+            var prevDiffColl = diffColl;
+            diffColl = curColl;
+            dispatcher.post("setCollection", [prevDiffColl, curDoc]);
+            evt.preventDefault();
+          });
+
           dispatcher.on("current", function(coll, doc, args, reload) {
-            var params = $.deparam(window.location.search.substring(1));
-            var diffColl = params.diff;
+            if (args.diff) diffColl = decodeURIComponent(args.diff[0][0]);
+            curColl = coll;
+            curDoc = doc;
             if (!diffColl) {
               alert("Diff collection not specified.\nPlease use a link of the following format:\n\n" +
-                location.origin + location.pathname + "?diff=___" + location.hash);
+                location.origin + location.pathname + location.hash + '?diff=____' +
+                '\n\n(the diff collection will be on the left side, and uneditable)');
             } else {
               dispatcher_left.post("current", [diffColl, doc, args, reload]);
             }
@@ -223,7 +234,10 @@
           <span class="optionLabel">Side-by-side</span>
           <span id="side-by-side_cmp_exit" title="Exit side-by-side comparison mode">
             <a href="index.xhtml" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"><span class="ui-button-text">Exit comparison mode</span></a>
-            </span>
+          </span>
+          <span id="side-by-side_switch" title="Switch side-by-side comparison mode collections">
+            <a href="#" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"><span class="ui-button-text">Switch collections</span></a>
+          </span>
         </div>
       </fieldset>
       <!-- Data dialog automatic annotation section -->

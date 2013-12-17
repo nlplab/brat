@@ -1758,7 +1758,7 @@ var VisualizerUI = (function($, window, undefined) {
           $cmpButton = $('#side-by-side_cmp').empty();
           var $cmpLink = $('<a target="_blank"/>')
             .text('Comparison mode')
-            .attr('href', 'diff.xhtml?diff=' + encodeURIComponent(coll));
+            .attr('href', 'diff.xhtml#?diff=' + encodeURIComponent(coll));
           $cmpButton.append($cmpLink);
           $cmpLink.button();
         }
