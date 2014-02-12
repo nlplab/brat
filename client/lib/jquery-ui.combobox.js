@@ -21,7 +21,7 @@
         .val( value )
         .keydown(function(evt) {
           var text, start;
-          if (evt.keyCode == 8
+          if (evt.keyCode == $.ui.keyCode.BACKSPACE
               && (start = input[0].selectionStart) > 0
               && (end = input[0].selectionEnd) != start
               && end == (text = input.val()).length) {
