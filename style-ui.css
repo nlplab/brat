@@ -500,9 +500,25 @@ div.scroll_wrapper_upper div.scroller {
   margin-top: 25px;
 }
 
+/* Lifted from http://jqueryui.com/autocomplete/#combobox */
+.ui-combobox {
+  position: relative;
+  display: inline-block;
+}
+.ui-combobox-input {
+  margin: 0;
+  padding: 2px;
+}
+.ui-combobox, .ui-combobox input, .ui-autocomplete {
+  font-size: 11px !important;
+  font-family: 'PT Sans Caption', sans-serif !important;
+}
+
+
 @font-face {
   font-family: 'Astloch';
   font-style: normal;
   font-weight: bold;
   src: local('Astloch Bold'), local('Astloch-Bold'), url('static/fonts/Astloch-Bold.ttf') format('truetype');
 }
+
