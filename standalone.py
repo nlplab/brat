@@ -306,7 +306,7 @@ server is experimental and should not be run as administrator.
 
     try:
         server = BratServer((_DEFAULT_SERVER_ADDR, port))
-        print >> sys.stderr, "Serving brat at http://127.0.0.1:%d" % port
+        print >> sys.stderr, "Serving brat at http://%s:%d" % server.server_address
         server.serve_forever()
     except KeyboardInterrupt:
         # normal exit

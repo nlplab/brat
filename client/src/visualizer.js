@@ -1920,13 +1920,17 @@ Util.profileStart('chunks');
             // if we added a gap, center the intervening elements
             spacing /= 2;
             var firstChunkInRow = row.chunks[row.chunks.length - 1];
-            if (spacingChunkId < firstChunkInRow.index) {
-              spacingChunkId = firstChunkInRow.index + 1;
-            }
-            for (var chunkIndex = spacingChunkId; chunkIndex < chunk.index; chunkIndex++) {
-              var movedChunk = data.chunks[chunkIndex];
-              translate(movedChunk, movedChunk.translation.x + spacing, 0);
-              movedChunk.textX += spacing;
+            if (firstChunkInRow === undefined) {
+              console.log('warning: firstChunkInRow undefined, chunk:', chunk);
+            } else { // valid firstChunkInRow
+              if (spacingChunkId < firstChunkInRow.index) {
+                spacingChunkId = firstChunkInRow.index + 1;
+              }
+              for (var chunkIndex = spacingChunkId; chunkIndex < chunk.index; chunkIndex++) {
+                var movedChunk = data.chunks[chunkIndex];
+                translate(movedChunk, movedChunk.translation.x + spacing, 0);
+                movedChunk.textX += spacing;
+              }
             }
           }
 
