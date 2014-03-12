@@ -1041,9 +1041,11 @@ var Visualizer = (function($, window, undefined) {
               if (val.glyph) {
                 if (val.position == "left") {
                   prefix = val.glyph + prefix;
-                  var css = 'glyph';
-                  if (attr.css) css += ' glyph_' + Util.escapeQuotes(attr.css);
-                  svgtext.span(val.glyph, { 'class': css });
+                  var tspan_attrs = { 'class' : 'glyph' };
+                  if (val.glyphColor) {
+                    tspan_attrs.fill = val.glyphColor;
+                  }
+                  svgtext.span(val.glyph, tspan_attrs);
                 } else { // XXX right is implied - maybe change
                   postfixArray.push([attr, val]);
                   postfix += val.glyph;
@@ -1060,9 +1062,11 @@ var Visualizer = (function($, window, undefined) {
               text += ' ' + postfix;
               svgtext.string(' ');
               $.each(postfixArray, function(elNo, el) {
-                var css = 'glyph';
-                if (el[0].css) css += ' glyph_' + Util.escapeQuotes(el[0].css);
-                svgtext.span(el[1].glyph, { 'class': css });
+                var tspan_attrs = { 'class' : 'glyph' };
+                if (el[1].glyphColor) {
+                  tspan_attrs.fill = el[1].glyphColor;
+                }
+                svgtext.span(el[1].glyph, tspan_attrs);
               });
             }
             if (warning) {

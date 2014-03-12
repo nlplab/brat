@@ -875,10 +875,12 @@ var AnnotatorUI = (function($, window, undefined) {
             var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
             var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
             if (showAttr) {
-              $input.button('widget').show();
+              // $input.button('widget').parent().show();
+              $input.closest('.attribute_type_label').show();
               shownCount++;
             } else {
-              $input.button('widget').hide();
+              // $input.button('widget').parent().hide();
+              $input.closest('.attribute_type_label').hide();
             }
           });
           return shownCount;
@@ -1904,31 +1906,33 @@ var AnnotatorUI = (function($, window, undefined) {
         $.each(types, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
           var attrId = category+'_attr_'+escapedType;
+          var $span = $('<span class="attribute_type_label"/>').appendTo($top);
           if (attr.unused) {
-            var $input = $('<input type="hidden" id="'+attrId+'" value=""/>');
-            $top.append($input);
+            $('<input type="hidden" id="'+attrId+'" value=""/>').appendTo($span);
           } else if (attr.bool) {
             var escapedName = Util.escapeQuotes(attr.name);
             var $input = $('<input type="checkbox" id="'+attrId+
                            '" value="' + escapedType + 
                            '" category="' + category + '"/>');
-            var $label = $('<label class="attribute_type_label" for="'+attrId+
+            var $label = $('<label for="'+attrId+
                            '" data-bare="' + escapedName + '">&#x2610; ' + 
                            escapedName + '</label>');
-            $top.append($input).append($label);
+            $span.append($input).append($label);
             $input.button();
             $input.change(onBooleanAttrChange);
           } else {
-            var $div = $('<div class="ui-button ui-button-text-only attribute_type_label"/>');
+            // var $div = $('<div class="ui-button ui-button-text-only attribute_type_label"/>');
+            $span.text(attr.name);
+            $span.append(':&#160;');
             var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text" category="' + category + '"/>');
-            var $option = $('<option class="ui-state-default" value=""/>').text(attr.name + ': ?');
+            var $option = $('<option class="ui-state-default" value=""/>').text('?');
             $select.append($option);
             $.each(attr.values, function(valType, value) {
-              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(valType) + '"/>').text(attr.name + ': ' + (value.name || valType));
+              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(valType) + '"/>').text(value.name || valType);
               $select.append($option);
             });
-            $div.append($select);
-            $top.append($div);
+            $span.append($select);
+            $select.combobox();
             $select.change(onMultiAttrChange);
           }
         });
