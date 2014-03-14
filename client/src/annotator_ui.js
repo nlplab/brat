@@ -1041,11 +1041,17 @@ var AnnotatorUI = (function($, window, undefined) {
                        false, false);
       };
 
+      var clearArcNotes = function(evt) {
+        $('#arc_notes').val('');
+      }
+      $('#clear_arc_notes_button').button();
+      $('#clear_arc_notes_button').click(clearArcNotes);
+
       var clearSpanNotes = function(evt) {
         $('#span_notes').val('');
       }
-      $('#clear_notes_button').button();
-      $('#clear_notes_button').click(clearSpanNotes);
+      $('#clear_span_notes_button').button();
+      $('#clear_span_notes_button').click(clearSpanNotes);
 
       var clearSpanNorm = function(evt) {
         clearNormalizationUI();
@@ -1445,6 +1451,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         var arcAnnotatorNotes;
+        var isMultiRelation = arcId && arcId instanceof Array
         var isBinaryRelation = arcId && !(arcId instanceof Array);
         if (isBinaryRelation) {
           // only for relation arcs
@@ -1458,7 +1465,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         // disable notes for arc types that don't support storage (#945)
-        if(!isBinaryRelation || isEquiv) {
+        if(isMultiRelation || isEquiv) {
           // disable the actual input
           $('#arc_notes').attr('disabled', 'disabled');
           // add to fieldset for style
@@ -1554,6 +1561,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var theFocusNode = sel.focusNode;
         var chunkIndexTo;
         if (theFocusNode) {
+        console.log(theFocusNode);
           chunkIndexTo = $(theFocusNode.parentNode).attr('data-chunk-id');
           if (!chunkIndexTo) {
             theFocusNode = $(theFocusNode).children()[0].firstChild;
