@@ -2,8 +2,6 @@
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 
 var Visualizer = (function($, window, undefined) {
-    var fontLoadTimeout = 5000; // 5 seconds
-  
     var DocumentData = function(text) {
       this.text = text;
       this.chunks = [];
@@ -2887,7 +2885,7 @@ Util.profileReport();
       };
 
       var triggerRender = function() {
-        if (svg && ((isRenderRequested && isCollectionLoaded) || requestedData) && Visualizer.areFontsLoaded) {
+        if (svg && ((isRenderRequested && isCollectionLoaded) || requestedData) && Util.areFontsLoaded()) {
           isRenderRequested = false;
           if (requestedData) {
 
@@ -3259,44 +3257,7 @@ Util.profileStart('before render');
         return !drawing;
       };
 
-      // If we are yet to load our fonts, dispatch them
-      if (!Visualizer.areFontsLoaded) {
-        var webFontConfig = {
-          custom: {
-            families: [
-              'Astloch',
-              'PT Sans Caption',
-              //        'Ubuntu',
-              'Liberation Sans'
-            ],
-            /* For some cases, in particular for embedding, we need to
-              allow for fonts being hosted elsewhere */
-            urls: webFontURLs !== undefined ? webFontURLs : [
-              'static/fonts/Astloch-Bold.ttf',
-              'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
-              //
-              'static/fonts/Liberation_Sans-Regular.ttf'
-            ],
-          },
-          active: proceedWithFonts,
-          inactive: proceedWithFonts,
-          fontactive: function(fontFamily, fontDescription) {
-            // Note: Enable for font debugging
-            //console.log("font active: ", fontFamily, fontDescription);
-          },
-          fontloading: function(fontFamily, fontDescription) {
-            // Note: Enable for font debugging
-            //console.log("font loading:", fontFamily, fontDescription);
-          },
-        };
-        WebFont.load(webFontConfig);
-        setTimeout(function() {
-          if (!Visualizer.areFontsLoaded) {
-            console.error('Timeout in loading fonts');
-            proceedWithFonts();
-          }
-        }, fontLoadTimeout);
-      }
+      Util.loadFonts(webFontURLs, dispatcher);
 
       dispatcher.
           on('collectionChanged', collectionChanged).
@@ -3314,15 +3275,6 @@ Util.profileStart('before render');
           on('clearSVG', clearSVG).
           on('mouseover', onMouseOver).
           on('mouseout', onMouseOut);
-    };
-
-    Visualizer.areFontsLoaded = false;
-
-    var proceedWithFonts = function() {
-      Visualizer.areFontsLoaded = true;
-      // Note: Enable for font debugging
-      //console.log("fonts done");
-      Dispatcher.post('triggerRender');
     };
 
     return Visualizer;
