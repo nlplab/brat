@@ -7,6 +7,7 @@ var Configuration = (function(window, undefined) {
     var rapidModeOn = false;
     var confirmModeOn = true;
     var autorefreshOn = false;
+    var typeCollapseLimit = 30;
     
     var visual = {
       margin: { x: 2, y: 1 },
@@ -25,5 +26,6 @@ var Configuration = (function(window, undefined) {
       rapidModeOn: rapidModeOn,
       confirmModeOn: confirmModeOn,
       autorefreshOn: autorefreshOn,
+      typeCollapseLimit: typeCollapseLimit,
     };
 })(window);

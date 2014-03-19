@@ -37,7 +37,6 @@ var AnnotatorUI = (function($, window, undefined) {
       var inForm = false;
 
       var draggedArcHeight = 30;
-      var spanTypesToShowBeforeCollapse = 30;
       var maxNormSearchHistory = 10;
 
       // TODO: this is an ugly hack, remove (see comment with assignment)
@@ -673,11 +672,11 @@ var AnnotatorUI = (function($, window, undefined) {
         // enable all inputs by default (see setSpanTypeSelectability)
         $('#span_form input:not([unused])').removeAttr('disabled');
 
-        // close span types if there's over spanTypesToShowBeforeCollapse
-        if ($('#entity_types .item').length > spanTypesToShowBeforeCollapse) {
+        // close span types if there's over typeCollapseLimit
+        if ($('#entity_types .item').length > Configuration.typeCollapseLimit) {
           $('#entity_types .open').removeClass('open');
         }
-        if ($('#event_types .item').length > spanTypesToShowBeforeCollapse) {
+        if ($('#event_types .item').length > Configuration.typeCollapseLimit) {
           $('#event_types .open').removeClass('open');
         }
 
@@ -1561,7 +1560,6 @@ var AnnotatorUI = (function($, window, undefined) {
         var theFocusNode = sel.focusNode;
         var chunkIndexTo;
         if (theFocusNode) {
-        console.log(theFocusNode);
           chunkIndexTo = $(theFocusNode.parentNode).attr('data-chunk-id');
           if (!chunkIndexTo) {
             theFocusNode = $(theFocusNode).children()[0].firstChild;
