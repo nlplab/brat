@@ -103,10 +103,7 @@ html {
   display: block;
 }
 
-#notes_container {
-  position: relative;
-}
-#norm_container {
+#span_notes_container, #arc_notes_container, #norm_container {
   position: relative;
 }
 #arc_notes:disabled {
@@ -118,7 +115,7 @@ html {
 #arc_notes_fieldset:disabled legend {
   background-color: #BBBBBB;
 }
-#clear_notes_button, #clear_norm_button {                   
+#clear_span_notes_button, #clear_arc_notes_button, #clear_norm_button {                   
   padding: 2px 5px;
   position: absolute;
   top: -2px;

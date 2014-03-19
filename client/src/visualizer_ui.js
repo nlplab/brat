@@ -2195,6 +2195,12 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('configurationChanged');
       });
 
+      $('#type_collapse_limit').change(function(evt) {
+        Configuration.typeCollapseLimit = parseInt($(this).val(), 10);
+        console.log("changed to", Configuration.typeCollapseLimit);
+        dispatcher.post('configurationChanged');
+      });
+
       var isReloadOkay = function() {
         // do not reload while the user is in the dialog
         return currentForm == null;
@@ -2249,6 +2255,9 @@ var VisualizerUI = (function($, window, undefined) {
         // Autorefresh
         $('#autorefresh_mode')[0].checked = Configuration.autorefreshOn;
         $('#autorefresh_mode').button('refresh');
+
+        // Type Collapse Limit
+        $('#type_collapse_limit')[0].value = Configuration.typeCollapseLimit;
       }
 
       $('#prev').button().click(function() {

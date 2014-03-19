@@ -37,7 +37,6 @@ var AnnotatorUI = (function($, window, undefined) {
       var inForm = false;
 
       var draggedArcHeight = 30;
-      var spanTypesToShowBeforeCollapse = 30;
       var maxNormSearchHistory = 10;
 
       // TODO: this is an ugly hack, remove (see comment with assignment)
@@ -673,11 +672,11 @@ var AnnotatorUI = (function($, window, undefined) {
         // enable all inputs by default (see setSpanTypeSelectability)
         $('#span_form input:not([unused])').removeAttr('disabled');
 
-        // close span types if there's over spanTypesToShowBeforeCollapse
-        if ($('#entity_types .item').length > spanTypesToShowBeforeCollapse) {
+        // close span types if there's over typeCollapseLimit
+        if ($('#entity_types .item').length > Configuration.typeCollapseLimit) {
           $('#entity_types .open').removeClass('open');
         }
-        if ($('#event_types .item').length > spanTypesToShowBeforeCollapse) {
+        if ($('#event_types .item').length > Configuration.typeCollapseLimit) {
           $('#event_types .open').removeClass('open');
         }
 
@@ -1041,11 +1040,17 @@ var AnnotatorUI = (function($, window, undefined) {
                        false, false);
       };
 
+      var clearArcNotes = function(evt) {
+        $('#arc_notes').val('');
+      }
+      $('#clear_arc_notes_button').button();
+      $('#clear_arc_notes_button').click(clearArcNotes);
+
       var clearSpanNotes = function(evt) {
         $('#span_notes').val('');
       }
-      $('#clear_notes_button').button();
-      $('#clear_notes_button').click(clearSpanNotes);
+      $('#clear_span_notes_button').button();
+      $('#clear_span_notes_button').click(clearSpanNotes);
 
       var clearSpanNorm = function(evt) {
         clearNormalizationUI();
@@ -1445,6 +1450,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         var arcAnnotatorNotes;
+        var isMultiRelation = arcId && arcId instanceof Array
         var isBinaryRelation = arcId && !(arcId instanceof Array);
         if (isBinaryRelation) {
           // only for relation arcs
@@ -1458,7 +1464,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         // disable notes for arc types that don't support storage (#945)
-        if(!isBinaryRelation || isEquiv) {
+        if(isMultiRelation || isEquiv) {
           // disable the actual input
           $('#arc_notes').attr('disabled', 'disabled');
           // add to fieldset for style

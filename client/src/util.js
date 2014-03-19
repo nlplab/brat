@@ -2,6 +2,8 @@
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var Util = (function(window, undefined) {
 
+    var fontLoadTimeout = 5000; // 5 seconds
+
     var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     var isMac = navigator.platform == 'MacIntel'; // XXX should we go broader?
@@ -578,6 +580,78 @@ var Util = (function(window, undefined) {
       $.getJSON(docDataURL, function(data) { docData = data; handler(); });
     };
 
+    var fontsLoaded = false;
+    var fontNotifyList = false;
+
+    var proceedWithFonts = function() {
+      if (fontsLoaded) return;
+
+      fontsLoaded = true;
+      $.each(fontNotifyList, function(dispatcherNo, dispatcher) {
+        dispatcher.post('triggerRender');
+      });
+      fontNotifyList = null;
+    };
+
+    var loadFonts = function(webFontURLs, dispatcher) {
+      if (fontsLoaded) {
+        dispatcher.post('triggerRender');
+        return;
+      }
+
+      if (fontNotifyList) {
+        fontNotifyList.push(dispatcher);
+        return;
+      }
+
+      fontNotifyList = [dispatcher];
+
+      webFontURLs = webFontURLs || [
+        'static/fonts/Astloch-Bold.ttf',
+        'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+        'static/fonts/Liberation_Sans-Regular.ttf'
+      ];
+
+      var families = [];
+      $.each(webFontURLs, function(urlNo, url) {
+        if (/Astloch/i.test(url)) families.push('Astloch');
+        else if (/PT.*Sans.*Caption/i.test(url)) families.push('PT Sans Caption');
+        else if (/Liberation.*Sans/i.test(url)) families.push('Liberation Sans');
+      });
+
+      webFontURLs = {
+        families: families,
+        urls: webFontURLs
+      }
+
+      var webFontConfig = {
+        custom: webFontURLs,
+        active: proceedWithFonts,
+        inactive: proceedWithFonts,
+        fontactive: function(fontFamily, fontDescription) {
+          // Note: Enable for font debugging
+          // console.log("font active: ", fontFamily, fontDescription);
+        },
+        fontloading: function(fontFamily, fontDescription) {
+          // Note: Enable for font debugging
+          // console.log("font loading:", fontFamily, fontDescription);
+        },
+      };
+
+      WebFont.load(webFontConfig);
+
+      setTimeout(function() {
+        if (!fontsLoaded) {
+          console.error('Timeout in loading fonts');
+          proceedWithFonts();
+        }
+      }, fontLoadTimeout);
+    };
+
+    var areFontsLoaded = function() {
+      return fontsLoaded;
+    };
+
 
     return {
       profileEnable: profileEnable,
@@ -607,6 +681,8 @@ var Util = (function(window, undefined) {
       embed: embed,
       embedByURL: embedByURL,
       isMac: isMac,
+      loadFonts: loadFonts,
+      areFontsLoaded: areFontsLoaded,
     };
 
 })(window);

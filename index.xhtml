@@ -319,6 +319,11 @@
             <select id="rapid_model"/>
           </span>
         </div>
+        <div class="optionRow">
+          <span class="optionLabel">Type Collapse Limit</span>
+          <input id="type_collapse_limit" maxlength="3" size="3" value="30"
+                 style="text-align:right"/>
+        </div>
       </fieldset>
       <fieldset id="options_form_network">
         <legend>Network options</legend>
@@ -649,9 +654,9 @@
       <!-- Span dialog notes -->
       <fieldset>
         <legend>Notes</legend>
-        <div id="notes_container">
+        <div id="span_notes_container">
           <input id="span_notes" class="borderless"/>
-          <input id="clear_notes_button" type="button"
+          <input id="clear_span_notes_button" type="button"
                  value="&#x2715;" title="Clear notes"/>
         </div>
       </fieldset>
@@ -693,7 +698,11 @@
 
       <fieldset id="arc_notes_fieldset">
         <legend>Notes</legend>
-        <input id="arc_notes" class="borderless"/>
+        <div id="arc_notes_container">
+          <input id="arc_notes" class="borderless"/>
+          <input id="clear_arc_notes_button" type="button"
+                  value="&#x2715;" title="Clear notes"/>
+        </div>
       </fieldset>
 
     </form>
