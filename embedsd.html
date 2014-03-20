@@ -1,0 +1,269 @@
+---
+# -*- Mode: XHTML; tab-width: 4; indent-tabs-mode: nil; -*-
+# vim:set ft=xhtml ts=4 sw=4 sts=4 autoindent:
+
+layout: base
+title:  'Embedded Visualisations'
+xhtml:  true
+extra_css:
+- http://weaver.nlplab.org/~brat/demo/v1.3/style-vis.css
+extra_js:
+- js/lib/json2.js
+# head.js still isn't on a reliable CDN?
+- http://weaver.nlplab.org/~brat/demo/v1.3/client/lib/head.load.min.js
+---
+
+<noscript>
+    <div id="noscript">
+        It appears that you have Javascript disabled.
+        Please consider enabling Javascript for this page to try out the demo.
+    </div>
+</noscript>
+
+<div style="clear:both"></div>
+
+<div id="sd-live-example"></div>
+
+<div id="sd-live-io">
+  <p>
+    <textarea id="sd-input" style="display:block;float:left;width:40%;height:200px;font-size:11px;border:2px inset"
+              placeholder="Enter SD here."></textarea>
+    <textarea id="sd-output" style="display:block;float:right;width:55%;height:200px;font-size:11px;border:2px inset"
+              placeholder="JSON shows up here." disabled="disabled"></textarea>
+  </p>
+</div>
+
+<!-- override a few style-vis.css settings for the embedded version to make things larger -->
+<style type="text/css">
+text { font-size: 15px; }
+.span text { font-size: 10px; }
+.arcs text { font-size: 9px; }
+</style>
+
+<script type="text/javascript">
+    var bratLocation = 'http://weaver.nlplab.org/~brat/demo/v1.3';
+    head.js(
+        // External libraries
+        bratLocation + '/client/lib/jquery.min.js',
+        bratLocation + '/client/lib/jquery.svg.min.js',
+        bratLocation + '/client/lib/jquery.svgdom.min.js',
+
+
+        // brat helper modules
+        bratLocation + '/client/src/configuration.js',
+        bratLocation + '/client/src/util.js',
+        bratLocation + '/client/src/annotation_log.js',
+        bratLocation + '/client/lib/webfont.js',
+        // brat modules
+        bratLocation + '/client/src/dispatcher.js',
+        bratLocation + '/client/src/url_monitor.js',
+        bratLocation + '/client/src/visualizer.js'
+    );
+
+    var webFontURLs = [
+        bratLocation + '/static/fonts/Astloch-Bold.ttf',
+        bratLocation + '/static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+        bratLocation + '/static/fonts/Liberation_Sans-Regular.ttf'
+    ];
+
+    var collData = {
+	'entity_types': [
+// this is optional
+        {
+            'type': 'token',
+            'labels': [ 'token', 'tok' ],
+            'bgColor': '#7fa2ff',
+            'borderColor': 'darken'
+        }
+	],
+	'entity_attribute_types': [],
+	'relation_types': [
+// this is optional
+//         {
+//             'type': 'subj',
+//             'labels': [ 'subj' ],
+//             'dashArray': '3,3',
+//             'color': 'green',
+//             'args': [
+//                 {
+//                     'role': 'arg1',
+//                     'targets': [ 'token' ]
+//                 },
+//                 {
+//                     'role': 'arg2',
+//                     'targets': [ 'token' ]
+//                 }
+//             ]
+//         }
+        ],
+	'event_types': [],
+    };
+
+    var normalizeSpace = function(s) {
+	s = s.replace(/^\s+/, '');
+	s = s.replace(/\s+$/, '');
+	s = s.replace(/\s\s+/g, ' ');
+	return s;
+    };
+
+    var packJSON = function(s) {
+	// replace any space with ' ' in non-nested curly brackets
+	s = s.replace(/(\{[^\{\}\[\]]*\})/g, 
+		      function(a, b) { return b.replace(/\s+/g, ' '); });
+	// replace any space with ' ' in [] up to nesting depth 1
+// 	s = s.replace(/(\[(?:[^\[\]\{\}]|\[[^\[\]\{\}]*\])*\])/g, 
+// 		      function(a, b) { return b.replace(/\s+/g, ' '); });
+	// actually, up to nesting depth 2
+	s = s.replace(/(\[(?:[^\[\]\{\}]|\[(?:[^\[\]\{\}]|\[[^\[\]\{\}]*\])*\])*\])/g, 
+		      function(a, b) { return b.replace(/\s+/g, ' '); });
+	return s
+    };
+
+    var JSONtoString = function(data) {
+	return packJSON(JSON.stringify(data, undefined, '    '));
+    };
+
+    // parse SD format, return brat document data format
+    var sdParse = function(sd) {
+	var lines = sd.split('\n');
+
+	// first line is assumed to be sentence text
+	var text = lines[0];
+	text = normalizeSpace(text);
+
+	// determine token offsets and construct spans ("entities")
+	var tokens = text.split(' ');
+	var spans = [];	  
+	var offset = 0;
+	for (var i=0; i<tokens.length; i++) {
+	    var length = tokens[i].length;
+	    spans.push(['T'+(i+1), 'token', [[offset, offset+length]]]);
+	    offset += length + 1;
+	}
+
+	var tokenIndex = function(t) {
+	    // accept two formats: indexed ('dog-1') and simple ('dog')
+
+	    // indexed match
+	    var m = t.match(/^\s*(.*)-(\d+)\s*$/)	      
+	    if (m) {
+		var text = m[1], idx = m[2];
+		// confirm match (SD indices are 1-based)
+		idx = parseInt(idx, 10) - 1;
+		if (tokens[idx] === text) {
+		    return idx;
+		} else {
+		    // TODO consider skipping output, not necessarily an error
+		    console.log('token text mismatch:', text, 'vs.', tokens[idx]);
+		}
+		// fall through to allow simple match for e.g. 'il-2'
+	    }
+
+	    // simple match
+	    var firstIdx = $.inArray(t, tokens);
+	    if (firstIdx === -1) {
+		return null;
+	    } else {
+		if ($.inArray(t, tokens, firstIdx+1) !== -1) {
+		    console.log('warning: multiple occurrences of', t);
+		}
+		return firstIdx;
+	    }
+	};
+
+	// parse lines after the first as dependencies, construct relations
+	var relations = [];
+	for (var i=1; i<lines.length; i++) {
+	    var line = lines[i];
+	    line = normalizeSpace(line);
+	    
+	    if (line.match(/^\s*$/)) {
+		continue; // ignore empties
+	    }
+	    
+	    var m = line.match(/^(\S+)\s*\(\s*(\S+)\s*,\s*(\S+)\s*\)$/);
+	    if (!m) {
+		// TODO reporting
+		console.log('failed to parse:', line);
+		continue;
+	    }
+	    var type = m[1], from = m[2], to = m[3];
+	    
+	    // determine which tokens are referred to
+	    var fromIdx = tokenIndex(from), toIdx = tokenIndex(to);
+	    if (fromIdx === null || toIdx === null) {
+		console.log('failed to find token:', line);
+		continue;
+	    }
+	    
+	    relations.push([ 'R'+i, type, [ [ 'arg1', 'T'+(fromIdx+1) ], 
+					    [ 'arg2', 'T'+(toIdx+1)   ] ] ]);
+	}
+          
+	return {
+	    'text': text,
+	    'entities' : spans,
+	    'relations' : relations
+	};
+    };
+
+    head.ready(function() {
+	var sdData = [
+		      'This takes the SD format or a simple ( unindexed ) variant .',
+		      '',
+		      'nsubj(takes-2, This-1)',
+		      'det(format-5, the-3)',
+		      'nn(format-5, SD-4)',
+		      'dobj(takes-2, format-5)',
+		      '',
+		      'cc(format, or)',
+		      'det(variant, a)',
+		      'amod(variant, simple)',
+		      'dep(variant, unindexed)',
+		      'conj(format, variant)',
+		      ].join('\n');
+
+        var sdInput = $('#sd-input');
+        var sdOutput = $('#sd-output');
+
+	var sdJSON = sdParse(sdData);
+	sdOutput.text(JSONtoString(sdJSON));
+
+        var sdDispatcher = Util.embed('sd-live-example',
+          $.extend({'collection': null}, collData),
+          $.extend({}, sdJSON), webFontURLs);
+
+        var sdRenderError = function() {
+            sdInput.css({'border': '2px solid red'});
+        };
+
+        sdDispatcher.on('renderError: Fatal', sdRenderError);
+
+        var sdInputHandler = function() {
+            var sdJSON;
+            try {
+                sdJSON = sdParse(sdInput.val());
+                sdInput.css({'border': '2px inset'});
+            } catch (e) {
+                sdInput.css({'border': '2px solid red'});
+                return;
+            }
+
+	    sdOutput.text(JSONtoString(sdJSON));
+
+            try {
+                sdDispatcher.post('requestRenderData', [$.extend({}, sdJSON)]);
+                sdInput.css({'border': '2px inset'});
+            } catch(e) {
+                console.error('requestRenderData went down with:', e);
+                sdInput.css({'border': '2px solid red'});
+            }
+        };
+
+        sdInput.text(sdData);
+
+        var listenTo = 'propertychange keyup input paste';
+        sdInput.bind(listenTo, sdInputHandler);
+
+    });
+</script>
