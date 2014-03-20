@@ -85,9 +85,36 @@ cmeta:  'Describes features added for the v1.3 (Crunchy Frog) release'
 </p>
 
 <div class="image">
-  <img src="img/comparison-example-1.png" alt="comparison example"/></a>
+  <img src="img/comparison-example-1.png" alt="comparison example"/>
   <div style="width: 800px" class="caption">Screenshot of brat in side-by-side comparison mode showing two sets of annotations for a single document.</div>
 </div>
+
+<p>
+  Parallel viewer (as shown above) can be accessed by an URL like this:
+</p>
+<pre><code>/brat/diff.xhtml?diff=/left/collection/#/right/collection/document</code></pre>
+<p>
+    It shows two collections side by side, showing a matching left document for a document in the right collection. UI is only bound to the right collection.
+    It is not very polished, so if you change the right collection (e.g. using the collection browser), you will have to manually change the left collection in the URL.
+</p>
+
+<p>
+  The "diff and mark" tool is used to easily note the differences
+  between two collections (e.g. between annotator and gold standard, or
+  between two annotators). It can be found in the <code>tools</code>
+  directory, and is used like this:
+</p>
+
+<pre><code>$ tools/diff_and_mark.py [-f|--force] first second result</code></pre>
+
+<p>
+  It works for most permutations of documents and collections for
+  <code>first</code>, <code>second</code> and <code>result</code>, giving
+  the most intuitive behaviour for each. It will create the third
+  collection (or document) <code>result</code>, which is a copy of
+  <code>second</code> with added annotations detailing the differences
+  from <code>first</code>.
+</p>
 
 <h2 id="tutorial">Tutorials within brat</h2>
 
@@ -96,7 +123,7 @@ cmeta:  'Describes features added for the v1.3 (Crunchy Frog) release'
 </p>
 
 <div class="image">
-  <img src="img/tutorial-example-1.png" alt="tutorial example"/></a>
+  <img src="img/tutorial-example-1.png" alt="tutorial example"/>
   <div style="width: 800px" class="caption">Screenshot from a brat tutorial document.</div>
 </div>
 
@@ -131,7 +158,7 @@ cmeta:  'Describes features added for the v1.3 (Crunchy Frog) release'
 </p>
 
 <div class="image">
-  <img src="img/config-example-1.png" style="border: solid 1px black" alt="example annotation"/></a>
+  <img src="img/config-example-1.png" style="border: solid 1px black" alt="example annotation"/>
   <div style="width: 800px" class="caption">Example configured to show additional arrow heads with labels for dependency annotation visualization.</div>
 </div>
 

@@ -88,9 +88,11 @@ script will prompt you for the sudo password. (This is necessary to
 assign write permissions to the `work` and `data` directories to the
 web server.)
 
-If this works, the installation is complete. You then only need to
-make sure that CGI is permitted for the brat directory
-(see the Apache 2.x section below for instructions).
+If this works, the brat installation is complete. Now that brat is installed
+you will have to install and configure a CGI-capable web server if one is not
+already available on your system.  You then only need to make sure that your
+web server permits CGI for the brat directory (see the Apache 2.x section
+below for instructions).
 
 ### Quick start installation: standalone server ###
 

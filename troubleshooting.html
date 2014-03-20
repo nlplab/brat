@@ -121,12 +121,24 @@ cmeta:  "Description of potential issues when using brat and how to remedy
 </p>
 
 <p><b>Document</b> size increases processing power requirements
-  on brat. The system does not yet implement progressive or
+on brat.
+  The system does not yet implement progressive or
   partial rendering; that is, the whole document is always
   rendered even though most of it may not be shown on-screen.
-  We hope to address this limitation in a future release, but
+  Additionally, the brat validation functionality also lacks support for
+  progressive validation and the whole document is checked against its
+  annotation configuration for each annotation made.
+  We hope to address these limitations in a future release, but
   for the current version we suggest to partition large
   documents into smaller sections for annotation.
+  A work around is also to disable the validation functionality in
+  <code>tools.conf</code>.
+  Additionally, dense annotations also increases the load on the rendering
+  component due to additional layout requirements.
+  Thusly, a document size that may be fine for sparse annotations (e.g. named
+  entities) may prove challenging for very dense annotations (e.g. syntactic
+  dependencies) than contain a multitude of spans and relations since every
+  token is to be annotated.
 </p>
 
 <h3>3) brat was working, but crashed or misbehaved</h3>

@@ -56,12 +56,14 @@ vim:set ft=xhtml ts=4 sw=4 sts=4 autoindent:
         <span><a href="manual.html">manual</a></span>
 	<span style="color:lightblue" class="hp-unselectable">|</span>
         <span><a href="sitemap.html">site map</a></span>
+	<span style="color:lightblue" class="hp-unselectable">|</span>
+        <span><a href="contact.html">contact</a></span>
       </div>
       <div id="content">
           {{ content }}
       </div>
       <div id="footer">
-        <p class="footer-text">&copy; 2010-2012 the <a href="about.html" style="color:gray">brat contributors</a></p>
+          <p class="footer-text">&copy; 2010-{{ site.time | date: "%Y" }} the <a href="about.html" style="color:gray">brat contributors</a></p>
 	<p class="footer-logo"><a href="http://creativecommons.org/licenses/by/3.0/"><img title="Content on this website is licensed under a Creative Commons Attribution 3.0 License. (Linked corpus data licensed separately.)" src="http://i.creativecommons.org/l/by/3.0/80x15.png"/></a></p>
       </div>
     </div>
