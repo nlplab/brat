@@ -155,7 +155,11 @@ text { font-size: 15px; }
 	return s;
     };
 
-    var packJSON = function(s) {
+    var compactJSON = function(s) {
+        // remove (some) space from JSON string, giving a visually
+        // more compact (but equivalent and still pretty-printed)
+        // version.
+
 	// replace any space with ' ' in non-nested curly brackets
 	s = s.replace(/(\{[^\{\}\[\]]*\})/g, 
 		      function(a, b) { return b.replace(/\s+/g, ' '); });
@@ -168,8 +172,8 @@ text { font-size: 15px; }
 	return s
     };
 
-    var JSONtoString = function(data) {
-	return packJSON(JSON.stringify(data, undefined, '    '));
+    var ObjectToString = function(data) {
+	return compactJSON(JSON.stringify(data, undefined, '    '));
     };
 
     // parse SD format, return brat document data format
@@ -292,7 +296,7 @@ text { font-size: 15px; }
 	data = normalizeSpace(data);
 	var parsed = sdParse(data, logInput);
 	sdInput.text(data);
-	bratInput.text(JSONtoString(parsed));
+	bratInput.text(ObjectToString(parsed));
 
 	// build top-level structure
 	elem.empty();
@@ -355,7 +359,7 @@ text { font-size: 15px; }
                 return;
             }
 	    
-	    bratInput.text(JSONtoString(parsed));
+	    bratInput.text(ObjectToString(parsed));
 
             try {
                 dispatcher.post('requestRenderData', [$.extend({}, parsed)]);
