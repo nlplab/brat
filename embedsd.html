@@ -20,21 +20,70 @@ extra_js:
     </div>
 </noscript>
 
-<div style="clear:both"></div>
 
-<div id="sd-live-example"></div>
 
-<div id="sd-live-io">
-  <p>
-    <textarea id="sd-input" style="display:block;float:left;width:40%;height:200px;font-size:11px;border:2px inset"
-              placeholder="Enter SD here."></textarea>
-    <textarea id="sd-output" style="display:block;float:right;width:55%;height:200px;font-size:11px;border:2px inset"
-              placeholder="JSON shows up here." disabled="disabled"></textarea>
-  </p>
+<p>This example illustrates automatic parse visualization and dynamic
+editing using the Stanford dependency format.</p>
+
+<div class="sd-parse">
+Dogs run
+nsubj(run, Dogs)
 </div>
 
-<!-- override a few style-vis.css settings for the embedded version to make things larger -->
+<p>View source to see the raw HTML that is rendered into the
+visualization.  (Any element with the "sd-parse" class is
+converted.)</p>
+
+<p>Click on the tab on the top right to edit the visualization. (Note
+that edits are not saved -- there's no server.)</p>
+
+<div class="sd-parse">
+You can have any number of these .
+nsubj(have-3, You-1)
+aux(have-3, can-2)
+det(number-5, any-4)
+dobj(have-3, number-5)
+prep(number-5, of-6)
+pobj(of-6, these-7)
+</div>
+
+<p>You can have any number of visualizations on a page, and any
+standard HTML content can be freely mixed with the visualizations.</p>
+
 <style type="text/css">
+/* embedding-specific styles (TODO: move to .css) */
+.sd-parse {
+  margin-top: 5px;
+  margin-bottom: 25px;
+}
+.embedded-brat-data {
+  display: block;
+  width: 100%;
+  height: 100px;
+  font-size: 11px;
+  border: 2px inset
+}
+.show-hide-div {
+  text-align: right;
+}
+.show-hide-toggle {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 10px;
+  margin-right: 10px;
+  -moz-border-bottom-left-radius: 0px;
+  -moz-border-bottom-right-radius: 0px;
+  -webkit-border-bottom-left-radius: 0px;
+  -webkit-border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.show-hide-toggle .ui-button-text {
+  padding: 1px 4px;
+  font-size: 9px;
+}
+/* override a few style-vis.css settings for the embedded version to 
+   make things larger */
 text { font-size: 15px; }
 .span text { font-size: 10px; }
 .arcs text { font-size: 9px; }
@@ -47,7 +96,7 @@ text { font-size: 15px; }
         bratLocation + '/client/lib/jquery.min.js',
         bratLocation + '/client/lib/jquery.svg.min.js',
         bratLocation + '/client/lib/jquery.svgdom.min.js',
-
+	bratLocation + '/client/lib/jquery-ui.min.js',
 
         // brat helper modules
         bratLocation + '/client/src/configuration.js',
@@ -124,7 +173,15 @@ text { font-size: 15px; }
     };
 
     // parse SD format, return brat document data format
-    var sdParse = function(sd) {
+    var sdParse = function(sd, logElement) {
+	var log = function(s) {
+	    if (logElement === undefined) {
+		console.log(s);
+	    } else {
+		logElement.append(s+'\n');
+	    }
+	};
+
 	var lines = sd.split('\n');
 
 	// first line is assumed to be sentence text
@@ -154,7 +211,7 @@ text { font-size: 15px; }
 		    return idx;
 		} else {
 		    // TODO consider skipping output, not necessarily an error
-		    console.log('token text mismatch:', text, 'vs.', tokens[idx]);
+		    log('token text mismatch: "'+text+'" vs. "'+tokens[idx]+'"');
 		}
 		// fall through to allow simple match for e.g. 'il-2'
 	    }
@@ -165,7 +222,7 @@ text { font-size: 15px; }
 		return null;
 	    } else {
 		if ($.inArray(t, tokens, firstIdx+1) !== -1) {
-		    console.log('warning: multiple occurrences of', t);
+		    log('warning: multiple occurrences of', t);
 		}
 		return firstIdx;
 	    }
@@ -183,8 +240,7 @@ text { font-size: 15px; }
 	    
 	    var m = line.match(/^(\S+)\s*\(\s*(\S+)\s*,\s*(\S+)\s*\)$/);
 	    if (!m) {
-		// TODO reporting
-		console.log('failed to parse:', line);
+		log('failed to parse: "'+line+'"');
 		continue;
 	    }
 	    var type = m[1], from = m[2], to = m[3];
@@ -192,13 +248,15 @@ text { font-size: 15px; }
 	    // determine which tokens are referred to
 	    var fromIdx = tokenIndex(from), toIdx = tokenIndex(to);
 	    if (fromIdx === null || toIdx === null) {
-		console.log('failed to find token:', line);
+		log('failed to find token: "'+line+'"');
 		continue;
 	    }
 	    
 	    relations.push([ 'R'+i, type, [ [ 'arg1', 'T'+(fromIdx+1) ], 
 					    [ 'arg2', 'T'+(toIdx+1)   ] ] ]);
 	}
+
+	log('SD parse done: '+spans.length+' tokens, '+relations.length+' dependencies.');
           
 	return {
 	    'text': text,
@@ -207,63 +265,114 @@ text { font-size: 15px; }
 	};
     };
 
-    head.ready(function() {
-	var sdData = [
-		      'This takes the SD format or a simple ( unindexed ) variant .',
-		      '',
-		      'nsubj(takes-2, This-1)',
-		      'det(format-5, the-3)',
-		      'nn(format-5, SD-4)',
-		      'dobj(takes-2, format-5)',
-		      '',
-		      'cc(format, or)',
-		      'det(variant, a)',
-		      'amod(variant, simple)',
-		      'dep(variant, unindexed)',
-		      'conj(format, variant)',
-		      ].join('\n');
+    var embeddedIdSeq = 1;
 
-        var sdInput = $('#sd-input');
-        var sdOutput = $('#sd-output');
+    var embedStanfordDependency = function(elem, data) {
+	var eId = 'embedded-' + embeddedIdSeq++,
+            sdTabId = eId + '-2',
+            bratTabId = eId + '-3',
+            infoTabId = eId + '-4';
 
-	var sdJSON = sdParse(sdData);
-	sdOutput.text(JSONtoString(sdJSON));
+	// visualization and related data elements
+	var visDiv = $('<div id="'+eId+'-vis"></div>');
+	var tabDiv = $('<div id="'+eId+'-tabs"></div>');
+	var shDiv  = $('<div id="'+eId+'-sh" class="show-hide-div"></div>');
+	var showHideButton = $('<button id="'+eId+'-toggle" '+
+			       'class="show-hide-toggle">hide</button>');
+	shDiv.append(showHideButton);
 
-        var sdDispatcher = Util.embed('sd-live-example',
+	var sdInput = $('<textarea id="'+eId+'-sd" class="embedded-brat-data"></textarea>');
+	var bratInput = $('<textarea id="'+eId+'-brat" disabled="disabled" class="embedded-brat-data"></textarea>');
+	var logInput = $('<textarea id="'+eId+'-log" disabled="disabled" class="embedded-brat-data"></textarea>');
+
+	// initialize data, defaulting to original element text
+	if (data === undefined) {
+	    data = elem.text();
+	}
+	data = normalizeSpace(data);
+	var parsed = sdParse(data, logInput);
+	sdInput.text(data);
+	bratInput.text(JSONtoString(parsed));
+
+	// build top-level structure
+	elem.empty();
+	// tab headers (li+a)
+	tabDiv.append([
+		       '<div id="'+eId+'">',
+		       '  <ul>',
+		       '    <li><a href="#'+sdTabId+'">SD</a></li>',
+		       '    <li><a href="#'+bratTabId+'">brat</a></li>',
+		       '    <li><a href="#'+infoTabId+'">info</a></li>',
+		       '  </ul>',
+		       '</div>'
+		       ].join('\n'));
+	// tab content (divs)
+	var sdTab   = $('<div id="'+sdTabId+'"></div>'),
+            bratTab = $('<div id="'+bratTabId+'"></div>'),
+            logTab  = $('<div id="'+infoTabId+'"></div>');
+	//visTab.append(visDiv);
+	sdTab.append(sdInput);
+	bratTab.append(bratInput);
+	logTab.append(logInput);
+
+	// add content to top-level element, turn into jQuery-ui tabs
+	tabDiv.append(sdTab, bratTab, logTab);
+	elem.append(shDiv, tabDiv, visDiv);
+	tabDiv.tabs();
+	var shVisible = 1;
+	var setShToggleText = function() {
+	    $('span', showHideButton).text(shVisible ? 'hide' : 'edit');
+	}
+	tabDiv.hide(); // TODO make optional (control e.g. using class)
+        showHideButton.button().click(function(ev) {
+	   tabDiv.toggle('blind');
+	   setShToggleText();
+	   shVisible = !shVisible;
+	});
+	setShToggleText();
+
+	// initialize brat visualization
+        var dispatcher = Util.embed(eId+'-vis',
           $.extend({'collection': null}, collData),
-          $.extend({}, sdJSON), webFontURLs);
+          $.extend({}, parsed), webFontURLs);
 
-        var sdRenderError = function() {
-            sdInput.css({'border': '2px solid red'});
+	// hook everything up
+        var renderError = function() {
+            bratInput.css({'border': '2px solid red'});
         };
+        dispatcher.on('renderError: Fatal', renderError);
 
-        sdDispatcher.on('renderError: Fatal', sdRenderError);
+        var inputHandler = function() {
+            var parsed;
 
-        var sdInputHandler = function() {
-            var sdJSON;
+	    logInput.val(''); // clear log
+
             try {
-                sdJSON = sdParse(sdInput.val());
+                parsed = sdParse(sdInput.val(), logInput);
                 sdInput.css({'border': '2px inset'});
             } catch (e) {
                 sdInput.css({'border': '2px solid red'});
                 return;
             }
-
-	    sdOutput.text(JSONtoString(sdJSON));
+	    
+	    bratInput.text(JSONtoString(parsed));
 
             try {
-                sdDispatcher.post('requestRenderData', [$.extend({}, sdJSON)]);
-                sdInput.css({'border': '2px inset'});
+                dispatcher.post('requestRenderData', [$.extend({}, parsed)]);
+                bratInput.css({'border': '2px inset'});
             } catch(e) {
-                console.error('requestRenderData went down with:', e);
-                sdInput.css({'border': '2px solid red'});
+		console.log('requestRenderData error:', e);
+		logInput.append('requestRenderData error: '+e);
+                bratInput.css({'border': '2px solid red'});
             }
         };
+        sdInput.bind('propertychange keyup input paste', inputHandler);
+    };
 
-        sdInput.text(sdData);
-
-        var listenTo = 'propertychange keyup input paste';
-        sdInput.bind(listenTo, sdInputHandler);
-
+    head.ready(function() {
+        // call embedStanfordDependency for each element with the "sd-parse" class.
+        $('.sd-parse').each(function(idx) {
+	    embedStanfordDependency($(this));
+	});
     });
 </script>
