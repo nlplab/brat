@@ -50,6 +50,20 @@ pobj(of-6, these-7)
 <p>You can have any number of visualizations on a page, and any
 standard HTML content can be freely mixed with the visualizations.</p>
 
+<p>POS tags are optional and use the format "text/POS".</p>
+
+<div class="sd-parse">
+POS/NNP tags/NNS can/MD be/VB attached/VBN to/TO the/DT sentence/NN text/NN ./.
+dep(tags-2, POS-1)
+nsubjpass(attached-5, tags-2)
+aux(attached-5, can-3)
+auxpass(attached-5, be-4)
+prep(attached-5, to-6)
+det(text-9, the-7)
+nn(text-9, sentence-8)
+pobj(to-6, text-9)
+</div>
+
 <style type="text/css">
 /* embedding-specific styles (TODO: move to .css) */
 .sd-parse {
@@ -119,7 +133,7 @@ text { font-size: 15px; }
 	'entity_types': [
 // this is optional
         {
-            'type': 'token',
+            'type': 'SPAN_DEFAULT',
             'labels': [ 'token', 'tok' ],
             'bgColor': '#7fa2ff',
             'borderColor': 'darken'
@@ -176,6 +190,15 @@ text { font-size: 15px; }
 	return compactJSON(JSON.stringify(data, undefined, '    '));
     };
 
+    var parseToken = function(token) {
+	// return [text, POS] for token encoded as "text/POS", or
+	// [text, "token"] if no POS (/-separated string) is included.
+
+	// TODO: allow backslash-escaping of literal slashes
+	m = token.match(/^(.+)\/(.+)$/)
+	return m ? [m[1], m[2]] : [token, 'token'];
+    };
+
     // parse SD format, return brat document data format
     var sdParse = function(sd, logElement) {
 	var log = function(s) {
@@ -194,13 +217,17 @@ text { font-size: 15px; }
 
 	// determine token offsets and construct spans ("entities")
 	var tokens = text.split(' ');
-	var spans = [];	  
+	var spans = [];
 	var offset = 0;
 	for (var i=0; i<tokens.length; i++) {
-	    var length = tokens[i].length;
-	    spans.push(['T'+(i+1), 'token', [[offset, offset+length]]]);
+	    var text_POS = parseToken(tokens[i]);
+	    var text = text_POS[0], POS = text_POS[1];
+	    var length = text.length;
+	    spans.push(['T'+(i+1), POS, [[offset, offset+length]]]);
+	    tokens[i] = text;
 	    offset += length + 1;
 	}
+	text = tokens.join(' ');
 
 	var tokenIndex = function(t) {
 	    // accept two formats: indexed ('dog-1') and simple ('dog')
@@ -323,7 +350,7 @@ text { font-size: 15px; }
 	tabDiv.append(sdTab, bratTab, logTab);
 	elem.append(shDiv, tabDiv, visDiv);
 	tabDiv.tabs();
-	var shVisible = 1;
+	var shVisible = 0;
 	var setShToggleText = function() {
 	    $('span', showHideButton).text(shVisible ? 'hide' : 'edit');
 	}
