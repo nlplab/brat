@@ -53,15 +53,32 @@ standard HTML content can be freely mixed with the visualizations.</p>
 <p>POS tags are optional and use the format "text/POS".</p>
 
 <div class="sd-parse">
-POS/NNP tags/NNS can/MD be/VB attached/VBN to/TO the/DT sentence/NN text/NN ./.
+POS/NNP tags/NNS can/MD be/VB attached/VBN to/TO ( any part of ) the/DT sentence/NN text/NN ./.
 dep(tags-2, POS-1)
 nsubjpass(attached-5, tags-2)
 aux(attached-5, can-3)
 auxpass(attached-5, be-4)
 prep(attached-5, to-6)
-det(text-9, the-7)
-nn(text-9, sentence-8)
-pobj(to-6, text-9)
+det(text-14, the-12)
+nn(text-14, sentence-13)
+pobj(to-6, text-14)
+det(part, any)
+prep(part, of)
+</div>
+
+<p>Any literal slashes ("/") can be escaped using backslash.</p>
+
+<div class="sd-parse">
+\\/\\ escapes/VBZ :/: \\o\//\\o\/
+nsubj(escapes, \)
+</div>
+
+<p>Everything is unicode-compliant:</p>
+
+<div class="sd-parse">
+ロボットは/何でもいい 東大に/分かんない  入れる/です か/よね 。/。
+nsubj(入れる, ロボットは)
+nommod(入れる, 東大に)
 </div>
 
 <style type="text/css">
@@ -193,10 +210,20 @@ text { font-size: 15px; }
     var parseToken = function(token) {
 	// return [text, POS] for token encoded as "text/POS", or
 	// [text, "token"] if no POS (/-separated string) is included.
+	var text, POS;
 
-	// TODO: allow backslash-escaping of literal slashes
-	m = token.match(/^(.+)\/(.+)$/)
-	return m ? [m[1], m[2]] : [token, 'token'];
+	m = token.match(/((?:[^\\]|\\.)+)\/(.+)$/);
+	if (!m) {
+	    text = token, POS = 'token';
+	} else {
+	    text = m[1], POS = m[2];
+	}
+
+	// unescape backslash escapes in text and tag
+	text = text.replace(/([^\\]*)\\(.)/g, '$1$2');
+	POS = POS.replace(/([^\\]*)\\(.)/g, '$1$2');
+
+	return [text, POS];
     };
 
     // parse SD format, return brat document data format
