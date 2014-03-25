@@ -269,7 +269,7 @@ div.scroll_wrapper_upper div.scroller {
 } 
 /* END new entity and event dialog style */
 
-.small-buttons .ui-button-text {
+.small-buttons .ui-button-text, .small-buttons input[type="button"] {
   padding: 2px 5px;
 }
 
