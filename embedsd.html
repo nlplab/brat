@@ -25,7 +25,7 @@ extra_js:
 <p>This example illustrates automatic parse visualization and dynamic
 editing using the Stanford dependency format.</p>
 
-<div class="sd-parse">
+<div id="simple-example" class="sd-parse">
 Dogs run
 nsubj(run, Dogs)
 </div>
@@ -80,6 +80,10 @@ nsubj(escapes, \)
 nsubj(入れる, ロボットは)
 nommod(入れる, 東大に)
 </div>
+
+<p>Basic support for linking and reference-based numbering is included:
+  see <a href="#simple-example" class="embed-ref">Example #</a>
+</p>
 
 <style type="text/css">
 /* embedding-specific styles (TODO: move to .css) */
@@ -326,6 +330,9 @@ text { font-size: 15px; }
     var embeddedIdSeq = 1;
 
     var embedStanfordDependency = function(elem, data) {
+	// store sequence number for reference resolution
+	elem.attr('embeddedSequenceNum', embeddedIdSeq);
+
 	var eId = 'embedded-' + embeddedIdSeq++,
             sdTabId = eId + '-2',
             bratTabId = eId + '-3',
@@ -427,10 +434,47 @@ text { font-size: 15px; }
         sdInput.bind('propertychange keyup input paste', inputHandler);
     };
 
-    head.ready(function() {
-        // call embedStanfordDependency for each element with the "sd-parse" class.
+    var resolveEmbeddedReference = function(elem, data) {
+	var refId = elem.attr('href'),
+	    refElem = $(refId);
+	
+	if (refElem === undefined) {
+	    console.log('Failed to resolve reference to', refId, 'for', elem);
+	    return;
+	}
+
+	var refSeq = refElem.attr('embeddedSequenceNum');
+	if (refSeq === undefined) {
+	    console.log('no embeddedSequenceNum for', refElem);
+	    return;
+	}
+
+	var origText = elem.text();
+	var resolvedText = origText.replace(/\#/, refSeq);
+	if (origText === resolvedText) {
+	    console.log('failed replace in text', origText, 'for', elem);
+	    return;
+	}
+
+	elem.text(resolvedText);
+    };
+
+    var embedBratVisualizations = function() {
+        // generate embedded visualizations: call embedStanfordDependency
+	// for elements with "sd-parse" class.
         $('.sd-parse').each(function(idx) {
 	    embedStanfordDependency($(this));
 	});
+
+	// resolve references (e.g. "Figure #" -> "Figure 1"): call
+	// resolveEmbeddedReference for elements with "embed-ref" class.
+	$('.embed-ref').each(function(idx) {
+            resolveEmbeddedReference($(this));
+	});
+    };
+
+    head.ready(function() {
+	// just call this in head.ready()
+	embedBratVisualizations();
     });
 </script>
