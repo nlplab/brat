@@ -2283,8 +2283,8 @@ var VisualizerUI = (function($, window, undefined) {
         $('#type_collapse_limit')[0].value = Configuration.typeCollapseLimit;
 
         // Paging
-        $('#paging_size')[0].value = Configuration.pagingSize;
-        $('#paging_step')[0].value = Configuration.pagingStep;
+        $('#paging_size')[0].value = Configuration.pagingSize || '';
+        $('#paging_step')[0].value = Configuration.pagingStep || '';
       }
 
       $('#prev').button().click(function() {

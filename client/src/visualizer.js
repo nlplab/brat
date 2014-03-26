@@ -1,4 +1,3 @@
-// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 
 var Visualizer = (function($, window, undefined) {
@@ -697,7 +696,7 @@ var Visualizer = (function($, window, undefined) {
           chunk.outOfPage = pos;
         });
         while (chunkNo < numChunks) {
-          data.chunks[chunkNo++].outOfPage = Configuration.pagingSize ? 1 : 0;
+          data.chunks[chunkNo++].outOfPage = Configuration.pagingSize ? pos : 0;
         }
 
         // assign fragments to appropriate chunks
@@ -1563,6 +1562,7 @@ Util.profileStart('chunks');
 
         var firstChunk, lastChunk;
         $.each(data.chunks, function(chunkNo, chunk) {
+          if (chunk.outOfPage) console.log(chunk.text, chunk.from, chunk.to);
           if (chunk.outOfPage) return;
           if (!firstChunk) firstChunk = chunk;
           lastChunk = chunk;
