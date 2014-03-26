@@ -22,6 +22,7 @@ var VisualizerUI = (function($, window, undefined) {
       var mtime = null;
       var searchConfig = null;
       var coll, doc, args;
+      var pagingOffset = 0;
       var collScroll;
       var docScroll;
       var user = null;
@@ -1507,14 +1508,21 @@ var VisualizerUI = (function($, window, undefined) {
         if (code === $.ui.keyCode.TAB) {
           showFileBrowser();
           return false;
+        } else if (evt.shiftKey && code === $.ui.keyCode.RIGHT) {
+          autoPaging(true);
+        } else if (evt.shiftKey && code === $.ui.keyCode.LEFT) {
+          autoPaging(false);
+        } else if (evt.shiftKey && code === $.ui.keyCode.UP) {
+          pagingOffset -= Configuration.pagingStep;
+          if (pagingOffset < 0) pagingOffset = 0;
+          dispatcher.post('setPagingOffset', [pagingOffset]);
+        } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
+          pagingOffset += Configuration.pagingStep;
+          dispatcher.post('setPagingOffset', [pagingOffset]);
         } else if (code == $.ui.keyCode.LEFT) {
           return moveInFileBrowser(-1);
         } else if (code === $.ui.keyCode.RIGHT) {
           return moveInFileBrowser(+1);
-        } else if (evt.shiftKey && code === $.ui.keyCode.UP) {
-          autoPaging(true);
-        } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
-          autoPaging(false);
         } else if ((Util.isMac ? evt.metaKey : evt.ctrlKey) && code == 'F'.charCodeAt(0)) {
           evt.preventDefault();
           showSearchForm();
@@ -1736,6 +1744,7 @@ var VisualizerUI = (function($, window, undefined) {
         coll = _coll;
         doc = _doc;
         args = _args;
+        pagingOffset = 0;
 
         // if we have a specific document, hide the "no document" message
         if (_doc) {

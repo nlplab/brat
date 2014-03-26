@@ -372,7 +372,6 @@ var Visualizer = (function($, window, undefined) {
       var collapseArcs = false;
       var collapseArcSpace = false;
       var pagingOffset = 0;
-      var pagingSize = 0;
 
       // var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
       // XXX Might need to be tweaked - inserted diff levels
@@ -535,9 +534,9 @@ var Visualizer = (function($, window, undefined) {
 
 
       var outOfPage = function(sentenceNo) {
-        if (!pagingSize) return 0;
+        if (!Configuration.pagingSize) return 0;
         if (sentenceNo < pagingOffset) return -1;
-        if (sentenceNo >= pagingOffset + pagingSize) return 1;
+        if (sentenceNo >= pagingOffset + Configuration.pagingSize) return 1;
         return 0;
       };
 
@@ -698,7 +697,7 @@ var Visualizer = (function($, window, undefined) {
           chunk.outOfPage = pos;
         });
         while (chunkNo < numChunks) {
-          data.chunks[chunkNo++].outOfPage = pagingSize ? 1 : 0;
+          data.chunks[chunkNo++].outOfPage = Configuration.pagingSize ? 1 : 0;
         }
 
         // assign fragments to appropriate chunks
@@ -2976,7 +2975,6 @@ Util.profileStart('before render');
         doc  = _doc;
         args = _args;
         pagingOffset = 0;
-        pagingSize = 0;
         if (reloadData) {
           isRenderRequested = true;
           triggerRender();
@@ -3311,9 +3309,8 @@ Util.profileStart('before render');
         }
       };
 
-      var setPage = function(offset, size) {
+      var setPagingOffset = function(offset) {
         pagingOffset = offset;
-        pagingSize = size;
         dispatcher.post('renderData', [sourceData]);
       };
 
@@ -3327,7 +3324,7 @@ Util.profileStart('before render');
       dispatcher.
           on('collectionChanged', collectionChanged).
           on('collectionLoaded', collectionLoaded).
-          on('setPage', setPage).
+          on('setPagingOffset', setPagingOffset).
           on('renderData', renderData).
           on('triggerRender', triggerRender).
           on('requestRenderData', requestRenderData).
