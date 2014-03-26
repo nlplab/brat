@@ -1395,7 +1395,6 @@ Util.profileStart('init');
         redraw = false;
         drawing = true;
 
-        // pagingOffset = 1; Configuration.pagingSize = 4; // XXX DEBUG PURPOSES
         if (sourceData) setData(sourceData);
         showMtime();
 
@@ -1435,7 +1434,7 @@ Util.profileStart('chunks');
         var rows = [];
         var fragmentHeights = [];
         var sentenceToggle = 0;
-        var sentenceNumber = pagingOffset;
+        var sentenceNumber = pagingOffset ? pagingOffset - 1 : 0;
         var row = new Row(svg);
         row.sentence = ++sentenceNumber;
         row.backgroundIndex = sentenceToggle;
@@ -1867,7 +1866,7 @@ Util.profileStart('chunks');
           var lastX = currentX;
           var lastRow = row;
 
-          if (chunk.sentence) {
+          if (chunk.sentence && chunk != firstChunk) {
             while (sentenceNumber < chunk.sentence) {
               sentenceNumber++;
               row.arcs = svg.group(row.group, { 'class': 'arcs' });
@@ -1880,7 +1879,7 @@ Util.profileStart('chunks');
             sentenceToggle = 1 - sentenceToggle;
           }
 
-          if (chunk.sentence ||
+          if ((chunk.sentence && chunk != firstChunk) ||
               currentX + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
             // the chunk does not fit
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
@@ -3302,6 +3301,11 @@ Util.profileStart('before render');
         }
       };
 
+      var setPagingOffset = function(offset) {
+        pagingOffset = offset;
+        dispatcher.post('renderData');
+      };
+
       var isReloadOkay = function() {
         // do not reload while the user is in the dialog
         return !drawing;
@@ -3312,6 +3316,7 @@ Util.profileStart('before render');
       dispatcher.
           on('collectionChanged', collectionChanged).
           on('collectionLoaded', collectionLoaded).
+          on('setPagingOffset', setPagingOffset).
           on('renderData', renderData).
           on('triggerRender', triggerRender).
           on('requestRenderData', requestRenderData).
