@@ -372,6 +372,7 @@ var Visualizer = (function($, window, undefined) {
       var collapseArcs = false;
       var collapseArcSpace = false;
       var pagingOffset = 0;
+      var pagingSize = 0;
 
       // var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
       // XXX Might need to be tweaked - inserted diff levels
@@ -534,9 +535,9 @@ var Visualizer = (function($, window, undefined) {
 
 
       var outOfPage = function(sentenceNo) {
-        if (!Configuration.pagingSize) return 0;
+        if (!pagingSize) return 0;
         if (sentenceNo < pagingOffset) return -1;
-        if (sentenceNo >= pagingOffset + Configuration.pagingSize) return 1;
+        if (sentenceNo >= pagingOffset + pagingSize) return 1;
         return 0;
       };
 
@@ -697,7 +698,7 @@ var Visualizer = (function($, window, undefined) {
           chunk.outOfPage = pos;
         });
         while (chunkNo < numChunks) {
-          data.chunks[chunkNo++].outOfPage = Configuration.pagingSize ? 1 : 0;
+          data.chunks[chunkNo++].outOfPage = pagingSize ? 1 : 0;
         }
 
         // assign fragments to appropriate chunks
@@ -1978,6 +1979,13 @@ Util.profileStart('chunks');
           currentX += boxWidth;
         }); // chunks
 
+        if (!lastChunk) {
+          // nothing here
+          drawing = false;
+          dispatcher.post('doneRendering', [coll, doc, args]);
+          return;
+        }
+
         // finish the last row
         row.arcs = svg.group(row.group, { 'class': 'arcs' });
         rows.push(row);
@@ -2967,6 +2975,8 @@ Util.profileStart('before render');
         coll = _coll;
         doc  = _doc;
         args = _args;
+        pagingOffset = 0;
+        pagingSize = 0;
         if (reloadData) {
           isRenderRequested = true;
           triggerRender();
@@ -3301,9 +3311,10 @@ Util.profileStart('before render');
         }
       };
 
-      var setPagingOffset = function(offset) {
+      var setPage = function(offset, size) {
         pagingOffset = offset;
-        dispatcher.post('renderData');
+        pagingSize = size;
+        dispatcher.post('renderData', [sourceData]);
       };
 
       var isReloadOkay = function() {
@@ -3316,7 +3327,7 @@ Util.profileStart('before render');
       dispatcher.
           on('collectionChanged', collectionChanged).
           on('collectionLoaded', collectionLoaded).
-          on('setPagingOffset', setPagingOffset).
+          on('setPage', setPage).
           on('renderData', renderData).
           on('triggerRender', triggerRender).
           on('requestRenderData', requestRenderData).
