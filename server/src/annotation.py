@@ -358,7 +358,12 @@ class Annotations(object):
         input_files = self._select_input_files(document)
 
         if not input_files:
-            raise AnnotationFileNotFoundError(document)
+            with open('{}.{}'.format(document, JOINED_ANN_FILE_SUFF), 'w'):
+                pass
+
+            input_files = self._select_input_files(document)
+            if not input_files:
+                raise AnnotationFileNotFoundError(document)
 
         # We then try to open the files we got using the heuristics
         #self._file_input = FileInput(openhook=hook_encoded('utf-8'))
