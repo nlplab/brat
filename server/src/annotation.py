@@ -358,8 +358,8 @@ class Annotations(object):
         input_files = self._select_input_files(document)
 
         if not input_files:
-            f = open(document + '.ann', 'w')
-            f.close()
+            with open('{}.{}'.format(document, JOINED_ANN_FILE_SUFF), 'w'):
+                pass
 
             input_files = self._select_input_files(document)
             if not input_files:
