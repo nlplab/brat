@@ -964,9 +964,6 @@ var Visualizer = (function($, window, undefined) {
           $.each(chunk.fragments, function(fragmentNo, fragment) {
             fragment.drawOrder = fragmentNo;
           });
-
-          sentenceNo = chunk.sentence || sentenceNo;
-          chunk.sentenceNo = sentenceNo;
         });
 
         data.spanDrawOrderPermutation = Object.keys(data.spans);
@@ -1433,12 +1430,12 @@ Util.profileStart('chunks');
         var rows = [];
         var fragmentHeights = [];
         var sentenceToggle = 0;
+        var rowIndex = 0;
         var sentenceNumber = pagingOffset ? pagingOffset - 1 : 0;
         var row = new Row(svg);
         row.sentence = ++sentenceNumber;
         row.backgroundIndex = sentenceToggle;
-        row.index = 0;
-        var rowIndex = 0;
+        row.index = rowIndex;
         var twoBarWidths; // HACK to avoid measuring space's width
         var openTextHighlights = {};
         var textMarkedRows = [];
@@ -1562,9 +1559,21 @@ Util.profileStart('chunks');
 
         var firstChunk, lastChunk;
         $.each(data.chunks, function(chunkNo, chunk) {
-          if (chunk.outOfPage) console.log(chunk.text, chunk.from, chunk.to);
           if (chunk.outOfPage) return;
-          if (!firstChunk) firstChunk = chunk;
+          if (!firstChunk) {
+            firstChunk = chunk;
+            if (chunkNo) row.sentence++;
+            while (sentenceNumber < chunk.sentence) {
+              sentenceNumber++;
+              // row.arcs = svg.group(row.group, { 'class': 'arcs' });
+              rows.push(row);
+              row = new Row(svg);
+              sentenceToggle = 1 - sentenceToggle;
+              row.backgroundIndex = sentenceToggle;
+              row.index = ++rowIndex;
+            }
+            // sentenceToggle = 1 - sentenceToggle;
+          }
           lastChunk = chunk;
 
           var spaceWidth = 0;
