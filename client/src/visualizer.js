@@ -1565,7 +1565,6 @@ Util.profileStart('chunks');
             if (chunkNo) row.sentence++;
             while (sentenceNumber < chunk.sentence) {
               sentenceNumber++;
-              // row.arcs = svg.group(row.group, { 'class': 'arcs' });
               rows.push(row);
               row = new Row(svg);
               sentenceToggle = 1 - sentenceToggle;
