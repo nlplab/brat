@@ -2982,7 +2982,6 @@ Util.profileStart('before render');
         coll = _coll;
         doc  = _doc;
         args = _args;
-        pagingOffset = 0;
         if (reloadData) {
           isRenderRequested = true;
           triggerRender();
@@ -3317,9 +3316,9 @@ Util.profileStart('before render');
         }
       };
 
-      var setPagingOffset = function(offset) {
+      var setPagingOffset = function(offset, rerender) {
         pagingOffset = offset;
-        dispatcher.post('renderData', [sourceData]);
+        if (rerender) dispatcher.post('renderData', [sourceData]);
       };
 
       var isReloadOkay = function() {

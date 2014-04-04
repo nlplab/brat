@@ -1515,10 +1515,10 @@ var VisualizerUI = (function($, window, undefined) {
         } else if (evt.shiftKey && code === $.ui.keyCode.UP) {
           pagingOffset -= Configuration.pagingStep;
           if (pagingOffset < 0) pagingOffset = 0;
-          dispatcher.post('setPagingOffset', [pagingOffset]);
+          dispatcher.post('setPagingOffset', [pagingOffset, true]);
         } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
           pagingOffset += Configuration.pagingStep;
-          dispatcher.post('setPagingOffset', [pagingOffset]);
+          dispatcher.post('setPagingOffset', [pagingOffset, true]);
         } else if (code == $.ui.keyCode.LEFT) {
           return moveInFileBrowser(-1);
         } else if (code === $.ui.keyCode.RIGHT) {
@@ -1744,7 +1744,8 @@ var VisualizerUI = (function($, window, undefined) {
         coll = _coll;
         doc = _doc;
         args = _args;
-        pagingOffset = 0;
+        if (!args.edited) pagingOffset = 0;
+        dispatcher.post('setPagingOffset', [pagingOffset]);
 
         // if we have a specific document, hide the "no document" message
         if (_doc) {
