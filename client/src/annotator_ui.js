@@ -1419,7 +1419,7 @@ var AnnotatorUI = (function($, window, undefined) {
             $.each(backTargetType.arcs || [], function(backArcTypeNo, backArcDesc) {
               if ($.inArray(originType, backArcDesc.targets || []) != -1) {
                 var relType = relationTypesHash[backArcDesc.type];
-                reversalPossible = !(relType && relType.properties.symmetric);
+                reversalPossible = relType && relType.properties && (!relType.properties.symmetric);
                 return false; // terminate the loop
               }
             });
