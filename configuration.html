@@ -205,7 +205,7 @@ cmeta:  "Describes how brat can be configured for a variety of annotation
     <td>
       <table class="annotation_table">
 	<tr>
-	  <td width="100">[entities]</td>
+	  <td width="120">[entities]</td>
 	</tr><tr>
 	  <td>Living-thing</td>
 	</tr><tr>
@@ -236,6 +236,10 @@ cmeta:  "Describes how brat can be configured for a variety of annotation
   collapsed (hidden) or opened to assist in navigating the
   available entity types. (This feature is primarily useful for
   larger numbers of defined types.)
+</p>
+
+<p>For further information, see
+  <a href="#advanced-entities">advanced entity configuration</a>.
 </p>
 
 <h3>Relation definitions (<span class="tt">[relations]</span> section)</h3>
@@ -902,6 +906,47 @@ the <i>Options</i> menu in the brat UI.
 <!-- ================================================================== -->  
 
 <h2 id="additional-details">Additional details</h2>
+
+<h3 id="advanced-entities">Advanced entity configuration</h3>
+
+<p><b>Disabled entries</b>: entries in the entity selection dialog can
+be disabled by adding an exclamation mark ("<span class="tt">!</span>")
+before the type name in the <span class="tt">[entities]</span> section.
+The type will appear in the type hierarchy for structure, but cannot
+itself be selected. For example:
+</p>
+
+<table class="annotation_wrapper">
+  <tr>
+    <td>
+      <table class="annotation_table">
+	<tr>
+	  <td width="130">[entities]</td>
+	</tr><tr>
+	  <td>!Living-thing</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Person</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Animal</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Plant</td>
+	</tr><tr>
+	  <td>!Nonliving-thing</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Building</td>
+	</tr><tr>
+	  <td>&#160;</td><td>Vehicle</td>
+	</tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p>The above <span class="tt">[entities]</span> section defines
+<span class="tt">Living-thing</span> and
+<span class="tt">Nonliving-thing</span> as part of the 
+<span class="tt">is-a</span> hierarchy, but does not make the
+types available for use in annotation.</p>
 
 <h3 id="advanced-relations">Advanced relation configuration</h3>
 
