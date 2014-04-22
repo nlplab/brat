@@ -806,7 +806,7 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
                 arg2ent = ann_obj.get_ann_by_id(r.arg2)
                 if arg2 is not None and not arg2_match_regex.search(arg2ent.get_text()):
                     continue
-                if arg2type is not None and arg2type != arg2.type:
+                if arg2type is not None and arg2type != arg2ent.type:
                     continue
                 
             ann_matches.append(r)

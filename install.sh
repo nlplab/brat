@@ -100,6 +100,10 @@ else
     cp -r ${base_dir}/example-data/corpora ${DATA_DIR}/examples
     cp -r ${base_dir}/example-data/tutorials ${DATA_DIR}/tutorials
 
+    # Place example configs
+
+    cp ${base_dir}/configurations/example-conf/*.conf ${DATA_DIR}
+
     # Make $work_dir_abs and $data_dir_abs writable by Apache
 
     group_ok=0

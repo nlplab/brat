@@ -50,7 +50,7 @@ html {
   position: fixed;
   bottom: 0;
   left: 0;
-  background: url('static/img/Fugue-shadowless-information-balloon.png') center no-repeat;
+  background: url('img/Fugue-shadowless-information-balloon.png') center no-repeat;
 }
 #messagepullup {
   max-height: 300px;
@@ -170,10 +170,10 @@ input.invalid_value {
     width: 16px;
     margin-top: 3px;
     cursor: hand;
-    background: url('static/img/expand_icon.gif') no-repeat;
+    background: url('img/expand_icon.gif') no-repeat;
 }
 #span_form .collapser.open {
-    background: url('static/img/collapse_icon.gif') no-repeat;
+    background: url('img/collapse_icon.gif') no-repeat;
 }
 #span_form .collapsible.open {
     display: block;
@@ -516,6 +516,6 @@ div.scroll_wrapper_upper div.scroller {
   font-family: 'Astloch';
   font-style: normal;
   font-weight: bold;
-  src: local('Astloch Bold'), local('Astloch-Bold'), url('static/fonts/Astloch-Bold.ttf') format('truetype');
+  src: local('Astloch Bold'), local('Astloch-Bold'), url('fonts/Astloch-Bold.ttf') format('truetype');
 }
 
