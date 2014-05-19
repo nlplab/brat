@@ -300,7 +300,7 @@ def serve(params, client_ip, client_hostname, cookie_data):
         try:
             CONFIG_CHECK_LOCK.acquire()
             _config_check()
-        except:
+        finally:
             CONFIG_CHECK_LOCK.release()
             raise
     except ConfigurationError, e:
