@@ -1504,6 +1504,8 @@ var VisualizerUI = (function($, window, undefined) {
           return;
         }
 
+        // TODO(jdunietz): Make it configurable whether navigation key commands are enabled
+        /*
         if (code === $.ui.keyCode.TAB) {
           showFileBrowser();
           return false;
@@ -1511,7 +1513,8 @@ var VisualizerUI = (function($, window, undefined) {
           return moveInFileBrowser(-1);
         } else if (code === $.ui.keyCode.RIGHT) {
           return moveInFileBrowser(+1);
-        } else if (evt.shiftKey && code === $.ui.keyCode.UP) {
+        } else */
+        if (evt.shiftKey && code === $.ui.keyCode.UP) {
           autoPaging(true);
         } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
           autoPaging(false);
