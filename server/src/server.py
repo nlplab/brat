@@ -302,7 +302,6 @@ def serve(params, client_ip, client_hostname, cookie_data):
             _config_check()
         finally:
             CONFIG_CHECK_LOCK.release()
-            raise
     except ConfigurationError, e:
         json_dic = {}
         e.json(json_dic)
