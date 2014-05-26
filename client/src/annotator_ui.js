@@ -1942,6 +1942,10 @@ var AnnotatorUI = (function($, window, undefined) {
             $select.change(onMultiAttrChange);
           }
         });
+        // Now that we're using comboboxes/buttons, the underlying input elements generally won't get
+        // notified of the change events anymore, so we ensure that attribute changes are still noticed.
+        $('.attribute_type_label .ui-combobox').on("autocompletechange", function(event, ui) { onMultiAttrChange(event); });
+        $('.attribute_type_label .ui-button').click(onBooleanAttrChange);
       }
 
       var setSpanTypeSelectability = function(category) {
