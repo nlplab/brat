@@ -1956,9 +1956,9 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#span_form input:not([unused])').removeAttr('disabled');
         var $toDisable;
         if (category == "event") {
-          $toDisable = $('#span_form input[category="entity"]');
+          $toDisable = $('#span_form input[category="entity"][type!=radio]');
         } else if (category == "entity") {
-          $toDisable = $('#span_form input[category="event"]');
+          $toDisable = $('#span_form input[category="event"][type!=radio]');
         } else {
           console.error('Unrecognized attribute category:', category);
           $toDisable = $();
