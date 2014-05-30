@@ -1942,6 +1942,10 @@ var AnnotatorUI = (function($, window, undefined) {
             $select.change(onMultiAttrChange);
           }
         });
+        // Now that we're using comboboxes/buttons, the underlying input elements generally won't get
+        // notified of the change events anymore, so we ensure that attribute changes are still noticed.
+        $('.attribute_type_label .ui-combobox').on("autocompletechange", function(event, ui) { onMultiAttrChange(event); });
+        $('.attribute_type_label .ui-button').click(onBooleanAttrChange);
       }
 
       var setSpanTypeSelectability = function(category) {
@@ -1969,10 +1973,10 @@ var AnnotatorUI = (function($, window, undefined) {
         // is checked, which would cause error on "OK". In this case,
         // check the first valid choice.
         if ($checkedToDisable.length) {
-          var $toCheck = $('#span_form input[category="' + category + '"]:first');
+          var $toCheck = $('#span_form input[category="' + category + '"][disabled!="disabled"]:first');
           // so weird, attr('checked', 'checked') fails sometimes, so
           // replaced with more "metal" version
-          $toCheck[0].checked = true
+          $toCheck[0].checked = true;
         }
       }
 
