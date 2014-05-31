@@ -680,65 +680,65 @@ def _enrich_json_with_data(j_dic, ann_obj):
                 [unicode(event_ann.id), unicode(event_ann.trigger), event_ann.args]
                 )
     for ann in ann_obj:
-	  	if isinstance(ann,BinaryRelationAnnotation):
-	        j_dic['relations'].append(
-	            [unicode(rel_ann.id), unicode(rel_ann.type), 
-	             [(rel_ann.arg1l, rel_ann.arg1),
-	              (rel_ann.arg2l, rel_ann.arg2)]]
-	            )
+        if isinstance(ann, BinaryRelationAnnotation):
+        j_dic['relations'].append(
+            [unicode(rel_ann.id), unicode(rel_ann.type), 
+             [(rel_ann.arg1l, rel_ann.arg1),
+              (rel_ann.arg2l, rel_ann.arg2)]]
+            )
 	
-	   if isinstance(ann,TextBoundAnnotation):
-	        #j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
-	        j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.spans]
-	
-	        # If we spotted it in the previous pass as a trigger for an
-	        # event or if the type is known to be an event type, we add it
-	        # as a json trigger.
-	        # TODO: proper handling of disconnected triggers. Currently
-	        # these will be erroneously passed as 'entities'
-	        if unicode(tb_ann.id) in trigger_ids:
-	            j_dic['triggers'].append(j_tb)
-	            # special case for BioNLP ST 2013 format: send triggers
-	            # also as entities for those triggers that are referenced
-	            # from annotations other than events (#926).
-	            if BIONLP_ST_2013_COMPATIBILITY:
-	                if tb_ann.id in ann_obj.externally_referenced_triggers:
-	                    try:
-	                        j_dic['entities'].append(j_tb)
-	                    except KeyError:
-	                        j_dic['entities'] = [j_tb, ]
-	        else: 
-	            try:
-	                j_dic['entities'].append(j_tb)
-	            except KeyError:
-	                j_dic['entities'] = [j_tb, ]
-	
-	
-	    if isinstance(ann,EquivAnnotation):
-	        j_dic['equivs'].append(
-	                (['*', eq_ann.type]
-	                    + [e for e in eq_ann.entities])
-	                )
-	
-	   if isinstance(ann,AttributeAnnotation):
-	        j_dic['attributes'].append(
-	                [unicode(att_ann.id), unicode(att_ann.type), unicode(att_ann.target), att_ann.value]
-	                )
-	
-	    if isinstance(ann,NormalizationAnnotation):
-	        j_dic['normalizations'].append(
-	                [unicode(norm_ann.id), unicode(norm_ann.type), 
-	                 unicode(norm_ann.target), unicode(norm_ann.refdb), 
-	                 unicode(norm_ann.refid), unicode(norm_ann.reftext)]
-	                )
-	
-	    if isinstance(ann,OnelineCommentAnnotation):
-	        comment = [unicode(com_ann.target), unicode(com_ann.type),
-	                com_ann.tail.strip()]
-	        try:
-	            j_dic['comments'].append(comment)
-	        except KeyError:
-	            j_dic['comments'] = [comment, ]
+        if isinstance(ann, TextBoundAnnotation):
+            #j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
+            j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.spans]
+        
+            # If we spotted it in the previous pass as a trigger for an
+            # event or if the type is known to be an event type, we add it
+            # as a json trigger.
+            # TODO: proper handling of disconnected triggers. Currently
+            # these will be erroneously passed as 'entities'
+            if unicode(tb_ann.id) in trigger_ids:
+                j_dic['triggers'].append(j_tb)
+                # special case for BioNLP ST 2013 format: send triggers
+                # also as entities for those triggers that are referenced
+                # from annotations other than events (#926).
+                if BIONLP_ST_2013_COMPATIBILITY:
+                    if tb_ann.id in ann_obj.externally_referenced_triggers:
+                        try:
+                            j_dic['entities'].append(j_tb)
+                        except KeyError:
+                            j_dic['entities'] = [j_tb, ]
+            else: 
+                try:
+                    j_dic['entities'].append(j_tb)
+                except KeyError:
+                    j_dic['entities'] = [j_tb, ]
+        
+        
+        if isinstance(ann, EquivAnnotation):
+            j_dic['equivs'].append(
+                    (['*', eq_ann.type]
+                        + [e for e in eq_ann.entities])
+                    )
+        
+        if isinstance(ann, AttributeAnnotation):
+            j_dic['attributes'].append(
+                    [unicode(att_ann.id), unicode(att_ann.type), unicode(att_ann.target), att_ann.value]
+                    )
+        
+        if isinstance(ann, NormalizationAnnotation):
+            j_dic['normalizations'].append(
+                    [unicode(norm_ann.id), unicode(norm_ann.type), 
+                     unicode(norm_ann.target), unicode(norm_ann.refdb), 
+                     unicode(norm_ann.refid), unicode(norm_ann.reftext)]
+                    )
+        
+        if isinstance(ann, OnelineCommentAnnotation):
+            comment = [unicode(com_ann.target), unicode(com_ann.type),
+                    com_ann.tail.strip()]
+            try:
+                j_dic['comments'].append(comment)
+            except KeyError:
+                j_dic['comments'] = [comment, ]
 
     if ann_obj.failed_lines:
         error_msg = 'Unable to parse the following line(s):\n%s' % (
