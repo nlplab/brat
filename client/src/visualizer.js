@@ -1571,6 +1571,10 @@ Util.profileStart('chunks');
             var bgColor = ((spanDesc && spanDesc.bgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
+            if (bgColor == 'hidden') {
+              span.hidden = true;
+              return;
+            }
             var fgColor = ((spanDesc && spanDesc.fgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.fgColor) || '#000000');
@@ -1968,6 +1972,10 @@ Util.profileStart('arcsPrep');
           arc.jumpHeight = 0;
           var fromFragment = data.spans[arc.origin].headFragment;
           var toFragment = data.spans[arc.target].headFragment;
+          if (fromFragment.span.hidden || toFragment.span.hidden) {
+            arc.hidden = true;
+            return;
+          }
           if (fromFragment.towerId > toFragment.towerId) {
             var tmp = fromFragment; fromFragment = toFragment; toFragment = tmp;
           }
@@ -2055,6 +2063,7 @@ Util.profileStart('arcs');
         var arcCache = {};
         // add the arcs
         $.each(data.arcs, function(arcNo, arc) {
+          if (arc.hidden) return;
           // separate out possible numeric suffix from type
           var noNumArcType;
           var splitArcType;
@@ -2107,6 +2116,7 @@ Util.profileStart('arcs');
           var color = ((arcDesc && arcDesc.color) ||
                        (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
                        '#000000');
+          if (color == 'hidden') return;
           var symmetric = arcDesc && arcDesc.properties && arcDesc.properties.symmetric;
           var dashArray = arcDesc && arcDesc.dashArray;
           var arrowHead = ((arcDesc && arcDesc.arrowHead) ||
@@ -2733,11 +2743,12 @@ Util.profileStart('chunkFinish');
             orderedIdx.sort(function(a,b) { return Util.cmp(chunk.fragments[b].nestingHeight, chunk.fragments[a].nestingHeight) });
 
             for(var i=0; i<chunk.fragments.length; i++) {
-              var fragment=chunk.fragments[orderedIdx[i]];
+              var fragment = chunk.fragments[orderedIdx[i]];
               var spanDesc = spanTypes[fragment.span.type];
               var bgColor = ((spanDesc && spanDesc.bgColor) ||
                              (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
                              '#ffffff');
+              if (fragment.span.hidden) continue;
 
               // Tweak for nesting depth/height. Recognize just three
               // levels for now: normal, nested, and nesting, where
@@ -2946,6 +2957,7 @@ Util.profileStart('before render');
           var bgColor = ((spanDesc && spanDesc.bgColor) ||
                          (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
                          '#ffffff');
+          if (span.hidden) return;
           highlight = [];
           $.each(span.fragments, function(fragmentNo, fragment) {
             highlight.push(svg.rect(highlightGroup,
