@@ -1426,6 +1426,14 @@ Util.profileStart('chunks');
 
         $.each(data.spanDrawOrderPermutation, function(spanIdNo, spanId) {
           var span = data.spans[spanId];
+          var spanDesc = spanTypes[span.type];
+          var bgColor = ((spanDesc && spanDesc.bgColor) ||
+                          (spanTypes.SPAN_DEFAULT &&
+                          spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
+          if (bgColor == "hidden") {
+            span.hidden = true;
+            return;
+          }
 
           var f1 = span.fragments[0];
           var f2 = span.fragments[span.fragments.length - 1];
@@ -1550,7 +1558,6 @@ Util.profileStart('chunks');
             }
           }
 
-          reservations = new Array();
           chunk.group = svg.group(row.group);
           chunk.highlightGroup = svg.group(chunk.group);
 
@@ -1571,10 +1578,7 @@ Util.profileStart('chunks');
             var bgColor = ((spanDesc && spanDesc.bgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
-            if (bgColor == 'hidden') {
-              span.hidden = true;
-              return;
-            }
+            if (span.hidden) return;
             var fgColor = ((spanDesc && spanDesc.fgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.fgColor) || '#000000');
