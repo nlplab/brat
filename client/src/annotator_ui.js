@@ -26,7 +26,6 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanTypes = null;
       var entityAttributeTypes = null;
       var eventAttributeTypes = null;
-      var allAttributeTypes = null; // TODO: temp workaround, remove
       var relationTypesHash = null;
       var showValidAttributes; // callback function
       var showValidNormalizations; // callback function
@@ -1933,8 +1932,8 @@ var AnnotatorUI = (function($, window, undefined) {
             var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text" category="' + category + '"/>');
             var $option = $('<option class="ui-state-default" value=""/>').text('?');
             $select.append($option);
-            $.each(attr.values, function(valType, value) {
-              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(valType) + '"/>').text(value.name || valType);
+            $.each(attr.values, function(valueNo, value) {
+              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(value.name) + '"/>').text(value.name);
               $select.append($option);
             });
             $span.append($select);
@@ -1995,9 +1994,11 @@ var AnnotatorUI = (function($, window, undefined) {
       }
 
       var onBooleanAttrChange = function(evt) {
-        var attrCategory = evt.target.getAttribute('category');
-        setSpanTypeSelectability(attrCategory);
-        updateCheckbox($(evt.target));
+        if (evt.type == 'change') { // ignore the click event on the UI element
+          var attrCategory = evt.target.getAttribute('category');
+          setSpanTypeSelectability(attrCategory);
+          updateCheckbox($(evt.target));
+        }
       };
 
       var rememberSpanSettings = function(response) {
@@ -2251,10 +2252,6 @@ var AnnotatorUI = (function($, window, undefined) {
         entityAttributeTypes = _entityAttributeTypes;
         eventAttributeTypes = _eventAttributeTypes;
         relationTypesHash = _relationTypesHash;
-        // for easier access
-        allAttributeTypes = $.extend({}, 
-                                     entityAttributeTypes, 
-                                     eventAttributeTypes);
       };
 
       var gotCurrent = function(_coll, _doc, _args) {

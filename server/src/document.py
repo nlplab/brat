@@ -258,9 +258,11 @@ def _fill_attribute_configuration(nodes, project_conf):
                     Messager.warning("Config error: empty <DEFAULT> for %s" % item['name'])
                     pass
 
+            # Each item's 'values' entry is a list of dictionaries, one
+            # dictionary per value option.
             if len(args) == 0:
                 # binary; use drawing config directly
-                item['values'] = { _type : {} }
+                attr_values = {'name': _type}
                 for k in ATTR_DRAWING_ATTRIBUTES:
                     if k in attr_drawing_conf:
                         # protect against error from binary attribute
@@ -268,15 +270,17 @@ def _fill_attribute_configuration(nodes, project_conf):
                         if isinstance(attr_drawing_conf[k], list):
                             Messager.warning("Visual config error: expected single value for %s binary attribute '%s' config, found %d. Visuals may be wrong." % (_type, k, len(attr_drawing_conf[k])))
                             # fall back on the first just to have something.
-                            item['values'][_type][k] = attr_drawing_conf[k][0]
+                            attr_values[k] = attr_drawing_conf[k][0]
                         else:
-                            item['values'][_type][k] = attr_drawing_conf[k]
+                            attr_values[k] = attr_drawing_conf[k]
+                item['values'] = [attr_values]
             else:
                 # has normal arguments, use these as possible values.
                 # (this is quite terrible all around, sorry.)
-                item['values'] = {}
+                item['values'] = [None for i in range(len(args))] # pre-allocate list
                 for i, v in enumerate(args):
-                    item['values'][v] = {}
+                    attr_values = {'name': v}
+                    
                     # match up annotation config with drawing config by
                     # position in list of alternative values so that e.g.
                     # "Values:L1|L2|L3" can have the visual config
@@ -288,18 +292,20 @@ def _fill_attribute_configuration(nodes, project_conf):
                             if isinstance(attr_drawing_conf[k], list):
                                 # sufficiently many specified?
                                 if len(attr_drawing_conf[k]) > i:
-                                    item['values'][v][k] = attr_drawing_conf[k][i]
+                                    attr_values[k] = attr_drawing_conf[k][i]
                                 else:
                                     Messager.warning("Visual config error: expected %d values for %s attribute '%s' config, found only %d. Visuals may be wrong." % (len(args), v, k, len(attr_drawing_conf[k])))
                             else:
                                 # single value (presumably), apply to all
-                                item['values'][v][k] = attr_drawing_conf[k]
+                                attr_values[k] = attr_drawing_conf[k]
 
                     # if no drawing attribute was defined, fall back to
                     # using a glyph derived from the attribute value
                     if len([k for k in ATTR_DRAWING_ATTRIBUTES if
-                            k in item['values'][v]]) == 0:
-                        item['values'][v]['glyph'] = '['+v+']'
+                            k in attr_values]) == 0:
+                        attr_values['glyph'] = '['+v+']'
+
+                    item['values'][i] = attr_values
 
             items.append(item)
     return items
