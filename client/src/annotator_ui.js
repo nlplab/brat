@@ -26,7 +26,6 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanTypes = null;
       var entityAttributeTypes = null;
       var eventAttributeTypes = null;
-      var allAttributeTypes = null; // TODO: temp workaround, remove
       var relationTypesHash = null;
       var showValidAttributes; // callback function
       var showValidNormalizations; // callback function
@@ -2253,10 +2252,6 @@ var AnnotatorUI = (function($, window, undefined) {
         entityAttributeTypes = _entityAttributeTypes;
         eventAttributeTypes = _eventAttributeTypes;
         relationTypesHash = _relationTypesHash;
-        // for easier access
-        allAttributeTypes = $.extend({}, 
-                                     entityAttributeTypes, 
-                                     eventAttributeTypes);
       };
 
       var gotCurrent = function(_coll, _doc, _args) {
