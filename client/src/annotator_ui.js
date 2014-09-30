@@ -1917,6 +1917,21 @@ var AnnotatorUI = (function($, window, undefined) {
             $('<input type="hidden" id="'+attrId+'" value=""/>').appendTo($span);
           } else if (attr.bool) {
             var escapedName = Util.escapeQuotes(attr.name);
+            if (attr.hotkey) {
+              spanKeymap[attr.hotkey] = attrId;
+              var replace = true;
+              escapedName = escapedName.replace(new RegExp("(&[^;]*?)?(" + attr.hotkey + ")", 'gi'),
+                  function(all, entity, letter) {
+                    if (replace && !entity) {
+                      replace = false;
+                      var hotkey = attr.hotkey.toLowerCase() == letter
+                          ? attr.hotkey.toLowerCase()
+                          : attr.hotkey.toUpperCase();
+                      return '[' + Util.escapeHTML(hotkey) + ']';
+                    }
+                    return all;
+                  });
+            }
             var $input = $('<input type="checkbox" id="'+attrId+
                            '" value="' + escapedType + 
                            '" category="' + category + '"/>');

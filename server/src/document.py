@@ -223,7 +223,7 @@ def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
 
 
 # TODO: this may not be a good spot for this
-def _fill_attribute_configuration(nodes, project_conf):
+def _fill_attribute_configuration(nodes, project_conf, hotkey_by_type):
     items = []
     for node in nodes:
         if node == SEPARATOR_STR:
@@ -235,6 +235,10 @@ def _fill_attribute_configuration(nodes, project_conf):
             item['type'] = _type
             item['unused'] = node.unused
             item['labels'] = project_conf.get_labels_by_type(_type)
+            try:
+                item['hotkey'] = hotkey_by_type[_type]
+            except KeyError:
+                pass
 
             attr_drawing_conf = project_conf.get_drawing_config_by_type(_type)
             if attr_drawing_conf is None:
@@ -372,14 +376,17 @@ def get_base_types(directory):
 def get_attribute_types(directory):
     project_conf = ProjectConfiguration(directory)
 
+    keymap = project_conf.get_kb_shortcuts()
+    hotkey_by_type = dict((v, k) for k, v in keymap.iteritems())
+
     entity_attribute_hierarchy = project_conf.get_entity_attribute_type_hierarchy()
-    entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf)
+    entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf, hotkey_by_type)
     
     relation_attribute_hierarchy = project_conf.get_relation_attribute_type_hierarchy()
-    relation_attribute_types = _fill_attribute_configuration(relation_attribute_hierarchy, project_conf)
+    relation_attribute_types = _fill_attribute_configuration(relation_attribute_hierarchy, project_conf, hotkey_by_type)
 
     event_attribute_hierarchy = project_conf.get_event_attribute_type_hierarchy()
-    event_attribute_types = _fill_attribute_configuration(event_attribute_hierarchy, project_conf)
+    event_attribute_types = _fill_attribute_configuration(event_attribute_hierarchy, project_conf, hotkey_by_type)
 
     return entity_attribute_types, relation_attribute_types, event_attribute_types
 
