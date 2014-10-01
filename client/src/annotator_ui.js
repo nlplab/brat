@@ -165,9 +165,18 @@ var AnnotatorUI = (function($, window, undefined) {
         var binding = keymap[prefix + code];
         if (!binding) binding = keymap[prefix + String.fromCharCode(code)];
         if (binding) {
+          var isAutocomplete = function(htmlNode) {
+            return htmlNode.nodeName === 'input' && typeof htmlNode.autocomplete !== 'undefined';
+          };
           var boundInput = $('#' + binding)[0];
           if (boundInput && !boundInput.disabled) {
-            boundInput.click();
+            if (boundInput.nodeName === 'select' && isAutocomplete(boundInput.nextSibling)) {
+              // special case for autocomplete cells for multi-valued attributes
+              // (this is maybe a slightly fragile way to go about this)
+              boundInput.nextSibling.focus();
+            } else {
+              boundInput.click();
+            }
             evt.preventDefault();
             return false;
           }
@@ -1909,6 +1918,22 @@ var AnnotatorUI = (function($, window, undefined) {
         addSpanTypesToDivInner($scroller, types);
       };
       var addAttributeTypesToDiv = function($top, types, category) {
+
+        var highlightHotkey = function(origName, hotkey, prefix, suffix) {
+          var replace = true;
+          return origName.replace(new RegExp("(&[^;]*?)?(" + hotkey + ")", 'gi'),
+              function(all, entity, letter) {
+                if (replace && !entity) {
+                  replace = false;
+                  var hotkeyMatch = hotkey.toLowerCase() == letter
+                      ? hotkey.toLowerCase()
+                      : hotkey.toUpperCase();
+                  return prefix + Util.escapeHTML(hotkeyMatch) + suffix;
+                }
+                return all;
+              });
+        }
+
         $.each(types, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
           var attrId = category+'_attr_'+escapedType;
@@ -1919,18 +1944,7 @@ var AnnotatorUI = (function($, window, undefined) {
             var escapedName = Util.escapeQuotes(attr.name);
             if (attr.hotkey) {
               spanKeymap[attr.hotkey] = attrId;
-              var replace = true;
-              escapedName = escapedName.replace(new RegExp("(&[^;]*?)?(" + attr.hotkey + ")", 'gi'),
-                  function(all, entity, letter) {
-                    if (replace && !entity) {
-                      replace = false;
-                      var hotkey = attr.hotkey.toLowerCase() == letter
-                          ? attr.hotkey.toLowerCase()
-                          : attr.hotkey.toUpperCase();
-                      return '[' + Util.escapeHTML(hotkey) + ']';
-                    }
-                    return all;
-                  });
+              escapedName = highlightHotkey(escapedName, attr.hotkey, '[', ']');
             }
             var $input = $('<input type="checkbox" id="'+attrId+
                            '" value="' + escapedType + 
@@ -1943,7 +1957,12 @@ var AnnotatorUI = (function($, window, undefined) {
             $input.change(onBooleanAttrChange);
           } else {
             // var $div = $('<div class="ui-button ui-button-text-only attribute_type_label"/>');
-            $span.text(attr.name);
+            var name = attr.name;
+            if (attr.hotkey) {
+              spanKeymap[attr.hotkey] = attrId;
+              name = highlightHotkey(name, attr.hotkey, '<span class="accesskey">', '</span>');
+            }
+            $span.html(name);
             $span.append(':&#160;');
             var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text" category="' + category + '"/>');
             var $option = $('<option class="ui-state-default" value=""/>').text('?');
