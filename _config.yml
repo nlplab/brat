@@ -7,14 +7,18 @@
 
 ### Jekyll configuration
 
-auto:       true
-markdown:   maruku
-permalink:  date
-pygments:   true
-safe:       true
-server:     true
+markdown:       redcarpet
+permalink:      date
+highlighter:    pygments
+safe:           true
 
-exclude: CNAME, README.md, tools
+exclude: [
+    CNAME,
+    Gemfile,
+    Gemfile.lock,
+    README.md,
+    tools,
+]
 
 ### Website configuration
 
