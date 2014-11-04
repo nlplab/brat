@@ -16,6 +16,7 @@ exclude: [
     CNAME,
     Gemfile,
     Gemfile.lock,
+    Makefile,
     README.md,
     tools,
 ]
