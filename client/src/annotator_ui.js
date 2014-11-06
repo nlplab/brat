@@ -206,6 +206,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (eventDescId) {
             var eventDesc = data.eventDescs[eventDescId];
             arcOptions.id = eventDescId;
+            arcOptions.comment = eventDesc.comment.text;
             if (eventDesc.equiv) {
               arcOptions['left'] = eventDesc.leftSpans.join(',');
               arcOptions['right'] = eventDesc.rightSpans.join(',');
