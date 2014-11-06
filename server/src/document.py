@@ -277,7 +277,7 @@ def _fill_attribute_configuration(nodes, project_conf):
             else:
                 # has normal arguments, use these as possible values.
                 # (this is quite terrible all around, sorry.)
-                item['values'] = [None for i in range(len(args))] # pre-allocate list
+                item['values'] = [] # we'll populate this incrementally as we process the args
                 for i, v in enumerate(args):
                     attr_values = {'name': v}
                     
@@ -305,7 +305,7 @@ def _fill_attribute_configuration(nodes, project_conf):
                             k in attr_values]) == 0:
                         attr_values['glyph'] = '['+v+']'
 
-                    item['values'][i] = attr_values
+                    item['values'].append(attr_values)
 
             items.append(item)
     return items
