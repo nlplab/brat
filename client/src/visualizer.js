@@ -655,7 +655,7 @@ var Visualizer = (function($, window, undefined) {
           // instead of using the first attribute def found
           var attrType = (eventAttributeTypes[attr[1]] ||
                           entityAttributeTypes[attr[1]]);
-          var attrValue = attrType && attrType.values[attrType.bool || attr[3]];
+          var attrValue = attrType && attrType.values.byName[attrType.bool || attr[3]];
           var span = data.spans[attr[2]];
           if (!span) {
             dispatcher.post('messages', [[['Annotation ' + attr[2] + ', referenced from attribute ' + attr[0] + ', does not exist.', 'error']]]);
@@ -1025,7 +1025,7 @@ var Visualizer = (function($, window, undefined) {
                 warning = true;
                 return;
               }
-              var val = attr.values[attr.bool || valType];
+              var val = attr.values.byName[attr.bool || valType];
               if (!val) {
                 // non-existent value
                 warning = true;
@@ -3213,15 +3213,16 @@ Util.profileStart('before render');
         $.each(response_types, function(aTypeNo, aType) {
           processed[aType.type] = aType;
           // count the values; if only one, it's a boolean attribute
-          var values = [];
-          for (var i in aType.values) {
-            if (aType.values.hasOwnProperty(i)) {
-              values.push(i);
-            }
+          if (aType.values.length == 1) {
+            aType.bool = aType.values[0].name;
           }
-          if (values.length == 1) {
-            aType.bool = values[0];
-          }
+          // We need attribute values to be stored as an array, in the correct order,
+          // but for efficiency of access later we also create a map of each value 
+          // name to the corresponding value dictionary.
+          aType.values.byName = {}
+          $.each(aType.values, function(valueNo, val) {
+              aType.values.byName[val.name] = val;
+          });
         });
         return processed;
       }
