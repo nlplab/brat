@@ -376,6 +376,10 @@ div.scroll_wrapper_upper div.scroller {
   top: 55px;
 }
 
+#span_form_lock_bset button {
+  margin: 0;
+}
+
 #document_select {
   height: 200px;
   display: inline-block;
