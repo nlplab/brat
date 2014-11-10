@@ -1159,7 +1159,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var activeSearchTab = function() {
         // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation, 4 = Notes, 5 = Load
-        var activeTab = $('#search_tabs').tabs('option', 'selected');
+        var activeTab = $('#search_tabs').tabs('option', 'active');
         return ['searchText', 'searchEntity', 'searchEvent',
             'searchRelation', 'searchNote', 'searchLoad'][activeTab];
       }
