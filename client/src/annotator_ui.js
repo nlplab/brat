@@ -235,9 +235,14 @@ var AnnotatorUI = (function($, window, undefined) {
             type: editedSpan.type,
             id: id,
           };
-          fillSpanTypesAndDisplayForm(evt, editedSpan.text, editedSpan);
-          // for precise timing, log annotation display to user.
-          dispatcher.post('logAction', ['spanEditSelected']);
+          if (lockOptions) {
+            spanFormSubmit();
+            dispatcher.post('logAction', ['spanLockEditSubmitted']);
+          } else {
+            fillSpanTypesAndDisplayForm(evt, editedSpan.text, editedSpan);
+            // for precise timing, log annotation display to user.
+            dispatcher.post('logAction', ['spanEditSelected']);
+          }
         }
 
         // if not an arc or a span, is this a double-click on text?
@@ -1706,6 +1711,7 @@ var AnnotatorUI = (function($, window, undefined) {
 */
           if (lockOptions) {
             spanFormSubmit();
+            dispatcher.post('logAction', ['spanLockNewSubmitted']);
           } else if (!Configuration.rapidModeOn || reselectedSpan != null) {
             // normal span select in standard annotation mode
             // or reselect: show selector
