@@ -70,9 +70,10 @@
             curDoc = doc;
             if (!diffColl) {
               alert("Diff collection not specified.\nPlease use a link of the following format:\n\n" +
-                location.origin + location.pathname + location.hash + '?diff=____' +
+                location.origin + location.pathname + location.hash + '?diff=&lt;collection&gt;' +
                 '\n\n(the diff collection will be on the left side, and uneditable)');
             } else {
+              dispatcher.post('setArguments', [{ diff: [[ diffColl ]] }]);
               dispatcher_left.post("current", [diffColl, doc, args, reload]);
             }
           });
@@ -359,6 +360,11 @@
                    title="Rapid annotation mode: activate automatic support for speeding up annotation process. Suitable for experienced annotators performing an established task.">Rapid</label>
             <select id="rapid_model"/>
           </span>
+        </div>
+        <div class="optionRow">
+          <span class="optionLabel">Type Collapse Limit</span>
+          <input id="type_collapse_limit" maxlength="3" size="3" value="30"
+                 style="text-align:right"/>
         </div>
       </fieldset>
       <fieldset id="options_form_network">
