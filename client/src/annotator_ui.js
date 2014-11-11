@@ -2357,7 +2357,10 @@ var AnnotatorUI = (function($, window, undefined) {
       });
       dispatcher.post('initForm', [splitForm, {
           alsoResize: '.scroll_fset',
-          width: 400
+          width: 400,
+          open: function() {
+            $('#split_form-ok').focus();
+          }
         }]);
       var splitSpan = function() {
         dispatcher.post('hideForm');
