@@ -1923,9 +1923,8 @@ Util.profileStart('chunks');
             // if we added a gap, center the intervening elements
             spacing /= 2;
             var firstChunkInRow = row.chunks[row.chunks.length - 1];
-            if (firstChunkInRow === undefined) {
-              console.log('warning: firstChunkInRow undefined, chunk:', chunk);
-            } else { // valid firstChunkInRow
+            // are there already some intervening chunks to move?
+            if (firstChunkInRow) {
               if (spacingChunkId < firstChunkInRow.index) {
                 spacingChunkId = firstChunkInRow.index + 1;
               }
