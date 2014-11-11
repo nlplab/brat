@@ -255,6 +255,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var startArcDrag = function(originId) {
+        if (reselectedSpan) return;
         clearSelection();
         svgPosition = svgElement.offset();
         svgElement.addClass('unselectable');
