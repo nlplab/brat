@@ -8,7 +8,15 @@
         <servlet-class>org.apache.catalina.servlets.CGIServlet</servlet-class>
         <init-param>
             <param-name>executable</param-name>
+	    <!--The version of python used by brat. If, for example, you're 
+		running a *nix distro with a strict native python that is 
+		incompatible with brat you will want to install an alternative
+		python version and set that here.-->
             <param-value>python</param-value>
+        </init-param>
+        <init-param>
+          <param-name>cgiPathPrefix</param-name>
+          <param-value></param-value>
         </init-param>
     </servlet>
     <!-- Serve what is necessary to run brat statically
@@ -23,10 +31,12 @@
         <url-pattern>*.js</url-pattern>
         <url-pattern>*.png</url-pattern>
         <url-pattern>*.xhtml</url-pattern>
+        <url-pattern>*.ttf</url-pattern>
     </servlet-mapping>
     <!-- But serve CGI as, well, CGI. -->
     <servlet-mapping>
         <servlet-name>brat</servlet-name>
         <url-pattern>*.cgi</url-pattern>
-    </servlet-mapping> 
+    </servlet-mapping>
 </web-app>
+
