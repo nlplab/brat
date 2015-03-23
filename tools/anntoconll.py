@@ -4,14 +4,17 @@
 
 from __future__ import with_statement
 
+import io
 import sys
-import re
 import os
 
 from collections import namedtuple
 from os import path
 from subprocess import Popen, PIPE
-from cStringIO import StringIO
+
+# We require the third-party regex library to do proper Unicode matching.
+# (https://pypi.python.org/pypi/regex).
+import regex
 
 # assume script in brat tools/ directory, extend path to find sentencesplit.py
 sys.path.append(os.path.join(os.path.dirname(__file__), '../server/src'))
@@ -20,8 +23,8 @@ from sentencesplit import sentencebreaks_to_newlines
 
 options = None
 
-EMPTY_LINE_RE = re.compile(r'^\s*$')
-CONLL_LINE_RE = re.compile(r'^\S+\t\d+\t\d+.')
+EMPTY_LINE_RE = regex.compile(r'^\s*$', regex.UNICODE)
+CONLL_LINE_RE = regex.compile(r'^\S+\t\d+\t\d+.', regex.UNICODE)
 
 class FormatError(Exception):
     pass
@@ -33,6 +36,8 @@ def argparser():
                                'annotations into CoNLL format.')
     ap.add_argument('-a', '--annsuffix', default="ann",
                     help='Standoff annotation file suffix (default "ann")')
+    ap.add_argument('-e', '--encoding', default='utf-8',
+                    help='Encoding of input and output files (default "utf-8")')
     ap.add_argument('-c', '--singleclass', default=None,
                     help='Use given single class for annotations')
     ap.add_argument('-n', '--nosplit', default=False, action='store_true', 
@@ -102,10 +107,10 @@ def attach_labels(labels, lines):
 
 # NERsuite tokenization: any alnum sequence is preserved as a single
 # token, while any non-alnum character is separated into a
-# single-character token. TODO: non-ASCII alnum.
-TOKENIZATION_REGEX = re.compile(r'([0-9a-zA-Z]+|[^0-9a-zA-Z])')
+# single-character token.
+TOKENIZATION_REGEX = regex.compile(r'([[:alnum:]]+|.)', regex.UNICODE)
 
-NEWLINE_TERM_REGEX = re.compile(r'(.*?\n)')
+NEWLINE_TERM_REGEX = regex.compile(r'(.*?\n)', regex.UNICODE)
 
 def text_to_conll(f):
     """Convert plain text into CoNLL format."""
@@ -142,7 +147,7 @@ def text_to_conll(f):
         lines = relabel(lines, get_annotations(f.name))
 
     lines = [[l[0], str(l[1]), str(l[2]), l[3]] if l else l for l in lines]
-    return StringIO('\n'.join(('\t'.join(l) for l in lines)))
+    return io.StringIO('\n'.join(('\t'.join(l) for l in lines)))
 
 def relabel(lines, annotations):
     global options
@@ -203,7 +208,7 @@ def process_files(files):
                 if fn == '-':
                     lines = process(sys.stdin)
                 else:
-                    with open(fn, 'rU') as f:
+                    with io.open(fn, 'r', encoding=options.encoding) as f:
                         lines = process(f)
 
                 # TODO: better error handling
@@ -214,7 +219,7 @@ def process_files(files):
                     sys.stdout.write(''.join(lines))
                 else:
                     ofn = path.splitext(fn)[0]+options.outsuffix
-                    with open(ofn, 'wt') as of:
+                    with io.open(ofn, 'w', encoding=options.encoding) as of:
                         of.write(''.join(lines))
 
             except:
@@ -228,7 +233,7 @@ def process_files(files):
 
 ########## start standoff processing
 
-TEXTBOUND_LINE_RE = re.compile(r'^T\d+\t')
+TEXTBOUND_LINE_RE = regex.compile(r'^T\d+\t', regex.UNICODE)
 
 Textbound = namedtuple('Textbound', 'start end type text')
 
