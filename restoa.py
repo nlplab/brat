@@ -73,7 +73,7 @@ def _fill_graph(doc_abspath, graph=None):
             graph.append({
                 '@id': '{}/{}'.format(anns_url, ann.id),
                 'target': '{}#char={},{}'.format(doc_url, start, end),
-                'body': doc_url,
+                'body': ann.type,
                 'serializedAt': datetime.utcnow().isoformat(),
                 'annotatedAt': datetime.fromtimestamp(0).isoformat(),
                 'annotatedBy': 'brat',
