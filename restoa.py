@@ -104,6 +104,8 @@ def ann(url):
         for ann in _fill_graph(doc_abspath):
             if ann['@id'].endswith('{}/'.format(_id)):
                 return jsonify(ann)
+        else:
+            return ('', 404, )
     else:
         dic = _base_dic()
         doc_abspath = path_join(DATA_DIR, url)
