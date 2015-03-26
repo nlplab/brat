@@ -35,14 +35,14 @@ from document import _is_hidden
 ### Constants
 APP = Flask('brat')
 
-API_ROOT = '/restoa'
-DOC_ROOT = API_ROOT + '/doc'
-ANN_ROOT = API_ROOT + '/ann'
+API_ROOT = '/api'
+DOC_ROOT = API_ROOT + '/documents'
+ANN_ROOT = API_ROOT + '/annotations'
 
 TEXTBOUND_REGEX = re_compile(r'(.*?)/(T[0-9]+)(?:\?|$)')
 ###
 
-@APP.route('{}/doc/<path:url>/'.format(API_ROOT))
+@APP.route('{}/<path:url>/'.format(DOC_ROOT))
 def doc(url):
     with open('{}.txt'.format(path_join(DATA_DIR, url))) as doc_txt_f:
         return Response(doc_txt_f.read(), mimetype='text/plain charset=utf8')
@@ -80,7 +80,7 @@ def _fill_graph(doc_abspath, graph=None):
                 })
     return graph
 
-@APP.route('{}/anns/'.format(API_ROOT))
+@APP.route('{}/'.format(ANN_ROOT))
 def anns():
     dic = _base_dic()
     graph = dic['@graph']
@@ -93,7 +93,7 @@ def anns():
             _fill_graph(doc_abspath, graph=graph)
     return jsonify(dic)
 
-@APP.route('{}/ann/<path:url>/'.format(API_ROOT))
+@APP.route('{}/<path:url>/'.format(ANN_ROOT))
 def ann(url):
     m = TEXTBOUND_REGEX.match(url)
     if m:
