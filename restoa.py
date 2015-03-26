@@ -8,9 +8,9 @@ Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2015-03-23
 '''
 
-# TODO: Write operations.
-
 from datetime import datetime
+from itertools import izip
+from itertools import tee
 from md5 import new as md5
 from os import walk
 from os.path import dirname
@@ -19,6 +19,7 @@ from os.path import splitext
 from re import compile as re_compile
 from re import split as re_split
 from sys import path as sys_path
+from urlparse import urlparse
 
 from flask import Flask
 from flask import Response
@@ -108,6 +109,27 @@ def ann(url):
         doc_abspath = path_join(DATA_DIR, url)
         _fill_graph(doc_abspath, dic['@graph'])
         return jsonify(dic)
+
+def _pairwise(it):
+    a, b = tee(it)
+    next(b, None)
+    return izip(a, b)
+
+@APP.route('{}/'.format(ANNS_ROOT), methods=('POST', ))
+def add_ann():
+    req_json = request.get_json(force=True)
+    tgt_soup = urlparse(req_json['target'])
+    spans = tuple(_pairwise(map(int,
+        tgt_soup.fragment.split('=')[1].split(','))))
+    doc = tgt_soup.path[len(DOC_ROOT):].lstrip('/')
+    doc_abspath = path_join(DATA_DIR, doc).rstrip('/')
+    with TextAnnotations(doc_abspath) as ann_obj:
+        _id = ann_obj.get_new_id('T')
+        ann = TextBoundAnnotation(spans, _id, req_json['body'], '')
+        ann_obj.add_annotation(ann)
+    for ann in _fill_graph(doc_abspath):
+        if ann['@id'].endswith('{}/'.format(_id)):
+            return jsonify(ann)
 
 @APP.route('{}/<path:url>/'.format(ANNS_ROOT), methods=('DELETE', ))
 def del_ann(url):
