@@ -16,6 +16,8 @@ from os import walk
 from os.path import dirname
 from os.path import join as path_join
 from os.path import splitext
+from re import compile as re_compile
+from re import split as re_split
 from sys import path as sys_path
 
 from flask import Flask
@@ -30,10 +32,15 @@ from annotation import TextBoundAnnotation
 from config import DATA_DIR
 from document import _is_hidden
 
+### Constants
+APP = Flask('brat')
+
 API_ROOT = '/restoa'
 DOC_ROOT = API_ROOT + '/doc'
 ANN_ROOT = API_ROOT + '/ann'
-APP = Flask('brat')
+
+TEXTBOUND_REGEX = re_compile(r'(.*?)/(T[0-9]+)(?:\?|$)')
+###
 
 @APP.route('{}/doc/<path:url>'.format(API_ROOT))
 def doc(url):
@@ -88,10 +95,18 @@ def anns():
 
 @APP.route('{}/ann/<path:url>'.format(API_ROOT))
 def ann(url):
-    dic = _base_dic()
-    doc_abspath = path_join(DATA_DIR, url)
-    _fill_graph(doc_abspath, dic['@graph'])
-    return jsonify(dic)
+    m = TEXTBOUND_REGEX.match(url)
+    if m:
+        doc_url, _id = m.groups()
+        doc_abspath = path_join(DATA_DIR, doc_url)
+        for ann in _fill_graph(doc_abspath):
+            if ann['@id'].endswith(_id):
+                return jsonify(ann)
+    else:
+        dic = _base_dic()
+        doc_abspath = path_join(DATA_DIR, url)
+        _fill_graph(doc_abspath, dic['@graph'])
+        return jsonify(dic)
 
 def main(argv):
     print 'WARNING: No security features, only use for localhost.'
