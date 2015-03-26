@@ -37,7 +37,7 @@ APP = Flask('brat')
 
 API_ROOT = '/api'
 DOC_ROOT = API_ROOT + '/documents'
-ANN_ROOT = API_ROOT + '/annotations'
+ANNS_ROOT = API_ROOT + '/annotations'
 
 TEXTBOUND_REGEX = re_compile(r'(.*?)/(T[0-9]+)(?:\?|$)')
 ###
@@ -60,7 +60,7 @@ def _fill_graph(doc_abspath, graph=None):
         len(DATA_DIR):].lstrip('/')
     base_url = 'http://{}'.format(request.host)
     doc_url = '{}/{}/{}'.format(base_url, DOC_ROOT.lstrip('/'), doc_relpath)
-    anns_url = '{}/{}/{}'.format(base_url, ANN_ROOT.lstrip('/'), doc_relpath)
+    anns_url = '{}/{}/{}'.format(base_url, ANNS_ROOT.lstrip('/'), doc_relpath)
     with open('{}.txt'.format(doc_abspath)) as doc_text_f:
         doc_text = doc_text_f.read()
     with TextAnnotations(doc_abspath) as ann_obj:
@@ -80,7 +80,7 @@ def _fill_graph(doc_abspath, graph=None):
                 })
     return graph
 
-@APP.route('{}/'.format(ANN_ROOT))
+@APP.route('{}/'.format(ANNS_ROOT))
 def anns():
     dic = _base_dic()
     graph = dic['@graph']
@@ -93,7 +93,7 @@ def anns():
             _fill_graph(doc_abspath, graph=graph)
     return jsonify(dic)
 
-@APP.route('{}/<path:url>/'.format(ANN_ROOT))
+@APP.route('{}/<path:url>/'.format(ANNS_ROOT))
 def ann(url):
     m = TEXTBOUND_REGEX.match(url)
     if m:
