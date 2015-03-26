@@ -71,8 +71,8 @@ def _fill_graph(doc_abspath, graph=None):
             start = ann.first_start()
             end = ann.last_end()
             graph.append({
-                '@id': '{}/{}'.format(anns_url, ann.id),
-                'target': '{}#char={},{}'.format(doc_url, start, end),
+                '@id': '{}/{}/'.format(anns_url, ann.id),
+                'target': '{}/#char={},{}'.format(doc_url, start, end),
                 'body': ann.type,
                 'serializedAt': datetime.utcnow().isoformat(),
                 'annotatedAt': datetime.fromtimestamp(0).isoformat(),
@@ -100,13 +100,31 @@ def ann(url):
         doc_url, _id = m.groups()
         doc_abspath = path_join(DATA_DIR, doc_url)
         for ann in _fill_graph(doc_abspath):
-            if ann['@id'].endswith(_id):
+            if ann['@id'].endswith('{}/'.format(_id)):
                 return jsonify(ann)
     else:
         dic = _base_dic()
         doc_abspath = path_join(DATA_DIR, url)
         _fill_graph(doc_abspath, dic['@graph'])
         return jsonify(dic)
+
+@APP.route('{}/<path:url>/'.format(ANNS_ROOT), methods=('DELETE', ))
+def del_ann(url):
+    m = TEXTBOUND_REGEX.match(url)
+    if m:
+        doc_url, _id = m.groups()
+        doc_abspath = path_join(DATA_DIR, doc_url)
+        with TextAnnotations(doc_abspath) as ann_obj:
+            for ann in ann_obj:
+                if ann.id != _id:
+                    continue
+                ann_obj.del_annotation(ann)
+                break
+            else:
+                pass # TODO: ID not found.
+        return ('', 204, )
+    else:
+        pass # TODO: We do not support the deletion of documents.
 
 def main(argv):
     print 'WARNING: No security features, only use for localhost.'
