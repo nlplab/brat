@@ -71,6 +71,7 @@ def _fill_graph(doc_abspath, graph=None):
             start = ann.first_start()
             end = ann.last_end()
             graph.append({
+                '@type': 'http://www.w3.org/ns/oa#Annotation',
                 '@id': '{}/{}/'.format(anns_url, ann.id),
                 'target': '{}/#char={},{}'.format(doc_url, start, end),
                 'body': ann.type,
