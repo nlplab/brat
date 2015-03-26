@@ -115,8 +115,7 @@ def _pairwise(it):
     next(b, None)
     return izip(a, b)
 
-@APP.route('{}/'.format(ANNS_ROOT), methods=('POST', ))
-def add_ann():
+def add_or_update_ann(method):
     req_json = request.get_json(force=True)
     tgt_soup = urlparse(req_json['target'])
     spans = tuple(_pairwise(map(int,
@@ -124,12 +123,38 @@ def add_ann():
     doc = tgt_soup.path[len(DOC_ROOT):].lstrip('/')
     doc_abspath = path_join(DATA_DIR, doc).rstrip('/')
     with TextAnnotations(doc_abspath) as ann_obj:
-        _id = ann_obj.get_new_id('T')
-        ann = TextBoundAnnotation(spans, _id, req_json['body'], '')
-        ann_obj.add_annotation(ann)
+        if method == 'POST':
+            _id = ann_obj.get_new_id('T')
+            ann = TextBoundAnnotation(spans, _id, req_json['body'], '')
+            ann_obj.add_annotation(ann)
+        elif method == 'PUT':
+            # There is a redundancy here, we could get the ID from the URL.
+            _id = req_json['@id'].rstrip('/').split('/')[-1]
+            for ann in ann_obj:
+                if ann.id != _id:
+                    continue
+                ann.spans = spans
+                ann.type = req_json['body']
+                ann.text = ''
+                break
+            else:
+                return ('', 404, )
+        else:
+            assert False, 'Unknown method'
     for ann in _fill_graph(doc_abspath):
-        if ann['@id'].endswith('{}/'.format(_id)):
-            return jsonify(ann)
+        if not ann['@id'].endswith('{}/'.format(_id)):
+            continue
+        return jsonify(ann)
+    else:
+        pass # Annotation not found.
+
+@APP.route('{}/'.format(ANNS_ROOT), methods=('POST', ))
+def add_ann():
+    return add_or_update_ann('POST')
+
+@APP.route('{}/<path:url>/'.format(ANNS_ROOT), methods=('PUT', ))
+def update_ann(url):
+    return add_or_update_ann('PUT')
 
 @APP.route('{}/<path:url>/'.format(ANNS_ROOT), methods=('DELETE', ))
 def del_ann(url):
