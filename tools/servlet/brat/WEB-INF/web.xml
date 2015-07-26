@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Probably a minimal configuration for Python CGI servlet. -->
+<!-- Probably a minimal configuration for a Python CGI servlet. -->
 <web-app>
     <display-name>brat rapid annotation tool (brat)</display-name>
     <description>brat rapid annotation tool (brat)</description>
@@ -8,19 +8,20 @@
         <servlet-class>org.apache.catalina.servlets.CGIServlet</servlet-class>
         <init-param>
             <param-name>executable</param-name>
-	    <!--The version of python used by brat. If, for example, you're 
-		running a *nix distro with a strict native python that is 
-		incompatible with brat you will want to install an alternative
-		python version and set that here.-->
+            <!-- The name of the binary used to run brat. If, for example,
+                 you're using a *NIX distro with a strict native Python that is
+                 incompatible with brat you will want to install an alternative
+                 Python version and set the corresponding binary name or path
+                 here. -->
             <param-value>python</param-value>
         </init-param>
         <init-param>
-          <param-name>cgiPathPrefix</param-name>
-          <param-value></param-value>
+            <param-name>cgiPathPrefix</param-name>
+            <param-value></param-value>
         </init-param>
     </servlet>
     <!-- Serve what is necessary to run brat statically
-         Note: If anyone know a better way than to list things explicitly,
+         Note: If anyone knows a better way than to list things explicitly,
             please do tell me. -->
     <servlet-mapping>
         <servlet-name>default</servlet-name>
@@ -39,4 +40,3 @@
         <url-pattern>*.cgi</url-pattern>
     </servlet-mapping>
 </web-app>
-
