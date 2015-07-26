@@ -9,9 +9,11 @@ exercise.
 
 First, some words on how this works. You will attempt a WAR (Web application
 ARchive) containing a working brat installation. This means you will first
-have to install brat as usual and deploy your data. Deploy your brat
-installation in `brat/WEB-INF/cgi`, then, proving that you don't need ant to
-build something Java-ish, simply run:
+have to install brat as usual and deploy your data. Create the brat folder
+structure as shown (`brat/WEB-INF`, `brat/META-INF`) with the given web.xml and
+context.xml. Copy your previously installed brat installation to `brat/`, then, 
+proving that you don't need ant to build something Java-ish, simply go to the 
+parent folder of `brat`, where GNUmakefile is, and run:
 
     make
 
