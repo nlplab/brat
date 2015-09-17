@@ -12,11 +12,12 @@ Version:    2011-04-22
 # XXX: This module is messy, re-factor to be done
 
 from __future__ import with_statement
-
+from signal import signal, SIGPIPE, SIG_DFL
 from os.path import join as path_join
 from os.path import split as path_split
 from re import compile as re_compile
-
+import sys
+import logging
 from annotation import (OnelineCommentAnnotation, TEXT_FILE_SUFFIX,
         TextAnnotations, DependingAnnotationDeleteError, TextBoundAnnotation,
         EventAnnotation, EquivAnnotation, open_textfile,
@@ -31,6 +32,8 @@ from document import real_directory
 from jsonwrap import loads as json_loads, dumps as json_dumps
 from message import Messager
 from projectconfig import ProjectConfiguration, ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY
+
+signal(SIGPIPE,SIG_DFL) 
 
 ### Constants
 MUL_NL_REGEX = re_compile(r'\n+')
@@ -182,7 +185,7 @@ def _text_for_offsets(text, offsets):
         Messager.error('_text_for_offsets: failed to get text for given offsets (%s)' % str(offsets))
         raise ProtocolArgumentError
 
-def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
+def _edit_span(ann_obj, mods, id, start, end, projectconf, attributes, type,
         undo_resp={}):
     #TODO: Handle failure to find!
     ann = ann_obj.get_ann_by_id(id)
@@ -204,30 +207,32 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
     undo_resp['offsets'] = tb_ann.spans[:]
     undo_resp['type'] = tb_ann.type
 
-    if not _offsets_equal(tb_ann.spans, offsets):
-        if not isinstance(tb_ann, TextBoundAnnotation):
-            # TODO XXX: the following comment is no longer valid 
-            # (possibly related code also) since the introduction of
-            # TextBoundAnnotationWithText. Check.
+    if not isinstance(tb_ann, TextBoundAnnotation):
+        # TODO XXX: the following comment is no longer valid
+        # (possibly related code also) since the introduction of
+        # TextBoundAnnotationWithText. Check.
 
-            # This scenario has been discussed and changing the span inevitably
-            # leads to the text span being out of sync since we can't for sure
-            # determine where in the data format the text (if at all) it is
-            # stored. For now we will fail loudly here.
-            error_msg = ('unable to change the span of an existing annotation'
-                    '(annotation: %s)' % repr(tb_ann))
-            Messager.error(error_msg)
-            # Not sure if we only get an internal server error or the data
-            # will actually reach the client to be displayed.
-            assert False, error_msg
-        else:
-            # TODO: Log modification too?
-            before = unicode(tb_ann)
-            #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
-            tb_ann.spans = offsets[:]
-            tb_ann.text = _text_for_offsets(ann_obj._document_text, tb_ann.spans)
-            #log_info('Span altered')
-            mods.change(before, tb_ann)
+        # This scenario has been discussed and changing the span inevitably
+        # leads to the text span being out of sync since we can't for sure
+        # determine where in the data format the text (if at all) it is
+        # stored. For now we will fail loudly here.
+        error_msg = ('unable to change the span of an existing annotation'
+                '(annotation: %s)' % repr(tb_ann))
+        Messager.error(error_msg)
+        # Not sure if we only get an internal server error or the data
+        # will actually reach the client to be displayed.
+        assert False, error_msg
+    else:
+        # TODO: Log modification too?
+        before = unicode(tb_ann)
+        #log_info('Will alter span of: "%s"' % str(to_edit_span).rstrip('\n'))
+        tempstart = int(start)
+        tempend=int(end)
+        tb_ann.spans = [(tempstart,tempend)]
+        tb_ann.text = ann_obj._document_text[tempstart:tempend]
+
+        #log_info('Span altered')
+        mods.change(before, tb_ann)
 
     if ann.type != type:
         if ann_category != projectconf.type_category(type):
@@ -271,11 +276,11 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
                         # Okay, we own the current trigger, but does an
                         # identical to our sought one already exist?
                         found = None
-                        for tb_ann in ann_obj.get_textbounds():
-                            if (_offsets_equal(tb_ann.spans, ann_trig.spans) and
-                                tb_ann.type == ann.type):
-                                found = tb_ann
-                                break
+                        # for tb_ann in ann_obj.get_textbounds():
+                        #     if (_offsets_equal(tb_ann.spans, ann_trig.spans) and
+                        #         tb_ann.type == ann.type):
+                        #         found = tb_ann
+                        #         break
 
                         if found is None:
                             # Just change the trigger type since we are the
@@ -297,66 +302,68 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
             mods.change(before, ann)
     return tb_ann, e_ann
 
-def __create_span(ann_obj, mods, type, offsets, txt_file_path,
+def __create_span(ann_obj, mods, type, start, end, txt_file_path,
         projectconf, attributes):
     # For event types, reuse trigger if a matching one exists.
-    found = None
-    if projectconf.is_event_type(type):
-        for tb_ann in ann_obj.get_textbounds():
-            try:
-                if (_offsets_equal(tb_ann.spans, offsets)
-                    and tb_ann.type == type):
-                    found = tb_ann
-                    break
-            except AttributeError:
-                # Not a trigger then
-                pass
+    # found = None
+    # if projectconf.is_event_type(type):
+    #     for tb_ann in ann_obj.get_textbounds():
+    #         try:
+    #             if (_offsets_equal(tb_ann.spans, offsets)
+    #                 and tb_ann.type == type):
+    #                 found = tb_ann
+    #                 break
+    #         except AttributeError:
+    #             # Not a trigger then
+    #             pass
         
-    if found is None:
+    # if found is None:
         # Get a new ID
-        new_id = ann_obj.get_new_id('T') #XXX: Cons
-        # Get the text span
-        with open_textfile(txt_file_path, 'r') as txt_file:
-            text = txt_file.read()
-            text_span = _text_for_offsets(text, offsets)
+    new_id = ann_obj.get_new_id('T') #XXX: Cons
+    # Get the text span
+    with open_textfile(txt_file_path, 'r') as txt_file:
+        text = txt_file.read()
+        start = int(start)
+        end=int(end)
+        text_span = text[start:end]
 
-        # The below code resolves cases where there are newlines in the
-        #   offsets by creating discontinuous annotations for each span
-        #   separated by newlines. For most cases it preserves the offsets.
-        seg_offsets = []
-        for o_start, o_end in offsets:
-            pos = o_start
-            for text_seg in text_span.split('\n'):
-                if not text_seg and o_start != o_end:
-                    # Double new-line, skip ahead
-                    pos += 1
-                    continue
-                start = pos
-                end = start + len(text_seg)
+    # The below code resolves cases where there are newlines in the
+    #   offsets by creating discontinuous annotations for each span
+    #   separated by newlines. For most cases it preserves the offsets.
+    #seg_offsets = []
+    #for o_start, o_end in offsets:
+    # pos = start
+    # for text_seg in text_span.split('\n'):
+    #     if not text_seg and o_start != o_end:
+    #         # Double new-line, skip ahead
+    #         pos += 1
+    #         continue
+    #     start = pos
+    #     end = start + len(text_seg)
+    #
+    #     # For the next iteration the position is after the newline.
+    #     pos = end + 1
+    #
+    #     # Adjust the offsets to compensate for any potential leading
+    #     #   and trailing whitespace.
+    #     start += len(text_seg) - len(text_seg.lstrip())
+    #     end -= len(text_seg) - len(text_seg.rstrip())
+    #
+    #     # If there is any segment left, add it to the offsets.
+    #     if start != end:
+    #seg_offsets.append((start, end, ))
 
-                # For the next iteration the position is after the newline.
-                pos = end + 1
+    # if we're dealing with a null-span
+    #if not seg_offsets:
+    seg_offsets = [(start, end)]
 
-                # Adjust the offsets to compensate for any potential leading
-                #   and trailing whitespace.
-                start += len(text_seg) - len(text_seg.lstrip())
-                end -= len(text_seg) - len(text_seg.rstrip())
-
-                # If there is any segment left, add it to the offsets.
-                if start != end:
-                    seg_offsets.append((start, end, ))
-
-        # if we're dealing with a null-span
-        if not seg_offsets:
-            seg_offsets = offsets
-
-        ann_text = DISCONT_SEP.join((text[start:end]
-            for start, end in seg_offsets))
-        ann = TextBoundAnnotationWithText(seg_offsets, new_id, type, ann_text)
-        ann_obj.add_annotation(ann)
-        mods.addition(ann)
-    else:
-        ann = found
+    ann_text = DISCONT_SEP.join((text[start:end]
+        for start, end in seg_offsets))
+    ann = TextBoundAnnotationWithText(seg_offsets, new_id, type, ann_text)
+    ann_obj.add_annotation(ann)
+    mods.addition(ann)
+    # else:
+    #     ann = found
 
     if ann is not None:
         if projectconf.is_physical_entity_type(type):
@@ -407,28 +414,27 @@ def _set_attributes(ann_obj, ann, attributes, mods, undo_resp={}):
             ann_obj.add_annotation(new_attr)
             mods.addition(new_attr)
 
-def _json_offsets_to_list(offsets):
-    try:
-        offsets = json_loads(offsets)
-    except Exception:
-        Messager.error('create_span: protocol argument error: expected offsets as JSON, but failed to parse "%s"' % str(offsets))
-        raise ProtocolArgumentError
-    try:
-        offsets = [(int(s),int(e)) for s,e in offsets]
-    except Exception:
-        Messager.error('create_span: protocol argument error: expected offsets as list of int pairs, received "%s"' % str(offsets))
-        raise ProtocolArgumentError
-    return offsets
+#def _json_offsets_to_list(start, end):
+#    try:
+#        offsets = [(int(s),int(e))] json_loads(offsets)
+
+#    except Exception:
+#        return offsets;
+#        Messager.error('create_span: protocol argument error: expected offsets as JSON, but failed to parse "%s"' % str(offsets))
+#        raise ProtocolArgumentError
+#    try:
+#        offsets = [(int(s),int(e)) for s,e in offsets]
+#    except Exception:
+#        Messager.error('create_span: protocol argument error: expected offsets as list of int pairs, received "%s"' % str(offsets))
+#        raise ProtocolArgumentError
+#    return offsets
 
 #TODO: unshadow Python internals like "type" and "id"
-def create_span(collection, document, offsets, type, attributes=None,
-                normalizations=None, id=None, comment=None):
+def create_span(start, end, collection, document, action, type, attributes=None, comment=None, id=None):
     # offsets should be JSON string corresponding to a list of (start,
     # end) pairs; convert once at this interface
-    offsets = _json_offsets_to_list(offsets)
 
-    return _create_span(collection, document, offsets, type, attributes,
-                        normalizations, id, comment)
+    return _create_span(start, end, collection, document, type, attributes , comment, id)
 
 def _set_normalizations(ann_obj, ann, normalizations, mods, undo_resp={}):
     # Find existing normalizations (if any)
@@ -581,17 +587,17 @@ def _offset_overlaps(offsets):
     return False
 
 #TODO: ONLY determine what action to take! Delegate to Annotations!
-def _create_span(collection, document, offsets, _type, attributes=None,
-                 normalizations=None, _id=None, comment=None):
+def _create_span(start, end, collection, document, _type, attributes=None,
+                  comment=None,  _id=None):
 
-    if _offset_overlaps(offsets):
-        raise SpanOffsetOverlapError(offsets)
+   # if _offset_overlaps(offsets):
+    #    raise SpanOffsetOverlapError(offsets)
 
     directory = collection
     undo_resp = {}
 
     _attributes = _parse_attributes(attributes)
-    _normalizations = _parse_span_normalizations(normalizations)
+    # _normalizations = _parse_span_normalizations(normalizations)
 
     #log_info('ATTR: %s' %(_attributes, ))
 
@@ -613,11 +619,11 @@ def _create_span(collection, document, offsets, _type, attributes=None,
 
         if _id is not None:
             # We are to edit an existing annotation
-            tb_ann, e_ann = _edit_span(ann_obj, mods, _id, offsets, projectconf,
+            tb_ann, e_ann = _edit_span(ann_obj, mods, _id, start, end, projectconf,
                     _attributes, _type, undo_resp=undo_resp)
         else:
             # We are to create a new annotation
-            tb_ann, e_ann = __create_span(ann_obj, mods, _type, offsets, txt_file_path,
+            tb_ann, e_ann = __create_span(ann_obj, mods, _type, start, end, txt_file_path,
                     projectconf, _attributes)
 
             undo_resp['action'] = 'add_tb'
@@ -640,8 +646,8 @@ def _create_span(collection, document, offsets, _type, attributes=None,
                         undo_resp=undo_resp)
 
         # Set normalizations
-        _set_normalizations(ann_obj, target_ann, _normalizations, mods,
-                            undo_resp=undo_resp)
+        # _set_normalizations(ann_obj, target_ann, _normalizations, mods,
+        #                     undo_resp=undo_resp)
 
         # Set comments
         if tb_ann is not None:
