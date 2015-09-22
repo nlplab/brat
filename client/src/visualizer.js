@@ -2743,3 +2743,4 @@ var Visualizer = (function($, window, undefined) {
 
     return Visualizer;
 })(jQuery, window);
+
