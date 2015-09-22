@@ -44,4 +44,3 @@ Z.prototype.C=function(a){var b=this.protocol(),c=(this.d.api||"fast.fonts.com/j
 window.WebFont.q("monotype",function(a){var b=(new z(navigator.userAgent,document)).parse();return new Z(window,b,new o(document,b),document,a)});function $(a,b,c){this.m=a;this.a=b;this.d=c;this.f=[];this.s={}}$.prototype.C=function(a){var b="https:"==window.location.protocol?"https:":"http:";return(this.d.api||b+"//use.typekit.com")+"/"+a+".js"};$.prototype.z=function(a,b){var c=this.d.id,d=this.d,e=this;if(c){this.m.__webfonttypekitmodule__||(this.m.__webfonttypekitmodule__={});this.m.__webfonttypekitmodule__[c]=function(f){f(a,d,function(g,h,l){e.f=h;e.s=l;b(g)})};r(this.a,"head",u(this.a,this.C(c)))}else b(true)};
 $.prototype.load=function(a){a(this.f,this.s)};window.WebFont.q("typekit",function(a){var b=(new z(navigator.userAgent,document)).parse();return new $(window,new o(document,b),a)});window.WebFontConfig&&window.WebFont.load(window.WebFontConfig);
 })(this,document);
-
