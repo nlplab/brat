@@ -201,7 +201,7 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         e.json(json_dic)
 
         # Add a human-readable version of the error
-        err_str = str(e)
+        err_str = unicode(e)
         if err_str != '':
             Messager.error(err_str, duration=-1)
     except NoPrintJSONError, e:
