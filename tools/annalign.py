@@ -279,7 +279,11 @@ def match_cost(a, b):
         else:
             return 10
     else:
-        return -1000
+        if a.isspace() and b.isspace():
+            # low cost for space-to-space mismatches
+            return 0
+        else:
+            return -1000
     
 def space_boundary(s, i):
     if (i == 0 or s[i-1].isspace() != s[i].isspace() or
@@ -329,7 +333,7 @@ def swchoice(A, B, i, j, F, choices):
 
     if best == match:        
         choice = CH_MATCH
-        if A[i-1] != B[j-1]:
+        if DEBUG and A[i-1] != B[j-1]:
             print >> sys.stderr, "MISMATCH! '%s' vs '%s'" % (A[i-1], B[j-1])
     elif best == delete:
         choice = del_choice
