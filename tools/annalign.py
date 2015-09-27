@@ -294,7 +294,7 @@ def delete_cost(A, B, i, j, choices):
     if choices[i-1][j] == CH_DELETE:
         # standard gap extend
         return -1, CH_DELETE
-    elif A[i-1].isspace() and (B[j-1].isspace() or space_boundary(B, j-i)):
+    elif A[i-1].isspace() and (B[j-1].isspace() or space_boundary(B, j-1)):
         # cheap space gap
         return -1, CH_SPC_DELETE
     elif space_boundary(B, j-1) and space_boundary(A, i-1):
