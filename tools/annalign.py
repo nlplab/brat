@@ -55,6 +55,21 @@ class Annotation(object):
 def escape_tb_text(s):
     return s.replace('\n', '\\n')
 
+def is_newline(c):
+    # from http://stackoverflow.com/a/18325046
+    return c in (
+        u'\u000A',    # LINE FEED
+        u'\u000B',    # VERTICAL TABULATION
+        u'\u000C',    # FORM FEED
+        u'\u000D',    # CARRIAGE RETURN
+        u'\u001C',    # FILE SEPARATOR
+        u'\u001D',    # GROUP SEPARATOR
+        u'\u001E',    # RECORD SEPARATOR
+        u'\u0085',    # NEXT LINE
+        u'\u2028',    # LINE SEPARATOR
+        u'\u2029'     # PARAGRAPH SEPARATOR
+    )
+
 class Textbound(Annotation):
     def __init__(self, id_, type_, offsets, text):
         Annotation.__init__(self, id_, type_)
@@ -73,9 +88,34 @@ class Textbound(Annotation):
             remapped.append(mapper.remap(start, end))
         self.offsets = remapped
 
+    def fragment(self, text):
+        # Remapping may create spans that extend over newlines, which
+        # brat doesn't handle well. Break any such span into multiple
+        # fragments that skip newlines.
+        fragmented = []
+        for start, end in self.offsets:
+            while start < end:
+                while start < end and is_newline(text[start]):
+                    start += 1 # skip initial newlines
+                fend = start
+                while fend < end and not is_newline(text[fend]):
+                    fend += 1 # find max sequence of non-newlines
+                if fend > start:
+                    fragmented.append((start, fend))
+                start = fend
+
+        # Switch to fragmented. Edge case: if offsets now only span
+        # newlines, replace them with a single zero-length span at
+        # the start of the first original span.
+        if fragmented:
+            self.offsets = fragmented
+        else:
+            self.offsets = [(self.offsets[0][0], self.offsets[0][0])]
+
     def retext(self, text):
-        assert len(self.offsets) == 1
-        self.text = text[self.offsets[0][0]:self.offsets[0][1]]
+        self.text = ' '.join(text[o[0]:o[1]] for o in self.offsets)
+        if any(is_newline(c) for c in self.text):
+            print >> sys.stderr, 'Warning: newline in text: %s' % self.text
 
     def __unicode__(self):
         return u"%s\t%s %s\t%s" % (self.id_, self.type_, 
@@ -622,6 +662,7 @@ def main(argv=None):
 
     for a in annotations:
         a.remap(Remapper(offset_map))
+        a.fragment(newtext)
         a.retext(newtext)
         print unicode(a).encode(options.encoding)
 
