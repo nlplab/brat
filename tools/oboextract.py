@@ -268,9 +268,9 @@ def argparser():
     ap.add_argument("-ns", "--no-synonyms", default=False, action="store_true", help="Do not extract synonyms.")
     ap.add_argument("-nd", "--no-definitions", default=False, action="store_true", help="Do not extract definitions.")
     ap.add_argument("-e", "--exclude", default=[], metavar="TERM", nargs="+", help="Exclude subtrees rooted at given TERMs.")
-    ap.add_argument("-s", "--separate-children", default=[], default=False, action="store_true", help="Separate subontologies found as children of the given term.")
+    ap.add_argument("-s", "--separate-children", default=False, action="store_true", help="Separate subontologies found as children of the given term.")
     ap.add_argument("file", metavar="OBO-FILE", help="Source ontology.")
-    ap.add_argument("-p", "--separate-parents", default=[], default=False, action="store_true", help="Separate subontologies of parents of the given terms.")
+    ap.add_argument("-p", "--separate-parents", default=False, action="store_true", help="Separate subontologies of parents of the given terms.")
     ap.add_argument("terms", default=[], metavar="TERM", nargs="*", help="Root terms from which to extract.")
     return ap
 
