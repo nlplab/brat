@@ -341,7 +341,9 @@ def main(argv=None):
             arg.terms[i] = case_normalize_initial(arg.terms[i])
 
     f = open(fn)
-    all_terms, term_by_id = parse_obo(f, limit_prefixes)
+    if limit_prefixes:
+        print >> sys.stderr, 'None: experimental: applying limit_prefixes only in output'
+    all_terms, term_by_id = parse_obo(f, None) # limit_prefixes)
     # resolve references, e.g. the is_a ID list into parent and child
     # object references
     for t in all_terms:
@@ -455,6 +457,8 @@ def main(argv=None):
 #             for n, tid, ntype in get_subtree_terms(rootterm):
 #                 print "%s\t%s\t%s" % (n, tid, ntype)
             for t in get_subtree_terms(rootterm):
+                if limit_prefixes and t.obo_idspace() not in limit_prefixes:
+                    continue
                 strs = []
                 strs.append("name:Name:"+t.name)
                 if not arg.no_synonyms:
