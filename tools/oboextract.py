@@ -197,7 +197,7 @@ def parse_obo(f, limit_prefixes=None, include_nameless=False):
             assert name is not None
             # more permissive, there's strange stuff out there
             #m = re.match(r'^synonym: "([^"]*)" ([A-Za-z_ ]*?) *\[.*\]\s*$', l)
-            m = re.match(r'^synonym: "(.*)" ([A-Za-z_ ]*?) *\[.*\]\s*$', l)
+            m = re.match(r'^synonym: "(.*)" ([A-Za-z_ -]*?) *\[.*\]\s*(?:\{.*\}\s*)?$', l)
             assert m is not None, "Error: failed to parse '%s'" % l
             synstr, syntype = m.groups()
             if synstr == "":
@@ -207,7 +207,7 @@ def parse_obo(f, limit_prefixes=None, include_nameless=False):
         elif re.match(r'^def:.*', l) and not skip_block:
             assert tid is not None
             assert name is not None
-            m = re.match(r'^def: "(.*)" *\[.*\]\s*$', l)
+            m = re.match(r'^def: "(.*)" *\[.*\]\s*(?:\{.*\}\s*)?$', l)
             assert m is not None, "Error: failed to parse '%s'" % l
             definition = m.group(1)
             if definition == "":
