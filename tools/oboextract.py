@@ -33,12 +33,12 @@ class Term:
         self.is_a     = is_a     if is_a     is not None else []
         self.part_of  = part_of  if part_of  is not None else []
 
-        self.parents  = []
-        self.children = []
+        self.parents  = set()
+        self.children = set()
 
         # part_of "parents" and "children"
-        self.objects    = []
-        self.components = []
+        self.objects    = set()
+        self.components = set()
 
         self.cleanup()
 
@@ -73,8 +73,8 @@ class Term:
             if self in parent.children:
                 print >> sys.stderr, "Warning: dup is-a parent %s for %s, ignoring" % (ptid, str(self))
             else:
-                self.parents.append(parent)
-                parent.children.append(self)
+                self.parents.add(parent)
+                parent.children.add(self)
 
         # part_of
         for prel, ptid, pname in self.part_of:
@@ -88,8 +88,8 @@ class Term:
             if self in pobject.components:
                 print >> sys.stderr, "Warning: dup part-of parent %s for %s, ignoring" % (ptid, str(self))
             else:
-                self.objects.append((prel, pobject))
-                pobject.components.append((prel, self))
+                self.objects.add((prel, pobject))
+                pobject.components.add((prel, self))
 
     def _case_normalize(self, cn_func):
         self.name = cn_func(self.name)
@@ -376,8 +376,8 @@ def main(argv=None):
 
     # mark children and parents
     for t in all_terms:
-        t.children = []
-        t.parents  = []
+        t.children = set()
+        t.parents  = set()
     for t in all_terms:
         for ptid, pname in t.is_a:
             if ptid not in term_by_id:
@@ -392,8 +392,8 @@ def main(argv=None):
             if t in parent.children:
                 print >> sys.stderr, "Warning: ignoring dup parent %s for %s" % (ptid, str(t))
             else:
-                t.parents.append(parent)
-                parent.children.append(t)
+                t.parents.add(parent)
+                parent.children.add(t)
 
     for t in all_terms:
         t.traversed = False
