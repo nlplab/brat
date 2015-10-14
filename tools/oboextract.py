@@ -468,7 +468,7 @@ def main(argv=None):
                         strs.append("name:Synonym:"+synstr)
                 if not arg.no_definitions:
                     for d in t.defs:
-                        strs.append("info:Definition:"+d)
+                        strs.append("info:Definition:"+d.replace('\t', ' '))
                 # don't include ontology prefix in ID
                 id_ = t.tid.replace(t.obo_idspace()+':', '', 1) 
                 print id_ + '\t' + '\t'.join(strs)
