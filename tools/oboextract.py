@@ -456,7 +456,9 @@ def main(argv=None):
             # block
 #             for n, tid, ntype in get_subtree_terms(rootterm):
 #                 print "%s\t%s\t%s" % (n, tid, ntype)
-            for t in get_subtree_terms(rootterm):
+            root_stt = []
+            get_subtree_terms(rootterm, root_stt)
+            for t in root_stt:
                 if limit_prefixes and t.obo_idspace() not in limit_prefixes:
                     continue
                 strs = []
