@@ -339,7 +339,7 @@ class TypeHierarchyNode:
 
     def argument_minimum_count(self, arg):
         """
-        Returns the minumum number of times the given argument is
+        Returns the minimum number of times the given argument is
         required to appear for this type.
         """
         return self.arg_min_count.get(arg, 0)
