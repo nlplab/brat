@@ -62,7 +62,7 @@ class InvalidTaggerResponseError(ProtocolError):
     def __str__(self):
         return (('The tagger "%s" returned an invalid JSON response, please '
             'contact the tagger service mantainer. Response: "%s"')
-            % (self.tagger, self.response, ))
+            % (self.tagger, self.response.decode('utf-8'), ))
 
     def json(self, json_dic):
         json_dic['exception'] = 'unknownTaggerError'

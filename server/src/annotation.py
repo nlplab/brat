@@ -262,7 +262,7 @@ class Annotations(object):
     def _select_input_files(self, document):
         """
         Given a document name (path), returns a list of the names of
-        specific annotation files relevant do the document, or the
+        specific annotation files relevant to the document, or the
         empty list if none found. For example, given "1000", may
         return ["1000.a1", "1000.a2"]. May set self._read_only flag to
         True.
@@ -692,7 +692,7 @@ class Annotations(object):
         #XXX: Stupid and linear
         if suffix is None:
             suffix = ''
-        #XXX: Arbitary constant!
+        #XXX: Arbitrary constant!
         for suggestion in (prefix + unicode(i) + suffix for i in xrange(1, 2**15)):
             # This is getting more complicated by the minute, two checks since
             # the developers no longer know when it is an id or string.
@@ -786,7 +786,7 @@ class Annotations(object):
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail, source_id=input_file_path)
 
-    # Parse an old modifier annotation for back-wards compability
+    # Parse an old modifier annotation for backwards compatibility
     def _parse_modifier_annotation(self, id, data, data_tail, input_file_path):
         type, target = data.split()
         return AttributeAnnotation(target, id, type, data_tail, True, source_id=input_file_path)

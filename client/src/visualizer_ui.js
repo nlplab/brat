@@ -592,18 +592,21 @@ var VisualizerUI = (function($, window, undefined) {
         // but is much faster than dialog('open') for large dialogs, see
         // https://github.com/nlplab/brat/issues/934
 
-        var widget = $dialog.data('dialog');
-        if (widget._isOpen) { return; }
+        var self = $dialog.dialog('instance');
+        
+        if (self._isOpen) { return; }
 
-        var self = widget,
-                options = self.options,
-                uiDialog = self.uiDialog;
-
-        self.overlay = options.modal ? new $.ui.dialog.overlay(self) : null;
-        self._size();
-        uiDialog.show(options.show);
-        self.moveToTop(true);
         self._isOpen = true;
+        self.opener = $(self.document[0].activeElement);
+
+        self._size();
+        self._createOverlay();
+        self._moveToTop(null, true);
+
+        if (self.overlay) {
+          self.overlay.css( "z-index", self.uiDialog.css( "z-index" ) - 1 );
+        }
+        self._show(self.uiDialog, self.options.show);
         self._trigger('open');
       };
 
@@ -859,7 +862,7 @@ var VisualizerUI = (function($, window, undefined) {
             if (formatted === null) {
               var m = type.match(/^(.*?)(?:\/(right))?$/);
               cssClass = m[2] ? 'rightalign' : null;
-              formatted = $.sprintf(m[1], datum);
+              formatted = sprintf(m[1], datum);
             }
             html.push('<td' + (cssClass ? ' class="' + cssClass + '"' : '') + '>' +
                 formatted + '</td>');
@@ -1002,7 +1005,7 @@ var VisualizerUI = (function($, window, undefined) {
         };
       };
 
-      $('#search_form_event_roles .search_event_role select').live('change', searchEventRoleChanged);
+      $('#search_form_event_roles').on('change', '.search_event_role select', searchEventRoleChanged);
 
       // adding new role rows
       var addEmptySearchEventRole = function() {
@@ -1046,8 +1049,8 @@ var VisualizerUI = (function($, window, undefined) {
         $row.remove();
       }
 
-      $('#search_form_event_roles .search_event_role_add input').live('click', addEmptySearchEventRole);
-      $('#search_form_event_roles .search_event_role_del input').live('click', delSearchEventRole);
+      $('#search_form_event_roles').on('click', '.search_event_role_add input', addEmptySearchEventRole);
+      $('#search_form_event_roles').on('click', '.search_event_role_del input', delSearchEventRole);
 
       // When event type changes, the event roles do as well
       // Also, put in one empty role row
@@ -1156,7 +1159,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var activeSearchTab = function() {
         // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation, 4 = Notes, 5 = Load
-        var activeTab = $('#search_tabs').tabs('option', 'selected');
+        var activeTab = $('#search_tabs').tabs('option', 'active');
         return ['searchText', 'searchEntity', 'searchEvent',
             'searchRelation', 'searchNote', 'searchLoad'][activeTab];
       }
@@ -1988,7 +1991,8 @@ var VisualizerUI = (function($, window, undefined) {
 
 
       var tutorialForm = $('#tutorial');
-      if (!$.browser.webkit) {
+      var isWebkit = 'WebkitAppearance' in document.documentElement.style;
+      if (!isWebkit) {
         // Inject the browser warning
         $('#browserwarning').css('display', 'block');
       }

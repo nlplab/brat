@@ -319,7 +319,7 @@ var Visualizer = (function($, window, undefined) {
       var minArcSlant = 8;
       var arcHorizontalSpacing = 10; // min space boxes with connecting arc
       var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
-      var sentNumMargin = 20;
+      var sentNumMargin = 31;
       var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
       var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
       var reverseArcControlx = 5;   // control point distance for "UFO catchers"
@@ -379,13 +379,6 @@ var Visualizer = (function($, window, undefined) {
         'AddedAnnotation', 'MissingAnnotation', 'ChangedAnnotation'];
 
       this.arcDragOrigin = null; // TODO
-
-      // due to silly Chrome bug, I have to make it pay attention
-      var forceRedraw = function() {
-        if (!$.browser.chrome) return; // not needed
-        $svg.css('margin-bottom', 1);
-        setTimeout(function() { $svg.css('margin-bottom', 0); }, 0);
-      }
 
       var rowBBox = function(span) {
         var box = $.extend({}, span.rectBox); // clone
@@ -1426,6 +1419,14 @@ Util.profileStart('chunks');
 
         $.each(data.spanDrawOrderPermutation, function(spanIdNo, spanId) {
           var span = data.spans[spanId];
+          var spanDesc = spanTypes[span.type];
+          var bgColor = ((spanDesc && spanDesc.bgColor) ||
+                          (spanTypes.SPAN_DEFAULT &&
+                          spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
+          if (bgColor == "hidden") {
+            span.hidden = true;
+            return;
+          }
 
           var f1 = span.fragments[0];
           var f2 = span.fragments[span.fragments.length - 1];
@@ -1550,7 +1551,6 @@ Util.profileStart('chunks');
             }
           }
 
-          reservations = new Array();
           chunk.group = svg.group(row.group);
           chunk.highlightGroup = svg.group(chunk.group);
 
@@ -1571,6 +1571,7 @@ Util.profileStart('chunks');
             var bgColor = ((spanDesc && spanDesc.bgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
+            if (span.hidden) return;
             var fgColor = ((spanDesc && spanDesc.fgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.fgColor) || '#000000');
@@ -1922,9 +1923,8 @@ Util.profileStart('chunks');
             // if we added a gap, center the intervening elements
             spacing /= 2;
             var firstChunkInRow = row.chunks[row.chunks.length - 1];
-            if (firstChunkInRow === undefined) {
-              console.log('warning: firstChunkInRow undefined, chunk:', chunk);
-            } else { // valid firstChunkInRow
+            // are there already some intervening chunks to move?
+            if (firstChunkInRow) {
               if (spacingChunkId < firstChunkInRow.index) {
                 spacingChunkId = firstChunkInRow.index + 1;
               }
@@ -1968,6 +1968,10 @@ Util.profileStart('arcsPrep');
           arc.jumpHeight = 0;
           var fromFragment = data.spans[arc.origin].headFragment;
           var toFragment = data.spans[arc.target].headFragment;
+          if (fromFragment.span.hidden || toFragment.span.hidden) {
+            arc.hidden = true;
+            return;
+          }
           if (fromFragment.towerId > toFragment.towerId) {
             var tmp = fromFragment; fromFragment = toFragment; toFragment = tmp;
           }
@@ -2055,6 +2059,7 @@ Util.profileStart('arcs');
         var arcCache = {};
         // add the arcs
         $.each(data.arcs, function(arcNo, arc) {
+          if (arc.hidden) return;
           // separate out possible numeric suffix from type
           var noNumArcType;
           var splitArcType;
@@ -2107,6 +2112,7 @@ Util.profileStart('arcs');
           var color = ((arcDesc && arcDesc.color) ||
                        (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
                        '#000000');
+          if (color == 'hidden') return;
           var symmetric = arcDesc && arcDesc.properties && arcDesc.properties.symmetric;
           var dashArray = arcDesc && arcDesc.dashArray;
           var arrowHead = ((arcDesc && arcDesc.arrowHead) ||
@@ -2733,11 +2739,12 @@ Util.profileStart('chunkFinish');
             orderedIdx.sort(function(a,b) { return Util.cmp(chunk.fragments[b].nestingHeight, chunk.fragments[a].nestingHeight) });
 
             for(var i=0; i<chunk.fragments.length; i++) {
-              var fragment=chunk.fragments[orderedIdx[i]];
+              var fragment = chunk.fragments[orderedIdx[i]];
               var spanDesc = spanTypes[fragment.span.type];
               var bgColor = ((spanDesc && spanDesc.bgColor) ||
                              (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
                              '#ffffff');
+              if (fragment.span.hidden) continue;
 
               // Tweak for nesting depth/height. Recognize just three
               // levels for now: normal, nested, and nesting, where
@@ -2816,6 +2823,7 @@ Util.profileStart('finish');
 
         $svg.width(canvasWidth);
         $svg.height(y);
+        $svg.attr("viewBox", "0 0 " + canvasWidth + " " + y);
         $svgDiv.height(y);
 
 Util.profileEnd('finish');
@@ -2946,6 +2954,7 @@ Util.profileStart('before render');
           var bgColor = ((spanDesc && spanDesc.bgColor) ||
                          (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
                          '#ffffff');
+          if (span.hidden) return;
           highlight = [];
           $.each(span.fragments, function(fragmentNo, fragment) {
             highlight.push(svg.rect(highlightGroup,
@@ -3001,7 +3010,6 @@ Util.profileStart('before render');
                 parent().
                 addClass('highlight');
           }
-          forceRedraw();
         } else if (!that.arcDragOrigin && (id = target.attr('data-arc-role'))) {
           var originSpanId = target.attr('data-arc-origin');
           var targetSpanId = target.attr('data-arc-target');
@@ -3069,7 +3077,6 @@ Util.profileStart('before render');
           highlightSpans.removeClass('highlight');
           highlightSpans = undefined;
         }
-        forceRedraw();
       };
 
       var setAbbrevs = function(_abbrevsOn) {

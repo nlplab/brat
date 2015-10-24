@@ -42,7 +42,7 @@ brat does this by:
     "Put all your eggs in one basket, and then guard that basket!")
 * Present text as it would appear to a reader and maintain annotations close
     to the text
-* Zero set-up for annotators, leave configurations and server/data maintainence
+* Zero set-up for annotators, leave configurations and server/data maintenance
     to other staff
 
 ## License ##

@@ -12,6 +12,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var data = null;
       var searchConfig = null;
       var spanOptions = null;
+      var lockOptions = null;
       var rapidSpanOptions = null;
       var arcOptions = null;
       var spanKeymap = null;
@@ -114,6 +115,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var code = evt.which;
 
         if (code === $.ui.keyCode.ESCAPE) {
+          setTypeLock(false);
           stopArcDrag();
           hideForm();
           if (reselectedSpan) {
@@ -205,6 +207,7 @@ var AnnotatorUI = (function($, window, undefined) {
           if (eventDescId) {
             var eventDesc = data.eventDescs[eventDescId];
             arcOptions.id = eventDescId;
+            arcOptions.comment = eventDesc.comment && eventDesc.comment.text;
             if (eventDesc.equiv) {
               arcOptions['left'] = eventDesc.leftSpans.join(',');
               arcOptions['right'] = eventDesc.rightSpans.join(',');
@@ -232,9 +235,14 @@ var AnnotatorUI = (function($, window, undefined) {
             type: editedSpan.type,
             id: id,
           };
-          fillSpanTypesAndDisplayForm(evt, editedSpan.text, editedSpan);
-          // for precise timing, log annotation display to user.
-          dispatcher.post('logAction', ['spanEditSelected']);
+          if (lockOptions) {
+            spanFormSubmit();
+            dispatcher.post('logAction', ['spanLockEditSubmitted']);
+          } else {
+            fillSpanTypesAndDisplayForm(evt, editedSpan.text, editedSpan);
+            // for precise timing, log annotation display to user.
+            dispatcher.post('logAction', ['spanEditSelected']);
+          }
         }
 
         // if not an arc or a span, is this a double-click on text?
@@ -247,6 +255,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
 
       var startArcDrag = function(originId) {
+        if (reselectedSpan) return;
         clearSelection();
         svgPosition = svgElement.offset();
         svgElement.addClass('unselectable');
@@ -886,10 +895,12 @@ var AnnotatorUI = (function($, window, undefined) {
 
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
+          
+          showAllAttributes = false;
+          
           var entityAttrCount = showAttributesFor(entityAttributeTypes, 'entity', type);
           var eventAttrCount = showAttributesFor(eventAttributeTypes, 'event', type);
           
-          showAllAttributes = false;
           // show attribute frames only if at least one attribute is
           // shown, and set size classes appropriately
           if (eventAttrCount > 0) {
@@ -1142,7 +1153,8 @@ var AnnotatorUI = (function($, window, undefined) {
         focus: function(evt, ui) {
           // do nothing
         },
-      }).data('autocomplete')._renderItem = function($ul, item) {
+      }).autocomplete('instance')._renderItem = function($ul, item) {
+        // XXX TODO TEST
         return $('<li></li>').
           data('item.autocomplete', item).
           append('<a>' + Util.escapeHTML(item.value) + '<div class="autocomplete-id">' + Util.escapeHTML(item.id) + "</div></a>").
@@ -1698,7 +1710,10 @@ var AnnotatorUI = (function($, window, undefined) {
             svgElement.removeClass('reselect');
           } else
 */
-          if (!Configuration.rapidModeOn || reselectedSpan != null) {
+          if (lockOptions) {
+            spanFormSubmit();
+            dispatcher.post('logAction', ['spanLockNewSubmitted']);
+          } else if (!Configuration.rapidModeOn || reselectedSpan != null) {
             // normal span select in standard annotation mode
             // or reselect: show selector
             var spanText = data.text.substring(selectedFrom, selectedTo);
@@ -1941,10 +1956,6 @@ var AnnotatorUI = (function($, window, undefined) {
             $select.change(onMultiAttrChange);
           }
         });
-        // Now that we're using comboboxes/buttons, the underlying input elements generally won't get
-        // notified of the change events anymore, so we ensure that attribute changes are still noticed.
-        $('.attribute_type_label .ui-combobox').on("autocompletechange", function(event, ui) { onMultiAttrChange(event); });
-        $('.attribute_type_label .ui-button').click(onBooleanAttrChange);
       }
 
       var setSpanTypeSelectability = function(category) {
@@ -2347,7 +2358,10 @@ var AnnotatorUI = (function($, window, undefined) {
       });
       dispatcher.post('initForm', [splitForm, {
           alsoResize: '.scroll_fset',
-          width: 400
+          width: 400,
+          open: function() {
+            $('#split_form-ok').focus();
+          }
         }]);
       var splitSpan = function() {
         dispatcher.post('hideForm');
@@ -2406,6 +2420,19 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#waiter').dialog('open');
       };
 
+      var spanChangeLock = function(evt) {
+        var $this = $(evt.target);
+        var locked = $this.is(':checked');
+        $(evt.target).button('option', 'icons', {
+          primary: locked ? 'ui-icon-locked' : 'ui-icon-unlocked'
+        });
+        $('#unlock_type_button').toggle(locked);
+        if (!locked) lockOptions = null;
+      };
+      $('#unlock_type_button').button().hide().click(function(evt) {
+        setTypeLock(false);
+      });
+
       dispatcher.post('initForm', [spanForm, {
           alsoResize: '#entity_and_event_wrapper',
           width: 760,
@@ -2435,6 +2462,25 @@ var AnnotatorUI = (function($, window, undefined) {
               click: splitSpan
             }
           ],
+          create: function(evt) {
+            var $ok = $('#span_form-ok').wrap('<span id="span_form_lock_bset"/>');
+            var $span = $ok.parent();
+            var $lock = $('<input id="span_form_lock" type="checkbox"/>').insertBefore($ok);
+            $('<label for="span_form_lock"/>').text("Lock type").insertBefore($ok);
+            $lock.button({
+              id: 'span_form_lock',
+              text: false,
+              icons: {
+                primary: 'ui-icon-unlocked'
+              },
+            });
+            $lock.click(spanChangeLock);
+            $($span).buttonset();
+          },
+          beforeClose: function(evt) {
+            // in case the form is cancelled
+            setTypeLock(!!lockOptions);
+          },
           close: function(evt) {
             keymap = null;
             if (reselectedSpan) {
@@ -2449,6 +2495,12 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#span_form_delete').attr('title', 'Delete this annotation.');
       $('#span_form_split').attr('title', 'Split this annotation into multiple similar annotations, distributing its arguments.');
 
+      var setTypeLock = function(val) {
+        $('#span_form_lock').prop('checked', val).button('refresh');
+        $('#unlock_type_button').toggle(val);
+        if (!val) lockOptions = null;
+      };
+
       dispatcher.post('initForm', [rapidSpanForm, {
           alsoResize: '#rapid_span_types',
           width: 400,             
@@ -2461,6 +2513,14 @@ var AnnotatorUI = (function($, window, undefined) {
         typeRadio = typeRadio || $('#span_form input:radio:checked');
         var type = typeRadio.val();
         $('#span_form-ok').blur();
+
+        var locked = $('#span_form_lock').is(':checked');
+        if (locked && !lockOptions) {
+          lockOptions = {
+            type: type
+          }
+        }
+
         dispatcher.post('hideForm');
         $.extend(spanOptions, {
           action: 'createSpan',
@@ -2476,6 +2536,10 @@ var AnnotatorUI = (function($, window, undefined) {
 
         if (spanOptions.offsets) {
           spanOptions.offsets = $.toJSON(spanOptions.offsets);
+        }
+
+        if (lockOptions) {
+          $.extend(spanOptions, lockOptions);
         }
 
         // unfocus all elements to prevent focus being kept after
