@@ -55,6 +55,21 @@ class Annotation(object):
 def escape_tb_text(s):
     return s.replace('\n', '\\n')
 
+def is_newline(c):
+    # from http://stackoverflow.com/a/18325046
+    return c in (
+        u'\u000A',    # LINE FEED
+        u'\u000B',    # VERTICAL TABULATION
+        u'\u000C',    # FORM FEED
+        u'\u000D',    # CARRIAGE RETURN
+        u'\u001C',    # FILE SEPARATOR
+        u'\u001D',    # GROUP SEPARATOR
+        u'\u001E',    # RECORD SEPARATOR
+        u'\u0085',    # NEXT LINE
+        u'\u2028',    # LINE SEPARATOR
+        u'\u2029'     # PARAGRAPH SEPARATOR
+    )
+
 class Textbound(Annotation):
     def __init__(self, id_, type_, offsets, text):
         Annotation.__init__(self, id_, type_)
@@ -73,9 +88,34 @@ class Textbound(Annotation):
             remapped.append(mapper.remap(start, end))
         self.offsets = remapped
 
+    def fragment(self, text):
+        # Remapping may create spans that extend over newlines, which
+        # brat doesn't handle well. Break any such span into multiple
+        # fragments that skip newlines.
+        fragmented = []
+        for start, end in self.offsets:
+            while start < end:
+                while start < end and is_newline(text[start]):
+                    start += 1 # skip initial newlines
+                fend = start
+                while fend < end and not is_newline(text[fend]):
+                    fend += 1 # find max sequence of non-newlines
+                if fend > start:
+                    fragmented.append((start, fend))
+                start = fend
+
+        # Switch to fragmented. Edge case: if offsets now only span
+        # newlines, replace them with a single zero-length span at
+        # the start of the first original span.
+        if fragmented:
+            self.offsets = fragmented
+        else:
+            self.offsets = [(self.offsets[0][0], self.offsets[0][0])]
+
     def retext(self, text):
-        assert len(self.offsets) == 1
-        self.text = text[self.offsets[0][0]:self.offsets[0][1]]
+        self.text = ' '.join(text[o[0]:o[1]] for o in self.offsets)
+        if any(is_newline(c) for c in self.text):
+            print >> sys.stderr, 'Warning: newline in text: %s' % self.text
 
     def __unicode__(self):
         return u"%s\t%s %s\t%s" % (self.id_, self.type_, 
@@ -279,7 +319,11 @@ def match_cost(a, b):
         else:
             return 10
     else:
-        return -1000
+        if a.isspace() and b.isspace():
+            # low cost for space-to-space mismatches
+            return 0
+        else:
+            return -1000
     
 def space_boundary(s, i):
     if (i == 0 or s[i-1].isspace() != s[i].isspace() or
@@ -294,7 +338,7 @@ def delete_cost(A, B, i, j, choices):
     if choices[i-1][j] == CH_DELETE:
         # standard gap extend
         return -1, CH_DELETE
-    elif A[i-1].isspace() and (B[j-1].isspace() or space_boundary(B, j-i)):
+    elif A[i-1].isspace() and (B[j-1].isspace() or space_boundary(B, j-1)):
         # cheap space gap
         return -1, CH_SPC_DELETE
     elif space_boundary(B, j-1) and space_boundary(A, i-1):
@@ -329,7 +373,7 @@ def swchoice(A, B, i, j, F, choices):
 
     if best == match:        
         choice = CH_MATCH
-        if A[i-1] != B[j-1]:
+        if DEBUG and A[i-1] != B[j-1]:
             print >> sys.stderr, "MISMATCH! '%s' vs '%s'" % (A[i-1], B[j-1])
     elif best == delete:
         choice = del_choice
@@ -618,6 +662,7 @@ def main(argv=None):
 
     for a in annotations:
         a.remap(Remapper(offset_map))
+        a.fragment(newtext)
         a.retext(newtext)
         print unicode(a).encode(options.encoding)
 
