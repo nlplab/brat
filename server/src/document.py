@@ -35,7 +35,8 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
         SPECIAL_RELATION_TYPES,
         options_get_validation, options_get_tokenization,
         options_get_ssplitter, get_annotation_config_section_labels,
-        visual_options_get_arc_bundle)
+        visual_options_get_arc_bundle,
+        visual_options_get_text_direction)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -499,6 +500,7 @@ def _inject_annotation_type_conf(dir_path, json_dic=None):
     # inject general visual options (currently just arc bundling) (#949)
     visual_options = {}
     visual_options['arc_bundle'] = visual_options_get_arc_bundle(dir_path)
+    visual_options['text_direction'] = visual_options_get_text_direction(dir_path)
     json_dic['visual_options'] = visual_options
 
     return json_dic

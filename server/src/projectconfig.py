@@ -959,6 +959,10 @@ def visual_options_get_arc_bundle(directory):
     v = get_visual_option_config_by_storage_form(directory, 'Arcs')
     return 'none' if v is None else v.get('bundle', 'none')
 
+def visual_options_get_text_direction(directory):
+    v = get_visual_option_config_by_storage_form(directory, 'Text')
+    return 'ltr' if v is None else v.get('direction', 'ltr')
+
 def get_drawing_config_by_storage_form(directory, term):
     cache = get_drawing_config_by_storage_form.__cache
     if directory not in cache:
