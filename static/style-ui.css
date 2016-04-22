@@ -463,7 +463,7 @@ div.scroll_wrapper_upper div.scroller {
   margin: 0 -3px -3px 0;
 }
 .ui-dialog {
-  position: fixed;
+  position: center;
 }
 
 .file {

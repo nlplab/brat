@@ -514,7 +514,7 @@ def __parse_kb_shortcuts(shortcutstr, default, source):
                 shortcuts[key] = type
     except:
         # TODO: specific exception handling
-        Messager.warning("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, 5)
+       # Messager.warning("Project configuration: error parsing keyboard shortcuts from %s. Configuration may be wrong." % source, 5)
         shortcuts = default
     return shortcuts
     
@@ -524,7 +524,7 @@ def __parse_access_control(acstr, source):
         parser.parse(acstr.split("\n"))
     except:
         # TODO: specific exception handling
-        display_message("Project configuration: error parsing access control rules from %s. Configuration may be wrong." % source, "warning", 5)
+       # display_message("Project configuration: error parsing access control rules from %s. Configuration may be wrong." % source, "warning", 5)
         parser = None
     return parser
     
@@ -596,7 +596,8 @@ def __parse_configs(configstr, source, expected_sections, optional_sections):
     for s in expected_sections:
         if s not in configs:
             if s not in optional_sections:
-                Messager.warning("Project configuration: missing section [%s] in %s. Configuration may be wrong." % (s, source), 5)
+                a=1;
+              #  Messager.warning("Project configuration: missing section [%s] in %s. Configuration may be wrong." % (s, source), 5)
             configs[s] = []
 
     return (configs, section_labels)
@@ -898,7 +899,8 @@ def get_node_by_storage_form(directory, term):
         for e in get_entity_type_list(directory) + get_event_type_list(directory):
             t = e.storage_form()
             if t in d:
-                Messager.warning("Project configuration: term %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
+                a = 1;
+              #  Messager.warning("Project configuration: term %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
             d[t] = e
         cache[directory] = d
 
@@ -911,11 +913,13 @@ def _get_option_by_storage_form(directory, term, config, cache):
         for n in config:
             t = n.storage_form()
             if t in d:
-                Messager.warning("Project configuration: %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
+                a = 1;
+              #  Messager.warning("Project configuration: %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
             d[t] = {}
             for a in n.arguments:
                 if len(n.arguments[a]) != 1:
-                    Messager.warning("Project configuration: %s key %s has multiple values, only using first. Configuration may be wrong." % (t, a), 5)
+                    a = 1;
+                #    Messager.warning("Project configuration: %s key %s has multiple values, only using first. Configuration may be wrong." % (t, a), 5)
                 d[t][a] = n.arguments[a][0]
 
         cache[directory] = d
@@ -966,7 +970,8 @@ def get_drawing_config_by_storage_form(directory, term):
         for n in get_drawing_config(directory):
             t = n.storage_form()
             if t in d:
-                Messager.warning("Project configuration: term %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
+                a = 1;
+               # Messager.warning("Project configuration: term %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
             d[t] = {}
             for a in n.arguments:
                 # attribute drawing can be specified with multiple
@@ -978,7 +983,8 @@ def get_drawing_config_by_storage_form(directory, term):
                         d[t][a] = n.arguments[a]
                     else:
                         # warn and pass
-                        Messager.warning("Project configuration: expected single value for %s argument %s, got '%s'. Configuration may be wrong." % (t, a, "|".join(n.arguments[a])))
+                                        a = 1;
+                      #  Messager.warning("Project configuration: expected single value for %s argument %s, got '%s'. Configuration may be wrong." % (t, a, "|".join(n.arguments[a])))
                 else:
                     d[t][a] = n.arguments[a][0]
 
@@ -1151,7 +1157,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, atype)
         if node is None:
-            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
+           # Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
             return []
         return node.mandatory_arguments()
 
@@ -1162,7 +1168,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, atype)
         if node is None:
-            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
+           # Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
             return []
         return node.multiple_allowed_arguments()
 
@@ -1173,7 +1179,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, atype)
         if node is None:
-            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
+           # Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
             return 0
         return node.argument_maximum_count(arg)
 
@@ -1184,7 +1190,7 @@ class ProjectConfiguration(object):
         """
         node = get_node_by_storage_form(self.directory, atype)
         if node is None:
-            Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
+           # Messager.warning("Project configuration: unknown event type %s. Configuration may be wrong." % atype)
             return 0
         return node.argument_minimum_count(arg)
 
@@ -1373,7 +1379,7 @@ class ProjectConfiguration(object):
                         
             for a, args in n1.arguments.items():
                 if a in processed_as_relation:
-                    Messager.warning("Project configuration: %s appears both as role and relation. Configuration may be wrong." % a)
+                    #Messager.warning("Project configuration: %s appears both as role and relation. Configuration may be wrong." % a)
                     # won't try to resolve
                     continue
 
@@ -1405,7 +1411,7 @@ class ProjectConfiguration(object):
         from_node = get_node_by_storage_form(self.directory, from_ann)
 
         if from_node is None:
-            Messager.warning("Project configuration: unknown textbound/event type %s. Configuration may be wrong." % from_ann)
+           # Messager.warning("Project configuration: unknown textbound/event type %s. Configuration may be wrong." % from_ann)
             return []
 
         if to_ann == "<ANY>":

@@ -11,11 +11,9 @@ var VisualizerUI = (function($, window, undefined) {
       var documentListing = null; // always documents of current collection
       var selectorData = null;    // can be search results when available
       var searchActive = false;   // whether search results received and in use
-      var loadedSearchData = null;
 
       var currentForm;
       var spanTypes = null;
-      var relationTypesHash = null;
       // TODO: confirm unnecessary and remove
 //       var attributeTypes = null;
       var data = null;
@@ -34,12 +32,6 @@ var VisualizerUI = (function($, window, undefined) {
 
       var currentDocumentSVGsaved = false;
       var fileBrowserClosedWithSubmit = false;
-
-      // normalization:
-      var normServerDbByNormDbName = {};
-      var normInfoCache = {};
-      var normInfoCacheSize = 0;
-      var normInfoCacheMaxSize = 100;
 
       var matchFocus = '';
       var matches = '';
@@ -66,7 +58,7 @@ var VisualizerUI = (function($, window, undefined) {
         }, 2000);
         $('#source_files').hide();
       }
-      
+
       /* END "no svg" message - related */
 
       /* START collection browser sorting - related */
@@ -266,14 +258,7 @@ var VisualizerUI = (function($, window, undefined) {
       var displayComment = function(evt, target, comment, commentText, commentType, immediately) {
         var idtype;
         if (commentType) {
-          // label comment by type, with special case for default note type
-          var commentLabel;
-          if (commentType == 'AnnotatorNotes') {
-            commentLabel = '<b>Note:</b> ';
-          } else {
-            commentLabel = '<b>'+Util.escapeHTML(commentType)+':</b> ';
-          }
-          comment += commentLabel + Util.escapeHTMLwithNewlines(commentText);
+          comment += Util.escapeHTMLwithNewlines(commentText);
           idtype = 'comment_' + commentType;
         }
         commentPopup[0].className = idtype;
@@ -288,98 +273,8 @@ var VisualizerUI = (function($, window, undefined) {
         }, immediately ? 0 : 500);
       };
 
-      // to avoid clobbering on delayed response
-      var commentPopupNormInfoSeqId = 0;
-
-      var normInfoSortFunction = function(a, b) {
-        // images at the top
-        if (a[0].toLowerCase() == '<img>') return -1;
-        if (b[0].toLowerCase() == '<img>') return 1;
-        // otherwise stable
-        return Util.cmp(a[2],b[2]);
-      }
-
-      var fillNormInfo = function(infoData, infoSeqId) {
-        // extend comment popup with normalization data
-        var norminfo = '';
-        // flatten outer (name, attr, info) array (idx for sort)
-        var infos = [];
-        var idx = 0;
-        for (var i = 0; i < infoData.length; i++) {
-          for (var j = 0; j < infoData[i].length; j++) {
-            var label = infoData[i][j][0];
-            var value = infoData[i][j][1];
-            infos.push([label, value, idx++]);
-          }
-        }
-        // sort, prioritizing images (to get floats right)
-        infos = infos.sort(normInfoSortFunction);
-        // combine several consequtive values with the same label
-        var combined = [];
-        var prev_label = '';
-        for (var i = 0; i < infos.length; i++) {
-          var label = infos[i][0];
-          var value = infos[i][1];
-          if (label == prev_label) {
-            combined[combined.length-1][1] += ', '+value;
-          } else {
-            combined.push([label, value]);
-          }
-          prev_label = label;
-        }
-        infos = combined;
-        // generate HTML
-        for (var i = 0; i < infos.length; i++) {
-          var label = infos[i][0];
-          var value = infos[i][1];
-          if (label && value) {
-            // special treatment for some label values
-            if (label.toLowerCase() == '<img>') {
-              norminfo += ('<img class="norm_info_img" src="'+
-                           Util.escapeHTML(value)+
-                           '"/>');
-            } else {
-              // normal, as text
-
-              // max length restriction
-              if (value.length > 300) {
-                value = value.substr(0, 300) + ' ...';
-              }                          
-
-              norminfo += ('<span class="norm_info_label">'+
-                           Util.escapeHTML(label)+
-                           '</span>'+
-                           '<span class="norm_info_value">'+':'+
-                           Util.escapeHTML(value)+
-                           '</span>'+
-                           '<br/>');
-            }
-          }
-        }
-        var drop=$('#norm_info_drop_point_'+infoSeqId);
-        if (drop) {
-          drop.html(norminfo);
-        } else {
-          console.log('norm info drop point not found!'); //TODO XXX
-        }
-      }
-
-      var normCacheGet = function(dbName, dbKey, value) {
-        return normInfoCache[dbName+':'+dbKey];
-      }
-      var normCachePut = function(dbName, dbKey, value) {
-        // TODO: non-stupid cache max size limit
-        if (normInfoCacheSize >= normInfoCacheMaxSize) {
-          normInfoCache = {};
-          normInfoCacheSize = 0;
-        }
-        normInfoCache[dbName+':'+dbKey] = value;
-        normInfoCacheSize++;
-      }
-
       var displaySpanComment = function(
-          evt, target, spanId, spanType, mods, spanText, commentText, 
-          commentType, normalizations) {
+          evt, target, spanId, spanType, mods, spanText, commentText, commentType) {
 
         var immediately = false;
         var comment = ( '<div><span class="comment_type_id_wrapper">' +
@@ -394,10 +289,9 @@ var VisualizerUI = (function($, window, undefined) {
         if (mods.length) {
           comment += '<div>' + Util.escapeHTML(mods.join(', ')) + '</div>';
         }
-
         comment += '</div>';
-        comment += ('<div class="comment_text">"' + 
-                    Util.escapeHTML(spanText) + 
+        comment += ('<div class="comment_text">"' +
+                    Util.escapeHTML(spanText) +
                     '"</div>');
         var validArcTypesForDrag = dispatcher.post('getValidArcTypesForDrag', [spanId, spanType]);
         if (validArcTypesForDrag && validArcTypesForDrag[0]) {
@@ -408,62 +302,7 @@ var VisualizerUI = (function($, window, undefined) {
           }
           immediately = true;
         }
-        // process normalizations
-        var normsToQuery = [];
-        $.each(normalizations, function(normNo, norm) {
-          var dbName = norm[0], dbKey = norm[1];
-          comment += ( '<hr/>' +
-                       '<span class="comment_id">' +
-                       Util.escapeHTML(dbName) + ':' +
-                       Util.escapeHTML(dbKey) + '</span>');
-          if (dbName in normServerDbByNormDbName &&
-              normServerDbByNormDbName[dbName] != '<NONE>') {
-            // DB available, add drop-off point to HTML and store
-            // query parameters
-            commentPopupNormInfoSeqId++;
-            comment += ('<br/><div id="norm_info_drop_point_'+
-                        commentPopupNormInfoSeqId+'"/>');
-            normsToQuery.push([dbName, dbKey, commentPopupNormInfoSeqId]);
-          } else {
-            // no DB, just attach "human-readable" text provided
-            // with the annotation, if any
-            if (norm[2]) {
-                comment += ('<br/><span class="norm_info_value">'+
-                            Util.escapeHTML(norm[2])+'</span>');
-            }
-          }
-        });
-
-        // display initial comment HTML 
-        displayComment(evt, target, comment, commentText, commentType, 
-                       immediately);
-
-        // initiate AJAX calls for the normalization data to query
-        $.each(normsToQuery, function(normqNo, normq) {
-          // TODO: cache some number of most recent norm_get_data results
-          var dbName = normq[0], dbKey = normq[1], infoSeqId = normq[2];
-          
-          if (normCacheGet(dbName, dbKey)) {
-            fillNormInfo(normCacheGet(dbName, dbKey), infoSeqId);
-          } else {
-            dispatcher.post('ajax', [{
-              action: 'normData',
-              database: dbName,
-              key: dbKey,
-              collection: coll,
-            },
-            function(response) {
-              if (response.exception) {
-                ; // TODO: response to error
-              } else if (!response.value) {
-                ; // TODO: response to missing key
-              } else {
-                fillNormInfo(response.value, infoSeqId);
-                normCachePut(dbName, dbKey, response.value);
-              }
-            }]);
-          }
-        });
+        displayComment(evt, target, comment, commentText, commentType, immediately);
       };
 
       var onDocChanged = function() {
@@ -473,16 +312,15 @@ var VisualizerUI = (function($, window, undefined) {
 
       var displayArcComment = function(
           evt, target, symmetric, arcId,
-          originSpanId, originSpanType, role, 
+          originSpanId, originSpanType, role,
           targetSpanId, targetSpanType,
           commentText, commentType) {
         var arcRole = target.attr('data-arc-role');
         // in arrowStr, &#8212 == mdash, &#8594 == Unicode right arrow
         var arrowStr = symmetric ? '&#8212;' : '&#8594;';
-        var arcDisplayForm = Util.arcDisplayForm(spanTypes, 
-                                                 data.spans[originSpanId].type, 
-                                                 arcRole,
-                                                 relationTypesHash);
+        var arcDisplayForm = Util.arcDisplayForm(spanTypes,
+                                                 data.spans[originSpanId].type,
+                                                 arcRole);
         var comment = "";
         comment += ('<span class="comment_type_id_wrapper">' +
                     '<span class="comment_type">' +
@@ -495,13 +333,13 @@ var VisualizerUI = (function($, window, undefined) {
                                                          targetSpanType)) +
                     '</span>' +
                     '<span class="comment_id">' +
-                    (arcId ? 'ID:'+arcId : 
+                    (arcId ? 'ID:'+arcId :
                      Util.escapeHTML(originSpanId) +
-                     arrowStr + 
+                     arrowStr +
                      Util.escapeHTML(targetSpanId)) +
                     '</span>' +
                     '</span>');
-        comment += ('<div class="comment_text">' + 
+        comment += ('<div class="comment_text">' +
                     Util.escapeHTML('"'+data.spans[originSpanId].text+'"') +
                     arrowStr +
                     Util.escapeHTML('"'+data.spans[targetSpanId].text + '"') +
@@ -586,39 +424,11 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
-      var unsafeDialogOpen = function($dialog) {
-        // does not restrict tab key to the dialog
-        // does not set the focus, nor change position
-        // but is much faster than dialog('open') for large dialogs, see
-        // https://github.com/nlplab/brat/issues/934
-
-        var self = $dialog.dialog('instance');
-        
-        if (self._isOpen) { return; }
-
-        self._isOpen = true;
-        self.opener = $(self.document[0].activeElement);
-
-        self._size();
-        self._createOverlay();
-        self._moveToTop(null, true);
-
-        if (self.overlay) {
-          self.overlay.css( "z-index", self.uiDialog.css( "z-index" ) - 1 );
-        }
-        self._show(self.uiDialog, self.options.show);
-        self._trigger('open');
-      };
-
-      var showForm = function(form, unsafe) {
+      var showForm = function(form) {
         currentForm = form;
         // as suggested in http://stackoverflow.com/questions/2657076/jquery-ui-dialog-fixed-positioning
         form.parent().css({position:"fixed"});
-        if (unsafe) {
-          unsafeDialogOpen(form);
-        } else {
-          form.dialog('open');
-        }
+        form.dialog('open');
         slideToggle($('#pulldown').stop(), false);
         return form;
       };
@@ -628,6 +438,8 @@ var VisualizerUI = (function($, window, undefined) {
         // currentForm.fadeOut(function() { currentForm = null; });
         currentForm.dialog('close');
         currentForm = null;
+//        alert("Triggering reload")
+//        location.reload();
       };
 
       /* END form management - related */
@@ -689,15 +501,6 @@ var VisualizerUI = (function($, window, undefined) {
           },
           width: 500
       });
-
-      /* XXX removed per #900
-      // insert the Save link
-      var $fileBrowserButtonset = fileBrowser.
-          parent().find('.ui-dialog-buttonpane .ui-dialog-buttonset').prepend(' ');
-      $('<a href="ajax.cgi?action=downloadSearchFile" id="save_search">Save</a>').
-          prependTo($fileBrowserButtonset).button().css('display', 'none');
-      */
-
       var docInputHandler = function(evt) {
         selectElementInTable('#document_select', $(this).val());
       };
@@ -742,7 +545,7 @@ var VisualizerUI = (function($, window, undefined) {
         fileBrowser.find('#document_select tbody').empty();
 
         if (coll != _coll || doc != _doc ||
-            !Util.isEqual(Util.paramArray(args.matchfocus), (matchFocus || []))) {
+            Util.paramArray(args.matchfocus) != matchFocus) {
           // something changed
 
           // set to allow keeping "blind" down during reload
@@ -862,7 +665,7 @@ var VisualizerUI = (function($, window, undefined) {
             if (formatted === null) {
               var m = type.match(/^(.*?)(?:\/(right))?$/);
               cssClass = m[2] ? 'rightalign' : null;
-              formatted = sprintf(m[1], datum);
+              formatted = $.sprintf(m[1], datum);
             }
             html.push('<td' + (cssClass ? ' class="' + cssClass + '"' : '') + '>' +
                 formatted + '</td>');
@@ -884,7 +687,7 @@ var VisualizerUI = (function($, window, undefined) {
         $('#document_input').val(doc);
 
         $('#readme').val(selectorData.description || '');
-        if (selectorData.description && 
+        if (selectorData.description &&
             (selectorData.description.match(/\n/) ||
              selectorData.description.length > 50)) {
           // multi-line or long description; show "more" button and fill
@@ -954,25 +757,14 @@ var VisualizerUI = (function($, window, undefined) {
         });
       };
 
-      var rememberNormDb = function(response) {
-        // the visualizer needs to remember aspects of the norm setup
-        // so that it can avoid making queries for unconfigured or
-        // missing normalization DBs.
-        var norm_resources = response.normalization_config || [];
-        $.each(norm_resources, function(normNo, norm) {
-          var normName = norm[0];
-          var serverDb = norm[3];
-          normServerDbByNormDbName[normName] = serverDb;
-        });
-      }
-
       var setupSearchTypes = function(response) {
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
         addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
-        // nice-looking selects and upload fields
-        $('#search_form select').addClass('ui-widget ui-state-default ui-button-text');
-        $('#search_form_load_file').addClass('ui-widget ui-state-default ui-button-text');
+        // nice-looking selects
+        $('#search_form_entity_type').addClass('ui-widget ui-state-default ui-button-text');
+        $('#search_form_event_type').addClass('ui-widget ui-state-default ui-button-text');
+        $('#search_form_relation_type').addClass('ui-widget ui-state-default ui-button-text');
       }
 
       // when event role changes, event types do as well
@@ -1005,7 +797,7 @@ var VisualizerUI = (function($, window, undefined) {
         };
       };
 
-      $('#search_form_event_roles').on('change', '.search_event_role select', searchEventRoleChanged);
+      $('#search_form_event_roles .search_event_role select').live('change', searchEventRoleChanged);
 
       // adding new role rows
       var addEmptySearchEventRole = function() {
@@ -1049,8 +841,8 @@ var VisualizerUI = (function($, window, undefined) {
         $row.remove();
       }
 
-      $('#search_form_event_roles').on('click', '.search_event_role_add input', addEmptySearchEventRole);
-      $('#search_form_event_roles').on('click', '.search_event_role_del input', delSearchEventRole);
+      $('#search_form_event_roles .search_event_role_add input').live('click', addEmptySearchEventRole);
+      $('#search_form_event_roles .search_event_role_del input').live('click', delSearchEventRole);
 
       // When event type changes, the event roles do as well
       // Also, put in one empty role row
@@ -1112,20 +904,6 @@ var VisualizerUI = (function($, window, undefined) {
           });
         }
       });
-
-      $('#search_form_note_category').change(function(evt) {
-        var category = $(this).val();
-        var $type = $('#search_form_note_type');
-        if ($.inArray(category, ['entity', 'event', 'relation']) != -1) {
-          $type.html($('#search_form_' + category + '_type').html()).val('');
-          $('#search_form_note_type_row:not(:visible)').show('highlight');
-        } else {
-          $type.html('');
-          $('#search_form_note_type_row:visible').hide('highlight');
-        }
-      });
-
-
       // context length setting should only be visible if
       // concordancing is on
       // TODO: @amadanmath: help, my jQuery is horrible
@@ -1158,10 +936,9 @@ var VisualizerUI = (function($, window, undefined) {
       });
 
       var activeSearchTab = function() {
-        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation, 4 = Notes, 5 = Load
-        var activeTab = $('#search_tabs').tabs('option', 'active');
-        return ['searchText', 'searchEntity', 'searchEvent',
-            'searchRelation', 'searchNote', 'searchLoad'][activeTab];
+        // activeTab: 0 = Text, 1 = Entity, 2 = Event, 3 = Relation
+        var activeTab = $('#search_tabs').tabs('option', 'selected');
+        return ['searchText', 'searchEntity', 'searchEvent', 'searchRelation'][activeTab];
       }
 
       var onSearchTabSelect = function() {
@@ -1179,12 +956,6 @@ var VisualizerUI = (function($, window, undefined) {
           case 'searchRelation':
             $('#search_form_relation_type').focus().select();
             break;
-          case 'searchNote':
-            $('#search_form_note_text').focus().select();
-            break;
-          case 'searchLoad':
-            $('#search_form_load_file').focus().select();
-            break;
         }
       };
 
@@ -1193,15 +964,6 @@ var VisualizerUI = (function($, window, undefined) {
         show: onSearchTabSelect
       });
       $('#search_form').find('.radio_group').buttonset();
-
-      var applySearchResults = function(response) {
-        if (!searchActive) {
-          collectionSortOrder = sortOrder;
-        }
-        dispatcher.post('searchResultsReceived', [response]);
-        searchActive = true;
-        updateSearchButtons();
-      };
 
       var searchForm = $('#search_form');
 
@@ -1249,17 +1011,7 @@ var VisualizerUI = (function($, window, undefined) {
             opts.arg1type = $('#search_form_relation_arg1_type').val() || '';
             opts.arg2 = $('#search_form_relation_arg2_text').val();
             opts.arg2type = $('#search_form_relation_arg2_type').val() || '';
-            opts.show_text = $('#search_form_relation_show_arg_text_on').is(':checked');
-            opts.show_type = $('#search_form_relation_show_arg_type_on').is(':checked');
             break;
-          case 'searchNote':
-            opts.category = $('#search_form_note_category').val() || '';
-            opts.type = $('#search_form_note_type').val() || '';
-            opts.text = $('#search_form_note_text').val() || '';
-            break;
-          case 'searchLoad':
-            applySearchResults(loadedSearchData);
-            return false;
         }
 
         // fill in scope of search ("document" / "collection")
@@ -1289,31 +1041,16 @@ var VisualizerUI = (function($, window, undefined) {
             dispatcher.post('messages', [[['No matches to search.', 'comment']]]);
             dispatcher.post('clearSearch', [true]);
           } else {
-            applySearchResults(response);
+            if (!searchActive) {
+              collectionSortOrder = sortOrder;
+            }
+            dispatcher.post('searchResultsReceived', [response]);
+            searchActive = true;
+            updateSearchButton();
           }
         }]);
         return false;
       };
-
-      $('#search_form_load_file').change(function(evt) {
-        var $file = $('#search_form_load_file');
-        var file = $file[0].files[0];
-        var reader = new FileReader();
-        reader.onerror = function(evt) {
-          dispatcher.post('messages', [[['The file could not be read.', 'error']]]);
-        };
-        reader.onloadend = function(evt) {
-          try {
-            loadedSearchData = JSON.parse(evt.target.result);
-            // TODO XXX check for validity of contents, not just whether
-            // it's valid JSON or not; throw something if not
-          } catch (x) {
-            dispatcher.post('messages', [[['The file contains invalid data.', 'error']]]);
-            return;
-          }
-        };
-        reader.readAsText(file);
-      });
 
       searchForm.submit(searchFormSubmit);
 
@@ -1329,7 +1066,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var showSearchForm = function() {
         // this.checked = searchActive; // TODO: dup? unnecessary? remove if yes.
-        updateSearchButtons();
+        updateSearchButton();
         $('#search_form_event_type').change();
         $('#search_form_relation_type').change();
         dispatcher.post('showForm', [searchForm]);
@@ -1338,33 +1075,10 @@ var VisualizerUI = (function($, window, undefined) {
 
       $('#search_button').click(showSearchForm);
 
-      var clearSearchResults = function() {
-        // clear UI, don't show collection browser
-        dispatcher.post('clearSearch', [true]);
-        // TODO: this was the only way I found to reset search. It
-        // trigger an unnecessary round-trip to the server, though,
-        // so there should be a better way ...
-        dispatcher.post('setArguments', [{}, true]);
-      }
-
-      $('#clear_search_button').click(clearSearchResults);
-
-      var updateSearchButtons = function() {
+      var updateSearchButton = function() {
         $searchButton = $('#search_button');
         $searchButton[0].checked = searchActive;
         $searchButton.button('refresh');
-        $clearSearchButton = $('#clear_search_button');
-        if (searchActive) {
-            // TODO: this is a bit poor form, using jQuery UI classes
-            // directly -- are these names guaranteed to be stable?
-            $('#search_button_label').removeClass('ui-corner-all');
-            $('#search_button_label').addClass('ui-corner-left');
-            $clearSearchButton.show();
-        } else {
-            $('#search_button_label').removeClass('ui-corner-left');
-            $('#search_button_label').addClass('ui-corner-all');
-            $clearSearchButton.hide();
-        }
       }
 
       /* END search - related */
@@ -1491,14 +1205,14 @@ var VisualizerUI = (function($, window, undefined) {
             // NOTE: spec seems to require this to be upper-case,
             // but at least chrome 8.0.552.215 returns lowercased
             var nodeType = evt.target.type ? evt.target.type.toLowerCase() : '';
-            if (evt.target.nodeName && 
-                evt.target.nodeName.toLowerCase() == 'input' && 
-                (nodeType == 'text' || 
+            if (evt.target.nodeName &&
+                evt.target.nodeName.toLowerCase() == 'input' &&
+                (nodeType == 'text' ||
                  nodeType == 'password')) {
               currentForm.trigger('submit');
               return false;
             }
-          } else if ((Util.isMac ? evt.metaKey : evt.ctrlKey) &&
+          } else if (evt.ctrlKey &&
                 (code == 'F'.charCodeAt(0) || code == 'G'.charCodeAt(0))) {
             // prevent Ctrl-F/Ctrl-G in forms
             evt.preventDefault();
@@ -1518,15 +1232,12 @@ var VisualizerUI = (function($, window, undefined) {
           autoPaging(true);
         } else if (evt.shiftKey && code === $.ui.keyCode.DOWN) {
           autoPaging(false);
-        } else if ((Util.isMac ? evt.metaKey : evt.ctrlKey) && code == 'F'.charCodeAt(0)) {
+        } else if (evt.ctrlKey && code == 'F'.charCodeAt(0)) {
           evt.preventDefault();
           showSearchForm();
-        } else if (searchActive && (Util.isMac ? evt.metaKey : evt.ctrlKey) && code == 'G'.charCodeAt(0)) {
+        } else if (searchActive && evt.ctrlKey && code == 'G'.charCodeAt(0)) {
           evt.preventDefault();
           return moveInFileBrowser(+1);
-        } else if (searchActive && (Util.isMac ? evt.metaKey : evt.ctrlKey) && code == 'K'.charCodeAt(0)) {
-          evt.preventDefault();
-          clearSearchResults();
         }
       };
 
@@ -1542,8 +1253,8 @@ var VisualizerUI = (function($, window, undefined) {
         }
         return false;
       };
-     
-      /* Automatically proceed from document to document */ 
+
+      /* Automatically proceed from document to document */
       var autoPagingTimeout = null;
       var autoPaging = function(on) {
           clearTimeout(autoPagingTimeout);
@@ -1604,7 +1315,6 @@ var VisualizerUI = (function($, window, undefined) {
             var item = response.items[0];
             dispatcher.post('setDocument', [item[2], item[1]]);
           }
-          $('#save_search').css('display', 'inline-block');
         }
       };
 
@@ -1613,12 +1323,11 @@ var VisualizerUI = (function($, window, undefined) {
 
         // back off to document collection
         if (searchActive) {
-          $('#save_search').css('display', 'none');
           selectorData = documentListing;
           sortOrder = collectionSortOrder;
           selectorData.items.sort(docSortFunction);
           searchActive = false;
-          updateSearchButtons();
+          updateSearchButton();
         }
 
         if (!dontShowFileBrowser) {
@@ -1731,8 +1440,6 @@ var VisualizerUI = (function($, window, undefined) {
         }
       }
 
-      $('#source_collection_conf').buttonset();
-
       var gotCurrent = function(_coll, _doc, _args) {
         var oldColl = coll;
 
@@ -1745,27 +1452,16 @@ var VisualizerUI = (function($, window, undefined) {
           hideNoDocMessage();
         }
 
-        // if we have a collection change, update "collection download" and
-        // "side-by-side comparison" buttons
+        // if we have a collection change, update "collection download" button
         if (oldColl != coll) {
           var $sourceCollection = $('#source_collection').empty();
           var $collectionDownloadLink = $('<a target="brat_search"/>')
             .text('Download tar.gz')
-            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + encodeURIComponent(coll)
-            + '&include_conf=' + ($('#source_collection_conf_on').is(':checked') ? 1 : 0)
-            // TODO: Extract the protocol version into somewhere global
-            + '&protocol=' + 1);
+            .attr('href', 'ajax.cgi?action=downloadCollection&collection=' + encodeURIComponent(coll));
           $sourceCollection.append($collectionDownloadLink);
           $collectionDownloadLink.button();
-
-          $cmpButton = $('#side-by-side_cmp').empty();
-          var $cmpLink = $('<a target="_blank"/>')
-            .text('Comparison mode')
-            .attr('href', 'diff.xhtml#?diff=' + encodeURIComponent(coll));
-          $cmpButton.append($cmpLink);
-          $cmpLink.button();
         }
-          
+
         $docName = $('#document_name input').val(coll + doc);
         var docName = $docName[0];
         // TODO do this on resize, as well
@@ -1882,8 +1578,8 @@ var VisualizerUI = (function($, window, undefined) {
         var val = this.value;
         dispatcher.post('annotationSpeed', [val]);
         return false;
-      });      
-    
+      });
+
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();
       $('#svg').css('margin-top', headerHeight + 10);
@@ -1927,8 +1623,9 @@ var VisualizerUI = (function($, window, undefined) {
           urlHash.setArgument('focus', [[span.id]]);
           $('#viewspan_highlight_link').show().attr('href', urlHash.getHash());
 
-          $('#viewspan_selected').text(span.text);
-          var encodedText = encodeURIComponent(span.text);
+          var spanText = data.text.substring(span.from, span.to);
+          $('#viewspan_selected').text(spanText);
+          var encodedText = encodeURIComponent(spanText);
           $.each(searchConfig, function(searchNo, search) {
             $('#viewspan_'+search[0]).attr('href', search[1].replace('%s', encodedText));
           });
@@ -1988,8 +1685,7 @@ var VisualizerUI = (function($, window, undefined) {
 
 
       var tutorialForm = $('#tutorial');
-      var isWebkit = 'WebkitAppearance' in document.documentElement.style;
-      if (!isWebkit) {
+      if (!$.browser.webkit) {
         // Inject the browser warning
         $('#browserwarning').css('display', 'block');
       }
@@ -2107,11 +1803,8 @@ var VisualizerUI = (function($, window, undefined) {
 //         spanTypes = _spanTypes;
 //         attributeTypes = _attributeTypes;
 //       };
-      // TODO: spanAndAttributeTypesLoaded is obviously not descriptive of
-      // the full function. Rename reasonably.
-      var spanAndAttributeTypesLoaded = function(_spanTypes, _entityAttributeTypes, _eventAttributeTypes, _relationTypesHash) {
+      var spanAndAttributeTypesLoaded = function(_spanTypes) {
         spanTypes = _spanTypes;
-        relationTypesHash = _relationTypesHash;
       };
 
       var annotationIsAvailable = function() {
@@ -2199,12 +1892,6 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('configurationChanged');
       });
 
-      $('#type_collapse_limit').change(function(evt) {
-        Configuration.typeCollapseLimit = parseInt($(this).val(), 10);
-        console.log("changed to", Configuration.typeCollapseLimit);
-        dispatcher.post('configurationChanged');
-      });
-
       var isReloadOkay = function() {
         // do not reload while the user is in the dialog
         return currentForm == null;
@@ -2225,7 +1912,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var updateConfigurationUI = function() {
         // update UI to reflect non-user config changes (e.g. load)
-        
+
         // Annotation mode
         if (Configuration.confirmModeOn) {
           $('#annotation_speed1')[0].checked = true;
@@ -2238,10 +1925,10 @@ var VisualizerUI = (function($, window, undefined) {
 
         // Label abbrevs
         $('#label_abbreviations_on')[0].checked  = Configuration.abbrevsOn;
-        $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn; 
+        $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn;
         $('#label_abbreviations input').button('refresh');
 
-        // Text backgrounds        
+        // Text backgrounds
         $('#text_backgrounds input[value="'+Configuration.textBackgrounds+'"]')[0].checked = true;
         $('#text_backgrounds input').button('refresh');
 
@@ -2259,9 +1946,6 @@ var VisualizerUI = (function($, window, undefined) {
         // Autorefresh
         $('#autorefresh_mode')[0].checked = Configuration.autorefreshOn;
         $('#autorefresh_mode').button('refresh');
-
-        // Type Collapse Limit
-        $('#type_collapse_limit')[0].value = Configuration.typeCollapseLimit;
       }
 
       $('#prev').button().click(function() {
@@ -2271,14 +1955,6 @@ var VisualizerUI = (function($, window, undefined) {
         return moveInFileBrowser(+1);
       });
       $('#footer').show();
-
-      $('#source_collection_conf_on, #source_collection_conf_off').change(function() {
-        var conf = $('#source_collection_conf_on').is(':checked') ? 1 : 0;
-        var $source_collection_link = $('#source_collection a');
-        var link = $source_collection_link.attr('href').replace(/&include_conf=./, '&include_conf=' + conf);
-        $source_collection_link.attr('href', link);
-      });
-
 
       var rememberData = function(_data) {
         if (_data && !_data.exception) {
@@ -2305,7 +1981,6 @@ var VisualizerUI = (function($, window, undefined) {
           on('showForm', showForm).
           on('hideForm', hideForm).
           on('initForm', initForm).
-          on('collectionLoaded', rememberNormDb).
           on('collectionLoaded', collectionLoaded).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('isReloadOkay', isReloadOkay).
@@ -2335,3 +2010,4 @@ var VisualizerUI = (function($, window, undefined) {
 
     return VisualizerUI;
 })(jQuery, window);
+

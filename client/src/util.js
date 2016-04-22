@@ -2,20 +2,10 @@
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 var Util = (function(window, undefined) {
 
-    var fontLoadTimeout = 5000; // 5 seconds
-
     var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    var isMac = navigator.platform == 'MacIntel'; // XXX should we go broader?
-
     var cmp = function(a,b) {
-      return a < b ? -1 : a > b ? 1 : 0;
-    }
-
-    var cmpArrayOnFirstElement = function(a,b) {
-      a = a[0];
-      b = b[0];
-      return a < b ? -1 : a > b ? 1 : 0;
+        return a < b ? -1 : a > b ? 1 : 0;
     }
 
     var unitAgo = function(n, unit) {
@@ -61,17 +51,13 @@ var Util = (function(window, undefined) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     }
 
-    var escapeHTMLandQuotes = function(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;');
-    }
-
     var escapeHTMLwithNewlines = function(str) {
       return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
     }
 
     var escapeQuotes = function(str) {
       // we only use double quotes for HTML attributes
-      return str.replace(/\"/g,'&quot;');
+      return str.toString().replace(/\"/g,'&quot;');
     }
 
     var getSpanLabels = function(spanTypes, spanType) {
@@ -84,7 +70,7 @@ var Util = (function(window, undefined) {
       return labels[0] || spanType;
     }
 
-    var getArcLabels = function(spanTypes, spanType, arcType, relationTypesHash) {
+    var getArcLabels = function(spanTypes, spanType, arcType) {
       var type = spanTypes[spanType];
       var arcTypes = type && type.arcs || [];
       var arcDesc = null;
@@ -100,15 +86,11 @@ var Util = (function(window, undefined) {
           return false;
         }
       });
-      // fall back to relation types for unconfigured or missing def
-      if (!arcDesc) {
-        arcDesc = $.extend({}, relationTypesHash[arcType] || relationTypesHash[noNumArcType]);
-      }
-      return arcDesc && arcDesc.labels || [];
+      return arcDesc && arcDesc.labels && arcDesc.labels || [];
     }
 
-    var arcDisplayForm = function(spanTypes, spanType, arcType, relationTypesHash) {
-      var labels = getArcLabels(spanTypes, spanType, arcType, relationTypesHash);
+    var arcDisplayForm = function(spanTypes, spanType, arcType) {
+      var labels = getArcLabels(spanTypes, spanType, arcType);
       return labels[0] || arcType;
     }
 
@@ -541,117 +523,6 @@ var Util = (function(window, undefined) {
         console.log("-------");
       }
     }; // profileReport
-    
-    // container: ID or jQuery element
-    // collData: the collection data (in the format of the result of
-    //   http://.../brat/ajax.cgi?action=getCollectionInformation&collection=...
-    // docData: the document data (in the format of the result of
-    //   http://.../brat/ajax.cgi?action=getDocument&collection=...&document=...
-    // returns the embedded visualizer's dispatcher object
-    var embed = function(container, collData, docData, webFontURLs) {
-      var dispatcher = new Dispatcher();
-      var visualizer = new Visualizer(dispatcher, container, webFontURLs);
-      docData.collection = null;
-      dispatcher.post('collectionLoaded', [collData]);
-      dispatcher.post('requestRenderData', [docData]);
-      return dispatcher;
-    };
-
-    // container: ID or jQuery element
-    // collDataURL: the URL of the collection data, or collection data
-    //   object (if pre-fetched)
-    // docDataURL: the url of the document data (if pre-fetched, use
-    //   simple `embed` instead)
-    // callback: optional; the callback to call afterwards; it will be
-    //   passed the embedded visualizer's dispatcher object
-    var embedByURL = function(container, collDataURL, docDataURL, webFontURLs, callback) {
-      var collData, docData;
-      var handler = function() {
-        if (collData && docData) {
-          var dispatcher = embed(container, collData, docData, webFontURLs);
-          if (callback) callback(dispatcher);
-        }
-      };
-      if (typeof(container) == 'string') {
-        $.getJSON(collDataURL, function(data) { collData = data; handler(); });
-      } else {
-        collData = collDataURL;
-      }
-      $.getJSON(docDataURL, function(data) { docData = data; handler(); });
-    };
-
-    var fontsLoaded = false;
-    var fontNotifyList = false;
-
-    var proceedWithFonts = function() {
-      if (fontsLoaded) return;
-
-      fontsLoaded = true;
-      $.each(fontNotifyList, function(dispatcherNo, dispatcher) {
-        dispatcher.post('triggerRender');
-      });
-      fontNotifyList = null;
-    };
-
-    var loadFonts = function(webFontURLs, dispatcher) {
-      if (fontsLoaded) {
-        dispatcher.post('triggerRender');
-        return;
-      }
-
-      if (fontNotifyList) {
-        fontNotifyList.push(dispatcher);
-        return;
-      }
-
-      fontNotifyList = [dispatcher];
-
-      webFontURLs = webFontURLs || [
-        'static/fonts/Astloch-Bold.ttf',
-        'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
-        'static/fonts/Liberation_Sans-Regular.ttf'
-      ];
-
-      var families = [];
-      $.each(webFontURLs, function(urlNo, url) {
-        if (/Astloch/i.test(url)) families.push('Astloch');
-        else if (/PT.*Sans.*Caption/i.test(url)) families.push('PT Sans Caption');
-        else if (/Liberation.*Sans/i.test(url)) families.push('Liberation Sans');
-      });
-
-      webFontURLs = {
-        families: families,
-        urls: webFontURLs
-      }
-
-      var webFontConfig = {
-        custom: webFontURLs,
-        active: proceedWithFonts,
-        inactive: proceedWithFonts,
-        fontactive: function(fontFamily, fontDescription) {
-          // Note: Enable for font debugging
-          // console.log("font active: ", fontFamily, fontDescription);
-        },
-        fontloading: function(fontFamily, fontDescription) {
-          // Note: Enable for font debugging
-          // console.log("font loading:", fontFamily, fontDescription);
-        },
-      };
-
-      WebFont.load(webFontConfig);
-
-      setTimeout(function() {
-        if (!fontsLoaded) {
-          console.error('Timeout in loading fonts');
-          proceedWithFonts();
-        }
-      }, fontLoadTimeout);
-    };
-
-    var areFontsLoaded = function() {
-      return fontsLoaded;
-    };
-
 
     return {
       profileEnable: profileEnable,
@@ -667,7 +538,6 @@ var Util = (function(window, undefined) {
       arcDisplayForm: arcDisplayForm,
       escapeQuotes: escapeQuotes,
       escapeHTML: escapeHTML,
-      escapeHTMLandQuotes: escapeHTMLandQuotes,
       escapeHTMLwithNewlines: escapeHTMLwithNewlines,
       cmp: cmp,
       rgbToHsl: rgbToHsl,
@@ -678,11 +548,7 @@ var Util = (function(window, undefined) {
       paramArray: paramArray,
       param: param,
       deparam: deparam,
-      embed: embed,
-      embedByURL: embedByURL,
-      isMac: isMac,
-      loadFonts: loadFonts,
-      areFontsLoaded: areFontsLoaded,
     };
 
 })(window);
+

@@ -228,16 +228,16 @@ def dispatch(http_args, client_ip, client_hostname):
 
     # Verify that we don't have a protocol version mismatch
     PROTOCOL_VERSION = 1
-    try:
-        protocol_version = int(http_args['protocol'])
-        if protocol_version != PROTOCOL_VERSION:
-            raise ProtocolVersionMismatchError(protocol_version,
-                    PROTOCOL_VERSION)
-    except TypeError:
-        raise ProtocolVersionMismatchError('None', PROTOCOL_VERSION)
-    except ValueError:
-        raise ProtocolVersionMismatchError(http_args['protocol'],
-                PROTOCOL_VERSION)
+    #try:
+    #    protocol_version = int(http_args['protocol'])
+       # if protocol_version != PROTOCOL_VERSION:
+       #     raise ProtocolVersionMismatchError(protocol_version,
+       #             PROTOCOL_VERSION)
+    #except TypeError:
+    #    raise ProtocolVersionMismatchError('None', PROTOCOL_VERSION)
+    #except ValueError:
+    #    raise ProtocolVersionMismatchError(http_args['protocol'],
+    #            PROTOCOL_VERSION)
     
     # Was an action supplied?
     if action is None:
@@ -282,17 +282,23 @@ def dispatch(http_args, client_ip, client_hostname):
         default_val_by_arg[arg] = default_val
 
     action_args = []
+    kwargs = {}
     for arg_name in args:
         arg_val = http_args[arg_name]
 
         # The client failed to provide this argument
         if arg_val is None:
-            try:
-                arg_val = default_val_by_arg[arg_name]
-            except KeyError:
-                raise InvalidActionArgsError(action, arg_name)
-
-        action_args.append(arg_val)
+          #  try:
+          #      arg_val = default_val_by_arg[arg_name]
+          #  except KeyError:
+          #      raise InvalidActionArgsError(action, arg_name)
+           if arg_name == 'attributes' or arg_name == 'comment' or arg_name == 'id':
+               action_args.append(None)
+        else:
+            action_args.append(arg_val)
+# if bool(kwargs):
+    #     x = dict(kwargs)
+    #     action_args.append(**kwargs);
 
     log_info('dispatcher will call %s(%s)' % (action,
         ', '.join((repr(a) for a in action_args)), ))
