@@ -17,6 +17,7 @@ from socket import error as SocketError
 from urlparse import urlparse
 
 from annotation import TextAnnotations, TextBoundAnnotationWithText
+from annotation import NormalizationAnnotation
 from annotator import _json_from_ann, ModificationTracker
 from common import ProtocolError
 from document import real_directory
@@ -80,6 +81,11 @@ class TaggerConnectionError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'taggerConnectionError'
 
+def _is_textbound(ann):
+    return 'offsets' in ann
+
+def _is_normalization(ann):
+    return 'target' in ann
 
 def tag(collection, document, tagger):
     pconf = ProjectConfiguration(real_directory(collection))
@@ -149,14 +155,16 @@ def tag(collection, document, tagger):
             raise InvalidTaggerResponseError(tagger_token, resp_data)
 
         mods = ModificationTracker()
+        cidmap = {}
 
-        for ann_data in json_resp.itervalues():
-            assert 'offsets' in ann_data, 'Tagger response lacks offsets'
-            offsets = ann_data['offsets']
-            assert 'type' in ann_data, 'Tagger response lacks type'
-            _type = ann_data['type']
-            assert 'texts' in ann_data, 'Tagger response lacks texts'
-            texts = ann_data['texts']
+        for cid, ann in ((i, a) for i, a in json_resp.iteritems()
+                         if _is_textbound(a)):
+            assert 'offsets' in ann, 'Tagger response lacks offsets'
+            offsets = ann['offsets']
+            assert 'type' in ann, 'Tagger response lacks type'
+            _type = ann['type']
+            assert 'texts' in ann, 'Tagger response lacks texts'
+            texts = ann['texts']
 
             # sanity
             assert len(offsets) != 0, 'Tagger response has empty offsets'
@@ -166,11 +174,29 @@ def tag(collection, document, tagger):
             text = texts[0]
 
             _id = ann_obj.get_new_id('T')
+            cidmap[cid] = _id
 
             tb = TextBoundAnnotationWithText(offsets, _id, _type, text, " " + ' '.join(texts[1:]))
 
             mods.addition(tb)
             ann_obj.add_annotation(tb)
+
+        for norm in (a for a in json_resp.itervalues() if _is_normalization(a)):
+            try:
+                _type = norm['type']
+                target = norm['target']
+                refdb = norm['refdb']
+                refid = norm['refid']
+            except KeyError, e:
+                raise # TODO
+
+            _id = ann_obj.get_new_id('N')
+            target = cidmap[target]
+
+            na = NormalizationAnnotation(_id, _type, target, refdb, refid, '')
+
+            mods.addition(na)
+            ann_obj.add_annotation(na)
 
         mod_resp = mods.json_response()
         mod_resp['annotations'] = _json_from_ann(ann_obj)

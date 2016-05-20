@@ -1,3 +1,5 @@
+# -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
 # This configuration file specifies the global setup of the brat
 # server. It is recommended that you use the installation script
 # instead of editing this file directly. To do this, run the following
