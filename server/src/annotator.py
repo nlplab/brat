@@ -33,10 +33,6 @@ from jsonwrap import loads as json_loads, dumps as json_dumps
 from message import Messager
 from projectconfig import ProjectConfiguration, ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY
 
-### Constants
-MUL_NL_REGEX = re_compile(r'\n+')
-###
-
 #TODO: Couldn't we incorporate this nicely into the Annotations class?
 #TODO: Yes, it is even gimped compared to what it should do when not. This
 #       has been a long pending goal for refactoring.
