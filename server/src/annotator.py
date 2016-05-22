@@ -175,7 +175,8 @@ def _text_spans_for_offsets(text, offsets):
     try:
         return [text[s:e] for s, e in offsets]
     except Exception:
-        Messager.error('_text_for_offsets: failed to get text for given offsets (%s)' % str(offsets))
+        Messager.error('_text_spans_for_offsets: failed to get text for given offsets (%s)'
+                       % str(offsets))
         raise ProtocolArgumentError
 
 def _text_for_offsets(text, offsets):
@@ -324,40 +325,8 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
             text = txt_file.read()
             text_spans = _text_spans_for_offsets(text, offsets)
 
-        # The below code resolves cases where there are newlines or tabs in the
-        #   offsets by creating discontinuous annotations for each span
-        #   separated by newlines/tabs. For most cases it preserves the offsets.
-        seg_offsets = []
-        for (o_start, o_end), offset_pair_text in zip(offsets, text_spans):
-            pos = o_start
-            for text_seg in chain.from_iterable(split_span.split('\t') for split_span
-                                                in offset_pair_text.split('\n')):
-                if not text_seg and o_start != o_end:
-                    # Double newline or tab, skip ahead
-                    pos += 1
-                    continue
-                start = pos
-                end = start + len(text_seg)
-
-                # For the next iteration the position is after the newline/tab.
-                pos = end + 1
-
-                # Adjust the offsets to compensate for any potential leading
-                #   and trailing whitespace.
-                start += len(text_seg) - len(text_seg.lstrip())
-                end -= len(text_seg) - len(text_seg.rstrip())
-
-                # If there is any segment left, add it to the offsets.
-                if start != end:
-                    seg_offsets.append((start, end, ))
-
-        # if we're dealing with a null-span
-        if not seg_offsets:
-            seg_offsets = offsets
-
-        ann_text = DISCONT_SEP.join((text[start:end]
-            for start, end in seg_offsets))
-        ann = TextBoundAnnotationWithText(seg_offsets, new_id, type, ann_text)
+        ann_text = DISCONT_SEP.join((text[s:e] for s, e in offsets))
+        ann = TextBoundAnnotationWithText(offsets, new_id, type, ann_text)
         ann_obj.add_annotation(ann)
         mods.addition(ann)
     else:
@@ -585,6 +554,39 @@ def _offset_overlaps(offsets):
     # No overlap detected
     return False
 
+def _adjust_offsets_for_newlines_and_tabs(offsets, text_spans):
+    # The below code resolves cases where there are newlines or tabs in the
+    #   offsets by creating discontinuous annotations for each span
+    #   separated by newlines/tabs. For most cases it preserves the offsets.
+    seg_offsets = []
+    for (o_start, o_end), offset_pair_text in zip(offsets, text_spans):
+        pos = o_start
+        for text_seg in chain.from_iterable(split_span.split('\t') for split_span
+                                            in offset_pair_text.split('\n')):
+            if not text_seg and o_start != o_end:
+                # Double newline or tab, skip ahead
+                pos += 1
+                continue
+            start = pos
+            end = start + len(text_seg)
+
+            # For the next iteration the position is after the newline/tab.
+            pos = end + 1
+
+            # Adjust the offsets to compensate for any potential leading
+            #   and trailing whitespace.
+            start += len(text_seg) - len(text_seg.lstrip())
+            end -= len(text_seg) - len(text_seg.rstrip())
+
+            # If there is any segment left, add it to the offsets.
+            if start != end:
+                seg_offsets.append((start, end, ))
+
+    # if we're dealing with a null-span
+    if not seg_offsets:
+        seg_offsets = offsets
+    return seg_offsets
+
 #TODO: ONLY determine what action to take! Delegate to Annotations!
 def _create_span(collection, document, offsets, _type, attributes=None,
                  normalizations=None, _id=None, comment=None):
@@ -614,6 +616,8 @@ def _create_span(collection, document, offsets, _type, attributes=None,
         if ann_obj._read_only:
             raise AnnotationsIsReadOnlyError(ann_obj.get_document())
 
+        text_spans = _text_spans_for_offsets(ann_obj.get_document_text(), offsets)
+        offsets = _adjust_offsets_for_newlines_and_tabs(offsets, text_spans)
         mods = ModificationTracker()
 
         if _id is not None:
