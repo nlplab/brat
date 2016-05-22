@@ -894,7 +894,7 @@ var Visualizer = (function($, window, undefined) {
             // TODO heuristics
             fragmentTexts.push(fragment.text);
           });
-          span.text = fragmentTexts.join('');
+          span.text = fragmentTexts.join(' ');
         }); // data.spans
 
         for (var i = 0; i < 2; i++) {
