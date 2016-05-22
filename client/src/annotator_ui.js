@@ -362,7 +362,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
           // fallback for firefox (at least):
           // it's unclear why, but for firefox the anchor and focus
-          // node parents are always undefined, the the anchor and
+          // node parents are always undefined, the anchor and
           // focus nodes themselves do (often) have the necessary
           // chunk ID. However, anchor offsets are almost always
           // wrong, so we'll just make a guess at what the user might
@@ -1581,7 +1581,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // fallback for firefox (at least):
         // it's unclear why, but for firefox the anchor and focus
-        // node parents are always undefined, the the anchor and
+        // node parents are always undefined, the anchor and
         // focus nodes themselves do (often) have the necessary
         // chunk ID. However, anchor offsets are almost always
         // wrong, so we'll just make a guess at what the user might
