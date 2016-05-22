@@ -167,17 +167,24 @@ def _offsets_equal(o1, o2):
         return True
     return sorted(o1) == sorted(o2)
 
+def _text_spans_for_offsets(text, offsets):
+    """
+    Given a text and a list of (start, end) integer offsets, returns
+    a list of text spans corresponding to those offsets.
+    """
+    try:
+        return [text[s:e] for s, e in offsets]
+    except Exception:
+        Messager.error('_text_for_offsets: failed to get text for given offsets (%s)' % str(offsets))
+        raise ProtocolArgumentError
+
 def _text_for_offsets(text, offsets):
     """
     Given a text and a list of (start, end) integer offsets, returns
     the (catenated) text corresponding to those offsets, joined
     appropriately for use in a TextBoundAnnotation(WithText).
     """
-    try:
-        return DISCONT_SEP.join(text[s:e] for s,e in offsets)
-    except Exception:
-        Messager.error('_text_for_offsets: failed to get text for given offsets (%s)' % str(offsets))
-        raise ProtocolArgumentError
+    return DISCONT_SEP.join(_text_spans_for_offsets(text, offsets))
 
 def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
         undo_resp={}):
@@ -315,16 +322,16 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
         # Get the text span
         with open_textfile(txt_file_path, 'r') as txt_file:
             text = txt_file.read()
-            text_span = _text_for_offsets(text, offsets)
+            text_spans = _text_spans_for_offsets(text, offsets)
 
         # The below code resolves cases where there are newlines or tabs in the
         #   offsets by creating discontinuous annotations for each span
         #   separated by newlines/tabs. For most cases it preserves the offsets.
         seg_offsets = []
-        for o_start, o_end in offsets:
+        for (o_start, o_end), offset_pair_text in zip(offsets, text_spans):
             pos = o_start
-            for text_seg in chain.from_iterable(split_span.split('\t')
-                                                for split_span in text_span.split('\n')):
+            for text_seg in chain.from_iterable(split_span.split('\t') for split_span
+                                                in offset_pair_text.split('\n')):
                 if not text_seg and o_start != o_end:
                     # Double newline or tab, skip ahead
                     pos += 1
