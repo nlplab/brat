@@ -103,7 +103,7 @@ class AnnotationCollectionNotFoundError(ProtocolError):
         # TODO: more specific error?
         json_dic['exception'] = 'annotationCollectionNotFound'
         return json_dic
-   
+
 
 class EventWithoutTriggerError(ProtocolError):
     def __init__(self, event):
@@ -115,7 +115,7 @@ class EventWithoutTriggerError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'eventWithoutTrigger'
         return json_dic
-   
+
 
 class EventWithNonTriggerError(ProtocolError):
     def __init__(self, event, non_trigger):
@@ -242,7 +242,7 @@ def is_valid_id(id):
 
     try:
         # currently accepting any ID that can be split.
-        # TODO: consider further constraints 
+        # TODO: consider further constraints
         __split_annotation_id(id)[1]
         return True
     except InvalidIdError:
@@ -258,7 +258,7 @@ class Annotations(object):
 
     def get_document(self):
         return self._document
-    
+
     def _select_input_files(self, document):
         """
         Given a document name (path), returns a list of the names of
@@ -305,14 +305,14 @@ class Annotations(object):
                     self._read_only = True
             else:
                 # Our last shot, we go for as many partial files as possible
-                input_files = [sugg_path for sugg_path in 
+                input_files = [sugg_path for sugg_path in
                         (document + '.' + suff
                             for suff in PARTIAL_ANN_FILE_SUFF)
                         if isfile(sugg_path)]
                 self._read_only = True
 
         return input_files
-            
+
     #TODO: DOC!
     def __init__(self, document, read_only=False):
         # this decides which parsing function is invoked by annotation
@@ -349,7 +349,7 @@ class Annotations(object):
         # Maximum id number used for each id prefix, to speed up id generation
         #XXX: This is effectively broken by the introduction of id suffixes
         self._max_id_num_by_prefix = defaultdict(lambda : 1)
-        # Annotation by id, not includid non-ided annotations 
+        # Annotation by id, not includid non-ided annotations
         self._ann_by_id = {}
         ###
 
@@ -372,7 +372,7 @@ class Annotations(object):
         # Finally, parse the given annotation file
         try:
             self._parse_ann_file()
-        
+
             # Sanity checking that can only be done post-parse
             self._sanity()
         except UnicodeDecodeError:
@@ -447,10 +447,10 @@ class Annotations(object):
                 if conflict_ann_ids:
                     referencer = self.get_ann_by_id(list(conflict_ann_ids)[0])
                     raise TriggerReferenceError(tr_ann, referencer)
-        
+
     def get_events(self):
         return (a for a in self if isinstance(a, EventAnnotation))
-    
+
     def get_attributes(self):
         return (a for a in self if isinstance(a, AttributeAnnotation))
 
@@ -471,7 +471,7 @@ class Annotations(object):
         triggers = [t for t in self.get_triggers()]
         return (a for a in self if (isinstance(a, TextBoundAnnotation) and
                                     not a in triggers))
-    
+
     def get_oneline_comments(self):
         #XXX: The status exception is for the document status protocol
         #       which is yet to be formalised
@@ -513,7 +513,7 @@ class Annotations(object):
                 for ent in merge_cand.entities:
                     if ent in eq_ann.entities:
                         for m_ent in merge_cand.entities:
-                            if m_ent not in eq_ann.entities: 
+                            if m_ent not in eq_ann.entities:
                                 eq_ann.entities.append(m_ent)
                         # Don't try to delete ann since it never was added
                         if merge_cand != ann:
@@ -583,7 +583,7 @@ class Annotations(object):
             soft_deps, hard_deps = other_ann.get_deps()
             if unicode(ann.id) in soft_deps | hard_deps:
                 ann_deps.append(other_ann)
-              
+
         # If all depending are AttributeAnnotations or EquivAnnotations,
         # delete all modifiers recursively (without confirmation) and remove
         # the annotation id from the equivs (and remove the equiv if there is
@@ -630,7 +630,7 @@ class Annotations(object):
                     # covered above.
                     assert False, "INTERNAL ERROR"
             ann_deps = []
-            
+
         if ann_deps:
             raise DependingAnnotationDeleteError(ann, ann_deps)
 
@@ -659,7 +659,7 @@ class Annotations(object):
         # Update the modification time
         from time import time
         self.ann_mtime = time()
-    
+
     def get_ann_by_id(self, id):
         #TODO: DOC
         try:
@@ -709,7 +709,7 @@ class Annotations(object):
             if match is None:
                 raise IdedAnnotationLineSyntaxError(id, self.ann_line,
                         self.ann_line_num + 1, input_file_path)
-                
+
             _type, target = match.groups()
             value = True
         else:
@@ -755,7 +755,7 @@ class Annotations(object):
         except ValueError:
             # cannot have a relation with just a type (contra event)
             raise IdedAnnotationLineSyntaxError(id, self.ann_line, self.ann_line_num+1, input_file_path)
-            
+
         try:
             args = [tuple(arg.split(':')) for arg in type_tail.split()]
         except ValueError:
@@ -830,7 +830,7 @@ class Annotations(object):
                 if d != data:
                     data = d
                     break
-            
+
         match = re_match(r'(\S+) (\S+) (\S+?):(\S+)', data)
         if match is None:
             raise IdedAnnotationLineSyntaxError(_id, self.ann_line, self.ann_line_num + 1, input_file_path)
@@ -844,7 +844,7 @@ class Annotations(object):
         except ValueError:
             raise IdedAnnotationLineSyntaxError(_id, self.ann_line, self.ann_line_num+1, input_file_path)
         return OnelineCommentAnnotation(target, _id, _type, data_tail, source_id=input_file_path)
-    
+
     def _parse_ann_file(self):
         self.ann_line_num = -1
         for input_file_path in self._input_files:
@@ -935,7 +935,7 @@ class Annotations(object):
     def __enter__(self):
         # No need to do any handling here, the constructor handles that
         return self
-    
+
     def __exit__(self, type, value, traceback):
         #self._file_input.close()
         if not self._read_only:
@@ -944,7 +944,7 @@ class Annotations(object):
             # We are hitting the disk a lot more than we should here, what we
             # should have is a modification flag in the object but we can't
             # due to how we change the annotations.
-            
+
             out_str = unicode(self)
             with open_textfile(self._input_files[0], 'r') as old_ann_file:
                 old_str = old_ann_file.read()
@@ -955,7 +955,7 @@ class Annotations(object):
                 return
 
             from config import WORK_DIR
-            
+
             # Protect the write so we don't corrupt the file
             with file_lock(path_join(WORK_DIR,
                     str(hash(self._input_files[0].replace('/', '_')))
@@ -1025,7 +1025,7 @@ class TextAnnotations(Annotations):
                 textfile_path = document[:len(document) - len(file_ext)]
 
         self._document_text = self._read_document_text(textfile_path)
-        
+
         Annotations.__init__(self, document, read_only)
 
     def _parse_textbound_annotation(self, id, data, data_tail, input_file_path):
@@ -1055,7 +1055,7 @@ class TextAnnotations(Annotations):
         spanlen = sum([end-start for start, end in spans]) + (len(spans)-1)*len(DISCONT_SEP)
 
         # Require tail to be either empty or to begin with the text
-        # corresponding to the catenation of the start:end spans. 
+        # corresponding to the catenation of the start:end spans.
         # If the tail is empty, force a fill with the corresponding text.
         if data_tail.strip() == '' and spanlen > 0:
             Messager.error(u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.")
@@ -1125,7 +1125,7 @@ class Annotation(object):
 
     def __repr__(self):
         return u'%s("%s")' % (unicode(self.__class__), unicode(self))
-    
+
     def get_deps(self):
         return (set(), set())
 
@@ -1280,7 +1280,7 @@ class EquivAnnotation(TypedAnnotation):
     other annotations (normally TextBoundAnnotation) to be equivalent.
 
     Represented in standoff as
-    
+
     *\tTYPE ID1 ID2 [...]
 
     Where "*" is the literal asterisk character.
@@ -1323,7 +1323,7 @@ class AttributeAnnotation(IdedAnnotation):
         IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.target = target
         self.value = value
-        
+
     def __str__(self):
         return u'%s\t%s %s%s%s' % (
                 self.id,
@@ -1377,7 +1377,7 @@ class OnelineCommentAnnotation(IdedAnnotation):
     def __init__(self, target, id, type, tail, source_id=None):
         IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.target = target
-        
+
     def __str__(self):
         return u'%s\t%s %s%s' % (
                 self.id,
@@ -1405,7 +1405,7 @@ class TextBoundAnnotation(IdedAnnotation):
     TextBoundAnnotationWithText for that.
 
     Represented in standoff as
-    
+
     ID\tTYPE START END
 
     Where START and END are positive integer offsets identifying the
@@ -1567,7 +1567,7 @@ class BinaryRelationAnnotation(IdedAnnotation):
             self.arg2,
             self.tail
             )
-    
+
     def get_deps(self):
         soft_deps, hard_deps = IdedAnnotation.get_deps(self)
         hard_deps.add(self.arg1)
