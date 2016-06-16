@@ -1873,9 +1873,9 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#arc_roles, #span_roles').on('click', '.collapser', collapseHandler);
 
       var spanFormSubmitRadio = function(evt) {
+        showValidAttributes();
+        showValidNormalizations();
         if (Configuration.confirmModeOn) {
-          showValidAttributes();
-          showValidNormalizations();
           $('#span_form-ok').focus();
         } else {
           spanFormSubmit(evt, $(evt.target));
