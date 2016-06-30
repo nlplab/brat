@@ -1344,6 +1344,43 @@ var Visualizer = (function($, window, undefined) {
         return arrowId;
       }
 
+      var createStyleMap = function(styles) {
+          /* Given a list of [ID, attrib, value] lists, return dict of
+             dicts d where d[ID][attrib] == value.
+          */
+          var styleMap = {};
+
+          if (!styles) {
+              return styleMap;
+          }
+          for (var i=0; i<styles.length; i++) {
+              var style = styles[i];
+
+              if (!style || style.length !== 3) {
+                  console.log('warning: invalid style spec:', style);
+                  continue;
+              }
+
+              var targetRef = style[0],
+                  attribute = style[1],
+                  value = style[2];
+
+              // map multipart IDs to reference string by joining w/space
+              if (targetRef instanceof Array) {
+                  targetRef = targetRef.join(' ');
+              }
+
+              if (styleMap[targetRef] === undefined) {
+                  styleMap[targetRef] = {};
+              }
+              if (styleMap[targetRef][attribute] !== undefined) {
+                  console.log('warning: multiple style definitions for',
+                              targetRef, attribute);
+              }
+              styleMap[targetRef][attribute] = value;
+          }
+          return styleMap;
+      };
 
       var drawing = false;
       var redraw = false;
@@ -1388,6 +1425,8 @@ Util.profileStart('measures');
 
         var sizes = getTextAndSpanTextMeasurements();
         data.sizes = sizes;
+
+        var styleMap = createStyleMap(sourceData['styles']);
 
         adjustTowerAnnotationSizes();
         var maxTextWidth = 0;
@@ -1593,6 +1632,19 @@ Util.profileStart('chunks');
             var borderColor = ((spanDesc && spanDesc.borderColor) ||
                                (spanTypes.SPAN_DEFAULT &&
                                 spanTypes.SPAN_DEFAULT.borderColor) || '#000000');
+
+            // set span-specific styles
+            if (styleMap[span.id]) {
+                if (styleMap[span.id]['fgColor'] !== undefined) {
+                    fgColor = styleMap[span.id]['fgColor'];
+                }
+                if (styleMap[span.id]['bgColor'] !== undefined) {
+                    bgColor = styleMap[span.id]['bgColor'];
+                }
+                if (styleMap[span.id]['borderColor'] !== undefined) {
+                    borderColor = styleMap[span.id]['borderColor'];
+                }
+            }
 
             // special case: if the border 'color' value is 'darken',
             // then just darken the BG color a bit for the border.
@@ -2155,10 +2207,33 @@ Util.profileStart('arcs');
           var dashArray = arcDesc && arcDesc.dashArray;
           var arrowHead = ((arcDesc && arcDesc.arrowHead) ||
                            (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead) ||
-                           'triangle,5') + ',' + color;
+                           'triangle,5');
           var labelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
                                 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow) ||
-                                'triangle,5') + ',' + color;
+                                'triangle,5');
+
+          // set arc-specific styles
+          var arcRef = [arc.origin, arc.target, arc.type].join(' ');
+          if (styleMap[arcRef]) {
+              if (styleMap[arcRef]['color'] !== undefined) {
+                  color = styleMap[arcRef]['color'];
+              }
+              if (styleMap[arcRef]['symmetric'] !== undefined) {
+                  symmetric = styleMap[arcRef]['symmetric'];
+              }
+              if (styleMap[arcRef]['dashArray'] !== undefined) {
+                  dashArray = styleMap[arcRef]['dashArray'];
+              }
+              if (styleMap[arcRef]['arrowHead'] !== undefined) {
+                  arrowHead = styleMap[arcRef]['arrowHead'];
+              }
+              if (styleMap[arcRef]['labelArrow'] !== undefined) {
+                  labelArrowHead = styleMap[arcRef]['labelArrow'];
+              }
+          }
+
+          arrowHead +=  ',' + color;
+          labelArrowHead += ',' + color;
 
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
@@ -2390,7 +2465,8 @@ Util.profileStart('arcs');
               }
               if (height > row.maxArcHeight) row.maxArcHeight = height;
 
-              var myArrowHead   = ((arcDesc && arcDesc.arrowHead) ||
+              var myArrowHead   = ((styleMap[arcRef] && styleMap[arcRef]['arrowHead']) ||
+                                   (arcDesc && arcDesc.arrowHead) ||
                                    (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
               var arrowName = (symmetric ? myArrowHead || 'none' :
                     (leftToRight ? 'none' : myArrowHead || 'triangle,5')
@@ -2400,7 +2476,8 @@ Util.profileStart('arcs');
 
               var arrowAtLabelAdjust = 0;
               var labelArrowDecl = null;
-              var myLabelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
+              var myLabelArrowHead = ((styleMap[arcRef] && styleMap[arcRef]['labelArrow']) ||
+                                      (arcDesc && arcDesc.labelArrow) ||
                                       (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow));
               if (myLabelArrowHead) {
                 var labelArrowName = (leftToRight ?
