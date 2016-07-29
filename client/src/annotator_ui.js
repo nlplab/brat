@@ -881,9 +881,11 @@ var AnnotatorUI = (function($, window, undefined) {
           $.each(attrTypes, function(attrNo, attr) {
             var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
             var attrIsApplicable = $.inArray(attr.type, validAttrs) != -1;
-
             if (attrIsApplicable) {
-              $input.val(attr.default).change(); // reset form value to default
+              // If attribute is not currently showing, then reset form value to default.
+              if ($input.closest('.attribute_type_label').css('display') == 'none') {
+                $input.val(attr.default).change();
+              }
             } else {
               $input.val('').change(); // clear form value to avoid submitting inapplicable default value
             }
