@@ -34,6 +34,12 @@ NORM_LOOKUP_DEBUG = True
 
 REPORT_LOOKUP_TIMINGS = False
 
+try:
+    from config import SHOW_SYNONYMS
+except ImportError:
+    # unlimited
+    SHOW_SYNONYMS = False
+
 # debugging
 def _check_DB_version(database):
     # TODO; not implemented yet for new-style SQL DBs.
@@ -221,9 +227,10 @@ def _format_datas(datas, scores=None, matched=None):
                                               data_dict[label] not in matched):
                     data_dict[label] = value
                 else:
-                    syn_label = "%s Synonyms" % label
-                    data_dict.setdefault(syn_label,[]).append(value)
-                    extra_labels[syn_label] = True
+                    if SHOW_SYNONYMS:
+                        syn_label = "%s Synonyms" % label
+                        data_dict.setdefault(syn_label,[]).append(value)
+                        extra_labels[syn_label] = True
         # construct item
         item = [str(key)]
         for label in unique_labels:
@@ -234,16 +241,16 @@ def _format_datas(datas, scores=None, matched=None):
                 item.append(value)
             else:
                 item.append('')
+        if SHOW_SYNONYMS:
+            for label in extra_labels:
+                if label in data_dict:
+                    value = data_dict[label]
+                    if isinstance(value, list):
+                        value = " | ".join(value)
+                    item.append(value)
+                else:
+                    item.append('')
 
-        for label in extra_labels:
-            if label in data_dict:
-                value = data_dict[label]
-                if isinstance(value, list):
-                    value = " | ".join(value)
-                item.append(value)
-            else:
-                item.append('')
-        
         if DISPLAY_SEARCH_SCORES:
             item += [str(scores.get(key))]
 
