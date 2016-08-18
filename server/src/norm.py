@@ -204,17 +204,12 @@ def _format_datas(datas, scores=None, matched=None):
     unique_labels.sort(lambda a,b: cmp(a[0],b[0]))
     unique_labels = [a[1] for a in unique_labels]
 
-    # ID is first field, and datatype is "string" for all labels
-    header = [(label, "string") for label in ["ID"] + unique_labels]
-
-    if DISPLAY_SEARCH_SCORES:
-        header += [("score", "int")]
-
     # construct items, sorted by score first, ID second (latter for stability)
     sorted_keys = sorted(datas.keys(), lambda a,b: cmp((scores.get(b,0),b),
                                                        (scores.get(a,0),a)))
 
     items = []
+    extra_labels = {}
     for key in sorted_keys:
         # make dict for lookup. In case of duplicates (e.g. multiple
         # "synonym" entries), prefer ones that were matched.
@@ -225,11 +220,27 @@ def _format_datas(datas, scores=None, matched=None):
                 if label not in data_dict or (value in matched and
                                               data_dict[label] not in matched):
                     data_dict[label] = value
+                else:
+                    syn_label = "%s Synonyms" % label
+                    data_dict.setdefault(syn_label,[]).append(value)
+                    extra_labels[syn_label] = True
         # construct item
         item = [str(key)]
         for label in unique_labels:
             if label in data_dict:
-                item.append(data_dict[label])
+                value = data_dict[label]
+                if isinstance(value, list):
+                    value = " | ".join(value)
+                item.append(value)
+            else:
+                item.append('')
+
+        for label in extra_labels:
+            if label in data_dict:
+                value = data_dict[label]
+                if isinstance(value, list):
+                    value = " | ".join(value)
+                item.append(value)
             else:
                 item.append('')
         
@@ -237,6 +248,12 @@ def _format_datas(datas, scores=None, matched=None):
             item += [str(scores.get(key))]
 
         items.append(item)
+
+    # ID is first field, and datatype is "string" for all labels
+    header = [(label, "string") for label in ["ID"] + unique_labels + [ k for k in extra_labels ] ]
+
+    if DISPLAY_SEARCH_SCORES:
+        header += [("score", "int")]
 
     return header, items
 
