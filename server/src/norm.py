@@ -515,19 +515,23 @@ def _test():
             delta = datetime.now() - start
             found = False
             found_rank = -1
+            has_synonym = False
             for rank, item in enumerate(results['items']):
                 id_ = item[0]
                 if id_ == target:
                     found = True
                     found_rank = rank+1
+                    if len(item) >= 2:
+                        has_synonym = True
                     break
             strdelta = str(delta).replace('0:00:0','').replace('0:00:','')
-            print "%s: '%s' <- '%s' rank %d/%d (%s sec)" % ('  ok' if found 
+            print "%s: '%s' <- '%s' rank %d/%d (%s sec) %s" % ('  ok' if found 
                                                             else 'MISS',
                                                             target, query, 
                                                             found_rank,
                                                             len(results['items']),
-                                                            strdelta)
+                                                            strdelta,
+                                                            ' has Synonym(s)' if has_synonym else '')
             query_count += 1
             if found:
                 hit_count += 1
@@ -554,5 +558,9 @@ def _profile_test():
     cProfile.run('_test()', 'norm.profile')
 
 if __name__ == '__main__':
+    SHOW_SYNONYMS=False
     _test() # normal
+    print '  ### SWITCH SYNONYMS ON ###  '
+    SHOW_SYNONYMS=True
+    _test()
     #_profile_test() # profiled
