@@ -236,8 +236,6 @@ def _format_datas(datas, scores=None, matched=None):
         for label in unique_labels:
             if label in data_dict:
                 value = data_dict[label]
-                if isinstance(value, list):
-                    value = " | ".join(value)
                 item.append(value)
             else:
                 item.append('')
