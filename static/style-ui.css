@@ -11,6 +11,30 @@ body .ui-widget {
   font-size: 0.9em; /* override jQuery UI */
 }
 
+.missing_label {
+    margin-left: 5px;
+    background: #70A8D2;
+    border-radius: 3px;
+    border-color: black;
+    border-width: medium;
+    padding: 2px 5px 2px 5px;
+    font-size: 80%;
+    font-weight: bold;
+    color: white;
+    white-space: nowrap;
+}
+#missing_annotations {
+  background-color: #ffffff;
+  padding-left: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 90%;
+}
+#missing_annotation_list
+{
+  display: inline;
+  padding-left: 5px;
+}
 
 #navbuttons * {
   vertical-align: middle;

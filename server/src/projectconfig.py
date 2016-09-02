@@ -195,6 +195,12 @@ class TypeHierarchyNode:
             if self.terms[i][0] == "!":
                 self.terms[i]= self.terms[i][1:]
                 self.unused = True
+            elif self.terms[i][0] == "*":
+                self.terms[i]= self.terms[i][1:] #JPG
+                self.required = True
+            else:
+                self.required = False
+
         self.children = []
 
         # The first of the listed terms is used as the primary term for
