@@ -3050,6 +3050,7 @@ Util.profileReport();
           setTimeout(function() {
               try {
                 renderDataReal(sourceData);
+                dispatcher.post('missingLabels', [sourceData.missing]); //JPG
               } catch (e) {
                 // We are sure not to be drawing anymore, reset the state
                 drawing = false;

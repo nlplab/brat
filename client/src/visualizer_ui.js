@@ -1530,6 +1530,25 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
+      //JPG
+      var refreshAndMove = function(response) {
+        dispatcher.post('setDocument', [selectorData.items[response.new_pos][2],
+                                        selectorData.items[response.new_pos][1]]);
+        return false;
+
+      }
+
+      var nextUnannotated = function(dir) {
+        var pos = currentSelectorPosition();
+        // Request the server to reload collection:
+        dispatcher.post('ajax',
+                        [{ action: 'get_next_unnanotated', collection: selectorData.collection, start: pos },
+                        'refreshAndMove',
+                         {collection: selectorData.collection, keep: true}]);
+
+
+        return false;
+      };
       var moveInFileBrowser = function(dir) {
         var pos = currentSelectorPosition();
         var newPos = pos + dir;
@@ -1886,6 +1905,7 @@ var VisualizerUI = (function($, window, undefined) {
     
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();
+      var headerHeight = $('#mainHeader').height() + $('#missing_annotations').height(); //JPG
       $('#svg').css('margin-top', headerHeight + 10);
       aboutDialog = $('#about');
       aboutDialog.dialog({
@@ -2292,6 +2312,20 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('hideForm');
       };
 
+      //JPG:
+      var updateMissingLabels = function(missing_labels)
+      {
+
+        $('#missing_annotation_list').empty();
+        for (var i in missing_labels)
+        {
+
+            var $label = $('<label>').text(missing_labels[i]);
+            $label.addClass('missing_label');
+            $('#missing_annotation_list').append($label); //$label);
+            $('#missing_annotation_list').append(" ");
+        }
+      };
       dispatcher.
           on('init', init).
           on('dataReady', rememberData).
@@ -2307,6 +2341,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('initForm', initForm).
           on('collectionLoaded', rememberNormDb).
           on('collectionLoaded', collectionLoaded).
+          on('refreshAndMove', refreshAndMove).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('isReloadOkay', isReloadOkay).
           on('current', gotCurrent).
@@ -2330,7 +2365,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('clearSVG', showNoDocMessage).
           on('screamingHalt', onScreamingHalt).
           on('configurationChanged', configurationChanged).
-          on('configurationUpdated', updateConfigurationUI);
+          on('configurationUpdated', updateConfigurationUI).
+          on('missingLabels', updateMissingLabels);
     };
 
     return VisualizerUI;
