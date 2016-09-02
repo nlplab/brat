@@ -2290,6 +2290,10 @@ var VisualizerUI = (function($, window, undefined) {
       $('#next').button().click(function() {
         return moveInFileBrowser(+1);
       });
+      $('#fast_forward').button().click(function() {
+        return nextUnannotated();
+      });
+
       $('#footer').show();
 
       $('#source_collection_conf_on, #source_collection_conf_off').change(function() {
