@@ -68,6 +68,8 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
+            if hasattr(node, 'required'):
+                item["required"] = node.required #JPG
             item['labels'] = project_conf.get_labels_by_type(_type)
             item['attributes'] = project_conf.attributes_for(_type)
             item['normalizations'] = node.normalizations()
@@ -887,6 +889,20 @@ def _document_json_dict(document):
 
         _enrich_json_with_data(j_dic, ann_obj)
 
+        """
+        JPG Remove:
+        (_, entity_types, _, _) = get_base_types(dirname(document))
+        required_entities = [x["name"] for x in entity_types if x["required"]]
+        used_entities = [x[1] for x in j_dic["entities"]]
+        j_dic["missing"] = [x for x in required_entities if x not in used_entities]
+
+        import sys
+        sys.stderr.write("hi\n")
+        sys.stderr.write(str(required_entities) + "\n")
+        sys.stderr.write(str(used_entities) + "\n")
+        sys.stderr.write(str(j_dic["missing"]) + "\n")
+        sys.stderr.write("\n")
+        """
     return j_dic
 
 def get_document(collection, document):

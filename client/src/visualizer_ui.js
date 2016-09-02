@@ -2174,7 +2174,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var documentChangesTimer = null;
-      var maxDocumentChangesTimeout = 32 * 1000;
+      var maxDocumentChangesTimeout = Configuration.refreshRate * 1000;
       var documentChangesTimeout = 1 * 1000;
       var checkForDocumentChanges = function() {
         if (coll && doc && dispatcher.post('isReloadOkay', [], 'all')) {
@@ -2317,15 +2317,29 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       //JPG:
-      var updateMissingLabels = function(missing_labels)
+      var updateMissingLabels = function(used_labels)
       {
+        missing_labels = []
+        for (var i in spanTypes)
+        {
+            if (spanTypes[i].required)
+            {
+                if (used_labels.indexOf(spanTypes[i].type) < 0)
+                    missing_labels.push(spanTypes[i])
+            }
 
-        $('#missing_annotation_list').empty();
+        }
+
+        $('#missing_annotation_list').empty()
         for (var i in missing_labels)
         {
 
-            var $label = $('<label>').text(missing_labels[i]);
+            var $label = $('<label>').text(missing_labels[i].name);
             $label.addClass('missing_label');
+            if (missing_labels[i].bgColor)
+                $label.css("background-color", missing_labels[i].bgColor);
+            if (missing_labels[i].fgColor)
+                $label.css("color", missing_labels[i].fgColor);
             $('#missing_annotation_list').append($label); //$label);
             $('#missing_annotation_list').append(" ");
         }
