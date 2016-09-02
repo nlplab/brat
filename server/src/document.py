@@ -888,21 +888,6 @@ def _document_json_dict(document):
                     s_i += 1
 
         _enrich_json_with_data(j_dic, ann_obj)
-
-        """
-        JPG Remove:
-        (_, entity_types, _, _) = get_base_types(dirname(document))
-        required_entities = [x["name"] for x in entity_types if x["required"]]
-        used_entities = [x[1] for x in j_dic["entities"]]
-        j_dic["missing"] = [x for x in required_entities if x not in used_entities]
-
-        import sys
-        sys.stderr.write("hi\n")
-        sys.stderr.write(str(required_entities) + "\n")
-        sys.stderr.write(str(used_entities) + "\n")
-        sys.stderr.write(str(j_dic["missing"]) + "\n")
-        sys.stderr.write("\n")
-        """
     return j_dic
 
 def get_document(collection, document):
