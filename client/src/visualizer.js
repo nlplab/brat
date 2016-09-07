@@ -3060,7 +3060,6 @@ Util.profileReport();
                 usedLabels = []
                 for (var i in sourceData.entities)
                     usedLabels.push(sourceData.entities[i][1]);
-                console.log(usedLabels);
                 dispatcher.post('missingLabels', [usedLabels]);
               } catch (e) {
                 // We are sure not to be drawing anymore, reset the state

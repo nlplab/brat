@@ -22,6 +22,7 @@ from convert.convert import convert
 from docimport import save_import
 from document import (get_directory_information, get_document, get_next_unnanotated,
         get_document_timestamp, get_configuration)
+from ranking import get_ranking
 from download import download_file, download_collection
 from inspect import getargspec
 from itertools import izip
@@ -51,6 +52,8 @@ DISPATCHER = {
         'getDocument': get_document,
         'getDocumentTimestamp': get_document_timestamp,
         'importDocument': save_import,
+
+        'getRanking': get_ranking,
 
         'storeSVG': store_svg,
         'retrieveStored': retrieve_stored,

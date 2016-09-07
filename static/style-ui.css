@@ -11,8 +11,13 @@ body .ui-widget {
   font-size: 0.9em; /* override jQuery UI */
 }
 
+.no_border {   /*maybe consolidate?*/
+    border-collapse: collapse;
+}
+
+
 .missing_label {
-    margin-left: 5px;
+    margin-left: 3px;
     background: #70A8D2;
     border-radius: 3px;
     border-color: black;
@@ -66,12 +71,11 @@ body .ui-widget {
 #pulldown div + div {
   margin-top: 10px;
 }
-#auth_button {
+
+.non_collection_buttons{
   float: right;
 }
-#options_button {
-  float: right;
-}
+
 
 #pulluptrigger {
   height: 35px;
@@ -464,6 +468,21 @@ div.scroll_wrapper_upper div.scroller {
 #export_page tr.background1 {
   background-color: #dddddd;
 }
+
+.rankingRow {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.rankingRow label {
+  display: inline-block;
+  width: 15em;
+}
+
+.rankingRow input {
+  display: inline-block;
+  width: 5em;
+}
+
 .optionRow {
   margin-top: 0.5em;
   margin-bottom: 0.5em;

@@ -36,7 +36,7 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
         options_get_validation, options_get_tokenization,
         options_get_ssplitter, get_annotation_config_section_labels,
         visual_options_get_arc_bundle,
-        visual_options_get_text_direction)
+        visual_options_get_text_direction, options_get_annlogfile)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -617,6 +617,10 @@ def get_directory_information(collection):
     # fill in NER services, if any
     ner_taggers = get_annotator_config(real_dir)
 
+    #send logging directory:
+    logging =  options_get_annlogfile(real_dir)
+
+
     return _inject_annotation_type_conf(real_dir, json_dic={
             'items': combolist,
             'header' : doclist_header,
@@ -628,6 +632,7 @@ def get_directory_information(collection):
             'normalization_config' : normalization_config,
             'annotation_logging': ann_logging,
             'ner_taggers': ner_taggers,
+            'logging': logging,
             })
 
 class UnableToReadTextFile(ProtocolError):

@@ -1452,6 +1452,51 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* END options dialog - related */
 
+      /* START ranking dialog - related */
+      var rankingForm = $('#ranking_form');
+      var rankingFormSubmit = function(evt) {
+        dispatcher.post('hideForm');
+        return false;
+      };
+      rankingForm.submit(rankingFormSubmit);
+      initForm(rankingForm, {
+          width: 550,
+          resizable: false,
+          no_cancel: true,
+          open: function(evt) {
+            keymap = {};
+          }
+      });
+
+
+      var onUpdateRanking = function(response){
+        $('#num_annotated_documents').val(response.total_annotated_docs);
+        $('#num_annotations').val(response.total_annotations);
+        $('#document_select tbody').empty();
+
+        var leaderboard = $('#leaderboard').DataTable(); // api instance
+        leaderboard.clear();
+        leaderboard.rows.add(response.ranking);
+        leaderboard.draw();
+
+        //$('#leaderboard').dataTable().class("")
+
+        // "aaData": response.ranking,
+
+      }
+
+      $('#ranking_button').click(function() {
+        dispatcher.post('ajax',
+                        [{ action: 'getRanking', collection: selectorData.collection},
+                        'onUpdateRanking']);
+        dispatcher.post('showForm', [rankingForm]);
+      });
+
+      $("#leaderboard").dataTable({ "scrollY":  "150px", "paging": false,  "bInfo" : false, "bFilter": false});
+
+      /* END ranking dialog - related */
+
+
 
       /* START "more collection information" dialog - related */
 
@@ -2384,7 +2429,8 @@ var VisualizerUI = (function($, window, undefined) {
           on('screamingHalt', onScreamingHalt).
           on('configurationChanged', configurationChanged).
           on('configurationUpdated', updateConfigurationUI).
-          on('missingLabels', updateMissingLabels);
+          on('missingLabels', updateMissingLabels).
+          on('onUpdateRanking', onUpdateRanking);
     };
 
     return VisualizerUI;
