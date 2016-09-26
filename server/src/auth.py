@@ -10,7 +10,8 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
 '''
 
-from hashlib import sha512
+from hashlib import pbkdf2_hmac
+from base64 import b64encode
 from os.path import dirname, join as path_join, isdir
 
 try:
@@ -68,11 +69,12 @@ class InvalidAuthError(ProtocolError):
 def _is_authenticated(user, password):
     # TODO: Replace with a database back-end
     return (user in USER_PASSWORD and
-            password == USER_PASSWORD[user])
-            #password == _password_hash(USER_PASSWORD[user]))
+            #password == USER_PASSWORD[user])
+            #TODO: generate randomly and store salts, instead of using the username string
+            USER_PASSWORD[user] == _password_hash(user, password))
 
-def _password_hash(password):
-    return sha512(password).hexdigest()
+def _password_hash(user, password):
+    return b64encode(pbkdf2_hmac('sha256', password.encode('utf-8'), user.encode('utf-8'), 30000))
 
 def login(user, password):
     if not _is_authenticated(user, password):
