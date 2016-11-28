@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 from os import listdir, walk
 from subprocess import Popen, PIPE
 
-from filelock import file_lock, PID_WARN
+from filelock_brat import file_lock, PID_WARN
 
 from config import BACKUP_DIR, DATA_DIR
 
