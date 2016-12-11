@@ -388,20 +388,30 @@
         </div>
         <div id="search_tab_event">
           <table class="fullwidth">
-            <tr>
-              <td>Type</td>
-              <td colspan="3">
-                <select id="search_form_event_type"/>
-              </td>
-            </tr>
-            <tr>
-              <td>Trigger</td>
-              <td colspan="3">
-                <input id="search_form_event_trigger" class="fullwidth"
-                    placeholder="Text to match (empty=anything)"/>
-              </td>
-            </tr>
-            <tbody id="search_form_event_roles"/>
+            <tbody>
+              <tr>
+                <td>Type</td>
+                <td colspan="3">
+                  <select id="search_form_event_type"/>
+                </td>
+              </tr>
+              <tr>
+                <td>Trigger</td>
+                <td colspan="3">
+                  <input id="search_form_event_trigger" class="fullwidth"
+                         placeholder="Text to match (empty=anything)"/>
+                </td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr><td rowspan="0">Attributes </td></tr>
+              <tr><td colspan="2" id="search_form_event_attrs"></td></tr>
+            </tbody>
+            <tbody id="search_form_event_roles">
+              <tr>
+                <td rowspan="0">Roles</td>
+              </tr>
+            </tbody>
           </table>
         </div>
         <div id="search_tab_relation">

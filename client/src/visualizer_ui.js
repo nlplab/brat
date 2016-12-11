@@ -16,8 +16,7 @@ var VisualizerUI = (function($, window, undefined) {
       var currentForm;
       var spanTypes = null;
       var relationTypesHash = null;
-      // TODO: confirm unnecessary and remove
-//       var attributeTypes = null;
+      var attributeTypes = null;
       var data = null;
       var mtime = null;
       var searchConfig = null;
@@ -66,7 +65,7 @@ var VisualizerUI = (function($, window, undefined) {
         }, 2000);
         $('#source_files').hide();
       }
-      
+
       /* END "no svg" message - related */
 
       /* START collection browser sorting - related */
@@ -344,7 +343,7 @@ var VisualizerUI = (function($, window, undefined) {
               // max length restriction
               if (value.length > 300) {
                 value = value.substr(0, 300) + ' ...';
-              }                          
+              }
 
               norminfo += ('<span class="norm_info_label">'+
                            Util.escapeHTML(label)+
@@ -378,7 +377,7 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var displaySpanComment = function(
-          evt, target, spanId, spanType, mods, spanText, commentText, 
+          evt, target, spanId, spanType, mods, spanText, commentText,
           commentType, normalizations) {
 
         var immediately = false;
@@ -396,8 +395,8 @@ var VisualizerUI = (function($, window, undefined) {
         }
 
         comment += '</div>';
-        comment += ('<div class="comment_text">"' + 
-                    Util.escapeHTML(spanText) + 
+        comment += ('<div class="comment_text">"' +
+                    Util.escapeHTML(spanText) +
                     '"</div>');
         var validArcTypesForDrag = dispatcher.post('getValidArcTypesForDrag', [spanId, spanType]);
         if (validArcTypesForDrag && validArcTypesForDrag[0]) {
@@ -434,15 +433,15 @@ var VisualizerUI = (function($, window, undefined) {
           }
         });
 
-        // display initial comment HTML 
-        displayComment(evt, target, comment, commentText, commentType, 
+        // display initial comment HTML
+        displayComment(evt, target, comment, commentText, commentType,
                        immediately);
 
         // initiate AJAX calls for the normalization data to query
         $.each(normsToQuery, function(normqNo, normq) {
           // TODO: cache some number of most recent norm_get_data results
           var dbName = normq[0], dbKey = normq[1], infoSeqId = normq[2];
-          
+
           if (normCacheGet(dbName, dbKey)) {
             fillNormInfo(normCacheGet(dbName, dbKey), infoSeqId);
           } else {
@@ -473,14 +472,14 @@ var VisualizerUI = (function($, window, undefined) {
 
       var displayArcComment = function(
           evt, target, symmetric, arcId,
-          originSpanId, originSpanType, role, 
+          originSpanId, originSpanType, role,
           targetSpanId, targetSpanType,
           commentText, commentType) {
         var arcRole = target.attr('data-arc-role');
         // in arrowStr, &#8212 == mdash, &#8594 == Unicode right arrow
         var arrowStr = symmetric ? '&#8212;' : '&#8594;';
-        var arcDisplayForm = Util.arcDisplayForm(spanTypes, 
-                                                 data.spans[originSpanId].type, 
+        var arcDisplayForm = Util.arcDisplayForm(spanTypes,
+                                                 data.spans[originSpanId].type,
                                                  arcRole,
                                                  relationTypesHash);
         var comment = "";
@@ -495,13 +494,13 @@ var VisualizerUI = (function($, window, undefined) {
                                                          targetSpanType)) +
                     '</span>' +
                     '<span class="comment_id">' +
-                    (arcId ? 'ID:'+arcId : 
+                    (arcId ? 'ID:'+arcId :
                      Util.escapeHTML(originSpanId) +
-                     arrowStr + 
+                     arrowStr +
                      Util.escapeHTML(targetSpanId)) +
                     '</span>' +
                     '</span>');
-        comment += ('<div class="comment_text">' + 
+        comment += ('<div class="comment_text">' +
                     Util.escapeHTML('"'+data.spans[originSpanId].text+'"') +
                     arrowStr +
                     Util.escapeHTML('"'+data.spans[targetSpanId].text + '"') +
@@ -593,7 +592,7 @@ var VisualizerUI = (function($, window, undefined) {
         // https://github.com/nlplab/brat/issues/934
 
         var self = $dialog.dialog('instance');
-        
+
         if (self._isOpen) { return; }
 
         self._isOpen = true;
@@ -884,7 +883,7 @@ var VisualizerUI = (function($, window, undefined) {
         $('#document_input').val(doc);
 
         $('#readme').val(selectorData.description || '');
-        if (selectorData.description && 
+        if (selectorData.description &&
             (selectorData.description.match(/\n/) ||
              selectorData.description.length > 50)) {
           // multi-line or long description; show "more" button and fill
@@ -973,6 +972,7 @@ var VisualizerUI = (function($, window, undefined) {
         // nice-looking selects and upload fields
         $('#search_form select').addClass('ui-widget ui-state-default ui-button-text');
         $('#search_form_load_file').addClass('ui-widget ui-state-default ui-button-text');
+        addAttrsToSearch($('#search_form_event_attrs'), eventAttributeTypes, 'event');
       }
 
       // when event role changes, event types do as well
@@ -1052,17 +1052,81 @@ var VisualizerUI = (function($, window, undefined) {
       $('#search_form_event_roles').on('click', '.search_event_role_add input', addEmptySearchEventRole);
       $('#search_form_event_roles').on('click', '.search_event_role_del input', delSearchEventRole);
 
-      // When event type changes, the event roles do as well
-      // Also, put in one empty role row
+      // TODO: de-duplicate this code with the stuff in annotator_ui.js?
+
+      var updateCheckbox = function($input) {
+        var $widget = $input.button('widget');
+        var $textspan = $widget.find('.ui-button-text');
+        $textspan.html(($input[0].checked ? '&#x2611; ' : '&#x2610; ') + $widget.attr('data-bare'));
+      };
+
+      var onBooleanAttrChange = function(evt) {
+        if (evt.type == 'change') { // ignore the click event on the UI element
+          var attrCategory = evt.target.getAttribute('category');
+          updateCheckbox($(evt.target));
+        }
+      };
+
+      var addAttrsToSearch = function(attrsElmt, attrTypes, category) {
+        $.each(attrTypes, function(attrNo, attr) {
+          var escapedType = Util.escapeQuotes(attr.type);
+          var attrId = category+'_attr_search_'+escapedType;
+          var $span = $('<span class="attribute_type_label"/>').appendTo(attrsElmt);
+          if (attr.unused) {
+            $('<input type="hidden" id="'+attrId+'" value=""/>').appendTo($span);
+          } else if (attr.bool) {
+            var escapedName = Util.escapeQuotes(attr.name);
+            var $input = $('<input type="checkbox" id="'+attrId+
+                           '" value="' + escapedType +
+                           '" category="' + category + '"/>');
+            var $label = $('<label for="'+attrId+
+                           '" data-bare="' + escapedName + '">&#x2610; ' +
+                           escapedName + '</label>');
+            $span.append($input).append($label);
+            $input.button();
+            $input.change(onBooleanAttrChange);
+          } else {
+            // var $div = $('<div class="ui-button ui-button-text-only attribute_type_label"/>');
+            $span.text(attr.name);
+            $span.append(':&#160;');
+            var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text" category="' + category + '"/>');
+            var $option = $('<option class="ui-state-default" value=""/>').text('?');
+            $select.append($option);
+            $.each(attr.values, function(valueNo, value) {
+              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(value.name) + '"/>').text(value.name);
+              $select.append($option);
+            });
+            $span.append($select);
+            $select.combobox();
+          }
+        });
+      }
+
+      // When event type changes, the event roles and attributes do as well.
       $('#search_form_event_type').change(function(evt) {
+        var eventType = spanTypes[$(this).val()];
+
+        var validAttrs = eventType ? eventType.attributes : [];
+        $.each(eventAttributeTypes, function(attrNo, attr) {
+          var input = $('#event_attr_search_'+Util.escapeQuotes(attr.type));
+          var attrIsApplicable = $.inArray(attr.type, validAttrs) != -1;
+          if (attrIsApplicable) {
+            // $input.button('widget').parent().show();
+            input.closest('.attribute_type_label').show();
+          } else {
+            // $input.button('widget').parent().hide();
+            input.closest('.attribute_type_label').hide();
+          }
+        });
+
         var $roles = $('#search_form_event_roles').empty();
         searchEventRoles = [];
-        var eventType = spanTypes[$(this).val()];
         var arcTypes = eventType && eventType.arcs || [];
         $.each(arcTypes, function(arcTypeNo, arcType) {
           var arcTypeName = arcType.labels && arcType.labels[0] || arcType.type;
           searchEventRoles.push([arcType.type, arcTypeName]);
         });
+        // Put in one empty role row.
         addEmptySearchEventRole();
       });
 
@@ -1491,9 +1555,9 @@ var VisualizerUI = (function($, window, undefined) {
             // NOTE: spec seems to require this to be upper-case,
             // but at least chrome 8.0.552.215 returns lowercased
             var nodeType = evt.target.type ? evt.target.type.toLowerCase() : '';
-            if (evt.target.nodeName && 
-                evt.target.nodeName.toLowerCase() == 'input' && 
-                (nodeType == 'text' || 
+            if (evt.target.nodeName &&
+                evt.target.nodeName.toLowerCase() == 'input' &&
+                (nodeType == 'text' ||
                  nodeType == 'password')) {
               currentForm.trigger('submit');
               return false;
@@ -1542,8 +1606,8 @@ var VisualizerUI = (function($, window, undefined) {
         }
         return false;
       };
-     
-      /* Automatically proceed from document to document */ 
+
+      /* Automatically proceed from document to document */
       var autoPagingTimeout = null;
       var autoPaging = function(on) {
           clearTimeout(autoPagingTimeout);
@@ -1765,7 +1829,7 @@ var VisualizerUI = (function($, window, undefined) {
           $cmpButton.append($cmpLink);
           $cmpLink.button();
         }
-          
+
         $docName = $('#document_name input').val(coll + doc);
         var docName = $docName[0];
         // TODO do this on resize, as well
@@ -1882,8 +1946,8 @@ var VisualizerUI = (function($, window, undefined) {
         var val = this.value;
         dispatcher.post('annotationSpeed', [val]);
         return false;
-      });      
-    
+      });
+
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();
       $('#svg').css('margin-top', headerHeight + 10);
@@ -2102,16 +2166,12 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('setCollection', [collection, '', sourceData.arguments]);
       };
 
-      // TODO: confirm attributeTypes unnecessary and remove
-//       var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
-//         spanTypes = _spanTypes;
-//         attributeTypes = _attributeTypes;
-//       };
       // TODO: spanAndAttributeTypesLoaded is obviously not descriptive of
       // the full function. Rename reasonably.
       var spanAndAttributeTypesLoaded = function(_spanTypes, _entityAttributeTypes, _eventAttributeTypes, _relationTypesHash) {
         spanTypes = _spanTypes;
         relationTypesHash = _relationTypesHash;
+        eventAttributeTypes = _eventAttributeTypes;
       };
 
       var annotationIsAvailable = function() {
@@ -2225,7 +2285,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var updateConfigurationUI = function() {
         // update UI to reflect non-user config changes (e.g. load)
-        
+
         // Annotation mode
         if (Configuration.confirmModeOn) {
           $('#annotation_speed1')[0].checked = true;
@@ -2238,10 +2298,10 @@ var VisualizerUI = (function($, window, undefined) {
 
         // Label abbrevs
         $('#label_abbreviations_on')[0].checked  = Configuration.abbrevsOn;
-        $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn; 
+        $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn;
         $('#label_abbreviations input').button('refresh');
 
-        // Text backgrounds        
+        // Text backgrounds
         $('#text_backgrounds input[value="'+Configuration.textBackgrounds+'"]')[0].checked = true;
         $('#text_backgrounds input').button('refresh');
 
