@@ -7,6 +7,7 @@
 
 from __future__ import with_statement
 
+from collections import defaultdict
 import re
 import annotation
 
@@ -86,7 +87,7 @@ class TextMatch(object):
     def last_end(self):
         # mimic last_end() for TextBoundAnnotation
         return self.end
-        
+
     def reference_id(self):
         # mimic reference_id for annotations
         # this is the form expected by client Util.param()
@@ -148,7 +149,7 @@ def __filenames_to_annotations(filenames):
     """
     Given file names, returns corresponding Annotations objects.
     """
-    
+
     # TODO: error output should be done via messager to allow
     # both command-line and GUI invocations
 
@@ -304,7 +305,7 @@ def eq_text_neq_type_spans(ann_objs, restrict_types=None, ignore_types=None, nes
     matches = SearchMatchSet("Text marked with different types")
 
     text_type_ann_map = _get_text_type_ann_map(ann_objs, restrict_types, ignore_types, nested_types)
-    
+
     for text in text_type_ann_map:
         if len(text_type_ann_map[text]) < 2:
             # all matching texts have same type, OK
@@ -409,7 +410,7 @@ def _split_tokens_more(tokens):
     # sanity
     assert ''.join(tokens) == ''.join(new_tokens), "INTERNAL ERROR"
     return new_tokens
-        
+
 def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
     """
     Searches for spans that match in string content but are not all
@@ -454,7 +455,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
         start_offset = 0
         for start in range(len(tokens)):
             for end in range(start, len(tokens)):
-                s = "".join(tokens[start:end])                
+                s = "".join(tokens[start:end])
                 end_offset = start_offset + len(s)
 
                 if len(s) > max_length_tagged:
@@ -503,7 +504,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
         freq_ratio_cutoff = 3
         cutoff_limit = 5
 
-        if (len(tagged) > freq_ratio_cutoff * len(untagged) and 
+        if (len(tagged) > freq_ratio_cutoff * len(untagged) and
             len(tagged) > cutoff_limit):
             # cut off all but cutoff_limit from tagged
             for ann_obj, m in tagged[:cutoff_limit]:
@@ -523,8 +524,8 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
             # include all
             for ann_obj, m in tagged + untagged:
                 matches.add_match(ann_obj, m)
-            
-    
+
+
     return matches
 
 def check_type_consistency(ann_objs, restrict_types=None, ignore_types=None, nested_types=None):
@@ -589,13 +590,13 @@ def _get_match_regex(text, text_match="word", match_case=False,
             return re.compile(text, regex_flags)
         except: # whatever (sre_constants.error, other?)
             Messager.warning('Given string "%s" is not a valid regular expression.' % text)
-            return None        
+            return None
     else:
         Messager.error('Unrecognized search match specification "%s"' % text_match)
-        return None    
+        return None
 
-def search_anns_for_textbound(ann_objs, text, restrict_types=None, 
-                              ignore_types=None, nested_types=None, 
+def search_anns_for_textbound(ann_objs, text, restrict_types=None,
+                              ignore_types=None, nested_types=None,
                               text_match="word", match_case=False,
                               entities_only=False):
     """
@@ -640,12 +641,12 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=None,
                 continue
             if restrict_types != [] and t.type not in restrict_types:
                 continue
-            if (text != None and text != "" and 
+            if (text != None and text != "" and
                 text != DEFAULT_EMPTY_STRING and not match_regex.search(t.get_text())):
                 continue
             if nested_types != []:
                 # TODO: massively inefficient
-                nested = [x for x in ann_obj.get_textbounds() 
+                nested = [x for x in ann_obj.get_textbounds()
                           if x != t and t.contains(x)]
                 if len([x for x in nested if x.type in nested_types]) == 0:
                     continue
@@ -658,7 +659,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=None,
 
         # add to overall collection
         for t in ann_matches:
-            matches.add_match(ann_obj, t)    
+            matches.add_match(ann_obj, t)
 
         # MAX_SEARCH_RESULT_NUMBER <= 0 --> no limit
         if len(matches) > MAX_SEARCH_RESULT_NUMBER and MAX_SEARCH_RESULT_NUMBER > 0:
@@ -720,7 +721,7 @@ def search_anns_for_note(ann_objs, text, category,
                 continue
             if restrict_types != [] and a.type not in restrict_types:
                 continue
-            if (text != None and text != "" and 
+            if (text != None and text != "" and
                 text != DEFAULT_EMPTY_STRING and not match_regex.search(n.get_text())):
                 continue
 
@@ -731,7 +732,7 @@ def search_anns_for_note(ann_objs, text, category,
 
         # add to overall collection
         for t in ann_matches:
-            matches.add_match(ann_obj, t)    
+            matches.add_match(ann_obj, t)
 
         # MAX_SEARCH_RESULT_NUMBER <= 0 --> no limit
         if len(matches) > MAX_SEARCH_RESULT_NUMBER and MAX_SEARCH_RESULT_NUMBER > 0:
@@ -749,8 +750,8 @@ def search_anns_for_note(ann_objs, text, category,
 
     return matches
 
-def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type, 
-                             restrict_types=None, ignore_types=None, 
+def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
+                             restrict_types=None, ignore_types=None,
                              text_match="word", match_case=False):
     """
     Searches the given Annotations objects for relation annotations
@@ -782,11 +783,11 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
         (arg2 is not None and arg2_match_regex is None)):
         # something went wrong, return empty
         return matches
-    
+
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
         ann_matches = []
-        
+
         # binary relations and equivs need to be treated separately due
         # to different structure (not a great design there)
         for r in ann_obj.get_relations():
@@ -808,7 +809,7 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
                     continue
                 if arg2type is not None and arg2type != arg2ent.type:
                     continue
-                
+
             ann_matches.append(r)
 
         for r in ann_obj.get_equivs():
@@ -826,7 +827,7 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
             # 'Protein' for both arg1type and arg2type can still match
             # an equiv between 'Protein' and 'Gene'.
             match_found = False
-            for arg, argtype, arg_match_regex in ((arg1, arg1type, arg1_match_regex), 
+            for arg, argtype, arg_match_regex in ((arg1, arg1type, arg1_match_regex),
                                                   (arg2, arg2type, arg2_match_regex)):
                 match_found = False
                 for aeid in r.entities:
@@ -867,9 +868,9 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
 
     return matches
 
-def search_anns_for_event(ann_objs, trigger_text, args, 
-                          restrict_types=None, ignore_types=None, 
-                          text_match="word", match_case=False):
+def search_anns_for_event(ann_objs, trigger_text, args,
+                          restrict_types=None, ignore_types=None,
+                          text_match="word", match_case=False, attrs={}):
     """
     Searches the given Annotations objects for Event annotations
     matching the given specification. Returns a SearchMatchSet object.
@@ -896,26 +897,45 @@ def search_anns_for_event(ann_objs, trigger_text, args,
         if trigger_match_regex is None:
             # something went wrong, return empty
             return matches
-    
+
+    check_attrs = any(attrs.values())
+    if check_attrs:
+        attrs = {k: v for k, v in attrs.items() if v}
+
     for ann_obj in ann_objs:
         # collect per-document (ann_obj) for sorting
         ann_matches = []
+        if check_attrs:
+            event_attrs = defaultdict(dict)
+            for a in ann_obj.get_attributes():
+                if a.target[0] == 'E': # event attribute
+                    event_attrs[a.target][a.type] = a.value
 
         for e in ann_obj.get_events():
             if e.type in ignore_types:
                 continue
             if restrict_types != [] and e.type not in restrict_types:
                 continue
+            if check_attrs:
+                attrs_ok = True
+                current_event_attrs = event_attrs.get(e.id, [])
+                for attr_type, requested_value in attrs.items():
+                    # We're checking explicitly set attributes, so if an attribute is not set, that's a problem.
+                    if requested_value != current_event_attrs.get(attr_type, None):
+                        attrs_ok = False
+                        break
+                if not attrs_ok:
+                    continue
 
             try:
                 t_ann = ann_obj.get_ann_by_id(e.trigger)
             except:
                 # TODO: specific exception
-                Messager.error('Failed to retrieve trigger annotation %s, skipping event %s in search' % (e.trigger, e.id))            
+                Messager.error('Failed to retrieve trigger annotation %s, skipping event %s in search' % (e.trigger, e.id))
 
             # TODO: make options for "text included" vs. "text matches"
-            if (trigger_text != None and trigger_text != "" and 
-                trigger_text != DEFAULT_EMPTY_STRING and 
+            if (trigger_text != None and trigger_text != "" and
+                trigger_text != DEFAULT_EMPTY_STRING and
                 not trigger_match_regex.search(t_ann.text)):
                 continue
 
@@ -941,7 +961,7 @@ def search_anns_for_event(ann_objs, trigger_text, args,
                             continue
 
                         arg_ent = ann_obj.get_ann_by_id(aid)
-                        if (arg['type'] is not None and arg['type'] != '' and 
+                        if (arg['type'] is not None and arg['type'] != '' and
                             arg['type'] != arg_ent.type):
                             # mismatch on type
                             continue
@@ -997,8 +1017,8 @@ def search_anns_for_event(ann_objs, trigger_text, args,
 
     return matches
 
-def search_anns_for_text(ann_objs, text, 
-                         restrict_types=None, ignore_types=None, nested_types=None, 
+def search_anns_for_text(ann_objs, text,
+                         restrict_types=None, ignore_types=None, nested_types=None,
                          text_match="word", match_case=False):
     """
     Searches for the given text in the document texts of the given
@@ -1018,7 +1038,7 @@ def search_anns_for_text(ann_objs, text,
     if restrict_types != []:
         description = description + ' (embedded in %s)' % (",".join(restrict_types))
     if ignore_types != []:
-        description = description + ' (not embedded in %s)' % ",".join(ignore_types)    
+        description = description + ' (not embedded in %s)' % ",".join(ignore_types)
     matches = SearchMatchSet(description)
 
     # compile a regular expression according to arguments for matching
@@ -1118,7 +1138,7 @@ def format_results(matches, concordancing=False, context_length=50,
         except:
             # whatever goes wrong ...
             Messager.warning('Context length should be an integer larger than zero.')
-            return {}            
+            return {}
 
     # the search response format is built similarly to that of the
     # directory listing.
@@ -1126,7 +1146,7 @@ def format_results(matches, concordancing=False, context_length=50,
     response = {}
 
     # fill in header for search result browser
-    response['header'] = [('Document', 'string'), 
+    response['header'] = [('Document', 'string'),
                           ('Annotation', 'string')]
 
     # determine which additional fields can be shown; depends on the
@@ -1240,12 +1260,12 @@ def format_results(matches, concordancing=False, context_length=50,
         docid = basename(ann_obj.get_document())
 
         # matches in the same doc other than the focus match
-        other_matches = [rid for rid in matches_by_doc[docid] 
+        other_matches = [rid for rid in matches_by_doc[docid]
                          if rid != ann.reference_id()]
 
         items.append(["a", { 'matchfocus' : [ann.reference_id()],
                              'match' : other_matches,
-                             }, 
+                             },
                       docid, ann.reference_text()])
 
         if include_type:
@@ -1276,7 +1296,7 @@ def format_results(matches, concordancing=False, context_length=50,
 
         if context_ann is not None:
             # right context
-            end = min(context_ann.last_end() + context_length, 
+            end = min(context_ann.last_end() + context_length,
                       len(ann_obj.get_document_text()))
             doctext = ann_obj.get_document_text()
             items[-1].append(doctext[context_ann.last_end():end])
@@ -1319,22 +1339,21 @@ def search_text(collection, document, scope="collection",
     concordancing = _to_bool(concordancing)
     match_case = _to_bool(match_case)
 
-    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)    
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
-    matches = search_anns_for_text(ann_objs, text, 
-                                   text_match=text_match, 
+    matches = search_anns_for_text(ann_objs, text,
+                                   text_match=text_match,
                                    match_case=match_case)
-        
+
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
-    
+
     return results
 
 def search_entity(collection, document, scope="collection",
                   concordancing="false", context_length=50,
                   text_match="word", match_case="false",
                   type=None, text=DEFAULT_EMPTY_STRING):
-
     directory = collection
 
     # Interpret JSON booleans
@@ -1347,14 +1366,14 @@ def search_entity(collection, document, scope="collection",
     if type is not None and type != "":
         restrict_types.append(type)
 
-    matches = search_anns_for_textbound(ann_objs, text, 
-                                        restrict_types=restrict_types, 
+    matches = search_anns_for_textbound(ann_objs, text,
+                                        restrict_types=restrict_types,
                                         text_match=text_match,
                                         match_case=match_case)
-        
+
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
-    
+
     return results
 
 def search_note(collection, document, scope="collection",
@@ -1375,19 +1394,20 @@ def search_note(collection, document, scope="collection",
         restrict_types.append(type)
 
     matches = search_anns_for_note(ann_objs, text, category,
-                                   restrict_types=restrict_types, 
+                                   restrict_types=restrict_types,
                                    text_match=text_match,
                                    match_case=match_case)
-        
+
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
-    
+
     return results
 
 def search_event(collection, document, scope="collection",
                  concordancing="false", context_length=50,
                  text_match="word", match_case="false",
-                 type=None, trigger=DEFAULT_EMPTY_STRING, args={}):
+                 type=None, trigger=DEFAULT_EMPTY_STRING, args='{}',
+                 attrs='{}'):
 
     directory = collection
 
@@ -1402,25 +1422,27 @@ def search_event(collection, document, scope="collection",
         restrict_types.append(type)
 
     # to get around lack of JSON object parsing in dispatcher, parse
-    # args here. 
+    # args here.
     # TODO: parse JSON in dispatcher; this is far from the right place to do this..
     from jsonwrap import loads
     args = loads(args)
+    attrs = loads(attrs)
 
-    matches = search_anns_for_event(ann_objs, trigger, args, 
+    matches = search_anns_for_event(ann_objs, trigger, args,
                                     restrict_types=restrict_types,
-                                    text_match=text_match, 
-                                    match_case=match_case)
+                                    text_match=text_match,
+                                    match_case=match_case,
+                                    attrs=attrs)
 
     results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
-    
+
     return results
 
-def search_relation(collection, document, scope="collection", 
+def search_relation(collection, document, scope="collection",
                     concordancing="false", context_length=50,
                     text_match="word", match_case="false",
-                    type=None, arg1=None, arg1type=None, 
+                    type=None, arg1=None, arg1type=None,
                     arg2=None, arg2type=None,
                     show_text=False, show_type=False):
 
@@ -1431,7 +1453,7 @@ def search_relation(collection, document, scope="collection",
     match_case = _to_bool(match_case)
     show_text = _to_bool(show_text)
     show_type = _to_bool(show_type)
-    
+
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
     restrict_types = []
@@ -1447,7 +1469,7 @@ def search_relation(collection, document, scope="collection",
     results = format_results(matches, concordancing, context_length,
                              show_text, show_type)
     results['collection'] = directory
-    
+
     return results
 
 ### filename list interface functions (e.g. command line) ###

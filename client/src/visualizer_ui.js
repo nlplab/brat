@@ -1297,6 +1297,23 @@ var VisualizerUI = (function($, window, undefined) {
           case 'searchEvent':
             opts.type = $('#search_form_event_type').val() || '';
             opts.trigger = $('#search_form_event_trigger').val();
+            attrs = {}
+            // Select all visible attribute form elements that contain real data.
+            $('#search_form_event_attrs').children(':visible').find('input[category], select[category]').each(function() {
+              node = $(this);
+              // TODO: maybe these checkboxes should be three-way, so that you can also
+              // filter by whether the attribute is *not* present?
+              val = null;
+              if ('checked' in this) { // boolean
+                val = this.checked;
+              } else {
+                val = node.val();
+              }
+              id_cmpts = node.attr('id').split('_');
+              attrs[id_cmpts[id_cmpts.length - 1]] = val;
+            });
+            opts.attrs = $.toJSON(attrs);
+
             var eargs = [];
             $('#search_form_event_roles tr').each(function() {
               var earg = {};
