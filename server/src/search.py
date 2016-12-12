@@ -179,19 +179,27 @@ def __filenames_to_annotations(filenames):
 
     return anns
 
-def __directory_to_annotations(directory):
+def __directory_to_annotations(directory, recursive=False):
     """
     Given a directory, returns Annotations objects for contained files.
     """
     # TODO: put this shared functionality in a more reasonable place
-    from document import real_directory,_listdir
+    from document import real_directory, _listdir
     from os.path import join as path_join
+    from os import walk
+
+    def get_filenames(directory):
+        # Get the document names
+        base_names = [fn[0:-4] for fn in _listdir(directory) if fn.endswith('txt')]
+        return [path_join(directory, bn) for bn in base_names]
 
     real_dir = real_directory(directory)
-    # Get the document names
-    base_names = [fn[0:-4] for fn in _listdir(real_dir) if fn.endswith('txt')]
-
-    filenames = [path_join(real_dir, bn) for bn in base_names]
+    if recursive:
+        filenames = []
+        for subdir, _, _ in walk(real_dir):
+            filenames.extend(get_filenames(subdir))
+    else:
+        filenames = get_filenames(real_dir)
 
     return __filenames_to_annotations(filenames)
 
@@ -209,19 +217,19 @@ def __document_to_annotations(directory, document):
 
     return __filenames_to_annotations(filenames)
 
-def __doc_or_dir_to_annotations(directory, document, scope):
+def __doc_or_dir_to_annotations(directory, document, scope, recursive=False):
     """
-    Given a directory, a document, and a scope specification
-    with the value "collection" or "document" selecting between
-    the two, returns Annotations object for either the specific
-    document identified (scope=="document") or all documents in
-    the given directory (scope=="collection").
+    Given a directory, a document, a scope specification with the value
+    "collection" or "document" selecting between the two, and a boolean
+    for whether to search recursively, returns Annotations object for
+    either the specific document identified (scope=="document") or all
+    documents in the given directory (scope=="collection").
     """
 
     # TODO: lots of magic values here; try to avoid this
 
     if scope == "collection":
-        return __directory_to_annotations(directory)
+        return __directory_to_annotations(directory, recursive)
     elif scope == "document":
         # NOTE: "/NO-DOCUMENT/" is a workaround for a brat
         # client-server comm issue (issue #513).
@@ -1119,7 +1127,8 @@ def _get_arg_n(ann_obj, ann, n):
         return None
 
 def format_results(matches, concordancing=False, context_length=50,
-                   include_argument_text=False, include_argument_type=False):
+                   collection='', include_argument_text=False,
+                   include_argument_type=False):
     """
     Given matches to a search (a SearchMatchSet), formats the results
     for the client, returning a dictionary with the results in the
@@ -1128,7 +1137,7 @@ def format_results(matches, concordancing=False, context_length=50,
     # decided to give filename only, remove this bit if the decision
     # sticks
 #     from document import relative_directory
-    from os.path import basename
+    from os.path import relpath
 
     # sanity
     if concordancing:
@@ -1243,8 +1252,11 @@ def format_results(matches, concordancing=False, context_length=50,
     # gather sets of reference IDs by document to highlight
     # all matches in a document at once
     matches_by_doc = {}
+
+    from document import real_directory
+    collection_path = real_directory(collection)
     for ann_obj, ann in matches.get_matches():
-        docid = basename(ann_obj.get_document())
+        docid = relpath(ann_obj.get_document(), collection_path)
 
         if docid not in matches_by_doc:
             matches_by_doc[docid] = []
@@ -1257,7 +1269,7 @@ def format_results(matches, concordancing=False, context_length=50,
         # First value ("a") signals that the item points to a specific
         # annotation, not a collection (directory) or document.
         # second entry is non-listed "pointer" to annotation
-        docid = basename(ann_obj.get_document())
+        docid = relpath(ann_obj.get_document(), collection_path)
 
         # matches in the same doc other than the focus match
         other_matches = [rid for rid in matches_by_doc[docid]
@@ -1331,21 +1343,24 @@ def _to_bool(s):
 def search_text(collection, document, scope="collection",
                 concordancing="false", context_length=50,
                 text_match="word", match_case="false",
-                text=""):
+                text="", recursive=False):
 
     directory = collection
 
     # Interpret JSON booleans
     concordancing = _to_bool(concordancing)
     match_case = _to_bool(match_case)
+    recursive = _to_bool(recursive)
 
-    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope,
+                                           recursive)
 
     matches = search_anns_for_text(ann_objs, text,
                                    text_match=text_match,
                                    match_case=match_case)
 
-    results = format_results(matches, concordancing, context_length)
+    results = format_results(matches, concordancing, context_length,
+                             collection)
     results['collection'] = directory
 
     return results
@@ -1353,14 +1368,16 @@ def search_text(collection, document, scope="collection",
 def search_entity(collection, document, scope="collection",
                   concordancing="false", context_length=50,
                   text_match="word", match_case="false",
-                  type=None, text=DEFAULT_EMPTY_STRING):
+                  type=None, text=DEFAULT_EMPTY_STRING, recursive=False):
     directory = collection
 
     # Interpret JSON booleans
     concordancing = _to_bool(concordancing)
     match_case = _to_bool(match_case)
+    recursive = _to_bool(recursive)
 
-    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope,
+                                           recursive)
 
     restrict_types = []
     if type is not None and type != "":
@@ -1371,7 +1388,8 @@ def search_entity(collection, document, scope="collection",
                                         text_match=text_match,
                                         match_case=match_case)
 
-    results = format_results(matches, concordancing, context_length)
+    results = format_results(matches, concordancing, context_length,
+                             collection)
     results['collection'] = directory
 
     return results
@@ -1379,15 +1397,18 @@ def search_entity(collection, document, scope="collection",
 def search_note(collection, document, scope="collection",
                 concordancing="false", context_length=50,
                 text_match="word", match_case="false",
-                category=None, type=None, text=DEFAULT_EMPTY_STRING):
+                category=None, type=None, text=DEFAULT_EMPTY_STRING,
+                recursive='false'):
 
     directory = collection
 
     # Interpret JSON booleans
     concordancing = _to_bool(concordancing)
     match_case = _to_bool(match_case)
+    recursive = _to_bool(recursive)
 
-    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope,
+                                           recursive)
 
     restrict_types = []
     if type is not None and type != "":
@@ -1398,7 +1419,8 @@ def search_note(collection, document, scope="collection",
                                    text_match=text_match,
                                    match_case=match_case)
 
-    results = format_results(matches, concordancing, context_length)
+    results = format_results(matches, concordancing, context_length,
+                             collection)
     results['collection'] = directory
 
     return results
@@ -1407,15 +1429,17 @@ def search_event(collection, document, scope="collection",
                  concordancing="false", context_length=50,
                  text_match="word", match_case="false",
                  type=None, trigger=DEFAULT_EMPTY_STRING, args='{}',
-                 attrs='{}'):
+                 attrs='{}', recursive='false'):
 
     directory = collection
 
     # Interpret JSON booleans
     concordancing = _to_bool(concordancing)
     match_case = _to_bool(match_case)
+    recursive = _to_bool(recursive)
 
-    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope,
+                                           recursive)
 
     restrict_types = []
     if type is not None and type != "":
@@ -1434,7 +1458,8 @@ def search_event(collection, document, scope="collection",
                                     match_case=match_case,
                                     attrs=attrs)
 
-    results = format_results(matches, concordancing, context_length)
+    results = format_results(matches, concordancing, context_length,
+                             collection)
     results['collection'] = directory
 
     return results
@@ -1444,7 +1469,7 @@ def search_relation(collection, document, scope="collection",
                     text_match="word", match_case="false",
                     type=None, arg1=None, arg1type=None,
                     arg2=None, arg2type=None,
-                    show_text=False, show_type=False):
+                    show_text=False, show_type=False, recursive='false'):
 
     directory = collection
 
@@ -1453,8 +1478,10 @@ def search_relation(collection, document, scope="collection",
     match_case = _to_bool(match_case)
     show_text = _to_bool(show_text)
     show_type = _to_bool(show_type)
+    recursive = _to_bool(recursive)
 
-    ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
+    ann_objs = __doc_or_dir_to_annotations(directory, document, scope,
+                                           recursive)
 
     restrict_types = []
     if type is not None and type != "":
@@ -1467,7 +1494,7 @@ def search_relation(collection, document, scope="collection",
                                        match_case=match_case)
 
     results = format_results(matches, concordancing, context_length,
-                             show_text, show_type)
+                             collection, show_text, show_type)
     results['collection'] = directory
 
     return results

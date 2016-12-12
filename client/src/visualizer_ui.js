@@ -966,8 +966,21 @@ var VisualizerUI = (function($, window, undefined) {
         });
       }
 
+      var toggleRecursiveVisibility = function(newState) {
+        if (newState) {
+          $('#recursive_row').show();
+        } else {
+          $('#recursive_row').hide();
+        }
+      }
+      $('#search_scope_doc').change(function(evt) {
+        toggleRecursiveVisibility(false);
+      });
+      $('#search_scope_coll').change(function(evt) {
+        toggleRecursiveVisibility(true);
+      });
+
       var setupSearchTypes = function(response) {
-        eventTypes = response.event_types;
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
         addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
@@ -1393,6 +1406,9 @@ var VisualizerUI = (function($, window, undefined) {
         opts.text_match = $('#text_match input:checked').val()
         opts.match_case = $('#match_case_on').is(':checked');
 
+        // fill in recursive options
+        opts.recursive = $('#recursive_on').is(':checked');
+
         dispatcher.post('hideForm');
         dispatcher.post('ajax', [opts, function(response) {
           if(response && response.items && response.items.length == 0) {
@@ -1695,6 +1711,7 @@ var VisualizerUI = (function($, window, undefined) {
           documentListing = response; // 'backup'
           searchConfig = response.search_config;
           selectorData.items.sort(docSortFunction);
+          eventTypes = response.event_types;
           setupSearchTypes(response);
           // scroller at the top
           docScroll = 0;

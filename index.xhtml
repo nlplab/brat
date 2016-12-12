@@ -582,6 +582,19 @@
                    title="Require identical character case in text search ('abc' does not match 'ABC')">on</label>
           </span>
         </div>
+        <div class="optionRow" id="recursive_row" style="display:none">
+          <span class="optionLabel">Recursive</span>
+          <span id="recursive" class="radio_group small-buttons">
+            <input type="radio" id="recursive_off" value="document"
+                   name="recursive_radio" checked="checked"/>
+            <label for="recursive_off"
+                   title="Search only the current collection directory">off</label>
+            <input type="radio" id="recursive_on" value="collection"
+                   name="recursive_radio"/>
+            <label for="recursive_on"
+                   title="Search all subdirectories of the collection">on</label>
+          </span>
+        </div>
         </div>
       </fieldset>
     </form>
