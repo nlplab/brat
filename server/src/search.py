@@ -926,7 +926,7 @@ def search_anns_for_event(ann_objs, trigger_text, args,
                 continue
             if check_attrs:
                 attrs_ok = True
-                current_event_attrs = event_attrs.get(e.id, [])
+                current_event_attrs = event_attrs.get(e.id, {})
                 for attr_type, requested_value in attrs.items():
                     # We're checking explicitly set attributes, so if an attribute is not set, that's a problem.
                     if requested_value != current_event_attrs.get(attr_type, None):
