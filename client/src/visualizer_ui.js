@@ -15,6 +15,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var currentForm;
       var spanTypes = null;
+      var eventTypes = null;
       var relationTypesHash = null;
       var attributeTypes = null;
       var data = null;
@@ -966,6 +967,7 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var setupSearchTypes = function(response) {
+        eventTypes = response.event_types;
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
         addSpanTypesToSelect($('#search_form_relation_type'), response.relation_types);
@@ -1132,7 +1134,8 @@ var VisualizerUI = (function($, window, undefined) {
 
       // When event type changes, the event roles and attributes do as well.
       $('#search_form_event_type').change(function(evt) {
-        var eventType = spanTypes[$(this).val()];
+        // If "any" was selected, making val undefined, allow any attributes or role types.
+        eventType = spanTypes[$(this).val()] || {'children': eventTypes};
 
         var validAttrs = getPropertiesForAllEventSubtypes(eventType, 'attributes');
         $.each(eventAttributeTypes, function(attrNo, attr) {
