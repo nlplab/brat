@@ -1111,6 +1111,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var addAttrsToSearch = function(attrsElmt, attrTypes, category) {
+        attrsElmt.empty();
         $.each(attrTypes, function(attrNo, attr) {
           var escapedType = Util.escapeQuotes(attr.type);
           var attrId = category+'_attr_search_'+escapedType;
