@@ -975,6 +975,34 @@ var VisualizerUI = (function($, window, undefined) {
         addAttrsToSearch($('#search_form_event_attrs'), eventAttributeTypes, 'event');
       }
 
+      var getPropertiesForAllEventSubtypes = function(eventType, propertyName, comparisonKeyFn) {
+        if (!eventType) return [];
+
+        comparisonKeyFn = comparisonKeyFn || function(property) {return property;}
+
+        // TODO: surely there's a more efficient way to do this in JS???
+        var allPropertyValues = eventType[propertyName] || [];
+        for (childNo in eventType.children) {
+          var childPropertyValues = getPropertiesForAllEventSubtypes(eventType.children[childNo], propertyName);
+          for (childValueNo in childPropertyValues) {
+            var childValue = childPropertyValues[childValueNo];
+            var childKey = comparisonKeyFn(childValue);
+            var addValue = true;
+            for (existingValueNo in allPropertyValues) {
+              if (childKey === comparisonKeyFn(allPropertyValues[existingValueNo])) {
+                addValue = false;
+                break;
+              }
+            }
+            if (addValue) {
+              allPropertyValues.push(childValue);
+            }
+          }
+        }
+
+        return allPropertyValues;
+      }
+
       // when event role changes, event types do as well
       var searchEventRoles = [];
       var searchEventRoleChanged = function(evt) {
@@ -983,7 +1011,7 @@ var VisualizerUI = (function($, window, undefined) {
         var role = $(this).val();
         var origin = $('#search_form_event_type').val();
         var eventType = spanTypes[origin];
-        var arcTypes = eventType && eventType.arcs || [];
+        var arcTypes = getPropertiesForAllEventSubtypes(eventType, 'arcs', function(prop) {return prop.type;});
         var arcType = null;
         $type.html('<option value="">- Any -</option>');
         $.each(arcTypes, function(arcNo, arcDesc) {
@@ -1106,7 +1134,7 @@ var VisualizerUI = (function($, window, undefined) {
       $('#search_form_event_type').change(function(evt) {
         var eventType = spanTypes[$(this).val()];
 
-        var validAttrs = eventType ? eventType.attributes : [];
+        var validAttrs = getPropertiesForAllEventSubtypes(eventType, 'attributes');
         $.each(eventAttributeTypes, function(attrNo, attr) {
           var input = $('#event_attr_search_'+Util.escapeQuotes(attr.type));
           var attrIsApplicable = $.inArray(attr.type, validAttrs) != -1;
@@ -1121,7 +1149,7 @@ var VisualizerUI = (function($, window, undefined) {
 
         var $roles = $('#search_form_event_roles').empty();
         searchEventRoles = [];
-        var arcTypes = eventType && eventType.arcs || [];
+        var arcTypes = getPropertiesForAllEventSubtypes(eventType, 'arcs', function(prop) {return prop.type;});
         $.each(arcTypes, function(arcTypeNo, arcType) {
           var arcTypeName = arcType.labels && arcType.labels[0] || arcType.type;
           searchEventRoles.push([arcType.type, arcTypeName]);
