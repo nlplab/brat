@@ -4,7 +4,6 @@
 # heuristic postprocessor for the geniass sentence splitter, drawing
 # in part on Yoshimasa Tsuruoka's medss.pl.
 
-from __future__ import with_statement
 
 import re
 
@@ -111,7 +110,7 @@ def refine_split(s):
         r1 = orig.replace('\n', ' ')
         r2 = s.replace('\n', ' ')
         if r1 != r2:
-            print >> sys.stderr, "refine_split(): error: text mismatch (returning original):\nORIG: '%s'\nNEW:  '%s'" % (orig, s)
+            print("refine_split(): error: text mismatch (returning original):\nORIG: '%s'\nNEW:  '%s'" % (orig, s), file=sys.stderr)
             s = orig
 
     return s
@@ -129,6 +128,6 @@ if __name__ == "__main__":
             with codecs.open(fn, encoding=INPUT_ENCODING) as f:
                 s = "".join(f.read())
                 sys.stdout.write(refine_split(s).encode(OUTPUT_ENCODING))
-        except Exception, e:
-            print >> sys.stderr, "Failed to read", fn, ":", e
+        except Exception as e:
+            print("Failed to read", fn, ":", e, file=sys.stderr)
             

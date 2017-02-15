@@ -327,6 +327,6 @@ if __name__ == "__main__":
         id_ = sys.argv[2]
     else:
         id_ = "10883"
-    print data_by_id(dbname, id_)
-    print ids_by_name(dbname, 'Pleural branch of left sixth posterior intercostal artery')
-    print datas_by_name(dbname, 'Pleural branch of left sixth posterior intercostal artery')
+    print(data_by_id(dbname, id_))
+    print(ids_by_name(dbname, 'Pleural branch of left sixth posterior intercostal artery'))
+    print(datas_by_name(dbname, 'Pleural branch of left sixth posterior intercostal artery'))

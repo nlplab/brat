@@ -54,7 +54,7 @@ def ann_logger(directory):
                 handler.setFormatter(formatter)
                 l.addHandler(handler)
                 ann_logger.__logger = l
-            except IOError, e:
+            except IOError as e:
                 Messager.error("""Error: failed to initialize annotation log %s: %s.
 Edit action not logged.
 Please check the Annotation-log logfile setting in tools.conf""" % (annlogfile, e))
@@ -67,7 +67,7 @@ ann_logger.__logger = False
 
 # local abbrev; can't have literal tabs in log fields
 def _detab(s):
-    return unicode(s).replace('\t', '\\t')
+    return str(s).replace('\t', '\\t')
 
 def log_annotation(collection, document, status, action, args):
     """
@@ -104,4 +104,4 @@ def log_annotation(collection, document, status, action, args):
     l.info('%s\t%s\t%s\t%s\t%s\t%s' % (_detab(user), _detab(collection), 
                                        _detab(document), _detab(status), 
                                        _detab(action),
-                                       '\t'.join([_detab(unicode(a)) for a in other_args])))
+                                       '\t'.join([_detab(str(a)) for a in other_args])))

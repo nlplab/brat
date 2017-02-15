@@ -5,8 +5,8 @@
 # Author:       Pontus Stenetorp    <pontus stenetorp se>
 # Version:      2011-05-16
 
-SCRIPT_RELDIR=`dirname $0`
-SCRIPT_DIR=`cd $SCRIPT_RELDIR && pwd`
+SCRIPT_PATH=`readlink -f $0`
+SCRIPT_DIR=`dirname ${SCRIPT_PATH}`
 
 MECAB_VERSION=0.98
 MECAB_IPADIC_VERSION=2.7.0-20070801

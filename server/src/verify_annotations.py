@@ -4,8 +4,6 @@
 
 # Verification of BioNLP Shared Task - style annotations.
 
-from __future__ import with_statement
-
 import annotation
 
 from projectconfig import ProjectConfiguration
@@ -246,6 +244,7 @@ def verify_relations(ann_obj, projectconf):
             conf_rels = projectconf.get_relations_by_type(r.type)
             if any(c for c in conf_rels if _relation_labels_match(r, c)):
                 match_found = True
+                break
         if match_found:
             continue
 
@@ -256,6 +255,7 @@ def verify_relations(ann_obj, projectconf):
             conf_rels = projectconf.get_relations_by_type(r.type)
             if any(c for c in conf_rels if _relation_labels_match(r, c)):
                 match_found = True
+                break
         r.arg1, r.arg2, r.arg1l, r.arg2l = r.arg2, r.arg1, r.arg2l, r.arg1l
         if match_found:
             continue            
@@ -418,14 +418,14 @@ def main(argv=None):
             with annotation.TextAnnotations(nosuff_fn) as ann_obj:
                 issues = verify_annotation(ann_obj, projectconf)
                 for i in issues:
-                    print "%s:\t%s" % (fn, i.human_readable_str())
+                    print("%s:\t%s" % (fn, i.human_readable_str()))
         except annotation.AnnotationFileNotFoundError:
-            print >> sys.stderr, "%s:\tFailed check: file not found" % fn
-        except annotation.AnnotationNotFoundError, e:
-            print >> sys.stderr, "%s:\tFailed check: %s" % (fn, e)
+            print("%s:\tFailed check: file not found" % fn, file=sys.stderr)
+        except annotation.AnnotationNotFoundError as e:
+            print("%s:\tFailed check: %s" % (fn, e), file=sys.stderr)
 
     if arg.verbose:
-        print >> sys.stderr, "Check complete."
+        print("Check complete.", file=sys.stderr)
 
 if __name__ == "__main__":
     import sys

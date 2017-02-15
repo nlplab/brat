@@ -72,7 +72,7 @@ def backup(min_interval=MIN_INTERVAL, backup_dir=BACKUP_DIR, data_dir=DATA_DIR):
     if backup_dir is None:
         return
 
-    #XXX: The timeout is arbitrary but dependent on the back-up, should we start
+    #XXX: The timeout is arbitary but dependant on the back-up, should we start
     #       with a sane default and then refer to how long the last back-up
     #       took?  
     backup_lock = join_path(DATA_DIR, '.backup.lock')

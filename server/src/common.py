@@ -23,7 +23,7 @@ class ProtocolError(Exception):
         return 'ProtocolError: %s (TODO: __str__() method)' % self.__class__
 
     def json(self, json_dic):
-        raise NotImplementedError, 'abstract method'
+        raise NotImplementedError('abstract method')
 
 class ProtocolArgumentError(ProtocolError):
     def json(self, json_dic):

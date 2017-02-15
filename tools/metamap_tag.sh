@@ -18,4 +18,4 @@ METAMAP_ROOT=~/tools/MetaMap
 METAMAP_ARGS="-N"
 
 
-$METAMAP_ROOT/public_mm/bin/metamap12 $METAMAP_ARGS $@
+$METAMAP_ROOT/public_mm/bin/metamap11 $METAMAP_ARGS $@

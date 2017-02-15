@@ -261,6 +261,7 @@ class AnnotationDiff: # {{{
                 if target_in_first:
                     self.add_changed(attribute.target, 'Added attribute %s' % attribute.type)
             elif found_first.value != attribute.value:
+                first_text = self.first_textbounds[first_args[role]].get_text()
                 self.add_changed(attribute.target, 'Changed attribute %s (from %s)' % (attribute.type, found_first.value))
         for attribute in self.first.get_attributes():
             target_in_second = self.mapping.get_second(attribute.target)

@@ -159,7 +159,7 @@ def process(fn):
             # 8 DEPREL Dependency relation to the HEAD.
             fields = l.split('\t')
 
-            assert len(fields) == 10, "Format error on line %d in %s: expected 10 fields, got %d: %s" % (ln, fn, len(fields), l)
+            assert len(fields) == 10, "Format error on line %d in %s: %s" % (ln, fn, l)
 
             ID, form, POS = fields[0], fields[1], fields[4]
             head, rel = fields[6], fields[7]
@@ -191,8 +191,7 @@ def main(argv):
         try:
             process(fn)
         except Exception, e:
-            m = unicode(e).encode(OUTPUT_ENCODING)
-            print >> sys.stderr, "Error processing %s: %s" % (fn, m)
+            print >> sys.stderr, "Error processing %s: %s" % (fn, e)
             fail_count += 1
 
     if fail_count > 0:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Minimal standalone brat server based on SimpleHTTPRequestHandler.
+# Minimal standalone brat server based on CGIHTTPRequestHandler.
 
 # Run as apache, e.g. as
 #
@@ -11,12 +11,13 @@ import sys
 import os
 
 from posixpath import normpath
-from urllib import unquote
+from urllib.parse import unquote
 
 from cgi import FieldStorage
-from BaseHTTPServer import HTTPServer
-from SimpleHTTPServer import SimpleHTTPRequestHandler
-from SocketServer import ForkingMixIn
+from http.server import HTTPServer
+from http.server import SimpleHTTPRequestHandler
+from socketserver import ForkingMixIn
+from http.server import CGIHTTPRequestHandler
 import socket
 
 # brat imports
@@ -60,7 +61,7 @@ import verify_annotations
 
 _VERBOSE_HANDLER = False
 _DEFAULT_SERVER_ADDR = ''
-_DEFAULT_SERVER_PORT = 8001
+_DEFAULT_SERVER_PORT = 8881
 
 _PERMISSIONS = """
 Allow: /ajax.cgi
@@ -154,14 +155,14 @@ class PathPermissions(object):
 
         return self
 
-class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
+class BratHTTPRequestHandler(CGIHTTPRequestHandler):
     """Minimal handler for brat server."""
 
     permissions = PathPermissions().parse(_PERMISSIONS.split('\n'))
 
     def log_request(self, code='-', size='-'):
         if _VERBOSE_HANDLER:
-            SimpleHTTPRequestHandler.log_request(self, code, size)
+            CGIHTTPRequestHandler.log_request(self, code, size)
         else:
             # just ignore logging
             pass
@@ -182,7 +183,8 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
 
         remote_addr = self.client_address[0]
         remote_host = self.address_string()
-        cookie_data = ', '.join(filter(None, self.headers.getheaders('cookie')))
+        # from IPython.core.debugger import Tracer; Tracer()()
+        cookie_data = ', '.join([_f for _f in self.headers.get_all("cookie") if _f])
 
         query_string = ''
         i = self.path.find('?')
@@ -221,11 +223,42 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write('\n')
         self.wfile.write('\n')
         # Hack to support binary data and general Unicode for SVGs and JSON
-        if isinstance(response_data[1], unicode):
+        if isinstance(response_data[1], str):
             self.wfile.write(response_data[1].encode('utf-8'))
         else:
             self.wfile.write(response_data[1])
         return 0
+
+    def run_brat_exec(self):
+        """Execute brat server using execfile('ajax.cgi')."""
+
+        # stipped down from CGIHTTPRequestHandler run_cgi()
+
+        scriptfile = self.translate_path('/ajax.cgi')
+
+        env = {}
+        env['REQUEST_METHOD'] = self.command
+        env['REMOTE_HOST'] = self.address_string()
+        env['REMOTE_ADDR'] = self.client_address[0]
+        env['CONTENT_LENGTH'] = self.headers.getheader('content-length')
+        env['HTTP_COOKIE'] = ', '.join([_f for _f in self.headers.getheaders('cookie') if _f])
+        os.environ.update(env)
+
+        self.send_response(200)
+
+        try:
+            saved = sys.stdin, sys.stdout, sys.stderr
+            sys.stdin, sys.stdout = self.rfile, self.wfile
+            sys.argv = [scriptfile]
+            try:
+                exec(compile(open(scriptfile).read(), scriptfile, 'exec'), {'__name__': '__main__',
+                                       '__file__': __file__ })
+            finally:
+                sys.stdin, sys.stdout, sys.stderr = saved
+        except SystemExit as sts:
+            print('exit status', sts, file=sys.stderr)
+        else:
+            print('exit OK', file=sys.stderr)
 
     def allow_path(self):
         """Test whether to allow a request for self.path."""
@@ -237,7 +270,7 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         path = unquote(path)
         path = normpath(path)
         parts = path.split('/')
-        parts = filter(None, parts)
+        parts = [_f for _f in parts if _f]
         if '..' in parts:
             return False
         path = '/'+'/'.join(parts)
@@ -264,14 +297,14 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         elif self.is_brat():
             self.run_brat_direct()
         else:
-            SimpleHTTPRequestHandler.do_GET(self)
+            CGIHTTPRequestHandler.do_GET(self)
 
     def do_HEAD(self):
         """Serve a HEAD request."""
         if not self.allow_path():
             self.send_error(403)
         else:
-            SimpleHTTPRequestHandler.do_HEAD(self)
+            CGIHTTPRequestHandler.do_HEAD(self)
        
 class BratServer(ForkingMixIn, HTTPServer):
     def __init__(self, server_address):
@@ -281,40 +314,40 @@ def main(argv):
     # warn if root/admin
     try:
         if os.getuid() == 0:
-            print >> sys.stderr, """
+            print("""
 ! WARNING: running as root. The brat standalone server is experimental   !
 ! and may be a security risk. It is recommend to run the standalone      !
 ! server as a non-root user with write permissions to the brat work/ and !
 ! data/ directories (e.g. apache if brat is set up using standard        !
 ! installation).                                                         !
-"""
+""", file=sys.stderr)
     except AttributeError:
         # not on UNIX
-        print >> sys.stderr, """
+        print("""
 Warning: could not determine user. Note that the brat standalone
 server is experimental and should not be run as administrator.
-"""
+""", file=sys.stderr)
 
     if len(argv) > 1:
         try:
             port = int(argv[1])
         except ValueError:
-            print >> sys.stderr, "Failed to parse", argv[1], "as port number."
+            print("Failed to parse", argv[1], "as port number.", file=sys.stderr)
             return 1
     else:
         port = _DEFAULT_SERVER_PORT
 
     try:
         server = BratServer((_DEFAULT_SERVER_ADDR, port))
-        print >> sys.stderr, "Serving brat at http://%s:%d" % server.server_address
+        print("Serving brat at http://127.0.0.1:%d" % port, file=sys.stderr)
         server.serve_forever()
     except KeyboardInterrupt:
         # normal exit
         pass
-    except socket.error, why:
-        print >> sys.stderr, "Error binding to port", port, ":", why[1]
-    except Exception, e:
-        print >> sys.stderr, "Server error", e
+    except socket.error as why:
+        print("Error binding to port", port, ":", why[1], file=sys.stderr)
+    except Exception as e:
+        print("Server error", e, file=sys.stderr)
         raise
     return 0
 

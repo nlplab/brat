@@ -21,26 +21,19 @@ class taggedEntity:
         self.eText = fullText[startOff:endOff]
 
     def __str__(self):
-        return "T%d\t%s %d %d\t%s" % (self.idNum, self.eType, self.startOff, 
-                                      self.endOff, self.eText)
+        return "T%d\t%s %d %d\t%s" % (self.idNum, self.eType, self.startOff, self.endOff, self.eText)
 
     def check(self):
         # sanity checks: the string should not contain newlines and
         # should be minimal wrt surrounding whitespace
-        assert "\n" not in self.eText, \
-            "ERROR: newline in entity: '%s'" % self.eText
-        assert self.eText == self.eText.strip(), \
-            "ERROR: entity contains extra whitespace: '%s'" % self.eText
+        assert "\n" not in self.eText, "ERROR: newline in entity: '%s'" % self.eText
+        assert self.eText == self.eText.strip(), "ERROR: entity contains extra whitespace: '%s'" % self.eText
 
 def BIO_to_standoff(BIOtext, reftext, tokenidx=2, tagidx=-1):
     BIOlines = BIOtext.split('\n')
     return BIO_lines_to_standoff(BIOlines, reftext, tokenidx, tagidx)
 
-next_free_id_idx = 1
-
 def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
-    global next_free_id_idx
-
     taggedTokens = []
 
     ri, bi = 0, 0
@@ -61,15 +54,13 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
             try:
                 tokentext = fields[tokenidx]
             except:
-                print >> sys.stderr, "Error: failed to get token text " \
-                    "(field %d) on line: %s" % (tokenidx, BIOline)
+                print >> sys.stderr, "Error: failed to get token text (field %d) on line: %s" % (tokenidx, BIOline)
                 raise
 
             try:
                 tag = fields[tagidx]
             except:
-                print >> sys.stderr, "Error: failed to get token text " \
-                    "(field %d) on line: %s" % (tagidx, BIOline)
+                print >> sys.stderr, "Error: failed to get token text (field %d) on line: %s" % (tagidx, BIOline)
                 raise
 
             m = re.match(r'^([BIO])((?:-[A-Za-z0-9_-]+)?)$', tag)
@@ -82,18 +73,14 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
 
             # sanity check
             assert ((ttype == "" and ttag == "O") or
-                    (ttype != "" and ttag in ("B","I"))), \
-                    "Error: tag/type mismatch %s" % tag
+                    (ttype != "" and ttag in ("B","I"))), "Error: tag/type mismatch %s" % tag
 
             # go to the next token on reference; skip whitespace
             while ri < len(reftext) and reftext[ri].isspace():
                 ri += 1
 
             # verify that the text matches the original
-            assert reftext[ri:ri+len(tokentext)] == tokentext, \
-                "ERROR: text mismatch: reference '%s' tagged '%s'" % \
-                (reftext[ri:ri+len(tokentext)].encode("UTF-8"), 
-                 tokentext.encode("UTF-8"))
+            assert reftext[ri:ri+len(tokentext)] == tokentext, "ERROR: text mismatch: reference '%s' tagged '%s'" % (reftext[ri:ri+len(tokentext)].encode("UTF-8"), tokentext.encode("UTF-8"))
 
             # store tagged token as (begin, end, tag, tagtype) tuple.
             taggedTokens.append((ri, ri+len(tokentext), ttag, ttype))
@@ -110,8 +97,7 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
     # contains nonspace characters, something's wrong
     if (len([c for c in reftext[ri:] if not c.isspace()]) != 0 or
         len([c for c in BIOlines[bi:] if not re.match(r'^\s*$', c)]) != 0):
-        assert False, "ERROR: failed alignment: '%s' remains in reference, " \
-            "'%s' in tagged" % (reftext[ri:], BIOlines[bi:])
+        assert False, "ERROR: failed alignment: '%s' remains in reference, '%s' in tagged" % (reftext[ri:], BIOlines[bi:])
 
     standoff_entities = []
 
@@ -139,19 +125,18 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
         prevTag, prevType = ttag, ttype
     taggedTokens = revisedTagged    
 
+    idIdx = 1
     prevTag, prevEnd = "O", 0
     currType, currStart = None, None
     for startoff, endoff, ttag, ttype in taggedTokens:
 
         if prevTag != "O" and ttag != "I":
             # previous entity does not continue into this tag; output
-            assert currType is not None and currStart is not None, \
-                "ERROR in %s" % fn
+            assert currType is not None and currStart is not None, "ERROR in %s" % fn
             
-            standoff_entities.append(taggedEntity(currStart, prevEnd, currType, 
-                                                  next_free_id_idx, reftext))
+            standoff_entities.append(taggedEntity(currStart, prevEnd, currType, idIdx, reftext))
 
-            next_free_id_idx += 1
+            idIdx += 1
 
             # reset current entity
             currType, currStart = None, None
@@ -159,8 +144,7 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
         elif prevTag != "O":
             # previous entity continues ; just check sanity
             assert ttag == "I", "ERROR in %s" % fn
-            assert currType == ttype, "ERROR: entity of type '%s' continues " \
-                "as type '%s'" % (currType, ttype)
+            assert currType == ttype, "ERROR: entity of type '%s' continues as type '%s'" % (currType, ttype)
             
         if ttag == "B":
             # new entity starts
@@ -171,30 +155,12 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
     # if there's an open entity after all tokens have been processed,
     # we need to output it separately
     if prevTag != "O":
-        standoff_entities.append(taggedEntity(currStart, prevEnd, currType,
-                                              next_free_id_idx, reftext))
-        next_free_id_idx += 1
+        standoff_entities.append(taggedEntity(currStart, prevEnd, currType, idIdx, reftext))
 
     for e in standoff_entities:
         e.check()
 
     return standoff_entities
-
-
-RANGE_RE = re.compile(r'^(-?\d+)-(-?\d+)$')
-
-def parse_indices(idxstr):
-    # parse strings of forms like "4,5" and "6,8-11", return list of
-    # indices.
-    indices = []
-    for i in idxstr.split(','):
-        if not RANGE_RE.match(i):
-            indices.append(int(i))
-        else:
-            start, end = RANGE_RE.match(i).groups()
-            for j in range(int(start), int(end)):
-                indices.append(j)
-    return indices
 
 def main(argv):
     if len(argv) < 3 or len(argv) > 5:
@@ -207,7 +173,7 @@ def main(argv):
         tokenIdx = int(argv[3])
     bioIdx = None
     if len(argv) >= 5:
-        bioIdx = argv[4]
+        bioIdx = int(argv[4])
 
     with open(textfn, 'rU') as textf:
         text = textf.read()
@@ -219,14 +185,7 @@ def main(argv):
     elif bioIdx is None:
         so = BIO_to_standoff(bio, text, tokenIdx)
     else:
-        try:
-            indices = parse_indices(bioIdx)
-        except:
-            print >> sys.stderr, 'Error: failed to parse indices "%s"' % bioIdx
-            return 1
-        so = []
-        for i in indices:
-            so.extend(BIO_to_standoff(bio, text, tokenIdx, i))
+        so = BIO_to_standoff(bio, text, tokenIdx, bioIdx)
 
     for s in so:
         print s

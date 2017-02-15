@@ -39,7 +39,7 @@ contributors.
 ## Making Changes ##
 
 * Create a topic branch for your fork to which you commit your work
-    * Please avoid committing changes to your master branch as it risks mixing
+    * Please avoid commiting changes to your master branch as it risks mixing
         code for unrelated fixes which makes merging the changes back to the
         main brat repository more difficult
 * Make commits for small logical units of code and resources

@@ -60,7 +60,7 @@ class NoWritePermissionError(ProtocolError):
 
 
 #TODO: Chop this function up
-def save_import(text, docid, collection=None):
+def save_import(title, text, docid, collection=None):
     '''
     TODO: DOC:
     '''
@@ -97,7 +97,7 @@ def save_import(text, docid, collection=None):
         text = text + '\n'
 
     with open_textfile(txt_path, 'w') as txt_file:
-        txt_file.write(text)
+        txt_file.write(title + '\n' + text)
 
     # Touch the ann file so that we can edit the file later
     with open(ann_path, 'w') as _:

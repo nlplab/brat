@@ -15,7 +15,7 @@ from message import Messager
 from normdb import string_norm_form
 from document import real_directory
 from projectconfig import ProjectConfiguration
-
+from functools import reduce
 # whether to display alignment scores in search result table
 DISPLAY_SEARCH_SCORES = False
 
@@ -83,7 +83,7 @@ def norm_get_name(database, key, collection=None):
 
     try:
         data = normdb.data_by_id(dbpath, key)
-    except normdb.dbNotFoundError, e:
+    except normdb.dbNotFoundError as e:
         Messager.warning(str(e))
         data = None
 
@@ -117,7 +117,7 @@ def norm_get_data(database, key, collection=None):
 
     try:
         data = normdb.data_by_id(dbpath, key)
-    except normdb.dbNotFoundError, e:
+    except normdb.dbNotFoundError as e:
         Messager.warning(str(e))
         data = None
 
@@ -211,7 +211,7 @@ def _format_datas(datas, scores=None, matched=None):
         header += [("score", "int")]
 
     # construct items, sorted by score first, ID second (latter for stability)
-    sorted_keys = sorted(datas.keys(), lambda a,b: cmp((scores.get(b,0),b),
+    sorted_keys = sorted(list(datas.keys()), lambda a,b: cmp((scores.get(b,0),b),
                                                        (scores.get(a,0),a)))
 
     items = []
@@ -398,7 +398,7 @@ def _norm_search_impl(database, name, collection=None, exactmatch=False):
                                                 best_score, exactmatch)
 
     # flatten to single set of IDs
-    ids = reduce(set.union, matched.values(), set())
+    ids = reduce(set.union, list(matched.values()), set())
 
     # filter ids that now (after all queries complete) fail
     # TODO: are we sure that this is a good idea?
@@ -427,7 +427,7 @@ def _norm_search_impl(database, name, collection=None, exactmatch=False):
 def norm_search(database, name, collection=None, exactmatch=False):
     try:
         return _norm_search_impl(database, name, collection, exactmatch)
-    except simstringdb.ssdbNotFoundError, e:
+    except simstringdb.ssdbNotFoundError as e:
         Messager.warning(str(e))
         return { 
             'database' : database,
@@ -498,12 +498,12 @@ def _test():
                     found_rank = rank+1
                     break
             strdelta = str(delta).replace('0:00:0','').replace('0:00:','')
-            print "%s: '%s' <- '%s' rank %d/%d (%s sec)" % ('  ok' if found 
+            print(("%s: '%s' <- '%s' rank %d/%d (%s sec)" % ('  ok' if found 
                                                             else 'MISS',
                                                             target, query, 
                                                             found_rank,
                                                             len(results['items']),
-                                                            strdelta)
+                                                            strdelta)))
             query_count += 1
             if found:
                 hit_count += 1
@@ -511,15 +511,15 @@ def _test():
                 misses.append((query, target))
 
     if len(misses) != 0:
-        print
-        print "MISSED:"
+        print()
+        print("MISSED:")
         for query, target in misses:
-            print "%s '%s'" % (target, query)
+            print(("%s '%s'" % (target, query)))
 
     delta = datetime.now() - overall_start
     strdelta = str(delta).replace('0:00:0','').replace('0:00:','')
-    print
-    print "Found %d / %d in %s" % (hit_count, query_count, strdelta)
+    print()
+    print(("Found %d / %d in %s" % (hit_count, query_count, strdelta)))
 
 def _profile_test():
     # runs _test() with profiling, storing results in "norm.profile".

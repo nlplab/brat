@@ -33,12 +33,12 @@ class Term:
         self.is_a     = is_a     if is_a     is not None else []
         self.part_of  = part_of  if part_of  is not None else []
 
-        self.parents  = set()
-        self.children = set()
+        self.parents  = []
+        self.children = []
 
         # part_of "parents" and "children"
-        self.objects    = set()
-        self.components = set()
+        self.objects    = []
+        self.components = []
 
         self.cleanup()
 
@@ -73,8 +73,8 @@ class Term:
             if self in parent.children:
                 print >> sys.stderr, "Warning: dup is-a parent %s for %s, ignoring" % (ptid, str(self))
             else:
-                self.parents.add(parent)
-                parent.children.add(self)
+                self.parents.append(parent)
+                parent.children.append(self)
 
         # part_of
         for prel, ptid, pname in self.part_of:
@@ -88,8 +88,8 @@ class Term:
             if self in pobject.components:
                 print >> sys.stderr, "Warning: dup part-of parent %s for %s, ignoring" % (ptid, str(self))
             else:
-                self.objects.add((prel, pobject))
-                pobject.components.add((prel, self))
+                self.objects.append((prel, pobject))
+                pobject.components.append((prel, self))
 
     def _case_normalize(self, cn_func):
         self.name = cn_func(self.name)
@@ -197,7 +197,7 @@ def parse_obo(f, limit_prefixes=None, include_nameless=False):
             assert name is not None
             # more permissive, there's strange stuff out there
             #m = re.match(r'^synonym: "([^"]*)" ([A-Za-z_ ]*?) *\[.*\]\s*$', l)
-            m = re.match(r'^synonym: "(.*)" ([A-Za-z_ -]*?) *\[.*\]\s*(?:\{.*\}\s*)?$', l)
+            m = re.match(r'^synonym: "(.*)" ([A-Za-z_ ]*?) *\[.*\]\s*$', l)
             assert m is not None, "Error: failed to parse '%s'" % l
             synstr, syntype = m.groups()
             if synstr == "":
@@ -207,7 +207,7 @@ def parse_obo(f, limit_prefixes=None, include_nameless=False):
         elif re.match(r'^def:.*', l) and not skip_block:
             assert tid is not None
             assert name is not None
-            m = re.match(r'^def: "(.*)" *\[.*\]\s*(?:\{.*\}\s*)?$', l)
+            m = re.match(r'^def: "(.*)" *\[.*\]\s*$', l)
             assert m is not None, "Error: failed to parse '%s'" % l
             definition = m.group(1)
             if definition == "":
@@ -268,9 +268,9 @@ def argparser():
     ap.add_argument("-ns", "--no-synonyms", default=False, action="store_true", help="Do not extract synonyms.")
     ap.add_argument("-nd", "--no-definitions", default=False, action="store_true", help="Do not extract definitions.")
     ap.add_argument("-e", "--exclude", default=[], metavar="TERM", nargs="+", help="Exclude subtrees rooted at given TERMs.")
-    ap.add_argument("-s", "--separate-children", default=False, action="store_true", help="Separate subontologies found as children of the given term.")
+    ap.add_argument("-s", "--separate-children", default=[], default=False, action="store_true", help="Separate subontologies found as children of the given term.")
     ap.add_argument("file", metavar="OBO-FILE", help="Source ontology.")
-    ap.add_argument("-p", "--separate-parents", default=False, action="store_true", help="Separate subontologies of parents of the given terms.")
+    ap.add_argument("-p", "--separate-parents", default=[], default=False, action="store_true", help="Separate subontologies of parents of the given terms.")
     ap.add_argument("terms", default=[], metavar="TERM", nargs="*", help="Root terms from which to extract.")
     return ap
 
@@ -341,9 +341,7 @@ def main(argv=None):
             arg.terms[i] = case_normalize_initial(arg.terms[i])
 
     f = open(fn)
-    if limit_prefixes:
-        print >> sys.stderr, 'None: experimental: applying limit_prefixes only in output'
-    all_terms, term_by_id = parse_obo(f, None) # limit_prefixes)
+    all_terms, term_by_id = parse_obo(f, limit_prefixes)
     # resolve references, e.g. the is_a ID list into parent and child
     # object references
     for t in all_terms:
@@ -376,8 +374,8 @@ def main(argv=None):
 
     # mark children and parents
     for t in all_terms:
-        t.children = set()
-        t.parents  = set()
+        t.children = []
+        t.parents  = []
     for t in all_terms:
         for ptid, pname in t.is_a:
             if ptid not in term_by_id:
@@ -392,8 +390,8 @@ def main(argv=None):
             if t in parent.children:
                 print >> sys.stderr, "Warning: ignoring dup parent %s for %s" % (ptid, str(t))
             else:
-                t.parents.add(parent)
-                parent.children.add(t)
+                t.parents.append(parent)
+                parent.children.append(t)
 
     for t in all_terms:
         t.traversed = False
@@ -456,11 +454,7 @@ def main(argv=None):
             # block
 #             for n, tid, ntype in get_subtree_terms(rootterm):
 #                 print "%s\t%s\t%s" % (n, tid, ntype)
-            root_stt = []
-            get_subtree_terms(rootterm, root_stt)
-            for t in root_stt:
-                if limit_prefixes and t.obo_idspace() not in limit_prefixes:
-                    continue
+            for t in get_subtree_terms(rootterm):
                 strs = []
                 strs.append("name:Name:"+t.name)
                 if not arg.no_synonyms:
@@ -470,7 +464,7 @@ def main(argv=None):
                         strs.append("name:Synonym:"+synstr)
                 if not arg.no_definitions:
                     for d in t.defs:
-                        strs.append("info:Definition:"+d.replace('\t', ' '))
+                        strs.append("info:Definition:"+d)
                 # don't include ontology prefix in ID
                 id_ = t.tid.replace(t.obo_idspace()+':', '', 1) 
                 print id_ + '\t' + '\t'.join(strs)

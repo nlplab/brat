@@ -39,8 +39,8 @@ http://www.chokkan.org/software/simstring/'''
 
 class NoSimStringError(ProtocolError):
     def __str__(self):
-        return (u'No SimString bindings found, please install them from: '
-                u'http://www.chokkan.org/software/simstring/')
+        return ('No SimString bindings found, please install them from: '
+                'http://www.chokkan.org/software/simstring/')
 
     def json(self, json_dic):
         json_dic['exception'] = 'noSimStringError'
@@ -50,7 +50,7 @@ class ssdbNotFoundError(Exception):
         self.fn = fn
 
     def __str__(self):
-        return u'Simstring database file "%s" not found' % self.fn
+        return 'Simstring database file "%s" not found' % self.fn
 
 # Note: The only reason we use a function call for this is to delay the import
 def __set_db_measure(db, measure):
@@ -103,7 +103,7 @@ def ssdb_build(strs, dbname, ngram_length=DEFAULT_NGRAM_LENGTH,
             db.insert(s)
         db.close()
     except:
-        print >> sys.stderr, "Error building simstring DB"
+        print("Error building simstring DB", file=sys.stderr)
         raise
 
     return dbfn
@@ -192,7 +192,7 @@ def ngrams(s, out=None, n=DEFAULT_NGRAM_LENGTH, be=DEFAULT_INCLUDE_MARKS):
         stat[ngram] = stat.get(ngram, 0) + 1
 
     # convert into a set
-    for ngram, count in stat.items():
+    for ngram, count in list(stat.items()):
         out.add(ngram)
         # add ngram affixed with number if it appears more than once
         for i in range(1, count):
@@ -317,11 +317,11 @@ if __name__ == "__main__":
         "-12345",
         "012345",
         ]
-    print 'strings:', strings
+    print('strings:', strings)
     ssdb_build(strings, dbname)
     for t in ['0', '012', '012345', '0123456', '0123456789']:
-        print 'lookup for', t
+        print('lookup for', t)
         for s in ssdb_supstring_lookup(t, dbname):
-            print s, 'contains', t, '(threshold %f)' % DEFAULT_THRESHOLD
+            print(s, 'contains', t, '(threshold %f)' % DEFAULT_THRESHOLD)
     ssdb_delete(dbname)
     
