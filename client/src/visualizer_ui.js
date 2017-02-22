@@ -699,6 +699,7 @@ var VisualizerUI = (function($, window, undefined) {
           width: 500
       });
 
+
       /* XXX removed per #900
       // insert the Save link
       var $fileBrowserButtonset = fileBrowser.
@@ -1684,9 +1685,10 @@ var VisualizerUI = (function($, window, undefined) {
           // we may need to move to a different collection.
           var oldDocCmpts = selectorData.items[pos][2].rsplit('/', 1);
           if (newDocCmpts[0] != oldDocCmpts[0]) {
-            dispatcher.post('setCollection', [searchColl + newDocCmpts[0] + '/']);
+            dispatcher.post('setCollection', [searchColl + newDocCmpts[0] + '/', newDocCmpts[1], newDocArgs]);
+          } else {
+            dispatcher.post('setDocument', [newDocCmpts[1], newDocArgs]);
           }
-          dispatcher.post('setDocument', [newDocCmpts[1], newDocArgs]);
         }
         return false;
       };
@@ -1803,11 +1805,12 @@ var VisualizerUI = (function($, window, undefined) {
           var svgtop = $('svg').offset().top;
           var $inFocus = $('#svg animate[data-type="focus"]:first').parent();
           if (!$inFocus.length && args.matchfocus) {
-            $inFocus = $('[data-span-id=' + args.matchfocus + ']');
+            $inFocus = $('#svg animate[data-type="matchfocus"]').parent();
           }
           if ($inFocus.length) {
             $('html,body').
-                animate({ scrollTop: $inFocus.offset().top - svgtop - window.innerHeight / 2 }, { duration: 'slow', easing: 'swing'});
+              animate({ scrollTop: $inFocus.offset().top - svgtop - window.innerHeight / 2 },
+                      { duration: 'slow', easing: 'swing' });
           }
         }
         dispatcher.post('allowReloadByURL');
