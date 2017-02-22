@@ -1802,6 +1802,9 @@ var VisualizerUI = (function($, window, undefined) {
         if (args && !args.edited) {
           var svgtop = $('svg').offset().top;
           var $inFocus = $('#svg animate[data-type="focus"]:first').parent();
+          if (!$inFocus.length && args.matchfocus) {
+            $inFocus = $('[data-span-id=' + args.matchfocus + ']');
+          }
           if ($inFocus.length) {
             $('html,body').
                 animate({ scrollTop: $inFocus.offset().top - svgtop - window.innerHeight / 2 }, { duration: 'slow', easing: 'swing'});
