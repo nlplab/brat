@@ -1,5 +1,13 @@
 // -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
+
+// From http://stackoverflow.com/a/5202185
+String.prototype.rsplit = function(sep, maxsplit) {
+    var split = this.split(sep);
+    return maxsplit ? [ split.slice(0, -maxsplit).join(sep) ].concat(split.slice(-maxsplit)) : split;
+}
+
+
 var VisualizerUI = (function($, window, undefined) {
     var VisualizerUI = function(dispatcher, svg) {
       var that = this;
@@ -22,6 +30,7 @@ var VisualizerUI = (function($, window, undefined) {
       var mtime = null;
       var searchConfig = null;
       var coll, doc, args;
+      var searchColl = null;
       var collScroll;
       var docScroll;
       var user = null;
@@ -912,8 +921,9 @@ var VisualizerUI = (function($, window, undefined) {
 
       var currentSelectorPosition = function() {
         var pos;
+        var loc = searchColl ? coll + doc : doc;
         $.each(selectorData.items, function(docNo, docRow) {
-          if (docRow[2] == doc) {
+          if (loc == (searchColl ? searchColl + docRow[2] : docRow[2])) {
             // args may have changed, so lacking a perfect match return
             // last matching document as best guess
             pos = docNo;
@@ -1251,7 +1261,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
       });
       $('#search_options div.advancedOptions').hide("highlight");
-      // set up advanced search options; only visible is clicked
+      // set up advanced search options; only visible if clicked
       var advancedSearchOptionsVisible = false;
       $('#advanced_search_option_toggle').click(function(evt) {
         if (advancedSearchOptionsVisible) {
@@ -1474,6 +1484,7 @@ var VisualizerUI = (function($, window, undefined) {
         // trigger an unnecessary round-trip to the server, though,
         // so there should be a better way ...
         dispatcher.post('setArguments', [{}, true]);
+        searchColl = null;
       }
 
       $('#clear_search_button').click(clearSearchResults);
@@ -1661,13 +1672,21 @@ var VisualizerUI = (function($, window, undefined) {
 
       var moveInFileBrowser = function(dir) {
         var pos = currentSelectorPosition();
+        // TODO: why does this get matches in the wrong order within a file??
         var newPos = pos + dir;
         if (newPos >= 0 && newPos < selectorData.items.length &&
             selectorData.items[newPos][0] != "c") {
           // not at the start, and the previous is not a collection (dir)
           dispatcher.post('allowReloadByURL');
-          dispatcher.post('setDocument', [selectorData.items[newPos][2],
-                                          selectorData.items[newPos][1]]);
+          var newDocCmpts = selectorData.items[newPos][2].rsplit('/', 1);
+          var newDocArgs = selectorData.items[newPos][1];
+          // If we're navigating through recursive search results,
+          // we may need to move to a different collection.
+          var oldDocCmpts = selectorData.items[pos][2].rsplit('/', 1);
+          if (newDocCmpts[0] != oldDocCmpts[0]) {
+            dispatcher.post('setCollection', [searchColl + newDocCmpts[0] + '/']);
+          }
+          dispatcher.post('setDocument', [newDocCmpts[1], newDocArgs]);
         }
         return false;
       };
@@ -1708,7 +1727,12 @@ var VisualizerUI = (function($, window, undefined) {
         } else {
           lastGoodCollection = response.collection;
           fillDisambiguatorOptions(response.disambiguator_config);
-          selectorData = response;
+          // We can only ever get to loading a collection while search is active if the search
+          // was recursive and the user selected an entry in a different subdirectory. In this
+          // case, make sure we preserve the search results currently residing in selectorData.
+          if (!searchActive) {
+            selectorData = response;
+          }
           documentListing = response; // 'backup'
           searchConfig = response.search_config;
           selectorData.items.sort(docSortFunction);
@@ -1723,6 +1747,7 @@ var VisualizerUI = (function($, window, undefined) {
         if (response.exception) {
             ; // TODO: reasonable reaction
         } else {
+          searchColl = coll;
           selectorData = response;
           sortOrder = [2, 1]; // reset
           // NOTE: don't sort, allowing order in which
