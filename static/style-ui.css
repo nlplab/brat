@@ -169,7 +169,7 @@ input.invalid_value {
   right: -2px;
 }
 
-#span_form .collapser {
+#span_form .collapser, #arc_form .collapser {
     float: left;
     height: 16px;
     width: 16px;
@@ -177,21 +177,19 @@ input.invalid_value {
     cursor: hand;
     background: url('img/expand_icon.gif') no-repeat;
 }
-#span_form .collapser.open {
+#span_form .collapser.open, #arc_form .collapser.open {
     background: url('img/collapse_icon.gif') no-repeat;
 }
-#span_form .collapsible.open {
+#span_form .collapsible.open, #arc_form .collapsible.open {
     display: block;
 }
-#span_form .collapsible {
+#span_form .collapsible, #arc_form .collapsible {
     display: none;
+    margin-left: 20px;
 }
-#span_form .item_content {
+#span_form .item_content, #arc_form .item_content {
     margin-left: 16px;
     white-space: nowrap;
-}
-#span_form .collapsible {
-    margin-left: 20px;
 }
 .type_scroller { /* TODO remove */
     overflow-y: scroll;
