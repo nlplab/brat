@@ -1338,6 +1338,9 @@ var AnnotatorUI = (function($, window, undefined) {
           relationTypesHash[noNumArcType].properties.transitive;
 
         var $scroller = $();
+        var mapOf$containers = {};
+        var mapOf$items = {};
+        var mapOfParents = {};
         if (spanTypes[originType]) {
           var arcTypes = spanTypes[originType].arcs;
           $scroller = $('#arc_roles .scroller').empty();
@@ -1346,23 +1349,40 @@ var AnnotatorUI = (function($, window, undefined) {
           $.each(arcTypes || [], function(arcTypeNo, arcDesc) {
             if (arcDesc.targets && arcDesc.targets.indexOf(targetType) != -1) {
               var arcTypeName = arcDesc.type;
+              var relType = relationTypesHash && relationTypesHash[arcTypeName];
 
-              var isThisEquiv =
-                relationTypesHash &&
-                relationTypesHash[arcTypeName] &&
-                relationTypesHash[arcTypeName].properties &&
-                relationTypesHash[arcTypeName].properties.symmetric &&
-                relationTypesHash[arcTypeName].properties.transitive;
+              var isThisEquiv = relType &&
+                relType.properties &&
+                relType.properties.symmetric &&
+                relType.properties.transitive;
 
               // do not allow equiv<->non-equiv change options
               if (arcType && isEquiv != isThisEquiv) return;
 
               var displayName = ((arcDesc.labels && arcDesc.labels[0]) || 
                                  arcTypeName);
-              var $checkbox = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
+              var $input = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label class="arc_type_label" for="arc_' + arcTypeName + '"/>').text(displayName);
-              var $div = $('<div/>').append($checkbox).append($label);
-              $scroller.append($div);
+              var $collapsible = $('<div class="collapsible"/>');
+              var $content = $('<div class="item_content"/>').
+                append($input).
+                append($label).
+                append($collapsible);
+              var $div = $('<div class="item"/>');
+              if (relType && relType.children && relType.children.length) {
+                var $collapser = $('<div class="collapser"/>').data('rel-name', arcTypeName);
+                $div.append($collapser);
+                $.each(relType.children, function(childRelNo, childRel) {
+                  mapOfParents[childRel.type] = arcTypeName;
+                });
+                if (!collapsed[arcTypeName]) {
+                  $collapser.addClass('open');
+                  $collapsible.addClass('open');
+                }
+              }
+              $div.append($content);
+              mapOf$containers[arcTypeName] = $collapsible;
+              mapOf$items[arcTypeName] = $div
               if (arcDesc.hotkey) {
                 keymap[arcDesc.hotkey] = '#arc_' + arcTypeName;
                 var name = $label.html();
@@ -1383,6 +1403,11 @@ var AnnotatorUI = (function($, window, undefined) {
 
               noArcs = false;
             }
+          });
+
+          $.each(mapOf$items, function(name, $div) {
+            var parent = mapOfParents[name];
+            $div.appendTo(parent ? mapOf$containers[parent] : $scroller);
           });
         }
 
@@ -1489,6 +1514,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#arc_form-ok').focus();
         adjustToCursor(evt, arcForm.parent());
       };
+      
 
       var reverseArc = function(evt) {
         var eventDataId = $(evt.target).attr('data-arc-ed');
@@ -1817,9 +1843,14 @@ var AnnotatorUI = (function($, window, undefined) {
         rapidFillSpanTypesAndDisplayForm(sugg.start, sugg.end, sugg.text, sugg.types);
       };
 
+      var collapsed = {}
       var toggleCollapsible = function($el, state) {
         var opening = state !== undefined ? state : !$el.hasClass('open');
         var $collapsible = $el.parent().find('.collapsible:first');
+        var relName = $el.data('rel-name');
+        if (relName) {
+          collapsed[relName] = !collapsed[relName];
+        }
         if (opening) {
           $collapsible.addClass('open');
           $el.addClass('open');
@@ -1832,6 +1863,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var collapseHandler = function(evt) {
         toggleCollapsible($(evt.target));
       }
+      $('#arc_roles, #span_roles').on('click', '.collapser', collapseHandler);
 
       var spanFormSubmitRadio = function(evt) {
         if (Configuration.confirmModeOn) {
@@ -1887,9 +1919,9 @@ var AnnotatorUI = (function($, window, undefined) {
               append($input).
               append($label).
               append($collapsible);
-            var $collapser = $('<div class="collapser open"/>');
             var $div = $('<div class="item"/>');
             if (type.children.length) {
+              var $collapser = $('<div class="collapser open"/>');
               $div.append($collapser)
             }
             $div.append($content);
@@ -2058,7 +2090,6 @@ var AnnotatorUI = (function($, window, undefined) {
 
         spanForm.find('#entity_types input:radio').click(spanFormSubmitRadio);
         spanForm.find('#event_types input:radio').click(spanFormSubmitRadio);
-        spanForm.find('.collapser').click(collapseHandler);
       };
 
       var tagCurrentDocument = function(taggerId) {
