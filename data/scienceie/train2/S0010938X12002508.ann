@@ -1,0 +1,20 @@
+T1	Task 30 57	transient response analysis
+T2	Task 136 160	steel–concrete interface
+T3	Process 205 233	long-term sustained benefits
+T4	Process 300 338	interruption of the protective current
+T6	Process 460 494	protective current was interrupted
+*	Synonym-of T4 T6
+T7	Process 508 537	assess the long-term benefits
+*	Synonym-of T7 T3
+T8	Task 596 639	develops and examines a simplified approach
+T9	Task 765 802	assessment of the corrosion condition
+T10	Process 695 729	discusses the potential advantages
+T11	Material 72 98	motorway bridge structures
+T12	Process 245 282	Impressed Current Cathodic Protection
+T13	Process 284 288	ICCP
+*	Synonym-of T13 T12
+T14	Process 411 422	ICCP system
+T5	Process 550 554	ICCP
+T15	Process 663 690	transient response analysis
+T16	Material 806 811	steel
+T17	Material 815 845	reinforced concrete structures

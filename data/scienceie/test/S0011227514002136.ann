@@ -1,0 +1,19 @@
+T1	Task 0 53	Measuring and analysing the hold time of the CPA pill
+T2	Material 45 53	CPA pill
+T3	Process 65 92	thermal boundary resistance
+T4	Material 104 108	pill
+T5	Material 185 197	CPA crystals
+T6	Process 129 145	thermal boundary
+*	Synonym-of T3 T6
+T7	Process 166 177	temperature
+T8	Process 302 323	servo control program
+T9	Material 391 399	CPA pill
+T10	Process 374 383	recycling
+T11	Process 415 433	operation at 200mK
+T12	Process 461 482	servo control program
+T13	Material 498 506	CPA pill
+T14	Process 564 585	microkelvin stability
+T15	Process 607 632	fast read-out thermometry
+T16	Task 712 716	mKCC
+*	Synonym-of T2 T4
+T17	Material 238 249	cold finger

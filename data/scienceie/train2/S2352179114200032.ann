@@ -1,0 +1,26 @@
+T1	Material 58 70	a-C:H layers
+T2	Process 154 172	chemical reactions
+T3	Material 185 188	gas
+T4	Material 197 220	solid forming volatiles
+T5	Material 310 313	gas
+T6	Process 310 320	gas influx
+T7	Process 370 379	reactions
+T8	Material 326 346	single outer surface
+T9	Material 426 441	gas inventories
+T10	Material 469 475	carbon
+T11	Material 500 521	beryllium co-deposits
+T12	Material 579 593	plasma devices
+T13	Material 605 608	TCR
+T14	Material 755 767	reactive gas
+T15	Process 774 790	W and Be with O2
+T16	Process 702 767	constituents that are not forming volatiles with the reactive gas
+R1	Hyponym-of Arg1:T15 Arg2:T16	
+T17	Material 832 835	TCR
+T18	Material 923 943	deposit constituents
+T19	Material 1019 1022	TCR
+T20	Material 1097 1119	nuclear fusion devices
+T21	Task 1142 1165	tritium retention issue
+T22	Material 1142 1149	tritium
+T23	Material 1188 1210	carbon based materials
+T24	Process 1142 1159	tritium retention
+T25	Process 401 409	Porosity

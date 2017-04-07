@@ -1,0 +1,30 @@
+T1	Process 374 394	synthetic mechanisms
+T2	Process 441 462	separation techniques
+T3	Material 55 71	chiral molecules
+T4	Task 223 263	echniques to secure enantiopure products
+T5	Material 424 436	stereoisomer
+T6	Material 483 494	enantiomers
+T7	Material 595 629	enantiopure reagents or substrates
+T8	Material 667 689	chiral building blocks
+T9	Material 693 719	enantioselective catalysts
+T10	Process 632 648	synthesis routes
+T11	Process 733 765	enantiomer separation techniques
+T12	Material 788 813	chiral selector molecules
+T13	Material 862 886	diastereomeric complexes
+T14	Material 933 953	enantiopure products
+T15	Process 1050 1069	enantiomeric excess
+T18	Process 1087 1106	degree of chirality
+T19	Process 1134 1155	Chiral discrimination
+T20	Material 1164 1177	optical means
+T21	Process 1340 1350	absorption
+T22	Task 1553 1574	enantiomer separation
+T23	Process 1419 1463	twisting of polarisation in optical rotation
+T16	Task 925 991	achieve enantiopure products, irrespective of the synthetic method
+T24	Process 975 991	synthetic method
+T17	Task 1008 1069	means to measure, and duly quantitate the enantiomeric excess
+T25	Material 1249 1258	molecules
+T26	Process 1471 1486	optical methods
+T27	Process 270 315	methods, mostly multi-step and time-consuming
+R1	Hyponym-of Arg1:T1 Arg2:T27	
+R2	Hyponym-of Arg1:T2 Arg2:T27	
+T28	Material 1114 1132	molecular products

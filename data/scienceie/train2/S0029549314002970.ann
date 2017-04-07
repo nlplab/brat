@@ -1,0 +1,17 @@
+T1	Task 121 149	improve the heating transfer
+T2	Process 319 359	monitored by six dedicated thermocouples
+T3	Material 83 85	Na
+T4	Material 398 400	Na
+T5	Material 699 706	Na bath
+T6	Material 47 61	sample holders
+T7	Process 213 227	sodium boiling
+T8	Material 213 219	sodium
+T9	Material 300 310	Na surface
+T10	Process 381 390	oxidation
+T11	Material 451 465	high-purity He
+T12	Material 819 835	TRIO wet channel
+T13	Process 163 178	solid formation
+T14	Process 550 565	gas circulation
+T15	Material 550 553	gas
+T16	Process 613 641	fission and gamma absorption
+T17	Material 741 744	gas

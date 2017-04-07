@@ -1,0 +1,16 @@
+T1	TASK 93 106	Labeling data
+T2	TASK 147 185	training many machine learning systems
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+T3	IDK_MAN 265 282	concept evolution
+#1	AnnotatorNotes T3	concept
+T4	IDK_MAN 288 409	the changing nature of a person's underlying <i>concept</i> (the abstract notion of the target class a person is labeling
+#2	AnnotatorNotes T4	explanations of the concept
+T5	IDK_MAN 571 611	two <i>structured labeling</i> solutions
+#3	AnnotatorNotes T5	proposed design
+T6	IDK_MAN 613 729	a novel technique we propose for helping people define and refine their concept in a consistent manner as they label
+#4	AnnotatorNotes T6	contributions
+T7	IDK_MAN 741 768	series of five experiments,
+#5	AnnotatorNotes T7	evaluation methods
+T8	IDK_MAN 883 907	that structured labeling
+#6	AnnotatorNotes T8	proposed design
+T9	TASK 927 944	more consistently

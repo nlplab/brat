@@ -1,0 +1,23 @@
+T1	Process 51 74	Shallow Water Equations
+T2	Process 76 80	SWEs
+*	Synonym-of T1 T2
+T3	Process 269 273	SWEs
+T4	Process 428 433	JFLOW
+T5	Process 466 488	Urban Inundation Model
+T6	Process 490 493	UIM
+*	Synonym-of T5 T6
+T7	Process 545 556	LISFLOOD-FP
+T8	Process 756 767	LISFLOOD-FP
+T9	Process 800 804	SWEs
+T10	Process 854 865	LISFLOOD-FP
+T11	Process 895 915	Cartesian directions
+T12	Process 943 947	SWEs
+T13	Material 972 1012	multi resolution grids or irregular mesh
+T14	Material 1019 1032	InfoWorks ICM
+T15	Material 1054 1064	MIKE FLOOD
+R1	Hyponym-of Arg1:T14 Arg2:T13	
+R2	Hyponym-of Arg1:T15 Arg2:T13	
+T16	Process 238 273	reducing the complexity of the SWEs
+T17	Process 8 40	physically-based 2D flood models
+T18	Task 41 81	solve the Shallow Water Equations (SWEs)
+T19	Process 589 616	2D diffusion wave equations

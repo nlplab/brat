@@ -1,0 +1,12 @@
+T1	Process 82 107	kt-factorization approach
+T2	Task 0 59	Correlation of charm-quark–charm-antiquark in γp scattering
+T3	Process 128 160	unintegrated gluon distributions
+T4	Process 162 166	uGDF
+*	Synonym-of T3 T4
+T6	Material 309 318	CCFM uGDF
+T8	Task 484 497	HERA energies
+T5	Material 15 20	charm
+T9	Material 21 26	quark
+T10	Material 27 32	charm
+T11	Material 33 42	antiquark
+T12	Process 46 59	γp scattering

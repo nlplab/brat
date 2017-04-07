@@ -1,0 +1,22 @@
+T1	Process 4 24	microwave background
+T2	Process 133 174	isotropic infrared and optical background
+T3	Process 176 179	IRB
+*	Synonym-of T2 T3
+T4	Process 346 435	the smaller number density has to be weighted with the higher flux of interacting protons
+T5	Task 441 457	present Universe
+T6	Task 543 566	proton interaction rate
+T7	Process 707 748	cosmological evolution of UHECR injection
+T8	Task 826 854	flux of cosmogenic neutrinos
+T9	Process 79 101	taken in consideration
+T10	Task 613 632	interactions on MBR
+T11	Material 644 663	interacting protons
+T12	Process 664 701	quickly lose their energy even at z=0
+T13	Process 204 207	IRB
+T14	Process 232 235	MBR
+T15	Process 337 340	IRB
+T16	Material 416 435	interacting protons
+T17	Material 629 632	MBR
+T18	Material 543 549	proton
+T19	Material 293 300	protons
+T20	Material 41 63	universal photon field
+T21	Material 491 511	lower energy protons

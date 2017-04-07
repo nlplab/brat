@@ -1,0 +1,31 @@
+T1	Process 16 37	ion exchange capacity
+T2	Process 39 42	IEC
+*	Synonym-of T1 T2
+T3	Process 70 89	proton conductivity
+T4	Material 93 97	PEMs
+T5	Material 140 160	sulfonic acid groups
+T6	Process 180 197	proton conduction
+T7	Material 203 211	membrane
+T8	Material 250 254	PEMs
+T9	Material 279 284	water
+T10	Material 308 313	water
+T11	Material 371 376	water
+T12	Task 412 506	improvement of proton conductivity using aromatic polymers with moderately adjusted IEC values
+T13	Process 427 446	proton conductivity
+T14	Material 427 433	proton
+T15	Material 453 470	aromatic polymers
+T16	Process 564 588	high proton conductivity
+T17	Process 603 606	IEC
+T18	Process 619 654	formation of ion channel structures
+T19	Process 669 696	effective proton conduction
+T20	Material 679 685	proton
+T21	Material 632 654	ion channel structures
+T22	Material 813 839	segmented block copolymers
+T23	Material 849 888	hydrophilic sulfonated polymer segments
+T24	Material 897 937	interconnected three-dimensional network
+T25	Process 964 980	proton transport
+T26	Process 990 1050	complementary network of hydrophobic non-sulfonated segments
+T27	Material 1015 1050	hydrophobic non-sulfonated segments
+T28	Task 1081 1119	preventing excessive swelling in water
+T29	Task 1124 1159	enhancing the mechanical properties
+T30	Material 1198 1202	PEMs

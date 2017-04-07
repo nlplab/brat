@@ -1,0 +1,88 @@
+T1	TASK 132 153	changepoint detection
+T2	DATASET 172 193	high-dimensional data
+T4	METRIC 317 331	dimensionality
+T5	METHOD 523 546	conventional approaches
+T6	METHOD 548 567	The proposed method
+T3	METHOD 240 257	classical methods
+T7	TASK 262 283	changepoint detection
+R1	addresses Arg1:T3 Arg2:T7	
+T8	METHOD 114 128	novel approach
+R2	addresses Arg1:T8 Arg2:T1	
+T9	IDK_MAN 701 712	submanifold
+#1	AnnotatorNotes T9	Mathematical object
+T10	IDK_MAN 619 631	distribution
+#2	AnnotatorNotes T10	Mathematical object
+T11	TASK 808 833	submanifold approximation
+T12	METHOD 1189 1219	multiscale analysis techniques
+T13	METHOD 1152 1187	subspace tracking with missing data
+T14	METHOD 1238 1257	online optimization
+T15	METHOD 1263 1305	changepoint detection performance analysis
+T16	METRIC 1349 1359	robustness
+T17	METRIC 1364 1372	efficacy
+T18	METHOD 1380 1397	proposed approach
+T19	TASK 1401 1483	detecting an abrupt change in an otherwise slowly-varying low-dimensional manifold
+R3	addresses Arg1:T18 Arg2:T19	
+T20	TASK 1110 1140	high-dimensional data analysis
+T21	METRIC 923 933	deviations
+T22	IDK_MAN 959 978	underlying manifold
+#3	AnnotatorNotes T22	Mathematical object
+T23	METRIC 843 877	deviations from this approximation
+T24	DATASET 774 788	streaming data
+T25	TASK 1509 1530	Changepoint detection
+T26	TASK 1544 1561	anomaly detection
+R4	is_subclass_of Arg1:T25 Arg2:T26	
+T27	IDK_MAN 1627 1645	stochastic process
+#4	AnnotatorNotes T27	Mathematical object
+T28	METHOD 1662 1693	changepoint detection algorithm
+T29	IDK_MAN 1720 1736	random variables
+#5	AnnotatorNotes T29	Mathematical object
+T31	METRIC 1845 1881	long period between false detections
+T30	TASK 1789 1809	detect such a change
+T32	METRIC 1810 1829	as soon as possible
+T33	TASK 1883 1910	In many modern applications
+T34	TASK 2111 2155	identify changes in network traffic patterns
+T35	METHOD 2250 2291	Traditional changepoint detection methods
+T36	TASK 2755 2803	extracting meaningful low-dimensional statistics
+T37	METHOD 2937 2972	multiscale online manifold learning
+T38	TASK 2976 3032	extract univariate changepoint detection test statistics
+R5	addresses Arg1:T37 Arg2:T38	
+T39	METHOD 3229 3246	submanifold model
+T40	TASK 3283 3318	generate meaningful test statistics
+R6	addresses Arg1:T39 Arg2:T40	
+T41	TASK 3343 3364	changepoint detection
+R7	addresses Arg1:T39 Arg2:T41	
+T42	METHOD 4417 4465	Grassmannian Rank-One Update Subspace Estimation
+T43	METHOD 4484 4543	Parallel Estimation and Tracking by REcursive Least Squares
+T44	TASK 4576 4599	track a single subspace
+R8	addresses Arg1:T42 Arg2:T44	
+R9	addresses Arg1:T43 Arg2:T44	
+T45	TASK 3679 3716	online learning of a dynamic manifold
+T46	METHOD 4793 4803	our method
+T47	TASK 4814 4860	tracks a time-varying probability distribution
+R10	addresses Arg1:T46 Arg2:T47	
+T48	TASK 4982 5011	sequential density estimation
+T49	METHOD 5064 5096	online kernel density estimation
+T50	METHOD 5130 5140	online KDE
+T51	TASK 5208 5225	model the density
+T52	METHOD 5439 5453	kernel herding
+T53	TASK 5468 5500	online kernel density estimation
+R11	addresses Arg1:T52 Arg2:T53	
+T54	TASK 5574 5603	choosing the kernel bandwidth
+T55	METHOD 5859 5864	RODEO
+T56	METHOD 5882 5907	the sparse additive model
+T57	METHOD 6097 6115	asymmetric kernels
+T58	TASK 6195 6247	approximating densities on low-dimensional manifolds
+R12	addresses Arg1:T57 Arg2:T58	
+T59	TASK 6253 6318	learning timevarying , spatially-varying, and anisotropic kernels
+T60	METHOD 6406 6445	sparse online kernel density estimation
+T61	METHOD 6670 6693	Gaussian Mixture Models
+T62	METHOD 6967 7009	online expectation-maximization algorithms
+T63	TASK 7025 7053	track a time-varying density
+R13	addresses Arg1:T62 Arg2:T63	
+T64	METHOD 7537 7572	Geometric Multi-Resolution Analysis
+T65	TASK 7610 7689	analyzing intrinsically low-dimensional point clouds in high-dimensional spaces
+R14	addresses Arg1:T64 Arg2:T65	
+T66	METHOD 7709 7713	GMRA
+T67	METHOD 7826 7848	low-rank approximation
+T68	METHOD 8000 8012	batch method
+T69	METHOD 7981 7994	This approach

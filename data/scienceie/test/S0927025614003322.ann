@@ -1,0 +1,15 @@
+T1	Task 15 48	high-throughput materials science
+T4	Process 304 317	WEB-based API
+T5	Material 374 391	AFLOWLIB database
+T6	Task 329 391	improve the accessibility and utility of the AFLOWLIB database
+T10	Material 563 584	simulation provenance
+T11	Material 589 607	runtime properties
+T12	Process 804 830	sharing of updates of data
+T13	Material 893 913	alloy phase diagrams
+T2	Task 207 275	efficient interfaces to interrogate available data on various levels
+T3	Material 471 490	physical properties
+T7	Material 492 549	thermodynamic, crystallographic, or mechanical properties
+*	Synonym-of T3 T7
+T8	Process 673 724	browse a class of materials with a desired property
+T9	Process 745 768	higher level work-flows
+T14	Process 774 783	interface

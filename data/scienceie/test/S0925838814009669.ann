@@ -1,0 +1,32 @@
+T1	Material 0 3	SPS
+T3	Process 102 115	consolidation
+T4	Task 127 193	investigated the effect of processing of cryomilled Al 5083 powder
+T5	Process 198 201	SPS
+T6	Process 208 255	X-ray Diffraction (XRD) grain size calculations
+T8	Process 638 709	combination of cryomilling and SPS of AA-5356/B4C nanocomposites powder
+T9	Task 824 914	investigated the effect of SPS on mechanically milled AA6061 (Al–Mg–Si) micro-alloy powder
+T10	Process 273 276	SPS
+T11	Material 491 494	SPS
+T12	Material 787 805	bulk nanocomposite
+T13	Material 1020 1023	SPS
+T16	Material 1143 1170	unmilled and milled powders
+T17	Material 1266 1296	milled nanocrystalline powders
+T2	Process 44 115	retain the nanostructure of aluminum alloy powders during consolidation
+T18	Material 55 94	nanostructure of aluminum alloy powders
+T19	Material 72 94	aluminum alloy powders
+T20	Process 154 193	processing of cryomilled Al 5083 powder
+T21	Material 168 193	cryomilled Al 5083 powder
+T22	Process 208 225	X-ray Diffraction
+T23	Process 227 230	XRD
+*	Synonym-of T22 T23
+T24	Material 319 324	alloy
+T7	Process 438 453	nanoindentation
+T25	Material 471 477	AA5083
+T26	Process 653 664	cryomilling
+T27	Process 669 672	SPS
+T28	Material 676 709	AA-5356/B4C nanocomposites powder
+T29	Process 851 854	SPS
+T30	Material 858 914	mechanically milled AA6061 (Al–Mg–Si) micro-alloy powder
+T31	Material 858 884	mechanically milled AA6061
+T32	Material 886 894	Al–Mg–Si
+*	Synonym-of T31 T32

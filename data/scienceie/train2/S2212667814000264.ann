@@ -1,0 +1,13 @@
+T1	Task 46 135	integrating immersive virtual reality technologies into a three-dimensional virtual world
+T2	Material 168 177	vAcademia
+T3	Process 236 252	learning process
+T4	Task 297 356	increasing the immersiveness of 3D virtual world experience
+T5	Process 369 384	motion tracking
+T6	Process 389 411	controlling the avatar
+T7	Process 457 477	immersive projection
+T8	Task 532 565	major types of learning scenarios
+T9	Process 437 455	natural navigation
+T10	Process 68 96	virtual reality technologies
+T11	Material 147 167	educational platform
+R1	Hyponym-of Arg1:T2 Arg2:T11	
+T12	Material 482 502	head-mounted display

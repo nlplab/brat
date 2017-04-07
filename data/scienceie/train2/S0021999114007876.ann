@@ -1,0 +1,13 @@
+T1	Task 14 96	light propagation in a scattering medium with piece-wise constant refractive index
+T2	Process 107 135	radiative transport equation
+T3	Process 241 244	RTE
+T4	Process 417 439	coupled system of RTEs
+T5	Process 473 476	FEM
+T6	Process 514 525	simulations
+T7	Material 552 586	solution of the Monte Carlo method
+T8	Process 622 625	RTE
+T9	Material 694 712	Monte Carlo method
+T10	Process 1011 1041	image reconstruction procedure
+T11	Process 893 912	DOT reconstructions
+T12	Process 313 359	Fresnel reflection and transmission phenomenas
+T13	Process 979 1003	refractive index changes

@@ -1,0 +1,16 @@
+T1	Process 211 256	generalised cross correlation phase transform
+T2	Process 258 266	GCC-PHAT
+*	Synonym-of T1 T2
+T3	Process 641 648	speaker
+T4	Process 791 814	voice activity detector
+T5	Process 816 819	VAD
+*	Synonym-of T4 T5
+T6	Process 870 883	GCC-PHAT step
+T7	Process 1081 1101	m-th microphone pair
+T8	Process 1211 1224	Kalman filter
+T9	Process 1226 1229	EKF
+*	Synonym-of T8 T9
+T10	Task 1253 1278	audio position estimation
+T11	Material 767 782	Speech segments
+T12	Process 22 28	SRC-HE
+T13	Process 390 403	GCC algorithm

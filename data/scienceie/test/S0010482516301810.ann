@@ -1,0 +1,34 @@
+T1	Process 0 50	Three-dimensional digital subtraction angiographic
+T2	Process 52 58	3D-DSA
+*	Synonym-of T1 T2
+T3	Process 83 103	cerebral angiography
+T4	Process 144 156	embolization
+T5	Task 227 275	creating a 3D model of the target vessel segment
+T6	Process 306 337	standard triangulation language
+T7	Process 339 342	STL
+*	Synonym-of T6 T7
+T8	Material 383 400	triangular meshes
+T9	Material 202 212	DICOM file
+T10	Process 407 423	3D visualization
+T12	Material 510 539	computational volumetric mesh
+T13	Material 639 647	STL file
+T14	Material 837 850	acrylic resin
+T15	Material 852 856	Vero
+R1	Hyponym-of Arg1:T15 Arg2:T14	
+T16	Process 966 983	removing spicule.
+T17	Material 450 465	Amira version X
+T18	Process 428 439	measurement
+T11	Process 587 596	Smoothing
+T19	Material 674 684	3D printer
+T20	Material 686 697	OBJET30 Pro
+R3	Hyponym-of Arg1:T20 Arg2:T19	
+T21	Process 190 196	3D-DSA
+T22	Material 238 246	3D model
+T23	Material 407 448	3D visualization and measurement software
+R2	Hyponym-of Arg1:T17 Arg2:T23	
+T24	Process 601 610	remeshing
+T25	Process 869 887	immersion in water
+T26	Material 882 887	water
+T27	Material 924 940	3D printed model
+T28	Process 945 953	smoothed
+T29	Material 565 585	triangulated surface

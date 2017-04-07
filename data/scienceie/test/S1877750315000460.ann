@@ -1,0 +1,24 @@
+T1	Material 0 9	FabHemeLB
+T2	Material 15 26	Python tool
+T3	Task 39 112	automate the construction and management of ensemble simulation workflows
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+T4	Material 114 123	FabHemeLB
+T5	Material 150 156	FabSim
+T6	Material 183 189	HemeLB
+T7	Material 207 213	FabSim
+T8	Material 218 227	FabHemeLB
+T9	Material 318 327	FabHemeLB
+T10	Material 497 503	HemeLB
+T11	Material 816 825	FabHemeLB
+T12	Material 361 367	HemeLB
+T13	Process 257 267	deployment
+T14	Process 269 278	execution
+T15	Process 283 296	data analysis
+T16	Process 441 476	organize and curate simulation data
+T18	Process 608 618	simulation
+R2	Hyponym-of Arg1:T4 Arg2:T5	
+T19	Task 236 316	automate application deployment, execution and data analysis on remote resources
+T17	Material 461 476	simulation data
+T20	Process 645 689	monitor the queue status on remote resources
+T21	Process 691 722	fetch results of completed jobs
+T22	Process 745 798	combine functionalities into single one-line commands

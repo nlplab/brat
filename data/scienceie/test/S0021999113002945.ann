@@ -1,0 +1,14 @@
+T1	Process 0 10	Inequality
+T2	Material 73 80	p-norms
+T3	Material 178 184	||y||∞
+T4	Material 214 220	2-norm
+T5	Material 35 47	maximum-norm
+T6	Material 237 249	maximum-norm
+T7	Material 410 432	optimized coefficients
+T8	Process 449 466	vast solution set
+T9	Material 500 517	maximum deviation
+T10	Material 690 702	maximum-norm
+T11	Material 738 757	objective functions
+T12	Task 761 801	extend the accurate wave number coverage
+R1	Hyponym-of Arg1:T5 Arg2:T2	
+T13	Material 225 231	1-norm

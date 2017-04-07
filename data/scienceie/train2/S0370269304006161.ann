@@ -1,0 +1,28 @@
+T1	Task 0 55	Absorption events through the charged current reactions
+T2	Process 265 300	treatment of the Coulomb distortion
+T3	Process 585 608	isobaric analogue state
+T4	Process 610 613	IAS
+*	Synonym-of T3 T4
+T5	Process 618 633	4.38 MeV in 40K
+T6	Process 668 679	shell model
+T7	Task 693 731	the Fermi and Gamow–Teller transitions
+T8	Task 125 154	predicting e−(e+) event rates
+T9	Process 812 827	Coulomb effects
+T10	Process 879 916	calculation by Martinez-Pinedo et al.
+T11	Process 932 982	shell model for Fermi and Gamow–Teller transitions
+T12	Process 989 1025	continuum random phase approximation
+T13	Process 1027 1031	CRPA
+*	Synonym-of T12 T13
+T14	Task 1072 1101	the absorption cross sections
+T15	Process 1412 1455	Fermi and Gamow–Teller transition strengths
+T16	Task 1519 1552	neutrino absorption cross section
+T17	Process 1265 1306	modified effective momentum approximation
+T18	Process 1308 1312	MEMA
+*	Synonym-of T17 T18
+T19	Task 366 441	nuclear absorption cross section for the charged current neutrino reactions
+T20	Process 198 224	nuclear model dependencies
+T21	Material 462 489	supernova neutrino energies
+T22	Material 304 312	electron
+T23	Material 314 322	positron
+T24	Task 344 360	residual nucleus
+*	Synonym-of T22 T23

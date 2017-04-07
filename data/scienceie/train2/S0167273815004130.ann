@@ -1,0 +1,30 @@
+T1	Process 17 41	powder X-ray diffraction
+T2	Process 43 46	XRD
+*	Synonym-of T1 T2
+T3	Process 67 102	PANalytical Empyrean diffractometer
+T4	Material 117 129	XRD patterns
+T5	Process 149 171	STOE Win XPOW software
+T6	Task 194 206	phase purity
+T7	Task 212 229	crystal structure
+T8	Task 238 253	cell parameters
+T9	Process 270 296	Thermogravimetric analysis
+T10	Process 298 301	TGA
+*	Synonym-of T9 T10
+T11	Process 325 352	Netzsch STA 449C instrument
+T12	Process 367 400	Proteus thermal analysis software
+T13	Process 441 460	reducing conditions
+T14	Material 462 470	5% H2/Ar
+T15	Task 530 543	weight change
+T16	Material 551 561	perovskite
+T17	Process 662 708	field emission 74 scanning electron microscope
+T18	Process 710 717	FEG-SEM
+*	Synonym-of T17 T18
+T19	Task 724 742	total conductivity
+T20	Process 792 812	four-terminal method
+T21	Task 843 854	calcination
+T22	Material 873 891	Gold wire contacts
+T23	Task 962 974	conductivity
+T24	Task 1011 1022	redox cycle
+T25	Process 1033 1060	Low oxygen partial pressure
+T26	Material 1107 1112	H2/Ar
+T27	Process 1096 1100	flow

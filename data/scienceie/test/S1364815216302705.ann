@@ -1,0 +1,18 @@
+T1	Process 83 88	SLAMM
+T2	Process 179 182	SLR
+T3	Process 756 761	SLAMM
+T4	Material 1127 1148	marsh migration model
+T5	Process 1216 1230	spatial inputs
+T6	Process 1232 1235	DEM
+R1	Hyponym-of Arg1:T6 Arg2:T5	
+T7	Process 1255 1272	parameter choices
+T8	Process 1274 1289	accretion rates
+R2	Hyponym-of Arg1:T8 Arg2:T7	
+T9	Process 1358 1363	SLAMM
+T10	Task 44 110	present and discuss the application of SLAMM to the New York coast
+T11	Process 1237 1243	VDATUM
+R3	Hyponym-of Arg1:T11 Arg2:T5	
+T12	Process 1291 1302	tide ranges
+R4	Hyponym-of Arg1:T12 Arg2:T7	
+T13	Process 1313 1334	landcover projections
+T14	Material 1628 1651	high-quality local data

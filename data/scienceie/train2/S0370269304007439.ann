@@ -1,0 +1,36 @@
+T1	Task 53 62	Θ+ baryon
+T2	Task 114 144	the formation of the Θ+-baryon
+T3	Process 174 206	parton-based Gribov–Regge theory
+T4	Material 230 249	Monte Carlo program
+T6	Process 349 413	self-consistent quantum mechanical multiple scattering formalism
+T7	Process 1287 1346	fixed by the experimental yields on (multi-)strange baryons
+T8	Material 250 260	NEXUS 3.97
+R1	Hyponym-of Arg1:T8 Arg2:T4	
+T9	Process 284 327	high energy hadronic and nuclear collisions
+T10	Process 415 438	Elementary interactions
+T11	Process 488 536	microscopic (predominantly soft) parton cascades
+T12	Process 570 609	phenomenological soft pomeron exchanges
+R2	Hyponym-of Arg1:T11 Arg2:T12	
+T13	Material 613 620	pomeron
+T14	Material 648 668	(soft) parton ladder
+T15	Material 691 721	projectile and target nucleons
+T16	Material 726 737	leg partons
+T17	Material 798 828	perturbative (high pt) partons
+T18	Material 854 872	“semihard pomeron”
+T19	Material 875 1015	piece of the QCD parton ladder sandwiched between two soft pomerons which are connected to the projectile and to the target in the usual way
+R3	Hyponym-of Arg1:T18 Arg2:T19	
+T20	Material 1021 1038	spectator partons
+T21	Material 1047 1077	projectile and target nucleons
+T22	Process 1090 1107	pomeron emissions
+T23	Material 1114 1130	nucleon remnants
+T24	Material 1148 1156	pomerons
+T25	Material 1162 1176	color singlets
+T26	Material 1186 1190	q–q̄
+T27	Material 1192 1196	q–qq
+T28	Material 1200 1207	q̄–q̄q̄
+R4	Hyponym-of Arg1:T26 Arg2:T25	
+R5	Hyponym-of Arg1:T27 Arg2:T25	
+R6	Hyponym-of Arg1:T28 Arg2:T25	
+T5	Material 1228 1232	q–qq
+T29	Material 1237 1244	q̄–q̄q̄
+T30	Material 1323 1346	(multi-)strange baryons

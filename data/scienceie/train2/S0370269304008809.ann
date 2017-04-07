@@ -1,0 +1,19 @@
+T1	Task 52 135	detecting the location of, say, one missing level on an otherwise complete sequence
+T2	Process 173 200	information theory concepts
+T3	Process 217 243	correlations in a sequence
+T4	Task 292 333	error correcting codes can be constructed
+T5	Task 462 489	detecting one missing level
+T6	Process 356 411	no correlations and therefore no redundancy are present
+T7	Process 413 432	Poissonian sequence
+R1	Hyponym-of Arg1:T6 Arg2:T7	
+T8	Task 515 548	sequence of equally spaced levels
+T9	Task 550 562	picket fence
+R2	Hyponym-of Arg1:T8 Arg2:T9	
+T10	Task 601 665	missed level can be obviously detected as a hole in the spectrum
+T11	Task 826 871	locate in the last case a single missed level
+T12	Task 1280 1300	approximately locate
+T13	Task 1343 1364	a single missed level
+R3	Hyponym-of Arg1:T12 Arg2:T13	
+T14	Process 1311 1341	study of spectral fluctuations
+T15	Task 948 979	two-dimensional chaotic systems
+T16	Process 1185 1235	Weyl's law describing the average spectral density

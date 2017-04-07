@@ -1,0 +1,18 @@
+T1	Process 32 86	electrons carrying quantized orbital angular momentum.
+T2	Material 147 157	plane wave
+T3	Material 191 202	lens system
+T4	Process 389 417	reduced Schrödinger equation
+T5	Material 661 669	vortices
+T7	Process 997 1030	Inclusion of spherical aberration
+T8	Process 1403 1452	creation of nm-sized or smaller electron vortices
+T10	Material 221 245	round, centered aperture
+T11	Material 272 280	aperture
+T12	Material 293 309	holographic mask
+T13	Material 448 456	aperture
+T14	Material 435 440	plane
+T15	Material 700 710	plane wave
+T16	Material 735 751	holographic mask
+T17	Process 926 944	angular divergence
+T18	Material 854 869	magnetic lenses
+T6	Process 1128 1145	Partial coherence
+T9	Material 1153 1166	incident wave

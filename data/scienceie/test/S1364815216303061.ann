@@ -1,0 +1,13 @@
+T1	Task 3 57	representing wetland-river interactions involving GIWs
+T2	Process 1019 1027	WATFLOOD
+T3	Task 1049 1095	riparian wetland-river interaction is modelled
+T4	Process 1466 1473	MODFLOW
+T5	Process 1439 1458	Darcy flow equation
+T6	Material 1386 1404	wetland vegetation
+T7	Material 1413 1428	subsurface soil
+T8	Process 1335 1371	equivalent transmissivity expression
+T9	Process 308 324	outlet elevation
+T10	Task 735 802	interactions should be quantified according to hydraulic principles
+T11	Material 813 862	relative river and wetland water level elevations
+T12	Material 878 922	properties of the connection between the two
+T13	Material 1106 1169	principle of Dupuit-Forchheimer lateral/radial groundwater flow

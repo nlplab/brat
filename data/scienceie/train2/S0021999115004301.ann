@@ -1,0 +1,17 @@
+T1	Task 728 808	collocation formulation, especially given the presence of a diagonal mass matrix
+T2	Process 23 107	couple a set of quadrature points with an equal number of nodal Lagrange polynomials
+T3	Process 149 167	collocation method
+R1	Hyponym-of Arg1:T2 Arg2:T3	
+T4	Process 288 296	Galerkin
+T5	Process 298 300	CG
+*	Synonym-of T4 T5
+T6	Process 306 328	discontinuous Galerkin
+T7	Process 330 332	DG
+*	Synonym-of T7 T6
+T8	Process 388 407	flux reconstruction
+T9	Process 359 375	newer extensions
+R2	Hyponym-of Arg1:T9 Arg2:T8	
+T10	Process 409 411	FR
+*	Synonym-of T8 T10
+T11	Process 454 473	collocation methods
+T12	Material 486 502	linear operators

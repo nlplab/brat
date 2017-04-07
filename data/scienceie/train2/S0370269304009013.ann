@@ -1,0 +1,21 @@
+T1	Task 66 95	determination of the P-parity
+T2	Process 127 142	general theorem
+T3	Task 161 181	determine the parity
+T4	Process 203 218	binary reaction
+T5	Process 306 331	Model independent methods
+T6	Task 336 365	determination of the P-parity
+T7	Process 583 626	measure the spin–spin correlation parameter
+T8	Process 835 856	polarization transfer
+T9	Material 265 273	fermions
+T10	Process 291 304	this reaction
+*	Synonym-of T10 T4
+T11	Material 189 197	particle
+T12	Process 1030 1037	isospin
+T13	Material 1094 1102	nucleons
+T14	Process 973 1001	conservation of the P-parity
+T15	Process 1003 1025	total angular momentum
+T16	Material 864 871	nucleon
+T17	Material 875 888	the hyperon Y
+T18	Process 421 433	pp-collision
+T19	Process 456 471	photoproduction
+T20	Process 1045 1053	reaction

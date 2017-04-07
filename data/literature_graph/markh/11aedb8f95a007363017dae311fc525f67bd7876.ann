@@ -1,0 +1,33 @@
+T1	TASK 21576 21607	statistical machine translation
+T2	METHOD 21795 21822	line optimization algorithm
+T3	METHOD 21966 21988	MMI training criterion
+T4	TASK 22494 22521	Chinese–English translation
+T5	METHOD 22747 22785	unsmoothed minimum error rate criteria
+T6	METHOD 22993 23022	smoothed error rate criterion
+T7	METHOD 23032 23042	error rate
+T8	METRIC 23184 23223	human assessment of translation quality
+T9	METRIC 23422 23426	BLEU
+T10	METRIC 23431 23435	NIST
+T11	TASK 23638 23657	machine translation
+T12	TASK 24086 24113	natural language processing
+T13	TASK 24128 24141	summarization
+R1	is_subclass_of Arg1:T13 Arg2:T12	
+T14	TASK 791 818	natural language processing
+T15	METRIC 966 975	F-Measure
+T16	TASK 980 987	parsing
+R2	addresses Arg1:T15 Arg2:T16	
+T17	METRIC 989 1011	mean average precision
+T18	TASK 1016 1032	ranked retrieval
+R3	addresses Arg1:T17 Arg2:T18	
+T19	METRIC 1038 1042	BLEU
+T20	METRIC 1046 1077	multi-reference word error rate
+T21	TASK 1082 1113	statistical machine translation
+R4	addresses Arg1:T19 Arg2:T21	
+R5	addresses Arg1:T20 Arg2:T21	
+T22	TASK 1152 1179	natural language processing
+T23	TASK 1393 1412	machine translation
+T24	TASK 1791 1810	machine translation
+T25	METRIC 1872 1887	word error rate
+T26	METRIC 1892 1896	BLEU
+R6	addresses Arg1:T25 Arg2:T24	
+R7	addresses Arg1:T26 Arg2:T24	

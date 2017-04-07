@@ -1,0 +1,32 @@
+T1	Material 17 25	polymers
+T2	Process 47 78	synthesized in the liquid phase
+T3	Material 80 85	SWNTs
+T4	Process 90 140	produced through a variety of synthesis techniques
+T5	Process 164 250	the reaction of a gaseous carbon feedstock to form the nanotubes on catalyst particles
+T7	Process 269 313	observed in arc discharge fullerene reactors
+T8	Material 366 371	SWNTs
+T9	Task 252 257	MWNTs
+T6	Task 322 336	this technique
+*	Synonym-of T6 T9
+T10	Material 466 471	SWNTs
+T11	Material 514 538	metal catalyst particles
+T12	Process 388 437	the fullerene production method of laser ablation
+T13	Process 560 585	chemical vapor deposition
+T14	Material 630 635	SWNTs
+T15	Material 640 645	MWNTs
+T16	Process 661 715	the reaction of a gaseous carbon compound as feedstock
+T17	Process 741 754	fluidized bed
+T18	Process 761 851	“carpet” growth of carbon nanotubes (CNTs) from catalyst particles embedded in a substrate
+T19	Process 884 908	“catalytic gas flow CVD”
+T20	Task 925 979	the most effective, cheap, and scalable CVD techniques
+T21	Process 987 1019	HiPco (high-pressure CO) process
+T22	Process 1027 1069	does not use pre-formed catalyst particles
+*	Synonym-of T22 T21
+T23	Process 1088 1102	CVD techniques
+T24	Process 587 590	CVD
+*	Synonym-of T13 T24
+T25	Material 780 796	carbon nanotubes
+T26	Material 798 802	CNTs
+*	Synonym-of T25 T26
+T27	Process 965 979	CVD techniques
+R1	Hyponym-of Arg1:T21 Arg2:T27	

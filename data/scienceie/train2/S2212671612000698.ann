@@ -1,0 +1,22 @@
+T1	Task 3 21	Obstacle detection
+T2	Process 34 76	inverse perspective mapping and homography
+T3	Task 78 101	Obstacle classification
+T4	Process 114 134	fuzzy neural network
+T5	Task 140 173	estimation of the vanishing point
+T6	Process 184 211	feature extraction strategy
+T7	Process 237 258	geometrical relations
+T8	Material 271 279	elements
+T9	Material 301 309	obstacle
+T10	Material 287 292	scene
+T11	Process 317 325	detected
+T12	Process 331 351	estimated homography
+T13	Material 359 369	road plane
+T14	Material 389 395	images
+T15	Task 408 423	image alignment
+T16	Process 431 459	fuzzy decision fusion method
+T17	Process 465 536	fuzzy attribution for obstacle detection and classification application
+T18	Process 550 577	The fuzzy decision function
+T19	Process 603 625	auto-adapted algorithm
+T20	Process 640 654	classification
+T22	Task 487 536	obstacle detection and classification application
+T21	Process 714 728	classification

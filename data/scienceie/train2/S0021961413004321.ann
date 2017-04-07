@@ -1,0 +1,27 @@
+T1	Task 4 48	thermodynamics of copper-zinc alloys (brass)
+T2	Process 118 162	excess enthalpy and excess entropy of mixing
+T3	Material 196 210	enthalpic data
+T4	Process 228 248	solution calorimetry
+T5	Material 274 297	chemical potential data
+T6	Process 314 343	phase equilibrium experiments
+T7	Task 361 385	excess entropy of mixing
+T8	Task 457 498	vibrational and the configurational parts
+T9	Process 677 761	measuring the low temperature heat capacity (5 to 300K) versus composition behaviour
+T10	Task 788 818	excess configurational entropy
+T11	Process 932 965	neutron scattering investigations
+T12	Process 980 1000	computer simulations
+T13	Material 1033 1074	reliable data of the total excess entropy
+T15	Task 1385 1414	separate the entropic effects
+T16	Task 1465 1490	deliver experimental data
+T17	Material 89 94	Brass
+T18	Material 42 47	brass
+T19	Material 22 40	copper-zinc alloys
+*	Synonym-of T19 T18
+T20	Material 632 653	Smmechmix=XASmA+XBSmB
+T21	Material 1081 1118	enthalpic and chemical potential data
+R1	Hyponym-of Arg1:T13 Arg2:T21	
+T22	Process 1139 1184	measurement of the excess vibrational entropy
+T14	Process 1197 1248	determination of the excess configurational entropy
+T23	Process 1259 1270	subtraction
+T24	Material 1473 1490	experimental data
+T25	Material 1551 1567	disordered alloy

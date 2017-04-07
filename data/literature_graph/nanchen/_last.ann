@@ -1,0 +1,14 @@
+T1	METHOD 0 15	Word embeddings
+T2	IDK_MAN 26 181	words in a language's vocabulary as points in a d-dimensional space such that nearby words (points) are similar in terms of their distributional properties
+#1	AnnotatorNotes T2	explanations
+T3	METHOD 183 230	A variety of techniques for learning embeddings
+T4	METHOD 257 277	matrix factorization
+T5	METHOD 330 354	neural language modeling
+T6	TASK 415 433	POS induction task
+T7	TASK 451 502	need embeddings that capture syntactic similarities
+T8	METHOD 634 654	Skip-gram embeddings
+T9	METHOD 950 981	Structured skip-gram embeddings
+T10	SOFTWARE 1157 1167	word2vec 3
+T11	SOFTWARE 1172 1211	Ling et al. (2015)'s modified version 4
+T12	IDK_MAN 1215 1288	generate both plain and structured skip-gram embeddings in nine languages
+#2	AnnotatorNotes T12	outputs

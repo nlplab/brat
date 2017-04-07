@@ -1,0 +1,16 @@
+T1	Process 16 27	glued trees
+T2	Process 29 31	GT
+*	Synonym-of T1 T2
+T3	Task 47 61	quantum search
+T4	Material 127 135	GT graph
+T5	Task 268 287	quantum walk search
+T6	Task 328 356	classical random walk search
+T7	Material 394 403	GT graphs
+T8	Material 373 388	class of graphs
+R1	Hyponym-of Arg1:T7 Arg2:T8	
+T9	Task 416 438	classical random walks
+T10	Material 964 973	GT graphs
+T11	Process 1055 1067	gluing stage
+T12	Material 150 155	graph
+T13	Process 791 831	increasing degree of phase damping noise
+R2	Hyponym-of Arg1:T4 Arg2:T12	

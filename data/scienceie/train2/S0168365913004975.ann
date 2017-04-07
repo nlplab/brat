@@ -1,0 +1,21 @@
+T1	Material 4 56	α-ω-aminohexylcarbamate derivative of cyanocobalamin
+T2	Material 121 130	solid CDI
+T3	Material 162 176	cyanocobalamin
+T4	Material 219 247	anhydrous dimethyl sulfoxide
+T5	Material 323 344	dry 1,6-hexanediamine
+T6	Material 449 462	ethyl acetate
+T7	Process 499 513	centrifugation
+T8	Process 518 527	decanting
+T9	Material 535 546	supernatant
+T10	Material 552 559	residue
+T11	Material 586 593	acetone
+T12	Material 616 627	precipitate
+T13	Material 649 654	solid
+T14	Material 665 672	acetone
+T15	Material 678 691	crude product
+T16	Process 708 736	silica column chromatography
+T17	Material 748 756	propanol
+T18	Material 768 775	butanol
+T19	Material 784 791	ammonia
+T20	Material 804 809	water
+T21	Process 823 837	lyophilisation

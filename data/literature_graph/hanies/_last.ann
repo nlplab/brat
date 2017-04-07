@@ -1,0 +1,14 @@
+T1	METHOD 257 277	matrix factorization
+T2	TASK 211 230	learning embeddings
+T3	METHOD 330 354	neural language modeling
+T4	TASK 415 432	POS induction tas
+T5	TASK 472 502	capture syntactic similarities
+T6	METHOD 456 503	embeddings that capture syntactic similarities.
+R1	addresses Arg1:T1 Arg2:T2	
+R2	addresses Arg1:T3 Arg2:T2	
+T7	METHOD 634 654	Skip-gram embeddings
+T8	METHOD 693 711	log bilinear model
+T9	METHOD 950 981	Structured skip-gram embeddings
+T10	METHOD 1013 1042	standard skip-gram embeddings
+T12	METHOD 1239 1270	structured skip-gram embeddings
+T13	SOFTWARE 1157 1167	word2vec 3

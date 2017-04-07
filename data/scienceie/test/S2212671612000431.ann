@@ -1,0 +1,41 @@
+T1	Material 38 41	LBP
+T2	Material 43 63	local binary pattern
+*	Synonym-of T1 T2
+T3	Task 271 336	eye location, geometric normalization, illumination normalization
+T4	Process 403 405	ER
+T5	Process 407 421	Eyeball Search
+T6	Process 377 396	eye location method
+*	Synonym-of T5 T4
+R1	Hyponym-of Arg1:T4 Arg2:T6	
+T7	Material 471 474	LBP
+T8	Material 701 704	LBP
+T9	Material 706 726	local binary pattern
+*	Synonym-of T8 T9
+T10	Task 934 946	eye location
+T11	Process 1040 1059	eye location method
+T12	Process 1066 1068	ER
+T13	Process 1070 1084	Eyeball Search
+*	Synonym-of T13 T12
+R2	Hyponym-of Arg1:T12 Arg2:T11	
+T14	Material 1134 1137	LBP
+T15	Task 490 501	recognition
+T16	Process 1153 1164	recognition
+T17	Task 1291 1302	recognition
+T18	Process 193 211	AdaBoost algorithm
+T19	Process 1017 1030	preprocessing
+T20	Process 856 874	AdaBoost algorithm
+T21	Material 548 564	symbian platform
+T22	Material 766 782	symbian platform
+T23	Task 888 914	pre-processing of the face
+T24	Task 948 971	geometric normalization
+T25	Task 973 999	illumination normalization
+R3	Hyponym-of Arg1:T10 Arg2:T23	
+R4	Hyponym-of Arg1:T24 Arg2:T23	
+R5	Hyponym-of Arg1:T25 Arg2:T23	
+T26	Material 1211 1227	symbian platform
+T27	Material 76 99	face recognition system
+T28	Task 76 92	face recognition
+T29	Material 103 119	symbian platform
+T30	Task 349 367	face preprocessing
+T31	Task 377 389	eye location
+R6	Hyponym-of Arg1:T31 Arg2:T30	

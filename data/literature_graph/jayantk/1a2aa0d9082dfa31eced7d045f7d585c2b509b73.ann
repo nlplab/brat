@@ -1,0 +1,23 @@
+T1	IDK_MAN 60 91	Resolving polysemy and synonymy
+T2	TASK 121 143	information extraction
+T3	METHOD 156 171	ConceptResolver
+T4	METHOD 193 222	Never-Ending Language Learner
+T5	METHOD 344 359	ConceptResolver
+T6	TASK 374 394	word sense induction
+T7	TASK 399 417	synonym resolution
+R1	addresses Arg1:T5 Arg2:T7	
+R2	addresses Arg1:T5 Arg2:T6	
+T8	TASK 620 640	Word sense induction
+T9	TASK 713 730	Synonym detection
+T10	METHOD 850 865	ConceptResolver
+T11	DATASET 876 897	NELL's knowledge base
+T12	METHOD 19987 20002	ConceptResolver
+T13	TASK 20081 20101	word sense induction
+T14	DATASET 20108 20116	Freebase
+R3	addresses Arg1:T14 Arg2:T13	
+T15	TASK 20182 20200	synonym resolution
+T16	METHOD 20214 20229	ConceptResolver
+T17	METHOD 20362 20366	NELL
+T18	METHOD 20467 20484	Concept- Resolver
+T19	DATASET 20575 20590	NELL's ontology
+T20	METHOD 20701 20716	ConceptResolver

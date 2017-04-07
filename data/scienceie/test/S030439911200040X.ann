@@ -1,0 +1,17 @@
+T1	Material 17 35	1D radial profiles
+T2	Process 50 68	circular averaging
+T3	Process 107 127	elliptical averaging
+T4	Process 151 169	circular averaging
+T5	Process 190 201	astigmatism
+T6	Process 203 214	Astigmatism
+T7	Material 250 260	Thon rings
+T8	Material 319 329	1D profile
+T9	Material 435 445	Thon rings
+T10	Process 498 518	Canny edge detection
+T11	Process 551 571	elliptical averaging
+T12	Process 652 663	astigmatism
+T13	Process 752 757	ATLAS
+T14	Process 827 846	2D PSD optimization
+T15	Process 801 804	CTF
+T16	Process 72 91	2D experimental PSD
+T17	Process 412 415	PSD

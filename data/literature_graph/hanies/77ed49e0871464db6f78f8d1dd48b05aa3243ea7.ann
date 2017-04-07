@@ -1,0 +1,62 @@
+T1	METRIC 44 63	Guaranteed Training
+T2	METHOD 67 82	Neural Networks
+T3	METHOD 89 103	Tensor Methods
+T4	METHOD 157 180	non-convex optimization
+T5	METHOD 194 210	backpropa-gation
+T6	METHOD 214 230	gradient descent
+R1	is_subclass_of Arg1:T5 Arg2:T6	
+T7	METHOD 309 329	tensor decomposition
+T8	METRIC 390 401	risk bounds
+T9	METRIC 445 462	sample complexity
+T10	METRIC 661 677	generalizability
+T11	METHOD 711 731	tensor decomposition
+T12	METRIC 739 780	provably converges to the global optimum,
+T13	METHOD 943 970	stochastic gradient descent
+T14	METRIC 990 1014	computational complexity
+T15	METRIC 1032 1057	computationally efficient
+T16	METRIC 1070 1092	guaranteed risk bounds
+T17	TASK 1263 1278	computer vision
+T18	TASK 1283 1301	speech recognition
+T19	METRIC 1451 1472	guaranteed risk bound
+T20	METRIC 1518 1555	generalize to new unseen test samples
+T21	METRIC 1576 1590	training error
+T22	METRIC 1603 1614	overfitting
+T23	METRIC 1663 1667	risk
+T24	METRIC 2185 2192	NP-hard
+T25	METHOD 2194 2214	Local search methods
+T26	METHOD 2223 2238	gradient descen
+T27	METHOD 2243 2258	backpropagation
+T28	METRIC 2263 2281	inexpensive to run
+T29	METRIC 2510 2535	computationally efficient
+T30	METRIC 2953 2974	guaranteed risk bound
+T31	METRIC 2986 2997	NP-hardness
+T32	METRIC 3012 3036	computational complexity
+T33	METRIC 3145 3163	tractable learning
+T34	METHOD 3213 3230	method of moments
+T35	METHOD 3441 3461	tensor decomposition
+T36	METHOD 3465 3481	CP decomposition
+T37	METRIC 3590 3600	non-convex
+T38	METHOD 3914 3928	tensor methods
+T39	TASK 2585 2608	training neural network
+T40	METRIC 4732 4756	computational complexity
+T41	METRIC 4801 4812	risk bounds
+T42	METRIC 4823 4849	number of training samples
+T43	METHOD 5267 5290	tensor CP decomposition
+T44	METHOD 5410 5426	Fourier analysis
+T45	METHOD 4563 4609	Neural Network- LearnIng using Feature Tensors
+T46	METHOD 5466 5489	multi-linear operations
+T47	METHOD 5525 5541	Fourier analysis
+T48	METHOD 5860 5872	unsupervised
+T49	METRIC 6245 6256	risk bounds
+T50	METRIC 6289 6324	approximation and estimation errors
+T51	METRIC 6330 6349	approximation error
+T52	METRIC 6423 6439	estimation error
+T53	TASK 6366 6413	fitting the target function to a neural network
+T54	TASK 6456 6501	estimating the weights of that neural network
+T55	METRIC 7125 7141	generalizability
+T56	METHOD 10268 10293	layer-by-layer estimation
+T57	METHOD 49643 49663	tensor decomposition
+T58	FUNDING_AGENCY 48663 48666	NSF
+T59	FUNDING_AGENCY 48712 48715	ONR
+T60	FUNDING_AGENCY 48778 48787	Microsoft
+T61	FUNDING_AGENCY 48861 48864	ARO

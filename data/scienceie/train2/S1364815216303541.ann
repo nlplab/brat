@@ -1,0 +1,17 @@
+T1	Process 49 75	iUTAH “Utah Water Survey,”
+T4	Task 263 312	Utah's adult population thinks about water issues
+T14	Process 931 950	associated codebook
+T2	Process 318 324	survey
+T3	Material 366 417	perceptions of the adequacy of local water supplies
+T5	Material 419 470	perceptions of the quality of local water resources
+T6	Material 476 527	concern about a range of water and non-water issues
+T7	Material 602 629	familiarity with water cost
+T8	Material 632 654	awn-watering behaviors
+T9	Material 656 695	participation in water based recreation
+T10	Material 701 723	demographic attributes
+T11	Process 789 815	description of the dataset
+T12	Process 725 747	Supplementary material
+R1	Hyponym-of Arg1:T11 Arg2:T12	
+T13	Process 854 880	complete survey instrument
+R2	Hyponym-of Arg1:T13 Arg2:T12	
+R3	Hyponym-of Arg1:T14 Arg2:T12	

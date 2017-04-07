@@ -1,0 +1,15 @@
+T1	Material 19 21	Pc
+T2	Process 208 227	matter Hamiltonians
+T3	Process 197 203	vacuum
+T4	Process 109 129	conversion in matter
+T5	Process 150 189	relative orientation of the eigenstates
+T6	Process 269 296	analytical solutions for Pc
+T7	Material 294 296	Pc
+T8	Material 371 374	NSI
+T9	Process 332 379	generalization of these results to the NSI case
+R1	Hyponym-of Arg1:T7 Arg2:T8	
+T10	Process 569 591	adiabaticity violation
+T11	Material 812 820	neutrino
+T12	Material 880 888	neutrino
+T13	Material 962 964	Pc
+T14	Material 1101 1109	neutrino

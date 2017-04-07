@@ -1,0 +1,26 @@
+T1	TASK 59 111	Teaching machines to read natural language documents
+T2	TASK 469 501	supervised reading comprehension
+T3	METHOD 561 581	deep neural networks
+T4	METHOD 545 554	attention
+R1	uses Arg1:T3 Arg2:T4	
+T5	TASK 6247 6260	co-occurrence
+T6	DATASET 6379 6389	Daily Mail
+T7	IDK_MAN 6329 6347	Cloze form queries
+T8	METHOD 6534 6554	ngram language model
+T9	DATASET 6570 6580	Daily Mail
+T10	DATASET 6744 6761	Daily Mail corpus
+T11	TASK 9432 9447	machine reading
+T12	IDK_MAN 9771 9777	entity
+T13	IDK_MAN 9950 9966	Cloze form query
+T14	TASK 10064 10082	question answering
+T15	TASK 10024 10027	NLP
+T16	TASK 10122 10143	linguistic annotation
+T17	TASK 10176 10192	semantic parsing
+T18	TASK 10205 10208	NLP
+T19	TASK 10306 10321	machine reading
+T20	TASK 10328 10350	Frame-Semantic Parsing
+T21	TASK 10351 10373	Frame-semantic parsing
+T22	TASK 10569 10587	question answering
+T23	IDK_MAN 10630 10656	frame-semantic annotations
+T24	METHOD 10719 10740	frame-semantic parser
+T25	TASK 11119 11140	machine comprehension

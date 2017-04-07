@@ -1,0 +1,37 @@
+T1	Process 0 17	Superconductivity
+T2	Material 21 30	actinides
+T3	Task 0 30	Superconductivity in actinides
+T4	Material 53 66	thorium metal
+T5	Material 98 105	uranium
+T6	Material 126 143	uranium compounds
+T7	Material 172 195	uranium superconductors
+T8	Material 240 277	uranium heavy fermion superconductors
+T9	Material 361 390	ferromagnetic superconductors
+T10	Material 394 401	uranium
+T11	Material 465 474	plutonium
+T12	Process 444 461	superconductivity
+T13	Material 484 493	neptunium
+T14	Material 514 523	actinides
+T15	Process 569 583	periodic table
+T16	Material 620 641	Transuranium elements
+T17	Material 870 884	transactinides
+T18	Material 646 658	transuranics
+T19	Material 528 537	actinoids
+*	Synonym-of T14 T19
+*	Synonym-of T16 T18
+T20	Material 889 903	superactinides
+*	Synonym-of T17 T20
+R1	Hyponym-of Arg1:T4 Arg2:T2	
+R2	Hyponym-of Arg1:T5 Arg2:T2	
+R3	Hyponym-of Arg1:T6 Arg2:T2	
+R4	Hyponym-of Arg1:T8 Arg2:T7	
+T22	Material 591 593	Ac
+T23	Material 602 604	Th
+T24	Material 614 616	Lr
+R5	Hyponym-of Arg1:T22 Arg2:T19	
+R6	Hyponym-of Arg1:T23 Arg2:T19	
+R7	Hyponym-of Arg1:T24 Arg2:T19	
+T25	Material 726 733	uranium
+T26	Material 816 834	synthetic elements
+T27	Material 849 851	Lr
+T21	Task 1018 1054	study of condensed-matter properties

@@ -1,0 +1,29 @@
+T1	Material 0 18	Immunopotentiators
+T2	Process 19 43	activate innate immunity
+T3	Process 89 118	pattern-recognition receptors
+T4	Process 120 124	PRRs
+*	Synonym-of T4 T3
+T5	Process 171 190	Toll-like receptors
+T6	Process 192 196	TLRs
+T7	Process 214 218	PRRs
+*	Synonym-of T5 T6
+R1	Hyponym-of Arg1:T6 Arg2:T7	
+T8	Material 313 324	TLR ligands
+T9	Material 522 546	antigen-presenting cells
+T10	Material 578 582	TLR9
+T11	Task 560 576	clinical studies
+T12	Process 596 606	stimulated
+T13	Material 612 643	synthetic oligodeoxynucleotides
+T14	Material 667 697	unmethylated CpG dinucleotides
+T15	Material 710 713	CpG
+T16	Material 734 742	adjuvant
+R2	Hyponym-of Arg1:T15 Arg2:T16	
+T17	Task 747 777	infectious disease vaccination
+T18	Task 795 826	e development of cancer therapy
+T19	Process 838 849	mouse model
+T20	Material 851 854	CpG
+T21	Process 878 895	induce T helper 1
+T22	Process 951 998	production of IFN-γ and the generation of IgG2a
+T23	Material 1067 1076	liposomes
+T24	Material 1114 1134	Th1-biased cytokines
+T25	Process 1139 1178	augmented cell mediated immune response

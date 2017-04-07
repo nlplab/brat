@@ -1,0 +1,20 @@
+T1	Material 4 17	sodium trimer
+T2	Material 275 278	Na3
+T3	Material 289 303	alkali trimers
+T4	Process 262 271	PES scans
+R1	Hyponym-of Arg1:T2 Arg2:T3	
+T5	Process 343 346	DFT
+T6	Process 352 377	complete active space SCF
+T7	Process 388 422	configuration interaction approach
+T8	Process 432 459	valence bond wave functions
+T9	Process 496 521	density functional theory
+T10	Process 523 526	DFT
+R2	Hyponym-of Arg1:T9 Arg2:T10	
+T11	Process 531 551	JT-distorted systems
+T12	Material 577 580	Na3
+T13	Process 595 609	B-X transition
+T14	Process 647 703	state-averaged multi-reference configuration interaction
+T15	Task 742 791	derive more accurate non-adiabatic coupling terms
+T16	Material 826 849	photoabsorption spectra
+T17	Process 166 191	obtuse isosceles geometry
+T18	Process 220 239	linear conformation

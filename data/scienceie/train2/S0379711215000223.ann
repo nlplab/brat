@@ -1,0 +1,37 @@
+T1	Process 47 66	calibration process
+T2	Task 91 108	inverse modelling
+T3	Material 128 145	experimental data
+T4	Process 180 199	calibration process
+T5	Process 207 227	optimization routine
+T7	Task 302 321	pyrolysis behaviour
+T8	Task 328 355	multivariable curve fitting
+R1	Hyponym-of Arg1:T8 Arg2:T7	
+T9	Material 372 389	experimental data
+T10	Process 394 411	model calibration
+T11	Process 426 440	mass loss rate
+T12	Process 449 470	surface temperature [
+T13	Process 482 504	optimization technique
+T14	Process 679 693	potentiometers
+T15	Process 614 624	parameters
+T16	Process 635 654	kinetics parameters
+R2	Hyponym-of Arg1:T16 Arg2:T15	
+T17	Process 723 746	mathematical procedures
+T18	Process 793 803	parameters
+T19	Process 835 852	Genetic Algorithm
+T20	Process 854 856	GA
+T21	Process 869 895	Shuffled Complex Evolution
+T22	Process 897 900	SCE
+*	Synonym-of T21 T22
+R3	Hyponym-of Arg1:T21 Arg2:T17	
+*	Synonym-of T19 T20
+R4	Hyponym-of Arg1:T19 Arg2:T17	
+T23	Process 997 1016	choice of algorithm
+T24	Material 1087 1092	GPYRO
+T25	Material 1102 1116	synthetic data
+T26	Process 1184 1194	algorithms
+T27	Process 1246 1269	optimization algorithms
+T28	Process 1338 1341	SCE
+T29	Process 1364 1373	algorithm
+R5	Hyponym-of Arg1:T28 Arg2:T29	
+T30	Material 1386 1400	synthetic data
+T6	Task 239 274	quantify the best set of parameters

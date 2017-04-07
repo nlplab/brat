@@ -1,0 +1,34 @@
+T1	Task 12 40	represent scale interactions
+T3	Process 167 179	R-adaptivity
+T4	Process 293 314	atmospheric modelling
+T5	Process 213 229	deforming a mesh
+T6	Process 408 418	adaptivity
+T7	Process 874 895	Monge–Ampère equation
+T8	Process 1005 1031	r-adaptive mesh generation
+T10	Process 44 81	weather and climate prediction models
+T11	Process 182 201	mesh redistribution
+R1	Hyponym-of Arg1:T11 Arg2:T3	
+R2	Hyponym-of Arg1:T5 Arg2:T11	
+T12	Process 445 475	altering the mesh connectivity
+T13	Material 610 616	meshes
+T14	Process 715 734	Variational methods
+T15	Process 805 822	r-adaptive meshes
+T17	Process 954 984	scalar valued monitor function
+T9	Material 1055 1059	mesh
+T16	Material 911 942	optimally transported (OT) mesh
+T18	Material 458 462	mesh
+T19	Material 225 229	mesh
+T20	Material 182 186	mesh
+T21	Task 758 822	control resolution in different directions for r-adaptive meshes
+T22	Process 1094 1110	monitor function
+T2	Material 140 155	adaptive meshes
+T23	Process 1132 1145	mesh tangling
+T24	Process 1254 1266	Monge–Ampère
+T25	Material 1338 1344	sphere
+T26	Material 1205 1211	sphere
+T27	Task 1375 1405	weather and climate prediction
+T28	Process 1412 1424	r-adaptivity
+T29	Process 581 616	mapping of solutions between meshes
+R3	Hyponym-of Arg1:T7 Arg2:T8	
+T30	Material 1132 1136	mesh
+T31	Task 1172 1211	optimal transport problem on the sphere

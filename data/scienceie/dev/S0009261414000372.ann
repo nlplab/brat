@@ -1,0 +1,29 @@
+T1	Task 26 44	optical properties
+T2	Process 95 117	electronic environment
+T3	Process 271 288	Optical processes
+T4	Process 300 325	resonance energy transfer
+R1	Hyponym-of Arg1:T4 Arg2:T3	
+T5	Material 493 509	absorption bands
+T6	Process 529 549	electronic influence
+T7	Process 1115 1137	quantum electrodynamic
+T8	Process 1139 1142	QED
+*	Synonym-of T8 T7
+T9	Process 1168 1191	experimental procedures
+T10	Process 357 400	local environment of molecular chromophores
+T11	Process 616 642	light-harvesting complexes
+T12	Material 684 735	photosynthetic antenna molecule bacteriochlorophyll
+T13	Material 742 758	absorption bands
+T14	Process 836 851	energy transfer
+T15	Task 963 1035	influence of a neighbouring, off-resonant, molecule on photon absorption
+T16	Process 1076 1102	induced circular dichroism
+T17	Process 1298 1330	circular differential absorption
+T18	Material 48 53	atoms
+T19	Material 58 67	molecules
+T20	Process 119 138	Local field effects
+T21	Material 176 209	nanostructured photonic materials
+T22	Material 904 922	carotenoid species
+T23	Process 1018 1035	photon absorption
+T24	Material 1006 1014	molecule
+T25	Material 1018 1024	photon
+T26	Material 1226 1241	chiral mediator
+T27	Material 1270 1286	achiral acceptor

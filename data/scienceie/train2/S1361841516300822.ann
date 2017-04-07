@@ -1,0 +1,15 @@
+T1	Task 23 37	AAMM technique
+T2	Process 279 313	1-tailed Wilcoxon signed rank test
+T3	Task 571 585	AAMM technique
+T4	Material 1162 1174	error curves
+T5	Process 1273 1289	calibration scan
+T6	Process 1510 1536	non-cardiac-gated sequence
+T7	Material 157 169	error curves
+T8	Task 400 404	AAMM
+T9	Task 439 455	AAMM (no adapt.)
+T10	Task 708 712	AAMM
+T11	Material 687 704	motion estimation
+T12	Process 904 911	imaging
+T13	Material 919 937	motion estimations
+T14	Task 1061 1065	AAMM
+T15	Process 1362 1373	calibration

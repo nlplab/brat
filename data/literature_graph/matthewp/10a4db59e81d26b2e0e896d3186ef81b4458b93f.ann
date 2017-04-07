@@ -1,0 +1,19 @@
+T1	METHOD 38086 38106	neural network model
+T2	METHOD 38129 38147	bidirectional LSTM
+T3	METHOD 38154 38173	character-level CNN
+T4	METHOD 38222 38229	dropout
+T5	TASK 38268 38292	named entity recognition
+R1	uses Arg1:T1 Arg2:T4	
+R2	is_subclass_of Arg1:T2 Arg2:T1	
+R3	is_subclass_of Arg1:T3 Arg2:T1	
+R4	addresses Arg1:T1 Arg2:T5	
+R5	addresses Arg1:T2 Arg2:T5	
+R6	addresses Arg1:T3 Arg2:T5	
+T6	DATASET 38407 38410	NER
+T7	METHOD 38541 38575	partial matching lexicon algorithm
+T8	METHOD 38707 38722	word embeddings
+T9	METHOD 38788 38806	training algorithm
+T10	METHOD 38855 38863	lexicons
+T11	METHOD 38868 38883	word embeddings
+T12	TASK 39009 39028	extended tagset NER
+T13	TASK 39033 39047	entity linking

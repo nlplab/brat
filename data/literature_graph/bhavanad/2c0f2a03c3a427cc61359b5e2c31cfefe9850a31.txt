@@ -1,0 +1,558 @@
+Title: WebSets: Extracting Sets of Entities from the Web Using Unsupervised Information Extraction
+
+Abstract: We describe a open-domain information extraction method for extracting concept-instance pairs from an HTML corpus. Most earlier approaches to this problem rely on combining clusters of distributionally similar terms and concept-instance pairs obtained with Hearst patterns. In contrast, our method relies on a novel approach for clustering terms found in HTML tables, and then assigning concept names to these clusters using Hearst patterns. The method can be efficiently applied to a large corpus, and experimental results on several datasets show that our method can accurately extract large numbers of concept-instance pairs.
+
+Content: 
+
+WebSets: Extracting Sets of Entities from the Web Using Unsupervised Information Extraction Bhavana 
+Dalvi William W. Cohen Jamie Callan School of Computer Science School of Computer Science School of Computer 
+Science Carnegie Mellon University Carnegie Mellon University Carnegie Mellon University Pittsburgh, 
+PA 15213 Pittsburgh, PA 15213 Pittsburgh, PA 15213 bbd@cs.cmu.edu wcohen@cs.cmu.edu callan@cs.cmu.edu 
+ABSTRACT We describe a open-domain information extraction method for extracting concept-instance pairs 
+from an HTML cor­pus. Most earlier approaches to this problem rely on com­bining clusters of distributionally 
+similar terms and concept­instance pairs obtained with Hearst patterns. In contrast, our method relies 
+on a novel approach for clustering terms found in HTML tables, and then assigning concept names to these 
+clusters using Hearst patterns. The method can be ef­.ciently applied to a large corpus, and experimental 
+results on several datasets show that our method can accurately extract large numbers of concept-instance 
+pairs. Categories and Subject Descriptors: I.2.6[Arti.cial In­telligence]: Learning -Knowledge acquisition 
+General Terms: Algorithms, Experimentation. Keywords: Web Mining, Clustering, Hyponymy Relation Acquisition. 
+ 1. INTRODUCTION Many NLP tasks include summarization, co-reference res­olution, and named entity extraction 
+are made easier by acquiring large sets of concept-instance pairs (such as god­dess,Venus and US President 
+, Bill Clinton ). Ontologies that include many such pairs (e.g., FreeBase and WordNet) exist, but are 
+often incomplete. Here we consider the prob­lem of automatically harvesting concept-instance pairs from 
+a large corpus of HTML tables. Past approaches to this problem have primarily been based detecting coordinate 
+terms and hyponym patterns. Hyponym patterns, sometimes called Hearst patterns [11], are surface patterns 
+(like Xs such as Y ) indicating that X,Y are a concept-instance pair. Two terms i and j are coordinate 
+terms if i and j are instances of the same concept: for in­stance, Bill Clinton and Richard Nixon are 
+coordinate terms, since both are instances of the concept US Presi­dent . Coordinate terms are most frequently 
+detected by clustering terms based on distributional similarity [15] i.e., Permission to make digital 
+or hard copies of all or part of this work for personal or classroom use is granted without fee provided 
+that copies are not made or distributed for pro.t or commercial advantage and that copies bear this notice 
+and the full citation on the .rst page. To copy otherwise, to republish, to post on servers or to redistribute 
+to lists, requires prior speci.c permission and/or a fee. WSDM 12, February 8 12, 2012, Seattle, Washington, 
+USA. Copyright 2012 ACM 978-1-4503-0747-5/12/02 ...$10.00. the similarity of their contexts in free 
+text. Various tech­niques can be used to combine these coordinate-term and hy­ponym information to generate 
+additional concept-instance pairs [26, 22]. Our approach is novel in that it relies solely on HTML tables 
+to detect coordinate terms. We present a novel clus­tering method that .nds extremely precise coordinate-term 
+clusters by merging table columns that contain overlapping triplets of instances, and show that this 
+clustering method outperforms k-means, while still being scalable enough to apply to large corpora. We 
+also present a new method for combining hyponym and coordinate-term information, and show that on table-rich 
+corpora, this method improves on previously-published techniques [26], obtaining higher accu­racy while 
+generating nearly hundred times the number of concept-instance pairs. In a .nal set of experiments, we 
+show that allowing a small amount of user input for each coordinate-term cluster can produce concept-instance 
+pairs with accuracy in the high 90 s for four di.erent corpora. The experiments in this paper are conducted 
+on several di.erent HTML corpora and a collection of Hearst pattern [11] instances that have been extracted 
+from ClueWeb09, all of which are made available for future researchers. The rest of this paper is organized 
+as follows. Section 2 presents a more detailed overview of the related work. Sec­tion 3 describes our 
+unsupervised IE technique, which we call WebSets. Section 4 describes the evaluation methodol­ogy and 
+experimental results, and section 6 concludes. 2. RELATED WORK Information extraction from unstructured 
+and semi-struct­ured information sources on the Web is an active area of research in recent years. In 
+this section we summarize the existing techniques after categorizing them, by the inputs they are using 
+and the goals they are trying to reach. 2.1 Exploiting Tables on the Web Gatterbauer et al. [8] focus 
+on extracting tabular data from various kinds of pages that have table-like visual rep­resentations when 
+rendered in a browser. Although we do not make use of these techniques, they could be employed by WebSets 
+to collect more tabular information from a corpus. The WebTables [2] system extracted schema information 
+from a huge corpus of 14.1 billion HTML tables from Google s general-purpose web crawl. They built an 
+attribute corre­lation statistics database (AcsDB), which can be used to cre­ate an attribute name thesaurus 
+and a schema auto-completion system. Unfortunately the WebTables corpora is not publi­cally available; 
+it would be an interesting project to apply WebSets to a corpus of this size. Gupta et al. [9] focuses 
+on the task of extending a table given a few seed rows. Their technique consolidates HTML lists relevant 
+to the example rows to build a result table. Similarly, SEAL (Set Expansion for Any Language) [28] is 
+a set expansion system which starts with a few seed examples and extends them using lists detected using 
+character-based heuristics. Unlike these systems, WebSets does not require seed examples, but instead 
+extracts concept-instance pairs in an unsupervised manner from a corpus. Gupta and Sarawagi [10] consider 
+jointly training struc­tured extraction models from overlapping web source (pri­marily in tables), thus 
+avoiding the need for labeled data. WebSets also depends on content overlap across table columns and 
+domains, but generates concept-instance pairs instead of building an extractor. Limaye et al. [14] proposed 
+a system to use an existing catalog and type hierarchy for annotating table columns and cells. They also 
+propose better indexing techniques to im­prove the search engine response to table queries. WebSets di.ers 
+in that the Hearst-pattern data it uses is noisier than a catalog or type hierarchy.  2.2 Information 
+Extraction Systems Many systems perform semi-supervised information ex­traction from free text on the 
+web, using only a few seed examples or seed rules. These systems include KnowItAll [6, 7], ASIA [27], 
+and Coupled Pattern Learning (CPL) [4]. Along similar lines, Parameswaran et al. [18] propose a concept 
+extraction algorithm which can identify a canon­ical form of a concept, .ltering out sub-concepts or 
+super­concepts; and Ritter et al. [20] describe a scheme for .ltering concept-instance pairs, using a 
+SVM classi.er which uses as features frequency statistics for several Hearst patterns on a large corpus. 
+Given a training set of text containing known concept-instance pairs, Snow et al. [22] learns dependency 
+path features, which can further expand the set of concept­instance pairs. WebSets is di.erent from most 
+of these ap­proaches in that it builds all sets of entities from a given corpus, and does not require 
+seed sets, a starting ontology, or a set of target concept names. TextRunner [30] is an open-domain IE 
+system which makes a single pass over the corpus of unstructured text and ex­tracts a large set of relational 
+tuples, without requiring any human input. Unlike WebSets, however, it does not build coherent sets of 
+category or relation instances. Pantel and Ravichandran [17] proposes a method to automatically la­bel 
+distributional term clusters using Hearst-like patterns, and Van Durme and Pasca [26] proposed an alternative 
+ap­proach method to extract labeled classes of instances from unstructured text. All of these approaches 
+use only unstruc­tured text to .nd coordinate terms and assigning hyper­nyms, whereas WebSets uses HTML 
+tables. As we show in the experimental results, WebSets uses a novel method for combining coordinate-term 
+clusters and hypernyms data that quantitatively improves over Van Durme and Pasca s method for combining 
+coordinate-term clusters and hyper­nym data. There also exist some systems that use both free-text and 
+tabular information. Talukdar et al. [24] proposed a graph random walk based semi-supervised label propaga­tion 
+technique for open domain class instance extractions, which extends the system of Van Durme and Pasca 
+by using table data (from WebTables) as well as free-text distribu­tional clusters. However, unlike Talukdar 
+et al. s system, WebSets does not require distributional clusters. Coupled SEAL (CSEAL) [4] use of mutual 
+exclusion, containment and type checking relationships to extend SEAL, and CPL [4] and CSEAL are the 
+two components of NELL [25], a multi-strategy semi-supervised learning system. However, unlike NELL, 
+WebSets does not require seed instances or an ontology as input. Shinzato and Torisawa [21] showed that 
+coordinate terms can be extracted from itemizations in structured web docu­ments. Their method .nds concept-instance 
+pairs pertain­ing to a single query list, and .nds candidate hypernyms by querying the web on-the-.y 
+to collect documents. In con­trast, WebSets processes all lists in a corpora simultaneously, and makes 
+no web queries.  3. WEBSETS In this section we describe an unsupervised information extraction technique 
+named WebSets which extracts concept­instance pairs from HTML tables in a given corpus. It builds coordinate 
+term clusters using co-occurrence in ta­ble columns and assigns hypernyms to these clusters using Hearst 
+pattern data extracted form text corpus. To build term clusters, system should .rst extract tables by 
+parsing HTML pages, then decide which tables have useful relational data. Following the hypothesis that 
+entities appearing in a table column possibly belong to the same concept, each ta­ble column in this 
+extracted data is a candidate entity set; the system hence needs to have a mechanism to cluster those 
+table columns. Clustering the table columns will yield sets of entities, each of which potentially belongs 
+to a coherent concept. These sets will become more useful if they are la­beled with appropriate concept-names. 
+To summarize, the technique we develop needs to solve following sub-problems: 1. Table Identi.cation: 
+Extracting tables from the cor­pus that are likely to have relational data. 2. Entity Clustering: E.ciently 
+clustering the extracted table cells to generate coherent sets of entities. 3. Hypernym Recommendation: 
+Labeling each cluster with an appropriate concept-name (hyperym).  In this section, we describe our 
+approach, WebSets, which solves each of the above mentioned sub-problems in an ef­fective way. 3.1 Table 
+Identi.cation Currently WebSets parses tables de.ned by <table> tags1 . This is only a fraction of structured 
+data available on the Web. Use of other techniques like Gatterbauer et al. [8] can provide more input 
+data to learn sets from. Further only a small fraction of HTML tables actually con­tain useful relational 
+data(see Section 4). Remaining tables are used for formatting or rendering purposes rather than to present 
+relational data. To .lter out useful tables, WebSets uses the following set of features: (1) the number 
+of rows (2) 1We found that large number of HTML pages have broken syntax. We use the HTML syntax cleaning 
+software Tidy [1] to .x the syntax in these pages. the number of non-link columns (3) the length of 
+cells after removing formatting tags (4) whether table contains other HTML tables. The thresholds set 
+for our experiments are explained in Section 4.  3.2 Entity Clustering At the end of the table identi.cation 
+step, we have a col­lection of HTML tables which are likely to contain relational data. Each of the table-cells 
+is a candidate entity and each table-column is a candidate set of entities. However many columns have 
+information that is useful only within a site (e.g., navigational links) and many are overlapping. To 
+solve this problem we use the redundancy of information on the Web. If a set of entities co-occur in 
+multiple table-columns across the Web, then it is more likely to be an important entity set. Since these 
+tables come from di.erent domains and are created by di.erent authors, they will typically only partially 
+overlap. To cluster the entities in these columns into coherent sets, the .rst essential step will be 
+to repre­sent this data in a way that reveals the co-occurrence of en­tities across multiple table columns. 
+In this section, we will .rst discuss the data representation, and then algorithms for entity clustering. 
+ 3.2.1 Data Representation We considered two ways to represent table data. With the Entity record representation 
+, one record per entity is cre­ated, and it contains information about which table-columns and URL domains 
+the entity was mentioned in. These en­tity records can then be clustered, based on the overlap of table-columns 
+and domains, to yield sets of entities. One ad­vantage of this representation is that it is compact. 
+Another advantage is that the number of distinct domains an entity occurred in can be used as an indicator 
+of how important it is. A disadvantage of this representation is that if some entity-name is ambiguous 
+(has multiple senses), it will col­lapse all senses of the entity into one record. E.g., consider a corpus 
+which contains mentions of the entity Apple in two senses, Apple as a fruit and Apple as a company . 
+This representation will create a single record for the entity Apple with its occurrence as a fruit and 
+as a company con­founded. An unsupervised IE system might .nd it di.cult to decompose multiple senses 
+from this single record. To solve this problem, we propose a novel representation of the table data called 
+Entity-Triplet records . In this rep­resentation, there is a record for each triplet of adjacent en­tities 
+instead of for individual entities. Each record contains information about which table-columns and URL 
+domains the triplet occurred in. Hence in case of an ambiguous en­tity like Apple , its occurrences as 
+a fruit will be separate from its occurrences as a company, e.g., {Apple, Avocado, Banana} will be one 
+triplet record and {Apple, Microsoft, DELL} will be another triplet record. Thus entities within a triplet 
+disambiguate each other. Since we have a list of all domains a triplet occurred in, only those triplets 
+which appear in enough domains can be considered as important. In this way, we represent the table data 
+as a triplet store, which contains a record for each entity triplet. The triplet store can be built in 
+one single pass over the corpus. If the system considers all possible triplets that can be created from 
+each table column, then number of triplet records will be quadratic in the total size of all tables. 
+This can be a serious concern for a web-scale dataset. Hence our system Country Capital City India Delhi 
+China Beijing Canada Ottawa France Paris Table 1: TableId= 21, domain= www.dom1.com Country Capital 
+City China Beijing Canada Ottawa France Paris England London Table 2: TableId= 34, URL= www.dom2.com 
+ constructs onlty those triplets which are adjacent i.e. sub­sequences of entities in a table-column. 
+This ensures that number of triplet records are linear in total size of all tables, making the system 
+scalable. The system keeps track of all table-columns a triplet occurred in, which makes it possible 
+to reconstruct a column by joining triplets on columnId. Hence this storage method does not result in 
+any loss of information. Consider an example of tables containing countries and their capitals. Original 
+tables are shown in Table 1, 2 and the triplet records created by WebSets are shown in Table 3. Second 
+row in Table 3, indicates that the triplet (China, Canada, France) occurred in column 1 of tableId 21 
+and column 1 of tableId 34. Also these entities are retrieved from webpages which reside in the domains 
+www.dom1.com and www.dom2.com . These triplets are canonicalized by converting entity strings to lower 
+case and arranging the constituent entities in alpha­betical order. The triplets are then ranked in descending 
+order of number of domains. We create O(n) triplets from a table column of size n. Adding each triplet 
+to the Triplet Store using hashmap takes O(1) time. Given a set of T HTML tables with a total of N entities 
+in them, the Triplet Store can be created in O(N) time. Ranking the triplets using any common sorting 
+tech­nique will take O(N*logN) time. Hence the total complexity of building the Triplet Store is O(N 
+* logN). 3.2.2 Building entity clusters The next task is to cluster these triplet records into mean­ingful 
+sets. The system does not know how many clus­ters are present in the underlying dataset; and since our 
+dataset will be constructed from a huge HTML web corpus, the clustering algorithm needs to be very e.cient. 
+Given these requirements, it can be easily seen that parametric clustering algorithms like K-means may 
+not be e.ective due to the unknown number of clusters. Non-parametric algo­rithms like agglomerative 
+clustering [5] .t most of our re­quirements. The most e.cient agglomerative clustering al- Entities Tid:Cids 
+Domains India,China,Canada China, Canada, France Delhi, Beijing, Ottawa Beijing, Ottawa, Paris Canada, 
+England, France London, Ottawa, Paris 21:1 21:1, 34:1 21:2 21:2, 34:2 34:1 34:2 www.dom1.com www.dom1.com, 
+www.dom2.com www.dom1.com www.dom1.com, www.dom2.com www.dom2.com www.dom2.com  Table 3: Triplet records 
+created by WebSets gorithm is the single-link clustering algorithm, but even that would require computing 
+the similarity of every pair of entity triplets returned. This will be very expensive for the web scale 
+datasets we are aiming to handle. Hence we develop a new bottom-up clustering algorithm which is e.cient 
+in terms of both space and time. Experiments to compare our algorithm with a standard K-means clustering 
+algorithm are described in Section 4.  3.2.3 Bottom-Up Clustering Algorithm The clustering algorithm 
+(named Bottom-Up Clusterer ) is described formally in Algorithm 1. The clusterer scans through each triplet 
+record t which has occurred in at least minUniqueDomain distinct domains. A triplet and a cluster are 
+represented with the same data-structure: (1) a set of en­tities, (2) a set of columnIds in which the 
+entities co-occurred and (3) a set of domains in which the entities occurred. The clusterer compares 
+the overlap of triplet t against each cluster Ci. The triplet t is added to the .rst Ci so that either 
+of the following two cases is true: (1) at least 2 entities from t appear in cluster Ci . (2) at least 
+2 columnIds from t appear in cluster Ci.  (i.e. minEntityOverlap = 2 and minColumnOverlap = 2) In both 
+these cases, intuitively there is a high probability that t belongs to the same category as cluster Ci. 
+If no such overlap is found with existing clusters, the algorithm creates a new cluster and initializes 
+it with the triplet t. This clustering algorithm is order dependent, i.e., if the order in which records 
+are processed changes, it might re­turn a di.erent set of clusters. Finding the optimal order­ing of 
+triplets is a hard problem, but a reasonably good ordering can be easily generated by ordering the triplets 
+in the descending order of number of distinct domains. We discard triplets that appear in less than minUniqueDomain 
+domains. Algorithm 1 Bottom-Up Clustering Algorithm 1: function Bottom-Up-Clusterer(T ripletStore):Clusters 
+{Triplet records are ordered in descending order of num­ber of distinct domain.} 2: Initialize Clusters 
+= f; max =0 3: for (every t . T ripletStore : such that |t.domains| >=minUniqueDomain) do 4: assigned 
+= false 5: for every Ci . Clusters do 6: if |t.entities n Ci.entities| >= minEntityOverlap OR |t.col 
+n Ci.col| >= minColumnOverlap then 7: Ci = Ci . t 8: assigned = true 9: break; 10: end if 11: end for 
+12: if not assigned then 13: increment max 14: Create new cluster Cmax = t 15: Clusters = Clusters . 
+Cmax 16: end if 17: end for 18: end function  3.2.4 Computational complexity Suppose that our dataset 
+has total T tables. Let these tables have in total N cells. For each triplet t, Algorithm 1 .nds entity 
+and column overlap with all existing clusters. This operation can be implemented e.ciently by keeping 
+two inverted indices: (1) from each entity to all clusterIds it belongs to and (2) from each columnId 
+to all clusterIds it belongs to. ClusterIds in each postings list 4 will be kept in sorted order. Merging 
+k sorted lists, with resultant list size of n takes O(n * logk) time. Now let us compute worst case time 
+complexity of Algorithm 1. To compute entity overlap of each triplet, the algorithm merges 3 postings 
+lists with total size of O(N). This step will take O(N) time. To compute TableId:ColumnId overlap of 
+each triplet, it merges O(T ) postings lists with total size of O(N). This step will take O(N *logT ) 
+time. Hence for each triplet, .nding a clusterId to merge the triplet with takes O(N * logT ) time. There 
+are O(N) triplets. So the Bottom-Up Clusterer will have worst case time complexity of O(N2 * logT ). 
+In practice, it is much less than this. If N is total number of table-cells in the corpus then the total 
+number of triplet occurrences is also O(N). Hence all the postings list merges can be amortized to be 
+O(N). Hence amortized complexity of this clustering algorithm is O(N * logT ). Considering the time complexity 
+to sort the triplet store, total time complexity is O(N * logN), which is much better than the complexity 
+of a naive single-link clustering algorithm, which is O(N2*logN). 3.3 Hypernym Recommendation Previous 
+sections described how do we obtain coordinate term clusters using co-occurrence of terms in the table 
+columns. In this section we label these term clusters with the help of Hyponym Concept dataset. 3.3.1 
+Building The Hyponym-Concept Dataset The Hyponym Concept Dataset is built by acquiring concept­instance 
+pairs from unstructured text using Hearst patterns. For this task we used the data extracted from the 
+ClueWeb09 corpus [3] by the developers of the NELL KB [25]. They used heuristics to identify and then 
+shallow-parse approximately 2 billion sentences, and then extracted from this all patterns of the form 
+ word1 .. wordk where the .ller word1 .. wordk is between one and .ve tokens long, and this .ller appears 
+at least once between two base noun phrases in the corpus. Each .ller is paired with all pairs of noun 
+phrases that bracket it, together with the count of the total num­ber of times this sequence occurred. 
+For instance, the .ller and vacations in occurs with the pair Holidays, Thailand with a count of one 
+and Hotels,Italy with a count of six, indicating that the phrase Hotels and vacations in Italy occurred 
+six times in the corpus . The hyponym dataset was constructed by .nding all .llers that match one of 
+the regular expressions in Table 4. These correspond to a subset of the Hearst patterns used in ASIA 
+[27] together with some doubly anchored versions of these patterns [13]. Each record in the Hyponym Concept 
+Dataset contains an entity and all concepts it co-occurred with. Table 5 shows an example of records 
+in this dataset. According to this ta­ble, entity USA appeared with the concept country 1000 4In the 
+information retrieval terminology, an inverted index has a record per word that contains the list of 
+all document­ids the word occurred in. This list is referred to as the postings list . In this paper, 
+a postings list refers to the list of all clusterIds that a triplet or a columnId belongs to. 2 arg1 
+(w+ )? (and|or) other arg2 3 arg1 include (w+ (and|or))? arg2 4 arg1 including (w+ (and|or))? arg2 Table 
+4: Regular expressions used to create Hy­ponym Concept Dataset Hyponym Concepts USA country:1000 India 
+country:200 Paris city:100, tourist place:50 Monkey animal:100, mammal:60 Sparrow bird:33 Table 5: An 
+example of Hyponym Concept Dataset times. Similarly, Monkey appeared with two di.erent con­cepts, 100 
+times with animal and 60 times with mammal .  3.3.2 Assigning Hypernyms to Clusters Assigning a meaningful 
+concept-name to each entity set is important for two reasons. It enables us to systemati­cally evaluate 
+entity sets; e.g., it is easier for an evaluator to answer the question: Is Boston a city? than Is Boston 
+a member of set #37? ) It also makes the system more use­ful for summarizing the data in a corpus (see 
+Section 4.3.5). This section describes how WebSets recommends candidate hypernyms for each entity set 
+produced by Algorithm 1. For this task, we use the coordinate term clusters ex­tracted from tables and 
+Hyponym Concept Dataset extracted using Hearst patterns. Note that this part of the system uses information 
+extracted from unstructured text from the Web, to recommend category names to sets extracted from tables 
+on the Web. Algorithm 2 Hypernym Recommendation Algorithm 1: function GenerateHypernyms 2: Given: c: 
+An entity cluster generated by Algorithm 1, I: Set of all entities , L: Set of all labels, H . L × I: 
+Hyponym-concept dataset, 3: Returns: RLc : Ranked list of hypernyms for c. 4: Algorithm: 5: RLc = f 
+6: for every label l . L do 7: Hl = Set of entities which co-occurred with l in H 8: Score(l)= |Hl n 
+c| 9: RLc = RLc . < l, Score(l) > 10: end for 11: Sort RLc in descending order of Score(l) 12: Output 
+RLc 13: end function The algorithm is formally described in Algorithm 2. For each set produced at the 
+end of clustering, we .nd which entities from the set belong to Hyponym Concept Dataset and collect all 
+concepts they co-occur with. Then these con­cepts are ranked by number of unique entities in the set 
+it co-occurred with. This ranked list serves as hypernym rec­ommendations for the set. The output of 
+this stage can be used in two ways. We can assign the topmost hypernym in the rank list as the class 
+label for a cluster (used in Sec­tion 4.2.4). Another possibility is to present a ranked list of hypernyms 
+for each cluster to a user, who can then select the one which is the best for a given entity cluster 
+(refer to Section 4.3.2). Our method scores labels di.erently from Van Durme and Pasca method [26] It 
+is also di.erent in the sense that they output a concept-instance pair < x,y > only when < x,y > appears 
+in the set of candidate concept-instance pairs, whereas we extend the labels to the whole cluster. Hence 
+even if some pair < x,y > is not present in the Hy­ponym Concept dataset, it can be produced as output. 
+  4. EXPERIMENTAL EVALUATION In this section we .rst discuss the datasets we worked on. Then we evaluate 
+each step of our extraction process separately. These experiments assume that our method ex­tracts a 
+list of concept-instance pairs from the HTML cor­pus. Later part of this section discusses how well WebSets 
+perform end to end, as a tool to process a large HTML cor­pus, and build coherent sets of entities along 
+with labeling each of them. The datasets and evaluations done for these experiments are posted online 
+at http://rtw.ml.cmu.edu/ wk/WebSets/wsdm_2012_online/index.html. 4.1 Datasets To test the performance 
+of WebSets, we created several webpage datasets that are likely to have coherent sets of entities. An 
+evaluation can then be done to check whether the system extracts expected entity sets from those datasets. 
+Some of these datasets are created using SEAL, CSEAL and ASIA systems (refer to Section 2) that extract 
+information from semi-structured pages on the Web. Each of these sys­tems, takes a name or seed examples 
+of a category as input and .nds possible instances of that category using set ex­pansion techniques. 
+It queries a web search engine during this process and stores all the pages downloaded from the Web in 
+a cache, so that they can be reused for any simi­lar queries in the future. The cache contents generated 
+by these systems help us build reasonable sized datasets for our experiments. We expect that WebSets 
+will .nd reasonable number of HTML tables in these datasets. 1. Toy Apple: This is a small toy dataset 
+created with the help of multiple SEAL queries with Apple as a fruit and as a company. It is created 
+to demonstrate the entity disambiguation e.ect of using triplet records and to compare various clustering 
+algorithms. 2. Delicious Sports: This dataset is a subset of DAI-Labor Delicious corpus [29], created 
+by taking only those URLs which are tagged as sports . 3. Delicious Music: This dataset is a subset 
+of DAI-Labor Delicious corpus [29], created by taking only those URLs which are tagged as music . 4. 
+CSEAL Useful: CSEAL is one of the methods which suggest new category and relation instances to NELL KB. 
+CSEAL mostly extracts entities out of semi-struct­ured information on the Web. For each instance in the 
+KB, we can retrieve the information about which methods supported the existence of the instance. The 
+webpages from which these methods derived the sup­port are also recorded. CSEAL Useful dataset is a collection 
+of those HTML pages from which CSEAL gathered information about entities in the NELL KB.  Dataset #HTML 
+#tables pages Toy Apple 574 2.6K Delicious Sports 21K 146.3K Delicious Music 183K 643.3K CSEAL Useful 
+30K 322.8K ASIA NELL 112K 676.9K ASIA INT 121K 621.3K Clueweb HPR 100K 586.9K Table 6: Dataset Statistics 
+5. ASIA NELL: This dataset is collected using hyper­nyms associated with entities in the NELL KB as queries 
+for ASIA. Examples of such hypernyms are City , Bird , Sports team etc. 6. ASIA INT: This dataset is 
+also collected using the ASIA system but with another set of category names as input. These category 
+names come from Intelli­gence domain . Examples of categories in this domain are government types , international 
+organizations , federal agencies , religions etc. 7. Clueweb HPR: This dataset is collected by randomly 
+sampling high pagerank pages in the Clueweb dataset [3]. For this purpose we used the Fusion spam scores[12] 
+provided by Waterloo university and used pages with spam-rank score higher than 60%.  Table 6 shows 
+the number of HTML pages and tables present in each of the above mentioned datasets. Note that Clueweb 
+HPR contains random sample of the Clueweb dataset, and hence does not contain large number of tables 
+like other datasets. Datasets derived using SEAL or ASIA are ex­pected to have higher concentration of 
+semi-structured data in them. Toy Apple and both Delicious datasets are specif­ically designed for certain 
+domains, whereas CSEAL Useful and ASIA NELL are relatively heterogeneous, Clueweb HPR being the most 
+heterogeneous dataset among all. In each of the following experiments, we work on one or more of these 
+datasets to evaluate di.erent aspects of WebSets.  4.2 Evaluation of Individual Stages In this section 
+we evaluate each stage of WebSets system and measure the performance. Here we consider WebSets as a technique 
+to generate large number of concept-instance pairs given a HTML corpus. 4.2.1 Evaluation: Table Identi.cation 
+Table 7 shows the statistics of table identi.cation for each dataset. Based on the features described 
+in Section 3.1, we .lter out only those tables as useful which cross some prede.ned thresholds. These 
+thresholds were derived from the intuitions after manually going through some samples of data, and are 
+kept constant for all datasets and experi­ments described in this paper. When we evaluated a ran­dom 
+sample of recursive tables, 93% of them were useless for our purposes, and only 7% tables contained relational 
+data. Hence we decide to ignore the recursive tables. We construct triplets of entities in a table column, 
+hence a table should have at least 3 rows. As we are not using any link data in our system, we consider 
+only those columns which do not have links. WebSets is looking for tables containing relational data, 
+hence if a table has at least 2 non-link columns, prob­ability of it having relational data increases. 
+While counting Dataset #Tables %Rela­-tional #Filtered tables %Rela­-tional .ltered #Triplets Toy Apple 
+Delicious Sports Delicious Music CSEAL Useful ASIA NELL ASIA INT Clueweb HPR 2.6K 146.3K 643.3K 322.8K 
+676.9K 621.3K 586.9K 50 15 20 30 20 15 10 762 57.0K 201.8K 116.2K 233.0K 216.0K 176.0K 75 55 75 80 55 
+60 35 15K 63K 93K 1148K 421K 374K 78K Table 7: Table Identi.cation Statistics these rows and columns, 
+we are looking for named entities. So from each cell, all HTML tags and links are removed. A very coarse 
+.ltering by length is then applied. We consider only those table cells which are 2-50 characters in length. 
+Table 7 shows that percentage of relational tables increases by orders of magnitude due to this .ltering 
+step. 4.2.2 Evaluation: Clustering Algorithm In these set of experiments we .rst compare WebSets with 
+baseline K-means clustering algorithm. Later we see how Entity-Triplet record representation is better 
+than En­tity record representation. We compare the clustering algo­rithms in terms of commonly used clustering 
+metrics: cluster purity (Purity), normalized mutual information (NMI), rand index (RI) [16] and Fowlkes-Mallows 
+index (FM) which are de.ned as follows: Cluster Purity: To compute cluster purity, for each cluster the 
+class which is most frequent in it gets as­signed. The accuracy of this assignment is then mea­sured 
+by counting the number of correctly assigned documents and dividing by total number of documents. purity(O,C)= 
+1 maxj |.k cj | where Nk N is total number of documents, O = .1,.2, ..., .K is the set of clusters and 
+C = c1,c2, ..., cJ is the set of classes. We interpret .k as the set of documents in cluster .k and cj 
+as the set of documents in cluster cj . Normalized Mutual Information: High purity is easy to achieve 
+when the number of clusters is large, hence purity cannot be used to trade o. the quality of the clustering 
+against the number of clusters. NMI is a measure that allows us to make such tradeo.. I(O;C) NMI(O,C)= 
+[H(O)+H(C)]/2 where maximum likelihood estimates for mutual infor­ mation and entropy are computed as 
+follows: .. |.k cj | . |.k||.k| I(O,C)= , H(O) = -*log . kjN kNN Rand Index: This metric is based on 
+information­theoretic interpretation of clustering. Clustering is a series of decisions, one for each 
+of the N(N -1)/2 pairs of documents in the collection. True label denotes the pair belongs to same class 
+or not. Predicted label de­notes whether the pair belongs to same cluster or not. This way we can count 
+True Positive(TP ), False pos­itive (FP ), True Negative (TN) and False Negative (FN) score for the clustering. 
+Rand Index is then de- TP +TN .ned as follows: RI =. TP +FP +FN+TN Fowlkes-Mallows index: While the previous 
+three metrics are applicable only for hard-clustering, this metric is de.ned for soft clustering of data 
+where clus­ters can be overlapping but classes are non-overlapping. Dataset Method K Purity NMI RI FM 
+Toy Apple K-means WebSets 40 25 0.96 0.99 0.71 0.99 0.98 1.00 0.41 0.99 Delicious Sports K-means WebSets 
+50 32 0.72 0.83 0.68 0.64 0.98 1.00 0.47 0.85  Method K FM w/ Entity records FM w/ Triplet records WebSets 
+0.11 (K=25) 0.85 (K=34) K-Means 30 0.09 0.35 25 0.08 0.38 Table 8: Comparison of WebSets vs. K-means 
+Let nij be the size of intersection of cluster .i and class cj , ni* = j nij and n*j = i nij . nij ni* 
+n*j FM =( )/ ij ij 2 22 The derivation of this formula can be found in Ramirez et al. [19]. Here each 
+triplet is considered as a document. O refers to clusters of these triplets generated by WebSets or K-means. 
+C refers to actual classes these triplets belong to. To com­pare quality of clusters across algorithms, 
+we manually la­beled each table-column of Toy Apple and Delicious Sports datasets. These labels are then 
+extended to triplets within the table column. This experiment is not repeated for re­maining datasets 
+because manual labeling of the whole dataset is very expensive. The performance of K-means depends on 
+the input pa­rameter K and random initialization of cluster centroids to start the clustering process. 
+We run K-means with cosine distance function, a range of values of K and multiple start­ing points for 
+each value of K. Figure 1 shows the plot of various runs of K-means vs. WebSets on Delicious Sports dataset. 
+Table 8 shows the comparison of WebSets vs. best run of K-means on Toy Apple and Delicious Sports datasets. 
+We can see that WebSets performs better or comparable to K-means in terms of purity, NMI, RI, and FM. 
+Through manual labeling we found that there are 27 and 29 distinct category sets in Toy Apple and Delicious 
+Sports datasets respectively. We can see that WebSets de.ned 25 and 32 distinct clusters which are very 
+close to actual number of meaningful sets, compared to 40 and 50 clusters de.ned by K-means. Standard 
+K-means algorithm has time complexity of O(I * K * N * T ), where I is the number of iterations, K is 
+the number of clusters, N is the number of table-cells and T is the number of dimensions (here number 
+of table-columns). As seen in Section 3, WebSets has time complexity of O(N * logN). Hence our bottom-up 
+clustering algorithm is more e.cient than K-means in terms of time-complexity. To study entity disambiguation 
+e.ect of triplet records, we generated both Entity record and Entity-Triplet record representations of 
+Toy Apple dataset. When we ran our clustering algorithm on Entity-Triplet record dataset, we found Apple 
+in two di.erent clusters, one in which it was clustered with other fruits and had supporting evidence 
+from table-columns talking about fruits; other cluster contained companies and evidence from related 
+table-columns. Run­ning the same clustering algorithm on Entity record dataset, resulted in a huge cluster 
+containing Apple , fruits and com­panies all combined. Thus we can say that entity triplets do help WebSets 
+to disambiguate multiple senses of the same entity-string. Now we compare the performance of clustering 
+algorithms on entity record vs. triplet record representation. In this ex- Table 9: Comparison of performance 
+on Entity vs. Triplet record representation (Toy Apple dataset) periment we use Toy Apple dataset. A 
+table-column is con­sidered as document and clusters produced are soft-clustering of this document set. 
+Hence each table-column can be present in multiple clusters, but belongs to only one class. Purity, NMI 
+and RI metrics are not applicable for soft clustering, however FM metric is valid. We run K-Means algorithm 
+for di.erent values of K. Table 9 shows the best performing re­sults of K-Means. WebSets produced 25 
+clusters on entity record representation and 34 clusters using triplet represen­tation. In terms of FM 
+index, each method gives better per­formance on triplet record representation when compared to entity 
+record representation. Hence triplet record represen­tation does improve these clustering methods. 4.2.3 
+Evaluation: Hyponym-Concept Dataset Note that the Hyponym-concept dataset is created in an unsupervised 
+way, hence we cannot guarantee that the concept­instance pairs in this dataset are accurate. To get an 
+idea of quality of concept-instance pairs in this dataset, we ran­domly sampled 100 pairs. 55% of them 
+were accurate. Hence hypernym recommendation step is dealing with noisy concept­instance pairs as input. 
+ 4.2.4 Evaluation: Hypernym Recommendation We compare our hypernym recommendation technique with Van 
+Durme and Pasca technique [26]. Our method is dif­ferent from Van Durme and Pasca Method (DPM) in the 
+sense that, they output a concept-instance pair only when it appears in a set of candidate concept-instance 
+pairs i.e. it ex­ists in Hyponym-concept dataset. In our method, based on overlap of coordinate term 
+cluster with the Hyponym Con­cept dataset, we extend the labels to whole cluster. Another di.erence is 
+the coordinate term clusters we are dealing with. DPM assumes term clusters are semantic partitions of 
+terms present in the text corpus. The clusters generated by Web-Sets are clusters of table columns. There 
+is higher possibil­ity of having multiple small size clusters which all belong to same semantic class, 
+but were not merged due to our single pass bottom-up clusterer. Hence the same method may not work equally 
+well on these clusters. We sample 100 concept-instance pairs randomly from out­put of each method to 
+measure accuracy. The results of dif­ferent methods are presented in Table 10. As we can see, DPM generates 
+concept-instance pairs with 50% accuracy even when run with conservative thresholds like K = 5 and J 
+=0.2. We also tried an extension of DPM called DPMExt which outputs a label for each entity in the cluster, 
+when the label satis.es thresholds de.ned by J and K. This extension increases coverage of concept-instance 
+pairs orders of mag­nitude (0.4K to 1.2K) at the cost of slight decrease in accu­racy (50% to 44%). Hypernym 
+recommendation of WebSets (WS) is described in Algorithm 2, and only topmost hyper­nym in the ranked 
+list is produced for each cluster. Table 10 shows that WS has a reasonable accuracy (62.2%) and yield 
+compared to DPM and DPMExt. As discussed in Section  (a) Cluster Purity (b) Normalized Mutual Information 
+(c) Rand Index Figure 1: Comparison of WebSets and K-Means algorithms on Delicious Sports Method K J 
+%Accuracy yield (#pairs produced) #correct pairs (predicted) DPM inf 0.0 34.6 88.6K 30.7K DPM 5 0.2 50.0 
+0.8K 0.4K DPMExt inf 0 21.9 100,828.0K 22,081.3K DPMExt 5 0.2 44.0 2.8K 1.2K WS - - 67.7 73.7K 45.8K 
+WSExt - - 78.8 64.8K 51.1K Table 10: Comparison of various methods in terms of accuracy and yield on 
+CSEAL Useful dataset  4.2.3, Hyponym-concept dataset has noisy pairs. We also tried an extension of 
+WebSets called WSExt which over­comes this problem by considering only those class-instance pairs which 
+have occurred at least 5 times in the corpus. Adding this simple constraint, improves accuracy from 67% 
+to 78% and correct pairs yield from 45K to 51K.  4.3 WebSets as an IE technique In this section, we 
+evaluate the whole WebSets system as an IE technique, which generates coherent sets of entities and labels 
+each set with appropriate hypernym. At the end we demonstrate how these entity clusters can summarize 
+the corpus. 4.3.1 Experimental Methodology Its very expensive to label every table-column of each dataset. 
+Here we present a sampling based evaluation method to evaluate WebSets on datasets: CSEAL Useful, ASIA 
+NELL, ASIA INT and Clueweb HPR. We chose these four datasets to cover the di.erent types i.e., domain-speci.c, 
+open-domain and completely heterogeneous datasets. There are two parts of the evaluation: evaluating 
+labels of each cluster and check­ing whether each entity of that cluster is coherent with the assigned 
+label. The subjective evaluation is of the form deciding whether a cluster is meaningful or noisy , assigning 
+label to an unla­beled cluster . This is done by us (referred to as evaluators). The objective evaluation 
+of the kind whether X belongs to category Y is done using Amazon Mechanical Turk [23]. We created yes/no 
+questions of the form Is X of type Y? . To evaluate precision of clusters created by WebSets, we uniformly 
+sampled maximum 100 clusters per dataset, with maximum of 100 samples per cluster and gave them to the 
+Mechanical Turk in the form of yes/no questions. Each ques­tion was answered by three di.erent individuals. 
+The ma­jority vote for each question was considered as a decision for that question. To evaluate quality 
+of Mechanical Turk labels, we sampled 100 questions at random, and manually answered the questions. Then 
+we checked whether majority vote by the Mechanical Turk matches with our answers. We speci.cally checked 
+majority votes for some confusing ques­tions which were likely to get labeled wrong. We found that majority 
+vote of three individuals was correct more than 90% times and in case of ambiguous questions precision 
+es­timates are biased low. We evaluate WebSets using three criteria: (1) Are the clusters generated 
+by WebSets meaningful? (2) How good are the recommended hypernyms? (3) What is precision of the meaningful 
+clusters? Subsequent sections discuss these experiments in detail. 4.3.2 Meaningfulness of Clusters 
+In this experiment, we did manual evaluation of mean­ingfulness of clusters, with the help of evaluators. 
+We uni­formly sampled maximum 100 clusters from each dataset. We showed following details of each cluster 
+to the evaluator: (1) top 5 hypernyms per cluster (2) maximum 100 entities sampled uniformly from the 
+cluster. An evaluator was asked to look at the entities and check whether any of the hypernyms suggested 
+by the system is correct. If any one of them is correct then he labels the clus­ter with that hypernym. 
+If none of the hypernym is correct, he can label cluster with any other hypernym that represents the 
+cluster. If entities in a cluster are noisy or do not form any meaningful set, then the cluster is marked 
+as noisy . If the evaluator picks any of the candidate hypernyms as label or gives his own label then 
+the cluster is considered as meaningful, else it is considered as noisy. Table 11 shows that 63-73% of 
+the clusters were labeled as meaningful. Note that number of triplets used by the clus­tering algorithm 
+(Table 11) is di.erent from total number of triplets in the triplet store (Table 6), because only those 
+triplets that occur in at least minUniqueDomain (set to 2 for all experiments) distinct domains are clustered. 
+4.3.3 Performance of Hypernym Recommendation In this experiment, we evaluate the performance of the 
+hypernym recommendation using following criterion: (1) What fraction of total clusters were assigned 
+some hy­pernym?: This can be directly computed by looking at the outputs generated by hypernym recommendation. 
+ (2) For what fraction of clusters evaluator chose the label  #Triplets #Clusters #clusters with Hypernyms 
+% mean­ingful CSEAL Useful ASIA NELL ASIA INT Clueweb HPR 165.2K 11.4K 15.1K 561.0 1090 448 395 47 312 
+266 218 34 69.0% 73.0% 63.0% 70.5% Table 11: Meaningfulness of generated clusters  #Clusters Evalu­ated 
+#Mean­ingful Clusters #Hyper­nyms correct MRR (mean­ingful) CSEAL Useful ASIA NELL ASIA INT Clueweb HPR 
+100 100 100 34 69 73 63 24 57 66 50 20 0.56 0.59 0.58 0.56 Table 12: Evaluation of Hypernym Recommender 
+ from the recommended hypernyms?: This can be computed by checking whether each of the manually assigned 
+labels was one of the recommended labels. (3) What is Mean Reciprocal Rank (MRR) of the hypernym ranking?: 
+The evaluator gets to see ranked list of top 5 la­bels suggested by the hypernym recommender. We compute 
+MRR based on rank of the label selected by the evaluator. While calculating MRR, we consider all meaningful 
+clus­ters(including the ones for which label does not come from the recommended hypernyms). Table 12 
+shows the results of this evaluation. Out of the random sample of clusters evaluated, hypernym recommen­dation 
+could label 50-60% of them correctly. The MRR of labels is 0.56-0.59 for all the datasets. 4.3.4 Precision 
+of Meaningful Clusters In this experiment we want to evaluate the coherency of the clusters; i.e., whether 
+all entities in a cluster are coher­ent with the label assigned to the cluster. To verify this, we evaluated 
+the meaningful clusters found in previous experi­ment, using the Mechanical Turk. This evaluation procedure 
+is already discussed in Section 4.3.1. Table 13 shows that the meaningful clusters6 have precision in 
+the range 97-99%. This indicates that WebSets generates coherent entity clus­ters and hypernym assignment 
+is reasonable.  4.3.5 Application: Summary of the Corpus The sets of entities produced by Websets can 
+be consid­ered as a summary of the HTML corpus in terms of what concepts and entities are discussed in 
+the corpus. Tables 14 and 15 show such summaries for the datasets ASIA INT 6 First three values in column 
+2 of Table 13 are same as per­centage values in column 5 of Table 11. This is because we sample maximum 
+100 clusters per dataset for the eval­uation, hence percentage of meaningful clusters equals the actual 
+number. For the Clueweb HPR dataset, there are only 47 clusters in total, so all are evaluated. #Meaningful 
+Dataset clusters evaluated % Precision CSEAL Useful 69 98.6% ASIA NELL 73 98.5% ASIA INT 63 97.4% Clueweb 
+HPR 24 99.0% Table 13: Average precision of meaningful clusters Religions: Buddhism, Christianity, 
+Islam, Sikhism, Taoism, Zoroastri­anism, Jainism, Bahai, Judaism, Hinduism, Confucianism Government: 
+Monarchy, Limited Democracy, Islamic Republic, Par­liamentary Self Governing Territory, Parliamentary 
+Republic, Consti­tutional Republic, Republic Presidential Multiparty System, Constitu­tional Democracy, 
+Democratic Republic, Parliamentary Democracy International Organizations: United Nations Children Fund 
+UNICEF, Southeast European Cooperative Initiative SECI, World Trade Organization WTO, Indian Ocean Commission 
+INOC, Economic and Social Council ECOSOC, Caribbean Community and Common Mar­ket CARICOM, Western European 
+Union WEU, Black Sea Economic Cooperation Zone BSEC, Nuclear Energy Agency NEA, World Confed­eration 
+of Labor WCL Languages: Hebrew, Portuguese, Danish, Anzanian, Croatian, Phoeni­cian, Brazilian, Surinamese, 
+Burkinabe, Barbadian, Cuban Table 14: Example Clusters from ASIA INT Instruments: Flute, Tuba , String 
+Orchestra, Chimes, Harmonium, Bassoon, Woodwinds, Glockenspiel, French horn, Timpani, Piano Intervals: 
+Whole tone, Major sixth, Fifth, Perfect .fth, Seventh, Third, Diminished .fth, Whole step, Fourth, Minor 
+seventh, Major third, Minor third Genres: Smooth jazz, Gothic, Metal rock, Rock, Pop, Hip hop, Rock n 
+roll, Country, Folk, Punk rock Audio Equipments: Audio editor , General midi synthesizer , Audio recorder 
+, Multichannel digital audio workstation , Drum sequencer , Mixers , Music engraving system , Audio server 
+, Mastering software , Soundfont sample player Table 15: Example Clusters from Delicious Music  and 
+Delicious Music respectively. We choose these datasets because they are domain-speci.c and hence we have 
+some idea of what entity sets are expected to be found. Looking at the summary we can verify if those 
+expectations are met. Due to space constraints only few clusters with ten entities from each of them 
+are presented here. The labels shown here are generated by Algorithm 2. ASIA INT is a dataset from Intelligence 
+domain, and the sets shown in Table 14 indicate that corpus contains fre­quent mentions of o.cer ranks, 
+international organizations, government types, religions etc. These clusters are related to Intelligence 
+domain and give an idea of what the corpus is about. Similarly Table 14 shows the sets of entities discussed 
+very frequently in Delicious Music i.e., music domain. All of them are important concepts in the music 
+domain. Further­more our tool generates links to tables and domains from which this data was gathered. 
+While looking at these sets one can click and browse the tables and pages which men­tion these entities. 
+Hence it can serve as a good exploratory tool for individuals who analyze large datasets. 5. ACKNOWLEDGMENTS 
+This work is supported in part by the Intelligence Ad­vanced Research Projects Activity (IARPA) via Air 
+Force Research Laboratory (AFRL) contract number FA8650-10­C-7058. The U.S. Government is authorized 
+to reproduce and distribute reprints for Governmental purposes notwith­standing any copyright annotation 
+thereon. This work is also partially supported by the Google Research Grant. The views and conclusions 
+contained herein are those of the authors and should not be interpreted as necessarily representing the 
+o.cial policies or endorsements, either ex­pressed or implied, of Google, IARPA, AFRL, or the U.S. Government. 
+ 6. CONCLUSION We described a open-domain information extraction tech­nique for extracting concept-instance 
+pairs from an HTML corpus. Our approach is novel in that it relies solely on HTML tables to detect coordinate 
+terms. We presented a novel clustering method that .nds extremely precise (cluster purity 83-99%) coordinate-term 
+clusters by merging table columns that contain overlapping triplets of instances. This clustering method 
+outperforms k-means in terms of Purity, Rand Index and FM index. We showed that the time com­plexity 
+of our clustering algorithm is O(N * logN), making it more e.cient than K-means or agglomerative clustering 
+algorithms. We also presented a new method for combining candidate concept-instance pairs and coordinate-term 
+clus­ters, and showed that on table-rich corpora, this method im­proved on Van Durme and Pasca method 
+[26]. Our method increased the accuracy from 50% to 78% while generating nearly hundred times the number 
+of concept-instance pairs. We also showed that allowing a small amount of user in­put for labeling each 
+coordinate-term cluster can produce concept-instance pairs with accuracy in the range 97-99% for four 
+di.erent corpora. Finally we demonstrated that the labeled entity sets produced by WebSets can act as 
+summary of a HTML corpus. The datasets and manual evaluations generated by this work will be made available 
+for future re­searchers. An interesting direction for future research can be to extend this technique 
+to extract the relations between the entity sets and naming them. 7. REFERENCES [1] Html TIDY project. 
+http://tidy.sourceforge.net/. [2] M. J. Cafarella, E. Wu, A. Halevy, Y. Zhang, and D. Z. Wang. Webtables: 
+Exploring the power of tables on the web. PVLDB, 2008. [3] J. Callan. The clueweb09 dataset. http://boston.lti.cs.cmu.edu/Data/clueweb09/. 
+ [4] A. Carlson, J. Betteridge, R. C. Wang, E. R. Hruschka, Jr., and T. M. Mitchell. Coupled semi-supervised 
+learning for information extraction. In WSDM, 2010. [5] W. H. E. Day and H. Edelsbrunner. E.cient algorithms 
+for agglomerative hierarchical clustering methods. In Journal of Classi.cation, 1984. [6] O. Etzioni, 
+M. Cafarella, D. Downey, S. Kok, A.-M. Popescu, T. Shaked, S. Soderland, D. S. Weld, and A. Yates. Web-scale 
+information extraction in knowitall: (preliminary results). In WWW, 2004. [7] O. Etzioni, M. Cafarella, 
+D. Downey, A.-M. Popescu, T. Shaked, S. Soderland, D. S. Weld, and A. Yate. Unsupervised named-entity 
+extraction from the web: An experimental study. In AI, 2005. [8] W. Gatterbauer, P. Bohunsky, M. Herzog, 
+B. Kr¨ upl, and B. Pollak. Towards domain-independent information extraction from web tables. In WWW, 
+2007. [9] R. Gupta and S. Sarawagi. Answering table augmentation queries from unstructured lists on the 
+web. In VLDB, 2009. [10] R. Gupta and S. Sarawagi. Joint training for open-domain extraction on the 
+web: exploiting overlap when supervision is limited. In WSDM, 2011. [11] M. A. Hearst. Automatic acquisition 
+of hyponyms from large text corpora. In ACL, 1992. [12] J. Kamps, R. Kaptein, and M. Koolen. Using anchor 
+text, spam .ltering and wikipedia for web search and entity ranking. TREC, 2010. [13] Z. Kozareva and 
+E. Hovy. A semi-supervised method to learn and construct taxonomies using the web. In EMNLP, 2010. [14] 
+G. Limaye, S. Sarawagi, and S. Chakrabarti. Annotating and searching web tables using entities, types 
+and relationships. PVLDB, 2010. [15] D. Lin and P. Pantel. Concept discovery from text. In COLING, 2002. 
+[16] C. D. Manning, P. Raghavan, and H. Schtze. Introduction to information retrieval. In Cambridge University 
+Press, 2008. [17] P. Pantel and D. Ravichandran. Automatically labeling semantic classes. In HLT-NAACL, 
+2004. [18] A. Parameswaran, H. Garcia-Molina, and A. Rajaraman. Towards the web of concepts: Extracting 
+concepts from large datasets. In VLDB, 2010. [19] E. Ramirez, R. Brena, D. Magatti, and F. Stella. Probabilistic 
+metrics for soft-clustering and topic model validation. In Web Intelligence and Intelligent Agent Technology 
+(WI-IAT), 2010. [20] A. Ritter, S. Soderland, and O. Etzioni. What is this, anyway: Automatic hypernym 
+discovery. In AAAI, 2009. [21] K. Shinzato and K. Torisawa. Acquiring hyponymy relations from web documents. 
+In HLT-NAACL, 2004. [22] R. Snow, D. Jurafsky, and A. Y. Ng. Learning syntactic patterns for automatic 
+hypernym discovery. In NIPS, 2004. [23] R. Snow, B. O Connor, D. Jurafsky, and A. Y. Ng. Cheap and fast 
+-but is it good? evaluating non-expert annotations for natural language tasks. In EMNLP, 2008. [24] P. 
+P. Talukdar, J. Reisinger, M. Pa¸sca, D. Ravichandran, R. Bhagat, and F. Pereira. Weakly-supervised acquisition 
+of labeled class instances using graph random walks. In EMNLP, 2008. [25] M. Tom. Nell: Never-ending 
+language learning. http://rtw.ml.cmu.edu/rtw/. [26] B. Van Durme and M. Pasca. Finding cars, goddesses 
+and enzymes: parametrizable acquisition of labeled instances for open-domain information extraction. 
+In AAAI, 2008. [27] R. C. Wang and W. W. Cohen. Automatic set instance extraction using the web. In ACL, 
+2009. [28] R. C. Wang and W. W. Cohen. Character-level analysis of semi-structured documents for set 
+expansion. In EMNLP, 2009. [29] R. Wetzker, C. Zimmermann, and C. Bauckhage. Analyzing social bookmarking 
+systems: A del.icio.us cookbook. Mining Social Data (MSoDa) Workshop Proceedings, ECAI, 2008. http://www.dai-labor.de/ 
+en/competence_centers/irml/datasets/. [30] A. Yates, M. Cafarella, M. Banko, O. Etzioni, M. Broadhead, 
+and S. Soderland. Textrunner: Open information extraction on the web. In NAACL, 2007.

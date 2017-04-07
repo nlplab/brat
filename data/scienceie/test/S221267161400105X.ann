@@ -1,0 +1,17 @@
+T1	Process 88 121	Scale-invariant feature transform
+T2	Process 126 130	SIFT
+T3	Process 157 183	Speeded up robust features
+T4	Process 188 192	SURF
+*	Synonym-of T1 T2
+*	Synonym-of T3 T4
+T5	Material 257 267	depth maps
+T6	Process 398 420	Support vector machine
+T7	Process 425 428	SVM
+*	Synonym-of T6 T7
+T8	Task 16 73	comparison between two popular feature extraction methods
+T9	Process 332 355	Microsoft Kinect camera
+T10	Process 492 495	SVM
+T22	Task 47 65	feature extraction
+T23	Process 441 455	classification
+T27	Process 441 462	classification method
+R2	Hyponym-of Arg1:T7 Arg2:T27	

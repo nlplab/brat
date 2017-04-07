@@ -1,0 +1,41 @@
+T1	Process 0 19	Anodizing processes
+T2	Task 40 67	protecting aluminium alloys
+T6	Process 310 338	extend from the film surface
+T7	Process 433 480	growth stopped in the early stages of anodizing
+T10	Task 678 693	ionic migration
+T11	Material 849 876	outward migrating Al3+ ions
+T12	Process 931 938	ejected
+T14	Process 1260 1310	growth of the barrier layer by continued oxidation
+T15	Process 1342 1408	thinning of the barrier layer by either field-assisted dissolution
+T16	Process 1449 1479	field-assisted flow of alumina
+T17	Process 1581 1601	chemical dissolution
+T18	Process 76 85	corrosion
+T19	Material 95 110	resultant films
+T3	Material 127 144	amorphous alumina
+T4	Material 279 290	major pores
+T5	Material 298 302	film
+T20	Material 326 338	film surface
+T21	Material 346 359	barrier layer
+T22	Material 370 382	film surface
+T23	Material 393 408	incipient pores
+T24	Material 502 513	major pores
+T8	Process 607 616	anodizing
+T9	Material 721 741	anodic alumina films
+T25	Material 783 791	O2− ions
+T26	Material 831 843	porous films
+T27	Material 912 925	ionic current
+T28	Material 946 957	electrolyte
+T29	Material 965 975	pore bases
+T13	Material 1157 1161	film
+T30	Material 1318 1337	aluminium substrate
+T31	Material 1301 1310	oxidation
+T32	Material 1358 1371	barrier layer
+T33	Material 1274 1287	barrier layer
+T34	Material 1416 1423	alumina
+T35	Material 1431 1441	pore bases
+T36	Material 1472 1479	alumina
+T37	Material 1489 1502	barrier layer
+T38	Material 1510 1520	pore walls
+T39	Material 1533 1538	pores
+T40	Material 1565 1577	film surface
+T41	Material 1089 1103	barrier region

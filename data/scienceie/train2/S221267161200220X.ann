@@ -1,0 +1,20 @@
+T1	Task 34 54	effective monitoring
+T2	Process 62 94	trends of the economic variables
+T3	Process 132 162	developing a reasonable policy
+T4	Task 182 211	establish a time series model
+T5	Process 223 248	Foreign Direct Investment
+T6	Process 250 253	FDI
+T7	Process 264 280	wavelet analysis
+T8	Process 285 306	intervention analysis
+T9	Process 311 331	time series analysis
+T10	Task 336 360	predict the trend of FDI
+T11	Process 357 360	FDI
+*	Synonym-of T5 T6
+T12	Process 414 435	interference of noise
+T13	Process 460 476	wavelet analysis
+T14	Process 496 511	autocorrelation
+T15	Process 516 539	time-varying volatility
+T16	Material 547 568	financial time series
+T17	Process 578 598	ARIMA- GARCH-M model
+T18	Process 686 689	FDI
+T19	Process 194 211	time series model

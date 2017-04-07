@@ -1,0 +1,20 @@
+T1	Material 39 60	agricultural products
+T2	Process 79 95	stochastic yield
+T3	Process 116 144	prices compensation strategy
+T4	Process 222 227	yield
+T5	Process 150 172	agricultural producing
+T6	Material 248 269	agricultural products
+T7	Process 297 318	fluctuations of yield
+T8	Process 359 384	two- echelon supply chain
+T9	Task 440 473	mathematical model is constructed
+T10	Process 497 525	prices compensation strategy
+T11	Process 552 586	agricultural products supply chain
+T12	Process 592 608	stochastic yield
+T13	Material 632 653	agricultural products
+T14	Process 675 690	production plan
+T15	Process 707 724	profit allocation
+T16	Process 15 35	coordination problem
+T17	Task 15 73	coordination problem of agricultural products supply chain
+T18	Process 440 458	mathematical model
+T19	Process 728 740	supply chain
+T20	Material 552 573	agricultural products

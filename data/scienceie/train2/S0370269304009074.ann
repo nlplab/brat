@@ -1,0 +1,14 @@
+T1	Task 714 797	study the influences of the evolution of the universe on the size of the black hole
+T2	Task 820 850	study the motion of the planet
+T3	Process 855 948	rewrite the metric from the cosmic coordinates system to the Schwarzschild coordinates system
+T4	Process 30 49	McVittie's solution
+T5	Task 19 74	extend the McVittie's solution into charged black holes
+T6	Process 85 164	deduce the metric for a Reissner–Nordström black hole in the expanding universe
+T7	Process 311 367	asymptotic conditions to derive the Schwarzschild metric
+T8	Task 299 393	applied the asymptotic conditions to derive the Schwarzschild metric in the expanding universe
+T9	Process 452 487	solving the full Einstein equations
+T10	Process 581 627	follow the same procedure to derive the metric
+T11	Task 636 704	Reissner–Nordström black holes in Friedman–Robertson–Walker universe
+T12	Material 55 74	charged black holes
+T13	Material 109 138	Reissner–Nordström black hole
+T14	Material 787 797	black hole

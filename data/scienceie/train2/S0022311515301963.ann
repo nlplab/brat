@@ -1,0 +1,40 @@
+T1	Material 19 34	noble gas atoms
+T2	Process 62 73	fuel matrix
+T3	Process 10 17	fission
+T4	Process 100 124	point defects trap sites
+T5	Process 150 177	Schottky trivacancy defects
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+T6	Process 188 197	Diffusion
+T7	Material 208 215	bubbles
+T8	Material 219 235	grain boundaries
+T9	Material 281 288	uranium
+T10	Material 312 320	gas atom
+T11	Process 324 334	‘hop’ into
+T12	Process 375 386	loop around
+T13	Process 407 416	diffusion
+T14	Process 470 479	migration
+T15	Material 487 489	Xe
+T16	Material 533 535	VU
+T17	Process 512 525	rearrangement
+T18	Process 533 542	VU defect
+T19	Material 561 563	Xe
+T20	Process 561 573	Xe diffusion
+T21	Process 581 591	Activation
+T22	Process 659 676	defect trap sites
+T23	Process 707 728	crystal stoichiometry
+T24	Material 707 714	crystal
+T25	Material 734 736	Xe
+T26	Process 734 746	Xe diffusion
+T27	Material 750 755	UO2−x
+T28	Material 757 760	UO2
+T29	Material 765 770	UO2+x
+T30	Process 812 815	DFT
+T31	Process 949 955	charge
+T32	Process 1009 1031	Jahn–Teller distortion
+T33	Process 1074 1099	empirical pair potentials
+T34	Process 1145 1154	potential
+R2	Hyponym-of Arg1:T33 Arg2:T34	
+T35	Process 1195 1205	potentials
+T36	Material 1210 1213	UO2
+T37	Material 1315 1319	U–Xe
+T38	Material 1324 1328	O–Xe

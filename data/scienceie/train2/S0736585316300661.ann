@@ -1,0 +1,4 @@
+T1	Process 42 54	linear model
+T2	Task 3 34	calculate hedonic price indices
+T3	Process 285 313	base period regression model
+T4	Process 704 753	applying previously calculated pure price changes

@@ -1,0 +1,13 @@
+T1	Process 0 19	Max-linear programs
+T2	Material 73 107	multiprocessor interactive systems
+T3	Process 47 68	optimisation problems
+T4	Material 131 140	variables
+T5	Process 234 251	integer solutions
+T6	Material 281 306	generic class of matrices
+T7	Process 321 338	integer solutions
+T8	Material 342 383	two-sided max-linear systems and programs
+T9	Material 421 437	general matrices
+T15	Task 506 546	algorithms for finding integer solutions
+T21	Material 255 274	max-linear programs
+T22	Task 442 495	adapt the existing methods for finding real solutions
+*	Synonym-of T15 T22

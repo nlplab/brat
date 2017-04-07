@@ -1,0 +1,26 @@
+T1	IDK_MAN 93 514	High performance computing (HPC) has driven collaborative science discovery for decades. Exascale computing platforms, currently in the design stage, will be deployed around 2022. The next generation of supercomputers is expected to utilize radically different computational paradigms, necessitating fundamental changes in how the community of scientific users will make the most efficient use of these powerful machines.
+#1	AnnotatorNotes T1	Problem context
+T2	IDK_MAN 515 622	However, there have been few studies of how scientists work with exascale or close-to-exascale HPC systems.
+#2	AnnotatorNotes T2	Problem
+T3	METHOD 800 821	an ethnographic study
+T4	TASK 825 864	scientists interacting with HPC systems
+R1	addresses Arg1:T3 Arg2:T4	
+T5	IDK_MAN 8569 8581	RELATED WORK
+#3	AnnotatorNotes T5	Related work
+T6	IDK_MAN 13304 13319	Collective Time
+#4	AnnotatorNotes T6	Background concept
+T7	IDK_MAN 15847 15860	Research Site
+#5	AnnotatorNotes T7	Field site
+T8	METHOD 19028 19047	a thematic analysis
+T9	TASK 19056 19075	analyze the dataset
+R2	addresses Arg1:T8 Arg2:T9	
+T10	IDK_MAN 19458 19484	Roles in the HPC Ecosystem
+#6	AnnotatorNotes T10	Background of the field site
+T11	IDK_MAN 21316 21352	Key Characteristics of an HPC System
+#7	AnnotatorNotes T11	Background of the study target
+T12	IDK_MAN 32347 32414	Preparation Stage Human Time to Get Codes Running on the HPC System
+#8	AnnotatorNotes T12	Ethnography study findings
+T13	IDK_MAN 36542 36730;36732 36836	I'll submit a job and it goes in and it is at number 1300 and it starts an hour later. Then in another case I will have a job which might be there for a day or half a day and it is down to 100 in the queue apparently, and the next time I look it's at 1500, then it starts. [Domain Scientist B]
+#9	AnnotatorNotes T13	Quotes
+T14	IDK_MAN 49792 49802	DISCUSSION
+#10	AnnotatorNotes T14	DIscussion

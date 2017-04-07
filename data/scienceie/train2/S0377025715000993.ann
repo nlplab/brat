@@ -1,0 +1,12 @@
+T1	Process 56 93	SITA pro line t-15 bubble tensiometer
+T2	Process 95 119	Rheological measurements
+T3	Process 143 157	ARES rheometer
+T4	Process 196 216	piezo axial vibrator
+T5	Process 223 226	PAV
+*	Synonym-of T5 T4
+T6	Material 374 389	surface tension
+T7	Material 587 603	PEDOT:PSS fluids
+T8	Material 699 718	PEDOT:PSS solutions
+T9	Material 282 301	values of viscosity
+T10	Material 0 27	Equilibrium surface tension
+T11	Material 457 492	most concentrated (1.1wt%) solution

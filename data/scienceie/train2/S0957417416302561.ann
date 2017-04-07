@@ -1,0 +1,21 @@
+T1	Task 66 84	feature extraction
+T7	Process 169 202	advanced machine learning methods
+T8	Process 211 231	deep neural networks
+T9	Process 236 264	muscles synergies extraction
+R1	Hyponym-of Arg1:T9 Arg2:T7	
+R2	Hyponym-of Arg1:T8 Arg2:T7	
+T10	Process 415 473	utilized time-and-frequency EMG feature extraction methods
+T11	Process 675 701	feature extraction methods
+T12	Process 791 797	TD-PSD
+T13	Process 806 809	DFT
+T14	Process 770 778	Features
+R3	Hyponym-of Arg1:T12 Arg2:T14	
+R4	Hyponym-of Arg1:T13 Arg2:T14	
+T19	Process 977 998	prosthesis controller
+T20	Process 1042 1073	EMG pattern recognition systems
+T21	Task 1110 1126	clinical testing
+T22	Process 1137 1166	COAPT complete control system
+R5	Hyponym-of Arg1:T22 Arg2:T20	
+T2	Material 611 622	performance
+T3	Task 848 894	reducing the impact of the two dynamic factors
+T4	Task 1003 1020	real-time control

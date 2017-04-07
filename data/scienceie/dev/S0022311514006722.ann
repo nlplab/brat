@@ -1,0 +1,15 @@
+T1	Material 76 92	nuclear reactors
+T2	Material 0 16	Zirconium alloys
+T3	Process 191 213	degradation mechanisms
+T4	Process 222 231	oxidation
+R1	Hyponym-of Arg1:T4 Arg2:T3	
+T5	Process 279 288	oxidation
+T6	Process 308 324	hydrogen pick-up
+T7	Material 362 366	fuel
+T8	Process 394 403	oxidation
+T9	Material 422 438	zirconium alloys
+T10	Material 627 632	oxide
+T11	Task 694 744	Understanding how these issues influence oxidation
+T12	Task 757 825	developing a full mechanistic understanding of the corrosion process
+T13	Process 808 825	corrosion process
+T14	Process 735 744	oxidation

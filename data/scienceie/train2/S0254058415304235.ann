@@ -1,0 +1,32 @@
+T1	Task 4 25	observed conductivity
+T2	Material 29 39	A2FeMoO6–δ
+T3	Material 138 154	Fe3+-O-Mo-O-Fe2+
+T4	Process 87 112	double exchange mechanism
+T5	Process 156 182	Double-exchange mechanisms
+T6	Process 222 239	electron transfer
+T7	Material 248 252	ions
+T8	Material 309 317	electron
+T9	Material 372 374	Mo
+T10	Material 380 382	Fe
+T11	Process 357 368	Replacement
+T12	Process 434 463	reduction of the conductivity
+T13	Task 499 519	percolation pathways
+T14	Process 528 558	delocalisation of Fe electrons
+T15	Material 546 558	Fe electrons
+T16	Material 567 578	Fe2+-O-Fe3+
+T17	Process 567 587	Fe2+-O-Fe3+ exchange
+T18	Process 606 632	Double exchange mechanisms
+T19	Material 680 699	iron in iron oxides
+T20	Material 714 718	iron
+T21	Material 765 781	Ca2–xSrxFeMoO6–δ
+T22	Task 843 864	metallic conductivity
+T23	Process 866 893	Band structure calculations
+T24	Process 898 920	Mossbauer spectroscopy
+T25	Task 964 984	conduction mechanism
+T26	Process 266 275	oxidation
+T27	Material 995 1004	compounds
+T28	Material 45 47	Ca
+T29	Material 49 51	Sr
+T30	Material 53 55	Ba
+T31	Material 222 230	electron
+T32	Process 472 519	reduction of the available percolation pathways

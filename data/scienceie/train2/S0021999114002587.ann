@@ -1,0 +1,25 @@
+T1	Task 89 165	analyse problems that involve rarefied gas flows in complex micro geometries
+T2	Process 167 187	Numerical simulation
+T3	Process 264 301	Conventional continuum fluid dynamics
+T4	Process 303 306	CFD
+*	Synonym-of T3 T4
+T5	Process 803 818	particle method
+T6	Process 832 861	direct simulation Monte Carlo
+T7	Process 863 867	DSMC
+*	Synonym-of T6 T7
+R1	Hyponym-of Arg1:T5 Arg2:T6	
+T8	Process 949 964	particle method
+T9	Material 1008 1028	microfluidic devices
+T10	Material 13 33	microfluidic devices
+T11	Material 119 137	rarefied gas flows
+T12	Material 195 203	gas flow
+T13	Process 512 515	CFD
+T14	Material 585 620	collection of interacting particles
+T15	Material 675 697	flow of a rarefied gas
+T16	Material 701 735	high-aspect-ratio micro geometries
+T17	Material 756 793	long, relative to their cross section
+R2	Hyponym-of Arg1:T16 Arg2:T17	
+T18	Material 1050 1083	small deviations from equilibrium
+T19	Material 1102 1159	extremely low Mach numbers and weak temperature gradients
+R3	Hyponym-of Arg1:T9 Arg2:T18	
+R4	Hyponym-of Arg1:T9 Arg2:T19	

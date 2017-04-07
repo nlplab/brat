@@ -1,0 +1,13 @@
+T1	Material 21 24	MGs
+T2	Task 235 266	search for a BE in plastic flow
+T3	Process 319 332	shear-banding
+T4	Process 402 423	Anelastic deformation
+T5	Process 663 689	shear transformation zones
+T6	Process 691 695	STZs
+*	Synonym-of T5 T6
+T7	Task 791 818	observe anelasticity in MGs
+T8	Task 1064 1107	investigate the effects of torque reversal.
+T9	Material 299 302	MGs
+T10	Material 178 180	MG
+T11	Material 745 748	MGs
+T12	Material 973 975	MG

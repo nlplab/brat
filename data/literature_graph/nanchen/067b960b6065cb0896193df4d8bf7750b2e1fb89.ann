@@ -1,0 +1,30 @@
+T1	IDK_MAN 85 99	a nested model
+T2	TASK 108 136	visualization design process
+#1	AnnotatorNotes T1	Theoretical Model
+R1	addresses Arg1:T1 Arg2:T2	
+T3	IDK_MAN 155 186	characterize the problem domain
+#2	AnnotatorNotes T3	a sub-component of the theoretical model
+T4	IDK_MAN 188 226	abstract into operations on data types
+#3	AnnotatorNotes T4	a sub-component of the theoretical model
+T5	IDK_MAN 228 277	design visual encoding and interaction techniques
+#4	AnnotatorNotes T5	a sub-component of the theoretical model
+T6	IDK_MAN 283 334	create algorithms to execute techniques efficiently
+#5	AnnotatorNotes T6	a sub-component of the theoretical model
+T7	IDK_MAN 23626 23645	Genealogical Graphs
+#6	AnnotatorNotes T7	Examples of using the theoretical models
+T8	IDK_MAN 26008 26022	MatrixExplorer
+#7	AnnotatorNotes T8	Examples of using the theoretical models
+T9	IDK_MAN 27786 27795	Flow Maps
+#8	AnnotatorNotes T9	Examples of using the theoretical models
+T10	IDK_MAN 29800 29807	LiveRAC
+#9	AnnotatorNotes T10	Examples of using the theoretical models
+T11	IDK_MAN 31974 31980	LinLog
+#10	AnnotatorNotes T11	Examples of using the theoretical models
+T12	IDK_MAN 35776 35796	Visualization Models
+#11	AnnotatorNotes T12	Other theoretical models
+T13	IDK_MAN 41124 41150	Distinguish Between Levels
+#12	AnnotatorNotes T13	Recommendations of how to use the theoretical model
+T14	IDK_MAN 45649 45690	Encourage Problem Characterization Papers
+#13	AnnotatorNotes T14	Recommendations of how to use the theoretical model
+T15	IDK_MAN 10464 10486	THREATS AND VALIDATION
+#14	AnnotatorNotes T15	Details of the theoretical model

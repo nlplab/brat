@@ -1,0 +1,24 @@
+T1	Process 4 25	charmonium production
+T2	Task 73 166	investigating both perturbative and nonperturbative properties of quantum chromodynamics (QCD
+T3	Task 139 161	quantum chromodynamics
+T4	Task 163 166	QCD
+*	Synonym-of T3 T4
+T5	Material 391 405	e+e− colliders
+T6	Task 440 483	study the charmonium productions and decays
+T7	Process 690 728	nonrelativistic quantum chromodynamics
+T8	Process 730 735	NRQCD
+*	Synonym-of T7 T8
+T9	Process 575 580	BaBar
+T10	Process 585 591	Belle 
+T11	Task 606 631	inclusive J/ψ productions
+T12	Process 522 559	recent measurements on the prompt J/ψ
+T13	Process 781 807	four-charm–quark processes
+T14	Process 822 862	exclusive J/ψ and charmonium productions
+R1	Hyponym-of Arg1:T14 Arg2:T13	
+T15	Process 949 970	J/ψgg production mode
+T16	Process 986 1016	color-octet mechanism in NRQCD
+T17	Task 1114 1189	possibilities of the contribution from two-virtual-photon mediate processes
+T18	Task 1195 1229	large higher-order QCD corrections
+T19	Task 1237 1302	collinear suppression at the end-point region of the J/ψ momentum
+T20	Task 1310 1367	contribution from the J/ψ-glueball associated production 
+T21	Task 1375 1418	contribution from a very light scalar boson

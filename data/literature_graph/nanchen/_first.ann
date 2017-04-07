@@ -1,0 +1,13 @@
+T1	METHOD 13 42	dynamic programming algorithm
+T2	TASK 82 104	semantic role labeling
+T3	TASK 157 179	structural constraints
+T4	METHOD 283 317	integer linear programming solvers
+T5	METHOD 354 390	globally-normalized log-linear model
+T6	METHOD 407 441	constrained conditional likelihood
+T7	METHOD 460 475	dynamic program
+T8	METHOD 522 555	integer linear programming solver
+T9	METHOD 621 637	structured model
+T10	DATASET 746 755	PropBank-
+T11	DATASET 759 777	FrameNet-annotated
+R1	addresses Arg1:T1 Arg2:T2	
+R2	is_subclass_of Arg1:T6 Arg2:T5	

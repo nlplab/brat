@@ -1,0 +1,18 @@
+T1	Task 4 33	Substrate Induced Coagulation
+T2	Task 35 38	SIC
+*	Synonym-of T1 T2
+T3	Material 223 236	carbon blacks
+T4	Process 302 332	electromagnetic wave shielding
+T5	Process 341 354	metallization
+T6	Material 383 404	printed wiring boards
+T7	Material 432 451	conducting polymers
+T8	Material 461 467	Teflon
+R1	Hyponym-of Arg1:T8 Arg2:T7	
+T9	Process 502 513	dip-coating
+T10	Process 663 685	meta-stable dispersion
+T11	Process 711 722	SIC coating
+T12	Material 734 746	carbon black
+T13	Process 866 893	LiCoO2-composite electrodes
+T14	Process 898 914	Li-ion batteries
+T15	Process 105 112	coating
+T16	Process 40 47	coating

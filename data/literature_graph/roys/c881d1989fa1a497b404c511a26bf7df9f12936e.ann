@@ -1,0 +1,23 @@
+T1	TASK 163 222	predicting lexical en-tailment using distributional vectors
+T2	IDK_MAN 252 271	previous classifier
+T3	METHOD 365 374	the model
+T4	IDK_MAN 408 423	Hearst Patterns
+#1	AnnotatorNotes T4	concept?
+T5	METHOD 496 506	a new mode
+T6	TASK 32219 32284	detecting lexical entailment using distributional vectors meaning
+T7	DATASET 32321 32330	data sets
+T8	METHOD 32426 32446	the different models
+T9	METHOD 32463 32471	Concat's
+T10	IDK_MAN 32569 32591	prototypical hypernyms
+#2	AnnotatorNotes T10	conecpt
+T11	METHOD 32608 32629	the Concat classifier
+T12	IDK_MAN 32714 32729	Hearst patterns
+T13	METHOD 32743 32754	a new model
+T14	IDK_MAN 32787 32801	Hearst pattern
+T15	IDK_MAN 32861 32879	general similarity
+T16	IDK_MAN 32884 32908	Distributional Inclusion
+T17	TASK 33028 33047	hypernymy detection
+T18	TASK 33052 33078	general lexical entailment
+T19	METRIC 32965 32976	performance
+R1	addresses Arg1:T19 Arg2:T17	
+R2	addresses Arg1:T19 Arg2:T18	

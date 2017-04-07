@@ -1,0 +1,20 @@
+T1	TASK 284 326	refining classifier models and performance
+T2	METHOD 259 280	an iterative approach
+R1	addresses Arg1:T2 Arg2:T1	
+T3	METHOD 344 378	ensemble classification techniques
+R2	addresses Arg1:T3 Arg2:T1	
+T4	IDK_MAN 581 616	an interactive visualization system
+#1	AnnotatorNotes T4	proposed design
+T5	IDK_MAN 631 669	a graphical view of confusion matrices
+#2	AnnotatorNotes T5	component of the design
+T6	TASK 673 734	help users understand relative merits of various classifiers.
+R3	is_subclass_of Arg1:T6 Arg2:T1	
+T7	IDK_MAN 766 807	directly interact with the visualizations
+#3	AnnotatorNotes T7	interaction techniques
+T8	TASK 820 856	explore and build combination models
+R4	is_subclass_of Arg1:T8 Arg2:T1	
+T9	IDK_MAN 917 929	a user study
+#4	AnnotatorNotes T9	evaluation method
+T10	IDK_MAN 949 1038	users are able to quickly combine multiple classifiers operating on multiple feature sets
+#5	AnnotatorNotes T10	results
+T11	DATASET 1155 1174	CalTech-101 dataset

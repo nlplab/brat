@@ -1,0 +1,13 @@
+T1	TASK 116 134	Dependency parsing
+T2	TASK 140 156	central NLP task
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+T3	TASK 211 242	unsupervised dependency parsing
+T4	METRIC 421 449	standard evaluation measures
+T5	METRIC 683 711	Neutral Edge Direction (NED)
+T6	METRIC 668 681	a new measure
+T7	IDK_MAN 33170 33201	unsupervised dependency parsers
+T8	IDK_MAN 33346 33367	three leading parsers
+T9	METRIC 33481 33509	Neutral Edge Direction (NED)
+T10	METRIC 33634 33637	NED
+T11	METRIC 33726 33729	NED
+T12	METRIC 33741 33761	the current measures

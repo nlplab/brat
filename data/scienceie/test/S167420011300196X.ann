@@ -1,0 +1,16 @@
+T1	Task 0 8	PV cells
+T2	Material 70 94	incident solar radiation
+T3	Material 100 114	electric power
+T4	Process 456 477	incomplete absorption
+T5	Process 538 552	thermalization
+T6	Process 556 571	carrier cooling
+*	Synonym-of T5 T6
+T7	Process 734 757	radiative recombination
+T8	Process 415 425	absorption
+T9	Process 56 114	conversion of incident solar radiation into electric power
+T10	Process 186 221	fossil fuel-based energy conversion
+T11	Process 361 377	solar conversion
+T12	Material 485 492	photons
+T13	Material 579 592	solar photons
+T14	Material 625 644	electron-hole pairs
+T15	Process 1131 1142	solar power

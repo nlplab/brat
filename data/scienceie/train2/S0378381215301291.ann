@@ -1,0 +1,18 @@
+T1	Material 309 333	ionic clathrate hydrates
+T4	Material 60 84	ionic clathrate hydrates
+T5	Material 212 256	unusual hydrates of tetrabutylammonium salts
+T6	Material 346 368	semiclathrate hydrates
+*	Synonym-of T6 T1
+T7	Material 455 477	Semiclathrate hydrates
+T8	Process 562 610	phase change materials for refrigeration systems
+T2	Process 618 641	gas capture and storage
+T3	Material 702 723	semiclathrate hydrate
+T9	Task 778 807	study of thermal conductivity
+T10	Material 927 948	semiclathrate hydrate
+T11	Task 1051 1085	measuring the thermal conductivity
+T12	Material 1089 1111	semiclathrate hydrates
+T13	Material 1145 1163	clathrate hydrates
+T14	Material 1272 1290	clathrate hydrates
+T15	Material 1376 1398	semiclathrate hydrates
+T16	Material 409 430	semiclathrate hydrate
+T17	Process 1248 1268	thermal conductivity

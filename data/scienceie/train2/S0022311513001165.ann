@@ -1,0 +1,34 @@
+T1	Material 4 15	simulations
+T2	Task 55 68	W net erosion
+T3	Task 130 145	W gross erosion
+T4	Process 151 178	estimated upstream W fluxes
+T5	Material 222 252	experimentally observed values
+T6	Process 398 428	hitting to the divertor plates
+T7	Process 480 497	increasing energy
+T9	Process 624 631	ionized
+T10	Process 668 674	return
+T11	Task 732 760	observed prompt redeposition
+T12	Process 786 811	near-divertor” ionization
+T13	Process 955 974	large Larmor radius
+T14	Process 1171 1198	friction with the main ions
+T15	Material 385 397	D and C ions
+T16	Process 180 189	FWupstrem
+*	Synonym-of T16 T4
+T17	Material 472 473	W
+T18	Material 170 178	W fluxes
+T19	Material 502 503	W
+T20	Material 556 571	divertor plasma
+T21	Material 815 816	W
+T22	Material 612 619	W atoms
+T23	Material 903 904	D
+T24	Material 1101 1107	W ions
+T25	Material 909 910	C
+T26	Material 941 949	W+n ions
+T8	Process 502 514	W sputtering
+T27	Process 828 838	ionization
+T28	Material 413 428	divertor plates
+T29	Material 764 770	W ions
+T30	Material 655 663	divertor
+T31	Material 687 693	plates
+T32	Material 321 329	divertor
+T33	Process 877 887	ionization

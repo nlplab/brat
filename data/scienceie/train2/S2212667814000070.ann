@@ -1,0 +1,26 @@
+T1	Task 22 127	design of high quality real-time rotation face detection architecture for gesture recognition of smart TV
+T2	Process 158 172	face detection
+T3	Process 187 190	MCT
+T4	Process 191 216	Modified Census Transform
+*	Synonym-of T4 T3
+T5	Process 287 314	Adaboost learning algorithm
+T6	Task 328 360	creating optimized learning data
+T7	Material 410 431	Color Space Converter
+T8	Material 433 447	Image Resizer,
+T9	Material 448 460	Noise Filter
+T10	Material 462 489	Memory Controller Interface
+T11	Material 491 504	Image Rotator
+T12	Material 506 518	Image Scaler
+T13	Material 520 533	MCT Generator
+T14	Material 535 554	Candidate Detector,
+T15	Material 555 572	Confidence Switch
+T16	Material 574 590	Confidence Mappe
+T17	Material 593 610	Position Resizer,
+T18	Material 611 623	Data Grouper
+T19	Material 625 642	Overlay Processor
+T20	Material 647 670	Color Overlay Processer
+T21	Process 695 709	face detection
+T22	Process 729 749	real-time processing
+T23	Material 375 393	hardware structure
+T24	Material 55 91	rotation face detection architecture
+T25	Process 96 115	gesture recognition

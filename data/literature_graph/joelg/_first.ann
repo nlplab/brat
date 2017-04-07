@@ -1,0 +1,8 @@
+T1	METHOD 57 78	constrained inference
+T2	METHOD 13 32	dynamic programming
+T3	DATASET 759 767	FrameNet
+T4	DATASET 746 754	PropBank
+T5	METHOD 522 555	integer linear programming solver
+T6	FUNDING_AGENCY 354 390	globally-normalized log-linear model
+R1	uses Arg1:T1 Arg2:T2	
+T7	THEOREM 460 475	dynamic program

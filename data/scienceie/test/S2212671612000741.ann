@@ -1,0 +1,12 @@
+T1	Process 55 89	Kernel Extensional Matrix Matching
+T2	Process 91 95	KEMM
+*	Synonym-of T1 T2
+T3	Task 156 173	sentence aligning
+T4	Material 334 351	similarity matrix
+T5	Task 393 410	sentence aligning
+T6	Process 456 460	KEMM
+T7	Process 531 544	Gale's system
+T16	Task 2 20	sentence alignment
+T8	Material 134 151	similarity matrix
+T9	Process 363 388	construct a select matrix
+T10	Task 606 624	sentence alignment

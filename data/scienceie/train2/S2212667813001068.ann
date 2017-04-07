@@ -1,0 +1,24 @@
+T1	Material 75 85	sandstones
+T2	Process 136 144	porosity
+T3	Process 149 161	permeability
+T4	Process 218 221	SDR
+T5	Process 223 249	Schlumberger Doll Research
+*	Synonym-of T5 T4
+T6	Process 255 274	Timur-Coates models
+T7	Process 345 348	NMR
+T8	Process 378 387	calibrate
+T9	Process 461 464	CSM
+T10	Process 432 459	classification scale method
+*	Synonym-of T9 T10
+T11	Material 490 500	sandstones
+T12	Process 562 570	porosity
+T13	Process 575 587	permeability
+T14	Task 655 685	permeability estimation models
+T15	Material 703 717	Field examples
+T16	Process 732 759	classification scale method
+T17	Material 793 802	sandstone
+T18	Process 803 815	permeability
+T19	Process 39 51	permeability
+T20	Process 57 65	porosity
+T21	Process 349 374	experimental measurements
+T22	Task 378 417	calibrate the involved model parameters

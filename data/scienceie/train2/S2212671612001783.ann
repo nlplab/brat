@@ -1,0 +1,21 @@
+T1	Material 0 29	Metal–intermetallic laminated
+T2	Material 31 34	MIL
+*	Synonym-of T1 T2
+T3	Process 51 85	fabricated upon reaction sintering
+T4	Material 89 116	titanium and aluminum foils
+T5	Process 145 164	intermetallic phase
+T6	Process 168 181	Al3Ti forming
+T7	Process 199 209	processing
+T8	Material 251 260	composite
+T9	Material 268 286	unreacted titanium
+T11	Process 355 380	studies of microstructure
+T13	Material 415 433	layered composites
+T14	Task 438 478	presented on the example of Ti-Al system
+T15	Process 466 478	Ti-Al system
+T16	Process 480 504	Static and dynamic tests
+T17	Process 549 571	intermetallic reaction
+T18	Process 576 587	interrupted
+T19	Process 605 628	intermetallic sintering
+T21	Material 168 173	Al3Ti
+T10	Task 480 526	Static and dynamic tests results are discussed
+T12	Process 67 85	reaction sintering

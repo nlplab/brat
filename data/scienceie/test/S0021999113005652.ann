@@ -1,0 +1,23 @@
+T1	Material 49 63	Schmidt number
+T2	Material 102 130	bulk-mean concentration of B
+T3	Task 21 94	quantify the effects of the Schmidt number and the chemical reaction rate
+T5	Material 233 252	degradation product
+T6	Process 270 292	acidification of water
+T7	Material 636 650	Schmidt number
+T8	Process 851 867	turbulent mixing
+T9	Material 1025 1040	Reynolds number
+T10	Process 1188 1214	aquarium chemical reaction
+T11	Process 1291 1310	practical modelling
+T12	Material 430 437	Schmidt
+T13	Material 476 504	bulk-mean concentration CB⁎¯
+T14	Material 543 571	bulk-mean concentration of B
+T4	Process 72 94	chemical reaction rate
+T15	Process 300 317	chemical reaction
+T16	Material 329 357	bulk-mean concentration of B
+T17	Process 446 468	chemical reaction rate
+T18	Process 605 627	chemical reaction rate
+T19	Material 715 745	equilibrium concentration of A
+T20	Process 807 824	chemical reaction
+T21	Process 972 989	chemical reaction
+T22	Material 1101 1116	Reynolds number
+T23	Process 1319 1331	gas exchange

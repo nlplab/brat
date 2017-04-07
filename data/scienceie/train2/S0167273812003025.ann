@@ -1,0 +1,22 @@
+T1	Process 37 69	“grind-free” nanoprecursor route
+T2	Process 73 115	direct combinatorial solid state synthesis
+T3	Material 168 241	phase-pure heterometallic Ruddlesden Popper type La4Ni3−xFexO10 materials
+T4	Process 286 309	high-throughput reactor
+T5	Process 314 332	robotic automation
+T6	Process 334 339	RAMSI
+*	Synonym-of T5 T6
+T7	Material 374 412	nanoparticle co-precipitate precursors
+T8	Process 352 412	synthesise a range of nanoparticle co-precipitate precursors
+T9	Process 438 465	rate of 7.5 samples an hour
+T10	Process 494 506	heat-treated
+T11	Process 549 566	powder XRD screen
+T12	Process 579 616	locate and approximate phase boundary
+T13	Process 641 675	synthesis and XRD characterisation
+T14	Material 695 715	heat-treated powders
+T15	Material 835 846	La4Ni2FeO10
+T16	Material 993 997	Fe3+
+T17	Material 1015 1017	Ni
+T18	Material 878 880	Fe
+T19	Material 1069 1079	iron oxide
+T20	Material 967 977	EXAFS data
+T21	Task 17 115	new approach to the “grind-free” nanoprecursor route to direct combinatorial solid state synthesis

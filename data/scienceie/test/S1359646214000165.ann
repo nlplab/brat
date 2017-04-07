@@ -1,0 +1,30 @@
+T1	Task 4 33	first-principles calculations
+T2	Material 58 95	Cambridge Serial Total Energy Package
+T3	Process 131 168	plane-wave pseudopotential DFT method
+T4	Material 97 103	CASTEP
+*	Synonym-of T2 T4
+T5	Process 232 266	generalized gradient approximation
+T6	Process 291 316	electron–ion interactions
+T7	Process 334 376	Vanderbilt-type ultrasoft pseudopotentials
+T8	Process 451 474	Brillouin-zone sampling
+T9	Process 499 520	Monkhorst-Pack scheme
+T10	Material 711 717	nickel
+T11	Process 1009 1023	ferromagnetism
+T12	Process 693 707	ferromagnetism
+T13	Material 1219 1232	ηP structures
+T14	Material 1468 1473	alloy
+T15	Process 174 205	exchange correlation functional
+T16	Process 268 275	PBE-GGA
+*	Synonym-of T5 T16
+T17	Material 291 299	electron
+T18	Material 300 303	ion
+T19	Material 387 397	plane wave
+T20	Process 528 543	k-point spacing
+T21	Process 772 789	spin polarization
+T22	Material 968 973	alloy
+T23	Material 1176 1178	Ti
+T24	Process 1270 1281	Ti alloying
+T25	Material 1270 1272	Ti
+T26	Material 1360 1362	Ti
+T27	Material 1481 1483	Al
+T28	Material 1484 1486	Ti

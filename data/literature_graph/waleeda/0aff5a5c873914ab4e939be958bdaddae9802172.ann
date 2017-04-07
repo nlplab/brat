@@ -1,0 +1,185 @@
+T1	TASK 7 33	Unsupervised POS Induction
+T2	METHOD 39 54	Word Embeddings
+T3	METHOD 66 94	Unsupervised word embeddings
+T4	TASK 141 169	supervised learning problems
+T5	TASK 194 216	un-supervised problems
+T6	METHOD 280 291	embed-dings
+T7	TASK 333 359	unsupervised POS induction
+T8	METHOD 419 444	multinomial distributions
+T9	METHOD 470 505	multivariate Gaussian distributions
+T10	METHOD 511 526	word embeddings
+R1	addresses Arg1:T3 Arg2:T4	
+R2	addresses Arg1:T6 Arg2:T7	
+T11	TASK 393 406	POS induction
+T12	TASK 725 751	Unsupervised POS induction
+T13	METHOD 920 943	vector space embeddings
+T14	METHOD 987 1002	first-order HMM
+T15	METHOD 1043 1079	conditional random field autoencoder
+T16	METHOD 1306 1320	word embedding
+T17	TASK 2767 2786	learning embeddings
+T18	METHOD 2813 2833	matrix factorization
+T19	METHOD 2886 2910	neural language modeling
+T20	TASK 2971 2984	POS induction
+T21	METHOD 3190 3210	Skip-gram embeddings
+T22	METHOD 3249 3267	log bilinear model
+R3	uses Arg1:T21 Arg2:T22	
+R4	addresses Arg1:T18 Arg2:T17	
+R5	addresses Arg1:T19 Arg2:T17	
+T23	METHOD 3506 3537	Structured skip-gram embeddings
+T24	METHOD 3569 3598	standard skip-gram embeddings
+R6	is_subclass_of Arg1:T24 Arg2:T23	
+T25	SOFTWARE 3713 3721	word2vec
+T26	METHOD 3806 3826	skip-gram embeddings
+R7	implements Arg1:T25 Arg2:T26	
+T27	METHOD 3954 3958	HMMs
+T28	TASK 3939 3952	POS induction
+T29	METHOD 3963 3979	CRF autoencoders
+R8	addresses Arg1:T29 Arg2:T28	
+R9	addresses Arg1:T27 Arg2:T28	
+T30	METHOD 2526 2554	Vector Space Word Embeddings
+T31	METHOD 4249 4269	Hidden Markov Models
+T32	METHOD 4275 4294	hidden Markov model
+T33	METHOD 4300 4321	multinomial emissions
+R10	uses Arg1:T32 Arg2:T33	
+T34	TASK 4345 4358	POS induction
+R11	addresses Arg1:T32 Arg2:T34	
+T35	METHOD 4399 4420	latent Markov process
+T36	METHOD 4426 4441	discrete states
+R12	uses Arg1:T35 Arg2:T36	
+T37	METHOD 4524 4573	state (i.e., tag) specific emission distributions
+R13	uses Arg1:T35 Arg2:T37	
+T38	METHOD 4579 4582	HMM
+T39	METHOD 4610 4628	joint distribution
+R14	uses Arg1:T38 Arg2:T39	
+T40	METHOD 5519 5553	multivariate Gaussian distribution
+T41	METHOD 5559 5563	mean
+R15	uses Arg1:T40 Arg2:T41	
+T42	METHOD 5572 5589	covariance matrix
+R16	uses Arg1:T40 Arg2:T42	
+T43	METHOD 5868 5885	covariance matrix
+T44	METHOD 6167 6191	the Baum–Welch algorithm
+T45	METHOD 6462 6483	posterior probability
+T46	METHOD 6673 6710	Conditional Random Field Autoencoders
+T47	METHOD 6767 6783	CRF autoencoders
+T48	TASK 6875 6920	feature-rich learning from unlabeled examples
+T49	METHOD 6837 6839	It
+R17	addresses Arg1:T49 Arg2:T48	
+T50	METHOD 7193 7207	encoding model
+T51	METHOD 7225 7245	reconstruction model
+T52	METHOD 7143 7152	the model
+R18	uses Arg1:T52 Arg2:T50	
+R19	uses Arg1:T52 Arg2:T51	
+T53	METHOD 7274 7290	structured input
+T54	METHOD 7298 7314	a token sequence
+R20	is_subclass_of Arg1:T54 Arg2:T53	
+T55	IDK_MAN 7326 7346	linguistic structure
+T56	IDK_MAN 7366 7388	a sequence of POS tags
+T57	TASK 7443 7456	POS induction
+T58	METHOD 7482 7497	linearchain CRF
+T59	IDK_MAN 7503 7517	feature vector
+T60	IDK_MAN 7717 7730	surface forms
+T61	METHOD 7735 7749	Brown clusters
+R23	addresses Arg1:T58 Arg2:T57	
+T62	IDK_MAN 7990 8014	multinomial distribution
+T63	IDK_MAN 8052 8086	multivariate Gaussian distribution
+T64	METHOD 8110 8134	the Baum–Welch algorithm
+T65	IDK_MAN 8209 8238	posterior label probabilities
+T66	IDK_MAN 8271 8285	input sequence
+T67	IDK_MAN 8296 8315	embeddings sequence
+T68	METHOD 15632 15659	multivariate Gaussian model
+T69	TASK 15754 15767	POS induction
+R21	addresses Arg1:T68 Arg2:T69	
+T70	TASK 15834 15865	generate categorical word types
+T71	METHOD 15805 15830	multinomial distributions
+R22	addresses Arg1:T71 Arg2:T70	
+R24	addresses Arg1:T68 Arg2:T70	
+T72	METHOD 15905 15917	Gaussian HMM
+T73	METHOD 16025 16040	CRF autoencoder
+T74	METHOD 16154 16170	skip-gram models
+T75	METHOD 9201 9210	skip-gram
+T76	SOFTWARE 9218 9226	word2vec
+R25	implements Arg1:T76 Arg2:T75	
+T77	METRIC 9466 9483	Average V−measure
+T78	METRIC 9554 9563	V-measure
+T79	METHOD 9658 9683	skip-gram word embeddings
+T80	METHOD 9691 9703	Gaussian HMM
+R26	uses Arg1:T80 Arg2:T79	
+T81	METHOD 9708 9732	Gaussian CRF Autoencoder
+R27	uses Arg1:T81 Arg2:T79	
+T82	IDK_MAN 9814 9848	standard and structured skip-grams
+T83	METHOD 9852 9864	Gaussian HMM
+T84	METHOD 9869 9884	CRF Autoencoder
+T85	METHOD 10087 10102	CRF autoencoder
+T86	IDK_MAN 10108 10135	multinomial reconstructions
+T87	IDK_MAN 10222 10246	Gaussian reconstructions
+T88	METHOD 10201 10216	CRF autoencoder
+T89	METHOD 10301 10310	MM models
+T90	DATASET 10380 10398	English PTB corpus
+T91	METRIC 10458 10466	V-measur
+T92	TASK 10683 10696	POS induction
+T93	METHOD 10656 10671	word embeddings
+R28	addresses Arg1:T93 Arg2:T92	
+T94	METHOD 10716 10747	feature-less Gaussian HMM model
+T95	METHOD 10794 10820	Multinomial Featurized HMM
+T96	METHOD 10825 10852	Multinomial CRF Autoencoder
+T97	TASK 10971 10984	POS induction
+T98	METHOD 10882 10897	word embeddings
+T99	METHOD 11149 11164	word embeddings
+T100	METHOD 11169 11193	hand-engineered features
+T101	TASK 11222 11235	POS induction
+R29	addresses Arg1:T99 Arg2:T101	
+R30	addresses Arg1:T100 Arg2:T101	
+T102	METHOD 8472 8501	HMM with log-linear emissions
+T103	METHOD 8548 8596	CRF autoencoder with multinomial reconstructions
+T104	METHOD 8633 8660	HMM with Gaussian emissions
+T105	METHOD 8679 8725	RF autoencoder with Gaussian recon- structions
+T106	TASK 8827 8846	CoNLL-X shared task
+T107	TASK 8748 8761	POS induction
+T108	DATASET 9065 9086	universal POS tag set
+T109	DATASET 14261 14283	the English PTB corpus
+T110	TASK 14232 14245	POS induction
+T111	METHOD 14305 14332	HMM with Gaussian emissions
+T112	TASK 16380 16397	language modeling
+T113	TASK 16402 16421	grammar in- duction
+T114	METHOD 16181 16196	word embeddings
+T115	METHOD 1580 1594	word embedding
+T116	TASK 1760 1773	POS induction
+T117	TASK 2150 2162	OS induction
+T118	METHOD 2246 2272	Chinese restaurant process
+R31	addresses Arg1:T118 Arg2:T117	
+T119	TASK 2372 2385	POS induction
+T120	METHOD 2400 2415	word embeddings
+R32	addresses Arg1:T120 Arg2:T119	
+T121	TASK 13383 13409	unsupervised POS induction
+T122	TASK 13651 13677	unsupervised POS induction
+T123	METHOD 13806 13834	multivariate Gaussian models
+T124	METHOD 13941 13957	SENNA embeddings
+T125	METRIC 13970 13984	Vmeasure score
+T126	METHOD 14014 14034	skip-gram embeddings
+T127	METHOD 14043 14059	SENNA embeddings
+T128	METRIC 14172 14181	V−measure
+T129	METHOD 11446 11477	structured skip-gram embeddings
+T130	METHOD 11431 11444	Gaussian HMMs
+R33	uses Arg1:T130 Arg2:T129	
+T131	METHOD 11507 11525	standard skipgrams
+R34	uses Arg1:T130 Arg2:T131	
+T132	METHOD 11610 11641	structured skip-gram embeddings
+T133	METHOD 11966 11987	CRF autoencoder model
+T134	METHOD 11993 12020	multinomial reconstructions
+R35	uses Arg1:T133 Arg2:T134	
+T135	METHOD 12087 12114	andard skip-gram embeddings
+T136	METHOD 12118 12134	SENNA embeddings
+T137	TASK 12184 12219	semi-supervised multi-task learning
+T138	TASK 12247 12258	POS tagging
+T139	DATASET 12279 12297	English PTB corpus
+T140	METRIC 12359 12367	V−measur
+T141	METHOD 12379 12397	standard skip−gram
+T142	METHOD 12398 12418	structured skip−gram
+T143	TASK 12474 12487	POS induction
+T144	METHOD 12540 12543	HMM
+T145	IDK_MAN 12549 12569	Gaussian emis- sions
+R36	idk_man Arg1:T144 Arg2:T145	
+T146	METRIC 12691 12700	V-measure
+T147	METRIC 12978 12995	average V-measure
+T148	IDK_MAN 13065 13105	standard and structured skip-gram models
+R37	addresses Arg1:T2 Arg2:T1	

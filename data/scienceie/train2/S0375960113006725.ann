@@ -1,0 +1,22 @@
+T1	Process 336 348	light lasers
+T2	Process 367 381	optical lasers
+*	Synonym-of T1 T2
+T3	Process 387 399	radio-masers
+T6	Material 547 562	methanol masers
+T7	Material 564 569	CH3OH
+*	Synonym-of T7 T6
+T8	Material 602 627	masers hydroxyl molecules
+T9	Material 629 631	OH
+*	Synonym-of T9 T8
+T11	Material 401 427	Cosmic maser radio sources
+T4	Material 667 681	maser clusters
+T5	Material 711 723	neutron star
+T10	Process 767 797	radiation dilution coefficient
+T12	Process 0 12	Observations
+T13	Material 132 140	OH lines
+T14	Material 164 167	H2O
+T15	Material 906 919	hydrogen line
+T16	Process 199 217	emission mechanism
+R1	Hyponym-of Arg1:T1 Arg2:T16	
+R2	Hyponym-of Arg1:T2 Arg2:T16	
+R3	Hyponym-of Arg1:T3 Arg2:T16	

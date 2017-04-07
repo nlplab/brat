@@ -1,0 +1,32 @@
+T2	Material 0 16	Zirconium alloys
+T3	Material 29 37	cladding
+R1	Hyponym-of Arg1:T2 Arg2:T3	
+T4	Process 231 276	microstructure and electro-chemical processes
+T8	Material 658 676	corrosion kinetics
+T10	Material 722 743	link up of nano pores
+T11	Process 850 879	Synchrotron X-Ray Diffraction
+T12	Process 881 886	S-XRD
+*	Synonym-of T11 T12
+T13	Material 977 987	Zircaloy-4
+T14	Material 960 966	oxides
+T15	Material 1004 1047	monoclinic and stabilised tetragonal phases
+R4	Hyponym-of Arg1:T14 Arg2:T15	
+T16	Material 1057 1094	∼7% reduction in the tetragonal phase
+R5	Hyponym-of Arg1:T15 Arg2:T16	
+T18	Material 53 65	fuel pellets
+T19	Material 93 115	water nuclear reactors
+T20	Process 131 140	oxidation
+T21	Task 131 156	oxidation of these alloys
+T22	Material 150 156	alloys
+T23	Process 284 293	oxidation
+T24	Material 409 430	metal-oxide interface
+T25	Process 488 497	oxidation
+T26	Material 750 755	grain
+T27	Material 788 809	metal/oxide interface
+T28	Material 1227 1248	metal-oxide interface
+T1	Process 1197 1213	tetragonal phase
+T5	Process 1254 1274	phase transformation
+T6	Process 1336 1344	fracture
+T7	Material 1366 1387	metal-oxide interface
+T9	Material 1432 1457	oxygen containing species
+T17	Process 1413 1420	ingress

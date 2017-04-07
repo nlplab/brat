@@ -1,0 +1,15 @@
+T1	Task 14 93	investigate the BFKL and DGLAP equations in the case of supersymmetric theories
+T2	Task 132 205	high symmetry may significantly simplify the structure of these equations
+T3	Process 235 268	leading logarithmic approximation
+T4	Process 270 273	LLA
+*	Synonym-of T3 T4
+T5	Process 372 492	anomalous dimensions obtained from universal anomalous dimensions γuni(j) by shifting its arguments by an integer number
+T6	Process 562 601	fixed by the superconformal invariance 
+T7	Task 507 557	anomalous dimension matrices for twist-2 operators
+T8	Process 607 702	Calculations in the maximally extended N=4 SYM, where the coupling constant is not renormalized
+T9	Task 775 792	twist-2 operators
+T10	Task 828 854	anomalous dimension matrix
+T11	Process 882 908	super-conformal invariance
+T12	Task 1310 1317	N=4 SYM
+T13	Task 1389 1437	Evolution equations for quasi-partonic operators
+T14	Task 1008 1108	evolution equations for the matrix elements of quasi-partonic operators in the multicolor limit Nc→∞

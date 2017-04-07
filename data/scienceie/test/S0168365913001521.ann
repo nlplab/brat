@@ -1,0 +1,34 @@
+T1	Material 4 21	mesoporous silica
+T2	Material 180 203	tetraethylorthosilicate
+T3	Material 205 209	TEOS
+*	Synonym-of T2 T3
+T4	Material 154 178	soluble silica precursor
+R1	Hyponym-of Arg1:T2 Arg2:T4	
+T5	Material 316 346	cetyltrimethylammonium bromide
+T6	Material 348 352	CTAB
+T7	Material 304 314	surfactant
+*	Synonym-of T5 T6
+R2	Hyponym-of Arg1:T5 Arg2:T7	
+T8	Material 547 586	mesoporous structure-directing template
+T9	Material 687 700	atomizing gas
+T10	Process 732 740	atomizer
+T11	Process 823 835	tube furnace
+T12	Material 870 894	durapore membrane filter
+T13	Process 1009 1020	calcination
+T14	Material 1041 1063	mesoporous silica core
+T15	Material 1130 1156	aminopropyltriethoxysilane
+T16	Material 1158 1163	APTES
+*	Synonym-of T15 T16
+T17	Material 1416 1426	protocells
+T18	Material 1465 1474	liposomes
+T19	Process 53 77	surfactant self-assembly
+T20	Material 126 146	homogeneous solution
+T21	Material 252 269	hydrochloric acid
+T22	Material 283 290	ethanol
+T23	Material 295 301	water.
+T24	Material 588 605	Aerosol solutions
+T25	Material 609 623	soluble silica
+T26	Material 629 639	surfactant
+T27	Process 665 673	nitrogen
+T28	Material 785 801	aerosol droplets
+T29	Material 966 976	surfactant

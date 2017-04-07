@@ -1,0 +1,42 @@
+T1	DATASET 7 18	WikiReading
+T2	TASK 40 62	Language Understanding
+T3	DATASET 105 116	WIKIREADING
+T4	TASK 140 162	language understanding
+T5	TASK 241 367	predict textual values from the structured knowledge base Wikidata by reading the text of the corresponding Wikipedia articles
+R1	is_subclass_of Arg1:T5 Arg2:T4	
+T6	METHOD 510 530	deep neural networks
+T7	METHOD 532 536	DNNs
+T8	TASK 603 626	document classification
+T9	TASK 629 651	information extraction
+T10	TASK 657 675	question answering
+T11	METHOD 809 846	word-level sequence to sequence model
+T12	METRIC 908 916	accuracy
+T13	METHOD 1040 1059	deep neural network
+T14	METHOD 1061 1064	DNN
+T15	TASK 1098 1117	text classification
+T16	TASK 1140 1159	relation extraction
+T17	TASK 1193 1211	question answering
+T18	METHOD 1523 1527	DNNs
+T19	TASK 1821 1840	text classification
+T20	TASK 1845 1867	information extraction
+T21	DATASET 1961 1972	WIKIREADING
+T22	TASK 1980 2040	predict textual values from the open knowledge base Wikidata
+T23	DATASET 2436 2447	WIKIREADING
+T24	TASK 2564 2582	question answering
+T25	DATASET 2597 2603	WIKIQA
+T26	TASK 2765 2802	predicting entities in news summaries
+T27	DATASET 2864 2876	NEWS dataset
+T28	DATASET 2900 2904	bAbI
+T29	DATASET 3027 3033	WIKIQA
+T30	DATASET 3038 3042	NEWS
+T31	DATASET 3189 3200	WIKIREADING
+T32	TASK 3326 3328	QA
+T33	TASK 3332 3351	text classification
+R2	addresses Arg1:T21 Arg2:T22	
+T34	TASK 2761 2763	QA
+R3	is_subclass_of Arg1:T26 Arg2:T34	
+R4	addresses Arg1:T27 Arg2:T26	
+R5	addresses Arg1:T31 Arg2:T32	
+R6	addresses Arg1:T31 Arg2:T33	
+R7	addresses Arg1:T1 Arg2:T2	
+R8	addresses Arg1:T3 Arg2:T4	

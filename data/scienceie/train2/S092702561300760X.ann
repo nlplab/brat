@@ -1,0 +1,33 @@
+T1	Process 33 54	thermal spray process
+T2	Material 33 46	thermal spray
+T3	Task 56 65	modelling
+T4	Task 97 158	providing some key insights for process design and operations
+R1	Hyponym-of Arg1:T3 Arg2:T4	
+T5	Process 251 258	coating
+T6	Process 184 194	processing
+T7	Task 331 351	experimental studies
+T8	Process 399 419	atomic level changes
+T9	Process 495 508	MD simulation
+T10	Material 495 497	MD
+T11	Process 619 631	spray system
+T12	Material 635 657	copper–copper particle
+T13	Process 708 753	particle recrystallization and solidification
+T14	Material 708 716	particle
+T15	Process 759 770	deformation
+T16	Material 813 822	particles
+T17	Process 991 1019	consecutive layer deposition
+T18	Material 1023 1032	particles
+T19	Material 1086 1094	particle
+T20	Task 1061 1102	understanding individual particle impacts
+T21	Process 1108 1146	particle–surface interaction mechanism
+T22	Process 1167 1182	Reynolds number
+T23	Material 1108 1116	particle
+T24	Material 1117 1124	surface
+T25	Process 1227 1234	coating
+T26	Process 1259 1272	shock heating
+T27	Material 1297 1319	engineering components
+T28	Process 1324 1341	thermally sprayed
+T29	Process 1379 1386	cooling
+T30	Task 1426 1501	developing richer theoretical models for single or multiple particle impact
+T31	Task 1529 1543	spraying tests
+T32	Material 1486 1494	particle

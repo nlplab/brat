@@ -1,0 +1,18 @@
+T1	Process 0 22	MWSN routing protocols
+T2	Process 58 61	WSN
+T3	Process 66 87	mobile ad hoc network
+T4	Process 89 94	MANET
+*	Synonym-of T3 T4
+T5	Process 96 113	routing protocols
+T6	Process 186 190	WSNs
+T7	Process 219 224	MWSNs
+T8	Material 268 275	sensors
+T9	Process 247 257	route data
+T10	Process 303 307	WSNs
+T11	Process 452 467	MANET protocols
+T12	Process 665 670	MWSNs
+T13	Process 856 860	MWSN
+T14	Process 1207 1212	MWSNs
+T15	Process 1058 1062	MWSN
+T16	Task 1045 1062	routing in a MWSN
+T17	Process 1358 1370	MWSN routing

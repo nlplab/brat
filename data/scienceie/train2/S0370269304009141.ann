@@ -1,0 +1,27 @@
+T1	Task 0 52	Longitudinal beam and target single-spin asymmetries
+T2	Process 139 183	HERMES and CLAS experimental Collaborations 
+T3	Process 285 314	T-odd fragmentation functions
+T5	Process 404 464	receive contributions also from T-odd distribution functions
+T6	Process 804 826	quark mass corrections
+T7	Task 527 600	exhaustive treatment of the contributions of T-odd distribution functions
+T8	Process 662 701	subleading order in an expansion in 1/Q
+T9	Task 869 927	describe the longitudinal beam and target spin asymmetries
+T11	Process 1143 1156	factorization
+T13	Process 1266 1322	subleading-twist transverse-momentum dependent functions
+T15	Task 1338 1371	proofs for the leading-twist case
+T16	Process 342 358	Collins function
+R1	Hyponym-of Arg1:T16 Arg2:T3	
+T4	Process 436 464	T-odd distribution functions
+T17	Process 572 600	T-odd distribution functions
+T18	Material 734 749	incident photon
+T19	Material 804 809	quark
+T20	Process 981 999	twist distribution
+T21	Process 1004 1027	fragmentation functions
+T10	Process 1046 1075	single-particle inclusive DIS
+T22	Process 1077 1087	e+p→e′+h+X
+*	Synonym-of T10 T22
+T23	Process 1093 1117	single-jet inclusive DIS
+T24	Process 1119 1131	e+p→e′+jet+X
+*	Synonym-of T23 T24
+T12	Process 1219 1232	factorization
+T14	Task 1219 1322	factorization proof for observables containing subleading-twist transverse-momentum dependent functions

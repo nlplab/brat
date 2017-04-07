@@ -1,0 +1,87 @@
+Title: Accurate Unlexicalized Parsing
+
+Abstract: We demonstrate that an unlexicalized PCFG can parse much more accurately than previously shown, by making use of simple, linguistically motivated state splits, which break down false independence assumptions latent in a vanilla treebank grammar. Indeed, its performance of 86.36% (LP/LR F 1) is better than that of early lexicalized PCFG models, and surprisingly close to the current state-of-the-art. This result has potential uses beyond establishing a strong lower bound on the maximum possible accuracy of unlexicalized models: an unlexical-ized PCFG is much more compact, easier to repli-cate, and easier to interpret than more complex lexical models, and the parsing algorithms are simpler, more widely understood, of lower asymptotic complexity , and easier to optimize. In the early 1990s, as probabilistic methods swept NLP, parsing work revived the investigation of prob-abilistic context-free grammars (PCFGs) (Booth and Thomson, 1973; Baker, 1979). However, early results on the utility of PCFGs for parse disambigua-tion and language modeling were somewhat disappointing. A conviction arose that lexicalized PCFGs (where head words annotate phrasal nodes) were the key tool for high performance PCFG parsing. This approach was congruent with the great success of word n-gram models in speech recognition, and drew strength from a broader interest in lexicalized grammars, as well as demonstrations that lexical dependencies were a key tool for resolving ambiguities such as PP attachments (Ford et al., 1982; Hindle and Rooth, 1993). In the following decade, great success in terms of parse disambiguation and even language modeling was achieved by various lexicalized PCFG However, several results have brought into question how large a role lexicalization plays in such parsers. Johnson (1998) showed that the performance of an unlexicalized PCFG over the Penn tree-bank could be improved enormously simply by annotating each node by its parent category. The Penn treebank covering PCFG is a poor tool for parsing because the context-freedom assumptions it embodies are far too strong, and weakening them in this way makes the model much better. More recently, Gildea (2001) discusses how taking the bilexical probabilities out of a good current lexicalized PCFG parser hurts performance hardly at all: by at most 0.5% for test text from the same domain as the training data, and not at all for test text from a different domain. 1 But it is precisely these bilexical dependencies that backed the intuition that lexicalized PCFGs should be very successful, for example in Hindle and Rooth's demonstration …
+
+Content: Daniel Gildea's Experiment (EMNLP '01)
+
+Collins's Model 1: P (w i , T i , t i |T p , T h , w h , t h , ∆) = P (w i |T i , t i , T p , T h , w h , t h , ∆) ×P (T i , t i |T p , T h , w h , t h , ∆) TOP | S(bought,VBD) NP(week,NN) JJ(Last,JJ) NN(week,NN) | | Last week NP(IBM,NNP) | NNP(IBM,NNP) | IBM VP(bought,VBD) VBD(bought, VBD) NP(Lotus,NNP) | | bought NNP(Lotus,NNP) | Lotus
+
+Daniel Gildea's Experiment (cont'd)
+
+P (w i |T i , t i , T p , T h , w h , t h , ∆) ≈ λ 1 ¯ P (w i |T i , t i , T p , T h , w h , t h , ∆) + (1 − λ 1 ) λ 2 ¯ P (w i |T i , t i , T p , T h , t h , ∆) + (1 − λ 2 ) ¯ P (w i |t i )
+
+Daniel Gildea's Experiment (cont'd)
+
+P (w i |T i , t i , T p , T h , w h , t h , ∆) ≈ λ 1 ¯ P (w i |T i , t i , T p , T h , w h , t h , ∆) + (1 − λ 1 ) λ 2 ¯ P (w i |T i , t i , T p , T h , t h , ∆) + (1 − λ 2 ) ¯ P (w i |t i ) w/ bigrams w/o bigrams
+
+training set test set recall prec. recall prec
+
+. WSJ WJS 86.1 86.6 85.6 86.2 WSJ Brown 80.3 81.0 80.3 81.0 Brown Brown 83.6 84.6 83.5 84.4 WSJ+Brown Brown 83.9 84.8 83.4 84.3 WSJ+Brown WSJ 86.3 86.9 85.7 86.
+
+4
+
+WSJ: ∼40k sentences/950k words; Brown: ∼ 22k sentences/413k words
+
+What the Paper is About ... How far can we get without lexicalization?
+
+Why bother? improved baseline for unlexicalized probabilistic parsing insights smaller grammars that are easier to reason about faster parsing O(n 3 ) with lower grammar constant
+
+What's Wrong with Naïve PCFGs?
+
+Category symbols are too coarse; the probability distribution within the categories is not accounted for well. Example: A subject-NP is 8.7 times more likely than an object-NP to expand just as a pronoun. Training data is too sparse for accurate occurrence counts of rare rules. probability of seen rare events is overestimated probability of unseen rare events is underestimated
+
+Klein & Manning's Approach
+
+Vertical and horizontal " Markovization " of probabilistic estimates. Additional annotation of tags with information available from the trees. Linguistically (and empirically) motivated splitting of POS-level categories into subcategories. Selective splitting of categories based on information obtainable from the trees in the treebank. Expressly no smoothing except for POS tagging.
+
+Markovization
+
+Except for the root node, every node in a parse tree has a vertical history/context (parent, grandparent, etc.) a horizontal history/context S NP VP VBD NP NP Traditional PCFGs use the full horizontal context and a vertical context of 1.
+
+Horizontal Markovization
+
+Also used by Collins (1997,1999). Always takes the head into account (not by definition, but as used by Collins and K&M). Markov assumption: P (L i |P, H, L 1 , . . . , L i−n+1 , . . . , L i−1 ) = P (L i |P, H, L i−n+1 , . . . , L i−1 ) P (R i |P, H, R 1 , . . . , R i−n+1 , . . . , R i−1 ) = P (R i |P, H, R i−n+1 , . . . , R i−1 ) Amounts to tree binarization: VP → VBZ NP PP PP ⇒ VP:[VBZ] → VBZ VP:[VBZ] . . . NP → VP:[VBZ] NP VP:[VBZ] . . . PP → VP:[VBZ] . . . NP PP VP <VP:[VBZ]. . . PP> <VP:[VBZ]. . . NP> <VP:[VBZ] > VBZ NP PP Figure 1: The v=1, h=1 markovization of VP
+
+Vertical and Horizontal Mark
+
+The traditional starting point for unlex On a marginal note: K&M treat POS tags as terminals and discuss parent-annotation of POS-tags separately. Figure 2: Markovizations: F 1 and grammar size. child always matters). It is a historical accident that Figure from Klein & Manning (2003)
+
+Markup of Unary NodesˆU (external unary)
+
+" I am the only child. " -U (internal unary) " I have only one child. " Roughly the same performance in isolation; in combination with other features " internal unary " is better. On the preterminal level (POS → word), external unary mark-up helps with demonstratives (that, this) vs. articles (a, the) — both labeled as DT in Penn TreeBank adverbs (e.g., also vs. as well). " Beyond these cases, unary tag marking was detrimental. "
+
+Benefits of Unary Markup: Example
+
+div. F 1 – .55 .17 .43 .52 .12 .57 .12 .15 .07 .17 .28 .36 .73 .42 .94 ROOT SˆROOT NPˆS NN Revenue VPˆS VBD was NPˆVP QP $ $ CD 444.9 CD million , , SˆVP VPˆS VBG including NPˆVP NPˆNP JJ net NN interest , , CONJP RB down RB slightly IN from NPˆNP QP $ $ CD 450.7 CD million . . Figure 4: An error which can be resolved with the UNARY- INTERNAL annotation (incorrect baseline parse shown). grammar. Although it does not necessarily jump out of the grid at first glance, this point represents the Figure from Klein & Manning (2003)
+
+Tag Splitting
+
+Parent annotation also for preterminal tags. Splitting of IN tags into 6 linguistically motivated groups (prepositions vs. conjunctions vs. complementizers; noun-modifying vs. primarily verb-modifying prepositions (of vs. as)). Distinction between auxiliaries have and be. Special conjunction class containing but/But and &. % gets its own tag.
+
+Benefits of TAG-PA/SPLIT-IN
+
+de ted he nd the P- des to e), of Y- 9 VPˆS TO to VPˆVP VB see PPˆVP IN if NPˆPP NN advertising NNS works VPˆS TOˆVP to VPˆVP VBˆVP see SBARˆVP INˆSBAR if SˆSBAR NPˆS NNˆNP advertising VPˆS VBZˆVP works (a) (b) Figure 5: An error resolved with the TAG-PA annotation (of the IN tag): (a) the incorrect baseline parse and (b) the correct TAG- PA parse. SPLIT-IN also resolves this error.
+
+Annotations already in the treebank
+
+generally hurt, with two exceptions mark-up of temporal NPs (NP-TMP) mark-up of sentences with a gap (GAPPED-S) b]ut or &, istributions ve the perdollar sign e three
+
+mar?
+
+ly what we extent that ries, many word. One VPˆS TO to VPˆVP VB appear NPˆVP NPˆNP CD three NNS times PPˆNP IN on NPˆPP NNP CNN JJ last NN night VPˆS TO to VPˆVP VB appear NPˆVP NPˆNP CD three NNS times PPˆNP IN on NPˆPP NNP CNN NP-TMPˆVP JJ last NNˆTMP night (a) (b) Figure 6: An error resolved with the TMP-NP annotation: (a) the incorrect baseline parse and (b) the correct TMP-NP parse. tively means that the subcategories that we break off Figure from Klein & Manning (2003)
+
+Head Annotation
+
+propagates information from the head to the parent 2 mark-ups found particularly useful: Mark-up of possessive NPs (POSS-NP). Distinction between finite and non-finite VPs (SPLIT-VP).
+
+Tackling Attachment Ambiguities
+
+Three features found useful: mark-up of plain base NPs (NP → NN) mark-up of nodes that dominate a verb mark-up of NPs that contain another NP in their right periphery Figure 3: Size and devset performance of the cumulatively annotated models, starting with the markovized baseline. The right two columns show the change in F 1 from the baseline for each annotation introduced, both cumulatively and for each NPˆS NN Revenue VBD was N $ $ C 44 Figure 4: An INTERNAL ann grammar. A of the grid a best compro useful marko
+
+Extern
+
+Figure from Klein & Manning (2003) Conclusions K&M significantly raise the baseline on unlexicalized parsing. Their work shows that one can recover from over-generalizations in the treebank . .. .. . and that it's worth the effort. Better modeling is based on linguistic analysis. Raises some interesting questions . . .
+
+Questions
+
+What do the learning curves for unlexicalized vs. lexicalized parsing look like? How do the different parsers perform on out-of-domain data? What are the confidence intervals for the results? What dow the parsers still struggle with? (According to Collins (2003) , coordination structures are a big problem.)

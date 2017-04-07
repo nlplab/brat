@@ -1,0 +1,47 @@
+T1	Material 744 786	structure and composition of the particles
+T2	Material 29 58	oxide dispersion strengthened
+T3	Material 60 63	ODS
+T4	Material 96 110	nanostructured
+T5	Material 65 80	ferritic alloys
+T6	Material 111 126	ferritic alloys
+T7	Material 141 203	dispersion of ultra-fine oxide particles throughout the matrix
+*	Synonym-of T2 T3 T4
+*	Synonym-of T5 T6
+R1	Hyponym-of Arg1:T4 Arg2:T7	
+T8	Material 428 443	oxide particles
+T9	Material 211 226	oxide particles
+T10	Material 685 700	oxide particles
+T11	Material 864 874	ODS steels
+T12	Material 891 906	9 and 14at.% Cr
+R2	Hyponym-of Arg1:T12 Arg2:T11	
+T13	Material 956 957	W
+R3	Hyponym-of Arg1:T13 Arg2:T11	
+T14	Material 988 992	Y2O3
+R4	Hyponym-of Arg1:T14 Arg2:T11	
+T15	Material 1149 1151	Ti
+R5	Hyponym-of Arg1:T15 Arg2:T11	
+T16	Material 1210 1217	balance
+R6	Hyponym-of Arg1:T16 Arg2:T11	
+T17	Material 1235 1252	Fe and impurities
+*	Synonym-of T17 T16
+T18	Task 236 283	improve the mechanical properties of the system
+T19	Material 4 19	class of steels
+R7	Hyponym-of Arg1:T2 Arg2:T19	
+T20	Material 1313 1318	14YWT
+T21	Material 1281 1287	steels
+R8	Hyponym-of Arg1:T21 Arg2:T20	
+T22	Material 1010 1024	solid solution
+R9	Hyponym-of Arg1:T22 Arg2:T11	
+T23	Material 642 656	non-ODS steels
+T24	Material 580 601	nano-scale He bubbles
+T25	Task 504 531	improve radiation tolerance
+T26	Process 512 521	radiation
+T27	Process 827 838	irradiation
+T28	Material 1189 1204	oxide particles
+T29	Material 1335 1355	constituent elements
+T30	Process 1045 1064	mechanical alloying
+T31	Process 1090 1103	consolidation
+T32	Material 1131 1143	precipitates
+T33	Task 612 629	reducing swelling
+T34	Process 621 629	swelling
+T35	Process 911 920	oxidation

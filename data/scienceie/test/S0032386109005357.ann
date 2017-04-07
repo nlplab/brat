@@ -1,0 +1,38 @@
+T1	Material 57 66	polyester
+T2	Process 96 112	polycondensation
+T3	Material 133 150	dimethyl malonate
+T4	Material 155 169	1,4-butanediol
+T5	Material 245 258	l-lactic acid
+T6	Material 349 367	polyester oligomer
+T7	Material 429 442	PLCA oligomer
+T8	Material 460 479	dihydroxylated PLLA
+T9	Material 510 540	PLCA–PLLA multiblock copolymer
+T10	Material 572 579	lipases
+T11	Process 611 638	ring-opening polymerization
+T12	Process 640 643	ROP
+*	Synonym-of T11 T12
+T13	Material 648 669	cyclic ester monomers
+T14	Process 741 757	polycondensation
+T15	Process 815 831	enzyme-catalyzed
+T16	Material 918 945	hydroxyl-bearing polyesters
+T17	Process 975 991	copolymerization
+T18	Material 995 1010	divinyl adipate
+T19	Process 1108 1125	copolymerizations
+T20	Material 1129 1143	1,8-octanediol
+T21	Material 1211 1226	α-hydroxy acids
+T22	Process 1301 1317	polycondensation
+T23	Material 1373 1397	Biodegradable polyesters
+T24	Material 297 335	poly[(l-lactic acid)-co-(citric acid)]
+T25	Material 727 737	polyesters
+T26	Material 1173 1181	alditols
+T27	Material 1344 1352	monomers
+T28	Material 1024 1030	triols
+T29	Material 1240 1251	amino acids
+T30	Process 225 241	polycondensation
+T31	Material 263 274	citric acid
+T32	Material 1037 1045	glycerol
+T33	Material 1047 1064	1,2,4-butanetriol
+R1	Hyponym-of Arg1:T32 Arg2:T28	
+R2	Hyponym-of Arg1:T33 Arg2:T28	
+T34	Material 1149 1160	adipic acid
+T35	Material 1286 1297	lactic acid

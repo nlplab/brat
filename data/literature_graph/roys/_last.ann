@@ -1,0 +1,19 @@
+T1	IDK_MAN 0 15	Word embeddings
+T2	METHOD 196 206	techniques
+T3	TASK 212 230	earning embeddings
+R1	addresses Arg1:T2 Arg2:T3	
+T4	METHOD 257 277	matrix factorization
+T5	METHOD 330 354	neural language modeling
+R2	is_subclass_of Arg1:T4 Arg2:T2	
+R3	is_subclass_of Arg1:T5 Arg2:T2	
+T6	TASK 415 433	POS induction task
+T7	IDK_MAN 456 466	embeddings
+T8	METHOD 634 654	Skip-gram embeddings
+T9	METHOD 693 711	log bilinear model
+R4	uses Arg1:T8 Arg2:T9	
+T10	METHOD 950 981	Structured skip-gram embeddings
+T11	METHOD 1022 1042	skip-gram embeddings
+R5	is_subclass_of Arg1:T10 Arg2:T11	
+T12	SOFTWARE 1157 1165	word2vec
+T13	SOFTWARE 1172 1209	Ling et al. (2015)'s modified version
+T14	IDK_MAN 1250 1270	skip-gram embeddings

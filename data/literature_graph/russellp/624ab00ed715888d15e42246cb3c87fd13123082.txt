@@ -1,0 +1,35 @@
+Title: Piccolo: Building Fast, Distributed Programs with Partitioned Tables
+
+Abstract: Many applications can see massive speedups by distributing their computation across multiple machines. However, as the number of machines increases, so does the difficulty of writing efficient programs-users must tackle the problem of minimizing communication and synchronization performed between hosts while also taking care to be robust against machine failures. This paper presents Piccolo, a data-centric programming model in which users organize computation into a set of application kernels that share mutable distributed in-memory state using a partitioned key-value table interface. Piccolo eliminates fine-grained application-level synchronization using user-defined accumulation functions to combine concurrent updates on the same table entry. By allowing programmers to specify simple locality policies, Piccolo's run-time can execute a kernel where its needed data is stored, resulting in excellent parallel performance. Using Piccolo, we have implemented applications for several problem domains, including the PageRank algorithm , k-means clustering, n-body simulation, matrix multiplication, and a distributed crawler. Experiments using 100 EC2 instances and our own 12 machine cluster show Piccolo to be significantly faster then existing data flow models for many problems, while providing similar fault-tolerance guarantees and a convenient programming interface.
+
+Content: 2 3 Distributed Storage
+
+Graph stream Rank stream A->B,C, B->D A:0.1, B:0.2
+
+Rank stream
+
+A:0.1, B:0.2  Data flow models do not expose global state. PageRank in MapReduce 1 2 3 Distributed Storage
+
+Graph stream Rank stream
+
+A->B,C, B->D A:0.1, B:0.2
+
+Rank stream
+
+A:0.1, B:0.2  Data flow models do not expose global state. PageRank With MPI/RPC 1 2 3 Distributed Storage Graph A->B,C … Ranks A: 0 … Graph B->D … Ranks B: 0 … Graph C->E,F … Ranks C: 0 … User explicitly programs communication Piccolo's Goal: Distributed Shared State 1 2 3
+
+Distributed Storage
+
+Graph A->B,C B->D … Ranks A: 0 B: 0 … read/write Distributed inmemory state Piccolo's Goal: Distributed Shared State 1 2 3 Graph A->B,C … Ranks A: 0 … Graph B->D … Ranks B: 0 … Graph C->E,F … Ranks C: 0 … Piccolo runtime handles communication Ease of use Performance Talk outline  Motivation  Piccolo's Programming Model  Runtime Scheduling  Evaluation Programming Model 1 2 3 Graph AB,C BD … Ranks A: 0 B: 0 … read/write x get/put update/iterate Implemented as library for C++ and Python def main(): for i in range(50): launch_jobs(NUM_MACHINES, pr_kernel, graph, curr, next) swap(curr, next) next.clear() def pr_kernel(graph, curr, next): i = my_instance n = len(graph)/NUM_MACHINES for s in graph[(i-1)*n:i*n] for t in s.out: next[t] += curr[s.id] / len(s.out) Controller launches jobs in parallel Naïve PageRank is Slow 1 2 3 Graph A->B,C … Ranks A: 0 … Graph B->D … Ranks B: 0 … Graph C->E,F … Ranks C: 0 … get put put put get get PageRank: Exploiting Locality Control table partitioning Co-locate tables Co-locate execution with table curr = Table(…,partitions=100,partition_by=site) next = Table(…,partitions=100,partition_by=site) group_tables(curr,next,graph) def pr_kernel(graph, curr, next): for s in graph.get_iterator(my_instance) for t in s.out: next[t] += curr[s.id] / len(s.out) def main(): for i in range(50): launch_jobs(curr.num_partitions, pr_kernel, graph, curr, next, locality=curr) swap(curr, next) next.clear() Exploiting Locality 1 2 3 Graph A->B,C … Ranks A: 0 … Graph B->D … Ranks B: 0 … Graph C->E,F … Ranks C: 0 … get put put put get get Exploiting Locality 1 2 3 Graph A->B,C … Ranks A: 0 … Graph B->D … Ranks B: 0 … Graph C->E,F … Ranks C: 0 … put get put put get get Synchronization 1 2 3 Graph A->B,C … Ranks A: 0 … Graph B->D … Ranks B: 0 … Graph C->E,F … Ranks C: 0 … put (a=0.3) put (a=0.2) How to handle synchronization?
+
+Synchronization Primitives
+
+ Avoid write conflicts with accumulation functions  NewValue = Accum(OldValue, Update)  sum, product, min, max Global barriers are sufficient  Tables provide release consistency PageRank: Efficient Synchronization curr = Table(…,partition_by=site,accumulate=sum) next = Table(…,partition_by=site,accumulate=sum) group_tables(curr,next,graph) def pr_kernel(graph, curr, next): for s in graph.get_iterator(my_instance) for t in s.out: next.update(t, curr.get(s.id)/len(s.out)) def main(): for i in range(50): handle = launch_jobs(curr.num_partitions, pr_kernel, graph, curr, next, locality=curr) barrier(handle) swap(curr, next) next.clear()
+
+Accumulation via sum Update invokes accumulation function
+
+Explicitly wait between iterations Efficient Synchronization 1 2 3 Graph A->B,C … Ranks A: 0 … Graph B->D … Ranks B: 0 … Graph C->E,F … Ranks C: 0 … put (a=0.3) put (a=0.2) update (a, 0.2) update (a, 0.3) Runtime computes sum Workers buffer updates locally  Release consistency Table Consistency 1 2 3 Graph A->B,C … Ranks A: 0 … Graph B->D … Ranks B: 0 … Graph C->E,F … Ranks C: 0 … put (a=0.3) put (a=0.2) update (a, 0.2) update (a, 0.3) Restore previous computation User decides which tables to checkpoint and when Distributed Storage Recovery via Checkpointing 1 2 3 Graph A->B,C … Ranks A: 0 … Graph B->D … Ranks B: 0 … Graph C->E,F … Ranks C: 0 … Runtime uses Chandy-Lamport protocol Serialization 8 16 32 64 Workers 0 50 100 150 200 250 300 350 400 PageRank iteration time (seconds) Hadoop Piccolo
+
+Piccolo Scales Well
+
+ EC2 Cluster -linearly scaled input graph 12 24 48 100 200 Workers 0 10 20 30 40 50 60 70 ideal 1 billion page graph PageRank iteration time (seconds) Distributed shared table model  User-specified policies provide for  Effective use of locality  Efficient synchronization  Robust failure recovery Gratuitous Cat Picture I can haz kwestions? Try it out: piccolo.news.cs.nyu.edu

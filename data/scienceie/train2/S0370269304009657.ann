@@ -1,0 +1,23 @@
+T1	Task 40 83	relativistic calculation of decay constants
+T2	Process 91 126	framework of full Salpeter equation
+T3	Process 137 154	Salpeter equation
+T4	Process 160 181	relativistic equation
+R1	Hyponym-of Arg1:T3 Arg2:T4	
+T5	Process 252 272	quantum field theory
+T6	Task 293 317	describing a bound state
+T7	Process 329 348	relativistic system
+T8	Task 379 427	solved the instantaneous Bethe–Salpeter equation
+T9	Process 455 477	full Salpeter equation
+T10	Process 404 427	Bethe–Salpeter equation
+*	Synonym-of T10 T9
+T11	Task 493 526	solved the full Salpeter equation
+T12	Process 544 589	relativistic wave function of the bound state
+T13	Task 621 657	calculate the average kinetic energy
+T14	Process 715 730	obtained values
+T15	Process 807 847	relativistic corrections are quite large
+T16	Process 894 909	use this method
+T17	Task 913 950	predict the values of decay constants
+T18	Material 665 676	heavy quark
+T19	Material 686 697	heavy meson
+T20	Material 954 966	heavy mesons
+T21	Process 604 617	wave function

@@ -1,0 +1,21 @@
+T1	Process 438 454	powder formation
+T2	Process 458 465	plowing
+T3	Process 480 496	powder formation
+T4	Process 501 508	plowing
+T5	Material 538 561	dimensionless parameter
+T6	Material 563 566	Sc⁎
+R1	Hyponym-of Arg1:T5 Arg2:T6	
+T7	Material 574 592	critical parameter
+T8	Material 594 606	Sc,critical⁎
+R2	Hyponym-of Arg1:T7 Arg2:T8	
+T9	Process 755 771	powder formation
+T10	Process 977 984	plowing
+T11	Material 1043 1058	stainless steel
+T12	Material 1062 1073	Al2O3 balls
+T13	Material 1091 1109	SiC or Si3N4 balls
+T14	Material 1150 1169	SiC and Si3N4 balls
+T15	Material 1275 1289	wear-mode maps
+T16	Material 18 31	wear-mode map
+T17	Process 1338 1354	powder formation
+T18	Process 611 646	Sc⁎=HvRmaxKIc(4)Sc,critical⁎=51+10μ
+T19	Process 662 678	Vickers hardness

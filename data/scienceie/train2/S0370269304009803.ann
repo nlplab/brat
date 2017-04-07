@@ -1,0 +1,31 @@
+T1	Task 14 37	introduce vector mesons
+T2	Process 52 62	Lagrangian
+T3	Process 83 109	low energy current algebra
+T4	Process 150 178	non-linear chiral Lagrangian
+T5	Process 186 207	hidden local symmetry
+T6	Material 256 279	dynamical vector mesons
+T7	Process 297 329	vector-pseudo scalar interaction
+T8	Process 372 373	h
+T9	Process 389 417	vector-pseudoscalar coupling
+*	Synonym-of T8 T9
+T10	Process 346 364	ih4〈Vμ(P∂μP−∂μPP)〉
+*	Synonym-of T10 T7
+T11	Process 432 470	vertices of ρ's to pseudoscalar mesons
+T12	Process 475 505	(12)π+(p1)π−(p2)ρ0:h(p1−p2)μεμ
+T13	Process 506 532	π+(p1)π0(p2)ρ−:h(p1−p2)μεμ
+T14	Process 533 561	K+(p1)K¯0(p2)ρ−:h2(p1−p2)μεμ
+R2	Hyponym-of Arg1:T14 Arg2:T11	
+R3	Hyponym-of Arg1:T13 Arg2:T11	
+R4	Hyponym-of Arg1:T12 Arg2:T11	
+T15	Process 601 614	ρ decay width
+T16	Process 616 638	Γ(ρ)=h2(|pπ|)3/(6πmρ2)
+*	Synonym-of T15 T16
+T17	Process 646 648	pπ
+T18	Process 656 705	momentum of final state pions in the ρ rest frame
+*	Synonym-of T17 T18
+T20	Material 771 822	Kawarabayashi–Suzuki–Riazuddin–Fayyazuddin relation
+T21	Process 923 946	differ by small amounts
+T22	Task 959 1014	strong four-point vertices involving pions are obtained
+T23	Task 1056 1082	weak vertices are obtained
+T25	Material 24 37	vector mesons
+T19	Material 232 245	vector mesons

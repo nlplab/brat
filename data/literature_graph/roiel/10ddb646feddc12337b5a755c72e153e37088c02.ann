@@ -1,0 +1,14 @@
+T2	TASK 216 237	knowledge acquisition
+T3	METHOD 408 439	information gathering mechanism
+T4	METHOD 441 462	the learning protocol
+R1	is_subclass_of Arg1:T4 Arg2:T3	
+T5	METRIC 596 618	algorithmic complexity
+T6	IDK_MAN 491 499	concepts
+#1	AnnotatorNotes T6	Mathematical object
+T7	METHOD 256 276	explicit programming
+R3	addresses Arg1:T7 Arg2:T2	
+T1	METHOD 186 194	learning
+R2	addresses Arg1:T1 Arg2:T2	
+T8	METRIC 557 572	number of steps
+T9	IDK_MAN 665 673	concepts
+T10	METHOD 777 793	learning systems

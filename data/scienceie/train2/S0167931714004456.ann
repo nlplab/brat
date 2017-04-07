@@ -1,0 +1,30 @@
+T1	Material 0 4	PDMS
+T2	Material 6 26	Polydimethylsiloxane
+*	Synonym-of T2 T1
+T3	Process 160 180	replication of molds
+T4	Process 192 209	rapid prototyping
+T5	Task 405 438	fabricate microfluidic structures
+T6	Material 442 446	PDMS
+T7	Process 458 477	wet and dry etching
+T8	Process 487 515	photolithographic patterning
+T9	Process 551 565	laser ablation
+T10	Process 588 617	“soft-lithography” techniques
+T11	Material 690 694	PDMS
+T12	Process 720 744	PDMS-based microfluidics
+T13	Process 764 779	Replica molding
+T14	Process 794 879	casting of prepolymer against a master and generating a replica of the master in PDMS
+*	Synonym-of T13 T14
+T15	Material 1227 1240	SoftLithoBox®
+T16	Task 147 156	fabricate
+T17	Process 994 1021	soft-lithography techniques
+T18	Material 1446 1468	PDMS-based LOC devices
+T19	Process 1416 1441	rapid prototyping service
+T20	Material 88 101	microfluidics
+T21	Material 415 427	microfluidic
+T22	Material 536 540	PDMS
+T23	Material 731 744	microfluidics
+T24	Material 720 724	PDMS
+T25	Process 903 924	fabrication technique
+R1	Hyponym-of Arg1:T14 Arg2:T25	
+T26	Material 805 815	prepolymer
+T27	Material 875 879	PDMS

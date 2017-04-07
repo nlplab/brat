@@ -1,0 +1,10 @@
+T1	Material 4 9	pipes
+T2	Material 32 35	RCS
+T3	Material 52 55	RCS
+T4	Material 76 127	austenitic or austenitic & ferritic stainless steel
+T5	Material 162 167	pipes
+T6	Material 772 776	pipe
+T7	Material 967 972	fluid
+T8	Material 980 985	pipes
+T9	Task 296 311	Event screening
+T10	Material 899 905	alloys

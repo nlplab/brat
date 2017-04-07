@@ -1,0 +1,3 @@
+T1	METHOD 13 32	dynamic programming
+T2	METHOD 57 78	constrained inference
+R1	uses Arg1:T1 Arg2:T2	

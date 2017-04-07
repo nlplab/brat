@@ -1,0 +1,23 @@
+T1	Material 306 322	adsorbed species
+T2	Material 286 301	surface defects
+T3	Process 815 840	density functional theory
+T4	Process 842 845	DFT
+T5	Process 662 679	density of states
+T6	Process 681 684	DOS
+*	Synonym-of T3 T4 T20
+*	Synonym-of T5 T6
+T7	Material 470 482	MIES spectra
+T8	Process 585 604	Auger de-excitation
+T9	Material 614 626	MIES spectra
+T10	Process 762 781	Hartree–Fock method
+T11	Process 37 39	AD
+T12	Process 215 217	AD
+T13	Process 1062 1065	DOS
+T14	Process 1135 1138	DOS
+T15	Material 1354 1358	MIES
+T16	Process 1497 1500	DOS
+T17	Process 1101 1114	AD transition
+T18	Material 703 722	surface oxygen ions
+T19	Process 787 799	crystal code
+*	Synonym-of T10 T19
+T20	Process 859 869	cetep code

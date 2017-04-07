@@ -1,0 +1,15 @@
+T1	Process 8 30	numerical oscillations
+T2	Process 75 79	ISPM
+T3	Process 95 116	classical IBM kernels
+T4	Process 286 308	Lagrangian description
+T5	Material 403 415	oscillations
+T6	Process 443 473	kernel interpolation functions
+T7	Task 531 561	new family of kernel functions
+T8	Task 568 612	do not introduce these spurious oscillations
+T9	Material 600 612	oscillations
+T10	Process 618 634	kernel functions
+T11	Process 777 802	Cartesian staggered grids
+T12	Material 870 882	oscillations
+T13	Material 913 935	Maple computer program
+T14	Task 958 1005	obtain explicit expressions for the new kernels
+T15	Process 994 1005	new kernels

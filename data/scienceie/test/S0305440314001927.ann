@@ -1,0 +1,21 @@
+T2	Material 113 129	2D line drawings
+T3	Material 85 111	ordinary still photographs
+T4	Material 134 159	occasional cross-sections
+T8	Process 673 707	traditional digital photogrammetry
+T9	Process 780 794	laser scanning
+T10	Process 875 882	SfM–MVS
+T11	Task 1145 1170	archaeological landscapes
+T12	Task 1172 1177	sites
+T13	Task 1181 1190	artefacts
+T14	Process 1298 1323	terracotta warrior models
+T15	Process 205 214	3D models
+T16	Process 253 275	digital photogrammetry
+T17	Process 280 294	laser scanners
+T18	Task 331 358	data capture at close range
+T7	Process 435 449	laser scanners
+T19	Process 527 542	SfM–MVS methods
+T20	Material 940 954	digital camera
+T21	Process 966 1033	prior training about the required number and overlap of photographs
+T23	Process 1106 1123	recording process
+T24	Process 728 754	control of camera position
+T1	Task 35 63	recorded sites and artefacts

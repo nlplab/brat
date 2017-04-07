@@ -1,0 +1,31 @@
+T1	Process 20 39	pharmacyte approach
+T2	Material 84 95	ACT T-cells
+T3	Material 136 149	adjuvant drug
+T4	Process 189 200	stimulation
+T5	Process 226 266	expansion of the cell population in vivo
+T6	Material 274 294	cell-bound particles
+T7	Process 317 330	cell division
+T8	Material 317 321	cell
+T9	Material 374 390	supporting drugs
+T10	Material 394 401	T-cells
+T11	Material 407 433	nanoparticle drug carriers
+T12	Material 464 487	transferred lymphocytes
+T13	Material 521 546	supporting adjuvant drugs
+T14	Task 655 689	elimination of large tumor burdens
+T15	Process 696 740	“re-arming” of T-cells with supporting drugs
+T16	Material 711 718	T-cells
+T17	Material 724 740	supporting drugs
+T18	Material 789 807	targeted particles
+T19	Process 771 807	administration of targeted particles
+T20	Material 818 848	adoptively-transferred T-cells
+T21	Material 918 949	internalizing targeting ligands
+T22	Material 1012 1032	nanoparticle carrier
+T23	Material 1100 1113	nanoparticles
+T24	Material 1117 1124	T-cells
+T25	Material 1195 1202	T-cells
+T26	Material 1207 1226	peptide-MHC ligands
+T27	Material 1249 1265	T-cell receptors
+T28	Material 1276 1316	peptide-MHC-functionalized nanoparticles
+T29	Material 1388 1395	T-cells
+T30	Task 1425 1465	treating graft rejection or autoimmunity
+T31	Task 1500 1520	cancer immunotherapy

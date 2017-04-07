@@ -1,0 +1,11 @@
+T1	Material 121 129	“bulges”
+T2	Process 312 331	oxide-ion diffusion
+T3	Material 312 317	oxide
+T4	Material 318 321	ion
+T5	Material 478 496	fluorite materials
+T6	Material 606 612	cation
+T7	Material 617 623	anions
+T8	Material 657 663	cation
+T9	Material 664 669	anion
+T10	Material 798 814	present material
+T11	Material 835 852	Ta and Re cations

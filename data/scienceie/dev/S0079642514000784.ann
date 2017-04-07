@@ -1,0 +1,51 @@
+T1	Process 0 36	Gas sorption, storage and separation
+T2	Material 40 56	carbon materials
+T3	Process 77 90	physisorption
+T4	Process 138 191	electrostatic and dispersion (i.e., vdW) interactions
+T5	Material 433 451	adsorbate molecule
+T6	Material 508 526	adsorbate molecule
+T7	Material 702 726	gas or vapour adsorbates
+T8	Material 783 785	H2
+T9	Material 787 789	N2
+T10	Material 791 793	CO
+T11	Material 795 798	CO2
+T12	Material 800 803	CH4
+T13	Material 805 808	NH3
+T14	Material 810 813	SO2
+T15	Material 818 821	H2S
+R1	Hyponym-of Arg1:T8 Arg2:T7	
+R2	Hyponym-of Arg1:T9 Arg2:T7	
+R3	Hyponym-of Arg1:T10 Arg2:T7	
+R4	Hyponym-of Arg1:T11 Arg2:T7	
+R5	Hyponym-of Arg1:T12 Arg2:T7	
+R6	Hyponym-of Arg1:T13 Arg2:T7	
+R7	Hyponym-of Arg1:T14 Arg2:T7	
+R8	Hyponym-of Arg1:T15 Arg2:T7	
+T16	Material 845 854	adsorbent
+T17	Material 929 937	molecule
+T18	Material 980 990	Adsorbents
+T19	Material 1035 1054	adsorbate molecules
+T20	Material 1086 1096	adsorbents
+T21	Material 1170 1212	high quadrupole moment adsorbate molecules
+T22	Material 1314 1316	H2
+T23	Material 1321 1323	N2
+T24	Material 1342 1344	CO
+T25	Material 1346 1349	CH4
+T26	Material 1354 1357	CO2
+T27	Material 1383 1386	H2S
+T28	Material 1388 1391	NH3
+T29	Material 1396 1399	H2O
+T30	Task 1556 1578	enhance gas adsorption
+T31	Process 1407 1428	surface modifications
+T32	Process 1438 1444	doping
+T33	Process 1446 1463	functionalization
+T34	Process 1468 1537	improving the pore structure and specific surface area of nanocarbons
+R9	Hyponym-of Arg1:T32 Arg2:T31	
+R10	Hyponym-of Arg1:T33 Arg2:T31	
+R11	Hyponym-of Arg1:T34 Arg2:T31	
+T35	Material 1526 1537	nanocarbons
+T36	Material 1598 1606	graphene
+T37	Material 1644 1667	carbonaceous adsorbents
+T38	Process 220 265	introducing charge variations in the material
+T39	Process 285 306	chemical substitution
+T40	Material 392 401	adsorbent

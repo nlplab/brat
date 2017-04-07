@@ -1,0 +1,31 @@
+T1	Process 6 28	impedance spectroscopy
+T2	Material 69 106	mixed conducting thin film electrodes
+T3	Process 118 143	oxygen tracer experiments
+T4	Material 167 179	bulk samples
+T5	Process 207 224	IEDP measurements
+T6	Material 228 262	mixed conducting cathode materials
+T7	Material 287 298	oxide films
+T8	Material 318 339	insulating substrates
+T10	Process 569 572	EIS
+T11	Process 577 581	IEDP
+T12	Material 602 618	La0.6Sr0.4CoO3−δ
+T13	Material 620 623	LSC
+*	Synonym-of T12 T13
+T14	Task 680 736	resistive contributions of the oxygen reduction kinetics
+T15	Process 755 778	electrical measurements
+T16	Material 790 810	oxygen ion conductor
+T17	Material 812 838	yttria stabilized zirconia
+T18	Material 840 843	YSZ
+*	Synonym-of T17 T18
+T19	Material 871 880	LSC films
+T21	Task 913 945	Quantitative material parameters
+T22	Process 993 1015	comparison of the data
+T23	Process 1055 1070	analysis models
+T24	Task 1036 1070	appropriateness of analysis models
+T9	Material 480 485	films
+T25	Material 625 634	thin film
+T26	Process 711 736	oxygen reduction kinetics
+T27	Material 745 750	films
+T28	Material 711 717	oxygen
+T29	Task 560 634	applying EIS and IEDP to one and the same La0.6Sr0.4CoO3−δ (LSC) thin film
+T20	Material 900 905	grain

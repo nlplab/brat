@@ -1,0 +1,17 @@
+T1	Task 552 570	‘clean’ separation
+T2	Process 716 728	rolling ball
+T3	Process 730 739	loop tack
+T4	Process 741 752	quick stick
+T5	Process 757 767	probe tack
+T6	Process 768 773	tests
+R1	Hyponym-of Arg1:T5 Arg2:T6	
+R2	Hyponym-of Arg1:T4 Arg2:T6	
+R3	Hyponym-of Arg1:T3 Arg2:T6	
+R4	Hyponym-of Arg1:T2 Arg2:T6	
+T7	Material 659 663	tack
+T8	Material 0 4	Tack
+T9	Material 35 38	PSA
+T10	Material 344 352	adhesive
+T11	Material 261 269	adhesive
+T12	Material 274 283	substrate
+T13	Material 588 603	bonded surfaces

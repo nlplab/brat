@@ -1,0 +1,29 @@
+T1	Task 28 147	investigate the influence of the particle shape on interacting particles flowing in a horizontal turbulent channel flow
+T2	Process 214 236	large eddy simulations
+T3	Process 238 241	LES
+R1	Hyponym-of Arg1:T2 Arg2:T3	
+T4	Material 308 316	particle
+T5	Process 343 369	drag, lift and toque model
+T6	Process 248 281	horizontal turbulent channel flow
+T7	Process 440 463	horizontal channel flow
+T8	Material 522 541	spherical particles
+T9	Process 617 641	phase Doppler anemometry
+T10	Process 643 646	PDA
+*	Synonym-of T9 T10
+T11	Material 664 669	fluid
+T12	Material 674 682	particle
+T13	Process 712 731	numerical framework
+T14	Material 788 807	spherical particles
+T15	Process 881 917	comprehensive discrete element model
+T16	Process 919 922	DEM
+*	Synonym-of T15 T16
+T17	Process 1038 1055	hard-sphere model
+T18	Task 944 1028	determining the behaviour of the particles in this horizontal gas–solid channel flow
+T19	Material 1094 1099	fluid
+T20	Process 1144 1157	LES framework
+T21	Material 1223 1246	non-spherical particles
+T22	Material 153 162	particles
+T23	Material 977 986	particles
+T24	Process 1006 1028	gas–solid channel flow
+T25	Material 1006 1009	gas
+T26	Material 91 100	particles

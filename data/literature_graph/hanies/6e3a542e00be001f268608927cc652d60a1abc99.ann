@@ -1,0 +1,24 @@
+T1	METRIC 823 838	identifiability
+T2	METHOD 980 1020	1-penalized maximum-likelihood estimator
+T3	METRIC 1119 1140	recovers the supports
+T4	METRIC 1415 1433	inference accuracy
+T5	METHOD 1467 1490	oopy belief propagation
+T6	TASK 1516 1537	Covariance estimation
+T7	METRIC 1871 1882	ill-behaved
+T8	TASK 2028 2049	covariance estimation
+T9	TASK 2257 2295	high-dimensional covariance estimation
+T10	METHOD 3045 3089	thresholding of the sample covariance matrix
+T11	METRIC 4561 4581	sufficient condition
+T12	METHOD 6675 6688	Markov model,
+T13	METHOD 5392 5411	independence models
+T14	TASK 6234 6275	High-Dimensional Covariance Decomposition
+T15	METHOD 4121 4146	first-order approximation
+T16	METRIC 6739 6780	guarantees of reaching the global optimum
+T17	METRIC 6782 6801	non-identifiability
+T18	METHOD 4051 4077	graphical or Markov models
+T19	TASK 7249 7306	sparse covariance and sparse inverse covariance estimatio
+T20	METRIC 37456 37476	unique decomposition
+T21	TASK 37616 37653	estimate the sample covariance matrix
+T22	METRIC 46455 46477	incoherence conditions
+T23	METHOD 46028 46040	Markov chain
+T24	TASK 46190 46217	high-dimensional estimation

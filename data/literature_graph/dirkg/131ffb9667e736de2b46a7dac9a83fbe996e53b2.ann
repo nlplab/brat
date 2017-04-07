@@ -1,0 +1,13 @@
+T1	TASK 93 121	constructing the suffix tree
+T2	METHOD 66 75	algorithm
+R1	addresses Arg1:T2 Arg2:T1	
+T3	METRIC 144 148	time
+T4	METHOD 461 473	suffix tries
+T5	IDK_MAN 493 513	quadratic worst-case
+#1	AnnotatorNotes T5	Surely this is an important characteristic of a method?
+T6	METHOD 710 725	suffix automata
+T7	TASK 697 725	constructing suffix automata
+T8	METHOD 621 632	this method
+R2	addresses Arg1:T8 Arg2:T7	
+T9	METHOD 364 374	The method
+T10	METHOD 418 439	very simple algorithm

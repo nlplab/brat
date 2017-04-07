@@ -1,0 +1,34 @@
+T1	Task 46 62	passenger safety
+T2	Process 23 44	structural efficiency
+T3	Process 120 145	transportation industries
+T4	Material 158 184	crashworthiness parameters
+T6	Task 274 295	protect the passenger
+T7	Task 321 347	Crashworthiness parameters
+T8	Process 488 514	tubular composites failure
+T9	Process 551 567	brittle collapse
+T10	Material 597 618	tubular failure modes
+T11	Process 712 731	plastic deformation
+T12	Task 733 770	Implementation of composite materials
+T13	Process 889 907	crushing behaviour
+T15	Material 966 985	composite materials
+T16	Process 1026 1049	fracture surface energy
+T17	Process 1072 1091	plastic deformation
+T18	Process 1188 1219	crashworthiness characteristics
+T19	Process 1270 1294	axial crushing behaviour
+T20	Material 1298 1320	fibre-reinforced tubes
+T21	Material 1326 1342	fibreglass tubes
+T22	Material 1350 1359	PVC tubes
+T23	Material 1368 1412	carbon fibre reinforced plastic (CFRP) tubes
+T25	Material 388 393	metal
+T26	Material 397 419	fibre/resin composites
+T28	Material 585 595	composites
+T29	Process 637 663	micro-cracking development
+T14	Material 911 946	fibre reinforced composite material
+T30	Material 1223 1242	composite materials
+T24	Task 243 269	prevent the massive damage
+T5	Process 665 677	delamination
+T27	Process 679 693	fibre breakage
+T32	Material 1108 1114	metals
+T31	Material 1368 1399	carbon fibre reinforced plastic
+T33	Material 1401 1405	CFRP
+*	Synonym-of T31 T33

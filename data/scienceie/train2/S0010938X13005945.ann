@@ -1,0 +1,17 @@
+T1	Process 4 21	adhesion/cohesion
+T2	Process 58 77	scratch test method
+T3	Task 4 36	adhesion/cohesion of the coating
+T4	Material 87 192	Revetest system (CSM Instruments SA, Switzerland) equipped with a H-270 diamond indentor (200μm diameter)
+T5	Process 198 235	scratch indentations were carried out
+T6	Task 339 391	determination of location of spallation/delamination
+T7	Task 557 601	understand the nature of the coating failure
+T8	Material 633 682	loading force and penetration depth were recorded
+T9	Process 633 762	loading force and penetration depth were recorded and their respective values were correlated with the observed failure locations
+T10	Material 823 847	surface roughness tester
+T11	Task 768 814	surface roughness of the coating was evaluated
+T12	Material 1070 1088	eight measurements
+T13	Process 971 978	coating
+T14	Material 952 963	outer layer
+T15	Process 1037 1039	Ra
+T16	Process 1026 1035	roughness
+*	Synonym-of T15 T16

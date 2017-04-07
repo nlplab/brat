@@ -1,0 +1,19 @@
+T4	Process 598 613	GP measurements
+T5	Process 761 802	Fourier Transform Mechanical Spectroscopy
+T6	Process 804 808	FTMS
+*	Synonym-of T5 T6
+T11	Process 1089 1093	FTMS
+T12	Material 1148 1183	markedly strain sensitive materials
+T13	Material 1193 1204	fibrin gels
+R2	Hyponym-of Arg1:T13 Arg2:T12	
+T1	Process 76 117	measurements of the complex shear modulus
+T2	Task 47 66	detection of the GP
+T3	Process 850 893	application of several harmonic frequencies
+T7	Process 937 953	Fourier analysis
+T8	Process 695 728	small amplitude oscillatory shear
+T9	Process 730 734	SAOS
+T10	Process 736 745	waveforms
+T14	Process 899 917	composite waveform
+T15	Process 1011 1029	gelation processes
+T16	Process 1241 1259	composite waveform
+T17	Process 627 643	frequency sweeps

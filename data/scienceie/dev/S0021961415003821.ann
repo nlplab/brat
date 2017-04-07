@@ -1,0 +1,40 @@
+T1	Task 120 163	development of CG models for long n-alkanes
+T2	Process 271 291	SAFT-γ Mie formalism
+T3	Material 172 180	n-decane
+T4	Material 182 190	n-C10H22
+*	Synonym-of T4 T3
+T5	Material 196 206	n-eicosane
+T6	Material 208 216	n-C20H42
+*	Synonym-of T6 T5
+T7	Material 59 114	homonuclear chains of tangent Mie spherical CG segments
+T8	Material 4 34	homologous series of n-alkanes
+T9	Material 303 320	n-decane molecule
+T10	Material 360 370	n-eicosane
+T12	Process 621 643	alternative CG mapping
+T13	Material 648 657	n-alkanes
+T15	Material 919 926	n-C6H14
+T16	Material 928 935	n-C9H20
+T17	Material 937 945	n-C12H26
+T18	Material 947 955	n-C15H32
+T19	Material 957 965	n-C18H38
+T20	Task 979 1022	description of the thermodynamic properties
+T21	Material 1069 1083	CG alkyl beads
+T22	Process 1105 1125	Mie (15–6) potential
+T23	Process 1553 1573	SAFT-γ Mie procedure
+T28	Process 1462 1486	saturated-liquid density
+T29	Process 1491 1506	vapour pressure
+T11	Material 420 432	Mie segments
+T14	Material 736 763	alkyl carbon backbone atoms
+T30	Material 788 802	hydrogen atoms
+T31	Material 830 846	n-alkanes chains
+T32	Material 877 889	carbon units
+R1	Hyponym-of Arg1:T15 Arg2:T31	
+R2	Hyponym-of Arg1:T16 Arg2:T31	
+R3	Hyponym-of Arg1:T17 Arg2:T31	
+R4	Hyponym-of Arg1:T18 Arg2:T31	
+R5	Hyponym-of Arg1:T19 Arg2:T31	
+T33	Material 1032 1039	alkanes
+T34	Material 1224 1232	CG beads
+T35	Material 1252 1259	alkanes
+T36	Material 1360 1366	carbon
+T24	Material 1525 1532	alkanes

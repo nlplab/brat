@@ -1,0 +1,40 @@
+T1	Process 41 58	observed dynamics
+T2	Process 82 93	probe laser
+T3	Process 129 147	further ionization
+T4	Task 106 115	reactions
+T5	Process 158 178	two-step decay model
+T6	Process 227 255	fragmentation of DCPD to CPD
+T7	Material 296 321	rise and decay components
+T8	Process 353 372	Matlab® programming
+T9	Process 383 426	curve fitting Levenberg–Marquardt algorithm
+T10	Process 432 456	best fit decay constants
+T11	Material 465 495	biexponential decay components
+T12	Material 499 517	C10H12+ ion signal
+T13	Process 521 528	τ1=35fs
+T14	Process 533 541	τ2=240fs
+T15	Material 558 574	C5H6+ ion signal
+T16	Process 578 585	τ1=36fs
+T17	Process 1114 1144	photochemical reaction of DCPD
+T18	Process 1055 1093	controlling the product yield of C5H6+
+T19	Process 957 990	Applying laser control principles
+T20	Task 966 990	laser control principles
+T21	Process 926 950	parent ion fragmentation
+T22	Task 872 905	distinct dynamics of the neutrals
+T23	Task 926 950	parent ion fragmentation
+T24	Material 689 699	norbornene
+T25	Material 704 717	norbornadiene
+T26	Task 620 635	decay constants
+T28	Material 817 827	parent ion
+T29	Material 244 248	DCPD
+T30	Material 252 255	CPD
+R1	Hyponym-of Arg1:T9 Arg2:T8	
+T31	Process 590 598	τ2=280fs
+R2	Hyponym-of Arg1:T13 Arg2:T10	
+R3	Hyponym-of Arg1:T14 Arg2:T10	
+R4	Hyponym-of Arg1:T16 Arg2:T10	
+R5	Hyponym-of Arg1:T31 Arg2:T10	
+T27	Material 329 339	transients
+T32	Material 828 835	C10H12+
+*	Synonym-of T28 T32
+T33	Material 1140 1144	DCPD
+T34	Material 1088 1093	C5H6+

@@ -1,0 +1,30 @@
+T1	Process 45 66	deformation structure
+T3	Task 246 265	singlet deformation
+T4	Process 285 307	deformation parameters
+T5	Task 408 444	N=2 supersymmetric U(1) gauge theory
+T6	Task 512 555	the gauge and supersymmetry transformations
+T7	Process 560 577	correction linear
+T8	Process 644 662	field redefinition
+T9	Task 763 792	N=1/2 super-Yang–Mills theory
+T10	Process 799 817	field redefinition
+T11	Task 861 877	component fields
+T12	Process 917 954	deformed supersymmtery transformation
+T13	Task 963 975	singlet case
+T14	Process 1006 1024	field redefinition
+T15	Process 1137 1156	deformed Lagrangian
+T16	Process 1249 1268	deformed Lagrangian
+T2	Process 107 123	N=1/2 superspace
+T17	Process 163 212	N=1/2 super-Yang–Mills theory with adjoint matter
+T18	Process 353 369	R-symmetry group
+T19	Process 370 376	SU(2)R
+R1	Hyponym-of Arg1:T19 Arg2:T18	
+T20	Process 452 471	harmonic superspace
+T21	Process 323 345	singlet representation
+T22	Process 477 496	singlet deformation
+T23	Process 585 606	deformation parameter
+T24	Process 726 746	gauge transformation
+T25	Process 1061 1115	transform canonically under the deformed supersymmetry
+T26	Process 1093 1115	deformed supersymmetry
+T27	Process 1191 1230	gauge and supersymmetry transformations
+T28	Process 1291 1306	single function
+T29	Process 1313 1341	antiholomorphic scalar field

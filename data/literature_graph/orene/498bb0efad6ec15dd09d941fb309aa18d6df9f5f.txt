@@ -1,0 +1,276 @@
+Title: Open Information Extraction from the Web
+
+Abstract: Targeted IE methods are transforming into open-ended techniques.
+
+Content: 
+
+review articles Doi:10.1145/1409360.1409378 Targeted IE methods are transforming into open-ended techniques. 
+By oRen etzioni, micheLe BanKo, stePhen soDeRLanD, anD DanieL s. WeLD  open information extraction from 
+the Web say you want to select a quiet, centrally located Manhattan hotel. Google returns an overwhelming 
+seven million results in response to the query new york city hotels. or, say you are trying to assemble 
+a program committee for an annual conference composed of researchers who have published at the conference 
+in previous years, and to balance it geographically. While today s Web search engines identify potentially 
+relevant documents, you are forced to sift through a long list of urls, scan each document to identify 
+any pertinent bits of information, and assemble the extracted findings before you can solve your problem. 
+over the coming decade, Web searching will increasingly transcend keyword queries in favor of systems 
+that automate the tedious and error-prone task of sifting through documents. Moreover, we will build 
+systems that fuse relevant pieces of information into a coherent overview, thus reducing from hours to 
+minutes the time required to per­form complex tasks. Information extraction (IE) a venerable technology 
+that maps nat­ural-language text into structured relational data offers a promising avenue toward this 
+goal. Although ex­tracting data from text is inherently challenging, given the ambiguous and idiosyncratic 
+nature of natural language, substantial progress has been made over the last few decades. This article 
+surveys a range of IE methods, but we highlight Open In­formation Extraction,3, 4 wherein the identities 
+of the relations to be ex­tracted are unknown and the billions of documents found on the Web ne­cessitate 
+highly scalable processing. information extraction At the core of an IE system is an ex­tractor, which 
+processes text; it over­looks irrelevant words and phrases and attempts to home in on entities and the 
+relationships between them. For example, an extractor might map the sentence Paris is the stylish capi­tal 
+of France to the relational tuple (Paris, CapitalOf, France), which might be represented in RDF or an­other 
+formal language. Considerable knowledge is neces­sary to accurately extract these tuples from a broad 
+range of text. Existing techniques obtain it in ways ranging from direct knowledge-based encod­ing (a 
+human enters regular expres­sions or rules) to supervised learning (a human provides labeled training 
+examples) to self-supervised learning (the system automatically finds and labels its own examples). Here, 
+we briefly survey these methods. Knowledge-Based Methods. The first IE systems were domain-specific. 
+A series of DARPA Message Understand­ing Conferences (MUCs) challenged the NLP community to build systems 
+that handled robust extraction from naturally occurring text. The domain iLLusTraTioN by gLuEkiT review 
+articles  of MUC-3 and MUC-4 was Latin-Amer­ican Terrorism;2 and the task was to fill templates with 
+information about specific terrorist actions, with fields for the type of event, date, location, perpetrators, 
+weapons, victims, and physical targets. Subsequent MUC conferences focused on domains such as joint ventures, 
+microelectron­ics, or management succession. The first IE systems relied on some form of pattern-matching 
+rules that were manually crafted for each do­main. Rules that assigned the seman­tic class PhysicalTarget 
+space to the term bank in the terrorism domain, for example, needed to be altered to identify instances 
+of the class Corpo­ration in the joint-ventures domain. These systems were clearly not scal­able or portable 
+across domains. Supervised Methods. Modern IE, beginning with the works of Soder­ land,21, 22 Riloff,17 
+and Kim and Mol­dovan,11 automatically learns an ex­tractor from a training set in which domain-specific 
+examples have been tagged. With this machine-learn­ing approach, an IE system uses a domain-independent 
+architecture and sentence analyzer. When the ex­amples are fed to machine-learning methods, domain-specific 
+extraction patterns can be automatically learned and used to extract facts from text. Figure 1 shows 
+an example of such extraction rules, learned to recognize persons moving into and out of top corporate-management 
+positions. The development of suitable train­ing data for IE requires substantial ef­fort and expertise. 
+DIPRE,5 Snowball,1 and Meta-Bootstrapping18 sought to address this problem by reducing the amount of 
+manual labor necessary to perform relation-specific extraction. Rather than demand hand-tagged cor­pora, 
+these systems required a user to specify relation-specific knowledge through either of the following: 
+a small set of seed instances known to satisfy the relation of interest; or a set of hand-constructed 
+extraction pat­terns to begin the training process. For instance, by specifying the set Bolivia, city, 
+Colombia, district, Nica­ragua over a corpus in the terrorism domain, these IE systems learned patterns 
+(for example, headquartered in <x>, to occupy <x>, and shot in <x>) that identified additional names 
+of locations. Recent advances include automatic induction of features when learning conditional random 
+fields13 and high-level specification of extrac­tion frameworks using Markov logic networks.14 Nevertheless, 
+the amount of manual effort still scales linearly with the number of relations of inter­est, and these 
+target relations must be specified in advance. Self-Supervised Methods. The Know-ItAll Web IE system9 
+took the next step in automating IE by learning to label its own training examples using only a small 
+set of domain-independent extraction patterns. KnowItAll was the first published system to carry out 
+extraction from Web pages that was unsupervised, domain-independent, and large-scale. For a given relation, 
+the set of ge­neric patterns was used to automati­cally instantiate relation-specific ex­traction rules, 
+which were then used to learn domain-specific extraction review articles rules. The rules were applied 
+to Web pages identified via search-engine queries, and the resulting extractions were assigned a probability 
+using information-theoretic measures de­rived from search engine hit counts. For example, KnowItAll utilized 
+ge­neric extraction patterns like <X> is a<Y> to find a list of candidate mem­bers X of the class Y. 
+When this pat­tern was used, say, for the class Coun­try, it would match a sentence that included the 
+phrase X is a country. Next, KnowItAll used frequency sta­tistics computed by querying search engines 
+to identify which instantia­tions were most likely to be bona fide members of the class. For example, 
+in order to estimate the likelihood that China was the name of a country, KnowItAll used automatically 
+gener­ated phrases associated with the class Country to see if there was a high cor­relation between 
+the numbers of doc­uments containing the word China and those containing the phrase countries such as. 
+Thus KnowItAll was able to confidently label China, France, and India as members of the class Country 
+while correctly knowing that the existence of the sentence, Garth Brooks is a country singer did not 
+provide sufficient evidence that Garth Brooks is the name of a coun­try.7 Moreover, KnowItAll learned 
+a set of relation-specific extraction pat­terns (for example, capital of <coun­try> ) that led it to 
+extract additional countries, and so on. KnowItAll is self-supervised; in­stead of utilizing hand-tagged 
+train­ing data, the system selects and la­bels its own training examples and iteratively bootstraps its 
+learning process. But while self-supervised systems are a species of unsupervised systems, unlike classic 
+unsupervised systems they do utilize labeled ex­amples and do form classifiers whose accuracy can be 
+measured using standard metrics. Instead of relying on hand-tagged data, self-supervised systems autonomously 
+roll their own labeled examples. (See Feld­man10 for discussion of an additional self-supervised IE system 
+inspired by KnowItAll.) While self-supervised, KnowItAll is relation-specific. It requires a labo­rious 
+bootstrapping process for each relation of interest, and the set of re­lations has to be named by the 
+human user in advance. This is a significant obstacle to open-ended extraction because unanticipated 
+concepts and relations are often encountered while processing text. The Intelligence in Wikipedia (IWP) 
+project23 uses a different form of self-supervised learning to train its extractors. IWP bootstraps from 
+the Wikipedia corpus, exploiting the fact that each article corresponds to a primary object and that 
+many articles contain infoboxes tabular summa­ries of the most important attributes (and their values) 
+of these objects. For example, Figure 2 shows the Beijing infobox for the class Settlement that was dynamically 
+generated from the accompanying attribute/value data. IWP is able to use Wikipedia pag­es with infoboxes 
+as training data in order to learn classifiers for page type. By using the values of infobox attributes 
+to match sentences in the article, IWP can train extractors for the various attributes. Further, IWP 
+can autonomously learn a taxonomy over infobox classes, construct sche­ma mappings between the attributes 
+of parent/child classes, and thus use shrinkage to improve both recall and precision. Once extractors 
+have been successfully learned, IWP can extract values from general Web pages in or­der to complement 
+Wikipedia with additional content. open information extraction While most IE work has focused on a small 
+number of relations in specific preselected domains, certain cor­pora encyclopedias, news stories, email, 
+and the Web itself are un­likely to be amenable to these meth­ods. Under such circumstances, the relations 
+of interest are both numer­ous and serendipitous they are not known in advance. In addition, the Web 
+corpus contains billions of doc­uments, necessitating highly scalable extraction techniques. The challenge 
+of Web extraction led us to focus on Open Informa­tion Extraction (Open IE), a novel extraction paradigm 
+that tackles an unbounded number of relations, es­chews domain-specific training data, and scales linearly 
+(with low constant factor) to handle Web-scale corpora. For example, an Open IE system might operate 
+in two phases. First, it would learn a general model of how relations are expressed in a particular language. 
+Second, it could utilize this model as the basis of a relation-inde­pendent extractor whose sole input 
+is a corpus and whose output is a set of extracted tuples that are instances of a potentially unbounded 
+set of relations. Such an Open IE system would learn a general model of how relations are expressed (in 
+a particu­lar language), based on unlexicalized features such as part-of-speech tags (for example, the 
+identification of a verb in the surrounding context) and domain-independent regular expres­sions (for 
+example, the presence of capitalization and punctuation). Is there a general model of rela­tionships 
+in English, though? To ad­dress this question we examined a sample of 500 sentences selected at random 
+from the IE training corpus developed by Bunescu and Mooney.6 We found that most relationships ex­pressed 
+in this sample could in fact be characterized by a compact set of relation-independent patterns. See 
+Table 1 for these patterns and an esti­mate of their frequency.a In contrast, traditional IE methods 
+learn lexical models of individual relations from hand-labeled examples of sentences that express these 
+relations. Such an IE system might learn that the pres­ence of the phrase headquarters located in indicates 
+an instance of the headquarters relation. But lexical features are relation-specific. When using the 
+Web as a corpus, the rela­tions of interest are not known prior to extraction, and their number is im­mense. 
+Thus an Open IE system can­not rely on hand-labeled examples of each relation. Table 2 summarizes the 
+differences between traditional and Open IE. Systems such as KnowItAll and IWP may be seen as steps in 
+the di­rection of Open IE, but the former didn t scale as well as desired and the latter seems incapable 
+of extracting more than 40,000 relations. Knext19 appears to fit the Open IE paradigm, a For simplicity, 
+we restricted our study to bi­nary relationships. december 2008 | vol. 51 | no. 12 | communications 
+of the acm 71 review articles  but its precision, recall, and scalabil­ity have yet to be demonstrated. 
+ the textRunner system TextRunner3, 4 is a fully implemented Open IE system that utilizes the two­phase 
+architecture described here.b b See www.cs.washington.edu/research/textrunner TextRunner extracts high-quality 
+in­formation from sentences in a scal­able and general manner. Instead of requiring relations to be specified 
+in its input, TextRunner learns the rela­tions, classes, and entities from its corpus using its relation-independent 
+extraction model. TextRunner s first phase uses a general model of language. Specifical­ly, it trains 
+a graphical model called a conditional random field (CRF)12 to maximize the conditional probability of 
+a finite set of labels, given a set of input observations. By making a first­order Markov assumption 
+about the dependencies among the output vari­ables, and thus arranging variables sequentially in a linear 
+chain, extrac­tion can be treated as a sequence-la­beling problem. Using a CRF, the ex­tractor learns 
+to assign labels to each of the words in a sentence denoting the beginning and end both of entity names 
+and the relationship string.c See Figure 3 for an illustration. In the second phase, TextRunner s extractor 
+scans sentences linearly and rapidly extracts one or more textual triples that aim to capture (some of) 
+the relationships in each sentence. For example, given the sentence Kaf­ka, a writer born in Prague, 
+wrote The Metamorphosis, the extractor forms the triple (Kafka, born in, Prague). The triple consists 
+of three strings, in which the first and third are meant to denote entities and the second to de­note 
+the relationship between them. Of course, there are many subtle­ties to successful extraction from a 
+corpus as large and heterogeneous as the Web. First, the same entities may be referred to by a variety 
+of names (for example, Edison, Thomas Edison, Thomas Alva Edison, and so on). Sec­ond, the same string 
+(say, John Smith) may refer to different entities. Third, vagaries of natural language (such as pronoun 
+resolution, metaphor, ana­phora, complex or ungrammatical sentences) have to be unraveled to correctly 
+extract information. Fourth, the Web is rife with incorrect informa­tion (for example, Elvis killed JFK). 
+In fact, there are many more challenges that we do not have room to discuss here, though we have addressed 
+some of them in our research. For instance, the Resolver system24 computes the probability that two strings 
+are synon­ymous based on a highly scalable and unsupervised analysis of TextRunner tuples. Numerous other 
+issues remain c Although TextRunner has initially focused on extracting binary relationships, its model 
+structure can be extended to identify relation­ships with greater arity.  review articles as open problems 
+for future work. Post-extraction, TextRunner s col­lection of triples is made efficiently searchable 
+by using Lucene, a high­performance indexing and search en­gine.d Thus TextRunner can be que­ried for 
+tuples containing particular entities (for example, Edison), rela­tionships (invented), or relationships 
+between two entities (such as Micro­soft and IBM). The different triples returned in response to a query 
+are ranked by a fairly complex formula, but a key parameter that boosts rank­ing is the number of times 
+a tuple has been extracted from the Web. Because the Web corpus is highly redundant, we have found that 
+repeated extrac­tions are strongly correlated with in­creased likelihood that an extraction is correct. 
+We have run TextRunner on a col­lection of over 120 million Web pages and extracted over 500 million 
+tuples. By analyzing random samples of the output, we have determined that the precision of the extraction 
+process exceeds 75% on average.4 In collabo­ration with Google, we have also run a version of TextRunner 
+on over one billion pages of public Web pages and have found that the use of an order-of­magnitude larger 
+corpus boosts both precision and recall. Other research­ers have investigated techniques closely related 
+to Open IE, but at a substantially smaller scale.20, 23 applications of open ie IE has numerous applications, 
+but some tasks require the full power of Open IE because of the scope and di­versity of information to 
+be extracted. This diversity is often referred to as the long tail to reflect the distribu­tion of information 
+requests some are very common but most are issued infrequently. We consider three such tasks here. First 
+and foremost is question an­swering, the task of succinctly pro­viding an answer to a user s factual 
+question. In Figure 4, for example, the question is What kills bacteria? It turns out that the most compre­hensive 
+answer to that question is produced by collecting information across thousands of Web sites that d http://lucene.apache.org/ 
+address this topic. Using Open IE, the range of questions TextRunner can address mirrors the unbounded 
+scope and diversity of its Web corpus. The two additional tasks are: . Opinion mining, in which Open 
+IE can extract opinion information about particular objects (including products, political candidates, 
+and more) that are contained in blog posts, reviews, and other texts. . Fact checking, in which Open 
+IE can identify assertions that directly or indirectly conflict with the body of knowledge extracted 
+from the Web and various other knowledge bases. Opinion Mining is the process of tak­ing a corpus of 
+text expressing multi­ple opinions about a particular set of entities and creating a coherent over­view 
+of those of opinions. Through this process, opinions are labeled as positive or negative, salient attributes 
+of the entities are identified, and spe­cific sentiments about each attribute are extracted and compared. 
+In the special case of mining prod­uct reviews, opinion mining can be decomposed into the following main 
+subtasks, originally described in Popescu:15 1. Identify product features. In a given review, features 
+can be explicit (for example, the size is too big ) or implicit ( the scanner is slow). 2. Identify opinions 
+regarding prod­uct features. For example, the size is too big contains the opinion phrase too big, which 
+corresponds to the size feature. 3. Determine the polarity of opin­ions. Opinions can be positive (for 
+ex­ample, this scanner is so great ) or negative ( this scanner is a complete disappointment ). 4. Rank 
+opinions based on their strength. Horrible, say, is a stronger adjective than bad.  Opine16 is an unsupervised 
+infor­mation-extraction system that em­bodies solutions to all of the men­tioned subtasks. It relies 
+on Open IE techniques to address the broad and diverse range of products without requiring hand-tagged 
+examples of each type of product. Opine was the first to report its precision and recall on the tasks 
+of opinion-phrase extrac­tion and opinion-polarity determina­tion in the context of known product features 
+and sentences. When tested on hotels and consumer electronics, Opine was found to extract opinions with 
+a precision of 79% and a recall of 76%. The polarity of opinions could be identified by Opine with a 
+precision of 86% and a recall of 89%. Fact Checking. Spell checkers and grammar checkers are word-process­ing 
+utilities that we have come to take  december 2008 | vol. 51 | no. 12 | communications of the acm 73 
+review articles for granted. A fact checker based on Open IE seems like a natural next step.e Consider 
+a schoolchild incorrectly identifying the capital of North Da­kota, or the date of India s indepen­dence, 
+in her homework. The fact checker could automatically detect the error and underline the erroneous sentence 
+in blue.f Right-clicking on the underlined sentence would bring up the conflicting facts that led the 
+checker to its conclusion. Where would the fact checker s knowledge base originate? While re­sources 
+such as WordNet and the CIA World Fact book are of high quality, they are inherently limited in scope 
+because of the labor-intensive pro­cess by which they are compiled. Even Wikipedia, which is put together 
+by a large number of volunteers, only had about two million articles at last count and they were not 
+guaranteed to contain accurate information. To provide a checker with broad scope, it is natural to use 
+all of the above but also include information extracted from the Web via Open IE. Of course, the use 
+of information extracted from the Web increases the chance that a correct fact will be flagged as erroneous. 
+Again, this is similar to utilities such as the spell checker and grammar checker, which also periodically 
+misidentify words or sentences as incorrect. Our goal, of course, is to build fact checkers with high 
+precision and recall. In addi­tion, when a fact is flagged as poten­tially incorrect, the checker provides 
+an easy means of accessing the source of the information that led it to this determination. conclusion 
+and Directions for future Work This article sketched the transforma­tion of information extraction (IE) 
+from a targeted method, appropriate for finding instances of a particular relationship in text, to an 
+open-ended method (which we call Open IE ) that scales to the entire Web and can support a broad range 
+of unanticipat­ed questions over arbitrary relations. Open IE also supports aggregating, or fusing, information 
+across a large number of Web pages in order to pro­vide comprehensive answers to ques­tions such as What 
+do people think about the Thinkpad laptops? in the Opine system15 or What kills bacte­ria? in Figure 
+4. e This idea comes from Krzysztof Gajos. f Blue is used to distinguish its findings from the red underline 
+for misspellings and the green underline for grammatical errors. We expect future work to improve both 
+the precision and recall of Open IE (for example, see Downey8 and Yates24). We have begun to integrate 
+Open IE with inference, which would enable an Open IE system to reason based on the facts and generalizations 
+it extracts from text. The challenge, of course, is to make this reasoning pro­cess tractable in the 
+face of billions of facts and rules. We foresee opportuni­ties to unify Open IE with information provided 
+by ontologies such as Word-Net and Cyc, as well as with human­contributed knowledge in OpenMind and FreeBase, 
+in order to improve the quality of extracted information and facilitate reasoning. Finally, we foresee 
+the application of Open IE to other languages besides English. acknowledgments This research was supported 
+in part by NSF grants IIS-0535284 and IIS­0312988, ONR grant N00014-08-1­0431, SRI CALO grant 03-000225, 
+and the WRF/TJ Cable Professorship, as well as by gifts from Google. It was car­ried out at the University 
+of Washing­ton s Turing Center. We wish to thank the members of AI and KnowItAll groups for many fruitful 
+discussions.  References 1. agichtein, E. and gravano, L. snowball: Extracting relations from large 
+plain-text collections. in Proceedings of the 5th ACM International Conference on Digital Libraries (2000). 
+ 2. arPa. Proceedings of the 3rd Message Understanding Conference (1991). 3. banko, m., cafarella, m., 
+soderland, s., broadhead, m. and Etzioni, o. open information extraction from the Web. in Proceedings 
+of the International Joint Conference on Artificial Intelligence (2007).  4. banko, m. and Etzioni, 
+o. The tradeoffs between traditional and open relation extraction. in  Proceedings of the Association 
+of Computational Linguistics (2008). 5. brin, s. Extracting patterns and relations from the World Wide 
+Web. in Proceedings of the Workshop at the 6th International Conference on Extending Database Technology, 
+(valencia, spain, 1998), 172 183. 6. bunescu, r. and mooney, r. Learning to extract relations from the 
+Web using minimal supervision. in Proceedings of the Association of Computational Linguistics (2007). 
+ 7. downey, d., Etzioni, o. and soderland, s. a probabilistic model of redundancy in information  extraction. 
+in Proceedings of the International Joint Conference on Artificial Intelligence (2005). 8. downey, d., 
+schoenmackers, s. and Etzioni, o. sparse information extraction: unsupervised language models to the 
+rescue. in Proceedings of the Association of Computational Linguistics (2007). 9. Etzioni, o., cafarella, 
+m., downey, d., kok, s., Popescu, a., shaked, T., soderland, s., Weld, d. and yates, a. unsupervised 
+named-entity extraction from the Web: an experimental study. Artificial Intelligence 165,1 (2005), 91 
+134. 10. feldman, r., rosenfeld, b., soderland, s. and Etzioni,  o. self-supervised relation extraction 
+from the Web. in Proceedings of the International Symposium on Methodologies for Intelligent Systems 
+(2006), 755 764. 11. kim, j. and moldovan, d. acquisition of semantic patterns for information extraction 
+from corpora. in Proceedings of the 9th IEEE Conference on Artificial Intelligence for Applications (1993), 
+171 176. 12. Lafferty, j., mccallum, a. and Pereira, f. conditional random fields: Probabilistic models 
+for segmenting and labeling sequence data. in Proceedings of the 2001 International Conference on Machine 
+Learning. 13. mccallum, a. Efficiently inducing features of conditional random fields. in Proceedings 
+of the 19th Conference on Uncertainty in Artificial Intelligence (acapulco, 2003), 403 410.  14. Poon, 
+h. and domingos, P. joint inference in information extraction. in Proceedings of the 22nd National Conference 
+on Artificial Intelligence (2007), 913 918. 15. Popescu, a. and Etzioni, o. Extracting product features 
+and opinions from reviews. in Proceedings of the Empirical Methods on Natural Language Processing Conference 
+(2005). 16. Popescu. a-m. information extraction from unstructured Web text. Ph.d. thesis, university 
+of Washington (2007). 17. riloff, E. automatically constructing extraction patterns from untagged text. 
+in Proceedings of the 13th National Conference on Artificial Intelligence (1996), 1044 1049.  18. riloff, 
+E. and jones, r. Learning dictionaries for information extraction by multi-level bootstrapping. in Proceedings 
+of the AAAI-99 Conference (1999), 1044 1049. 19. schubert, L. can we derive general world knowledge 
+from texts? in Proceedings of the Human Language Technology Conference (2002). 20. shinyama, y. and 
+sekine, s. Preemptive information extraction using unrestricted relation discovery. in  Proceedings 
+of the Human Language Technology/ NAACL Conference (2006). 21. soderland, s. Learning information extraction 
+rules for semi-structured and free text. Machine Learning 34, 1 3 (1999), 233 272. 22. soderland, s., 
+fisher, d., aseltine, j. and Lehnert,  W. crysTaL: inducing a conceptual dictionary. in Proceedings 
+of the 14th International Joint Conference on Artificial Intelligence (1995), 1314 1321. 23. Weld, d., 
+Wu, f., adar, E., amershi, s., fogarty, j., hoffmann, r., Patel, k. and skinner, m. intelligence in Wikipedia. 
+in Proceedings of the 23rd Conference on Artificial Intelligence (2008). 24. yates, a. and Etzioni, 
+o. unsupervised resolution of objects and relations on the Web. in Proceedings of the Human-Language 
+Technology Conference (2007).  Oren Etzioni (etzioni@cs.washington.edu) is a professor of computer science 
+and the founder and director of the Turing center at the university of Washington, seattle. Michele Banko 
+(banko@cs.washington.edu) is a Ph.d. candidate at the university of Washington, seattle. Stephen Soderland 
+(soderland@cs.washington.edu) is a research scientist in the department of computer science and Engineering 
+at the university of Washington, seattle. Daniel S. Weld (weld@cs.washington.edu) is the Thomas j. cable/Wrf 
+Professor of computer science and Engineering at the university of Washington, seattle. &#38;#169; 2008 
+acm 0001-0782/08/1200 $5.00

@@ -1,0 +1,11 @@
+T1	Process 4 23	crack band approach
+T2	Process 600 619	crack band approach
+T3	Process 1183 1210	stress–inelastic strain law
+T4	Material 1349 1374	inelastic strain profiles
+T5	Process 1517 1536	crack-band approach
+T6	Material 1549 1561	tensile part
+T7	Material 643 655	tensile part
+T8	Process 697 724	stress–inelastic strain law
+T9	Process 749 782	stress–inelastic displacement law
+T10	Process 794 824	(13)σ=ftexp(−ϵinhwft)if(ϵin>0)
+R1	Hyponym-of Arg1:T10 Arg2:T9	

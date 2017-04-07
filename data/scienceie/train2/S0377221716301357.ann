@@ -1,0 +1,13 @@
+T1	Task 87 102	stochastic MPSP
+T2	Process 222 226	MPSP
+T3	Task 322 333	stockpiling
+T4	Task 302 316	grade blending
+T5	Task 278 300	variable cut-off grade
+T6	Process 971 992	LP-rounding procedure
+T7	Process 421 446	general-purpose algorithm
+T8	Process 880 907	solve the linear relaxation
+T9	Task 245 268	operational constraints
+R1	Hyponym-of Arg1:T5 Arg2:T9	
+R2	Hyponym-of Arg1:T4 Arg2:T9	
+R3	Hyponym-of Arg1:T3 Arg2:T9	
+T10	Process 592 594	PH

@@ -1,0 +1,13 @@
+T1	TASK 77 105	estimating generative models
+T2	METHOD 113 133	adversar-ial process
+R1	addresses Arg1:T2 Arg2:T1	
+T3	TASK 2032 2059	generative model estimation
+T4	METHOD 1579 1594	backpropagation
+T5	METHOD 1599 1606	dropout
+T6	METHOD 1625 1647	piecewise linear units
+T7	METHOD 2125 2141	adversarial nets
+T8	METHOD 3059 3075	adversarial nets
+T9	METHOD 3149 3164	backpropagation
+T10	METHOD 3169 3176	dropout
+R2	uses Arg1:T8 Arg2:T9	
+R3	uses Arg1:T8 Arg2:T10	

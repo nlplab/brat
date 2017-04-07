@@ -1,0 +1,19 @@
+T1	Task 54 72	general relativity
+T2	Task 139 158	theories of gravity
+T3	Process 317 345	Parameterised Post-Newtonian
+T4	Process 347 350	PPN
+*	Synonym-of T3 T4
+T5	Process 418 431	PPN formalism
+T6	Task 612 631	lunar laser ranging
+T7	Task 633 643	radio echo
+T8	Task 663 689	Hulse–Taylor binary pulsar
+T9	Process 695 708	PPN formalism
+T10	Process 759 777	compare and assess
+T11	Task 831 850	theories of gravity
+T12	Process 914 927	PPN formalism
+T13	Task 564 603	cutting edge astrophysical observations
+R1	Hyponym-of Arg1:T6 Arg2:T13	
+R2	Hyponym-of Arg1:T7 Arg2:T13	
+R3	Hyponym-of Arg1:T8 Arg2:T13	
+T14	Process 813 870	benchmark for how theories of gravity should be evaluated
+R4	Hyponym-of Arg1:T9 Arg2:T14	

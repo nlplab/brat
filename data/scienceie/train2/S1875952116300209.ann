@@ -1,0 +1,16 @@
+T1	Material 93 120	affective movie clip corpus
+T2	Material 304 328	Emotional Movie Database
+T3	Material 330 334	EMDB
+*	Synonym-of T3 T2
+T4	Material 346 355	Film Stim
+T5	Task 12 77	test whether haptic patterns can convey or enhance the mood music
+T6	Material 229 249	database collections
+R1	Hyponym-of Arg1:T2 Arg2:T6	
+R2	Hyponym-of Arg1:T4 Arg2:T6	
+T7	Process 398 404	review
+T8	Task 448 464	enhance the mood
+T9	Material 520 524	EMDB
+T10	Material 601 619	Film Stim database
+T11	Material 762 791	English speaking participants
+T12	Material 810 829	Film Stim selection
+T13	Process 966 1006	review of available database collections

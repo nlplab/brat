@@ -1,0 +1,38 @@
+T1	Task 4 36	spins and parities of Θ+ and Ξ−−
+T2	Task 79 110	new wave of pentaquark research
+T3	Process 136 162	take the spin equal to 1/2
+T4	Process 201 215	chiral soliton
+T5	Process 264 288	constituent quark models
+T6	Task 342 366	parity of the pentaquark
+T7	Task 379 387	P=(−)ℓ+1
+R1	Hyponym-of Arg1:T6 Arg2:T7	
+T8	Task 395 396	ℓ
+T9	Task 404 481	angular momentum associated with the relative coordinates of the q4 subsystem
+R2	Hyponym-of Arg1:T8 Arg2:T9	
+T10	Task 513 577	subsystem of four light quarks is in a state of orbital symmetry
+T11	Task 897 1028	comparison between the realistic calculations for positive parity [12] and negative parity [14], based on the same quark model [15]
+T12	Process 1503 1539	lower the energy of the whole system
+T13	Process 634 648	kinetic energy
+T14	Process 692 720	totally symmetric [4]O state
+T15	Process 777 801	flavour–spin interaction
+T17	Material 26 28	Θ+
+T18	Material 33 36	Ξ−−
+T19	Material 91 101	pentaquark
+T20	Process 219 232	Skyrme models
+T21	Material 356 366	pentaquark
+T22	Material 531 543	light quarks
+T23	Process 730 740	O symmetry
+T24	Process 815 838	colour–spin interaction
+T25	Process 1012 1023	quark model
+T26	Material 1012 1017	quark
+T27	Material 1047 1056	antiquark
+T28	Process 1096 1205	interaction between light quarks and the heavy antiquark was neglected, consistent with the heavy quark limit
+T16	Material 1188 1199	heavy quark
+T29	Material 1137 1152	heavy antiquark
+T30	Material 1116 1128	light quarks
+T31	Process 1234 1255	spin–spin interaction
+T32	Material 1264 1266	s̄
+T33	Material 1275 1287	light quarks
+T34	Material 1355 1372	uudds̄ pentaquark
+T35	Process 1462 1478	η meson exchange
+T36	Material 1462 1469	η meson

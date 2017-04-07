@@ -1,0 +1,23 @@
+T1	Process 42 54	testing time
+T2	Process 59 80	friction coefficients
+T3	Process 175 187	wear process
+T4	Material 191 204	uncoated AZ31
+T6	Process 304 316	wear process
+T7	Material 408 422	nano-particles
+T8	Process 445 478	reduction of friction coefficient
+T10	Process 658 674	“rolling effect”
+T11	Material 683 702	Al2O3 nanoparticles
+T12	Material 736 759	Spherical nanoparticles
+T13	Process 823 843	friction coefficient
+T16	Material 1013 1042	uncoated AZ31 magnesium alloy
+T17	Process 1087 1107	friction coefficient
+T18	Material 320 347	composite anodizing coating
+T9	Process 508 525	composite coating
+T15	Material 616 634	anodizing coatings
+T19	Process 795 810	reduce friction
+T14	Material 893 938	anodizing coating without Al2O3 nanoparticles
+T20	Material 1048 1066	anodizing coatings
+T5	Material 209 254	anodizing coating without Al2O3 nanoparticles
+T21	Material 353 372	Al2O3 nanoparticles
+T22	Material 426 437	electrolyte
+T23	Process 985 992	coating

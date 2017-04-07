@@ -1,0 +1,35 @@
+T1	Task 271 372	mechanisms by which He in a perfect body-centred-cubic (bcc) Fe lattice, can agglomerate into bubbles
+T2	Material 0 31	Ferritic and martensitic steels
+T3	Task 174 241	microstructural evolution of these steels under neutron irradiation
+T4	Material 412 436	He interstitial clusters
+T5	Process 1187 1217	molecular dynamics simulations
+T6	Material 575 582	bubbles
+T7	Material 684 691	bubbles
+T8	Material 823 832	diffusion
+T9	Material 506 522	Fe interstitials
+T10	Material 559 567	He atoms
+T11	Process 722 731	diffusion
+T12	Process 749 763	induced strain
+T13	Material 771 782	bcc lattice
+T14	Material 845 852	bubbles
+T15	Material 903 910	bubbles
+T16	Material 1080 1086	bubble
+T17	Process 1102 1116	lattice strain
+T18	Material 67 83	nuclear reactors
+T19	Material 95 126	transmutation-created inert gas
+T20	Material 139 141	He
+R1	Hyponym-of Arg1:T20 Arg2:T19	
+T21	Process 222 241	neutron irradiation
+T22	Material 209 215	steels
+T23	Material 291 293	He
+T24	Material 365 372	bubbles
+T25	Material 307 325	body-centred-cubic
+T26	Material 327 330	bcc
+*	Synonym-of T25 T26
+T27	Material 332 342	Fe lattice
+T28	Material 923 929	bubble
+T29	Process 923 941	bubble enlargement
+T30	Process 1005 1033	radiation induced mechanisms
+T31	Task 1091 1116	reduce the lattice strain
+T32	Material 1160 1166	bubble
+T33	Process 1118 1147	Emission of interracial loops

@@ -1,0 +1,45 @@
+T1	Material 56 63	bitumen
+T2	Material 158 176	waste glass cullet
+T3	Process 106 123	stiffness modulus
+T4	Process 334 351	stiffness modulus
+T5	Material 462 480	waste glass cullet
+T6	Material 589 607	waste glass cullet
+T7	Process 838 852	Marshall tests
+T8	Material 688 707	bituminous material
+T9	Material 952 970	waste glass cullet
+T10	Material 781 793	glass cullet
+T11	Material 1047 1065	waste glass cullet
+T12	Material 1120 1138	waste glass cullet
+T13	Process 1243 1255	interlocking
+T14	Process 1144 1161	stiffness modulus
+T15	Material 1313 1325	glass cullet
+T16	Material 1395 1411	glass particles’
+T17	Process 1476 1493	stiffness modulus
+T18	Material 1528 1546	waste glass cullet
+T19	Process 1682 1699	stiffness modulus
+T20	Material 1742 1754	glass cullet
+T21	Material 1865 1883	waste glass cullet
+T22	Process 30 71	changes in the measure of bitumen content
+T23	Process 87 144	differences in the stiffness modulus of asphaltic samples
+T24	Material 127 144	asphaltic samples
+T25	Material 199 204	glass
+T26	Process 235 252	stiffness modulus
+T27	Material 256 272	modified asphalt
+T28	Material 324 329	glass
+T29	Material 355 372	asphaltic samples
+T30	Material 421 428	bitumen
+T31	Process 540 557	stiffness modulus
+T32	Material 561 578	asphaltic samples
+T33	Material 637 644	bitumen
+T34	Material 654 669	Glass particles
+T35	Material 744 751	bitumen
+T36	Material 866 873	bitumen
+T37	Material 1001 1008	bitumen
+T38	Material 1085 1102	saphaltic samples
+T39	Material 1165 1182	asphaltic samples
+T40	Material 1196 1214	waste glass cullet
+T41	Material 1497 1514	asphaltic samples
+T42	Material 1573 1578	glass
+T43	Material 1617 1626	particles
+T44	Process 1788 1805	stiffness modulus
+T45	Material 1809 1826	asphaltic samples

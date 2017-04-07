@@ -1,0 +1,22 @@
+T1	Process 38 57	MapReduce workflows
+T2	Process 0 10	Apache Pig
+T3	Material 104 127	directed acyclic graphs
+T4	Material 129 133	DAGs
+*	Synonym-of T3 T4
+T5	Process 242 251	Pig Latin
+T6	Process 474 496	user-defined functions
+T7	Process 498 502	UDFs
+*	Synonym-of T6 T7
+T8	Task 744 758	DAG processing
+T9	Material 825 831	Hadoop
+T10	Process 878 887	MapReduce
+T11	Process 541 544	Pig
+T12	Material 889 900	Pig scripts
+T13	Process 975 989	Java MapReduce
+T14	Process 226 235	MapReduce
+T15	Material 63 69	Hadoop
+T16	Process 433 447	SQL operations
+T17	Process 358 361	SQL
+T18	Process 449 452	Pig
+T19	Process 709 718	MapReduce
+T20	Material 670 676	Hadoop

@@ -1,0 +1,22 @@
+T1	TASK 918 939	Knowledge compilation
+T2	TASK 1053 1076	propositional reasoning
+R1	uses Arg1:T2 Arg2:T1	
+T3	TASK 1504 1525	knowledge compilation
+T4	TASK 1649 1670	knowledge compilation
+T5	SOFTWARE 1833 1858	on-line reasoning systems
+T6	METHOD 1336 1356	propositional theory
+T7	TASK 2238 2259	knowledge compilation
+T8	METHOD 2325 2345	propositional theory
+T9	METHOD 2641 2644	DNF
+T10	METHOD 2649 2652	CNF
+T11	METHOD 2671 2684	Horn theories
+T12	METHOD 2689 2705	prime implicates
+T13	METHOD 2595 2616	compilation languages
+R2	is_subclass_of Arg1:T9 Arg2:T13	
+R3	is_subclass_of Arg1:T10 Arg2:T13	
+R4	is_subclass_of Arg1:T11 Arg2:T13	
+R5	is_subclass_of Arg1:T12 Arg2:T13	
+T14	TASK 2742 2760	clausal entailment
+T15	METHOD 2982 3003	compilation languages
+T16	TASK 2909 2930	knowledge compilation
+T17	METHOD 1735 1756	compilation languages

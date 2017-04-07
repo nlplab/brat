@@ -1,0 +1,14 @@
+T1	Task 74 140	changes to the quark and antiquark distributions of a bound proton
+T2	Task 157 263	develop a reliable model of both the free proton and the binding of nucleons starting from the quark level
+T3	Process 413 487	illustrate the formal ideas developed here by applying them to a toy model
+T4	Material 500 553	quark distributions of isospin symmetric quark matter
+T5	Process 563 633	each quark feels a scalar potential, −Vsq, and a vector potential, Vvq
+T6	Process 662 682	Quark–Meson Coupling
+T7	Process 684 687	QMC
+*	Synonym-of T6 T7
+T8	Task 735 802	calculate the properties of nuclear matter as well as finite nuclei
+T9	Task 861 884	effective nuclear force
+T10	Process 1117 1141	mean field approximation
+T11	Task 1147 1200	Dirac equation for the quark in infinite quark matter
+T12	Task 1216 1245	(30)iγ·∂−m−Vqs−γ0VqvψQMq(x)=0
+R1	Hyponym-of Arg1:T11 Arg2:T12	

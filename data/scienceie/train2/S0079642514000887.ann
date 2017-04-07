@@ -1,0 +1,37 @@
+T1	Material 77 90	nanomaterials
+T2	Task 31 62	exact measurement of properties
+T3	Task 221 257	sustained development of new devices
+T4	Material 339 368	scanning electron microscopes
+T5	Material 370 373	SEM
+*	Synonym-of T4 T5
+T6	Material 376 400	atomic force microscopes
+T7	Material 402 405	AFM
+T8	Material 411 444	transmission electron microscopes
+T9	Material 446 449	TEM
+*	Synonym-of T8 T9
+*	Synonym-of T6 T7
+T10	Task 531 558	material internal structure
+T11	Task 563 589	atomic bonding information
+T12	Process 644 647	TEM
+T13	Process 681 717	manipulate with an individual object
+T14	Process 904 907	TEM
+T15	Process 912 915	AFM
+T17	Material 1016 1029	nanomaterials
+T16	Process 919 929	STM probes
+T18	Task 1016 1042	nanomaterials manipulation
+T19	Task 1047 1066	properties analysis
+T20	Process 962 973	TEM holders
+T21	Process 1073 1080	holders
+T22	Process 1224 1238	TEM techniques
+T23	Task 1267 1307	mechanical and thermal property analysis
+T24	Material 1322 1336	nanostructures
+T25	Process 1401 1429	direct bent or tensile tests
+T26	Process 1439 1473	probing electrical characteristics
+T27	Task 1481 1495	field emission
+T28	Task 1508 1536	electrical transport tracing
+T29	Task 1546 1555	soldering
+T30	Task 1569 1575	doping
+T31	Material 284 295	instruments
+R1	Hyponym-of Arg1:T4 Arg2:T31	
+R2	Hyponym-of Arg1:T6 Arg2:T31	
+R3	Hyponym-of Arg1:T8 Arg2:T31	

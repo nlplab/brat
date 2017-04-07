@@ -1,0 +1,25 @@
+T1	Process 7 28	Total Focusing Method
+T2	Process 30 33	TFM
+T3	Material 141 149	FMC data
+T4	Process 350 370	Linear interpolation
+T5	Process 467 481	TFM image ITFM
+T6	Process 589 606	Hilbert transform
+T7	Material 671 691	transmitting element
+T8	Material 728 745	receiving element
+T9	Material 937 940	FMC
+T10	Process 976 992	conventional TFM
+T11	Material 186 195	x–z plane
+T12	Material 234 238	grid
+T13	Process 215 238	discretized into a grid
+T14	Process 302 348	synthesize a focus at every point in this grid
+T15	Process 292 298	summed
+T16	Material 344 348	grid
+T17	Process 426 444	discretely sampled
+T18	Material 467 476	TFM image
+T19	Material 633 641	FMC data
+T20	Material 747 748	R
+*	Synonym-of T8 T20
+T21	Material 693 694	T
+*	Synonym-of T7 T21
+T22	Process 815 824	summation
+T23	Material 857 883	transmitter–receiver pairs

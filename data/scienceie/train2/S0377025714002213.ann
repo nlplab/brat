@@ -1,0 +1,19 @@
+T1	Task 59 84	thermoreversible gelation
+T2	Process 241 272	cross-linked branching networks
+T3	Process 297 331	commercial silicone dielectric gel
+T4	Process 333 336	SDG
+*	Synonym-of T3 T4
+T6	Process 470 480	fibrin gel
+T7	Process 495 526	thrombin-induced polymerisation
+T8	Process 530 550	fibrinogen molecules
+T9	Process 30 44	biopolymer gel
+T10	Task 359 392	production of electronic products
+T5	Process 556 575	gel network product
+T11	Material 615 640	microstructural component
+T12	Material 646 656	blood clot
+T13	Material 713 725	critical-gel
+T14	Material 754 756	GP
+T15	Material 769 863	‘template’ for the ensuing development of microstructure and associated rheological properties
+R1	Hyponym-of Arg1:T14 Arg2:T15	
+T16	Material 888 899	fibrin clot
+T17	Material 876 878	GP

@@ -1,0 +1,9 @@
+T1	Task 31 81	discretization of the advection–diffusion equation
+T2	Task 105 141	dispersion and diffusion eigencurves
+T3	Process 202 217	Galerkin method
+T4	Material 388 407	wave-like solutions
+T5	Material 481 497	linear advection
+T6	Material 466 479	inviscid case
+*	Synonym-of T6 T5
+T7	Material 639 651	viscous case
+T8	Process 314 373	derivation of the semi-discrete advection–diffusion problem

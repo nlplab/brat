@@ -1,0 +1,28 @@
+T1	Process 76 92	level set method
+T2	Process 52 70	level set equation
+T3	Process 226 250	Hamilton–Jacobi equation
+T4	Process 275 299	finite difference scheme
+T5	Material 313 356	rectangular grid in two or three dimensions
+T6	Process 423 443	fast marching method
+T7	Task 471 549	numerical scheme of complexity nlogn to compute the support values on the grid
+T8	Process 583 602	propagation process
+T9	Process 609 762	the time where the interface passes a certain grid point is influenced only by those neighboring grid points which are previously passed by the interface
+T10	Process 783 802	theory of level set
+T11	Process 807 820	fast marching
+T13	Task 1011 1026	Distance fields
+T14	Process 1053 1062	level set
+T15	Material 0 36	Algorithms regarding distance fields
+T16	Process 151 171	temporal propagation
+T17	Process 196 213	numerical methods
+R1	Hyponym-of Arg1:T17 Arg2:T1	
+T18	Material 491 507	complexity nlogn
+R2	Hyponym-of Arg1:T9 Arg2:T8	
+T12	Task 915 931	shape offsetting
+T19	Task 933 952	computing distances
+T20	Task 954 982	photolithography development
+T21	Task 984 1004	seismic travel times
+T22	Task 875 880	areas
+R3	Hyponym-of Arg1:T12 Arg2:T22	
+R4	Hyponym-of Arg1:T19 Arg2:T22	
+R5	Hyponym-of Arg1:T20 Arg2:T22	
+R6	Hyponym-of Arg1:T21 Arg2:T22	

@@ -1,0 +1,23 @@
+T1	Material 9 28	bounding PCM wastes
+T2	Material 116 135	“Mock up” PCM drums
+T3	Material 183 192	PCM drums
+T4	Material 214 244	mild steel paint cans and lids
+T5	Material 270 278	PVC bags
+T6	Material 301 323	identical PVC sheeting
+T7	Material 351 365	metallic waste
+T8	Material 386 423	commercial grade 18/8 stainless steel
+T9	Material 425 434	aluminium
+T10	Material 439 445	copper
+T11	Material 481 490	lead shot
+T12	Material 506 521	inorganic waste
+T13	Material 542 561	waste Pyrex labware
+T14	Material 571 578	masonry
+T15	Material 580 588	concrete
+T16	Material 593 605	window glass
+T17	Material 607 611	CeO2
+T18	Material 676 690	PuO2 surrogate
+T19	Material 734 763	blast-furnace slag “Calumite”
+T20	Material 849 857	Calumite
+T21	Material 863 880	powdered material
+R1	Hyponym-of Arg1:T20 Arg2:T21	
+T22	Material 897 905	particle

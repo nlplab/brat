@@ -1,0 +1,19 @@
+T1	Process 13 37	vibronic coupling models
+T3	Task 78 102	nuclear dynamics studies
+T2	Task 130 163	electronic structure calculations
+T4	Process 173 196	vibronic coupling model
+T5	Task 209 229	polynomial expansion
+T6	Task 233 281	diabatic potential energy surfaces and couplings
+T7	Process 287 309	expansion coefficients
+T9	Process 420 433	diabatisation
+T10	Task 491 512	non-adiabatic systems
+T11	Process 547 567	diabatisation scheme
+T12	Process 592 614	direct-dynamic methods
+T8	Process 782 808	irreducible representation
+T13	Process 810 815	IrRep
+*	Synonym-of T8 T13
+T14	Process 881 901	symmetric geometries
+T15	Process 1007 1032	analytic model potentials
+T16	Process 661 678	model Hamiltonian
+T17	Process 728 744	true Hamiltonian
+T18	Process 1070 1098	permutation-inversion groups

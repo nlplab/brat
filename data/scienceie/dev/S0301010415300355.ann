@@ -1,0 +1,25 @@
+T1	Process 17 39	H-atom photodetachment
+T2	Material 49 70	intermediate radicals
+T3	Material 96 111	reducing agents
+R1	Hyponym-of Arg1:T2 Arg2:T3	
+T4	Material 165 182	pyridinyl radical
+T5	Material 184 187	PyH
+*	Synonym-of T4 T5
+T6	Material 216 230	reducing agent
+R2	Hyponym-of Arg1:T5 Arg2:T6	
+T7	Material 253 256	CO2
+T8	Material 260 272	formaldehyde
+T9	Material 274 285	formic acid
+T10	Material 289 297	methanol
+T11	Material 312 322	catalyzers
+T12	Material 473 498	AcH, AOH and BAH radicals
+T13	Material 610 627	pyridinyl radical
+T14	Material 660 669	Pyridinyl
+T15	Material 718 727	acridinyl
+T16	Material 740 748	radicals
+R3	Hyponym-of Arg1:T15 Arg2:T16	
+T17	Material 703 712	reductant
+R4	Hyponym-of Arg1:T14 Arg2:T17	
+R5	Hyponym-of Arg1:T15 Arg2:T17	
+T18	Task 811 850	reduce carbon dioxide in dark reactions
+T19	Material 818 832	carbon dioxide

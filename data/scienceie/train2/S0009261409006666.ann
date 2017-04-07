@@ -1,0 +1,27 @@
+T1	Process 18 86	spectrally resolved femtosecond three-pulse photon echo measurements
+T2	Material 18 86	spectrally resolved femtosecond three-pulse photon echo measurements
+T3	Material 90 100	Zn(II)–OEP
+T4	Material 102 112	Ni(II)–OEP
+T5	Material 117 127	Co(II)–OEP
+T6	Process 195 258	separate and extract specific type of spectroscopic information
+T7	Material 262 279	complex molecules
+T8	Process 292 350	spectral and temporal evolution of the photon echo signals
+T9	Task 331 350	photon echo signals
+T10	Material 367 383	population times
+T11	Task 385 415	population relaxation dynamics
+T12	Process 355 383	varying the population times
+T13	Process 420 444	inhomogeneous broadening
+T14	Material 464 483	photon echo spectra
+T15	Process 485 520	Time-integrated photon echo signals
+T16	Material 485 520	Time-integrated photon echo signals
+T17	Material 540 550	timescales
+T19	Material 753 763	Ni(II)–OEP
+T20	Material 738 748	Co(II)–OEP
+T21	Material 768 802	within a picosecond for Zn(II)–OEP
+T22	Material 556 587	electronic relaxation timescale
+T23	Material 603 611	sub 50fs
+T24	Material 624 633	timescale
+T25	Process 638 675	intramolecular vibrational relaxation
+T26	Task 129 156	Increased degree of freedom
+R1	Hyponym-of Arg1:T23 Arg2:T22	
+T27	Material 690 698	Q00 band

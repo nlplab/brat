@@ -1,0 +1,25 @@
+T1	Process 4 22	scheduling process
+T2	Process 42 88	multiple stage stochastic programming approach
+T3	Process 99 128	two-stage stochastic programs
+T4	Process 134 160	linear or convex functions
+T5	Process 188 203	L-shaped method
+T6	Process 207 229	Bender's decomposition
+T7	Process 253 270	recourse decision
+T8	Process 272 295	scheduled cancellations
+T9	Task 433 449	decision problem
+T10	Process 469 495	three-stage recourse model
+T11	Task 515 533	scheduling problem
+T12	Process 569 586	recourse function
+T13	Process 633 664	modified L-shaped decomposition
+T14	Process 696 724	two stage stochastic program
+T15	Process 730 746	integer recourse
+T16	Process 778 853	generate optimal cuts of the linear sub-problem and the integer sub-problem
+T17	Task 807 825	linear sub-problem
+T18	Task 834 853	integer sub-problem
+T19	Process 927 964	sample average approximation approach
+T20	Process 966 969	SAA
+*	Synonym-of T19 T20
+T21	Process 1065 1088	first-stage realization
+T22	Process 1170 1182	integer cuts
+T23	Process 1191 1210	Jensen's inequality
+T24	Task 1219 1270	upper bound the minus second (and third) stage cost

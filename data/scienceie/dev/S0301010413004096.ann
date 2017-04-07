@@ -1,0 +1,32 @@
+T1	Process 37 50	NPD technique
+T2	Material 60 71	MOF complex
+T3	Material 104 106	D2
+T4	Material 225 229	MOFs
+T5	Material 342 364	adsorbed gas molecules
+T6	Process 423 446	H2 binding interactions
+T7	Process 198 217	binding interaction
+T8	Material 494 497	gas
+T9	Process 533 560	characterisation techniques
+T10	Process 602 638	in situ inelastic neutron scattering
+T11	Process 640 643	INS
+R1	Hyponym-of Arg1:T10 Arg2:T11	
+T12	Task 658 727	permit direct observation of the dynamics of the binding interactions
+T13	Material 736 757	adsorbed H2 molecules
+T14	Material 765 791	aluminium-based porous MOF
+T15	Material 793 801	NOTT-300
+T16	Material 875 877	H2
+T17	Task 884 904	neutron spectroscopy
+T18	Material 924 945	adsorbed H2 molecules
+T19	Material 971 985	organic ligand
+T21	Material 1049 1069	[Al(OH)2O4] moieties
+T22	Process 1084 1111	through-spacing interaction
+T23	Process 1113 1120	Al-O⋯H2
+R2	Hyponym-of Arg1:T22 Arg2:T23	
+T24	Process 1151 1164	H2 adsorption
+T25	Material 1278 1289	adsorbed H2
+T20	Material 1425 1428	MOF
+T26	Process 1204 1229	weak binding interactions
+T27	Process 1401 1417	weak interaction
+R3	Hyponym-of Arg1:T26 Arg2:T27	
+T28	Task 261 292	static crystallographic studies
+T29	Material 1316 1322	liquid

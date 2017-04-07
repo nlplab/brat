@@ -1,0 +1,30 @@
+T1	Material 120 139	functional polymers
+T2	Task 260 286	macromolecular engineering
+T3	Process 295 309	polymerization
+T4	Material 420 439	telechelic polymers
+T5	Material 446 478	polymers with defined chain-ends
+R1	Hyponym-of Arg1:T4 Arg2:T5	
+T6	Process 531 567	atom transfer radical polymerization
+T7	Process 579 584	CuAAC
+T8	Material 0 39	Copper-catalyzed Huisgen cycloadditions
+T9	Process 569 573	ATRP
+*	Synonym-of T6 T9
+T10	Process 1255 1280	nucleophilic substitution
+T11	Material 1245 1251	azides
+T12	Material 1322 1329	alkynes
+T13	Material 1471 1492	ω-functional polymers
+T14	Material 1515 1529	triazole rings
+T16	Task 107 139	synthesis of functional polymers
+T17	Material 214 232	synthetic polymers
+T18	Process 750 754	ATRP
+T19	Process 773 787	polymerization
+T20	Process 840 844	ATRP
+T21	Process 1113 1117	ATRP
+T22	Process 1146 1151	CuAAC
+T23	Process 1388 1393	CuAAC
+T24	Process 1216 1220	ATRP
+R2	Hyponym-of Arg1:T18 Arg2:T19	
+T25	Process 885 921	preparation of well-defined polymers
+T26	Material 913 921	polymers
+T27	Material 1171 1203	ω-bromine chain-ends of polymers
+T15	Process 1593 1600	H-bonds

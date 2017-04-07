@@ -1,0 +1,26 @@
+T1	Process 31 37	SW-SVR
+T2	Material 59 83	micrometeorological data
+T3	Process 175 194	standard algorithms
+T4	Process 225 254	dynamic aggregation of models
+T5	Process 296 301	D-SDC
+T6	Process 442 448	SW-SVR
+T7	Process 489 495	SW-SVR
+T8	Material 542 555	training data
+T9	Process 702 707	D-SDC
+T10	Material 729 742	training data
+T11	Process 778 783	D-SDC
+T12	Process 894 900	SW-SVR
+T13	Material 942 955	training data
+T14	Process 1022 1027	D-SDC
+T15	Process 1092 1098	SW-SVR
+T16	Process 1113 1146	combination of several algorithms
+T18	Process 1148 1168	kernel approximation
+T17	Process 1170 1184	PLS regression
+T19	Process 1186 1193	k-means
+T20	Process 1195 1200	D-SDC
+T21	Process 1206 1216	linear SVR
+T22	Process 1278 1284	SW-SVR
+T23	Process 1339 1358	tune the parameters
+T24	Process 1390 1401	grid search
+T25	Process 1571 1588	genetic algorithm
+T26	Process 1602 1613	grid search

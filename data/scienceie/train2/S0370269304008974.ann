@@ -1,0 +1,29 @@
+T1	Process 10 52	extension to the charmed analogue Θc(3099)
+T2	Task 90 127	SDO sum rule and lattice calculations
+T3	Material 144 155	charm quark
+T4	Process 183 208	constituent-quark picture
+T5	Process 230 243	JW prediction
+T6	Task 307 335	quenched lattice calculation
+T7	Process 1252 1265	QCD sum rules
+T8	Task 1283 1336	see how they are different from the Θ+(1540) sum rule
+T9	Task 479 487	sum rule
+T10	Material 638 654	radiating gluons
+T11	Process 761 819	replaced by gluonic operators in the heavy quark expansion
+T12	Process 864 913	charm quark mass has to be kept finite in the OPE
+T13	Process 946 971	momentum space expression
+T15	Material 660 688	quark–gluon mixed condensate
+T16	Material 293 296	QCD
+T17	Process 507 519	SDO sum rule
+T18	Material 545 556	charm quark
+T19	Material 578 594	quark condensate
+T20	Material 690 698	s̄gsσ·Gs
+R1	Hyponym-of Arg1:T20 Arg2:T15	
+T21	Process 745 756	Θ+ sum rule
+T22	Material 773 790	gluonic operators
+T23	Material 798 809	heavy quark
+T24	Material 864 875	charm quark
+T25	Material 910 913	OPE
+T26	Material 980 1002	charm-quark propagator
+T27	Process 1027 1051	the light-quark sum rule
+T14	Material 1123 1140	quark propagators
+T28	Material 1186 1197	small quark

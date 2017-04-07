@@ -1,0 +1,71 @@
+T1	Process 26 35	framework
+T2	Task 22 60	new framework of a numerical modelling
+T3	Material 89 92	air
+T4	Material 97 102	water
+T5	Process 142 168	chemical reaction in water
+T6	Process 190 211	two-compartment model
+T7	Process 261 280	fundamental concept
+T8	Task 285 320	modelling physicochemical processes
+T9	Process 358 384	chemical reaction in water
+T11	Process 498 527	effects of the Schmidt number
+T12	Process 536 558	chemical reaction rate
+T13	Process 68 80	gas exchange
+T14	Process 328 340	gas exchange
+T10	Process 566 610	gas exchange mechanisms across the interface
+T15	Process 641 663	gas exchange processes
+T16	Process 730 752	gas–liquid equilibrium
+R1	Hyponym-of Arg1:T16 Arg2:T15	
+T17	Process 641 663	gas exchange processes
+T18	Process 799 835	chemical reaction in the water phase
+R2	Hyponym-of Arg1:T18 Arg2:T17	
+T19	Material 890 906	gaseous material
+T20	Material 933 944	water phase
+T21	Process 852 882	irreversible chemical reaction
+T22	Process 993 1011	chemical reactions
+T23	Process 1016 1054	turbulent transport phenomena in water
+T24	Process 1204 1232	computational fluid dynamics
+T25	Process 1234 1237	CFD
+*	Synonym-of T25 T24
+T26	Process 1175 1196	two-compartment model
+T27	Material 1256 1261	water
+T29	Process 1381 1408	direct numerical simulation
+T30	Process 1410 1413	DNS
+*	Synonym-of T30 T29
+T31	Task 1435 1500	evaluate profiles of fluid velocities and concentrations in water
+T32	Process 1643 1672	fluid flow in the water phase
+T33	Process 1456 1472	fluid velocities
+T34	Process 1477 1500	concentrations in water
+T35	Process 1816 1835	molecular diffusion
+T36	Material 1843 1846	gas
+T37	Material 1864 1869	water
+T38	Process 1877 1911	gas exchange rate at the interface
+T39	Task 1991 2058	effect of the chemical reaction rate on the gas exchange mechanisms
+T40	Process 1932 1969	nondimensional chemical reaction rate
+T41	Material 328 331	gas
+T42	Material 379 384	water
+T43	Material 566 569	gas
+T44	Material 641 644	gas
+T45	Material 1049 1054	water
+T46	Process 1076 1097	two-compartment model
+T47	Task 1277 1377	evaluate temporal development of three-dimensional profiles of the velocity and concentration fields
+T28	Material 1495 1500	water
+T48	Process 1604 1624	subgrid-scale models
+T49	Material 1703 1708	water
+T50	Material 1877 1880	gas
+T51	Task 1789 1835	observe the effects of the molecular diffusion
+T52	Material 2035 2038	gas
+T53	Process 2035 2058	gas exchange mechanisms
+T54	Process 2005 2022	chemical reaction
+T55	Material 2082 2085	gas
+T56	Process 2117 2136	transport phenomena
+T57	Process 2181 2198	chemical reaction
+T58	Material 2241 2244	gas
+T59	Process 2241 2263	gas exchange processes
+T60	Material 2287 2296	Sc∼O(102)
+T61	Material 2278 2283	gases
+T62	Task 2229 2263	predict the gas exchange processes
+T63	Task 2331 2352	numerical experiments
+T64	Material 730 733	gas
+T65	Material 734 740	liquid
+T66	Material 824 829	water
+T67	Process 2082 2100	gas exchange rates

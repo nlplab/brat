@@ -1,0 +1,15 @@
+T1	Process 21 43	Discontinuous Galerkin
+T2	Process 45 47	DG
+*	Synonym-of T1 T2
+T3	Task 111 167	solving conservation laws of the shallow water equations
+T4	Process 144 167	shallow water equations
+T5	Process 203 212	DG method
+T6	Process 230 261	finite element weak formulation
+T7	Task 305 372	shape a piecewise-polynomial solution over each local discrete cell
+T8	Process 378 399	local basis functions
+T9	Process 420 442	DG polynomial accuracy
+T10	Process 556 579	conservation principles
+T11	Process 281 304	conservation principles
+T12	Task 642 670	DG-based shallow water model
+T13	Material 720 738	very coarse meshes
+T14	Process 882 892	CFL number

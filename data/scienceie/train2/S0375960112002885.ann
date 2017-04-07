@@ -1,0 +1,27 @@
+T1	Process 0 29	First-principles calculations
+T2	Task 49 83	electronic structure and stability
+T3	Material 91 105	W@Si12 cluster
+T4	Material 112 114	O2
+T5	Task 112 147	O2 molecule adsorption and reaction
+T6	Task 233 242	oxidation
+T7	Process 175 215	W-encapsulated Si12 hexagonal prism cage
+T8	Material 248 250	O2
+T9	Process 311 327	low temperatures
+T10	Task 372 401	significant reaction barriers
+T11	Task 403 417	0.593–1.118 eV
+R1	Hyponym-of Arg1:T11 Arg2:T10	
+T12	Material 427 429	O2
+T13	Material 446 453	cluster
+T14	Material 289 296	cluster
+T15	Task 539 563	spin forbidden reactions
+T16	Material 632 634	O2
+T17	Material 659 666	cluster
+T18	Material 712 726	W@Si12 cluster
+T19	Process 748 793	high temperature and high pressure conditions
+T20	Material 799 801	O2
+T21	Process 860 907	overcoming a significantly large energy barrier
+T22	Process 482 492	adsorption
+T23	Process 520 528	reaction
+T24	Process 124 134	adsorption
+T25	Process 139 147	reaction
+T26	Process 577 605	Wingerʼs spin selection rule

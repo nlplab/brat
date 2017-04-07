@@ -1,0 +1,19 @@
+Title: TextRunner: Open Information Extraction on the Web
+
+Abstract: 
+
+Content: 3
+
+Open IE in TextRunner OIE presents significant new challenges for information extraction systems, including Automation of relation extraction, which in traditional information extraction uses handlabeled inputs. Corpus Heterogeneity on the Web, which makes tools like parsers and named-entity taggers less accurate because the corpus is different from the data used to train the tools. Scalability and efficiency of the system. Open IE systems are effectively restricted to a single, fast pass over the data so that they can scale to huge document collections. In response to these challenges, Text- Runner includes several novel components, which we now summarize (see (Banko et al., 2007) for details). 1. Single Pass Extractor The TextRunner extractor makes a single pass over all documents, tagging sentences with part-of-speech tags and nounphrase chunks as it goes. For each pair of noun phrases that are not too far apart, and subject to several other constraints, it applies a classifier described below to determine whether or not to extract a relationship. If the classifier deems the relationship trustworthy, a tuple of the form t = (e i , r j , e k ) is extracted, where e i , e k are entities and r j is the relation between them. For example, TextRunner might extract the tuple (Edison, invented, light bulbs). On our test corpus (a 9 million document subset of our full corpus), it took less than 68 CPU hours to process the 133 million sentences . The process is easily parallelized, and took only 4 hours to run on our cluster.
+
+Self-Supervised Classifier
+
+While full parsing is too expensive to apply to the Web, we use a parser to generate training examples for extraction. Using several heuristic constraints, we automatically label a set of parsed sentences as trustworthy or untrustworthy extractions (positive and negative examples , respectively). The classifier is trained on these examples, using features such as the part of speech tags on the words in the relation . The classifier is then able to decide whether a sequence of POS-tagged words is a correct extraction with high accuracy. 3. Synonym Resolution Because TextRunner has no pre-defined relations , it may extract many different strings representing the same relation. Also, as with all information extraction systems, it can extract multiple names for the same object. The Resolver system performs an unsupervised clustering of TextRunner's extractions to create sets of synonymous entities and relations . Resolver uses a novel, unsupervised probabilistic model to determine the probability that any pair of strings is co-referential, given the tuples that each string was extracted with. (Yates and Etzioni, 2007) 4. Query Interface TextRunner builds an inverted index of the extracted tuples, and spreads it across a cluster of machines. This architecture supports fast, interactive, and powerful relational queries. Users may enter words in a relation or entity,
+
+and
+
+TextRunner quickly returns the entire set of extractions matching the query. For example, a query for " Newton " will return tuples like (Newton, invented, calculus). Users may opt to query for all tuples matching synonyms of the keyword input, and may also opt to merge all tuples returned by a query into sets of tuples that are deemed synonymous.
+
+Experimental Results
+
+On our test corpus of 9 million Web documents , TextRunner extracted 7.8 million well-formed tuples. On a randomly selected subset of 400 tuples, 80.4% were deemed correct by human reviewers. We performed a head-to-head comparison with a state-of-the-art traditional information extraction system, called Know- ItAll. (Etzioni et al., 2005) On a set of ten high-frequency relations, TextRunner found nearly as many correct extractions as Know- ItAll (11,631 to 11,476), while reducing the error rate of KnowItAll by 33% (18% to 12%).

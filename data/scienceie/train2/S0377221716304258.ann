@@ -1,0 +1,19 @@
+T1	Material 120 125	M3PPs
+T2	Material 178 183	MMPPs
+T5	Process 656 677	composition operators
+T7	Process 818 830	EM algorithm
+T8	Process 926 948	superposition operator
+T9	Task 1364 1388	matrix geometric methods
+T10	Process 0 16	Two-state models
+T3	Process 482 526	composing multiple small-sized MMPPs or MAPs
+T4	Process 533 552	Kronecker operators
+T6	Material 1023 1028	MMPPs
+T11	Material 1208 1222	MMPPs and MAPs
+T12	Task 1226 1247	modeling real systems
+T13	Task 1321 1360	numerical evaluation of queueing models
+T14	Task 81 125	study the approximate fitting of large M3PPs
+T15	Process 228 251	statistical descriptors
+T16	Process 286 306	underlying equations
+T17	Process 1148 1169	state space explosion
+T18	Task 789 804	fitting methods
+T19	Process 987 1028	statistical multiplexing of several MMPPs

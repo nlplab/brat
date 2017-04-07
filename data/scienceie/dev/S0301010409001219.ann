@@ -1,0 +1,26 @@
+T1	Process 40 63	fragmentation processes
+T2	Material 67 87	polyatomic molecules
+T3	Material 102 131	intense ultrafast laser field
+T4	Material 225 236	laser field
+*	Synonym-of T3 T4
+T5	Material 274 294	chirped laser pulses
+T6	Process 393 430	laser induced molecular fragmentation
+T7	Material 436 468	chirped femtosecond laser pulses
+T8	Task 604 632	fragment channel enhancement
+T9	Task 748 806	observation of a coherently enhanced fragmentation pathway
+T10	Material 810 826	n-propyl benzene
+T11	Material 862 883	fragmentation channel
+T12	Material 913 929	n-propyl benzene
+T13	Material 953 958	C3H3+
+T14	Material 1002 1013	laser pulse
+T15	Process 688 704	molecular system
+T16	Material 1055 1063	channels
+T17	Material 1140 1145	C3H3+
+T18	Material 1151 1176	negatively chirped pulses
+T19	Material 1221 1235	positive chirp
+T20	Material 1283 1304	heavier fragment ions
+T21	Material 1361 1369	molecule
+T22	Material 1406 1411	chirp
+R1	Hyponym-of Arg1:T14 Arg2:T16	
+R2	Hyponym-of Arg1:T20 Arg2:T21	
+T23	Task 296 309	fragmentation

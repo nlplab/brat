@@ -1,0 +1,22 @@
+T1	Task 3 54	restrict pollen tube growth to a single focal plane
+T2	Process 104 149	growth analysis under microscopic observation
+T3	Process 181 206	assay pollen tube growth,
+T5	Process 296 327	observe their growth in detail.
+T7	Task 570 603	accurate microscopic observations
+T10	Process 12 30	pollen tube growth
+T11	Process 211 228	pollen tubes grow
+T4	Material 181 198	assay pollen tube
+T6	Process 361 385	assay pollen tube growth
+T12	Material 361 378	assay pollen tube
+T13	Material 392 433	poly-dimethylsiloxane microchannel device
+T14	Process 437 468	isolate individual pollen tubes
+T15	Material 456 468	pollen tubes
+T9	Task 347 385	new method to assay pollen tube growth
+T16	Material 488 499	pollen tube
+T8	Process 656 674	pollen tube growth
+T17	Material 656 667	pollen tube
+T18	Material 741 760	signaling molecules
+T19	Material 719 736	chemical products
+T20	Process 809 827	plant reproduction
+T21	Task 644 674	analyses of pollen tube growth
+T22	Task 794 827	experiments on plant reproduction

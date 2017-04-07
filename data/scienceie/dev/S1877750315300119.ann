@@ -1,0 +1,11 @@
+T1	Process 0 39	Generalized polynomial chaos expansions
+T2	Task 57 72	model densities
+T3	Task 149 168	uncertainty problem
+T4	Process 212 250	generalised polynomial chaos expansion
+T5	Process 298 323	Rosenblatt transformation
+T6	Process 762 781	Askey-Wilson scheme
+T7	Process 807 838	discretized Stieltjes procedure
+T8	Process 1002 1041	generalized polynomial chaos expansions
+T9	Process 1148 1173	Rosenblatt transformation
+T10	Material 1189 1212	computational framework
+T11	Process 1214 1253	generalized polynomial chaos expansions

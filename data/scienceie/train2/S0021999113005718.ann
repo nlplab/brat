@@ -1,0 +1,14 @@
+T1	Task 134 171	conventional continuum fluid dynamics
+T2	Task 0 20	Numerical simulation
+T3	Process 0 36	Numerical simulation of the gas flow
+T4	Process 402 422	molecular collisions
+T5	Process 501 537	direct simulation Monte Carlo method
+T6	Task 599 625	internal-flow applications
+T7	Task 229 254	thermodynamic equilibrium
+T8	Material 349 363	channel height
+T9	Process 744 761	high-aspect ratio
+T10	Process 539 543	DSMC
+*	Synonym-of T5 T10
+T11	Process 559 563	DSMC
+T12	Task 772 801	formidable multiscale problem
+T13	Material 202 205	gas

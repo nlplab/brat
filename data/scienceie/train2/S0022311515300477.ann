@@ -1,0 +1,25 @@
+T1	Task 231 291	understanding of the morphology of the metal:oxide interface
+T3	Process 1016 1048	transmission electron microscopy
+T4	Process 1050 1053	TEM
+*	Synonym-of T3 T4
+T5	Process 1189 1210	atom probe tomography
+T6	Material 498 506	Zr clads
+T8	Task 415 452	modelling the rate of growth of oxide
+T2	Material 693 704	oxide scale
+T9	Material 713 736	top layers of the metal
+T10	Process 651 660	oxidation
+T11	Process 882 904	oxidation of the metal
+T12	Material 540 562	nuclear power reactors
+T13	Process 303 320	corrosion process
+T14	Material 270 291	metal:oxide interface
+T15	Material 89 100	oxide layer
+T16	Task 346 397	Understanding why this transition behaviour happens
+T17	Material 447 452	oxide
+T7	Task 610 660	understanding of what is going on during oxidation
+T18	Process 844 863	diffusion of oxygen
+T19	Material 857 863	oxygen
+T20	Process 796 827	structural and chemical changes
+R1	Hyponym-of Arg1:T18 Arg2:T20	
+R2	Hyponym-of Arg1:T11 Arg2:T20	
+T21	Material 895 904	the metal
+*	Synonym-of T21 T19

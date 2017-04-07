@@ -1,0 +1,14 @@
+T1	Process 5 29	nonlinear wave equations
+T2	Task 52 78	investigate mathematically
+T3	Process 94 111	analytical method
+T4	Process 144 173	Exponential Time Differencing
+T5	Process 175 178	ETD
+*	Synonym-of T4 T5
+T6	Material 199 213	minimum stages
+T7	Process 299 321	computational duration
+T8	Process 345 374	stability characteristicsupon
+T9	Material 385 409	nonlinear wave equations
+T10	Task 375 409	resolving nonlinear wave equations
+T11	Task 424 472	solves the diagonal example of Kawahara equation
+T12	Process 481 508	ETD Runge-Kutta 4 technique
+T13	Material 564 579	Matlab programs

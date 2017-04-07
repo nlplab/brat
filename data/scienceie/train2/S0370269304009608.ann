@@ -1,0 +1,22 @@
+T1	Material 24 28	BEBC
+T2	Material 38 43	NOMAD
+T3	Material 126 132	JETSET
+T4	Material 139 144	NOMAD
+T5	Task 49 71	observed a discrepancy
+T6	Material 204 210	JETSET
+T7	Process 162 191	retune some of the parameters
+T8	Process 283 304	events were simulated
+T10	Process 348 373	setting proposed by NOMAD
+T11	Material 381 387	JETSET
+T12	Process 400 430	taking an average between them
+T13	Process 447 486	half a difference as a systematic error
+T15	Process 543 553	resonances
+T16	Material 642 648	JETSET
+T17	Process 649 667	parameter settings
+T21	Material 518 538	light neutral mesons
+T22	Material 368 373	NOMAD
+T14	Task 214 237	obtain better agreement
+T23	Task 274 282	analysis
+T9	Process 319 334	default setting
+T24	Process 584 597	normalization
+T18	Material 756 773	experimental data

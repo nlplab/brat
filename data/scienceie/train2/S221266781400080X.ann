@@ -1,0 +1,20 @@
+T1	Material 49 54	FeSO4
+T2	Material 8 37	inorganic flocculating agents
+T3	Material 56 66	Al2(SO4)3,
+T4	Material 67 72	FeCl3
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+R2	Hyponym-of Arg1:T3 Arg2:T2	
+R3	Hyponym-of Arg1:T4 Arg2:T2	
+T5	Material 80 101	organic coagulant aid
+T6	Material 102 105	PAM
+R4	Hyponym-of Arg1:T6 Arg2:T5	
+T7	Process 120 140	treat the wastewater
+T8	Task 245 269	single factor experiment
+T9	Task 274 302	orthogonal design experiment
+T10	Material 364 369	FeSO4
+T11	Material 374 377	PAM
+T12	Process 464 476	removal rate
+T13	Task 561 586	analyzes the main factors
+T14	Process 599 632	wastewater flocculation treatment
+T15	Material 496 499	COD
+T16	Material 599 622	wastewater flocculation

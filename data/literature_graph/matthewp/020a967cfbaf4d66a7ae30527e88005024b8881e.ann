@@ -1,0 +1,76 @@
+T1	METHOD 44 49	LSTMs
+T2	TASK 7 37	End-to-End Relation Extraction
+R1	addresses Arg1:T1 Arg2:T2	
+T3	METHOD 189 213	recurrent neural network
+T4	METHOD 311 350	bidirectional tree-structured LSTM-RNNs
+T5	METHOD 354 388	bidirectional sequential LSTM-RNNs
+R2	is_subclass_of Arg1:T5 Arg2:T3	
+R3	is_subclass_of Arg1:T4 Arg2:T3	
+T6	TASK 828 835	ACE2005
+T7	TASK 840 847	ACE2004
+T8	DATASET 828 835	ACE2005
+T9	DATASET 840 847	ACE2004
+T10	METRIC 816 824	F1-score
+T11	TASK 741 760	relation extraction
+T12	METHOD 885 893	LSTM-RNN
+T13	METHOD 949 952	CNN
+T14	METRIC 969 977	F1-score
+T15	TASK 1015 1034	SemEval-2010 Task 8
+T16	DATASET 1015 1034	SemEval-2010 Task 8
+T17	TASK 140 170	extract entities and relations
+T18	TASK 595 614	relation extraction
+T19	METHOD 619 637	entity pretraining
+T20	METHOD 642 660	scheduled sampling
+T21	METHOD 124 136	neural model
+T22	METHOD 707 726	feature-based model
+T23	TASK 990 1013	relation classification
+T24	IDK_MAN 1070 1087	ablation analysis
+R4	addresses Arg1:T14 Arg2:T23	
+R5	addresses Arg1:T14 Arg2:T15	
+R6	addresses Arg1:T13 Arg2:T23	
+R7	addresses Arg1:T13 Arg2:T15	
+R8	addresses Arg1:T12 Arg2:T23	
+R9	addresses Arg1:T12 Arg2:T15	
+R10	addresses Arg1:T10 Arg2:T6	
+R11	addresses Arg1:T10 Arg2:T7	
+R13	addresses Arg1:T10 Arg2:T11	
+R12	addresses Arg1:T22 Arg2:T11	
+R14	addresses Arg1:T22 Arg2:T6	
+R15	addresses Arg1:T22 Arg2:T7	
+R16	addresses Arg1:T21 Arg2:T17	
+R17	uses Arg1:T5 Arg2:T19	
+R18	uses Arg1:T5 Arg2:T20	
+R19	uses Arg1:T4 Arg2:T19	
+R20	uses Arg1:T4 Arg2:T20	
+R21	addresses Arg1:T4 Arg2:T18	
+R22	addresses Arg1:T4 Arg2:T17	
+R23	addresses Arg1:T5 Arg2:T17	
+R24	addresses Arg1:T5 Arg2:T18	
+R25	addresses Arg1:T16 Arg2:T23	
+R26	addresses Arg1:T8 Arg2:T11	
+R27	addresses Arg1:T9 Arg2:T11	
+T25	METHOD 30965 30974	LSTM-RNNs
+T26	DATASET 31151 31156	ACE04
+T27	DATASET 31161 31166	ACE05
+T29	TASK 30794 30824	end-to-end relation extraction
+R29	addresses Arg1:T25 Arg2:T29	
+T30	TASK 31119 31149	end-to-end relation extraction
+T31	METHOD 31241 31256	CNNbased models
+T32	DATASET 31293 31312	SemEval-2010 Task 8
+T33	TASK 31260 31291	nominal relation classification
+R30	addresses Arg1:T26 Arg2:T30	
+R31	addresses Arg1:T27 Arg2:T30	
+R32	addresses Arg1:T32 Arg2:T33	
+R33	addresses Arg1:T31 Arg2:T33	
+T34	IDK_MAN 31334 31342	ablation
+T35	TASK 31507 31526	relation extraction
+T36	METRIC 31527 31535	accuracy
+T37	METHOD 31567 31585	entity pretraining
+T38	METHOD 31587 31605	scheduled sampling
+T39	TASK 31688 31711	relation classification
+T40	METHOD 31777 31781	LSTM
+R34	addresses Arg1:T40 Arg2:T39	
+T41	METHOD 31612 31628	label embeddings
+T42	METHOD 31095 31115	feature-based system
+R35	addresses Arg1:T42 Arg2:T30	
+R36	addresses Arg1:T36 Arg2:T35	

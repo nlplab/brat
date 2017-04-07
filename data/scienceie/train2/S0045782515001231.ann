@@ -1,0 +1,36 @@
+T1	Task 0 21	Isogeometric analysis
+T2	Task 43 64	isogeometric analysis
+T3	Process 84 100	ansatz functions
+T4	Task 212 228	problem geometry
+T5	Process 243 259	problem geometry
+T6	Process 280 301	computer aided design
+T7	Process 303 306	CAD
+*	Synonym-of T6 T7
+T8	Material 320 325	NURBS
+T9	Material 329 338	T-splines
+T10	Process 386 408	finite element methods
+T11	Process 410 416	IGAFEM
+*	Synonym-of T10 T11
+T12	Process 502 505	CAD
+T13	Process 577 600	boundary element method
+T14	Process 602 605	BEM
+T15	Process 627 643	numerical scheme
+T16	Process 756 772	Isogeometric BEM
+T17	Process 774 780	IGABEM
+T18	Process 812 818	2D BEM
+T19	Process 835 841	3D BEM
+T20	Process 858 870	standard BEM
+T21	Task 997 1025	numerical analysis of IGABEM
+T22	Process 1019 1025	IGABEM
+T23	Task 1122 1141	quadrature analysis
+T24	Process 1158 1187	a posteriori error estimation
+T25	Process 1214 1226	standard BEM
+T26	Process 1318 1324	IGABEM
+T27	Task 1371 1434	shed some first light on a posteriori error analysis for IGABEM
+T28	Process 1428 1434	IGABEM
+T29	Process 1396 1423	a posteriori error analysis
+T30	Task 1455 1516	mathematical foundation of a corresponding adaptive algorithm
+T31	Process 1498 1516	adaptive algorithm
+*	Synonym-of T13 T14
+R1	Hyponym-of Arg1:T14 Arg2:T15	
+*	Synonym-of T16 T17

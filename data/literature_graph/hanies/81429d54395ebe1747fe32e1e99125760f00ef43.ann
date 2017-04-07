@@ -1,0 +1,8 @@
+T1	METHOD 7 23	Gradient Descent
+T2	METHOD 31 55	Linear Dynamical Systems
+T3	METRIC 110 143	converges to the global optimizer
+T4	METHOD 194 232	linear time-invariant dynamical system
+T5	METRIC 368 380	running time
+T6	METRIC 385 402	sample complexity
+T7	TASK 448 476	Linear systems identificatio
+T8	METRIC 568 589	polynomial guarantees

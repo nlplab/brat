@@ -1,0 +1,50 @@
+T1	Material 0 15	Ge (100) wafers
+T3	Material 189 195	wafers
+T5	Material 280 287	samples
+T7	Material 381 388	samples
+T10	Task 746 769	electrical measurements
+T12	Material 988 995	samples
+T14	Material 1055 1076	oxide leakage current
+T15	Process 1081 1089	measured
+T16	Material 1163 1209	HP 4192A low frequency (LF) impedance analyzer
+T17	Task 1269 1335	to perform high frequency capacitance–voltage (HF CV) measurements
+T19	Material 17 30	n- and p-type
+R1	Hyponym-of Arg1:T19 Arg2:T1	
+T2	Process 37 65	cleaned in ultra high vacuum
+T20	Material 48 65	ultra high vacuum
+T21	Process 110 136	evaporate any native oxide
+T22	Material 124 136	native oxide
+T23	Material 155 173	oxide free surface
+T4	Process 215 222	Al flux
+T24	Material 255 274	ultrathin Al layers
+T6	Process 298 306	oxidized
+T25	Material 338 351	MBE load lock
+T26	Material 363 375	Al2O3 layers
+T27	Task 355 375	produce Al2O3 layers
+T8	Material 424 455	Oxford Instruments OpAL reactor
+T28	Material 460 478	thin films of HfO2
+T29	Material 501 506	Al2O3
+T30	Process 513 536	atomic layer deposition
+T31	Process 538 541	ALD
+*	Synonym-of T30 T31
+T18	Material 548 552	HfO2
+T32	Process 548 564	HfO2 depositions
+T33	Material 572 598	[(CpMe)2HfOMeMe] precursor
+T34	Material 615 624	O2 plasma
+T35	Material 632 649	oxidizing species
+R2	Hyponym-of Arg1:T34 Arg2:T35	
+T9	Process 694 715	grow HfO2 thicknesses
+T36	Material 699 703	HfO2
+T11	Material 771 793	circular gold contacts
+T37	Material 853 872	MOS gate electrodes
+T38	Material 839 844	films
+T39	Material 877 879	Al
+T40	Material 913 922	Ge wafers
+T41	Material 937 950	ohmic contact
+T13	Process 1001 1024	annealed in forming gas
+T42	Material 1013 1024	forming gas
+T43	Material 1026 1029	FGA
+*	Synonym-of T42 T43
+T44	Material 1098 1126	Keithley 230B voltage source
+T45	Material 1131 1157	Keithley 617B electrometer
+T46	Material 1280 1335	high frequency capacitance–voltage (HF CV) measurements

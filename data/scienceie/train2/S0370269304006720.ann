@@ -1,0 +1,13 @@
+T1	Task 11 71	two-dimensional sigma models on compact symmetric spaces G/H
+T2	Process 140 181	integrals of local or non-local functions
+T3	Task 508 537	G/H sigma model with H simple
+T4	Process 588 594	simple
+T5	Process 613 664	corresponding Lie algebra has no non-trivial ideals
+R1	Hyponym-of Arg1:T4 Arg2:T5	
+T6	Process 847 859	quantization
+T7	Process 882 897	renormalization
+T8	Task 931 952	quantum integrability
+T9	Process 981 1017	calculations using the 1/N expansion
+T10	Task 1050 1095	conservation of the quantum non-local charges
+T11	Process 1103 1142	CPN−1=SU(N)/SU(N−1)×U(1) models for N>2
+T12	Process 1192 1248	complex Grassmannians SU(N)/SU(n)×SU(N−n)×U(1) for N>n>1

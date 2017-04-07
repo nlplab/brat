@@ -1,0 +1,17 @@
+T1	Task 22 95	problem that the diesel engine PT fuel system is unable to field maintain
+T2	Process 118 136	signal acquisition
+T3	Process 141 149	analysis
+T4	Material 161 189	diesel engine PT fuel system
+T5	Task 204 239	PT pump work Principle was analyzed
+T6	Task 370 421	failure fuel pressure characteristics were analyzed
+T7	Process 450 468	signal acquisition
+T8	Process 473 488	analysis system
+T9	Task 492 533	diagnose the diesel engine PT fuel system
+T10	Process 589 634	detect the diesel engine PT fuel system state
+T11	Material 600 621	diesel engine PT fuel
+T12	Material 39 60	diesel engine PT fuel
+T13	Material 204 211	PT pump
+T14	Material 249 256	PT pump
+T15	Material 348 369	diesel engine PT pump
+T16	Material 505 526	diesel engine PT fuel
+T17	Material 109 156	portable signal acquisition and analysis system

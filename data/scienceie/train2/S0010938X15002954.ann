@@ -1,0 +1,29 @@
+T1	Material 110 122	video images
+T2	Material 140 147	2D pits
+T3	Material 208 222	anodic current
+T4	Material 248 251	pit
+T5	Material 273 275	Al
+T6	Material 285 293	Al alloy
+R1	Hyponym-of Arg1:T5 Arg2:T6	
+T7	Material 303 324	Ni–Fe [35] thin films
+T8	Material 401 405	pits
+T9	Material 421 429	2D disks
+T10	Material 433 459	stainless steel thin films
+T11	Material 477 485	pit edge
+T12	Process 554 564	pit growth
+T13	Material 554 557	pit
+T14	Task 604 622	2D pit propagation
+T15	Material 604 610	2D pit
+T16	Material 684 704	1D pencil electrodes
+T17	Process 723 746	semi-quantitative model
+T18	Task 751 766	pit propagation
+T19	Process 579 622	measured the kinetics of 2D pit propagation
+T20	Process 787 811	lacy pit cover formation
+T21	Material 787 801	lacy pit cover
+T22	Material 892 895	pit
+T23	Material 948 951	pit
+T24	Material 1032 1048	Fe-Co thin films
+T25	Material 1165 1169	pits
+T26	Process 1204 1211	current
+T27	Process 823 833	pit growth
+T28	Material 823 826	pit

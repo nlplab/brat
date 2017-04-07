@@ -1,0 +1,14 @@
+T1	Process 60 104	verify their validity for dynamical purposes
+T2	Task 60 104	verify their validity for dynamical purposes
+T3	Task 125 166	studies of the nitrogen exchange reaction
+T4	Process 265 290	trajectory surface hoping
+T5	Material 457 474	rate coefficients
+T6	Process 717 739	vibrational transition
+T7	Task 777 794	rotational energy
+T8	Process 1057 1091	use of quasiclassical trajectories
+T9	Process 841 884	electronic transitions to the quartet state
+T10	Process 525 567	independently integrated for each symmetry
+T11	Process 292 295	TSH
+*	Synonym-of T4 T11
+T12	Process 265 303	trajectory surface hoping (TSH) method
+T13	Material 1132 1137	atoms

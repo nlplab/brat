@@ -1,0 +1,16 @@
+T1	Task 82 103	light neutrino masses
+T2	Process 24 41	see-saw mechanism
+T3	Task 248 304	Yukawa couplings in the quark and charged lepton sectors
+T4	Task 326 368	hierarchy-free masses implied by the Δm2's
+T6	Task 389 414	θ12 and θ23 mixing angles
+T7	Task 431 444	the angle θ13
+T8	Process 519 531	quark sector
+T5	Material 670 689	rhd neutrino masses
+T9	Process 619 689	Δm2 values can be fitted by taking the spectrum of rhd neutrino masses
+T10	Process 755 793	hierarchical neutrino Yukawa couplings
+T11	Material 849 868	rhd neutrino masses
+T12	Material 869 881	MR∼1010–1015
+*	Synonym-of T12 T11
+T13	Material 272 277	quark
+T14	Material 282 304	charged lepton sectors
+T15	Material 777 793	Yukawa couplings

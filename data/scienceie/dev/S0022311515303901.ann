@@ -1,0 +1,37 @@
+T1	Material 4 19	Magnox reactors
+T2	Material 54 73	gas-cooled reactors
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+T3	Material 94 108	carbon dioxide
+T4	Material 110 113	CO2
+*	Synonym-of T3 T4
+T5	Material 130 137	coolant
+R2	Hyponym-of Arg1:T4 Arg2:T5	
+T6	Material 144 180	honeycomb network of graphite bricks
+T7	Process 192 210	neutron moderation
+T8	Material 192 199	neutron
+T9	Material 260 275	carbon monoxide
+T10	Material 277 279	CO
+*	Synonym-of T9 T10
+T11	Material 303 314	CO2 coolant
+T12	Material 321 323	CO
+T13	Process 339 365	radiolytically polymerised
+T14	Task 369 413	form a carbonaceous deposit on free surfaces
+T15	Material 425 453	non-graphitic carbon deposit
+T16	Material 499 502	air
+T17	Material 523 531	graphite
+T18	Material 569 584	Magnox reactors
+T19	Material 606 617	methane gas
+T20	Material 641 652	coolant gas
+T21	Material 683 696	graphite core
+T22	Process 704 724	radiolytic oxidation
+T23	Material 731 738	Methane
+T24	Material 740 743	CH4
+*	Synonym-of T23 T24
+T25	Material 842 850	graphite
+T26	Material 940 948	nitrogen
+T27	Task 656 724	inhibit weight loss of the graphite core due to radiolytic oxidation
+T28	Material 764 785	carbonaceous deposits
+T29	Process 887 919	reduction in mechanical strength
+T30	Process 940 987	nitrogen incorporation during deposit formation
+T31	Process 856 877	excessive weight loss
+T32	Material 219 226	reactor

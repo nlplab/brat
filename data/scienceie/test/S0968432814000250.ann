@@ -1,0 +1,32 @@
+T1	Task 0 9	Volume EM
+T2	Process 33 45	transmission
+T3	Material 49 78	scanning electron microscopes
+T4	Material 274 306	transmission electron microscopy
+T5	Task 340 391	ultrastructural examination of biomedical specimens
+T6	Task 439 459	cell biology studies
+T7	Process 509 535	deposition of heavy metals
+T8	Task 965 992	visualisation of structures
+T9	Material 1238 1255	low beam energies
+T10	Process 1272 1290	interaction volume
+T11	Task 1360 1374	volume imaging
+T12	Process 1443 1472	traditional manual techniques
+T13	Process 1489 1503	latest systems
+T14	Task 804 820	electron imaging
+T15	Process 722 750	scanning electron microscopy
+T16	Process 752 755	SEM
+*	Synonym-of T15 T16
+T17	Process 722 767	scanning electron microscopy (SEM) technology
+T18	Material 308 311	TEM
+*	Synonym-of T4 T18
+T19	Material 523 535	heavy metals
+T20	Process 822 826	SEMs
+T21	Material 832 863	field emission electron sources
+T22	Material 868 902	high efficiency electron detectors
+T23	Material 1001 1018	synaptic vesicles
+T24	Material 1023 1032	membranes
+T25	Material 1165 1182	membrane bilayers
+T26	Task 1132 1182	resolving individual leaflets of membrane bilayers
+T27	Process 1292 1318	enhancing axial resolution
+T28	Process 1383 1412	transmission and scanning EMs
+T29	Task 1526 1544	sample preparation
+T30	Task 1549 1556	imaging

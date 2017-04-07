@@ -1,0 +1,21 @@
+T1	Task 50 62	XRD analysis
+T2	Process 130 138	quenched
+T3	Process 350 361	thermograms
+T4	Process 408 429	solidification arrest
+T5	Process 433 450	clear inflections
+T6	Process 518 529	latent heat
+T7	Process 581 613	reflected light signal technique
+T8	Process 689 700	segregation
+T9	Process 865 883	Raman spectroscopy
+T10	Process 907 918	segregation
+T11	Process 974 990	phase transition
+T12	Task 1033 1045	XRD analysis
+T13	Process 23 42	segregation effects
+T14	Material 320 326	liquid
+T15	Material 334 341	surface
+T16	Process 299 310	crystallise
+T17	Process 630 642	phase change
+T18	Material 737 748	molten pool
+T19	Task 844 883	material analysis by Raman spectroscopy
+T20	Material 765 787	re-solidified material
+T21	Material 1097 1119	re-solidified material

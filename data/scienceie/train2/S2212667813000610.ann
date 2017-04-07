@@ -1,0 +1,15 @@
+T1	Task 55 81	produce successful product
+T2	Process 105 115	production
+T3	Process 134 147	product fails
+T4	Process 170 180	management
+T5	Task 210 246	role of software engineering courses
+T6	Process 559 593	software project management course
+T7	Task 623 651	survey of course curriculums
+T8	Process 31 48	software industry
+T9	Process 334 352	project management
+T10	Process 356 392	proper software management trainings
+T11	Task 250 270	computer engineering
+T12	Task 559 586	software project management
+T13	Task 363 382	software management
+T14	Task 655 675	computer engineering
+T15	Task 677 728	computer science and information system engineering

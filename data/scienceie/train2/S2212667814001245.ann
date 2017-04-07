@@ -1,0 +1,13 @@
+T1	Task 0 18	Sentence reduction
+T2	Task 44 62	text summarization
+T3	Task 120 147	natural language processing
+T4	Task 195 223	generates sentence reduction
+T5	Process 240 269	Vietnamese text summarization
+T6	Process 276 298	Bayesian Network model
+T7	Process 300 322	Bayesian network model
+T8	Task 343 373	best likelihood short sentence
+T9	Process 382 415	compare difference of probability
+T10	Material 443 456	980 sentences
+T11	Process 501 530	generating sentence reduction
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+R2	Hyponym-of Arg1:T1 Arg2:T3	

@@ -1,0 +1,27 @@
+T1	Process 89 119	cumulative averaging technique
+T2	Task 123 135	reduce noise
+T3	Material 142 155	micro element
+T4	Material 172 195	spatially-oriented bins
+T5	Task 227 273	resolve the velocity and shear-stress profiles
+T6	Material 292 295	bin
+T7	Process 318 345	Cumulative Averaging Method
+T8	Process 347 350	CAM
+*	Synonym-of T7 T8
+T9	Process 368 387	stress tensor field
+T10	Process 410 438	Irving–Kirkwood relationship
+T11	Process 447 475	least-squares polynomial fit
+T12	Process 514 526	reduce noise
+T13	Process 555 574	continuous function
+T14	Process 580 603	avoids stability issues
+T15	Material 627 650	highly fluctuating data
+T16	Material 658 670	macro solver
+T17	Process 674 691	least-squares fit
+T18	Material 709 729	Nth order polynomial
+T19	Material 782 802	Mth order polynomial
+T20	Material 999 1010	polynomials
+T21	Material 1023 1040	core micro region
+T22	Material 1045 1063	constrained region
+T23	Material 979 991	coefficients
+T24	Material 762 773	core region
+T25	Material 1135 1149	macro solution
+T26	Material 1181 1219	compressed wall micro-element solution

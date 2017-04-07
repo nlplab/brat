@@ -1,0 +1,30 @@
+T1	METHOD 72 90	unlexicalized PCFG
+T2	METHOD 277 293	treebank grammar
+T3	METHOD 370 386	lexicalized PCFG
+T4	METHOD 584 603	unlexical-ized PCFG
+T5	METHOD 850 871	probabilistic methods
+T6	TASK 878 881	NLP
+T7	TASK 883 890	parsing
+T8	METHOD 925 961	prob-abilistic context-free grammars
+T9	METHOD 1051 1056	PCFGs
+T10	TASK 1061 1082	parse disambigua-tion
+T11	TASK 1087 1104	language modeling
+R1	addresses Arg1:T9 Arg2:T10	
+R2	addresses Arg1:T9 Arg2:T11	
+T12	METHOD 1158 1175	lexicalized PCFGs
+T13	TASK 1257 1269	PCFG parsing
+T14	METHOD 1412 1432	lexicalized grammars
+T15	METHOD 1330 1343	n-gram models
+T16	TASK 1347 1365	speech recognition
+R3	addresses Arg1:T15 Arg2:T16	
+T17	METHOD 1465 1485	lexical dependencies
+T18	TASK 1647 1667	parse disambiguation
+T19	TASK 1677 1694	language modeling
+T20	METHOD 1719 1735	lexicalized PCFG
+T21	METHOD 1892 1910	unlexicalized PCFG
+T22	DATASET 1920 1934	Penn tree-bank
+T23	DATASET 2023 2036	Penn treebank
+T24	METHOD 2046 2050	PCFG
+T25	TASK 2070 2077	parsing
+T26	METHOD 2310 2333	lexicalized PCFG parser
+T27	METHOD 2576 2593	lexicalized PCFGs

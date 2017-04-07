@@ -1,0 +1,511 @@
+Title: A Theory of the Learnable
+
+Abstract: Humans appear to be able to learn new concepts without needing to be programmed explicitly in any conventional sense. In this paper we regard learning as the phenomenon of knowledge acquisition in the absence of explicit programming. We give a precise methodology for studying this phenomenon from a computational viewpoint. It consists of choosing an appropriate information gathering mechanism, the learning protocol, and exploring the class of concepts that can be learnt using it in a reasonable (polynomial) number of steps. We find that inherent algorithmic complexity appears to set serious limits to the range of concepts that can be so learnt. The methodology and results suggest concrete principles for designing realistic learning systems.
+
+Content: 
+
+RESEARCH CONTRIBUTIONS Artificial Intelligence and Language Processing A Theory of the Learnable David 
+Waltz Editor L, G. VALIANT ABSTRACT: Humans appear to be able to learn new concepts without needing 
+to be programmed explicitly in any conventional sense. In this paper we regard learning as the phenomenon 
+of knowledge acquisition in the absence of explicit programming. We give a precise methodology for studying 
+this phenomenon from a computational viewpoint. It consists of choosing an appropriate information gathering 
+mechanism, the learning protocol, and exploring the class of concepts that can be learned using it in 
+a reasonable (polynomial) number of steps. Although inherent algorithmic complexity appears to set serious 
+limits to the range of concepts that can be learned, we show that there are some important nontrivial 
+classes of propositional concepts that can be learned in a realistic sense. 1. INTRODUCTION Computability 
+theory became possible once precise models became available for modeling the common- place phenomenon 
+of mechanical calculation. The the- ory that evolved has been used to explain human expe- rience and 
+to suggest how artificial computing devices should be built. It is also worth studying for its own sake. 
+The commonplace phenomenon of learning surely merits similar attention. The problem is to discover good 
+models that are interesting to study for their own sake and that promise to be relevant both to explaining 
+human experience and to building devices that can learn. The models should also shed light on the limits 
+of what can be learned, just as computability does on what can be computed. In this paper we shall say 
+that a program for perform- ing a task has been acquired by learning if it has been acquired by any means 
+other than explicit program- ming. Among human skills some clearly appear to have This research was supported 
+in part by National Science Foundation grant MCS-83-02385. A preliminary version of this paper appeared 
+in the proceedings of the 16th ACM Symposium on Theory of Computing, Washington, D.C., 1984, 436-445. 
+&#38;#169;1984ACMO001-0782/84/1100-113475¢ a genetically preprogrammed element, whereas some others consist 
+of executing an explicit sequence of in- structions that has been memorized. There remains a large area 
+of skill acquisition where no such explicit programming is identifiable. It is this area that we de- 
+scribe here as learning. The recognition of familiar ob- jects, such as tables, provides such examples. 
+These skills often have the additional property that, although we have learned them, we find it difficult 
+to articulate what algorithm we are really using. In these cases it would be especially significant if 
+machines could be made to acquire them by learning. This paper is concerned with precise computational 
+models of the learning phenomenon. We shall restrict ourselves to skills that consist of recognizing 
+whether a concept (or predicate) is true or not for given data. We shall say that a concept Q has been 
+learned if a pro- gram for recognizing it has been deduced (i.e., by some method other than the acquisition 
+from the outside of the explicit program). The main contribution of this paper is that it shows that 
+it is possible to design learning machines that have all three of the following properties: 1. The machines 
+can provably learn whole classes of concepts. Furthermore, these classes can be charac- terized. 2. 
+The classes of concepts are appropriate and nontri- vial for general-purpose knowledge. 3. The computational 
+process by which the machines deduce the desired programs requires a feasible (i.e., polynomial) number 
+of steps.  A learning machine consists of a learning protocol to-gether with a deduction procedure. 
+The former specifies the manner in which information is obtained from the outside. The latter is the 
+mechanism by which a correct recognition algorithm for the concept to be learned is deduced. At the broadest 
+level, the suggested methodol-ogy for studying learning is the following: Define a plau- sible learning 
+protocol, and investigate the class of con- cepts for which recognition programs can be deduced in polynomial 
+time using the protocol. The specific protocols considered in this paper allow for two kinds of information 
+supply. First the learner has access to a supply of typical data that positively exemplify the concept. 
+More precisely, it is assumed that these positive examples have a probabilistic distri- bution determined 
+arbitrarily by nature. A call of a routine EXAMPLES produces one such positive exam- ple. The relative 
+probability of producing different ex- amples is determined by the distribution. The second source of 
+information that may be available is a routine ORACLE. In its most basic version, when presented with 
+data, it will tell the learner whether or not the data positively exemplify the concept. The major remaining 
+design choice that has to be made is that of knowledge representation. Since our declared aim is to represent 
+general knowledge, it seems almost unavoidable that we use some kind of logic rather than, for example, 
+formal grammars or geo- metrical constructs. In this paper we shall represent concepts as Boolean functions 
+of a set of propositional variables. The recognition algorithms that we attempt to deduce will be therefore 
+Boolean circuits or expres- sions. The adequacy of the propositional calculus for repre- senting knowledge 
+in practical learning systems is clearly a crucial and controversial question. Few would argue that this 
+much power is not necessary. The ques- tion is whether it is enough. There are several argu- ments suggesting 
+that such a system would, at least, be a very good start. First, when one examines the most famous examples 
+of systems that embody prepro- grammed knowledge, namely, expert systems such as DENDRAL and MYC!N, essentially 
+no logical notation beyond the propositional calculus is used. Surely it would be overambitious to try 
+to base learning systems on representations that are more powerful than those that have been successfully 
+managed in programmed systems. Second, the results in this paper can be nega- tively interpreted to suggest 
+that the class of learnable concepts even within the propositional calculus is se- verely circumscribed. 
+This suggests that the search for extensions to the propositional calculus that have sub- stantially 
+larger learnable classes may be a difficult one. The positive conclusions of this paper are that there 
+are specific classes of concepts that are learnable in polynomial time using learning protocols of the 
+kind described. These classes can all be characterized by defining the class of programs that recognize 
+them. In each case the programs are special kinds of Boolean expressions. The three classes are (l) conjunctive 
+nor- mal form expressions with a bounded number of liter- als in each clause, (2) monotone disjunctive 
+normal form expressions, and (3) arbitrary expressions in which each variable occurs just once. In the 
+first of these, no calls of the oracle are necessary. In the last, no access to typical examples is necessary 
+but the ora- cles need to be more powerful than the one described above. The deduction procedure will 
+in each case output an expression that with high likelihood closely approxi- mates the expression to 
+be learned. Such an approxi- mate expression never says yes when it should not but may say no on a small 
+fraction of the probability space of positive examples. This fraction can be made arbi- trarily small 
+by increasing the runtime of the deduction procedure. Perhaps the main technical discovery con- tained 
+in the paper is that with this probabilistic notion of learning highly convergent learning is possible 
+for whole classes of Boolean functions. This appears to dis- tinguish this approach from more traditional 
+ones where learning is seen as a process of "inducing" some general rule from information that is insufficient 
+for a reliable deduction to be made. The power of this proba- bi!istic viewpoint is illustrated, for 
+example, by the fact that an arbitrary set of polynomially many positive ex- amples cannot be relied 
+on to determine expressions consisting even of only a single monomial in any relia- ble way. A more detailed 
+description of this methodo- logical problem can be found in [9]. There is another aspect of our formulation 
+that is worth emphasizing. In a learning system that is about to learn a new concept, there may be an 
+enormous number of propositional variables available. These may be primitive inputs, the values of preprogrammed 
+con- cepts, or the values of concepts that have been lcarned previously. We want the complexity of learning 
+the new concept to be related only to the number of vari- ables that may be set in natural examples of 
+it, and not on the cardinality of the universe of available variables. Hence, the questions asked of 
+ORACLE and the values given by EXAMPLES will not be truth assignments to all the variables. In the archetypal 
+case, they will spec- ify an assignment to a subset of the variables that is still sufficient to guarantee 
+the truth of the function. Whether the classes of learnable Boolean concepts can be extended significantly 
+beyond the three classes given is an interesting question. There is circumstantial evidence from cryptography, 
+however, that the whole class of functions computable by polynomial size cir- cuits is not learnable. 
+Consider a cryptographic scheme that encodes messages by evaluating the function Ek where k specifies 
+the key. Suppose that this scheme is immune to chosen plaintext attack in the sense that, even if the 
+values of Ek are known for polynomially many dynamically chosen inputs, it is computationally infeasible 
+to deduce an algorithm for Ek or for an ap- proximation to it. This is equivalent to saying, however, 
+that Ek is not learnable. The conjectured existence of good cryptographic functions that are easy to 
+compute therefore implies that some easy-to-compute functions are not learnable. If the class of learnable 
+concepts is as severely lim- ited as suggested by our results, then it would follow that the only way 
+of teaching more complicated con- cepts is to build them up from such simple ones. Thus, a good teacher 
+would have to identify, name, and se- quence these intermediate concepts in the manner of a programmer. 
+The results of learnability theory would then indicate the maximum granularity of the single concepts 
+that can be acquired without programming. In summary, this paper attempts to explore the limits of what 
+is learnable as allowed by algorithmic complex- ity. The results are distinguishable from the diverse 
+body of previous work on learning because they at- tempt to reconcile the three properties ((1)-(3)) 
+men- tioned earlier. Closest in rigor to our approach is the inductive inference literature (see Angluin 
+and Smith [1] for a survey) that deals with inducing such things as recursive functions or formal grammars 
+(but not Boo- lean functions) from examples. There is a large body of work on pattern recognition and 
+classification, using statistical and other tools (e.g., [4]), but the question of general knowledge 
+representation is not addressed there directly. Learning, in various less formal senses, has been studied 
+widely as a branch of artificial intelli- gence. A survey and bibliography can be found in [2, 7]. In 
+their terminology the subject of this paper is concept learning. In previous work on learning, much emphasis 
+is placed on the diversity of methods that humans appear to be using. These include learning by example, 
+learn- ing by analogy, and learning by being told. This paper emphasizes the polarity between learning 
+by being pro- grammed and learning in the absence of any program- ming element. Many of the conventionally 
+accepted modes of learning can be regarded as being hybrids of these two extremes. 2. A LEARNING PROTOCOL 
+FOR BOOLEAN FUNCTIONS We consider t Boolean variables pl ..... pt, each of which can take the value 1 
+or 0 to indicate whether the associated proposition is true or false. There is no as- sumption about 
+the independence of the variables. In- deed, they may be functions of each other. A vector is an assignment 
+to each of the t variables of a value from {0, 1, *}. The symbol * denotes that a variable is undetermined. 
+A vector is total if every vari- able is determined (i.e., is assigned a value from {0, 1}). For example, 
+the assignment pl = p3 = 1, p4 = 0, and p2 = * is a vector that is not total. A Boolean function F is 
+a mapping from the set of 2 t total vectors to {0, 1}. A Boolean function F becomes a concept F if its 
+domain is extended to the set of all vectors as follows: For a vector v, F(v) = 1 if and only if F(w) 
+= 1 for all total vectors w that agree with v on all variables for which v is determined. The purpose 
+of this extension is that it permits us not to mention the variables on which F does not depend. Given 
+a concept F, we consider an arbitrary probabil-ity distribution D over the set of all vectors v such 
+that F(v) = 1. In other words, for each v such that F(v) = 1, it is the case that D(v} _> O. Also ~ D(v) 
+= 1 when summa- tion is over this set of vectors. There are no other as- sumed restrictions on D, which 
+is intended to describe the relative frequency with which the positive exam- ples of F occur in nature. 
+What are reasonable learning protocols to consider? First we must avoid giving the teacher too much power, 
+namely, the power to communicate a program instruc- tion by instruction. For example, if a premeditated 
+se- quence of vectors with repetitions could be communi- cated, then this could be used to encode the 
+description of the program even if just two such vectors were used for binary notation. Second we must 
+avoid giving the teacher what is evidently too little power. In particular, the protocol must provide 
+some typical examples of vectors for which F is true, for otherwise, if F is true for just one vector 
+that is total, only an exponential search or more powerful oracles would be able to find it. Such considerations 
+led us to consider the following learning protocol as a reasonable one. It gives the learner access to 
+the following two routines: 1. EXAMPLES: This has no input. It gives as output a vector v such that F(v) 
+= 1. For each such v, the probability that v is output on any single call is D(v). 2. ORACLE( ): On vector 
+v, as input it outputs 1 or 0 according to whether F(v) = 1 or 0. The first of these gives randomly chosen 
+positive ex- amples of the concept being learned. The second pro- vides a test for whether a vector, 
+which the deduction procedure considers to be critical, is an example of the concept or not. In a real 
+system, the oracle may be a human expert, a database of past observations, some deduction system, or 
+a combination of these. Finally we observe that our particular choice of learning protocol was strongly 
+influenced by the earlier decision to deal with concepts rather than raw Boolean functions. If we were 
+to deal with the latter, then many other alternatives are equally natural. For example, given a vector 
+v, instead of asking, as we do, whether all completions of it make the function true, we could ask whether 
+there exist any completions that make it true. This suggests natural alternative semantics for EXAMPLES 
+and ORACLE. In Section 7 we shall use such more elaborate oracles. 3. LEARNABILITY We shall consider 
+various classes of programs having pl ..... pt as inputs and show that in each case any program in the 
+class can be deduced, with only small probability of error, in polynomial time using the proto- col previously 
+described. We assume that programs can take the values 1, 0, and undetermined. More precisely we say 
+that a class X of programs is learnable with respect to a given learning protocol if and only if there 
+exists an algorithm A {the deduction pro- cedure} invoking the protocol with the following prop- erties: 
+1. The algorithm runs in time polynomial in an ad- justable parameter h, in the various parameters that 
+quantify the size of the program to be learned, and in the number of variables t.  2. For all programs 
+f E X and all distributions D over vectors v on which f outputs 1, the algorithm will deduce with probability 
+at least (1 - h -1} a program g ~ X that never outputs one when it should not but outputs one almost 
+always when it should. In  particular, {i) for all vectors v, g(v) = i implies f(v) = 1, and (ii} the 
+sum of D(v) over all v such that f(v) = 1, but g(v) ~ 1 is at most h-1. In our definition we have disallowed 
+positive an- swers from g to be wrong, only because the particular classes X in this paper do not require 
+it. This we call one-sided error learning, in other circumstances it may be efficacious to allow two-sided 
+errors. In that more general case, we would need to put a probability distri- bution D on the set of 
+vectors such that f(v} ~ 1. Condi- tion (i) i n (2} is then replaced by ~ D{v} over all v such that f(v) 
+~ 1, but g{v) = 1 is at most h-1. A second aspect of our definition is that the parame- ter h is used 
+in two independent probabilistic bounds. This simplifies the statement of the results. It would be more 
+precise, however, to work explicitly with two in- dependent parameters hi and h2. Third we should note 
+that programs that compute concepts should be distinguished from those that com- pute merely the Boolean 
+function. This distinction has little consequence for the three classes of expressions that we consider, 
+since in these cases programs for the concepts follow directly from the specification of the expressions. 
+For the sake of generality, our definitions do allow the value of a program to be undefined, since a 
+nontotal vector will not, in general, determine the value of an expression as 0 or 1. It would be interesting 
+to obtain negative results, other than the informal cryptographic evidence men- tioned in the introduction, 
+indicating that the class of unrestricted Boolean circuits is not learnable. A recent result [6] in this 
+direction does establish this, under the hypothesis that integer factorization is intractable. Their 
+result applies to the learning protocol consisting of EXAMPLES and ORACLE, when the latter is re- stricted 
+to total vectors. It may also be interesting to go in the opposite direction and determine, for example, 
+whether the hypothesis that P equals NP would imply that all interesting classes are learnable. 4. A 
+COMBINATORIAL BOUND The probabilistic analysis needed for our later results can be abstracted into a 
+single lemma. The proof of the lemma is independent of the rest of the paper. We define the function 
+L(h,s) for any real number h greater than one and any positive integer S as follows: Let L(h,S) be the 
+smallest integer such that in L(h,S) independent Bernoulli trials each with probability at least h-1 
+of success, the probability of having fewer than S successes is less than h -1. The relevance of the 
+function L(h,S) to learning can be illustrated as follows: Consider an urn U containing a very large 
+number of marbles possibly of many differ- ent types. Suppose we wish to "learn" what kinds of marbles 
+U contains by taking a small random sample X. If all the marbles in U are of distinct types, then it 
+is clearly impossible to deduce much information about them. Suppose, however, that we know that there 
+are only S types of marbles and that we wish to choose X so that it contains representatives of all but 
+1 percent of the marbles in U. Whatever the respective frequencies of the S types may be, the definition 
+of L(h,S} implies that if iX[ = L(100,S) then with probability greater than 99 percent we will have succeeded. 
+To see why this implication holds, suppose that after L(100,S} successive choices marble types representing 
+between them at least 1 percent of the urn remain unchosen. In that case we have made L[100,S) Bernoulli 
+trials each with prob- ability at least 1 percent of success 0.e., of choosing a previously unchosen 
+type} and have succeeded fewer than S times (since some type remains unchosen}. Note that what constitutes 
+a success here will depend on previous choices. The probability of success, however, will always be at 
+least 1 percent, independent of pre- vious choices, and this is sufficient for our argument. The following 
+simple upper bound holds for the whole range of values of S and h and shows that L(h,S) is essentially 
+linear both in h and in S. PROPOSITION: For all integers S >_ 1 and all real h>l. L(h,S) _< 2h(S + log~h). 
+ Proof: We use the following three well-known ine- qualities of which the last is due to Chernoff (see 
+[6] page 18). 1. For allx> 0, (1 + x-l} x<e. 2. For allx>0,(1-x-1} x<e -I. 3. In m independent trials, 
+each with probability at least p of success, the probability that there are at most k success, where 
+k < mp, is at most  m - The first factor in the expression in (a) above can be rewritten as 1 mp k~ 
+((m-k)/(mp-k}}{mp-k} F/ Using (2) with x = (m -k)/(mp -k}, we can upper bound the product by e-mp+k(mp 
+/k) k. Substituting m = 2h(S + log~h), p = h -1, and k = S and using logarithms to the base e gives 
+the bound e-2S-21ogh+S.[2(1 + (tog h)/S)] (s/l°g h)log h. Rewriting this using (1} with x = (log~h}/S 
+gives e-S-21og h. 2 s. elOg h _< (2/e)S. e-log h < h-1. As an illustration of an application, suppose 
+that we hare access to EXAMPLES, a source of natural positive examples of vectors for concept F. Suppose 
+that we want to find an approximation to the subset P of vari- ables that are determined in at least 
+one natural exam- ple of F. Consider the following procedure: Pick the first L(h, IPI} vectors provided 
+by EXAMPLES, and let P' be the union of the sets of variables determined by these vectors. The definition 
+then implies that with probabil- ity at least 1 - h -1 the set P' will have the following property: If 
+a vector is chosen with probability distribu- tion D, then the probability that it determines a vari- 
+able in P -P' is less than h-1. The argument used above for the urn model establishes this as follows: 
+If P' does not have the claimed property, then the following has happened: L(h, [P[) trials have been 
+made (i.e., calls of EXAMPLES) each with probability greater than h-1 of success (i.e., finding a vector 
+that determines a vari- able in P -P', but there have been fewer than [P] successes (i.e., discoveries 
+of new additions to P'). The probability of such a happening is less than h -1 by the definition of L. 
+The above application shows that the set of variables that are determined in natural examples of F can 
+be approximated by a procedure whose runtime is inde- pendent of t, the total number of variables. It 
+follows that in the definition Of learnability the dependence on t in part (1} can be relaxed to a dependence 
+on the number of variables that are ever defined in positive examples.  5. BOUNDED CNF EXPRESSIONS A 
+conjunctive normal form (CNF) expression is any prod- uct c~c2  Cr of clauses where each clause ci 
+is a sum q~ + q2 +  + qi, of literals. A literal q is either a variable p or the negation p of a variable. 
+For example, (p~ + #2)(p~ + fi2 + pa) is a CNF expression. For a positive integer k, a k-CNF expression 
+is a CNF expres- sion where each clause is the sum of at most k literals. For CNF expressions in general, 
+we do not know of any polynomial time deduction procedure with respect to our learning protocol. The 
+question of whether one exists is tantalizing because of its apparent simplicity. In this section we 
+shall prove that for any fixed inte- ger k the class of k-CNF expressions is learnable. In fact it is 
+learnable easily in the sense that calls of EXAM- PLES suffice and no calls Of ORACLE are required. 
+In this and subsequent sections, we shall use the re- lation ~ on concepts as follows: F ~ G means that 
+for all vectors v whenever F(v) = 1 it is also the case that G(v} = i. (N.B. This is equivalent to the 
+relation F ~ G when F, G are regarded as functions.) For brevity we shall often denote both expressions 
+and even vectors by the concepts they represent. Thus the concept repre- sented by vector w is true for 
+exactly those vectors that agree with w on all variables on which w is determined. The concept represented 
+by expression f is obtained by considering the Boolean function computed by f and extending its domain 
+to become a concept. In this sec- tion we regard a clause cl to be a special kind of expres- sion. In 
+Sections 7 and 8, we consider monomials m, simple products of literals, as special forms of expres- sions. 
+In all cases statements of the form f ~ g, v ~ ci, v ~ m, or m ~ f can be understood by interpreting 
+the two sides as concepts or functions in the obvious way. THEOREM A: For any positive integer k, the 
+class of k-CNF expressions is learnable via an algorithm A that uses L = L(h, (2t) k÷l) calls of EXAMPLES 
+and no calls of ORA- CLE, where t is the number of variables. Proof: The algorithm is initialized with 
+formula g as the product of all possible clauses of up to k literals from { pl, pl, p2,/~2 ..... pt, 
+#t}. Clearly the number of ways of choosing a clause of exactly k literals is at most (2t} k, and hence 
+the number of ways of choosing a clause with up to k literals is less than 2t + (2t) 2 + + (2t) k < {2t} 
+k+l. This bounds the initial number of clauses in g. The algorithm then calls EXAMPLES L times to give 
+positive examples of the concept represented by k-CNF formula f. For each vector v so obtained, it deletes 
+all of the remaining clauses in g that do not contain a literal that is determined to be true in v (i.e., 
+in the clauses deleted, each literal is either not determined or is ne- gated in v}. More precisely the 
+following is repeated L times: begin v := EXAMPLES for each ci in g delete ci if v ~ cl. end The claim 
+is that with high probability the value of g after the Lth execution of this block will be the desired 
+approximation to the formula f that is being learned. Initially the set of vectors Iv[ v ~ g} is clearly 
+empty. We first claim that as the algorithm proceeds the set [v[v ~g} will always be a subset of {v Iv 
+~f}. To prove this it is clearly sufficient to prove the same statement when both sets are restricted 
+to only total vectors. Let B be the product of all the clauses c con- taining up to k literals with the 
+property that "Vv if v ~ f then v ~ c." It is clear that in the course of the algorithm no clause in 
+B can ever be deleted. Hence it is certainly true that {v [ v ~ g} C {v[v ~ B}. To estab- lish the claim, 
+it remains only to prove that B computes the same Boolean function as f. (In fact B will be the maximal 
+k-CNF formula equivalent to f.) it is easy to see that f~ B, since by the definition of B, for every 
+c in B it is the case that "for all v if v ~ f then v ~ c." To verify the converse, that B ~ f, we first 
+note that, by definition, f is a k-CNF formula. If some clause in f did not occur in B, then this clause 
+c' would have the property that "3v such that v ~fbut v ~ c'." But this is impossible since if c' is 
+a clause of f and if v ~-~ c' then v ~ f. We conclude that every k-CNF representa- tion of the function 
+that f represents consists of a set of clauses that is a subset of the clauses in B. Hence B ~ f. Let 
+X = ~ D(v) with summation over all (not neces- sarily total) vectors v such that v ~ f but v ~ g. This 
+quantity is defined for each intermediate value of g in the course of the algorithm and, as is easily 
+verified, it is monotone decreasing with time. Now clauses will be removed from g whenever EXAMPLES outputs 
+a vector v such that v ~ g. The probability of this happening at any moment is exactly the current value 
+of X. Also, the process of running the algorithm to completion can have one of just two possible outcomes: 
+(1) At some point X becomes less than h -I, in which case the g found will approximate to f exactly as 
+required by the definition of learnability. (2) The value of X never goes below h -1, and hence g is 
+not an acceptable approxima- tion. The probability of the latter eventuality is, how- ever, at most h-1 
+since it corresponds to the situation of performing L(h, (2t) k+l) Bernoulli experiments (i.e., calls 
+of EXAMPLES) each with probability greater than h -1 of success (i.e., finding a v such that v ~ g) and 
+obtain- ing fewer than (2t) k+l successes (a success being mani- fested by the removal of at least one 
+clause from g). [] In conclusion we observe that a CNF expression g immediately yields a program for 
+computing the associ- ated concept. Given a vector v, we substitute the deter- mined truth values in 
+g. The concept will be true for v if and only if all the clauses are made true by the substitution. 6. 
+DNF EXPRESSIONS A disjunctive normal form (DNF) expression is any sum ml + m2 +  + mr of monomials 
+where each monom- ial mi is a product of literals. For example, pl/~2 + plp3p4 is a DNF expression. Such 
+expressions appear particu- larly easy for humans to comprehend. Hence we expect that any practical learning 
+system would have to allow for them. An expression is monotone if no variable is negated in it. We shall 
+show that for monotone DNF expressions there exists a simple deduction procedure that uses both EXAMPLES 
+and ORACLE. For unrestricted DNF a similar result can be proved with respect to a different size measure. 
+In the unrestricted case, there is the addi- tional difficulty that we can guarantee to deduce a pro- 
+gram only for the function and not for the concept. This difficulty does not arise in the monotone case 
+where given an expression we can always compute the value of the associated concept.for a vector v by 
+making the substitution and asking whether the resulting expres- sion is identically true. A monomial 
+m is a prime implicant of a function F (or of an expression representing the function) if m ~ F and if 
+m' ~,~ F for any m' obtained by deleting one literal from m. A DNF expression is prime if it consists 
+of the sum of prime implicants none of which is redun- dant in the sense of being implied by the sum 
+of the others. There is always a unique prime DNF expression in the monotone case, but not in general. 
+We therefore define the degree of a DNF expression to be the largest number of monomials that a prime 
+DNF expression equivalent to it can have. The unique prime DNF expression in the monotone case is simply 
+the sum of all the prime implicants. THEOREM B: The class of monotone DNF expressions is learnable via 
+an algorithm B that uses L = L(h,d) calls of EXAMPLES and dt calls of ORACLE, where d is the degree of 
+the DNF expression f to be learned and t the number of variables. Proof: The algorithm is initialized 
+with formula g identically equal to the constant zero. The algorithm then calls EXAMPLES L times to produce 
+positive ex- amples of f. Each time a vector v is produced such that v ~ g, a new monomial m is added 
+to g. The monomial m is the product of those literals determined in v that are essential to make v ~,~ 
+f. More precisely, the loop that is executed L times is the following: begin v := EXAMPLES if v ~ g then 
+begin for i := 1 to t do if pi is determined in v then begin set ~ equal to v but with pi := *; if ORACLE(W) 
+= 1 then v := end set m equal to the product of all literals q such that v ~ q; g:=g+m end end The test 
+v ~ g amounts to asking whether none of the monomials of g are made true by the values deter- mined to 
+be true in v. Every time EXAMPLES produces a value v such that v ~ g, the inner loop of the algo- rithm 
+will find a prime implicant m to add to g. Each such m is different from any previously added (since 
+the contrary would have implied that v ~ g). It follows that such a v will be found at most d times, 
+and hence ORACLE will he called at most dt times. Let X = ~ D(w) with summation over all (not neces- 
+sarily total) vectors w such that w ~ f but w ~ g. This quantity is defined for each intermediate value 
+of g in the course of the algorithm, is initially unity, and de- creases monotonically with time. Now 
+a monomial will be added to g each time EXAMPLES outputs a vector v such that v ~-~ g. The probability 
+of this occurring at any call of EXAMPLES is exactly X. The process of running the algorithm to completion 
+can have just two possible outcomes: (1) At some time X has become less than h -1, in which case the 
+final expression g found will approximate to f as required by the definition of learnability; and (2) 
+the value of X never goes below h -1, and hence g is not an acceptable approximation. The probability 
+of this second eventuality is, however, at most h -1, since it corresponds to the situation of performing 
+L(h,d) Bernoulli experiments (i.e., calls of EXAMPLES} each with probability greater than h-1 of success 
+(i.e., of finding a v such that v ~ f but v ~ g) and obtaining fewer than d successes (each manifested 
+by the addition of a new monomial). [] For unrestricted DNF expressions, several problems arise. The 
+main source of difficulty is the fact that the problem of determining whether a nontotal vector im- plies 
+the function specified by a DNF formula is NP-hard. This is simply because the problem of determin- ing 
+whether the nowhere determined vector implies the function is the tautology question of Cook [3]. An 
+immediate consequence of this is that it is unreasona- ble to assume that the program being learned computes 
+concepts rather than functions. Another consequence is that in any algorithm akin to Algorithm B the 
+test v ~ g may not be feasible if v is not total. Algorithm B is sufficient, however, to establish the 
+following: THEOREM B': Suppose the notion of learnability is re- stricted to distributions D such that 
+D(v) = 0 whenever v is not total. Then the class of DNF expressions is learnable, in the sense that programs 
+for the functions (but not necessar- ily the concepts) can be deduced in L(h,d) calls of EXAM- PLES and 
+dt calls of ORACLE where d is the degree of the DNF expression to be learned. The reader should note 
+that here there is the addi- tional philosophical difficulty that availability of the expression does 
+not in itself imply a polynomial time algorithm for ORACLE. On the other hand, the theorem does say that 
+if an agent has some, maybe ad hoc, black box for ORACLE whose workings are unknown to him or her, it 
+can be used to teach someone else a DNF expression that approximates the function. Finally, it may be 
+worth emphasizing that the mono- tone case is nonproblematic and the deduction proce- dure for it very 
+simpleminded. It may be interesting to pursue more sophisticated deduction procedures for it if contexts 
+can be found in which they can be proved advantageous. The question as to whether monotone DNF expressions 
+can be learned from EXAMPLES alone is open. A positive answer would be especially signifi- cant. A partial 
+result in this direction can be obtained by dualizing Theorem A: For any k the class of DNF expressions 
+having a bound k on the length of each disjunct can be learned in polynomial time from nega- tive examples 
+alone (i.e., from a source of vectors v such that/3(v) # 0). 7. a-EXPRESSIONS We have already seen a 
+class of expressions, namely the k-CNF expressions, that can be learned from posi- tive examples alone. 
+Here we shall consider the other extreme, a class that can be learned using oracles alone. Deducing expressions 
+on which there are less severe structural restrictions than DNF or CNF appears much more difficult. The 
+aim of this section is to give a para- digmatic example of how far one can go in that direc- tion if 
+one is willing to pay the price of oracles that are more sophisticated than the one previously described. 
+A general expression over variable set {pl ..... pt} is defined recursively as follows: 1. For each 
+i (1 _< i _< t) "pl" and "Pi" are expressions; 2. iff~ ..... fr are expressions, then "(fl + f2 + .-" 
++ fr)" is an expression (called a plus expression);  3. if fl ..... fi are expressions, then "(fl x 
+f2 x ... x fr)" is an expression (called a times expression).  A a-expression is an expression in which 
+each vari- able appears at most once. We can assume that a r- expression is monotone, since we can always 
+relabel negated variables with new names that denote their negation. In the recursive definition of any 
+ju- expression, there are clearly at most 2t - 1 intermedi- ate expressions of which at most t are of 
+type (1) and at most t - 1 of types (2) or (3). Without loss of generality, we shall assume that in the 
+definition of a t-expression rules (2) and (3) alternate. We shall regard two/z- expressions as identical 
+if their definitions can be made formally the same by reordering sums and products and relabeling as 
+necessary. For learning a-expressions, we shall employ more powerful oracles. The boundary between reasonable 
+and unreasonable oracles does not appear sharp. We make no claims about the reasonableness of these new 
+oracles except that they may serve as vehicles for un- derstanding learnability. The definitions refer 
+to the Boolean function F (not regarded as a concept here). The oracle of Section 2 will be renamed N-ORACLE, 
+since it is one of necessity: N- ORACLE(v) = 1 if and only if for all total vectors w such that w ~ v 
+it is the case that F(w) = 1. The dual of this would be a possibility oracle: P-ORACLE(v) = 1 if and 
+only if there exists a total vector w such that w ~ v and F(w} = 1. For brevity we shall also define 
+the prime implicant oracle: Pl(v) = 1 if and only if N-ORACLE(v) = 1, but N-ORACLE(w) = 0 for any w obtained 
+from v by making one variable determined in v undetermined. Finally we define two further oracles, ones 
+of relevant possibility RP and of relevant accompaniment RA. For con- venience we define the first by 
+how it behaves on vec- tors represented as monomials: RP(m) = 1 iff from some monomial m' ram' is a prime 
+implicant off. For sets V, W of variables, we define RA(V, W) = 1 iff every prime implicant off that 
+contains a variable from V also contains a variable from W. THEOREM C: The class of in-expressions in 
+learnable via a deduction procedure C that uses O(t 3) calls of N-ORACLE RP and RA altogether, where 
+t is the number of variables (and no calls of EXAMPLES). The procedure always deduces exactly the correct 
+expression. Proof: Let ~ be the monomial that is the product of no literals. The algorithm will first 
+compute RP{pj) for each pj to determine which of the variables occur in the prime implicants of the function 
+that the expression f to be learned represents. Let gl ..... gr be distinct single variable expressions, 
+one for each pj for which RP(p/) = 1. Note that these are exactly the variables that occur in f, since 
+f is monotone. With each gi we associate two monomials mi and rhi. The former will be the single variable 
+pj that gi repre-sents. The latter is defined as any monomial rh having no variable in common with m~ 
+such that m~rh is a prime implicant off. The algorithm will construct each such rhi as the final value 
+of m in the following proce- dure: Set m = ~; while PI(mmi) = 0 find a p~ not in mini such that RP(pkmmi) 
+= 1 and set m := pkm. Hence in at most t 2 calls of PI (i.e., t 3 calls of N-ORACLE) and t 2 calls of 
+RP values for every rhi will be found. Once initialized the algorithm proceeds by alter- nately executing 
+a plus-phase and a times-phase. At the start of each phase, we have a set of expressions gl ..... gr 
+where each gi is associated with two monomials mi and rhi (having no variables in common) where mi is 
+a prime implicant ofgi and mirhi is a prime implicant off. We distinguish the gs as plus or times expressions 
+accord-ing to whether the outermost construction rule was addition or multiplication. A plus-phase will 
+first com- pute an equivalence relation S on the subset of {gi} that are times expressions. For each 
+equivalence class G such that no gi E G already occurs as a summand in a sum, we construct a new expression 
+that is the sum of the members of G and call this sum gk where k is a previously unused index. If some 
+members of G already occur in a sum, say gj (N.B. they are never distributed in more than one sum), then 
+we modify the sum expression &#38; to equal the sum of every expression in G. A times-phase is exactly 
+analogous except that it com- putes a different equivalence relation T, now on plus expressions, and 
+will form new, or extend old, times expressions. In the above context, single variable expressions will 
+be regarded as both times and plus expressions. Also, it is immaterial which of the two kinds of phase 
+is used to start the algorithm. The intention of the algorithm is best expressed by the claim to follow, 
+which will be verified later. Sup- pose that the expressions occurring in the definition off are f~ ..... 
+fq (where q _< 2t - 1}. We shall say that g _< fi iff the set of prime implicants of g is a subset of 
+the set of prime implicants of fi where (1) iffi is a plus expres- sion then fi = fi and (2) iffi is 
+a times expression then f~ is the product of some subset of the multiplicands off~. Claim 1: After every 
+phase of the algorithm for every g~ that has been constructed, there is exactly one expression fi such 
+that (1) gi -< fi and (2) fi is of the same kind (i.e., plus or times) as gi. The procedure builds up 
+the rooted tree of the expression as rooted subtrees starting from the leaves. One evident difficulty 
+is that there is no a priori knowl- edge available about the shape of the tree. Hence in the grafting 
+process a subtree may become attached to an- other at just about any node. Whenever a plus or times expression 
+gi is created or enlarged, its associated mi and thi are updated as fol- lows. If gi is a sum, then we 
+let mi = mj and rhi = ~j for any &#38; that is a summand in g~. Ifg~ is a product, then m~ will be the 
+product of all the mjs that correspond to multiplicands in gi. Finally rhi will be generated as the final 
+value of m in the following procedure: Set m := ~; while Pl(mmi) = 0 find a pk not in mini such that 
+RP(pkmmi) = 1 and set m := pkm. Since such an rhi has to be found at most t times in the overall algorithm, 
+the total cost is at most t 2 calls of PI (i.e., t 3 calls of N- ORACLE) and t 2 calls of RP. In order 
+to complete the description of the algorithm, it remains only to define the equivalence relations S and 
+T. Definition: giS&#38; if and only if 1. PI(rnirhj) = PI(mjrhi) = 1 and 2. mi, ~j contain disjoint sets 
+of variables, as do mj, mi. For defining T we shall denote by Vi the set of vari- ables that occur in 
+the expression gi. Definition: giTgj if and only if RA(Vi, Vj) = RA(V# Vi) First we shall verify that 
+S and T are indeed equiva- lence relations under the assumption that Claim 1 holds at the beginning of 
+each phase. Clearly S and T are defined to be both reflexive and symmetric. To verify that T is transitive, 
+suppose that giTgj and &#38;Tgk. The former implies that every prime implicant of f con- taining some 
+variable from gi also contains some vari- able from &#38;. The latter implies that every prime impli- 
+cant off containing some variable from &#38; also contains a variable from gk. Hence giTgk follows. In 
+order to ver- ify the transitivity of S, we shall make a more general observation about any subexpression 
+off. Claim 2: If mi, mj are prime implicants of distinct times subexpressions fi, fj off and if for some 
+m, with no variable in common with either mi or mj, both mira and mjm are prime implicants off, then 
+fi, fj must occur as summands in the same plus expression off. Proof: Most easily verified by representing 
+expression f as a directed graph (e.g., [8]) with edges labeled by the Boolean variables. The sets of 
+labels along directed paths between a distinguished source node and a dis- tinguished sink node correspond 
+exactly to prime im- plicants in the case of # expressions where all edges will have different labels. 
+Now to verify that S is transitive, suppose that g~S&#38; and gjSgk where, by Claim 1, gi -< fi, &#38; 
+-< f# and gk ~ fk for appropriate times expressions fi, fj, fk. Then it fol- lows that mini, mjrhj, and 
+mkrhj are all prime implicants off where mi, m# mk have no variable in common with rhj. It follows from 
+Claim 2 that fi, fj, and fk are addends in the same sum expression. Hence giSgk follows. Claim 3: Suppose 
+that after some phase of the algo- rithm Claim 1 holds and times expressions g~, gj have been formed 
+where gi -< fi, &#38; -< ~, and fi, fj are times expressions. Then gi and &#38; will be placed in the 
+same sum expression at the next plus-phase if and only iffi = fi, fj = )~, and ffi, fj are addends in 
+the same sum expres- sion in f. Proof: (~) If gi -< fi = fi, &#38; <- fj -- )~j, and fi, fj are in the 
+same sum, then mi, mj will be prime implicants off,, ~. Also rnithj and mjrhi will be prime implicants 
+off, and the variables in mi will be disjoint from those in rhj as will be those in mj from those in 
+rhi. Hence giSgj will hold and gi,gj will he in the same plus expression after the next plus-phase. (~) 
+Suppose that gi -< fi, gj -~ fj, and giSgj holds. Then mi, rnj will be prime implicants of gi, &#38;, 
+respectively, m~rhj, rnffhj will both be prime implicants off, and the variables in rhj will be disjoint 
+from those of both mi and mj. It follows from Claim 2 that fi = 1~ and fj = )~j must occur as summands 
+in the same plus expression off. [N.B. Here we are using the fact that Claim 2 remains true if we allow 
+a "times subexpression" to be the product of any subset of the multiplicands in a times expression in 
+f.] Claim 4: Suppose that after some phase of the algo- rithm, Claim 1 holds and some plus expressions 
+gi -< f~ and gj _< fj ~fi, fj plus expressions) have been found. (1) If gi = fi, &#38; = ~, and fi, fi 
+are multiplicands in the same times expression in f, then &#38;, &#38; will be placed in the same times 
+expression after the next times phase. (2} If gi, g] are placed in the same times expression at any subsequent 
+phase, then fi, ~ are in the same product in f. Proof: (1) If the conditions of (1) above hold, then 
+giT&#38; will be discovered at the next times-phase and the claim follows. (2) Iffi, J~ are not in the 
+same product in f, then f contains some prime implicant containing vari- ables from one of gi, &#38; 
+and not from the other. Hence giTgj will never hold. Proof of Claim 1: By induction on the number of 
+phases on Claims 1, 3, and 4 simultaneously. We define the depth of a formula fi to be the maxi- mum 
+number of alternations of sum and product re- quired in its definition. Claim 5: Iffi is an expression 
+of depth k in f, then after k phases a gi identical to fi will have been constructed by the algorithm. 
+Proof: By induction on Claims 3 and 4. To conclude the proof of the theorem, it remains to analyze the 
+runtime. This is dominated by the cost of computing mi and rhi, for which we have already ac- counted, 
+plus the cost of computing the equivalence relations S and T. We first note that fewer than 2t expression 
+names gi are used in the course of the algo- rithm. When an expression is grafted into another at a point 
+deep in the latter, then the semantics of all the subexpressions above will change. By Claims 3 and 4 
+such grafting can occur when a gi is added to a sum expression but not when added to a times expression. 
+Hence the values mi and rhi do not need to be changed for any expression when such grafting occurs. It 
+follows that for computing S only 2t values of m~, rh~ need to be considered. Hence 0(t 2) calls of PI 
+or 0(t a) calls of N- ORACLE suffice overall. For computing T grafting may cause a ripple effect. On 
+each occasion the value of Vj may have to be updated for up to t such sets, and hence t 2 calls of RA 
+will suffice. Hence 0(t a) calls of RA in the overall algorithm will be enough. [] 8. REMARKS In this 
+paper we have considered learning as the proc- ess of deducing a program for performing a task, from 
+information that does not provide an explicit descrip- tion of such a program. We have given precise 
+meaning to this notion of learning and have shown that in some restricted but nontrivial contexts it 
+is computationally feasible. Consider a world containing robots and elephants. Suppose that one of the 
+robots has discovered a recog- nition algorithm for elephants that can be meaningfully expressed in k-conjunctive 
+normal form. Our Theorem A implies that this robot can communicate its algo- rithm to the rest of the 
+robot population by simply exclaiming "elephant" whenever one appears. An important aspect of our approach, 
+if cast in its greatest generality, is that we require the recognition algorithms of the teacher and 
+learner to agree on an overwhelming fraction of only the natural inputs. Their behavior on unnatural 
+inputs is irrelevant, and hence descriptions of all possible worlds are not necessary. If followed to 
+its conclusion, this idea has considerable philosophical implications: A learnable concept is noth- ing 
+more than a short program that distinguishes some natural inputs from some others. If such a concept 
+is passed on among a population in a distributed manner, substantial variations in meaning may arise. 
+More im- portantly, what consensus there is will only be meaningful for natural inputs. The behavior 
+of an indi- vidual's program for unnatural inputs has no relevance. Hence thought experiments and logical 
+arguments in- volving unnatural hypothetical situations may be meaningless activities. The second important 
+aspect of the formulation is that the notion of oracles makes it possible to discuss a whole range of 
+teacher-learner interactions beyond the mere identification of examples. This is significant in the context 
+of artificial intelligence where humans may be willing to go to great lengths to convey their skills 
+to machines but are frustrated by their inability to articu- late the algorithms they themselves use 
+in the practice of the skills. We expect that some explicit programming does become essential for transmitting 
+skills that are beyond certain limits of difficulty. The identification of these limits is a major goal 
+of the line of work proposed in this paper.  REFERENCES 1. Angluin, D., Smith, C.H. Inductive inference: 
+Theory and methods. Comput. Surv. 15, 3 (Sept. 1983), 237-269. 2. Barr, A., and Feigenbaum, E.A. The 
+Handbook of Artificial Intelligence. Vol. 2. William Kaufmann, Los Altos, Calif., 1982.  3. Cook, S.A. 
+The complexity of theorem proving procedures. In Pro- ceedings of 3rd Annual ACM Symposium on Theory 
+of Computing (Shaker Heights, Ohio, May 3-5). ACM, New York, 1971, 151-158. 4. Duda, R.O., and Hart, 
+P.F. Pattern Classification and Scene Analysis. Wiley, New York. 1973.  5. ErdSs, P., and Spencer, J. 
+Probabilistic Methods in Combinatorics. Aca-demic Press, New York, 1974. 6. Goldreich, O., Goldwasser, 
+S., and Micali, S. How to construct ran- dom functions. In Proceedings of 25th IEEE Symposium on Foundations 
+of Computer Science (Singer Island, Fla., Oct. 24-26). IEEE, New York, 1984. 7. Michalski, R.S.. Carbonell, 
+J.G., and Mitchell, T.M. Machine Learning: An Artificial Intelligence Approach. Tioga Publishing Co., 
+Palo Alto, Calif., 1983. 8. Skyum, S., and Valiant, L.G. A complexity theory based on Boolean algebra. 
+In Proceedings of 22rid IEEE Symposium on Foundations of Computer Science (Nashville, Tenn., Oct. 28-30}. 
+IEEE, New York, 1981, 244-253. 9. Valiant, L.G. Deductive learning. Philosophical Transactions of the 
+Royal Society of London (1984). To be published.  CR Categories and Subject Descriptors: F.1.1 [Computation 
+by Ab- stract Devices[: Models of Computation; F.2.2 [Analysis of Algorithms and Problem Complexity[: 
+Nonnumerical Algorithms and Problems; L2.6[Artificial Intelligence]: Learning--concept learning General 
+Terms: Algorithms Additional Key Words and Phrases: inductive inference, probabilis- tic models of learning, 
+propositional expressions Received 1/84; revised 6/84; accepted 7/84 Author's Present Address: L.G. Valiant, 
+Center for Research in Comput- ing Technology. Aiken Computation Laboratory, Harvard University, Cambridge, 
+MA 02138. Permission to copy without fee all or part of this material is granted provided that the copies 
+are not made or distributed for direct commer- cial advantage, the ACM copyright notice and the title 
+of the publication and its date appear, and notice is given that copying is by permission of the Association 
+for Computing Machinery. To copy otherwise, or to republish, requires a fee and/or specific permission.

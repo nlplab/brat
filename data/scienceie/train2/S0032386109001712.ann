@@ -1,0 +1,29 @@
+T1	Process 43 54	simulations
+T2	Process 109 134	full-atomistic approaches
+T3	Task 138 161	polymer crystallization
+T4	Material 218 233	simple polymers
+T5	Process 239 259	appropriate modeling
+T6	Process 263 292	coarse-graining of the system
+T7	Process 352 373	coarse-grained models
+T8	Material 378 386	polymers
+T9	Material 437 456	poly(vinyl alcohol)
+T10	Material 458 461	PVA
+*	Synonym-of T9 T10
+T11	Process 491 506	crystallization
+T12	Material 543 554	crystalline
+T13	Material 570 584	isotropic melt
+T14	Process 588 603	rapid quenching
+T15	Process 663 684	homogenous nucleation
+T16	Process 744 755	simulations
+T17	Material 786 793	lamella
+T18	Material 818 830	fold surface
+T19	Process 985 1008	intrachain interactions
+T20	Process 1049 1064	crystallization
+T21	Process 1127 1150	polymer crystallization
+T22	Material 1127 1134	polymer
+T23	Process 1216 1249	classical solid–liquid transition
+T24	Material 1264 1289	repulsive spherical atoms
+T25	Process 1365 1388	polymer crystallization
+T26	Material 1365 1372	polymer
+T27	Material 1232 1238	liquid
+T28	Material 1226 1231	solid

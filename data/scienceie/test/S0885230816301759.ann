@@ -1,0 +1,6 @@
+T1	Task 158 226	provides non-native learners with feedback on sentence stress errors
+T2	Task 361 399	predict and detect the sentence stress
+T3	Material 815 826	CALL system
+T4	Process 22 53	sentence stress feedback system
+T5	Process 446 477	prediction and detection models
+T6	Process 517 548	stress feedback provision model

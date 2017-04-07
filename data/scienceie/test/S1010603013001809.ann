@@ -1,0 +1,47 @@
+T1	Task 22 60	enhancement of photocatalytic activity
+T2	Material 74 86	co-catalysts
+T3	Material 111 123	co-catalysts
+T4	Material 175 184	electrons
+T5	Material 220 225	holes
+T6	Material 270 272	Pt
+T7	Material 274 278	Fe3+
+T8	Material 284 288	Cu2+
+T9	Material 253 265	co-catalysts
+R1	Hyponym-of Arg1:T6 Arg2:T9	
+R2	Hyponym-of Arg1:T7 Arg2:T9	
+R3	Hyponym-of Arg1:T8 Arg2:T9	
+T10	Material 318 322	Fe3+
+T11	Material 327 331	Cu2+
+T12	Material 397 401	Fe2+
+T13	Material 406 409	Cu+
+T14	Material 427 435	electron
+T15	Material 463 490	reduced metal oxide cluster
+T16	Material 496 508	reduced ions
+T17	Material 570 578	electron
+T18	Material 592 598	oxygen
+T19	Material 620 624	CoOx
+T20	Material 626 630	CoPi
+T21	Material 632 637	CoPOx
+*	Synonym-of T20 T21
+T22	Material 640 644	IrOx
+T23	Material 650 654	RuOx
+T24	Process 674 689	water oxidation
+T25	Material 703 707	CoPi
+T26	Material 745 756	co-catalyst
+T27	Process 761 776	water oxidation
+T28	Process 826 837	co-grafting
+T29	Process 849 872	photocatalytic activity
+T30	Process 922 933	co-grafting
+T31	Material 974 983	electrons
+T32	Material 988 993	holes
+T33	Process 995 1018	photocatalytic activity
+T34	Material 1084 1089	BiVO4
+T35	Material 1118 1138	p-type semiconductor
+T36	Process 1171 1194	photocatalytic activity
+T37	Material 348 371	amorphous oxide cluster
+R4	Hyponym-of Arg1:T25 Arg2:T26	
+T38	Process 887 900	gaseous phase
+T39	Material 942 954	co-catalysts
+T40	Process 1022 1035	gaseous phase
+T41	Process 161 184	separation of electrons
+T42	Process 206 225	separation of holes

@@ -1,0 +1,18 @@
+T1	Material 0 16	Zirconium alloys
+T2	Material 42 55	fuel cladding
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+T3	Material 335 344	Zr alloys
+T4	Material 729 752	accident tolerant fuels
+T5	Material 754 757	ATF
+*	Synonym-of T4 T5
+T6	Material 774 777	ATF
+T7	Process 486 495	oxidation
+T8	Process 553 584	disintegration of the fuel rods
+T9	Task 721 752	develop accident tolerant fuels
+T10	Task 806 843	enhancements in corrosion performance
+T11	Material 575 584	fuel rods
+T12	Process 345 352	oxidise
+T13	Process 436 455	exothermic reaction
+T14	Task 892 922	development of fuel assemblies
+T15	Material 60 97	water cooled nuclear fission reactors
+T16	Material 907 922	fuel assemblies

@@ -1,0 +1,25 @@
+T1	IDK_MAN 147 152	cores
+#1	AnnotatorNotes T1	cs concept
+T2	IDK_MAN 154 164	processors
+#2	AnnotatorNotes T2	cs concept
+T3	METHOD 280 296	machine learning
+T4	METHOD 389 409	parallel programming
+T5	TASK 463 482	learning algorithms
+T6	METHOD 537 553	machine learning
+T7	METHOD 683 706	Statistical Query model
+T8	METHOD 742 756	summation form
+T9	TASK 791 804	par-allelized
+R1	addresses Arg1:T8 Arg2:T9	
+T10	METHOD 847 857	map-reduce
+T11	METHOD 891 918	parallel speed up technique
+T12	TASK 935 954	learning algorithms
+T13	METHOD 965 999	locally weighted linear regression
+T14	METHOD 1008 1015	k-means
+T15	METHOD 1017 1036	logistic regression
+T16	METHOD 1043 1054	naive Bayes
+T17	METHOD 1061 1064	SVM
+T18	METHOD 1066 1069	ICA
+T19	METHOD 1071 1074	PCA
+T20	METHOD 1076 1106	gaussian discriminant analysis
+T21	METHOD 1114 1116	EM
+T22	METHOD 1122 1137	backpropagation

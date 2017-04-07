@@ -1,0 +1,42 @@
+T1	Process 71 108	development of radiation-induced DSBs
+T2	Material 86 108	radiation-induced DSBs
+T3	Process 122 137	γ-ray radiation
+T4	Material 289 304	photon of γ-ray
+T5	Process 314 329	photo-radiation
+T6	Process 180 184	DSBs
+T7	Process 139 150	single step
+R1	Hyponym-of Arg1:T7 Arg2:T3	
+T8	Process 229 256	generation of number of ROS
+T9	Material 253 256	ROS
+T10	Process 337 341	DSBs
+T11	Process 350 368	two step mechanism
+T12	Material 412 418	photon
+T13	Material 440 443	ROS
+T14	Process 466 485	single strand break
+T15	Material 473 479	strand
+T16	Process 507 526	single strand break
+T17	Material 514 520	strand
+T18	Process 558 577	single strand break
+T19	Process 579 582	DBS
+T20	Process 604 622	two step mechanism
+T21	Material 729 731	AA
+T22	Process 740 760	photo-induced damage
+T23	Material 740 745	photo
+T24	Material 799 802	ROS
+T25	Material 806 808	AA
+T26	Material 822 839	γ-ray induced DSB
+T27	Material 866 868	AA
+T28	Process 909 926	photo irradiation
+T29	Material 909 914	photo
+T30	Material 976 979	ROS
+T31	Material 983 1005	single photon of γ-ray
+T32	Material 1067 1069	AA
+T33	Material 1080 1084	DSBs
+T34	Material 1101 1105	DSBs
+T35	Process 1109 1119	ultrasound
+T36	Process 1145 1154	shockwave
+T37	Material 1181 1192	cavitations
+T38	Material 1228 1230	AA
+T39	Material 1243 1246	ROS
+T40	Process 1234 1246	diminish ROS
+T41	Material 1306 1310	DSBs

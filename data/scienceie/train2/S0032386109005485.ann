@@ -1,0 +1,38 @@
+T1	Process 0 35	Inverse miniemulsion polymerization
+T2	Process 41 53	water-in-oil
+T3	Process 55 58	W/O
+*	Synonym-of T2 T3
+T4	Process 60 96	heterogeneous polymerization process
+T5	Material 108 141	kinetically stable macroemulsions
+T6	Material 167 198	critical micellar concentration
+T7	Material 200 203	CMC
+*	Synonym-of T6 T7
+T8	Material 228 244	aqueous droplets
+T9	Material 256 278	water-soluble monomers
+R1	Hyponym-of Arg1:T9 Arg2:T8	
+T10	Material 314 337	oil-soluble surfactants
+T11	Material 355 369	organic medium
+T12	Material 371 399	Stable inverse miniemulsions
+T13	Material 440 451	homogenizer
+T14	Material 457 486	high speed mechanical stirrer
+T15	Material 488 520	Oil-soluble nonionic surfactants
+T16	Task 590 653	implement colloidal stability of the resulting inverse emulsion
+T17	Material 637 653	inverse emulsion
+T18	Material 672 690	radical initiators
+T19	Process 692 706	polymerization
+T20	Material 725 741	aqueous droplets
+T21	Material 752 771	colloidal particles
+T22	Material 840 898	stable particles of hydrophilic and water-soluble polymers
+T23	Material 908 933	polyaniline nanoparticles
+T24	Material 944 978	organic–inorganic hybrid particles
+T25	Process 1020 1101	preparation of crosslinked microgels in the presence of difunctional crosslinkers
+T26	Material 1035 1056	crosslinked microgels
+T27	Material 1076 1101	difunctional crosslinkers
+T28	Process 1128 1142	CRP techniques
+T29	Process 1153 1157	ATRP
+T30	Process 1181 1185	RAFT
+R2	Hyponym-of Arg1:T29 Arg2:T28	
+R3	Hyponym-of Arg1:T30 Arg2:T28	
+T31	Material 1195 1215	inverse miniemulsion
+T32	Material 1259 1272	nanoparticles
+T33	Material 1277 1285	nanogels

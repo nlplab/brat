@@ -1,0 +1,25 @@
+T1	Process 21 33	thresholding
+T2	Material 37 54	gray level images
+T3	Task 94 113	pattern recognition
+T4	Task 118 133	computer vision
+T5	Process 146 155	detecting
+T6	Process 157 165	tracking
+T7	Process 170 181	recognizing
+T8	Process 187 198	Otsu scheme
+T9	Process 214 242	image thresholding technique
+R1	Hyponym-of Arg1:T9 Arg2:T8	
+T10	Process 275 285	segmenting
+T11	Material 288 304	gray level image
+T12	Process 319 337	modal distribution
+T13	Material 341 362	gray level histogram.
+T14	Task 450 475	enhancing the performance
+T15	Process 483 497	Otsu algorithm
+T16	Process 533 579	median-based Otsu image thresholding algorithm
+T17	Task 602 617	extensive tests
+T18	Process 724 751	Otsu thresholding algorithm
+T19	Task 138 181	objects detecting, tracking and recognizing
+R2	Hyponym-of Arg1:T19 Arg2:T4	
+R3	Hyponym-of Arg1:T19 Arg2:T3	
+T20	Task 0 33	Robust and automatic thresholding
+T21	Material 404 413	histogram
+R4	Hyponym-of Arg1:T16 Arg2:T15	

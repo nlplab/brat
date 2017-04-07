@@ -1,0 +1,22 @@
+T1	Task 0 20	Contractor selection
+T2	Material 73 94	project time and cost
+T3	Material 109 116	quality
+T4	Material 155 171	project managers
+T5	Task 183 218	determine the project time and cost
+T7	Material 268 291	un-experienced managers
+T8	Process 300 318	learnable property
+T9	Task 369 430	quantify the quality obtained for a gas well drilling project
+T10	Process 405 430	gas well drilling project
+T11	Material 459 469	objectives
+T12	Material 470 475	(time
+T13	Material 477 481	cost
+T14	Material 487 494	quality
+R1	Hyponym-of Arg1:T11 Arg2:T12	
+R2	Hyponym-of Arg1:T11 Arg2:T13	
+R3	Hyponym-of Arg1:T11 Arg2:T14	
+T15	Task 499 527	contractor selection problem
+T16	Task 547 567	optimization problem
+T17	Process 579 596	NSGA-II algorithm
+T18	Process 637 657	sensitivity analysis
+T19	Material 197 218	project time and cost
+R4	Hyponym-of Arg1:T15 Arg2:T16	

@@ -1,0 +1,11 @@
+T1	Task 57 81	calculating upper limits
+T3	Process 285 310	incorporate uncertainties
+T4	Process 343 362	background estimate
+T6	Process 426 472	further refinement of the Conrad et al. method
+T7	Process 497 522	more appropriate behavior
+T10	Task 748 772	calculate an upper limit
+T12	Process 844 873	probability density functions
+T13	Process 887 907	background estimates
+T2	Task 314 334	detector sensitivity
+T5	Process 647 658	measurement
+T8	Process 912 932	Gaussian-distributed

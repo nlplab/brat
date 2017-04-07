@@ -1,0 +1,22 @@
+T1	Task 0 14	Nuclear theory
+T2	Task 65 79	thermalization
+T3	Process 65 79	thermalization
+T4	Process 122 144	semi-classical methods
+T5	Process 83 100	nuclear reactions
+T6	Material 191 206	quantum liquids
+T7	Process 248 283	improved molecular dynamics methods
+T8	Task 284 310	combining quantum features
+T9	Task 495 532	field of clusters and nano structures
+T10	Process 611 617	lasers
+T11	Process 622 640	imaging techniques
+T12	Process 758 801	qualitatively describe dynamical processes.
+T13	Material 835 848	simple metals
+T14	Material 835 893	simple metals with sufficiently delocalized wave functions
+T15	Task 975 990	organic systems
+T16	Material 1026 1029	C60
+T17	Process 1173 1198	very intense laser pulses
+T18	Task 1261 1288	quantum mechanical features
+T19	Process 1344 1365	quantum shell effects
+T20	Process 318 368	semi classical treatment of dynamical correlations
+R1	Hyponym-of Arg1:T20 Arg2:T7	
+T21	Process 399 415	quantum approach

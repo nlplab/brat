@@ -1,0 +1,25 @@
+T1	Process 4 31	data acquisition strategies
+T2	Task 111 144	physical and statistical modeling
+T3	Task 161 200	extraction of the necessary information
+T4	Process 409 426	statistical model
+T5	Task 437 467	capture the temporal evolution
+T6	Material 475 490	energy material
+T7	Material 594 629	univariate time-series data streams
+T8	Material 635 679	high-dimensional volumetric imaging datasets
+T9	Process 979 1019	micro-, meso- and macroscopic approaches
+T10	Task 1096 1125	development of network models
+T11	Material 1154 1170	energy materials
+T12	Task 1218 1237	degradation science
+T13	Task 808 813	query
+T14	Task 818 826	modeling
+T15	Process 514 545	appropriate informatics methods
+T16	Process 843 862	modeling approaches
+R1	Hyponym-of Arg1:T9 Arg2:T16	
+T17	Process 276 293	network of models
+T18	Task 1064 1075	informatics
+T19	Task 1077 1086	analytics
+T20	Task 1021 1062	Laboratory and real-world experimentation
+R2	Hyponym-of Arg1:T20 Arg2:T12	
+R3	Hyponym-of Arg1:T18 Arg2:T12	
+R4	Hyponym-of Arg1:T19 Arg2:T12	
+R5	Hyponym-of Arg1:T10 Arg2:T12	

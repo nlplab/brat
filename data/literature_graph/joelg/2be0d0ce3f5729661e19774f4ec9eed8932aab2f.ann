@@ -1,0 +1,22 @@
+T1	SOFTWARE 104 110	Google
+T2	METHOD 141 154	search engine
+R1	implements Arg1:T1 Arg2:T2	
+T3	IDK_MAN 205 214	hypertext
+#1	AnnotatorNotes T3	cs concept
+T4	SOFTWARE 216 222	Google
+T5	TASK 238 243	crawl
+T6	TASK 248 253	index
+R2	addresses Arg1:T4 Arg2:T5	
+R3	addresses Arg1:T4 Arg2:T6	
+T7	SOFTWARE 486 499	search engine
+T8	SOFTWARE 523 537	Search engines
+T9	IDK_MAN 576 585	web pages
+T10	TASK 538 543	index
+R4	addresses Arg1:T8 Arg2:T10	
+T11	SOFTWARE 724 738	search engines
+T12	SOFTWARE 886 903	web search engine
+T13	SOFTWARE 1013 1030	web search engine
+T14	TASK 1121 1128	scaling
+T15	TASK 1415 1422	exploit
+T16	SOFTWARE 1386 1404	large-scale system
+R5	addresses Arg1:T16 Arg2:T15	

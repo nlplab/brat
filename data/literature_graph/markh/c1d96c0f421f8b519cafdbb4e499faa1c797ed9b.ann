@@ -1,0 +1,32 @@
+T1	METHOD 747 782	Transition-based dependency parsing
+T2	METHOD 889 923	deterministic shift-reduce process
+R1	uses Arg1:T1 Arg2:T2	
+T3	METHOD 971 1001	graph-based dependency parsing
+T4	SOFTWARE 1146 1156	MaltParser
+T5	SOFTWARE 1161 1170	MSTParser
+T6	SOFTWARE 1319 1329	MaltParser
+T7	METHOD 1358 1369	beam-search
+T8	METHOD 1446 1473	partial dynamic-programming
+T9	TASK 1348 1356	decoding
+R2	addresses Arg1:T7 Arg2:T9	
+R3	addresses Arg1:T8 Arg2:T9	
+T10	METHOD 1532 1554	greedy one-best search
+R4	addresses Arg1:T10 Arg2:T9	
+T11	TASK 1610 1618	training
+T12	METHOD 1620 1646	global structural learning
+T13	METHOD 1672 1686	local learning
+R5	addresses Arg1:T12 Arg2:T11	
+R6	addresses Arg1:T13 Arg2:T11	
+T14	METHOD 1772 1787	global learning
+R7	addresses Arg1:T14 Arg2:T11	
+T15	TASK 1904 1922	feature definition
+T16	METHOD 2008 2025	feature templates
+T17	METHOD 2172 2202	graph-based dependency parsing
+T18	METHOD 2274 2297	Transitionbased parsing
+T19	METHOD 2488 2525	transition-based constituency parsing
+T20	SOFTWARE 2579 2613	transitionbased dependency parsers
+T21	SOFTWARE 2779 2789	MaltParser
+T22	DATASET 2961 2974	Penn Treebank
+T23	METRIC 2995 3021	unlabeled attachment score
+T24	METHOD 3073 3096	transition-based parser
+T25	DATASET 3145 3161	Chinese Treebank

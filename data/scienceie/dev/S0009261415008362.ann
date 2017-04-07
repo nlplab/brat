@@ -1,0 +1,30 @@
+T1	Task 65 75	benchmarks
+T2	Process 8 32	quantum dynamical method
+T3	Process 146 165	tunnelling dynamics
+T4	Process 115 134	A model Hamiltonian
+T5	Process 257 264	MP/SOFT
+T6	Process 336 383	configuration interaction (CI) expansion method
+T7	Process 393 417	two-layer version of CCS
+T8	Process 419 425	2L-CCS
+*	Synonym-of T8 T7
+T9	Process 433 448	The Hamiltonian
+T10	Process 900 940	superconducting quantum interface device
+T11	Process 942 947	SQUID
+*	Synonym-of T11 T10
+T12	Process 463 492	1-dimensional tunnelling mode
+T13	Process 507 538	(M−1)-dimensional harmonic bath
+T14	Task 554 573	system-bath problem
+T15	Process 609 645	Caldeira-Leggett model of tunnelling
+T16	Process 684 695	Hamiltonian
+T17	Process 776 794	System-bath models
+T18	Process 853 894	superconductivity at a Josephson junction
+T19	Process 969 991	Caldeira-Leggett model
+T20	Process 176 225	multidimensional asymmetric double well potential
+T21	Process 274 285	CCS methods
+T22	Process 336 361	configuration interaction
+T23	Process 363 365	CI
+*	Synonym-of T22 T23
+T24	Process 732 746	harmonic modes
+T25	Task 821 828	physics
+T26	Process 1026 1060	magnetic and conductance phenomena
+T27	Task 1068 1084	spin-bath regime

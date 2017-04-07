@@ -1,0 +1,24 @@
+T1	Task 69 117	describe the geodetic data transformation method
+T2	Material 215 235	terrain digital data
+T3	Process 28 51	terrain data processing
+T4	Process 260 308	fine-resolution (3″ or finer) terrain data bases
+T5	Process 317 321	SRTM
+T6	Process 323 358	Shuttle Radar Topographical Mission
+T7	Process 375 398	Digital Elevation Model
+T8	Process 370 373	DEM
+*	Synonym-of T5 T6
+*	Synonym-of T8 T7
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+R2	Hyponym-of Arg1:T8 Arg2:T4	
+T9	Process 462 509	fine-scale (meters up to 100m) atmospheric flow
+T10	Material 931 936	WGS84
+T11	Material 938 962	World Geodetic System 84
+*	Synonym-of T10 T11
+T12	Material 1071 1089	East, North and Up
+T13	Material 1091 1094	ENU
+*	Synonym-of T12 T13
+T14	Material 1239 1266	Cartesian coordinate system
+T15	Process 610 614	SRTM
+T16	Process 1025 1029	3DWF
+T17	Process 799 803	SRTM
+T18	Process 1131 1135	3DWF

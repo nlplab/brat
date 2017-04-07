@@ -1,0 +1,24 @@
+T4	Material 129 146	logical inference
+T5	Material 151 158	ProbLog
+T7	Process 474 482	(RO)BDDs
+T8	Process 523 540	decision diagrams
+T9	Process 547 575	sentential decision diagrams
+R1	Hyponym-of Arg1:T9 Arg2:T8	
+T10	Process 577 580	SDD
+*	Synonym-of T10 T9
+T11	Process 583 631	deterministic, decomposable negation normal form
+T12	Process 633 639	d-DNNF
+*	Synonym-of T12 T11
+T13	Material 698 702	PPLs
+T14	Material 704 711	ProbLog
+T15	Task 737 754	logical inference
+T16	Material 862 864	PB
+T1	Material 18 20	PB
+T2	Material 26 69	enumeration of the conditional sample space
+T3	Material 265 290	“logical inference” in PB
+T6	Material 338 345	ProbLog
+T17	Material 416 430	PB compilation
+T18	Material 490 497	ProbLog
+T19	Task 889 908	“logical inference”
+T20	Material 1052 1054	PB
+T21	Process 1078 1115	use of more compact decision diagrams

@@ -1,0 +1,32 @@
+T1	SOFTWARE 4193 4198	Numpy
+T2	IDK_MAN 4209 4223	data structure
+#1	AnnotatorNotes T2	computer science concept
+T3	SOFTWARE 4287 4292	numpy
+T4	METHOD 4293 4299	arrays
+R1	implements Arg1:T3 Arg2:T4	
+T5	SOFTWARE 4369 4376	Numpy's
+T6	IDK_MAN 4388 4400	memory model
+#2	AnnotatorNotes T6	cs concept
+T7	IDK_MAN 4439 4452	compiled code
+#3	AnnotatorNotes T7	cs concept
+T8	SOFTWARE 4528 4533	Scipy
+T9	METHOD 4560 4574	linear algebra
+R2	implements Arg1:T8 Arg2:T9	
+T10	METHOD 4576 4604	sparse matrix representation
+T11	METHOD 4606 4623	special functions
+T12	METHOD 4634 4655	statistical functions
+R3	implements Arg1:T8 Arg2:T10	
+R4	implements Arg1:T8 Arg2:T11	
+R5	implements Arg1:T8 Arg2:T12	
+T13	SOFTWARE 4657 4662	Scipy
+T14	SOFTWARE 4736 4742	LAPACK
+T15	SOFTWARE 4708 4726	numerical packages
+T16	SOFTWARE 4891 4897	Cython
+T17	SOFTWARE 4924 4925	C
+T18	SOFTWARE 4929 4935	Python
+T19	SOFTWARE 4937 4943	Cython
+T20	IDK_MAN 4986 5004	compiled languages
+#4	AnnotatorNotes T20	cs concept
+T21	SOFTWARE 5136 5142	Python
+T22	SOFTWARE 5143 5144	C
+T23	SOFTWARE 5010 5016	Python

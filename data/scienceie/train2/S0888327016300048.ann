@@ -1,0 +1,29 @@
+T1	Process 112 128	multivariate EMD
+T2	Task 32 128	elaborates on the theoretical effectiveness of the proposed method based on the multivariate EMD
+T3	Process 164 185	numerical simulations
+T4	Task 190 224	applications to bearing monitoring
+T5	Process 206 224	bearing monitoring
+T6	Process 249 261	standard EMD
+T7	Process 265 281	multivariate EMD
+T8	Process 234 281	expansion from standard EMD to multivariate EMD
+T9	Material 326 333	sensors
+T10	Process 406 422	multivariate EMD
+T11	Material 434 453	multivariate signal
+T12	Material 504 524	frequency components
+T13	Task 576 601	extract fault information
+T14	Material 737 769	practical rolling bearing signal
+T15	Process 840 856	multivariate EMD
+T16	Process 873 903	signal decomposition algorithm
+R1	Hyponym-of Arg1:T15 Arg2:T16	
+T17	Process 938 953	fault diagnosis
+T18	Process 995 1022	multiscale reduction method
+T19	Process 1027 1060	fault correlation factor analysis
+T20	Material 957 973	rolling bearings
+T21	Task 1065 1098	signal acquisition and processing
+T22	Material 1172 1179	sensors
+T23	Process 1181 1197	multivariate EMD
+T24	Process 1252 1290	multivariate data processing algorithm
+T25	Material 1309 1325	simulated signal
+T26	Material 1344 1374	practical multivariate signals
+T27	Process 1475 1490	rolling bearing
+T28	Task 1456 1490	fault diagnosis of rolling bearing

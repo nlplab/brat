@@ -1,0 +1,15 @@
+T2	Process 508 510	MC
+T4	Process 255 258	PSR
+T6	Task 580 595	vessel modeling
+T7	Material 619 621	SA
+T8	Task 694 710	surgery planning
+T9	Material 818 837	model-based methods
+T1	Task 15 37	PSR applied to vessels
+T3	Process 288 302	scale-adaptive
+*	Synonym-of T3 T4 T12
+T12	Process 304 306	SA
+T5	Task 647 672	reconstruction of vessels
+T10	Task 895 931	vessel modeling for surgery planning
+T11	Process 325 359	curvature-dependent polygonization
+T13	Process 366 442	increasing/decreasing the size of triangles according to the local curvature
+*	Synonym-of T11 T13

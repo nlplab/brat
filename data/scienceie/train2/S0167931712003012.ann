@@ -1,0 +1,36 @@
+T3	Material 82 109	spin-on carbon compositions
+T5	Process 236 263	film thickness measurements
+T6	Material 278 288	IM-HM11-01
+T7	Material 318 328	IM-HM11-03
+T8	Process 342 349	etching
+T9	Task 377 443	compare the performance of the different compositions across tasks
+T10	Material 458 474	Films of the SoC
+T11	Process 492 504	spin coating
+T12	Material 625 629	film
+T13	Process 635 679	aked for 2min at temperatures of up to 330°C
+T14	Process 1090 1114	before and after dipping
+T15	Material 1118 1135	monochlorobenzene
+T16	Material 1193 1203	IM-HM11-01
+T17	Material 1237 1247	IM-HM11-02
+T18	Material 1293 1308	IM-HM11-02 film
+T19	Material 1400 1410	IM-HM11-01
+T21	Material 872 897	IM-HM11-01 and IM-HM11-02
+T23	Material 1062 1087	IM-HM11-01 and IM-HM11-02
+T1	Task 3 71	evaluated three spin-on carbon hardmasks from Irresistible Materials
+T2	Material 724 727	SoC
+T24	Material 792 808	spin-on-hardmask
+T25	Task 843 859	elution behavior
+T26	Material 1057 1062	SoC (
+T27	Process 1169 1175	baking
+T28	Material 508 546	hydrogen-terminated silicon substrates
+T22	Material 1137 1140	MCB
+*	Synonym-of T15 T22
+R1	Hyponym-of Arg1:T23 Arg2:T26	
+T29	Material 293 309	IM-HM11-02 films
+T30	Material 13 43	three spin-on carbon hardmasks
+T20	Material 1412 1416	Film
+T4	Material 139 146	solvent
+T31	Material 155 165	chloroform
+T32	Material 169 176	anisole
+R2	Hyponym-of Arg1:T31 Arg2:T4	
+R3	Hyponym-of Arg1:T32 Arg2:T4	

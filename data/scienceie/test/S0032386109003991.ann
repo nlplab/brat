@@ -1,0 +1,22 @@
+T1	Task 696 734	production of anionic polystyrene (PS)
+T2	Process 9 23	polymerization
+T3	Material 710 729	anionic polystyrene
+T4	Material 730 733	(PS
+*	Synonym-of T3 T4
+T5	Process 203 214	propagation
+T6	Task 343 376	industrial styrene polymerization
+T7	Process 960 983	alkyllithium initiators
+T8	Process 1146 1179	anionic polymerization of styrene
+T9	Material 1198 1205	solvent
+T10	Process 1444 1470	propagating active species
+T11	Material 601 620	anionic polystyrene
+T12	Process 59 70	termination
+T13	Process 113 131	monomer conversion
+T14	Material 225 233	polymers
+T15	Material 519 543	low molar mass oligomers
+T16	Process 798 812	polymerization
+T17	Process 417 424	washing
+T18	Process 428 437	degassing
+T19	Material 926 942	organic solvents
+T20	Process 29 37	reaction
+R1	Hyponym-of Arg1:T2 Arg2:T20	

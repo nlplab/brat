@@ -1,0 +1,21 @@
+T3	Material 92 114	ossil mass occurrences
+T4	Process 184 199	virtual methods
+T5	Process 207 215	macro-CT
+T6	Process 217 221	µ-CT
+T7	Process 223 230	nano-CT
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+R2	Hyponym-of Arg1:T6 Arg2:T4	
+R3	Hyponym-of Arg1:T7 Arg2:T4	
+T10	Material 306 329	fossil mass occurrences
+T11	Process 415 431	3D-visualization
+T12	Material 435 450	fossil-elements
+T14	Task 627 649	virtual reconstruction
+T15	Material 713 737	ammonoid mass occurrence
+T16	Process 813 849	planispirally coiled ammonoid shells
+T18	Material 988 1010	fossil mass occurrence
+T19	Material 1020 1051	other abundant organic elements
+T20	Material 1056 1065	particles
+T1	Task 14 49	investigation of fossil-orientation
+T8	Task 916 944	depositional interpretations
+T2	Task 529 569	investigating their interior orientation
+T9	Task 651 706	analyses and interpretation of the interior orientation

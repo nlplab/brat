@@ -1,0 +1,11 @@
+T1	Material 34 48	polymer chains
+T2	Material 97 111	star molecules
+T3	Material 547 555	polygons
+T4	Material 581 615	three interfaces, A/B, B/C and C/A
+T5	Process 703 716	chain entropy
+T6	Process 921 941	diagonal bond method
+T7	Process 949 971	Monte Carlo Simulation
+T8	Material 1100 1124	three-branched molecules
+T9	Process 1142 1162	even polygon theorem
+R1	Hyponym-of Arg1:T7 Arg2:T6	
+T10	Material 489 498	cylinders

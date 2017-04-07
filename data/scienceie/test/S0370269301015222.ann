@@ -1,0 +1,30 @@
+T1	Task 7 32	astronomical observations
+T2	Material 36 68	high redshift type Ia supernovae
+T3	Task 114 173	power spectrum of the cosmic microwave background radiation
+T4	Process 357 404	Friedmann–Robertson–Walker (FRW) standard model
+T5	Material 679 700	cosmological constant
+T6	Process 708 729	vacuum energy density
+T7	Task 987 1016	cosmological constant problem
+T8	Task 1166 1185	coincidence problem
+T9	Process 190 199	BOOMERANG
+T10	Process 208 216	MAXIMA-1
+T11	Process 525 539	matter density
+T12	Process 735 745	ρΛ≡Λ/(8πG)
+T17	Task 1040 1078	question why Λ is so unnaturally small
+T18	Material 1126 1128	ρΛ
+T20	Task 408 417	cosmology
+T21	Process 540 541	ρ
+*	Synonym-of T11 T21
+T22	Process 568 584	critical density
+T23	Process 585 590	ρcrit
+*	Synonym-of T22 T23
+T24	Material 701 702	Λ
+*	Synonym-of T5 T24
+*	Synonym-of T6 T12
+T25	Process 773 774	ρ
+T26	Process 806 822	critical density
+T13	Process 918 940	deceleration parameter
+T14	Process 941 942	q
+*	Synonym-of T13 T14
+T15	Task 1201 1287	why ρ and ρΛ happen to be of the same order of magnitude precisely at this very moment
+*	Synonym-of T8 T15

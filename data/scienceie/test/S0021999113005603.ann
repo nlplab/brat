@@ -1,0 +1,24 @@
+T1	Process 89 119	cumulative averaging technique
+T2	Process 159 195	divided into spatially-oriented bins
+T3	Material 239 247	velocity
+T4	Material 252 273	shear-stress profiles
+T5	Process 318 345	Cumulative Averaging Method
+T6	Process 347 350	CAM
+*	Synonym-of T5 T6
+T7	Process 368 387	stress tensor field
+T8	Process 410 438	Irving–Kirkwood relationship
+T9	Process 447 475	least-squares polynomial fit
+T11	Process 658 670	macro solver
+T12	Material 709 729	Nth order polynomial
+T14	Material 782 802	Mth order polynomial
+T13	Material 999 1010	polynomials
+T15	Material 1097 1114	new slip velocity
+T16	Material 1181 1219	compressed wall micro-element solution
+T17	Task 123 135	reduce noise
+T18	Process 227 273	resolve the velocity and shear-stress profiles
+T10	Task 514 526	reduce noise
+T19	Process 555 574	continuous function
+T20	Process 587 603	stability issues
+T21	Process 617 670	supplying highly fluctuating data to the macro solver
+T22	Process 674 691	least-squares fit
+T23	Material 1135 1149	macro solution

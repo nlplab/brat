@@ -1,0 +1,57 @@
+T1	Material 14 31	charmonium states
+T2	Task 171 191	experimental program
+T3	Material 333 349	original picture
+T4	Process 523 558	subsequent evolution of the system,
+T5	Material 573 592	hidden charm mesons
+T6	Process 620 685	absorption of pre-resonance charmonium states by nuclear nucleons
+T7	Process 720 768	interactions of charmonia with secondary hadrons
+T8	Process 785 838	dissociation of cc̄ bound states in deconfined medium
+T9	Process 886 901	J/ψ suppression
+T10	Material 951 965	proton–nucleus
+T11	Process 970 996	nucleus–nucleus collisions
+T12	Material 1002 1019	light projectiles
+T13	Task 1134 1149	NA50 experiment
+T14	Process 1284 1299	J/ψ suppression
+T15	Process 1318 1349	formation of quark–gluon plasma
+T16	Process 1367 1383	comover scenario
+T18	Material 246 249	J/ψ
+T19	Material 402 411	charmonia
+T20	Process 476 510	primary nucleon–nucleon collisions
+T21	Material 669 685	nuclear nucleons
+T22	Process 770 778	comovers
+T23	Process 840 861	anomalous suppression
+T24	Process 1090 1109	nuclear suppression
+T25	Material 1071 1088	sweeping nucleons
+T26	Material 1186 1191	Pb+Pb
+T17	Material 32 35	J/ψ
+T27	Material 40 42	ψ′
+R1	Hyponym-of Arg1:T17 Arg2:T1	
+R2	Hyponym-of Arg1:T27 Arg2:T1	
+T28	Process 46 72	nucleus–nucleus collisions
+T29	Material 46 53	nucleus
+T30	Material 54 61	nucleus
+T31	Task 0 72	Production of charmonium states J/ψ and ψ′ in nucleus–nucleus collisions
+T32	Task 238 327	use the J/ψ as a probe of the state of matter created at the early stage of the collision
+T33	Material 484 491	nucleon
+T34	Material 492 499	nucleon
+T35	Process 687 713	normal nuclear suppression
+*	Synonym-of T35 T6
+T36	Material 736 745	charmonia
+T37	Material 761 768	hadrons
+*	Synonym-of T22 T7
+T38	Material 648 658	charmonium
+*	Synonym-of T8 T23
+T39	Material 801 804	cc̄
+T40	Material 886 889	J/ψ
+T41	Material 918 938	Drell–Yan muon pairs
+T42	Material 978 985	nucleus
+T43	Material 970 977	nucleus
+T44	Material 1223 1226	J/ψ
+T45	Material 1157 1184	heavy projectile and target
+R3	Hyponym-of Arg1:T26 Arg2:T45	
+T46	Process 1223 1238	J/ψ suppression
+T47	Process 1243 1261	central collisions
+T48	Material 1284 1287	J/ψ
+T49	Material 1331 1349	quark–gluon plasma
+T50	Material 1351 1354	QGP
+*	Synonym-of T49 T50

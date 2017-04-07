@@ -1,0 +1,19 @@
+T1	Task 70 129	understanding the confinement physics from first principles
+T2	Task 157 186	develop analytical approaches
+T3	Process 356 405	spontaneous symmetry breaking of scale invariance
+T4	Process 489 515	scale-invariant Lagrangian
+T5	Process 641 675	function of 4-index field strength
+T6	Process 686 702	(2)w=εμναβ∂μAναβ
+R1	Hyponym-of Arg1:T5 Arg2:T6	
+T7	Process 708 737	Aναβ equation of motion leads
+T8	Process 744 764	εμναβ∂βw−−FγδaFaγδ=0
+T9	Process 780 810	integrated to (4)w=−FμνaFaμν+M
+T10	Process 842 864	Aaμ equation of motion
+T11	Process 986 1010	the effective Lagrangian
+T12	Process 1014 1042	Leff=−14FμνaFaμν+M2−FμνaFaμν
+R2	Hyponym-of Arg1:T11 Arg2:T12	
+T13	Task 1044 1075	Spherically symmetric solutions
+T14	Task 1170 1237	quantum theory calculation of the static energy between two charges
+T15	Material 1124 1137	Coulomb piece
+T16	Material 1144 1158	confining part
+T17	Process 1323 1344	string like solutions

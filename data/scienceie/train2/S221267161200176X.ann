@@ -1,0 +1,22 @@
+T1	Task 0 78	Modeling or approximating high dimensional, computationally-expensive problems
+T3	Process 130 153	curse of dimensionality
+T4	Process 178 227	new form of high dimensional model representation
+T5	Process 190 227	high dimensional model representation
+T6	Process 229 233	HDMR
+T7	Process 252 277	support vector regression
+T8	Process 279 282	SVR
+T9	Process 295 312	adaptive SVR-HMDR
+T10	Task 317 337	conquer this dilemma
+T11	Process 371 392	explicit correlations
+T12	Material 409 424	input variables
+T14	Process 486 497	computation
+T15	Process 519 523	HDMR
+T16	Task 559 606	alleviate the exponential increasing difficulty
+T17	Process 666 669	SVR
+T19	Task 731 782	illustrate the principle, procedure and performance
+T20	Process 786 794	SVR-HDMR
+T2	Process 0 8	Modeling
+T21	Process 12 25	approximating
+*	Synonym-of T6 T5
+*	Synonym-of T7 T8
+*	Synonym-of T4 T9

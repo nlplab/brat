@@ -1,0 +1,25 @@
+T1	Process 33 54	string/D-brane theory
+T3	Process 154 179	SUSY bulk-boundary theory
+T4	Task 199 232	solve the singular field equation
+T5	Process 241 297	general mathematical result about the free-wave solution
+T6	Process 335 369	extra-component of the bulk-vector
+T7	Process 371 373	A5
+T8	Process 383 394	bulk-scalar
+T9	Process 396 397	Φ
+*	Synonym-of T6 T7
+*	Synonym-of T8 T9
+T10	Task 432 461	different roles are clarified
+T11	Process 528 546	boundary condition
+T12	Process 724 739	thin-wall limit
+T13	Process 688 700	c1=−1, c2=−1
+T14	Process 678 686	solution
+R1	Hyponym-of Arg1:T13 Arg2:T14	
+T15	Process 773 789	bulk Higgs model
+T16	Process 866 904	non-singular and stable brane solution
+T17	Process 912 937	SUSY bulk-boundary theory
+T2	Material 7 19	brane system
+T19	Task 60 70	stableness
+T20	Process 119 146	stable brane configurations
+T21	Process 745 758	kink solution
+T18	Process 811 832	non-singular solution
+R2	Hyponym-of Arg1:T15 Arg2:T18	

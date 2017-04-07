@@ -1,0 +1,20 @@
+T1	Task 76 120	use of other time–frequency analysis methods
+T2	Process 126 142	STFT spectrogram
+T5	Process 436 459	time–frequency analysis
+T6	Process 469 494	discrete wavelet analysis
+T7	Process 522 547	multi-resolution analysis
+T8	Material 571 590	temporal resolution
+T9	Material 629 649	frequency resolution
+T10	Material 737 745	SH waves
+T11	Process 768 773	EMATs
+T12	Material 969 998	longitudinal ultrasonic waves
+T13	Material 1002 1023	electromagnetic waves
+T14	Process 89 112	time–frequency analysis
+T3	Process 281 292	spectrogram
+R1	Hyponym-of Arg1:T6 Arg2:T5	
+T4	Material 397 417	frequency resolution
+T15	Material 308 324	fixed resolution
+T16	Material 346 361	time resolution
+T17	Material 657 681	low frequency components
+T18	Material 806 825	pulsed array system
+T19	Task 889 949	demonstrating this phenomenon with a number of other systems

@@ -1,0 +1,47 @@
+T1	METHOD 29 33	ADMM
+T2	TASK 70 89	Sparse Optimization
+T3	TASK 94 114	Matrix Decomposition
+T4	METHOD 7 33	Multi-Step Stochastic ADMM
+T5	METHOD 181 196	stochastic ADMM
+T6	TASK 388 407	sparse optimization
+T7	TASK 780 800	matrix decomposition
+T8	METHOD 854 869	multi-step ADMM
+T9	METRIC 629 641	minimax rate
+T10	METRIC 1043 1058	minimax-optimal
+T11	METHOD 1385 1408	online machine learning
+T12	TASK 1560 1580	large-scale learning
+T13	METHOD 1690 1713	Stochastic optimization
+T14	METHOD 1765 1808	alternating direction method of multipliers
+T15	TASK 1840 1892	online and distributed optimization on a large scale
+T16	METHOD 2124 2151	augmented Lagrangian method
+R1	is_subclass_of Arg1:T14 Arg2:T16	
+T17	METHOD 2756 2788	(inexact) stochastic ADMM method
+T18	METHOD 2869 2879	annealing.
+T19	METRIC 2974 2990	convergence rate
+T20	TASK 3198 3225	sparse optimization problem
+T21	IDK_MAN 3488 3500	1 projection
+T22	METRIC 4169 4193	high-dimensional scaling
+T23	METRIC 4271 4283	minimax rate
+T24	METRIC 4309 4320	square loss
+T25	METRIC 4475 4491	convergence rate
+T26	TASK 4449 4469	matrix decomposition
+T27	METRIC 4848 4867	reconstruction erro
+T28	TASK 4989 5035	online matrix decomposition in high dimensions
+T29	METRIC 5051 5067	convergence rate
+T30	METHOD 5654 5679	multi-step dual averaging
+T31	METHOD 5755 5766	inexact ALM
+T32	METRIC 5875 5883	accuracy
+T33	METHOD 7069 7083	dual averaging
+T34	TASK 7360 7380	Matrix Decomposition
+T35	METHOD 7529 7544	multiblock ADMM
+T36	METRIC 7606 7646	convergence rate analysis in expectation
+T37	METRIC 7779 7795	convergence rate
+T38	TASK 8034 8061	matrix decomposition proble
+T39	METHOD 17339 17367	Epoch-based Multi-Block ADMM
+T40	TASK 17530 17550	matrix decomposition
+T41	METHOD 18192 18214	nuclear norm projectio
+T42	FUNDING_AGENCY 28624 28633	Microsoft
+T43	FUNDING_AGENCY 28654 28657	NSF
+T44	FUNDING_AGENCY 28684 28687	NSF
+T45	FUNDING_AGENCY 28711 28714	ARO
+T46	METRIC 8481 8494	Minimax bound

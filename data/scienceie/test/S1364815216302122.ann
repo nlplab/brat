@@ -1,0 +1,18 @@
+T1	Process 47 75	multi-objective optimization
+T2	Process 259 276	scaling procedure
+T3	Process 512 529	scaling procedure
+T4	Process 771 783	optimization
+T5	Process 882 920	Strength Pareto Evolutionary Algorithm
+T6	Process 922 926	SPEA
+*	Synonym-of T5 T6
+T7	Process 1036 1064	multi-objective optimization
+T8	Process 1070 1074	SPEA
+T9	Task 1094 1118	evolutionary computation
+T10	Process 1123 1127	SPEA
+T11	Process 1272 1293	Pareto optimal models
+R1	Hyponym-of Arg1:T8 Arg2:T7	
+T12	Process 1295 1312	downscaling rules
+*	Synonym-of T11 T12
+T13	Process 469 479	regression
+T14	Process 969 1019	using a single (weighted) fitness or cost function
+T15	Process 1132 1151	fitness calculation

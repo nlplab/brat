@@ -1,0 +1,10 @@
+T1	Process 51 90	generation of logic reasoning questions
+T2	Process 119 178	construct questions that are solvable with unique solutions
+T3	Process 202 215	AI techniques
+T4	Process 224 241	semantic networks
+R1	Hyponym-of Arg1:T4 Arg2:T3	
+T5	Material 330 360	traditional question databases
+T6	Process 419 454	memory constrained mobile platforms
+T7	Process 489 526	question generation for job interview
+T8	Task 26 91	algorithms for automatic generation of logic reasoning questions.
+T9	Material 253 269	verbal questions

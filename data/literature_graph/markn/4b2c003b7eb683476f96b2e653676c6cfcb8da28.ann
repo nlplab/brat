@@ -1,0 +1,147 @@
+T1	METHOD 96 121	Adaptive Computation Time
+T2	METHOD 154 180	recurrent neu-ral networks
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+T3	METHOD 278 281	ACT
+T4	TASK 492 532	determining the parity of binary vectors
+T5	TASK 534 566	applying binary logic operations
+T6	TASK 568 583	adding integers
+T7	TASK 589 609	sorting real numbers
+T8	METHOD 671 674	ACT
+T9	TASK 788 822	character-level language modelling
+T10	DATASET 838 860	Hutter prize Wikipedia
+R2	addresses Arg1:T10 Arg2:T9	
+T11	METHOD 883 886	ACT
+T12	METHOD 1142 1145	ACT
+T13	METHOD 1155 1175	adaptive computation
+T14	TASK 1219 1264	inferring segment boundaries in sequence data
+T15	METHOD 1796 1812	machine learning
+T16	METHOD 1952 1978	artificial neural networks
+T17	METHOD 2106 2136	layer-to-layer transformations
+R3	uses Arg1:T16 Arg2:T17	
+T18	METHOD 2162 2182	feedforward networks
+T19	METHOD 2278 2296	recurrent networks
+T20	IDK_MAN 2966 2992	vanishing gradient problem
+T21	IDK_MAN 3619 3636	mean-field vector
+T22	IDK_MAN 3463 3485	sigmoidal halting unit
+T23	METHOD 3794 3844	binary samples drawn from the halting distribution
+T24	TASK 3891 3910	scene understanding
+T25	METHOD 3916 3934	recurrent networks
+R4	addresses Arg1:T25 Arg2:T24	
+R5	uses Arg1:T25 Arg2:T23	
+T26	IDK_MAN 4072 4090	gradient estimates
+T27	METHOD 4313 4336	policy gradient methods
+T28	METHOD 4376 4407	Self-Delimiting Neural Networks
+T29	METHOD 4428 4442	halting neuron
+R6	uses Arg1:T28 Arg2:T29	
+T30	METHOD 4506 4513	network
+R7	uses Arg1:T28 Arg2:T30	
+T31	METHOD 4545 4565	activation threshold
+R8	uses Arg1:T28 Arg2:T31	
+T32	TASK 4670 4691	learning when to halt
+T33	METHOD 4717 4738	conditional computing
+R9	addresses Arg1:T33 Arg2:T32	
+T34	IDK_MAN 4827 4833	policy
+#1	AnnotatorNotes T34	Policy in the sense of RL
+T35	METRIC 5085 5106	Kolmogorov complexity
+T36	TASK 5138 5157	the halting problem
+R10	addresses Arg1:T35 Arg2:T36	
+T37	METRIC 5241 5253	oss function
+T38	METHOD 5626 5651	Adaptive Computation Time
+T39	METHOD 15687 15712	recurrent neural networks
+T40	METHOD 15737 15740	ACT
+R11	is_subclass_of Arg1:T40 Arg2:T39	
+T41	METHOD 15810 15814	LSTM
+T42	TASK 15784 15803	language processing
+T43	METHOD 15899 15902	RNN
+T44	METHOD 15936 15939	ACT
+R12	is_subclass_of Arg1:T41 Arg2:T43	
+T45	METHOD 15969 15991	recurrent architecture
+R13	is_subclass_of Arg1:T44 Arg2:T45	
+T46	TASK 16012 16031	supervised learning
+T47	METRIC 16067 16085	cross-entropy loss
+R14	addresses Arg1:T47 Arg2:T46	
+T48	TASK 16203 16223	character prediction
+T49	METRIC 16344 16363	sequence error rate
+T50	TASK 16525 16545	character prediction
+T51	METRIC 16565 16581	average log-loss
+T52	METRIC 16621 16639	bits per character
+R15	addresses Arg1:T51 Arg2:T50	
+R16	addresses Arg1:T52 Arg2:T50	
+T53	METHOD 16705 16709	Adam
+T54	TASK 16728 16740	optimisation
+R17	addresses Arg1:T53 Arg2:T54	
+T55	SOFTWARE 16777 16785	Hogwild!
+T56	METHOD 16814 16835	asynchronous training
+R18	implements Arg1:T55 Arg2:T56	
+T57	TASK 17326 17346	character prediction
+T58	METHOD 17454 17465	grid search
+T59	METHOD 17633 17644	grid search
+T60	TASK 17742 17760	language modelling
+T61	METHOD 18359 18383	recurrent neural network
+T62	TASK 18296 18334	parity of a sequence of binary numbers
+R19	addresses Arg1:T61 Arg2:T62	
+T63	METHOD 18425 18440	internal switch
+R20	uses Arg1:T61 Arg2:T63	
+T64	METHOD 18493 18521	shallow feedforward networks
+T65	METHOD 18719 18722	ACT
+T66	METHOD 18840 18847	network
+R21	is_subclass_of Arg1:T65 Arg2:T66	
+T67	METHOD 18988 18991	ACT
+T68	METHOD 19452 19455	RNN
+T69	METHOD 19418 19425	network
+R22	is_subclass_of Arg1:T68 Arg2:T69	
+T70	IDK_MAN 19470 19482	hidden layer
+T71	METHOD 19498 19508	tanh units
+R23	uses Arg1:T68 Arg2:T71	
+T72	METHOD 19522 19543	sigmoidal output unit
+R24	uses Arg1:T68 Arg2:T72	
+T73	METRIC 19558 19583	binary cross-entropy loss
+T74	METHOD 19630 19633	ACT
+T75	METHOD 19666 19678	hidden layer
+R25	uses Arg1:T74 Arg2:T75	
+T76	METHOD 19767 19786	feedforward network
+T77	METHOD 19801 19813	hidden layer
+R26	uses Arg1:T76 Arg2:T77	
+T78	METHOD 19903 19906	ACT
+T79	METRIC 20013 20023	mean error
+T80	METHOD 19960 19975	random guessing
+T81	METRIC 20206 20231	classification error rate
+T82	METRIC 20240 20259	average ponder time
+T83	IDK_MAN 20275 20283	variance
+T84	METRIC 20504 20522	Parity Error Rates
+T85	METRIC 20576 20590	time penalties
+T86	METHOD 20898 20914	gradient updates
+T87	SOFTWARE 20919 20938	asynchronous worker
+R27	implements Arg1:T87 Arg2:T86	
+T88	METHOD 21228 21231	ACT
+T89	METHOD 21211 21219	networks
+R28	is_subclass_of Arg1:T88 Arg2:T89	
+T90	METHOD 21635 21638	ACT
+T91	METHOD 21618 21626	networks
+R29	is_subclass_of Arg1:T90 Arg2:T91	
+T92	TASK 29463 29496	sort sequences of 2 to 15 numbers
+T93	IDK_MAN 29510 29538	standard normal distribution
+T94	METHOD 29622 29625	ACT
+T95	METHOD 29718 29744	multiple computation steps
+R30	uses Arg1:T94 Arg2:T95	
+T96	TASK 29950 29988	number sequence placed in sorted order
+T97	METHOD 30248 30252	LSTM
+T98	METHOD 30223 30230	network
+R31	is_subclass_of Arg1:T97 Arg2:T98	
+T99	METRIC 30322 30335	cross-entropy
+T100	METHOD 30300 30307	softmax
+T101	METHOD 30453 30456	ACT
+T102	METHOD 36444 36469	Adaptive Computation time
+T103	METHOD 36498 36523	recurrent neural networks
+R32	is_subclass_of Arg1:T102 Arg2:T103	
+T104	METHOD 36631 36634	ACT
+T105	METHOD 36696 36699	RNN
+R33	is_subclass_of Arg1:T104 Arg2:T105	
+T106	METHOD 36873 36890	computation steps
+T107	METHOD 36913 36916	ACT
+R34	uses Arg1:T107 Arg2:T106	
+T108	METHOD 37019 37022	ACT
+T109	METHOD 37067 37090	recurrent architectures
+R35	is_subclass_of Arg1:T108 Arg2:T109	
+T110	METHOD 37102 37124	soft attention modules
+R36	uses Arg1:T109 Arg2:T110	

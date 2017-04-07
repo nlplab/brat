@@ -1,0 +1,9 @@
+T1	METHOD 140 147	InfoGAN
+T2	METHOD 191 222	Gener-ative Adversarial Network
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+T3	DATASET 649 663	MNIST dataset,
+T4	DATASET 675 704	ighting of 3D rendered images
+T5	DATASET 758 770	SVHN dataset
+T6	DATASET 885 904	CelebA face dataset
+T7	METHOD 928 935	InfoGAN
+T8	METHOD 575 582	InfoGAN

@@ -1,0 +1,15 @@
+T1	DATASET 68 121	The ImageNet Large Scale Visual Recognition Challenge
+T2	TASK 140 184	object category classification and detection
+T3	TASK 440 458	object recognition
+T4	TASK 604 634	categorical object recognition
+T5	TASK 701 754	large-scale image classification and object detection
+T6	METRIC 805 813	accuracy
+T7	METRIC 825 833	accuracy
+T8	DATASET 983 1036	The ImageNet Large Scale Visual Recognition Challenge
+T9	DATASET 1038 1044	ILSVRC
+T10	TASK 1142 1172	large-scale object recognition
+T11	DATASET 1176 1182	ILSVRC
+T12	DATASET 1215 1235	PASCAL VOC challenge
+T13	DATASET 1405 1415	PASCAL VOC
+T14	DATASET 1417 1423	ILSVRC
+T15	TASK 1603 1644	categorical object recognition algorithms

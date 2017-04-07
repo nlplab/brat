@@ -1,0 +1,37 @@
+T1	Task 910 937	predict corrosion behaviour
+T2	Process 846 891	Volta potential differences in microstructure
+T3	Process 12 27	Volta potential
+T4	Process 29 30	Ψ
+*	Synonym-of T4 T3
+T5	Process 39 59	potential difference
+T6	Process 12 27	Volta potential
+R1	Hyponym-of Arg1:T5 Arg2:T6	
+T7	Process 204 240	electrochemical behaviour of a metal
+T8	Process 254 292	scanning Kelvin probe force microscopy
+T9	Process 294 299	SKPFM
+*	Synonym-of T9 T8
+T10	Task 318 340	detection of local EWF
+T11	Task 378 405	Volta potential differences
+T12	Task 407 409	ΔΨ
+*	Synonym-of T12 T11
+T13	Material 422 449	atomic force microscopy tip
+T14	Material 459 468	Pt coated
+T15	Material 478 491	metal surface
+T16	Process 530 535	SKPFM
+T17	Process 621 636	Volta potential
+T18	Process 657 684	property of a metal surface
+R2	Hyponym-of Arg1:T18 Arg2:T17	
+T19	Process 168 188	measureable quantity
+T20	Process 12 27	Volta potential
+R3	Hyponym-of Arg1:T19 Arg2:T20	
+T21	Task 704 740	understand electrochemical processes
+T22	Process 969 1018	larger (ΔΨ) indicate increased surface reactivity
+T24	Process 1062 1089	Volta potential differences
+T25	Material 1112 1119	dry air
+T26	Process 1130 1154	free corrosion potential
+T27	Process 1156 1161	Ecorr
+*	Synonym-of T27 T26
+T28	Material 235 240	metal
+T29	Material 568 579	ambient air
+T30	Material 671 684	metal surface
+T31	Process 715 740	electrochemical processes

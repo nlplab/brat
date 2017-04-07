@@ -1,0 +1,21 @@
+T1	Task 107 123	model evaluation
+T2	Process 296 318	constituent statistics
+T3	Process 320 322	SB
+R1	Hyponym-of Arg1:T3 Arg2:T2	
+T4	Material 790 803	N2O emissions
+T5	Material 889 901	N2O datasets
+T6	Process 283 286	MSE
+T7	Process 324 328	SDSD
+T8	Process 333 336	LCS
+R2	Hyponym-of Arg1:T7 Arg2:T2	
+R3	Hyponym-of Arg1:T8 Arg2:T2	
+T9	Material 1277 1280	N2O
+T10	Task 1489 1503	N2O prediction
+T11	Task 1341 1355	N2O prediction
+T13	Material 1110 1155	measured and simulated data for soil moisture
+T14	Material 1187 1201	soil mineral N
+T12	Material 1341 1344	N2O
+T15	Task 1383 1407	soil moisture prediction
+T16	Material 1534 1547	soil moisture
+T17	Task 1552 1577	soil mineral N prediction
+T18	Material 1552 1566	soil mineral N

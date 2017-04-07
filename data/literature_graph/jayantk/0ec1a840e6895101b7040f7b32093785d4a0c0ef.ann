@@ -1,0 +1,70 @@
+T1	METHOD 130 163	Logical Semantics with Perception
+T2	TASK 183 212	grounded language acquisition
+R1	addresses Arg1:T1 Arg2:T2	
+T3	METHOD 335 338	LSP
+T4	METHOD 445 448	LSP
+T5	METHOD 675 711	weakly supervised training procedure
+T6	METHOD 727 730	LSP
+R2	uses Arg1:T6 Arg2:T5	
+T7	TASK 928 947	scene understanding
+T8	TASK 952 983	geographical question answering
+T9	METHOD 998 1001	LSP
+T10	METHOD 1111 1137	weakly supervised training
+T11	METHOD 1158 1183	fully supervised training
+T12	TASK 2003 2032	grounded language acquisition
+T13	TASK 2199 2228	grounded language acquisition
+T14	TASK 2250 2257	parsing
+R3	uses Arg1:T13 Arg2:T14	
+T15	TASK 2321 2331	perception
+R4	uses Arg1:T13 Arg2:T15	
+T16	TASK 2505 2515	perception
+T17	TASK 2544 2564	language acquisition
+T18	TASK 2584 2613	grounded language acquisition
+T19	TASK 2637 2647	perception
+T20	TASK 2887 2894	parsing
+T21	TASK 2899 2909	perception
+T22	METHOD 3151 3184	Logical Semantics with Perception
+T23	TASK 3204 3233	grounded language acquisition
+R5	addresses Arg1:T22 Arg2:T23	
+T24	METHOD 3309 3312	LSP
+T25	METHOD 3421 3424	LSP
+T26	METHOD 19479 19515	weakly supervised training procedure
+T27	METHOD 19520 19523	LSP
+R6	uses Arg1:T27 Arg2:T26	
+T28	METHOD 19688 19691	LSP
+T29	METHOD 19781 19784	LSP
+T30	METHOD 19790 19819	maximum margin Markov network
+T31	METHOD 19830 19859	stochastic subgradient method
+R7	uses Arg1:T29 Arg2:T30	
+R8	uses Arg1:T29 Arg2:T31	
+T32	METHOD 26059 26062	LSP
+T33	TASK 26084 26103	scene understanding
+T34	DATASET 26105 26110	SCENE
+R9	addresses Arg1:T34 Arg2:T33	
+T35	TASK 26116 26147	geographical question answering
+T36	DATASET 26149 26154	GEOQA
+R10	addresses Arg1:T36 Arg2:T35	
+T37	METHOD 26343 26368	fully supervised training
+T38	DATASET 26626 26631	SCENE
+T39	SOFTWARE 26927 26949	Amazon Mechanical Turk
+T40	DATASET 27327 27332	GEOQA
+T41	METHOD 14845 14861	semantic parsing
+T42	METHOD 14994 15010	Semantic parsing
+T43	METHOD 15285 15288	LSP
+T44	METHOD 15291 15306	semantic parser
+R11	uses Arg1:T43 Arg2:T44	
+T45	METHOD 15324 15354	Combinatory Categorial Grammar
+R12	uses Arg1:T44 Arg2:T45	
+T46	METHOD 15964 15967	CCG
+T47	METHOD 16006 16017	CCG parsing
+T48	METHOD 16399 16414	semantic parser
+T49	METHOD 16497 16512	semantic parser
+T50	METHOD 16516 16519	LSP
+R13	uses Arg1:T50 Arg2:T49	
+T51	METHOD 16525 16537	linear model
+T52	METHOD 16543 16546	CCG
+R14	uses Arg1:T49 Arg2:T52	
+R15	uses Arg1:T49 Arg2:T51	
+T53	METHOD 16685 16688	CCG
+T54	METHOD 16782 16785	CCG
+T55	METHOD 17682 17702	CCG semantic parsing

@@ -1,0 +1,41 @@
+T2	Process 25 33	B decays
+T3	Process 59 70	decay pairs
+T8	Material 177 183	mesons
+T13	Task 411 434	find the decay vertices
+T20	Material 602 612	quark pair
+T22	Material 681 682	η
+T23	Material 687 689	η′
+T24	Material 674 680	mesons
+R5	Hyponym-of Arg1:T22 Arg2:T24	
+R6	Hyponym-of Arg1:T23 Arg2:T24	
+T30	Process 802 808	decays
+T32	Material 848 850	SM
+T33	Material 882 883	η
+T34	Material 887 889	η′
+T35	Material 925 937	vector meson
+T36	Material 938 939	ϕ
+R9	Hyponym-of Arg1:T36 Arg2:T35	
+T37	Process 974 985	quark state
+T38	Material 1017 1019	B0
+T39	Material 1024 1027	B¯0
+T40	Process 1039 1063	decay to the final state
+T43	Material 1133 1138	meson
+T44	Material 1170 1190	final-state particle
+T45	Material 1197 1217	excited neutral kaon
+T46	Material 1251 1254	K*0
+T47	Material 1276 1280	K¯*0
+T48	Material 1300 1312	vector meson
+T49	Process 1333 1347	decay to ψKsπ0
+T50	Process 1359 1379	measurement of sin2β
+T51	Material 1409 1411	B0
+T52	Material 1416 1419	B¯0
+T53	Process 1424 1429	decay
+T1	Process 203 209	decays
+T4	Process 330 336	decays
+T5	Material 442 457	final particles
+T6	Material 538 553	pairs of decays
+T7	Material 582 584	SM
+T9	Material 974 979	quark
+R1	Hyponym-of Arg1:T44 Arg2:T45	
+T10	Material 1342 1347	ψKsπ0
+R2	Hyponym-of Arg1:T50 Arg2:T49	

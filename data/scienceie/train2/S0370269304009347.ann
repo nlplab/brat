@@ -1,0 +1,23 @@
+T1	Task 16 49	chaotic motion in nuclear systems
+T2	Process 83 121	statistics of high-lying energy levels
+T3	Process 129 150	Poisson distributions
+T4	Process 206 220	excited levels
+T5	Process 235 239	spin
+T6	Process 244 250	parity
+T7	Process 265 294	integrable classical dynamics
+T8	Material 302 321	Wigner's statistics
+T9	Process 329 343	chaotic motion
+T10	Task 365 381	classical regime
+T11	Process 494 515	spectral fluctuations
+T12	Process 516 518	δn
+R1	Hyponym-of Arg1:T12 Arg2:T11	
+T13	Process 522 542	discrete time series
+T17	Process 633 664	mapping to dimensionless levels
+T18	Process 670 699	unitary average level density
+T19	Process 705 738	analyzing the energy fluctuations
+T20	Process 744 764	discrete time series
+T21	Task 782 803	nuclear power spectra
+T22	Task 895 918	quantum chaotic systems
+T23	Process 974 994	1f spectral behavior
+T24	Process 1025 1053	chaos in nuclear mass errors
+R2	Hyponym-of Arg1:T13 Arg2:T11	

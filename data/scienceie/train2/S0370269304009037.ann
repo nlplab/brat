@@ -1,0 +1,27 @@
+T1	Process 9 29	coalescence approach
+T2	Process 97 139	evaluated transverse-momentum dependencies
+T3	Process 162 189	central heavy-ion reactions
+T4	Task 207 232	charm-quark distributions
+T5	Process 349 372	complete thermalization
+T6	Process 378 393	transverse flow
+T7	Process 520 536	integrated yield
+T8	Process 620 654	difference in the slope parameters
+T9	Process 724 737	elliptic flow
+T10	Task 662 672	pT-spectra
+T11	Process 812 833	elliptic flow pattern
+T12	Task 891 920	single-electron decay spectra
+T13	Process 998 1018	charm reinteractions
+T14	Process 1156 1182	charm-quark reinteractions
+T15	Material 1132 1151	complimentary probe
+T16	Material 324 331	spectra
+T17	Material 496 509	pQCD c-quarks
+T18	Material 837 845	D-mesons
+T19	Material 143 158	charmed hadrons
+T20	Process 236 249	hadronization
+T21	Material 592 600	D-mesons
+T22	Material 1097 1104	baryons
+T23	Process 1190 1193	QGP
+R1	Hyponym-of Arg1:T22 Arg2:T15	
+T24	Task 69 87	light-quark sector
+T25	Material 213 218	quark
+T26	Process 1026 1029	QGP

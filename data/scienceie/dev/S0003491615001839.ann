@@ -1,0 +1,17 @@
+T1	Process 61 82	Statistical Mechanics
+T2	Process 87 108	nonlinear PDEs theory
+T3	Task 162 179	phase transitions
+T4	Process 263 291	first order phase transition
+T5	Process 335 354	van der Waals model
+T6	Process 409 433	field partition function
+T7	Process 493 511	partition function
+T8	Task 533 554	Klein–Gordon equation
+T9	Process 571 594	van der Waals isotherms
+T11	Process 687 711	Maxwell equal areas rule
+T10	Process 637 660	thermodynamic limit N→∞
+T12	Process 829 862	macroscopic thermodynamic systems
+T13	Process 1083 1106	class virial expansions
+T14	Process 1028 1066	general equations of state of the form
+T15	Process 948 979	partition functions of the form
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+T16	Process 805 809	spin

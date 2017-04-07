@@ -1,0 +1,12 @@
+T1	Process 30 44	oxidation test
+T2	Material 91 102	test matrix
+T3	Material 387 411	horizontal tube furnaces
+T4	Process 311 351	adjusted to accommodate buoyancy effects
+T5	Material 248 306	weight change during these tests was monitored continually
+T6	Material 473 486	alumina boats
+T7	Material 509 517	furnaces
+T8	Task 588 620	determine the oxidation kinetics
+T9	Material 783 838	Table 1 shows the time intervals chosen for examination
+T10	Process 238 241	TGA
+T11	Process 211 236	thermogravimetric balance
+*	Synonym-of T11 T10

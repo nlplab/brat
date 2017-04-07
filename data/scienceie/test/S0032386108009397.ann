@@ -1,0 +1,33 @@
+T2	Process 4 25	viscoelastic behavior
+T3	Material 29 39	elastomers
+T1	Task 111 158	characterize the dynamics of the polymer chains
+T5	Process 483 501	constraint release
+T4	Material 344 357	polymer melts
+T6	Task 659 683	control of the mesh size
+T7	Material 144 158	polymer chains
+T8	Material 893 909	precursor chains
+T11	Material 284 297	polymer chain
+T12	Material 596 618	crosslinked elastomers
+T13	Material 969 984	PDMS elastomers
+T14	Material 1014 1018	PDMS
+T15	Material 1051 1068	unattached chains
+T16	Material 1070 1072	Mg
+T17	Material 1082 1094	network mesh
+T18	Material 1096 1098	Mx
+*	Synonym-of T15 T16
+*	Synonym-of T17 T18
+T19	Material 1561 1582	chemical cross-links.
+T20	Material 194 208	Polymer chains
+T21	Material 461 472	probe chain
+T22	Material 730 734	mesh
+T23	Material 864 868	mesh
+T24	Material 1198 1202	PDMS
+T9	Process 1160 1165	Mx>Me
+T10	Process 1170 1175	Mx<Me
+T25	Process 1282 1287	Mx>Me
+T26	Process 1292 1297	Mx<Me
+T27	Process 1322 1324	NL
+T28	Process 1329 1331	NS
+*	Synonym-of T25 T27
+*	Synonym-of T26 T28
+T29	Material 1454 1458	mesh
