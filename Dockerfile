@@ -22,5 +22,10 @@ ADD . /app/brat
 
 WORKDIR /app/brat
 
+CMD python tools/norm_db_init.py example-data/normalisation/Wiki.txt
+
 CMD python standalone.py
 
+# To debug the configurations and/or install missing libraries,
+# use the following command instead of `CMD python standalone.py`:
+#CMD bash
