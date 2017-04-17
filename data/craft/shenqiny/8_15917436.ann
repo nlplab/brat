@@ -1,0 +1,49 @@
+T1	Entity 71 80	Helicases
+T2	Entity 103 147	initiation and elongation of DNA replication
+T3	Entity 177 185	helicase
+T4	Entity 190 196	ATPase
+T5	KeyEntity 225 233	Mcm4/6/7
+T6	Entity 272 304	thymine-rich single-stranded DNA
+T7	Entity 328 348	substrate preference
+T8	Entity 353 361	helicase
+T9	Entity 384 399	synthetic DNAs.
+T10	KeyEntity 423 431	Mcm4/6/7
+T11	Entity 830 838	Mcm4/6/7
+T12	KeyEntity 1115 1123	Mcm4/6/7
+T13	KeyEntity 1314 1322	Mcm4/6/7
+T14	Entity 1515 1523	helicase
+R1	participates_in Arg1:T1 Arg2:T2	
+R2	is_subclass_of Arg1:T5 Arg2:T3	
+R3	is_subclass_of Arg1:T5 Arg2:T4	
+R4	regulates Arg1:T6 Arg2:T5	
+T15	Entity 405 421	bubble substrate
+T16	Entity 471 513	5′-proximal 25 nt single-stranded segments
+R5	physically_interacts_with Arg1:T10 Arg2:T16	
+T17	KeyEntity 767 775	Mcm4/6/7
+T18	Entity 592 608	thymine residues
+R6	regulates Arg1:T18 Arg2:T17	
+T19	Entity 949 957	helicase
+T20	Entity 1075 1082	thymine
+T21	Entity 1145 1155	GC content
+T22	Entity 1092 1111	Strand displacement
+T23	Entity 906 933	single-stranded 3′-tail DNA
+R7	physically_interacts_with Arg1:T11 Arg2:T23	
+R8	regulates Arg1:T20 Arg2:T19	
+R9	participates_in Arg1:T12 Arg2:T22	
+R10	regulates Arg1:T21 Arg2:T12	
+T24	Entity 805 814	unwinding
+R11	participates_in Arg1:T17 Arg2:T24	
+T25	Entity 839 844	binds
+T26	Entity 849 856	unwinds
+R12	participates_in Arg1:T11 Arg2:T25	
+R13	participates_in Arg1:T11 Arg2:T26	
+T27	Entity 1203 1219	cytosine–guanine
+T28	Entity 1231 1247	cytosine–inosine
+T29	Entity 1277 1286	unwinding
+R14	regulates Arg1:T27 Arg2:T29	
+R15	regulates Arg1:T28 Arg2:T29	
+T30	Entity 1323 1331	helicase
+R16	is_subclass_of Arg1:T13 Arg2:T30	
+T31	Entity 1352 1361	unwinding
+R17	participates_in Arg1:T13 Arg2:T31	
+R18	participates_in Arg1:T30 Arg2:T31	

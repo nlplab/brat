@@ -1,0 +1,42 @@
+T1	KeyEntity 124 156	Apc (adenomatous polyposis coli)
+T2	KeyEntity 218 229	development
+T3	Entity 234 247	tumorigenesis
+T4	Entity 176 197	Wnt signaling pathway
+T5	KeyEntity 280 283	Apc
+T6	Entity 348 367	embryonic lethality
+R1	other_relation Arg1:T5 Arg2:T6	
+#1	AnnotatorNotes R1	causes phenotype
+T7	Entity 429 442	floxed allele
+T8	KeyEntity 395 398	Apc
+T9	Entity 489 504	Cre recombinase
+T10	KeyEntity 530 561	human Keratin 14 (K14) promoter
+T11	Entity 582 606	basal cells of epidermis
+T12	Entity 617 638	stratified epithelia.
+T13	Entity 663 676	floxed allele
+T14	KeyEntity 697 714	K14-cre transgene
+T15	Entity 754 773	died before weaning
+R2	other_relation Arg1:T14 Arg2:T15	
+#2	AnnotatorNotes R2	Causes phenotype
+T16	KeyEntity 834 841	K14-cre
+T17	KeyEntity 851 854	Apc
+T18	KeyEntity 872 887	aberrant growth
+T19	KeyEntity 851 859	Apc loss
+R3	regulates Arg1:T19 Arg2:T18	
+T20	Entity 937 961	including hair follicles
+T21	Entity 963 968	teeth
+T22	Entity 896 935	ectodermally derived squamous epithelia
+T23	Entity 974 1000	oral and corneal epithelia
+T24	KeyEntity 1015 1034	squamous metaplasia
+T25	Entity 1059 1085	epithelial-derived tissues
+T26	Entity 1101 1107	thymus
+T27	KeyEntity 1113 1128	aberrant growth
+T28	Entity 1132 1146	hair follicles
+T29	Entity 1157 1167	appendages
+T30	Entity 1183 1203	thymic abnormalities
+T31	KeyEntity 1207 1214	K14-cre
+T32	KeyEntity 1216 1231	ApcCKO/CKO mice
+T33	KeyEntity 1244 1252	Apc gene
+T34	KeyEntity 1267 1282	embryonic cells
+T35	KeyEntity 1294 1315	epithelial cell fates
+R4	participates_in Arg1:T33 Arg2:T35	
+R5	participates_in Arg1:T1 Arg2:T2	

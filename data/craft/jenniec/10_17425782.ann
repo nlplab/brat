@@ -1,0 +1,64 @@
+T1	KeyEntity 98 110	pygopus gene
+T2	Entity 114 124	Drosophila
+T3	Entity 163 184	Armadillo (β-catenin)
+T4	Entity 185 205	transcription factor
+T5	KeyEntity 227 240	Wnt signaling
+T6	KeyEntity 307 320	Wnt signaling
+T7	KeyEntity 324 342	kidney development
+T8	Entity 344 362	targeted mutations
+T9	KeyEntity 384 393	mammalian
+T10	KeyEntity 405 410	Pygo1
+T11	KeyEntity 415 420	Pygo2
+T12	KeyEntity 280 287	Pygopus
+T13	Entity 437 445	mutation
+T14	Entity 466 481	coding sequence
+T15	Entity 506 516	PHD domain
+T17	Entity 666 679	lens agenesis
+T18	Entity 681 699	growth retardation
+T19	KeyEntity 709 727	kidney development
+T20	Entity 747 758	exencephaly
+T21	Entity 763 775	cleft palate
+T22	KeyEntity 777 801	Pygo1 homozygous mutants
+T16	KeyEntity 566 590	Pygo2 homozygous mutants
+T23	Entity 646 655	phenotype
+T24	KeyEntity 1001 1024	canonical Wnt signaling
+T25	Entity 971 997	BAT-gal transgene reporter
+T26	KeyEntity 1064 1089	Pygo1-/-/Pygo2-/- mutants
+T27	KeyEntity 1151 1156	Pygo1
+T28	KeyEntity 1161 1166	Pygo2
+T29	Entity 1167 1172	genes
+R1	is_subclass_of Arg1:T27 Arg2:T29	
+R2	is_subclass_of Arg1:T28 Arg2:T29	
+T30	Entity 1225 1231	kidney
+T31	Entity 1259 1283	stromal cell compartment
+T32	Entity 1363 1375	ureteric bud
+T33	Entity 1380 1423	metanephric mesenchyme-derived compartments
+R3	participates_in Arg1:T3 Arg2:T5	
+T34	Entity 1285 1302	Confocal analysis
+T35	Entity 1456 1468	ureteric bud
+T36	KeyEntity 1582 1588	kidney
+T37	Entity 1674 1686	ureteric bud
+T38	Entity 1688 1705	Nephron formation
+T39	Entity 1736 1755	Microarray analysis
+T40	Entity 1793 1798	genes
+T41	Entity 1810 1816	Cxcl13
+T42	Entity 1818 1824	Slc5a2
+T43	Entity 1826 1830	Klk5
+T44	Entity 1832 1836	Ren2
+T45	Entity 1841 1849	Timeless
+T46	Entity 1877 1888	Wnt targets
+T47	KeyEntity 1892 1910	kidney development
+R4	is_subclass_of Arg1:T41 Arg2:T40	
+R6	is_subclass_of Arg1:T42 Arg2:T40	
+R5	is_subclass_of Arg1:T43 Arg2:T40	
+R7	is_subclass_of Arg1:T44 Arg2:T40	
+R8	is_subclass_of Arg1:T45 Arg2:T40	
+R9	is_part_of Arg1:T45 Arg2:T46	
+R10	is_part_of Arg1:T44 Arg2:T46	
+R11	is_part_of Arg1:T43 Arg2:T46	
+R12	is_part_of Arg1:T42 Arg2:T46	
+R13	is_part_of Arg1:T41 Arg2:T46	
+T48	Entity 1324 1331	kidneys
+T49	Entity 1633 1661	zone of condensed mesenchyme
+T50	KeyEntity 879 916	Double Pygo1/Pygo2 homozygous mutants
+R14	is_subclass_of Arg1:T1 Arg2:T4	

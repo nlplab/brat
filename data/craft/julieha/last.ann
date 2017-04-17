@@ -1,0 +1,32 @@
+T1	KeyEntity 70 111	Congenital nephrogenic diabetes insipidus
+T2	KeyEntity 113 116	NDI
+T3	Entity 206 217	vasopressin
+T4	KeyEntity 239 269	nephrogenic diabetes insipidus
+T5	KeyEntity 313 335	vasopressin receptor 2
+T6	KeyEntity 356 403	vasopressin-sensitive water channel aquaporin-2
+T7	KeyEntity 405 409	Aqp2
+T8	KeyEntity 635 653	mouse model of NDI
+T9	KeyEntity 663 677	F204V mutation
+T10	KeyEntity 685 694	Aqp2 gene
+T11	KeyEntity 741 744	NDI
+T12	Entity 888 911	ecessive Aqp2 mutations
+T13	Entity 922 967	improper trafficking of the mutant water pore
+T14	KeyEntity 1033 1060	improper AQP2 translocation
+T15	KeyEntity 1088 1118	nephrogenic diabetes insipidus
+T16	Entity 1165 1180	renal cell line
+T17	Entity 1215 1225	AQP2-F204V
+T18	Entity 1246 1267	endoplasmic reticulum
+T19	Entity 1346 1363	novel mouse model
+T20	KeyEntity 1464 1467	NDI
+R1	regulates Arg1:T3 Arg2:T2	
+R2	regulates Arg1:T3 Arg2:T1	
+R3	participates_in Arg1:T5 Arg2:T4	
+R4	participates_in Arg1:T6 Arg2:T4	
+R5	participates_in Arg1:T7 Arg2:T4	
+R6	is_part_of Arg1:T9 Arg2:T10	
+R7	other_relation Arg1:T10 Arg2:T8	
+#1	AnnotatorNotes R7	is the basis for 
+R8	regulates Arg1:T12 Arg2:T13	
+R9	participates_in Arg1:T14 Arg2:T15	
+R10	physically_interacts_with Arg1:T17 Arg2:T18	
+R11	other_relation Arg1:T19 Arg2:T20	

@@ -1,0 +1,46 @@
+T1	KeyEntity 113 154	Embryonic stem cell-specific gene (ESG) 1
+T2	Entity 172 200	KH-domain containing protein
+T3	Entity 237 244	embryos
+T4	Entity 246 256	germ cells
+T5	Entity 262 287	embryonic stem (ES) cells
+T6	KeyEntity 353 357	ESG1
+T7	Entity 372 383	pseudogenes
+T8	Entity 400 425	chromosomal localizations
+T9	Entity 491 503	Blast search
+T10	Entity 507 530	mouse genomic databases
+T11	KeyEntity 552 556	ESG1
+T12	Entity 557 561	gene
+T13	Entity 585 612	bacterial artificial clones
+T14	KeyEntity 634 638	ESG1
+T15	Entity 639 643	gene
+T16	Entity 662 680	ESG1-like sequence
+T17	Entity 716 728	chromosome 9
+T18	Entity 734 752	ESG1-like sequence
+T19	Entity 819 840	duplicated pseudogene
+T20	Entity 846 864	5' flanking region
+T21	KeyEntity 872 876	ESG1
+T22	Entity 903 913	pseudogene
+T23	Entity 966 991	undifferentiated ES cells
+T24	Entity 995 1020	luciferase reporter assay
+T25	KeyEntity 1066 1070	ESG1
+T26	Entity 1106 1114	ES cells
+T27	Entity 1122 1136	β-geo cassette
+T28	Entity 1140 1164	homologous recombination
+T29	Entity 1094 1102	sequence
+T30	Entity 1071 1075	gene
+T31	Entity 1203 1210	embryos
+T32	Entity 1215 1225	germ cells
+T33	KeyEntity 1227 1239	ESG1-/- mice
+T34	Entity 1295 1311	ESG1-/- ES cells
+T35	Entity 1341 1365	homologous recombination
+T36	Entity 1384 1395	blastocysts
+T37	Entity 1409 1434	heterozygous intercrosses
+T38	Entity 1436 1449	Northern blot
+T39	Entity 1454 1466	western blot
+T40	KeyEntity 1501 1505	ESG1
+T41	Entity 1515 1520	cells
+T42	Entity 1528 1536	ES cells
+T43	Entity 317 331	genomic clones
+T44	Entity 429 452	physiological functions
+R1	other_relation Arg1:T16 Arg2:T14	
+#1	AnnotatorNotes R1	similar to

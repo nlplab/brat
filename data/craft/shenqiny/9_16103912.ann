@@ -1,0 +1,31 @@
+T1	Entity 89 120	Congenital diaphragmatic hernia
+T2	Entity 131 163	congenital diaphragmatic defects
+T3	Entity 370 391	N-ethyl-N-nitrosourea
+T4	Entity 430 450	pulmonary hypoplasia
+T5	Entity 455 489	abnormal diaphragmatic development
+T6	KeyEntity 491 503	Fog2 (Zfpm2)
+T7	Entity 554 593	N-ethyl-N-nitrosourea-induced mutation,
+T8	KeyEntity 616 620	Fog2
+T9	KeyEntity 837 841	FOG2
+T10	KeyEntity 1123 1127	Fog2
+T11	KeyEntity 1232 1236	FOG2
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+T12	Entity 352 356	mice
+T13	Entity 734 747	Human autopsy
+T14	Entity 759 779	diaphragmatic defect
+T15	Entity 784 804	pulmonary hypoplasia
+T16	Entity 843 860	Sequence analysis
+T17	Entity 1000 1020	pulmonary hypoplasia
+T18	Entity 1028 1061	abnormally muscularized diaphragm
+T19	Entity 1430 1461	congenital diaphragmatic hernia
+T20	Entity 1476 1521	primary pulmonary developmental abnormalities
+T21	Entity 1308 1340	congenital diaphragmatic defects
+R2	regulates Arg1:T9 Arg2:T15	
+R3	regulates Arg1:T9 Arg2:T14	
+T22	Entity 1151 1181	diaphragm and lung development
+R4	regulates Arg1:T10 Arg2:T22	
+R5	regulates Arg1:T11 Arg2:T21	
+T23	Entity 1364 1385	pulmonary development
+R6	regulates Arg1:T11 Arg2:T23	
+R7	regulates Arg1:T11 Arg2:T19	
+R8	regulates Arg1:T11 Arg2:T20	

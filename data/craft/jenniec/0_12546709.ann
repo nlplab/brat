@@ -1,0 +1,49 @@
+T1	KeyEntity 177 193	alpha-crystallin
+T2	KeyEntity 248 264	alpha-crystallin
+T3	KeyEntity 315 331	alpha-crystallin
+T4	KeyEntity 361 377	alpha-crystallin
+T5	KeyEntity 497 503	alphaA
+T6	KeyEntity 508 514	alphaB
+T7	Entity 453 460	protein
+T8	KeyEntity 480 484	lens
+T9	Entity 638 642	mice
+T10	Entity 647 651	mice
+T11	KeyEntity 684 690	alphaA
+T12	KeyEntity 696 713	alphaB-crystallin
+T13	Entity 209 222	animal models
+T14	Entity 332 345	knockout mice
+T15	Entity 600 627	gross lenticular morphology
+T16	KeyEntity 953 963	alphaA/BKO
+T17	KeyEntity 1128 1138	alphaA/BKO
+T18	Entity 1139 1145	lenses
+T19	Entity 1147 1178	Ectopical nucleic acid staining
+T20	Entity 1249 1267	subcapsular cortex
+T21	KeyEntity 1277 1294	alphaA/BKO lenses
+T22	KeyEntity 1416 1431	alphaA/BKO mice
+T23	KeyEntity 776 791	alphaA/BKO mice
+T24	Entity 744 750	Lenses
+T25	Entity 818 846	scanning electron microscopy
+T26	Entity 851 870	confocal microscopy
+T27	Entity 942 948	lenses
+T28	Entity 1023 1029	lenses
+T29	Entity 964 968	mice
+R1	is_subclass_of Arg1:T5 Arg2:T7	
+R2	is_subclass_of Arg1:T6 Arg2:T7	
+T30	Entity 1452 1456	mice
+T31	Entity 1034 1051	posterior sutures
+T32	Entity 1055 1066	fiber cells
+T33	Entity 1084 1101	posterior capsule
+T34	Entity 1109 1113	lens
+T35	Entity 1404 1410	lenses
+T36	Entity 1354 1368	equatorial/bow
+T37	Entity 1384 1400	anterior regions
+R3	is_part_of Arg1:T37 Arg2:T35	
+R4	is_part_of Arg1:T36 Arg2:T35	
+T38	Entity 714 719	genes
+R5	other_relation Arg1:T12 Arg2:T38	
+#1	AnnotatorNotes R5	gene name
+R6	other_relation Arg1:T11 Arg2:T38	
+#2	AnnotatorNotes R6	is a gene
+T39	Entity 661 680	targeted disruption
+T40	KeyEntity 721 731	alphaA/BKO
+R7	is_subclass_of Arg1:T40 Arg2:T39	

@@ -1,0 +1,13 @@
+T1	Entity 159 173	p53 regulation
+T2	Entity 260 280	generate mutant mice
+R1	participates_in Arg1:T1 Arg2:T2	
+T3	Entity 368 394	targeting at the p53 locus
+T4	Entity 421 473	Recombinase-Mediated Cassette Exchange (RMCE) method
+R2	participates_in Arg1:T4 Arg2:T3	
+T5	Entity 871 880	RMCE-ASAP
+T6	Entity 890 936	inverted heterologous recombinase target sites
+T7	Entity 940 974	positive/negative selection marker
+T8	Entity 1042 1056	mouse genetics
+R3	is_part_of Arg1:T6 Arg2:T5	
+R4	is_part_of Arg1:T7 Arg2:T5	
+R5	is_part_of Arg1:T8 Arg2:T5	

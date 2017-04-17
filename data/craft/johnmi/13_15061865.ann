@@ -1,0 +1,29 @@
+T1	KeyEntity 115 123	Dopamine
+T2	Entity 220 246	processing and integrating
+T3	Entity 473 480	D1-like
+T4	KeyEntity 484 491	D2-like
+T5	Entity 706 736	D2 receptor-mediated signaling
+T6	KeyEntity 1174 1200	D2 receptor deficient mice
+T7	Entity 1412 1430	buried food pellet
+T8	KeyEntity 1454 1480	D2 receptor deficient mice
+T9	Entity 1539 1551	discriminate
+T10	Entity 1622 1631	associate
+T11	KeyEntity 1960 1972	D2 receptors
+T12	Entity 2053 2066	reinforcement
+T13	KeyEntity 2119 2145	D2 receptor deficient mice
+T14	Entity 2162 2172	responding
+T15	KeyEntity 2331 2351	dopamine D2 receptor
+T16	Entity 2380 2391	associative
+T17	Entity 2396 2413	reversal learning
+T18	Entity 2461 2486	human attention disorders
+R1	participates_in Arg1:T1 Arg2:T2	
+T19	Entity 752 763	associative
+T20	Entity 768 785	reversal learning
+R2	participates_in Arg1:T5 Arg2:T19	
+R3	participates_in Arg1:T5 Arg2:T20	
+R4	participates_in Arg1:T8 Arg2:T9	
+R5	participates_in Arg1:T8 Arg2:T10	
+R6	participates_in Arg1:T11 Arg2:T12	
+R7	participates_in Arg1:T15 Arg2:T16	
+R8	participates_in Arg1:T15 Arg2:T17	
+R9	other_relation Arg1:T15 Arg2:T18	

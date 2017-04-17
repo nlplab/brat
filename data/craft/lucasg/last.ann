@@ -1,0 +1,53 @@
+T1	KeyEntity 81 111	nephrogenic diabetes insipidus
+T2	KeyEntity 113 116	NDI
+T3	Entity 173 217	concentrate urine in response to vasopressin
+T4	Entity 163 169	kidney
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	is_synonym
+R2	participates_in Arg1:T4 Arg2:T3	
+T5	Entity 123 130	disease
+R3	is_subclass_of Arg1:T1 Arg2:T5	
+T6	KeyEntity 239 269	nephrogenic diabetes insipidus
+T7	Entity 313 335	vasopressin receptor 2
+T8	Entity 337 342	Avpr2
+T9	Entity 356 377	vasopressin-sensitive
+T10	Entity 378 391	water channel
+T11	KeyEntity 392 403	aquaporin-2
+T12	KeyEntity 405 409	Aqp2
+R4	other_relation Arg1:T12 Arg2:T11	
+#2	AnnotatorNotes R4	is_synonym
+R5	is_subclass_of Arg1:T11 Arg2:T10	
+R6	other_relation Arg1:T9 Arg2:T11	
+#3	AnnotatorNotes R6	is_property_of
+R7	other_relation Arg1:T8 Arg2:T7	
+#4	AnnotatorNotes R7	is_synonym
+R8	participates_in Arg1:T7 Arg2:T6	
+R9	participates_in Arg1:T11 Arg2:T6	
+T13	Entity 494 506	animal model
+T14	Entity 545 578	ethylnitrosourea-mutagenized mice
+T15	Entity 635 653	mouse model of NDI
+T17	Entity 724 744	murine models of NDI
+T18	Entity 755 775	survive to adulthood
+T19	Entity 793 824	recapitulate the human disorder
+T20	Entity 862 878	renal cell lines
+T21	Entity 897 911	Aqp2 mutations
+T23	KeyEntity 1088 1118	nephrogenic diabetes insipidus
+T24	Entity 1165 1180	renal cell line
+T25	KeyEntity 1215 1225	AQP2-F204V
+T26	Entity 1246 1267	endoplasmic reticulum
+T27	Entity 1282 1303	abnormal localization
+R10	other_relation Arg1:T25 Arg2:T26	
+#5	AnnotatorNotes R10	is_physically_located_in
+R11	other_relation Arg1:T27 Arg2:T25	
+#6	AnnotatorNotes R11	is_property_of
+T22	Entity 922 942	improper trafficking
+R12	other_relation Arg1:T22 Arg2:T21	
+#7	AnnotatorNotes R12	is_property_of
+R13	other_relation Arg1:T18 Arg2:T17	
+#8	AnnotatorNotes R13	is_property_of
+R14	other_relation Arg1:T19 Arg2:T17	
+#9	AnnotatorNotes R14	is_property_of
+T16	KeyEntity 663 689	F204V mutation in the Aqp2
+R15	is_subclass_of Arg1:T16 Arg2:T15	
+T28	Entity 1033 1060	improper AQP2 translocation
+R16	participates_in Arg1:T28 Arg2:T23	

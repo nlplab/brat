@@ -1,0 +1,35 @@
+T1	KeyEntity 90 100	Annexin A7
+T2	Entity 199 212	phospholipids
+T3	Entity 278 294	Ca2+-homeostasis
+T4	Entity 309 320	mutant mice
+T5	Entity 336 357	Ca2+-wave propagation
+T6	KeyEntity 429 446	brain development
+T7	KeyEntity 515 525	Annexin A7
+T8	KeyEntity 568 601	developing central nervous system
+T9	KeyEntity 613 630	adult mouse brain
+T10	Entity 499 511	distribution
+T11	KeyEntity 642 652	Annexin A7
+T12	KeyEntity 682 698	developing brain
+T13	Entity 721 745	subcellular localization
+T14	Entity 937 944	cytosol
+T15	KeyEntity 906 916	Annexin A7
+T16	Entity 1043 1050	cytosol
+T17	KeyEntity 1185 1195	Annexin A7
+T18	Entity 1281 1288	nucleus
+T19	Entity 1325 1336	adult brain
+T20	KeyEntity 1513 1523	Annexin A7
+T21	KeyEntity 1345 1355	Annexin A7
+T22	KeyEntity 1695 1705	Annexin A7
+T23	KeyEntity 1741 1758	brain development
+R1	physically_interacts_with Arg1:T1 Arg2:T2	
+R2	regulates Arg1:T1 Arg2:T3	
+R3	other_relation Arg1:T4 Arg2:T5	
+R4	regulates Arg1:T7 Arg2:T8	
+R5	regulates Arg1:T7 Arg2:T9	
+R6	regulates Arg1:T11 Arg2:T12	
+R7	regulates Arg1:T13 Arg2:T11	
+R8	is_part_of Arg1:T15 Arg2:T14	
+R9	is_part_of Arg1:T15 Arg2:T16	
+R10	is_part_of Arg1:T17 Arg2:T18	
+R11	regulates Arg1:T21 Arg2:T19	
+R12	regulates Arg1:T22 Arg2:T23	

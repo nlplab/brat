@@ -1,0 +1,21 @@
+T1	KeyEntity 122 150	Systemic lupus erythematosus
+T2	Entity 794 822	genome-wide linkage analysis
+T3	Entity 916 956	lupus-prone hybrid (129 × C57BL/6) model
+T5	Entity 1103 1123;1124 1140	loss of tolerance to nuclear antigens
+T4	Entity 972 995	C57BL/6 congenic strain
+T6	Entity 1007 1039	129-derived Chromosome 1 segment
+T7	KeyEntity 1343 1369	background gene influences
+T8	Entity 1412 1429	autoimmune traits
+T9	Entity 270 288	gene-targeted mice
+T10	KeyEntity 319 322	SLE
+R1	other_relation Arg1:T9 Arg2:T10	
+#1	AnnotatorNotes R1	causes
+R2	other_relation Arg1:T4 Arg2:T6	
+R3	regulates Arg1:T6 Arg2:T5	
+T11	Entity 538 556	genetic background
+T12	Entity 581 601	autoimmune phenotype
+R4	regulates Arg1:T11 Arg2:T12	
+T13	Entity 1236 1255	epistatic modifiers
+T14	Entity 1259 1271	autoimmunity
+T15	Entity 1275 1304	129 and C57BL/6 mouse strains
+R5	regulates Arg1:T13 Arg2:T14	

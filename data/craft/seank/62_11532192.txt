@@ -1,0 +1,229 @@
+Intraocular pressure in genetically distinct mice: an update and strain survey
+
+Abstract
+
+Background
+
+Little is known about genetic factors affecting intraocular pressure (IOP) in mice and other mammals. The purpose of this study was to determine the IOPs of genetically distinct mouse strains, assess the effects of factors such as age, sex and time of day on IOP in specific strain backgrounds, and to assess the effects of specific candidate gene mutations on IOP.
+
+Results
+
+Based on over 30 studied mouse strains, average IOP ranges from approximately 10 to 20 mmHg. Gender does not typically affect IOP and aging results in an IOP decrease in some strains. Most tested strains exhibit a diurnal rhythm with IOP being the highest during the dark period of the day. Homozygosity for a null allele of the carbonic anhydrase II gene (Car2n) does not alter IOP while homozygosity for a mutation in the leptin receptor gene (Leprdb) that causes obesity and diabetes results in increased IOP. Albino C57BL/6J mice homozygous for a tyrosinase mutation (Tyrc-2J) have higher IOPs than their pigmented counterparts.
+
+Conclusions
+
+Genetically distinct mouse strains housed in the same environment have a broad range of IOPs. These IOP differences are likely due to interstrain genetic differences that create a powerful resource for studying the regulation of IOP. Age, time of day, obesity and diabetes have effects on mouse IOP similar to those in humans and other species. Mutations in two of the assessed candidate genes (Lepr and Tyr) result in increased IOP. These studies demonstrate that mice are a practical and powerful experimental system to study the genetics of IOP regulation and disease processes that raise IOP to harmful levels.
+
+Background
+
+Glaucoma is a leading cause of blindness but its molecular etiology is poorly understood. Glaucoma involves retinal ganglion cell death and optic nerve damage that is often associated with elevated intraocular pressure (IOP) [1-5].
+
+It is becoming increasingly clear that many forms of glaucoma have a genetic component [6,7], and much current research is focused on identifying chromosomal regions and genes that contribute to glaucoma [8-10]. Identifying such loci allows screening for individuals with an increased risk of developing glaucoma [11]. Identifying genes contributing to elevated IOP and glaucoma is only the first step, however, and animal models will provide systems for subsequent hypothesis testing and experimental dissection of pathogenesis.
+
+Due to conservation in mammalian physiology and the powerful tools of mouse genetics, mice are a very important experimental system for probing the functions (both in health and disease) of many genes recently identified by sequencing the human genome [12]. We have focused on developing the mouse system for IOP and glaucoma studies [13-19]. Mice are expected to be extremely helpful in characterizing genes and mechanisms that affect IOP or the susceptibility of the optic nerve and retina to glaucomatous damage [20].
+
+Very little is known about the magnitude of IOP of various mouse strains or IOP fluctuation in mice with time or other factors. Previously, we developed a method to measure IOP in mice and reported initial findings on the magnitude of mouse IOP [13]. The procedure involves direct measurement of pressure following cannulation of the anterior chamber. The initial experiments demonstrated that in our hands careful ocular cannulation has a very minor effect on IOP (average of -0.3 mmHg, mode -0.5 mmHg) and demonstrated significant differences in intraocular pressure levels between four mouse strains. Here, we provide an update, including an extensive strain survey, and show that the methodology is reliable and produces reproducible data over extended periods of time.
+
+Results
+
+A broad range of IOPs between strains
+
+Figure 1 shows the average IOP of a number of inbred mouse strains that were housed in the same environmental conditions. There is a wide range of IOP with strain BALB/cJ having one of the lowest average IOPs (11.1 ± 0.5 mmHg) and strain CBA/CaJ one of the highest IOPs (19.3 ± 0.3 mmHg). Significant differences exist among various strains (P < 0.0001 for all groups, ANOVA comparing strains within each sex group).
+
+Figure 1
+
+An almost two-fold range of IOP between genetically distinct mouse strains. Mean IOP ± SEM is shown for each strain. Twelve to 25 mice were analyzed for each strain (typically 18 to 20), except for RIIIS/J (7 mice). Mice of most strains were 6 to 12 months old, except for SEC/1ReJ and SB/Le that were 2 to 3 months old. Approximately half of the CE/J and one third of the BUB/BnJ mice were 16 months old and were pooled with the younger mice, as the IOPs of both ages were the same. Strain name CBA/CaHN-Btkxid/J is abbreviated to CBA/CaHN.
+
+Clinical and histological analysis of the eyes of all studied strains (see Table 1) did not identify anatomic or pathologic features that might account for the differences in IOP. For example, the iridocorneal angle and aqueous humor drainage structures are open to the anterior chamber and have normal morphology in both BALB/cJ and CBA/CaJ mice (Figure 2). More than 20% of CBA/CaJ mice had IOPs of over 21 mmHg, which increases risk for glaucoma in humans. We aged a small group of these mice (n = 4) to 2 years and histologically analyzed their optic nerves and retinas but they did not develop glaucoma.
+
+Figure 2
+
+Normal iridocorneal angles in strains with high and low IOP. The iridocorneal angle that contains the aqueous humor drainage structures (Schlemm's canal (SC) and trabecular meshwork (TM) had a normal morphology in strains CBA/CaJ (A, high IOP), BALB/cJ (B, low IOP) and all other strains. Pigment filled macrophages that resemble human clump cells were often located in the angle of CBA/CaJ mice but were never sufficient to block drainage. We have observed similar quantities of these cells at this location in other strains with lower IOP. The angle recess between the cornea (C) and iris root (I) was open and not occluded. Aqueous humor passes through this recess before entering the drainage structures. Original Magnification 630X.
+
+Table 1
+
+Ocular abnormalities in various strains
+
+All strains shown in Figure 1 were evaluated but only strains with abnormalities are shown. For incidence, the numerator indicates the number of mice or eyes affected and the denominator indicates the total number analyzed. The mice were 6 to 12 months old at the time of analysis and were not studied at other ages unless indicated. Histological analysis confirmed these observations and also identified calcified cyst like structures in the iris epithelium of strains SB/Le and SEC/1ReJ. A low incidence of corneal scarring was noted in some strains and likely resulted from a scratched cornea. Previously described retinal degeneration [[81]] caused by homozygosity for the Pde6brd1mutation was noted in strains SB/Le, ST/bJ, BUB/BnJ, CBA/J, C3H/HeJ, SJL/J and SWR/J.
+
+Strain differences are reproducible
+
+To assess the consistency of IOP in specific strains, we measured IOP in different cohorts of each strain maintained under similar conditions at different times. We purposefully included strains at each end of the IOP spectrum, and strain C57BL/6J (B6) that is commonly used for genetic experiments (Figure 3). The average IOP of different cohorts of strains CBA/CaJ, CBA/CaHN (both high end of spectrum) and B6 were consistent over time. This was true of most strains assessed on multiple occasions. Average IOP for age matched mice of the same strain assessed at different times typically differed by no more than 1.5 mmHg, and the differences were usually smaller. Strain 129P3/J was the most variable strain with the average IOP fluctuating by up to 2.5 mmHg.
+
+Figure 3
+
+The IOPs of different strains are stable and reproducible over time. Mean IOP ± SEM is shown for the indicated strain at different times of measurement. The measurement times within a single year were separated by a few months. The IOPs of strains that were analyzed multiple times in the same year are listed in the chronological order that they were obtained with the earliest measurement on left. The sex [Male (M) or Female (F)], age (months), and number of mice (n) analyzed for the CBA strains are listed starting with the earliest measurement and ending with the latest: CBA/CaJ, F, n = 22, age 6–7; M, n = 11, age 2; CBA/CaHN, F, n = 16, age 3; M, n = 8, age 3. For BALB/cJ and C57BL/6J, all groups were male and primarily 3 to 4 months old. The number of mice analyzed at each time follows: BALB/cJ 8, 10, 11, 15, 18 and 14, C57BL/6J 10, 14, 21,40,40 and 42. Strain name CBA/CaHN-Btkxid/J is abbreviated to CBA/CaHN.
+
+Despite the general consistency of IOP, the average IOPs of some strains have changed in a reproducible manner. The IOPs of BALB/cJ mice (low end of spectrum) were very similar for the past several years, around 11 mmHg. Between early 1996 and 1997, however, the IOP of this strain did jump from approximately 7.7 mmHg to approximately 11 mmHg (Figure 3). During this period, the room in which our animals were housed and the manufacturer of the mouse diet were changed. Over the same period, the IOP of A/J also increased dramatically, from 9.4 ± 0.5 mmHg (n = 11) in 1996 to 14.2 ± 0.4 mmHg (n = 19) in 1997. The increased IOP in A/J also was reproducible, with the average IOP of mice assessed in the year 2000 being 14.5 ± 0.4 mmHg (n = 16). Importantly, the IOPs of strains B6 and C3H/HeJ did not change during this time (B6, 12.3. ± 0.5 mmHg in 1996 and 12.4 ± 0.3 mmHg in 1997, n= 10 and 14; C3H/HeJ, 13.7 ± 0.8 mmHg in 1996 and 13.6 ± 0.2 mmHg in 1997, n = 9 and 19).
+
+Effect of age on IOP
+
+We focused on the commonly used B6, 129P3/J and C3H/HeJ strains to determine the effects of age on IOP (Figure 4). In B6, age had a significant effect on IOP (P < 0.001). IOP was slightly decreased at both 12 months (12.2 ± 0.2 mmHg) and 19 months (12.2 ± 0.3 mmHg) compared to 3 months (13.1 ± 0.3 mmHg) and 7 months (13.3 ± 0.3 mmHg). Although the decrease was of a similar level to the variation observed in 3 month old mice (see Figure 3), the IOPs of control young mice (see Methods) analyzed at the same times as the various B6 age groups did not decrease. For example, control mice analyzed at the same time as the 3 month, 12 month and 18 month B6 age groups had IOPs of 13.0 ± 0.2 mmHg (n = 14), 13.3 ± 0.2 mmHg (n = 14), 13.7 ± 0.4 mmHg (n = 12), respectively. IOP was even lower in the 24 month B6 mice (10.8 ± 0.4 mmHg), and again the average IOP of young controls measured at the same time was not changed (13.5 ± 0.2, n = 12).
+
+Figure 4
+
+IOP changes with increasing Age.  Mean IOP ± SEM is shown for the indicated strain at different ages. IOP decreased significantly in strains C57BL/6J and 129P3/J but not C3H/HeJ. The C57BL/6J and 129P3/J groups consisted of approximately equal numbers of males and females. The 3 months old C3H/HeJ mice were male while the other ages were composed of males and females. The number of mice analyzed at each age, listed from youngest to oldest, follow: C57BL/6J, 18, 18, 18, 18, 13; 129P3/J, 18, 15, 16, 14, 21; C3H/HeJ, 15, 23 17 and 16.
+
+In strain 129P3/J, IOP did not differ significantly with age between 3 and 14 months but was lower in 18 month old mice (P < 0.001 compared to all younger ages, Figure 4). Despite a 1 mmHg dip in IOP at 8 months, there were no significant IOP differences between C3H/HeJ mice at each age tested (P = 0.2 for age). Although the effect of age has not been thoroughly assessed in other strains, no obvious age-related differences have been identified in other strains analyzed at multiple ages except for the glaucomatous DBA/2J and AKXD-28/Ty strains [14,19].
+
+Effect of sex on IOP
+
+Although we have not rigorously assessed the effect of sex on IOP in many strains, sex specific differences have not been detected in the majority of strains for which both sexes have been analyzed, and have proven inconsistent even within an individual strain analyzed multiple times. Strains B6 and 129P3/J have been extensively evaluated at multiple ages between 3 and 24 months of age. Sex differences were always absent in strain 129P3/J and typically absent in strain B6. In strain B6, however, males infrequently had significantly higher IOP than females. For example, in one experiment, B6 males had an average IOP of 14.2 ± 0.3 mmHg (n = 12) whereas the average IOP of females was 13.1 ± 0.3 mmHg (n = 12, P = 0.01). If real, this sporadic sex difference was not dependent on age, sometimes occurring in a group of B6 mice at a particular age and sometimes not occurring in a separate group of the same age.
+
+Anesthesia protocol avoids IOP alteration and allows detection of diurnal differences
+
+All IOPs were assessed using an anesthetic regime of 99 mg/kg ketamine and 9 mg/kg xylazine (defined as 1X). Initial experiments suggested that an almost identical dose (100 mg/kg ketamine and 9 mg/kg xylazine) of anesthesia had no effect on IOP during the experimental period with IOP being measured as soon as possible after the mouse was unconscious, typically minutes. [13]. To further assess the effects of anesthesia, we measured IOP in groups of genetically identical B6 mice subjected to different doses (1X, 1.5X and 2X) at 5 and 25 minutes after administration (Figure 5). For all doses, IOP decreased by 25 minutes (P = 0.005 for time). The greater the dose the greater the decrease in IOP. At the 5 minute measurement, however, IOP was the same using all doses suggesting that the anesthetic effect on IOP had not yet occurred. To identify any early window when it may be possible to assess IOP without an obvious anesthetic effect, 195 mice of strain B6 were anesthetized with the 1X dose and IOP was measured at 1 minute time points between 4 and 12 minutes after administration (Figure 5). The mean IOP of groups analyzed at each time point did not differ (P = 0.9) indicating that the IOP depressing effect of anesthesia occurs later than 12 minutes after administration. Similar results were obtained using 161 strain 129P3/J and 145 strain DBA/2J mice with the 1X dose (129P3/J, P = 0.1; DBA/2J, P = 0.2). In support of a later effect of anesthesia (since general anesthesia is reported to mask diurnal variation in IOP [21]), we identified increased IOP during the dark compared to the light period of the day in several tested strains (Figure 6). In these experiments, IOP measurements were made between 5 and 12 minutes after administration of anesthesia.
+
+Figure 5
+
+No effect of 1X anesthetic dose within 12 minutes of administration. A Mean IOP ± SD is shown for C57BL/6J mice at 5 and 25 minutes after administration of various doses of anesthetic. The 1X dose consisted of 99 mg/kg ketamine and 9 mg/kg xylazine. All doses decreased IOP by 25 minutes. At all doses the IOP at 5 minutes was the same suggesting that the effect of anesthesia had not yet occurred. Approximately thirty 3 to 4 month old mice were analyzed at each dose and time B-D. Scatter-plots demonstrating no change in IOP over the 12 minutes following anesthetic administration in three relatively unrelated mouse strains. All strains consisted of males and females that ranged from 3 to 6 months of age. The sexes and ages were equally represented at each time point. The scatter-plots include 195 C57BL/6J, 161 129P3/J and 145 DBA/2J mice.
+
+Figure 6
+
+IOP is increased during the dark compared to light periods in several strains.  Mean IOP ± SEM is shown for the indicated strains at measurement during the light (open bars) or dark (filled bars) periods of the day. All mice were 2 to 4 months old except for CBA/CaJ that were 5 to 6 months old. 129B6 refers to mice of a mixed 129X1/SvJ and C57BL/6J background. IOP was increased during the dark in all strains except CBA/CaJ. The number of mice successfully analyzed during the light (L) or dark (D) periods follows, DBA/2J 10L,10D; C57BL/6J 32L, 22D; C57BR/cdJ 12L,10D; SWR/J 16L, 16D; BALB/cByJ 15L, 16D; 129B6 10L, 12D; CBA/CaJ 22L, 16D.
+
+Blood pressure does not correlate with IOP
+
+An initial study of the relationship between blood pressure and IOP in mice did not detect a good correlation (R2 = 0.1, Figure 7).
+
+Figure 7
+
+No correlation between blood pressure and IOP.  There is no strong correlation between the average systolic blood pressure of each strain and the average IOP of that strain (R2 = 0.1). All mice were female and 2 to 4 months old, with the exception that the female CBA/CaJ used for IOP assessment were 6 to 7 months old. If the CBA/CaJ mice are excluded, R2 drops to 0.01 of ARK/J, C57BL/6J and SJL/J, strain ARK/J had the lowest IOP.
+
+Myoc alleles do not associate with the magnitude of IOP
+
+Mutations in the myocilin gene (MYOC) cause human glaucoma. To determine if allelic variation in the mouse Myoc gene associated with IOP in mouse strains, we analyzed the gene in an assortment of strains with different IOPs. Two alleles were identified. One of these alleles had a 12 nucleotide insertion in the promoter region (ccagagcagggt, between positions -340 and -341) compared to the previously published sequence and is called the insertion allele. The other allele was identical to the published sequence [22]. The insertion allele also had a previously reported substitution (A to G, Thr164Ala) in exon 1 and several other single base changes in the promoter region [22]. The presence or absence of this allele does not associate with IOP as it is present in strains with a range of IOPs (Figure 8).
+
+Figure 8
+
+Myoc alleles do not associate with IOP.  Sequencing identified two alleles of Myoc in these mouse strains (see text). Mouse strains homozygous for an allele having a 12 bp insertion in the promoter region are shown as open bars and strains homozygous for the allele without this insertion have filled bars. The IOP data is the same as that in Figure 1.
+
+Genetic alterations and IOP
+
+Y Chromosome
+
+The Y chromosome has been implicated in strain specific blood pressure differences in rats [23,24]. To test if the Y chromosome of strain 129/Ola alters IOP in relation to that of strain B6, we compared the IOPs of pure B6 males and consomic B6 males that had the 129P2/Ola Y chromosome (backcrossed for 11 generations). No differences in IOP were detected between these groups of mice (Figure 9, P = 0.1).
+
+Figure 9
+
+Effects of genetic alterations.  Mean IOP ± SEM is shown. There is no difference in IOP between 3 to 4 month old males with either the 129P2/Ola (n = 18) or C57BL/6J (n = 20) Y chromosome (Y Chr). The 129 Y Chr had been backcrossed to strain C57BL/6J for 11 generations. Similarly, 6 to 9 month old males and females that are homozygous for normal (+) or mutant (n) alleles of Car2 have similar IOPs (n = 18 and 14, respectively). However, 4 months old males homozygous for the Lepr diabetes and obesity causing mutation (db) had significantly higher IOPs than their heterozygous age and sex matched littermates. The average body weight of the homozygotes and heterozygotes was 59 g (range 50 to 64 g) and 35 g (range 28 to 41 g) respectively. Blood sugar levels in db /db males of this age are almost always in the diabetic range whereas those of heterozygotes are not [[27]]. This was recently confirmed in cohorts of approximately 25 males of each genotype (mean ± SD; db/db 422 ± 110 mg/dl ; db/+ 147 ± 19 mg/dl; Anthony Nicholson, The Jackson Laboratory, personal communication)
+
+Car2
+
+To test if deficiency of carbonic anhydrase II leads to decreased IOP, we analyzed mice of a B6 background that were genetically similar but with normal or mutant alleles of the Car2 gene [25,26]. There was no difference in IOP between normal and mutant mice (Figure 9, P = 0.5).
+
+Lepr
+
+To test if genetic perturbations that cause obesity and diabetes can alter IOP, we compared mice that were genetically similar but were either homozygous or heterozygous for a leptin receptor mutation (db) that results in obesity and diabetes before 4 months of age on the C57BLKS/J strain background used [27]. IOP was modestly but significantly elevated in obese, diabetic homozygous mutants (14.7 ± 0.3 mmHg) compared to non-obese, non-diabetic heterozygotes (13.4 ± 0.4 mmHg, P < 0.01, Figure 9).
+
+Tyr
+
+To determine if albinism alters IOP, we analyzed B6 mice that were either pigmented or albino. The albino mice were homozygous and coisogenic for a mutant allele of tyrosinase (Tyrc-2J) that arose on the otherwise pigmented B6 background. In 2 month old mice, homozygosity for Tyrc-2J resulted in increased IOP (14.2 ± 0.4 mmHg) compared to wild type, pigmented mice (12.4 ± 0.3 mmHg, P < 0.0001). The same was true for independent cohorts of mice of different ages that were analyzed at different times (Figure 10A). In contrast to pigmented B6 mice (Figure 6), the IOPs of the albino B6 mice were not increased at measurement during the dark compared to light period of the day (P = 0.6, Figure 10B).
+
+Figure 10
+
+Tyr mutation results in increased IOP and altered diurnal changes A. Different cohorts of C57BL/6J mice that are homozygous for the spontaneous Tyrc-2J mutation have higher IOP than their normal counterparts at all tested ages. All groups consisted of male and female mice. B. IOP is not increased during the dark period of the day in Tyrc-2J homozygotes. The number of mice analyzed during the light period were: 2 month, 28 +/+, 29 c-2J/c-2J, 4 month, 20 +/+ and 20 c-2J/c-2J, 8 month, 15 +/+ and 15 c-2J/c-2J. Fourteen mice of each genotype were successfully analyzed during the dark period of the day.
+
+Discussion
+
+IOP differences are reproducible and amenable to genetic analyses
+
+We report the IOPs of over 30 genetically different mouse strains that were housed in the same environmental conditions. The magnitude of IOP differences between strains and the good reproducibility of readings over time will allow the use of genetic approaches to identify genes that underlie these differences. Using our method, a trained investigator can measure the IOPs of 10 mice in an hour. Thus it is feasible to assess sufficient numbers of mice for quantitative trait locus (QTL) analysis methods and to use these methods to identify chromosomal regions contributing to strain differences in IOP. The strain survey we report provides valuable information for designing these experiments. The throughput and reproducibility also is sufficient for mutagenesis screens [28-30]. These are important approaches as they may allow the association of genes with IOP and glaucoma whose currently known functions do not suggest that they affect aqueous humor dynamics or do not immediately identify them as likely glaucoma candidates.
+
+No effect of anesthetic protocol on IOP during a 12 minute measurement window
+
+Many anesthetic agents including xylazine lower IOP. Ketamine usually appears to increase IOP [31-33], but there are reports of ketamine having no effect on IOP or even reducing IOP [31,34]. Different doses, species used, routes of administration or environments may contribute to these differences. The relationship between the IOPs we measure and those in conscious mice depends upon the effect of our anesthetic protocol (intraperitoneal injection of 99 mg/kg ketamine and 9 mg/kg xylazine). An anesthetic effect could potentially alter IOP and mask genetically determined differences in IOP. Therefore, it is very important to understand this effect. Here, we show that, despite a depressant effect on IOP by 25 minutes, our anesthetic protocol has no detectable effect on IOP during the first 12 minutes after administration. Thus, to avoid effects of anesthesia on IOP, all measurements should be made within a window of up to 12 minutes after anesthetic administration.
+
+Similarities and differences to rat studies
+
+Our results agree with the time course of cardiovascular depression caused by intraperitoneal administration of ketamine and xylazine in rats. In that study, anesthesia had a minor effect on blood pressure during the first 15 minutes following injection but a strong hypotensive effect between 15 and 30 minutes that continued for more than an hour [35]. In contrast, intraperitoneally administered ketamine (100 mg/kg) was shown to rapidly decrease IOP in a different rat study [36]. IOP decreased significantly between a conscious measurement and the first possible measurement under anesthesia (defined as time 0). IOP decreased further by the next reading (at 5 minutes) after which it remained stable for the duration of the experiment (20 minutes)[36]. The time 0 measurement in that study was at a very similar state of anesthesia as our 4 and 5 minute time points (starting as soon as possible and within 20 to 60 seconds of adequate anesthesia), and the 5 minute rat time point was similar to our 9 and 10 minute measurement times. Thus, although both rat and mouse studies show that anesthesia decreases IOP, the studies do not agree on the timing of the effect. The IOP depression occurred very soon after anesthesia in the rats but was delayed in the mice.
+
+Environment may influence the effect of anesthesia
+
+Factors that may influence the effect of anesthesia include the species, strain and environment used. Essentially the same dose of ketamine and route of administration was used in both the rat and mouse IOP studies. In mice, the strain does not appear to be important as no early effect of anesthesia was present in the three distantly related laboratory strains [37] we studied in detail, and we have not observed any obvious effect during this period in any analyzed strain. Environmental differences may be important. Cage cleanliness, changing frequency and housing density can alter drug metabolism and the effect of anesthesia in rats [38,39]. The type of bedding used also may be important. We use wood shavings for bedding and wood shavings expose the mice to terpenes. Terpene administration or environmental exposure to terpenes in wood shavings alters drug resistance and decreases the effect of anesthetic agents in both rats and mice [40-45].
+
+Risk factors for increased IOP
+
+Some epidemiological studies implicate factors such as diabetes, vascular hypertension, arterial hypotension, vasospasm, aberrant autoregulation of blood flow and sex in glaucoma. Other studies find no association between these factors and glaucoma [2,46-48]. Similarly, the effects of various factors including age, gender, blood pressure, obesity and diabetes have been variably associated with elevated IOP. We evaluated the relationship between these latter factors and IOP in genetically homogeneous mouse strains in a controlled environment.
+
+Age
+
+Although within the range of variability observed in young mice, the IOP of B6 mice modestly decreased around 1 year of age. This decrease was statistically significant compared to young mice measured at the same time. At 2 years of age the IOP of B6 mice had decreased further, though an effect of anesthesia in these very old mice cannot be ruled out [49]. The IOP of 129P3/J mice also decreased with age but only at the oldest age examined (18 months). Decreasing IOP correlates with increasing age in the human Japanese population [50,51]. Further studies of B6 mice may allow experimental investigation of this effect. Additional studies may also identify " normal" mouse strains that develop increased IOP with age as generally occurs in Western populations [52,53]. We previously demonstrated that the glaucomatous strains DBA/2J and AKXD-28/Ty develop elevated IOP with age [14,19].
+
+Gender
+
+In the examined strains, we found no consistent differences in IOP between males and females. This was true at all ages for the 3 strains that were aged to 18 months or older. This is in agreement with a number of human studies, which show that IOP is equal between the sexes [52,53]. However, some studies have found sex-specific differences (typically with higher IOP in females and the magnitude of the difference increasing after 40 years of age) [53,54]. Of possible relevance, we previously reported that female mice of strains DBA/2J and AKXD-28/Ty develop elevated IOP at an earlier age than males [14,19].
+
+Blood pressure
+
+Some but not all human studies have reported a positive association between IOP and blood pressure [48,52]. Our comparison of the relationship between blood pressure and IOP in young, adult female mice of different mouse strains, whose blood pressures differed up to 36 mmHg, did not reveal a positive correlation. Further studies are needed to determine if blood pressure correlates with IOP in males, and to determine the relationship between blood pressure and IOP in various mouse strains with age.
+
+Obesity and diabetes
+
+Obesity or higher body mass index have been implicated by some but not other studies as risk factors for increased IOP and glaucoma [51,55-57]. Similarly, diabetes or the combination of diabetes and obesity have been variably associated with elevated IOP and glaucoma [46,52,58-62]. To test if genetic perturbations that cause obesity and diabetes can alter IOP, we compared groups of mice that were genetically similar except that they were either homozygous or heterozygous for a leptin receptor mutation (db) that results in early onset obesity and diabetes. The obese, diabetic mice had higher IOPs than their lean, non-diabetic littermates. Thus, epidemiological associations between increased IOP and obesity or diabetes are supported by this work and appear to be functionally relevant. Further experiments with obese non-diabetic or diabetic non-obese mice will help to characterize the separate effects of these risk factors.
+
+IOP is increased during the dark period of the day
+
+Diurnal variation in IOP is common in humans and laboratory animals [53]. The molecular mechanisms underlying the diurnal rhythm are not defined but increased aqueous humor production or flow occurs during the period of increased IOP in both rabbits and humans [63-65]. Small changes in the resistance to aqueous humor drainage may also contribute to diurnal differences in IOP [66,67]. We first suspected IOP changes with time of day when the IOP of a group of B6 mice measured in the hour prior to onset of the dark period appeared to be higher than at other times of day. Previously, a rise of IOP was reported to occur before onset of the dark period in rats [21], and rats and rabbits were shown to have higher IOP during the dark period compared to the light period [21,68,69]. Thus, we compared the IOPs of mice at different times of day and identified several strains with significantly higher IOP during the dark compared to the light period. The magnitude of the difference varies with strain, and was greatest in SWR/J. The IOP increase in the dark is not dependent on functional rod and cone photoreceptors since these cells degenerate in SWR/J mice due to homozygosity for the Pde6brd1 mutation. In agreement with this finding, circadian regulation of wheel running by light was previously reported in mice lacking rods and cones [70]. Interestingly, the IOP of strain CBA/CaJ, which has one of the highest daytime IOPs does not appear to increase in the dark. Further more detailed studies are needed to define the characteristics of the diurnal rhythm of intraocular pressure in mice, and to determine whether it is lacking or has a different timing in strain CBA/CaJ. Analysis of these mouse strains may increase understanding of the molecular mechanisms controlling diurnal rhythms of IOP and that may be relevant to glaucoma.
+
+Car2 deficiency does not alter IOP
+
+Bicarbonate formation is important for aqueous humor secretion from the ciliary processes and carbonic anhydrase (CA) facilitates this secretion. There are multiple forms of CA and the CAII isoform is reported to be the predominant form in the ciliary processes [71,72]. Our experiments show that a genetic deficiency of CAII in mice homozygous for a mutation in the Car2 gene does not alter IOP. CAIV activity was recently demonstrated in the ciliary processes [73] and so our data may support a more substantial role for CAIV compared to CAII in aqueous humor secretion. It also is possible that CAII substantially contributes to aqueous humor secretion but that functional mouse CAIV is sufficient to prevent an effect of CAII deficiency on IOP in Car2 mutant mice. In support of a role for both enzymes, a greater than 90% inhibition of CA is required for significant reduction of aqueous secretion [71,72].
+
+Tyrosinase deficiency results in increased IOP
+
+Tyrosinase is the first enzyme of the pigment production pathway. Tyrosinase deficiency causes albinism and has various ocular consequences. These include alteration of the number of ipsilaterally projecting retinal axons and substantially increased light penetration past the iris [74]. It is not known if these abnormalities affect mammalian IOP. Here, we show increased IOP in mice lacking tyrosinase activity compared to otherwise genetically identical pigmented B6 mice. Additionally, IOP differences between the light and dark period of the day were detected in the pigmented but not the albino B6 mice. Thus, albinism can affect the diurnal pattern of IOP changes. In agreement with this result, mice with albino eyes that are homozygous for tyrosinase or pink eye dilution mutations have altered diurnal rhythms compared to pigmented mice [75]. Albinism by itself is either not sufficient to alter the diurnal rhythm of IOP or alters it in different ways depending upon genetic background, however, since the albino strains BALB/cByJ and SWR/J had increased IOP during the dark. Diurnal rhythms are known to depend on visual pathways and to respond to light intensity. Exposing rats to 24 hours of low light abrogates the diurnal fluctuation of IOP and results in constantly elevated IOP [36]. Further experiments will determine the nature of the diurnal rhythm of IOP in the albino B6 mice and if its alteration or other mechanisms result in IOP elevation.
+
+Conclusions
+
+A broad range of reproducible IOP differences exists between inbred mouse strains and a diurnal rhythm of IOP exists in different strains. Various factors have been variably associated with risk for increased IOP in humans. Genetically uniform, mice can be used to study the effects of these risk factors on IOP. In trained hands, our measurement procedure is reliable, accurate and rapid enough to allow large scale genetic studies of factors determining IOP. Mice have great potential for helping to characterize the molecular mechanisms affecting IOP.
+
+Materials and Methods
+
+Animal husbandry
+
+All experiments were performed in compliance with the ARVO statement for use of animals in ophthalmic and vision research. All mice were bred and maintained at The Jackson Laboratory. Mice were housed in cages containing white pine bedding and covered with polyester filters. For most experiments, the mice were fed NIH31 (6 % fat) chow ad libitum, and their water was acidified to pH 2.8 to 3.2. B6 mice develop diet induced diabetes when maintained on a high fat diet [76]. To ensure that we were analyzing the effect of age and not diabetes, the B6 mice in the aging experiment were fed NIH31 (4% fat) chow. We have found no differences in IOP between B6 mice housed on the 4% fat and 6% fat versions of this otherwise identical diet. The mice were group housed and the cages were changed one time per week. If any cage appeared soiled between scheduled changes, the mice were placed in a clean cage. The environment was kept at 21°C with a 14 hour light: 10 hour dark cycle. The colony was monitored for specific pathogens by The Jackson Laboratory's routine surveillance program (see  for specific pathogens).
+
+Intraocular pressure
+
+Intraocular pressures were measured as described elsewhere [13,77]. The mice were typically acclimatized to the procedure room for at least 2 weeks prior to measurement, but sometimes between 1 and 2 weeks. Although it was not possible to include all strains in each measurement period, mice of different strains were intermixed. As demonstrated here, the IOPs of C57BL/6J are very consistent over time and so these animals were interspersed with experimental mice during all experiments to ensure that calibration had not drifted and that the system was functioning optimally. Whenever possible, the investigator measuring IOP did not know the genotypes of the animals. It was not possible to analyze all age groups of each strain at the same time in the aging experiments. Therefore, to control for potential IOP changes due to measurement time and not age, approximately 3 month old B6 mice were assessed at the same time as each age group. All dark period measurements were made between 1 and 3 hours after the lights turned off. The room was equipped with dim red lights and mice were protected from all light exposure during set up. Each mouse was briefly exposed to the red light when the anesthetic agents were administered. When adequate anesthesia was achieved (after 3 to 4 minutes), the mouse was placed on the measurement platform and the white light of the microscope was turned on (for approximately 1 and a half minutes) to allow ocular cannulation, IOP measurement and post-measurement tests [13] that guard against artifactual data. The white light was used at very low intensity and was dim but we cannot rule out the possibility that this brief exposure altered the IOP. All other mice were protected from light exposure throughout the time an individual mouse was analyzed.
+
+Blood pressure
+
+The blood pressures of conscious mice of each strain (6 to 12 females per strain) were measured with a tail-cuff system as reported [78], except that 5 days of training were used. The mice were analyzed in the same procedure room as was used for IOP measurment.
+
+Clinical examinations
+
+For most strains, anterior chambers were examined with a slit lamp biomicroscope [16]. At least 8 mice of each strain shown in figure 1 were evaluated. However, the anterior chambers of C57BLKS/J mice were only evaluated under a dissection microscope at the time of IOP measurement.
+
+Histological analysis
+
+Eyes from at least 2 mice of the listed strains were fixed (4% paraformaldehyde or Fekete's acid-alcohol-formalin fixative) processed, paraffin embedded and sectioned as previously reported [15,79], except that the paraformaldehyde was buffered with 0.1 M phosphate buffer. All strains other than CBA/CaHN and C57BLKS/J strains were evaluated. The eyes of CBA/CaJ and BALB/cJ mice were also fixed and processed for plastic embedding (Historesin, Leica, Heidelberg, Germany), and sectioned as previously reported [14,79]. Saggital sections including the pupil and optic nerve were collected and analyzed as they contain most ocular structures.
+
+Analysis of Myoc
+
+Exons and the proximal promoter of the mouse Myoc gene were amplified from mouse genomic DNA using the following combinations of primers:
+
+Exon 1: 5'-cttgcaggagaactttccagaa-3' and 5'-atctcgaaggagattgttatagg-3'
+
+5'-gaccagctggagacccaaaccag-3' and 5'-gctcagatccactgacctaaa-3'
+
+Exon 2: 5'-tgaagccatactttaccaaccat-3' and 5'-caaaagggagaagtctaacttc-3'
+
+Exon 3: 5'-agtcaaggctcacagagctaa-3' and 5'-aagagtagctgctcaccgtgtacaag-3'
+
+5'-agacattgacttagctgtggat-3' and 5'-cggaacttcaccttttctggc-3'
+
+Promoter: 5'-taggagaagtctcattatactgc-3' and 5'-ttcactggaccagcataagga-3'
+
+5'-tctgaggatgttcacaggtttat-3' and 5'-tcttctggaaagttctcctgca-3'
+
+Samples underwent 30 cycles of amplification with Perkin-Elmer Taq polymerase in a PTC Thermal Cycler (MJ Research, MA) (94° for 40 sec, 57° for 1 min, 72° for 2 min). The PCR products we purified and sequenced as described [22].
+
+Abbreviations
+
+Intraocular pressure (IOP), C57BL/6J (B6), chromosome (Chr), polymerase chain reaction (PCR), carbonic anhydrase (CA)
+
+Acknowledgments
+
+We thank Norma Buckley, Felicia Farley and Jennifer Smith for their assistance with data entry, references, and figures. We also thank Jane Barker for the Car2 mice, Marianna Mertts for her help with analysis of Myoc alleles, and members of the John laboratory, Tatyana Golovkina, Edward Leiter and Timothy O'Brien for critical reading of the manuscript. Supported in part by AHAF 97437 and G1999023, NIH EY11721 and HL55001. Core services were subsidized by grant CA34196. Major funding was provided by the Howard Hughes Medical Institute. SWMJ is an Assistant Investigator of The Howard Hughes Medical Institute.

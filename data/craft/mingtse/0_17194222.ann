@@ -1,0 +1,23 @@
+T1	KeyEntity 2820 2854	Bone morphogenetic proteins (BMPs)
+T2	KeyEntity 1512 1524	osteogenesis
+T3	KeyEntity 0 16	Genetic Analysis
+T4	KeyEntity 33 37	BMP2
+T5	KeyEntity 39 43	BMP4
+T6	KeyEntity 49 53	BMP7
+T7	KeyEntity 77 91	Skeletogenesis
+T8	KeyEntity 57 72	Limb Patterning
+T9	KeyEntity 103 142	Bone morphogenetic protein (BMP) family
+R1	is_part_of Arg1:T4 Arg2:T9	
+R2	is_part_of Arg1:T5 Arg2:T9	
+R3	is_part_of Arg1:T6 Arg2:T9	
+R4	participates_in Arg1:T9 Arg2:T8	
+R5	participates_in Arg1:T9 Arg2:T7	
+T10	Entity 369 394	early embryonic lethality
+R6	other_relation Arg1:T4 Arg2:T10	
+R7	other_relation Arg1:T5 Arg2:T10	
+T11	Entity 716 735	conditional alleles
+T12	Entity 802 822	limb bud mesenchyme.
+T13	Entity 902 919	secondary signals
+T14	Entity 934 953	Sonic Hedghog (SHH)
+R8	other_relation Arg1:T9 Arg2:T14	
+#1	AnnotatorNotes R8	is not secondary signals downstream of 

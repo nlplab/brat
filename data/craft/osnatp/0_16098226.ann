@@ -1,0 +1,66 @@
+T1	KeyEntity 145 149	PAX6
+T2	Entity 163 188	transcriptional regulator
+T3	Entity 208 243	ocular and neurological development
+T4	Entity 262 301	heterozygous loss-of-function mutations
+T5	KeyEntity 309 313	PAX6
+T6	Entity 324 358	malformations of the eye and brain
+T7	KeyEntity 402 406	PAX6
+T8	Entity 418 426	proteins
+T9	KeyEntity 498 502	PAX6
+T10	Entity 522 547	bioinformatics techniques
+T11	Entity 566 590	highly conserved peptide
+T12	Entity 598 608	C-terminus
+T13	KeyEntity 616 620	PAX6
+T14	Entity 630 654	Yeast two-hybrid library
+T15	Entity 697 721	brain-expressed proteins
+T16	Entity 745 763	C-terminal peptide
+T17	KeyEntity 784 788	PAX6
+T18	Entity 789 826	proline-serine-threonine-rich domain.
+T19	KeyEntity 839 843	PAX6
+T20	Entity 886 907	post-synaptic density
+T21	Entity 909 912	PSD
+T23	Entity 934 948	dynein subunit
+T24	Entity 949 954	DNCL1
+T25	Entity 964 988	tripartite motif protein
+T27	Entity 1003 1013	C-terminal
+T28	KeyEntity 1014 1018	PAX6
+T29	Entity 1019 1028	mutations
+T30	Entity 1069 1086	eye malformations
+T31	KeyEntity 1178 1182	PAX6
+T33	KeyEntity 1198 1204	HOMER3
+T34	KeyEntity 922 928	HOMER3
+T35	KeyEntity 949 954	DNCL1
+T36	KeyEntity 989 995	TRIM11
+T22	KeyEntity 1206 1211	DNCL1
+T26	KeyEntity 1216 1222	TRIM11
+T32	KeyEntity 1259 1263	PAX6
+T37	KeyEntity 1269 1275	HOMER3
+T38	KeyEntity 1280 1285	DNCL1
+T39	Entity 1310 1329	synaptic activation
+T40	Entity 1355 1388	neuronal transcriptional activity
+T41	Entity 1411 1427	neural anomalies
+T42	KeyEntity 1445 1449	PAX6
+T43	Entity 1491 1519	protein-protein interactions
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+R2	participates_in Arg1:T1 Arg2:T3	
+R3	other_relation Arg1:T5 Arg2:T6	
+R4	other_relation Arg1:T10 Arg2:T11	
+R5	is_part_of Arg1:T12 Arg2:T13	
+R6	other_relation Arg1:T14 Arg2:T15	
+R7	physically_interacts_with Arg1:T15 Arg2:T16	
+R8	is_part_of Arg1:T18 Arg2:T17	
+R9	physically_interacts_with Arg1:T34 Arg2:T19	
+R10	physically_interacts_with Arg1:T35 Arg2:T19	
+R11	physically_interacts_with Arg1:T36 Arg2:T19	
+R12	other_relation Arg1:T30 Arg2:T28	
+R13	is_part_of Arg1:T27 Arg2:T28	
+R14	is_part_of Arg1:T20 Arg2:T34	
+R15	is_part_of Arg1:T23 Arg2:T24	
+R16	physically_interacts_with Arg1:T31 Arg2:T33	
+R17	physically_interacts_with Arg1:T31 Arg2:T22	
+R18	genetically_interacts_with Arg1:T31 Arg2:T26	
+R19	genetically_interacts_with Arg1:T32 Arg2:T37	
+R20	genetically_interacts_with Arg1:T32 Arg2:T38	
+R21	other_relation Arg1:T32 Arg2:T40	
+R22	other_relation Arg1:T40 Arg2:T42	
+R23	other_relation Arg1:T41 Arg2:T42	

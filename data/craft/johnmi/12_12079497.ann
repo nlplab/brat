@@ -1,0 +1,37 @@
+T1	Entity 180 189	reporters
+T2	Entity 210 226	lineage labeling
+T3	KeyEntity 279 310	green fluorescent protein (GFP)
+T4	Entity 717 758	enhanced green fluorescent protein (EGFP)
+T5	Entity 762 787	embryonic stem (ES) cells
+T6	Entity 792 796	mice
+R1	other_relation Arg1:T4 Arg2:T5	
+R2	other_relation Arg1:T4 Arg2:T6	
+T7	Entity 839 863	embryonic stem (ES) cell
+T8	Entity 898 938	enhanced cyan fluorescent protein (ECFP)
+T9	Entity 943 985	enhanced yellow fluorescent protein (EYFP)
+T10	Entity 1080 1086	DsRed1
+T11	Entity 1339 1343	ECFP
+T12	KeyEntity 1364 1373	reporters
+T13	Entity 1347 1351	EYFP
+T14	Entity 1422 1428	DsRed1
+T15	KeyEntity 1849 1858	reporters
+T16	KeyEntity 1970 1989	transgenic ES cells
+T17	KeyEntity 1994 1998	mice
+T18	Entity 2092 2117	recombination experiments
+T19	Entity 2119 2127	chimeras
+T20	Entity 2131 2147	transplantations
+R3	other_relation Arg1:T16 Arg2:T18	
+R4	regulates Arg1:T16 Arg2:T19	
+R5	regulates Arg1:T16 Arg2:T20	
+T21	Entity 1910 1923	visualization
+R6	other_relation Arg1:T15 Arg2:T21	
+T22	Entity 1625 1633	chimeras
+T23	KeyEntity 1679 1687	ES cells
+R7	is_part_of Arg1:T23 Arg2:T22	
+R8	other_relation Arg1:T8 Arg2:T7	
+R9	other_relation Arg1:T9 Arg2:T7	
+T24	Entity 1249 1257	ES cells
+T25	Entity 1291 1295	mice
+R10	other_relation Arg1:T12 Arg2:T25	
+R11	other_relation Arg1:T12 Arg2:T24	
+R12	other_relation Arg1:T1 Arg2:T2	

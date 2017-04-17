@@ -1,0 +1,29 @@
+T1	Entity 110 123	organogenesis
+T3	Entity 305 324	mutant mouse models
+T4	Entity 338 351	keratinocytes
+T5	Entity 532 558	growth factor β2 signaling
+T6	Entity 598 624	transcription factor Snail
+T7	Entity 642 693	Ras-mitogen-activated protein kinase (MAPK) pathway
+T8	Entity 234 247	bud structure
+T9	Entity 820 830	E-cadherin
+T10	Entity 948 966	cell-cell contacts
+T12	Entity 1128 1151	transcriptional changes
+T13	Entity 1209 1222	bud formation
+T14	Entity 1298 1308	morphogens
+T15	Entity 1313 1346	downstream transcriptional events
+T16	Entity 1358 1376	hair bud formation
+R1	participates_in Arg1:T1 Arg2:T8	
+R2	genetically_interacts_with Arg1:T5 Arg2:T6	
+R3	physically_interacts_with Arg1:T5 Arg2:T7	
+T17	Entity 468 494	shape the cluster of cells
+R4	other_relation Arg1:T3 Arg2:T17	
+R5	other_relation Arg1:T4 Arg2:T17	
+T2	Entity 724 743	Snail misexpression
+T18	Entity 753 813	hyperproliferation and a reduction in intercellular adhesion
+R6	is_part_of Arg1:T2 Arg2:T18	
+R7	other_relation Arg1:T9 Arg2:T10	
+R8	regulates Arg1:T12 Arg2:T13	
+T11	Entity 1235 1252	signaling pathway
+R9	regulates Arg1:T11 Arg2:T16	
+R10	regulates Arg1:T11 Arg2:T14	
+R11	regulates Arg1:T11 Arg2:T15	

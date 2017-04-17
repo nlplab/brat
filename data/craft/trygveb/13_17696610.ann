@@ -1,0 +1,22 @@
+T1	KeyEntity 128 135	meiosis
+T2	Entity 118 127	mammalian
+T3	Entity 137 158	homologous chromosome
+T4	KeyEntity 159 167	synapsis
+T5	KeyEntity 184 197	recombination
+T6	Entity 210 220	eukaryotes
+T7	Entity 222 231	mammalian
+T8	Entity 232 241	meiocytes
+T9	Entity 247 258	checkpoints
+T10	Entity 330 338	ortholog
+T11	Entity 324 329	mouse
+T12	KeyEntity 340 346	Trip13
+T13	KeyEntity 351 373	pachytene checkpoint 2
+T14	KeyEntity 375 379	PCH2
+T15	Entity 412 431	synapsis checkpoint
+T16	Entity 435 459	Saccharomyces cerevisiae
+T17	Entity 464 486	Caenorhabditis elegans
+T18	KeyEntity 518 525	meiosis
+T19	KeyEntity 541 557	TRIP13-deficient
+T20	Entity 558 562	mice
+T21	Entity 571 583	spermatocyte
+T22	Entity 593 602	pachynema

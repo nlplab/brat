@@ -1,0 +1,1534 @@
+T1	807 815	carbonic
+#1	AnnotatorNotes T1	CHEBI:27594
+T2	1087 1096	pigmented
+#2	AnnotatorNotes T2	CHEBI:26130
+T3	1802 1811	molecular
+#3	AnnotatorNotes T3	CHEBI:36357
+T4	5742 5749	Pigment
+#4	AnnotatorNotes T4	CHEBI:26130
+T5	12861 12871	anesthetic
+#5	AnnotatorNotes T5	CHEBI:38867
+T6	14633 14643	anesthetic
+#6	AnnotatorNotes T6	CHEBI:38867
+T7	14790 14800	anesthetic
+#7	AnnotatorNotes T7	CHEBI:38867
+T8	15175 15185	anesthetic
+#8	AnnotatorNotes T8	CHEBI:38867
+T9	17083 17093	nucleotide
+#9	AnnotatorNotes T9	CHEBI:25613
+T10	17386 17387	A
+#10	AnnotatorNotes T10	CHEBI:30756
+T11	17391 17392	G
+#11	AnnotatorNotes T11	CHEBI:30755
+T12	19552 19560	carbonic
+#12	AnnotatorNotes T12	CHEBI:27594
+T13	20395 20404	pigmented
+#13	AnnotatorNotes T13	CHEBI:26130
+T14	20535 20544	pigmented
+#14	AnnotatorNotes T14	CHEBI:26130
+T15	20673 20682	pigmented
+#15	AnnotatorNotes T15	CHEBI:26130
+T16	20854 20863	pigmented
+#16	AnnotatorNotes T16	CHEBI:26130
+T17	22842 22859	anesthetic agents
+#17	AnnotatorNotes T17	CHEBI:38867
+T18	23787 23797	anesthetic
+#18	AnnotatorNotes T18	CHEBI:38867
+T19	25770 25774	drug
+#19	AnnotatorNotes T19	CHEBI:23888
+T20	25950 25958	terpenes
+#20	AnnotatorNotes T20	CHEBI:35186
+T21	25960 25967	Terpene
+#21	AnnotatorNotes T21	CHEBI:35186
+T22	26012 26020	terpenes
+#22	AnnotatorNotes T22	CHEBI:35186
+T23	26045 26049	drug
+#23	AnnotatorNotes T23	CHEBI:23888
+T24	26089 26106	anesthetic agents
+#24	AnnotatorNotes T24	CHEBI:38867
+T25	29849 29858	molecular
+#25	AnnotatorNotes T25	CHEBI:36357
+T26	31521 31530	molecular
+#26	AnnotatorNotes T26	CHEBI:36357
+T27	31652 31663	Bicarbonate
+#27	AnnotatorNotes T27	CHEBI:17544
+T28	31746 31754	carbonic
+#28	AnnotatorNotes T28	CHEBI:27594
+T29	32651 32658	pigment
+#29	AnnotatorNotes T29	CHEBI:26130
+T30	33070 33079	pigmented
+#30	AnnotatorNotes T30	CHEBI:26130
+T31	33185 33194	pigmented
+#31	AnnotatorNotes T31	CHEBI:26130
+T32	33445 33454	pigmented
+#32	AnnotatorNotes T32	CHEBI:26130
+T33	34612 34621	molecular
+#33	AnnotatorNotes T33	CHEBI:36357
+T34	35022 35026	chow
+#34	AnnotatorNotes T34	CHEBI:33290
+T35	35049 35054	water
+#35	AnnotatorNotes T35	CHEBI:15377
+T36	35295 35299	chow
+#36	AnnotatorNotes T36	CHEBI:33290
+T37	37024 37041	anesthetic agents
+#37	AnnotatorNotes T37	CHEBI:38867
+T38	38325 38329	acid
+#38	AnnotatorNotes T38	CHEBI:37527
+T39	38330 38337	alcohol
+#39	AnnotatorNotes T39	CHEBI:30879
+T40	38469 38477	buffered
+#40	AnnotatorNotes T40	CHEBI:35225
+T41	38489 38498	phosphate
+#41	AnnotatorNotes T41	CHEBI:35780
+T42	38489 38498	phosphate
+#42	AnnotatorNotes T42	CHEBI:26020
+T43	39854 39862	carbonic
+#43	AnnotatorNotes T43	CHEBI:27594
+T44	1861 1882	retinal ganglion cell
+#44	AnnotatorNotes T44	CL:0000740
+T45	5757 5768	macrophages
+#45	AnnotatorNotes T45	CL:0000235
+T46	5795 5800	cells
+#46	AnnotatorNotes T46	CL:0000000
+T47	5939 5944	cells
+#47	AnnotatorNotes T47	CL:0000000
+T48	30870 30889	cone photoreceptors
+#48	AnnotatorNotes T48	CL:0000573
+T49	30902 30907	cells
+#49	AnnotatorNotes T49	CL:0000000
+T50	31099 31103	rods
+#50	AnnotatorNotes T50	CL:0000604
+T51	31108 31113	cones
+#51	AnnotatorNotes T51	CL:0000573
+T52	807 828	carbonic anhydrase II
+#52	AnnotatorNotes T52	EG:12349
+T53	902 908	leptin
+#53	AnnotatorNotes T53	EG:16846
+T54	902 917	leptin receptor
+#54	AnnotatorNotes T54	EG:16847
+T55	1029 1039	tyrosinase
+#55	AnnotatorNotes T55	EG:22173
+T56	1520 1524	Lepr
+#56	AnnotatorNotes T56	EG:16847
+T57	1529 1532	Tyr
+#57	AnnotatorNotes T57	EG:22173
+T58	16742 16746	Myoc
+#58	AnnotatorNotes T58	EG:17926
+T59	16816 16824	myocilin
+#59	AnnotatorNotes T59	EG:4653
+T60	16831 16835	MYOC
+#60	AnnotatorNotes T60	EG:4653
+T61	16900 16910	mouse Myoc
+#61	AnnotatorNotes T61	EG:17926
+T62	17621 17625	Myoc
+#62	AnnotatorNotes T62	EG:17926
+T63	17699 17703	Myoc
+#63	AnnotatorNotes T63	EG:17926
+T64	18813 18817	Car2
+#64	AnnotatorNotes T64	EG:12349
+T65	18914 18918	Lepr
+#65	AnnotatorNotes T65	EG:16847
+T66	19521 19525	Car2
+#66	AnnotatorNotes T66	EG:12349
+T67	19552 19573	carbonic anhydrase II
+#67	AnnotatorNotes T67	EG:12349
+T68	19705 19709	Car2
+#68	AnnotatorNotes T68	EG:12349
+T69	19808 19812	Lepr
+#69	AnnotatorNotes T69	EG:16847
+T70	19990 19996	leptin
+#70	AnnotatorNotes T70	EG:16846
+T71	19990 20005	leptin receptor
+#71	AnnotatorNotes T71	EG:16847
+T72	20316 20319	Tyr
+#72	AnnotatorNotes T72	EG:22173
+T73	20486 20496	tyrosinase
+#73	AnnotatorNotes T73	EG:22173
+T74	21036 21039	Tyr
+#74	AnnotatorNotes T74	EG:22173
+T75	29265 29271	leptin
+#75	AnnotatorNotes T75	EG:16846
+T76	29265 29280	leptin receptor
+#76	AnnotatorNotes T76	EG:16847
+T77	31616 31620	Car2
+#77	AnnotatorNotes T77	EG:12349
+T78	31973 31977	CAII
+#78	AnnotatorNotes T78	EG:12349
+T79	32019 32023	Car2
+#79	AnnotatorNotes T79	EG:12349
+T80	32175 32179	CAIV
+#80	AnnotatorNotes T80	EG:12351
+T81	32192 32196	CAII
+#81	AnnotatorNotes T81	EG:12349
+T82	32250 32254	CAII
+#82	AnnotatorNotes T82	EG:12349
+T83	32328 32338	mouse CAIV
+#83	AnnotatorNotes T83	EG:12351
+T84	32377 32381	CAII
+#84	AnnotatorNotes T84	EG:12349
+T85	32403 32407	Car2
+#85	AnnotatorNotes T85	EG:12349
+T86	32565 32575	Tyrosinase
+#86	AnnotatorNotes T86	EG:22173
+T87	33006 33016	tyrosinase
+#87	AnnotatorNotes T87	EG:22173
+T88	33362 33372	tyrosinase
+#88	AnnotatorNotes T88	EG:22173
+T89	38889 38893	Myoc
+#89	AnnotatorNotes T89	EG:17926
+T90	38934 38944	mouse Myoc
+#90	AnnotatorNotes T90	EG:17926
+T91	40051 40055	Car2
+#91	AnnotatorNotes T91	EG:12349
+T92	40108 40112	Myoc
+#92	AnnotatorNotes T92	EG:17926
+T93	612 617	aging
+#93	AnnotatorNotes T93	GO:0007568
+T94	692 706	diurnal rhythm
+#94	AnnotatorNotes T94	GO:0007623
+T95	807 825	carbonic anhydrase
+#95	AnnotatorNotes T95	independent_continuant
+T96	807 825	carbonic anhydrase
+#96	AnnotatorNotes T96	GO:0004089
+T97	909 917	receptor
+#97	AnnotatorNotes T97	independent_continuant
+T98	909 917	receptor
+#98	AnnotatorNotes T98	GO:0004872
+T99	1340 1350	regulation
+#99	AnnotatorNotes T99	GO:0065007
+T100	1673 1683	regulation
+#100	AnnotatorNotes T100	GO:0065007
+T101	1878 1888	cell death
+#101	AnnotatorNotes T101	GO:0008219
+T102	6094 6100	passes
+#102	AnnotatorNotes T102	GO:0051234
+T103	14342 14359	diurnal variation
+#103	AnnotatorNotes T103	GO:0007623
+T104	19552 19570	carbonic anhydrase
+#104	AnnotatorNotes T104	independent_continuant
+T105	19552 19570	carbonic anhydrase
+#105	AnnotatorNotes T105	GO:0004089
+T106	19997 20005	receptor
+#106	AnnotatorNotes T106	independent_continuant
+T107	19997 20005	receptor
+#107	AnnotatorNotes T107	GO:0004872
+T108	20512 20517	arose
+#108	AnnotatorNotes T108	GO:0009058
+T109	21086 21101	diurnal changes
+#109	AnnotatorNotes T109	GO:0007623
+T110	23917 23927	depression
+#110	AnnotatorNotes T110	GO:0048519
+T111	25770 25785	drug metabolism
+#111	AnnotatorNotes T111	GO:0017144
+T112	26319 26329	blood flow
+#112	AnnotatorNotes T112	GO:0008015
+T113	29272 29280	receptor
+#113	AnnotatorNotes T113	independent_continuant
+T114	29272 29280	receptor
+#114	AnnotatorNotes T114	GO:0004872
+T115	29771 29788	Diurnal variation
+#115	AnnotatorNotes T115	GO:0007623
+T116	29885 29899	diurnal rhythm
+#116	AnnotatorNotes T116	GO:0007623
+T117	29944 29954	production
+#117	AnnotatorNotes T117	GO:0032502
+T118	31012 31032	circadian regulation
+#118	AnnotatorNotes T118	GO:0042752
+T119	31323 31337	diurnal rhythm
+#119	AnnotatorNotes T119	GO:0007623
+T120	31542 31553	controlling
+#120	AnnotatorNotes T120	GO:0065007
+T121	31554 31569	diurnal rhythms
+#121	AnnotatorNotes T121	GO:0007623
+T122	31664 31673	formation
+#122	AnnotatorNotes T122	GO:0009058
+T123	31705 31714	secretion
+#123	AnnotatorNotes T123	GO:0046903
+T124	31746 31764	carbonic anhydrase
+#124	AnnotatorNotes T124	independent_continuant
+T125	31746 31764	carbonic anhydrase
+#125	AnnotatorNotes T125	GO:0004089
+T126	31766 31768	CA
+#126	AnnotatorNotes T126	independent_continuant
+T127	31766 31768	CA
+#127	AnnotatorNotes T127	GO:0004089
+T128	31787 31796	secretion
+#128	AnnotatorNotes T128	GO:0046903
+T129	31826 31828	CA
+#129	AnnotatorNotes T129	independent_continuant
+T130	31826 31828	CA
+#130	AnnotatorNotes T130	GO:0004089
+T131	32214 32223	secretion
+#131	AnnotatorNotes T131	GO:0046903
+T132	32298 32307	secretion
+#132	AnnotatorNotes T132	GO:0046903
+T133	32493 32495	CA
+#133	AnnotatorNotes T133	independent_continuant
+T134	32493 32495	CA
+#134	AnnotatorNotes T134	GO:0004089
+T135	32545 32554	secretion
+#135	AnnotatorNotes T135	GO:0046903
+T136	32651 32677	pigment production pathway
+#136	AnnotatorNotes T136	GO:0046148
+T137	33253 33268	diurnal pattern
+#137	AnnotatorNotes T137	GO:0007623
+T138	33417 33432	diurnal rhythms
+#138	AnnotatorNotes T138	GO:0007623
+T139	33523 33537	diurnal rhythm
+#139	AnnotatorNotes T139	GO:0007623
+T140	33700 33715	Diurnal rhythms
+#140	AnnotatorNotes T140	GO:0007623
+T141	33739 33754	visual pathways
+#141	AnnotatorNotes T141	GO:0007601
+T142	33762 33769	respond
+#142	AnnotatorNotes T142	GO:0050896
+T143	33843 33862	diurnal fluctuation
+#143	AnnotatorNotes T143	GO:0007623
+T144	33968 33982	diurnal rhythm
+#144	AnnotatorNotes T144	GO:0007623
+T145	34181 34195	diurnal rhythm
+#145	AnnotatorNotes T145	GO:0007623
+T146	34796 34802	vision
+#146	AnnotatorNotes T146	GO:0007601
+T147	34827 34831	bred
+#147	AnnotatorNotes T147	GO:0000003
+T148	35002 35005	fed
+#148	AnnotatorNotes T148	GO:0007631
+T149	35254 35259	aging
+#149	AnnotatorNotes T149	GO:0007568
+T150	35276 35279	fed
+#150	AnnotatorNotes T150	GO:0007631
+T151	36584 36589	aging
+#151	AnnotatorNotes T151	GO:0007568
+T152	39854 39872	carbonic anhydrase
+#152	AnnotatorNotes T152	independent_continuant
+T153	39854 39872	carbonic anhydrase
+#153	AnnotatorNotes T153	GO:0004089
+T154	39874 39876	CA
+#154	AnnotatorNotes T154	independent_continuant
+T155	39874 39876	CA
+#155	AnnotatorNotes T155	GO:0004089
+T156	1878 1882	cell
+#156	AnnotatorNotes T156	GO:0005623
+T157	2132 2143	chromosomal
+#157	AnnotatorNotes T157	GO:0005694
+T158	5795 5800	cells
+#158	AnnotatorNotes T158	GO:0005623
+T159	5939 5944	cells
+#159	AnnotatorNotes T159	GO:0005623
+T160	18004 18016	Y Chromosome
+#160	AnnotatorNotes T160	GO:0000806
+T161	18022 18034	Y chromosome
+#161	AnnotatorNotes T161	GO:0000806
+T162	18133 18145	Y chromosome
+#162	AnnotatorNotes T162	GO:0000806
+T163	18292 18304	Y chromosome
+#163	AnnotatorNotes T163	GO:0000806
+T164	18611 18623	Y chromosome
+#164	AnnotatorNotes T164	GO:0000806
+T165	18625 18630	Y Chr
+#165	AnnotatorNotes T165	GO:0000806
+T166	18641 18646	Y Chr
+#166	AnnotatorNotes T166	GO:0000806
+T167	22266 22277	chromosomal
+#167	AnnotatorNotes T167	GO:0005694
+T168	30902 30907	cells
+#168	AnnotatorNotes T168	GO:0005623
+T169	32829 32834	axons
+#169	AnnotatorNotes T169	GO:0030424
+T170	39803 39813	chromosome
+#170	AnnotatorNotes T170	GO:0005694
+T171	39815 39818	Chr
+#171	AnnotatorNotes T171	GO:0005694
+T172	45 49	mice
+#172	AnnotatorNotes T172	NCBITaxon:10088
+T173	180 184	mice
+#173	AnnotatorNotes T173	NCBITaxon:10088
+T174	195 202	mammals
+#174	AnnotatorNotes T174	NCBITaxon:40674
+T175	280 285	mouse
+#175	AnnotatorNotes T175	NCBITaxon:10088
+T176	503 508	mouse
+#176	AnnotatorNotes T176	NCBITaxon:10088
+T177	1007 1011	mice
+#177	AnnotatorNotes T177	NCBITaxon:10088
+T178	1146 1151	mouse
+#178	AnnotatorNotes T178	NCBITaxon:10088
+T179	1414 1419	mouse
+#179	AnnotatorNotes T179	NCBITaxon:10088
+T180	1444 1450	humans
+#180	AnnotatorNotes T180	NCBITaxon:9606
+T181	1461 1468	species
+#181	AnnotatorNotes T181	species
+T182	1590 1594	mice
+#182	AnnotatorNotes T182	NCBITaxon:10088
+T183	2241 2252	individuals
+#183	AnnotatorNotes T183	NCBITaxon:1
+T184	2402 2408	animal
+#184	AnnotatorNotes T184	NCBITaxon:33208
+T185	2540 2549	mammalian
+#185	AnnotatorNotes T185	NCBITaxon:40674
+T186	2587 2592	mouse
+#186	AnnotatorNotes T186	NCBITaxon:10088
+T187	2603 2607	mice
+#187	AnnotatorNotes T187	NCBITaxon:10088
+T188	2756 2761	human
+#188	AnnotatorNotes T188	NCBITaxon:9606
+T189	2809 2814	mouse
+#189	AnnotatorNotes T189	NCBITaxon:10088
+T190	2860 2864	Mice
+#190	AnnotatorNotes T190	NCBITaxon:10088
+T191	3098 3103	mouse
+#191	AnnotatorNotes T191	NCBITaxon:10088
+T192	3134 3138	mice
+#192	AnnotatorNotes T192	NCBITaxon:10088
+T193	3219 3223	mice
+#193	AnnotatorNotes T193	NCBITaxon:10088
+T194	3274 3279	mouse
+#194	AnnotatorNotes T194	NCBITaxon:10088
+T195	3628 3633	mouse
+#195	AnnotatorNotes T195	NCBITaxon:10088
+T196	3915 3920	mouse
+#196	AnnotatorNotes T196	NCBITaxon:10088
+T197	4351 4356	mouse
+#197	AnnotatorNotes T197	NCBITaxon:10088
+T198	4420 4424	mice
+#198	AnnotatorNotes T198	NCBITaxon:10088
+T199	4499 4503	mice
+#199	AnnotatorNotes T199	NCBITaxon:10088
+T200	4506 4510	Mice
+#200	AnnotatorNotes T200	NCBITaxon:10088
+T201	4671 4675	mice
+#201	AnnotatorNotes T201	NCBITaxon:10088
+T202	4728 4732	mice
+#202	AnnotatorNotes T202	NCBITaxon:10088
+T203	5175 5179	mice
+#203	AnnotatorNotes T203	NCBITaxon:10088
+T204	5217 5221	mice
+#204	AnnotatorNotes T204	NCBITaxon:10088
+T205	5285 5291	humans
+#205	AnnotatorNotes T205	NCBITaxon:9606
+T206	5324 5328	mice
+#206	AnnotatorNotes T206	NCBITaxon:10088
+T207	5783 5788	human
+#207	AnnotatorNotes T207	NCBITaxon:9606
+T208	5844 5848	mice
+#208	AnnotatorNotes T208	NCBITaxon:10088
+T209	6387 6391	mice
+#209	AnnotatorNotes T209	NCBITaxon:10088
+T210	6470 6474	mice
+#210	AnnotatorNotes T210	NCBITaxon:10088
+T211	7580 7584	mice
+#211	AnnotatorNotes T211	NCBITaxon:10088
+T212	8288 8292	mice
+#212	AnnotatorNotes T212	NCBITaxon:10088
+T213	8590 8594	mice
+#213	AnnotatorNotes T213	NCBITaxon:10088
+T214	8885 8889	mice
+#214	AnnotatorNotes T214	NCBITaxon:10088
+T215	9151 9158	animals
+#215	AnnotatorNotes T215	NCBITaxon:33208
+T216	9199 9204	mouse
+#216	AnnotatorNotes T216	NCBITaxon:10088
+T217	9436 9440	mice
+#217	AnnotatorNotes T217	NCBITaxon:10088
+T218	10175 10179	mice
+#218	AnnotatorNotes T218	NCBITaxon:10088
+T219	10222 10226	mice
+#219	AnnotatorNotes T219	NCBITaxon:10088
+T220	10336 10340	mice
+#220	AnnotatorNotes T220	NCBITaxon:10088
+T221	10561 10565	mice
+#221	AnnotatorNotes T221	NCBITaxon:10088
+T222	11003 11007	mice
+#222	AnnotatorNotes T222	NCBITaxon:10088
+T223	11089 11093	mice
+#223	AnnotatorNotes T223	NCBITaxon:10088
+T224	11358 11362	mice
+#224	AnnotatorNotes T224	NCBITaxon:10088
+T225	11514 11518	mice
+#225	AnnotatorNotes T225	NCBITaxon:10088
+T226	12651 12655	mice
+#226	AnnotatorNotes T226	NCBITaxon:10088
+T227	13160 13165	mouse
+#227	AnnotatorNotes T227	NCBITaxon:10088
+T228	13307 13311	mice
+#228	AnnotatorNotes T228	NCBITaxon:10088
+T229	13778 13782	mice
+#229	AnnotatorNotes T229	NCBITaxon:10088
+T230	14194 14198	mice
+#230	AnnotatorNotes T230	NCBITaxon:10088
+T231	14724 14728	mice
+#231	AnnotatorNotes T231	NCBITaxon:10088
+T232	15054 15058	mice
+#232	AnnotatorNotes T232	NCBITaxon:10088
+T233	15231 15236	mouse
+#233	AnnotatorNotes T233	NCBITaxon:10088
+T234	15459 15463	mice
+#234	AnnotatorNotes T234	NCBITaxon:10088
+T235	15696 15700	mice
+#235	AnnotatorNotes T235	NCBITaxon:10088
+T236	15788 15792	mice
+#236	AnnotatorNotes T236	NCBITaxon:10088
+T237	15918 15922	mice
+#237	AnnotatorNotes T237	NCBITaxon:10088
+T238	16235 16239	mice
+#238	AnnotatorNotes T238	NCBITaxon:10088
+T239	16496 16500	mice
+#239	AnnotatorNotes T239	NCBITaxon:10088
+T240	16642 16646	mice
+#240	AnnotatorNotes T240	NCBITaxon:10088
+T241	16843 16848	human
+#241	AnnotatorNotes T241	NCBITaxon:9606
+T242	16900 16905	mouse
+#242	AnnotatorNotes T242	NCBITaxon:10088
+T243	16939 16944	mouse
+#243	AnnotatorNotes T243	NCBITaxon:10088
+T244	17713 17718	mouse
+#244	AnnotatorNotes T244	NCBITaxon:10088
+T245	17739 17744	Mouse
+#245	AnnotatorNotes T245	NCBITaxon:10088
+T246	18104 18108	rats
+#246	AnnotatorNotes T246	NCBITaxon:10114
+T247	18399 18403	mice
+#247	AnnotatorNotes T247	NCBITaxon:10088
+T248	19610 19614	mice
+#248	AnnotatorNotes T248	NCBITaxon:10088
+T249	19781 19785	mice
+#249	AnnotatorNotes T249	NCBITaxon:10088
+T250	19906 19910	mice
+#250	AnnotatorNotes T250	NCBITaxon:10088
+T251	20373 20377	mice
+#251	AnnotatorNotes T251	NCBITaxon:10088
+T252	20427 20431	mice
+#252	AnnotatorNotes T252	NCBITaxon:10088
+T253	20575 20579	mice
+#253	AnnotatorNotes T253	NCBITaxon:10088
+T254	20683 20687	mice
+#254	AnnotatorNotes T254	NCBITaxon:10088
+T255	20764 20768	mice
+#255	AnnotatorNotes T255	NCBITaxon:10088
+T256	20867 20871	mice
+#256	AnnotatorNotes T256	NCBITaxon:10088
+T257	20910 20914	mice
+#257	AnnotatorNotes T257	NCBITaxon:10088
+T258	21135 21139	mice
+#258	AnnotatorNotes T258	NCBITaxon:10088
+T259	21304 21308	mice
+#259	AnnotatorNotes T259	NCBITaxon:10088
+T260	21406 21410	mice
+#260	AnnotatorNotes T260	NCBITaxon:10088
+T261	21558 21562	mice
+#261	AnnotatorNotes T261	NCBITaxon:10088
+T262	21774 21779	mouse
+#262	AnnotatorNotes T262	NCBITaxon:10088
+T263	22103 22107	mice
+#263	AnnotatorNotes T263	NCBITaxon:10088
+T264	22172 22176	mice
+#264	AnnotatorNotes T264	NCBITaxon:10088
+T265	23045 23052	species
+#265	AnnotatorNotes T265	species
+T266	23205 23209	mice
+#266	AnnotatorNotes T266	NCBITaxon:10088
+T267	23847 23850	rat
+#267	AnnotatorNotes T267	NCBITaxon:10114
+T268	23997 24001	rats
+#268	AnnotatorNotes T268	NCBITaxon:10114
+T269	24329 24332	rat
+#269	AnnotatorNotes T269	NCBITaxon:10114
+T270	24832 24835	rat
+#270	AnnotatorNotes T270	NCBITaxon:10114
+T271	24921 24924	rat
+#271	AnnotatorNotes T271	NCBITaxon:10114
+T272	24929 24934	mouse
+#272	AnnotatorNotes T272	NCBITaxon:10088
+T273	25095 25099	rats
+#273	AnnotatorNotes T273	NCBITaxon:10114
+T274	25123 25127	mice
+#274	AnnotatorNotes T274	NCBITaxon:10088
+T275	25246 25253	species
+#275	AnnotatorNotes T275	species
+T276	25371 25374	rat
+#276	AnnotatorNotes T276	NCBITaxon:10114
+T277	25379 25384	mouse
+#277	AnnotatorNotes T277	NCBITaxon:10088
+T278	25401 25405	mice
+#278	AnnotatorNotes T278	NCBITaxon:10088
+T279	25818 25822	rats
+#279	AnnotatorNotes T279	NCBITaxon:10114
+T280	25942 25946	mice
+#280	AnnotatorNotes T280	NCBITaxon:10088
+T281	26115 26119	rats
+#281	AnnotatorNotes T281	NCBITaxon:10114
+T282	26124 26128	mice
+#282	AnnotatorNotes T282	NCBITaxon:10088
+T283	26676 26681	mouse
+#283	AnnotatorNotes T283	NCBITaxon:10088
+T284	26784 26788	mice
+#284	AnnotatorNotes T284	NCBITaxon:10088
+T285	26804 26808	mice
+#285	AnnotatorNotes T285	NCBITaxon:10088
+T286	26912 26916	mice
+#286	AnnotatorNotes T286	NCBITaxon:10088
+T287	26976 26980	mice
+#287	AnnotatorNotes T287	NCBITaxon:10088
+T288	27053 27057	mice
+#288	AnnotatorNotes T288	NCBITaxon:10088
+T289	27103 27107	mice
+#289	AnnotatorNotes T289	NCBITaxon:10088
+T290	27234 27239	human
+#290	AnnotatorNotes T290	NCBITaxon:9606
+T291	27291 27295	mice
+#291	AnnotatorNotes T291	NCBITaxon:10088
+T292	27396 27401	mouse
+#292	AnnotatorNotes T292	NCBITaxon:10088
+T293	27839 27844	human
+#293	AnnotatorNotes T293	NCBITaxon:9606
+T294	28143 28147	mice
+#294	AnnotatorNotes T294	NCBITaxon:10088
+T295	28274 28279	human
+#295	AnnotatorNotes T295	NCBITaxon:9606
+T296	28454 28458	mice
+#296	AnnotatorNotes T296	NCBITaxon:10088
+T297	28472 28477	mouse
+#297	AnnotatorNotes T297	NCBITaxon:10088
+T298	28736 28741	mouse
+#298	AnnotatorNotes T298	NCBITaxon:10088
+T299	29168 29172	mice
+#299	AnnotatorNotes T299	NCBITaxon:10088
+T300	29365 29369	mice
+#300	AnnotatorNotes T300	NCBITaxon:10088
+T301	29643 29647	mice
+#301	AnnotatorNotes T301	NCBITaxon:10088
+T302	29809 29815	humans
+#302	AnnotatorNotes T302	NCBITaxon:9606
+T303	29831 29838	animals
+#303	AnnotatorNotes T303	NCBITaxon:33208
+T304	30013 30020	rabbits
+#304	AnnotatorNotes T304	NCBITaxon:9986
+T305	30025 30031	humans
+#305	AnnotatorNotes T305	NCBITaxon:9606
+T306	30236 30240	mice
+#306	AnnotatorNotes T306	NCBITaxon:10088
+T307	30429 30433	rats
+#307	AnnotatorNotes T307	NCBITaxon:10114
+T308	30444 30448	rats
+#308	AnnotatorNotes T308	NCBITaxon:10114
+T309	30453 30460	rabbits
+#309	AnnotatorNotes T309	NCBITaxon:9986
+T310	30585 30589	mice
+#310	AnnotatorNotes T310	NCBITaxon:10088
+T311	30928 30932	mice
+#311	AnnotatorNotes T311	NCBITaxon:10088
+T312	31086 31090	mice
+#312	AnnotatorNotes T312	NCBITaxon:10088
+T313	31365 31369	mice
+#313	AnnotatorNotes T313	NCBITaxon:10088
+T314	31473 31478	mouse
+#314	AnnotatorNotes T314	NCBITaxon:10088
+T315	31981 31985	mice
+#315	AnnotatorNotes T315	NCBITaxon:10088
+T316	32328 32333	mouse
+#316	AnnotatorNotes T316	NCBITaxon:10088
+T317	32415 32419	mice
+#317	AnnotatorNotes T317	NCBITaxon:10088
+T318	32947 32956	mammalian
+#318	AnnotatorNotes T318	NCBITaxon:40674
+T319	32993 32997	mice
+#319	AnnotatorNotes T319	NCBITaxon:10088
+T320	33083 33087	mice
+#320	AnnotatorNotes T320	NCBITaxon:10088
+T321	33217 33221	mice
+#321	AnnotatorNotes T321	NCBITaxon:10088
+T322	33316 33320	mice
+#322	AnnotatorNotes T322	NCBITaxon:10088
+T323	33455 33459	mice
+#323	AnnotatorNotes T323	NCBITaxon:10088
+T324	33799 33803	rats
+#324	AnnotatorNotes T324	NCBITaxon:10114
+T325	34007 34011	mice
+#325	AnnotatorNotes T325	NCBITaxon:10088
+T326	34161 34166	mouse
+#326	AnnotatorNotes T326	NCBITaxon:10088
+T327	34309 34315	humans
+#327	AnnotatorNotes T327	NCBITaxon:9606
+T328	34338 34342	mice
+#328	AnnotatorNotes T328	NCBITaxon:10088
+T329	34554 34558	Mice
+#329	AnnotatorNotes T329	NCBITaxon:10088
+T330	34672 34678	Animal
+#330	AnnotatorNotes T330	NCBITaxon:33208
+T331	34770 34777	animals
+#331	AnnotatorNotes T331	NCBITaxon:33208
+T332	34817 34821	mice
+#332	AnnotatorNotes T332	NCBITaxon:10088
+T333	34874 34878	Mice
+#333	AnnotatorNotes T333	NCBITaxon:10088
+T334	34992 34996	mice
+#334	AnnotatorNotes T334	NCBITaxon:10088
+T335	35090 35094	mice
+#335	AnnotatorNotes T335	NCBITaxon:10088
+T336	35242 35246	mice
+#336	AnnotatorNotes T336	NCBITaxon:10088
+T337	35348 35352	mice
+#337	AnnotatorNotes T337	NCBITaxon:10088
+T338	35432 35436	mice
+#338	AnnotatorNotes T338	NCBITaxon:10088
+T339	35560 35564	mice
+#339	AnnotatorNotes T339	NCBITaxon:10088
+T340	35900 35904	mice
+#340	AnnotatorNotes T340	NCBITaxon:10088
+T341	36115 36119	mice
+#341	AnnotatorNotes T341	NCBITaxon:10088
+T342	36244 36251	animals
+#342	AnnotatorNotes T342	NCBITaxon:33208
+T343	36288 36292	mice
+#343	AnnotatorNotes T343	NCBITaxon:10088
+T344	36490 36497	animals
+#344	AnnotatorNotes T344	NCBITaxon:33208
+T345	36717 36721	mice
+#345	AnnotatorNotes T345	NCBITaxon:10088
+T346	36908 36912	mice
+#346	AnnotatorNotes T346	NCBITaxon:10088
+T347	36972 36977	mouse
+#347	AnnotatorNotes T347	NCBITaxon:10088
+T348	37127 37132	mouse
+#348	AnnotatorNotes T348	NCBITaxon:10088
+T349	37529 37533	mice
+#349	AnnotatorNotes T349	NCBITaxon:10088
+T350	37603 37608	mouse
+#350	AnnotatorNotes T350	NCBITaxon:10088
+T351	37673 37677	mice
+#351	AnnotatorNotes T351	NCBITaxon:10088
+T352	37824 37828	mice
+#352	AnnotatorNotes T352	NCBITaxon:10088
+T353	38024 38028	mice
+#353	AnnotatorNotes T353	NCBITaxon:10088
+T354	38122 38126	mice
+#354	AnnotatorNotes T354	NCBITaxon:10088
+T355	38254 38258	mice
+#355	AnnotatorNotes T355	NCBITaxon:10088
+T356	38609 38613	mice
+#356	AnnotatorNotes T356	NCBITaxon:10088
+T357	38934 38939	mouse
+#357	AnnotatorNotes T357	NCBITaxon:10088
+T358	38970 38975	mouse
+#358	AnnotatorNotes T358	NCBITaxon:10088
+T359	40056 40060	mice
+#359	AnnotatorNotes T359	NCBITaxon:10088
+T360	807 828	carbonic anhydrase II
+#360	AnnotatorNotes T360	PR:000004918
+T361	902 908	leptin
+#361	AnnotatorNotes T361	PR:000009758
+T362	902 917	leptin receptor
+#362	AnnotatorNotes T362	PR:000001875
+T363	1029 1039	tyrosinase
+#363	AnnotatorNotes T363	PR:000016877
+T364	1520 1524	Lepr
+#364	AnnotatorNotes T364	PR:000001875
+T365	1529 1532	Tyr
+#365	AnnotatorNotes T365	PR:000016877
+T366	16742 16746	Myoc
+#366	AnnotatorNotes T366	PR:000010873
+T367	16816 16824	myocilin
+#367	AnnotatorNotes T367	PR:000010873
+T368	16831 16835	MYOC
+#368	AnnotatorNotes T368	PR:000010873
+T369	16906 16910	Myoc
+#369	AnnotatorNotes T369	PR:000010873
+T370	17621 17625	Myoc
+#370	AnnotatorNotes T370	PR:000010873
+T371	17699 17703	Myoc
+#371	AnnotatorNotes T371	PR:000010873
+T372	18813 18817	Car2
+#372	AnnotatorNotes T372	PR:000004918
+T373	18914 18918	Lepr
+#373	AnnotatorNotes T373	PR:000001875
+T374	19521 19525	Car2
+#374	AnnotatorNotes T374	PR:000004918
+T375	19552 19573	carbonic anhydrase II
+#375	AnnotatorNotes T375	PR:000004918
+T376	19705 19709	Car2
+#376	AnnotatorNotes T376	PR:000004918
+T377	19808 19812	Lepr
+#377	AnnotatorNotes T377	PR:000001875
+T378	19990 19996	leptin
+#378	AnnotatorNotes T378	PR:000009758
+T379	19990 20005	leptin receptor
+#379	AnnotatorNotes T379	PR:000001875
+T380	20316 20319	Tyr
+#380	AnnotatorNotes T380	PR:000016877
+T381	20486 20496	tyrosinase
+#381	AnnotatorNotes T381	PR:000016877
+T382	21036 21039	Tyr
+#382	AnnotatorNotes T382	PR:000016877
+T383	29265 29271	leptin
+#383	AnnotatorNotes T383	PR:000009758
+T384	29265 29280	leptin receptor
+#384	AnnotatorNotes T384	PR:000001875
+T385	31616 31620	Car2
+#385	AnnotatorNotes T385	PR:000004918
+T386	31837 31841	CAII
+#386	AnnotatorNotes T386	PR:000004918
+T387	31973 31977	CAII
+#387	AnnotatorNotes T387	PR:000004918
+T388	32019 32023	Car2
+#388	AnnotatorNotes T388	PR:000004918
+T389	32049 32053	CAIV
+#389	AnnotatorNotes T389	PR:000004920
+T390	32175 32179	CAIV
+#390	AnnotatorNotes T390	PR:000004920
+T391	32192 32196	CAII
+#391	AnnotatorNotes T391	PR:000004918
+T392	32250 32254	CAII
+#392	AnnotatorNotes T392	PR:000004918
+T393	32334 32338	CAIV
+#393	AnnotatorNotes T393	PR:000004920
+T394	32377 32381	CAII
+#394	AnnotatorNotes T394	PR:000004918
+T395	32403 32407	Car2
+#395	AnnotatorNotes T395	PR:000004918
+T396	32565 32575	Tyrosinase
+#396	AnnotatorNotes T396	PR:000016877
+T397	32613 32623	Tyrosinase
+#397	AnnotatorNotes T397	PR:000016877
+T398	32679 32689	Tyrosinase
+#398	AnnotatorNotes T398	PR:000016877
+T399	33006 33016	tyrosinase
+#399	AnnotatorNotes T399	PR:000016877
+T400	38889 38893	Myoc
+#400	AnnotatorNotes T400	PR:000010873
+T401	38940 38944	Myoc
+#401	AnnotatorNotes T401	PR:000010873
+T402	40051 40055	Car2
+#402	AnnotatorNotes T402	PR:000004918
+T403	0 78	Intraocular pressure in genetically distinct mice: an update and strain survey
+#403	AnnotatorNotes T403	section
+T404	835 839	Car2
+#404	AnnotatorNotes T404	italic
+T405	839 840	n
+#405	AnnotatorNotes T405	sup
+T406	839 840	n
+#406	AnnotatorNotes T406	italic
+T407	924 928	Lepr
+#407	AnnotatorNotes T407	italic
+T408	928 930	db
+#408	AnnotatorNotes T408	sup
+T409	928 930	db
+#409	AnnotatorNotes T409	italic
+T410	1050 1053	Tyr
+#410	AnnotatorNotes T410	italic
+T411	1053 1054	c
+#411	AnnotatorNotes T411	italic
+T412	1056 1057	J
+#412	AnnotatorNotes T412	italic
+T413	1053 1057	c-2J
+#413	AnnotatorNotes T413	sup
+T414	1520 1524	Lepr
+#414	AnnotatorNotes T414	italic
+T415	1529 1532	Tyr
+#415	AnnotatorNotes T415	italic
+T416	80 1739	Abstract
+
+Background
+
+Little is known about genetic factors affecting intraocular pressure (IOP) in mice and other mammals. The purpose of this study was to determine the IOPs of genetically distinct mouse strains, assess the effects of factors such as age, sex and time of day on IOP in specific strain backgrounds, and to assess the effects of specific candidate gene mutations on IOP.
+
+Results
+
+Based on over 30 studied mouse strains, average IOP ranges from approximately 10 to 20 mmHg. Gender does not typically affect IOP and aging results in an IOP decrease in some strains. Most tested strains exhibit a diurnal rhythm with IOP being the highest during the dark period of the day. Homozygosity for a null allele of the carbonic anhydrase II gene (Car2n) does not alter IOP while homozygosity for a mutation in the leptin receptor gene (Leprdb) that causes obesity and diabetes results in increased IOP. Albino C57BL/6J mice homozygous for a tyrosinase mutation (Tyrc-2J) have higher IOPs than their pigmented counterparts.
+
+Conclusions
+
+Genetically distinct mouse strains housed in the same environment have a broad range of IOPs. These IOP differences are likely due to interstrain genetic differences that create a powerful resource for studying the regulation of IOP. Age, time of day, obesity and diabetes have effects on mouse IOP similar to those in humans and other species. Mutations in two of the assessed candidate genes (Lepr and Tyr) result in increased IOP. These studies demonstrate that mice are a practical and powerful experimental system to study the genetics of IOP regulation and disease processes that raise IOP to harmful levels.
+#416	AnnotatorNotes T416	section
+T417	1741 3812	Background
+
+Glaucoma is a leading cause of blindness but its molecular etiology is poorly understood. Glaucoma involves retinal ganglion cell death and optic nerve damage that is often associated with elevated intraocular pressure (IOP) [1-5].
+
+It is becoming increasingly clear that many forms of glaucoma have a genetic component [6,7], and much current research is focused on identifying chromosomal regions and genes that contribute to glaucoma [8-10]. Identifying such loci allows screening for individuals with an increased risk of developing glaucoma [11]. Identifying genes contributing to elevated IOP and glaucoma is only the first step, however, and animal models will provide systems for subsequent hypothesis testing and experimental dissection of pathogenesis.
+
+Due to conservation in mammalian physiology and the powerful tools of mouse genetics, mice are a very important experimental system for probing the functions (both in health and disease) of many genes recently identified by sequencing the human genome [12]. We have focused on developing the mouse system for IOP and glaucoma studies [13-19]. Mice are expected to be extremely helpful in characterizing genes and mechanisms that affect IOP or the susceptibility of the optic nerve and retina to glaucomatous damage [20].
+
+Very little is known about the magnitude of IOP of various mouse strains or IOP fluctuation in mice with time or other factors. Previously, we developed a method to measure IOP in mice and reported initial findings on the magnitude of mouse IOP [13]. The procedure involves direct measurement of pressure following cannulation of the anterior chamber. The initial experiments demonstrated that in our hands careful ocular cannulation has a very minor effect on IOP (average of -0.3 mmHg, mode -0.5 mmHg) and demonstrated significant differences in intraocular pressure levels between four mouse strains. Here, we provide an update, including an extensive strain survey, and show that the methodology is reliable and produces reproducible data over extended periods of time.
+#417	AnnotatorNotes T417	section
+T418	4290 4365	An almost two-fold range of IOP between genetically distinct mouse strains.
+#418	AnnotatorNotes T418	bold
+T419	4795 4798	Btk
+#419	AnnotatorNotes T419	italic
+T420	4798 4801	xid
+#420	AnnotatorNotes T420	sup
+T421	4798 4801	xid
+#421	AnnotatorNotes T421	italic
+T422	4280 4831	Figure 1
+
+An almost two-fold range of IOP between genetically distinct mouse strains. Mean IOP ± SEM is shown for each strain. Twelve to 25 mice were analyzed for each strain (typically 18 to 20), except for RIIIS/J (7 mice). Mice of most strains were 6 to 12 months old, except for SEC/1ReJ and SB/Le that were 2 to 3 months old. Approximately half of the CE/J and one third of the BUB/BnJ mice were 16 months old and were pooled with the younger mice, as the IOPs of both ages were the same. Strain name CBA/CaHN-Btkxid/J is abbreviated to CBA/CaHN.
+#422	AnnotatorNotes T422	section
+T423	5453 5513	Normal iridocorneal angles in strains with high and low IOP.
+#423	AnnotatorNotes T423	bold
+T424	5684 5685	A
+#424	AnnotatorNotes T424	bold
+T425	5707 5708	B
+#425	AnnotatorNotes T425	bold
+T426	5443 6190	Figure 2
+
+Normal iridocorneal angles in strains with high and low IOP. The iridocorneal angle that contains the aqueous humor drainage structures (Schlemm's canal (SC) and trabecular meshwork (TM) had a normal morphology in strains CBA/CaJ (A, high IOP), BALB/cJ (B, low IOP) and all other strains. Pigment filled macrophages that resemble human clump cells were often located in the angle of CBA/CaJ mice but were never sufficient to block drainage. We have observed similar quantities of these cells at this location in other strains with lower IOP. The angle recess between the cornea (C) and iris root (I) was open and not occluded. Aqueous humor passes through this recess before entering the drainage structures. Original Magnification 630X.
+#426	AnnotatorNotes T426	section
+T427	6919 6924	Pde6b
+#427	AnnotatorNotes T427	italic
+T428	6924 6926	rd
+#428	AnnotatorNotes T428	italic
+T429	6924 6927	rd1
+#429	AnnotatorNotes T429	sup
+T430	6192 7012	Table 1
+
+Ocular abnormalities in various strains
+
+All strains shown in Figure 1 were evaluated but only strains with abnormalities are shown. For incidence, the numerator indicates the number of mice or eyes affected and the denominator indicates the total number analyzed. The mice were 6 to 12 months old at the time of analysis and were not studied at other ages unless indicated. Histological analysis confirmed these observations and also identified calcified cyst like structures in the iris epithelium of strains SB/Le and SEC/1ReJ. A low incidence of corneal scarring was noted in some strains and likely resulted from a scratched cornea. Previously described retinal degeneration [[81]] caused by homozygosity for the Pde6brd1mutation was noted in strains SB/Le, ST/bJ, BUB/BnJ, CBA/J, C3H/HeJ, SJL/J and SWR/J.
+#430	AnnotatorNotes T430	section
+T431	7826 7894	The IOPs of different strains are stable and reproducible over time.
+#431	AnnotatorNotes T431	bold
+T432	8715 8718	Btk
+#432	AnnotatorNotes T432	italic
+T433	8718 8721	xid
+#433	AnnotatorNotes T433	sup
+T434	8718 8721	xid
+#434	AnnotatorNotes T434	italic
+T435	7816 8751	Figure 3
+
+The IOPs of different strains are stable and reproducible over time. Mean IOP ± SEM is shown for the indicated strain at different times of measurement. The measurement times within a single year were separated by a few months. The IOPs of strains that were analyzed multiple times in the same year are listed in the chronological order that they were obtained with the earliest measurement on left. The sex [Male (M) or Female (F)], age (months), and number of mice (n) analyzed for the CBA strains are listed starting with the earliest measurement and ending with the latest: CBA/CaJ, F, n = 22, age 6–7; M, n = 11, age 2; CBA/CaHN, F, n = 16, age 3; M, n = 8, age 3. For BALB/cJ and C57BL/6J, all groups were male and primarily 3 to 4 months old. The number of mice analyzed at each time follows: BALB/cJ 8, 10, 11, 15, 18 and 14, C57BL/6J 10, 14, 21,40,40 and 42. Strain name CBA/CaHN-Btkxid/J is abbreviated to CBA/CaHN.
+#435	AnnotatorNotes T435	section
+T436	10704 10736	IOP changes with increasing Age.
+#436	AnnotatorNotes T436	bold
+T437	10694 11241	Figure 4
+
+IOP changes with increasing Age.  Mean IOP ± SEM is shown for the indicated strain at different ages. IOP decreased significantly in strains C57BL/6J and 129P3/J but not C3H/HeJ. The C57BL/6J and 129P3/J groups consisted of approximately equal numbers of males and females. The 3 months old C3H/HeJ mice were male while the other ages were composed of males and females. The number of mice analyzed at each age, listed from youngest to oldest, follow: C57BL/6J, 18, 18, 18, 18, 13; 129P3/J, 18, 15, 16, 14, 21; C3H/HeJ, 15, 23 17 and 16.
+#437	AnnotatorNotes T437	section
+T438	14617 14685	No effect of 1X anesthetic dose within 12 minutes of administration.
+#438	AnnotatorNotes T438	bold
+T439	14686 14687	A
+#439	AnnotatorNotes T439	bold
+T440	15095 15099	B-D.
+#440	AnnotatorNotes T440	bold
+T441	14607 15464	Figure 5
+
+No effect of 1X anesthetic dose within 12 minutes of administration. A Mean IOP ± SD is shown for C57BL/6J mice at 5 and 25 minutes after administration of various doses of anesthetic. The 1X dose consisted of 99 mg/kg ketamine and 9 mg/kg xylazine. All doses decreased IOP by 25 minutes. At all doses the IOP at 5 minutes was the same suggesting that the effect of anesthesia had not yet occurred. Approximately thirty 3 to 4 month old mice were analyzed at each dose and time B-D. Scatter-plots demonstrating no change in IOP over the 12 minutes following anesthetic administration in three relatively unrelated mouse strains. All strains consisted of males and females that ranged from 3 to 6 months of age. The sexes and ages were equally represented at each time point. The scatter-plots include 195 C57BL/6J, 161 129P3/J and 145 DBA/2J mice.
+#441	AnnotatorNotes T441	section
+T442	15476 15554	IOP is increased during the dark compared to light periods in several strains.
+#442	AnnotatorNotes T442	bold
+T443	15466 16118	Figure 6
+
+IOP is increased during the dark compared to light periods in several strains.  Mean IOP ± SEM is shown for the indicated strains at measurement during the light (open bars) or dark (filled bars) periods of the day. All mice were 2 to 4 months old except for CBA/CaJ that were 5 to 6 months old. 129B6 refers to mice of a mixed 129X1/SvJ and C57BL/6J background. IOP was increased during the dark in all strains except CBA/CaJ. The number of mice successfully analyzed during the light (L) or dark (D) periods follows, DBA/2J 10L,10D; C57BL/6J 32L, 22D; C57BR/cdJ 12L,10D; SWR/J 16L, 16D; BALB/cByJ 15L, 16D; 129B6 10L, 12D; CBA/CaJ 22L, 16D.
+#443	AnnotatorNotes T443	section
+T444	16276 16277	2
+#444	AnnotatorNotes T444	sup
+T445	16307 16353	No correlation between blood pressure and IOP.
+#445	AnnotatorNotes T445	bold
+T446	16482 16483	2
+#446	AnnotatorNotes T446	sup
+T447	16662 16663	2
+#447	AnnotatorNotes T447	sup
+T448	16297 16740	Figure 7
+
+No correlation between blood pressure and IOP.  There is no strong correlation between the average systolic blood pressure of each strain and the average IOP of that strain (R2 = 0.1). All mice were female and 2 to 4 months old, with the exception that the female CBA/CaJ used for IOP assessment were 6 to 7 months old. If the CBA/CaJ mice are excluded, R2 drops to 0.01 of ARK/J, C57BL/6J and SJL/J, strain ARK/J had the lowest IOP.
+#448	AnnotatorNotes T448	section
+T449	16742 16746	Myoc
+#449	AnnotatorNotes T449	italic
+T450	16831 16835	MYOC
+#450	AnnotatorNotes T450	italic
+T451	16906 16910	Myoc
+#451	AnnotatorNotes T451	italic
+T452	17621 17625	Myoc
+#452	AnnotatorNotes T452	italic
+T453	17621 17660	Myoc alleles do not associate with IOP.
+#453	AnnotatorNotes T453	bold
+T454	17699 17703	Myoc
+#454	AnnotatorNotes T454	italic
+T455	17611 17973	Figure 8
+
+Myoc alleles do not associate with IOP.  Sequencing identified two alleles of Myoc in these mouse strains (see text). Mouse strains homozygous for an allele having a 12 bp insertion in the promoter region are shown as open bars and strains homozygous for the allele without this insertion have filled bars. The IOP data is the same as that in Figure 1.
+#455	AnnotatorNotes T455	section
+T456	18436 18467	Effects of genetic alterations.
+#456	AnnotatorNotes T456	bold
+T457	18785 18786	+
+#457	AnnotatorNotes T457	italic
+T458	18799 18800	n
+#458	AnnotatorNotes T458	italic
+T459	18813 18817	Car2
+#459	AnnotatorNotes T459	italic
+T460	18914 18918	Lepr
+#460	AnnotatorNotes T460	italic
+T461	18958 18960	db
+#461	AnnotatorNotes T461	italic
+T462	19202 19204	db
+#462	AnnotatorNotes T462	italic
+T463	19206 19208	db
+#463	AnnotatorNotes T463	italic
+T464	19408 19413	db/db
+#464	AnnotatorNotes T464	italic
+T465	19432 19436	db/+
+#465	AnnotatorNotes T465	italic
+T466	18426 19519	Figure 9
+
+Effects of genetic alterations.  Mean IOP ± SEM is shown. There is no difference in IOP between 3 to 4 month old males with either the 129P2/Ola (n = 18) or C57BL/6J (n = 20) Y chromosome (Y Chr). The 129 Y Chr had been backcrossed to strain C57BL/6J for 11 generations. Similarly, 6 to 9 month old males and females that are homozygous for normal (+) or mutant (n) alleles of Car2 have similar IOPs (n = 18 and 14, respectively). However, 4 months old males homozygous for the Lepr diabetes and obesity causing mutation (db) had significantly higher IOPs than their heterozygous age and sex matched littermates. The average body weight of the homozygotes and heterozygotes was 59 g (range 50 to 64 g) and 35 g (range 28 to 41 g) respectively. Blood sugar levels in db /db males of this age are almost always in the diabetic range whereas those of heterozygotes are not [[27]]. This was recently confirmed in cohorts of approximately 25 males of each genotype (mean ± SD; db/db 422 ± 110 mg/dl ; db/+ 147 ± 19 mg/dl; Anthony Nicholson, The Jackson Laboratory, personal communication)
+#466	AnnotatorNotes T466	section
+T467	19705 19709	Car2
+#467	AnnotatorNotes T467	italic
+T468	20016 20018	db
+#468	AnnotatorNotes T468	italic
+T469	20498 20501	Tyr
+#469	AnnotatorNotes T469	italic
+T470	20501 20502	c
+#470	AnnotatorNotes T470	italic
+T471	20504 20505	J
+#471	AnnotatorNotes T471	italic
+T472	20501 20505	c-2J
+#472	AnnotatorNotes T472	sup
+T473	20598 20601	Tyr
+#473	AnnotatorNotes T473	italic
+T474	20601 20602	c
+#474	AnnotatorNotes T474	italic
+T475	20604 20605	J
+#475	AnnotatorNotes T475	italic
+T476	20601 20605	c-2J
+#476	AnnotatorNotes T476	sup
+T477	21036 21101	Tyr mutation results in increased IOP and altered diurnal changes
+#477	AnnotatorNotes T477	bold
+T478	21102 21104	A.
+#478	AnnotatorNotes T478	bold
+T479	21180 21183	Tyr
+#479	AnnotatorNotes T479	italic
+T480	21183 21187	c-2J
+#480	AnnotatorNotes T480	sup
+T481	21183 21187	c-2J
+#481	AnnotatorNotes T481	italic
+T482	21310 21312	B.
+#482	AnnotatorNotes T482	bold
+T483	21371 21374	Tyr
+#483	AnnotatorNotes T483	italic
+T484	21374 21378	c-2J
+#484	AnnotatorNotes T484	sup
+T485	21374 21378	c-2J
+#485	AnnotatorNotes T485	italic
+T486	21025 21641	Figure 10
+
+Tyr mutation results in increased IOP and altered diurnal changes A. Different cohorts of C57BL/6J mice that are homozygous for the spontaneous Tyrc-2J mutation have higher IOP than their normal counterparts at all tested ages. All groups consisted of male and female mice. B. IOP is not increased during the dark period of the day in Tyrc-2J homozygotes. The number of mice analyzed during the light period were: 2 month, 28 +/+, 29 c-2J/c-2J, 4 month, 20 +/+ and 20 c-2J/c-2J, 8 month, 15 +/+ and 15 c-2J/c-2J. Fourteen mice of each genotype were successfully analyzed during the dark period of the day.
+#486	AnnotatorNotes T486	section
+T487	3814 21641	Results
+
+A broad range of IOPs between strains
+
+Figure 1 shows the average IOP of a number of inbred mouse strains that were housed in the same environmental conditions. There is a wide range of IOP with strain BALB/cJ having one of the lowest average IOPs (11.1 ± 0.5 mmHg) and strain CBA/CaJ one of the highest IOPs (19.3 ± 0.3 mmHg). Significant differences exist among various strains (P < 0.0001 for all groups, ANOVA comparing strains within each sex group).
+
+Figure 1
+
+An almost two-fold range of IOP between genetically distinct mouse strains. Mean IOP ± SEM is shown for each strain. Twelve to 25 mice were analyzed for each strain (typically 18 to 20), except for RIIIS/J (7 mice). Mice of most strains were 6 to 12 months old, except for SEC/1ReJ and SB/Le that were 2 to 3 months old. Approximately half of the CE/J and one third of the BUB/BnJ mice were 16 months old and were pooled with the younger mice, as the IOPs of both ages were the same. Strain name CBA/CaHN-Btkxid/J is abbreviated to CBA/CaHN.
+
+Clinical and histological analysis of the eyes of all studied strains (see Table 1) did not identify anatomic or pathologic features that might account for the differences in IOP. For example, the iridocorneal angle and aqueous humor drainage structures are open to the anterior chamber and have normal morphology in both BALB/cJ and CBA/CaJ mice (Figure 2). More than 20% of CBA/CaJ mice had IOPs of over 21 mmHg, which increases risk for glaucoma in humans. We aged a small group of these mice (n = 4) to 2 years and histologically analyzed their optic nerves and retinas but they did not develop glaucoma.
+
+Figure 2
+
+Normal iridocorneal angles in strains with high and low IOP. The iridocorneal angle that contains the aqueous humor drainage structures (Schlemm's canal (SC) and trabecular meshwork (TM) had a normal morphology in strains CBA/CaJ (A, high IOP), BALB/cJ (B, low IOP) and all other strains. Pigment filled macrophages that resemble human clump cells were often located in the angle of CBA/CaJ mice but were never sufficient to block drainage. We have observed similar quantities of these cells at this location in other strains with lower IOP. The angle recess between the cornea (C) and iris root (I) was open and not occluded. Aqueous humor passes through this recess before entering the drainage structures. Original Magnification 630X.
+
+Table 1
+
+Ocular abnormalities in various strains
+
+All strains shown in Figure 1 were evaluated but only strains with abnormalities are shown. For incidence, the numerator indicates the number of mice or eyes affected and the denominator indicates the total number analyzed. The mice were 6 to 12 months old at the time of analysis and were not studied at other ages unless indicated. Histological analysis confirmed these observations and also identified calcified cyst like structures in the iris epithelium of strains SB/Le and SEC/1ReJ. A low incidence of corneal scarring was noted in some strains and likely resulted from a scratched cornea. Previously described retinal degeneration [[81]] caused by homozygosity for the Pde6brd1mutation was noted in strains SB/Le, ST/bJ, BUB/BnJ, CBA/J, C3H/HeJ, SJL/J and SWR/J.
+
+Strain differences are reproducible
+
+To assess the consistency of IOP in specific strains, we measured IOP in different cohorts of each strain maintained under similar conditions at different times. We purposefully included strains at each end of the IOP spectrum, and strain C57BL/6J (B6) that is commonly used for genetic experiments (Figure 3). The average IOP of different cohorts of strains CBA/CaJ, CBA/CaHN (both high end of spectrum) and B6 were consistent over time. This was true of most strains assessed on multiple occasions. Average IOP for age matched mice of the same strain assessed at different times typically differed by no more than 1.5 mmHg, and the differences were usually smaller. Strain 129P3/J was the most variable strain with the average IOP fluctuating by up to 2.5 mmHg.
+
+Figure 3
+
+The IOPs of different strains are stable and reproducible over time. Mean IOP ± SEM is shown for the indicated strain at different times of measurement. The measurement times within a single year were separated by a few months. The IOPs of strains that were analyzed multiple times in the same year are listed in the chronological order that they were obtained with the earliest measurement on left. The sex [Male (M) or Female (F)], age (months), and number of mice (n) analyzed for the CBA strains are listed starting with the earliest measurement and ending with the latest: CBA/CaJ, F, n = 22, age 6–7; M, n = 11, age 2; CBA/CaHN, F, n = 16, age 3; M, n = 8, age 3. For BALB/cJ and C57BL/6J, all groups were male and primarily 3 to 4 months old. The number of mice analyzed at each time follows: BALB/cJ 8, 10, 11, 15, 18 and 14, C57BL/6J 10, 14, 21,40,40 and 42. Strain name CBA/CaHN-Btkxid/J is abbreviated to CBA/CaHN.
+
+Despite the general consistency of IOP, the average IOPs of some strains have changed in a reproducible manner. The IOPs of BALB/cJ mice (low end of spectrum) were very similar for the past several years, around 11 mmHg. Between early 1996 and 1997, however, the IOP of this strain did jump from approximately 7.7 mmHg to approximately 11 mmHg (Figure 3). During this period, the room in which our animals were housed and the manufacturer of the mouse diet were changed. Over the same period, the IOP of A/J also increased dramatically, from 9.4 ± 0.5 mmHg (n = 11) in 1996 to 14.2 ± 0.4 mmHg (n = 19) in 1997. The increased IOP in A/J also was reproducible, with the average IOP of mice assessed in the year 2000 being 14.5 ± 0.4 mmHg (n = 16). Importantly, the IOPs of strains B6 and C3H/HeJ did not change during this time (B6, 12.3. ± 0.5 mmHg in 1996 and 12.4 ± 0.3 mmHg in 1997, n= 10 and 14; C3H/HeJ, 13.7 ± 0.8 mmHg in 1996 and 13.6 ± 0.2 mmHg in 1997, n = 9 and 19).
+
+Effect of age on IOP
+
+We focused on the commonly used B6, 129P3/J and C3H/HeJ strains to determine the effects of age on IOP (Figure 4). In B6, age had a significant effect on IOP (P < 0.001). IOP was slightly decreased at both 12 months (12.2 ± 0.2 mmHg) and 19 months (12.2 ± 0.3 mmHg) compared to 3 months (13.1 ± 0.3 mmHg) and 7 months (13.3 ± 0.3 mmHg). Although the decrease was of a similar level to the variation observed in 3 month old mice (see Figure 3), the IOPs of control young mice (see Methods) analyzed at the same times as the various B6 age groups did not decrease. For example, control mice analyzed at the same time as the 3 month, 12 month and 18 month B6 age groups had IOPs of 13.0 ± 0.2 mmHg (n = 14), 13.3 ± 0.2 mmHg (n = 14), 13.7 ± 0.4 mmHg (n = 12), respectively. IOP was even lower in the 24 month B6 mice (10.8 ± 0.4 mmHg), and again the average IOP of young controls measured at the same time was not changed (13.5 ± 0.2, n = 12).
+
+Figure 4
+
+IOP changes with increasing Age.  Mean IOP ± SEM is shown for the indicated strain at different ages. IOP decreased significantly in strains C57BL/6J and 129P3/J but not C3H/HeJ. The C57BL/6J and 129P3/J groups consisted of approximately equal numbers of males and females. The 3 months old C3H/HeJ mice were male while the other ages were composed of males and females. The number of mice analyzed at each age, listed from youngest to oldest, follow: C57BL/6J, 18, 18, 18, 18, 13; 129P3/J, 18, 15, 16, 14, 21; C3H/HeJ, 15, 23 17 and 16.
+
+In strain 129P3/J, IOP did not differ significantly with age between 3 and 14 months but was lower in 18 month old mice (P < 0.001 compared to all younger ages, Figure 4). Despite a 1 mmHg dip in IOP at 8 months, there were no significant IOP differences between C3H/HeJ mice at each age tested (P = 0.2 for age). Although the effect of age has not been thoroughly assessed in other strains, no obvious age-related differences have been identified in other strains analyzed at multiple ages except for the glaucomatous DBA/2J and AKXD-28/Ty strains [14,19].
+
+Effect of sex on IOP
+
+Although we have not rigorously assessed the effect of sex on IOP in many strains, sex specific differences have not been detected in the majority of strains for which both sexes have been analyzed, and have proven inconsistent even within an individual strain analyzed multiple times. Strains B6 and 129P3/J have been extensively evaluated at multiple ages between 3 and 24 months of age. Sex differences were always absent in strain 129P3/J and typically absent in strain B6. In strain B6, however, males infrequently had significantly higher IOP than females. For example, in one experiment, B6 males had an average IOP of 14.2 ± 0.3 mmHg (n = 12) whereas the average IOP of females was 13.1 ± 0.3 mmHg (n = 12, P = 0.01). If real, this sporadic sex difference was not dependent on age, sometimes occurring in a group of B6 mice at a particular age and sometimes not occurring in a separate group of the same age.
+
+Anesthesia protocol avoids IOP alteration and allows detection of diurnal differences
+
+All IOPs were assessed using an anesthetic regime of 99 mg/kg ketamine and 9 mg/kg xylazine (defined as 1X). Initial experiments suggested that an almost identical dose (100 mg/kg ketamine and 9 mg/kg xylazine) of anesthesia had no effect on IOP during the experimental period with IOP being measured as soon as possible after the mouse was unconscious, typically minutes. [13]. To further assess the effects of anesthesia, we measured IOP in groups of genetically identical B6 mice subjected to different doses (1X, 1.5X and 2X) at 5 and 25 minutes after administration (Figure 5). For all doses, IOP decreased by 25 minutes (P = 0.005 for time). The greater the dose the greater the decrease in IOP. At the 5 minute measurement, however, IOP was the same using all doses suggesting that the anesthetic effect on IOP had not yet occurred. To identify any early window when it may be possible to assess IOP without an obvious anesthetic effect, 195 mice of strain B6 were anesthetized with the 1X dose and IOP was measured at 1 minute time points between 4 and 12 minutes after administration (Figure 5). The mean IOP of groups analyzed at each time point did not differ (P = 0.9) indicating that the IOP depressing effect of anesthesia occurs later than 12 minutes after administration. Similar results were obtained using 161 strain 129P3/J and 145 strain DBA/2J mice with the 1X dose (129P3/J, P = 0.1; DBA/2J, P = 0.2). In support of a later effect of anesthesia (since general anesthesia is reported to mask diurnal variation in IOP [21]), we identified increased IOP during the dark compared to the light period of the day in several tested strains (Figure 6). In these experiments, IOP measurements were made between 5 and 12 minutes after administration of anesthesia.
+
+Figure 5
+
+No effect of 1X anesthetic dose within 12 minutes of administration. A Mean IOP ± SD is shown for C57BL/6J mice at 5 and 25 minutes after administration of various doses of anesthetic. The 1X dose consisted of 99 mg/kg ketamine and 9 mg/kg xylazine. All doses decreased IOP by 25 minutes. At all doses the IOP at 5 minutes was the same suggesting that the effect of anesthesia had not yet occurred. Approximately thirty 3 to 4 month old mice were analyzed at each dose and time B-D. Scatter-plots demonstrating no change in IOP over the 12 minutes following anesthetic administration in three relatively unrelated mouse strains. All strains consisted of males and females that ranged from 3 to 6 months of age. The sexes and ages were equally represented at each time point. The scatter-plots include 195 C57BL/6J, 161 129P3/J and 145 DBA/2J mice.
+
+Figure 6
+
+IOP is increased during the dark compared to light periods in several strains.  Mean IOP ± SEM is shown for the indicated strains at measurement during the light (open bars) or dark (filled bars) periods of the day. All mice were 2 to 4 months old except for CBA/CaJ that were 5 to 6 months old. 129B6 refers to mice of a mixed 129X1/SvJ and C57BL/6J background. IOP was increased during the dark in all strains except CBA/CaJ. The number of mice successfully analyzed during the light (L) or dark (D) periods follows, DBA/2J 10L,10D; C57BL/6J 32L, 22D; C57BR/cdJ 12L,10D; SWR/J 16L, 16D; BALB/cByJ 15L, 16D; 129B6 10L, 12D; CBA/CaJ 22L, 16D.
+
+Blood pressure does not correlate with IOP
+
+An initial study of the relationship between blood pressure and IOP in mice did not detect a good correlation (R2 = 0.1, Figure 7).
+
+Figure 7
+
+No correlation between blood pressure and IOP.  There is no strong correlation between the average systolic blood pressure of each strain and the average IOP of that strain (R2 = 0.1). All mice were female and 2 to 4 months old, with the exception that the female CBA/CaJ used for IOP assessment were 6 to 7 months old. If the CBA/CaJ mice are excluded, R2 drops to 0.01 of ARK/J, C57BL/6J and SJL/J, strain ARK/J had the lowest IOP.
+
+Myoc alleles do not associate with the magnitude of IOP
+
+Mutations in the myocilin gene (MYOC) cause human glaucoma. To determine if allelic variation in the mouse Myoc gene associated with IOP in mouse strains, we analyzed the gene in an assortment of strains with different IOPs. Two alleles were identified. One of these alleles had a 12 nucleotide insertion in the promoter region (ccagagcagggt, between positions -340 and -341) compared to the previously published sequence and is called the insertion allele. The other allele was identical to the published sequence [22]. The insertion allele also had a previously reported substitution (A to G, Thr164Ala) in exon 1 and several other single base changes in the promoter region [22]. The presence or absence of this allele does not associate with IOP as it is present in strains with a range of IOPs (Figure 8).
+
+Figure 8
+
+Myoc alleles do not associate with IOP.  Sequencing identified two alleles of Myoc in these mouse strains (see text). Mouse strains homozygous for an allele having a 12 bp insertion in the promoter region are shown as open bars and strains homozygous for the allele without this insertion have filled bars. The IOP data is the same as that in Figure 1.
+
+Genetic alterations and IOP
+
+Y Chromosome
+
+The Y chromosome has been implicated in strain specific blood pressure differences in rats [23,24]. To test if the Y chromosome of strain 129/Ola alters IOP in relation to that of strain B6, we compared the IOPs of pure B6 males and consomic B6 males that had the 129P2/Ola Y chromosome (backcrossed for 11 generations). No differences in IOP were detected between these groups of mice (Figure 9, P = 0.1).
+
+Figure 9
+
+Effects of genetic alterations.  Mean IOP ± SEM is shown. There is no difference in IOP between 3 to 4 month old males with either the 129P2/Ola (n = 18) or C57BL/6J (n = 20) Y chromosome (Y Chr). The 129 Y Chr had been backcrossed to strain C57BL/6J for 11 generations. Similarly, 6 to 9 month old males and females that are homozygous for normal (+) or mutant (n) alleles of Car2 have similar IOPs (n = 18 and 14, respectively). However, 4 months old males homozygous for the Lepr diabetes and obesity causing mutation (db) had significantly higher IOPs than their heterozygous age and sex matched littermates. The average body weight of the homozygotes and heterozygotes was 59 g (range 50 to 64 g) and 35 g (range 28 to 41 g) respectively. Blood sugar levels in db /db males of this age are almost always in the diabetic range whereas those of heterozygotes are not [[27]]. This was recently confirmed in cohorts of approximately 25 males of each genotype (mean ± SD; db/db 422 ± 110 mg/dl ; db/+ 147 ± 19 mg/dl; Anthony Nicholson, The Jackson Laboratory, personal communication)
+
+Car2
+
+To test if deficiency of carbonic anhydrase II leads to decreased IOP, we analyzed mice of a B6 background that were genetically similar but with normal or mutant alleles of the Car2 gene [25,26]. There was no difference in IOP between normal and mutant mice (Figure 9, P = 0.5).
+
+Lepr
+
+To test if genetic perturbations that cause obesity and diabetes can alter IOP, we compared mice that were genetically similar but were either homozygous or heterozygous for a leptin receptor mutation (db) that results in obesity and diabetes before 4 months of age on the C57BLKS/J strain background used [27]. IOP was modestly but significantly elevated in obese, diabetic homozygous mutants (14.7 ± 0.3 mmHg) compared to non-obese, non-diabetic heterozygotes (13.4 ± 0.4 mmHg, P < 0.01, Figure 9).
+
+Tyr
+
+To determine if albinism alters IOP, we analyzed B6 mice that were either pigmented or albino. The albino mice were homozygous and coisogenic for a mutant allele of tyrosinase (Tyrc-2J) that arose on the otherwise pigmented B6 background. In 2 month old mice, homozygosity for Tyrc-2J resulted in increased IOP (14.2 ± 0.4 mmHg) compared to wild type, pigmented mice (12.4 ± 0.3 mmHg, P < 0.0001). The same was true for independent cohorts of mice of different ages that were analyzed at different times (Figure 10A). In contrast to pigmented B6 mice (Figure 6), the IOPs of the albino B6 mice were not increased at measurement during the dark compared to light period of the day (P = 0.6, Figure 10B).
+
+Figure 10
+
+Tyr mutation results in increased IOP and altered diurnal changes A. Different cohorts of C57BL/6J mice that are homozygous for the spontaneous Tyrc-2J mutation have higher IOP than their normal counterparts at all tested ages. All groups consisted of male and female mice. B. IOP is not increased during the dark period of the day in Tyrc-2J homozygotes. The number of mice analyzed during the light period were: 2 month, 28 +/+, 29 c-2J/c-2J, 4 month, 20 +/+ and 20 c-2J/c-2J, 8 month, 15 +/+ and 15 c-2J/c-2J. Fourteen mice of each genotype were successfully analyzed during the dark period of the day.
+#487	AnnotatorNotes T487	section
+T488	29291 29293	db
+#488	AnnotatorNotes T488	italic
+T489	30961 30966	Pde6b
+#489	AnnotatorNotes T489	italic
+T490	30966 30968	rd
+#490	AnnotatorNotes T490	italic
+T491	30966 30969	rd1
+#491	AnnotatorNotes T491	sup
+T492	31616 31620	Car2
+#492	AnnotatorNotes T492	italic
+T493	32019 32023	Car2
+#493	AnnotatorNotes T493	italic
+T494	32403 32407	Car2
+#494	AnnotatorNotes T494	italic
+T495	21643 34078	Discussion
+
+IOP differences are reproducible and amenable to genetic analyses
+
+We report the IOPs of over 30 genetically different mouse strains that were housed in the same environmental conditions. The magnitude of IOP differences between strains and the good reproducibility of readings over time will allow the use of genetic approaches to identify genes that underlie these differences. Using our method, a trained investigator can measure the IOPs of 10 mice in an hour. Thus it is feasible to assess sufficient numbers of mice for quantitative trait locus (QTL) analysis methods and to use these methods to identify chromosomal regions contributing to strain differences in IOP. The strain survey we report provides valuable information for designing these experiments. The throughput and reproducibility also is sufficient for mutagenesis screens [28-30]. These are important approaches as they may allow the association of genes with IOP and glaucoma whose currently known functions do not suggest that they affect aqueous humor dynamics or do not immediately identify them as likely glaucoma candidates.
+
+No effect of anesthetic protocol on IOP during a 12 minute measurement window
+
+Many anesthetic agents including xylazine lower IOP. Ketamine usually appears to increase IOP [31-33], but there are reports of ketamine having no effect on IOP or even reducing IOP [31,34]. Different doses, species used, routes of administration or environments may contribute to these differences. The relationship between the IOPs we measure and those in conscious mice depends upon the effect of our anesthetic protocol (intraperitoneal injection of 99 mg/kg ketamine and 9 mg/kg xylazine). An anesthetic effect could potentially alter IOP and mask genetically determined differences in IOP. Therefore, it is very important to understand this effect. Here, we show that, despite a depressant effect on IOP by 25 minutes, our anesthetic protocol has no detectable effect on IOP during the first 12 minutes after administration. Thus, to avoid effects of anesthesia on IOP, all measurements should be made within a window of up to 12 minutes after anesthetic administration.
+
+Similarities and differences to rat studies
+
+Our results agree with the time course of cardiovascular depression caused by intraperitoneal administration of ketamine and xylazine in rats. In that study, anesthesia had a minor effect on blood pressure during the first 15 minutes following injection but a strong hypotensive effect between 15 and 30 minutes that continued for more than an hour [35]. In contrast, intraperitoneally administered ketamine (100 mg/kg) was shown to rapidly decrease IOP in a different rat study [36]. IOP decreased significantly between a conscious measurement and the first possible measurement under anesthesia (defined as time 0). IOP decreased further by the next reading (at 5 minutes) after which it remained stable for the duration of the experiment (20 minutes)[36]. The time 0 measurement in that study was at a very similar state of anesthesia as our 4 and 5 minute time points (starting as soon as possible and within 20 to 60 seconds of adequate anesthesia), and the 5 minute rat time point was similar to our 9 and 10 minute measurement times. Thus, although both rat and mouse studies show that anesthesia decreases IOP, the studies do not agree on the timing of the effect. The IOP depression occurred very soon after anesthesia in the rats but was delayed in the mice.
+
+Environment may influence the effect of anesthesia
+
+Factors that may influence the effect of anesthesia include the species, strain and environment used. Essentially the same dose of ketamine and route of administration was used in both the rat and mouse IOP studies. In mice, the strain does not appear to be important as no early effect of anesthesia was present in the three distantly related laboratory strains [37] we studied in detail, and we have not observed any obvious effect during this period in any analyzed strain. Environmental differences may be important. Cage cleanliness, changing frequency and housing density can alter drug metabolism and the effect of anesthesia in rats [38,39]. The type of bedding used also may be important. We use wood shavings for bedding and wood shavings expose the mice to terpenes. Terpene administration or environmental exposure to terpenes in wood shavings alters drug resistance and decreases the effect of anesthetic agents in both rats and mice [40-45].
+
+Risk factors for increased IOP
+
+Some epidemiological studies implicate factors such as diabetes, vascular hypertension, arterial hypotension, vasospasm, aberrant autoregulation of blood flow and sex in glaucoma. Other studies find no association between these factors and glaucoma [2,46-48]. Similarly, the effects of various factors including age, gender, blood pressure, obesity and diabetes have been variably associated with elevated IOP. We evaluated the relationship between these latter factors and IOP in genetically homogeneous mouse strains in a controlled environment.
+
+Age
+
+Although within the range of variability observed in young mice, the IOP of B6 mice modestly decreased around 1 year of age. This decrease was statistically significant compared to young mice measured at the same time. At 2 years of age the IOP of B6 mice had decreased further, though an effect of anesthesia in these very old mice cannot be ruled out [49]. The IOP of 129P3/J mice also decreased with age but only at the oldest age examined (18 months). Decreasing IOP correlates with increasing age in the human Japanese population [50,51]. Further studies of B6 mice may allow experimental investigation of this effect. Additional studies may also identify " normal" mouse strains that develop increased IOP with age as generally occurs in Western populations [52,53]. We previously demonstrated that the glaucomatous strains DBA/2J and AKXD-28/Ty develop elevated IOP with age [14,19].
+
+Gender
+
+In the examined strains, we found no consistent differences in IOP between males and females. This was true at all ages for the 3 strains that were aged to 18 months or older. This is in agreement with a number of human studies, which show that IOP is equal between the sexes [52,53]. However, some studies have found sex-specific differences (typically with higher IOP in females and the magnitude of the difference increasing after 40 years of age) [53,54]. Of possible relevance, we previously reported that female mice of strains DBA/2J and AKXD-28/Ty develop elevated IOP at an earlier age than males [14,19].
+
+Blood pressure
+
+Some but not all human studies have reported a positive association between IOP and blood pressure [48,52]. Our comparison of the relationship between blood pressure and IOP in young, adult female mice of different mouse strains, whose blood pressures differed up to 36 mmHg, did not reveal a positive correlation. Further studies are needed to determine if blood pressure correlates with IOP in males, and to determine the relationship between blood pressure and IOP in various mouse strains with age.
+
+Obesity and diabetes
+
+Obesity or higher body mass index have been implicated by some but not other studies as risk factors for increased IOP and glaucoma [51,55-57]. Similarly, diabetes or the combination of diabetes and obesity have been variably associated with elevated IOP and glaucoma [46,52,58-62]. To test if genetic perturbations that cause obesity and diabetes can alter IOP, we compared groups of mice that were genetically similar except that they were either homozygous or heterozygous for a leptin receptor mutation (db) that results in early onset obesity and diabetes. The obese, diabetic mice had higher IOPs than their lean, non-diabetic littermates. Thus, epidemiological associations between increased IOP and obesity or diabetes are supported by this work and appear to be functionally relevant. Further experiments with obese non-diabetic or diabetic non-obese mice will help to characterize the separate effects of these risk factors.
+
+IOP is increased during the dark period of the day
+
+Diurnal variation in IOP is common in humans and laboratory animals [53]. The molecular mechanisms underlying the diurnal rhythm are not defined but increased aqueous humor production or flow occurs during the period of increased IOP in both rabbits and humans [63-65]. Small changes in the resistance to aqueous humor drainage may also contribute to diurnal differences in IOP [66,67]. We first suspected IOP changes with time of day when the IOP of a group of B6 mice measured in the hour prior to onset of the dark period appeared to be higher than at other times of day. Previously, a rise of IOP was reported to occur before onset of the dark period in rats [21], and rats and rabbits were shown to have higher IOP during the dark period compared to the light period [21,68,69]. Thus, we compared the IOPs of mice at different times of day and identified several strains with significantly higher IOP during the dark compared to the light period. The magnitude of the difference varies with strain, and was greatest in SWR/J. The IOP increase in the dark is not dependent on functional rod and cone photoreceptors since these cells degenerate in SWR/J mice due to homozygosity for the Pde6brd1 mutation. In agreement with this finding, circadian regulation of wheel running by light was previously reported in mice lacking rods and cones [70]. Interestingly, the IOP of strain CBA/CaJ, which has one of the highest daytime IOPs does not appear to increase in the dark. Further more detailed studies are needed to define the characteristics of the diurnal rhythm of intraocular pressure in mice, and to determine whether it is lacking or has a different timing in strain CBA/CaJ. Analysis of these mouse strains may increase understanding of the molecular mechanisms controlling diurnal rhythms of IOP and that may be relevant to glaucoma.
+
+Car2 deficiency does not alter IOP
+
+Bicarbonate formation is important for aqueous humor secretion from the ciliary processes and carbonic anhydrase (CA) facilitates this secretion. There are multiple forms of CA and the CAII isoform is reported to be the predominant form in the ciliary processes [71,72]. Our experiments show that a genetic deficiency of CAII in mice homozygous for a mutation in the Car2 gene does not alter IOP. CAIV activity was recently demonstrated in the ciliary processes [73] and so our data may support a more substantial role for CAIV compared to CAII in aqueous humor secretion. It also is possible that CAII substantially contributes to aqueous humor secretion but that functional mouse CAIV is sufficient to prevent an effect of CAII deficiency on IOP in Car2 mutant mice. In support of a role for both enzymes, a greater than 90% inhibition of CA is required for significant reduction of aqueous secretion [71,72].
+
+Tyrosinase deficiency results in increased IOP
+
+Tyrosinase is the first enzyme of the pigment production pathway. Tyrosinase deficiency causes albinism and has various ocular consequences. These include alteration of the number of ipsilaterally projecting retinal axons and substantially increased light penetration past the iris [74]. It is not known if these abnormalities affect mammalian IOP. Here, we show increased IOP in mice lacking tyrosinase activity compared to otherwise genetically identical pigmented B6 mice. Additionally, IOP differences between the light and dark period of the day were detected in the pigmented but not the albino B6 mice. Thus, albinism can affect the diurnal pattern of IOP changes. In agreement with this result, mice with albino eyes that are homozygous for tyrosinase or pink eye dilution mutations have altered diurnal rhythms compared to pigmented mice [75]. Albinism by itself is either not sufficient to alter the diurnal rhythm of IOP or alters it in different ways depending upon genetic background, however, since the albino strains BALB/cByJ and SWR/J had increased IOP during the dark. Diurnal rhythms are known to depend on visual pathways and to respond to light intensity. Exposing rats to 24 hours of low light abrogates the diurnal fluctuation of IOP and results in constantly elevated IOP [36]. Further experiments will determine the nature of the diurnal rhythm of IOP in the albino B6 mice and if its alteration or other mechanisms result in IOP elevation.
+#495	AnnotatorNotes T495	section
+T496	34080 34647	Conclusions
+
+A broad range of reproducible IOP differences exists between inbred mouse strains and a diurnal rhythm of IOP exists in different strains. Various factors have been variably associated with risk for increased IOP in humans. Genetically uniform, mice can be used to study the effects of these risk factors on IOP. In trained hands, our measurement procedure is reliable, accurate and rapid enough to allow large scale genetic studies of factors determining IOP. Mice have great potential for helping to characterize the molecular mechanisms affecting IOP.
+#496	AnnotatorNotes T496	section
+T497	35027 35037	ad libitum
+#497	AnnotatorNotes T497	italic
+T498	38889 38893	Myoc
+#498	AnnotatorNotes T498	italic
+T499	38940 38944	Myoc
+#499	AnnotatorNotes T499	italic
+T500	34649 39743	Materials and Methods
+
+Animal husbandry
+
+All experiments were performed in compliance with the ARVO statement for use of animals in ophthalmic and vision research. All mice were bred and maintained at The Jackson Laboratory. Mice were housed in cages containing white pine bedding and covered with polyester filters. For most experiments, the mice were fed NIH31 (6 % fat) chow ad libitum, and their water was acidified to pH 2.8 to 3.2. B6 mice develop diet induced diabetes when maintained on a high fat diet [76]. To ensure that we were analyzing the effect of age and not diabetes, the B6 mice in the aging experiment were fed NIH31 (4% fat) chow. We have found no differences in IOP between B6 mice housed on the 4% fat and 6% fat versions of this otherwise identical diet. The mice were group housed and the cages were changed one time per week. If any cage appeared soiled between scheduled changes, the mice were placed in a clean cage. The environment was kept at 21°C with a 14 hour light: 10 hour dark cycle. The colony was monitored for specific pathogens by The Jackson Laboratory's routine surveillance program (see  for specific pathogens).
+
+Intraocular pressure
+
+Intraocular pressures were measured as described elsewhere [13,77]. The mice were typically acclimatized to the procedure room for at least 2 weeks prior to measurement, but sometimes between 1 and 2 weeks. Although it was not possible to include all strains in each measurement period, mice of different strains were intermixed. As demonstrated here, the IOPs of C57BL/6J are very consistent over time and so these animals were interspersed with experimental mice during all experiments to ensure that calibration had not drifted and that the system was functioning optimally. Whenever possible, the investigator measuring IOP did not know the genotypes of the animals. It was not possible to analyze all age groups of each strain at the same time in the aging experiments. Therefore, to control for potential IOP changes due to measurement time and not age, approximately 3 month old B6 mice were assessed at the same time as each age group. All dark period measurements were made between 1 and 3 hours after the lights turned off. The room was equipped with dim red lights and mice were protected from all light exposure during set up. Each mouse was briefly exposed to the red light when the anesthetic agents were administered. When adequate anesthesia was achieved (after 3 to 4 minutes), the mouse was placed on the measurement platform and the white light of the microscope was turned on (for approximately 1 and a half minutes) to allow ocular cannulation, IOP measurement and post-measurement tests [13] that guard against artifactual data. The white light was used at very low intensity and was dim but we cannot rule out the possibility that this brief exposure altered the IOP. All other mice were protected from light exposure throughout the time an individual mouse was analyzed.
+
+Blood pressure
+
+The blood pressures of conscious mice of each strain (6 to 12 females per strain) were measured with a tail-cuff system as reported [78], except that 5 days of training were used. The mice were analyzed in the same procedure room as was used for IOP measurment.
+
+Clinical examinations
+
+For most strains, anterior chambers were examined with a slit lamp biomicroscope [16]. At least 8 mice of each strain shown in figure 1 were evaluated. However, the anterior chambers of C57BLKS/J mice were only evaluated under a dissection microscope at the time of IOP measurement.
+
+Histological analysis
+
+Eyes from at least 2 mice of the listed strains were fixed (4% paraformaldehyde or Fekete's acid-alcohol-formalin fixative) processed, paraffin embedded and sectioned as previously reported [15,79], except that the paraformaldehyde was buffered with 0.1 M phosphate buffer. All strains other than CBA/CaHN and C57BLKS/J strains were evaluated. The eyes of CBA/CaJ and BALB/cJ mice were also fixed and processed for plastic embedding (Historesin, Leica, Heidelberg, Germany), and sectioned as previously reported [14,79]. Saggital sections including the pupil and optic nerve were collected and analyzed as they contain most ocular structures.
+
+Analysis of Myoc
+
+Exons and the proximal promoter of the mouse Myoc gene were amplified from mouse genomic DNA using the following combinations of primers:
+
+Exon 1: 5'-cttgcaggagaactttccagaa-3' and 5'-atctcgaaggagattgttatagg-3'
+
+5'-gaccagctggagacccaaaccag-3' and 5'-gctcagatccactgacctaaa-3'
+
+Exon 2: 5'-tgaagccatactttaccaaccat-3' and 5'-caaaagggagaagtctaacttc-3'
+
+Exon 3: 5'-agtcaaggctcacagagctaa-3' and 5'-aagagtagctgctcaccgtgtacaag-3'
+
+5'-agacattgacttagctgtggat-3' and 5'-cggaacttcaccttttctggc-3'
+
+Promoter: 5'-taggagaagtctcattatactgc-3' and 5'-ttcactggaccagcataagga-3'
+
+5'-tctgaggatgttcacaggtttat-3' and 5'-tcttctggaaagttctcctgca-3'
+
+Samples underwent 30 cycles of amplification with Perkin-Elmer Taq polymerase in a PTC Thermal Cycler (MJ Research, MA) (94° for 40 sec, 57° for 1 min, 72° for 2 min). The PCR products we purified and sequenced as described [22].
+#500	AnnotatorNotes T500	section
+T501	39745 39877	Abbreviations
+
+Intraocular pressure (IOP), C57BL/6J (B6), chromosome (Chr), polymerase chain reaction (PCR), carbonic anhydrase (CA)
+#501	AnnotatorNotes T501	section
+T502	40051 40055	Car2
+#502	AnnotatorNotes T502	italic
+T503	40108 40112	Myoc
+#503	AnnotatorNotes T503	italic
+T504	39879 40510	Acknowledgments
+
+We thank Norma Buckley, Felicia Farley and Jennifer Smith for their assistance with data entry, references, and figures. We also thank Jane Barker for the Car2 mice, Marianna Mertts for her help with analysis of Myoc alleles, and members of the John laboratory, Tatyana Golovkina, Edward Leiter and Timothy O'Brien for critical reading of the manuscript. Supported in part by AHAF 97437 and G1999023, NIH EY11721 and HL55001. Core services were subsidized by grant CA34196. Major funding was provided by the Howard Hughes Medical Institute. SWMJ is an Assistant Investigator of The Howard Hughes Medical Institute.
+#504	AnnotatorNotes T504	section
+T505	24 35	genetically
+#505	AnnotatorNotes T505	SO:0000704
+T506	124 131	genetic
+#506	AnnotatorNotes T506	SO:0000704
+T507	259 270	genetically
+#507	AnnotatorNotes T507	SO:0000704
+T508	445 449	gene
+#508	AnnotatorNotes T508	SO:0000704
+T509	450 459	mutations
+#509	AnnotatorNotes T509	SO:0001059
+T510	793 799	allele
+#510	AnnotatorNotes T510	SO:0001023
+T511	829 833	gene
+#511	AnnotatorNotes T511	SO:0000704
+T512	886 894	mutation
+#512	AnnotatorNotes T512	SO:0001059
+T513	918 922	gene
+#513	AnnotatorNotes T513	SO:0000704
+T514	1040 1048	mutation
+#514	AnnotatorNotes T514	SO:0001059
+T515	1125 1136	Genetically
+#515	AnnotatorNotes T515	SO:0000704
+T516	1271 1278	genetic
+#516	AnnotatorNotes T516	SO:0000704
+T517	1470 1479	Mutations
+#517	AnnotatorNotes T517	SO:0001059
+T518	1513 1518	genes
+#518	AnnotatorNotes T518	SO:0000704
+T519	2055 2062	genetic
+#519	AnnotatorNotes T519	SO:0000704
+T520	2132 2143	chromosomal
+#520	AnnotatorNotes T520	SO:0000340
+T521	2132 2151	chromosomal regions
+#521	AnnotatorNotes T521	SO:0000830
+T522	2156 2161	genes
+#522	AnnotatorNotes T522	SO:0000704
+T523	2215 2219	loci
+#523	AnnotatorNotes T523	SO:0000001
+T524	2317 2322	genes
+#524	AnnotatorNotes T524	SO:0000704
+T525	2712 2717	genes
+#525	AnnotatorNotes T525	SO:0000704
+T526	2762 2768	genome
+#526	AnnotatorNotes T526	SO:0001026
+T527	2920 2925	genes
+#527	AnnotatorNotes T527	SO:0000704
+T528	4330 4341	genetically
+#528	AnnotatorNotes T528	SO:0000704
+T529	7330 7337	genetic
+#529	AnnotatorNotes T529	SO:0000704
+T530	13282 13293	genetically
+#530	AnnotatorNotes T530	SO:0000704
+T531	16747 16754	alleles
+#531	AnnotatorNotes T531	SO:0001023
+T532	16799 16808	Mutations
+#532	AnnotatorNotes T532	SO:0001059
+T533	16825 16829	gene
+#533	AnnotatorNotes T533	SO:0000704
+T534	16875 16882	allelic
+#534	AnnotatorNotes T534	SO:0001023
+T535	16911 16915	gene
+#535	AnnotatorNotes T535	SO:0000704
+T536	16970 16974	gene
+#536	AnnotatorNotes T536	SO:0000704
+T537	17028 17035	alleles
+#537	AnnotatorNotes T537	SO:0001023
+T538	17066 17073	alleles
+#538	AnnotatorNotes T538	SO:0001023
+T539	17083 17093	nucleotide
+#539	AnnotatorNotes T539	SO:0000348
+T540	17083 17103	nucleotide insertion
+#540	AnnotatorNotes T540	SO:1000034
+T541	17111 17119	promoter
+#541	AnnotatorNotes T541	SO:0000167
+T542	17120 17126	region
+#542	AnnotatorNotes T542	SO:0000001
+T543	17212 17220	sequence
+#543	AnnotatorNotes T543	SO:0000001
+T544	17239 17248	insertion
+#544	AnnotatorNotes T544	SO:0000667
+T545	17249 17255	allele
+#545	AnnotatorNotes T545	SO:0001023
+T546	17267 17273	allele
+#546	AnnotatorNotes T546	SO:0001023
+T547	17305 17313	sequence
+#547	AnnotatorNotes T547	SO:0000001
+T548	17324 17333	insertion
+#548	AnnotatorNotes T548	SO:0000667
+T549	17334 17340	allele
+#549	AnnotatorNotes T549	SO:0001023
+T550	17372 17384	substitution
+#550	AnnotatorNotes T550	SO:1000002
+T551	17386 17392	A to G
+#551	AnnotatorNotes T551	SO:1000015
+T552	17408 17412	exon
+#552	AnnotatorNotes T552	SO:0000147
+T553	17440 17444	base
+#553	AnnotatorNotes T553	SO:0001236
+T554	17433 17452	single base changes
+#554	AnnotatorNotes T554	SO:1000008
+T555	17460 17468	promoter
+#555	AnnotatorNotes T555	SO:0000167
+T556	17469 17475	region
+#556	AnnotatorNotes T556	SO:0000001
+T557	17514 17520	allele
+#557	AnnotatorNotes T557	SO:0001023
+T558	17626 17633	alleles
+#558	AnnotatorNotes T558	SO:0001023
+T559	17688 17695	alleles
+#559	AnnotatorNotes T559	SO:0001023
+T560	17771 17777	allele
+#560	AnnotatorNotes T560	SO:0001023
+T561	17790 17792	bp
+#561	AnnotatorNotes T561	SO:0000028
+T562	17793 17802	insertion
+#562	AnnotatorNotes T562	SO:0000667
+T563	17810 17818	promoter
+#563	AnnotatorNotes T563	SO:0000167
+T564	17819 17825	region
+#564	AnnotatorNotes T564	SO:0000001
+T565	17880 17886	allele
+#565	AnnotatorNotes T565	SO:0001023
+T566	17900 17909	insertion
+#566	AnnotatorNotes T566	SO:0000667
+T567	17975 17982	Genetic
+#567	AnnotatorNotes T567	SO:0000704
+T568	17983 17994	alterations
+#568	AnnotatorNotes T568	SO:0001059
+T569	18006 18016	Chromosome
+#569	AnnotatorNotes T569	SO:0000340
+T570	18024 18034	chromosome
+#570	AnnotatorNotes T570	SO:0000340
+T571	18135 18145	chromosome
+#571	AnnotatorNotes T571	SO:0000340
+T572	18294 18304	chromosome
+#572	AnnotatorNotes T572	SO:0000340
+T573	18447 18454	genetic
+#573	AnnotatorNotes T573	SO:0000704
+T574	18455 18466	alterations
+#574	AnnotatorNotes T574	SO:0001059
+T575	18613 18623	chromosome
+#575	AnnotatorNotes T575	SO:0000340
+T576	18627 18630	Chr
+#576	AnnotatorNotes T576	SO:0000340
+T577	18643 18646	Chr
+#577	AnnotatorNotes T577	SO:0000340
+T578	18791 18797	mutant
+#578	AnnotatorNotes T578	SO:0001059
+T579	18799 18800	n
+#579	AnnotatorNotes T579	SO:0001059
+T580	18802 18809	alleles
+#580	AnnotatorNotes T580	SO:0001023
+T581	18948 18956	mutation
+#581	AnnotatorNotes T581	SO:0001059
+T582	19387 19395	genotype
+#582	AnnotatorNotes T582	SO:0001027
+T583	19435 19436	+
+#583	AnnotatorNotes T583	SO:0000817
+T584	19644 19655	genetically
+#584	AnnotatorNotes T584	SO:0000704
+T585	19683 19689	mutant
+#585	AnnotatorNotes T585	SO:0001059
+T586	19690 19697	alleles
+#586	AnnotatorNotes T586	SO:0001023
+T587	19710 19714	gene
+#587	AnnotatorNotes T587	SO:0000704
+T588	19774 19780	mutant
+#588	AnnotatorNotes T588	SO:0001059
+T589	19825 19832	genetic
+#589	AnnotatorNotes T589	SO:0000704
+T590	19921 19932	genetically
+#590	AnnotatorNotes T590	SO:0000704
+T591	20006 20014	mutation
+#591	AnnotatorNotes T591	SO:0001059
+T592	20200 20207	mutants
+#592	AnnotatorNotes T592	independent_continuant
+T593	20200 20207	mutants
+#593	AnnotatorNotes T593	SO:0001059
+T594	20469 20475	mutant
+#594	AnnotatorNotes T594	SO:0001059
+T595	20476 20482	allele
+#595	AnnotatorNotes T595	SO:0001023
+T596	20662 20671	wild type
+#596	AnnotatorNotes T596	SO:0000817
+T597	21040 21048	mutation
+#597	AnnotatorNotes T597	SO:0000041
+T598	21188 21196	mutation
+#598	AnnotatorNotes T598	SO:0001059
+T599	21462 21463	+
+#599	AnnotatorNotes T599	SO:0000817
+T600	21464 21465	+
+#600	AnnotatorNotes T600	SO:0000817
+T601	21493 21494	+
+#601	AnnotatorNotes T601	SO:0000817
+T602	21495 21496	+
+#602	AnnotatorNotes T602	SO:0000817
+T603	21527 21528	+
+#603	AnnotatorNotes T603	SO:0000817
+T604	21529 21530	+
+#604	AnnotatorNotes T604	SO:0000817
+T605	21571 21579	genotype
+#605	AnnotatorNotes T605	SO:0001027
+T606	21704 21711	genetic
+#606	AnnotatorNotes T606	SO:0000704
+T607	21752 21763	genetically
+#607	AnnotatorNotes T607	SO:0000704
+T608	21965 21972	genetic
+#608	AnnotatorNotes T608	SO:0000704
+T609	21996 22001	genes
+#609	AnnotatorNotes T609	SO:0000704
+T610	22181 22205	quantitative trait locus
+#610	AnnotatorNotes T610	SO:0000771
+T611	22207 22210	QTL
+#611	AnnotatorNotes T611	SO:0000771
+T612	22266 22277	chromosomal
+#612	AnnotatorNotes T612	SO:0000340
+T613	22266 22285	chromosomal regions
+#613	AnnotatorNotes T613	SO:0000830
+T614	22478 22489	mutagenesis
+#614	AnnotatorNotes T614	SO:0000041
+T615	22575 22580	genes
+#615	AnnotatorNotes T615	SO:0000704
+T616	23390 23401	genetically
+#616	AnnotatorNotes T616	SO:0000704
+T617	26652 26663	genetically
+#617	AnnotatorNotes T617	SO:0000704
+T618	29077 29084	genetic
+#618	AnnotatorNotes T618	SO:0000704
+T619	29183 29194	genetically
+#619	AnnotatorNotes T619	SO:0000704
+T620	29281 29289	mutation
+#620	AnnotatorNotes T620	SO:0001059
+T621	30970 30978	mutation
+#621	AnnotatorNotes T621	SO:0001059
+T622	31817 31822	forms
+#622	AnnotatorNotes T622	SO:0001060
+T623	31842 31849	isoform
+#623	AnnotatorNotes T623	SO:0001060
+T624	31951 31958	genetic
+#624	AnnotatorNotes T624	SO:0000704
+T625	32003 32011	mutation
+#625	AnnotatorNotes T625	SO:0001059
+T626	32024 32028	gene
+#626	AnnotatorNotes T626	SO:0000704
+T627	32408 32414	mutant
+#627	AnnotatorNotes T627	SO:0001059
+T628	32451 32458	enzymes
+#628	AnnotatorNotes T628	SO:0001185
+T629	32637 32643	enzyme
+#629	AnnotatorNotes T629	SO:0001185
+T630	33048 33059	genetically
+#630	AnnotatorNotes T630	SO:0000704
+T631	33394 33403	mutations
+#631	AnnotatorNotes T631	SO:0001059
+T632	33591 33598	genetic
+#632	AnnotatorNotes T632	SO:0000704
+T633	34317 34328	Genetically
+#633	AnnotatorNotes T633	SO:0000704
+T634	34510 34517	genetic
+#634	AnnotatorNotes T634	SO:0000704
+T635	36473 36482	genotypes
+#635	AnnotatorNotes T635	SO:0001027
+T636	38895 38900	Exons
+#636	AnnotatorNotes T636	SO:0000147
+T637	38918 38926	promoter
+#637	AnnotatorNotes T637	SO:0000167
+T638	38945 38949	gene
+#638	AnnotatorNotes T638	SO:0000704
+T639	38976 38983	genomic
+#639	AnnotatorNotes T639	SO:0001026
+T640	38976 38987	genomic DNA
+#640	AnnotatorNotes T640	SO:0000991
+T641	39024 39031	primers
+#641	AnnotatorNotes T641	SO:0000112
+T642	39034 39038	Exon
+#642	AnnotatorNotes T642	SO:0000147
+T643	39169 39173	Exon
+#643	AnnotatorNotes T643	SO:0000147
+T644	39241 39245	Exon
+#644	AnnotatorNotes T644	SO:0000147
+T645	39377 39385	Promoter
+#645	AnnotatorNotes T645	SO:0000167
+T646	39686 39698	PCR products
+#646	AnnotatorNotes T646	SO:0000006
+T647	39803 39813	chromosome
+#647	AnnotatorNotes T647	SO:0000340
+T648	39815 39818	Chr
+#648	AnnotatorNotes T648	SO:0000340
+T649	40113 40120	alleles
+#649	AnnotatorNotes T649	SO:0001023

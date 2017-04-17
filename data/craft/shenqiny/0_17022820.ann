@@ -1,0 +1,61 @@
+T1	KeyEntity 91 101	Thrombosis
+T2	Entity 144 167	cardiovascular diseases
+T3	Entity 240 260	inbred mouse strains
+T4	Entity 262 270	C57BL/6J
+T5	Entity 275 278	A/J
+T6	Entity 325 332	obesity
+T7	Entity 334 349	atherosclerosis
+T8	Entity 355 372	vessel remodeling
+T9	KeyEntity 415 434	genetic backgrounds
+T10	KeyEntity 472 497	thrombosis and hemostasis
+T11	KeyEntity 544 568	hrombosis and hemostasis
+T14	Entity 583 596	nbred strains
+T15	Entity 692 708	A/J and C57Bl/6J
+T16	KeyEntity 748 773	thrombosis and hemostasis
+T17	Entity 777 785	thrombus
+T18	Entity 805 819	carotid artery
+T19	Entity 850 857	carotid
+T20	Entity 861 876	ferric chloride
+T21	Entity 928 957	Bleeding and rebleeding times
+T22	KeyEntity 984 1009	thrombosis and hemostasis
+T23	Entity 1090 1121	chromosome substitution strains
+T12	KeyEntity 638 680	A/J chromosomes in the C57BL/6J background
+T13	KeyEntity 1123 1163	A/J chromosomes in a C57BL/6J background
+T24	Entity 1199 1218	tail bleeding assay
+T25	KeyEntity 2044 2079	arterial thrombosis and haemostasis
+T26	Entity 2107 2125	C57BL/and A/J mice
+T27	Entity 2133 2168	A/J chromosome substitution strains
+T28	Entity 2223 2226	A/J
+T29	Entity 2247 2266	C57Bl/6J background
+T30	Entity 2284 2297	A/J phenotype
+T31	Entity 2326 2333	A/J QTL
+T32	KeyEntity 2450 2460	thrombosis
+T33	Entity 2469 2488	tail bleeding assay
+T34	Entity 1230 1248	Thrombus occlusion
+T35	Entity 1284 1292	A/J mice
+T36	Entity 1305 1318	C57BL/6J mice
+T37	Entity 1320 1338	Tail bleeding time
+T38	Entity 1375 1390	rebleeding time
+T39	Entity 1421 1429	A/J mice
+T40	Entity 1442 1455	C57BL/6J mice
+T41	Entity 1457 1474	Coagulation times
+T42	Entity 1479 1494	tail morphology
+T43	Entity 1513 1534	tail collagen content
+T44	Entity 1559 1571	57BL/6J mice
+T45	Entity 1549 1552	A/J
+T46	KeyEntity 1579 1610	chromosome substitution strains
+T47	Entity 1612 1652	B6-Chr5A/J, B6-Chr11A/J, and B6-Chr17A/J
+T48	Entity 1685 1700	rebleeding time
+T49	Entity 1725 1733	A/J mice
+T50	Entity 1735 1775	Mice heterosomic for chromosomes 5 or 17
+T51	Entity 1780 1796	rebleeding times
+T52	Entity 1808 1821	C57BL/6J mice
+T53	KeyEntity 1842 1873	chromosome substitution strains
+T54	Entity 1875 1901	B6-Chr5A/J and B6-Chr17A/J
+R1	regulates Arg1:T2 Arg2:T1	
+R2	is_subclass_of Arg1:T4 Arg2:T3	
+R3	is_subclass_of Arg1:T5 Arg2:T3	
+R4	regulates Arg1:T9 Arg2:T10	
+R5	is_subclass_of Arg1:T47 Arg2:T46	
+R6	is_subclass_of Arg1:T54 Arg2:T53	
+T55	Entity 1921 1924	A/J

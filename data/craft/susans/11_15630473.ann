@@ -1,0 +1,28 @@
+T1	Entity 110 123	organogenesis
+T2	KeyEntity 255 277	hair bud morphogenesis
+T3	KeyEntity 519 558	transforming growth factor β2 signaling
+T4	Entity 598 624	transcription factor Snail
+T5	KeyEntity 642 693	Ras-mitogen-activated protein kinase (MAPK) pathway
+T6	KeyEntity 820 830	E-cadherin
+T7	Entity 879 896	adhesion proteins
+T8	KeyEntity 1008 1027	Ras-MAPK activation
+T9	Entity 1235 1252	signaling pathway
+T10	Entity 1358 1376	hair bud formation
+T11	Entity 1388 1403	developing skin
+R1	participates_in Arg1:T10 Arg2:T11	
+T12	Entity 1298 1308	morphogens
+T13	Entity 1324 1346	transcriptional events
+R2	regulates Arg1:T9 Arg2:T12	
+R3	regulates Arg1:T9 Arg2:T13	
+T14	Entity 305 324	mutant mouse models
+T15	Entity 329 351	cultured keratinocytes
+T16	Entity 429 446	adhesion dynamics
+T17	Entity 451 464	proliferation
+R4	regulates Arg1:T6 Arg2:T7	
+R5	participates_in Arg1:T6 Arg2:T8	
+R6	regulates Arg1:T3 Arg2:T4	
+R7	regulates Arg1:T3 Arg2:T5	
+T18	Entity 384 411	multiple extracellular cues
+T19	Entity 724 729	Snail
+R8	participates_in Arg1:T18 Arg2:T16	
+R9	participates_in Arg1:T18 Arg2:T17	

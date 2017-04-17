@@ -1,0 +1,40 @@
+T1	Entity 163 196	ongenital cardiovascular diseases
+T2	Entity 225 238	birth defects
+T3	Entity 242 248	humans
+T4	Entity 314 337	inappropriate induction
+T5	Entity 339 348	migration
+T6	Entity 350 365	differentiation
+T7	Entity 370 380	patterning
+T8	Entity 384 427	pluripotent cardiac neural crest stem cells
+T9	KeyEntity 435 462	TGF-β-superfamily signaling
+T10	KeyEntity 495 524	neural crest cell development
+R1	other_relation Arg1:T9 Arg2:T10	
+#1	AnnotatorNotes R1	implicated in
+T11	Entity 632 653	TGF-β type I receptor
+T12	KeyEntity 654 658	Alk5
+T13	KeyEntity 679 710	mouse neural crest cell lineage
+T14	KeyEntity 737 741	ALK5
+T15	Entity 758 772	cardiovascular
+T16	Entity 777 787	pharyngeal
+R2	other_relation Arg1:T14 Arg2:T15	
+#2	AnnotatorNotes R2	causes phenotype
+R3	other_relation Arg1:T14 Arg2:T16	
+#3	AnnotatorNotes R3	causes phenotype
+T17	KeyEntity 807 859	inappropriate remodeling of pharyngeal arch arteries
+T18	KeyEntity 862 892	bnormal aortic sac development
+T19	KeyEntity 894 931	failure in pharyngeal organ migration
+T20	KeyEntity 936 965	persistent truncus arteriosus
+T21	KeyEntity 973 977	ALK5
+T22	KeyEntity 998 1025	neural crest cell migration
+R4	other_relation Arg1:T21 Arg2:T22	
+#4	AnnotatorNotes R4	Not required for
+T23	KeyEntity 1090 1143	survival of post-migratory cardiac neural crest cells
+R5	participates_in Arg1:T21 Arg2:T23	
+T24	KeyEntity 1187 1191	ALK5
+T25	KeyEntity 1252 1267	cell-autonomous
+T26	KeyEntity 1280 1290	pharyngeal
+T27	KeyEntity 1295 1302	cardiac
+T28	KeyEntity 1317 1328	development
+R6	regulates Arg1:T24 Arg2:T28	
+R7	regulates Arg1:T24 Arg2:T26	
+R8	regulates Arg1:T24 Arg2:T27	

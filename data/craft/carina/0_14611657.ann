@@ -1,0 +1,37 @@
+T1	KeyEntity 2701 2733	olfactory (or odorant) receptors
+T2	Entity 3108 3143	seven-transmembrane-domain proteins
+T3	Entity 3222 3242	olfactory epithelium
+T9	Entity 2745 2760	odorant ligands
+R1	interacts_with Arg1:T1 Arg2:T9	
+T10	Entity 2784 2811	signal transduction pathway
+R2	participates_in Arg1:T1 Arg2:T10	
+T11	Entity 3164 3183	diverse gene family
+R3	participates_in Arg1:T2 Arg2:T11	
+R4	is_part_of Arg1:T11 Arg2:T3	
+T4	Entity 3328 3336	odorants
+R5	interacts_with Arg1:T1 Arg2:T4	
+T12	Entity 3357 3411	responsivity when expressed in heterologous cell types
+R6	participates_in Arg1:T1 Arg2:T12	
+T5	KeyEntity 4182 4201	olfactory receptors
+T6	Entity 4229 4250	non-olfactory tissues
+R7	participates_in Arg1:T5 Arg2:T6	
+T13	Entity 4503 4527	spermatid chemoreceptors
+R8	participates_in Arg1:T5 Arg2:T13	
+T7	KeyEntity 5077 5095	olfactory receptor
+T8	Entity 5158 5168	epithelium
+R9	is_part_of Arg1:T7 Arg2:T8	
+T14	Entity 5196 5212	olfactory neuron
+T15	Entity 5256 5279	olfactory receptor gene
+R10	other_relation Arg1:T14 Arg2:T15	
+T16	Entity 5495 5512	DNA recombination
+T17	Entity 5529 5547	olfactory receptor
+R11	interacts_with Arg1:T16 Arg2:T17	
+T18	Entity 5764 5784	transcription factor
+R12	interacts_with Arg1:T18 Arg2:T17	
+T19	Entity 6014 6035	transcription factors
+T20	Entity 6133 6141	promoter
+R13	interacts_with Arg1:T19 Arg2:T20	
+R14	regulates Arg1:T20 Arg2:T17	
+T21	Entity 6416 6441	olfactory receptor allele
+T22	Entity 6504 6523	olfactory receptors
+R15	regulates Arg1:T21 Arg2:T22	

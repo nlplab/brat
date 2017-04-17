@@ -1,0 +1,28 @@
+T1	Entity 115 152	autosomal recessive movement disorder
+T2	KeyEntity 296 311	cognate disease
+T3	KeyEntity 363 392	linkage and sequence analysis
+T4	KeyEntity 411 424	this disorder
+T5	KeyEntity 478 483	Itpr1
+T6	KeyEntity 500 547	encoding inositol 1,4,5-triphosphate receptor 1
+T7	KeyEntity 583 588	Itpr1
+T8	Entity 673 690	in-frame deletion
+T9	KeyEntity 698 703	Itpr1
+T10	KeyEntity 754 759	Itpr1
+T11	Entity 774 799	cerebellar Purkinje cells
+T12	KeyEntity 828 833	SCA15
+T13	Entity 844 871	autosomal dominant disorder
+T14	KeyEntity 911 916	ITPR1
+T15	KeyEntity 984 990	ataxia
+T16	KeyEntity 1017 1022	Itpr1
+T17	KeyEntity 1113 1118	ITPR1
+T18	KeyEntity 1139 1144	SCA15
+T19	KeyEntity 1208 1213	ITPR1
+T20	KeyEntity 1297 1302	SCA15
+R1	other_relation Arg1:T3 Arg2:T5	
+R2	other_relation Arg1:T5 Arg2:T6	
+R3	other_relation Arg1:T5 Arg2:T4	
+#1	AnnotatorNotes R3	causes
+R4	is_subclass_of Arg1:T12 Arg2:T13	
+R5	other_relation Arg1:T14 Arg2:T12	
+#2	AnnotatorNotes R5	causes
+R6	participates_in Arg1:T19 Arg2:T20	

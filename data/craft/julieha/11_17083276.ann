@@ -1,0 +1,48 @@
+T1	KeyEntity 252 280	chromatin assembly machinery
+T2	Entity 124 142	chromatin dynamics
+T3	Entity 147 165	epigenetic marking
+T4	Entity 184 204	genome reprogramming
+T5	KeyEntity 321 348	chromatin assembly factor 1
+T6	KeyEntity 350 355	CAF-1
+T7	KeyEntity 364 392	pre-implantation development
+T8	Entity 409 419	mouse line
+T9	Entity 431 448	targeted mutation
+T10	KeyEntity 489 498	p150CAF-1
+T11	KeyEntity 508 517	p150CAF-1
+T12	Entity 549 569	developmental arrest
+T13	Entity 577 590	16-cell stage
+T14	KeyEntity 603 612	p150CAF-1
+T15	Entity 704 719	heterochromatin
+T16	Entity 768 791	heterochromatin domains
+T17	KeyEntity 867 876	p150CAF-1
+T18	Entity 884 905	16-cell stage embryos
+T19	Entity 832 861	two-cell and blastocyst stage
+T20	KeyEntity 1071 1076	CAF-1
+T21	Entity 1097 1107	maturation
+T22	Entity 1111 1126	heterochromatin
+T23	Entity 1134 1161	preimplantation development
+T24	Entity 1166 1186	embryonic stem cells
+T25	KeyEntity 1201 1210	p150CAF-1
+T26	Entity 1217 1233	RNA interference
+T27	Entity 1308 1343	pericentric heterochromatin domains
+T28	KeyEntity 1366 1371	CAF-1
+T29	Entity 1416 1446	epigenetic histone methylation
+T30	Entity 1469 1496	pericentric heterochromatin
+T31	Entity 1519 1534	heterochromatin
+T32	KeyEntity 1552 1561	p150CAF-1
+T33	Entity 1571 1598	mouse embryonic fibroblasts
+T34	KeyEntity 1668 1673	CAF-1
+T35	Entity 1703 1731	heterochromatin organization
+T36	Entity 1735 1762	pluripotent embryonic cells
+T37	Entity 1803 1831	chromatin assembly machinery
+T38	Entity 1851 1871	spatial organization
+T39	Entity 1876 1894	epigenetic marking
+T40	Entity 1912 1925	early embryos
+T41	Entity 1930 1950	embryonic stem cells
+R1	participates_in Arg1:T2 Arg2:T4	
+R2	participates_in Arg1:T3 Arg2:T4	
+R3	participates_in Arg1:T5 Arg2:T7	
+R4	participates_in Arg1:T6 Arg2:T7	
+R5	other_relation Arg1:T9 Arg2:T10	
+R6	regulates Arg1:T11 Arg2:T12	
+R7	regulates Arg1:T14 Arg2:T15	

@@ -1,0 +1,19 @@
+T1	KeyEntity 150 160	Huntingtin
+T2	KeyEntity 228 248	Huntington's disease
+R1	other_relation Arg1:T1 Arg2:T2	
+#1	AnnotatorNotes R1	causes
+T3	Entity 356 391	patterning of the developing embryo
+R2	regulates Arg1:T1 Arg2:T3	
+T4	KeyEntity 600 610	huntingtin
+T5	Entity 710 728	patterning defects
+R3	regulates Arg1:T4 Arg2:T5	
+T6	Entity 626 641	nutritive genes
+R4	other_relation Arg1:T4 Arg2:T6	
+#2	AnnotatorNotes R4	does not regulate
+T7	KeyEntity 1524 1534	Huntingtin
+T8	KeyEntity 1555 1585	early patterning of the embryo
+R5	regulates Arg1:T7 Arg2:T8	
+T9	Entity 1630 1646	primitive streak
+R6	regulates Arg1:T7 Arg2:T9	
+T10	Entity 1706 1732	transcription factor genes
+R7	regulates Arg1:T7 Arg2:T10	

@@ -1,0 +1,32 @@
+T1	KeyEntity 187 204	Cigarette smoking
+T2	KeyEntity 229 251	bronchogenic carcinoma
+T3	KeyEntity 283 290	smokers
+T4	KeyEntity 253 255	BC
+T5	KeyEntity 299 301	BC
+T6	Entity 342 346	risk
+T7	Entity 360 382	genetically determined
+T8	Entity 416 433	antioxidant genes
+T9	Entity 444 454	transcript
+T10	KeyEntity 485 511	bronchial epithelial cells
+T11	KeyEntity 522 524	BC
+T12	Entity 513 517	NBEC
+T13	Entity 604 608	NBEC
+T14	Entity 618 628	transcript
+T15	Entity 658 674	DNA repair genes
+T16	Entity 702 719	antioxidant genes
+T17	Entity 759 770	antioxidant
+T18	Entity 775 791	DNA repair genes
+T19	Entity 824 845	transcription factors
+T20	Entity 855 881	inter-individual variation
+T21	Entity 936 957	transcription factors
+T22	Entity 977 1003	inter-individual variation
+T23	KeyEntity 1007 1018	risk for BC
+R1	participates_in Arg1:T1 Arg2:T2	
+R2	other_relation Arg1:T2 Arg2:T4	
+R3	participates_in Arg1:T1 Arg2:T3	
+R4	other_relation Arg1:T2 Arg2:T5	
+T24	KeyEntity 549 567	non-BC individuals
+R5	genetically_interacts_with Arg1:T15 Arg2:T16	
+R6	regulates Arg1:T19 Arg2:T18	
+R7	regulates Arg1:T19 Arg2:T17	
+R8	regulates Arg1:T21 Arg2:T23	

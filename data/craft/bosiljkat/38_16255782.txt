@@ -1,0 +1,157 @@
+CEBPG transcription factor correlates with antioxidant and DNA repair genes in normal bronchial epithelial cells but not in individuals with bronchogenic carcinoma
+
+Abstract
+
+Background
+
+Cigarette smoking is the primary cause of bronchogenic carcinoma (BC), yet only 10–15% of heavy smokers develop BC and it is likely that this variation in risk is, in part, genetically determined. We previously reported a set of antioxidant genes for which transcript abundance was lower in normal bronchial epithelial cells (NBEC) of BC individuals compared to non-BC individuals. In unpublished studies of the same NBEC samples, transcript abundance values for several DNA repair genes were correlated with these antioxidant genes. From these data, we hypothesized that antioxidant and DNA repair genes are co-regulated by one or more transcription factors and that inter-individual variation in expression and/or function of one or more of these transcription factors is responsible for inter-individual variation in risk for BC.
+
+Methods
+
+The putative transcription factor recognition sites common to six of the antioxidant genes were identified through in silico DNA sequence analysis. The transcript abundance values of these transcription factors (n = 6) and an expanded group of antioxidant and DNA repair genes (n = 16) were measured simultaneously by quantitative PCR in NBEC of 24 non-BC and 25 BC individuals.
+
+Results
+
+CEBPG transcription factor was significantly (p < 0.01) correlated with eight of the antioxidant or DNA repair genes in non-BC individuals but not in BC individuals. In BC individuals the correlation with CEBPG was significantly (p < 0.01) lower than that of non-BC individuals for four of the genes (XRCC1, ERCC5, GSTP1, and SOD1) and the difference was nearly significant for GPX1. The only other transcription factor correlated with any of these five target genes in non-BC individuals was E2F1. E2F1 was correlated with GSTP1 among non-BC individuals, but in contrast to CEBPG, there was no significant difference in this correlation in non-BC individuals compared to BC individuals.
+
+Conclusion
+
+We conclude that CEBPG is the transcription factor primarily responsible for regulating transcription of key antioxidant and DNA repair genes in non-BC individuals. Further, we conclude that the heavy smokers selected for development of BC are those who have sub-optimal regulation of antioxidant and DNA repair genes by CEBPG.
+
+Background
+
+BC is currently the leading cause of cancer-related death in the United States, causing 28% of all cancer deaths [1]. Although cigarette smoking is the primary risk factor, only 10–15% of heavy smokers (greater than 20 pack years) develop BC [1-3]. Antioxidant and DNA repair enzymes that provide protection from the effects of cigarette smoke are expressed in the progenitor cells for BC, normal bronchial epithelial cells (NBEC) [1]. Inherited inter-individual variation in the function of these genes plays a role in determining risk for BC [4-6]. Antioxidant enzymes protect NBEC from reactive oxygen species produced by interaction with and metabolism of xenobiotics such as pollution and cigarette smoke [4-7] as well as those produced by normal cellular metabolism. Reactive oxygen species cause many damaging reactions including denaturation of proteins, cross-linking of lipids and proteins and modification of nucleic acid bases, which can lead to cancer [7]. DNA repair enzymes repair the frequent damage to DNA caused by oxidant stress as well as other stresses, including bulky adducts derived from carcinogens in cigarette smoke [8].
+
+We previously reported that an interactive transcript abundance index comprising antioxidant genes was lower in NBEC of BC individuals compared to non-BC individuals, suggesting that BC individuals are selected on the basis of poor antioxidant protection [9]. In that study, there was a tendency towards correlation in transcript abundance between several pairs of antioxidant or DNA repair genes in non-BC individuals, but not in BC individuals. Gene pairs included in that observation were GSTP1/GPX1, CAT/GPX3, and GPX3/SOD1.
+
+Correlation is one typical characteristic of co-regulated genes. Another is shared transcription factor recognition sites in the regulatory regions of those genes [10]. Based on the above findings, it was hypothesized first, that there is inter-individual variation in regulation of key antioxidant and DNA repair genes by one or more transcription factors and second, that individuals with sub-optimal regulation are selected for development of BC if they smoke cigarettes. To test these hypotheses, transcription factor recognition sites common to the regulatory regions of the above correlated gene pairs were identified through in silico DNA sequence analysis, and their transcript abundance measured simultaneously with an expanded group of ten antioxidant and six DNA repair genes.
+
+Methods
+
+NBEC sample procurement
+
+Brush biopsy samples of normal bronchial epithelium were obtained for research studies at the time of diagnostic bronchoscopy according to previously described methods [9,11]. Normal bronchial epithelium in the lung not involved with cancer was brushed prior to biopsy of the suspected cancerous area. Samples were collected in a manner satisfying all requirements of the Institutional Review Board for the Medical University of Ohio. Each BC diagnosis and subtype identification was determined by histopathological examination in the Department of Pathology at the Medical University of Ohio. NBEC samples from a total of 49 individuals, including 24 non-BC individuals and 25 BC individuals, were evaluated in this study. The biographical characteristics of these individuals are presented in Table 1.
+
+Transcript abundance measurement
+
+Total RNA samples extracted from NBEC were reverse transcribed using M-MLV reverse transcriptase and oligo dT primers as previously described [9,11]. Standardized RT (StaRT)-PCR was used for transcript abundance measurement in these studies. With StaRT-PCR, an internal standard for each gene within a standardized mixture of internal standards (SMIS) is included in each PCR reaction. After amplification, products were electrophoresed on an Agilent 2100 Bioanalyzer using DNA Chips with DNA 1000 Kit reagents for visualization according to the manufacturer's protocol (Agilent Technologies Deutschland GmbH, Waldbronn, Germany).
+
+The StaRT-PCR technology is licensed to Gene Express, Inc. (Toledo, OH). Many of the reagents are available commercially and were obtained through Gene Express, Inc. for this study. StaRT-PCR reagents for each of the measured genes that were not commercially available, including primers and SMIS, were prepared according to previously described methods [11,12]. Sequence information for the primers is provided in Table 2.
+
+Including an internal standard within a SMIS in each measurement controls for all known sources of variation during PCR, including inhibitors in samples, and generates virtually-multiplexed transcript abundance data that are directly comparable across multiple experiments and institutions [13]. The performance characteristics of StaRT-PCR are superior to other forms of commercially available quantitative PCR technology in the areas critical to this study. With respect to these studies, the key property of a quantitative PCR method is not whether the PCR products are measured kinetically or at endpoint, but rather whether there are internal standards in each measurement or not. The overall performance characteristics of StaRT-PCR, including extensive validation of the method in independent laboratories have been presented in several recent articles and chapters [13-15]. With respect to the genes measured in this study, for each gene the StaRT-PCR reagents had lower detection threshold of less than 10 molecules, linear dynamic range of more than six orders of magnitude (less than 10 to over 107 molecules), and signal-to-analyte response of 100%. In addition, the presence of an internal standard controls for inter-sample variation in presence of PCR inhibitors (which often are gene-specific) and ensures no false negatives (if the PCR fails the internal standard PCR product is not observed and there are no data to report). False positives are eliminated through use of a control PCR reaction with no cDNA in it.
+
+Statistical analysis
+
+More than 6,000 transcript abundance measurements were conducted in multiple experiments over two years to assess the six transcription factors and sixteen antioxidant and DNA repair genes in NBEC samples from 49 individuals (24 non-BC individuals and 25 BC individuals).
+
+Correlation of each of the six transcription factors with each of the antioxidant or DNA repair genes was determined by Pearson's correlation following logarithmic transformation. The transformation was necessary due to the wide biological variation in expression of each gene among the individuals. Significance level was defined as p < 0.01 following Bonferroni adjustment for multiple comparison, specifically comparison of each of six transcription factors to each of the antioxidant or DNA repair genes. Comparison for significant differences between pairs of correlation coefficients was done by Fisher's Z-transformation test [16].
+
+Analysis of the relationship between virtually-multiplexed transcript abundance data for each gene with age was assessed by Pearson's correlation, with gender by t-test, and with smoking history by ANOVA followed by Duncan's test.
+
+Transcription factor recognition site analysis
+
+The El Dorado (Build 35) program from the Genomatix software package was used to locate the correlated genes within the genome and define 1101 base pairs of the promoter regions (1000 base pairs upstream of and 100 base pairs into the transcription start site) for each gene (Genomatix Software GmbH, Munich, Germany, [17]). The 1101 base pair sequences obtained from the El Dorado program then were used as the target sequences for putative transcription factor recognition site identification using the MatInspector Version 4.2 program, which yielded sites for 11 transcription factors (Genomatix Software GmbH, Munich, Germany, [17]). The parameters used were the standard (0.75) core similarity and the optimized matrix similarity [18]. StaRT-PCR reagents were optimized for ten of these transcription factors, including CEBPB, CEBPE, CEBPG, E2F1, E2F3, E2F4, E2F5, E2F6, EVI1, and PAX5. Four transcription factors were expressed at low and invariant levels among multiple NBEC samples and were therefore excluded from the study. The remaining six, CEBPB, CEBPG, E2F1, E2F3, E2F6, and EVI, were evaluated for correlation with an expanded group of ten antioxidant and six DNA repair genes.
+
+Results
+
+Virtually-multiplexed transcript abundance data were obtained for each gene in each of the 49 samples, except for E2F1 measurement in sample 147 (Table 3). A gene-specific inhibitor in sample 147 prevented amplification of E2F1. Neither the internal standard, nor the native cDNA PCR product was observed. The presence of gene-specific PCR inhibition was observable in some other samples as reduction in peak heights in internal standard PCR products relative to that expected for the number of internal standard molecules present at the beginning of the PCR reaction. However, in each such case, the PCR amplification was efficient enough to enable quantification.
+
+Bivariate analysis
+
+In non-BC individuals there was significant (p < 0.01) correlation between CEBPG and eight of the 16 antioxidant or DNA repair genes, specifically XRCC1, ERCC5, GSTP1, SOD1, GPX1, ERCC1, CAT and ERCC2 (Table 4). In contrast, in BC individuals samples CEBPG was not correlated with any of the antioxidant or DNA repair genes. These relationships were not observed with any of the other transcription factors studied.
+
+For XRCC1, ERCC5, GSTP1, and SOD1 the correlation with CEBPG was significantly lower in BC individuals compared to non-BC individuals and the difference was nearly significant for GPX1 (Fig. 1b). Scatter plots of the relationship between CEBPG and XRCC1 in non-BC individuals or BC individuals (Fig. 2a,b) are representative of the other four genes. Neither CEBPG, nor XRCC1, ERCC5, GSTP1, SOD1 or GPX1 was significantly correlated with age, gender, or smoking history in non-BC individuals, BC individuals, or the combined group.
+
+In non-BC individuals, based on the r2 values from Pearson's correlation analysis, CEBPG accounts for much of the variance in expression of XRCC1 (69%), ERCC5 (62%), GSTP1 (55%), SOD1 (44%), and GPX1 (52%). E2F1 accounts for some of the remaining variance. For example, when samples from all 49 non-BC individuals and BC individuals were assessed as a single group, E2F1 was significantly correlated with ERCC5, GSTP1 and SOD1 (Table 4). Further, in non-BC individuals, E2F1 was correlated with GSTP1 (Fig. 1c) and the correlation was lower in BC individuals. However, the difference in correlation between non-BC individuals and BC individuals was not significant. None of the other transcription factors were correlated with XRCC1, ERCC5, GSTP1, SOD1, or GPX1 (Fig. 1a,d,e,f).
+
+Comparison of gene expression with demographic characteristics
+
+E2F1 and GSTZ1 each were positively correlated with age. GSTM1-5 was the only gene with a difference in expression by gender. There was a difference in ERCC2 expression between former and never smokers.
+
+Discussion
+
+In this study, we tested two hypotheses. First, that there is inter-individual variation in regulation of key antioxidant and DNA repair genes by one or more transcription factors. Second, that individuals with sub-optimal regulation are selected for development of BC if they smoke cigarettes.
+
+These hypotheses are supported by the findings that a) there was large inter-individual variation in transcript levels of CEBPG and each of the target genes and in non-BC individuals, b) CEBPG transcript abundance values were significantly correlated by bivariate analysis with the transcript abundance values of four key antioxidant and DNA repair genes in non-BC individuals, and c) that there was no correlation between CEBPG and these genes in BC individuals.
+
+These results support the hypothesis that each of the antioxidant or DNA repair genes correlated with CEBPG in non-BC individuals is regulated by CEBPG. This is supported by the specificity of the CEBPG correlation. That is, there was lack of correlation between any of the other five transcription factors assessed and these target genes. Of particular note is the lack of correlation of the target genes with CEBPB, which binds to the same recognition site as CEBPG, and shares its recognition site within each of the antioxidant or DNA repair genes. However, there are alternative explanations for the observed correlation of CEBPG with antioxidant and DNA repair genes in non-BC individuals. One possibility is that CEBPG and each of the correlated antioxidant or DNA repair genes is regulated by a transcription factor that is as yet undiscovered, and/or has a recognition site that is not yet known and was not in the Genomatix software database.
+
+There also is more than one possible explanation for the observed lack of correlation between CEBPG and antioxidant or DNA repair genes in BC individuals. For example, the non-BC individual and BC individual groups are not perfectly matched with respect to age, gender or smoking history (Table 1) and each of these factors could contribute to the observed difference in correlation between groups. However, the lack of association of transcript abundance level for CEBPG, XRCC1, ERCC5, GSTP1, SOD1, or GPX1 with age, gender or smoking history argues against such an explanation. One way to examine this possibility is through additional, larger, more closely matched studies. Another possible explanation is that any differences in NBEC from BC individuals compared to non-BC individuals resulted from development of BC, instead of being a hereditary cause of increased risk for cancer. The best way to determine this will be to conduct a prospective study. In such a study, individuals matched for smoking history will be monitored for development of BC over time. The correlation of transcript abundance values for CEBPG relative to transcript abundance values for each of the antioxidant or DNA repair genes will be assessed. It is expected that the greatest incidence of BC will be among the heaviest smokers. Among the matched heaviest smokers, it is expected that CEBPG will be significantly correlated with each of the antioxidant or DNA repair genes among the non-BC individuals but not correlated in BC individuals.
+
+Thus, there are multiple possible explanations for the observed findings. However, based on the preponderance of data thus far available, we conclude that CEBPG is responsible for optimal transcriptional regulation of key antioxidant or DNA repair genes in NBEC and that there is inter-individual variation in the regulation of each of these genes by CEBPG. If this conclusion is correct, the individuals at greatest risk for BC will be those with the most extreme smoking history combined with sub-optimal regulation of the largest number of antioxidant and DNA repair genes. This, in turn, leads to increased representation among BC individuals of individuals with lack of correlation between CEBPG and each of the affected antioxidant and/or DNA repair genes.
+
+CEBPG is a truncated CEBP transcription factor [19] and possesses the sequences necessary for DNA binding and heterodimer formation, but lacks the sequences necessary for transactivation [20]. CEBPG forms heterodimers with other CEBP family members and in other tissues this leads to increased [21] or decreased [20] transcription of the regulated gene. CEBPG is known to have stimulatory effect on the IL-6 and IL-8 promoters in B cell lines [21], and can also act as a dominant negative regulator of CEBPA and CEBPB in fibroblast and B cell lines [20].
+
+The data from CEBPG knockout mice support a role for CEBPG in protecting lungs from oxidant damage. CEBPG-/- knockout mice are healthy at birth but begin to die within 24 hours, and histological examination reveals emphysematous lungs [22]. In humans, risk for emphysema is associated with antioxidant capacity [23], and there is a strong correlation between risk for emphysema and risk for BC.
+
+However, it will be important to obtain direct experimental evidence in NBECs for the role of CEBPG in regulating the antioxidant and DNA repair genes included in this study. Correlation between CEBPG and target gene transcript levels may not be associated with correlation at the protein level.
+
+In this study, E2F1 correlation with DNA repair and antioxidant genes was less than the correlation observed with CEBPG, and the E2F1 correlation was observed in both non-BC individuals as well as BC individuals. The maintained correlation of E2F1 with DNA repair and antioxidant genes in BC individuals suggests that this function is more tightly controlled in the population and does not play a role in determination of risk for BC. E2F1 has previously been reported to regulate transcription of DNA repair enzyme genes in other cell types, including primary human fibroblasts and mouse epidermal cells [24,25]. Clearly this would have survival value since DNA repair gene up-regulation in response to E2F1 provides additional DNA repair when the DNA is replicating and is particularly vulnerable to damage.
+
+Epidemiologic assessment of the correlation between a particular variation in DNA sequence, or polymorphism, and risk for BC has been a dominant paradigm for many years. Thus far, these efforts have met with scant success [26]. A common limitation in design of such studies is that they involve assessment of a single polymorphism or occasionally, a few polymorphisms. Further, although the polymorphism assessed typically resides within a gene known to protect bronchial epithelium from carcinogens, oxidants, or DNA damage, the selection of the particular polymorphism for study is largely empiric, and not based on known functional properties. These are problems because multiple infrequent polymorphisms at different sites may all contribute to risk and unless the key polymorphisms can be identified through a functional test, a statistically valid assessment would require much larger study populations [27].
+
+The findings of this study support a novel approach to identifying clinically useful biomarkers. According to the paradigm used in this study, a) a normal phenotype results from regulated transcription of a group of genes by one or more transcription factors, b) the corresponding risk-conferring or disease phenotype results from sub-optimal interaction among those same genes, and c) each phenotype is identifiable and distinguishable through virtually-multiplexed transcript abundance analysis. The data presented here support the utility of this paradigm in identifying genes associated with risk for BC.
+
+The next step will be to identify polymorphisms that affect regulation of XRCC1, ERCC5, GSTP1, SOD1, and GPX1 by CEBPG. Such polymorphisms should yield biomarkers suitable for more readily accessible samples, such as peripheral blood or buccal smears. A biomarker combining polymorphisms that affect regulation with those that affect function of antioxidant and DNA repair genes is likely to be the most accurate for identifying individuals at risk for BC. Biomarkers that accurately identify individuals at risk for BC will improve efficacy of chemoprevention and early detection clinical trials.
+
+The observed inter-sample variation in the presence of gene-specific inhibitors of PCR provides evidence supporting the need for inclusion of an internal standard in each quantitative PCR transcript abundance measurement. Including such internal standards in the form of standardized mixtures of internal standards improves the reproducibility of transcript abundance measurement and enables development of a standardized database comprising virtually-multiplexed transcript abundance data. Virtually-multiplexed transcript abundance data are highly suited to identification of genes that have correlated transcript abundance values. Correlation at the transcript abundance level is an important property of genes that are co-regulated at the transcription level.
+
+Conclusion
+
+We conclude that in non-BC individuals, CEBPG regulates transcription of key antioxidant or DNA repair genes in NBEC and that in smokers who develop BC, CEBPG regulation is sub-optimal for a sufficient number of antioxidant and/or DNA repair genes to cause increased risk.
+
+Competing interests
+
+JCW and ELC each have significant equity interest in Gene Express, Inc., which produces and markets StaRT-PCR™ reagents used in this study.
+
+Authors' contributions
+
+DNM participated in the design of the study, performed the TF identification, carried out TA measurements, coordinated and participated in the statistical analysis and drafted the manuscript. ELC contributed the preliminary data, participated in the design of the study and carried out TA measurements. SAK performed the statistical analysis for interpretation of data. DAH and YY consented patients and obtained the primary samples necessary for the study according to IRB regulations. JCW conceived of the study, participated in its design and coordination, and helped to draft the manuscript. All authors read and approved the final manuscript.
+
+Pre-publication history
+
+The pre-publication history for this paper can be accessed here:
+
+
+
+Acknowledgements
+
+These studies and manuscript preparation were supported by grants from the National Cancer Institute (NCI), including CA85147 and CA 95806, and the George Isaac Cancer Research Fund. StaRT-PCR reagents for measurement of some of the genes were provided at no cost by Gene Express, Inc. Neither the NCI nor Gene Express, Inc. had any role in study design, collection, analysis, or interpretation of data, writing of the manuscript, or in the decision to submit the manuscript for publication.
+
+Figures and Tables
+
+Figure 1
+
+Correlation of each transcription factor with XRCC1, ERCC5, GSTP1, SOD1, or GPX1. (a-f) Each panel presents the correlation coefficients (r values) for one transcription factor in relation to each of the five genes: (a) CEBPB, (b) CEBPG, (c) E2F1, (d) E2F3, (e) E2F6, (f) EVI1. The p value for each significant correlation is provided above the bar. For CEBPG, presented in panel b, the difference in r value between non-BC individuals and BC individuals was significant or nearly significant for each correlated gene, and the p value for each comparison is provided below the corresponding pair of bars.
+
+Figure 2
+
+Scatter plot representation of bivariate correlation of CEBPG with XRCC1. (a, b) CEBPG/XRCC1 data from Figure 1b presented as scatter plots: (a) non-BC individuals, (b) BC individuals.
+
+Table 1
+
+Demographic data of patients from whom the NBEC samples were obtained.
+
+1Pack years; 2Non-bronchogenic carcinoma individual; 3White; 4African-American; 5Non-smoker; 6Not available; 7Hispanic; 8Bronchogenic carcinoma individual; 9Non-small cell lung cancer; 10Squamous carcinoma; 11Small cell lung cancer; 12Carcinoma-in-situ; 13Adenocarcinoma;14Bronchogenic Cancer, histology not specified; 15Poorly differentiated carcinoma.
+
+Table 2
+
+Sequence for each primer used for StaRT-PCR virtually-multiplexed transcript abundance measurement or for internal standard preparation (CT) [15].
+
+Table 3
+
+Virtually-multiplexed transcript abundance data.
+
+Virtually-multiplexed transcript abundance data for each gene (in the form of molecules/106 β-actin molecules) from all experiments were included in the same Standardized Expression Database (SED). These data are now directly comparable to previously published virtually-multiplexed transcript abundance data from this laboratory [15], or to Virtually-multiplexed transcript abundance data collected by others who use the NCI-funded (R24 CA 95806) Standardized Expression Measurement (SEM) Center. The data presented here represent more than 6,000 Virtually-multiplexed transcript abundance measurements conducted in multiple experiments. The sixteen antioxidant or DNA repair genes and each of the six transcription factors except for E2F1 were measured in each NBEC sample from 49 individuals (24 non-BC individuals and 25 BC individuals).
+
+1ND, Not detectable (When 60 molecules of Competitive Template (CT) were added to the reaction, CT was detected but native template was not.)
+
+2NA, Not available. E2F1 was measured in all of the samples except for one BC individual (24 non-BC individuals and 24 BC individuals).
+
+Table 4
+
+Bivariate analysis of virtually-multiplexed transcript abundance data values for each antioxidant or DNA repair gene versus each transcription factor.
+
+The correlation of logarithmically transformed virtually-multiplexed transcript abundance data (Table 3) from each of the six transcription factors with each of the sixteen antioxidant or DNA repair genes was determined. The transformation was necessary due to the wide range of expression of each gene among the samples. The correlation coefficient (r value) and level of significance (p value) for each correlation are presented. Significance (p < 0.01) was determined using a two-tailed test following Bonferroni adjustment for six multiple comparisons (comparison of each of six transcription factors to each of the antioxidant or DNA repair genes).
+
+*values for E2F1 obtained in all but one BC individuals.
