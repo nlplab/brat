@@ -1,7 +1,9 @@
 FROM ubuntu:16.04
 
-RUN apt-get update && apt-get install -y python2.7-dev build-essential automake libpcre3 libpcre3-dev
+RUN apt-get update && apt-get install -y python2.7-dev build-essential automake libpcre3 libpcre3-dev python-pip python-dev
 RUN apt-get update && apt-get install -y wget vim python
+RUN pip install config
+RUN ./install.sh
 
 WORKDIR /app/brat/swig
 RUN wget http://prdownloads.sourceforge.net/swig/swig-3.0.12.tar.gz
