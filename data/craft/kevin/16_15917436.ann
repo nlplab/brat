@@ -1,0 +1,35 @@
+T1	Entity 71 80	Helicases
+T2	Entity 132 147	DNA replication
+R1	participates_in Arg1:T1 Arg2:T2	
+T3	Entity 177 207	helicase and ATPase activities
+T4	KeyEntity 215 241	mammalian Mcm4/6/7 complex
+R2	is_part_of Arg1:T3 Arg2:T4	
+T5	Entity 272 304	thymine-rich single-stranded DNA
+R3	regulates Arg1:T5 Arg2:T3	
+T6	KeyEntity 423 431	Mcm4/6/7
+T7	Entity 471 513	5′-proximal 25 nt single-stranded segments
+R4	is_part_of Arg1:T7 Arg2:T6	
+T8	Entity 592 608	thymine residues
+T9	Entity 667 685	unwinding efficacy
+R5	regulates Arg1:T8 Arg2:T9	
+T10	Entity 703 737	concurrent bidirectional unwinding
+T11	KeyEntity 767 775	Mcm4/6/7
+R6	participates_in Arg1:T11 Arg2:T10	
+T12	KeyEntity 830 838	Mcm4/6/7
+T13	Entity 865 894	fork and extension structures
+T14	Entity 906 933	single-stranded 3′-tail DNA
+R7	is_part_of Arg1:T14 Arg2:T13	
+R8	regulates Arg1:T12 Arg2:T13	
+T15	Entity 949 968	helicase activation
+T16	Entity 984 1015	sequence context of the 3′-tail
+R9	regulates Arg1:T16 Arg2:T15	
+T17	KeyEntity 1115 1123	Mcm4/6/7
+T18	Entity 1092 1111	Strand displacement
+R10	participates_in Arg1:T17 Arg2:T18	
+T19	Entity 1304 1331	mammalian Mcm4/6/7 helicase
+T20	Entity 1369 1387	base-paired duplex
+T21	Entity 1449 1484	activation and substrate preference
+T22	Entity 1492 1523	eukaryotic replicative helicase
+R11	is_part_of Arg1:T21 Arg2:T22	
+T23	Entity 1145 1155	GC content
+R12	participates_in Arg1:T23 Arg2:T18	

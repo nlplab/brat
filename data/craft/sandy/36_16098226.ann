@@ -1,0 +1,50 @@
+T1	Entity 145 157	PAX6 protein
+T2	Entity 163 188	transcriptional regulator
+T3	Entity 208 214	ocular
+T4	Entity 219 243	neurological development
+T5	Entity 309 318	PAX6 gene
+T6	Entity 324 337	malformations
+T7	Entity 345 348	eye
+T8	Entity 353 358	brain
+T9	Entity 498 502	PAX6
+T10	Entity 470 478	proteins
+T11	Entity 566 590	highly conserved peptide
+T12	Entity 598 608	C-terminus
+T13	Entity 616 628	PAX6 protein
+T14	Entity 697 721	brain-expressed proteins
+T15	Entity 745 763	C-terminal peptide
+T16	Entity 784 825	PAX6 proline-serine-threonine-rich domain
+T17	Entity 886 907	post-synaptic density
+T18	Entity 909 912	PSD
+T19	Entity 922 928	HOMER3
+T20	Entity 934 954	dynein subunit DNCL1
+T21	Entity 964 995	tripartite motif protein TRIM11
+R1	is_part_of Arg1:T1 Arg2:T2	
+R2	regulates Arg1:T2 Arg2:T3	
+R3	regulates Arg1:T2 Arg2:T4	
+R4	participates_in Arg1:T5 Arg2:T6	
+R5	is_part_of Arg1:T6 Arg2:T7	
+R6	is_part_of Arg1:T6 Arg2:T8	
+R7	interacts_with Arg1:T10 Arg2:T9	
+R8	is_part_of Arg1:T11 Arg2:T12	
+R9	is_part_of Arg1:T12 Arg2:T13	
+R10	interacts_with Arg1:T14 Arg2:T15	
+R11	interacts_with Arg1:T14 Arg2:T16	
+R12	other_relation Arg1:T18 Arg2:T17	
+#1	AnnotatorNotes R12	equivalent
+T22	KeyEntity 1178 1182	PAX6
+T23	Entity 1198 1204	HOMER3
+T24	Entity 1206 1211	DNCL1
+T25	Entity 1216 1222	TRIM11
+T26	Entity 1259 1263	PAX6
+T27	Entity 1269 1275	HOMER3
+T28	Entity 1280 1285	DNCL1
+T29	KeyEntity 1310 1329	synaptic activation
+T30	KeyEntity 1355 1388	neuronal transcriptional activity
+T31	Entity 1491 1519	protein-protein interactions
+R13	interacts_with Arg1:T22 Arg2:T23	
+R14	interacts_with Arg1:T22 Arg2:T24	
+R15	interacts_with Arg1:T22 Arg2:T25	
+R16	interacts_with Arg1:T29 Arg2:T30	
+T32	Entity 1445 1459	PAX6 mutations
+R17	interacts_with Arg1:T32 Arg2:T31	

@@ -1,0 +1,42 @@
+T1	Entity 376 393	biallelic effects
+T2	Entity 414 425	environment
+T3	Entity 429 447	genetic background
+T4	Entity 489 506	recessive alleles
+T5	Entity 528 548	enigmatic pleiotropy
+T6	KeyEntity 565 588	XPD recessive disorders
+T7	Entity 691 701	DNA repair
+T8	Entity 706 725	basal transcription
+T9	Entity 658 666	helicase
+T10	Entity 779 793	UV sensitivity
+T11	Entity 798 819	cancer predisposition
+T12	Entity 835 853	segmental progeria
+T13	Entity 878 895	biallelic effects
+T14	Entity 962 973	Xpd alleles
+T15	Entity 1037 1048	Xpd alleles
+T16	Entity 1114 1133	basal transcription
+T17	Entity 1052 1062	ameliorate
+T18	Entity 1199 1225	differential developmental
+T19	Entity 1230 1245	tissue-specific
+T20	Entity 1268 1287	Xpd allele products
+T21	Entity 1299 1327	interallelic complementation
+T22	Entity 1472 1485	XPD disorders
+T23	Entity 1577 1611	pathological phenotypic plasticity
+T24	Entity 1533 1550	recessive alleles
+T25	Entity 592 626	compound heterozygous mouse models
+R1	is_part_of Arg1:T5 Arg2:T6	
+#1	AnnotatorNotes T25	model_organism
+R2	participates_in Arg1:T9 Arg2:T7	
+R3	participates_in Arg1:T9 Arg2:T8	
+R4	participates_in Arg1:T9 Arg2:T10	
+R5	participates_in Arg1:T9 Arg2:T11	
+R6	participates_in Arg1:T11 Arg2:T12	
+R7	participates_in Arg1:T10 Arg2:T12	
+R8	is_part_of Arg1:T13 Arg2:T14	
+R9	regulates Arg1:T15 Arg2:T17	
+R10	is_part_of Arg1:T16 Arg2:T17	
+R11	is_part_of Arg1:T18 Arg2:T20	
+R12	is_part_of Arg1:T19 Arg2:T20	
+T26	Entity 1454 1468	“null” alleles
+R13	is_part_of Arg1:T26 Arg2:T22	
+R14	participates_in Arg1:T24 Arg2:T23	
+T27	Entity 95 118	compound heterozygosity

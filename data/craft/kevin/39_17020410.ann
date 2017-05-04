@@ -1,0 +1,20 @@
+T1	Entity 95 118	compound heterozygosity
+T2	Entity 199 222	human recessive disease
+T3	Entity 376 393	biallelic effects
+T4	Entity 489 506	recessive alleles
+T5	Entity 538 548	pleiotropy
+T6	Entity 565 588	XPD recessive disorders
+T7	Entity 592 626	compound heterozygous mouse models
+T8	Entity 658 666	helicase
+T9	Entity 691 701	DNA repair
+T10	Entity 706 725	basal transcription
+T11	Entity 770 793	elevated UV sensitivity
+T12	Entity 798 819	cancer predisposition
+T13	Entity 823 853	accelerated segmental progeria
+T14	KeyEntity 952 973	recessive Xpd alleles
+T15	Entity 878 895;899 919	biallelic effects organismal phenotype
+T16	KeyEntity 1019 1048	homozygous lethal Xpd alleles
+T17	Entity 1268 1287	Xpd allele products
+T18	Entity 1199 1225;1230 1255	differential developmental tissue-specific functions
+T19	Entity 1299 1327	interallelic complementation
+T20	Entity 1472 1485	XPD disorders

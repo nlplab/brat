@@ -1,0 +1,68 @@
+T1	KeyEntity 137 167	Ran-binding protein 2 (RanBP2)
+T2	Entity 179 215	multimodular and pleiotropic protein
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+T3	KeyEntity 319 325	RanBP2
+T4	KeyEntity 397 403	RanBP2
+T5	KeyEntity 449 455	RanBP2
+T6	KeyEntity 556 562	RanBP2
+T7	KeyEntity 597 603	RanBP2
+T8	Entity 609 620	mouse model
+T9	KeyEntity 622 628	RanBP2
+T10	Entity 686 716	mitochondrial metallochaperone
+R2	is_part_of Arg1:T9 Arg2:T10	
+T11	KeyEntity 718 723	Cox11
+T12	KeyEntity 758 781	hexokinase type I (HKI)
+T13	Entity 790 809	leucine-rich domain
+R3	is_part_of Arg1:T13 Arg2:T12	
+R4	is_part_of Arg1:T9 Arg2:T11	
+R5	is_part_of Arg1:T9 Arg2:T12	
+#1	AnnotatorNotes T9	All relations with this one mean they are overlapping in the same region, but there wasn't a relation for this
+T14	Entity 815 834	leucine-rich domain
+T15	KeyEntity 838 844	RanBP2
+R6	is_part_of Arg1:T14 Arg2:T15	
+T16	Entity 866 884	chaperone activity
+T17	KeyEntity 935 940	Cox11
+R7	regulates Arg1:T15 Arg2:T17	
+T18	KeyEntity 972 978	RanBP2
+T19	KeyEntity 1001 1017	Cox11 biogenesis
+T20	Entity 986 993	cytosol
+R8	participates_in Arg1:T16 Arg2:T20	
+R9	participates_in Arg1:T16 Arg2:T19	
+T21	KeyEntity 1019 1024	Cox11
+T22	KeyEntity 1052 1055	HKI
+R10	other_relation Arg1:T21 Arg2:T22	
+#2	AnnotatorNotes R10	works together
+T23	KeyEntity 1121 1126	Cox11
+T24	KeyEntity 1152 1155	HKI
+R11	regulates Arg1:T23 Arg2:T24	
+T25	KeyEntity 1161 1167	RanBP2
+T26	KeyEntity 1206 1211	Cox11
+T27	KeyEntity 1217 1220	HKI
+R12	regulates Arg1:T25 Arg2:T26	
+R13	regulates Arg1:T26 Arg2:T27	
+T28	KeyEntity 1257 1263	RanBP2
+T29	Entity 1280 1292	HKI function
+R14	regulates Arg1:T28 Arg2:T29	
+T30	Entity 1296 1307	mouse model
+T31	Entity 1332 1354	disrupted RanBP2 locus
+R15	is_part_of Arg1:T31 Arg2:T30	
+T32	KeyEntity 1370 1379	RanBP2−/−
+T33	Entity 1479 1509	decrease of HKI and ATP levels
+R16	participates_in Arg1:T32 Arg2:T33	
+T35	Entity 1529 1551	central nervous system
+T34	KeyEntity 1553 1574	Inbred RanBP2+/− mice
+T36	Entity 1782 1821	photosensory and postreceptoral neurons
+T37	KeyEntity 1830 1836	RanBP2
+T38	Entity 1887 1899	neuronal HKI
+T39	Entity 1901 1919	glucose catabolism
+T40	Entity 1921 1939	energy homeostasis
+R17	is_part_of Arg1:T33 Arg2:T35	
+T41	Entity 1600 1635	growth rates and glucose catabolism
+R18	other_relation Arg1:T34 Arg2:T41	
+#3	AnnotatorNotes R18	shows
+T42	Entity 1658 1672	glucose uptake
+T43	Entity 1677 1692	gluconeogenesis
+R19	regulates Arg1:T37 Arg2:T38	
+R20	regulates Arg1:T37 Arg2:T39	
+R21	regulates Arg1:T37 Arg2:T40	
+T44	Entity 1945 1952;1957 1966;1968 1983;1988 2007	targets metabolic aging disorders allied neuropathies

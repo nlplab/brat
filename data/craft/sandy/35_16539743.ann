@@ -1,0 +1,62 @@
+T1	Entity 144 163	Sterile alpha motif
+T2	KeyEntity 165 168	SAM
+T3	Entity 233 260	protein-protein interaction
+T4	Entity 332 346	Polycomb group
+T5	Entity 348 351	PcG
+T6	Entity 366 398	ETS family transcription factors
+T7	Entity 428 435	cloning
+T8	KeyEntity 479 508	SAM domain-containing protein
+T9	Entity 546 568	retinal photoreceptors
+T10	Entity 577 589	pineal gland
+T11	Entity 620 652	major retinal SAM domain protein
+T12	Entity 614 618	mr-s
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	equivalent
+R2	participates_in Arg1:T2 Arg2:T3	
+R3	other_relation Arg1:T5 Arg2:T4	
+#2	AnnotatorNotes R3	equivalent
+R4	participates_in Arg1:T8 Arg2:T9	
+R5	participates_in Arg1:T8 Arg2:T10	
+T13	Entity 861 879	SAM domain of mr-s
+T14	Entity 909 941	mouse polyhomeotic (ph) ortholog
+T15	Entity 943 953	Mph1/Rae28
+T16	Entity 1008 1031	chromatin modifications
+T17	KeyEntity 1077 1081	mr-s
+T18	Entity 1121 1136	gene expression
+T19	Entity 1140 1165	photoreceptor development
+T20	KeyEntity 1167 1171	mr-s
+T21	Entity 1207 1221	photoreceptors
+T22	Entity 1225 1242	postnatal day 3–6
+T23	Entity 1244 1248	P3-6
+T24	Entity 1279 1303	terminal differentiation
+T25	Entity 1316 1334	adult pineal gland
+T26	Entity 1336 1357	Transcription of mr-s
+T27	Entity 1387 1419	cone-rod homeodomain protein Crx
+T29	KeyEntity 1463 1475	mr-s protein
+T30	Entity 1511 1539	SAM domain-containing region
+T31	KeyEntity 1559 1571	mr-s protein
+T32	Entity 1596 1603	nucleus
+T33	Entity 1610 1614	mr-s
+T34	Entity 1618 1642	overexpressed in HEK293T
+T35	KeyEntity 1700 1712	mr-s protein
+T36	Entity 1722 1745	GAL4 DNA-binding domain
+T37	KeyEntity 1761 1786	transcriptional repressor
+T38	Entity 1910 1927	C-terminal region
+T39	Entity 1809 1836	repression activity of mr-s
+R6	other_relation Arg1:T12 Arg2:T11	
+#3	AnnotatorNotes R6	equivalent
+R7	regulates Arg1:T17 Arg2:T18	
+R8	regulates Arg1:T18 Arg2:T19	
+R9	participates_in Arg1:T20 Arg2:T22	
+R10	regulates Arg1:T27 Arg2:T26	
+R12	interacts_with Arg1:T29 Arg2:T30	
+R13	interacts_with Arg1:T35 Arg2:T36	
+R14	is_part_of Arg1:T35 Arg2:T37	
+R16	regulates Arg1:T38 Arg2:T39	
+T28	Entity 2127 2131	mr-s
+T40	KeyEntity 2150 2175	transcriptional repressor
+R11	is_part_of Arg1:T28 Arg2:T40	
+T41	Entity 2179 2198	photoreceptor cells
+T42	Entity 2206 2218	pinealocytes
+R15	regulates Arg1:T40 Arg2:T41	
+R17	regulates Arg1:T40 Arg2:T42	

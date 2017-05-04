@@ -1,0 +1,80 @@
+T1	Entity 107 146	Metal-responsive transcription factor 1
+T2	KeyEntity 148 153	MTF-1
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	is
+T3	Entity 219 236	stress conditions
+R2	regulates Arg1:T2 Arg2:T3	
+T4	Entity 246 262	heavy metal load
+R3	is_subclass_of Arg1:T4 Arg2:T3	
+T5	Entity 398 426	embryonic liver development.
+T6	Entity 445 461	deletion of Mtf1
+T7	Entity 524 554	Mtf1 conditional knockout mice
+T8	Entity 598 613	cadmium-treated
+T9	Entity 618 646	liver-specific transcription
+T10	Entity 751 761	MRE motifs
+T11	Entity 727 745	MTF-1 target genes
+T12	Entity 820 836	basal expression
+T13	Entity 840 855	selenoprotein W
+T14	KeyEntity 794 799	MTF-1
+T15	Entity 857 870	muscle 1 gene
+T16	Entity 872 877	Sepw1
+T17	Entity 894 913	glutathione-binding
+T18	Entity 918 946	putative antioxidant protein
+T19	Entity 982 1007	oxidative stress response
+T20	KeyEntity 969 974	MTF-1
+T21	KeyEntity 1022 1027	MTF-1
+T22	Entity 1041 1067	cadmium-induced expression
+T23	Entity 1071 1104	N-myc downstream regulated gene 1
+T24	Entity 1106 1111	Ndrg1
+T25	Entity 1142 1159	stress conditions
+T26	Entity 1189 1196	cancers
+T27	KeyEntity 1198 1203	MTF-1
+T28	Entity 1228 1244	cadmium response
+T29	Entity 1248 1289	cysteine- and glycine-rich protein 1 gene
+T30	Entity 1291 1296	Csrp1
+T31	Entity 1322 1347	cytoskeletal organization
+T32	KeyEntity 1362 1367	MTF-1
+T33	Entity 1382 1398	basal expression
+T34	Entity 1423 1439	zinc transporter
+T35	Entity 1476 1483	cadmium
+T36	Entity 1554 1581	regeneration of glutathione
+T37	Entity 1585 1612	cadmium-binding antioxidant
+T38	Entity 1675 1704	cellular anti-cadmium defense
+T39	KeyEntity 1714 1719	MTF-1
+T40	Entity 1750 1766	metallothioneins
+T41	Entity 1782 1793	glutathione
+T42	Entity 1823 1838	selenoprotein W
+T43	Entity 279 302	metal response elements
+T44	Entity 304 308	MREs
+R4	interacts_with Arg1:T2 Arg2:T43	
+R5	participates_in Arg1:T7 Arg2:T8	
+R6	is_part_of Arg1:T10 Arg2:T11	
+R7	regulates Arg1:T14 Arg2:T13	
+R8	is_part_of Arg1:T12 Arg2:T13	
+R9	other_relation Arg1:T16 Arg2:T15	
+#2	AnnotatorNotes R9	is
+R10	regulates Arg1:T16 Arg2:T17	
+R11	regulates Arg1:T16 Arg2:T18	
+R12	participates_in Arg1:T20 Arg2:T19	
+R13	interacts_with Arg1:T16 Arg2:T20	
+R14	regulates Arg1:T21 Arg2:T24	
+R15	is_part_of Arg1:T22 Arg2:T23	
+R16	other_relation Arg1:T24 Arg2:T23	
+#3	AnnotatorNotes R16	is
+R17	is_part_of Arg1:T27 Arg2:T28	
+R18	other_relation Arg1:T30 Arg2:T29	
+#4	AnnotatorNotes R18	is
+R19	participates_in Arg1:T27 Arg2:T30	
+R20	is_part_of Arg1:T30 Arg2:T31	
+R21	regulates Arg1:T32 Arg2:T45	
+T45	Entity 1402 1410	Slc39a10
+R22	other_relation Arg1:T45 Arg2:T34	
+#5	AnnotatorNotes R22	is
+R23	is_subclass_of Arg1:T33 Arg2:T45	
+R24	participates_in Arg1:T35 Arg2:T36	
+R25	other_relation Arg1:T37 Arg2:T36	
+#6	AnnotatorNotes R25	is
+R26	participates_in Arg1:T39 Arg2:T38	
+R27	is_subclass_of Arg1:T40 Arg2:T39	
+R28	participates_in Arg1:T41 Arg2:T38	
+R29	participates_in Arg1:T42 Arg2:T38	

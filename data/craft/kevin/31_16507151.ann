@@ -1,0 +1,24 @@
+T1	Entity 93 119	Collagen-induced arthritis
+T2	Entity 219 239	rheumatoid arthritis
+T3	Entity 247 273	collagen-induced arthritis
+T4	Entity 392 412	rheumatoid arthritis
+T5	Entity 519 545	collagen-induced arthritis
+T6	Entity 558 574	aged female mice
+T7	KeyEntity 594 626	NFR/N and B10.Q (H-2q haplotype)
+R1	other_relation Arg1:T7 Arg2:T6	
+#1	AnnotatorNotes R1	attribute
+T8	Entity 822 849	total genome-wide screening
+T9	Entity 859 881	microsatellite markers
+R2	participates_in Arg1:T9 Arg2:T8	
+T10	Entity 912 936	quantitative trait locus
+T12	Entity 1001 1014;1024 1029	chromosome 11 Cia40
+T11	Entity 1057 1062;1075 1092	locus pregnancy failure
+T13	Entity 1109 1133	quantitative trait locus
+T14	Entity 1236 1248	chromosome 1
+T15	Entity 1286 1310	quantitative trait locus
+T16	Entity 1327 1359	collagen type II antibody titers
+T17	Entity 1378 1391	chromosome 13
+T18	Entity 1427 1436	gene loci
+T19	Entity 1445 1454	arthritis
+T20	Entity 1458 1482	aged multiparous females
+T21	Entity 1535 1552	pregnancy failure

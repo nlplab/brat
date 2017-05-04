@@ -1,0 +1,17 @@
+T1	KeyEntity 75 96	Neurotrophin-3 (NT-3)
+T2	Entity 113 143	proprioceptive neuron survival
+T3	KeyEntity 161 182	proapoptotic gene Bax
+T4	KeyEntity 186 204	NT-3 knockout mice
+T5	Entity 263 274	axon growth
+T6	Entity 293 307	NT-3 signaling
+T7	Entity 309 333;338 351	TrkC-positive peripheral central axons
+T8	Entity 357 376	dorsal root ganglia
+T9	Entity 493 508	muscle spindles
+T10	Entity 524 543	TrkC-positive axons
+T11	Entity 590 610	proprioceptive axons
+T12	KeyEntity 808 812	NT-3
+T13	Entity 865 889	muscle sensory afferents
+T14	Entity 823 860	short-distance axon guidance molecule
+T15	KeyEntity 734 738	NT-3
+T16	Entity 621 636;644 655	ectopic regions spinal cord
+T17	Entity 742 768	dorsal root ganglion axons

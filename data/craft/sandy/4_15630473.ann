@@ -1,0 +1,39 @@
+T1	Entity 148 176	multipotent epithelial sheet
+T2	Entity 234 247	bud structure
+T3	Entity 384 411	multiple extracellular cues
+T4	Entity 429 446	adhesion dynamics
+T5	Entity 451 464	proliferation
+T6	Entity 478 494	cluster of cells
+T7	Entity 519 558	transforming growth factor β2 signaling
+T8	Entity 598 624	transcription factor Snail
+T9	Entity 642 678	Ras-mitogen-activated protein kinase
+T10	Entity 680 684	MAPK
+T11	Entity 724 743	Snail misexpression
+T12	Entity 753 771	hyperproliferation
+T13	Entity 778 813	reduction in intercellular adhesion
+T14	Entity 820 830	E-cadherin
+T15	Entity 834 866	transcriptionally down-regulated
+T16	Entity 934 966	released from cell-cell contacts
+T17	Entity 879 896	adhesion proteins
+T18	Entity 920 929	signaling
+T19	Entity 1008 1027	Ras-MAPK activation
+T20	Entity 1128 1151	transcriptional changes
+T21	Entity 1069 1086	multipotent cells
+T22	Entity 1167 1180	proliferation
+T23	Entity 1182 1203	junctional remodeling
+T24	Entity 1209 1222	bud formation
+R1	participates_in Arg1:T1 Arg2:T2	
+R2	regulates Arg1:T3 Arg2:T4	
+R3	regulates Arg1:T3 Arg2:T5	
+R4	participates_in Arg1:T5 Arg2:T6	
+R5	participates_in Arg1:T4 Arg2:T6	
+R6	regulates Arg1:T7 Arg2:T8	
+R7	regulates Arg1:T7 Arg2:T9	
+R8	other_relation Arg1:T10 Arg2:T9	
+#1	AnnotatorNotes R8	equivalent
+R9	participates_in Arg1:T11 Arg2:T12	
+R10	participates_in Arg1:T11 Arg2:T13	
+R11	is_part_of Arg1:T15 Arg2:T14	
+R12	participates_in Arg1:T17 Arg2:T16	
+R13	participates_in Arg1:T16 Arg2:T19	
+R14	regulates Arg1:T20 Arg2:T21	

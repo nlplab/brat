@@ -1,0 +1,28 @@
+T1	Entity 115 134	Dopamine modulation
+T2	Entity 138 156	neuronal signaling
+T3	Entity 255 279	external sensory stimuli
+T4	Entity 306 324	environmental cues
+T6	Entity 434 452	dopamine signaling
+T7	Entity 473 480	D1-like
+T8	Entity 484 501	D2-like receptors
+T9	Entity 523 540	D1-like receptors
+T10	Entity 557 580	goal-directed behaviors
+T11	Entity 697 736	dopamine D2 receptor-mediated signaling
+T12	Entity 799 812	C57Bl/6J mice
+T13	Entity 845 866	dopamine D2 receptors
+T14	Entity 967 990	stimulus discrimination
+T15	Entity 1011 1046	inappropriate behavioral strategies
+T16	Entity 1093 1110	reversal learning
+R1	is_part_of Arg1:T1 Arg2:T2	
+R2	participates_in Arg1:T3 Arg2:T2	
+R3	is_subclass_of Arg1:T4 Arg2:T3	
+R4	regulates Arg1:T7 Arg2:T6	
+R5	regulates Arg1:T8 Arg2:T6	
+T5	Entity 629 641	D2 receptors
+T18	Entity 752 785	associative and reversal learning
+R6	participates_in Arg1:T11 Arg2:T18	
+R7	is_part_of Arg1:T13 Arg2:T12	
+T17	Entity 937 945	salience
+R8	interacts_with Arg1:T13 Arg2:T17	
+R9	participates_in Arg1:T17 Arg2:T14	
+R10	participates_in Arg1:T15 Arg2:T16	

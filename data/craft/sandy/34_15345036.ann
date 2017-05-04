@@ -1,0 +1,59 @@
+T1	Entity 134 146	Phagocytosis
+T2	Entity 150 165	apoptotic cells
+T4	Entity 204 219	immune function
+T5	Entity 224 244	cellular homeostasis
+T6	Entity 250 277	phosphatidylserine receptor
+T7	KeyEntity 279 284	Ptdsr
+R1	other_relation Arg1:T7 Arg2:T6	
+#1	AnnotatorNotes R1	equivalent
+T8	Entity 327 338	recognition
+T9	Entity 343 353	engulfment
+T10	Entity 357 372	apoptotic cells
+T11	Entity 380 407	anti-inflammatory signaling
+T12	Entity 453 480	phosphatidylserine receptor
+T13	KeyEntity 509 519	Ptdsr gene
+T14	Entity 527 532	mouse
+T3	Entity 184 202	animal development
+R2	is_part_of Arg1:T1 Arg2:T2	
+R3	participates_in Arg1:T7 Arg2:T11	
+R4	interacts_with Arg1:T12 Arg2:T13	
+T15	KeyEntity 556 570	Ptdsr function
+T16	Entity 586 605	perinatal lethality
+T17	Entity 607 625	growth retardation
+T18	Entity 641 665	terminal differentiation
+T19	Entity 715 728	embryogenesis
+T20	Entity 740 755	eye development
+T21	Entity 807 830	retinal differentiation
+T22	Entity 843 882	unilateral or bilateral absence of eyes
+T23	Entity 884 898	Ptdsr -/- mice
+T24	Entity 904 916	anophthalmia
+T25	Entity 925 938	novel lesions
+T26	Entity 958 994	ectopic retinal-pigmented epithelium
+T27	Entity 998 1012	nasal cavities
+T28	Entity 1047 1071	apoptotic cell clearance
+T29	Entity 1180 1207	Ptdsr-deficient macrophages
+T30	Entity 1225 1270	pro- and anti-inflammatory cytokine signaling
+T31	Entity 1294 1309	apoptotic cells
+T32	Entity 1318 1336	lipopolysaccharide
+R5	participates_in Arg1:T15 Arg2:T16	
+R6	participates_in Arg1:T15 Arg2:T17	
+R7	participates_in Arg1:T15 Arg2:T18	
+R8	is_subclass_of Arg1:T21 Arg2:T20	
+R9	is_subclass_of Arg1:T22 Arg2:T20	
+R10	is_part_of Arg1:T24 Arg2:T25	
+R11	participates_in Arg1:T29 Arg2:T30	
+T33	Entity 1351 1356	Ptdsr
+T34	Entity 1394 1409	differentiation
+T35	Entity 1422 1428	organs
+T36	Entity 1436 1449	embryogenesis
+T37	Entity 1526 1548	developmental function
+T38	Entity 1565 1595	differentiation-promoting gene
+T39	KeyEntity 1486 1491	Ptdsr
+T40	Entity 1721 1750	macrophage cytokine responses
+T41	KeyEntity 1607 1612	Ptdsr
+T42	Entity 1378 1389	development
+R12	regulates Arg1:T33 Arg2:T42	
+R13	regulates Arg1:T33 Arg2:T34	
+R14	participates_in Arg1:T39 Arg2:T37	
+R15	is_part_of Arg1:T39 Arg2:T38	
+R16	regulates Arg1:T41 Arg2:T40	

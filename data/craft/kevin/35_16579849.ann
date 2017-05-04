@@ -1,0 +1,6 @@
+T1	KeyEntity 126 158	Maple Syrup Urine Disease (MSUD)
+T2	KeyEntity 218 256	branched-chain keto acid dehydrogenase
+T3	KeyEntity 258 262	MSUD
+T4	Entity 312 339	degree of enzyme deficiency
+R1	participates_in Arg1:T2 Arg2:T1	
+R2	regulates Arg1:T4 Arg2:T3	

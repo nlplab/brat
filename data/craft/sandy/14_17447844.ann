@@ -1,0 +1,50 @@
+T1	KeyEntity 115 128	Gametogenesis
+T2	Entity 134 160	sexually dimorphic process
+T3	Entity 195 220	germ cell differentiation
+T4	Entity 268 297	heteromorphic sex chromosomes
+T5	Entity 301 306	males
+T6	Entity 470 477	XY body
+T7	Entity 442 464	heterochromatin domain
+T8	KeyEntity 641 646	DMRT7
+T9	Entity 650 673	mammal-specific protein
+T10	Entity 689 719	invertebrate sexual regulators
+T11	Entity 720 729	Doublesex
+T12	Entity 734 739	MAB-3
+T13	KeyEntity 754 759	DMRT7
+T14	Entity 792 799	XY body
+T15	Entity 807 822	pachytene stage
+T16	Entity 826 842	meiotic prophase
+T17	Entity 863 875	male meiosis
+T18	Entity 880 893	Dmrt7 mutants
+T19	Entity 1057 1066	apoptosis
+T20	Entity 1177 1199	abnormal sex chromatin
+T21	Entity 1208 1243	histone H3K9 di- and trimethylation
+T22	Entity 1248 1274	heterochromatin protein 1β
+T23	Entity 1275 1287	accumulation
+T24	Entity 1506 1534	sex chromatin transformation
+T25	KeyEntity 1480 1485	DMRT7
+T26	Entity 1555 1564	pachynema
+T27	Entity 1569 1578	diplonema
+T28	KeyEntity 1596 1601	DMRT7
+T29	Entity 1639 1674	meiotic sex chromosome inactivation
+T30	Entity 1678 1703	postmeiotic sex chromatin
+T31	Entity 1829 1849	evolution of meiosis
+T32	KeyEntity 1805 1810	Dmrt7
+R1	other_relation Arg1:T1 Arg2:T2	
+#1	AnnotatorNotes R1	is
+R2	regulates Arg1:T3 Arg2:T1	
+R3	is_part_of Arg1:T4 Arg2:T5	
+R4	other_relation Arg1:T6 Arg2:T7	
+#2	AnnotatorNotes R4	is
+R5	is_part_of Arg1:T8 Arg2:T9	
+R6	is_part_of Arg1:T11 Arg2:T10	
+R7	is_part_of Arg1:T12 Arg2:T10	
+R8	participates_in Arg1:T13 Arg2:T14	
+R9	participates_in Arg1:T15 Arg2:T16	
+R10	participates_in Arg1:T18 Arg2:T19	
+R11	is_part_of Arg1:T21 Arg2:T20	
+R12	participates_in Arg1:T22 Arg2:T23	
+R13	interacts_with Arg1:T25 Arg2:T24	
+R14	interacts_with Arg1:T28 Arg2:T29	
+R15	interacts_with Arg1:T28 Arg2:T30	
+R16	is_part_of Arg1:T32 Arg2:T31	

@@ -1,0 +1,37 @@
+T1	Entity 286 310	gene expression patterns
+T2	Entity 312 324	morphologies
+T3	Entity 330 353	synaptic connectivities
+T4	Entity 418 440	retinal degeneration 7
+T5	Entity 442 445	rd7
+T6	Entity 477 507	human enhanced S-cone syndrome
+T7	Entity 509 513	ESCS
+T8	Entity 538 558	spontaneous deletion
+T9	Entity 584 589	NR2E3
+T10	Entity 601 638	nuclear receptor transcription factor
+T11	Entity 735 745	rd7 retina
+T12	Entity 786 810	S-opsin–expressing cells
+T13	Entity 893 907	photoreceptors
+T14	Entity 915 925	rd7 retina
+T15	Entity 938 970	morphologically hybrid cell type
+T16	Entity 1107 1124	rd7 mutant retina
+T17	Entity 1284 1311	glucose/glycogen metabolism
+T18	Entity 1158 1171	cone-specific
+T19	Entity 1175 1194	cone-enriched genes
+T20	Entity 1334 1360	bnormal electroretinograms
+T21	Entity 1362 1387	slow retinal degeneration
+T22	Entity 1393 1414	retinal dysmorphology
+T23	Entity 1500 1530	hybrid photoreceptor cell type
+T24	Entity 1657 1678	molecular differences
+T25	Entity 1687 1691	rods
+T26	Entity 1696 1701	cones
+R1	other_relation Arg1:T5 Arg2:T4	
+#1	AnnotatorNotes R1	equivalent
+R2	other_relation Arg1:T7 Arg2:T6	
+#2	AnnotatorNotes R2	equivalent
+R3	participates_in Arg1:T8 Arg2:T10	
+R4	participates_in Arg1:T11 Arg2:T12	
+R5	is_part_of Arg1:T13 Arg2:T15	
+R6	participates_in Arg1:T16 Arg2:T17	
+R7	participates_in Arg1:T23 Arg2:T20	
+R8	participates_in Arg1:T23 Arg2:T21	
+R9	participates_in Arg1:T23 Arg2:T22	

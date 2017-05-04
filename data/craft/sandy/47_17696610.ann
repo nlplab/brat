@@ -1,0 +1,39 @@
+T1	KeyEntity 340 346	Trip13
+T2	Entity 351 373	pachytene checkpoint 2
+T3	Entity 375 379	PCH2
+T4	Entity 412 431	synapsis checkpoint
+T5	Entity 504 525	completion of meiosis
+T6	Entity 541 557	TRIP13-deficient
+T7	Entity 571 589	spermatocyte death
+T8	Entity 607 622	loss of oocytes
+T9	Entity 761 766	RAD51
+T10	Entity 768 771	BLM
+T11	Entity 777 780	RPA
+T12	Entity 722 749	recombination intermediates
+T13	Entity 819 836	chiasmata markers
+T14	Entity 837 841	MLH1
+T15	Entity 846 850	MLH3
+T16	Entity 856 878	okadaic acid treatment
+T17	Entity 882 902	mutant spermatocytes
+T18	Entity 910 936	progression to metaphase I
+T19	Entity 1115 1121	TRIP13
+T20	Entity 1136 1163	meiotic checkpoint function
+T21	KeyEntity 1196 1202	TRIP13
+T22	Entity 1264 1284	recombination events
+T23	Entity 1486 1507	unrepaired DNA damage
+T24	Entity 1530 1559	pachytene checkpoint response
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+R2	other_relation Arg1:T3 Arg2:T2	
+#1	AnnotatorNotes R2	equivalent
+R3	regulates Arg1:T1 Arg2:T5	
+R4	participates_in Arg1:T6 Arg2:T7	
+R5	participates_in Arg1:T6 Arg2:T8	
+R6	is_subclass_of Arg1:T9 Arg2:T12	
+R7	is_subclass_of Arg1:T10 Arg2:T12	
+R8	is_subclass_of Arg1:T11 Arg2:T12	
+R9	is_subclass_of Arg1:T14 Arg2:T13	
+R10	is_subclass_of Arg1:T15 Arg2:T13	
+R11	participates_in Arg1:T16 Arg2:T18	
+R12	participates_in Arg1:T19 Arg2:T20	
+R13	regulates Arg1:T21 Arg2:T22	
+R14	interacts_with Arg1:T23 Arg2:T24	

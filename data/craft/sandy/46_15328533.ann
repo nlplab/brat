@@ -1,0 +1,19 @@
+T1	Entity 212 228	scripted changes
+T2	Entity 232 247	gene expression
+T3	Entity 117 153	adaptive muscle fiber transformation
+T4	Entity 161 197	increase of mitochondrial biogenesis
+T5	Entity 525 569	peroxisome proliferator-activated receptor δ
+T6	Entity 571 576	PPARδ
+T7	Entity 614 620	switch
+T8	Entity 650 670	type I muscle fibers
+T9	Entity 705 710	PPARδ
+T10	Entity 837 858	resistance to obesity
+T11	Entity 864 891	improved metabolic profiles
+R1	participates_in Arg1:T1 Arg2:T2	
+R2	other_relation Arg1:T6 Arg2:T5	
+#1	AnnotatorNotes R2	equivalent
+R3	interacts_with Arg1:T6 Arg2:T7	
+R4	other_relation Arg1:T7 Arg2:T8	
+T12	Entity 801 829	genetically generated fibers
+R5	participates_in Arg1:T12 Arg2:T10	
+R6	participates_in Arg1:T10 Arg2:T11	

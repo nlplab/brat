@@ -1,0 +1,63 @@
+T1	Entity 168 195	transcriptional coactivator
+T2	Entity 196 255	peroxisome proliferator-activated receptor-γ coactivator-1α
+T3	KeyEntity 257 263	PGC-1α
+T4	Entity 287 298	PGC-1α null
+T5	Entity 413 448	abnormal energy metabolic phenotype
+T6	Entity 530 558	mitochondrial energy demands
+T7	Entity 454 479	postnatal growth of heart
+T8	Entity 484 511	slow-twitch skeletal muscle
+T9	Entity 574 583	PGC-1α−/−
+T10	Entity 648 656	body fat
+T11	Entity 693 700	females
+T12	Entity 702 722	Mitochondrial number
+T13	Entity 727 747	respiratory capacity
+T14	Entity 765 792	slow-twitch skeletal muscle
+T15	Entity 796 805	PGC-1α−/−
+T16	Entity 831 849	muscle performance
+T17	Entity 854 871	exercise capacity
+T18	Entity 919 935	cardiac function
+T19	Entity 975 985	heart rate
+T20	Entity 873 882	PGC-1α−/−
+T21	Entity 991 1000	PGC-1α−/−
+T22	Entity 1030 1051	core body temperature
+T23	Entity 1107 1127	thermogenic response
+T24	Entity 1185 1202	hepatic steatosis
+T25	Entity 1235 1269	mitochondrial respiratory capacity
+T26	Entity 1301 1316	lipogenic genes
+T27	Entity 1372 1403	diet-induced insulin resistance
+T28	Entity 1332 1341	PGC-1α−/−
+T29	Entity 1437 1453	vacuolar lesions
+T30	Entity 1475 1497	central nervous system
+T31	Entity 1501 1510	PGC-1α−/−
+T32	KeyEntity 1548 1554	PGC-1α
+T33	Entity 1584 1594	adaptation
+T34	Entity 1602 1611	metabolic
+T35	Entity 1616 1637	physiologic stressors
+T36	Entity 1641 1655	postnatal life
+R1	other_relation Arg1:T3 Arg2:T2	
+#1	AnnotatorNotes R1	equivalent
+R2	is_subclass_of Arg1:T3 Arg2:T1	
+T37	Entity 300 309	PGC-1α−/−
+R3	other_relation Arg1:T37 Arg2:T4	
+#2	AnnotatorNotes R3	equivalent
+R4	participates_in Arg1:T7 Arg2:T6	
+R5	participates_in Arg1:T8 Arg2:T6	
+T38	Entity 604 613	PGC-1α−/−
+R6	participates_in Arg1:T38 Arg2:T10	
+R7	interacts_with Arg1:T12 Arg2:T14	
+R8	interacts_with Arg1:T13 Arg2:T14	
+R9	is_part_of Arg1:T15 Arg2:T14	
+R10	participates_in Arg1:T20 Arg2:T18	
+R11	participates_in Arg1:T18 Arg2:T19	
+R12	participates_in Arg1:T21 Arg2:T22	
+R13	participates_in Arg1:T21 Arg2:T23	
+T39	Entity 1162 1171	PGC-1α−/−
+R14	participates_in Arg1:T39 Arg2:T24	
+R15	is_part_of Arg1:T25 Arg2:T24	
+R16	is_part_of Arg1:T26 Arg2:T24	
+R17	participates_in Arg1:T28 Arg2:T27	
+R18	is_subclass_of Arg1:T29 Arg2:T30	
+R19	is_part_of Arg1:T29 Arg2:T31	
+R20	regulates Arg1:T32 Arg2:T33	
+R21	regulates Arg1:T32 Arg2:T34	
+R22	regulates Arg1:T32 Arg2:T35	

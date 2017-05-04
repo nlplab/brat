@@ -1,0 +1,66 @@
+T1	Entity 175 179	JNCL
+T2	Entity 208 249	childhood-onset neurodegenerative disease
+T3	Entity 282 295	CLN3 mutation
+T4	Entity 311 336	loss of battenin activity
+T5	Entity 360 386	mitochondrial ATP synthase
+T6	Entity 388 397	subunit c
+T7	Entity 421 432	CNS neurons
+T8	Entity 458 468	Cln3Δex7/8
+T9	Entity 511 524	JNCL mutation
+T10	Entity 541 549	battenin
+T11	Entity 562 581	JNCL-like pathology
+R1	regulates Arg1:T1 Arg2:T2	
+#1	AnnotatorNotes R1	equivalent
+R2	participates_in Arg1:T3 Arg2:T1	
+R3	participates_in Arg1:T4 Arg2:T5	
+R4	participates_in Arg1:T4 Arg2:T6	
+R5	participates_in Arg1:T4 Arg2:T7	
+R6	participates_in Arg1:T9 Arg2:T8	
+R7	interacts_with Arg1:T8 Arg2:T10	
+R8	participates_in Arg1:T8 Arg2:T11	
+T12	Entity 637 650	JNCL mutation
+T13	Entity 654 668	neuronal cells
+T14	Entity 678 705	P4 knock-in mouse cerebella
+T15	Entity 746 752	CbCln3
+T16	Entity 793 822	neuronal precursor cell lines
+T17	Entity 857 862	MAP-2
+T18	Entity 867 880	NeuN-positive
+T19	Entity 882 899	neuron-like cells
+T20	Entity 912 924	CbCln3Δex7/8
+T21	Entity 970 978	battenin
+T22	Entity 1009 1036	accumulate ATPase subunit c
+T23	Entity 1102 1123	cathepsin D transport
+T24	Entity 1128 1138	processing
+T25	Entity 1208 1222	lysosomal size
+T26	Entity 1227 1239	distribution
+T27	Entity 1257 1268	endocytosis
+T28	Entity 1294 1306	mitochondria
+T29	Entity 1333 1345	cellular ATP
+T30	Entity 1391 1407	oxidative stress
+R9	participates_in Arg1:T12 Arg2:T13	
+R10	is_part_of Arg1:T14 Arg2:T12	
+R11	is_subclass_of Arg1:T17 Arg2:T19	
+R12	is_subclass_of Arg1:T18 Arg2:T19	
+R13	is_subclass_of Arg1:T19 Arg2:T16	
+R14	other_relation Arg1:T20 Arg2:T21	
+#2	AnnotatorNotes R14	expresses
+R15	participates_in Arg1:T20 Arg2:T22	
+T31	Entity 1038 1058	Recessive phenotypes
+R16	participates_in Arg1:T23 Arg2:T31	
+R17	participates_in Arg1:T24 Arg2:T31	
+R18	participates_in Arg1:T25 Arg2:T31	
+R19	participates_in Arg1:T26 Arg2:T31	
+R20	participates_in Arg1:T27 Arg2:T31	
+T32	Entity 1322 1331	elongated
+R21	participates_in Arg1:T28 Arg2:T32	
+R22	participates_in Arg1:T28 Arg2:T29	
+T33	Entity 1372 1380	survival
+R23	is_part_of Arg1:T30 Arg2:T33	
+T34	Entity 1461 1469	battenin
+T35	Entity 1486 1520	intracellular membrane trafficking
+T36	Entity 1525 1547	mitochondrial function
+T37	Entity 1615 1635	JNCL disease process
+T38	Entity 1664 1681	neuronal survival
+R24	regulates Arg1:T34 Arg2:T35	
+R25	regulates Arg1:T34 Arg2:T36	
+R26	interacts_with Arg1:T37 Arg2:T38	

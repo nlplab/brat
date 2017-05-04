@@ -1,0 +1,42 @@
+T1	Entity 197 248	cystic fibrosis transmembrane conductance regulator
+T2	Entity 250 254	CFTR
+T3	Entity 333 347	modifier genes
+T4	Entity 266 285	severity of disease
+T5	Entity 353 371	intestines of Cftr
+T6	Entity 422 433	obstruction
+T7	Entity 437 465	excessive mucus accumulation
+T8	Entity 493 507	meconium ileus
+T9	Entity 397 407	Cftrtm1Unc
+T10	Entity 512 550	distal intestinal obstruction syndrome
+T11	Entity 720 732	inflammation
+T12	Entity 740 755	small intestine
+T13	Entity 775 782	smaller
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	equivalent
+R2	interacts_with Arg1:T4 Arg2:T3	
+R3	participates_in Arg1:T6 Arg2:T5	
+R4	participates_in Arg1:T7 Arg2:T5	
+T14	Entity 1101 1117	mixed background
+T15	Entity 1187 1218	reduced intestinal inflammation
+T16	Entity 1282 1300	normal body weight
+T17	Entity 1316 1342	reduced mucus accumulation
+T18	Entity 1398 1411	gender effect
+T19	Entity 1755 1762	D1Mit36
+T20	Entity 1796 1803	D9Mit90
+T21	Entity 1843 1851	D10Mit14
+R5	participates_in Arg1:T14 Arg2:T15	
+R6	participates_in Arg1:T14 Arg2:T16	
+R7	participates_in Arg1:T14 Arg2:T17	
+T22	Entity 1705 1721	milder phenotype
+R8	participates_in Arg1:T19 Arg2:T22	
+R9	participates_in Arg1:T20 Arg2:T22	
+R10	participates_in Arg1:T21 Arg2:T22	
+T23	Entity 1916 1931	positive impact
+T24	Entity 1876 1892	modifier regions
+T25	Entity 1939 1961	inflammatory phenotype
+T26	Entity 1978 1993	small intestine
+T27	Entity 1998 2013	animal survival
+R11	participates_in Arg1:T24 Arg2:T23	
+R12	participates_in Arg1:T24 Arg2:T25	
+R13	is_part_of Arg1:T25 Arg2:T26	
+R14	is_part_of Arg1:T25 Arg2:T27	

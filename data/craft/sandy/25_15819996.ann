@@ -1,0 +1,21 @@
+T1	KeyEntity 90 100	Annexin A7
+T2	Entity 120 142	annexin protein family
+T3	Entity 199 212	phospholipids
+T4	Entity 232 241	Ca2+-ions
+T5	Entity 278 294	Ca2+-homeostasis
+T6	Entity 336 357	Ca2+-wave propagation
+T7	Entity 361 371	astrocytes
+T8	KeyEntity 411 421	Annexin A7
+T9	Entity 515 533	Annexin A7 protein
+T10	Entity 541 560	mouse embryogenesis
+T11	Entity 568 601	developing central nervous system
+T12	Entity 613 630	adult mouse brain
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+R2	interacts_with Arg1:T1 Arg2:T3	
+R3	participates_in Arg1:T4 Arg2:T3	
+R4	interacts_with Arg1:T1 Arg2:T5	
+R5	other_relation Arg1:T9 Arg2:T10	
+#1	AnnotatorNotes R5	time_stage
+R6	other_relation Arg1:T9 Arg2:T12	
+#2	AnnotatorNotes R6	time_stage
+R7	participates_in Arg1:T9 Arg2:T11	

@@ -1,0 +1,47 @@
+T1	Entity 98 111	Src substrate
+T2	Entity 126 133	mitosis
+T3	Entity 157 184	KH-type RNA binding protein
+T4	Entity 236 250	RNA metabolism
+R1	participates_in Arg1:T1 Arg2:T2	
+R2	is_part_of Arg1:T1 Arg2:T3	
+R3	regulates Arg1:T1 Arg2:T4	
+T5	KeyEntity 145 150	Sam68
+T6	KeyEntity 339 354	Sam68-null mice
+T7	Entity 358 382	homologous recombination
+R4	participates_in Arg1:T7 Arg2:T6	
+T8	KeyEntity 389 402	Sam68−/− mice
+T9	Entity 466 487	wild-type littermates
+T10	KeyEntity 591 604	Sam68−/− mice
+T11	KeyEntity 675 688	Sam68−/− mice
+T12	Entity 690 724	Sam68−/− bone marrow stromal cells
+T13	Entity 765 783	osteogenic pathway
+R5	participates_in Arg1:T12 Arg2:T13	
+T14	KeyEntity 812 817	Sam68
+T15	Entity 662 671;684 688	wild-type mice
+T16	Entity 824 841	short hairpin RNA
+T17	KeyEntity 897 912	C3H10T1/2 cells
+R6	interacts_with Arg1:T16 Arg2:T14	
+R7	is_part_of Arg1:T16 Arg2:T17	
+T18	Entity 959 995	mature osteoblast marker osteocalcin
+T19	Entity 1034 1062	bone morphogenetic protein-2
+T20	Entity 1076 1100	mouse embryo fibroblasts
+T21	KeyEntity 1116 1149	Sam68+/+ and Sam68−/− littermates
+T22	Entity 1185 1195	adipocytes
+T23	Entity 1227 1239	pioglitazone
+T24	Entity 1248 1281	Sam68−/− mouse embryo fibroblasts
+T25	Entity 1305 1330	adipocyte differentiation
+T26	KeyEntity 1406 1419	Sam68−/− mice
+T27	Entity 1428 1445	marrow adipocytes
+T28	Entity 1478 1507	wild-type littermate controls
+T29	KeyEntity 1577 1582	Sam68
+T30	Entity 1610 1635	adipocyte differentiation
+R8	regulates Arg1:T29 Arg2:T30	
+T31	Entity 1664 1690	osteoblast differentiation
+R9	regulates Arg1:T29 Arg2:T31	
+T32	KeyEntity 1717 1722	Sam68
+T33	Entity 1744 1788	bone marrow mesenchymal cell differentiation
+R10	regulates Arg1:T32 Arg2:T33	
+T34	Entity 1800 1815	bone metabolism
+T35	Entity 1820 1829	aged mice
+R11	regulates Arg1:T32 Arg2:T34	
+R12	is_part_of Arg1:T32 Arg2:T35	

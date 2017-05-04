@@ -1,0 +1,7 @@
+T1	Entity 144 211	α-amino-3-hydroxy-5-methyl-4-isoxazolepropionate receptors (AMPARs)
+T2	KeyEntity 344 365	Ca2+-permeable AMPARs
+T3	KeyEntity 389 407	AMPAR modification
+T4	Entity 441 455	GluR-B subunit
+T5	Entity 473 491	unedited GluR-B(Q)
+T6	Entity 519 536;540 546	Ca2+ permeability AMPARs
+T7	Entity 574 586	AMPAR switch

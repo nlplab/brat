@@ -1,0 +1,17 @@
+T1	Entity 354 390	small-effect quantitative trait loci
+T2	Entity 392 395	QTL
+T3	Entity 400 426	collagen induced arthritis
+T4	Entity 428 431	CIA
+T5	Entity 503 526	genome linkage analysis
+T6	Entity 638 662	gene expression patterns
+T7	Entity 771 792	genomic region linked
+T8	Entity 810 826	disease-specific
+T9	Entity 877 892	strain-specific
+T10	Entity 989 1001	CIA severity
+T11	Entity 954 976	Eight small-effect QTL
+T12	Entity 1205 1223	8 small-effect QTL
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	equivalent
+R2	other_relation Arg1:T4 Arg2:T3	
+#2	AnnotatorNotes R2	equivalent
+R3	participates_in Arg1:T11 Arg2:T10	

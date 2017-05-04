@@ -1,0 +1,77 @@
+T2	KeyEntity 294 310	droopy ear (deH)
+T3	Entity 320 353	dorsoventral skin characteristics
+T4	KeyEntity 393 404	Agouti gene
+T5	KeyEntity 424 456	Agouti allele black-and-tan (at)
+T6	KeyEntity 543 555	deH mutation
+T9	KeyEntity 726 736	Tbx15 gene
+T10	Entity 856 871	deH/deH animals
+T11	KeyEntity 935 948	deH phenotype
+T12	KeyEntity 963 985	Tbx15 loss of function
+T13	Entity 1026 1043	dorsal mesenchyme
+T14	Entity 993 1013	embryonic expression
+T15	KeyEntity 1064 1081	Agouti expression
+T16	Entity 1085 1103	ventral mesenchyme
+T17	KeyEntity 1112 1128	absence of Tbx15
+T18	KeyEntity 1144 1150	Agouti
+T19	KeyEntity 1357 1362	E12.5
+T20	KeyEntity 1417 1422	Tbx15
+T21	Entity 1459 1493	dorsoventral pigmentation boundary
+T22	Entity 1620 1640	Embryonic expression
+T23	Entity 1653 1676	dorsolateral mesenchyme
+T24	Entity 1740 1776	positional identity of dorsal dermis
+T25	Entity 1820 1830	T-box gene
+T26	Entity 1841 1862	embryonic development
+T27	Entity 148 165	dorsoventral axis
+R1	participates_in Arg1:T2 Arg2:T3	
+T1	Entity 567 588	pigmentation boundary
+R2	regulates Arg1:T6 Arg2:T1	
+T28	Entity 612 644	dorsal-to-ventral transformation
+T29	Entity 779 789	mesenchyme
+T30	Entity 806 843	pigmentary and skeletal malformations
+R6	participates_in Arg1:T30 Arg2:T10	
+T31	Entity 744 764	embryonic expression
+R8	other_relation Arg1:T9 Arg2:T31	
+R9	other_relation Arg1:T31 Arg2:T30	
+T32	KeyEntity 910 915	Tbx15
+R10	regulates Arg1:T12 Arg2:T11	
+R11	is_part_of Arg1:T7 Arg2:T13	
+R12	is_part_of Arg1:T15 Arg2:T16	
+R14	regulates Arg1:T17 Arg2:T18	
+T33	Entity 1202 1210	dorsally
+T34	Entity 1159 1188	embryos and postnatal animals
+R15	is_part_of Arg1:T18 Arg2:T34	
+R16	other_relation Arg1:T19 Arg2:T8	
+#2	AnnotatorNotes R16	Time stage
+T36	Entity 1593 1618	imb dorsoventral boundary
+R17	is_part_of Arg1:T36 Arg2:T21	
+R18	is_part_of Arg1:T22 Arg2:T23	
+R19	other_relation Arg1:T22 Arg2:T24	
+#3	AnnotatorNotes R19	required
+R20	genetically_interacts_with Arg1:T25 Arg2:T26	
+T37	Entity 1910 1933	dorsoventral patterning
+T38	Entity 2035 2061	egion-specific differences
+T39	Entity 2065 2080	body morphology
+R21	participates_in Arg1:T38 Arg2:T39	
+R22	participates_in Arg1:T4 Arg2:T3	
+T40	Entity 406 410	Mice
+R23	other_relation Arg1:T40 Arg2:T5	
+#4	AnnotatorNotes R23	carries
+T41	Entity 473 487	sharp boundary
+R24	participates_in Arg1:T41 Arg2:T5	
+R3	regulates Arg1:T6 Arg2:T28	
+T42	KeyEntity 667 682	deletion in deH
+#5	AnnotatorNotes R8	expression of
+R7	participates_in Arg1:T29 Arg2:T30	
+#6	AnnotatorNotes R9	correlates
+R4	is_part_of Arg1:T42 Arg2:T9	
+T7	KeyEntity 1017 1022	Tbx15
+R5	is_part_of Arg1:T14 Arg2:T7	
+T8	Entity 1304 1341	dorsoventral pigmentation differences
+T35	Entity 1393 1413	embryonic expression
+R13	is_part_of Arg1:T35 Arg2:T20	
+R25	other_relation Arg1:T19 Arg2:T35	
+#1	AnnotatorNotes R25	start stage
+T43	KeyEntity 1644 1649	Tbx15
+R26	is_part_of Arg1:T22 Arg2:T43	
+R27	is_part_of Arg1:T14 Arg2:T13	
+R28	is_part_of Arg1:T43 Arg2:T23	

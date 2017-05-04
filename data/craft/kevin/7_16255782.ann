@@ -1,0 +1,8 @@
+T1	Entity 229 256	bronchogenic carcinoma (BC)
+T2	Entity 187 204	Cigarette smoking
+T3	Entity 416 433	antioxidant genes
+T4	Entity 478 518	normal bronchial epithelial cells (NBEC)
+T5	Entity 604 616	NBEC samples
+T6	Entity 702 719	antioxidant genes
+T7	Entity 759 770;775 791	antioxidant DNA repair genes
+T8	Entity 1016 1018	BC

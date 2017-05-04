@@ -1,0 +1,13 @@
+T1	KeyEntity 100 106	ADAM11
+T2	Entity 126 142	ADAM gene family
+T3	Entity 174 188	nervous system
+T4	Entity 213 230	adhesion molecule
+T5	Entity 247 270	disintegrin-like domain
+T6	Entity 295 319	cell-matrix interactions
+T7	Entity 386 407	ADAM11-deficient mice
+T8	Entity 420 434	gene targeting
+R1	is_part_of Arg1:T1 Arg2:T2	
+R2	is_part_of Arg1:T3 Arg2:T1	
+R3	participates_in Arg1:T5 Arg2:T6	
+R4	other_relation Arg1:T7 Arg2:T8	
+#1	AnnotatorNotes R4	done_by

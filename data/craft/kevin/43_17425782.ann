@@ -1,0 +1,8 @@
+T1	Entity 98 110	pygopus gene
+T2	Entity 114 124	Drosophila
+T3	Entity 163 213	Armadillo (β-catenin) transcription factor complex
+T4	KeyEntity 227 240	Wnt signaling
+T5	KeyEntity 280 320	Pygopus-mediated canonical Wnt signaling
+T6	Entity 324 342	kidney development
+T7	KeyEntity 406 410	ygo1
+T8	KeyEntity 415 420	Pygo2

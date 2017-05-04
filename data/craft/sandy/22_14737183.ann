@@ -1,0 +1,76 @@
+T1	Entity 148 165	dorsoventral axis
+T2	KeyEntity 294 310	droopy ear (deH)
+T3	KeyEntity 320 353	dorsoventral skin characteristics
+T4	Entity 393 404	Agouti gene
+T5	Entity 424 456	Agouti allele black-and-tan (at)
+T6	Entity 473 487	sharp boundary
+T7	KeyEntity 543 555	deH mutation
+T8	Entity 567 588	pigmentation boundary
+T9	Entity 612 644	dorsal-to-ventral transformation
+T10	KeyEntity 667 682	deletion in deH
+T11	Entity 726 736	Tbx15 gene
+T12	Entity 779 789	mesenchyme
+T13	Entity 806 843	pigmentary and skeletal malformations
+T14	Entity 856 863	deH/deH
+T15	KeyEntity 910 915	Tbx15
+T16	Entity 935 948	deH phenotype
+T17	Entity 963 985	Tbx15 loss of function
+T18	Entity 1017 1022	Tbx15
+T19	Entity 993 1013	embryonic expression
+T20	Entity 1026 1043	dorsal mesenchyme
+T21	Entity 1064 1081	Agouti expression
+T22	Entity 1085 1103	ventral mesenchyme
+T23	Entity 1112 1128	absence of Tbx15
+T24	Entity 1202 1210	dorsally
+T25	Entity 1144 1150	Agouti
+T26	Entity 1159 1166	embryos
+T27	Entity 1171 1180	postnatal
+T28	Entity 1304 1329	dorsoventral pigmentation
+T29	Entity 1357 1362	E12.5
+T30	Entity 1417 1422	Tbx15
+T31	Entity 1459 1493	dorsoventral pigmentation boundary
+T32	Entity 1592 1618	limb dorsoventral boundary
+T33	Entity 1644 1649	Tbx15
+T34	Entity 1653 1676	dorsolateral mesenchyme
+T35	Entity 1763 1776	dorsal dermis
+T36	Entity 1820 1830	T-box gene
+T37	Entity 1841 1861	embryonic developmen
+T38	Entity 2065 2080	body morphology
+R1	participates_in Arg1:T2 Arg2:T3	
+R2	participates_in Arg1:T4 Arg2:T3	
+R3	is_part_of Arg1:T6 Arg2:T5	
+R4	regulates Arg1:T7 Arg2:T8	
+R5	regulates Arg1:T7 Arg2:T9	
+R6	is_part_of Arg1:T10 Arg2:T11	
+R7	participates_in Arg1:T12 Arg2:T13	
+R8	participates_in Arg1:T14 Arg2:T13	
+R9	regulates Arg1:T15 Arg2:T16	
+R10	regulates Arg1:T17 Arg2:T16	
+R11	is_part_of Arg1:T19 Arg2:T18	
+R12	is_part_of Arg1:T20 Arg2:T18	
+R13	is_part_of Arg1:T22 Arg2:T21	
+R14	is_part_of Arg1:T25 Arg2:T26	
+R15	is_part_of Arg1:T25 Arg2:T27	
+R16	regulates Arg1:T23 Arg2:T25	
+R17	regulates Arg1:T23 Arg2:T25	
+R18	other_relation Arg1:T28 Arg2:T29	
+#1	AnnotatorNotes R18	time stage
+R19	other_relation Arg1:T30 Arg2:T29	
+#2	AnnotatorNotes R19	starts
+T39	Entity 1542 1570	dermal cell lineage boundary
+R20	is_part_of Arg1:T32 Arg2:T31	
+R21	regulates Arg1:T33 Arg2:T34	
+R22	other_relation Arg1:T33 Arg2:T35	
+R23	genetically_interacts_with Arg1:T36 Arg2:T37	
+T40	Entity 1910 1933	dorsoventral patterning
+R24	is_part_of Arg1:T40 Arg2:T38	
+T41	Entity 744 764	embryonic expression
+R25	regulates Arg1:T11 Arg2:T41	
+#3	AnnotatorNotes R25	expression
+R26	other_relation Arg1:T41 Arg2:T13	
+#4	AnnotatorNotes R26	correlates
+T42	Entity 1393 1413	embryonic expression
+R27	is_part_of Arg1:T42 Arg2:T30	
+T43	Entity 1620 1640	Embryonic expression
+R28	is_part_of Arg1:T43 Arg2:T33	
+#5	AnnotatorNotes R22	required

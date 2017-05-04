@@ -1,0 +1,73 @@
+T1	Entity 91 101	Thrombosis
+T2	Entity 144 167	cardiovascular diseases
+T3	Entity 262 270	C57BL/6J
+T4	Entity 275 278	A/J
+T5	Entity 325 332	obesity
+T6	Entity 334 349	atherosclerosis
+T7	Entity 355 372	vessel remodeling
+T8	Entity 472 482	thrombosis
+T9	Entity 487 497	hemostasis
+T10	Entity 543 553	thrombosis
+T11	Entity 558 568	hemostasis
+T12	Entity 582 596	inbred strains
+T13	Entity 615 634	phenotypic response
+T14	Entity 638 653	A/J chromosomes
+T15	Entity 661 680	C57BL/6J background
+T16	Entity 240 260	inbred mouse strains
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+R2	is_part_of Arg1:T3 Arg2:T16	
+R3	is_part_of Arg1:T4 Arg2:T16	
+R4	participates_in Arg1:T16 Arg2:T5	
+R5	participates_in Arg1:T16 Arg2:T6	
+R6	participates_in Arg1:T16 Arg2:T7	
+R7	interacts_with Arg1:T10 Arg2:T13	
+R8	interacts_with Arg1:T11 Arg2:T13	
+R9	is_subclass_of Arg1:T14 Arg2:T15	
+T17	Entity 692 695	A/J
+T18	Entity 700 708	C57Bl/6J
+T19	Entity 748 758	thrombosis
+T20	Entity 763 773	hemostasis
+T21	Entity 777 785	thrombus
+T22	Entity 805 819	carotid artery
+T23	Entity 850 876	carotid to ferric chloride
+T24	Entity 881 891	blood flow
+T25	Entity 1079 1113	Twenty-one chromosome substitution
+T26	Entity 962 979	surrogate markers
+T27	Entity 984 994	thrombosis
+T28	Entity 999 1009	hemostasis
+T29	Entity 1199 1218	tail bleeding assay
+T30	Entity 1123 1138	A/J chromosomes
+T31	Entity 1144 1152	C57BL/6J
+R10	participates_in Arg1:T17 Arg2:T19	
+R11	participates_in Arg1:T18 Arg2:T20	
+R12	participates_in Arg1:T17 Arg2:T19	
+R13	participates_in Arg1:T18 Arg2:T20	
+R14	interacts_with Arg1:T21 Arg2:T22	
+T32	Entity 928 936	Bleeding
+T33	Entity 941 951	rebleeding
+R15	is_part_of Arg1:T32 Arg2:T26	
+R16	is_part_of Arg1:T33 Arg2:T26	
+R17	is_part_of Arg1:T25 Arg2:T30	
+R18	is_subclass_of Arg1:T31 Arg2:T30	
+T34	Entity 1230 1253	Thrombus occlusion time
+T35	Entity 1284 1292	A/J mice
+T36	Entity 1305 1318	C57BL/6J mice
+T37	Entity 1375 1385	rebleeding
+T38	Entity 1421 1429	A/J mice
+T39	Entity 1442 1455	C57BL/6J mice
+T40	Entity 1513 1526	tail collagen
+T41	Entity 1539 1552	higher in A/J
+T42	Entity 1558 1571	C57BL/6J mice
+T43	Entity 1612 1622	B6-Chr5A/J
+T44	Entity 1624 1635	B6-Chr11A/J
+T45	Entity 1641 1652	B6-Chr17A/J
+T46	Entity 1725 1733	A/J mice
+T47	Entity 1875 1901	B6-Chr5A/J and B6-Chr17A/J
+T48	Entity 1957 1983	doubly heterosomic progeny
+R19	interacts_with Arg1:T34 Arg2:T35	
+#1	AnnotatorNotes R19	decrease
+R20	interacts_with Arg1:T37 Arg2:T38	
+#2	AnnotatorNotes R20	increase
+R21	participates_in Arg1:T40 Arg2:T41	
+#3	AnnotatorNotes R21	higher
+R22	is_subclass_of Arg1:T47 Arg2:T48	

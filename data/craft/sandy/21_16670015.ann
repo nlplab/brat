@@ -1,0 +1,59 @@
+T1	Entity 106 117	High growth
+T2	Entity 119 121	hg
+T3	Entity 159 182	quantitative trait loci
+T4	Entity 184 187	QTL
+T5	Entity 221 240	carcass composition
+T6	Entity 199 205	growth
+T7	Entity 207 216	adiposity
+T8	Entity 290 293	MMU
+T9	Entity 362 365	QTL
+T10	Entity 436 444	CAST/EiJ
+T11	Entity 446 450	CAST
+T12	Entity 452 463	QTL alleles
+T13	Entity 476 497	mutant C57Bl/6J-hg/hg
+T14	Entity 499 501	HG
+T15	Entity 506 524	wild type C57Bl/6J
+T16	Entity 526 528	B6
+R1	other_relation Arg1:T16 Arg2:T15	
+#1	AnnotatorNotes R1	equivalent
+R2	other_relation Arg1:T14 Arg2:T13	
+#2	AnnotatorNotes R2	equivalent
+R3	other_relation Arg1:T2 Arg2:T1	
+#3	AnnotatorNotes R3	equivalent
+R4	other_relation Arg1:T4 Arg2:T3	
+#4	AnnotatorNotes R4	equivalent
+R5	other_relation Arg1:T11 Arg2:T10	
+#5	AnnotatorNotes R5	equivalent
+R6	participates_in Arg1:T12 Arg2:T14	
+R7	participates_in Arg1:T12 Arg2:T16	
+T17	Entity 571 591	speed congenic panel
+T18	Entity 663 667	MMU2
+T19	Entity 694 696	HG
+T20	Entity 701 703	B6
+T21	Entity 807 818	segregation
+T22	Entity 822 837	multiple growth
+T23	Entity 842 853	obesity QTL
+T24	Entity 931 942	hg deletion
+T25	Entity 1005 1018	HG background
+T26	Entity 948 960	second panel
+T27	Entity 782 792	MMU2 panel
+T28	Entity 1169 1175	growth
+T29	Entity 1183 1190	obesity
+T30	Entity 1235 1245	phenotypes
+T31	Entity 1293 1296	QTL
+T32	Entity 1374 1394	sex-specific effects
+R8	is_part_of Arg1:T18 Arg2:T17	
+R9	is_part_of Arg1:T19 Arg2:T17	
+R10	is_part_of Arg1:T20 Arg2:T17	
+R11	interacts_with Arg1:T21 Arg2:T24	
+R12	interacts_with Arg1:T23 Arg2:T24	
+R13	is_part_of Arg1:T25 Arg2:T26	
+T33	Entity 1413 1435	speed congenic strains
+T34	Entity 1478 1494	genomic resource
+T35	Entity 1557 1574	genetic variation
+T36	Entity 1587 1593	growth
+T37	Entity 1598 1605	obesity
+R14	is_part_of Arg1:T33 Arg2:T34	
+R15	participates_in Arg1:T33 Arg2:T35	
+R16	participates_in Arg1:T36 Arg2:T35	
+R17	participates_in Arg1:T37 Arg2:T35	

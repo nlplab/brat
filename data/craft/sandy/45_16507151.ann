@@ -1,0 +1,47 @@
+T1	Entity 93 119	Collagen-induced arthritis
+T2	Entity 161 191	autoimmune experimental models
+T3	Entity 219 239	rheumatoid arthritis
+T4	Entity 247 273	collagen-induced arthritis
+T5	Entity 287 304	polygenic disease
+T6	Entity 357 382	disease-controlling genes
+T7	Entity 392 412	rheumatoid arthritis
+T8	Entity 519 545	collagen-induced arthritis
+T9	Entity 594 599	NFR/N
+T10	Entity 604 609	B10.Q
+T11	Entity 611 625	H-2q haplotype
+T12	Entity 672 694	reproductive histories
+T13	Entity 859 881	microsatellite markers
+T15	Entity 951 970	arthritis incidence
+T16	Entity 972 980	severity
+T17	Entity 1001 1014	chromosome 11
+T18	Entity 1024 1029	Cia40
+T19	Entity 1038 1049	colocalizes
+T20	Entity 1075 1092	pregnancy failure
+T22	Entity 1181 1190	incidence
+T23	Entity 1192 1200	severity
+T24	Entity 1205 1217	day of onset
+T25	Entity 1236 1248	chromosome 1
+T27	Entity 1327 1359	collagen type II antibody titers
+T28	Entity 1378 1391	chromosome 13
+T29	Entity 1427 1436	gene loci
+T30	Entity 1445 1454	arthritis
+T31	Entity 1458 1482	aged multiparous females
+T32	Entity 1535 1552	pregnancy failure
+R1	participates_in Arg1:T1 Arg2:T2	
+R2	participates_in Arg1:T3 Arg2:T2	
+R3	is_part_of Arg1:T4 Arg2:T5	
+R4	is_part_of Arg1:T10 Arg2:T11	
+R5	is_part_of Arg1:T9 Arg2:T11	
+R6	is_subclass_of Arg1:T8 Arg2:T7	
+R7	participates_in Arg1:T17 Arg2:T15	
+R8	participates_in Arg1:T17 Arg2:T16	
+T14	Entity 985 997	day of onset
+R9	participates_in Arg1:T17 Arg2:T14	
+R10	is_part_of Arg1:T17 Arg2:T18	
+R11	participates_in Arg1:T18 Arg2:T20	
+R12	participates_in Arg1:T22 Arg2:T25	
+R13	participates_in Arg1:T23 Arg2:T25	
+R14	participates_in Arg1:T24 Arg2:T25	
+R15	participates_in Arg1:T27 Arg2:T28	
+R16	regulates Arg1:T29 Arg2:T30	
+R17	participates_in Arg1:T29 Arg2:T32	

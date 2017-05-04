@@ -1,0 +1,11 @@
+T1	KeyEntity 175 179	JNCL
+T2	Entity 185 249	recessively inherited, childhood-onset neurodegenerative disease
+T3	Entity 282 295	CLN3 mutation
+T4	Entity 319 336	battenin activity
+T5	Entity 360 386	mitochondrial ATP synthase
+T6	Entity 388 397	subunit c
+T7	Entity 421 432	CNS neurons
+T8	KeyEntity 458 482	Cln3Δex7/8 knock-in mice
+T9	KeyEntity 511 524	JNCL mutation
+T10	Entity 534 549	mutant battenin
+T11	Entity 562 581	JNCL-like pathology
