@@ -72,7 +72,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // utility function, originally for stripping numerix suffixes
         // from arc types (e.g. "Theme2" -> "Theme"). For values
         // without suffixes (including non-strings), returns given value.
-        if (typeof(s) != "string") {          
+        if (typeof(s) != "string") {
           return s; // can't strip
         }
         var m = s.match(/^(.*?)(\d*)$/);
@@ -128,7 +128,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // in rapid annotation mode, prioritize the keys 0..9 for the
         // ordered choices in the quick annotation dialog.
-        if (Configuration.rapidModeOn && rapidAnnotationDialogVisible && 
+        if (Configuration.rapidModeOn && rapidAnnotationDialogVisible &&
             "0".charCodeAt() <= code && code <= "9".charCodeAt()) {
           var idx = String.fromCharCode(code);
           var $input = $('#rapid_span_'+idx);
@@ -362,7 +362,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var chunkIndexTo = sel.focusNode && $(sel.focusNode.parentNode).attr('data-chunk-id');
           // fallback for firefox (at least):
           // it's unclear why, but for firefox the anchor and focus
-          // node parents are always undefined, the the anchor and
+          // node parents are always undefined, the anchor and
           // focus nodes themselves do (often) have the necessary
           // chunk ID. However, anchor offsets are almost always
           // wrong, so we'll just make a guess at what the user might
@@ -602,7 +602,7 @@ var AnnotatorUI = (function($, window, undefined) {
             eLeft = Math.min(Math.max(eLeft,0), screenWidth - elementWidth);
         } else {
             eLeft = 0;
-        } 
+        }
         if (screenHeight > elementHeight) {
             eTop  = Math.min(Math.max(eTop,0), screenHeight - elementHeight);
         } else {
@@ -672,7 +672,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         $('#span_selected').text(spanText);
-        var encodedText = encodeURIComponent(spanText);       
+        var encodedText = encodeURIComponent(spanText);
         $.each(searchConfig, function(searchNo, search) {
           $('#span_'+search[0]).attr('href', search[1].replace('%s', encodedText));
         });
@@ -895,12 +895,12 @@ var AnnotatorUI = (function($, window, undefined) {
 
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
-          
+
           showAllAttributes = false;
-          
+
           var entityAttrCount = showAttributesFor(entityAttributeTypes, 'entity', type);
           var eventAttrCount = showAttributesFor(eventAttributeTypes, 'event', type);
-          
+
           // show attribute frames only if at least one attribute is
           // shown, and set size classes appropriately
           if (eventAttrCount > 0) {
@@ -975,7 +975,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var $label = $('<label class="span_type_label"/>').
             attr('for', 'rapid_span_' + (typeNo+1)).
             text(name+' (' + (100.0 * prob).toFixed(1) + '%)');
-          $label.css('background-color', spanBgColor);          
+          $label.css('background-color', spanBgColor);
           // TODO: check for unnecessary extra wrapping here
           var $content = $('<div class="item_content"/>').
             append($numlabel).
@@ -1016,7 +1016,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
         // fill in some space and the special "Other" option, with key "0" (zero)
         $spanTypeDiv.append($('<div class="item_content">&#160;</div>')); // non-breaking space
-        var $numlabel = $('<span class="accesskey">0</span><span>:</span>');        
+        var $numlabel = $('<span class="accesskey">0</span><span>:</span>');
         var $input = $('<input type="radio" name="rapid_span_type" id="rapid_span_0" value=""/>');
         var $label = $('<label class="span_type_label" for="rapid_span_0" style="background-color:lightgray">Other...</label>');
         var $content = $('<div class="item_content"/>').
@@ -1074,7 +1074,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // TODO: better response to failure
           dispatcher.post('messages', [[['Lookup error', 'warning', -1]]]);
           return false;
-        }        
+        }
         // set input style according to whether we have a valid value
         var $idinput = $('#span_norm_id');
         // TODO: make sure the key echo in the response matches the
@@ -1187,7 +1187,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
       var normSearchSubmit = function(evt) {
         if (normSearchSubmittable) {
-          var selectedId = $('#norm_search_id').val(); 
+          var selectedId = $('#norm_search_id').val();
           var selectedTxt = $('#norm_search_query').val();
 
           normSubmit(selectedId, selectedTxt);
@@ -1291,7 +1291,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         // blank the table
         $('#norm_search_result_select thead').empty();
-        $('#norm_search_result_select tbody').empty();        
+        $('#norm_search_result_select tbody').empty();
         // TODO: support for two (or more) dialogs open at the same time
         // so we don't need to hide this before showing normSearchDialog
         dispatcher.post('hideForm');
@@ -1359,7 +1359,7 @@ var AnnotatorUI = (function($, window, undefined) {
               // do not allow equiv<->non-equiv change options
               if (arcType && isEquiv != isThisEquiv) return;
 
-              var displayName = ((arcDesc.labels && arcDesc.labels[0]) || 
+              var displayName = ((arcDesc.labels && arcDesc.labels[0]) ||
                                  arcTypeName);
               var $input = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label class="arc_type_label" for="arc_' + arcTypeName + '"/>').text(displayName);
@@ -1607,7 +1607,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // fallback for firefox (at least):
         // it's unclear why, but for firefox the anchor and focus
-        // node parents are always undefined, the the anchor and
+        // node parents are always undefined, the anchor and
         // focus nodes themselves do (often) have the necessary
         // chunk ID. However, anchor offsets are almost always
         // wrong, so we'll just make a guess at what the user might
@@ -1741,7 +1741,7 @@ var AnnotatorUI = (function($, window, undefined) {
             dispatcher.post('logAction', ['spanLockNewSubmitted']);
           } else if (!Configuration.rapidModeOn || reselectedSpan != null) {
             // normal span select in standard annotation mode
-            // or reselect: show selector
+              // or reselect: show selector
             var spanText = data.text.substring(selectedFrom, selectedTo);
             fillSpanTypesAndDisplayForm(evt, spanText, reselectedSpan);
             // for precise timing, log annotation display to user.
@@ -1755,7 +1755,7 @@ var AnnotatorUI = (function($, window, undefined) {
             // but this is clumsy and suboptimal (user may have scrolled
             // during the ajax invocation); think of a better way.
             lastRapidAnnotationEvent = evt;
-            dispatcher.post('ajax', [ { 
+            dispatcher.post('ajax', [ {
                             action: 'suggestSpanTypes',
                             collection: coll,
                             'document': doc,
@@ -1766,7 +1766,7 @@ var AnnotatorUI = (function($, window, undefined) {
                             }, 'suggestedSpanTypes']);
           }
         }
-      };      
+      };
 
       var onMouseUp = function(evt) {
         if (that.user === null) return;
@@ -1964,10 +1964,10 @@ var AnnotatorUI = (function($, window, undefined) {
           } else if (attr.bool) {
             var escapedName = Util.escapeQuotes(attr.name);
             var $input = $('<input type="checkbox" id="'+attrId+
-                           '" value="' + escapedType + 
+                           '" value="' + escapedType +
                            '" category="' + category + '"/>');
             var $label = $('<label for="'+attrId+
-                           '" data-bare="' + escapedName + '">&#x2610; ' + 
+                           '" data-bare="' + escapedName + '">&#x2610; ' +
                            escapedName + '</label>');
             $span.append($input).append($label);
             $input.button();
@@ -1995,16 +1995,16 @@ var AnnotatorUI = (function($, window, undefined) {
         // disable not only categories of types (events or entities),
         // but the specific set of types that are incompatible with
         // the current attribute settings.
-        
+
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
         // TODO2: the above comment is almost certainly false, check and remove
         $('#span_form input:not([unused])').removeAttr('disabled');
         var $toDisable;
         if (category == "event") {
-          $toDisable = $('#span_form input[category="entity"]');
+          $toDisable = $('#span_form input[category="entity"][type!=radio]');
         } else if (category == "entity") {
-          $toDisable = $('#span_form input[category="event"]');
+          $toDisable = $('#span_form input[category="event"][type!=radio]');
         } else {
           console.error('Unrecognized attribute category:', category);
           $toDisable = $();
@@ -2286,7 +2286,7 @@ var AnnotatorUI = (function($, window, undefined) {
         return attributes;
       }
 
-      var spanAndAttributeTypesLoaded = function(_spanTypes, 
+      var spanAndAttributeTypesLoaded = function(_spanTypes,
                                                  _entityAttributeTypes,
                                                  _eventAttributeTypes,
                                                  _relationTypesHash) {
@@ -2346,7 +2346,7 @@ var AnnotatorUI = (function($, window, undefined) {
       // TODO: why are these globals defined here instead of at the top?
       var spanForm = $('#span_form');
       var rapidSpanForm = $('#rapid_span_form');
-    
+
       var deleteSpan = function() {
         if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
@@ -2411,7 +2411,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $roles.append($role).append($label);
         });
         var $roleButtons = $roles.find('input').button();
-        
+
         dispatcher.post('showForm', [splitForm]);
       };
 
@@ -2534,7 +2534,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       dispatcher.post('initForm', [rapidSpanForm, {
           alsoResize: '#rapid_span_types',
-          width: 400,             
+          width: 400,
           close: function(evt) {
             keymap = null;
           }

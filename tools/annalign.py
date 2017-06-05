@@ -25,17 +25,17 @@ def argparser():
     import argparse
 
     ap=argparse.ArgumentParser(description="Align text and annotations to different version of same text.")
-    ap.add_argument(TEST_ARG, default=False, action="store_true", 
+    ap.add_argument(TEST_ARG, default=False, action="store_true",
                     help="Perform self-test and exit")
     ap.add_argument('-e', '--encoding', default=DEFAULT_ENCODING,
                     help='text encoding (default %s)' % DEFAULT_ENCODING)
-    ap.add_argument('-v', '--verbose', default=False, action="store_true", 
+    ap.add_argument('-v', '--verbose', default=False, action="store_true",
                     help="Verbose output")
-    ap.add_argument("ann", metavar="ANN", nargs=1, 
+    ap.add_argument("ann", metavar="ANN", nargs=1,
                     help="Annotation file")
-    ap.add_argument("oldtext", metavar="OLD-TEXT", nargs=1, 
+    ap.add_argument("oldtext", metavar="OLD-TEXT", nargs=1,
                     help="Text matching annotation")
-    ap.add_argument("newtext", metavar="NEW-TEXT", nargs=1, 
+    ap.add_argument("newtext", metavar="NEW-TEXT", nargs=1,
                     help="Text to align to")
     return ap
 
@@ -92,6 +92,7 @@ class Textbound(Annotation):
         # Remapping may create spans that extend over newlines, which
         # brat doesn't handle well. Break any such span into multiple
         # fragments that skip newlines.
+        # TODO: Update this to handle tabs?
         fragmented = []
         for start, end in self.offsets:
             while start < end:
@@ -118,13 +119,13 @@ class Textbound(Annotation):
             print >> sys.stderr, 'Warning: newline in text: %s' % self.text
 
     def __unicode__(self):
-        return u"%s\t%s %s\t%s" % (self.id_, self.type_, 
+        return u"%s\t%s %s\t%s" % (self.id_, self.type_,
                                   ';'.join(['%d %d' % (s, e)
                                             for s, e in self.offsets]),
                                   escape_tb_text(self.text))
 
     def __str__(self):
-        return "%s\t%s %s\t%s" % (self.id_, self.type_, 
+        return "%s\t%s %s\t%s" % (self.id_, self.type_,
                                   ';'.join(['%d %d' % (s, e)
                                             for s, e in self.offsets]),
                                   escape_tb_text(self.text))
@@ -135,10 +136,10 @@ class XMLElement(Textbound):
         self.attributes = attributes
 
     def __str__(self):
-        return "%s\t%s %s\t%s\t%s" % (self.id_, self.type_, 
+        return "%s\t%s %s\t%s\t%s" % (self.id_, self.type_,
                                       ';'.join(['%d %d' % (s, e)
                                                 for s, e in self.offsets]),
-                                      escape_tb_text(self.text), 
+                                      escape_tb_text(self.text),
                                       self.attributes)
 
 class ArgAnnotation(Annotation):
@@ -159,7 +160,7 @@ class Event(ArgAnnotation):
         self.trigger = trigger
 
     def __str__(self):
-        return "%s\t%s:%s %s" % (self.id_, self.type_, self.trigger, 
+        return "%s\t%s:%s %s" % (self.id_, self.type_, self.trigger,
                                  ' '.join(self.args))
 
 class Attribute(Annotation):
@@ -169,7 +170,7 @@ class Attribute(Annotation):
         self.value = value
 
     def __str__(self):
-        return "%s\t%s %s%s" % (self.id_, self.type_, self.target, 
+        return "%s\t%s %s%s" % (self.id_, self.type_, self.target,
                                 '' if self.value is None else ' '+self.value)
 
 class Normalization(Annotation):
@@ -277,7 +278,7 @@ def parse(l, ln):
 def parseann(fn):
     global options
 
-    annotations = []    
+    annotations = []
     with codecs.open(fn, 'rU', encoding=options.encoding) as f:
         lines = [l.rstrip('\n') for l in f.readlines()]
 
@@ -324,7 +325,7 @@ def match_cost(a, b):
             return 0
         else:
             return -1000
-    
+
 def space_boundary(s, i):
     if (i == 0 or s[i-1].isspace() != s[i].isspace() or
         i+1 == len(s) or s[i+1].isspace() != s[i].isspace()):
@@ -334,7 +335,7 @@ def space_boundary(s, i):
 
 CH_OUT, CH_MATCH, CH_DELETE, CH_SPC_DELETE, CH_INSERT, CH_SPC_INSERT = range(6)
 
-def delete_cost(A, B, i, j, choices):   
+def delete_cost(A, B, i, j, choices):
     if choices[i-1][j] == CH_DELETE:
         # standard gap extend
         return -1, CH_DELETE
@@ -371,7 +372,7 @@ def swchoice(A, B, i, j, F, choices):
 
     best = max(match, delete, insert, 0)
 
-    if best == match:        
+    if best == match:
         choice = CH_MATCH
         if DEBUG and A[i-1] != B[j-1]:
             print >> sys.stderr, "MISMATCH! '%s' vs '%s'" % (A[i-1], B[j-1])
@@ -635,7 +636,7 @@ class Remapper(object):
             return offset_map[start], offset_map[end]
         else:
             return self.offset_map[start], self.offset_map[end-1]+1
-        
+
 def test():
     import doctest
     doctest.testmod()

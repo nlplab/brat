@@ -24,6 +24,6 @@ DirectoryIndex index.xhtml
 # "http://www.example.com/~user/visualizer/",
 # "INSTALLATION-ROOT" should be replaced with "/~user/visualizer/"
 #
-#RewriteEngine On
-#RewriteBase INSTALLATION-ROOT
-#RewriteRule ajax\.cgi$ ajax.fcgi
+RewriteEngine On
+RewriteBase /brat
+RewriteRule ajax\.cgi$ ajax.fcgi
