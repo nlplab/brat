@@ -21,7 +21,7 @@ try:
     lib_dumps = _lib_dumps
     lib_loads = _lib_loads
 
-except ImportError, e:
+except ImportError as e:
 
     # fall back to native json if available
     try:

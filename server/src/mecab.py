@@ -44,7 +44,7 @@ def token_offsets_gen(text):
 
     # Wakati inserts spaces, but only after non-space tokens.
     # We find these iteratively and then allow additional spaces to be treated
-    # as separate tokens.
+    # as seperate tokens.
 
     # XXX: MeCab rapes newlines by removing them, we need to align ourselves
     last_end = 0

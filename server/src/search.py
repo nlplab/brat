@@ -5,7 +5,6 @@
 # Search-related functionality for BioNLP Shared Task - style
 # annotations.
 
-from __future__ import with_statement
 
 import re
 import annotation
@@ -100,7 +99,7 @@ class TextMatch(object):
 
     def __str__(self):
         # Format like textbound, but w/o ID or type
-        return u'%d %d\t%s' % (self.start, self.end, self.text)
+        return '%d %d\t%s' % (self.start, self.end, self.text)
 
 # Note search matches need to combine aspects of the note with aspects
 # of the annotation it's attached to, so we'll represent such matches
@@ -165,16 +164,16 @@ def __filenames_to_annotations(filenames):
             ann_obj = annotation.TextAnnotations(nosuff_fn, read_only=True)
             anns.append(ann_obj)
         except annotation.AnnotationFileNotFoundError:
-            print >> sys.stderr, "%s:\tFailed: file not found" % fn
-        except annotation.AnnotationNotFoundError, e:
-            print >> sys.stderr, "%s:\tFailed: %s" % (fn, e)
+            print("%s:\tFailed: file not found" % fn, file=sys.stderr)
+        except annotation.AnnotationNotFoundError as e:
+            print("%s:\tFailed: %s" % (fn, e), file=sys.stderr)
 
     if len(anns) != len(filenames):
-        print >> sys.stderr, "Note: only checking %d/%d given files" % (len(anns), len(filenames))
+        print("Note: only checking %d/%d given files" % (len(anns), len(filenames)), file=sys.stderr)
 
     if REPORT_SEARCH_TIMINGS:
         process_delta = datetime.now() - process_start
-        print >> stderr, "filenames_to_annotations: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+        print("filenames_to_annotations: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds", file=stderr)
 
     return anns
 
@@ -310,7 +309,7 @@ def eq_text_neq_type_spans(ann_objs, restrict_types=None, ignore_types=None, nes
             # all matching texts have same type, OK
             continue
 
-        types = text_type_ann_map[text].keys()
+        types = list(text_type_ann_map[text].keys())
         # avoiding any() etc. to be compatible with python 2.4
         if restrict_types != [] and len([t for t in types if t in restrict_types]) == 0:
             # Does not involve any of the types restricted do
@@ -442,7 +441,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
             tokens = _split_tokens_more(tokens)
         except:
             # TODO: proper error handling
-            print >> sys.stderr, "ERROR: failed tokenization in %s, skipping" % ann_obj._input_files[0]
+            print("ERROR: failed tokenization in %s, skipping" % ann_obj._input_files[0], file=sys.stderr)
             continue
 
         # document-specific map
@@ -510,7 +509,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
                 matches.add_match(ann_obj, m)
             for ann_obj, m in untagged:
                 matches.add_match(ann_obj, m)
-            print "(note: omitting %d instances of tagged '%s')" % (len(tagged)-cutoff_limit, text.encode('utf-8'))
+            print("(note: omitting %d instances of tagged '%s')" % (len(tagged)-cutoff_limit, text.encode('utf-8')))
         elif (len(untagged) > freq_ratio_cutoff * len(tagged) and
               len(untagged) > cutoff_limit):
             # cut off all but cutoff_limit from tagged
@@ -518,7 +517,7 @@ def eq_text_partially_marked(ann_objs, restrict_types=None, ignore_types=None, n
                 matches.add_match(ann_obj, m)
             for ann_obj, m in untagged[:cutoff_limit]:
                 matches.add_match(ann_obj, m)
-            print "(note: omitting %d instances of untagged '%s')" % (len(untagged)-cutoff_limit, text.encode('utf-8'))
+            print("(note: omitting %d instances of untagged '%s')" % (len(untagged)-cutoff_limit, text.encode('utf-8')))
         else:
             # include all
             for ann_obj, m in tagged + untagged:
@@ -672,7 +671,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=None,
 
     if REPORT_SEARCH_TIMINGS:
         process_delta = datetime.now() - process_start
-        print >> stderr, "search_anns_for_textbound: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+        print("search_anns_for_textbound: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds", file=stderr)
 
     return matches
 
@@ -745,7 +744,7 @@ def search_anns_for_note(ann_objs, text, category,
 
     if REPORT_SEARCH_TIMINGS:
         process_delta = datetime.now() - process_start
-        print >> stderr, "search_anns_for_textbound: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+        print("search_anns_for_textbound: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds", file=stderr)
 
     return matches
 
@@ -806,7 +805,7 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
                 arg2ent = ann_obj.get_ann_by_id(r.arg2)
                 if arg2 is not None and not arg2_match_regex.search(arg2ent.get_text()):
                     continue
-                if arg2type is not None and arg2type != arg2ent.type:
+                if arg2type is not None and arg2type != arg2.type:
                     continue
                 
             ann_matches.append(r)
@@ -863,7 +862,7 @@ def search_anns_for_relation(ann_objs, arg1, arg1type, arg2, arg2type,
 
     if REPORT_SEARCH_TIMINGS:
         process_delta = datetime.now() - process_start
-        print >> stderr, "search_anns_for_relation: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+        print("search_anns_for_relation: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds", file=stderr)
 
     return matches
 
@@ -993,7 +992,7 @@ def search_anns_for_event(ann_objs, trigger_text, args,
 
     if REPORT_SEARCH_TIMINGS:
         process_delta = datetime.now() - process_start
-        print >> stderr, "search_anns_for_event: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+        print("search_anns_for_event: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds", file=stderr)
 
     return matches
 
@@ -1070,36 +1069,11 @@ def search_anns_for_text(ann_objs, text,
 
     if REPORT_SEARCH_TIMINGS:
         process_delta = datetime.now() - process_start
-        print >> stderr, "search_anns_for_text: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds"
+        print("search_anns_for_text: processed in", str(process_delta.seconds)+"."+str(process_delta.microseconds/10000), "seconds", file=stderr)
 
     return matches
 
-def _get_arg_n(ann_obj, ann, n):
-    # helper for format_results, normalizes over BinaryRelationAnnotation
-    # arg1, arg2 and EquivAnnotation entities[0], entities[1], ...
-    # return None if argument n is not available for any reason.
-
-    try:
-        return ann_obj.get_ann_by_id(ann.entities[n]) # Equiv?
-    except annotation.AnnotationNotFoundError:
-        return None
-    except IndexError:
-        return None
-    except AttributeError:
-        pass # not Equiv
-
-    try:
-        if n == 0:
-            return ann_obj.get_ann_by_id(ann.arg1)
-        elif n == 1:
-            return ann_obj.get_ann_by_id(ann.arg2)
-        else:
-            return None
-    except AttributeError:
-        return None
-
-def format_results(matches, concordancing=False, context_length=50,
-                   include_argument_text=False, include_argument_type=False):
+def format_results(matches, concordancing=False, context_length=50):
     """
     Given matches to a search (a SearchMatchSet), formats the results
     for the client, returning a dictionary with the results in the
@@ -1175,22 +1149,6 @@ def format_results(matches, concordancing=False, context_length=50,
         except AttributeError:
             include_trigger_context = False
 
-    if include_argument_text:
-        try:
-            for ann_obj, ann in matches.get_matches():
-                _get_arg_n(ann_obj, ann, 0).text
-                _get_arg_n(ann_obj, ann, 1).text
-        except AttributeError:
-            include_argument_text = False
-
-    if include_argument_type:
-        try:
-            for ann_obj, ann in matches.get_matches():
-                _get_arg_n(ann_obj, ann, 0).type
-                _get_arg_n(ann_obj, ann, 1).type
-        except AttributeError:
-            include_argument_type = False
-
     # extend header fields in order of data fields
     if include_type:
         response['header'].append(('Type', 'string'))
@@ -1211,14 +1169,6 @@ def format_results(matches, concordancing=False, context_length=50,
 
     if include_context or include_trigger_context:
         response['header'].append(('Right context', 'string'))
-
-    if include_argument_type:
-        response['header'].append(('Arg1 type', 'string'))
-        response['header'].append(('Arg2 type', 'string'))
-
-    if include_argument_text:
-        response['header'].append(('Arg1 text', 'string'))
-        response['header'].append(('Arg2 text', 'string'))
 
     # gather sets of reference IDs by document to highlight
     # all matches in a document at once
@@ -1281,13 +1231,6 @@ def format_results(matches, concordancing=False, context_length=50,
             doctext = ann_obj.get_document_text()
             items[-1].append(doctext[context_ann.last_end():end])
 
-        if include_argument_type:
-            items[-1].append(_get_arg_n(ann_obj, ann, 0).type)
-            items[-1].append(_get_arg_n(ann_obj, ann, 1).type)
-
-        if include_argument_text:
-            items[-1].append(_get_arg_n(ann_obj, ann, 0).text)
-            items[-1].append(_get_arg_n(ann_obj, ann, 1).text)
 
     response['items'] = items
     return response
@@ -1296,17 +1239,15 @@ def format_results(matches, concordancing=False, context_length=50,
 
 def _to_bool(s):
     """
-    Given a bool or a string representing a boolean value sent over
-    JSON, returns the corresponding bool.
+    Given a string representing a boolean value sent over
+    JSON, returns the corresponding actual boolean.
     """
-    if s is True or s is False:
-        return s
-    elif s == "true":
+    if s == "true":
         return True
     elif s == "false":
         return False
     else:
-        assert False, "Error: '%s' is not bool or JSON boolean" % str(s)
+        assert False, "Error: '%s' is not a JSON boolean" % s
 
 def search_text(collection, document, scope="collection",
                 concordancing="false", context_length=50,
@@ -1421,16 +1362,13 @@ def search_relation(collection, document, scope="collection",
                     concordancing="false", context_length=50,
                     text_match="word", match_case="false",
                     type=None, arg1=None, arg1type=None, 
-                    arg2=None, arg2type=None,
-                    show_text=False, show_type=False):
+                    arg2=None, arg2type=None):
 
     directory = collection
 
     # Interpret JSON booleans
     concordancing = _to_bool(concordancing)
     match_case = _to_bool(match_case)
-    show_text = _to_bool(show_text)
-    show_type = _to_bool(show_type)
     
     ann_objs = __doc_or_dir_to_annotations(directory, document, scope)
 
@@ -1444,8 +1382,7 @@ def search_relation(collection, document, scope="collection",
                                        text_match=text_match,
                                        match_case=match_case)
 
-    results = format_results(matches, concordancing, context_length,
-                             show_text, show_type)
+    results = format_results(matches, concordancing, context_length)
     results['collection'] = directory
     
     return results
@@ -1502,7 +1439,7 @@ def argparser():
 def main(argv=None):
     import sys
     import os
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
 
     # ignore search result number limits on command-line invocations
     global MAX_SEARCH_RESULT_NUMBER
@@ -1540,7 +1477,7 @@ def main(argv=None):
                                                   ignore_types=arg.ignore,
                                                   nested_types=arg.nested)
     else:
-        print >> sys.stderr, "Please specify action (-h for help)"
+        print("Please specify action (-h for help)", file=sys.stderr)
         return 1
 
     # guessing at the likely URL
@@ -1548,7 +1485,7 @@ def main(argv=None):
     username = getpass.getuser()
 
     for m in matches:
-        print m.criterion
+        print(m.criterion)
         for ann_obj, ann in m.get_matches():
             # TODO: get rid of specific URL hack and similar
             baseurl='http://127.0.0.1/~%s/brat/#/' % username
@@ -1557,10 +1494,10 @@ def main(argv=None):
                 annp = "%s~%s" % (ann.reference_id()[0], ann.reference_id()[1])
             else:
                 annp = ann.reference_id()[0]
-            anns = unicode(ann).rstrip()
+            anns = str(ann).rstrip()
             annloc = ann_obj.get_document().replace("data/","")
-            outs = u"\t%s%s?focus=%s (%s)" % (baseurl, annloc, annp, anns)
-            print outs.encode('utf-8')
+            outs = "\t%s%s?focus=%s (%s)" % (baseurl, annloc, annp, anns)
+            print(outs.encode('utf-8'))
 
 if __name__ == "__main__":
     import sys

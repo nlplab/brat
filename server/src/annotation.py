@@ -17,7 +17,7 @@ from logging import info as log_info
 from codecs import open as codecs_open
 from functools import partial
 from itertools import chain, takewhile
-from os import close as os_close, utime
+from os import utime
 from time import time
 from os.path import join as path_join
 from os.path import basename, splitext
@@ -262,7 +262,7 @@ class Annotations(object):
     def _select_input_files(self, document):
         """
         Given a document name (path), returns a list of the names of
-        specific annotation files relevant to the document, or the
+        specific annotation files relevant do the document, or the
         empty list if none found. For example, given "1000", may
         return ["1000.a1", "1000.a2"]. May set self._read_only flag to
         True.
@@ -358,12 +358,7 @@ class Annotations(object):
         input_files = self._select_input_files(document)
 
         if not input_files:
-            with open('{}.{}'.format(document, JOINED_ANN_FILE_SUFF), 'w'):
-                pass
-
-            input_files = self._select_input_files(document)
-            if not input_files:
-                raise AnnotationFileNotFoundError(document)
+            raise AnnotationFileNotFoundError(document)
 
         # We then try to open the files we got using the heuristics
         #self._file_input = FileInput(openhook=hook_encoded('utf-8'))
@@ -506,7 +501,7 @@ class Annotations(object):
                 try:
                     # Make sure that this Equiv duck quacks
                     eq_ann.entities
-                except AttributeError, e:
+                except AttributeError as e:
                     assert False, 'got a non-entity from an entity call'
 
                 # Do we have an entitiy in common with this equiv?
@@ -692,7 +687,7 @@ class Annotations(object):
         #XXX: Stupid and linear
         if suffix is None:
             suffix = ''
-        #XXX: Arbitrary constant!
+        #XXX: Arbitary constant!
         for suggestion in (prefix + unicode(i) + suffix for i in xrange(1, 2**15)):
             # This is getting more complicated by the minute, two checks since
             # the developers no longer know when it is an id or string.
@@ -786,7 +781,7 @@ class Annotations(object):
         equivs = type_tail.split(None)
         return EquivAnnotation(type, equivs, data_tail, source_id=input_file_path)
 
-    # Parse an old modifier annotation for backwards compatibility
+    # Parse an old modifier annotation for back-wards compability
     def _parse_modifier_annotation(self, id, data, data_tail, input_file_path):
         type, target = data.split()
         return AttributeAnnotation(target, id, type, data_tail, True, source_id=input_file_path)
@@ -897,13 +892,13 @@ class Annotations(object):
 
                         assert new_ann is not None, "INTERNAL ERROR"
                         self.add_annotation(new_ann, read=True)
-                    except IdedAnnotationLineSyntaxError, e:
+                    except IdedAnnotationLineSyntaxError as e:
                         # Could parse an ID but not the whole line; add UnparsedIdedAnnotation
                         self.add_annotation(UnparsedIdedAnnotation(e.id,
                             e.line, source_id=e.filepath), read=True)
                         self.failed_lines.append(e.line_num - 1)
 
-                    except AnnotationLineSyntaxError, e:
+                    except AnnotationLineSyntaxError as e:
                         # We could not parse even an ID on the line, just add it as an unknown annotation
                         self.add_annotation(UnknownAnnotation(e.line,
                             source_id=e.filepath), read=True)
@@ -958,8 +953,7 @@ class Annotations(object):
             
             # Protect the write so we don't corrupt the file
             with file_lock(path_join(WORK_DIR,
-                    str(hash(self._input_files[0].replace('/', '_')))
-                        + '.lock')
+                    basename(self._input_files[0].replace('/', '_')))
                     ) as lock_file:
                 #from tempfile import NamedTemporaryFile
                 from tempfile import mkstemp
@@ -969,8 +963,7 @@ class Annotations(object):
                 #       so we hack around it.
                 #with NamedTemporaryFile('w', suffix='.ann') as tmp_file:
                 # Grab the filename, but discard the handle
-                tmp_fh, tmp_fname = mkstemp(suffix='.ann')
-                os_close(tmp_fh)
+                _, tmp_fname = mkstemp(suffix='.ann')
                 try:
                     with open_textfile(tmp_fname, 'w') as tmp_file:
                         #XXX: Temporary hack to make sure we don't write corrupted
@@ -990,14 +983,14 @@ class Annotations(object):
                                 now = time()
                                 #XXX: Disabled for now!
                                 #utime(DATA_DIR, (now, now))
-                        except Exception, e:
+                        except Exception as e:
                             Messager.error('ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' % e, -1)
                             raise
                 finally:
                     try:
                         from os import remove
                         remove(tmp_fname)
-                    except Exception, e:
+                    except Exception as e:
                         Messager.error("Error removing temporary file '%s'" % tmp_fname)
             return
 

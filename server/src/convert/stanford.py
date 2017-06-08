@@ -10,7 +10,6 @@ Version:    2012-06-26
 # TODO: Currently pretty much every single call re-parses the XML, optimise?
 # TODO: We could potentially put the lemma into a comment
 
-from __future__ import with_statement
 
 from collections import defaultdict
 from itertools import chain
@@ -18,7 +17,7 @@ from sys import argv, path as sys_path, stderr, stdout
 from os.path import dirname, join as path_join
 from xml.etree import ElementTree
 
-from ptbesc import unescape as ptb_unescape
+from .ptbesc import unescape as ptb_unescape
 
 try:
     from collections import namedtuple
@@ -53,16 +52,16 @@ def _escape_pos_tags(pos):
 def _token_by_ids(soup):
     token_by_ids = defaultdict(dict)
 
-    for sent_e in _find_sentences_element(soup).getiterator('sentence'):
+    for sent_e in _find_sentences_element(soup).iter('sentence'):
         sent_id = int(sent_e.get('id'))
-        for tok_e in sent_e.getiterator('token'):
+        for tok_e in sent_e.iter('token'):
             tok_id = int(tok_e.get('id'))
-            tok_word = unicode(tok_e.find('word').text)
-            tok_lemma = unicode(tok_e.find('lemma').text)
+            tok_word = str(tok_e.find('word').text)
+            tok_lemma = str(tok_e.find('lemma').text)
             tok_start = int(tok_e.find('CharacterOffsetBegin').text)
             tok_end = int(tok_e.find('CharacterOffsetEnd').text)
-            tok_pos = unicode(tok_e.find('POS').text)
-            tok_ner = unicode(tok_e.find('NER').text)
+            tok_pos = str(tok_e.find('POS').text)
+            tok_ner = str(tok_e.find('NER').text)
 
             token_by_ids[sent_id][tok_id] = Token(
                     word=tok_word,
@@ -96,7 +95,7 @@ def sentence_offsets(xml):
     for s_id, _, tok in _tok_it(token_by_ids):
         s_entry = sent_min_max[s_id]
         sent_min_max[s_id] = (min(tok.start, s_entry[0]), max(tok.end, s_entry[1]), )
-    return sorted((s_start, s_end) for s_start, s_end in sent_min_max.itervalues())
+    return sorted((s_start, s_end) for s_start, s_end in sent_min_max.values())
 
 def text(xml):
     # It would be nice to have access to the original text, but this actually
@@ -121,7 +120,7 @@ def text(xml):
         unesc_word = ptb_unescape(tok.word)
         text[tok.start:len(unesc_word)] = unesc_word
 
-    return u''.join(text)
+    return ''.join(text)
 
 def _pos(xml, start_id=1):
     soup = _soup(xml)
@@ -194,7 +193,7 @@ def coref(xml, start_id=1):
 
         # This tag is now a full corference chain
         chain = []
-        for mention_e in coref_e.getiterator('mention'):
+        for mention_e in coref_e.iter('mention'):
             # Note: There is a "representative" attribute signalling the most
             #   "suitable" mention, we are currently not using this
             # Note: We don't use the head information for each mention
@@ -233,18 +232,10 @@ def _dep(xml, source_element='basic-dependencies'):
         yield ann
 
     curr_rel_id = 1
-    for sent_e in _find_sentences_element(soup).getiterator('sentence'):
+    for sent_e in _find_sentences_element(soup).iter('sentence'):
         sent_id = int(sent_e.get('id'))
 
-        # Attempt to find dependencies as distinctly named elements as they
-        #   were stored in the Stanford XML format prior to 2013.
         deps_e = sent_e.findall(source_element)
-        if len(deps_e) == 0:
-            # Perhaps we are processing output following the newer standard,
-            #   check for the same identifier but as a type attribute for
-            #   general "dependencies" elements.
-            deps_e = list(e for e in sent_e.getiterator('dependencies')
-                    if e.attrib['type'] == source_element)
         assert len(deps_e) == 1
         deps_e = deps_e[0]
         
@@ -255,11 +246,6 @@ def _dep(xml, source_element='basic-dependencies'):
 
             dep_type = dep_e.get('type')
             assert dep_type is not None
-
-            if dep_type == 'root':
-                # Skip dependencies to the root node, this behaviour conforms
-                #   with how we treated the pre-2013 format.
-                continue
             
             gov_tok_id = int(dep_e.find('governor').get('idx'))
             dep_tok_id = int(dep_e.find('dependent').get('idx'))
@@ -548,53 +534,53 @@ if __name__ == '__main__':
         stdout.write('\n')
         stdout.write('Part-of-speech:\n')
         for ann in pos(xml_string):
-            stdout.write(unicode(ann))
+            stdout.write(str(ann))
             stdout.write('\n')
 
         stdout.write('\n')
         stdout.write('Named Entity Recoginiton:\n')
         for ann in ner(xml_string):
-            stdout.write(unicode(ann))
+            stdout.write(str(ann))
             stdout.write('\n')
 
         stdout.write('\n')
         stdout.write('Co-reference:\n')
         for ann in coref(xml_string):
-            stdout.write(unicode(ann))
+            stdout.write(str(ann))
             stdout.write('\n')
 
         stdout.write('\n')
         stdout.write('Basic dependencies:\n')
         for ann in basic_dep(xml_string):
-            stdout.write(unicode(ann))
+            stdout.write(str(ann))
             stdout.write('\n')
 
         stdout.write('\n')
         stdout.write('Basic dependencies:\n')
         for ann in basic_dep(xml_string):
-            stdout.write(unicode(ann))
+            stdout.write(str(ann))
             stdout.write('\n')
 
         stdout.write('\n')
         stdout.write('Collapsed dependencies:\n')
         for ann in collapsed_dep(xml_string):
-            stdout.write(unicode(ann))
+            stdout.write(str(ann))
             stdout.write('\n')
 
         stdout.write('\n')
         stdout.write('Collapsed CC-processed dependencies:\n')
         for ann in collapsed_ccproc_dep(xml_string):
-            stdout.write(unicode(ann))
+            stdout.write(str(ann))
             stdout.write('\n')
 
         stdout.write('\n')
         stdout.write('Token boundaries:\n')
-        stdout.write(unicode(token_offsets(xml_string)))
+        stdout.write(str(token_offsets(xml_string)))
         stdout.write('\n')
 
         stdout.write('\n')
         stdout.write('Sentence boundaries:\n')
-        stdout.write(unicode(sentence_offsets(xml_string)))
+        stdout.write(str(sentence_offsets(xml_string)))
         stdout.write('\n')
 
     if len(argv) < 2:
@@ -609,8 +595,8 @@ if __name__ == '__main__':
 
     for xml_source, xml_string in xml_strings:
         try:
-            print >> stderr, xml_source
+            print(xml_source, file=stderr)
             _test_xml(xml_string)
         except:
-            print >> stderr, 'Crashed on:', xml_source
+            print('Crashed on:', xml_source, file=stderr)
             raise

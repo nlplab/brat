@@ -9,15 +9,14 @@ Author:     Pontus Stenetorp
 Version:    2011-04-22
 '''
 
-from __future__ import with_statement
 
-from httplib import HTTPConnection
+
+from http.client import HTTPConnection, HTTPSConnection
 from os.path import join as path_join
 from socket import error as SocketError
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from annotation import TextAnnotations, TextBoundAnnotationWithText
-from annotation import NormalizationAnnotation
 from annotator import _json_from_ann, ModificationTracker
 from common import ProtocolError
 from document import real_directory
@@ -63,7 +62,7 @@ class InvalidTaggerResponseError(ProtocolError):
     def __str__(self):
         return (('The tagger "%s" returned an invalid JSON response, please '
             'contact the tagger service mantainer. Response: "%s"')
-            % (self.tagger, self.response.decode('utf-8'), ))
+            % (self.tagger, self.response, ))
 
     def json(self, json_dic):
         json_dic['exception'] = 'unknownTaggerError'
@@ -81,11 +80,6 @@ class TaggerConnectionError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'taggerConnectionError'
 
-def _is_textbound(ann):
-    return 'offsets' in ann
-
-def _is_normalization(ann):
-    return 'target' in ann
 
 def tag(collection, document, tagger):
     pconf = ProjectConfiguration(real_directory(collection))
@@ -105,11 +99,6 @@ def tag(collection, document, tagger):
         if url_soup.scheme == 'http':
             Connection = HTTPConnection
         elif url_soup.scheme == 'https':
-            # Delayed HTTPS import since it relies on SSL which is commonly
-            #   missing if you roll your own Python, for once we should not
-            #   fail early since tagging is currently an edge case and we
-            #   can't allow it to bring down the whole server.
-            from httplib import HTTPSConnection
             Connection = HTTPSConnection
         else:
             raise InvalidConnectionSchemeError(tagger_token, url_soup.scheme)
@@ -132,10 +121,10 @@ def tag(collection, document, tagger):
                 conn.request('POST',
                         # As per: http://bugs.python.org/issue11898
                         # Force the url to be an ascii string
-                        str(service_url),
+                        str(url_soup.path),
                         data,
                         headers=req_headers)
-            except SocketError, e:
+            except SocketError as e:
                 raise TaggerConnectionError(tagger_token, e)
             resp = conn.getresponse()
 
@@ -155,48 +144,30 @@ def tag(collection, document, tagger):
             raise InvalidTaggerResponseError(tagger_token, resp_data)
 
         mods = ModificationTracker()
-        cidmap = {}
 
-        for cid, ann in ((i, a) for i, a in json_resp.iteritems()
-                         if _is_textbound(a)):
-            assert 'offsets' in ann, 'Tagger response lacks offsets'
-            offsets = ann['offsets']
-            assert 'type' in ann, 'Tagger response lacks type'
-            _type = ann['type']
-            assert 'texts' in ann, 'Tagger response lacks texts'
-            texts = ann['texts']
+        for ann_data in json_resp.values():
+            assert 'offsets' in ann_data, 'Tagger response lacks offsets'
+            offsets = ann_data['offsets']
+            assert 'type' in ann_data, 'Tagger response lacks type'
+            _type = ann_data['type']
+            assert 'texts' in ann_data, 'Tagger response lacks texts'
+            texts = ann_data['texts']
 
             # sanity
             assert len(offsets) != 0, 'Tagger response has empty offsets'
             assert len(texts) == len(offsets), 'Tagger response has different numbers of offsets and texts'
 
+            # Note: We do not support discontinuous spans at this point
+            assert len(offsets) < 2, 'Tagger response has multiple offsets (discontinuous spans not supported)'
             start, end = offsets[0]
             text = texts[0]
 
             _id = ann_obj.get_new_id('T')
-            cidmap[cid] = _id
 
-            tb = TextBoundAnnotationWithText(offsets, _id, _type, text, " " + ' '.join(texts[1:]))
+            tb = TextBoundAnnotationWithText(((start, end),), _id, _type, text)
 
             mods.addition(tb)
             ann_obj.add_annotation(tb)
-
-        for norm in (a for a in json_resp.itervalues() if _is_normalization(a)):
-            try:
-                _type = norm['type']
-                target = norm['target']
-                refdb = norm['refdb']
-                refid = norm['refid']
-            except KeyError, e:
-                raise # TODO
-
-            _id = ann_obj.get_new_id('N')
-            target = cidmap[target]
-
-            na = NormalizationAnnotation(_id, _type, target, refdb, refid, '')
-
-            mods.addition(na)
-            ann_obj.add_annotation(na)
 
         mod_resp = mods.json_response()
         mod_resp['annotations'] = _json_from_ann(ann_obj)

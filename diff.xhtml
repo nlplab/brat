@@ -10,7 +10,6 @@
     <title>brat</title>
     <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
     <meta name="google" value="notranslate"/>
-    <link href="static/jquery-theme/jquery-ui" rel="stylesheet" type="text/css"/>
     <link href="static/jquery-theme/jquery-ui-redmond.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript" src="client/lib/head.load.min.js"></script>
     <script type="text/javascript">
@@ -18,12 +17,11 @@
           // libraries
           'client/lib/jquery.min.js',
           'client/lib/jquery-ui.min.js',
-          'client/lib/jquery-ui.combobox.js',
           'client/lib/jquery.svg.min.js',
           'client/lib/jquery.svgdom.min.js',
           'client/lib/jquery.ba-bbq.min.js',
+          'client/lib/jquery.sprintf.js',
           'client/lib/jquery.json.min.js',
-          'client/lib/sprintf.js',
           'client/lib/webfont.js',
           // brat helpers
           'client/src/configuration.js',      
@@ -39,8 +37,7 @@
           'client/src/spinner.js'
       );
       head.ready(function() {
-          var diffColl, curColl, curDoc;
-
+          // var dispatcher = new Dispatcher(); // XXX DEBUG
           var dispatcher = new Dispatcher();
           var urlMonitor = new URLMonitor(dispatcher);
           var ajax = new Ajax(dispatcher);
@@ -56,24 +53,13 @@
           var visualizer_left = new Visualizer(dispatcher_left, 'svg_first');
           var ajax_left = new Ajax(dispatcher_left);
 
-          $('#side-by-side_switch').click(function(evt) {
-            dispatcher.post('hideForm');
-            var prevDiffColl = diffColl;
-            diffColl = curColl;
-            dispatcher.post("setCollection", [prevDiffColl, curDoc]);
-            evt.preventDefault();
-          });
-
           dispatcher.on("current", function(coll, doc, args, reload) {
-            if (args.diff) diffColl = decodeURIComponent(args.diff[0][0]);
-            curColl = coll;
-            curDoc = doc;
+            var params = $.deparam(window.location.search.substring(1));
+            var diffColl = params.diff;
             if (!diffColl) {
               alert("Diff collection not specified.\nPlease use a link of the following format:\n\n" +
-                location.origin + location.pathname + location.hash + '?diff=&lt;collection&gt;' +
-                '\n\n(the diff collection will be on the left side, and uneditable)');
+                location.origin + location.pathname + "?diff=___" + location.hash);
             } else {
-              dispatcher.post('setArguments', [{ diff: [[ diffColl ]] }]);
               dispatcher_left.post("current", [diffColl, doc, args, reload]);
             }
           });
@@ -88,8 +74,8 @@
       });
 
     </script>
-    <link rel="stylesheet" type="text/css" href="static/style-vis.css"/>
-    <link rel="stylesheet" type="text/css" href="static/style-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="style-vis.css"/>
+    <link rel="stylesheet" type="text/css" href="style-ui.css"/>
     <style>
       #svg_first_wrapper, #svg_second_wrapper {
         width: 48%;
@@ -237,10 +223,7 @@
           <span class="optionLabel">Side-by-side</span>
           <span id="side-by-side_cmp_exit" title="Exit side-by-side comparison mode">
             <a href="index.xhtml" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"><span class="ui-button-text">Exit comparison mode</span></a>
-          </span>
-          <span id="side-by-side_switch" title="Switch side-by-side comparison mode collections">
-            <a href="#" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"><span class="ui-button-text">Switch collections</span></a>
-          </span>
+            </span>
         </div>
       </fieldset>
       <!-- Data dialog automatic annotation section -->
@@ -360,11 +343,6 @@
                    title="Rapid annotation mode: activate automatic support for speeding up annotation process. Suitable for experienced annotators performing an established task.">Rapid</label>
             <select id="rapid_model"/>
           </span>
-        </div>
-        <div class="optionRow">
-          <span class="optionLabel">Type Collapse Limit</span>
-          <input id="type_collapse_limit" maxlength="3" size="3" value="30"
-                 style="text-align:right"/>
         </div>
       </fieldset>
       <fieldset id="options_form_network">

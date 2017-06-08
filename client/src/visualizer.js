@@ -2,6 +2,8 @@
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 
 var Visualizer = (function($, window, undefined) {
+    var fontLoadTimeout = 5000; // 5 seconds
+  
     var DocumentData = function(text) {
       this.text = text;
       this.chunks = [];
@@ -31,11 +33,8 @@ var Visualizer = (function($, window, undefined) {
       this.totalDist = 0;
       this.numArcs = 0;
       this.generalType = generalType;
+      this.offsets = offsets;
       this.headFragment = null;
-      this.unsegmentedOffsets = offsets;
-      this.offsets = [];
-      this.segmentedOffsetsMap = {};
-      // this.unsegmentedOffsets = undefined;
       // this.from = undefined;
       // this.to = undefined;
       // this.wholeFrom = undefined;
@@ -66,10 +65,10 @@ var Visualizer = (function($, window, undefined) {
       // this.right = undefined;
       // this.totaldist = undefined;
       // this.width = undefined;
-      this.initContainers();
+      this.initContainers(offsets);
     };
 
-    Span.prototype.initContainers = function(offsets) {
+    Span.prototype.initContainers = function() {
       this.incoming = [];
       this.outgoing = [];
       this.attributes = {};
@@ -81,43 +80,10 @@ var Visualizer = (function($, window, undefined) {
       this.normalizations = [];
     };
 
-    Span.prototype.splitMultilineOffsets = function(text) {
-      this.segmentedOffsetsMap = {};
-
-      for (var fi = 0, nfi = 0; fi < this.unsegmentedOffsets.length; fi++) {
-        var begin = this.unsegmentedOffsets[fi][0];
-        var end = this.unsegmentedOffsets[fi][1];
-      
-        for (var ti = begin; ti < end; ti++) {
-          var c = text.charAt(ti);
-          if (c == '\n' || c == '\r') {
-            if (begin !== null) {
-              this.offsets.push([begin, ti])
-              this.segmentedOffsetsMap[nfi++] = fi;
-              begin = null;
-            }
-          }
-          else if (begin === null) {
-            begin = ti;
-          }
-        }
-      
-        if (begin !== null) {
-          this.offsets.push([begin, end]);
-          this.segmentedOffsetsMap[nfi++] = fi;
-        }
-      }
-    };
-
     Span.prototype.copy = function(id) {
       var span = $.extend(new Span(), this); // clone
       span.id = id;
-      // protect from shallow copy
-      span.initContainers();
-      span.unsegmentedOffsets = this.unsegmentedOffsets.slice();
-      // read-only; shallow copy is fine
-      span.offsets = this.offsets;
-      span.segmentedOffsetsMap = this.segmentedOffsetsMap;
+      span.initContainers(); // protect from shallow copy
       return span;
     };
 
@@ -311,7 +277,6 @@ var Visualizer = (function($, window, undefined) {
         '\u00a0': 4,
         '\u200b': 0,
         '\u3000': 8,
-        '\t': 12,
         '\n': 4
       };
       var coloredCurlies = true; // color curlies by box BG
@@ -319,7 +284,7 @@ var Visualizer = (function($, window, undefined) {
       var minArcSlant = 8;
       var arcHorizontalSpacing = 10; // min space boxes with connecting arc
       var rowSpacing = -5;          // for some funny reason approx. -10 gives "tight" packing.
-      var sentNumMargin = 31;
+      var sentNumMargin = 20;
       var smoothArcCurves = true;   // whether to use curves (vs lines) in arcs
       var smoothArcSteepness = 0.5; // steepness of smooth curves (control point)
       var reverseArcControlx = 5;   // control point distance for "UFO catchers"
@@ -369,9 +334,6 @@ var Visualizer = (function($, window, undefined) {
       var eventAttributeTypes = null;
       var spanTypes = null;
       var highlightGroup;
-      var collapseArcs = false;
-      var rtlmode = false;
-      var collapseArcSpace = false;
 
       // var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
       // XXX Might need to be tweaked - inserted diff levels
@@ -380,6 +342,13 @@ var Visualizer = (function($, window, undefined) {
         'AddedAnnotation', 'MissingAnnotation', 'ChangedAnnotation'];
 
       this.arcDragOrigin = null; // TODO
+
+      // due to silly Chrome bug, I have to make it pay attention
+      var forceRedraw = function() {
+        if (!$.browser.chrome) return; // not needed
+        $svg.css('margin-bottom', 1);
+        setTimeout(function() { $svg.css('margin-bottom', 0); }, 0);
+      }
 
       var rowBBox = function(span) {
         var box = $.extend({}, span.rectBox); // clone
@@ -461,21 +430,6 @@ var Visualizer = (function($, window, undefined) {
         });
       };
 
-      var findArcHeight = function(fromIndex, toIndex, fragmentHeights) {
-        var height = 0;
-        for (var i = fromIndex; i <= toIndex; i++) {
-          if (fragmentHeights[i] > height) height = fragmentHeights[i];
-        }
-        height += Configuration.visual.arcSpacing;
-        return height;
-      }
-
-      var adjustFragmentHeights = function(fromIndex, toIndex, fragmentHeights, height) {
-        for (var i = fromIndex; i <= toIndex; i++) {
-          if (fragmentHeights[i] < height) fragmentHeights[i] = height;
-        }
-      }
-
       var fragmentComparator = function(a, b) {
         var tmp;
         var aSpan = a.span;
@@ -538,15 +492,13 @@ var Visualizer = (function($, window, undefined) {
           var span =
               //      (id,        type,      offsets,   generalType)
               new Span(entity[0], entity[1], entity[2], 'entity');
-          span.splitMultilineOffsets(data.text);
           data.spans[entity[0]] = span;
         });
         var triggerHash = {};
         $.each(sourceData.triggers, function(triggerNo, trigger) {
-                       //       (id,         type,       offsets,    generalType)
-          var triggerSpan = new Span(trigger[0], trigger[1], trigger[2], 'trigger');
-          triggerSpan.splitMultilineOffsets(data.text);
-          triggerHash[trigger[0]] = [triggerSpan, []]; // triggerSpan, eventlist
+          triggerHash[trigger[0]] =
+              //       (id,         type,       offsets,    generalType), eventList
+              [new Span(trigger[0], trigger[1], trigger[2], 'trigger'), []];
         });
         $.each(sourceData.events, function(eventNo, eventRow) {
           var eventDesc = data.eventDescs[eventRow[0]] =
@@ -649,7 +601,7 @@ var Visualizer = (function($, window, undefined) {
           // instead of using the first attribute def found
           var attrType = (eventAttributeTypes[attr[1]] ||
                           entityAttributeTypes[attr[1]]);
-          var attrValue = attrType && attrType.values.byName[attrType.bool || attr[3]];
+          var attrValue = attrType && attrType.values[attrType.bool || attr[3]];
           var span = data.spans[attr[2]];
           if (!span) {
             dispatcher.post('messages', [[['Annotation ' + attr[2] + ', referenced from attribute ' + attr[0] + ', does not exist.', 'error']]]);
@@ -803,7 +755,6 @@ var Visualizer = (function($, window, undefined) {
           if (chunk) chunk.nextSpace = space;
           //               (index,     text, from,      to, space) {
           chunk = new Chunk(chunkNo++, text, firstFrom, to, space);
-          chunk.lastSpace = space;
           data.chunks.push(chunk);
           lastTo = to;
           firstFrom = null;
@@ -1019,7 +970,7 @@ var Visualizer = (function($, window, undefined) {
                 warning = true;
                 return;
               }
-              var val = attr.values.byName[attr.bool || valType];
+              var val = attr.values[attr.bool || valType];
               if (!val) {
                 // non-existent value
                 warning = true;
@@ -1033,11 +984,9 @@ var Visualizer = (function($, window, undefined) {
               if (val.glyph) {
                 if (val.position == "left") {
                   prefix = val.glyph + prefix;
-                  var tspan_attrs = { 'class' : 'glyph' };
-                  if (val.glyphColor) {
-                    tspan_attrs.fill = val.glyphColor;
-                  }
-                  svgtext.span(val.glyph, tspan_attrs);
+                  var css = 'glyph';
+                  if (attr.css) css += ' glyph_' + Util.escapeQuotes(attr.css);
+                  svgtext.span(val.glyph, { 'class': css });
                 } else { // XXX right is implied - maybe change
                   postfixArray.push([attr, val]);
                   postfix += val.glyph;
@@ -1054,11 +1003,9 @@ var Visualizer = (function($, window, undefined) {
               text += ' ' + postfix;
               svgtext.string(' ');
               $.each(postfixArray, function(elNo, el) {
-                var tspan_attrs = { 'class' : 'glyph' };
-                if (el[1].glyphColor) {
-                  tspan_attrs.fill = el[1].glyphColor;
-                }
-                svgtext.span(el[1].glyph, tspan_attrs);
+                var css = 'glyph';
+                if (el[0].css) css += ' glyph_' + Util.escapeQuotes(el[0].css);
+                svgtext.span(el[1].glyph, { 'class': css });
               });
             }
             if (warning) {
@@ -1187,7 +1134,7 @@ var Visualizer = (function($, window, undefined) {
         var chunkTexts = {}; // set of span texts
         $.each(data.chunks, function(chunkNo, chunk) {
           chunk.row = undefined; // reset
-          if (!chunkTexts.hasOwnProperty(chunk.text)) chunkTexts[chunk.text] = []
+          if (!(chunk.text in chunkTexts)) chunkTexts[chunk.text] = []
           var chunkText = chunkTexts[chunk.text];
 
           // here we also need all the spans that are contained in
@@ -1218,35 +1165,14 @@ var Visualizer = (function($, window, undefined) {
                   'space characters'
                   , 'warning', 15]]]);
               }
+              var startPos = text.getStartPositionOfChar(firstChar).x;
               var lastChar = fragment.to - fragment.chunk.from - 1;
-
-              // Adjust for XML whitespace (#832, #1009)
-              var textUpToFirstChar = fragment.chunk.text.substring(0, firstChar);
-              var textUpToLastChar = fragment.chunk.text.substring(0, lastChar);
-              var textUpToFirstCharUnspaced = textUpToFirstChar.replace(/\s\s+/g, ' ');
-              var textUpToLastCharUnspaced = textUpToLastChar.replace(/\s\s+/g, ' ');
-              firstChar -= textUpToFirstChar.length - textUpToFirstCharUnspaced.length;
-              lastChar -= textUpToLastChar.length - textUpToLastCharUnspaced.length;
-
-              var startPos, endPos;
-              if (firstChar < fragment.chunk.text.length) {
-                startPos = text.getStartPositionOfChar(firstChar).x;
-              } else {
-                startPos = text.getComputedTextLength();
-              }
-              endPos = (lastChar < firstChar)
+              var endPos = (lastChar < 0)
                 ? startPos
                 : text.getEndPositionOfChar(lastChar).x;
-
-              // In RTL mode, positions are negative (left to right)
-              if (rtlmode) {
-                startPos = -startPos;
-                endPos = -endPos;
-              }
-
               fragment.curly = {
-                from: Math.min(startPos, endPos),
-                to: Math.max(startPos, endPos)
+                from: startPos,
+                to: endPos
               };
             } else { // it's markedText [id, start?, char#, offset]
               if (fragment[2] < 0) fragment[2] = 0;
@@ -1344,48 +1270,13 @@ var Visualizer = (function($, window, undefined) {
         return arrowId;
       }
 
-      var createStyleMap = function(styles) {
-          /* Given a list of [ID, attrib, value] lists, return dict of
-             dicts d where d[ID][attrib] == value.
-          */
-          var styleMap = {};
-
-          if (!styles) {
-              return styleMap;
-          }
-          for (var i=0; i<styles.length; i++) {
-              var style = styles[i];
-
-              if (!style || style.length !== 3) {
-                  console.log('warning: invalid style spec:', style);
-                  continue;
-              }
-
-              var targetRef = style[0],
-                  attribute = style[1],
-                  value = style[2];
-
-              // map multipart IDs to reference string by joining w/space
-              if (targetRef instanceof Array) {
-                  targetRef = targetRef.join(' ');
-              }
-
-              if (styleMap[targetRef] === undefined) {
-                  styleMap[targetRef] = {};
-              }
-              if (styleMap[targetRef][attribute] !== undefined) {
-                  console.log('warning: multiple style definitions for',
-                              targetRef, attribute);
-              }
-              styleMap[targetRef][attribute] = value;
-          }
-          return styleMap;
-      };
 
       var drawing = false;
       var redraw = false;
 
       var renderDataReal = function(sourceData) {
+
+
 Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
@@ -1426,8 +1317,6 @@ Util.profileStart('measures');
         var sizes = getTextAndSpanTextMeasurements();
         data.sizes = sizes;
 
-        var styleMap = createStyleMap(sourceData['styles']);
-
         adjustTowerAnnotationSizes();
         var maxTextWidth = 0;
         for (var text in sizes.texts.widths) {
@@ -1440,14 +1329,7 @@ Util.profileStart('measures');
 Util.profileEnd('measures');
 Util.profileStart('chunks');
 
-        // var currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding;
-        var currentX;
-        if (rtlmode) {
-          currentX = canvasWidth - (Configuration.visual.margin.x + sentNumMargin + rowPadding);
-        } else {
-          currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding;
-        }
-
+        var currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding;
         var rows = [];
         var fragmentHeights = [];
         var sentenceToggle = 0;
@@ -1473,14 +1355,6 @@ Util.profileStart('chunks');
 
         $.each(data.spanDrawOrderPermutation, function(spanIdNo, spanId) {
           var span = data.spans[spanId];
-          var spanDesc = spanTypes[span.type];
-          var bgColor = ((spanDesc && spanDesc.bgColor) ||
-                          (spanTypes.SPAN_DEFAULT &&
-                          spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
-          if (bgColor == "hidden") {
-            span.hidden = true;
-            return;
-          }
 
           var f1 = span.fragments[0];
           var f2 = span.fragments[span.fragments.length - 1];
@@ -1589,22 +1463,7 @@ Util.profileStart('chunks');
         });
 
         $.each(data.chunks, function(chunkNo, chunk) {
-          var spaceWidth = 0;
-          if (chunk.lastSpace) {
-            var spaceLen = chunk.lastSpace.length || 0;
-            var spacePos = chunk.lastSpace.lastIndexOf("\n") + 1;
-            if (spacePos || !chunkNo || !chunk.sentence) {
-              // indent if
-              // * non-first paragraph first word
-              // * first paragraph first word
-              // * non-first word in a line
-              // don't indent if
-              // * the first word in a non-paragraph line
-              for (var i = spacePos; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.lastSpace[i]] || 0;
-              currentX += rtlmode ? -spaceWidth : spaceWidth;
-            }
-          }
-
+          reservations = new Array();
           chunk.group = svg.group(row.group);
           chunk.highlightGroup = svg.group(chunk.group);
 
@@ -1625,26 +1484,12 @@ Util.profileStart('chunks');
             var bgColor = ((spanDesc && spanDesc.bgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.bgColor) || '#ffffff');
-            if (span.hidden) return;
             var fgColor = ((spanDesc && spanDesc.fgColor) ||
                            (spanTypes.SPAN_DEFAULT &&
                             spanTypes.SPAN_DEFAULT.fgColor) || '#000000');
             var borderColor = ((spanDesc && spanDesc.borderColor) ||
                                (spanTypes.SPAN_DEFAULT &&
                                 spanTypes.SPAN_DEFAULT.borderColor) || '#000000');
-
-            // set span-specific styles
-            if (styleMap[span.id]) {
-                if (styleMap[span.id]['fgColor'] !== undefined) {
-                    fgColor = styleMap[span.id]['fgColor'];
-                }
-                if (styleMap[span.id]['bgColor'] !== undefined) {
-                    bgColor = styleMap[span.id]['bgColor'];
-                }
-                if (styleMap[span.id]['borderColor'] !== undefined) {
-                    borderColor = styleMap[span.id]['borderColor'];
-                }
-            }
 
             // special case: if the border 'color' value is 'darken',
             // then just darken the BG color a bit for the border.
@@ -1737,7 +1582,7 @@ Util.profileStart('chunks');
                 rx: Configuration.visual.margin.x,
                 ry: Configuration.visual.margin.y,
                 'data-span-id': span.id,
-                'data-fragment-id': span.segmentedOffsetsMap[fragment.id],
+                'data-fragment-id': fragment.id,
                 'strokeDashArray': span.attributeMerge.dashArray,
               });
 
@@ -1747,7 +1592,6 @@ Util.profileStart('chunks');
               $(fragment.rect).addClass(span.normalized);
             }
 
-            fragment.left = bx; // TODO put it somewhere nicer? // XXX RTL needed?
             fragment.right = bx + bw; // TODO put it somewhere nicer?
             if (!(span.shadowClass || span.marked)) {
               chunkFrom = Math.min(bx, chunkFrom);
@@ -1779,7 +1623,7 @@ Util.profileStart('chunks');
                   line(xx, yy + hh + Configuration.visual.margin.y - span.floor),
                   { 'class': 'boxcross' });
             }
-            svg.text(fragment.group, x, y - span.floor, data.spanAnnTexts[fragment.glyphedLabelText], { fill: fgColor });
+            var fragmentText = svg.text(fragment.group, x, y - span.floor, data.spanAnnTexts[fragment.glyphedLabelText], { fill: fgColor });
 
             // Make curlies to show the fragment
             if (fragment.drawCurly) {
@@ -1827,14 +1671,12 @@ Util.profileStart('chunks');
                   if (origin.row.index == rowIndex) {
                     // same row, but before this
                     border = origin.translation.x + leftSpan.fragments[leftSpan.fragments.length - 1].right;
-                  } else if (rtlmode) {
-                    border = 0;
                   } else {
                     border = Configuration.visual.margin.x + sentNumMargin + rowPadding;
                   }
                   var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                   var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
-                  var gap = Math.abs(currentX + (rtlmode ? -bx : bx) - border);
+                  var gap = currentX + bx - border;
                   var arcSpacing = smallestLabelWidth - gap;
                   if (!hasLeftArcs || spacing < arcSpacing) {
                     spacing = arcSpacing;
@@ -1859,14 +1701,12 @@ Util.profileStart('chunks');
                   if (target.row.index == rowIndex) {
                     // same row, but before this
                     border = target.translation.x + leftSpan.fragments[leftSpan.fragments.length - 1].right;
-                  } else if (rtlmode) {
-                    border = 0;
                   } else {
                     border = Configuration.visual.margin.x + sentNumMargin + rowPadding;
                   }
                   var labelNo = Configuration.abbrevsOn ? labels.length - 1 : 0;
                   var smallestLabelWidth = sizes.arcs.widths[labels[labelNo]] + 2 * minArcSlant;
-                  var gap = Math.abs(currentX + (rtlmode ? -bx : bx) - border);
+                  var gap = currentX + bx - border;
                   var arcSpacing = smallestLabelWidth - gap;
                   if (!hasLeftArcs || spacing < arcSpacing) {
                     spacing = arcSpacing;
@@ -1891,23 +1731,17 @@ Util.profileStart('chunks');
           chunk.right = chunkTo;
           var textWidth = sizes.texts.widths[chunk.text];
           chunkHeight += sizes.texts.height;
-          var boxX = rtlmode ? chunkTo : -Math.min(chunkFrom, 0);
-          var boxWidth;
-          if (rtlmode) {
-            boxWidth = Math.max(textWidth, -chunkFrom) - Math.min(0, -chunkTo);
-          } else {
-            boxWidth = Math.max(textWidth, chunkTo) - Math.min(0, chunkFrom);
-          }
+          var boxX = -Math.min(chunkFrom, 0);
+          var boxWidth =
+              Math.max(textWidth, chunkTo) -
+              Math.min(0, chunkFrom);
           // if (hasLeftArcs) {
             // TODO change this with smallestLeftArc
             // var spacing = arcHorizontalSpacing - (currentX - lastArcBorder);
             // arc too small?
-          if (spacing > 0) {
-            currentX += rtlmode ? -spacing : spacing;
-          }
+          if (spacing > 0) currentX += spacing;
           // }
           var rightBorderForArcs = hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
-          var leftBorderForArcs = hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0);
 
           var lastX = currentX;
           var lastRow = row;
@@ -1925,27 +1759,14 @@ Util.profileStart('chunks');
             sentenceToggle = 1 - sentenceToggle;
           }
 
-          var chunkDoesNotFit;
-          if (rtlmode) {
-            chunkDoesNotFit = currentX - boxWidth - leftBorderForArcs <= 2 * Configuration.visual.margin.x;
-          } else {
-            chunkDoesNotFit = currentX + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x
-          }
-
-          if (chunk.sentence || chunkDoesNotFit) {
+          if (chunk.sentence ||
+              currentX + boxWidth + rightBorderForArcs >= canvasWidth - 2 * Configuration.visual.margin.x) {
+            // the chunk does not fit
             row.arcs = svg.group(row.group, { 'class': 'arcs' });
             // TODO: related to issue #571
             // replace arcHorizontalSpacing with a calculated value
-
-            // XXX RTL spaceWidth?
-            if (rtlmode) {
-              currentX = canvasWidth - (Configuration.visual.margin.x + sentNumMargin + rowPadding +
-                  (hasRightArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0))/* + spaceWidth */ );
-            } else {
-              currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding +
-                  (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0)) /* + spaceWidth */ ;
-            }
-
+            currentX = Configuration.visual.margin.x + sentNumMargin + rowPadding +
+                (hasLeftArcs ? arcHorizontalSpacing : (hasInternalArcs ? arcSlant : 0));
             if (hasLeftArcs) {
               var adjustedCurTextWidth = sizes.texts.widths[chunk.text] + arcHorizontalSpacing;
               if (adjustedCurTextWidth > maxTextWidth) {
@@ -1953,7 +1774,7 @@ Util.profileStart('chunks');
               }
             }
             if (spacingRowBreak > 0) {
-              currentX += rtlmode ? -spacingRowBreak : spacingRowBreak;
+              currentX += spacingRowBreak;
               spacing = 0; // do not center intervening elements
             }
 
@@ -1980,7 +1801,7 @@ Util.profileStart('chunks');
           if (row.index !== lastRow.index) {
             $.each(openTextHighlights, function(textId, textDesc) {
               if (textDesc[3] != lastX) {
-                var newDesc = [lastRow, textDesc[3], lastX + (rtlmode ? -boxX : boxX), textDesc[4]];
+                var newDesc = [lastRow, textDesc[3], lastX + boxX, textDesc[4]];
                 textMarkedRows.push(newDesc);
               }
               textDesc[3] = currentX;
@@ -1989,13 +1810,13 @@ Util.profileStart('chunks');
 
           // open text highlights
           $.each(chunk.markedTextStart, function(textNo, textDesc) {
-            textDesc[3] += currentX + (rtlmode ? -boxX : boxX);
+            textDesc[3] += currentX + boxX;
             openTextHighlights[textDesc[0]] = textDesc;
           });
 
           // close text highlights
           $.each(chunk.markedTextEnd, function(textNo, textDesc) {
-            textDesc[3] += currentX + (rtlmode ? -boxX : boxX);
+            textDesc[3] += currentX + boxX;
             var startDesc = openTextHighlights[textDesc[0]];
             delete openTextHighlights[textDesc[0]];
             markedRow = [row, startDesc[3], textDesc[3], startDesc[4]];
@@ -2013,26 +1834,26 @@ Util.profileStart('chunks');
             // if we added a gap, center the intervening elements
             spacing /= 2;
             var firstChunkInRow = row.chunks[row.chunks.length - 1];
-            // are there already some intervening chunks to move?
-            if (firstChunkInRow) {
-              if (spacingChunkId < firstChunkInRow.index) {
-                spacingChunkId = firstChunkInRow.index + 1;
-              }
-              for (var chunkIndex = spacingChunkId; chunkIndex < chunk.index; chunkIndex++) {
-                var movedChunk = data.chunks[chunkIndex];
-                translate(movedChunk, movedChunk.translation.x + spacing, 0);
-                movedChunk.textX += spacing;
-              }
+            if (spacingChunkId < firstChunkInRow.index) {
+              spacingChunkId = firstChunkInRow.index + 1;
+            }
+            for (var chunkIndex = spacingChunkId; chunkIndex < chunk.index; chunkIndex++) {
+              var movedChunk = data.chunks[chunkIndex];
+              translate(movedChunk, movedChunk.translation.x + spacing, 0);
+              movedChunk.textX += spacing;
             }
           }
 
           row.chunks.push(chunk);
           chunk.row = row;
 
-          translate(chunk, currentX + (rtlmode ? -boxX : boxX), 0);
-          chunk.textX = currentX + (rtlmode ? -boxX : boxX);
+          translate(chunk, currentX + boxX, 0);
+          chunk.textX = currentX + boxX;
 
-          currentX += rtlmode ? -boxWidth : boxWidth;
+          var spaceWidth = 0;
+          var spaceLen = chunk.nextSpace && chunk.nextSpace.length || 0;
+          for (var i = 0; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.nextSpace[i]] || 0;
+          currentX += spaceWidth + boxWidth;
         }); // chunks
 
         // finish the last row
@@ -2058,10 +1879,6 @@ Util.profileStart('arcsPrep');
           arc.jumpHeight = 0;
           var fromFragment = data.spans[arc.origin].headFragment;
           var toFragment = data.spans[arc.target].headFragment;
-          if (fromFragment.span.hidden || toFragment.span.hidden) {
-            arc.hidden = true;
-            return;
-          }
           if (fromFragment.towerId > toFragment.towerId) {
             var tmp = fromFragment; fromFragment = toFragment; toFragment = tmp;
           }
@@ -2097,36 +1914,6 @@ Util.profileStart('arcsPrep');
           return 0;
         });
 
-        // see which fragments are in each row
-        var heightsStart = 0;
-        var heightsRowsAdded = 0;
-        $.each(rows, function(rowId, row) {
-          var seenFragment = false;
-          row.heightsStart = row.heightsEnd = heightsStart;
-          $.each(row.chunks, function(chunkId, chunk) {
-            if (chunk.lastFragmentIndex !== undefined) {
-              // fragmentful chunk
-              seenFragment = true;
-              var heightsIndex = chunk.lastFragmentIndex * 2 + heightsRowsAdded;
-              if (row.heightsEnd < heightsIndex) {
-                row.heightsEnd = heightsIndex;
-              }
-              var heightsIndex = chunk.firstFragmentIndex * 2 + heightsRowsAdded;
-              if (row.heightsStart > heightsIndex) {
-                row.heightsStart = heightsIndex;
-              }
-            }
-          });
-          fragmentHeights.splice(row.heightsStart, 0, Configuration.visual.arcStartHeight);
-          heightsRowsAdded++;
-
-          row.heightsAdjust = heightsRowsAdded;
-          if (seenFragment) {
-            row.heightsEnd += 2;
-          }
-          heightsStart = row.heightsEnd + 1;
-        });
-
         // draw the drag arc marker
         var arrowhead = svg.marker(defs, 'drag_arrow',
           5, 2.5, 5, 5, 'auto',
@@ -2135,21 +1922,12 @@ Util.profileStart('arcsPrep');
             'class': 'drag_fill',
           });
         svg.polyline(arrowhead, [[0, 0], [5, 2.5], [0, 5], [0.2, 2.5]]);
-        var arcDragArc = svg.path(svg.createPath(), {
-          markerEnd: 'url(#drag_arrow)',
-          'class': 'drag_stroke',
-          fill: 'none',
-          visibility: 'hidden',
-        });
-        dispatcher.post('arcDragArcDrawn', [arcDragArc]);
 
 Util.profileEnd('arcsPrep');
 Util.profileStart('arcs');
 
-        var arcCache = {};
         // add the arcs
         $.each(data.arcs, function(arcNo, arc) {
-          if (arc.hidden) return;
           // separate out possible numeric suffix from type
           var noNumArcType;
           var splitArcType;
@@ -2171,23 +1949,18 @@ Util.profileStart('arcs');
             right = originSpan.headFragment;
           }
 
-          // fall back on relation types in case we still don't have
-          // an arc description, with final fallback to unnumbered relation
-          var arcDesc = relationTypesHash[arc.type] || relationTypesHash[noNumArcType];
-
-          // if it's not a relationship, see if we can find it in span
-          // descriptions
+          var spanDesc = spanTypes[originSpan.type];
           // TODO: might make more sense to reformat this as dict instead
           // of searching through the list every type
-          var spanDesc = spanTypes[originSpan.type];
-          if (!arcDesc && spanDesc && spanDesc.arcs) {
+          var arcDesc;
+          if (spanDesc && spanDesc.arcs) {
             $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
                 if (arcDescIter.type == arc.type) {
                   arcDesc = arcDescIter;
                 }
               });
           }
-          // last fall back on unnumbered type if not found in full
+          // fall back on unnumbered type if not found in full
           if (!arcDesc && noNumArcType && noNumArcType != arc.type &&
             spanDesc && spanDesc.arcs) {
             $.each(spanDesc.arcs, function(arcDescNo, arcDescIter) {
@@ -2196,44 +1969,22 @@ Util.profileStart('arcs');
                 }
               });
           }
-          // empty default
-          if (!arcDesc) arcDesc = {};
-
+          // fall back on relation types in case we still don't have
+          // an arc description, with final fallback to unnumbered relation
+          if (!arcDesc) {
+            arcDesc = $.extend({}, relationTypesHash[arc.type] || relationTypesHash[noNumArcType]);
+          }
           var color = ((arcDesc && arcDesc.color) ||
                        (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.color) ||
                        '#000000');
-          if (color == 'hidden') return;
           var symmetric = arcDesc && arcDesc.properties && arcDesc.properties.symmetric;
           var dashArray = arcDesc && arcDesc.dashArray;
           var arrowHead = ((arcDesc && arcDesc.arrowHead) ||
                            (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead) ||
-                           'triangle,5');
+                           'triangle,5') + ',' + color;
           var labelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
                                 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow) ||
-                                'triangle,5');
-
-          // set arc-specific styles
-          var arcRef = [arc.origin, arc.target, arc.type].join(' ');
-          if (styleMap[arcRef]) {
-              if (styleMap[arcRef]['color'] !== undefined) {
-                  color = styleMap[arcRef]['color'];
-              }
-              if (styleMap[arcRef]['symmetric'] !== undefined) {
-                  symmetric = styleMap[arcRef]['symmetric'];
-              }
-              if (styleMap[arcRef]['dashArray'] !== undefined) {
-                  dashArray = styleMap[arcRef]['dashArray'];
-              }
-              if (styleMap[arcRef]['arrowHead'] !== undefined) {
-                  arrowHead = styleMap[arcRef]['arrowHead'];
-              }
-              if (styleMap[arcRef]['labelArrow'] !== undefined) {
-                  labelArrowHead = styleMap[arcRef]['labelArrow'];
-              }
-          }
-
-          arrowHead +=  ',' + color;
-          labelArrowHead += ',' + color;
+                                'triangle,5') + ',' + color;
 
           var leftBox = rowBBox(left);
           var rightBox = rowBBox(right);
@@ -2250,27 +2001,30 @@ Util.profileStart('arcs');
           }
 
           // find the next height
-          var height;
+          var height = 0;
 
           var fromIndex2, toIndex2;
           if (left.chunk.index == right.chunk.index) {
-            fromIndex2 = left.towerId * 2 + left.chunk.row.heightsAdjust;
-            toIndex2 = right.towerId * 2 + right.chunk.row.heightsAdjust;
+            fromIndex2 = left.towerId * 2;
+            toIndex2 = right.towerId * 2;
           } else {
-            fromIndex2 = left.towerId * 2 + 1 + left.chunk.row.heightsAdjust;
-            toIndex2 = right.towerId * 2 - 1 + right.chunk.row.heightsAdjust;
+            fromIndex2 = left.towerId * 2 + 1;
+            toIndex2 = right.towerId * 2 - 1;
           }
-          if (!collapseArcSpace) {
-            height = findArcHeight(fromIndex2, toIndex2, fragmentHeights);
-            adjustFragmentHeights(fromIndex2, toIndex2, fragmentHeights, height);
-
-            // Adjust the height to align with pixels when rendered
-
-            // TODO: on at least Chrome, this doesn't make a difference:
-            // the lines come out pixel-width even without it. Check.
-            height += 0.5;
+          for (var i = fromIndex2; i <= toIndex2; i++) {
+            if (fragmentHeights[i] > height) height = fragmentHeights[i];
           }
+          height += Configuration.visual.arcSpacing;
           var leftSlantBound, rightSlantBound;
+          for (var i = fromIndex2; i <= toIndex2; i++) {
+            if (fragmentHeights[i] < height) fragmentHeights[i] = height;
+          }
+
+          // Adjust the height to align with pixels when rendered
+
+          // TODO: on at least Chrome, this doesn't make a difference:
+          // the lines come out pixel-width even without it. Check.
+          height += 0.5
 
           var chunkReverse = false;
           var ufoCatcher = originSpan.headFragment.chunk.index == targetSpan.headFragment.chunk.index;
@@ -2282,359 +2036,290 @@ Util.profileStart('arcs');
 
           for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
             var row = rows[rowIndex];
-            if (row.chunks.length) {
-              row.hasAnnotations = true;
+            row.hasAnnotations = true;
+            var arcGroup = svg.group(row.arcs, {
+                'data-from': arc.origin,
+                'data-to': arc.target
+            });
+            var from, to;
 
-              if (collapseArcSpace) {
-                var fromIndex2R = rowIndex == leftRow ? fromIndex2 : row.heightsStart;
-                var toIndex2R = rowIndex == rightRow ? toIndex2 : row.heightsEnd;
-                height = findArcHeight(fromIndex2R, toIndex2R, fragmentHeights);
+            if (rowIndex == leftRow) {
+              from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
+            } else {
+              from = sentNumMargin;
+            }
+
+            if (rowIndex == rightRow) {
+              to = rightBox.x + (chunkReverse ? rightBox.width : 0);
+            } else {
+              to = canvasWidth - 2 * Configuration.visual.margin.y;
+            }
+
+            var originType = data.spans[arc.origin].type;
+            var arcLabels = Util.getArcLabels(spanTypes, originType, arc.type, relationTypesHash);
+            var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type, relationTypesHash);
+            // if (Configuration.abbrevsOn && !ufoCatcher && arcLabels) {
+            if (Configuration.abbrevsOn && arcLabels) {
+              var labelIdx = 1; // first abbreviation
+              // strictly speaking 2*arcSlant would be needed to allow for
+              // the full-width arcs to fit, but judged unabbreviated text
+              // to be more important than the space for arcs.
+              var maxLength = (to - from) - (arcSlant);
+              while (sizes.arcs.widths[labelText] > maxLength &&
+                     arcLabels[labelIdx]) {
+                labelText = arcLabels[labelIdx];
+                labelIdx++;
               }
+            }
 
-              var arcGroup = svg.group(row.arcs, {
-                  'data-from': arc.origin,
-                  'data-to': arc.target
+            var shadowGroup;
+            if (arc.shadowClass || arc.marked) {
+              shadowGroup = svg.group(arcGroup);
+            }
+            var options = {
+              'fill': color,
+              'data-arc-role': arc.type,
+              'data-arc-origin': arc.origin,
+              'data-arc-target': arc.target,
+              // TODO: confirm this is unused and remove.
+              //'data-arc-id': arc.id,
+              'data-arc-ed': arc.eventDescId,
+            };
+
+            // construct SVG text, showing possible trailing index
+            // numbers (as in e.g. "Theme2") as subscripts
+            var svgText;
+            if (!splitArcType[2]) {
+                // no subscript, simple string suffices
+                svgText = labelText;
+            } else {
+                // Need to parse out possible numeric suffixes to avoid
+                // duplicating number in label and its subscript
+                var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
+                var noNumLabelText = splitLabelText[1];
+
+                svgText = svg.createText();
+                // TODO: to address issue #453, attaching options also
+                // to spans, not only primary text. Make sure there
+                // are no problems with this.
+                svgText.span(noNumLabelText, options);
+                var subscriptSettings = {
+                  'dy': '0.3em',
+                  'font-size': '80%'
+                };
+                // alternate possibility
+//                 var subscriptSettings = {
+//                   'baseline-shift': 'sub',
+//                   'font-size': '80%'
+//                 };
+                $.extend(subscriptSettings, options);
+                svgText.span(splitArcType[2], subscriptSettings);
+            }
+
+            // guess at the correct baseline shift to get vertical centering.
+            // (CSS dominant-baseline can't be used as not all SVG rendereds support it.)
+            var baseline_shift = sizes.arcs.height / 4;
+            var text = svg.text(arcGroup, (from + to) / 2, -height + baseline_shift,
+                                svgText, options);
+
+            var width = sizes.arcs.widths[labelText];
+            var textBox = {
+              x: (from + to - width) / 2,
+              width: width,
+              y: -height - sizes.arcs.height / 2,
+              height: sizes.arcs.height,
+            }
+            if (arc.marked) {
+              var markedRect = svg.rect(shadowGroup,
+                  textBox.x - markedArcSize, textBox.y - markedArcSize,
+                  textBox.width + 2 * markedArcSize, textBox.height + 2 * markedArcSize, {
+                    // filter: 'url(#Gaussian_Blur)',
+                    'class': "shadow_EditHighlight",
+                    rx: markedArcSize,
+                    ry: markedArcSize,
               });
-              var from, to;
+              svg.other(markedRect, 'animate', {
+                'data-type': arc.marked,
+                attributeName: 'fill',
+                values: (arc.marked == 'match' ? highlightMatchSequence
+                         : highlightArcSequence),
+                dur: highlightDuration,
+                repeatCount: 'indefinite',
+                begin: 'indefinite'
+              });
+            }
+            if (arc.shadowClass) {
+              svg.rect(shadowGroup,
+                  textBox.x - arcLabelShadowSize,
+                  textBox.y - arcLabelShadowSize,
+                  textBox.width  + 2 * arcLabelShadowSize,
+                  textBox.height + 2 * arcLabelShadowSize, {
+                    'class': 'shadow_' + arc.shadowClass,
+                    filter: 'url(#Gaussian_Blur)',
+                    rx: arcLabelShadowRounding,
+                    ry: arcLabelShadowRounding,
+              });
+            }
+            var textStart = textBox.x;
+            var textEnd = textBox.x + textBox.width;
 
-              if (rowIndex == leftRow) {
-                if (rtlmode) {
-                  from = leftBox.x + (chunkReverse ? leftBox.width : 0);
-                } else {
-                  from = leftBox.x + (chunkReverse ? 0 : leftBox.width);
+            // adjust by margin for arc drawing
+            textStart -= Configuration.visual.arcTextMargin;
+            textEnd += Configuration.visual.arcTextMargin;
+
+            if (from > to) {
+              var tmp = textStart; textStart = textEnd; textEnd = tmp;
+            }
+
+            var path;
+
+            if (roundCoordinates) {
+              // don't ask
+              height = (height|0)+0.5;
+            }
+            if (height > row.maxArcHeight) row.maxArcHeight = height;
+
+            var myArrowHead   = ((arcDesc && arcDesc.arrowHead) ||
+                                 (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
+            var arrowName = (leftToRight ?
+                symmetric && myArrowHead || 'none' :
+                myArrowHead || 'triangle,5') + ',' + color;
+            var arrowType = arrows[arrowName];
+            var arrowDecl = arrowType && ('url(#' + arrowType + ')');
+
+            var arrowAtLabelAdjust = 0;
+            var labelArrowDecl = null;
+            var myLabelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
+                                    (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow));
+            if (myLabelArrowHead) {
+              var labelArrowName = (leftToRight ?
+                  symmetric && myLabelArrowHead || 'none' :
+                  myLabelArrowHead || 'triangle,5') + ',' + color;
+              var labelArrowSplit = labelArrowName.split(',');
+              arrowAtLabelAdjust = labelArrowSplit[0] != 'none' && parseInt(labelArrowSplit[1], 10) || 0;
+              var labelArrowType = arrows[labelArrowName];
+              var labelArrowDecl = labelArrowType && ('url(#' + labelArrowType + ')');
+              if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
+            }
+            var arrowStart = textStart - arrowAtLabelAdjust;
+            path = svg.createPath().move(arrowStart, -height);
+            if (rowIndex == leftRow) {
+              var cornerx = from + ufoCatcherMod * arcSlant;
+              // for normal cases, should not be past textStart even if narrow
+              if (!ufoCatcher && cornerx > arrowStart - 1) { cornerx = arrowStart - 1; }
+              if (smoothArcCurves) {
+                var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
+                var endy = leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y);
+                // no curving for short lines covering short vertical
+                // distances, the arrowheads can go off (#925)
+                if (Math.abs(-height-endy) < 2 &&
+                    Math.abs(cornerx-from) < 5) {
+                  endy = -height;
                 }
+                line = path.line(cornerx, -height).
+                    curveQ(controlx, -height, from, endy);
               } else {
-                from = rtlmode ? canvasWidth - 2 * Configuration.visual.margin.y - sentNumMargin : sentNumMargin;
+                path.line(cornerx, -height).
+                    line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
               }
-
-              if (rowIndex == rightRow) {
-                if (rtlmode) {
-                  to = rightBox.x + (chunkReverse ? 0 : rightBox.width);
-                } else {
-                  to = rightBox.x + (chunkReverse ? rightBox.width : 0);
-                }
-              } else {
-                to = rtlmode ? 0 : canvasWidth - 2 * Configuration.visual.margin.y;
-              }
-
-              var adjustHeight = true;
-              if (collapseArcs) {
-                var arcCacheKey = arc.type + ' ' + rowIndex + ' ' + from + ' ' + to;
-                if (rowIndex == leftRow) arcCacheKey = left.span.id + ' ' + arcCacheKey;
-                if (rowIndex == rightRow) arcCacheKey += ' ' + right.span.id;
-                var rowHeight = arcCache[arcCacheKey];
-                if (rowHeight !== undefined) {
-                  height = rowHeight;
-                  adjustHeight = false;
-                } else {
-                  arcCache[arcCacheKey] = height;
-                }
-              }
-
-              if (collapseArcSpace && adjustHeight) {
-                adjustFragmentHeights(fromIndex2R, toIndex2R, fragmentHeights, height);
-
-                // Adjust the height to align with pixels when rendered
-
-                // TODO: on at least Chrome, this doesn't make a difference:
-                // the lines come out pixel-width even without it. Check.
-                height += 0.5;
-              }
-
-              var originType = data.spans[arc.origin].type;
-              var arcLabels = Util.getArcLabels(spanTypes, originType, arc.type, relationTypesHash);
-              var labelText = Util.arcDisplayForm(spanTypes, originType, arc.type, relationTypesHash);
-              // if (Configuration.abbrevsOn && !ufoCatcher && arcLabels) {
-              if (Configuration.abbrevsOn && arcLabels) {
-                var labelIdx = 1; // first abbreviation
-                // strictly speaking 2*arcSlant would be needed to allow for
-                // the full-width arcs to fit, but judged unabbreviated text
-                // to be more important than the space for arcs.
-                var maxLength = (to - from) - (arcSlant);
-                while (sizes.arcs.widths[labelText] > maxLength &&
-                       arcLabels[labelIdx]) {
-                  labelText = arcLabels[labelIdx];
-                  labelIdx++;
-                }
-              }
-
-              var shadowGroup;
-              if (arc.shadowClass || arc.marked) {
-                shadowGroup = svg.group(arcGroup);
-              }
-              var options = {
-                'fill': color,
-                'data-arc-role': arc.type,
-                'data-arc-origin': arc.origin,
-                'data-arc-target': arc.target,
-                // TODO: confirm this is unused and remove.
-                //'data-arc-id': arc.id,
-                'data-arc-ed': arc.eventDescId,
-              };
-
-              // construct SVG text, showing possible trailing index
-              // numbers (as in e.g. "Theme2") as subscripts
-              var svgText;
-              if (!splitArcType[2]) {
-                  // no subscript, simple string suffices
-                  svgText = labelText;
-              } else {
-                  // Need to parse out possible numeric suffixes to avoid
-                  // duplicating number in label and its subscript
-                  var splitLabelText = labelText.match(/^(.*?)(\d*)$/);
-                  var noNumLabelText = splitLabelText[1];
-
-                  svgText = svg.createText();
-                  // TODO: to address issue #453, attaching options also
-                  // to spans, not only primary text. Make sure there
-                  // are no problems with this.
-                  svgText.span(noNumLabelText, options);
-                  var subscriptSettings = {
-                    'dy': '0.3em',
-                    'font-size': '80%'
-                  };
-                  // alternate possibility
-  //                 var subscriptSettings = {
-  //                   'baseline-shift': 'sub',
-  //                   'font-size': '80%'
-  //                 };
-                  $.extend(subscriptSettings, options);
-                  svgText.span(splitArcType[2], subscriptSettings);
-              }
-
-              // guess at the correct baseline shift to get vertical centering.
-              // (CSS dominant-baseline can't be used as not all SVG rendereds support it.)
-              var baseline_shift = sizes.arcs.height / 4;
-              var text = svg.text(arcGroup, (from + to) / 2, -height + baseline_shift,
-                                  svgText, options);
-
-              var width = sizes.arcs.widths[labelText];
-              var textBox = {
-                x: (from + to - width) / 2,
-                width: width,
-                y: -height - sizes.arcs.height / 2,
-                height: sizes.arcs.height,
-              }
-              if (arc.marked) {
-                var markedRect = svg.rect(shadowGroup,
-                    textBox.x - markedArcSize, textBox.y - markedArcSize,
-                    textBox.width + 2 * markedArcSize, textBox.height + 2 * markedArcSize, {
-                      // filter: 'url(#Gaussian_Blur)',
-                      'class': "shadow_EditHighlight",
-                      rx: markedArcSize,
-                      ry: markedArcSize,
-                });
-                svg.other(markedRect, 'animate', {
-                  'data-type': arc.marked,
-                  attributeName: 'fill',
-                  values: (arc.marked == 'match' ? highlightMatchSequence
-                           : highlightArcSequence),
-                  dur: highlightDuration,
-                  repeatCount: 'indefinite',
-                  begin: 'indefinite'
-                });
-              }
-              if (arc.shadowClass) {
-                svg.rect(shadowGroup,
-                    textBox.x - arcLabelShadowSize,
-                    textBox.y - arcLabelShadowSize,
-                    textBox.width  + 2 * arcLabelShadowSize,
-                    textBox.height + 2 * arcLabelShadowSize, {
-                      'class': 'shadow_' + arc.shadowClass,
-                      filter: 'url(#Gaussian_Blur)',
-                      rx: arcLabelShadowRounding,
-                      ry: arcLabelShadowRounding,
-                });
-              }
-              var textStart = textBox.x;
-              var textEnd = textBox.x + textBox.width;
-
-              // adjust by margin for arc drawing
-              textStart -= Configuration.visual.arcTextMargin;
-              textEnd += Configuration.visual.arcTextMargin;
-
-              if (from > to) {
-                var tmp = textStart; textStart = textEnd; textEnd = tmp;
-              }
-
-              var path;
-
-              if (roundCoordinates) {
-                // don't ask
-                height = (height|0)+0.5;
-              }
-              if (height > row.maxArcHeight) row.maxArcHeight = height;
-
-              var myArrowHead   = ((styleMap[arcRef] && styleMap[arcRef]['arrowHead']) ||
-                                   (arcDesc && arcDesc.arrowHead) ||
-                                   (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
-              var arrowName = (symmetric ? myArrowHead || 'none' :
-                    (leftToRight ? 'none' : myArrowHead || 'triangle,5')
-                  ) + ',' + color;
-              var arrowType = arrows[arrowName];
-              var arrowDecl = arrowType && ('url(#' + arrowType + ')');
-
-              var arrowAtLabelAdjust = 0;
-              var labelArrowDecl = null;
-              var myLabelArrowHead = ((styleMap[arcRef] && styleMap[arcRef]['labelArrow']) ||
-                                      (arcDesc && arcDesc.labelArrow) ||
-                                      (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow));
-              if (myLabelArrowHead) {
-                var labelArrowName = (leftToRight ?
-                    symmetric && myLabelArrowHead || 'none' :
-                    myLabelArrowHead || 'triangle,5') + ',' + color;
-                var labelArrowSplit = labelArrowName.split(',');
-                arrowAtLabelAdjust = labelArrowSplit[0] != 'none' && parseInt(labelArrowSplit[1], 10) || 0;
-                var labelArrowType = arrows[labelArrowName];
-                var labelArrowDecl = labelArrowType && ('url(#' + labelArrowType + ')');
-                if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
-              }
-              var arrowStart = textStart - arrowAtLabelAdjust;
-              path = svg.createPath().move(arrowStart, -height);
-              if (rowIndex == leftRow) {
-                var cornerx = from + (rtlmode ? -ufoCatcherMod : ufoCatcherMod) * arcSlant;
-                // for normal cases, should not be past textStart even if narrow
-                if (rtlmode) {
-                  if (!ufoCatcher && cornerx < arrowStart + 1) { cornerx = arrowStart + 1; }
-                } else {
-                  if (!ufoCatcher && cornerx > arrowStart - 1) { cornerx = arrowStart - 1; }
-                }
-                if (smoothArcCurves) {
-                  //XXX var controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                  //XXX var endy = leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y);
-                  var controlx, endy;
-                  if (rtlmode) {
-                    controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                    endy = leftBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : leftBox.height / 2);
-                  } else {
-                    controlx = ufoCatcher ? cornerx + 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*from+(1-smoothArcSteepness)*cornerx;
-                    endy = leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y);
-                  }
-                  // no curving for short lines covering short vertical
-                  // distances, the arrowheads can go off (#925)
-                  if (Math.abs(-height-endy) < 2 &&
-                      Math.abs(cornerx-from) < 5) {
-                    endy = -height;
-                  }
-                  line = path.line(cornerx, -height).
-                      curveQ(controlx, -height, from, endy);
-                } else {
-                  path.line(cornerx, -height).
-                      line(from, leftBox.y + (leftToRight || arc.equiv ? leftBox.height / 2 : Configuration.visual.margin.y));
-                }
-              } else {
-                path.line(from, -height);
-              }
-              svg.path(arcGroup, path, {
-                  markerEnd: arrowDecl,
-                  markerStart: labelArrowDecl,
-                  style: 'stroke: ' + color,
+            } else {
+              path.line(from, -height);
+            }
+            svg.path(arcGroup, path, {
+                markerEnd: arrowDecl,
+                markerStart: labelArrowDecl,
+                style: 'stroke: ' + color,
+                'strokeDashArray': dashArray,
+            });
+            if (arc.marked) {
+              svg.path(shadowGroup, path, {
+                  'class': 'shadow_EditHighlight_arc',
+                  strokeWidth: markedArcStroke,
                   'strokeDashArray': dashArray,
               });
-              if (arc.marked) {
-                svg.path(shadowGroup, path, {
-                    'class': 'shadow_EditHighlight_arc',
-                    strokeWidth: markedArcStroke,
-                    'strokeDashArray': dashArray,
-                });
-                svg.other(markedRect, 'animate', {
-                  'data-type': arc.marked,
-                  attributeName: 'fill',
-                  values: (arc.marked == 'match' ? highlightMatchSequence
-                           : highlightArcSequence),
-                  dur: highlightDuration,
-                  repeatCount: 'indefinite',
-                  begin: 'indefinite'
-                });
-              }
-              if (arc.shadowClass) {
-                svg.path(shadowGroup, path, {
-                    'class': 'shadow_' + arc.shadowClass,
-                    strokeWidth: shadowStroke,
-                    'strokeDashArray': dashArray,
-                });
-              }
-              if (!symmetric) {
-                myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
+              svg.other(markedRect, 'animate', {
+                'data-type': arc.marked,
+                attributeName: 'fill',
+                values: (arc.marked == 'match' ? highlightMatchSequence
+                         : highlightArcSequence),
+                dur: highlightDuration,
+                repeatCount: 'indefinite',
+                begin: 'indefinite'
+              });
+            }
+            if (arc.shadowClass) {
+              svg.path(shadowGroup, path, {
+                  'class': 'shadow_' + arc.shadowClass,
+                  strokeWidth: shadowStroke,
+                  'strokeDashArray': dashArray,
+              });
+            }
+            var myArrowHead = ((arcDesc && arcDesc.arrowHead) ||
                                (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.arrowHead));
-                arrowName = (leftToRight ?
-                    myArrowHead || 'triangle,5' :
-                    'none') + ',' + color;
-              }
-              var arrowType = arrows[arrowName];
-              var arrowDecl = arrowType && ('url(#' + arrowType + ')');
+            var arrowName = (leftToRight ?
+                myArrowHead || 'triangle,5' :
+                symmetric && myArrowHead || 'none') + ',' + color;
+            var arrowType = arrows[arrowName];
+            var arrowDecl = arrowType && ('url(#' + arrowType + ')');
 
-              var arrowAtLabelAdjust = 0;
-              var labelArrowDecl = null;
-              var myLabelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
-                                      (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow));
-              if (myLabelArrowHead) {
-                var labelArrowName = (leftToRight ?
-                    myLabelArrowHead || 'triangle,5' :
-                    symmetric && myLabelArrowHead || 'none') + ',' + color;
-                var labelArrowSplit = labelArrowName.split(',');
-                arrowAtLabelAdjust = labelArrowSplit[0] != 'none' && parseInt(labelArrowSplit[1], 10) || 0;
-                var labelArrowType = arrows[labelArrowName];
-                var labelArrowDecl = labelArrowType && ('url(#' + labelArrowType + ')');
-                if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
-              }
-              var arrowEnd = textEnd + arrowAtLabelAdjust;
-              path = svg.createPath().move(arrowEnd, -height);
-              if (rowIndex == rightRow) {
-                var cornerx = to - (rtlmode ? -1 : 1) * ufoCatcherMod * arcSlant;
-                // TODO: duplicates above in part, make funcs
-                // for normal cases, should not be past textEnd even if narrow
-                if (rtlmode) {
-                  if (!ufoCatcher && cornerx > arrowEnd - 1) { cornerx = arrowEnd - 1; }
-                } else {
-                  if (!ufoCatcher && cornerx < arrowEnd + 1) { cornerx = arrowEnd + 1; }
+            var arrowAtLabelAdjust = 0;
+            var labelArrowDecl = null;
+            var myLabelArrowHead = ((arcDesc && arcDesc.labelArrow) ||
+                                    (spanTypes.ARC_DEFAULT && spanTypes.ARC_DEFAULT.labelArrow));
+            if (myLabelArrowHead) {
+              var labelArrowName = (leftToRight ?
+                  myLabelArrowHead || 'triangle,5' :
+                  symmetric && myLabelArrowHead || 'none') + ',' + color;
+              var labelArrowSplit = labelArrowName.split(',');
+              arrowAtLabelAdjust = labelArrowSplit[0] != 'none' && parseInt(labelArrowSplit[1], 10) || 0;
+              var labelArrowType = arrows[labelArrowName];
+              var labelArrowDecl = labelArrowType && ('url(#' + labelArrowType + ')');
+              if (ufoCatcher) arrowAtLabelAdjust = -arrowAtLabelAdjust;
+            }
+            var arrowEnd = textEnd + arrowAtLabelAdjust;
+            path = svg.createPath().move(arrowEnd, -height);
+            if (rowIndex == rightRow) {
+              var cornerx  = to - ufoCatcherMod * arcSlant;
+              // TODO: duplicates above in part, make funcs
+              // for normal cases, should not be past textEnd even if narrow
+              if (!ufoCatcher && cornerx < arrowEnd + 1) { cornerx = arrowEnd + 1; }
+              if (smoothArcCurves) {
+                var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
+                var endy = rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2);
+                // no curving for short lines covering short vertical
+                // distances, the arrowheads can go off (#925)
+                if (Math.abs(-height-endy) < 2 &&
+                    Math.abs(cornerx-to) < 5) {
+                  endy = -height;
                 }
-                if (smoothArcCurves) {
-                  // XXX var controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-                  // XXX var endy = rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2);
-                  var controlx, endy;
-                  if (rtlmode) {
-                    controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-                    endy = rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2);
-                  } else {
-                    controlx = ufoCatcher ? cornerx - 2*ufoCatcherMod*reverseArcControlx : smoothArcSteepness*to+(1-smoothArcSteepness)*cornerx;
-                    endy = rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2);
-                  }
-                  // no curving for short lines covering short vertical
-                  // distances, the arrowheads can go off (#925)
-                  if (Math.abs(-height-endy) < 2 &&
-                      Math.abs(cornerx-to) < 5) {
-                    endy = -height;
-                  }
-                  path.line(cornerx, -height).
-                      curveQ(controlx, -height, to, endy);
-                } else {
-                  path.line(cornerx, -height).
-                      line(to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
-                }
+                path.line(cornerx, -height).
+                    curveQ(controlx, -height, to, endy);
               } else {
-                path.line(to, -height);
+                path.line(cornerx, -height).
+                    line(to, rightBox.y + (leftToRight && !arc.equiv ? Configuration.visual.margin.y : rightBox.height / 2));
               }
-              svg.path(arcGroup, path, {
-                  markerEnd: arrowDecl,
-                  markerStart: labelArrowDecl,
-                  style: 'stroke: ' + color,
+            } else {
+              path.line(to, -height);
+            }
+            svg.path(arcGroup, path, {
+                markerEnd: arrowDecl,
+                markerStart: labelArrowDecl,
+                style: 'stroke: ' + color,
+                'strokeDashArray': dashArray,
+            });
+            if (arc.marked) {
+              svg.path(shadowGroup, path, {
+                  'class': 'shadow_EditHighlight_arc',
+                  strokeWidth: markedArcStroke,
                   'strokeDashArray': dashArray,
               });
-              if (arc.marked) {
-                svg.path(shadowGroup, path, {
-                    'class': 'shadow_EditHighlight_arc',
-                    strokeWidth: markedArcStroke,
-                    'strokeDashArray': dashArray,
-                });
-              }
-              if (shadowGroup) {
-                svg.path(shadowGroup, path, {
-                    'class': 'shadow_' + arc.shadowClass,
-                    strokeWidth: shadowStroke,
-                    'strokeDashArray': dashArray,
-                });
-              }
+            }
+            if (shadowGroup) {
+              svg.path(shadowGroup, path, {
+                  'class': 'shadow_' + arc.shadowClass,
+                  strokeWidth: shadowStroke,
+                  'strokeDashArray': dashArray,
+              });
             }
           } // arc rows
         }); // arcs
@@ -2655,33 +2340,31 @@ Util.profileStart('fragmentConnectors');
 
             for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
               var row = rows[rowIndex];
-              if (row.chunks.length) {
-                row.hasAnnotations = true;
+              row.hasAnnotations = true;
 
-                if (rowIndex == leftRow) {
-                  from = rtlmode ? leftBox.x : leftBox.x + leftBox.width;
-                } else {
-                  from = rtlmode ? canvasWidth - 2 * Configuration.visual.margin.y - sentNumMargin : sentNumMargin;
-                }
-
-                if (rowIndex == rightRow) {
-                  to = rtlmode ? rightBox.x + rightBox.width : rightBox.x;
-                } else {
-                  to = rtlmode ? 0 : canvasWidth - 2 * Configuration.visual.margin.y;
-                }
-
-                var height = leftBox.y + leftBox.height - Configuration.visual.margin.y;
-                if (roundCoordinates) {
-                  // don't ask
-                  height = (height|0)+0.5;
-                }
-
-                var path = svg.createPath().move(from, height).line(to, height);
-                svg.path(row.arcs, path, {
-                  style: 'stroke: ' + fragmentConnectorColor,
-                  'strokeDashArray': fragmentConnectorDashArray
-                });
+              if (rowIndex == leftRow) {
+                from = leftBox.x + leftBox.width;
+              } else {
+                from = sentNumMargin;
               }
+
+              if (rowIndex == rightRow) {
+                to = rightBox.x;
+              } else {
+                to = canvasWidth - 2 * Configuration.visual.margin.y;
+              }
+
+              var height = leftBox.y + leftBox.height - Configuration.visual.margin.y;
+              if (roundCoordinates) {
+                // don't ask
+                height = (height|0)+0.5;
+              }
+
+              var path = svg.createPath().move(from, height).line(to, height);
+              svg.path(row.arcs, path, {
+                style: 'stroke: ' + fragmentConnectorColor,
+                'strokeDashArray': fragmentConnectorDashArray
+              });
             } // rowIndex
           } // connectorNo
         }); // spans
@@ -2694,7 +2377,6 @@ Util.profileStart('rows');
         var sentNumGroup = svg.group({'class': 'sentnum'});
         var currentSent;
         $.each(rows, function(rowId, row) {
-          // find the maximum fragment height
           $.each(row.chunks, function(chunkId, chunk) {
             $.each(chunk.fragments, function(fragmentId, fragment) {
               if (row.maxSpanHeight < fragment.height) row.maxSpanHeight = fragment.height;
@@ -2746,17 +2428,8 @@ Util.profileStart('rows');
           if (row.sentence) {
             var sentence_hash = new URLHash(coll, doc, { focus: [[ 'sent', row.sentence ]] } );
             var link = svg.link(sentNumGroup, sentence_hash.getHash());
-
-            // Render sentence number as a link
-            var text;
-            if (rtlmode) {
-              text = svg.text(link, canvasWidth - sentNumMargin + Configuration.visual.margin.x, y - rowPadding,
-                  '' + row.sentence, { 'data-sent': row.sentence });
-            } else {
-              text = svg.text(link, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
-                  '' + row.sentence, { 'data-sent': row.sentence });
-            }
-
+            var text = svg.text(link, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
+                '' + row.sentence, { 'data-sent': row.sentence });
             var sentComment = data.sentComment[row.sentence];
             if (sentComment) {
               var box = text.getBBox();
@@ -2773,16 +2446,8 @@ Util.profileStart('rows');
                   ry: rectShadowRounding,
                   'data-sent': row.sentence,
               });
-
-              // Render sentence comment
-              var text;
-              if (rtlmode) {
-                text = svg.text(sentNumGroup, canvasWidth - sentNumMargin + Configuration.visual.margin.x, y - rowPadding,
-                    '' + row.sentence, { 'data-sent': row.sentence }); 
-              } else {
-                text = svg.text(sentNumGroup, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
-                    '' + row.sentence, { 'data-sent': row.sentence });
-              }
+              var text = svg.text(sentNumGroup, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
+                  '' + row.sentence, { 'data-sent': row.sentence });
             }
           }
 
@@ -2834,20 +2499,11 @@ Util.profileStart('chunkFinish');
           }
           var nextChunk = data.chunks[chunkNo + 1];
           var nextSpace = nextChunk ? nextChunk.space : '';
-          if (rtlmode) {
-            // Render every text chunk as a SVG text so we maintain control over the layout. When 
-            // rendering as a SVG span (as brat does), then the browser changes the layout on the 
-            // X-axis as it likes in RTL mode.
-            svg.text(textGroup, chunk.textX, chunk.row.textY, chunk.text + nextSpace, {
-              'data-chunk-id': chunk.index
-            });
-          } else {
-            // Original rendering using tspan in ltr mode as it plays nicer with selection
-            sentenceText.span(chunk.text + nextSpace, {
-              x: chunk.textX,
-              y: chunk.row.textY,
-              'data-chunk-id': chunk.index});
-          }
+          sentenceText.span(chunk.text + nextSpace, {
+            x: chunk.textX,
+            y: chunk.row.textY,
+            'data-chunk-id': chunk.index
+          });
 
           // chunk backgrounds
           if (chunk.fragments.length) {
@@ -2912,12 +2568,11 @@ Util.profileStart('chunkFinish');
             orderedIdx.sort(function(a,b) { return Util.cmp(chunk.fragments[b].nestingHeight, chunk.fragments[a].nestingHeight) });
 
             for(var i=0; i<chunk.fragments.length; i++) {
-              var fragment = chunk.fragments[orderedIdx[i]];
+              var fragment=chunk.fragments[orderedIdx[i]];
               var spanDesc = spanTypes[fragment.span.type];
               var bgColor = ((spanDesc && spanDesc.bgColor) ||
                              (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
                              '#ffffff');
-              if (fragment.span.hidden) continue;
 
               // Tweak for nesting depth/height. Recognize just three
               // levels for now: normal, nested, and nesting, where
@@ -2938,9 +2593,9 @@ Util.profileStart('chunkFinish');
               // reduction): text rarely hits font max height, so this
               // tends to look better
               var yStartTweak = 1;
-              // store highlight coordinates to have same mouseover highlight without recalc
+              // store to have same mouseover highlight without recalc
               fragment.highlightPos = {
-                  x: chunk.textX + (rtlmode ? (fragment.curly.from - xShrink) : (fragment.curly.from + xShrink)),
+                  x: chunk.textX + fragment.curly.from + xShrink,
                   y: chunk.row.textY + sizes.texts.y + yShrink + yStartTweak,
                   w: fragment.curly.to - fragment.curly.from - 2*xShrink,
                   h: sizes.texts.height - 2*yShrink - yStartTweak,
@@ -2986,15 +2641,9 @@ Util.profileStart('chunkFinish');
 Util.profileEnd('chunkFinish');
 Util.profileStart('finish');
 
-        if (rtlmode) {
-          svg.path(sentNumGroup, svg.createPath().
-            move(canvasWidth - sentNumMargin, 0).
-            line(canvasWidth - sentNumMargin, y));
-        } else {
-          svg.path(sentNumGroup, svg.createPath().
-            move(sentNumMargin, 0).
-            line(sentNumMargin, y));
-        }
+        svg.path(sentNumGroup, svg.createPath().
+          move(sentNumMargin, 0).
+          line(sentNumMargin, y));
 
         // resize the SVG
         var width = maxTextWidth + sentNumMargin + 2 * Configuration.visual.margin.x + 1;
@@ -3002,10 +2651,6 @@ Util.profileStart('finish');
 
         $svg.width(canvasWidth);
         $svg.height(y);
-        $svg.attr("viewBox", "0 0 " + canvasWidth + " " + y);
-        if (rtlmode) {
-          $svg.attr("direction", "rtl");
-        }
         $svgDiv.height(y);
 
 Util.profileEnd('finish');
@@ -3054,7 +2699,7 @@ Util.profileReport();
                 // We are sure not to be drawing anymore, reset the state
                 drawing = false;
                 // TODO: Hook printout into dispatch elsewhere?
-                console.warn('Rendering terminated due to: ' + e, e.stack);
+                console.warn('Rendering terminated due to:', e);
                 dispatcher.post('renderError: Fatal', [sourceData, e]);
               }
               dispatcher.post('unspin');
@@ -3075,7 +2720,7 @@ Util.profileReport();
       };
 
       var triggerRender = function() {
-        if (svg && ((isRenderRequested && isCollectionLoaded) || requestedData) && Util.areFontsLoaded()) {
+        if (svg && ((isRenderRequested && isCollectionLoaded) || requestedData) && Visualizer.areFontsLoaded) {
           isRenderRequested = false;
           if (requestedData) {
 
@@ -3136,7 +2781,6 @@ Util.profileStart('before render');
           var bgColor = ((spanDesc && spanDesc.bgColor) ||
                          (spanTypes.SPAN_DEFAULT && spanTypes.SPAN_DEFAULT.bgColor) ||
                          '#ffffff');
-          if (span.hidden) return;
           highlight = [];
           $.each(span.fragments, function(fragmentNo, fragment) {
             highlight.push(svg.rect(highlightGroup,
@@ -3151,39 +2795,18 @@ Util.profileStart('before render');
           if (that.arcDragOrigin) {
             target.parent().addClass('highlight');
           } else {
-            var equivs = {};
+            highlightArcs = $svg.
+                find('g[data-from="' + id + '"], g[data-to="' + id + '"]').
+                addClass('highlight');
             var spans = {};
             spans[id] = true;
             var spanIds = [];
-            // find all arcs, normal and equiv. Equivs need to go far (#1023)
-            var addArcAndSpan = function(arc, span) {
-              if (arc.equiv) {
-                equivs[arc.eventDescId.substr(0, arc.eventDescId.indexOf('*', 2) + 1)] = true;
-                var eventDesc = data.eventDescs[arc.eventDescId];
-                $.each(eventDesc.leftSpans.concat(eventDesc.rightSpans), function(ospanId, ospan) {
-                  spans[ospan] = true;
-                });
-              } else {
-                spans[arc.origin] = true;
-              }
-            }
             $.each(span.incoming, function(arcNo, arc) {
-                addArcAndSpan(arc, arc.origin);
+                spans[arc.origin] = true;
             });
             $.each(span.outgoing, function(arcNo, arc) {
-                addArcAndSpan(arc, arc.target);
+                spans[arc.target] = true;
             });
-            var equivSelector = [];
-            $.each(equivs, function(equiv, dummy) {
-              equivSelector.push('[data-arc-ed^="' + equiv + '"]');
-            });
-
-            highlightArcs = $svg.
-                find(equivSelector.join(', ')).
-                parent().
-                add('g[data-from="' + id + '"], g[data-to="' + id + '"]' + equivSelector).
-                addClass('highlight');
-
             $.each(spans, function(spanId, dummy) {
                 spanIds.push('rect[data-span-id="' + spanId + '"]');
             });
@@ -3192,6 +2815,7 @@ Util.profileStart('before render');
                 parent().
                 addClass('highlight');
           }
+          forceRedraw();
         } else if (!that.arcDragOrigin && (id = target.attr('data-arc-role'))) {
           var originSpanId = target.attr('data-arc-origin');
           var targetSpanId = target.attr('data-arc-target');
@@ -3259,6 +2883,7 @@ Util.profileStart('before render');
           highlightSpans.removeClass('highlight');
           highlightSpans = undefined;
         }
+        forceRedraw();
       };
 
       var setAbbrevs = function(_abbrevsOn) {
@@ -3385,16 +3010,15 @@ Util.profileStart('before render');
         $.each(response_types, function(aTypeNo, aType) {
           processed[aType.type] = aType;
           // count the values; if only one, it's a boolean attribute
-          if (aType.values.length == 1) {
-            aType.bool = aType.values[0].name;
+          var values = [];
+          for (var i in aType.values) {
+            if (aType.values.hasOwnProperty(i)) {
+              values.push(i);
+            }
           }
-          // We need attribute values to be stored as an array, in the correct order,
-          // but for efficiency of access later we also create a map of each value 
-          // name to the corresponding value dictionary.
-          aType.values.byName = {}
-          $.each(aType.values, function(valueNo, val) {
-              aType.values.byName[val.name] = val;
-          });
+          if (values.length == 1) {
+            aType.bool = values[0];
+          }
         });
         return processed;
       }
@@ -3428,11 +3052,6 @@ Util.profileStart('before render');
           $.each(response.relation_types, function(relTypeNo, relType) {
             relationTypesHash[relType.type] = relType;
           });
-          var arcBundle = (response.visual_options || {}).arc_bundle || 'none';
-          var textDirection = (response.visual_options || {}).text_direction || 'ltr';
-          collapseArcs = arcBundle == "all";
-          collapseArcSpace = arcBundle != "none";
-          rtlmode = textDirection == 'rtl';
 
           dispatcher.post('spanAndAttributeTypesLoaded', [spanTypes, entityAttributeTypes, eventAttributeTypes, relationTypesHash]);
 
@@ -3449,7 +3068,44 @@ Util.profileStart('before render');
         return !drawing;
       };
 
-      Util.loadFonts(webFontURLs, dispatcher);
+      // If we are yet to load our fonts, dispatch them
+      if (!Visualizer.areFontsLoaded) {
+        var webFontConfig = {
+          custom: {
+            families: [
+              'Astloch',
+              'PT Sans Caption',
+              //        'Ubuntu',
+              'Liberation Sans'
+            ],
+            /* For some cases, in particular for embedding, we need to
+              allow for fonts being hosted elsewhere */
+            urls: webFontURLs !== undefined ? webFontURLs : [
+              'static/fonts/Astloch-Bold.ttf',
+              'static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+              //
+              'static/fonts/Liberation_Sans-Regular.ttf'
+            ],
+          },
+          active: proceedWithFonts,
+          inactive: proceedWithFonts,
+          fontactive: function(fontFamily, fontDescription) {
+            // Note: Enable for font debugging
+            //console.log("font active: ", fontFamily, fontDescription);
+          },
+          fontloading: function(fontFamily, fontDescription) {
+            // Note: Enable for font debugging
+            //console.log("font loading:", fontFamily, fontDescription);
+          },
+        };
+        WebFont.load(webFontConfig);
+        setTimeout(function() {
+          if (!Visualizer.areFontsLoaded) {
+            console.error('Timeout in loading fonts');
+            proceedWithFonts();
+          }
+        }, fontLoadTimeout);
+      }
 
       dispatcher.
           on('collectionChanged', collectionChanged).
@@ -3467,6 +3123,15 @@ Util.profileStart('before render');
           on('clearSVG', clearSVG).
           on('mouseover', onMouseOver).
           on('mouseout', onMouseOut);
+    };
+
+    Visualizer.areFontsLoaded = false;
+
+    var proceedWithFonts = function() {
+      Visualizer.areFontsLoaded = true;
+      // Note: Enable for font debugging
+      //console.log("fonts done");
+      Dispatcher.post('triggerRender');
     };
 
     return Visualizer;

@@ -12,20 +12,18 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-03-11
 '''
 
-from __future__ import with_statement
-
-from Cookie import CookieError, SimpleCookie
+from http.cookies import CookieError, SimpleCookie
 from atexit import register as atexit_register
 from datetime import datetime, timedelta
 from hashlib import sha224
-from os import close as os_close, makedirs, remove
+from os import makedirs, remove
 from os.path import exists, dirname, join as path_join, isfile
 from shutil import copy
 from shutil import move
 from tempfile import mkstemp
 
 try:
-    from cPickle import dump as pickle_dump, load as pickle_load
+    from pickle import dump as pickle_dump, load as pickle_load
 except ImportError:
     from pickle import dump as pickle_dump, load as pickle_load
 
@@ -144,7 +142,7 @@ def init_session(remote_address, cookie_data=None):
             with open(ppath, 'rb') as session_pickle:
                 CURRENT_SESSION = pickle_load(session_pickle)
             CURRENT_SESSION.init_cookie(CURRENT_SESSION.get_sid())
-        except Exception, e:
+        except Exception as e:
             # On any error, just create a new session
             CURRENT_SESSION = Session(cookie)            
     else:
@@ -174,7 +172,7 @@ def close_session():
 
     try:
         makedirs(SESSIONS_DIR)
-    except OSError, e:
+    except OSError as e:
         if e.errno == 17:
             # Already exists
             pass
@@ -184,9 +182,7 @@ def close_session():
     # Write to a temporary file and move it in place, for safety
     tmp_file_path = None
     try:
-        tmp_file_fh, tmp_file_path = mkstemp()
-        os_close(tmp_file_fh)
-
+        _, tmp_file_path = mkstemp()
         with open(tmp_file_path, 'wb') as tmp_file:
             pickle_dump(CURRENT_SESSION, tmp_file)
         copy(tmp_file_path, get_session_pickle_path(CURRENT_SESSION.get_sid()))
@@ -231,8 +227,7 @@ if __name__ == '__main__':
     init_session('127.0.0.1')
     tmp_file_path = None
     try:
-        tmp_file_fh, tmp_file_path = mkstemp()
-        os_close(tmp_file_fh)
+        _, tmp_file_path = mkstemp()
         session = get_session()
         session['foo'] = 'bar'
         with open(tmp_file_path, 'wb') as tmp_file:

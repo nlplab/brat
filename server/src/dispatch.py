@@ -24,7 +24,7 @@ from document import (get_directory_information, get_document,
         get_document_timestamp, get_configuration)
 from download import download_file, download_collection
 from inspect import getargspec
-from itertools import izip
+
 from jsonwrap import dumps
 from logging import info as log_info
 from annlog import log_annotation
@@ -278,7 +278,7 @@ def dispatch(http_args, client_ip, client_hostname):
 
     # These arguments already has default values
     default_val_by_arg = {}
-    for arg, default_val in izip(args[-len(defaults):], defaults):
+    for arg, default_val in zip(args[-len(defaults):], defaults):
         default_val_by_arg[arg] = default_val
 
     action_args = []

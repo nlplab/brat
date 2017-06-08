@@ -28,7 +28,7 @@ from session import get_session
 
 ### Constants
 SVG_DIR = path_join(WORK_DIR, 'svg')
-CSS_PATH = path_join(BASE_DIR, 'static/style-vis.css')
+CSS_PATH = path_join(BASE_DIR, 'style-vis.css')
 FONT_DIR = path_join(BASE_DIR, 'static', 'fonts')
 SVG_FONTS = (
         path_join(FONT_DIR, 'Liberation_Sans-Regular.svg'),

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import with_statement
 
 '''
 Primitive sentence splitting using Sampo Pyysalo's GeniaSS sentence split
@@ -20,7 +19,7 @@ from shlex import split as shlex_split
 
 ### Constants
 # Reasonably well-behaved sentence end regular expression
-SENTENCE_END_REGEX = re_compile(ur'''
+SENTENCE_END_REGEX = re_compile(r'''
         # Require a leading non-whitespace character for the sentence
         \S
         # Then, anything goes, but don't be greedy
@@ -39,7 +38,7 @@ SENTENCE_END_REGEX = re_compile(ur'''
         )
     ''', DOTALL | VERBOSE)
 # Only newlines can end a sentence to preserve pre-processed formatting
-SENTENCE_END_NEWLINE_REGEX = re_compile(ur'''
+SENTENCE_END_NEWLINE_REGEX = re_compile(r'''
         # Require a leading non-whitespace character for the sentence
         \S
         # Then, anything goes, but don't be greedy
@@ -142,53 +141,53 @@ if __name__ == '__main__':
     if len(argv) > 1:
         try:
             for txt_file_path in argv[1:]:
-                print
-                print '### Splitting:', txt_file_path
+                print()
+                print(('### Splitting:', txt_file_path))
                 with open_textfile(txt_file_path, 'r') as txt_file:
                     text = txt_file.read()
-                print '# Original text:'
-                print text.replace('\n', '\\n')
-                offsets = [o for o in newline_sentence_boundary_gen(text)]
-                print '# Offsets:'
-                print offsets
-                print '# Sentences:'
+                print('# Original text:')
+                print((text.replace('\n', '\\n')))
+                offsets = [o for o in en_sentence_boundary_gen(text)]
+                print ('# Offsets:')
+                print (offsets)
+                print ('# Sentences:')
                 for sentence in _text_by_offsets_gen(text, offsets):
                     # These should only be allowed when coming from original
                     #   explicit newlines.
                     #assert sentence, 'blank sentences disallowed'
                     #assert not sentence[0].isspace(), (
                     #        'sentence may not start with white-space "%s"' % sentence)
-                    print '"%s"' % sentence.replace('\n', '\\n')
+                    print(('"%s"' % sentence.replace('\n', '\\n')))
         except IOError:
             pass # Most likely a broken pipe
     else:
         sentence = 'This is a short sentence.\nthis is another one.'
-        print 'Sentence:', sentence
-        print 'Len sentence:', len(sentence)
+        print(('Sentence:', sentence))
+        print (('Len sentence:', len(sentence)))
 
         ret = [o for o in en_sentence_boundary_gen(sentence)]
         last_end = 0
         for start, end in ret:
             if last_end != start:
-                print 'DROPPED: "%s"' % sentence[last_end:start]
-            print 'SENTENCE: "%s"' % sentence[start:end]
+                print(('DROPPED: "%s"' % sentence[last_end:start]))
+            print(('SENTENCE: "%s"' % sentence[start:end]))
             last_end = end
-        print ret
+        print (ret)
 
-        sentence = u'　変しん！　両になった。うそ！　かも　'
-        print 'Sentence:', sentence
-        print 'Len sentence:', len(sentence)
+        sentence = '　変しん！　両になった。うそ！　かも　'
+        print (('Sentence:', sentence))
+        print(('Len sentence:', len(sentence)))
 
         ret = [o for o in jp_sentence_boundary_gen(sentence)]
         ans = [(1, 5), (6, 12), (12, 15), (16, 18)]
         assert ret == ans, '%s != %s' % (ret, ans)
-        print 'Successful!'
+        print ('Succesful!')
 
         sentence = ' One of these days Jimmy, one of these days. Boom! Kaboom '
-        print 'Sentence:', sentence
-        print 'Len sentence:', len(sentence)
+        print(('Sentence:', sentence))
+        print(('Len sentence:', len(sentence)))
 
         ret = [o for o in en_sentence_boundary_gen(sentence)]
         ans = [(1, 44), (45, 50), (51, 57)]
         assert ret == ans, '%s != %s' % (ret, ans)
-        print 'Successful!'
+        print ('Succesful!')

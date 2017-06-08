@@ -16,9 +16,9 @@ CUT_OFF = 0.95
 QUERY_TIMEOUT = 30
 ###
 
-from urllib import urlencode, quote_plus
-from urllib2 import urlopen, HTTPError, URLError
-
+from urllib.parse import urlencode, quote_plus
+from urllib.request import urlopen
+from urllib.error import HTTPError, URLError
 from annlog import log_annotation
 from document import real_directory
 from common import ProtocolError
@@ -97,4 +97,4 @@ def suggest_span_types(collection, document, start, end, text, model):
 
 if __name__ == '__main__':
     from config import DATA_DIR
-    print suggest_span_types(DATA_DIR, 'dummy', -1, -1, 'proposición', 'ner_spanish')
+    print(suggest_span_types(DATA_DIR, 'dummy', -1, -1, 'proposición', 'ner_spanish'))

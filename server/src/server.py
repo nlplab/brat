@@ -20,10 +20,10 @@ from os.path import abspath
 from os.path import join as path_join
 from sys import version_info, stderr
 from time import time
-from thread import allocate_lock
+from _thread import allocate_lock
 
 ### Constants
-# This handling of version_info is strictly for backwards compatibility
+# This handling of version_info is strictly for backwards compability
 PY_VER_STR = '%d.%d.%d-%s-%d' % tuple(version_info)
 REQUIRED_PY_VERSION = (2, 5, 0, 'alpha', 1)
 REQUIRED_PY_VERSION_STR = '%d.%d.%d-%s-%d' % tuple(REQUIRED_PY_VERSION)
@@ -78,7 +78,7 @@ def _miss_config_msg():
             ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME, 
                 CONF_TEMPLATE_FNAME, CONF_FNAME)
 
-# Check for existence and sanity of the configuration
+# Check for existance and sanity of the configuration
 def _config_check():
     from message import Messager
     
@@ -98,7 +98,7 @@ def _config_check():
         try:
             import config
             del config
-        except ImportError, e:
+        except ImportError as e:
             path.extend(orig_path)
             # "Prettiest" way to check specific failure
             if e.message == 'No module named config':
@@ -188,23 +188,23 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
             # Also take the opportunity to convert Strings into Unicode,
             #   according to HTTP they should be UTF-8
             try:
-                http_args[k] = unicode(params.getvalue(k), encoding='utf-8')
+                http_args[k] = str(params.getvalue(k), encoding='utf-8')
             except TypeError:
                 Messager.error('protocol argument error: expected string argument %s, got %s' % (k, type(params.getvalue(k))))
                 raise ProtocolArgumentError
 
         # Dispatch the request
         json_dic = dispatch(http_args, client_ip, client_hostname)
-    except ProtocolError, e:
+    except ProtocolError as e:
         # Internal error, only reported to client not to log
         json_dic = {}
         e.json(json_dic)
 
         # Add a human-readable version of the error
-        err_str = unicode(e)
+        err_str = str(e)
         if err_str != '':
             Messager.error(err_str, duration=-1)
-    except NoPrintJSONError, e:
+    except NoPrintJSONError as e:
         # Terrible hack to serve other things than JSON
         response_data = (e.hdrs, e.data)
         response_is_JSON = False
@@ -228,9 +228,9 @@ def _get_stack_trace():
     from traceback import print_exc
     
     try:
-        from cStringIO import StringIO
+        from io import StringIO
     except ImportError:
-        from StringIO import StringIO
+        from io import StringIO
 
     # Getting the stack-trace requires a small trick
     buf = StringIO()
@@ -261,7 +261,7 @@ def _server_crash(cookie_hdrs, e):
         Messager.error(error_msg, duration=-1)
 
     # Print to stderr so that the exception is logged by the webserver
-    print >> stderr, stack_trace
+    print(stack_trace, file=stderr)
 
     json_dic = {
             'exception': 'serverCrash',
@@ -276,7 +276,7 @@ def serve(params, client_ip, client_hostname, cookie_data):
     # Do we have a Python version compatibly with our libs?
     if (version_info[0] != REQUIRED_PY_VERSION[0] or
             version_info < REQUIRED_PY_VERSION):
-        # Bail with hand-written JSON, this is very fragile to protocol changes
+        # Bail with hand-writen JSON, this is very fragile to protocol changes
         return cookie_hdrs, ((JSON_HDR, ),
                 ('''
 {
@@ -300,9 +300,10 @@ def serve(params, client_ip, client_hostname, cookie_data):
         try:
             CONFIG_CHECK_LOCK.acquire()
             _config_check()
-        finally:
+        except:
             CONFIG_CHECK_LOCK.release()
-    except ConfigurationError, e:
+            raise
+    except ConfigurationError as e:
         json_dic = {}
         e.json(json_dic)
         return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
@@ -311,7 +312,7 @@ def serve(params, client_ip, client_hostname, cookie_data):
 
     try:
         _permission_check()
-    except PermissionError, e:
+    except PermissionError as e:
         json_dic = {}
         e.json(json_dic)
         return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
@@ -319,6 +320,6 @@ def serve(params, client_ip, client_hostname, cookie_data):
     try:
         # Safe region, can throw any exception, has verified installation
         return _safe_serve(params, client_ip, client_hostname, cookie_data)
-    except BaseException, e:
+    except BaseException as e:
         # Handle the server crash
         return _server_crash(cookie_hdrs, e)

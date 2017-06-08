@@ -17,7 +17,7 @@ def namedtuple(typename, field_names, verbose=False, rename=False):
     >>> x, y = p                        # unpack like a regular tuple
     >>> x, y
     (11, 22)
-    >>> p.x + p.y                       # fields also accessible by name
+    >>> p.x + p.y                       # fields also accessable by name
     33
     >>> d = p._asdict()                 # convert to a dictionary
     >>> d['x']
@@ -104,7 +104,7 @@ def namedtuple(typename, field_names, verbose=False, rename=False):
     result = namespace[typename]
 
     # For pickling to work, the __module__ variable needs to be set to the frame
-    # where the named tuple is created.  Bypass this step in environments where
+    # where the named tuple is created.  Bypass this step in enviroments where
     # sys._getframe is not defined (Jython for example) or sys._getframe is not
     # defined for arguments greater than 0 (IronPython).
     try:

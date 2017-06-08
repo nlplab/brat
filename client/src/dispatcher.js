@@ -1,16 +1,17 @@
 // -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
+// TODO: does 'arguments.callee.caller' work?
 
 var Dispatcher = (function($, window, undefined) {
     var Dispatcher = function() {
-      var dispatcher;
+      var that = this;
 
       var table = {};
 
-      var on = function on(message, host, handler) {
+      var on = function(message, host, handler) {
         if (handler === undefined) {
           handler = host;
-          host = on.caller;
+          host = arguments.callee.caller;
         }
         if (table[message] === undefined) {
           table[message] = [];
@@ -26,14 +27,14 @@ var Dispatcher = (function($, window, undefined) {
           inAsynchError = true;
           // TODO: Hook printout into dispatch elsewhere?
           console.warn('Handled async error:', e);
-          dispatcher.post('dispatchAsynchError', [e]);
+          that.post('dispatchAsynchError', [e]);
           inAsynchError = false;
         } else {
           console.warn('Dropped asynch error:', e);
         }
       };
 
-      var post = function post(asynch, message, args, returnType) {
+      var post = function(asynch, message, args, returnType) {
         if (typeof(asynch) !== 'number') {
           // no asynch parameter
           returnType = args;
@@ -49,14 +50,14 @@ var Dispatcher = (function($, window, undefined) {
 
         if (typeof(message) === 'function') {
           // someone was lazy and sent a simple function
-          var host = post.caller;
+          var host = arguments.callee.caller;
           if (asynch !== null) {
             result = setTimeout(function() {
-              //try {
+              try {
                 message.apply(host, args);
-              //} catch(e) {
-                //handleAsynchError(e);
-              //}
+              } catch(e) {
+                that.handleAsynchError(e);
+              }
             }, asynch);
           } else {
             result = message.apply(host, args);
@@ -70,11 +71,11 @@ var Dispatcher = (function($, window, undefined) {
               var result;
               if (asynch !== null) {
                 result = setTimeout(function() {
-                  //try {
+                  try {
                     item[1].apply(item[0], args);
-                  //} catch (e) {
-                    //handleAsynchError(e);
-                  //}
+                  } catch (e) {
+                    that.handleAsynchError(e);
+                  }
                 }, asynch);
               } else {
                 result = item[1].apply(item[0], args);
@@ -109,7 +110,7 @@ var Dispatcher = (function($, window, undefined) {
         });
       };
 
-      dispatcher = {
+      var dispatcher = {
         on: on,
         post: post,
         proxy: proxy,

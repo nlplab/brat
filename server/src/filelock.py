@@ -129,7 +129,7 @@ def file_lock(path, wait=0.1, timeout=1,
             write(fd, str(getpid()))
             fsync(fd)
             break
-        except OSError, e:
+        except OSError as e:
             if e.errno == EEXIST:
                 if pid_policy == PID_DISALLOW:
                     pass # Standard, just do nothing

@@ -7,11 +7,11 @@ Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2011-08-09
 '''
 
-from string import digits, lowercase
-from sys import maxint
+from string import digits, ascii_lowercase
+from sys import maxsize
 
 DIGITS = set(digits)
-LOWERCASE = set(lowercase)
+LOWERCASE = set(ascii_lowercase)
 TSURUOKA_2004_INS_CHEAP = set((' ', '-', ))
 TSURUOKA_2004_DEL_CHEAP = TSURUOKA_2004_INS_CHEAP
 TSURUOKA_2004_REPL_CHEAP = set([(a, b) for a in DIGITS for b in DIGITS] +
@@ -56,7 +56,7 @@ def tsuruoka(a, b):
 
     return curr_min_col[-1]
 
-def tsuruoka_local(a, b, edge_insert_cost=1, max_cost=maxint):
+def tsuruoka_local(a, b, edge_insert_cost=1, max_cost=maxsize):
     # Variant of the tsuruoka metric for local (substring) alignment:
     # penalizes initial or final insertion for a by a different
     # (normally small or zero) cost than middle insertion.
@@ -144,7 +144,7 @@ def levenshtein(a, b):
 
 if __name__ == '__main__':
     for a, b in (('kitten', 'sitting'), ('Saturday', 'Sunday'), ('Caps', 'caps'), ('', 'bar'), ('dog', 'dog'), ('dog', '___dog__'), ('dog', '__d_o_g__')):
-        print 'levenshtein', a, b, levenshtein(a,b)
-        print 'tsuruoka', a, b, tsuruoka(a,b)
-        print 'tsuruoka_local', a, b, tsuruoka_local(a,b)
-        print 'tsuruoka_norm', a, b, tsuruoka_norm(a,b)
+        print(('levenshtein', a, b, levenshtein(a,b)))
+        print(('tsuruoka', a, b, tsuruoka(a,b)))
+        print(('tsuruoka_local', a, b, tsuruoka_local(a,b)))
+        print(('tsuruoka_norm', a, b, tsuruoka_norm(a,b)))

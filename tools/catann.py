@@ -96,10 +96,10 @@ def main(argv):
         assert re.search(r'\.ann$', fn), 'Error: argument %s not a .ann file.' % fn
         txtfn = re.sub(r'\.ann$', '.txt', fn)
 
-        with codecs.open(fn, 'r', encoding='utf-8') as annf:
+        with open(fn, 'r') as annf:
             anns.append(annf.readlines())
 
-        with codecs.open(txtfn, 'r', encoding='utf-8') as txtf:
+        with open(txtfn, 'r') as txtf:
             texts.append(txtf.read())
 
     # process each .ann in turn, keeping track of the "base" offset
@@ -110,21 +110,14 @@ def main(argv):
         for j in range(len(anns[i])):
             l = anns[i][j]
             # see http://brat.nlplab.org/standoff.html for format
-            if not l or l[0] != 'T':
+            m = re.match(r'^(T\d+\t\S+) (\d+) (\d+)(.*\n?)', l)
+            if not m:
                 continue
-            m = re.match(r'^(T\d+\t\S+) (\d+ \d+(?:;\d+ \d+)*)(\t.*\n?)', l)
-            assert m, 'failed to parse "%s"' % l
-            begin, offsets, end = m.groups()
+            begin, startoff, endoff, end = m.groups()
 
-            new_offsets = []
-            for offset in offsets.split(';'):
-                startoff, endoff = offset.split(' ')
-                startoff = int(startoff) + baseoff
-                endoff   = int(endoff) + baseoff
-                new_offsets.append('%d %d' % (startoff, endoff))
-            offsets = ';'.join(new_offsets)
-
-            anns[i][j] = "%s %s%s" % (begin, offsets, end)
+            startoff = int(startoff) + baseoff
+            endoff   = int(endoff) + baseoff
+            anns[i][j] = "%s %d %d%s" % (begin, startoff, endoff, end)
 
         baseoff += len(texts[i])
 
@@ -214,7 +207,7 @@ def main(argv):
     # output
     for i in range(len(anns)):
         for l in anns[i]:
-            sys.stdout.write(l.encode('utf-8'))
+            sys.stdout.write(l)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

@@ -123,7 +123,7 @@ def _apply_tagger(text):
         
 
 class MetaMapTaggerHandler(BaseHTTPRequestHandler):
-    def do_POST(self):
+    def do_GET(self):
         # Get our query
         query = parse_qs(urlparse(self.path).query)
 

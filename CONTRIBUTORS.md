@@ -12,7 +12,6 @@ In order by changed lines of code ([Ballmer][ballmer] says [SLOC][sloc]
 * Tomoko Ohta               &lt;tomoko.ohta manchester ac uk&gt;
 * Pierre-Francois Laquerre  &lt;pierre.francois gmail com&gt;
 * Illés Solt                &lt;solt tmit bme hu&gt;
-* Jörn Kottmann             &lt;kottmann gmail com&gt;
 * David McClosky            &lt;david.mcclosky gmail com&gt;
 * Antony Scerri             &lt;a.scerri elsevier com&gt;
 * Jon Crump                 &lt;jjcrump uw edu&gt;

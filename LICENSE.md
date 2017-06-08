@@ -2,7 +2,7 @@
 
 This file contains licenses for all software and resources included in brat.
 
-## brat, jQuery, sprintf ##
+## brat ##
 
 Copyright (C) 2010-2012 The brat contributors, all rights reserved.
 

@@ -1,0 +1,508 @@
+/* -*- Mode: CSS; tab-width: 2; indent-tabs-mode: nil; -*- */
+/* vim:set ft=css ts=2 sw=2 sts=2 autoindent: */
+
+/* Styling for the user-interface */
+
+html {
+  overflow-y: scroll;
+}
+
+#navbuttons * {
+  vertical-align: middle;
+  padding: 2px 5px;
+  float: left;
+}
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  -moz-box-shadow: 5px 5px 5px #999999;
+  -webkit-box-shadow: 5px 5px 5px #999999;
+  box-shadow: 5px 5px 5px #999999;
+}
+#mainHeader {
+  font-size: 120%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+#pulldown {
+  display: none;
+  font-size: 80%;
+}
+#pulldown_padder {
+  padding: 10px;
+}
+#pulldown div + div {
+  margin-top: 10px;
+}
+#auth_button {
+  float: right;
+}
+#options_button {
+  float: right;
+}
+
+#pulluptrigger {
+  height: 35px;
+  width:  35px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background: url('static/img/Fugue-shadowless-information-balloon.png') center no-repeat;
+}
+#messagepullup {
+  max-height: 300px;
+  overflow-y: scroll; /* or 'auto' */
+  background-color: #ffffff;
+  background-color: rgba(255,255,255,0.75);
+  z-index: 1;
+}
+#messages {
+  z-index: 4;
+}
+#pulluptrigger {
+  z-index: 3;
+}
+.messages {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.messages > div {
+  padding: 5px;
+  margin: 2px 5px;
+  border: 1px outset #000000;
+}
+
+.messages > div.error {
+  background-color: #FF9696;
+  font-weight: bold;
+  color: #000000;
+}
+.messages > div.warning {
+  background-color: #FFE2A3;
+  font-weight: bold;
+  color: #000000;
+}
+.messages > div.comment {
+  background-color: #87b6d9;
+  color: #ffffff;
+  font-weight: bold;
+  border: 1px outset #27628F;
+}
+.messages > div.debug {
+  background-color: #ffff99;
+  color: #000000;
+}
+
+.messages > div > input {
+  float: right;
+  display: block;
+}
+
+#notes_container {
+  position: relative;
+}
+#norm_container {
+  position: relative;
+}
+#arc_notes:disabled {
+  background-color:#FCFDFD;
+}
+#arc_notes_fieldset:disabled {
+  border: 1px solid #BBBBBB;
+}
+#arc_notes_fieldset:disabled legend {
+  background-color: #BBBBBB;
+}
+#clear_notes_button, #clear_norm_button {                   
+  padding: 2px 5px;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+}
+.span_norm_txt_input {
+  background-color: #eaf4fd;
+}
+input.valid_value {
+  background-color: #ccffcc;
+}
+input.invalid_value {
+  background-color: #ffcccc;
+}
+#norm_search_result_select {
+  height: 200px;
+  display: inline-block;
+  border: 2px inset;
+  background-color: #ffffff;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+  overflow: scroll;
+}
+#norm_search_result_select thead tr * {
+  padding: 2px 5px;
+}
+#norm_search_result_select tbody tr * {
+  padding: 0 5px;
+}
+#norm_search_result_select tr {
+  cursor: pointer;
+}
+#norm_search_result_select tr * {
+  white-space: nowrap;
+}
+#norm_search_result_select tr.selected {
+  background-color: #cccccc;
+}
+#norm_search_container {
+  position: relative;
+}
+#norm_search_button {
+  position: absolute;
+  top: -6px;
+  right: -2px;
+}
+
+#span_form .collapser {
+    float: left;
+    height: 16px;
+    width: 16px;
+    margin-top: 3px;
+    cursor: hand;
+    background: url('static/img/expand_icon.gif') no-repeat;
+}
+#span_form .collapser.open {
+    background: url('static/img/collapse_icon.gif') no-repeat;
+}
+#span_form .collapsible.open {
+    display: block;
+}
+#span_form .collapsible {
+    display: none;
+}
+#span_form .item_content {
+    margin-left: 16px;
+    white-space: nowrap;
+}
+#span_form .collapsible {
+    margin-left: 20px;
+}
+.type_scroller { /* TODO remove */
+    overflow-y: scroll;
+    min-height: 50px;
+    max-height: 300px;
+}
+
+/* BEGIN new entity and event dialog style */
+.split_wrapper {
+  height: 300px;
+  /* HACK tweaking to avoid overflows. */
+  padding-bottom: 2.5em;
+  /* end HACK */
+}
+.split_wrapper div.wrapper_full_width {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  float: left;
+}
+.split_wrapper div.wrapper_half_left {
+  /* a bit less than 50% to avoid scrollbar overflows */
+  width: 49%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  float: left;
+}
+.split_wrapper div.wrapper_half_right {
+  /* a bit less than 50% to avoid scrollbar overflows */
+  width: 49%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+  float: right;
+}
+.split_wrapper div.scroll_wrapper_upper {
+  width: 100%;
+  height: 85%;
+  display: inline-block;
+  vertical-align: top;
+}
+.split_wrapper div.scroll_wrapper_lower {
+  width: 100%;
+  height: 15%;
+  display: inline-block;
+  vertical-align: bottom;
+}
+.wrapper_lower_label {
+  margin-top: 0.5em;
+}
+div.scroll_wrapper_lower div {
+ padding-top: 0.5em;
+}
+.split_wrapper div.scroll_wrapper_full {
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  vertical-align: top;
+}
+.split_wrapper fieldset {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+.split_wrapper div.scroller {
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+  border-style: inset inset none none;
+  border-width: 1px;
+}
+div.scroll_wrapper_upper div.scroller {
+  border-style: inset inset inset none;
+}
+/* special-case visual tweak; not sure why this is necessary */
+#span_search_fieldset {
+  margin-bottom: 0.5em;
+} 
+/* END new entity and event dialog style */
+
+.small-buttons .ui-button-text {
+  padding: 2px 5px;
+}
+
+#document_ctime, #document_mtime {
+  vertical-align: bottom;                 
+  padding: 0 5px;
+  float: left;
+}
+#help_link {
+  padding-right: 0.5em;
+  color: darkgray;
+  vertical-align: center;
+  float: right;
+}
+.document_edit_time {
+  font-family: monospace;
+  color: #777;
+}
+#menu_explanation {
+  margin-left: 10px;
+  display: inline-block;
+  overflow: hidden;
+}
+#document_name {
+  margin-right: 100px;
+}
+#document_name input {
+  width: 100%;
+  border: none;
+}
+
+/*
+#logo {
+  float:right;
+  margin-left: 20px;
+  background-color: #ffffff;
+  padding: 0 0 0 2px;
+}
+*/
+
+.logo {
+  font-family: 'Astloch', serif;
+  font-style: normal;
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0em;
+  word-spacing: 0em;
+  line-height: 1.2;
+
+  font-weight: bold;
+}
+
+#mainlogo {
+  font-size: 1.2em;
+  float: right;
+  cursor: pointer;
+  text-shadow: #000000 0 0 3px;
+  padding: 0 10px 0 20px;
+}
+
+#aboutlogo {
+  font-size: 42px;
+  text-align: center;
+  text-shadow: #888888 0 0 10px;
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+#copyright {
+  margin-top: 10px;
+  font-size: 60%;
+}
+
+#logo:hover {
+  opacity: 0.8;
+}
+
+#search_button {
+  margin-right: 0;
+}
+#search_button_label {
+  margin-right: 0;
+
+}
+#clear_search_button {
+  margin-left: 0;
+  padding-left: 0.4em;
+  padding-right: 0.4em;
+  -moz-border-radius: 0px 5px 5px 0px;
+  -webkit-border-radius: 0px 5px 5px 0px;
+  border-radius: 0px 5px 5px 0px;
+}
+
+#spinner {
+  display: none;
+  position: fixed;
+  right:10px;
+  top: 55px;
+}
+
+#document_select {
+  height: 200px;
+  display: inline-block;
+  border: 2px inset;
+  background-color: #ffffff;
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+  overflow: scroll;
+}
+#document_select thead tr * {
+  padding: 2px 5px;
+}
+#document_select tbody tr * {
+  padding: 0 5px;
+}
+#document_select tr {
+  cursor: pointer;
+}
+#document_select tr * {
+  white-space: nowrap;
+}
+#document_select tr.selected {
+  background-color: #cccccc;
+}
+#document_select img {
+  width: 16px;
+  height: 16px;
+}
+#collection_browser th {
+  font-weight: normal;
+  text-align: left;
+}
+#readme {
+  width: 100%;
+  height: 20px;
+  overflow: auto;
+}
+
+#import_text {
+  font-family: inherit;
+}
+#export_page div {
+  margin: 5px 5px 5px 5px;
+  font-size: 14px;
+}
+#export_page table {
+  border-collapse: collapse;
+  border: 1px solid #cccccc;
+}
+#export_page td, #export_page th {
+  padding: 2px 5px;
+  text-align: left;
+}
+#export_page tr.background0 {
+  background-color: #eeeeee;
+}
+#export_page tr.background1 {
+  background-color: #dddddd;
+}
+.optionRow {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.optionLabel {
+  display: inline-block;
+  width: 8em;
+}
+#advanced_search_option_toggle {
+  float: right;                      
+  font-size: 80%;
+  color: gray;
+}
+
+#browserwarning {
+  background-color: #ffcccc;
+  padding: 10px;
+  display: none;
+}
+.ui-icon-gripsmall-diagonal-se {
+  margin: 0 -3px -3px 0;
+}
+.ui-dialog {
+  position: fixed;
+}
+
+.file {
+  color: #333366;
+}
+.collection {
+  color: #336633;
+}
+.rightalign {
+  text-align: right;
+}
+.centeralign {
+  text-align: center;
+}
+
+.dialog .borderless {
+  outline: 0;
+  border: 0;
+  width: 100%;
+}
+.fullwidth {
+  width: 100%;
+}
+
+.autocomplete-id {
+  font-size: 80%;
+  float: right;
+}
+.ui-autocomplete {
+  max-height: 100px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 20px;
+}
+
+#waiter {
+  text-align: center;
+}
+#waiter img {
+  margin-top: 25px;
+}
+
+@font-face {
+  font-family: 'Astloch';
+  font-style: normal;
+  font-weight: bold;
+  src: local('Astloch Bold'), local('Astloch-Bold'), url('static/fonts/Astloch-Bold.ttf') format('truetype');
+}

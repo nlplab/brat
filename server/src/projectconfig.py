@@ -14,14 +14,14 @@ Version:    2011-08-15
 '''
 
 import re
-import robotparser # TODO reduce scope
-import urlparse # TODO reduce scope
+import urllib.robotparser # TODO reduce scope
+import urllib.parse # TODO reduce scope
 import sys
 
 from annotation import open_textfile
 from message import Messager
 
-ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY = xrange(4)
+ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY = range(4)
 
 class InvalidProjectConfigException(Exception):
     pass
@@ -48,14 +48,14 @@ __expected_annotation_sections = (ENTITY_SECTION, RELATION_SECTION, EVENT_SECTIO
 __optional_annotation_sections = []
 
 # visual config section name constants
-OPTIONS_SECTION    = "options"
 LABEL_SECTION     = "labels"
 DRAWING_SECTION   = "drawing"
 
-__expected_visual_sections = (OPTIONS_SECTION, LABEL_SECTION, DRAWING_SECTION)
-__optional_visual_sections = [OPTIONS_SECTION]
+__expected_visual_sections = (LABEL_SECTION, DRAWING_SECTION)
+__optional_visual_sections = []
 
 # tools config section name constants
+OPTIONS_SECTION    = "options"
 SEARCH_SECTION     = "search"
 ANNOTATORS_SECTION = "annotators"
 DISAMBIGUATORS_SECTION = "disambiguators"
@@ -81,7 +81,7 @@ VISUAL_ATTR_DEFAULT = "ATTRIBUTE_DEFAULT"
 # visual config attribute name lists
 SPAN_DRAWING_ATTRIBUTES = ['fgColor', 'bgColor', 'borderColor']
 ARC_DRAWING_ATTRIBUTES  = ['color', 'dashArray', 'arrowHead', 'labelArrow']
-ATTR_DRAWING_ATTRIBUTES  = ['glyphColor', 'box', 'dashArray', 'glyph', 'position']
+ATTR_DRAWING_ATTRIBUTES  = ['box', 'dashArray', 'glyph', 'position']
 
 # fallback defaults if config files not found
 __default_configuration = """
@@ -133,7 +133,7 @@ Disallow: /confidential/
 """
 
 # Reserved strings with special meanings in configuration.
-reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "EMPTY", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM", "OVERLAP", "OVL-TYPE", "INHERIT"]
+reserved_config_name   = ["ANY", "ENTITY", "RELATION", "EVENT", "NONE", "EMPTY", "REL-TYPE", "URL", "URLBASE", "GLYPH-POS", "DEFAULT", "NORM", "OVERLAP", "OVL-TYPE"]
 # TODO: "GLYPH-POS" is no longer used, warn if encountered and
 # recommend to use "position" instead.
 reserved_config_string = ["<%s>" % n for n in reserved_config_name]
@@ -157,7 +157,7 @@ def normalize_to_storage_form(t):
         import unicodedata
 
         n = t.replace(" ", "_")
-        if isinstance(n, unicode):
+        if isinstance(n, str):
             ascii = unicodedata.normalize('NFKD', n).encode('ascii', 'ignore')
         n  = re.sub(r'[^a-zA-Z0-9_-]', '_', n)
 
@@ -267,11 +267,11 @@ class TypeHierarchyNode:
             elif rep == '*':
                 # any number
                 minimum_count = 0
-                maximum_count = sys.maxint
+                maximum_count = sys.maxsize
             elif rep == '+':
                 # one or more
                 minimum_count = 1
-                maximum_count = sys.maxint
+                maximum_count = sys.maxsize
             else:
                 # exact number or range constraint
                 assert '{' in rep and '}' in rep, "INTERNAL ERROR"
@@ -339,7 +339,7 @@ class TypeHierarchyNode:
 
     def argument_minimum_count(self, arg):
         """
-        Returns the minimum number of times the given argument is
+        Returns the minumum number of times the given argument is
         required to appear for this type.
         """
         return self.arg_min_count.get(arg, 0)
@@ -389,7 +389,6 @@ def __require_tab_separator(section):
 def __read_term_hierarchy(input, section=None):
     root_nodes    = []
     last_node_at_depth = {}
-    last_args_at_depth = {}
 
     macros = {}
     for l in input:
@@ -462,31 +461,15 @@ def __read_term_hierarchy(input, section=None):
         # spaces in the initial indent.
         depth = len(indent)
 
-        # expand <INHERIT> into parent arguments
-        expanded_args = []
-        for a in args:
-            if a != '<INHERIT>':
-                expanded_args.append(a)
-            else:
-                assert depth-1 in last_args_at_depth, \
-                    "Error no parent for '%s'" % l
-                expanded_args.extend(last_args_at_depth[depth-1])
-        # TODO: remove, debugging
-#         if expanded_args != args:
-#             Messager.info('expand: %s --> %s' % (str(args), str(expanded_args)))
-        args = expanded_args
-
         n = TypeHierarchyNode(terms, args)
         if depth == 0:
             # root level, no children assignments
             root_nodes.append(n)
         else:
             # assign as child of last node at the depth of the parent
-            assert depth-1 in last_node_at_depth, \
-                "Error: no parent for '%s'" % l
+            assert depth-1 in last_node_at_depth, "Error: no parent for '%s'" % l
             last_node_at_depth[depth-1].children.append(n)
         last_node_at_depth[depth] = n
-        last_args_at_depth[depth] = args
 
     return root_nodes
 
@@ -520,7 +503,7 @@ def __parse_kb_shortcuts(shortcutstr, default, source):
     
 def __parse_access_control(acstr, source):
     try:
-        parser = robotparser.RobotFileParser()
+        parser = urllib.robotparser.RobotFileParser()
         parser.parse(acstr.split("\n"))
     except:
         # TODO: specific exception handling
@@ -585,10 +568,10 @@ def __parse_configs(configstr, source, expected_sections, optional_sections):
 
     # attempt to parse lines in each section as a term hierarchy
     configs = {}
-    for s, sl in section_lines.items():
+    for s, sl in list(section_lines.items()):
         try:
             configs[s] = __read_term_hierarchy(sl, s)
-        except Exception, e:
+        except Exception as e:
             Messager.warning("Project configuration: error parsing section [%s] in %s: %s" % (s, source, str(e)), 5)
             raise
 
@@ -620,7 +603,7 @@ def get_configs(directory, filename, defaultstr, minconf, sections, optional_sec
         except:
             Messager.warning("Project configuration: Falling back to minimal default. Configuration is likely wrong.", 5)
             configs = minconf
-            section_labels = dict(map(lambda a: (a,a), sections))
+            section_labels = dict([(a,a) for a in sections])
 
         # very, very special case processing: if we have a type
         # "Equiv" defined in a "relations" section that doesn't
@@ -769,9 +752,6 @@ def get_option_config(directory):
 def get_drawing_config(directory):
     return get_visual_configs(directory)[0][DRAWING_SECTION]
 
-def get_visual_option_config(directory):
-    return get_visual_configs(directory)[0][OPTIONS_SECTION]
-
 def get_visual_config_section_labels(directory):
     return get_visual_configs(directory)[1]
 
@@ -905,10 +885,11 @@ def get_node_by_storage_form(directory, term):
     return cache[directory].get(term, None)
 get_node_by_storage_form.__cache = {}
 
-def _get_option_by_storage_form(directory, term, config, cache):
+def get_option_config_by_storage_form(directory, term):
+    cache = get_option_config_by_storage_form.__cache
     if directory not in cache:
         d = {}
-        for n in config:
+        for n in get_option_config(directory):
             t = n.storage_form()
             if t in d:
                 Messager.warning("Project configuration: %s appears multiple times, only using last. Configuration may be wrong." % t, 5)
@@ -921,18 +902,7 @@ def _get_option_by_storage_form(directory, term, config, cache):
         cache[directory] = d
 
     return cache[directory].get(term, None)
-
-def get_option_config_by_storage_form(directory, term):
-    cache = get_option_config_by_storage_form.__cache
-    config = get_option_config(directory)
-    return _get_option_by_storage_form(directory, term, config, cache)
 get_option_config_by_storage_form.__cache = {}    
-
-def get_visual_option_config_by_storage_form(directory, term):
-    cache = get_visual_option_config_by_storage_form.__cache
-    config = get_visual_option_config(directory)
-    return _get_option_by_storage_form(directory, term, config, cache)
-get_visual_option_config_by_storage_form.__cache = {}    
 
 # access for settings for specific options in tools.conf
 # TODO: avoid fixed string values here, define vars earlier
@@ -952,16 +922,6 @@ def options_get_ssplitter(directory):
 def options_get_annlogfile(directory):
     v = get_option_config_by_storage_form(directory, 'Annotation-log')
     return '<NONE>' if v is None else v.get('logfile', '<NONE>')
-
-# access for settings for specific options in visual.conf
-
-def visual_options_get_arc_bundle(directory):
-    v = get_visual_option_config_by_storage_form(directory, 'Arcs')
-    return 'none' if v is None else v.get('bundle', 'none')
-
-def visual_options_get_text_direction(directory):
-    v = get_visual_option_config_by_storage_form(directory, 'Text')
-    return 'ltr' if v is None else v.get('direction', 'ltr')
 
 def get_drawing_config_by_storage_form(directory, term):
     cache = get_drawing_config_by_storage_form.__cache
@@ -1096,7 +1056,7 @@ def get_labels_by_storage_form(directory, term):
     cache = get_labels_by_storage_form.__cache
     if directory not in cache:
         cache[directory] = {}
-        for l, labels in get_labels(directory).items():
+        for l, labels in list(get_labels(directory).items()):
             # recognize <EMPTY> as specifying that a label should
             # be the empty string
             labels = [lab if lab != '<EMPTY>' else ' ' for lab in labels]
@@ -1375,7 +1335,7 @@ class ProjectConfiguration(object):
 
             n1 = get_node_by_storage_form(self.directory, t1)
                         
-            for a, args in n1.arguments.items():
+            for a, args in list(n1.arguments.items()):
                 if a in processed_as_relation:
                     Messager.warning("Project configuration: %s appears both as role and relation. Configuration may be wrong." % a)
                     # won't try to resolve
