@@ -16,6 +16,7 @@
           'client/lib/jquery.min.js',
           'client/lib/jquery-ui.min.js',
           'client/lib/jquery-ui.combobox.js',
+          'client/lib/jquery.dataTables.min.js',
           'client/lib/jquery.svg.min.js',
           'client/lib/jquery.svgdom.min.js',
           'client/lib/jquery.ba-bbq.min.js',
@@ -111,23 +112,33 @@
       <div id="mainHeader" class="ui-widget-header">
         <div id="mainlogo" class="logo unselectable">brat</div>
         <span id="navbuttons">
-          <img id="prev" alt="Previous document (Cursor Left)" title="Previous document (Cursor Left)" src="static/img/arrow-180.png"/><img id="next" alt="Next document (Cursor Right)" title="Next document (Cursor Right)" src="static/img/arrow.png"/>
+          <img id="prev" alt="Previous document (Cursor Left)" title="Previous document (Cursor Left)" src="static/img/arrow-180.png"/>
+          <img id="next" alt="Next document (Cursor Right)" title="Next document (Cursor Right)" src="static/img/arrow.png"/>
+          <img id="fast_forward" alt="Next document without annotation" title="Next unannotated document" src="static/img/fast_forward.png"/>
         </span>
         <div id="document_name">
           <input readonly="readonly" class="ui-widget-header"/>
         </div>
         <!-- <span id="document_ctime"/> -->
       </div>
+     <div id="missing_annotations">
+        <div id="missing_annotation_list"></div>
+      </div>
       <div id="pulldown" class="unselectable ui-widget-content">
         <div id="pulldown_padder">
           <div>
-            <input id="auth_button" type="button" value="Login"/>
-            <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
-            <input id="data_button" type="button" value="Data" tabindex="-1" title="Import, Export Data; Manage Collection"/>
-            <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label id="search_button_label" for="search_button" title="Search text and annotations">Search</label><input id="clear_search_button" type="button" value="✕" tabindex="-1" title="Clear search" style="display: none"/>
-            <input id="unlock_type_button" type="button" value="Unlock" tabindex="-1" title="Stop annotating with the locked type"/>
+            <span>
+              <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
+              <input id="data_button" type="button" value="Data" tabindex="-1" title="Import, Export Data; Manage Collection"/>
+              <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label id="search_button_label" for="search_button" title="Search text and annotations">Search</label><input id="clear_search_button" type="button" value="✕" tabindex="-1" title="Clear search" style="display: none"/>
+              <input id="unlock_type_button" type="button" value="Unlock" tabindex="-1" title="Stop annotating with the locked type"/>
             <!--<input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/>-->
-            <input id="options_button" type="button" value="Options" tabindex="-1" title="Set Visual, Annotation and Network Options"/>
+            </span>
+            <span class="non_collection_buttons">
+              <input id="ranking_button" type="button" value="Ranking" tabindex="-1" title="See Ranking for Current Collection" />
+              <input id="options_button" type="button" value="Options" tabindex="-1" title="Set Visual, Annotation and Network Options"/>
+              <input id="auth_button" type="button" value="Login"/>
+            </span>
           </div>
           <!-- Dummy span, fixes visual glitch (issue #535). TODO: better fix -->
           <span class="document_edit_time unselectable">&nbsp;</span>
@@ -239,6 +250,33 @@
           </div>
         </fieldset>
       </div>
+    </form>
+    <form id="ranking_form" class="dialog" title="Ranking">
+      <fieldset>
+        <legend> Leaderboard </legend>
+          <table id="leaderboard" class="ui-widget unselectable no_border" >
+            <thead class="ui-widget-header">
+              <tr>
+                <th>User</th>
+                <th>Documents</th>
+                <th>Annotations</th>
+              </tr>
+            </thead>
+            <tbody class="ui-widget-content" />
+          </table>
+      </fieldset>
+      <fieldset>
+        <legend> Global Stats</legend>
+          <div class="rankingRow">
+            <label for="num_annotated_documents"># of annotated docs</label>
+            <input type="text" id="num_annotated_documents" readonly="readonly"> </input>
+          </div>
+          <div class="rankingRow">
+            <label for="num_annotations"># of annotations</label>
+            <input type="text" id="num_annotations" readonly="readonly"> </input>
+          </div>
+
+      </fieldset>
     </form>
     <!-- Options dialog -->
     <form id="options_form" class="dialog" title="Options">

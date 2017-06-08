@@ -1452,6 +1452,51 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* END options dialog - related */
 
+      /* START ranking dialog - related */
+      var rankingForm = $('#ranking_form');
+      var rankingFormSubmit = function(evt) {
+        dispatcher.post('hideForm');
+        return false;
+      };
+      rankingForm.submit(rankingFormSubmit);
+      initForm(rankingForm, {
+          width: 550,
+          resizable: false,
+          no_cancel: true,
+          open: function(evt) {
+            keymap = {};
+          }
+      });
+
+
+      var onUpdateRanking = function(response){
+        $('#num_annotated_documents').val(response.total_annotated_docs);
+        $('#num_annotations').val(response.total_annotations);
+        $('#document_select tbody').empty();
+
+        var leaderboard = $('#leaderboard').DataTable(); // api instance
+        leaderboard.clear();
+        leaderboard.rows.add(response.ranking);
+        leaderboard.draw();
+
+        //$('#leaderboard').dataTable().class("")
+
+        // "aaData": response.ranking,
+
+      }
+
+      $('#ranking_button').click(function() {
+        dispatcher.post('ajax',
+                        [{ action: 'getRanking', collection: selectorData.collection},
+                        'onUpdateRanking']);
+        dispatcher.post('showForm', [rankingForm]);
+      });
+
+      $("#leaderboard").dataTable({ "scrollY":  "150px", "paging": false,  "bInfo" : false, "bFilter": false});
+
+      /* END ranking dialog - related */
+
+
 
       /* START "more collection information" dialog - related */
 
@@ -1530,6 +1575,25 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
+      //JPG
+      var refreshAndMove = function(response) {
+        dispatcher.post('setDocument', [selectorData.items[response.new_pos][2],
+                                        selectorData.items[response.new_pos][1]]);
+        return false;
+
+      }
+
+      var nextUnannotated = function(dir) {
+        var pos = currentSelectorPosition();
+        // Request the server to reload collection:
+        dispatcher.post('ajax',
+                        [{ action: 'get_next_unnanotated', collection: selectorData.collection, start: pos },
+                        'refreshAndMove',
+                         {collection: selectorData.collection, keep: true}]);
+
+
+        return false;
+      };
       var moveInFileBrowser = function(dir) {
         var pos = currentSelectorPosition();
         var newPos = pos + dir;
@@ -1886,6 +1950,7 @@ var VisualizerUI = (function($, window, undefined) {
     
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();
+      var headerHeight = $('#mainHeader').height() + $('#missing_annotations').height(); //JPG
       $('#svg').css('margin-top', headerHeight + 10);
       aboutDialog = $('#about');
       aboutDialog.dialog({
@@ -2154,7 +2219,7 @@ var VisualizerUI = (function($, window, undefined) {
       };
 
       var documentChangesTimer = null;
-      var maxDocumentChangesTimeout = 32 * 1000;
+      var maxDocumentChangesTimeout = Configuration.refreshRate * 1000;
       var documentChangesTimeout = 1 * 1000;
       var checkForDocumentChanges = function() {
         if (coll && doc && dispatcher.post('isReloadOkay', [], 'all')) {
@@ -2270,6 +2335,10 @@ var VisualizerUI = (function($, window, undefined) {
       $('#next').button().click(function() {
         return moveInFileBrowser(+1);
       });
+      $('#fast_forward').button().click(function() {
+        return nextUnannotated();
+      });
+
       $('#footer').show();
 
       $('#source_collection_conf_on, #source_collection_conf_off').change(function() {
@@ -2292,6 +2361,34 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('hideForm');
       };
 
+      //JPG:
+      var updateMissingLabels = function(used_labels)
+      {
+        missing_labels = []
+        for (var i in spanTypes)
+        {
+            if (spanTypes[i].required)
+            {
+                if (used_labels.indexOf(spanTypes[i].type) < 0)
+                    missing_labels.push(spanTypes[i])
+            }
+
+        }
+
+        $('#missing_annotation_list').empty()
+        for (var i in missing_labels)
+        {
+
+            var $label = $('<label>').text(missing_labels[i].name);
+            $label.addClass('missing_label');
+            if (missing_labels[i].bgColor)
+                $label.css("background-color", missing_labels[i].bgColor);
+            if (missing_labels[i].fgColor)
+                $label.css("color", missing_labels[i].fgColor);
+            $('#missing_annotation_list').append($label); //$label);
+            $('#missing_annotation_list').append(" ");
+        }
+      };
       dispatcher.
           on('init', init).
           on('dataReady', rememberData).
@@ -2307,6 +2404,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('initForm', initForm).
           on('collectionLoaded', rememberNormDb).
           on('collectionLoaded', collectionLoaded).
+          on('refreshAndMove', refreshAndMove).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('isReloadOkay', isReloadOkay).
           on('current', gotCurrent).
@@ -2330,7 +2428,9 @@ var VisualizerUI = (function($, window, undefined) {
           on('clearSVG', showNoDocMessage).
           on('screamingHalt', onScreamingHalt).
           on('configurationChanged', configurationChanged).
-          on('configurationUpdated', updateConfigurationUI);
+          on('configurationUpdated', updateConfigurationUI).
+          on('missingLabels', updateMissingLabels).
+          on('onUpdateRanking', onUpdateRanking);
     };
 
     return VisualizerUI;

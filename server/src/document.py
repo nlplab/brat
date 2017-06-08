@@ -36,7 +36,7 @@ from projectconfig import (ProjectConfiguration, SEPARATOR_STR,
         options_get_validation, options_get_tokenization,
         options_get_ssplitter, get_annotation_config_section_labels,
         visual_options_get_arc_bundle,
-        visual_options_get_text_direction)
+        visual_options_get_text_direction, options_get_annlogfile)
 from stats import get_statistics
 from message import Messager
 from auth import allowed_to_read, AccessDeniedError
@@ -68,6 +68,8 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
+            if hasattr(node, 'required'):
+                item["required"] = node.required #JPG
             item['labels'] = project_conf.get_labels_by_type(_type)
             item['attributes'] = project_conf.attributes_for(_type)
             item['normalizations'] = node.normalizations()
@@ -181,6 +183,7 @@ def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
+            item["required"] = node.required #JPG
             item['labels'] = project_conf.get_labels_by_type(_type)
             item['attributes'] = project_conf.attributes_for(_type)
 
@@ -235,6 +238,7 @@ def _fill_attribute_configuration(nodes, project_conf):
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
+            item["required"] = node.required #JPG
             item['labels'] = project_conf.get_labels_by_type(_type)
 
             attr_drawing_conf = project_conf.get_drawing_config_by_type(_type)
@@ -505,6 +509,33 @@ def _inject_annotation_type_conf(dir_path, json_dic=None):
 
     return json_dic
 
+#JPG:
+def get_next_unnanotated(collection, start):
+    directory = collection
+    start = int(start)
+    new_pos = start
+    real_dir = real_directory(directory)
+
+    assert_allowed_to_read(real_dir)
+
+    # Get the document names
+    base_names = [fn[0:-4] for fn in _listdir(real_dir)
+                  if fn.endswith('txt')]
+
+    try:
+        stats_types, doc_stats = get_statistics(real_dir, base_names)
+    except OSError:
+        # something like missing access permissions?
+        raise CollectionNotAccessibleError
+
+    if start < len(doc_stats):
+        for i in range(start, len(doc_stats)):  # Have to account for "." , ".."
+            if sum(doc_stats[i]) == 0:
+                new_pos = i + 1
+                break
+    return {"new_pos": new_pos}
+
+
 # TODO: This is not the prettiest of functions
 def get_directory_information(collection):
     directory = collection
@@ -586,6 +617,10 @@ def get_directory_information(collection):
     # fill in NER services, if any
     ner_taggers = get_annotator_config(real_dir)
 
+    #send logging directory:
+    logging =  options_get_annlogfile(real_dir)
+
+
     return _inject_annotation_type_conf(real_dir, json_dic={
             'items': combolist,
             'header' : doclist_header,
@@ -597,6 +632,7 @@ def get_directory_information(collection):
             'normalization_config' : normalization_config,
             'annotation_logging': ann_logging,
             'ner_taggers': ner_taggers,
+            'logging': logging,
             })
 
 class UnableToReadTextFile(ProtocolError):
@@ -857,7 +893,6 @@ def _document_json_dict(document):
                     s_i += 1
 
         _enrich_json_with_data(j_dic, ann_obj)
-
     return j_dic
 
 def get_document(collection, document):

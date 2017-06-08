@@ -1426,7 +1426,12 @@ Util.profileStart('measures');
         var sizes = getTextAndSpanTextMeasurements();
         data.sizes = sizes;
 
-        var styleMap = createStyleMap(sourceData['styles']);
+        //JPG: Not sure what this does, but it fixed the bug
+        var styleMap;
+        if (sourceData) //JPG
+            styleMap = createStyleMap(sourceData['styles']);
+        else
+            styleMap = createStyleMap(undefined); //JPG
 
         adjustTowerAnnotationSizes();
         var maxTextWidth = 0;
@@ -3050,6 +3055,12 @@ Util.profileReport();
           setTimeout(function() {
               try {
                 renderDataReal(sourceData);
+
+                //JPG:
+                usedLabels = []
+                for (var i in sourceData.entities)
+                    usedLabels.push(sourceData.entities[i][1]);
+                dispatcher.post('missingLabels', [usedLabels]);
               } catch (e) {
                 // We are sure not to be drawing anymore, reset the state
                 drawing = false;

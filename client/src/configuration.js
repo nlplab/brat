@@ -6,8 +6,9 @@ var Configuration = (function(window, undefined) {
     var svgWidth = '100%';
     var rapidModeOn = false;
     var confirmModeOn = true;
-    var autorefreshOn = false;
+    var autorefreshOn = true;
     var typeCollapseLimit = 30;
+    var refreshRate = 5;
     
     var visual = {
       margin: { x: 2, y: 1 },
@@ -27,5 +28,6 @@ var Configuration = (function(window, undefined) {
       confirmModeOn: confirmModeOn,
       autorefreshOn: autorefreshOn,
       typeCollapseLimit: typeCollapseLimit,
+      refreshRate : refreshRate,
     };
 })(window);
