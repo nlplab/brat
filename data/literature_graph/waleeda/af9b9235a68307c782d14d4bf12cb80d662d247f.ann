@@ -1,0 +1,14 @@
+T1	TASK 136 167	efficient constrained inference
+T2	TASK 171 193	semantic role labeling
+T3	METHOD 100 131	a dynamic programming algorithm
+R1	addresses Arg1:T3 Arg2:T1	
+R2	uses Arg1:T2 Arg2:T1	
+T4	METHOD 335 354	approximate methods
+T5	METHOD 358 406	off-the-shelf integer linear programming solvers
+T6	METHOD 441 479	a globally-normalized log-linear model
+T7	METHOD 594 644	an off-the-shelf integer linear programming solver
+T8	DATASET 835 843	PropBank
+T9	DATASET 848 856	FrameNet
+T10	METHOD 545 564	the dynamic program
+T11	METHOD 706 726	our structured model
+T12	METHOD 768 789	its local counterpart

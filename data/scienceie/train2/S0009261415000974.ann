@@ -1,0 +1,7 @@
+T1	Material 11 39	range of temperatures chosen
+T2	Material 41 58	alanine dipeptide
+T3	Process 144 170	physically relevant minima
+T4	Material 247 278	larger potential energy spacing
+T5	Process 340 389	cross-overs in the approximate global free energy
+T6	Task 766 815	balance between potential energy and well entropy
+T7	Process 208 237	force field and solvent model

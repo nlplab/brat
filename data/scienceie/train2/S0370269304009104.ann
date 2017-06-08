@@ -1,0 +1,20 @@
+T1	Material 228 262	Reissner–Nordström AdS black holes
+T2	Process 271 300	Hawking–Page phase transition
+T3	Process 346 369	Born–Infeld corrections
+T4	Task 31 113	constructed the Born–Infeld black holes in the presence of a cosmological constant
+T5	Process 541 574	Reissner–Nordström AdS background
+T6	Material 523 528	brane
+T7	Process 658 704	crosses the inner horizon of the bulk geometry
+T8	Task 758 842	study cosmology on the brane when it is moving in the charged black hole backgrounds
+T9	Material 891 904	charged holes
+T10	Task 973 1039	generate non-singular cosmology without creating the instabilities
+T11	Material 47 70	Born–Infeld black holes
+T12	Task 118 160	discussed their thermodynamical properties
+T13	Task 480 501	brane world cosmology
+T14	Task 585 607	non-singular cosmology
+T15	Material 645 650	brane
+T16	Process 718 729	instability
+R1	Hyponym-of Arg1:T7 Arg2:T16	
+T17	Task 764 773	cosmology
+T18	Material 781 786	brane
+T19	Material 812 830	charged black hole

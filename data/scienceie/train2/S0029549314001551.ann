@@ -1,0 +1,29 @@
+T1	Task 264 337	core design modifications that optimised the total sodium void reactivity
+T2	Process 76 110	modifications in the core geometry
+T3	Process 134 177	pan-cake geometry of the active core region
+R1	Hyponym-of Arg1:T3 Arg2:T2	
+T4	Process 389 405	design solutions
+T5	Process 423 445	enlarged sodium plenum
+T6	Process 498 512	absorber layer
+R2	Hyponym-of Arg1:T5 Arg2:T4	
+R3	Hyponym-of Arg1:T6 Arg2:T4	
+T7	Process 541 570	reduce neutron backscattering
+*	Synonym-of T7 T6
+T8	Material 40 51	core region
+T9	Process 15 30	neutron leakage
+T10	Material 208 215	neutron
+T11	Material 315 321	sodium
+T12	Material 432 445	sodium plenum
+T13	Material 463 467	core
+T14	Material 523 536	sodium plenum
+T15	Task 541 613	reduce neutron backscattering from the reflector region above the plenum
+T16	Material 607 613	plenum
+T17	Material 663 675	upper plenum
+T18	Material 695 720	absorber and boron layers
+T19	Process 830 850	reactivity reduction
+T20	Material 918 931	sodium plenum
+T21	Material 949 960	boron layer
+T22	Process 1005 1040	increase in the sub-assembly length
+T23	Task 1065 1105	reducing the upper axial reflector width
+T24	Material 1084 1099	axial reflector
+T25	Process 761 794	increase of the layer's thickness

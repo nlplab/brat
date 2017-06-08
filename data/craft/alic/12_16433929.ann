@@ -1,0 +1,52 @@
+T1	KeyEntity 95 104	μ-calpain
+T2	KeyEntity 109 118	m-calpain
+T3	Entity 123 135	ubiquitously
+T4	KeyEntity 146 155	proteases
+T5	KeyEntity 170 187	cellular migratio
+T6	KeyEntity 190 212	cell cycle progression
+T7	KeyEntity 214 236	degenerative processes
+T8	KeyEntity 241 251	cell death
+T9	Entity 259 280	heterodimeric enzymes
+T10	Entity 306 324	catalytic subunits
+T11	KeyEntity 337 354	Capn1 (μ-calpain)
+T12	KeyEntity 358 375	Capn2 (m-calpain)
+T13	Entity 383 408	common regulatory subunit
+T14	KeyEntity 420 425	Capn4
+T15	KeyEntity 451 456	Capn4
+T16	KeyEntity 427 437	Disruption
+T17	KeyEntity 477 486	μ-calpain
+T18	KeyEntity 491 509	m-calpain activity
+R1	other_relation Arg1:T15 Arg2:T17	
+#1	AnnotatorNotes R1	causes phenotype
+R2	other_relation Arg1:T15 Arg2:T18	
+#2	AnnotatorNotes R2	causes phenotype
+T19	KeyEntity 527 546	embryonic lethality
+R3	other_relation Arg1:T15 Arg2:T19	
+#3	AnnotatorNotes R3	causes phenotype
+T20	KeyEntity 623 646	mammalian embryogenesis
+R4	participates_in Arg1:T15 Arg2:T20	
+T21	KeyEntity 666 671	Capn1
+T22	Entity 694 701	fertile
+T23	Entity 686 692	viable
+T24	KeyEntity 728 737	m-calpain
+T25	Entity 744 754	compensate
+T26	KeyEntity 763 780	loss of μ-calpain
+R5	genetically_interacts_with Arg1:T24 Arg2:T26	
+T27	KeyEntity 804 811	calpain
+T28	KeyEntity 841 854	Capn4-/- mice
+R6	genetically_interacts_with Arg1:T27 Arg2:T28	
+T29	Entity 926 933	deleted
+T30	KeyEntity 974 979	Capn2
+T31	KeyEntity 989 1009	mbryonic stems cells
+T32	Entity 1124 1134	homozygous
+T33	Entity 1085 1097	heterozygous
+T34	Entity 1135 1156	mutant live offspring
+T35	KeyEntity 1181 1211	nested PCR genotyping protocol
+T36	KeyEntity 1233 1259	homozygous preimplantation
+T37	KeyEntity 1296 1302	morula
+T38	KeyEntity 1395 1400	Capn2
+T39	KeyEntity 1517 1526	μ-calpain
+T40	KeyEntity 1531 1540	m-calpain
+T41	KeyEntity 1575 1584	m-calpain
+T42	KeyEntity 1598 1646	development of the preimplantation murine embryo
+R7	regulates Arg1:T41 Arg2:T42	

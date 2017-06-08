@@ -1,0 +1,41 @@
+T1	Material 0 26	AA 2024-T3 aluminium alloy
+T2	Material 153 159	copper
+T3	Material 164 173	magnesium
+T4	Process 225 252	thermomechanical processing
+T5	Task 46 68	aerospace applications
+T6	Material 280 285	alloy
+T7	Process 324 355	compositionally-distinct phases
+T8	Process 475 484	corrosion
+T9	Process 508 525	surface treatment
+T10	Material 584 589	alloy
+T11	Material 638 661	intermetallic particles
+T12	Material 716 728	alloy matrix
+T13	Material 736 776	Copper-containing second phase particles
+T14	Process 834 854	corrosion resistance
+T15	Material 937 958	second phase particle
+T16	Material 1024 1031	S phase
+T17	Material 1073 1090	S phase particles
+T18	Material 1151 1164	AA2024 alloys
+T19	Process 984 1003	corrosion behaviour
+T20	Material 1201 1206	alloy
+T21	Material 1252 1261	particles
+T22	Process 1328 1337	corrosion
+T23	Material 1345 1350	alloy
+T24	Process 1364 1374	dealloying
+T25	Material 1382 1399	S phase particles
+T26	Process 1418 1428	enrichment
+T27	Material 1432 1438	copper
+T28	Process 1451 1482	decrease of the Volta potential
+T29	Material 1558 1572	cathodic sites
+T30	Material 440 445	alloy
+T31	Material 191 208	alloying elements
+R1	Hyponym-of Arg1:T3 Arg2:T31	
+R2	Hyponym-of Arg1:T2 Arg2:T31	
+T32	Material 784 789	alloy
+T33	Material 1033 1040	Al2CuMg
+*	Synonym-of T16 T33
+T34	Process 557 566	corrosion
+T35	Material 1126 1147	constituent particles
+R3	Hyponym-of Arg1:T17 Arg2:T35	
+T36	Material 1524 1543	dealloyed particles
+*	Synonym-of T20 T18

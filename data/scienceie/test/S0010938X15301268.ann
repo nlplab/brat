@@ -1,0 +1,29 @@
+T1	Material 46 64	corrosion products
+T2	Material 104 110	Cu40Zn
+T3	Material 122 134	hydrozincite
+T4	Material 149 153	Cu2O
+T5	Material 378 384	Cu40Zn
+T6	Material 408 410	DP
+T7	Material 415 418	HZ7
+T8	Material 530 536	Cu40Zn
+T9	Material 552 564	hydrozincite
+T10	Material 566 569	HZ7
+*	Synonym-of T9 T10
+T11	Material 587 611	diamond polished surface
+T12	Material 613 615	DP
+*	Synonym-of T11 T12
+T13	Material 678 691	simonkolleite
+T14	Material 751 763	hydrozincite
+T15	Material 809 833	NaCl-containing droplets
+T16	Material 883 895	hydrozincite
+T17	Material 900 907	cuprite
+T18	Process 456 471	formation rates
+T20	Process 280 296	absorbance units
+T19	Task 308 406	comparisons to be made of the amounts of each species between the two Cu40Zn surfaces investigated
+R1	Hyponym-of Arg1:T3 Arg2:T1	
+R2	Hyponym-of Arg1:T4 Arg2:T1	
+T21	Material 480 492	hydrozincite
+T22	Material 497 504	cuprite
+T23	Process 665 691	formation of simonkolleite
+T24	Process 776 793	initial spreading
+T25	Process 865 879	formation rate

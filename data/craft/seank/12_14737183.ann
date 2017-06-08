@@ -1,0 +1,24 @@
+T1	Entity 294 310	droopy ear (deH)
+T2	Entity 320 353	dorsoventral skin characteristics
+R1	other_relation Arg1:T1 Arg2:T2	
+T3	Entity 424 456	Agouti allele black-and-tan (at)
+T4	Entity 496 537	dorsal black hair and yellow ventral hair
+R2	participates_in Arg1:T3 Arg2:T4	
+T5	Entity 543 555	deH mutation
+T6	Entity 567 588	pigmentation boundary
+R3	participates_in Arg1:T5 Arg2:T6	
+T7	Entity 660 682	216 kb deletion in deH
+T8	Entity 806 843	pigmentary and skeletal malformations
+R4	participates_in Arg1:T7 Arg2:T8	
+T9	Entity 935 948	deH phenotype
+T10	Entity 963 985	Tbx15 loss of function
+R5	regulates Arg1:T10 Arg2:T9	
+T11	Entity 1123 1128	Tbx15
+T12	Entity 1130 1150	expression of Agouti
+R6	regulates Arg1:T11 Arg2:T12	
+T13	Entity 1644 1649	Tbx15
+T14	Entity 1740 1776	positional identity of dorsal dermis
+R7	regulates Arg1:T13 Arg2:T14	
+T15	Entity 1910 1933	dorsoventral patterning
+T16	Entity 1820 1830	T-box gene
+R8	regulates Arg1:T16 Arg2:T15	

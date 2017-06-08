@@ -1,0 +1,22 @@
+T1	Task 104 129	UO2–PuO2 phase boundaries
+T2	Process 447 457	simulation
+T3	Process 512 523	laser pulse
+T4	Process 1249 1287	post-melting material characterisation
+T5	Task 1143 1168	small segregation effects
+T6	Material 32 36	PuO2
+T7	Material 225 239	liquid surface
+T8	Material 265 282	plutonium dioxide
+T9	Material 327 333	liquid
+T10	Material 375 379	PuO2
+T11	Process 253 282	enriched in plutonium dioxide
+T12	Process 473 480	cooling
+T13	Process 542 556	solidification
+T14	Material 614 620	liquid
+T15	Material 624 643	surface solid crust
+T16	Process 660 668	freezing
+T17	Material 686 692	liquid
+T18	Process 768 775	cooling
+T19	Process 808 822	solidification
+T20	Material 836 850	sample surface
+T21	Material 907 913	liquid
+T22	Process 1007 1021	solidification

@@ -1,0 +1,8 @@
+T1	Process 165 180	solar radiation
+T4	Process 298 316	natural convection
+T5	Task 327 374	predicted cell electrical conversion efficiency
+T3	Process 543 568	apparent insolation level
+T6	Process 616 637	(3)Iact=I×0.850.85+dη
+T7	Process 102 117	solar radiation
+T2	Process 20 46	cell electrical conversion
+T8	Process 671 686	solar radiation

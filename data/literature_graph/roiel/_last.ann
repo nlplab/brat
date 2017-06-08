@@ -1,0 +1,25 @@
+T1	METHOD 0 15	Word embeddings
+T2	TASK 16 31	represent words
+R1	addresses Arg1:T1 Arg2:T2	
+T3	METHOD 185 206	variety of techniques
+T4	TASK 211 230	learning embeddings
+R2	addresses Arg1:T3 Arg2:T4	
+T5	METHOD 257 277	matrix factorization
+T6	METHOD 330 354	neural language modeling
+R3	addresses Arg1:T6 Arg2:T4	
+R4	addresses Arg1:T5 Arg2:T4	
+T7	TASK 415 433	POS induction task
+T8	METHOD 456 502	embeddings that capture syntactic similarities
+R5	addresses Arg1:T8 Arg2:T7	
+T9	METHOD 634 654	Skip-gram embeddings
+T10	METHOD 693 711	log bilinear model
+T11	TASK 717 779	predicts an unordered set of context words given a target word
+R6	addresses Arg1:T10 Arg2:T11	
+T12	METHOD 950 981	Structured skip-gram embeddings
+T13	METHOD 1013 1042	standard skip-gram embeddings
+R7	is_subclass_of Arg1:T12 Arg2:T13	
+T14	SOFTWARE 1157 1165	word2vec
+T15	SOFTWARE 1172 1209	Ling et al. (2015)'s modified version
+T16	TASK 1215 1288	generate both plain and structured skip-gram embeddings in nine languages
+R8	addresses Arg1:T15 Arg2:T16	
+R9	addresses Arg1:T14 Arg2:T16	

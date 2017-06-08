@@ -1,0 +1,25 @@
+T1	Process 13 38	multihop routing protocol
+T2	Process 40 46	PHASeR
+*	Synonym-of T1 T2
+T3	Material 95 99	MWSN
+T4	Process 220 235	gradient metric
+T5	Task 13 38	multihop routing protocol
+T6	Process 549 555	PHASeR
+T7	Process 579 599	gradient maintenance
+T8	Material 605 619	mobile network
+T9	Process 726 730	TDMA
+T10	Process 732 761	time division multiple access
+*	Synonym-of T9 T10
+T11	Process 763 766	MAC
+T12	Process 768 789	medium access control
+*	Synonym-of T11 T12
+T13	Material 869 883	packet latency
+T14	Process 885 891	PHASeR
+T15	Process 924 937	encapsulation
+T16	Process 1179 1207	cross-layer routing protocol
+T17	Material 1212 1217	MWSNs
+T18	Process 1070 1086	node cooperation
+T19	Material 1070 1074	node
+T20	Material 971 976	nodes
+T21	Material 1265 1272	sensors
+T22	Task 1179 1217	cross-layer routing protocol for MWSNs

@@ -1,0 +1,12 @@
+T1	Task 15 32	phase field model
+T2	Process 87 130	three dimensional thermal phase field model
+T3	Process 142 191	two dimensional thermal-solutal phase field model
+T4	Process 441 528	time derivatives of the three fields coupled to forms involving variational derivatives
+T5	Process 537 547	functional
+T6	Process 564 586	free energy functional
+R1	Hyponym-of Arg1:T6 Arg2:T5	
+T7	Process 875 892	numerical schemes
+T8	Material 350 354	PDEs
+T9	Material 595 603	dendrite
+T10	Material 728 736	dendrite
+T11	Material 970 974	melt

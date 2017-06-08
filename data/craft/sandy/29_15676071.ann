@@ -1,0 +1,30 @@
+T1	Entity 123 151	Leber's congenital amaurosis
+T2	KeyEntity 153 156	LCA
+T3	Entity 271 284	neural retina
+T4	Entity 352 371	photoreceptor cells
+T5	Entity 464 498	photoreceptor transcription factor
+T6	KeyEntity 500 503	Crx
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	equivalent
+R2	is_subclass_of Arg1:T6 Arg2:T5	
+T7	Entity 517 527	Crx mutant
+T8	Entity 569 582	model for LCA
+T9	Entity 650 674	ultrastructural analysis
+T10	Entity 682 699	developing retina
+T11	Entity 703 713	Crx mutant
+T12	Entity 734 761	Outer segment morphogenesis
+T13	Entity 793 809	elongation stage
+T14	Entity 853 880	phototransduction apparatus
+T15	Entity 891 912	Crx-/- photoreceptors
+T16	Entity 926 960	severely abnormal synaptic endings
+T17	Entity 968 989	outer plexiform layer
+R3	participates_in Arg1:T7 Arg2:T8	
+R4	participates_in Arg1:T11 Arg2:T10	
+R5	participates_in Arg1:T12 Arg2:T13	
+R6	participates_in Arg1:T15 Arg2:T16	
+T18	Entity 1035 1056	synaptogenesis defect
+T19	KeyEntity 1080 1083	LCA
+T20	Entity 1162 1187	photoreceptor development
+T21	KeyEntity 1243 1246	LCA
+R7	participates_in Arg1:T18 Arg2:T19	
+R8	participates_in Arg1:T20 Arg2:T21	

@@ -1,0 +1,774 @@
+T1	Entity 297 304	protein
+T2	Entity 523 531	alkaline
+T3	Entity 744 751	protein
+T4	Entity 924 931	protein
+T5	Entity 971 978	protein
+T6	Entity 1114 1121	protein
+T7	Entity 2618 2625	protein
+T8	Entity 2755 2763	alkaline
+T9	Entity 3022 3029	protein
+T10	Entity 3060 3067	protein
+T11	Entity 3313 3320	protein
+T12	Entity 3668 3676	proteins
+T13	Entity 4425 4432	Protein
+T14	Entity 4472 4479	Protein
+T15	Entity 4536 4541	amino
+T16	Entity 4738 4746	proteins
+T17	Entity 4902 4910	proteins
+T18	Entity 4962 4970	proteins
+T19	Entity 5086 5093	protein
+T20	Entity 5269 5276	protein
+T21	Entity 5543 5550	protein
+T22	Entity 5678 5685	protein
+T23	Entity 8139 8146	protein
+T24	Entity 8235 8242	protein
+T25	Entity 19984 19988	drug
+T26	Entity 20431 20435	drug
+T27	Entity 22155 22162	protein
+T28	Entity 10 20	stem cells
+T29	Entity 1252 1257	cells
+T30	Entity 1682 1687	cells
+T31	Entity 1736 1741	cells
+T32	Entity 1984 1989	cells
+T33	Entity 2041 2046	cells
+T34	Entity 2407 2412	cells
+T35	Entity 3746 3750	cell
+T36	Entity 3820 3825	cells
+T37	Entity 4340 4344	cell
+T38	Entity 5385 5390	cells
+T39	Entity 5563 5568	cells
+T40	Entity 5723 5727	cell
+T41	Entity 5792 5797	cells
+T42	Entity 5919 5924	Cells
+T43	Entity 6353 6357	cell
+T44	Entity 6579 6584	cells
+T45	Entity 6972 6977	cells
+T46	Entity 7135 7140	cells
+T47	Entity 7316 7321	cells
+T48	Entity 7383 7388	cells
+T49	Entity 7665 7670	cells
+T50	Entity 7707 7712	cells
+T51	Entity 7755 7760	cells
+T52	Entity 7794 7799	cells
+T53	Entity 7935 7939	cell
+T54	Entity 7994 7998	cell
+T55	Entity 10871 10875	cell
+T56	Entity 11129 11134	Cells
+T57	Entity 11259 11263	cell
+T58	Entity 11293 11297	cell
+T59	Entity 12008 12013	cells
+T60	Entity 12554 12559	cells
+T61	Entity 12785 12790	cells
+T62	Entity 13355 13366	blastomeres
+T63	Entity 13541 13546	cells
+T64	Entity 13678 13683	cells
+T65	Entity 14370 14375	cells
+T66	Entity 14571 14585	endoderm cells
+T67	Entity 14902 14907	cells
+T68	Entity 15844 15849	cells
+T69	Entity 16079 16084	cells
+T70	Entity 16431 16435	cell
+T71	Entity 16854 16859	cells
+T72	Entity 17486 17491	cells
+T73	Entity 19118 19134	eukaryotic cells
+T74	Entity 19208 19213	cells
+T75	Entity 19644 19649	cells
+T76	Entity 19706 19711	cells
+T77	Entity 19914 19919	cells
+T78	Entity 20161 20166	cells
+T79	Entity 20497 20501	cell
+T80	Entity 20771 20775	cell
+T81	Entity 2739 2775	human placental alkaline phosphatase
+T82	Entity 19388 19406	chicken beta-actin
+T83	Entity 19482 19500	rabbit beta-globin
+T84	Entity 30 40	expressing
+T85	Entity 320 334	bioluminescent
+T86	Entity 523 543	alkaline phosphatase
+T87	Entity 689 702	developmental
+T88	Entity 1228 1239	established
+T89	Entity 1314 1324	expression
+T90	Entity 1402 1410	generate
+T91	Entity 1466 1481	developmentally
+T92	Entity 1508 1518	expression
+T93	Entity 1742 1752	expressing
+T94	Entity 1959 1969	expressing
+T95	Entity 2012 2021	generated
+T96	Entity 2571 2582	development
+T97	Entity 2755 2775	alkaline phosphatase
+T98	Entity 3118 3132	bioluminescent
+T99	Entity 4103 4112	establish
+T100	Entity 4153 4163	expression
+T101	Entity 4269 4282	developmental
+T102	Entity 4322 4332	expression
+T103	Entity 4798 4809	translation
+T104	Entity 5361 5371	expression
+T105	Entity 5594 5605	constructed
+T106	Entity 5610 5617	driving
+T107	Entity 5629 5639	expression
+T108	Entity 5816 5826	expression
+T109	Entity 5925 5935	expressing
+T110	Entity 6112 6122	expressing
+T111	Entity 6267 6277	expressing
+T112	Entity 6800 6811	recombinant
+T113	Entity 6913 6921	generate
+T114	Entity 7034 7040	direct
+T115	Entity 7049 7061	localization
+T116	Entity 7123 7131	generate
+T117	Entity 7906 7914	generate
+T118	Entity 8054 8067	establishment
+T119	Entity 8147 8157	expression
+T120	Entity 8243 8253	expression
+T121	Entity 8287 8297	expression
+T122	Entity 8391 8404	embryogenesis
+T123	Entity 8437 8447	expressing
+T124	Entity 8495 8503	breeding
+T125	Entity 8592 8607	gene expression
+T126	Entity 8651 8666	developmentally
+T127	Entity 9941 9951	expressing
+T128	Entity 10353 10363	expression
+T129	Entity 10916 10926	expression
+T130	Entity 11001 11011	expression
+T131	Entity 11016 11022	making
+T132	Entity 11106 11116	expression
+T133	Entity 11197 11207	expression
+T134	Entity 11402 11412	expression
+T135	Entity 11589 11599	expression
+T136	Entity 11769 11777	produced
+T137	Entity 11940 11949	generated
+T138	Entity 12119 12129	expression
+T139	Entity 12473 12482	generated
+T140	Entity 12931 12943	construction
+T141	Entity 13077 13086	generated
+T142	Entity 15379 15388	generated
+T143	Entity 15680 15693	proliferative
+T144	Entity 15752 15761	generated
+T145	Entity 15903 15916	proliferative
+T146	Entity 16214 16226	proliferated
+T147	Entity 16658 16669	established
+T148	Entity 16724 16734	expression
+T149	Entity 16785 16800	developmentally
+T150	Entity 16893 16903	expression
+T151	Entity 16960 16975	developmentally
+T152	Entity 16996 17006	expression
+T153	Entity 17492 17502	expressing
+T154	Entity 17611 17617	create
+T155	Entity 18151 18164	developmental
+T156	Entity 18558 18570	construction
+T157	Entity 19030 19041	translation
+T158	Entity 19030 19052	translation initiation
+T159	Entity 19092 19103	translation
+T160	Entity 19144 19153	construct
+T161	Entity 19162 19169	driving
+T162	Entity 19191 19201	expression
+T163	Entity 19253 19261	digested
+T164	Entity 19325 19333	generate
+T165	Entity 19501 19516	polyadenylation
+T166	Entity 19589 19594	drive
+T167	Entity 19627 19637	expression
+T168	Entity 20269 20277	expanded
+T169	Entity 20387 20397	expression
+T170	Entity 20456 20466	production
+T171	Entity 20536 20546	expression
+T172	Entity 20621 20631	expression
+T173	Entity 20642 20655	developmental
+T174	Entity 20678 20686	produced
+T175	Entity 20749 20756	produce
+T176	Entity 20984 20992	generate
+T177	Entity 21151 21155	bred
+T178	Entity 22163 22173	expressing
+T179	Entity 15 20	cells
+T180	Entity 782 787	cells
+T181	Entity 859 863	cell
+T182	Entity 6713 6722	cytoplasm
+T183	Entity 6846 6855	dendrites
+T184	Entity 6860 6865	axons
+T185	Entity 7041 7048	nuclear
+T186	Entity 14580 14585	cells
+T187	Entity 19129 19134	cells
+T188	Entity 25 29	mice
+T189	Entity 121 127	animal
+T190	Entity 252 261	organisms
+T191	Entity 335 344	jellyfish
+T192	Entity 345 362	Aequoria Victoria
+T193	Entity 388 393	mouse
+T194	Entity 792 796	mice
+T195	Entity 1156 1172	Discostoma coral
+T196	Entity 1291 1295	mice
+T197	Entity 1815 1821	animal
+T198	Entity 1994 1998	mice
+T199	Entity 2223 2228	mouse
+T200	Entity 2250 2258	organism
+T201	Entity 2263 2272	mammalian
+T202	Entity 2463 2467	mice
+T203	Entity 2561 2570	mammalian
+T204	Entity 2721 2730	bacterial
+T205	Entity 2739 2744	human
+T206	Entity 3133 3142	jellyfish
+T207	Entity 3143 3160	Aequorea Victoria
+T208	Entity 3383 3387	mice
+T209	Entity 3869 3873	mice
+T210	Entity 3900 3905	viral
+T211	Entity 4037 4041	mice
+T212	Entity 4132 4136	mice
+T213	Entity 4940 4949	anthozoan
+T214	Entity 5124 5135	sea anemone
+T215	Entity 5136 5145	Discosoma
+T216	Entity 5375 5384	mammalian
+T217	Entity 5460 5465	human
+T218	Entity 5573 5577	mice
+T219	Entity 6812 6825	sindbis virus
+T220	Entity 6890 6894	mice
+T221	Entity 6982 6986	mice
+T222	Entity 7144 7148	mice
+T223	Entity 8110 8114	mice
+T224	Entity 8264 8268	mice
+T225	Entity 8552 8559	animals
+T226	Entity 8749 8753	mice
+T227	Entity 8766 8773	animals
+T228	Entity 9919 9923	mice
+T229	Entity 10138 10143	mouse
+T230	Entity 10179 10184	mouse
+T231	Entity 10224 10229	mouse
+T232	Entity 10263 10268	mouse
+T233	Entity 10327 10331	mice
+T234	Entity 10740 10744	mice
+T235	Entity 11120 11127	animals
+T236	Entity 11477 11481	mice
+T237	Entity 11759 11763	mice
+T238	Entity 11898 11904	animal
+T239	Entity 16633 16637	mice
+T240	Entity 16698 16702	mice
+T241	Entity 16872 16876	mice
+T242	Entity 18124 18130	animal
+T243	Entity 18467 18472	mouse
+T244	Entity 19118 19128	eukaryotic
+T245	Entity 19218 19222	mice
+T246	Entity 19388 19395	chicken
+T247	Entity 19448 19451	CMV
+T248	Entity 19482 19488	rabbit
+T249	Entity 19669 19673	mice
+T250	Entity 21686 21690	mice
+T251	Entity 22174 22178	mice
+T252	Entity 22472 22479	plasmid
+T253	Entity 2745 2775	placental alkaline phosphatase
+T254	Entity 19396 19406	beta-actin
+T255	Entity 19489 19500	beta-globin
+T256	Entity 19786 19789	LIF
+T257	Entity 55 63	variants
+T258	Entity 394 404	transgenic
+T259	Entity 409 413	gene
+T260	Entity 484 488	gene
+T261	Entity 991 997	mutant
+T262	Entity 1028 1036	variants
+T263	Entity 1040 1049	wild type
+T264	Entity 1051 1053	wt
+T265	Entity 1190 1198	homology
+T266	Entity 1356 1363	variant
+T267	Entity 1498 1507	transgene
+T268	Entity 1841 1848	variant
+T269	Entity 1970 1980	transgenic
+T270	Entity 2191 2197	genome
+T271	Entity 2273 2280	genetic
+T272	Entity 2315 2326	mutagenesis
+T273	Entity 2386 2390	gene
+T274	Entity 2439 2450	Genetically
+T275	Entity 2475 2488	incorporating
+T276	Entity 2489 2493	gene
+T277	Entity 2688 2692	gene
+T278	Entity 3185 3193	variants
+T279	Entity 3197 3206	wild type
+T280	Entity 3426 3433	mutants
+T281	Entity 3660 3667	variant
+T282	Entity 3885 3895	transgenic
+T283	Entity 4171 4178	variant
+T284	Entity 4256 4264	variants
+T285	Entity 4354 4364	transgenic
+T286	Entity 4502 4510	variants
+T287	Entity 4542 4555	substitutions
+T288	Entity 4753 4762	mutations
+T289	Entity 5243 5252	wild-type
+T290	Entity 5282 5290	sequence
+T291	Entity 5319 5327	modified
+T292	Entity 5425 5429	base
+T293	Entity 5425 5434	base pair
+T294	Entity 5435 5442	changes
+T295	Entity 5466 5471	codon
+T296	Entity 5580 5588	Plasmids
+T297	Entity 5655 5659	gene
+T298	Entity 5737 5748	transgenics
+T299	Entity 5778 5788	Transgenic
+T300	Entity 5964 5971	variant
+T301	Entity 6105 6111	clones
+T302	Entity 6167 6174	variant
+T303	Entity 6278 6284	clones
+T304	Entity 6526 6534	variants
+T305	Entity 6930 6937	variant
+T306	Entity 7000 7010	introduced
+T307	Entity 7019 7028	sequences
+T308	Entity 7075 7088	coding region
+T309	Entity 7855 7861	clones
+T310	Entity 8592 8596	gene
+T311	Entity 8624 8633	transgene
+T312	Entity 8634 8645	integration
+T313	Entity 8755 8765	Transgenic
+T314	Entity 8825 8835	transgenes
+T315	Entity 9043 9053	transgenes
+T316	Entity 9139 9148	wild type
+T317	Entity 9433 9443	transgenic
+T318	Entity 9445 9447	TG
+T319	Entity 9448 9449	+
+T320	Entity 9554 9564	transgenic
+T321	Entity 9625 9635	transgenic
+T322	Entity 9908 9918	transgenic
+T323	Entity 10121 10123	TG
+T324	Entity 10124 10125	+
+T325	Entity 10127 10137	transgenic
+T326	Entity 10162 10164	TG
+T327	Entity 10165 10166	+
+T328	Entity 10168 10178	transgenic
+T329	Entity 10207 10209	TG
+T330	Entity 10210 10211	+
+T331	Entity 10213 10223	transgenic
+T332	Entity 10246 10248	TG
+T333	Entity 10249 10250	+
+T334	Entity 10252 10262	transgenic
+T335	Entity 10374 10384	transgenes
+T336	Entity 10592 10602	transgenic
+T337	Entity 10857 10867	transgenic
+T338	Entity 11366 11375	transgene
+T339	Entity 11615 11623	promoter
+T340	Entity 11624 11632	enhancer
+T341	Entity 11685 11692	variant
+T342	Entity 12185 12195	transgenic
+T343	Entity 12974 12980	mutant
+T344	Entity 12985 12994	wild type
+T345	Entity 15468 15477	transgene
+T346	Entity 15528 15537	transgene
+T347	Entity 15817 15826	transgene
+T348	Entity 16112 16121	transgene
+T349	Entity 16166 16175	transgene
+T350	Entity 16587 16595	variants
+T351	Entity 17105 17109	gene
+T352	Entity 17795 17803	variants
+T353	Entity 17931 17941	transgenic
+T354	Entity 18296 18307	transgenics
+T355	Entity 18473 18479	genome
+T356	Entity 18551 18557	Vector
+T357	Entity 18572 18577	cDNAs
+T358	Entity 18628 18636	plasmids
+T359	Entity 18747 18754	primers
+T360	Entity 18869 18876	primers
+T361	Entity 18993 19003	5' primers
+T362	Entity 19020 19029	consensus
+T363	Entity 19030 19057	translation initiation site
+T364	Entity 19154 19161	vectors
+T365	Entity 19181 19190	transgene
+T366	Entity 19242 19247	cDNAs
+T367	Entity 19277 19285	inserted
+T368	Entity 19301 19306	sites
+T369	Entity 19407 19415	promoter
+T370	Entity 19420 19432	first intron
+T371	Entity 19468 19476	enhancer
+T372	Entity 19501 19523	polyadenylation signal
+T373	Entity 19530 19538	promoter
+T374	Entity 19539 19547	enhancer
+T375	Entity 19617 19626	transgene
+T376	Entity 19936 19944	circular
+T377	Entity 20321 20327	Clones
+T378	Entity 20377 20386	transgene
+T379	Entity 20526 20535	transgene
+T380	Entity 20611 20620	transgene
+T381	Entity 20707 20716	wild type
+T382	Entity 20886 20892	Clones
+T383	Entity 21052 21061	wild type
+T384	Entity 21135 21145	transgenes
+T385	Entity 21173 21183	Transgenes
+T386	Entity 21241 21248	genetic
+T387	Entity 22272 22278	Mutant
+#28	AnnotatorNotes T28	CL:0000034
+#179	AnnotatorNotes T179	GO:0005623
+#188	AnnotatorNotes T188	NCBITaxon:10088
+#84	AnnotatorNotes T84	GO:0010467
+#257	AnnotatorNotes T257	SO:0001060
+#189	AnnotatorNotes T189	NCBITaxon:33208
+#190	AnnotatorNotes T190	NCBITaxon:1
+#1	AnnotatorNotes T1	CHEBI:36080
+#85	AnnotatorNotes T85	GO:0008218
+#191	AnnotatorNotes T191	NCBITaxon:6142
+#192	AnnotatorNotes T192	NCBITaxon:6100
+#193	AnnotatorNotes T193	NCBITaxon:10088
+#258	AnnotatorNotes T258	SO:0000902
+#259	AnnotatorNotes T259	SO:0000704
+#260	AnnotatorNotes T260	SO:0000704
+#2	AnnotatorNotes T2	CHEBI:36364|CHEBI:35479
+#86	AnnotatorNotes T86	GO:0004035
+#87	AnnotatorNotes T87	GO:0032502
+#3	AnnotatorNotes T3	CHEBI:36080
+#180	AnnotatorNotes T180	GO:0005623
+#194	AnnotatorNotes T194	NCBITaxon:10088
+#181	AnnotatorNotes T181	GO:0005623
+#4	AnnotatorNotes T4	CHEBI:36080
+#5	AnnotatorNotes T5	CHEBI:36080
+#261	AnnotatorNotes T261	SO:0001059
+#262	AnnotatorNotes T262	SO:0001060
+#263	AnnotatorNotes T263	SO:0000817
+#264	AnnotatorNotes T264	SO:0000817
+#6	AnnotatorNotes T6	CHEBI:36080
+#195	AnnotatorNotes T195	NCBITaxon:86599
+#265	AnnotatorNotes T265	SO:0000857
+#88	AnnotatorNotes T88	GO:0032502|GO:0000003
+#29	AnnotatorNotes T29	CL:0000000|GO:0005623
+#196	AnnotatorNotes T196	NCBITaxon:10088
+#89	AnnotatorNotes T89	GO:0010467
+#266	AnnotatorNotes T266	SO:0001060
+#90	AnnotatorNotes T90	GO:0032502
+#91	AnnotatorNotes T91	GO:0032502
+#267	AnnotatorNotes T267	SO:0000902
+#92	AnnotatorNotes T92	GO:0010467
+#30	AnnotatorNotes T30	CL:0000000|GO:0005623
+#31	AnnotatorNotes T31	CL:0000000|GO:0005623
+#93	AnnotatorNotes T93	GO:0010467
+#197	AnnotatorNotes T197	NCBITaxon:33208
+#268	AnnotatorNotes T268	SO:0001060
+#94	AnnotatorNotes T94	GO:0010467
+#269	AnnotatorNotes T269	SO:0000902
+#32	AnnotatorNotes T32	CL:0000000|GO:0005623
+#198	AnnotatorNotes T198	NCBITaxon:10088
+#95	AnnotatorNotes T95	GO:0032502|GO:0000003
+#33	AnnotatorNotes T33	CL:0000000|GO:0005623
+#270	AnnotatorNotes T270	SO:0001026
+#199	AnnotatorNotes T199	NCBITaxon:10088
+#200	AnnotatorNotes T200	NCBITaxon:1
+#201	AnnotatorNotes T201	NCBITaxon:40674
+#271	AnnotatorNotes T271	SO:0000704
+#272	AnnotatorNotes T272	SO:0000041
+#273	AnnotatorNotes T273	SO:0000704
+#34	AnnotatorNotes T34	CL:0000000|GO:0005623
+#274	AnnotatorNotes T274	SO:0000704
+#202	AnnotatorNotes T202	NCBITaxon:10088
+#275	AnnotatorNotes T275	SO:0000046
+#276	AnnotatorNotes T276	SO:0000704
+#203	AnnotatorNotes T203	NCBITaxon:40674
+#96	AnnotatorNotes T96	GO:0032502
+#7	AnnotatorNotes T7	CHEBI:36080
+#277	AnnotatorNotes T277	SO:0000704
+#204	AnnotatorNotes T204	NCBITaxon:2
+#205	AnnotatorNotes T205	NCBITaxon:9606
+#81	AnnotatorNotes T81	EG:250
+#253	AnnotatorNotes T253	PR:000003969
+#8	AnnotatorNotes T8	CHEBI:36364|CHEBI:35479
+#97	AnnotatorNotes T97	GO:0004035
+#9	AnnotatorNotes T9	CHEBI:36080
+#10	AnnotatorNotes T10	CHEBI:36080
+#98	AnnotatorNotes T98	GO:0008218
+#206	AnnotatorNotes T206	NCBITaxon:6142
+#207	AnnotatorNotes T207	NCBITaxon:6100
+#278	AnnotatorNotes T278	SO:0001060
+#279	AnnotatorNotes T279	SO:0000817
+#11	AnnotatorNotes T11	CHEBI:36080
+#208	AnnotatorNotes T208	NCBITaxon:10088
+#280	AnnotatorNotes T280	SO:0001060
+#281	AnnotatorNotes T281	SO:0001060
+#12	AnnotatorNotes T12	CHEBI:36080
+#35	AnnotatorNotes T35	CL:0000000|GO:0005623
+#36	AnnotatorNotes T36	CL:0000000|GO:0005623
+#209	AnnotatorNotes T209	NCBITaxon:10088
+#282	AnnotatorNotes T282	SO:0000902
+#210	AnnotatorNotes T210	NCBITaxon:10239
+#211	AnnotatorNotes T211	NCBITaxon:10088
+#99	AnnotatorNotes T99	GO:0000003
+#212	AnnotatorNotes T212	NCBITaxon:10088
+#100	AnnotatorNotes T100	GO:0010467
+#283	AnnotatorNotes T283	SO:0001060
+#284	AnnotatorNotes T284	SO:0001060
+#101	AnnotatorNotes T101	GO:0032502
+#102	AnnotatorNotes T102	GO:0010467
+#37	AnnotatorNotes T37	CL:0000000|GO:0005623
+#285	AnnotatorNotes T285	SO:0000902
+#13	AnnotatorNotes T13	CHEBI:36080
+#14	AnnotatorNotes T14	CHEBI:36080
+#286	AnnotatorNotes T286	SO:0001060
+#15	AnnotatorNotes T15	CHEBI:33708|SO:0001237
+#287	AnnotatorNotes T287	SO:1000002
+#16	AnnotatorNotes T16	CHEBI:36080
+#288	AnnotatorNotes T288	SO:0001059
+#103	AnnotatorNotes T103	GO:0006412
+#17	AnnotatorNotes T17	CHEBI:36080
+#213	AnnotatorNotes T213	NCBITaxon:6101
+#18	AnnotatorNotes T18	CHEBI:36080
+#19	AnnotatorNotes T19	CHEBI:36080
+#214	AnnotatorNotes T214	NCBITaxon:44295
+#215	AnnotatorNotes T215	NCBITaxon:86599
+#289	AnnotatorNotes T289	SO:0000817
+#20	AnnotatorNotes T20	CHEBI:36080
+#290	AnnotatorNotes T290	SO:0000001
+#291	AnnotatorNotes T291	SO:0000041
+#104	AnnotatorNotes T104	GO:0010467
+#216	AnnotatorNotes T216	NCBITaxon:40674
+#38	AnnotatorNotes T38	CL:0000000|GO:0005623
+#292	AnnotatorNotes T292	SO:0001236
+#293	AnnotatorNotes T293	SO:0000028
+#294	AnnotatorNotes T294	SO:0001059
+#217	AnnotatorNotes T217	NCBITaxon:9606
+#295	AnnotatorNotes T295	SO:0000360
+#21	AnnotatorNotes T21	CHEBI:36080
+#39	AnnotatorNotes T39	CL:0000000|GO:0005623
+#218	AnnotatorNotes T218	NCBITaxon:10088
+#296	AnnotatorNotes T296	SO:0000155
+#105	AnnotatorNotes T105	GO:0009058
+#106	AnnotatorNotes T106	GO:0048518
+#107	AnnotatorNotes T107	GO:0010467
+#297	AnnotatorNotes T297	SO:0000704
+#22	AnnotatorNotes T22	CHEBI:36080
+#40	AnnotatorNotes T40	CL:0000000|GO:0005623
+#298	AnnotatorNotes T298	SO:0000902
+#299	AnnotatorNotes T299	SO:0000902
+#41	AnnotatorNotes T41	CL:0000000|GO:0005623
+#108	AnnotatorNotes T108	GO:0010467
+#42	AnnotatorNotes T42	CL:0000000|GO:0005623
+#109	AnnotatorNotes T109	GO:0010467
+#300	AnnotatorNotes T300	SO:0001060
+#301	AnnotatorNotes T301	SO:0000151
+#110	AnnotatorNotes T110	GO:0010467
+#302	AnnotatorNotes T302	SO:0001060
+#111	AnnotatorNotes T111	GO:0010467
+#303	AnnotatorNotes T303	SO:0000151
+#43	AnnotatorNotes T43	CL:0000000|GO:0005623
+#304	AnnotatorNotes T304	SO:0001060
+#44	AnnotatorNotes T44	CL:0000000|GO:0005623
+#182	AnnotatorNotes T182	GO:0005737
+#112	AnnotatorNotes T112	GO:0006310
+#219	AnnotatorNotes T219	NCBITaxon:11034
+#183	AnnotatorNotes T183	GO:0030425
+#184	AnnotatorNotes T184	GO:0030424
+#220	AnnotatorNotes T220	NCBITaxon:10088
+#113	AnnotatorNotes T113	GO:0009058
+#305	AnnotatorNotes T305	SO:0001060
+#45	AnnotatorNotes T45	CL:0000000|GO:0005623
+#221	AnnotatorNotes T221	NCBITaxon:10088
+#306	AnnotatorNotes T306	SO:0000046
+#307	AnnotatorNotes T307	SO:0000001
+#114	AnnotatorNotes T114	GO:0065007
+#185	AnnotatorNotes T185	GO:0005634
+#115	AnnotatorNotes T115	GO:0051179
+#308	AnnotatorNotes T308	SO:0000316
+#116	AnnotatorNotes T116	GO:0032502|GO:0000003
+#46	AnnotatorNotes T46	CL:0000000|GO:0005623
+#222	AnnotatorNotes T222	NCBITaxon:10088
+#47	AnnotatorNotes T47	CL:0000000|GO:0005623
+#48	AnnotatorNotes T48	CL:0000000|GO:0005623
+#49	AnnotatorNotes T49	CL:0000000|GO:0005623
+#50	AnnotatorNotes T50	CL:0000000|GO:0005623
+#51	AnnotatorNotes T51	CL:0000000|GO:0005623
+#52	AnnotatorNotes T52	CL:0000000|GO:0005623
+#309	AnnotatorNotes T309	SO:0000151
+#117	AnnotatorNotes T117	GO:0000003
+#53	AnnotatorNotes T53	CL:0000000|GO:0005623
+#54	AnnotatorNotes T54	CL:0000000|GO:0005623
+#118	AnnotatorNotes T118	GO:0000003
+#223	AnnotatorNotes T223	NCBITaxon:10088
+#23	AnnotatorNotes T23	CHEBI:36080
+#119	AnnotatorNotes T119	GO:0010467
+#24	AnnotatorNotes T24	CHEBI:36080
+#120	AnnotatorNotes T120	GO:0010467
+#224	AnnotatorNotes T224	NCBITaxon:10088
+#121	AnnotatorNotes T121	GO:0010467
+#122	AnnotatorNotes T122	GO:0009790
+#123	AnnotatorNotes T123	GO:0010467
+#124	AnnotatorNotes T124	GO:0007618
+#225	AnnotatorNotes T225	NCBITaxon:33208
+#310	AnnotatorNotes T310	SO:0000704
+#125	AnnotatorNotes T125	GO:0010467
+#311	AnnotatorNotes T311	SO:0000902
+#312	AnnotatorNotes T312	SO:0000046
+#126	AnnotatorNotes T126	GO:0032502
+#226	AnnotatorNotes T226	NCBITaxon:10088
+#313	AnnotatorNotes T313	SO:0000902
+#227	AnnotatorNotes T227	NCBITaxon:33208
+#314	AnnotatorNotes T314	SO:0000902
+#315	AnnotatorNotes T315	SO:0000902
+#316	AnnotatorNotes T316	SO:0000817
+#317	AnnotatorNotes T317	SO:0000902
+#318	AnnotatorNotes T318	SO:0000902
+#319	AnnotatorNotes T319	SO:0000817
+#320	AnnotatorNotes T320	SO:0000902
+#321	AnnotatorNotes T321	SO:0000902
+#322	AnnotatorNotes T322	SO:0000902
+#228	AnnotatorNotes T228	NCBITaxon:10088
+#127	AnnotatorNotes T127	GO:0010467
+#323	AnnotatorNotes T323	SO:0000902
+#324	AnnotatorNotes T324	SO:0000817
+#325	AnnotatorNotes T325	SO:0000902
+#229	AnnotatorNotes T229	NCBITaxon:10088
+#326	AnnotatorNotes T326	SO:0000902
+#327	AnnotatorNotes T327	SO:0000817
+#328	AnnotatorNotes T328	SO:0000902
+#230	AnnotatorNotes T230	NCBITaxon:10088
+#329	AnnotatorNotes T329	SO:0000902
+#330	AnnotatorNotes T330	SO:0000817
+#331	AnnotatorNotes T331	SO:0000902
+#231	AnnotatorNotes T231	NCBITaxon:10088
+#332	AnnotatorNotes T332	SO:0000902
+#333	AnnotatorNotes T333	SO:0000817
+#334	AnnotatorNotes T334	SO:0000902
+#232	AnnotatorNotes T232	NCBITaxon:10088
+#233	AnnotatorNotes T233	NCBITaxon:10088
+#128	AnnotatorNotes T128	GO:0010467
+#335	AnnotatorNotes T335	SO:0000902
+#336	AnnotatorNotes T336	SO:0000902
+#234	AnnotatorNotes T234	NCBITaxon:10088
+#337	AnnotatorNotes T337	SO:0000902
+#55	AnnotatorNotes T55	CL:0000000|GO:0005623
+#129	AnnotatorNotes T129	GO:0010467
+#130	AnnotatorNotes T130	GO:0010467
+#131	AnnotatorNotes T131	GO:0000003
+#132	AnnotatorNotes T132	GO:0010467
+#235	AnnotatorNotes T235	NCBITaxon:33208
+#56	AnnotatorNotes T56	CL:0000000|GO:0005623
+#133	AnnotatorNotes T133	GO:0010467
+#57	AnnotatorNotes T57	CL:0000000|GO:0005623
+#58	AnnotatorNotes T58	CL:0000000|GO:0005623
+#338	AnnotatorNotes T338	SO:0000902
+#134	AnnotatorNotes T134	GO:0010467
+#236	AnnotatorNotes T236	NCBITaxon:10088
+#135	AnnotatorNotes T135	GO:0010467
+#339	AnnotatorNotes T339	SO:0000167
+#340	AnnotatorNotes T340	SO:0000165
+#341	AnnotatorNotes T341	SO:0001060
+#237	AnnotatorNotes T237	NCBITaxon:10088
+#136	AnnotatorNotes T136	GO:0000003
+#238	AnnotatorNotes T238	NCBITaxon:33208
+#137	AnnotatorNotes T137	GO:0000003
+#59	AnnotatorNotes T59	CL:0000000|GO:0005623
+#138	AnnotatorNotes T138	GO:0010467
+#342	AnnotatorNotes T342	SO:0000902
+#139	AnnotatorNotes T139	GO:0000003
+#60	AnnotatorNotes T60	CL:0000000|GO:0005623
+#61	AnnotatorNotes T61	CL:0000000|GO:0005623
+#140	AnnotatorNotes T140	GO:0000003
+#343	AnnotatorNotes T343	SO:0001059
+#344	AnnotatorNotes T344	SO:0000817
+#141	AnnotatorNotes T141	GO:0000003
+#62	AnnotatorNotes T62	CL:0000353
+#63	AnnotatorNotes T63	CL:0000000|GO:0005623
+#64	AnnotatorNotes T64	CL:0000000|GO:0005623
+#65	AnnotatorNotes T65	CL:0000000|GO:0005623
+#66	AnnotatorNotes T66	CL:0000223
+#186	AnnotatorNotes T186	GO:0005623
+#67	AnnotatorNotes T67	CL:0000000|GO:0005623
+#142	AnnotatorNotes T142	GO:0032502
+#345	AnnotatorNotes T345	SO:0000902
+#346	AnnotatorNotes T346	SO:0000902
+#143	AnnotatorNotes T143	GO:0008283
+#144	AnnotatorNotes T144	GO:0032502
+#347	AnnotatorNotes T347	SO:0000902
+#68	AnnotatorNotes T68	CL:0000000|GO:0005623
+#145	AnnotatorNotes T145	GO:0008283
+#69	AnnotatorNotes T69	CL:0000000|GO:0005623
+#348	AnnotatorNotes T348	SO:0000902
+#349	AnnotatorNotes T349	SO:0000902
+#146	AnnotatorNotes T146	GO:0008283
+#70	AnnotatorNotes T70	CL:0000000|GO:0005623
+#350	AnnotatorNotes T350	SO:0001060
+#239	AnnotatorNotes T239	NCBITaxon:10088
+#147	AnnotatorNotes T147	GO:0000003
+#240	AnnotatorNotes T240	NCBITaxon:10088
+#148	AnnotatorNotes T148	GO:0010467
+#149	AnnotatorNotes T149	GO:0032502
+#71	AnnotatorNotes T71	CL:0000000|GO:0005623
+#241	AnnotatorNotes T241	NCBITaxon:10088
+#150	AnnotatorNotes T150	GO:0010467
+#151	AnnotatorNotes T151	GO:0032502
+#152	AnnotatorNotes T152	GO:0010467
+#351	AnnotatorNotes T351	SO:0000704
+#72	AnnotatorNotes T72	CL:0000000|GO:0005623
+#153	AnnotatorNotes T153	GO:0010467
+#154	AnnotatorNotes T154	GO:0009058
+#352	AnnotatorNotes T352	SO:0001060
+#353	AnnotatorNotes T353	SO:0000902
+#242	AnnotatorNotes T242	NCBITaxon:33208
+#155	AnnotatorNotes T155	GO:0032502
+#354	AnnotatorNotes T354	SO:0000902
+#243	AnnotatorNotes T243	NCBITaxon:10088
+#355	AnnotatorNotes T355	SO:0001026
+#356	AnnotatorNotes T356	SO:0000440
+#156	AnnotatorNotes T156	GO:0009058
+#357	AnnotatorNotes T357	SO:0000756
+#358	AnnotatorNotes T358	SO:0000155
+#359	AnnotatorNotes T359	SO:0000112
+#360	AnnotatorNotes T360	SO:0000112
+#361	AnnotatorNotes T361	SO:0000121
+#362	AnnotatorNotes T362	SO:0000993
+#157	AnnotatorNotes T157	GO:0006412
+#158	AnnotatorNotes T158	GO:0006413
+#363	AnnotatorNotes T363	SO:0000323
+#159	AnnotatorNotes T159	GO:0006412
+#244	AnnotatorNotes T244	NCBITaxon:2759
+#73	AnnotatorNotes T73	CL:0000255
+#187	AnnotatorNotes T187	GO:0005623
+#160	AnnotatorNotes T160	GO:0009058
+#364	AnnotatorNotes T364	SO:0000440
+#161	AnnotatorNotes T161	GO:0048518
+#365	AnnotatorNotes T365	SO:0000902
+#162	AnnotatorNotes T162	GO:0010467
+#74	AnnotatorNotes T74	CL:0000000|GO:0005623
+#245	AnnotatorNotes T245	NCBITaxon:10088
+#366	AnnotatorNotes T366	SO:0000756
+#163	AnnotatorNotes T163	GO:0009056
+#367	AnnotatorNotes T367	SO:0000046
+#368	AnnotatorNotes T368	SO:0000001
+#164	AnnotatorNotes T164	GO:0009058
+#246	AnnotatorNotes T246	NCBITaxon:9031
+#82	AnnotatorNotes T82	EG:396526
+#254	AnnotatorNotes T254	PR:000003676
+#369	AnnotatorNotes T369	SO:0000167
+#370	AnnotatorNotes T370	SO:0000190
+#247	AnnotatorNotes T247	NCBITaxon:10358
+#371	AnnotatorNotes T371	SO:0000165
+#248	AnnotatorNotes T248	NCBITaxon:9986
+#83	AnnotatorNotes T83	EG:100009084
+#255	AnnotatorNotes T255	PR:000008457
+#165	AnnotatorNotes T165	GO:0043631
+#372	AnnotatorNotes T372	SO:0000551
+#373	AnnotatorNotes T373	SO:0000167
+#374	AnnotatorNotes T374	SO:0000165
+#166	AnnotatorNotes T166	GO:0048518
+#375	AnnotatorNotes T375	SO:0000902
+#167	AnnotatorNotes T167	GO:0010467
+#75	AnnotatorNotes T75	CL:0000000|GO:0005623
+#249	AnnotatorNotes T249	NCBITaxon:10088
+#76	AnnotatorNotes T76	CL:0000000|GO:0005623
+#256	AnnotatorNotes T256	PR:000009799
+#77	AnnotatorNotes T77	CL:0000000|GO:0005623
+#376	AnnotatorNotes T376	SO:0000988
+#25	AnnotatorNotes T25	CHEBI:23888
+#78	AnnotatorNotes T78	CL:0000000|GO:0005623
+#168	AnnotatorNotes T168	GO:0008283
+#377	AnnotatorNotes T377	SO:0000151
+#378	AnnotatorNotes T378	SO:0000902
+#169	AnnotatorNotes T169	GO:0010467
+#26	AnnotatorNotes T26	CHEBI:23888
+#170	AnnotatorNotes T170	GO:0000003
+#79	AnnotatorNotes T79	CL:0000000|GO:0005623
+#379	AnnotatorNotes T379	SO:0000902
+#171	AnnotatorNotes T171	GO:0010467
+#380	AnnotatorNotes T380	SO:0000902
+#172	AnnotatorNotes T172	GO:0010467
+#173	AnnotatorNotes T173	GO:0032502
+#174	AnnotatorNotes T174	GO:0000003
+#381	AnnotatorNotes T381	SO:0000817
+#175	AnnotatorNotes T175	GO:0000003
+#80	AnnotatorNotes T80	CL:0000000|GO:0005623
+#382	AnnotatorNotes T382	SO:0000151
+#176	AnnotatorNotes T176	GO:0032502
+#383	AnnotatorNotes T383	SO:0000817
+#384	AnnotatorNotes T384	SO:0000902
+#177	AnnotatorNotes T177	GO:0000003
+#385	AnnotatorNotes T385	SO:0000902
+#386	AnnotatorNotes T386	SO:0000704
+#250	AnnotatorNotes T250	NCBITaxon:10088
+#27	AnnotatorNotes T27	CHEBI:36080
+#178	AnnotatorNotes T178	GO:0010467
+#251	AnnotatorNotes T251	NCBITaxon:10088
+#387	AnnotatorNotes T387	SO:0001059
+#252	AnnotatorNotes T252	NCBITaxon:36549|SO:0000155

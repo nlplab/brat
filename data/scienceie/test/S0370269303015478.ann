@@ -1,0 +1,22 @@
+T1	Process 6 28	perturbative expansion
+T2	Process 105 132	tree-level unitarity bounds
+T3	Process 136 166	loop-improved unitarity bounds
+T4	Process 67 79	exact bounds
+T5	Process 195 211	unitarity bounds
+T6	Task 226 245	tree-level analysis
+T7	Task 257 276	tree level analysis
+T8	Process 309 328	equivalence theorem
+T9	Process 353 378	high-energy approximation
+T10	Material 455 473	gauge-boson masses
+T11	Process 541 560	equivalence theorem
+T12	Process 569 586	decoupling regime
+T13	Process 632 652	unitarity constraint
+T14	Process 706 721	quantum effects
+T15	Process 729 771	decays of the light CP-even Higgs boson h0
+T16	Task 690 771	investigate the quantum effects in the decays of the light CP-even Higgs boson h0
+T17	Task 784 864	looking for sizeable differences with respect to the SM in the decoupling regime
+T18	Process 847 864	decoupling regime
+T19	Process 837 839	SM
+T20	Material 757 768	Higgs boson
+T21	Material 769 771	h0
+*	Synonym-of T21 T20

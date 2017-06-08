@@ -1,0 +1,27 @@
+T1	Process 0 26	Progressive photon mapping
+T2	Process 79 136	iterative extension of the standard static photon mapping
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+T3	Process 168 186	Radiance extension
+T4	Process 387 409	Monte Carlo raytracing
+T5	Process 355 374	mitigates the noise
+T6	Process 413 455	combining successive results and averaging
+R3	Hyponym-of Arg1:T6 Arg2:T5	
+T7	Process 484 520	density estimate bandwidth1Bandwidth
+T8	Process 535 577	support, or area of influence, of a filter
+R4	Hyponym-of Arg1:T7 Arg2:T8	
+T9	Task 887 972	describe either the radius or the number of nearest neighbours for a density estimate
+T10	Process 1070 1083	mitigate bias
+R2	Hyponym-of Arg1:T2 Arg2:T3	
+T11	Material 217 228	photon maps
+T12	Material 12 18	photon
+T13	Material 122 128	photon
+T14	Process 302 322	traditional approach
+T15	Process 586 604	weight the photons
+T16	Material 597 604	photons
+T17	Material 624 634	photon map
+T18	Process 644 668	nearest neighbour lookup
+T19	Material 674 681	surface
+T20	Material 1037 1044	photons
+T21	Material 712 722	irradiance
+T22	Material 746 752	photon
+T23	Material 832 838	photon

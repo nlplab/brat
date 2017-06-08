@@ -1,0 +1,20 @@
+T1	Task 4 27	fluence of each capsule
+T2	Material 52 76	activation monitor sets.
+T3	Material 83 95	monitor sets
+T4	Material 117 134	metal wire pieces
+T11	Material 565 572	monitor
+T12	Material 661 673	flux monitor
+T13	Material 905 915	molybdenum
+T14	Material 885 893	capsules
+T16	Process 746 756	activation
+T17	Material 690 697	capsule
+T18	Material 20 27	capsule
+T20	Material 330 346	flux monitor set
+T21	Material 310 317	capsule
+T22	Material 607 614	capsule
+T23	Material 485 493	detector
+T5	Material 457 465	capsules
+T7	Task 730 775	determining the activation of each wire piece
+T8	Material 765 775	wire piece
+T9	Process 797 804	fluence
+T10	Process 864 872	fluences

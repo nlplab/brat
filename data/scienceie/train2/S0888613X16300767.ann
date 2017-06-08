@@ -1,0 +1,12 @@
+T1	Task 47 91	an apposite well-supported statistical model
+T2	Material 153 156	CRG
+T3	Material 170 179	MAP model
+T4	Process 229 241	idle process
+T5	Process 248 301	identifying the disconnected components of the system
+T6	Task 349 379	the impact of various controls
+T7	Material 496 498	BN
+T8	Task 548 558	clustering
+T9	Process 565 597	identify patterns among the data
+T10	Task 760 782	the effect of controls
+T11	Material 926 952	evoking ideas of parsimony
+T12	Task 883 894	conjectures

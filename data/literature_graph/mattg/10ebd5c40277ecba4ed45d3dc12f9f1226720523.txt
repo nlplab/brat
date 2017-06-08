@@ -1,0 +1,99 @@
+Title: End-To-End Memory Networks
+
+Abstract: • Good models exist for some data structures – RNN for temporal structure – ConvNet for spatial structure • But we still struggle with some type of dependencies – out-of-order access – long-term dependency – unordered set
+
+Content: Overview
+
+• We propose a neural network model with external memory – Reads from memory with soft attention – Performs multiple lookups (hops) on memory – End-to-end training with backpropagation
+
+• End-to-end Memory Network (MemN2N)
+
+• It is based on " Memory Networks " by [Weston, Chopra & Bordes ICLR 2015] – Hard attention – requires explicit supervision of attention during training – Only feasible for simple tasks – Severely limits application of the model • MemN2N is soft attention version • Only need supervision on the final output Memory Module Controller module Input
+
+MemN2N architecture
+
+Output supervision a d d re s s in g r e a d a d d re s s in g r e a d Memory vectors (unordered) Internal state vector Memory Module Dot Product Softmax Weighted Sum To controller (added to controller state) Addressing signal (controller state vector)
+
+Memory vectors
+
+Attention weights / Soft address
+
+Memory Vectors
+
+E.g.) constructing memory vectors with Bag-of-Words (BoW) 1. Embed each word 2. Sum embedding vectors E.g.) temporal structure: special words for time and include them in BoW Memory Vector Embedding Vectors
+
+Time embedding Question
+
+Where is Sam? Input story Memory Module Controller kitchen Answer Dot product + softmax Weighted Sum
+
+Question & Answering
+
+2: Sam went to kitchen 1: Sam moved to garden 3: Sam drops apple there Related Work (I) Dot Product ArgMax
+
+Supervision on attention
+
+Hard attention Memory Network [Weston et al. ICLR 2015] Memory Module Related Work (II) • RNNsearch [Bahdanau et al. 2015] – Encoder-decoder RNN with attention – Our model can be considered as an attention model with multiple hops • Recent works on external memory – Stack memory for RNNs [Joulin & Mikolov. 2015] – Neural Turing Machine [Graves et al. 2014] • Early works on neural network and memory – [Steinbuch & Piske. 1963]; [Taylor. 1959] – [Das et al. 1992]; [Mozer et al. 1993] • Concurrent works – Dynamic Memory Networks [Kumar et al. 2015] – Attentive reader [Hermann et al. 2015] – Stack, Queue [Grefenstette et al. 2015] Experiment on bAbI Q&A data • Data: 20 bAbI tasks [Weston et al. arXiv: 1502.05698, 2015] • Answer questions after reading short story • Small vocabulary, simple language • Different tasks require different reasoning • Training data size 1K or 10K for each task interest in using neural network based models for the task, with R showing clear performance gains over traditional methods. Indeed held by variants of these models, for example very large LSTMs w diagonal constraints on the weight matrix [15]. With appropriate w regarded as a modified form of RNN, where the recurrence is in sequence rather than indexed by the sequence itself.
+
+Synthetic Question and Answering Experiments
+
+We perform experiments on the synthetic QA tasks defined in [21 a set of statements, followed by a question whose answer is typicall answers are a set of words). The answer is available to the mode predicted at test time. There are a total of 20 different types of tas reasoning and deduction. Here are samples of three of the tasks: Sam walks into the kitchen. Brian is a lion. Mary jou Sam picks up an apple. Julius is a lion. Mary wen Sam walks into the bedroom. Julius is white. John jou Sam drops the apple. Bernhard is green. Mary dis Q: Where is the apple? Q: Hallw 9 16 2 10 15 20 4 MemN2N Best MemN2N BoW LSTM Weston et al. #Failed tasks out of 20 (smaller is better) 1k training data 10k training data 1 2 3 0 5 10 15 20 25 30 Hops Mean error (%) 1k 10k BoW position encod. +linear start +random noise +joint training 5 10 15 20 25 Mean error (%) 1k training data 10k training data Strongly supervised Performance on bAbI test set Examples of Attention Weights • 2 test cases: The suitcase is bigger than the chest. yes 0.00 0.88 0.00 00 0.00 The box is bigger than the chocolate. 0.04 0.05 0.10 00 1.00 The chest is bigger than the chocolate. yes 0.17 0.07 0.90 00 0.
+
+00
+
+The chest fits inside the container. 0.00 0.00 0.00 02 0.
+
+00
+
+The chest fits inside the box. 0.00 0.00 0.00
+
+m
+
+Where is the milk? Answer: hallway Prediction: hallway Does the suitcase fit in the chocolate? Answer: no Prediction: no e QA tasks of [21]. We show the labeled supporting facts N2N does not use during training, and the probabilities p of Daniel went to the bathroom. 0.00 0.00 0.03 John dropped Mary travelled to the hallway. 0.00 0.00 0.00 John took the John went to the bedroom. 0.37 0.02 0.00 Sandra went b John travelled to the bathroom. yes 0.60 0.98 0.96 John moved to Mary went to the office. 0.01 0.00 0.00 Mary went bac Figure 2: Example predictions on the QA tasks of [21] Controller module: linear + non-linearity – Each word as a memory vector your model must ? says -4 -3 -2 -5 Yann -6 Memory time be -1 Controller next word 3 4 5 6 7 112 114 116 118 120 122 124 Memory hops Test perplexity MemN2N LSTM 2 3 4 5 6 7 140 150 160 170 180 190 Memory hops Test perplexity MemN2N LSTM 25 50 75 100 125 150 112 114 116 118 120 Memory size Test perplexity MemN2N LSTM 25 50 75 100 125 150 145 150 155 160 165 170 Memory size Test perplexity MemN2N LSTM Penn-Treebank Text8 (Wikipedia) Attention during memory hops Penn Treebank 150 6 100 122 1 150 6 125 120 1 150 6 150 121 1 150 7 200 118 1 Table 2: The perplexity
+
+on
+
+the test sets of Penn Tre the number of memory hops improves performance. Figure 3: Average activation weight of memory p 0 6 100 122 115 500 6 100 124 155 0 7 100 120 114 500 7 100 118 147 0 6 25 125 118 500 6 25 131 163 0 6 50 121 114 500 6 50 132 166 0 6 75 122 114 500 6 75 126 158 0 6 100 122 115 500 6 100 124 155 0 6 125 120 112 500 6 125 125 157 0 6 150 121 114 500 6 150 123 154 0 7 200 118 111 - - - -
+
+lexity on
+
+the test sets of Penn Treebank and Text8 corpora. Note that increasing ory hops improves performance. activation weight of memory positions during 6 memory hops. White color e model is attending during the k th hop. For clarity, each row is normalized to lue of 1. A model is trained on (left) Penn Treebank and (right) Text8 dataset. – Soft attention over memory locations – End-to-end training with backpropagation • Good results on a toy QA tasks • Comparable to LSTM on language modeling • Versatile model: also apply to writing and games Code http://github.com/facebook/MemNN Poster #7
+
+Thank you!
+
+Code http://github.com/facebook/MemNN Poster #7 • Jittering the time index with random empty memories (RN) as described in Section 4.1 gives a small but consistent boost in performance, especially for the smaller training set.
+
+•
+
+Joint training on all tasks helps. • More computational hops give improved performance. We give examples of the hops performed (via the values of eq. (1)) over some illustrative examples in Fig. 2 and Appendix B. WSH BoW PE LS RN joint joint joint joint joint 1: 1 supporting fact 0.0 50.0 0.1 0.6 0.1 0.2 0.0 0.8 0.0 0.1 0.0 0.1 2: 2 supporting facts 0.0 80.0 42.8 17.6 21.6 12.8 8.3 62.0 15.6 14.0 11.4 18.8 3: 3 supporting facts 0.0 80.0 76.4 71.0 64.2 58.8 40.3 76.9 31.6 33.1 21.9 31.7 4: 2 argument relations 0.0 39.0 40.3 32.0 3.8 11.6 2.8 22.8 2.2 5.7 13.4 17.5 5: 3 argument relations 2.0 30.0 16.3 18.3 14.1 15.7 13.1 11.0 13.4 14.8 14.4 12.9 6: yes/no questions 0.0 52.0 51.0 8.7 7.9 8.7 7.6 7.2 2.3 3.3 2.8 2.0 7: counting 15.0 51.0 36.1 23.5 21.6 20.3 17.3 15.9 25.4 17.9 18.3 10.1 8: lists/sets 9.0 55.0 37.8 11.4 12.6 12.7 10.0 13.2 11.7 10.1 9.3 6.1 9: simple negation 0.0 36.0 35.9 21.1 23.3 17.0 13.2 5.1 2.0 3.1 1.9 1.5 10: indefinite knowledge 2.0 56.0 68.7 22.8 17.4 18.6 15.1 10.6 5.0 6.6 6.5 2.6 11: basic coreference 0.0 38.0 30.0 4.1 4.3 0.0 0.9 8.4 1.2 0.9 0.3 3.3 12: conjunction 0.0 26.0 10.1 0.3 0.3 0.1 0.2 0.4 0.0 0.3 0.1 0.0 13: compound coreference 0.0 6.0 19.7 10.5 9.9 0.3 0.4 6.3 0.2 1.4 0.2 0.5 14: time reasoning 1.0 73.0 18.3 1.3 1.8 2.0 1.7 36.9 8.1 8.2 6.9 2.0 15: basic deduction 0.0 79.0 64.8 24.3 0.0 0.0 0.0 46.4 0.5 0.0 0.0 1. 8 16: agent's motivation 0.0 9.0 3.6 0.1 0.0 0.0 0.0 0.0 0.1 0.0 0.0 0 .2 Failed tasks (err. > 5%) 2 16 17 9 6 4 4 16 7 6 6 6 Table 1 : Test error rates (%) on the 20 QA tasks for models using 1k training examples (mean test errors for 10k training examples are shown at the bottom). Key: BoW = bag-of-words representation; PE = position encoding representation; LS = linear start training; RN = random injection of time index noise; LW = RNN-style layer-wise weight tying (if not stated, adjacent weight tying is used); joint = joint training on all tasks (as opposed to per-task training).
+
+Results on 1k training data
+
+Results on 10k training data sainbar@cs.nyu.edu {aszlam,jase,robfergus}@fb.com joint joint joint joint joint 1: 1 supporting fact 0.0 0.0 0.1 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 2:
+
+supporting
+
+facts 0.0 81.9 39.6 0.6 0.4 0.5 0.3 0.3 62.0 1.3 2.3 1.0 0.8 3: 3 supporting facts 0.0 83.1 79.5 17.8 12.6 15.0 9.3 2.1 80.0 15.8 14.0 6.8 18.3 4: 2 argument relations 0.0 0.2 36.6 31.8 0.0 0.0 0.0 0.0 21.4 0.0 0.0 0.0 0.0 5: 3 argument relations 0.3 1.2 21.1 14.2 0.8 0.6 0.8 0.8 8.7 7.2 7.5 6.1 0.8 6: yes/no questions 0.0 51.8 49.9 0.1 0.2 0.1 0.0 0.1 6.1 0.7 0.2 0.1 0.1 7: counting 3.3 24.9 35.1 10.7 5.7 3.2 3.7 2.0 14.8 10.5 6.1 6.6 8.4 8: lists/sets 1.0 34.1 42.7 1.4 2.4 2.2 0.8 0.9 8.9 4.7 4.0 2.7 1.4 9: simple negation 0.0 20.2 36.4 1.8 1.3 2.0 0.8 0.3 3.7 0.4 0.0 0.0 0.2 10: indefinite knowledge 0.0 30.1 76.0 1.9 1.7 3.3 2.4 0.0 10. 3 0.6 0.4 0.5 0.0 11: basic coreference 0.0 10.3 25.3 0.0 0.0 0.0 0.0 0.1 8.3 0.0 0.0 0.0 0.4 12: conjunction 0.0 23.4 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.1 0.0 13: compound coreference 0.0 6.1 12.3 0.0 0.1 0.0 0.0 0.0 5.6 0.0 0.0 0.0 0.0 14: time reasoning 0.0 81.0 8.7 0.0 0.2 0.0 0.0 0.1 30.9 0.2 0.2 0.0 1.7 15: basic deduction 0.0 78.7 68.8 12.5 0.0 0.0 0.0 0.0 42.6 0.0 0.0 0.2 0.0 16: basic induction 0.0 51.9 50.9 50.9 48.6 0.1 0.4 51.8 47.3 46.4 0.4 0.2 49.2 17: positional reasoning 24.6 50.1 51.1 47.4 40.3 41.1 40.7 18,6 40.0 39.7 41.7 41.8 40.0 18: size reasoning 2.1 6.8 45.8 41.3 7.4 8.6 6.7 5.3 9.2 10.1 8.6 8.0 8.4 19: path finding 31.9 90.3 100.0 75.4 66.6 66.7 66.5 2.3 91.0 80.8 73.3 75.7 89.5 20: agent's motivation 0.0 2.1 4.1 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 Mean error (%) 3.2 36.4 39.2 15.4 9.4 7.2 6.6 4.2 24.5 10.9 7.9 7.5 11.0 Failed tasks (err. > 5%) 2 16 17 9 6 4 4 3 16 7 6 6 6 Table 1: Test error rates (%) on the 20 bAbI QA tasks for models using 10k training examples. Key: BoW = bag-of-words representation; PE = position encoding representation; LS = linear start training; RN = random injection of time index noise; LW = RNN-style layer-wise weight tying (if not stated, adjacent weight tying is used); joint = joint training on all tasks (as opposed to per-task training); ⇤ = this is a larger model with non-linearity (embedding dimension is d = 100 and ReLU applied to the internal state after each hop. This was inspired by [1] and crucual for getting better performance on tasks 17 and 19).
+
+Sentence Representation
+
+• Bag-of-Words – Embed each word into vectors and add them • Position Encoding
+
+–
+
+Apply simple order dependent transformation before adding that it cannot capture the order of the words in the sentence, which is important se a second representation that encodes the position of words within the the form: m i = P j l j · Ax ij , where · is an element-wise multiplication. l j is a the structure l kj = (1 j/J) (k/d)(1 2j/J) (assuming 1-based indexing), mber of words in the sentence, and d is the dimension of the embedding. This ion, which we call position encoding (PE), means that the order of the words same representation is used for questions, memory inputs and memory outputs. g: Many of the QA tasks require some notion of temporal context, i.e. in Section 2, the model needs to understand that Sam is in the bedroom after . To enable our model to address them, we modify the memory vector so Results on language modeling Lily is gray. 0.07 0.00 0.
+
+00
+
+The box is bigger than the chocolate. 0.04 0.05 0.10 Brian is yellow. yes 0.07 0.00
+
+1.00
+
+The chest is bigger than the chocolate. yes 0.17 0.07 0.90 Julius is green. 0.06 0.00 0.00 The chest fits inside the container. 0.00 0.00 0.00 Greg is a frog. yes 0.76 0.02 0.
+
+00
+
+The chest fits inside the box. 0.00 0.00 0.
+
+00
+
+What color is Greg? Answer: yellow Prediction: yellow Does the suitcase fit in the chocolate? Answer: no Prediction: no Figure 2: Example predictions on the QA tasks of [21] . We show the labeled supporting facts (support) from the dataset which MemN2N does not use during training, and the probabilities p of each hop used by the model during inference. MemN2N successfully learns to focus on the correct supporting sentences. Penn Treebank Text8 # of # of memory Valid. Test # of # of memory Valid. Test Model hidden hops size perp. perp. hidden hops size perp. perp. RNN [15] 300 - - 133 129 500 - - - 184 LSTM [15] 100 - - 120 115 500 - - 122 154 SCRN [15] 100 - 120 115 500 - - - 161 MemN2N 150 2 100 128 121 500 2 100 152 187 150 3 100 129 122 500 3 100 142 178 150 4 100 127 120 500 4 100 129 162 150 5 100 127 118 500 5 100 123 154 150 6 100 122 115 500 6 100 124 155 150 7 100 120 114 500 7 100 118 147 150 6 25 125 118 500 6 25 131 163 150 6 50 121 114 500 6 50 132 166 150 6 75 122 114 500 6 75 126 158 150 6 100 122 115 500 6 100 124 155 150 6 125 120 112 500 6 125 125 157 150 6 150 121 114 500 6 150 123 154 150 7 200 118 111 - - - - Table 2: The perplexity on the test sets of Penn Treebank and Text8 corpora. Note that increasing the number of memory hops improves performance. Figure 3: Average activation weight of memory positions during 6 memory hops. White color indicates where the model is attending during the k th hop. For clarity, each row is normalized to have maximum value of 1. A model is trained on (left) Penn Treebank and (right) Text8 dataset.

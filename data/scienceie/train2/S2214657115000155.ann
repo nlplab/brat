@@ -1,0 +1,25 @@
+T1	Process 0 7	MicroCT
+T2	Material 60 79	preliminary results
+T3	Task 98 122	visualization of defects
+T4	Process 133 158	porosity in AM components
+T6	Task 203 231	porosity structures in parts
+T7	Process 302 318	average porosity
+T8	Process 390 405	build direction
+T9	Process 435 476	electron beam raster and overlap pattern.
+T10	Material 503 517	recent reports
+T11	Task 525 546	porosity distribution
+T12	Material 583 611	electron beam melted samples
+T13	Material 28 36	AM parts
+T5	Material 672 687	porosity images
+T14	Task 927 948	characterize AM parts
+T15	Process 961 1003	comparison of the part to its design model
+T16	Process 1017 1054	characterization of surface roughness
+T17	Task 1110 1147	demonstrate a specific type of defect
+T18	Process 1159 1191	very low average porosity levels
+T19	Process 1220 1250	not follow the build direction
+T20	Task 1316 1342	porosity structure changes
+T21	Process 1349 1371	Hot Isostatic Pressing
+T22	Process 1373 1376	HIP
+*	Synonym-of T21 T22
+T23	Material 693 700	microCT
+T24	Material 916 923	microCT

@@ -1,0 +1,31 @@
+T1	Process 0 17	In situ oxidation
+T2	Material 54 72	3mm diameter discs
+T3	Process 90 109	ground and polished
+T4	Process 159 167	oxidised
+T5	Process 461 467	heated
+T6	Process 558 596	stabilise the stage and the microscope
+T7	Process 618 656	heated to a final temperature of 900°C
+T8	Material 842 859	LEO 1530VP FEGSEM
+T9	Material 925 957	Transmission Electron Microscope
+T10	Material 1271 1299	Scanning TEM (STEM) detector
+T11	Material 1171 1197	Jeol 2000FX W-filament TEM
+T12	Process 1337 1365	accelerating voltage of 30kV
+T13	Material 1215 1226	TEM samples
+T14	Material 1199 1202	EDS
+T15	Material 1307 1330	EDAX Genesis EDS system
+T16	Material 1271 1283	Scanning TEM
+T17	Material 1285 1289	STEM
+*	Synonym-of T16 T17
+T18	Material 959 962	TEM
+*	Synonym-of T9 T18
+T19	Material 203 223	hot stage attachment
+T20	Material 173 195	Philips XL-30 FEG ESEM
+T21	Material 789 802	heating coils
+T22	Material 901 904	EDS
+T23	Material 994 1024	dual beam FEI Nova Nanolab 600
+T24	Material 1029 1045	Focused Ion Beam
+T25	Material 1047 1050	FIB
+*	Synonym-of T24 T25
+T26	Process 1134 1151	oxide development
+T27	Material 1134 1139	oxide
+T28	Material 1252 1263	Nanolab 600

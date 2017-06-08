@@ -1,0 +1,34 @@
+T1	METHOD 36797 36803	-means
+#1	AnnotatorNotes T1	I assume this should be k-means
+T2	TASK 36821 36852	convergence to a global optimum
+T3	METHOD 36858 36887	stochastic optimal techniques
+T4	METHOD 36894 36913	simulated annealing
+T5	METHOD 36923 36941	genetic algorithms
+T6	TASK 36968 36991	find the global optimum
+R1	addresses Arg1:T3 Arg2:T6	
+T7	METHOD 37098 37101	GKA
+T8	TASK 37123 37136	global search
+T9	TASK 37141 37157	fast convergence
+R2	addresses Arg1:T7 Arg2:T8	
+R3	addresses Arg1:T7 Arg2:T9	
+T10	METHOD 37177 37201	biased mutation operator
+T11	METHOD 37218 37236	Euclidean distance
+T12	METHOD 37347 37362	-means operator
+#2	AnnotatorNotes T12	should be k-means operator
+T13	METHOD 37409 37428	crossover operators
+T14	METHOD 37482 37504	adaptive learning rate
+T15	METRIC 37569 37582	learning rate
+T16	METHOD 37721 37724	LBG
+T17	METHOD 37751 37769	roulette mechanism
+R4	uses Arg1:T16 Arg2:T17	
+R5	uses Arg1:T10 Arg2:T11	
+T18	METHOD 37781 37799	genetic algorithms
+T19	METHOD 37883 37889	-means
+#3	AnnotatorNotes T19	should be k-means
+T20	METHOD 38063 38070	ISODATA
+T21	METHOD 38080 38083	PAM
+T22	METHOD 38153 38162	ISO- DATA
+T23	METHOD 38229 38236	ISODATA
+T24	METHOD 38305 38308	PAM
+T25	METHOD 38442 38450	-medoids
+#4	AnnotatorNotes T25	should be k-medoids

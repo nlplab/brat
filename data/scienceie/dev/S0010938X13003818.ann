@@ -1,0 +1,16 @@
+T1	Process 39 70	value of the measuring resistor
+T2	Process 72 74	Rm
+*	Synonym-of T2 T1
+T3	Material 427 466	NI-USB 6009 analog-to-digital converter
+T4	Material 322 336	4.7kΩ resistor
+T5	Material 375 402	saturated calomel electrode
+T6	Process 472 500	electrochemical noise signal
+T7	Material 520 547	in-house developed software
+T8	Material 778 785	dataset
+T10	Task 674 708	obtain a single value of potential
+T11	Task 979 1051	accurate recording of the potential noise in the frequencies of interest
+T12	Process 97 114	corrosion process
+T13	Process 136 161	value of noise resistance
+T14	Task 175 199	validate this conclusion
+T15	Material 257 294	pair of nominally identical specimens
+T16	Task 13 33	theoretical analysis

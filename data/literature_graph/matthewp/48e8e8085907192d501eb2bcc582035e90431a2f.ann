@@ -1,0 +1,12 @@
+T1	METHOD 86 128	deep hierarchical recurrent neural network
+T2	TASK 133 149	sequence tagging
+R1	addresses Arg1:T1 Arg2:T2	
+T3	METHOD 196 222	deep gated recurrent units
+T4	METHOD 317 347	conditional random field layer
+T5	TASK 484 494	multi-task
+T7	TASK 675 686	POS tagging
+T8	TASK 688 696	chunking
+T9	TASK 702 705	NER
+T10	METHOD 747 775	cross-lingual joint training
+T6	METHOD 499 527	cross-lingual joint training
+T11	TASK 732 742	multi-task

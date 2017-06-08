@@ -1,0 +1,26 @@
+T1	KeyEntity 135 152	movement disorder
+T2	Entity 156 160	mice
+T3	Entity 315 321	humans
+T4	Entity 466 474	deletion
+T5	KeyEntity 478 483	Itpr1
+T6	KeyEntity 509 547	inositol 1,4,5-triphosphate receptor 1
+T7	Entity 589 597	mutation
+T8	Entity 363 392	linkage and sequence analysis
+T10	Entity 615 624	phenotype
+T11	Entity 673 690	in-frame deletion
+T12	Entity 774 799	cerebellar Purkinje cells
+T13	KeyEntity 801 835	Spinocerebellar ataxia 15 (SCA15),
+T14	Entity 844 871	autosomal dominant disorder
+T15	KeyEntity 984 990	ataxia
+T17	KeyEntity 1139 1145	SCA15.
+T18	KeyEntity 1297 1302	SCA15
+R1	other_relation Arg1:T1 Arg2:T2	
+R2	regulates Arg1:T4 Arg2:T5	
+R3	participates_in Arg1:T7 Arg2:T10	
+T9	Entity 754 770	Itpr1 expression
+R4	regulates Arg1:T11 Arg2:T9	
+R5	is_subclass_of Arg1:T13 Arg2:T14	
+T19	Entity 1101 1118	mutation at ITPR1
+R6	participates_in Arg1:T19 Arg2:T17	
+T16	KeyEntity 1177 1218	deletion of the 5′ part of the ITPR1 gene
+R7	participates_in Arg1:T16 Arg2:T18	

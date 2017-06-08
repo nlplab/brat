@@ -1,0 +1,115 @@
+T1	TASK 150 168	question answering
+T2	METHOD 221 243	dynamic memory network
+T3	METHOD 261 275	neural network
+R1	is_subclass_of Arg1:T2 Arg2:T3	
+T4	METHOD 582 619	hierarchical recurrent sequence model
+T5	METHOD 645 648	DMN
+T6	TASK 752 770	question answering
+T7	DATASET 783 787	bAbI
+T8	METHOD 798 815	sequence modeling
+T9	TASK 820 842	part of speech tagging
+T10	DATASET 844 851	WSJ-PTB
+T11	TASK 854 876	coreference resolution
+T12	DATASET 878 886	Quizbowl
+T13	TASK 924 942	sentiment analysis
+T14	METHOD 900 919	text classification
+T15	DATASET 944 971	Stanford Sentiment Treebank
+R2	addresses Arg1:T5 Arg2:T6	
+R3	addresses Arg1:T5 Arg2:T9	
+R4	addresses Arg1:T5 Arg2:T11	
+R5	addresses Arg1:T5 Arg2:T13	
+R6	addresses Arg1:T7 Arg2:T6	
+R7	addresses Arg1:T8 Arg2:T9	
+R8	addresses Arg1:T10 Arg2:T9	
+R9	addresses Arg1:T12 Arg2:T11	
+R10	addresses Arg1:T14 Arg2:T13	
+R11	addresses Arg1:T15 Arg2:T13	
+T16	METHOD 974 983	The model
+T17	METHOD 1014 1041	word vector representations
+R12	uses Arg1:T16 Arg2:T17	
+T18	TASK 1131 1149	Question answering
+T19	TASK 1377 1395	question answering
+T20	TASK 1427 1446	machine translation
+T21	TASK 1516 1540	named entity recognition
+T22	TASK 1605 1627	part of speech tagging
+T23	TASK 1700 1718	sentiment analysis
+T24	TASK 1804 1826	coreference resolution
+T25	METHOD 1863 1885	dynamic memory network
+T26	METHOD 1897 1911	neural network
+R13	is_subclass_of Arg1:T25 Arg2:T26	
+T27	TASK 1978 1980	QA
+R14	addresses Arg1:T25 Arg2:T27	
+T28	METHOD 2119 2122	DMN
+T29	METHOD 2318 2321	DMN
+T30	METHOD 2552 2555	DMN
+T31	METHOD 2466 2485	iterative attention
+T32	METHOD 2742 2745	DMN
+T33	METHOD 3015 3018	DMN
+T34	SOFTWARE 3727 3732	Glove
+T35	SOFTWARE 3738 3746	Word2Vec
+T36	TASK 4035 4059	named entity recognition
+T37	TASK 4063 4081	question answering
+T38	METHOD 4392 4395	DMN
+T39	METHOD 15314 15339	recursive neural networks
+T40	TASK 15359 15366	parsing
+T41	TASK 15374 15392	sentiment analysis
+T42	TASK 15398 15418	paraphrase detection
+T43	TASK 15428 15446	question answering
+T44	TASK 15456 15473	logical inference
+R15	addresses Arg1:T39 Arg2:T44	
+R16	addresses Arg1:T39 Arg2:T43	
+R17	addresses Arg1:T39 Arg2:T42	
+R18	addresses Arg1:T39 Arg2:T41	
+R19	addresses Arg1:T39 Arg2:T40	
+T45	METHOD 15714 15755	chain structured recurrent neural network
+T46	METHOD 15785 15810	Recurrent neural networks
+T47	TASK 15842 15859	language modeling
+T48	TASK 15866 15884	speech recognition
+T49	TASK 15890 15921	sentence generation from images
+R20	addresses Arg1:T46 Arg2:T47	
+R21	addresses Arg1:T46 Arg2:T48	
+R22	addresses Arg1:T46 Arg2:T49	
+T50	METHOD 15949 15968	sequenceto-sequence
+T51	TASK 15984 16003	machine translation
+R23	addresses Arg1:T50 Arg2:T51	
+T52	METHOD 16075 16080	LSTMs
+T53	METHOD 16030 16040	This model
+R24	uses Arg1:T53 Arg2:T52	
+T54	METHOD 16225 16228	DMN
+T55	METHOD 16168 16199	This sequence to sequence model
+R25	is_subclass_of Arg1:T55 Arg2:T54	
+T56	METHOD 16403 16407	DMNs
+T57	METHOD 16504 16519	memory networks
+T58	DATASET 17101 17105	bAbI
+T59	METHOD 17120 17140	Attention mechanisms
+T60	TASK 17178 17198	image classification
+T61	TASK 17205 17231	automatic image captioning
+T62	TASK 17241 17260	machine translation
+R26	addresses Arg1:T59 Arg2:T60	
+R27	addresses Arg1:T59 Arg2:T61	
+R28	addresses Arg1:T59 Arg2:T62	
+T63	METHOD 17272 17294	Neural Turing machines
+T64	METHOD 17299 17305	memory
+R29	uses Arg1:T63 Arg2:T64	
+T65	TASK 17344 17356	list sorting
+R30	addresses Arg1:T63 Arg2:T65	
+T66	METHOD 17385 17388	DMN
+T67	TASK 17591 17609	question answering
+T68	METHOD 17655 17682	open information extraction
+T69	METHOD 17706 17721	neural networks
+T70	METHOD 18552 18555	DMN
+T71	TASK 18573 18591	Sentiment analysis
+T72	DATASET 18646 18673	Stanford Sentiment Treebank
+T73	METHOD 18784 18812	convolutional neural network
+R31	addresses Arg1:T72 Arg2:T71	
+T74	TASK 18889 18911	part of speech tagging
+T75	DATASET 18919 18968	Wall Street Journal section of the Penn Tree Bank
+R32	addresses Arg1:T75 Arg2:T74	
+T76	METHOD 19002 19033	semisupervised nearest neighbor
+R33	addresses Arg1:T76 Arg2:T74	
+T77	METHOD 19344 19349	DMN's
+T78	METHOD 19983 19986	DMN
+T79	METHOD 20130 20133	GRU
+T80	DATASET 20219 20223	bAbI
+T81	METHOD 20274 20296	Temporal Context Model
+T82	METHOD 27322 27325	DMN

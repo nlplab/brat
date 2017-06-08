@@ -1,0 +1,22 @@
+T1	Task 0 32	MINERAL (MINeral ERror AnaLysis)
+T2	Task 36 63	a new MATLAB® based program
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+T3	Task 183 190	Methods
+T4	Process 69 181	provides mineral formula recalculations combined with the associated propagation of the analytical uncertainties
+T6	Task 419 444	Some generalized programs
+T7	Material 510 517	CALCMIN
+T8	Material 540 550	HYPER-FORM
+T9	Process 460 504	recalculate the formula of multiple minerals
+T5	Task 287 346	to provide users with greater flexibility in data reporting
+T10	Material 617 627	AMPH CLASS
+T11	Material 646 656	PROBE AMPH
+T12	Material 726 731	ILMAT
+T13	Material 800 806	PX-NOM
+T14	Task 689 724	recalculation of amphibole analyses
+T15	Task 755 794	recalculation of magnetite and ilmenite
+T16	Task 829 863	recalculation of pyroxene analyses
+T17	Material 865 872	MINERAL
+T18	Task 905 946	recalculation of multiple common minerals
+T19	Process 1013 1077	incorporate the associated uncertainty propagation calculations.
+T20	Material 1292 1299	MINERAL
+T21	Task 1315 1478	allow users with little or no experience operating MATLAB® and/or performing mineral formula recalculations and uncertainty propagation to undertake both with ease

@@ -60,7 +60,7 @@ import verify_annotations
 
 _VERBOSE_HANDLER = False
 _DEFAULT_SERVER_ADDR = ''
-_DEFAULT_SERVER_PORT = 8001
+_DEFAULT_SERVER_PORT = 8000
 
 _PERMISSIONS = """
 Allow: /ajax.cgi

@@ -1,0 +1,46 @@
+T1	KeyEntity 71 80	Helicases
+T2	KeyEntity 132 147	DNA replication
+T3	Entity 103 113	initiation
+T4	Entity 118 128	elongation
+T5	KeyEntity 177 185	helicase
+T6	Entity 190 196	ATPase
+T7	KeyEntity 225 241	Mcm4/6/7 complex
+T8	Entity 215 224	mammalian
+T9	Entity 272 284	thymine-rich
+T10	Entity 285 304	single-stranded DNA
+T11	Entity 328 348	substrate preference
+T12	KeyEntity 353 361	helicase
+T13	Entity 384 398	synthetic DNAs
+T14	KeyEntity 423 431	Mcm4/6/7
+T16	Entity 530 543	branch points
+T17	Entity 592 608	thymine residues
+T18	Entity 618 631	single-strand
+T19	Entity 667 685	unwinding efficacy
+T20	KeyEntity 767 775	Mcm4/6/7
+T21	KeyEntity 830 838	Mcm4/6/7
+T22	Entity 865 894	fork and extension structures
+T23	KeyEntity 949 957	helicase
+T24	Entity 1008 1015	3′-tail
+T25	Entity 1075 1090	thymine content
+T26	Entity 1092 1111	Strand displacement
+T27	KeyEntity 1115 1123	Mcm4/6/7
+T28	Entity 1145 1155	GC content
+T29	Entity 1203 1225	cytosine–guanine pairs
+T30	Entity 1231 1253	cytosine–inosine pairs
+T31	KeyEntity 1314 1331	Mcm4/6/7 helicase
+T32	Entity 1464 1484	substrate preference
+T33	Entity 1492 1502	eukaryotic
+T34	KeyEntity 1503 1523	replicative helicase
+R1	participates_in Arg1:T1 Arg2:T2	
+R2	is_part_of Arg1:T5 Arg2:T7	
+R3	is_part_of Arg1:T6 Arg2:T7	
+R4	regulates Arg1:T10 Arg2:T5	
+R5	regulates Arg1:T10 Arg2:T6	
+T15	Entity 489 513	single-stranded segments
+R6	physically_interacts_with Arg1:T14 Arg2:T15	
+R7	other_relation Arg1:T15 Arg2:T16	
+T35	Entity 567 582	double hexamers
+R8	other_relation Arg1:T14 Arg2:T35	
+R9	participates_in Arg1:T17 Arg2:T19	
+R10	physically_interacts_with Arg1:T21 Arg2:T22	
+R11	participates_in Arg1:T27 Arg2:T26	

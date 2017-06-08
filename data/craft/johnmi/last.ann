@@ -1,0 +1,24 @@
+T1	KeyEntity 81 117	nephrogenic diabetes insipidus (NDI)
+T2	Entity 206 217	vasopressin
+T3	KeyEntity 239 269	nephrogenic diabetes insipidus
+T4	KeyEntity 313 343	vasopressin receptor 2 (Avpr2)
+T5	KeyEntity 392 410	aquaporin-2 (Aqp2)
+T6	Entity 545 561	ethylnitrosourea
+T7	KeyEntity 635 653	mouse model of NDI
+T8	KeyEntity 685 689	Aqp2
+T9	Entity 862 878	renal cell lines
+T10	Entity 897 901	Aqp2
+T11	Entity 957 967	water pore
+T12	Entity 931 942	trafficking
+T13	Entity 1042 1060	AQP2 translocation
+T14	KeyEntity 1088 1118	nephrogenic diabetes insipidus
+T15	Entity 1246 1267	endoplasmic reticulum
+T16	Entity 1450 1459	therapies
+T17	KeyEntity 1464 1467	NDI
+R1	other_relation Arg1:T2 Arg2:T1	
+R2	other_relation Arg1:T4 Arg2:T3	
+R3	other_relation Arg1:T5 Arg2:T3	
+R4	regulates Arg1:T8 Arg2:T7	
+R5	regulates Arg1:T10 Arg2:T12	
+R6	participates_in Arg1:T13 Arg2:T14	
+R7	other_relation Arg1:T16 Arg2:T17	

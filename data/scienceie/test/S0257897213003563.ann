@@ -1,0 +1,27 @@
+T1	Process 17 38	ellipsometric spectra
+T2	Process 163 191	optical constants/dielectric
+T3	Process 228 254	three-phase layered system
+T4	Process 256 274	air/film/substrate
+R1	Hyponym-of Arg1:T4 Arg2:T3	
+T5	Material 205 224	Ni-doped TiO2 films
+T6	Process 364 378	semiconductors
+T7	Process 518 532	Adachi's model
+T8	Process 545 593	ε(Ε)=ε∞+{A0[2−(1+χ0)1/2−(1−χ0)1/2]}/(EOBG2/3χ02)
+*	Synonym-of T7 T8
+T9	Process 618 640	incident photon energy
+T10	Process 652 686	high-frequency dielectric constant
+T11	Process 688 697	χ0=(E+iΓ)
+T12	Process 699 703	EOBG
+T13	Process 735 743	A0 and Γ
+T14	Process 752 786	strength and broadening parameters
+T15	Process 609 610	E
+*	Synonym-of T15 T9
+T16	Process 642 644	ε∞
+*	Synonym-of T16 T10
+*	Synonym-of T11 T12
+*	Synonym-of T13 T14
+T17	Material 940 964	Fabry–Pérot interference
+T18	Process 40 57	optical constants
+T19	Process 794 798	EOBG
+T20	Process 857 859	SE
+T21	Process 1371 1374	SEM

@@ -1,0 +1,17 @@
+T1	Process 14 31	equilibrium model
+T2	Task 47 138	analyze the long-run impact of the electricity market design on transmission line expansion
+T3	Process 495 511	market splitting
+T4	Process 517 569	analyze different approaches to recover network cost
+T5	Task 549 569	recover network cost
+T6	Task 584 592	lump sum
+T7	Task 594 619	generation capacity based
+T8	Task 625 642	energy based fees
+R1	Hyponym-of Arg1:T6 Arg2:T5	
+R2	Hyponym-of Arg1:T7 Arg2:T5	
+R3	Hyponym-of Arg1:T8 Arg2:T5	
+T9	Process 684 707	multilevel market model
+T10	Process 715 735	first best benchmark
+T11	Process 745 795	solve the corresponding integrated planner problem
+T12	Task 769 795	integrated planner problem
+T13	Process 943 970	excessive network expansion
+T14	Process 972 988	Market splitting

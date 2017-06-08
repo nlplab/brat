@@ -1,0 +1,25 @@
+T1	Task 15 46	adaptive beamforming techniques
+T2	Material 51 65	smart antennas
+T3	Process 77 95	Least Mean Squares
+T4	Process 97 100	LMS
+*	Synonym-of T3 T4
+T5	Process 103 126	Sample Matrix Inversion
+T6	Process 128 131	SMI
+*	Synonym-of T5 T6
+T7	Process 134 157	Recursive Least Squares
+T8	Process 159 162	RLS
+*	Synonym-of T7 T8
+T9	Process 168 193	Conjugate Gradient Method
+T10	Process 195 198	CGM
+*	Synonym-of T9 T10
+T11	Task 204 226	discussed and analyzed
+T12	Process 232 255	beamforming performance
+T13	Process 270 338	varying the element spacing and the number of antenna array elements
+T14	Material 348 357	algorithm
+T15	Material 370 380	algorithms
+T16	Process 404 423	rate of convergence
+T17	Process 425 436	beamforming
+T18	Process 441 466	null steering performance
+T19	Process 468 477	beamwidth
+T20	Process 479 490	null depths
+T21	Process 495 518	maximum side lobe level

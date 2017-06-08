@@ -1,0 +1,21 @@
+T1	Process 22 91	graft the fluorinated groups on the copolymers with functional groups
+T2	Process 0 14	Another choice
+R1	Hyponym-of Arg1:T2 Arg2:T1	
+T3	Task 125 183	an acrylic terpolymer with pendent perfluoroether segments
+T5	Task 388 444	the coating properties of fluorinated acrylic copolymers
+T6	Material 454 457	MMA
+T7	Material 459 461	BA
+T8	Material 467 494	2-hydroxyethyl methacrylate
+T9	Material 704 756	copolymers containing complicated fluorinated groups
+T10	Task 529 591	hydroxyl functionality of HEMA with tetrafluoro propanoic acid
+T11	Material 602 656	the polymer with butylated melamine formaldehyde resin
+T4	Process 188 215	grafting fluorinated groups
+T12	Material 223 227	poly
+T13	Material 228 289	butyl methacrylate-co-hydroxyehtyl acrylate-co-ethyl acrylate
+T14	Material 298 307	copolymer
+T15	Process 316 356	hexamethylene diisocyanate functionality
+T16	Material 496 500	HEMA
+*	Synonym-of T8 T16
+T17	Process 797 818	living polymerization
+T18	Material 414 444	fluorinated acrylic copolymers
+*	Synonym-of T13 T12

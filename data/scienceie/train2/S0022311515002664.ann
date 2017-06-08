@@ -1,0 +1,18 @@
+T1	Process 31 39	3D model
+T2	Task 77 108	anisotropic material properties
+T3	Process 280 286	Abaqus
+T4	Process 328 355	plasticity potential ratios
+T5	Process 459 490	bimodal basal pole distribution
+T6	Task 1201 1230	isotropic material properties
+T7	Material 361 402	anisotropic elastic and plastic constants
+T8	Material 166 181	zirconium grain
+T9	Material 425 434	Zirconium
+T10	Material 588 613	recrystallized Zircaloy-4
+T11	Process 845 859	3D simulations
+T12	Material 918 940	zirconium unit lattice
+T13	Process 1006 1017	simulations
+T14	Material 1023 1034	oxide layer
+T15	Material 1059 1082	purely elastic material
+T16	Material 1114 1119	oxide
+T17	Material 1254 1259	oxide
+T18	Process 1267 1278	simulations

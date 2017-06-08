@@ -1,0 +1,23 @@
+T1	Task 42 62	comparative analysis
+T2	Process 111 113	FM
+T3	Process 195 197	FE
+T4	Process 243 245	FM
+T5	Process 276 278	FE
+T6	Process 387 389	FM
+T7	Process 569 592	FM deployment algorithm
+T8	Material 468 475	vessels
+T9	Material 668 679	vessel wall
+T10	Material 778 792	curved vessels
+T11	Material 990 996	vessel
+T12	Material 1104 1110	vessel
+T13	Process 1152 1166	FE simulations
+T14	Process 1208 1232	simplified contact model
+T15	Process 1241 1243	FM
+T16	Process 1261 1282	stent-graft expansion
+T17	Material 1333 1344	vessel wall
+T18	Material 1302 1307	nodes
+T19	Process 1389 1406	contact algorithm
+T20	Process 1419 1430	FE analyses
+T21	Process 1471 1482	simulations
+T22	Process 445 456	simulations
+T23	Process 1046 1048	FM

@@ -1,0 +1,15 @@
+T1	Process 41 57	numerical scheme
+T2	Process 71 101	Galerkin finite element method
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+T3	Task 108 153	multi-term time fractional diffusion equation
+T4	Process 169 215	multiple Caputo fractional derivatives in time
+R2	Hyponym-of Arg1:T1 Arg2:T4	
+T5	Process 269 284	Galerkin scheme
+T6	Process 545 566	fully discrete scheme
+T7	Process 578 647	finite difference discretization of the Caputo fractional derivatives
+R3	Hyponym-of Arg1:T6 Arg2:T7	
+T8	Process 781 802	numerical experiments
+T9	Process 806 828	one- and two-dimension
+R4	Hyponym-of Arg1:T8 Arg2:T9	
+T10	Material 875 902	empirical convergence rates
+T11	Material 439 461	new regularity results

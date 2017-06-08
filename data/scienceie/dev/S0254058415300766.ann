@@ -1,0 +1,39 @@
+T1	Material 0 26	Half metallic ferromagnets
+T2	Material 28 31	HMF
+T3	Task 95 113	spintronic devices
+T4	Material 119 149	Dilute magnetic semiconductors
+T5	Material 151 155	DMSs
+*	Synonym-of T4 T5
+*	Synonym-of T1 T2
+T6	Material 187 221	materials to show half metallicity
+R1	Hyponym-of Arg1:T5 Arg2:T6	
+T7	Material 272 295	semiconducting material
+T8	Material 345 360	magnetic dopant
+T9	Material 369 385	transition metal
+R2	Hyponym-of Arg1:T9 Arg2:T8	
+T10	Process 462 515	utilization of electron's spin as information carrier
+T11	Task 550 568	spintronic devices
+T12	Material 832 856	large band gap materials
+T13	Material 893 897	DMSs
+T14	Material 913 943	II–VI and III–V semiconductors
+T15	Material 970 973	ZnS
+T16	Material 975 978	CdS
+T17	Material 980 983	GaN
+T18	Material 985 988	ZnO
+T19	Material 990 994	ZnSe
+T20	Material 996 1000	ZnTe
+T21	Material 1002 1006	TiO2
+T22	Material 1008 1012	SnO2
+T23	Material 947 960	host material
+*	Synonym-of T14 T23
+R3	Hyponym-of Arg1:T15 Arg2:T23	
+R4	Hyponym-of Arg1:T16 Arg2:T23	
+R5	Hyponym-of Arg1:T17 Arg2:T23	
+R6	Hyponym-of Arg1:T18 Arg2:T23	
+R7	Hyponym-of Arg1:T19 Arg2:T23	
+R8	Hyponym-of Arg1:T20 Arg2:T23	
+R9	Hyponym-of Arg1:T21 Arg2:T23	
+R10	Hyponym-of Arg1:T22 Arg2:T23	
+T24	Task 729 781	enhance the Curie temperature above room temperature
+T25	Material 393 414	un-paired d electrons
+T26	Material 645 654	electrons

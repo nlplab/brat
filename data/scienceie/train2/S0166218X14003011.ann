@@ -1,0 +1,6 @@
+T2	Material 345 352	digraph
+T5	Process 237 268	digraphs are strongly connected
+T1	Task 9 76	sequences of optimal walks of a growing length in weighted digraphs
+T6	Task 95 169	sequences of entries of max-algebraic matrix powers with growing exponents
+*	Synonym-of T1 T6
+T3	Material 463 484	(unweighted) digraphs

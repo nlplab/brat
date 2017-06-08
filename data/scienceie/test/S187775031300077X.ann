@@ -1,0 +1,17 @@
+T1	Process 9 26	mean-field models
+T2	Task 117 153	spatially extended dynamical systems
+T3	Process 212 223	Liley model
+T4	Material 289 319	Partial Differential Equations
+T5	Material 392 411	membrane potentials
+T6	Material 425 440	synaptic inputs
+T7	Material 482 513	Ordinary Differential Equations
+T8	Material 321 325	PDEs
+T9	Material 515 519	ODEs
+*	Synonym-of T4 T8
+*	Synonym-of T7 T9
+T10	Process 633 663	numerical bifurcation analysis
+T11	Material 772 781	PDE model
+T12	Material 1040 1062	large, sparse matrices
+T13	Material 1162 1167	PETSc
+T14	Task 986 1062	efficient, iterative solvers for linear problems with large, sparse matrices
+T15	Process 986 1014	efficient, iterative solvers

@@ -1,0 +1,36 @@
+T1	Material 59 78	enthalpy increments
+T2	Material 0 12	Solid pieces
+T3	Process 87 138	Setaram Multi-detector High Temperature Calorimeter
+T4	Process 140 148	MDHTC-96
+R1	Hyponym-of Arg1:T3 Arg2:T4	
+T5	Process 158 171	drop detector
+T6	Material 554 581	2–4 drops of Bi2UO6 samples
+T7	Material 357 372	platinum ingots
+T8	Material 411 429	reference material
+R2	Hyponym-of Arg1:T7 Arg2:T8	
+T9	Material 615 623	platinum
+T10	Process 795 838	Background subtraction and peak integration
+T11	Process 944 953	corrected
+T12	Material 1039 1066	high purity standard metals
+T14	Process 1203 1228	calorimetric measurements
+T15	Process 1304 1307	XRD
+T16	Material 860 911	commercially available software for data processing
+T17	Task 896 911	data processing
+T18	Material 294 299	argon
+T19	Process 47 78	measure the enthalpy increments
+T20	Material 320 326	oxygen
+T21	Process 526 540	isothermal run
+T22	Material 1353 1361	compound
+T13	Material 1068 1070	Sn
+T23	Material 1072 1074	Pb
+T24	Material 1076 1078	Zn
+T25	Material 1080 1082	Al
+T26	Material 1084 1086	Ag
+T27	Material 1088 1090	Ni
+R3	Hyponym-of Arg1:T13 Arg2:T12	
+R4	Hyponym-of Arg1:T23 Arg2:T12	
+R5	Hyponym-of Arg1:T24 Arg2:T12	
+R6	Hyponym-of Arg1:T25 Arg2:T12	
+R7	Hyponym-of Arg1:T26 Arg2:T12	
+R8	Hyponym-of Arg1:T27 Arg2:T12	
+T28	Process 777 786	heat flow

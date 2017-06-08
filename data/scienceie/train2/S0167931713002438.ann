@@ -1,0 +1,27 @@
+T1	Process 229 245	molecular models
+T2	Material 252 261	electrons
+T4	Material 33 42	electrons
+T5	Process 50 95	trapped in the bulk and at surfaces of silica
+T6	Material 119 144	electron trapping centres
+T7	Material 436 445	electrons
+T8	Process 450 468	spontaneously trap
+T9	Task 914 940	identifying defect centres
+T10	Material 89 95	silica
+T11	Material 65 69	bulk
+T3	Material 280 290	Si–O bonds
+T12	Material 294 308	a-SiO2 leading
+T13	Process 318 327	weakening
+T14	Process 269 276	trapped
+T15	Process 350 372	Si–O bond dissociation
+T16	Material 350 359	Si–O bond
+T17	Process 472 516	non-defective continuum random network model
+T18	Material 520 526	a-SiO2
+T19	Material 642 648	a-SiO2
+T20	Process 598 626	neutral paramagnetic defects
+T21	Material 654 680	non-bridging oxygen centre
+T22	Material 689 710	silicon dangling bond
+T23	Material 716 735	deep electron traps
+T24	Material 767 793	negatively charged defects
+T25	Material 630 648	surfaces of a-SiO2
+R1	Hyponym-of Arg1:T21 Arg2:T25	
+R2	Hyponym-of Arg1:T22 Arg2:T25	

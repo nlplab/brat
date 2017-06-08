@@ -1,0 +1,46 @@
+T1	Entity 157 184	KH-type RNA binding protein
+T2	Entity 236 250	RNA metabolism
+T3	Entity 339 354	Sam68-null mice
+T4	Entity 699 724	bone marrow stromal cells
+T5	Entity 731 756	differentiation advantage
+T6	Entity 765 783	osteogenic pathway
+T7	Entity 824 841	short hairpin RNA
+T8	Entity 849 896	embryonic mesenchymal multipotential progenitor
+T9	Entity 897 912	C3H10T1/2 cells
+T10	Entity 966 983	osteoblast marker
+T11	Entity 984 995	osteocalcin
+T12	Entity 1424 1445	few marrow adipocytes
+T13	Entity 1305 1330	adipocyte differentiation
+T14	Entity 1525 1543	fatty bone marrow.
+T15	Entity 1610 1635	adipocyte differentiation
+T16	Entity 1664 1690	osteoblast differentiation
+T17	Entity 1588 1606	positive regulator
+T18	Entity 1642 1660	negative regulator
+T19	Entity 1744 1788	bone marrow mesenchymal cell differentiation
+T20	KeyEntity 145 150	Sam68
+R1	other_relation Arg1:T20 Arg2:T1	
+#1	AnnotatorNotes R1	is
+R2	regulates Arg1:T20 Arg2:T2	
+T21	Entity 358 382	homologous recombination
+R3	is_part_of Arg1:T3 Arg2:T21	
+R4	is_part_of Arg1:T4 Arg2:T5	
+R5	interacts_with Arg1:T4 Arg2:T6	
+R6	participates_in Arg1:T7 Arg2:T9	
+R7	other_relation Arg1:T9 Arg2:T8	
+#2	AnnotatorNotes R7	is
+R8	other_relation Arg1:T11 Arg2:T10	
+#3	AnnotatorNotes R8	is
+T22	Entity 1034 1062	bone morphogenetic protein-2
+R9	participates_in Arg1:T22 Arg2:T11	
+T23	Entity 1227 1239	pioglitazone
+T24	Entity 1076 1100	mouse embryo fibroblasts
+R10	participates_in Arg1:T23 Arg2:T24	
+T25	Entity 1248 1281	Sam68−/− mouse embryo fibroblasts
+R11	interacts_with Arg1:T13 Arg2:T25	
+R12	regulates Arg1:T17 Arg2:T15	
+R13	regulates Arg1:T18 Arg2:T16	
+T26	KeyEntity 1577 1582	Sam68
+R14	is_part_of Arg1:T26 Arg2:T17	
+R15	is_part_of Arg1:T26 Arg2:T18	
+T27	KeyEntity 1717 1722	Sam68
+R16	is_part_of Arg1:T27 Arg2:T19	

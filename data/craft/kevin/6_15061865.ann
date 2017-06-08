@@ -1,0 +1,17 @@
+T1	Entity 164 178	frontal cortex
+T2	Entity 180 188	midbrain
+T3	Entity 194 202	striatum
+T4	Entity 115 134;138 156	Dopamine modulation neuronal signaling
+T5	Entity 255 279	external sensory stimuli
+T6	Entity 434 452	dopamine signaling
+T7	KeyEntity 484 501	D2-like receptors
+T8	Entity 523 540	D1-like receptors
+T9	KeyEntity 629 641	D2 receptors
+T10	Entity 697 736	dopamine D2 receptor-mediated signaling
+T11	KeyEntity 799 812	C57Bl/6J mice
+T12	Entity 834 866	functional dopamine D2 receptors
+T13	KeyEntity 870 884	wild-type mice
+T14	Entity 937 945;949 991	salience external stimuli (stimulus discrimination)
+T15	Entity 294 302;306 324	salience environmental cues
+T16	KeyEntity 1093 1110	reversal learning
+T17	Entity 473 480	D1-like

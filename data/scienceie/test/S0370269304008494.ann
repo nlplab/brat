@@ -1,0 +1,26 @@
+T1	Task 26 41	nuclear physics
+T2	Task 49 111	observation of at least partial restoration of chiral symmetry
+R1	Hyponym-of Arg1:T2 Arg2:T1	
+T3	Material 123 145	chiral order parameter
+T4	Material 147 150	q̄q
+*	Synonym-of T4 T3
+T5	Material 207 221	nuclear matter
+T6	Material 278 294	quark condensate
+T7	Process 332 354	photonuclear reactions
+T8	Process 383 421	partial restoration of chiral symmetry
+T9	Material 462 469	σ meson
+T10	Material 499 503	pion
+T11	Material 511 525	nuclear medium
+T12	Material 477 491	chiral partner
+T13	Material 627 633	photon
+T14	Process 627 651	photon induced reactions
+T15	Material 655 661	nuclei
+T16	Material 747 754	σ meson
+T17	Process 936 960	nuclear many-body system
+T18	Material 1117 1123	nuclei
+T19	Material 1203 1206	QCD
+T20	Task 1071 1109	partial restoration of chiral symmetry
+T21	Process 969 1038	Measuring a threshold enhancement of the π0π0 invariant mass spectrum
+T22	Process 854 864	σ→ππ decay
+T23	Process 555 601	measuring the π0π0 invariant mass distribution
+T24	Material 718 731	quasiparticle

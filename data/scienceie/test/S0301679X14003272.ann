@@ -1,0 +1,8 @@
+T1	Process 79 102	piezoelectric load cell
+T2	Process 146 150	LSMB
+T3	Process 156 160	LSMB
+T4	Material 175 183	flexures
+T5	Process 348 357	load cell
+T6	Process 383 412	displacement and load sensors
+T7	Material 657 672	fretting loops.
+T8	Task 4 46	lateral force, Q, is measured and recorded

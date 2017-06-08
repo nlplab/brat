@@ -1,0 +1,20 @@
+T1	Task 15 105	vertical displacement estimation of conventional pile groups subjected to mechanical loads
+T2	Process 115 147	numerical and analytical methods
+T3	Process 194 215	finite element method
+T4	Process 233 256	boundary element method
+T5	Process 274 298	finite difference method
+T6	Process 314 339	interaction factor method
+T7	Process 360 392	equivalent pier and raft methods
+T8	Process 416 439	settlement ratio method
+T9	Process 456 477	finite element method
+T10	Task 550 576	pile group-related problem
+T11	Material 641 654	research tool
+T12	Material 669 680	design tool
+T13	Process 698 745	versatility of simplified (approximate) methods
+T14	Process 759 786	interaction factor approach
+R1	Hyponym-of Arg1:T14 Arg2:T13	
+T15	Process 799 869	capturing the (e.g., vertical) displacements of any general pile group
+T16	Process 877 945	analysis of the displacement interaction between two identical piles
+T17	Process 968 1013	elastic principle of superposition of effects
+T18	Material 1040 1052	design tools
+T19	Task 1087 1115	expedient parametric studies

@@ -1,0 +1,25 @@
+T1	METHOD 100 124	Statistical topic models
+T2	IDK_MAN 134 142	analysts
+#1	AnnotatorNotes T2	users
+T3	TASK 143 182	discover patterns in large text corpora
+R1	addresses Arg1:T1 Arg2:T3	
+T4	IDK_MAN 186 221	identifying recurring sets of words
+T5	IDK_MAN 226 266	enabling exploration by topical concepts
+#2	AnnotatorNotes T4	how can the method be helpful
+#3	AnnotatorNotes T5	how can the method be helpful
+T6	TASK 277 332	understanding and validating the output of these models
+T7	IDK_MAN 431 445	interpretation
+#4	AnnotatorNotes T7	design consideration
+T8	IDK_MAN 457 462	trust
+#5	AnnotatorNotes T8	design consideration
+T9	TASK 473 525	designing visualizations based on data-driven models
+T10	IDK_MAN 556 658	facility with which an analyst makes inferences about the data through the lens of a model abstraction
+#6	AnnotatorNotes T10	explanations
+T11	IDK_MAN 676 736	the actual and perceived accuracy of an analyst's inferences
+#7	AnnotatorNotes T11	explanations
+T12	METRIC 963 989	a novel similarity measure
+T13	IDK_MAN 963 1092	a novel similarity measure for text collections based on a notion of "word-borrowing" that arose from an iterative design process
+#8	AnnotatorNotes T13	contributions
+T14	TASK 1209 1268	promote interpretable and trustworthy visual analysis tools
+T15	IDK_MAN 1164 1186	design recommendations
+#9	AnnotatorNotes T15	design considerations

@@ -1,0 +1,24 @@
+T1	Task 0 69	Copper electro-chemical deposition (ECD) of through silicon via (TSV)
+T2	Task 92 106	3D integration
+T3	Process 130 163	numerical modeling of TSV filling
+T4	Material 196 227	accelerator and the suppressor.
+T5	Process 232 258	diffusion–adsorption model
+T6	Process 602 618	level set method
+T7	Task 641 683	track the copper and electrolyte interface
+T9	Material 391 423	set of experimental Tafel curves
+T10	Process 512 541	copper ECD process prediction
+T11	Process 0 34	Copper electro-chemical deposition
+T12	Process 36 39	ECD
+*	Synonym-of T11 T12
+T13	Material 44 63	through silicon via
+T14	Material 65 68	TSV
+*	Synonym-of T13 T14
+T15	Material 152 163	TSV filling
+T16	Process 275 314	simulation and effects of the additives
+T8	Material 457 466	additives
+T17	Process 620 623	LSM
+*	Synonym-of T6 T17
+T18	Process 867 891	ECD process optimization
+T19	Process 689 699	simulation
+T20	Material 803 815	superfilling
+T21	Material 305 314	additives

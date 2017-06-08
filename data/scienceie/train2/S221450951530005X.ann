@@ -1,0 +1,50 @@
+T1	Material 14 31	sound wall system
+T2	Material 141 161	existing sound walls
+T3	Material 167 178	wall system
+T4	Material 191 201	flexi-wall
+T5	Material 215 240	stay-in-place poly-blocks
+T6	Material 254 277	light polyurethane foam
+T7	Material 279 282	LPF
+*	Synonym-of T6 T7
+T8	Material 300 312	steel rebars
+T9	Material 316 332	structural cores
+T10	Material 337 345	polyurea
+T11	Process 351 358	coating
+T12	Material 366 379	wall surfaces
+T13	Material 390 401	Poly-blocks
+T14	Material 406 438	interlocking light-weight blocks
+T15	Material 503 512	LPF cores
+T16	Material 518 528	poly-block
+T17	Material 562 579	cylindrical voids
+T18	Material 614 645	molded low-density polyurethane
+T19	Material 680 691	poly-blocks
+T20	Material 696 717	fire-resistant blocks
+R1	Hyponym-of Arg1:T19 Arg2:T20	
+R2	Hyponym-of Arg1:T4 Arg2:T3	
+R3	Hyponym-of Arg1:T13 Arg2:T14	
+T21	Process 754 760	absorb
+T22	Process 762 770	mitigate
+T23	Process 775 782	reflect
+T24	Material 852 868	Polyurea coating
+T25	Material 875 909	abrasion-resistant finishing layer
+R4	Hyponym-of Arg1:T24 Arg2:T25	
+T26	Process 920 927	sprayed
+T27	Material 935 955	surfaces of the wall
+T28	Material 985 990	layer
+T30	Process 996 1027	enhances the surface resistance
+T31	Material 1031 1042	poly-blocks
+T29	Process 1051 1063	stone impact
+T32	Process 1065 1075	weathering
+T33	Process 1077 1093	fire development
+T34	Material 1095 1104	chemicals
+T35	Process 1109 1120	penetration
+T36	Material 1122 1125	LPF
+T37	Material 1132 1156	expanding liquid mixture
+T38	Material 1184 1200	poly-block voids
+T39	Material 1205 1210	cures
+T40	Material 1225 1237	Steel rebars
+T41	Material 1255 1260	holes
+T42	Material 1276 1295	existing sound wall
+T43	Material 1311 1325	wall extension
+T44	Material 1333 1337	base
+R5	Hyponym-of Arg1:T36 Arg2:T37	

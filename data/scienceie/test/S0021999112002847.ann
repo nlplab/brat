@@ -1,0 +1,15 @@
+T1	Task 16 95	develop a new approach to DEA suitable for modelling three-dimensional problems
+T2	Process 231 262	orthonormal basis approximation
+T3	Process 158 196	parametrise the boundary of the region
+T4	Material 282 320	boundary phase space coordinate system
+T5	Material 401 411	arc-length
+T6	Material 431 465	momentum (or direction) coordinate
+T7	Material 539 555	univariate basis
+T8	Material 597 610	Fourier basis
+T9	Material 618 639	Chebyshev polynomials
+R1	Hyponym-of Arg1:T8 Arg2:T7	
+R2	Hyponym-of Arg1:T9 Arg2:T7	
+T10	Process 775 802	spherical polar coordinates
+T11	Process 42 45	DEA
+T12	Process 59 95	modelling three-dimensional problems
+T13	Process 109 120	DEA methods

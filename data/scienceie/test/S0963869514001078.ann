@@ -1,0 +1,14 @@
+T1	Process 61 78	Lorentz mechanism
+T2	Material 108 113	steel
+T3	Material 138 154	low carbon steel
+T4	Process 166 192	magnetostrictive mechanism
+T5	Material 269 288	ferromagnetic oxide
+T6	Material 410 424	magnetic field
+T7	Process 437 458	generation efficiency
+T8	Material 799 804	EMATs
+T9	Task 820 846	studying phase transitions
+T10	Material 850 865	magnetic alloys
+T11	Process 739 776	electromagnetic ultrasound generation
+R1	Hyponym-of Arg1:T3 Arg2:T2	
+T12	Process 576 601	magnetic phase transition
+T13	Process 645 685	ferromagnetic to paramagnetic transition

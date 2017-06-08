@@ -1,0 +1,26 @@
+T1	Material 667 689	inorganic laser diodes
+T2	Task 78 112	organic semiconductor photophysics
+T3	Material 131 146	electric charge
+T4	Material 152 169	organic materials
+T5	Material 272 287	charged polaron
+T6	Task 376 419	operation of organic optoelectronic devices
+T7	Task 456 497	development of electrically pumped lasers
+T8	Material 471 497	electrically pumped lasers
+T9	Task 567 627	lasing threshold of organic structures under optical pumping
+T10	Process 612 627	optical pumping
+T11	Material 587 605	organic structures
+T12	Material 1369 1385	unipolar devices
+T13	Material 1394 1415	contacting electrodes
+T14	Process 910 936	electrically pumped lasing
+T15	Material 747 778	very sensitive low-cost devices
+T16	Process 783 793	biosensing
+T17	Process 798 810	chemosensing
+T18	Process 996 1023	accept energy from excitons
+T19	Task 1027 1062	resonant dipole–dipole interactions
+T20	Material 1106 1118	organic LEDs
+T21	Material 1133 1139	lasers
+T22	Process 827 843	light absorption
+T23	Process 1262 1276	charge density
+T24	Material 1420 1464	field-dependent charge mobility measurements
+T25	Process 1546 1574	capacitance–voltage analysis
+T26	Process 1323 1365	controlled electrical injection of charges

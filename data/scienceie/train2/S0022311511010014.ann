@@ -1,0 +1,9 @@
+T1	Task 51 76	defect migration pathways
+T2	Material 692 726	low energy cascades in Pu and PuGa
+T3	Material 766 784	channelling events
+T4	Material 792 875	energetic atoms travel deep into the lattice through channels of low atomic density
+*	Synonym-of T3 T4
+T5	Process 312 325	cascade event
+T6	Material 380 388	Ga atoms
+T7	Material 93 95	Ga
+T8	Process 456 473	collision cascade

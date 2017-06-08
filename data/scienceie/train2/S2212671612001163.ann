@@ -1,0 +1,17 @@
+T1	Task 25 94	computation of distribution network components reliability parameters
+T2	Process 25 36	computation
+T3	Process 113 145	component reliability parameters
+T4	Material 149 163	power networks
+T5	Process 185 208	reliability computation
+T6	Process 222 261	reliability-centered maintenance system
+T7	Process 263 295	Component reliability parameters
+T8	Material 331 375	accurate databases of distribution companies
+T10	Process 312 320	retrieve
+T11	Material 384 392	database
+T12	Process 402 438	records of outages and interruptions
+T13	Material 442 456	power networks
+T14	Process 478 509	retrieve reliability parameters
+T15	Material 520 524	data
+T16	Process 552 565	heterogeneity
+T17	Task 585 633	introduce some results of databases calculations
+T18	Process 649 708	framework for the retrieving of parameters from outage data

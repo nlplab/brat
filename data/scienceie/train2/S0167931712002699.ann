@@ -1,0 +1,28 @@
+T1	Material 97 117	thinner resist films
+T2	Process 147 163	pattern collapse
+T4	Task 27 53	smaller lithographic nodes
+T5	Process 189 238	reduced etch resistance of thin photoresist films
+T6	Process 521 539	multilayer process
+T7	Task 557 579	nanosphere lithography
+T9	Material 864 891	intermediate layer material
+T10	Task 968 981	IC production
+T12	Task 1116 1151	fabrication of soft polymer pillars
+T14	Material 216 238	thin photoresist films
+T3	Process 287 307	multilayer processes
+T15	Material 355 384	intermediate organic hardmask
+T16	Process 427 451	silicon pattern transfer
+T8	Material 622 641	silicon nanopillars
+T17	Process 663 685	complex etch processes
+T18	Material 790 804	coupled plasma
+T19	Material 806 809	ICP
+*	Synonym-of T18 T19
+T20	Material 900 909	polyimide
+R1	Hyponym-of Arg1:T20 Arg2:T9	
+T21	Material 941 963	encapsulation material
+T11	Material 1010 1023	oxygen plasma
+T22	Material 1055 1062	silicon
+T23	Material 1066 1073	SF6 gas
+T13	Process 1193 1211	multilayer process
+T24	Process 1249 1267	sample preparation
+T25	Process 1285 1296	ICP etching
+T26	Material 1416 1433	etching equipment

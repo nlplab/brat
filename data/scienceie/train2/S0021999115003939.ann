@@ -1,0 +1,17 @@
+T1	Task 4 37	extrapolation of the upwind value
+T2	Process 402 423	Darwish and Moukalled
+T3	Process 447 469	implicit extrapolation
+*	Synonym-of T2 T3
+T4	Process 478 514	method introduced by Ubbink and Issa
+T5	Process 523 545	explicit extrapolation
+R1	Hyponym-of Arg1:T4 Arg2:T5	
+T6	Process 312 372	virtual upwind node is incorporated in the gradient ratio rf
+R2	Hyponym-of Arg1:T2 Arg2:T6	
+T7	Process 738 760	explicit extrapolation
+T8	Material 114 133	unstructured meshes
+T9	Material 235 280	data readily available on unstructured meshes
+T10	Material 603 634	equidistant, rectilinear meshes
+T11	Material 675 697	non-rectilinear meshes
+T12	Material 656 671	non-equidistant
+*	Synonym-of T12 T11
+T13	Process 51 67	TVD differencing

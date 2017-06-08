@@ -1,0 +1,46 @@
+T1	Process 0 22	Topological insulators
+T2	Process 24 27	TIs
+*	Synonym-of T1 T2
+T3	Material 57 78	spintronics materials
+T4	Process 151 173	spin–orbit interaction
+T5	Material 192 212	binary chalcogenides
+T6	Material 213 219	Bi2Te3
+T7	Material 221 227	Sb2Te3
+T8	Material 232 238	Bi2Se3
+T9	Process 281 284	TIs
+R1	Hyponym-of Arg1:T6 Arg2:T5	
+R2	Hyponym-of Arg1:T7 Arg2:T5	
+R3	Hyponym-of Arg1:T8 Arg2:T5	
+T10	Process 288 312	surface sensitive probes
+T11	Process 321 362	angle resolved photoemission spectroscopy
+T12	Process 367 409	scanning tunneling microscopy/spectroscopy
+T13	Material 418 438	ternary chalcogenide
+T14	Material 439 453	(BixSb1−x)2Te3
+R4	Hyponym-of Arg1:T14 Arg2:T13	
+T15	Material 525 531	Bi2Te3
+T16	Material 536 542	Sb2Te3
+T17	Process 561 583	ab initio calculations
+T18	Process 601 619	ARPES measurements
+T19	Process 633 654	topological insulator
+T20	Process 714 750	changing the Bi/Sb composition ratio
+T21	Process 837 846	magnetism
+T22	Process 850 867	superconductivity
+T23	Process 869 872	TIs
+T24	Process 965 979	ferromagnetism
+T25	Material 991 1007	transition metal
+T26	Material 1009 1011	TM
+*	Synonym-of T25 T26
+T27	Process 1019 1022	TIs
+T28	Process 1091 1105	Ferromagnetism
+T29	Process 1153 1162	magnetism
+T30	Process 1109 1112	TIs
+T31	Process 1168 1171	TIs
+T32	Task 1265 1276	Hall effect
+T33	Task 1286 1303	Majorana fermions
+T34	Task 1310 1340	image magnetic monopole effect
+T35	Task 1384 1423	Faraday and Kerr magneto-optical effect
+T36	Task 1203 1233	fundamental physical phenomena
+R5	Hyponym-of Arg1:T32 Arg2:T36	
+R6	Hyponym-of Arg1:T33 Arg2:T36	
+R7	Hyponym-of Arg1:T34 Arg2:T36	
+R8	Hyponym-of Arg1:T35 Arg2:T36	

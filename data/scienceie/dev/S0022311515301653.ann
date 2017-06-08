@@ -1,0 +1,36 @@
+T1	Material 0 15	Uranium carbide
+T2	Material 42 53	fuel kernel
+T3	Material 76 95	pebble bed reactors
+T4	Material 138 153	uranium dioxide
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+T5	Material 163 192	Generation IV nuclear systems
+T6	Material 194 226	mixed uranium–plutonium carbides
+T7	Material 227 236	(U, Pu) C
+*	Synonym-of T7 T6
+T8	Material 275 292	gas fast reactors
+T9	Material 294 297	GFR
+*	Synonym-of T8 T9
+T10	Material 303 306	UCO
+T11	Material 338 367	very high temperature reactor
+T12	Material 369 373	VHTR
+*	Synonym-of T11 T12
+T13	Material 516 519	UCO
+T14	Material 549 555	oxides
+T15	Material 560 568	carbides
+T16	Material 653 657	VHTR
+T17	Material 670 674	fuel
+T18	Material 693 696	UO2
+T19	Material 697 700	UC2
+T20	Material 802 810	UO2 fuel
+T21	Material 831 836	UO2+x
+*	Synonym-of T20 T21
+T22	Material 838 843	UO2+x
+T23	Material 860 884	pyrocarbon coating layer
+T24	Material 917 922	UO2+x
+T25	Material 925 927	xC
+T26	Material 930 933	UO2
+T27	Material 936 939	xCO
+T28	Material 399 403	fuel
+T29	Process 481 487	burnup
+T30	Material 409 417	actinide
+T31	Process 789 795	burnup

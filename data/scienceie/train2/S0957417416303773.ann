@@ -1,0 +1,16 @@
+T1	Task 59 70	data mining
+T2	Task 88 112	dimensionality reduction
+T3	Material 169 204	Principal Component Analysis method
+T4	Material 206 209	PCA
+*	Synonym-of T3 T4
+T5	Material 263 290	the simplest version of PCA
+T6	Material 292 302	linear PCA
+R1	Hyponym-of Arg1:T6 Arg2:T5	
+T7	Process 324 363	finds the mutually-uncorrelated vectors
+T8	Process 375 436	the projection of the samples generates the highest variances
+T9	Material 452 479	a set of orthogonal vectors
+T10	Process 575 631	the variance of the projection of the samples is maximum
+T11	Material 681 713	N-dimensional vector space basis
+T12	Material 727 744	N^ synthetic KPIs
+T13	Task 821 854	up to N synthetic orthogonal KPIs
+T14	Material 907 919	the first N^

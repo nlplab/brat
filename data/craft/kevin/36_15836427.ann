@@ -1,0 +1,14 @@
+T1	Entity 107 132	ETS transcription factors
+T2	Entity 140 144	Pea3
+T3	KeyEntity 188 222;227 247	dorsal root ganglion (DRG) sensory spinal motor neurons
+T4	Entity 317 341	neuronal differentiation
+T5	Entity 418 437	ETS gene expression
+T6	Entity 477 507	sensory neuron differentiation
+T7	Entity 555 580	precocious ETS expression
+T8	Entity 584 603	DRG sensory neurons
+T9	Entity 652 684	terminal differentiation markers
+T10	Entity 710 730	neurotrophic support
+T11	KeyEntity 769 788	DRG sensory neurons
+T12	KeyEntity 875 909	ETS transcription factor signaling
+T13	Entity 933 952	neuronal maturation
+T14	Entity 799 828	temporal developmental switch

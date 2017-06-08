@@ -1,0 +1,80 @@
+T1	KeyEntity 93 119	Collagen-induced arthritis
+T2	Entity 123 127	mice
+T3	Entity 219 239	rheumatoid arthritis
+T4	Entity 279 304	complex polygenic disease
+T5	Entity 434 444	aged women
+T6	Entity 392 412	rheumatoid arthritis
+T7	KeyEntity 519 545	collagen-induced arthritis
+T8	Entity 558 574	aged female mice
+T9	Entity 594 599	NFR/N
+T10	Entity 604 609	B10.Q
+T11	Entity 611 625	H-2q haplotype
+T12	Entity 632 636	mice
+T14	Entity 735 740	onset
+T15	Entity 742 751	incidence
+T16	Entity 755 763	severity
+T17	Entity 791 794	200
+T18	Entity 795 806	female mice
+T19	Entity 859 881	microsatellite markers
+T20	Entity 828 849	genome-wide screening
+T21	Entity 900 936	significant quantitative trait locus
+T22	Entity 951 970	arthritis incidence
+T23	Entity 972 980	severity
+T24	Entity 985 997	day of onset
+T25	Entity 1001 1014	chromosome 11
+T26	Entity 1016 1029	denoted Cia40
+T27	Entity 1057 1092	locus controlling pregnancy failure
+T28	Entity 1109 1133	quantitative trait locus
+T29	Entity 1148 1171	significance associated
+T30	Entity 1181 1190	incidence
+T31	Entity 1192 1200	severity
+T32	Entity 1205 1217	day of onset
+T33	Entity 1236 1248	chromosome 1
+T34	Entity 1286 1310	quantitative trait locus
+T35	Entity 1274 1285	significant
+T36	Entity 1311 1321	associated
+T37	Entity 1327 1359	collagen type II antibody titers
+T38	Entity 1378 1391	chromosome 13
+T39	Entity 1427 1454	gene loci control arthritis
+T40	Entity 1458 1482	aged multiparous females
+T41	Entity 1493 1505	at least one
+T42	Entity 1535 1552	pregnancy failure
+R1	is_part_of Arg1:T1 Arg2:T3	
+R2	other_relation Arg1:T2 Arg2:T3	
+#1	AnnotatorNotes R2	has_condition
+T43	KeyEntity 247 273	collagen-induced arthritis
+R3	is_subtype_of Arg1:T43 Arg2:T4	
+R4	other_relation Arg1:T6 Arg2:T5	
+#2	AnnotatorNotes R4	has_affect_to
+R5	other_relation Arg1:T8 Arg2:T7	
+#3	AnnotatorNotes R5	has_condition
+R6	regulates Arg1:T9 Arg2:T7	
+R7	regulates Arg1:T10 Arg2:T7	
+R8	regulates Arg1:T11 Arg2:T7	
+T13	Entity 672 694	reproductive histories
+R9	is_part_of Arg1:T13 Arg2:T12	
+T44	Entity 771 778	disease
+R10	is_part_of Arg1:T14 Arg2:T44	
+R11	is_part_of Arg1:T15 Arg2:T44	
+R12	is_part_of Arg1:T16 Arg2:T44	
+R13	participates_in Arg1:T17 Arg2:T18	
+R14	is_subtype_of Arg1:T19 Arg2:T20	
+R15	interacts_with Arg1:T21 Arg2:T22	
+R16	is_part_of Arg1:T23 Arg2:T22	
+R17	is_part_of Arg1:T24 Arg2:T22	
+R18	participates_in Arg1:T25 Arg2:T21	
+R19	is_subtype_of Arg1:T26 Arg2:T25	
+R20	interacts_with Arg1:T27 Arg2:T21	
+R21	participates_in Arg1:T30 Arg2:T29	
+R22	participates_in Arg1:T31 Arg2:T29	
+R23	participates_in Arg1:T32 Arg2:T29	
+R24	interacts_with Arg1:T28 Arg2:T29	
+R25	is_part_of Arg1:T28 Arg2:T33	
+R26	interacts_with Arg1:T35 Arg2:T34	
+R27	interacts_with Arg1:T35 Arg2:T36	
+R28	interacts_with Arg1:T34 Arg2:T37	
+R29	is_part_of Arg1:T37 Arg2:T38	
+R30	is_part_of Arg1:T39 Arg2:T40	
+R31	participates_in Arg1:T39 Arg2:T42	
+R32	other_relation Arg1:T40 Arg2:T42	
+#4	AnnotatorNotes R32	has_condition

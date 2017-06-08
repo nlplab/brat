@@ -1,0 +1,49 @@
+T1	KeyEntity 90 100	Annexin A7
+T2	Entity 120 142	annexin protein family
+T4	Entity 278 294	Ca2+-homeostasis
+T5	Entity 328 371	altered Ca2+-wave propagation in astrocytes
+T6	KeyEntity 411 421	Annexin A7
+T7	Entity 429 446	brain development
+T8	Entity 499 533	distribution of Annexin A7 protein
+T9	Entity 541 560	mouse embryogenesis
+T10	Entity 568 601	developing central nervous system
+T11	Entity 613 630	adult mouse brain
+R1	is_part_of Arg1:T1 Arg2:T2	
+T3	Entity 199 241	phospholipids in the presence of Ca2+-ions
+R2	physically_interacts_with Arg1:T1 Arg2:T3	
+R3	participates_in Arg1:T1 Arg2:T4	
+R4	participates_in Arg1:T6 Arg2:T7	
+R5	participates_in Arg1:T6 Arg2:T9	
+R6	participates_in Arg1:T6 Arg2:T10	
+R7	participates_in Arg1:T6 Arg2:T11	
+R8	other_relation Arg1:T8 Arg2:T6	
+#1	AnnotatorNotes R8	is_property_of
+T12	KeyEntity 643 652	nnexin A7
+T13	Entity 682 698	developing brain
+T14	Entity 721 745	subcellular localization
+T15	Entity 793 802	adult CNS
+T16	KeyEntity 836 846	Annexin A7
+T17	Entity 876 905	immunohistochemistry analysis
+T18	KeyEntity 906 916	Annexin A7
+T19	Entity 937 994	cytosol of undifferentiated cells at embryonic days E5–E8
+T20	Entity 1089 1117	ventricular germinative zone
+T21	Entity 1134 1151	lateral ventricle
+T22	KeyEntity 1185 1195	Annexin A7
+T23	Entity 1212 1260	intermediate and marginal zone of the neopallium
+T24	KeyEntity 1345 1355	Annexin A7
+T25	Entity 1380 1411	glial fibrillary acidic protein
+T26	Entity 1413 1417	GFAP
+R9	regulates Arg1:T26 Arg2:T25	
+#2	AnnotatorNotes R9	is_synonym
+T27	KeyEntity 1513 1523	Annexin A7
+R10	other_relation Arg1:T20 Arg2:T21	
+#3	AnnotatorNotes R10	is_physically_near
+R11	other_relation Arg1:T14 Arg2:T12	
+#4	AnnotatorNotes R11	is_property_of
+R12	participates_in Arg1:T12 Arg2:T13	
+R13	participates_in Arg1:T16 Arg2:T15	
+R14	other_relation Arg1:T18 Arg2:T19	
+#5	AnnotatorNotes R14	is_physically_located_in
+R15	other_relation Arg1:T22 Arg2:T23	
+#6	AnnotatorNotes R15	is_physically_located_in
+T28	Entity 1606 1640	neuronal and astroglial cell lines

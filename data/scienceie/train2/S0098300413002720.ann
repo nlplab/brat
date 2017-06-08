@@ -1,0 +1,19 @@
+T1	Task 0 26	Artificial Neural Networks
+T2	Task 58 90	science and engineering problems
+T3	Process 108 189	model the ability of biological nervous systems to recognize patterns and objects
+T4	Task 191 213	ANN basic architecture
+T5	Material 226 257	networks of primitive functions
+T6	Process 269 303	receiving multiple weighted inputs
+T7	Task 386 451	Different types of primitive functions and network configurations
+T8	Task 520 547	training network connection
+T9	Material 548 555	weights
+T10	Process 560 635	adjusted if the separation of inputs and predefined classes incurs an error
+T11	Process 772 829	feed-forward networks with a single hidden layer of nodes
+T12	Process 843 865	Multi-Layer Perceptron
+*	Synonym-of T12 T11 T16
+T13	Process 905 942	select one of two possible parameters
+T14	Process 637 648	Convergence
+T15	Task 664 731	the reduction in error between iterations reaches a decay threshold
+T16	Process 867 870	MLP
+T17	Task 28 31	ANN
+*	Synonym-of T1 T17

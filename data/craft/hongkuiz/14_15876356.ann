@@ -1,0 +1,22 @@
+T1	KeyEntity 92 98	ADAM22
+T2	Entity 178 197	the nervous systems
+R1	is_part_of Arg1:T1 Arg2:T2	
+T3	KeyEntity 215 221	ADAM22
+T4	Entity 280 295	integrin binder
+R2	participates_in Arg1:T3 Arg2:T4	
+T5	Entity 323 360	cell-cell or cell-matrix interactions
+R3	participates_in Arg1:T3 Arg2:T5	
+T6	KeyEntity 485 506	ADAM22-deficient mice
+T7	Entity 613 626	severe ataxia
+R4	other_relation Arg1:T6 Arg2:T7	
+#1	AnnotatorNotes R4	causes
+T8	Entity 649 660	homozygotes
+R5	other_relation Arg1:T8 Arg2:T7	
+#2	AnnotatorNotes R5	causes
+T9	Entity 805 823	homozygous mutants
+T10	Entity 841 881	hypomyelination of the peripheral nerves
+R6	other_relation Arg1:T9 Arg2:T10	
+#3	AnnotatorNotes R6	causes
+T11	KeyEntity 951 957	ADAM22
+T12	Entity 993 1026	functioning of the nervous system
+R7	regulates Arg1:T11 Arg2:T12	

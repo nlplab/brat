@@ -1,0 +1,11 @@
+T1	Process 101 115	aNAT procedure
+T4	Process 191 208	aCMLLR transforms
+T5	Process 225 238	GMM–HMM model
+T6	Process 524 576	factorisation approach using MLLR speaker transforms
+T7	Task 770 788	speaker clustering
+T8	Task 832 850	speaker adaptation
+T2	Process 41 86	adaptive retraining of the GMM–HMM parameters
+T3	Process 249 286	training show-based aCMLLR transforms
+T9	Process 384 401	adaptive training
+T10	Process 591 601	aNAT model
+T11	Process 617 634	aCMLLR transforms

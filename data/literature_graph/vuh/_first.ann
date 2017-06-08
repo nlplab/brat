@@ -1,0 +1,13 @@
+T1	METHOD 13 32	dynamic programming
+T2	TASK 57 78	constrained inference
+T3	TASK 82 104	semantic role labeling
+T4	METHOD 354 389	globally-normalized log-linear mode
+T5	METHOD 283 309	integer linear programming
+T6	DATASET 746 754	PropBank
+T7	DATASET 759 767	FrameNet
+R1	addresses Arg1:T1 Arg2:T2	
+R2	uses Arg1:T3 Arg2:T2	
+T8	METHOD 246 265	approximate methods
+T9	METHOD 460 475	dynamic program
+T10	METHOD 522 548	integer linear programming
+T11	METHOD 617 637	our structured model

@@ -1,0 +1,34 @@
+T1	Material 0 4	ELRs
+T2	Process 41 70	synthesis of block copolymers
+T3	Material 54 70	block copolymers
+T4	Material 95 117	polymer nanostructures
+T5	Material 126 134	micelles
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+T6	Material 176 210	elastin-mimetic di-block copolymer
+T7	Material 222 236	VPGEG–(IPGAG)4
+T8	Material 241 255	VPGFG–(IPGVG)4
+T9	Material 263 297	hydrophilic and hydrophobic blocks
+R2	Hyponym-of Arg1:T6 Arg2:T9	
+T10	Material 332 340	micelles
+T11	Process 357 381	dynamic light scattering
+T12	Process 383 386	DLS
+*	Synonym-of T12 T11
+T13	Process 392 395	DSC
+T14	Process 432 445	self-assembly
+T15	Material 449 468	tri-block copolymer
+T16	Material 506 516	TEM images
+T17	Material 525 532	polymer
+*	Synonym-of T15 T17
+T18	Material 555 575	spherical aggregates
+T19	Material 588 618	multivalent spherical micelles
+T20	Material 643 685	linear elastin-like AB di-block copolymers
+T21	Task 735 757	targeting cancer cells
+T22	Material 803 807	ELRs
+T23	Material 836 859	macromolecular carriers
+T24	Task 864 900	thermally targeted delivery of drugs
+T25	Material 916 927	doxorubicin
+T26	Material 931 947	ELR-based system
+T27	Process 964 976	cytotoxicity
+T28	Material 980 1001	uterine sarcoma cells
+T29	Process 1036 1048	hyperthermia
+T30	Process 1007 1018	aggregation

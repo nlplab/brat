@@ -1,0 +1,24 @@
+T1	Task 0 47	Improving as well as evaluating the performance
+T2	Task 51 77	High Performance Computing
+T3	Process 100 136	migrating them to Cloud environments
+T4	Material 118 136	Cloud environments
+T6	Process 241 265	poor network performance
+T7	Process 267 305	heterogeneous and dynamic environments
+T8	Process 338 376	execution of HPC applications in Cloud
+T9	Material 371 376	Cloud
+T10	Task 389 475	proposes a new approach to improve the performance and scalability of HPC applications
+T12	Material 479 497	Amazon's HPC Cloud
+T13	Process 566 574	speed up
+T14	Process 579 587	scale up
+T15	Process 597 610	response rate
+T16	Process 635 653	parallel efﬁciency
+T17	Material 661 666	Cloud
+T18	Material 694 705	HPC cluster
+T19	Material 725 741	EC2 Cloud system
+T20	Process 769 818	deploying on-demand, small sized HPC applications
+T21	Task 79 82	HPC
+*	Synonym-of T2 T21
+T5	Task 194 230	high performance and Cloud computing
+T22	Task 351 367	HPC applications
+T11	Task 459 475	HPC applications
+T23	Task 802 818	HPC applications

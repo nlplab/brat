@@ -1,0 +1,26 @@
+T1	Material 202 220	damp abrasive disc
+T2	Material 257 264	surface
+T3	Material 295 308	metal surface
+T4	Material 357 373	diamond polishes
+T5	Material 437 460	polycrystalline diamond
+T6	Material 476 491	polishing cloth
+T7	Material 550 557	diamond
+T8	Material 572 587	custom-made jig
+T9	Material 611 619	polisher
+T10	Material 666 673	coupons
+T11	Process 690 709	automated polishing
+T12	Material 711 718	Coupons
+T13	Process 724 732	polished
+T14	Process 754 772	diamond suspension
+T15	Material 754 761	diamond
+T16	Material 798 808	2-propanol
+T17	Material 848 858	2-propanol
+T18	Material 874 889	ultrasonic bath
+T19	Process 897 906	polishing
+T20	Material 920 938	diamond suspension
+T21	Material 944 951	coupons
+T22	Material 983 993	2-propanol
+T23	Material 1017 1025	propanol
+T24	Process 1035 1043	cleaning
+T25	Material 1060 1067	coupons
+T26	Material 1083 1093	2-propanol

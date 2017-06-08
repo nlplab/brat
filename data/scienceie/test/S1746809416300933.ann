@@ -1,0 +1,30 @@
+T1	Material 9 60	Electrically evoked auditory steady-state responses
+T2	Material 62 68	EASSRs
+*	Synonym-of T2 T1
+T3	Material 74 91	neural potentials
+T4	Process 108 128	electroencephalogram
+T5	Process 130 133	EEG
+*	Synonym-of T5 T4
+T6	Process 206 222	cochlear implant
+T7	Process 224 226	CI
+*	Synonym-of T7 T6
+T8	Material 229 235	EASSRs
+T9	Process 276 286	CI fitting
+T10	Process 297 308	EEG signals
+T11	Process 342 354	CI artifacts
+T12	Process 392 404	CI artifacts
+T13	Task 374 435	characterized the CI artifacts for monopolar mode stimulation
+T14	Task 471 491	linear interpolation
+T15	Process 531 542	CI artifact
+T16	Process 661 672	CI artifact
+T17	Process 714 748	contralateral recording electrodes
+T18	Process 753 785	ipsilateral recording electrodes
+T19	Process 787 798	CI artifact
+T20	Process 860 894	contralateral recording electrodes
+T21	Material 1048 1054	EASSRs
+T22	Process 1080 1090	CI fitting
+T23	Task 1095 1116	neuroscience research
+T24	Process 1122 1133	CI artifact
+T25	Task 1161 1181	linear interpolation
+T26	Process 1031 1042	CI artifact
+T27	Process 1205 1239	contralateral recording electrodes

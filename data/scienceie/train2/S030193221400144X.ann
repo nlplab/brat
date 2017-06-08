@@ -1,0 +1,17 @@
+T1	Process 23 36	LIF technique
+T2	Task 69 90	gas-sheared film flow
+T3	Process 166 208	field measurements of local film thickness
+T4	Material 117 121	duct
+T5	Material 340 344	duct
+T6	Process 357 383	resolve the film thickness
+T7	Process 467 488	annular downward flow
+T8	Process 522 540	sampling frequency
+T9	Process 639 652	LIF technique
+T10	Task 662 687	detect entrained droplets
+T11	Material 736 769	three-dimensional wavy structures
+T12	Task 774 792	liquid entrainment
+T13	Task 802 853	improve understanding of the entrainment phenomenon
+T14	Process 81 90	film flow
+T15	Material 81 85	film
+T16	Material 194 198	film
+T17	Material 369 373	film

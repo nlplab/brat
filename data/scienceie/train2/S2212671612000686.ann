@@ -1,0 +1,13 @@
+T1	Process 44 66	financial stress index
+T2	Process 82 127	synchronous variables financial systemic risk
+T3	Process 168 190	macroeconomic variable
+T4	Process 192 216	currency credit variable
+T5	Process 218 238	asset price variable
+T6	Process 247 300	macroeconomic variable of correlative economic powers
+T7	Task 341 400	establish the financial systemic risk best predict equation
+T8	Process 311 337	stepwise regression method
+T9	Process 355 400	financial systemic risk best predict equation
+T10	Process 443 493	financial systemic risk early-warning index system
+T12	Process 512 537	best prediction equations
+T15	Task 407 493	set up the reasonable and practical financial systemic risk early-warning index system
+R1	Hyponym-of Arg1:T15 Arg2:T7	

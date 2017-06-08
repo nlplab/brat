@@ -1,0 +1,59 @@
+T1	KeyEntity 196 255	peroxisome proliferator-activated receptor-γ coactivator-1α
+T2	KeyEntity 257 263	PGC-1α
+T4	Entity 168 195	transcriptional coactivator
+T5	Entity 413 448	abnormal energy metabolic phenotype
+T7	Entity 474 479	heart
+T8	Entity 484 511	slow-twitch skeletal muscle
+T9	Entity 638 656	increased body fat
+T10	Entity 702 722	Mitochondrial number
+T11	Entity 727 747	respiratory capacity
+T12	Entity 300 309	PGC-1α−/−
+T3	KeyEntity 287 298	PGC-1α null
+R1	other_relation Arg1:T1 Arg2:T2	
+#1	AnnotatorNotes R1	is_synonym
+R2	other_relation Arg1:T3 Arg2:T12	
+#2	AnnotatorNotes R2	is_synonym
+T13	KeyEntity 796 805	PGC-1α−/−
+T14	KeyEntity 574 583	PGC-1α−/−
+T15	KeyEntity 604 613	PGC-1α−/−
+T16	Entity 823 871	reduced muscle performance and exercise capacity
+T17	KeyEntity 873 882	PGC-1α−/−
+T18	Entity 905 935	diminution in cardiac function
+T19	Entity 955 985	abnormal control of heart rate
+T20	KeyEntity 991 1000	PGC-1α−/−
+T21	Entity 1011 1078	unable to maintain core body temperature following exposure to cold
+T22	Entity 1099 1127	altered thermogenic response
+T23	KeyEntity 1162 1171	PGC-1α−/−
+T24	Entity 1185 1202	hepatic steatosis
+T25	Entity 1227 1269	reduced mitochondrial respiratory capacity
+T26	Entity 1277 1316	increased expression of lipogenic genes
+T27	KeyEntity 1332 1341	PGC-1α−/−
+T28	Entity 1352 1403	less susceptible to diet-induced insulin resistance
+T29	Entity 1437 1453	vacuolar lesions
+T30	Entity 1475 1497	central nervous system
+T31	KeyEntity 1501 1510	PGC-1α−/−
+T32	KeyEntity 1548 1554	PGC-1α
+T33	Entity 1584 1637	adaptation to the metabolic and physiologic stressors
+R3	participates_in Arg1:T32 Arg2:T33	
+R4	regulates Arg1:T15 Arg2:T9	
+R5	regulates Arg1:T13 Arg2:T11	
+R6	regulates Arg1:T13 Arg2:T10	
+R7	regulates Arg1:T13 Arg2:T16	
+R8	regulates Arg1:T17 Arg2:T18	
+R9	regulates Arg1:T17 Arg2:T19	
+R10	regulates Arg1:T20 Arg2:T21	
+R11	regulates Arg1:T20 Arg2:T22	
+R12	regulates Arg1:T23 Arg2:T24	
+R13	regulates Arg1:T23 Arg2:T25	
+R14	regulates Arg1:T23 Arg2:T26	
+R15	regulates Arg1:T27 Arg2:T28	
+R16	regulates Arg1:T31 Arg2:T29	
+R17	regulates Arg1:T31 Arg2:T30	
+T6	Entity 513 558	organs with high mitochondrial energy demands
+R18	is_subclass_of Arg1:T8 Arg2:T6	
+R19	is_subclass_of Arg1:T7 Arg2:T6	
+R20	other_relation Arg1:T3 Arg2:T2	
+#3	AnnotatorNotes R20	is_lack_of
+R21	is_subclass_of Arg1:T1 Arg2:T4	
+T35	Entity 150 154	gene
+R22	is_subclass_of Arg1:T4 Arg2:T35	

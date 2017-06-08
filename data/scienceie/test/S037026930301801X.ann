@@ -1,0 +1,17 @@
+T1	Process 421 433	decay energy
+T2	Process 544 566	breakup cross-sections
+T3	Material 870 885	alpha-particles
+T4	Material 891 907	valence neutrons
+T6	Task 915 984	comprehensive measurements of the neutron-removal and cluster breakup
+T7	Process 969 984	cluster breakup
+T8	Material 70 91	di-cluster structures
+T9	Process 125 140	breakup process
+T10	Process 173 229	wavefunctions of the ground state and the excited states
+T11	Process 235 278	first-chance cluster breakup cross-sections
+T12	Material 318 345	xHe+A−xHe cluster structure
+T13	Material 605 611	nuclei
+T14	Process 693 711	reaction mechanics
+T15	Material 821 842	neutron rich isotopes
+T16	Process 949 964	neutron-removal
+T5	Process 789 813	dominant structural mode
+T17	Material 1064 1088	neutron-rich Be isotopes

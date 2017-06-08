@@ -1,0 +1,14 @@
+T1	TASK 7 35	Generating Factoid Questions
+T2	METHOD 41 66	Recurrent Neural Networks
+R1	addresses Arg1:T2 Arg2:T1	
+T3	DATASET 72 106	30M Factoid Question-Answer Corpus
+T4	DATASET 364 398	30M Factoid Question-Answer Corpus
+T5	METHOD 862 876	template-based
+T6	METHOD 33331 33352	neural network models
+T7	TASK 33357 33437	map - ping knowledge base facts into corresponding nat - ural language questions
+R2	addresses Arg1:T6 Arg2:T7	
+T8	METRIC 33808 33812	BLEU
+T9	METRIC 33815 33821	METEOR
+T10	METRIC 33826 33845	sentence similarity
+T11	METHOD 33878 33894	template - based
+T12	DATASET 34181 34220	corpus of 30M question and answer pairs

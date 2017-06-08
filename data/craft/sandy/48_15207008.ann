@@ -1,0 +1,37 @@
+T1	Entity 333 364	transforming acidic coiled coil
+T2	Entity 366 370	TACC
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	equivalent
+T3	KeyEntity 768 781	TACC proteins
+T4	Entity 852 864	rabbit TACC4
+T5	Entity 886 897	human TACC3
+T6	Entity 903 908	RHAMM
+T7	Entity 997 1002	TACCs
+T8	Entity 1035 1045	C. elegans
+T9	Entity 1050 1065	D. melanogaster
+T10	Entity 1197 1226	direct binding of human TACC2
+T11	Entity 1234 1263	nuclear hormone receptor RXRβ
+R2	interacts_with Arg1:T10 Arg2:T11	
+R3	other_relation Arg1:T4 Arg2:T5	
+#2	AnnotatorNotes R3	human_connection
+T12	Entity 1311 1333	ancestral TACC protein
+T13	Entity 1351 1362	centrosomal
+T14	Entity 1363 1387	mitotic spindle dynamics
+T15	Entity 1389 1402	TACC proteins
+T16	Entity 1448 1467	protein translation
+T17	Entity 1469 1483	RNA processing
+T18	Entity 1488 1501	transcription
+T19	Entity 1532 1549	bridging proteins
+T20	Entity 1973 1993	chromatin remodeling
+T21	KeyEntity 1810 1823	TACC proteins
+T22	Entity 1995 2010	transcriptional
+T23	Entity 2015 2044	posttranscriptional complexes
+R4	participates_in Arg1:T12 Arg2:T14	
+R5	participates_in Arg1:T15 Arg2:T16	
+R6	participates_in Arg1:T15 Arg2:T17	
+R7	participates_in Arg1:T15 Arg2:T18	
+T24	Entity 1629 1646	directly interact
+T25	Entity 1582 1586	TACC
+R8	participates_in Arg1:T21 Arg2:T20	
+R9	participates_in Arg1:T21 Arg2:T22	
+R10	participates_in Arg1:T21 Arg2:T23	

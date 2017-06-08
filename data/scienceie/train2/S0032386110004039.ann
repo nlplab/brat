@@ -1,0 +1,30 @@
+T1	Material 18 48	ROMP derived random copolymers
+T2	Task 56 127	covalent incorporation of optical sensor moieties into a polymer matrix
+T3	Material 82 105	optical sensor moieties
+T4	Material 113 127	polymer matrix
+T5	Material 129 141	ROM polymers
+T6	Material 162 178	matrix materials
+R1	Hyponym-of Arg1:T5 Arg2:T6	
+T7	Material 202 270	phosphorescent complex platinum tetrakis(pentafluorophenyl)porphyrin
+T8	Material 187 193	oxygen
+T9	Material 312 336	ROM polymer’s side chain
+T10	Material 369 385	sensor molecules
+T11	Task 448 495	synthesis of ROMP-able optical sensor molecules
+T12	Material 461 495	ROMP-able optical sensor molecules
+T13	Material 504 523	phenantroimidazoles
+T14	Material 533 551	europium complexes
+T15	Material 560 573	xanthene dyes
+R2	Hyponym-of Arg1:T13 Arg2:T12	
+R3	Hyponym-of Arg1:T14 Arg2:T12	
+R4	Hyponym-of Arg1:T15 Arg2:T12	
+T16	Process 593 609	copolymerization
+T17	Task 618 672	evaluation of their sensing profiles in the copolymers
+T18	Material 662 672	copolymers
+T19	Task 704 791	random copolymers with covalently bound eosin and/or ethyl dimethylamino benzoate units
+T20	Material 711 721	copolymers
+T21	Material 727 749	covalently bound eosin
+T22	Material 757 791	ethyl dimethylamino benzoate units
+T23	Material 813 828	macroinitiators
+T24	Material 860 869	acrylates
+T25	Material 883 911	initiator/coinitiator system
+T26	Process 932 946	polymerization

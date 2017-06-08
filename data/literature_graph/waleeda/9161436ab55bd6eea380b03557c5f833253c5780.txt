@@ -1,0 +1,5 @@
+Title: Towards a Universal Analyzer of Natural Languages
+
+Abstract: Acknowledgments I had the pleasure and honor of interacting with great individuals who influenced my work throughout the five precious years of my Ph.D. First and foremost, I would like to express my deep gratitude to Noah Smith and Chris Dyer for their enlightning guidance and tremendous support in every step of the road. Thank you for placing your confidence in me at the times I needed it the most. I will be indebted to you for the rest of my career.
+
+Content: 

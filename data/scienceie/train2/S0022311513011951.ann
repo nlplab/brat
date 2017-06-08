@@ -1,0 +1,14 @@
+T1	Task 4 24	displacement cascade
+T2	Material 454 463	structure
+T3	Material 477 484	defects
+T4	Material 566 571	voids
+T5	Material 573 590	dislocation loops
+T6	Material 594 602	swelling
+R1	Hyponym-of Arg1:T4 Arg2:T3	
+R2	Hyponym-of Arg1:T5 Arg2:T3	
+R3	Hyponym-of Arg1:T6 Arg2:T3	
+T7	Process 119 128	diffusion
+T8	Process 76 107	migration of vacancies and SIAs
+T9	Material 717 729	ODS particle
+T10	Material 678 683	grain
+T11	Material 831 836	grain

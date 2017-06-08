@@ -1,0 +1,9 @@
+T1	Task 24 40	hypergraph model
+T2	Process 49 75	structural system modeling
+T3	Process 80 106	reconfigurability analysis
+T4	Process 210 229	modeling hypergraph
+T5	Task 307 320	analysis task
+T6	Process 335 370	bottom up analysis hypergraph model
+T7	Process 400 424	system reconfigurability
+T8	Process 453 513	verifying the existence of paths from the affected hyperedge
+T9	Task 621 640	pedagogical example

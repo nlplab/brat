@@ -1,0 +1,22 @@
+T1	KeyEntity 75 96	Neurotrophin-3 (NT-3)
+T2	KeyEntity 113 134	proprioceptive neuron
+R1	other_relation Arg1:T1 Arg2:T2	
+#1	AnnotatorNotes R1	is required for
+T3	KeyEntity 179 182	Bax
+T4	KeyEntity 186 190	NT-3
+R2	genetically_interacts_with Arg1:T3 Arg2:T4	
+T5	KeyEntity 263 274	axon growth
+T6	KeyEntity 293 307	NT-3 signaling
+T7	KeyEntity 309 313	TrkC
+T8	KeyEntity 357 376	dorsal root ganglia
+T9	KeyEntity 346 351	axons
+T10	KeyEntity 524 543	TrkC-positive axons
+T11	KeyEntity 563 577	target muscles
+T12	KeyEntity 590 610	proprioceptive axons
+T13	KeyEntity 734 738	NT-3
+T14	KeyEntity 742 768	dorsal root ganglion axons
+R3	regulates Arg1:T13 Arg2:T14	
+T15	KeyEntity 808 812	NT-3
+T16	KeyEntity 823 860	short-distance axon guidance molecule
+T17	KeyEntity 865 889	muscle sensory afferents
+R4	regulates Arg1:T15 Arg2:T17	

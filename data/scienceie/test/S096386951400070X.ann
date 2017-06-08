@@ -1,0 +1,14 @@
+T2	Process 105 150	electrical resonance of an eddy current probe
+T3	Material 175 188	impedance SNR
+T4	Material 209 212	SNR
+T5	Process 347 387	defect-decoupling resonance-shift effect
+T6	Process 414 458	near electrical resonance signal enhancement
+T7	Process 460 465	NERSE
+*	Synonym-of T6 T7
+T8	Process 479 484	NERSE
+T9	Process 535 549	ECT inspection
+T10	Process 825 830	NERSE
+T11	Material 657 677	electrical impedance
+T1	Material 132 150	eddy current probe
+T12	Material 303 306	SNR
+T13	Task 15 48	highlighted a band of frequencies

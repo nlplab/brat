@@ -1,0 +1,13 @@
+T1	Task 20 58	proper inclusion of these interactions
+T2	Process 68 113	segment synchronization after every iteration
+T3	Task 127 153	minimize simulation errors
+T4	Process 209 256	segments are synchronized after every iteration
+T5	Process 442 484	recalculation of the interaction potential
+T6	Process 538 547	algorithm
+T7	Process 582 609	adding dipole contributions
+T8	Process 697 718	interaction potential
+T9	Material 409 428	GPGPU architectures
+T10	Material 318 328	processors
+T11	Material 364 382	parallel computers
+R1	Hyponym-of Arg1:T9 Arg2:T11	
+T12	Process 548 578	corrects the current potential

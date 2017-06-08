@@ -1,0 +1,28 @@
+T1	Material 0 16	Thin MIEC layers
+T2	Material 20 23	GDC
+T3	Material 28 32	STFO
+T4	Material 36 69	single-crystalline YSZ substrates
+T5	Material 86 105	H2/H218O atmosphere
+T6	Task 149 176	tracer exchange experiments
+T7	Process 75 105	exposed to H2/H218O atmosphere
+T8	Material 178 230	Rectangular noble metal thin film current collectors
+T9	Process 236 279	deposited on top and beneath the MIEC layer
+T10	Material 269 279	MIEC layer
+T11	Process 293 305	polarization
+T12	Process 311 345	lateral distribution of the tracer
+T13	Process 400 423	thermal tracer exchange
+T14	Material 476 502	metallic current collector
+T15	Material 601 604	18O
+T16	Material 686 697	oxygen ions
+T17	Process 664 697	in-plane diffusion of oxygen ions
+T18	Material 746 750	STFO
+T19	Material 755 758	GDC
+T20	Process 799 811	applied bias
+T21	Material 851 868	current collector
+T22	Task 874 901	width of this active region
+T24	Material 954 958	STFO
+T26	Material 983 986	GDC
+T28	Process 1032 1061	enhanced tracer incorporation
+T29	Process 1092 1113	reduced incorporation
+T31	Process 715 742	low electronic conductivity
+T23	Process 437 452	tracer fraction

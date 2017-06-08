@@ -1,0 +1,12 @@
+T1	Task 4 50	validity of semi-classical boundary conditions
+T2	Process 163 228	non-uniqueness and the symmetry properties of the Wigner function
+T3	Material 245 265	numerical test cases
+T4	Material 292 312	symmetric potentials
+T5	Process 424 453	steady state Wigner functions
+T6	Material 472 492	Other recent studies
+T7	Task 509 544	convergence of the WTE calculations
+T8	Process 550 594	increasing the size of the simulation domain
+T9	Process 636 670	adapting the boundary distribution
+T10	Process 763 804	employ inflow/outflow boundary conditions
+T11	Task 979 1030	present simulations only for non-zero bias voltages
+T12	Task 839 876	accurate and physically valid results

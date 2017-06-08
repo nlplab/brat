@@ -1,0 +1,23 @@
+T1	Task 776 801	vapour pressure of carbon
+T2	Material 4 16	vapour phase
+T3	Material 31 56	number of different gases
+R1	Hyponym-of Arg1:T2 Arg2:T3	
+T4	Material 644 672	data taken from JANAF tables
+T5	Material 536 552	partial pressure
+T6	Material 62 69	silicon
+T7	Material 120 126	carbon
+T8	Material 206 212	vapour
+T9	Material 241 248	silicon
+T10	Process 261 272	solid phase
+T11	Material 285 291	carbon
+T12	Material 524 530	carbon
+T13	Material 298 304	carbon
+T14	Material 352 362	SiC grains
+T15	Material 451 465	TRISO particle
+T16	Material 585 599	gaseous carbon
+T17	Material 614 622	graphite
+T18	Material 470 473	SiC
+T19	Process 318 362	precipitate on the surface of the SiC grains
+T20	Material 795 801	carbon
+T21	Material 858 861	gas
+T22	Material 875 878	SiC

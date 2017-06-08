@@ -1,0 +1,15 @@
+T1	METHOD 1133 1140	k-means
+T2	METHOD 1112 1120	PageRank
+T3	METHOD 1172 1193	matrix multiplication
+T4	TASK 133 163	distributing their computation
+T5	IDK_MAN 497 514	programming model
+T6	TASK 711 744	application-level synchronization
+T7	TASK 351 366	synchronization
+T8	IDK_MAN 854 865	programmers
+T9	IDK_MAN 884 892	locality
+T10	IDK_MAN 936 942	kernel
+T11	TASK 1201 1220	distributed crawler
+T12	IDK_MAN 764 786	accumulation functions
+T13	IDK_MAN 640 677	partitioned key-value table interface
+T14	TASK 1403 1418	fault-tolerance
+T15	IDK_MAN 1447 1468	programming interface

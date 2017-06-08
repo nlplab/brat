@@ -1,0 +1,16 @@
+T1	Material 23 66	variational format in the space–time domain
+T2	Material 87 103	spatial domain Ω
+T3	Task 177 204	first order time-derivative
+T4	Task 338 388	problem of dynamics, rewritten in first-order form
+T5	Task 405 428	Hamiltonian description
+T6	Task 225 273	coupled problem of consolidation of geomaterials
+T8	Material 977 993	space–time slabs
+T9	Material 994 1004	Sn=defΩ×In
+*	Synonym-of T9 T8
+T10	Material 1019 1036	space–time domain
+T11	Material 1053 1071	S=defΩ×I=S1∪S2⋯∪Sn
+*	Synonym-of T11 T10
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+T7	Material 108 127	time domain I=(0,T)
+T12	Material 67 75	S=defΩ×I
+*	Synonym-of T1 T12

@@ -1,0 +1,50 @@
+T1	Process 4 13	ART model
+T2	Process 19 43	hadronic transport model
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+T3	Material 244 291	experimental data from hadron–hadron collisions
+T4	Task 155 187	elastic and inelastic collisions
+T5	Process 297 306	ART model
+T7	Process 479 488	ART model
+T8	Task 507 635	understand whether or not the strongly interacting matter formed in these collisions reaches chemical and/or thermal equilibrium
+T9	Task 662 723	extend the ART model to include perturbatively the Ξ particle
+T10	Material 777 792	transport model
+T11	Material 58 65	baryons
+T12	Material 74 84	N, Δ(1232)
+T13	Material 86 94	N∗(1440)
+T14	Material 96 104	N∗(1535)
+T15	Material 106 107	Λ
+T16	Material 109 110	Σ
+R2	Hyponym-of Arg1:T12 Arg2:T11	
+R3	Hyponym-of Arg1:T13 Arg2:T11	
+R4	Hyponym-of Arg1:T14 Arg2:T11	
+R5	Hyponym-of Arg1:T15 Arg2:T11	
+R6	Hyponym-of Arg1:T16 Arg2:T11	
+T17	Material 116 122	mesons
+T18	Material 131 132	π
+T19	Material 134 135	ρ
+T20	Material 137 138	ω
+T21	Material 140 141	η
+T22	Material 143 144	K
+T23	Material 146 148	K∗
+R7	Hyponym-of Arg1:T18 Arg2:T17	
+R8	Hyponym-of Arg1:T19 Arg2:T17	
+R9	Hyponym-of Arg1:T20 Arg2:T17	
+R10	Hyponym-of Arg1:T21 Arg2:T17	
+R11	Hyponym-of Arg1:T22 Arg2:T17	
+R12	Hyponym-of Arg1:T23 Arg2:T17	
+T24	Material 202 217	these particles
+T25	Process 267 291	hadron–hadron collisions
+T26	Material 267 273	hadron
+T27	Material 274 280	hadron
+T28	Task 336 377	explaining many experimental observations
+T6	Process 412 425	kaon antiflow
+T29	Process 437 457	heavy ion collisions
+T30	Material 412 416	kaon
+T31	Material 437 446	heavy ion
+T32	Process 461 473	AGS energies
+T33	Material 537 564	strongly interacting matter
+T34	Process 581 591	collisions
+T35	Process 673 682	ART model
+T36	Material 713 723	Ξ particle
+T37	Material 752 766	rare particles
+R13	Hyponym-of Arg1:T36 Arg2:T37	

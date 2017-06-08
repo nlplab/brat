@@ -1,0 +1,38 @@
+T1	Task 43 89	manufacture of self-folding hydrogel scaffolds
+T4	Material 308 332	sacrificial layer of PAA
+T8	Process 768 839	producing environmentally triggered self-folding all hydrogel scaffolds
+T9	Task 873 913	novel use of sacrificial layer embossing
+T10	Material 919 943	patterned hydrogel films
+T11	Process 951 974	triggered consecutively
+T12	Material 1064 1079	PEGDMA hydrogel
+T14	Material 1238 1244	PEGDMA
+T15	Task 1264 1313	produce biodegradable and cell adhesive hydrogels
+T16	Material 58 89	self-folding hydrogel scaffolds
+T2	Process 104 149	readily available and fast throughput methods
+T3	Process 169 195	effective pattern transfer
+T17	Process 205 234	embossing a sacrificial layer
+T18	Process 239 293	using it as a soluble mould in the fabrication process
+T19	Process 274 293	fabrication process
+T20	Material 253 266	soluble mould
+T6	Material 374 387	hydrogel film
+T21	Material 400 407	surface
+T5	Process 424 469	swelling of the PAA inter-penetrating network
+T22	Process 440 469	PAA inter-penetrating network
+T23	Process 471 474	IPN
+*	Synonym-of T22 T23
+T7	Material 479 490	elevated pH
+T24	Process 500 521	swelling differential
+T25	Material 533 537	film
+T26	Process 553 557	roll
+T27	Task 561 628	accommodate the difference in surface area between the two surfaces
+T28	Material 620 628	surfaces
+T29	Process 709 736	photolithographic operation
+T30	Process 999 1006	rolling
+T31	Process 1011 1020	unrolling
+T32	Material 1038 1048	aqueous pH
+T13	Material 1091 1154	versatile platform for creating a variety of hydrogel scaffolds
+R1	Hyponym-of Arg1:T12 Arg2:T13	
+T33	Material 1136 1154	hydrogel scaffolds
+T34	Material 1216 1224	proteins
+T35	Material 1304 1313	hydrogels
+T36	Task 1331 1354	biomedical applications

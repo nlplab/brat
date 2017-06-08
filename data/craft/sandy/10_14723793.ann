@@ -1,0 +1,51 @@
+T1	KeyEntity 160 184	ancient conserved domain
+T2	KeyEntity 194 198	ACDP
+T4	Entity 316 331	mouse homologue
+T5	Entity 339 354	human ACDP gene
+T6	Entity 394 399	Acdp1
+T7	Entity 401 406	Acdp2
+T8	Entity 408 413	Acdp3
+T9	Entity 418 423	Acdp4
+T10	Entity 478 492	cDNA sequences
+T13	Entity 640 650	nucleotide
+T14	Entity 655 675	amino acid sequences
+T15	Entity 770 800	Ancient Conserved Domain (ACD)
+T16	Entity 805 821	highly conserved
+T17	KeyEntity 894 919	very strong AA homologies
+T18	Entity 927 948	bacteria CorC protein
+T19	Entity 1007 1034	magnesium and cobalt efflux
+T20	Entity 1298 1313	plasma membrane
+T21	KeyEntity 1347 1371	evolutionarily conserved
+T11	Entity 1429 1440	development
+T22	Entity 1445 1458	adult tissues
+T23	Entity 1537 1558	bacteria CorC protein
+T24	KeyEntity 1594 1609	plasma membrane
+T25	KeyEntity 1688 1701	ion transport
+T26	Entity 1705 1720	mammalian cells
+T3	Entity 1150 1155	brain
+T27	Entity 1189 1195	kidney
+T28	Entity 1200 1206	testis
+T29	Entity 1235 1246	hippocampus
+R1	other_relation Arg1:T4 Arg2:T5	
+#1	AnnotatorNotes R1	homologue_of
+T12	KeyEntity 578 594	mouse Acdp genes
+R2	is_part_of Arg1:T12 Arg2:T13	
+R3	is_part_of Arg1:T12 Arg2:T14	
+R4	participates_in Arg1:T15 Arg2:T16	
+R5	other_relation Arg1:T17 Arg2:T18	
+#2	AnnotatorNotes R5	homologue_of
+T30	KeyEntity 873 886	Acdp proteins
+R6	regulates Arg1:T30 Arg2:T19	
+T31	KeyEntity 1040 1050	Acdp genes
+R7	regulates Arg1:T31 Arg2:T3	
+R8	regulates Arg1:T31 Arg2:T27	
+R9	regulates Arg1:T31 Arg2:T28	
+T32	KeyEntity 1226 1231	Acdp1
+R10	is_part_of Arg1:T20 Arg2:T29	
+T33	KeyEntity 1332 1342	Acdp genes
+R11	regulates Arg1:T33 Arg2:T11	
+R12	regulates Arg1:T33 Arg2:T22	
+T34	KeyEntity 1506 1510	Acdp
+R13	other_relation Arg1:T34 Arg2:T23	
+#3	AnnotatorNotes R13	homologue_of
+R14	participates_in Arg1:T25 Arg2:T26	

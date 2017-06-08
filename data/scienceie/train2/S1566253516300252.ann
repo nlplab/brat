@@ -1,0 +1,18 @@
+T1	Task 12 29	anomaly detection
+T2	Material 84 119	afore-described centralized methods
+T3	Material 135 157	globally shared models
+T4	Task 162 173	data mining
+T5	Material 216 244	distance between data values
+T6	Task 179 197	notion of locality
+T7	Material 252 305	a specific distance metric such as Euclidean distance
+R1	Hyponym-of Arg1:T5 Arg2:T7	
+T8	Process 324 370	compared to the value of its nearest neighbors
+T9	Task 412 434	the notion of locality
+T10	Material 456 479	a geographical distance
+T11	Material 513 532	Many similar values
+T13	Material 618 626	clusters
+T14	Process 634 688	values that are less similar result in a lower density
+T12	Material 724 731	cluster
+T15	Task 690 699	Anomalies
+T16	Process 764 782	can form a cluster
+T17	Task 788 833	Determining if a datum is normal or anomalous

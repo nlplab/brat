@@ -1,0 +1,18 @@
+T1	Task 20 44	performance-based design
+T2	Process 169 176	FiRECAM
+T3	Process 189 200	FiERAsystem
+T4	Process 154 160	Models
+R1	Hyponym-of Arg1:T2 Arg2:T4	
+R2	Hyponym-of Arg1:T3 Arg2:T4	
+T5	Process 270 291	probabilistic methods
+T6	Process 360 397	Quantitative risk analysis approaches
+T7	Process 458 476	stochastic factors
+T8	Material 549 578	aspects of fire risk analysis
+T9	Material 969 1004	basic process of fire risk analysis
+T10	Material 1192 1236	number of deaths and directive property loss
+T11	Material 1279 1296	average fire risk
+T12	Process 634 664	systematic theoretical methods
+T13	Process 779 835	identification of alternative fire safety design options
+T14	Process 849 867	ongoing inspection
+T15	Process 869 907	maintenance of fire protection systems
+T16	Process 917 947	evacuation training and drills

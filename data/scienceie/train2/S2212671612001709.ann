@@ -1,0 +1,22 @@
+T1	Process 3 50	algorithm of multi-axis NC tool-path generation
+T2	Material 55 75	subdivision surfaces
+T3	Task 3 75	algorithm of multi-axis NC tool-path generation for subdivision surfaces
+T4	Process 93 102	algorithm
+T5	Process 123 137	model building
+T6	Process 142 162	tool path generation
+T7	Process 182 196	model building
+T8	Task 210 237	obtain the deformed surface
+T9	Material 243 261	deformation vector
+T10	Process 243 273	deformation vector is computed
+T11	Process 303 353	curvature and the slope of cutter location surface
+T12	Material 330 353	cutter location surface
+T13	Process 375 395	tool path generation
+T14	Process 401 418	slicing procedure
+T15	Material 441 450	CL points
+T16	Process 469 495	inversely converted method
+T17	Task 519 564	tested by some examples with actual machining
+T19	Material 639 653	scallop height
+T20	Material 658 677	subdivision surface
+T18	Material 529 564	some examples with actual machining
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+R2	Hyponym-of Arg1:T6 Arg2:T4	

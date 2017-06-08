@@ -1,0 +1,27 @@
+T1	Process 0 3	SPM
+T2	Process 9 12	AFM
+T3	Process 68 91	polymer crystallization
+T4	Material 68 75	polymer
+T5	Process 183 209	high resolution technology
+T6	Process 221 248	resolving sub 10nm features
+T7	Material 313 337	polymer lamellar crystal
+T8	Process 370 373	AFM
+T9	Process 386 394	staining
+T10	Process 398 411	metal coating
+T11	Process 430 448	sample preparation
+T12	Process 592 606	crystal growth
+T13	Process 610 617	melting
+T14	Material 592 599	crystal
+T15	Material 639 657	time-resolved data
+T16	Process 788 791	AFM
+T17	Task 796 828	studying polymer crystallization
+T18	Process 805 828	polymer crystallization
+T19	Process 861 875	crystal growth
+T20	Process 877 892	crystal melting
+T21	Process 898 952	re-organisations within crystals at the lamellar scale
+T22	Material 922 930	crystals
+T23	Material 861 868	crystal
+T24	Material 877 884	crystal
+T25	Material 1024 1027	AFM
+T26	Material 1126 1150	semicrystalline polymers
+T27	Task 55 91	questions in polymer crystallization

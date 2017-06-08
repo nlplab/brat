@@ -1,0 +1,8 @@
+T1	Material 459 464	flows
+T2	Material 199 208	solutions
+T3	Process 368 383	power-law model
+T4	Process 628 647	Robin condition(11)
+T5	Process 156 172	shear-thickening
+T6	Process 302 313	singularity
+T7	Material 411 416	flows
+T8	Process 558 581	correct algebraic decay

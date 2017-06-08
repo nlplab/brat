@@ -1,0 +1,25 @@
+T1	Material 127 151	standard silicon modules
+T2	Material 177 200	high efficiency modules
+T3	Process 8 32	reverse current analysis
+T4	Material 446 452	system
+T5	Material 465 500	10 strings of 18 modules per string
+T6	Material 527 537	Voc of 873
+T7	Material 539 542	VDC
+*	Synonym-of T7 T6
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+R2	Hyponym-of Arg1:T6 Arg2:T4	
+T8	Material 275 281	system
+T9	Material 382 404	high efficiency system
+*	Synonym-of T4 T9
+T10	Material 368 371	VDC
+T11	Material 356 366	Voc of 864
+*	Synonym-of T11 T10
+T12	Material 294 329	10 strings of 24 modules per string
+R3	Hyponym-of Arg1:T12 Arg2:T8	
+R4	Hyponym-of Arg1:T11 Arg2:T8	
+T13	Material 210 233	standard silicon system
+R5	Hyponym-of Arg1:T8 Arg2:T13	
+T14	Task 690 705	reverse current
+T15	Process 733 795	different numbers of modules of the string are short-circuited
+T16	Material 847 870	standard silicon system
+T17	Material 904 926	high efficiency system

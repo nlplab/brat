@@ -1,0 +1,11 @@
+T1	Process 4 100	agreement between the new data and the calculations with the relativistic deuteron wave function
+T2	Process 233 329	calculations within the framework of light-front dynamics with Karmanov's deuteron wave function
+T3	Process 397 449	T20 parameter of deuteron breakup on H and C targets
+T4	Process 459 522	emission of protons at 0° in the k region from 0.4 to 0.8 GeV/c
+T6	Process 666 683	deuteron momentum
+T7	Material 771 779	Ayy data
+T8	Process 788 806	12C(d,p)X reaction
+T9	Process 65 100	relativistic deuteron wave function
+T10	Task 270 290	light-front dynamics
+T11	Process 296 329	Karmanov's deuteron wave function
+T12	Task 564 660	qualitative description of the momentum behaviour of the Ayy parameter of the 9Be(d,p)X reaction

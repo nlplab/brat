@@ -1,0 +1,64 @@
+T1	Entity 128 141	Hematopoiesis
+T2	Entity 171 208	lineage-specific DNA-binding proteins
+T3	Entity 223 236	transcription
+R1	regulates Arg1:T2 Arg2:T3	
+R2	participates_in Arg1:T2 Arg2:T1	
+T4	Entity 253 265	coactivators
+T5	Entity 270 282	corepressors
+R3	regulates Arg1:T4 Arg2:T3	
+R4	regulates Arg1:T5 Arg2:T3	
+T6	KeyEntity 301 331	zebrafish moonshine (mon) gene
+T7	Entity 358 391	embryonic and adult hematopoiesis
+T8	Entity 417 435	blood cell aplasia
+T9	Entity 284 293	Mutations
+R5	is_part_of Arg1:T9 Arg2:T6	
+R6	participates_in Arg1:T9 Arg2:T7	
+R7	participates_in Arg1:T7 Arg2:T8	
+T10	KeyEntity 452 455	mon
+T11	KeyEntity 490 558	mammalian transcriptional intermediary factor 1γ (TIF1γ) (or TRIM33)
+R8	other_relation Arg1:T10 Arg2:T11	
+#1	AnnotatorNotes R8	encodes
+T12	Entity 576 587	TIF1 family
+R9	is_subclass_of Arg1:T11 Arg2:T12	
+T13	Entity 591 603	coactivators
+T14	Entity 608 620	corepressors
+R10	is_subclass_of Arg1:T14 Arg2:T12	
+R11	is_subclass_of Arg1:T13 Arg2:T12	
+T15	Entity 642 672	hematopoietic progenitor cells
+T16	Entity 676 687	mon mutants
+R12	is_part_of Arg1:T15 Arg2:T16	
+T17	Entity 721 756	hematopoietic transcription factors
+T18	Entity 768 773	gata1
+R13	is_subclass_of Arg1:T18 Arg2:T17	
+R14	other_relation Arg1:T15 Arg2:T17	
+#2	AnnotatorNotes R14	express
+T19	Entity 787 796	apoptosis
+R15	participates_in Arg1:T15 Arg2:T19	
+T20	Entity 814 832	mon mutant alleles
+T21	Entity 845 866	premature stop codons
+R16	participates_in Arg1:T20 Arg2:T21	
+T22	KeyEntity 895 915	wild-type tif1γ mRNA
+R17	regulates Arg1:T20 Arg2:T22	
+T23	Entity 924 947	embryonic hematopoiesis
+T24	Entity 1005 1034	zygotic tif1γ mRNA expression
+T25	Entity 1046 1062	ventral mesoderm
+T26	Entity 1070 1118	hematopoietic stem cell and progenitor formation
+T27	Entity 1128 1133	gata1
+T28	Entity 1182 1197	tif1γ functions
+T29	Entity 1289 1316	murine erythroid cell lines
+T30	Entity 1334 1347	Tif1γ protein
+T31	Entity 1374 1386	nuclear foci
+T32	Entity 1420 1445	erythroid cell maturation
+T33	Entity 1491 1526	transcriptional intermediary factor
+T34	Entity 1553 1572	hematopoietic cells
+T35	Entity 1576 1587	vertebrates
+T36	Entity 951 973	homozygous mon mutants
+R18	participates_in Arg1:T22 Arg2:T23	
+R19	participates_in Arg1:T23 Arg2:T36	
+R20	is_part_of Arg1:T24 Arg2:T25	
+R21	participates_in Arg1:T25 Arg2:T26	
+R22	is_part_of Arg1:T30 Arg2:T31	
+#3	AnnotatorNotes R22	Could be encoded
+R23	participates_in Arg1:T30 Arg2:T32	
+R24	interacts_with Arg1:T33 Arg2:T34	
+R25	is_part_of Arg1:T34 Arg2:T35	

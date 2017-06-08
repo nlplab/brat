@@ -1,0 +1,42 @@
+T1	Material 45 56	metal films
+T2	Material 70 88	polymer substrates
+T3	Process 90 111	fragmentation testing
+T4	Process 145 166	fragmentation testing
+T5	Process 22 41	mechanical behavior
+T6	Material 172 193	film-substrate couple
+T7	Process 197 229	strained under uni-axial tension
+T8	Process 248 264	light microscopy
+T9	Process 273 301	scanning electron microscopy
+T10	Material 309 323	Brittle metals
+T11	Material 327 340	ceramic films
+T13	Material 484 495	metal films
+T14	Process 507 521	deform locally
+T15	Process 647 668	Fragmentation testing
+T16	Process 700 702	LM
+T17	Process 706 709	SEM
+T18	Process 1018 1028	σf=Efilmεf
+T19	Process 1073 1088	shear lag model
+T20	Process 785 800	fracture strain
+T21	Task 12 41	study the mechanical behavior
+T22	Process 587 593	strain
+T23	Task 677 709	performed in-situ with LM or SEM
+T24	Process 907 919	shear stress
+T25	Process 1160 1183	crack spacing evolution
+T26	Process 1204 1230	function of applied strain
+T27	Process 1248 1265	tensile straining
+T28	Material 1280 1292	brittle film
+T29	Process 1384 1395	form cracks
+T30	Process 1583 1591	buckling
+T31	Process 1568 1578	delaminate
+R1	Hyponym-of Arg1:T30 Arg2:T31	
+T32	Process 266 268	LM
+*	Synonym-of T8 T32
+T33	Process 303 306	SEM
+*	Synonym-of T9 T33
+T12	Process 1135 1137	LM
+T34	Process 1141 1144	SEM
+T35	Process 341 349	fracture
+T36	Material 808 812	film
+T37	Material 974 978	film
+T38	Process 1046 1061	fracture strain
+T39	Process 1308 1316	fracture

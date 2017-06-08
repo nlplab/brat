@@ -1,0 +1,97 @@
+T1	METHOD 67 82	neural networks
+T2	METHOD 47 62	Memory networks
+R1	is_subclass_of Arg1:T2 Arg2:T1	
+T3	METHOD 272 287	backpropagation
+T4	METHOD 502 524	reinforcement learning
+T5	METHOD 600 627	hierarchical memory network
+T6	METHOD 697 712	memory networks
+R2	is_subclass_of Arg1:T5 Arg2:T6	
+T7	METHOD 975 1003	Maximum Inner Product Search
+T8	METHOD 1060 1087	hierarchical memory network
+R3	uses Arg1:T8 Arg2:T7	
+T9	DATASET 1186 1201	SimpleQuestions
+T10	METHOD 1148 1152	MIPS
+T11	TASK 1229 1255	factoid question answering
+T12	METHOD 8107 8134	Hierarchical Memory Network
+T13	METHOD 8157 8161	HMNs
+T14	METHOD 8187 8202	memory networks
+R4	is_subclass_of Arg1:T13 Arg2:T14	
+T15	METHOD 8340 8369	hierarchical memory structure
+T16	METHOD 8323 8327	HMNs
+R5	uses Arg1:T16 Arg2:T15	
+T17	METHOD 8669 8693	hashing-based approaches
+T18	METHOD 8695 8716	tree-based approaches
+T19	METHOD 8722 8749	clustering-based approaches
+T20	METHOD 8868 8883	memory networks
+T21	METHOD 8826 8829	HMN
+R6	is_subclass_of Arg1:T21 Arg2:T20	
+T22	METHOD 9067 9071	HMNs
+T23	METHOD 9161 9164	HMN
+T24	METHOD 9177 9191	soft attention
+R7	uses Arg1:T23 Arg2:T24	
+T25	METHOD 9275 9303	maximum inner product search
+T26	METHOD 9514 9518	HMNs
+T27	METHOD 9557 9561	MIPS
+R8	uses Arg1:T26 Arg2:T27	
+T28	METHOD 9666 9670	MIPS
+T29	METHOD 9814 9818	HMNs
+T30	METHOD 9838 9842	MIPS
+R9	uses Arg1:T29 Arg2:T30	
+T31	METHOD 9904 9908	MIPS
+T32	METHOD 18180 18195	Memory networks
+T33	TASK 18256 18294	comprehension-based question answering
+T34	TASK 18306 18336	large scale question answering
+T35	TASK 18345 18361	dialogue systems
+R10	addresses Arg1:T32 Arg2:T33	
+R11	addresses Arg1:T32 Arg2:T34	
+R12	addresses Arg1:T32 Arg2:T35	
+T36	METHOD 18389 18415	supervised memory networks
+T37	METHOD 18505 18536	semi-supervised memory networks
+T38	METHOD 18602 18625	Dynamic Memory Networks
+T39	METHOD 18662 18676	memory network
+R13	is_subclass_of Arg1:T38 Arg2:T39	
+T40	METHOD 18788 18809	Neural Turing Machine
+T41	METHOD 18843 18857	soft attention
+R14	uses Arg1:T40 Arg2:T41	
+T42	METHOD 18879 18882	NTM
+T43	METHOD 18907 18929	reinforcement learning
+R15	uses Arg1:T42 Arg2:T43	
+T44	METHOD 18886 18900	hard attention
+R16	uses Arg1:T42 Arg2:T44	
+T45	METHOD 19147 19151	MIPS
+T46	METHOD 19193 19197	MIPS
+T47	TASK 19423 19464	large vocabulary neural language modeling
+T48	TASK 19469 19493	neural language modeling
+T49	METHOD 19631 19651	hierarchical softmax
+T50	METHOD 19667 19677	clustering
+R17	uses Arg1:T49 Arg2:T50	
+T51	METHOD 19944 19948	MIPS
+T52	METHOD 20041 20061	Hierarchical softmax
+T53	METHOD 20242 20246	MIPS
+T54	METHOD 20459 20488	Noice Constrastive Estimation
+T55	METHOD 20498 20515	Negative Sampling
+T56	METHOD 20800 20819	importance sampling
+T57	METHOD 20939 20943	MIPS
+T58	METHOD 21040 21044	MIPS
+T59	METHOD 21087 21091	MIPS
+T60	TASK 21368 21394	factoid question answering
+T61	METHOD 21401 21429	hierarchical memory networks
+R18	addresses Arg1:T61 Arg2:T60	
+T62	DATASET 21456 21471	SimpleQuestions
+T63	METHOD 21639 21654	memory networks
+T64	DATASET 21749 21764	SimpleQuestions
+T65	TASK 21792 21818	factoid question answering
+R19	addresses Arg1:T64 Arg2:T65	
+T66	DATASET 21828 21843	SimpleQuestions
+T67	DATASET 21935 21943	Freebase
+T68	DATASET 22175 22179	FB2M
+T69	DATASET 22195 22199	FB5M
+T70	DATASET 22305 22320	SimpleQuestions
+T71	METHOD 29601 29628	hierarchical memory network
+T72	METHOD 29643 29649	K-MIPS
+R20	uses Arg1:T71 Arg2:T72	
+T73	METHOD 29712 29718	K-MIPS
+T74	DATASET 29859 29874	SimpleQuestions
+T75	METHOD 29906 29912	K-MIPS
+T76	METHOD 30128 30134	K-MIPS
+T77	METHOD 30001 30007	K-MIPS

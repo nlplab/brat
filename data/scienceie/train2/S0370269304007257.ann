@@ -1,0 +1,19 @@
+T1	Task 5 27	non-standard couplings
+T2	Process 91 111	standard e+e− option
+T3	Material 117 132	linear collider
+T4	Task 178 193	potential power
+T5	Task 228 241	parameter αγ1
+T6	Material 260 271	γγ collider
+T7	Process 342 346	e+e−
+T8	Task 364 376	coupling αγ2
+T9	Material 652 666	e+e− colliders
+T10	Task 599 648	polar-angle distributions of leptons and b-quarks
+T11	Process 693 737	imaginary part of the electric dipole moment
+T12	Process 821 873	he real part of the top-quark electric dipole moment
+T13	Task 939 967	measurement of γγH couplings
+T14	Material 969 983	e+e− colliders
+T15	Task 1095 1131	the decay form factor αd measurement
+T16	Process 1137 1148	e+e− option
+T17	Process 1203 1220	e+e− polarization
+T18	Process 1025 1043	the bX final state
+T19	Task 1049 1078	αh1 and αh2 could be measured

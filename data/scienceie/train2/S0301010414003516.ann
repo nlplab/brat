@@ -1,0 +1,36 @@
+T1	Material 10 14	TFTs
+T2	Material 19 27	circuits
+T3	Material 80 104	polyethylene naphthalate
+T4	Material 106 109	PEN
+*	Synonym-of T3 T4
+T5	Material 80 121	polyethylene naphthalate (PEN) substrates
+T6	Process 159 188	vacuum-fabrication procedures
+T7	Material 251 276	aluminium gate electrodes
+T8	Material 292 298	tracks
+T9	Process 304 321	vacuum evaporated
+T10	Material 331 341	substrates
+T11	Material 350 362	shadow masks
+T12	Material 382 392	substrates
+T13	Material 419 434	web-coater drum
+T14	Material 462 466	drum
+T15	Material 519 556	flash-evaporated TPGDA monomer vapour
+T16	Material 582 592	substrates
+T17	Material 637 643	plasma
+T18	Process 597 609	cross-linked
+T19	Process 613 621	exposure
+T20	Material 680 685	films
+T21	Task 786 805	circuit fabrication
+T22	Material 811 820	insulator
+T23	Material 841 853	shadow masks
+T24	Process 923 955	inter-layer metallic connections
+T25	Material 961 971	substrates
+T26	Material 1002 1012	evaporator
+T27	Material 1059 1076	nitrogen glovebox
+T28	Material 1085 1091	vacuum
+T29	Process 1085 1102	vacuum-deposition
+T30	Material 1132 1141	insulator
+T31	Material 1164 1174	substrates
+T32	Material 1178 1189	ambient air
+T33	Material 1195 1232	gold source/drain metallisation layer
+T34	Material 1257 1268	shadow mask
+T35	Material 1281 1291	evaporator

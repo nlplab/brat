@@ -1,0 +1,16 @@
+T1	Task 80 101	lane selection policy
+T2	Process 103 109	VISSIM
+T3	Process 127 146	simulation toolkits
+R1	Hyponym-of Arg1:T2 Arg2:T3	
+T4	Process 174 195	probabilistic routing
+T5	Process 348 358	simulation
+T6	Material 543 550	drivers
+T7	Material 625 632	vehicle
+T8	Material 665 677	weighbridges
+T9	Process 994 1019	graphical microsimulation
+T10	Process 1032 1053	2D and 3D simulations
+T11	Process 42 79	probabilistic, ‘roulette wheel’ style
+T12	Process 276 295	piecewise technique
+*	Synonym-of T10 T9
+T13	Process 1250 1271	probabilistic routing
+T14	Process 1356 1366	simulation

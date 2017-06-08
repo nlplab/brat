@@ -1,0 +1,18 @@
+T1	Process 0 10	FR schemes
+T2	Process 26 42	nodal DG schemes
+T3	Process 88 118	unstructured high-order method
+T4	Task 145 171	computational aerodynamics
+T5	Process 179 195	nodal DG schemes
+T6	Process 197 207	FR schemes
+T7	Process 218 228	high-order
+T8	Process 230 235	nodal
+*	Synonym-of T7 T8
+T9	Process 257 281	approximate the solution
+T11	Process 340 356	nodal DG schemes
+T12	Process 358 368	FR schemes
+T13	Process 387 428	enforce inter-element solution continuity
+T14	Process 446 462	nodal DG schemes
+T15	Process 464 474	FR methods
+T16	Process 561 572	FR approach
+R1	Hyponym-of Arg1:T3 Arg2:T1	
+T10	Task 309 329	computational domain

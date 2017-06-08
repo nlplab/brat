@@ -1,0 +1,154 @@
+Title: Transaction chains: achieving serializability with low latency in geo-distributed storage systems
+
+Abstract: Currently, users of geo-distributed storage systems face a hard choice between having serializable transactions with high latency, or limited or no transactions with low latency. We show that it is possible to obtain both serializable transactions and low latency, under two conditions. First, transactions are known ahead of time, permitting an a priori static analysis of conflicts. Second, transactions are structured as <i>transaction chains</i> consisting of a sequence of hops, each hop modifying data at one server. To demonstrate this idea, we built Lynx, a geo-distributed storage system that offers transaction chains, secondary indexes, materialized join views, and geo-replication. Lynx uses static analysis to determine if each hop can execute separately while preserving serializability---if so, a client needs wait only for the first hop to complete, which occurs quickly. To evaluate Lynx, we built three applications: an auction service, a Twitter-like microblogging site and a social networking site. These applications successfully use chains to achieve low latency operation and good throughput.
+
+Content: 
+
+actions. Lynx has two ways to enhance the opportunity for piecewise execution. First, Lynx lets programmers 
+provide annotations about the commutativity of pairs of hops that would otherwise be considered to con.ict. 
+Sec­ond, when chains are executed piecewise, Lynx ensures origin ordering: if chains T1 and T2 start 
+at the same server, and T1 starts before T2, then T1 executes before T2 at every server where they both 
+execute. This property eliminates many con.icts in the internal chains that Lynx uses for updating secondary 
+indexes and join tables. Lynx has some limitations. First, it does not reduce the total execution time 
+of a chain; rather, Lynx can re­turn control to the application after the chain s .rst hop. The .rst 
+hop is often fast: it commonly executes in the local datacenter and writes some internal metadata to 
+a nearby datacenter (for disaster tolerance), which adds only milliseconds of delay. This low .rst-hop 
+latency does not bene.t all applications, but we believe that it helps many Web applications where users 
+interact for instance, by sending friendship requests, posting mes­sages on walls, etc. These operations 
+are well served by a chain whose .rst hop modi.es the user s own data, while later hops modify other 
+users data in the background. The second limitation is that Lynx cannot execute all chains piecewise 
+to attain low .rst-hop latency: the static analysis may force some chains to execute as distributed transactions. 
+The third limitation is that Lynx does not guarantee external consistency or order-preserving seri­alizability 
+[32, 54], but to compensate Lynx provides the guarantee of read-my-writes within a session [52]. Using 
+Lynx, we built three Web applications: an auc­tion service ported from the RUBiS benchmark [1, 7]; a 
+Twitter-like microblogging service; and a Facebook-like social networking site. These applications were 
+easy to build using Lynx s API, and they bene.t from piecewise chains. Experiments running on three EC2 
+availability regions show that these applications achieve low latency with good throughput, and Lynx 
+scales well with the number of servers. 2 Overview Setting. Lynx is a geo-distributed storage system 
+for large Web applications, such as social networks, Web­based email, or online auctions. Lynx scales 
+by partition­ing data into many shards spread across machines. Each shard can be geo-replicated at many 
+datacenters, based on requirements of locality, durability, and availability. Unlike other systems [38 
+40], Lynx does not require that all datacenters replicate all data, so Lynx can have many datacenters 
+with low replication cost. Data model and usage. Application developers de.ne a set of schematized relational 
+tables [22] sharded based on their primary key. Lynx provides general transactions in the form of chains, 
+and all operations are performed ltems (primary key=item id) Bids (primary key=bid id) 345 Nikon N50 
+666 123 $200 575 Cute puppy 123 -- -­ bid id bidder item bid price 1 549 345 $100 2 123 345 $200  Chain 
+for placing a bid b  Figure 1: Example schema for a simple auction service and a chain for placing a 
+bid. using chains. API details are given in Section 5.1. We illustrate how applications can use Lynx 
+with an example from RuBIS [1], a simple online auction service modeled after eBay. RuBIS stores data 
+in many tables; two are shown in Figure 1. The Items table stores each item on sale with its item id, 
+current highest bid, and user who placed that bid. The Bids table stores item ids that received a bid, 
+the bid amounts, and the bidders. The RuBIS developers denormalized the schema to duplicate the highest 
+bid in the Items table, to improve the performance of a common operation: display the current highest 
+bid price of an item. When a user places a new bid, RuBIS must insert the bid into Bids and update the 
+corresponding high price in Items in the same transaction to ensure consistency. With Lynx, programmers 
+write such a transaction as a chain (Figure 1, bottom). Lynx supports derived tables tables whose contents 
+are automatically derived from base tables for speeding up queries or safeguarding data. There are three 
+types of derived tables: secondary indexes, materialized join views, and geo-replicas. For example, RuBIS 
+has a sec­ondary index on the item id of Bids, to quickly .nd the bidding history of an item. Derived 
+tables are themselves sharded according to their key (secondary index key, join key, or replicated primary 
+key) and spread across ma­chines. When base tables change, Lynx automatically issues sub-chains to update 
+the derived tables. These sub-chains are called system chains, while user chains are written by application 
+developers. Before application deployment, Lynx performs a static analysis of all application chains 
+to determine if Lynx can execute each chain piecewise one hop at a time while ensuring the entire chain 
+and its sub-chains are serializable as a single transaction. Features. In summary, Lynx has the following 
+features: Serializability. Given an application and its chains, Lynx ensures that concurrent execution 
+of those chains preserve serializability.  Low latency. For chains that can be executed piece­wise, 
+applications can achieve low latency by having  Lynx return control after the .rst hop, which typically 
+executes in the local datacenter and logs to a nearby datacenter for disaster tolerance. To the best 
+of our knowledge, no prior geo-distributed storage system provides both serializability and low latency. 
+ Derived tables. Automatically updated secondary in­dexes, materialized join tables, and geo-replicas 
+speed up common application queries.  Scalablity. Lynx scales with the number of machines in a datacenter 
+and with the number of datacenters.  Transaction chains are the fundamental mechanism underlying Lynx; 
+we develop them fully in the next two sections. Section 3 describes the properties of chains. Section 
+4 explains how to ensure serializability of chains. 3 Transaction chains A transaction chain accesses 
+data that is distributed over many servers. A chain encodes a transaction T as a sequence of hops T =[p1 
+... pk] with each hop pi executing deterministically at one server, where servers can be at different 
+datacenters and may repeat. A hop may have input parameters that depend on the output of earlier hops 
+in the chain. It is desirable to execute a chain piecewise, which means that hops are executed one after 
+the other as sep­arate transactions. Such execution is ef.cient, because each hop is contained within 
+a single server, so it can be executed as a local transaction. Chains can also improve perceived application 
+latency, as an application can just wait for a chain s .rst hop to complete. Guarantees. Chains have 
+the following properties: Per-hop isolation. Each hop is serializable with respect to other hops in 
+all chains. This is achieved ef.ciently by executing a hop as a local transaction.  Inner ordering. 
+Hop pi+1 never executes before hop pi.  All-or-nothing atomicity.1 If the .rst hop of a chain commits, 
+then the other hops eventually commit as well. (They may abort due to concurrency control, but in that 
+case the system retries until they commit.) Moreover, if the .rst hop aborts then no hop commits. Thus, 
+the .rst hop determines the outcome of the chain.  Origin ordering. If two chains T =[p1...] and T j=[p1j...] 
+start on the same server with p1 executing before pj1, then pi executes before pjj for every pi and pjj 
+that execute on the same server.  When executed piecewise, chains might interleave their execution. 
+Say, if a chain has hops p1, p2 and an­ jj other chain has hops p1, p2, the system may execute the hops 
+in the order p1, pj1, p2, pj2. Lynx determines whether such interleavings are serializable (Section 4) 
+and, if not, avoids them by executing the chain as a distributed trans­action. Thus, Lynx ensures the 
+following: 1called simply atomicity in the database community T1,1 T1,2 T1,1 T1,2 T3 T3    S-edge 
+T2,1 T2,2 T2,1 T2,2 C-edge (a) With SC-cycle (b) No SC-cycle Figure 2: SC-graph analysis for transaction 
+chopping. T1 is chopped into T1,1,T1,2 and T2 into T2,1, T2,2. There is an SC-cycle in graph (a) but 
+not (b). Serializability. Chains are serializable as transactions. Restrictions. A chain has two restrictions. 
+First, application-initiated aborts can occur only at the .rst hop of a chain (this is needed to implement 
+all-or-nothing atomicity). Second, chains are static: each hop executes at a server that is known when 
+the chain starts (needed to implement origin ordering). Some transactions can­not be structured as chains. 
+These can be executed as a distributed transaction in Lynx. Linked chains. Applications can link together 
+multiple chains so that they execute consecutively, like a chain of chains, where each chain individually 
+satis.es the proper­ties above. The set of linked chains may not be serialized as one transaction, but 
+Lynx ensures the following atom­icity property: if chains are linked and the .rst chain starts then the 
+other chains eventually start. Like hops in a chain, linked chains can receive inputs from previous chains, 
+and all linked chains must be submitted together. 4 Providing serializability Web applications typically 
+have an a priori known set of transactions, permitting a global static analysis of the application to 
+determine what chains can be executed piecewise while preserving serializability. If the analy­sis determines 
+that executing a chain piecewise would violate serializability, Lynx executes the chain as a dis­tributed 
+ACID transaction [12, 22], incurring higher la­tency. Alternatively, the developer can remove con.icts 
+using annotations or linked chains, as we describe below. In what follows, we explain how the analysis 
+works (§4.1), how to improve the chances for piecewise execu­tion (§4.2), how to cope with the lack of 
+external consis­tency (§4.3), and what limitations chains have (§4.4). 4.1 Static analysis of chains 
+The analysis uses knowledge of the table schemas and the application chains, speci.cally the table accessed 
+by each hop of each chain and the type of access (read or write). The analysis determines what chains 
+can be executed piecewise while preserving serializability. The analysis is based on the theory of transaction 
+chop­ping, originally developed for breaking up large trans­    ber of servers in the system. Server 
+i also keep tracks of the latest sequence number that it has processed from each other server, done1.i...donen.i. 
+Suppose a chain with k hops is to execute on servers s1,s2, ..., sk. The .rst server, s1, increments 
+the respective counters ctrs1.s1 ,ctrs1.s2 ,..., ctrs1.sk for each hop of the chain and attaches them 
+to the chain as sequence numbers seqs1.s1 ,seqs1.s2 , ..., seqs1.sk . Each of the servers si waits until 
+its counter dones1.si reaches seqs1.si -1 be­fore executing its corresponding hop in the chain. This 
+mechanism ensures origin ordering: suppose chains C1 and C2 start at the same server i and both ex­ecute 
+later hops at server j.If C1 executes before C2 at server i, the sequence number seqi. j of chain C2 
+is greater than that of C1, causing C2 to execute after C1 at server j. If a chain visits some server 
+i multiple times, the hops at i will be assigned consecutive sequence numbers and thus will not be interleaved 
+with other chains, thereby preserving the origin ordering property. The message overhead for enforcing 
+origin ordering is low: the number of sequence numbers attached to a chain is proportional to its length. 
+Origin order may sometimes introduce latency overheads, but this is the behavior we desire for consistency. 
+Speci.cally, if two chains start at the same server and follow different paths before overlapping again 
+at another server, the .rst chain may delay the second chain. Read-my-writes in sessions. This property 
+ensures that a chain in a session sees the writes of chains in the same session that have already returned. 
+To do so, the applica­tion associates a session with a server, and Lynx forces all session chains to 
+start at that server by adding a no-op .rst hop if necessary. A possible optimization in practice is 
+to pick a server where most session chains start any­ways, to avoid adding the no-op hop. If a session 
+chain reads from a base table, then origin ordering ensures the read-my-writes property. If a session 
+chain reads from a derived table, Lynx executes the read hop differently from a regular chain: Lynx submits 
+the read hop at the base table, which then starts a sub-chain to read the de­rived table. By doing so, 
+the read of the derived table is ordered consistently with the operations on the base table, which in 
+turn are correctly ordered by origin ordering. If a derived table has two base tables (a join table), 
+Lynx submits the read at each base table in some arbitrary order and keeps the result of the later read. 
+Atomicity of linked chains. To execute a series of linked chains, the coordinator of the .rst chain serves 
+as a super­coordinator. The super-coordinator stores the linked chains in its history table, for recovery, 
+and then launches the chains one at a time at their .rst hop. When the chain completes, the super-coordinator 
+marks completion in the history table. If the super-coordinator fails, recovery  insert t=(x,k) primary=x 
+Ksec=k update t'=(x,k') primary=x changed Ksec=k'  Figure 10: The chains for inserting a new row and 
+updat­ing an existing row s secondary index. Base table T has a secondary index table T Ksec. insert 
+t in LT primary=x, joinkey=k update t' in LT primary=x joinkey=k' Figure 11: The chains for inserting 
+a new row and updat­ing an existing row s join key value. Base tables LT and RT have secondary index 
+tables, LT Kjoin ,RT Kjoin (corre­sponding to the join key Kjoin ) and a join table LT-RT. is similar 
+to that of a coordinator. 6.3 System chains Recall that system chains are generated internally by Lynx 
+to update derived tables. There are three types of system chains, one for each type of derived table. 
+Chains for geo-replication. When a hop of the chain wishes to modify a geo-replicated base or derived 
+table, the hop is forwarded to the corresponding shard s home datacenter for execution. The responsible 
+server at the home datacenter generates a sub-chain to propagate the modi.cation to replicas at other 
+datacenters. Because of the origin ordering property of these sub-chains, all replicas are updated in 
+the same order. Chains for secondary index tables. When a row is inserted, deleted, or updated in a base 
+table, the server where the modi.cation occurred spawns a sub­chain to modify the index tables. (If an 
+index ta­ble is geo-replicated, the corresponding server at the home datacenter generates additional 
+sub-chains for geo­replication.) The sub-chain has one or two hops for each index table: if the indexed 
+value does not change, one hop suf.ces to update the index table; if the indexed value changes, the old 
+and new rows of the index table may belong to different shards, in which case two hops are needed, one 
+to delete the old row, the other to insert the new row. Figure 10 s top chain shows the case where only 
+one hop is needed. Chains for join views. To update materialized join views, we apply ideas from incremental 
+join view up­date algorithms [13], using chains to correctly update the

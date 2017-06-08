@@ -1,0 +1,10 @@
+T1	Material 259 264	ANSYS
+T2	Process 296 328	plastic analysis of beam section
+T3	Process 351 367	elastic analysis
+T4	Material 16 29	cellular beam
+T5	Task 49 63	design methods
+T6	Process 220 243	finite element analysis
+T7	Task 397 448	procedure of design of cellular beam is illustrated
+T8	Process 420 433	cellular beam
+T9	Process 473 486	design method
+T10	Process 270 283	design method

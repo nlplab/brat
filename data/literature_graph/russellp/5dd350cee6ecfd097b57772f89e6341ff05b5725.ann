@@ -1,0 +1,26 @@
+T1	SOFTWARE 112 118	Walter
+T2	METHOD 122 137	key-value store
+T3	METHOD 152 164	transactions
+T4	METHOD 169 179	replicates
+T5	SOFTWARE 228 234	Walter
+T6	METHOD 263 290	Parallel Snapshot Isolation
+T7	METHOD 302 305	PSI
+T8	SOFTWARE 313 319	Walter
+T9	METHOD 406 409	PSI
+T10	TASK 420 441	write-write conflicts
+T11	TASK 483 502	conflict-resolution
+T12	TASK 521 542	write-write conflicts
+T13	METHOD 557 560	PSI
+T14	METHOD 625 637	counting set
+T15	SOFTWARE 647 653	Walter
+T16	TASK 665 694	social networking application
+T17	TASK 706 730	Twitter-like application
+R1	implements Arg1:T1 Arg2:T2	
+R2	implements Arg1:T8 Arg2:T7	
+R3	addresses Arg1:T9 Arg2:T10	
+R4	addresses Arg1:T13 Arg2:T12	
+T18	METHOD 605 620	preferred sites
+T19	IDK_MAN 200 205	sites
+R5	addresses Arg1:T15 Arg2:T16	
+R6	addresses Arg1:T15 Arg2:T17	
+T20	TASK 323 352	replicate data asynchronously

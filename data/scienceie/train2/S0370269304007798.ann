@@ -1,0 +1,19 @@
+T2	Process 296 317	Looking for glueballs
+T3	Task 351 399	find evidence for states with constituent gluons
+T1	Task 621 655	disentangling the observed spectra
+T4	Material 695 708	hybrid mesons
+T5	Task 765 811	resonances outside the constituent quark model
+T6	Material 1006 1016	qq̄-mesons
+T7	Material 121 134	Hybrid mesons
+T8	Material 168 174	gluons
+T9	Material 180 189	glueballs
+T10	Material 206 211	quark
+T11	Material 262 268	gluons
+T12	Process 282 294	color charge
+T13	Material 308 317	glueballs
+T14	Material 393 399	gluons
+T15	Material 498 508	qq̄-mesons
+T16	Material 710 715	qq̄gn
+R1	Hyponym-of Arg1:T16 Arg2:T4	
+T17	Process 788 811	constituent quark model
+T18	Process 946 949	JPC

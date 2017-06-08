@@ -1,0 +1,7 @@
+T1	METHOD 13 32	dynamic programming
+T2	TASK 82 104	semantic role labeling
+T3	METHOD 374 390	log-linear model
+T4	DATASET 746 754	PropBank
+T5	DATASET 759 767	FrameNet
+T6	METHOD 522 548	integer linear programming
+T7	METHOD 283 309	integer linear programming

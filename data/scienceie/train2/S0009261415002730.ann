@@ -1,0 +1,21 @@
+T2	Process 44 61	bent conformation
+T4	Process 359 395	defined rotation of the octyl chains
+T6	Process 531 564	twist of the first CC single bond
+T8	Process 939 952	dense packing
+T9	Process 16 34	structure solution
+T1	Material 306 330	linearly extended chains
+T11	Process 837 870	combined MD and VASP calculations
+T12	Material 733 752	rotated side chains
+T13	Material 103 116	DOTT molecule
+T14	Material 241 258	octyl side chains
+T15	Material 615 626	octyl chain
+T16	Material 383 395	octyl chains
+T17	Material 453 462	thin film
+T3	Material 1122 1139	octyl side chains
+T5	Material 1024 1041	crystal structure
+T18	Material 808 821	DOTT molecule
+T19	Material 589 606	terthiophene unit
+T10	Material 917 929	octyl chains
+T20	Material 960 977	octyl side chains
+T7	Material 69 95	central terthiophene units
+T21	Material 412 429	terthiophene unit

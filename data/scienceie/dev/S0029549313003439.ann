@@ -1,0 +1,24 @@
+T1	Task 21 45	nuclear reactor analysis
+T2	Task 53 120	prediction of the three-dimensional space-time kinetics of neutrons
+R1	Hyponym-of Arg1:T2 Arg2:T1	
+T3	Material 185 197	reactor core
+T4	Material 112 120	neutrons
+T5	Material 21 36	nuclear reactor
+T6	Task 216 231	safety analyses
+T7	Task 236 275	prediction of reactor physics responses
+T8	Process 295 356	neutron diffusion theory applied to three-dimensional systems
+R2	Hyponym-of Arg1:T7 Arg2:T6	
+T9	Process 391 432	deterministic neutron transport solutions
+T10	Material 405 412	neutron
+T11	Material 295 302	neutron
+T12	Task 548 576	reactor physics calculations
+T13	Material 548 555	reactor
+T14	Material 720 753	Uncertainty Analysis in Modelling
+T15	Material 756 759	UAM
+*	Synonym-of T14 T15
+T16	Task 823 867	strategy for computing lattice sensitivities
+T17	Material 902 929	WIMS-D4 multi-group library
+T18	Material 878 897	DRAGON lattice code
+T19	Process 983 990	TSUNAMI
+T20	Material 250 257	reactor
+T21	Process 436 470	two-dimensional lattice geometries

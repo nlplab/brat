@@ -1,0 +1,10 @@
+T1	Process 0 23	Evolutionary Algorithms
+T2	Process 32 63	stochastic optimization methods
+T3	Process 92 109	natural evolution
+T4	Process 142 176	population based search procedures
+T5	Process 251 267	search mechanism
+T6	Process 313 333	optimization problem
+T7	Task 386 458	reviews the work carried out for diversity and convergence issues in EMO
+T8	Process 269 272	EAs
+T9	Process 455 458	EMO
+R1	Hyponym-of Arg1:T1 Arg2:T2	

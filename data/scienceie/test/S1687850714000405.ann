@@ -1,0 +1,29 @@
+T1	Material 0 9	Xylanases
+T2	Material 108 117	Xylanases
+T3	Task 153 176	pulp and paper industry
+T4	Process 202 232	hydrolyzed the xylan component
+T5	Process 344 367	brightening of the pulp
+T6	Process 381 415	chlorine free bleaching operations
+T7	Material 486 494	xylanase
+T8	Process 551 604	even redistribution of the water content of the bread
+T9	Task 674 694	animal feed industry
+T10	Task 718 759	hydrolysis of non-starchy polysaccharides
+T11	Task 872 901	maceration of vegetable matte
+T12	Task 925 955	protoplastation of plant cells
+T13	Task 957 989	clarification of juices and wine
+T14	Task 1004 1035	liquefaction of coffee mucilage
+T15	Task 1040 1060	making liquid coffee
+T16	Task 1062 1101	recovery of oil from subterranian mines
+T17	Task 1103 1160	extraction of flavors and pigments, plant oils and starch
+T18	Task 1197 1241	efficiency of agricultural silage production
+T19	Material 130 145	bleaching agent
+T20	Material 217 232	xylan component
+T21	Material 238 242	wood
+T22	Process 263 280	removal of lignin
+T23	Material 274 280	lignin
+T24	Material 363 367	pulp
+T25	Material 629 638	Xylanases
+T26	Material 732 759	non-starchy polysaccharides
+T27	Material 768 780	arabinoxylan
+R1	Hyponym-of Arg1:T27 Arg2:T26	
+T28	Material 834 843	Xylanases

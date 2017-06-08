@@ -1,0 +1,38 @@
+T1	Process 12 29	liquid film flows
+T2	Material 12 23	liquid film
+T3	Material 115 142	broadband interfacial waves
+T4	Material 250 267	interfacial waves
+T5	Process 442 464	downwards annular flow
+T6	Process 485 512	spatio/temporal measurement
+T7	Process 516 537	liquid film thickness
+T8	Material 516 527	liquid film
+T9	Process 560 580	statistical analyses
+T10	Task 763 783	interfacial topology
+T11	Process 796 819	downwards annular flows
+T12	Process 914 933	mean film thickness
+T13	Process 935 950	wave amplitudes
+T15	Process 1126 1147	velocity distribution
+T16	Process 1156 1194	flow structure within the liquid films
+T17	Material 1182 1194	liquid films
+T19	Task 1370 1399	thickness of the liquid films
+T20	Process 1493 1513	gas–liquid interface
+T21	Process 1525 1543	entrainment of gas
+T22	Task 1624 1639	high velocities
+T23	Material 1555 1566	liquid film
+T25	Material 150 162	film surface
+T24	Task 175 267	understanding of the characteristic profiles, scales and dynamics of these interfacial waves
+T26	Material 589 593	film
+T27	Task 560 603	statistical analyses of this film thickness
+T28	Material 919 923	film
+T29	Material 935 939	wave
+T30	Material 955 961	liquid
+T31	Process 989 998	gas phase
+T32	Material 989 992	gas
+T33	Material 1211 1223	film surface
+T14	Task 892 979	quantification of the mean film thickness, wave amplitudes and liquid entrainment rates
+T18	Material 1387 1399	liquid films
+T34	Material 1540 1543	gas
+T35	Material 1574 1580	liquid
+T36	Material 1590 1598	gas core
+T37	Material 1652 1655	gas
+T38	Material 1660 1666	liquid

@@ -1,0 +1,10 @@
+T1	METHOD 522 548	integer linear programming
+T2	METHOD 110 119	algorithm
+T3	TASK 82 104	semantic role labeling
+T4	METHOD 13 32	dynamic programming
+T5	TASK 57 78	constrained inference
+T6	METHOD 283 309	integer linear programming
+T7	METHOD 354 390	globally-normalized log-linear model
+T8	METHOD 460 475	dynamic program
+T9	METHOD 621 637	structured model
+T10	DATASET 746 754	PropBank

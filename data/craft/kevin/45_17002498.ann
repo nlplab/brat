@@ -1,0 +1,6 @@
+T1	KeyEntity 124 156	Apc (adenomatous polyposis coli)
+T2	Entity 176 197	Wnt signaling pathway
+T3	Entity 234 247	tumorigenesis
+T4	Entity 249 275;280 283	Heterozygous knockout mice Apc
+T5	KeyEntity 395 398	Apc
+T6	Entity 429 442	floxed allele

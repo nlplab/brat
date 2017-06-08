@@ -1,0 +1,18 @@
+T1	Material 612 634	cohesive zone elements
+T2	Task 662 724	uncertainty quantification of the crack propagation phenomenon
+T3	Task 780 802	maintenance scheduling
+T4	Process 890 1000	assessment of the reliability sensitivity with respect to the variables that define the maintenance scheduling
+T5	Process 1006 1036	estimation of this sensitivity
+T6	Task 1082 1140	optimal maintenance schedule within the proposed framework
+T7	Material 1376 1410	continuous and discontinuous parts
+T9	Task 52 98	optimal maintenance scheduling for a structure
+T8	Process 16 34	numerical strategy
+T10	Process 1469 1524	estimate accurately the gradients of the failure events
+T11	Process 354 397	initiation and propagation of fatigue crack
+T12	Material 433 455	cohesive zone elements
+T13	Material 489 506	class of elements
+T14	Task 514 586	modeling the crack initiation and propagation within a unified framework
+T15	Process 100 152	accounting explicitly for the effects of uncertainty
+T16	Material 1172 1222	model characterizing repair of a cracked structure
+T17	Task 1234 1308	discontinuous performance function associated with the failure probability
+T18	Process 569 586	unified framework

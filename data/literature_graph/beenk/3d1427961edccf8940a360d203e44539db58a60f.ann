@@ -1,0 +1,10 @@
+T1	METHOD 1144 1184	Recurrent neural network language models
+T2	TASK 1502 1518	image captioning
+T3	TASK 1430 1449	machine translation
+T4	METHOD 1587 1592	rnnlm
+T5	FUNDING_AGENCY 1831 1837	Google
+T6	METHOD 2217 2241	conventional autoencoder
+T7	METHOD 2670 2675	rnnlm
+T8	METHOD 3072 3095	variational autoencoder
+T9	METHOD 3657 3663	rnnlms
+T10	TASK 3729 3751	imputing missing words

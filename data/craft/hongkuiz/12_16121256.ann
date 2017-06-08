@@ -1,0 +1,24 @@
+T1	KeyEntity 81 134	Medium-chain acyl-CoA dehydrogenase (MCAD) deficiency
+T2	Entity 154 212	inherited disorder of mitochondrial fatty acid β-oxidation
+R1	is_part_of Arg1:T1 Arg2:T2	
+T3	KeyEntity 384 400	The MCAD−/− mice
+T4	Entity 414 430	organic aciduria
+T5	Entity 435 446	fatty liver
+T6	Entity 468 484	cold intolerance
+R2	regulates Arg1:T3 Arg2:T4	
+#1	AnnotatorNotes R2	causes
+R3	regulates Arg1:T3 Arg2:T5	
+#2	AnnotatorNotes R3	causes
+R4	regulates Arg1:T3 Arg2:T6	
+#3	AnnotatorNotes R4	causes
+T7	Entity 517 541	sporadic cardiac lesions
+T8	KeyEntity 550 562	MCAD−/− mice
+R5	regulates Arg1:T8 Arg2:T7	
+#4	AnnotatorNotes R5	causes
+T9	Entity 632 650	neonatal mortality
+T10	KeyEntity 654 666	MCAD−/− pups
+R6	regulates Arg1:T10 Arg2:T9	
+#5	AnnotatorNotes R6	causes
+T11	KeyEntity 773 787	MCAD-deficient
+T12	Entity 909 929	fatty acid oxidation
+R7	regulates Arg1:T11 Arg2:T12	

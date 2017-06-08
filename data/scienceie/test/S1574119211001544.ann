@@ -1,0 +1,18 @@
+T1	Process 77 92	mobility models
+T2	Task 22 30	protocol
+T3	Material 253 258	nodes
+T4	Material 274 294	geographical regions
+T5	Material 347 368	performance potential
+T6	Material 541 546	nodes
+T7	Process 769 788	push-community mode
+T8	Material 880 885	nodes
+T10	Material 206 220	physical space
+T11	Material 188 193	nodes
+T12	Process 541 555	nodes mobility
+T13	Process 454 492	extend the physical region of movement
+T14	Process 504 533	impose potential restrictions
+T15	Process 572 635	forcing similar nodes to move within specifically defined areas
+T16	Material 588 593	nodes
+T17	Process 661 677	forwarding modes
+T18	Process 756 763	network
+T9	Material 977 981	node

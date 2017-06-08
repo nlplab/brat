@@ -1,0 +1,37 @@
+T1	KeyEntity 107 132	ETS transcription factors
+T2	Entity 140 144	Pea3
+T5	Entity 215 222	sensory
+T6	Entity 227 233	spinal
+T7	Entity 234 247	motor neurons
+T8	Entity 317 341	neuronal differentiation
+T9	Entity 350 365	target invasion
+T10	Entity 370 379	branching
+T11	Entity 418 437	ETS gene expression
+T12	Entity 477 507	sensory neuron differentiation
+T13	Entity 566 580	ETS expression
+T14	Entity 584 603	DRG sensory neurons
+T15	Entity 613 631	axonal projections
+T16	Entity 661 684	differentiation markers
+T17	Entity 710 730	neurotrophic support
+T18	KeyEntity 769 788	DRG sensory neurons
+T19	Entity 875 909	ETS transcription factor signaling
+T20	Entity 933 952	neuronal maturation
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+R3	is_subclass_of Arg1:T6 Arg2:T7	
+R4	is_subclass_of Arg1:T5 Arg2:T7	
+R6	participates_in Arg1:T9 Arg2:T8	
+#2	AnnotatorNotes R6	is a phenotype of
+R7	participates_in Arg1:T10 Arg2:T8	
+#3	AnnotatorNotes R7	is a phenotype of
+R8	regulates Arg1:T11 Arg2:T12	
+R9	participates_in Arg1:T13 Arg2:T14	
+R10	other_relation Arg1:T13 Arg2:T15	
+#4	AnnotatorNotes R10	causes phenotype
+R11	genetically_interacts_with Arg1:T13 Arg2:T16	
+T21	Entity 799 828	temporal developmental switch
+R12	regulates Arg1:T19 Arg2:T21	
+R13	other_relation Arg1:T21 Arg2:T18	
+#5	AnnotatorNotes R13	is a process of
+R14	participates_in Arg1:T19 Arg2:T20	
+T3	KeyEntity 188 214	dorsal root ganglion (DRG)
+R2	is_subclass_of Arg1:T3 Arg2:T7	

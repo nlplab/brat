@@ -1,0 +1,24 @@
+T1	Material 0 8	Hydrides
+T2	Material 31 40	zirconium
+T3	Process 234 242	cladding
+T4	Material 298 302	fuel
+T5	Material 526 533	hydride
+T6	Material 386 394	hydrides
+T7	Process 426 464	pellet cladding mechanical interaction
+T8	Process 466 470	PCMI
+*	Synonym-of T7 T8
+T9	Process 518 542	delayed hydride cracking
+T10	Process 544 547	DHC
+*	Synonym-of T9 T10
+T11	Process 589 606	thermal expansion
+T12	Material 610 622	fuel pellets
+T13	Process 653 661	cladding
+T14	Material 741 748	hydride
+T15	Process 792 795	DHC
+T16	Process 831 850	cracking phenomenon
+R1	Hyponym-of Arg1:T15 Arg2:T16	
+T17	Material 876 884	hydrogen
+T18	Process 876 894	hydrogen diffusion
+T19	Task 908 928	local hydride growth
+T20	Process 947 980	hydrostatic tensile stress raiser
+T21	Material 433 441	cladding

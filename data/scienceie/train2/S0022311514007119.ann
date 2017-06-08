@@ -1,0 +1,26 @@
+T1	Task 28 44	formation energy
+T2	Process 211 232	Monte Carlo algorithm
+T3	Process 934 954	Metropolis MC scheme
+T4	Process 1212 1240	conjugate gradient algorithm
+T5	Process 1192 1201	minimised
+R1	Hyponym-of Arg1:T4 Arg2:T5	
+T6	Process 1424 1441	iterative process
+T7	Material 50 53	box
+T8	Material 105 115	Fe lattice
+R2	Hyponym-of Arg1:T7 Arg2:T8	
+T9	Material 353 373	voids without helium
+T10	Material 425 440	simulation cell
+T11	Process 477 505	conjugate gradient algorithm
+T13	Material 871 890	total system energy
+T14	Material 821 833	helium atoms
+T15	Material 980 1005	low energy configurations
+T16	Material 518 549	single vacancy formation energy
+T17	Material 550 554	Evac
+*	Synonym-of T16 T17
+T18	Process 666 675	minimised
+T19	Process 241 282	determine the lowest energy configuration
+R4	Hyponym-of Arg1:T2 Arg2:T19	
+T20	Process 1126 1144	He–He interactions
+T21	Material 1126 1128	He
+T22	Material 1129 1131	He
+T23	Material 1013 1019	helium

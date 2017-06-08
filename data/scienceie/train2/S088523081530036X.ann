@@ -1,0 +1,13 @@
+T1	Process 256 260	DNNs
+T2	Process 326 342	other approaches
+T3	Process 349 358	i-vectors
+R1	Hyponym-of Arg1:T3 Arg2:T2	
+T4	Material 218 234	target languages
+T5	Material 476 501	evidence from past frames
+T6	Material 762 776	test utterance
+T7	Process 1074 1077	DNN
+T8	Process 464 501	combine the evidence from past frames
+T9	Process 632 721	assume that frames are independent and multiply the posterior estimates of the last layer
+T10	Process 792 862	multiplying the output probabilities pl obtained for all of its frames
+T11	Process 881 934	accumulating the logs as:(6)sl=1N∑t=1Nlogp(Ll|xt​, θ)
+*	Synonym-of T10 T11

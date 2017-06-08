@@ -1,0 +1,38 @@
+T1	Material 0 10	EM sensors
+T3	Task 66 87	relative permeability
+T2	Task 23 56	difference in magnetic properties
+T4	Task 93 116	electrical conductivity
+R1	Hyponym-of Arg1:T3 Arg2:T2	
+T5	Task 148 178	microstructural phase balances
+T6	Material 183 203	ferromagnetic steels
+T7	Task 219 240	relative permeability
+T8	Material 279 305	multi-frequency EM sensors
+T11	Material 423 445	stainless steel powder
+T12	Process 471 504	difference in magnetic properties
+T9	Process 508 515	ferrite
+T10	Process 517 530	ferromagnetic
+R2	Hyponym-of Arg1:T9 Arg2:T10	
+T13	Process 536 545	austenite
+T14	Process 547 559	paramagnetic
+R3	Hyponym-of Arg1:T13 Arg2:T14	
+T15	Material 639 649	EM sensors
+T16	Task 683 698	decarburisation
+T17	Task 700 739	variation in ferrite content with depth
+R4	Hyponym-of Arg1:T16 Arg2:T17	
+T18	Material 744 753	steel rod
+T19	Material 805 810	steel
+T20	Process 811 827	EM sensor signal
+T23	Process 890 892	FE
+T22	Process 874 888	finite element
+*	Synonym-of T22 T23
+T25	Process 966 1004	EM properties of the individual phases
+T26	Material 1076 1081	steel
+T27	Process 1047 1068	overall EM properties
+T28	Process 1104 1130	particular sensor geometry
+T29	Material 1257 1262	steel
+T30	Material 1271 1288	external circuits
+T21	Material 1207 1221	tubular sensor
+T24	Material 1184 1202	cylindrical sample
+T31	Material 1322 1337	microstructures
+T32	Material 1342 1348	sensor
+T33	Material 811 820	EM sensor

@@ -1,0 +1,23 @@
+T1	Process 73 92	workmanship defects
+T2	Process 116 154	granulometry of the handmade concretes
+T3	Process 258 276	compaction process
+T4	Process 324 347	installment of concrete
+T5	Material 509 523	concrete cover
+T6	Process 572 609	Faults in the connections of stirrups
+T7	Process 636 668	unstaggered formation of stirrup
+T8	Process 701 721	perpendicular angles
+T9	Process 736 766	inadequately anchorage lengths
+T10	Process 819 837	use of cold joints
+T11	Process 876 895	workmanship defects
+R1	Hyponym-of Arg1:T6 Arg2:T11	
+R2	Hyponym-of Arg1:T7 Arg2:T11	
+R3	Hyponym-of Arg1:T8 Arg2:T11	
+R4	Hyponym-of Arg1:T9 Arg2:T11	
+R5	Hyponym-of Arg1:T10 Arg2:T11	
+T12	Material 396 404	concrete
+T13	Material 774 787	stirrup hooks
+T14	Material 792 809	longitudinal bars
+T15	Material 669 674	hooks
+T16	Material 678 683	beams
+T17	Material 688 695	columns
+T18	Material 729 734	hooks

@@ -1,0 +1,11 @@
+T1	METHOD 13 42	dynamic programming algorithm
+T2	TASK 82 104	semantic role labeling
+T3	METHOD 283 309	integer linear programming
+T4	METHOD 57 78	constrained inference
+T5	METHOD 246 265	approximate methods
+T6	METHOD 407 441	constrained conditional likelihood
+T7	METHOD 522 555	integer linear programming solver
+T8	DATASET 759 767	FrameNet
+T9	DATASET 746 754	PropBank
+T10	METHOD 106 119	The algorithm
+R1	is_subclass_of Arg1:T1 Arg2:T4	

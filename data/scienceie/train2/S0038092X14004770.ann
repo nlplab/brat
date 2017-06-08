@@ -1,0 +1,25 @@
+T1	Process 1029 1056	effective shading sub-model
+T2	Material 707 729	system shown in Fig. 1
+T3	Process 405 423	shading algorithms
+T4	Process 275 291	shading analysis
+T5	Process 0 7	Shading
+T6	Material 64 79	domestic system
+T7	Process 95 102	shading
+T8	Material 188 193	cells
+T9	Material 203 209	module
+T10	Material 214 221	modules
+T11	Material 232 247	installed array
+T12	Process 440 458	energy yield model
+T13	Process 515 522	shading
+T14	Process 569 576	shading
+T15	Material 666 674	antennas
+T16	Material 678 686	chimneys
+T17	Process 791 801	shade loss
+T18	Process 992 1024	non-linear cell mismatch effects
+T19	Task 1076 1125	give feedback to inform decisions of array layout
+T20	Process 1180 1200	high power computing
+R1	Hyponym-of Arg1:T8 Arg2:T9	
+R2	Hyponym-of Arg1:T10 Arg2:T11	
+T21	Material 950 956	system
+*	Synonym-of T2 T21
+R3	Hyponym-of Arg1:T3 Arg2:T4	

@@ -1,0 +1,15 @@
+T1	Material 0 29	Functionally Graded Materials
+T2	Task 452 494	Study of bone, shell, balsawood and bamboo
+T3	Material 690 718	Functionally Graded Material
+T4	Material 772 796	heat resistant materials
+T5	Task 808 817	aerospace
+T6	Task 822 846	nuclear fission reactors
+T7	Material 335 363	Functionally Graded Material
+T8	Material 31 35	FGMs
+*	Synonym-of T1 T8
+T9	Material 101 134	heterogeneous composite materials
+R1	Hyponym-of Arg1:T8 Arg2:T9	
+T10	Material 488 494	bamboo
+T11	Material 474 483	balsawood
+T12	Material 467 472	shell
+T13	Material 461 465	bone

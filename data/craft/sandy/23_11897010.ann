@@ -1,0 +1,37 @@
+T1	Entity 140 161	Mucolipidosis type IV
+T2	Entity 163 167	MLIV
+T3	Entity 175 221	autosomal recessive lysosomal storage disorder
+T4	Entity 239 256	severe neurologic
+T5	Entity 261 289	ophthalmologic abnormalities
+T6	Entity 304 313	MLIV gene
+T7	Entity 315 321	MCOLN1
+T8	Entity 366 394	transient receptor potential
+T9	Entity 396 399	TRP
+T10	Entity 501 507	Mcoln1
+T11	Entity 528 542	splice variant
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	equivalent
+R2	is_part_of Arg1:T2 Arg2:T3	
+R3	is_part_of Arg1:T7 Arg2:T8	
+R4	is_part_of Arg1:T10 Arg2:T11	
+T12	Entity 641 647	Mcoln1
+T13	Entity 700 706	MCOLN1
+T14	Entity 714 720	Mcoln1
+T15	Entity 729 741	chromosome 8
+T16	Entity 932 968	murine specific alternative splicing
+T17	Entity 1022 1032	c-terminus
+R5	other_relation Arg1:T12 Arg2:T13	
+#2	AnnotatorNotes R5	human_connection
+R6	is_part_of Arg1:T14 Arg2:T15	
+T18	Entity 1048 1054	Mcoln1
+T19	Entity 1076 1082	MCOLN1
+T20	Entity 1102 1123	transmembrane domains
+T21	Entity 1128 1143	ion pore region
+T22	Entity 1160 1196	endosomal/lysosomal targeting signal
+T23	Entity 1276 1293	vesicle membranes
+T24	Entity 1342 1374	species-specific splice variants
+T25	Entity 1400 1406	Mcoln1
+T26	Entity 1457 1461	MLIV
+R7	interacts_with Arg1:T23 Arg2:T22	
+R8	is_part_of Arg1:T24 Arg2:T25	
+R9	is_part_of Arg1:T24 Arg2:T26	

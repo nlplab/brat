@@ -1,0 +1,17 @@
+T1	Material 27 37	l-cysteine
+T2	Process 164 186	empirical force fields
+T3	Process 193 218	Hartree–Fock calculations
+T4	Process 122 142	Spectral assignments
+T5	Process 243 274	isolated molecule approximation
+T6	Material 439 445	purine
+T7	Task 460 504	study of the solid state vibrational spectra
+T8	Process 508 551	isolated molecule and periodic calculations
+T9	Material 722 731	tautomers
+T10	Material 786 790	ions
+T11	Material 801 809	hydrogen
+T12	Process 817 838	periodic calculations
+T13	Task 1061 1131	provide a complete assignment of the vibrational spectra of l-cysteine
+T14	Process 1209 1247	computational and experimental methods
+T15	Process 959 977	molecular dynamics
+T16	Material 852 875	complete primitive cell
+T17	Material 1121 1131	l-cysteine

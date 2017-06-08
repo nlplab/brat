@@ -1,0 +1,44 @@
+T1	KeyEntity 204 210	AMPARs
+T2	Entity 144 202	α-amino-3-hydroxy-5-methyl-4-isoxazolepropionate receptors
+T3	KeyEntity 263 277	sensory coding
+T4	Entity 279 287	learning
+T5	Entity 293 299	memory
+T6	Entity 344 358	Ca2+-permeable
+T7	KeyEntity 359 365	AMPARs
+T8	KeyEntity 389 394	AMPAR
+T9	KeyEntity 441 455	GluR-B subunit
+T10	KeyEntity 482 491	GluR-B(Q)
+T11	Entity 519 536	Ca2+ permeability
+T12	KeyEntity 540 546	AMPARs
+T13	KeyEntity 574 579	AMPAR
+T14	Entity 604 613	forebrain
+T15	KeyEntity 631 655	olfactory discrimination
+T16	Entity 671 679	learning
+T17	Entity 685 719	go/no-go operant conditioning task
+T18	KeyEntity 721 737	Olfactory memory
+T19	KeyEntity 775 781	GluR-B
+T20	Entity 795 804	forebrain
+T21	Entity 832 838	mosaic
+T22	KeyEntity 898 914	olfactory memory
+T23	Entity 918 929	hippocampus
+T24	Entity 934 940	cortex
+T25	Entity 955 961	memory
+T26	KeyEntity 988 994	GluR-B
+T27	Entity 1020 1035	piriform cortex
+T28	Entity 1040 1051	hippocampus
+T29	KeyEntity 1068 1087	odor discrimination
+T30	KeyEntity 1112 1118	GluR-B
+T31	KeyEntity 1146 1152	GluR-B
+T32	Entity 1197 1205	behavior
+T33	KeyEntity 1220 1226	GluR-B
+T34	KeyEntity 1286 1304	olfactory learning
+T35	Entity 1306 1320	discrimination
+T36	Entity 1326 1332	memory
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	synonymn
+T37	KeyEntity 369 387	olfactory behavior
+R2	is_part_of Arg1:T9 Arg2:T8	
+R3	is_part_of Arg1:T10 Arg2:T8	
+R4	other_relation Arg1:T11 Arg2:T12	
+R5	participates_in Arg1:T23 Arg2:T22	
+R6	participates_in Arg1:T24 Arg2:T22	

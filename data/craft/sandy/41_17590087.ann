@@ -1,0 +1,36 @@
+T1	Entity 115 143	autosomal recessive movement
+T2	KeyEntity 478 483	Itpr1
+T3	Entity 485 497	Itpr1Δ18/Δ18
+T4	Entity 509 547	inositol 1,4,5-triphosphate receptor 1
+T5	Entity 583 597	Itpr1 mutation
+T6	Entity 673 690	in-frame deletion
+T7	KeyEntity 698 703	Itpr1
+T8	Entity 754 770	Itpr1 expression
+T9	Entity 785 799	Purkinje cells
+T10	Entity 801 826	Spinocerebellar ataxia 15
+T11	KeyEntity 828 833	SCA15
+T12	Entity 911 916	ITPR1
+T13	Entity 984 990	ataxia
+T14	Entity 1017 1029	Itpr1 mutant
+T15	Entity 1113 1118	ITPR1
+T16	Entity 1139 1144	SCA15
+T17	Entity 1208 1218	ITPR1 gene
+T18	Entity 1164 1185	heterozygous deletion
+T19	Entity 296 311	cognate disease
+T20	Entity 466 474	deletion
+R1	is_part_of Arg1:T20 Arg2:T2	
+R2	is_subclass_of Arg1:T3 Arg2:T2	
+R3	is_part_of Arg1:T20 Arg2:T4	
+T21	Entity 615 624	phenotype
+R4	participates_in Arg1:T5 Arg2:T21	
+R5	is_part_of Arg1:T6 Arg2:T7	
+R6	regulates Arg1:T7 Arg2:T8	
+R7	interacts_with Arg1:T8 Arg2:T9	
+R8	regulates Arg1:T11 Arg2:T10	
+#1	AnnotatorNotes R8	equivalent
+T22	Entity 885 899	genomic region
+R9	is_subclass_of Arg1:T22 Arg2:T12	
+R10	interacts_with Arg1:T11 Arg2:T12	
+R11	is_part_of Arg1:T13 Arg2:T14	
+R12	regulates Arg1:T15 Arg2:T16	
+R13	participates_in Arg1:T18 Arg2:T17	

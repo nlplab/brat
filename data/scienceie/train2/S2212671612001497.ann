@@ -1,0 +1,20 @@
+T2	Process 23 37	line galloping
+T3	Material 64 78	galloping data
+T4	Task 89 126	collect systematically and completely
+T5	Process 147 174	unified management platform
+T6	Process 186 206	galloping occurrence
+T7	Process 316 364	carry out the research of galloping information,
+T8	Material 450 478	production management system
+T9	Material 480 483	PMS
+*	Synonym-of T8 T9
+T10	Task 557 584	create a galloping database
+T11	Process 595 640	save resources and storage the galloping data
+T12	Material 626 640	galloping data
+T13	Process 667 690	application of database
+T14	Process 703 720	technical support
+T15	Process 725 750	line galloping prevention
+T16	Process 755 778	galloping research work
+T1	Process 64 73	galloping
+*	Synonym-of T2 T1
+T17	Process 342 351	galloping
+T18	Process 566 575	galloping

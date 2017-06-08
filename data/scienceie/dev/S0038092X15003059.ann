@@ -1,0 +1,26 @@
+T1	Material 31 41	solar cell
+T2	Process 113 116	CPV
+T3	Process 220 240	High Concentrator PV
+T4	Process 242 246	HCPV
+*	Synonym-of T3 T4
+T5	Process 442 445	CPV
+T6	Process 740 759	maximum power point
+T7	Process 761 764	MPP
+*	Synonym-of T6 T7
+T8	Process 670 693	open-circuit conditions
+T9	Material 650 654	cell
+T10	Material 200 204	cell
+T11	Material 867 878	solar cells
+T12	Process 831 859	electrical energy generation
+T13	Task 952 990	predicting the cell temperature at MPP
+T14	Process 987 990	MPP
+T15	Material 967 971	cell
+T16	Process 1155 1186	artificial neural network model
+T17	Task 1190 1219	estimate the cell temperature
+T18	Material 1203 1207	cell
+T19	Process 1259 1285	open-circuit voltage model
+T20	Task 1556 1584	cell temperature calculation
+T21	Material 1556 1560	cell
+T22	Task 181 216	calculation of the cell temperature
+T23	Task 17 55	prediction of solar cell’s temperature
+T24	Task 636 666	calculate the cell temperature

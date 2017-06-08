@@ -1,0 +1,20 @@
+T1	Task 25 47	quantum chromodynamics
+T2	Task 49 52	QCD
+*	Synonym-of T1 T2
+T3	Task 61 93	relativistic bound state problem
+T4	Process 102 133	light-cone Hamiltonian approach
+T5	Task 138 163	light-cone wave functions
+T6	Material 233 267	reliable light-cone wave functions
+T7	Task 284 316	calculate high energy scattering
+T8	Process 650 672	equal time Hamiltonian
+T9	Process 681 740	transform the resulting wave functions into light-cone form
+T10	Task 886 976	construction of an effective Hamiltonian including the gauge degrees of freedom explicitly
+T11	Process 986 1017	solving the bound state problem
+T12	Task 1118 1166	solve the valence quark wave function for mesons
+T13	Process 1172 1217	simple Hamiltonian with a two-body potential 
+T14	Process 758 788	kinematical on-shell equations
+T15	Material 1160 1166	mesons
+T16	Process 1128 1155	valence quark wave function
+T17	Process 915 926	Hamiltonian
+T18	Material 1023 1029	mesons
+T19	Process 339 348	reactions

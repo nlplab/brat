@@ -1,0 +1,21 @@
+T1	Task 106 157	modification made to eliminate blooming and rusting
+T2	Process 137 145	blooming
+T3	Process 150 157	rusting
+T4	Task 19 44	design of a varnish plant
+T5	Material 287 296	pipelines
+T6	Material 300 335	ductsand hot air receiving chambers
+T7	Task 441 470	redesigning the varnish plant
+T8	Process 498 509	heat energy
+T9	Task 520 553	transferred into the air chambers
+T10	Process 565 582	drying ofmatchets
+T11	Process 625 651	absorption of the moisture
+T12	Material 659 664	steel
+T13	Task 711 726	Further studies
+T14	Process 747 795	constant supply of hot air into the air chambers
+T15	Material 372 383	exhaust gas
+T16	Material 457 470	varnish plant
+T17	Material 186 202	processing plant
+T18	Material 344 357	Varnish Plant
+T19	Material 590 605	hardening plant
+T20	Material 31 44	varnish plant
+T21	Material 783 795	air chambers

@@ -1,0 +1,9 @@
+T1	TASK 3872 3887	online learning
+T2	METHOD 3988 4011	Support Vector Machines
+T3	TASK 4092 4118	batch optimization problem
+T4	METHOD 4300 4310	hinge loss
+T5	METHOD 4429 4459	gradient-based online learning
+T6	TASK 4683 4697	classification
+T7	TASK 4702 4712	regression
+T8	TASK 4921 4940	convex optimization
+T9	TASK 5143 5155	optimization

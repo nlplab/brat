@@ -1,0 +1,39 @@
+T1	Task 14 94	quantitative introduction of a reactive functionality into the polymer chain end
+T2	Material 77 94	polymer chain end
+T3	Process 134 155	living ROMP technique
+T4	Material 177 221	Schrock type molybdenum alkylidene initiator
+T5	Process 253 307	preparation of end-functionalized ring-opened polymers
+T6	Material 287 307	ring-opened polymers
+T7	Process 323 373	living polymerization with quantitative initiation
+T8	Material 410 426	block copolymers
+T9	Material 428 432	ABCs
+*	Synonym-of T9 T8
+T10	Process 455 487	living polymerization techniques
+R1	Hyponym-of Arg1:T7 Arg2:T10	
+T11	Process 507 535	preparation of macromonomers
+T12	Material 522 535	macromonomers
+T13	Material 633 665	molybdenum alkylidene initiators
+T14	Process 675 687	dissociation
+T15	Material 691 697	ligand
+T16	Material 699 702	PR3
+R2	Hyponym-of Arg1:T16 Arg2:T15	
+T17	Process 731 784	generate the catalytically active species in the ROMP
+T18	Material 780 784	ROMP
+T19	Material 794 821	ruthenium carbene catalysts
+T20	Process 865 877	coordination
+T21	Process 882 894	dissociation
+T22	Material 898 901	PR3
+T23	Process 932 951	propagation process
+T24	Material 972 979	halogen
+T25	Material 995 1009	anionic ligand
+R3	Hyponym-of Arg1:T24 Arg2:T25	
+T26	Material 1033 1036	PR3
+T27	Material 1052 1084	neutral donor ligands/substrates
+R4	Hyponym-of Arg1:T26 Arg2:T27	
+T28	Material 1165 1185	molybdenum catalysts
+T29	Material 1310 1318	monomers
+T30	Material 1323 1330	solvent
+T31	Material 1378 1386	catalyst
+T32	Process 1387 1400	decomposition
+T33	Process 1402 1414	deactivation
+*	Synonym-of T33 T32

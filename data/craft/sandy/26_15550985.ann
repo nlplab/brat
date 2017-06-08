@@ -1,0 +1,44 @@
+T1	KeyEntity 75 89	Neurotrophin-3
+T2	KeyEntity 91 95	NT-3
+T3	Entity 113 143	proprioceptive neuron survival
+T4	Entity 161 178	proapoptotic gene
+T5	Entity 179 182	Bax
+T6	Entity 186 204	NT-3 knockout mice
+T7	Entity 219 226	neurons
+T8	Entity 263 274	axon growth
+T9	Entity 282 307	absence of NT-3 signaling
+T10	Entity 309 333	TrkC-positive peripheral
+T11	Entity 338 351	central axons
+T12	Entity 357 376	dorsal root ganglia
+T13	Entity 455 472	fail to innervate
+T14	Entity 424 433	proximity
+T15	Entity 493 508	muscle spindles
+T16	Entity 524 543	TrkC-positive axons
+T17	Entity 563 577	target muscles
+T18	Entity 590 610	proprioceptive axons
+T19	Entity 621 636	ectopic regions
+T20	Entity 644 655	spinal cord
+T21	Entity 675 682	midline
+T22	Entity 707 730	chemoattractant effects
+T23	KeyEntity 734 738	NT-3
+T24	Entity 742 768	dorsal root ganglion axons
+T25	KeyEntity 808 812	NT-3
+T26	Entity 823 860	short-distance axon guidance molecule
+T27	Entity 865 889	muscle sensory afferents
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	is
+R2	other_relation Arg1:T2 Arg2:T3	
+#2	AnnotatorNotes R2	requires
+R3	is_subclass_of Arg1:T5 Arg2:T4	
+R4	participates_in Arg1:T6 Arg2:T7	
+R5	participates_in Arg1:T6 Arg2:T8	
+R6	participates_in Arg1:T10 Arg2:T13	
+R7	participates_in Arg1:T11 Arg2:T13	
+R8	other_relation Arg1:T16 Arg2:T17	
+#3	AnnotatorNotes R8	no_interaction
+R9	interacts_with Arg1:T18 Arg2:T19	
+R10	interacts_with Arg1:T18 Arg2:T20	
+R11	is_part_of Arg1:T22 Arg2:T23	
+R12	participates_in Arg1:T23 Arg2:T24	
+R13	interacts_with Arg1:T25 Arg2:T26	
+R14	interacts_with Arg1:T25 Arg2:T27	

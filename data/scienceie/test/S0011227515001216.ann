@@ -1,0 +1,25 @@
+T1	Task 9 37	assembling the miniature ADR
+T2	Material 24 37	miniature ADR
+T3	Material 43 62	mKCC MR heat switch
+T4	Process 82 105	thermally characterised
+T5	Material 113 133	cryostat constraints
+T7	Material 210 232	tungsten heat switches
+T8	Process 238 258	thermal conductivity
+T10	Process 340 360	thermal conductivity
+T11	Material 497 513	mKCC heat switch
+T12	Process 575 595	thermal conductivity
+T13	Material 607 623	MSSL heat switch
+T14	Material 829 851	tungsten heat switches
+T15	Material 960 982	20,000 RRR heat switch
+T16	Process 1056 1076	thermal conductivity
+T17	Process 1299 1319	thermal conductivity
+T18	Material 1423 1436	miniature ADR
+T19	Material 1327 1338	mKCC switch
+T6	Process 362 363	κ
+*	Synonym-of T10 T6
+T9	Process 408 422	magnetic field
+T20	Process 424 425	B
+*	Synonym-of T9 T20
+T23	Process 805 824	thermal performance
+T24	Material 1084 1095	mKCC switch
+R1	Hyponym-of Arg1:T15 Arg2:T14	

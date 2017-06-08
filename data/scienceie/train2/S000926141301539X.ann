@@ -1,0 +1,19 @@
+T1	Process 140 162	ion–molecule reactions
+T2	Process 30 58	Chesnavich model Hamiltonian
+T3	Process 390 404	identification
+T4	Material 103 106	TST
+T5	Material 800 822	trajectory simulations
+T6	Material 883 915	periodic orbit dividing surfaces
+T7	Task 722 785	dynamics which clearly reveal the origins of the roaming effect
+T8	Material 427 487	well defined phase space dividing surfaces attached to NHIMs
+T9	Process 614 643	associated potential function
+T10	Process 580 608	Chesnavich model Hamiltonian
+T11	Material 917 921	PODS
+*	Synonym-of T6 T11
+T12	Material 320 323	OTS
+T13	Material 180 183	OTS
+T14	Material 188 191	TTS
+T15	Material 249 274	space geometrical objects
+R1	Hyponym-of Arg1:T13 Arg2:T15	
+R2	Hyponym-of Arg1:T14 Arg2:T15	
+T16	Material 482 487	NHIMs

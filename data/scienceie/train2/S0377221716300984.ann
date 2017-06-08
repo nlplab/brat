@@ -1,0 +1,19 @@
+T1	Task 60 69	framework
+T2	Process 76 153	each agent is implementing a different metaheuristic/local search combination
+T3	Process 187 193	adapts
+T4	Material 233 262	a direct cooperation protocol
+T5	Task 272 294	reinforcement learning
+T6	Task 299 315	pattern matching
+T7	Task 317 330	Good patterns
+T8	Material 397 403	agents
+T9	Task 410 428	agent-based system
+T10	Process 437 473	provide a modular flexible framework
+T11	Process 477 525	deal with a variety of different problem domains
+T12	Task 564 577	this approach
+T13	Process 613 686	embodies a set of well known metaheuristics with different configurations
+T14	Material 700 719	two problem domains
+T15	Material 721 785	Permutation Flow-shop Scheduling and Capacitated Vehicle Routing
+*	Synonym-of T14 T15
+T16	Task 823 831	approach
+T17	Material 877 915	Capacitated Vehicle Routing benchmarks
+T18	Material 947 979	Permutation Flow-shop Scheduling

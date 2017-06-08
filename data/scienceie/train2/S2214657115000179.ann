@@ -1,0 +1,17 @@
+T1	Task 0 24	Aeroengine turbine disks
+T2	Material 42 54	paramagnetic
+T3	Material 67 104	non-ferromagnetic Nickel based alloys
+R1	Hyponym-of Arg1:T3 Arg2:T2	
+T4	Material 117 156	parasitic small ferromagnetic particles
+T5	Task 197 230	decrease the mechanical stability
+T6	Process 313 337	ferromagnetic inclusions
+T7	Task 367 383	magnetic density
+T8	Material 411 433	flux gate magnetometer
+T9	Process 444 469	magnetic remanence method
+T10	Process 479 526	detection principle of ferromagnetic impurities
+T11	Process 670 683	premagnetised
+T12	Process 751 771	hysteresis behaviour
+T13	Process 812 833	strong magnetic field
+T14	Task 605 616	measurement
+T15	Process 891 918	removing the magnetic field
+T16	Process 948 970	remaining flux density

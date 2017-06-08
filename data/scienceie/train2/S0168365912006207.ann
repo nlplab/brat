@@ -1,0 +1,21 @@
+T1	Material 64 67	PAs
+T2	Process 84 181	injected in vivo into models and spontaneously self-assemble into nanofibers in aqueous solutions
+T3	Material 196 199	PAs
+T4	Material 216 236	biomimetic materials
+T5	Material 252 272	collagen-mimetic PAs
+T6	Process 316 331	electrospinning
+T7	Process 335 357	a manufacturing method
+R1	Hyponym-of Arg1:T6 Arg2:T7	
+T8	Task 361 390	achieve fiber-like structures
+T9	Material 459 462	PAs
+T10	Process 489 517	costly manufacturing methods
+T11	Process 543 577	conventional manufacturing methods
+T12	Process 583 598	electrospinning
+T13	Process 689 702	self-assembly
+T14	Task 718 751	large-scale commercial production
+T15	Process 830 850	compare and contrast
+T16	Task 855 912	robustness of self-assemled PAs to electrospun nanofibers
+T17	Material 953 956	PAs
+T18	Process 1048 1067	tuned and optimized
+T19	Material 1081 1094	PA nanofibers
+T20	Task 1109 1154	a full-fledged commercialized medical product

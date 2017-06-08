@@ -1,0 +1,44 @@
+T1	Entity 167 189	amyloid-β (Aβ) peptide
+T2	KeyEntity 199 230	amyloid precursor protein (APP)
+T3	Entity 396 401	brain
+T5	Entity 520 534	damaged tissue
+T7	Entity 879 889	mutant APP
+T8	Entity 929 940	doxycycline
+T9	Entity 992 995	APP
+T10	Entity 1012 1039	fulminant amyloid pathology
+T11	KeyEntity 1054 1065	doxycycline
+T12	KeyEntity 1090 1115	transgenic APP expression
+T13	Entity 1148 1161	Aβ production
+T14	Entity 1201 1239	Suppression of transgenic Aβ synthesis
+T15	Entity 1273 1305	progression of amyloid pathology
+T6	KeyEntity 375 388	Aβ production
+R1	regulates Arg1:T6 Arg2:T5	
+R2	is_part_of Arg1:T1 Arg2:T2	
+R3	participates_in Arg1:T6 Arg2:T3	
+T4	Entity 550 565	amyloid lesions
+R4	regulates Arg1:T6 Arg2:T4	
+T20	Entity 730 752	transgenic mouse model
+T21	Entity 781 804	arrest of Aβ production
+R5	participates_in Arg1:T20 Arg2:T21	
+T22	Entity 862 866	mice
+R6	other_relation Arg1:T22 Arg2:T7	
+#1	AnnotatorNotes R6	overexpress
+R7	regulates Arg1:T8 Arg2:T7	
+R8	participates_in Arg1:T9 Arg2:T10	
+R9	regulates Arg1:T11 Arg2:T12	
+R10	regulates Arg1:T11 Arg2:T13	
+R11	regulates Arg1:T14 Arg2:T15	
+T18	Entity 1460 1557	Mice in which APP synthesis was suppressed for as long as 6 mo after the formation of Aβ deposits
+T19	Entity 1580 1592	amyloid load
+R12	participates_in Arg1:T18 Arg2:T19	
+T16	Entity 132 141	proteases
+T17	Entity 303 335	treatments for Alzheimer disease
+R14	is_part_of Arg1:T16 Arg2:T17	
+T23	Entity 834 854	secretase inhibitors
+R15	participates_in Arg1:T23 Arg2:T21	
+T24	Entity 143 153	secretases
+R16	is_subtype_of Arg1:T24 Arg2:T16	
+R13	regulates Arg1:T24 Arg2:T2	
+R17	is_subtype_of Arg1:T8 Arg2:T23	
+T25	Entity 1403 1410	plaques
+R18	is_subtype_of Arg1:T25 Arg2:T10	

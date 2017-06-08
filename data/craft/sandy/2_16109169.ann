@@ -1,0 +1,69 @@
+T1	Entity 150 160	Huntingtin
+T2	KeyEntity 166 173	HD gene
+T3	Entity 201 224	polyglutamine expansion
+T4	Entity 228 248	Huntington's disease
+T5	Entity 265 287	extraembryonic tissues
+T6	Entity 292 311	proper gastrulation
+T7	Entity 343 352	nutrition
+T8	Entity 356 366	patterning
+T9	Entity 374 391	developing embryo
+T10	Entity 435 468	whole mount in situ hybridization
+T11	KeyEntity 480 500	embryonic patterning
+T12	Entity 505 518	morphogenesis
+T13	Entity 522 541	homozygous Hdhex4/5
+T14	Entity 542 570	huntingtin deficient embryos
+R1	other_relation Arg1:T1 Arg2:T2	
+#1	AnnotatorNotes R1	equivalent
+R2	is_part_of Arg1:T3 Arg2:T2	
+R3	regulates Arg1:T2 Arg2:T5	
+R4	participates_in Arg1:T13 Arg2:T11	
+R5	participates_in Arg1:T13 Arg2:T12	
+T15	Entity 661 677	E7.0–7.5 embryos
+T16	Entity 710 728	patterning defects
+T17	Entity 744 770	shortened primitive streak
+T18	Entity 785 796	proper node
+T19	Entity 826 853	anterior streak derivatives
+T20	Entity 903 930	decreased paraxial mesoderm
+T21	Entity 935 958	reduced Otx2 expression
+T22	Entity 971 980	headfolds
+T23	Entity 990 1017	failure of head development
+T24	Entity 863 868	Wnt3a
+T25	Entity 870 874	Tbx6
+T26	Entity 879 883	Dll1
+T27	Entity 1101 1110	posterior
+T28	Entity 1154 1159	Nodal
+T29	Entity 1161 1165	Fgf8
+T30	Entity 1170 1173	Gsc
+T31	Entity 1181 1189	epiblast
+T32	Entity 1194 1207	T (Brachyury)
+T33	Entity 1212 1216	Evx1
+T34	Entity 1220 1249	proximal mesoderm derivatives
+T35	Entity 1328 1355	anterior/posterior polarity
+R6	participates_in Arg1:T24 Arg2:T23	
+R7	participates_in Arg1:T25 Arg2:T23	
+R8	participates_in Arg1:T26 Arg2:T23	
+R9	participates_in Arg1:T28 Arg2:T27	
+R10	participates_in Arg1:T29 Arg2:T27	
+R11	participates_in Arg1:T30 Arg2:T27	
+T36	Entity 1374 1397	single primitive streak
+T37	Entity 1441 1458	anterior epiblast
+T38	Entity 1463 1489	anterior visceral endoderm
+T39	Entity 1524 1534	Huntingtin
+T40	Entity 1555 1571	early patterning
+T41	Entity 1579 1585	embryo
+T42	Entity 1607 1622	anterior region
+T43	Entity 1630 1646	primitive streak
+T44	Entity 1687 1701	dynamic growth
+T45	Entity 1706 1732	transcription factor genes
+T46	Entity 1866 1888	extraembryonic tissues
+T47	Entity 1908 1935	anterior streak development
+T48	Entity 2023 2055	dominant polyglutamine expansion
+T49	Entity 2059 2069	huntingtin
+T50	Entity 2085 2100	loss of neurons
+T51	Entity 2104 2124	Huntington's disease
+R12	regulates Arg1:T39 Arg2:T40	
+R13	participates_in Arg1:T39 Arg2:T42	
+R14	regulates Arg1:T39 Arg2:T44	
+R15	participates_in Arg1:T39 Arg2:T45	
+R16	is_part_of Arg1:T48 Arg2:T49	
+R17	participates_in Arg1:T48 Arg2:T50	

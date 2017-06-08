@@ -1,0 +1,46 @@
+T5	Entity 352 371	photoreceptor cells
+T6	Entity 464 498	photoreceptor transcription factor
+T7	Entity 500 503	Crx
+T14	Entity 650 674	ultrastructural analysis
+T15	Entity 693 699	retina
+T16	Entity 703 718	Crx mutant mice
+T17	Entity 734 761	Outer segment morphogenesis
+T18	Entity 793 809	elongation stage
+T19	Entity 853 880	phototransduction apparatus
+T20	Entity 891 912	Crx-/- photoreceptors
+T21	Entity 944 960	synaptic endings
+T22	Entity 974 989	plexiform layer
+T23	Entity 1035 1056	synaptogenesis defect
+T26	Entity 1162 1187	photoreceptor development
+T27	Entity 1243 1246	LCA
+T28	Entity 286 304	Mutations in genes
+T29	Entity 222 233	early onset
+T30	Entity 243 284	abnormal development of the neural retina
+R2	regulates Arg1:T29 Arg2:T30	
+#2	AnnotatorNotes R2	regulates
+R3	regulates Arg1:T28 Arg2:T5	
+#3	AnnotatorNotes R3	regulates
+R4	other_relation Arg1:T6 Arg2:T7	
+#4	AnnotatorNotes R4	defines
+T3	KeyEntity 517 542	Crx mutant strain of mice
+T4	KeyEntity 569 582	model for LCA
+R5	is_part_of Arg1:T3 Arg2:T4	
+T8	Entity 616 630	Crx's function
+R6	other_relation Arg1:T4 Arg2:T8	
+#5	AnnotatorNotes R6	lead to understanding of
+R7	other_relation Arg1:T14 Arg2:T15	
+#6	AnnotatorNotes R7	method to investigate
+R8	is_part_of Arg1:T15 Arg2:T16	
+R9	regulates Arg1:T17 Arg2:T18	
+R10	regulates Arg1:T18 Arg2:T19	
+R11	other_relation Arg1:T20 Arg2:T21	
+#7	AnnotatorNotes R11	causes phenotype
+R12	is_subclass_of Arg1:T21 Arg2:T22	
+T9	KeyEntity 1063 1083	animal model for LCA
+R13	other_relation Arg1:T23 Arg2:T9	
+#8	AnnotatorNotes R13	is a phenotype of
+R14	regulates Arg1:T26 Arg2:T27	
+T1	KeyEntity 123 157	Leber's congenital amaurosis (LCA)
+T2	Entity 184 189	blind
+R1	other_relation Arg1:T1 Arg2:T2	
+#1	AnnotatorNotes R1	causes phenotype

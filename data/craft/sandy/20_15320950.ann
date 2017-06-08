@@ -1,0 +1,83 @@
+T1	Entity 142 158	Pendred syndrome
+T2	Entity 169 197	autosomal-recessive disorder
+T3	Entity 215 234	congenital deafness
+T4	Entity 239 245	goiter
+T5	KeyEntity 273 280	SLC26A4
+T6	Entity 298 305	pendrin
+T7	KeyEntity 348 355	pendrin
+T8	KeyEntity 360 368	deafness
+T9	Entity 391 401	Slc26a4+/+
+T10	Entity 436 446	Slc26a4-/-
+R1	is_subclass_of Arg1:T1 Arg2:T2	
+R2	participates_in Arg1:T3 Arg2:T1	
+R3	participates_in Arg1:T4 Arg2:T1	
+R4	regulates Arg1:T5 Arg2:T6	
+R5	interacts_with Arg1:T5 Arg2:T1	
+T11	Entity 473 480	pendrin
+T12	Entity 518 546	confocal immunocytochemistry
+T13	Entity 585 604	quantitative RT-PCR
+T14	Entity 610 632	endocochlear potential
+T15	Entity 641 671	endolymphatic K+ concentration
+T16	Entity 691 722	double-barreled microelectrodes
+T17	Entity 750 770	stria marginal cells
+T18	Entity 792 807	vibrating probe
+T19	Entity 841 875	morphometric distance measurements
+T20	Entity 880 892	pigmentation
+T21	Entity 911 923	densitometry
+R6	other_relation Arg1:T12 Arg2:T11	
+#1	AnnotatorNotes R6	experimental_test
+T22	Entity 548 566	Expression of mRNA
+R7	other_relation Arg1:T13 Arg2:T22	
+#2	AnnotatorNotes R7	experimental_test
+R8	other_relation Arg1:T16 Arg2:T14	
+#3	AnnotatorNotes R8	experimental_test
+R9	other_relation Arg1:T16 Arg2:T15	
+#4	AnnotatorNotes R9	experimental_test
+R10	other_relation Arg1:T18 Arg2:T17	
+#5	AnnotatorNotes R10	experimental_test
+R11	other_relation Arg1:T21 Arg2:T19	
+#6	AnnotatorNotes R11	experimental_test
+R12	other_relation Arg1:T21 Arg2:T20	
+#7	AnnotatorNotes R12	experimental_test
+T23	Entity 935 942	Pendrin
+T24	Entity 960 967	cochlea
+T25	Entity 971 987	apical membranes
+T26	Entity 991 1014	spiral prominence cells
+T27	Entity 1019 1039	spindle-shaped cells
+T28	Entity 1043 1059	stria vascularis
+T29	Entity 1147 1160	tissue masses
+T30	Entity 1081 1091	root cells
+T31	Entity 1093 1109	Endolymph volume
+T32	Entity 1113 1123	Slc26a4-/-
+T33	Entity 1191 1215	type I and II fibrocytes
+T34	Entity 1230 1240	Slc26a4-/-
+T35	Entity 1257 1279	endocochlear potential
+T36	Entity 1311 1329	basal cell barrier
+T37	Entity 1337 1347	K+ channel
+T38	Entity 1348 1354	KCNJ10
+T39	Entity 1388 1404	Stria vascularis
+T40	Entity 1409 1423	hyperpigmented
+T41	Entity 1449 1468	free radical damage
+T42	Entity 1474 1492	basal cell barrier
+T43	Entity 1533 1544	KCNJ10 mRNA
+T44	Entity 1562 1576	KCNJ10 protein
+T45	Entity 1589 1620	Endolymphatic K+ concentrations
+T46	Entity 1637 1654	membrane proteins
+T47	Entity 1669 1681	K+ secretion
+T48	Entity 1721 1726	KCNQ1
+T49	Entity 1731 1736	KCNE1
+T50	Entity 1738 1763	Na+/2Cl-/K+ cotransporter
+T51	Entity 1764 1771	SLC12A2
+T52	Entity 1793 1797	GJB2
+R13	is_part_of Arg1:T23 Arg2:T24	
+R14	is_part_of Arg1:T23 Arg2:T28	
+R15	participates_in Arg1:T31 Arg2:T32	
+#8	AnnotatorNotes R15	increases
+R16	participates_in Arg1:T29 Arg2:T33	
+#9	AnnotatorNotes R16	decreases
+R17	participates_in Arg1:T34 Arg2:T35	
+R18	regulates Arg1:T37 Arg2:T36	
+R19	other_relation Arg1:T38 Arg2:T37	
+#10	AnnotatorNotes R19	equivalent
+R20	participates_in Arg1:T41 Arg2:T39	
+R21	regulates Arg1:T46 Arg2:T47	

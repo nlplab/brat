@@ -1,0 +1,65 @@
+T1	Entity 151 189	Non-invasive autofluorescent reporters
+T2	Entity 210 226	lineage labeling
+T3	Entity 279 304	green fluorescent protein
+T4	KeyEntity 306 309	GFP
+T5	Entity 320 344	bioluminescent jellyfish
+T6	Entity 345 362	Aequoria Victoria
+T7	Entity 590 611	chromogenic substrate
+T8	Entity 632 639	in vivo
+T9	Entity 677 684	utility
+T10	Entity 689 713	developmental neutrality
+T11	Entity 726 751	green fluorescent protein
+T12	KeyEntity 753 757	EGFP
+T13	Entity 762 776	embryonic stem
+T14	Entity 778 780	ES
+R1	participates_in Arg1:T1 Arg2:T2	
+R2	other_relation Arg1:T4 Arg2:T3	
+#1	AnnotatorNotes R2	equivalent
+R3	other_relation Arg1:T6 Arg2:T5	
+#2	AnnotatorNotes R3	equivalent
+T15	Entity 409 431	gene targeting regimes
+R4	participates_in Arg1:T9 Arg2:T12	
+R5	participates_in Arg1:T10 Arg2:T12	
+R6	other_relation Arg1:T14 Arg2:T13	
+#3	AnnotatorNotes R6	equivalent
+T16	Entity 839 853	embryonic stem
+T17	Entity 855 857	ES
+T18	Entity 859 885	cell-mediated transgenesis
+T19	Entity 907 931	cyan fluorescent protein
+T20	Entity 933 937	ECFP
+T21	Entity 943 978	enhanced yellow fluorescent protein
+T22	Entity 980 984	EYFP
+T23	Entity 1080 1086	DsRed1
+T24	Entity 1098 1130	red fluorescent protein reporter
+R7	other_relation Arg1:T17 Arg2:T16	
+#4	AnnotatorNotes R7	equivalent
+R8	interacts_with Arg1:T18 Arg2:T19	
+R9	other_relation Arg1:T20 Arg2:T19	
+#5	AnnotatorNotes R9	equivalent
+R10	other_relation Arg1:T22 Arg2:T21	
+#6	AnnotatorNotes R10	equivalent
+R11	other_relation Arg1:T23 Arg2:T24	
+#7	AnnotatorNotes R11	equivalent
+T25	Entity 1156 1172	Discostoma coral
+T26	Entity 1339 1343	ECFP
+T27	Entity 1347 1373	EYFP GFP-variant reporters
+T28	Entity 1422 1428	DsRed1
+T29	Entity 1462 1489	not developmentally neutral
+T30	Entity 1498 1518	transgene expression
+R12	participates_in Arg1:T29 Arg2:T28	
+R13	participates_in Arg1:T30 Arg2:T28	
+T31	Entity 1665 1687	ECFP and EYFP ES cells
+T32	Entity 1758 1777	individual reporter
+R14	interacts_with Arg1:T32 Arg2:T31	
+T33	Entity 1837 1858	GFP variant reporters
+T34	Entity 1882 1923	non-invasive multi-spectral visualization
+T35	Entity 1945 1949	ECFP
+T36	Entity 1954 1958	EYFP
+T37	Entity 1970 1983	transgenic ES
+T38	Entity 2078 2117	double-tagged recombination experiments
+T39	Entity 2063 2076	combinatorial
+T40	Entity 2119 2127	chimeras
+T41	Entity 2131 2147	transplantations
+R15	is_part_of Arg1:T33 Arg2:T34	
+R16	participates_in Arg1:T36 Arg2:T37	
+R17	participates_in Arg1:T35 Arg2:T37	

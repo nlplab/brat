@@ -1,0 +1,57 @@
+T1	METHOD 134 153	Bayesian Case Model
+T2	METHOD 185 214	Bayesian case-based reasoning
+T3	TASK 225 249	prototype classification
+T4	METHOD 309 338	Bayesian generative framework
+T5	METHOD 449 528	performing joint inference on cluster labels, prototypes and important features
+T6	METRIC 891 918	participants' understanding
+T7	METRIC 791 814	classification accuracy
+T8	TASK 816 841	Human subject experiments
+T9	METHOD 21823 21826	LDA
+T10	METHOD 21848 21861	mixture model
+R1	uses Arg1:T9 Arg2:T10	
+T11	TASK 21877 21907	learn the underlying structure
+R2	addresses Arg1:T9 Arg2:T11	
+T12	DATASET 22029 22046	Handwritten Digit
+T13	DATASET 22056 22069	20 Newsgroups
+T14	SOFTWARE 22087 22108	implementation of LDA
+T15	METRIC 22230 22272	ratio of correctly assigned cluster labels
+T16	METHOD 22277 22280	BCM
+T17	METHOD 22285 22288	LDA
+T18	METHOD 22402 22448	upport vector machine (SVM) with linear kernel
+T19	METRIC 22521 22529	accuracy
+T20	TASK 22492 22502	clustering
+T21	METHOD 22533 22536	BCM
+T22	METHOD 22542 22545	LDA
+T23	METHOD 22792 22795	LDA
+T24	METRIC 22797 22805	accuracy
+T25	METHOD 22891 22894	LDA
+T26	METHOD 22899 22902	SVM
+T27	METHOD 22924 22927	LDA
+T28	METRIC 22928 22936	accuracy
+T29	DATASET 22950 22975	Handwritten Digit dataset
+T30	METHOD 23035 23038	BCM
+T31	METHOD 23142 23145	BCM
+T32	METRIC 23160 23192	unsupervised clustering accuracy
+T33	METHOD 23254 23257	BCM
+T34	TASK 23540 23563	uman subject experiment
+R3	addresses Arg1:T18 Arg2:T20	
+T35	DATASET 27624 27649	Handwritten Digit dataset
+T36	METHOD 27715 27718	BCM
+T37	METHOD 27827 27830	BCM
+T38	METHOD 28781 28784	BCM
+T39	DATASET 29011 29043	Computer Cooking Contest dataset
+T40	METHOD 29237 29240	BCM
+T41	METHOD 29560 29580	case-based reasoning
+T42	METHOD 29585 29608	prototypebased modeling
+T43	METHOD 29504 29523	Bayesian Case Model
+T44	METRIC 29809 29827	prediction quality
+T45	METRIC 29832 29848	interpretability
+T46	METHOD 29880 29903	Exemplar-based modeling
+T47	METHOD 29905 29922	nearest-neighbors
+T48	METHOD 29924 29944	case-based reasoning
+R4	is_subclass_of Arg1:T47 Arg2:T46	
+R5	is_subclass_of Arg1:T48 Arg2:T46	
+R6	is_subclass_of Arg1:T43 Arg2:T41	
+R7	is_subclass_of Arg1:T43 Arg2:T42	
+T49	IDK_MAN 27738 27785	characterizes the important aspects of the data
+#1	AnnotatorNotes T49	suggested type: what the method does

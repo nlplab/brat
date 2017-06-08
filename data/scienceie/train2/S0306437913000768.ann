@@ -1,0 +1,11 @@
+T1	Task 0 32	Modeling collaboration processes
+T2	Process 65 84	modeling approaches
+T3	Process 156 175	human collaboration
+T4	Process 324 418	evolution of a network of collaborative documents along with a social network of collaborators
+T6	Process 424 441	modeling approach
+T7	Process 460 496	graphical notation and formalization
+T8	Process 520 558	influence of complex social structures
+T9	Task 633 669	discovery of socially coherent teams
+T12	Process 259 276	modeling approach
+T13	Process 293 316	collaboration processes
+R1	Hyponym-of Arg1:T4 Arg2:T13	

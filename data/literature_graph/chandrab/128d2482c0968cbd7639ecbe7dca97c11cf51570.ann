@@ -1,0 +1,36 @@
+T1	TASK 376 401	Word Sense Disambiguation
+T2	TASK 170 197	natural language processing
+T3	TASK 320 334	Disambiguation
+T4	IDK_MAN 583 599	this information
+T5	METHOD 800 821	global disambiguation
+T6	TASK 78 101	Disambiguating concepts
+R1	is_subclass_of Arg1:T6 Arg2:T2	
+T7	DATASET 225 234	Wikipedia
+T8	TASK 304 318	disambiguation
+T9	IDK_MAN 776 795	previous approaches
+T10	TASK 2080 2092	Wikification
+R2	addresses Arg1:T7 Arg2:T8	
+T11	TASK 2197 2209	Wikification
+T12	TASK 2267 2294	natural language processing
+R3	is_subclass_of Arg1:T11 Arg2:T12	
+T13	TASK 2311 2330	text classification
+T14	TASK 2388 2417	measuring semantic similarity
+T15	TASK 2469 2506	crossdocument co-reference resolution
+R4	is_subclass_of Arg1:T15 Arg2:T12	
+R5	is_subclass_of Arg1:T14 Arg2:T12	
+R6	is_subclass_of Arg1:T13 Arg2:T12	
+T16	TASK 2613 2625	Wikification
+T17	DATASET 2894 2903	Wikipedia
+T18	TASK 2921 2933	Wikification
+T19	TASK 2963 2990	Disambiguation to Wikipedia
+T20	TASK 3010 3013	D2W
+T21	TASK 3104 3116	disambiguate
+T22	TASK 3458 3461	D2W
+T23	TASK 3473 3485	disambiguate
+T24	TASK 3660 3663	D2W
+T25	IDK_MAN 3706 3723	global approaches
+T26	TASK 3727 3738	the problem
+T27	IDK_MAN 4170 4187	Global approaches
+T28	DATASET 4200 4220	Wikipedia link graph
+T29	IDK_MAN 763 926	We show that previous approaches for global disambiguation can be improved, but even then the local disam-biguation provides a baseline which is very hard to beat.
+T30	IDK_MAN 28350 28357	Table 4

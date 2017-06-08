@@ -1,0 +1,44 @@
+T1	Task 15 48	formulating anionic nanocomplexes
+T2	Material 74 87	nanocomplexes
+T3	Process 93 101	prepared
+T4	Material 272 291	an anionic liposome
+T5	Process 263 268	added
+T6	Process 315 324	incubated
+T7	Material 293 309	LA, LAP1 or LAP2
+*	Synonym-of T4 T7
+T8	Process 380 385	added
+T9	Process 408 417	incubated
+T10	Material 249 252	DNA
+T11	Material 481 488	peptide
+T12	Process 493 498	added
+T13	Process 514 523	incubated
+T14	Process 576 581	added
+T15	Material 563 571	liposome
+T16	Process 604 613	incubated
+T17	Material 778 781	LPD
+T18	Material 786 793	LCPRGPD
+T19	Process 875 880	added
+T20	Material 897 902	DOTMA
+T21	Material 903 907	DOPE
+T22	Material 911 916	LCPRG
+T23	Material 945 948	DNA
+T24	Process 954 980	rapid mixing and incubated
+T25	Material 1087 1090	LPD
+T26	Material 1092 1111	liposome DOTMA/DOPE
+T27	Material 1114 1118	LADP
+T28	Material 1123 1127	PDLA
+T29	Material 1129 1140	liposome LA
+T30	Material 1143 1149	PDLAP1
+T31	Material 1151 1164	liposome LAP1
+T32	Material 1167 1173	PDLAP2
+T33	Material 1175 1188	liposome LAP2
+*	Synonym-of T32 T33
+*	Synonym-of T28 T29
+*	Synonym-of T25 T26
+*	Synonym-of T30 T31
+T34	Material 1191 1198	PDLAPRG
+T35	Material 1200 1214	liposome LAPRG
+T36	Material 1220 1227	LCPRGPD
+T37	Material 1229 1243	liposome LCPRG
+*	Synonym-of T34 T35
+*	Synonym-of T36 T37

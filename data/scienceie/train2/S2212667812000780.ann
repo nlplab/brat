@@ -1,0 +1,12 @@
+T1	Process 134 143	knowledge
+T2	Process 230 238	teaching
+T3	Process 243 251	learning
+T4	Process 405 429	implementation principle
+T5	Process 431 448	curriculum design
+T6	Process 450 466	education policy
+T7	Task 205 276	improving the quality of teaching and learning on sport normal students
+T8	Task 527 542	future research
+T9	Process 314 369	factors on promoting the level of teaching and learning
+R1	Hyponym-of Arg1:T4 Arg2:T9	
+R2	Hyponym-of Arg1:T5 Arg2:T9	
+R3	Hyponym-of Arg1:T6 Arg2:T9	

@@ -1,0 +1,35 @@
+T1	IDK_MAN 111 131	syntactic structures
+T2	METRIC 217 235	parsing performanc
+T3	TASK 363 393	designing an annotation scheme
+T4	METHOD 406 419	a methodology
+T5	TASK 424 443	syntactic selection
+T6	TASK 250 338	electing between alternative syntactic representations (henceforth, syntactic selection)
+R1	uses Arg1:T3 Arg2:T6	
+R2	addresses Arg1:T4 Arg2:T5	
+T7	IDK_MAN 464 493	central dependency structures
+T8	METHOD 499 510	methodology
+T9	METRIC 1186 1205	parsing performance
+T10	METHOD 1122 1141	syntactic selection
+T11	TASK 1263 1301	designing syntactic annotation schemes
+R3	addresses Arg1:T10 Arg2:T11	
+T12	METRIC 906 918	learnability
+T13	METRIC 951 963	earnabil-ity
+T14	METHOD 38362 38440	selecting between alternative syntactic representations (syntactic selection )
+T15	METRIC 38485 38504	parsing performance
+T16	METHOD 38527 38557	learnability-based methodology
+T17	METHOD 38562 38581	syntactic selection
+R4	uses Arg1:T17 Arg2:T16	
+T18	METHOD 38677 38692	Our methodology
+T19	METRIC 39025 39037	learnability
+T20	METRIC 39178 39197	parsing performance
+T21	TASK 39257 39292	designing future dependency schemes
+T22	METHOD 39328 39343	our methodology
+T23	TASK 39500 39540	deciding between alternative annotations
+T24	TASK 39580 39600	constituency parsing
+T25	TASK 39550 39570	syntactic formalisms
+T26	TASK 39609 39624	other NLP tasks
+T27	TASK 39633 39644	POS tagging
+T28	TASK 39649 39673	noun-compound annotation
+R6	is_subclass_of Arg1:T27 Arg2:T26	
+R7	is_subclass_of Arg1:T28 Arg2:T26	
+R8	is_subclass_of Arg1:T24 Arg2:T25	

@@ -1,0 +1,25 @@
+T4	Process 228 237	SAFT-γ SW
+T6	Process 377 396	non-polar compounds
+T1	Material 164 193	Mixtures of n-alkanes and H2O
+T2	Process 75 97	pure-component systems
+T3	Material 356 371	mixtures of H2O
+T5	Task 759 796	description of the alkane-rich phases
+T7	Material 981 997	aqueous mixtures
+T8	Material 1310 1313	H2O
+T9	Material 1322 1334	alkyl groups
+T10	Material 1336 1347	CH3 and CH2
+R1	Hyponym-of Arg1:T10 Arg2:T9	
+T11	Process 1289 1334	interactions between H2O and the alkyl groups
+T12	Material 511 514	H2O
+T13	Material 803 809	liquid
+T14	Material 814 820	vapour
+T15	Material 1030 1033	H2O
+T16	Material 1035 1045	alkylamine
+T17	Material 1051 1054	CO2
+T18	Process 1356 1374	ϵCH3,H2O, ϵCH2,H2O
+T19	Process 1379 1397	λCH3,H2O, λCH2,H2O
+R2	Hyponym-of Arg1:T18 Arg2:T11	
+R3	Hyponym-of Arg1:T19 Arg2:T11	
+T20	Material 523 544	hydrophobic molecules
+T21	Process 1129 1151	fluid-phase equilibria
+T22	Material 1129 1134	fluid

@@ -1,0 +1,18 @@
+T1	KeyEntity 81 134	Medium-chain acyl-CoA dehydrogenase (MCAD) deficiency
+T2	Entity 176 212	mitochondrial fatty acid β-oxidation
+T3	KeyEntity 310 335	MCAD deficiency (MCAD−/−)
+T4	Entity 294 305	mouse model
+T5	Entity 357 382	embryonic stem (ES) cells
+T6	KeyEntity 388 400	MCAD−/− mice
+T7	Entity 414 446	organic aciduria and fatty liver
+T8	Entity 468 484	cold intolerance
+T9	Entity 526 541	cardiac lesions
+T10	KeyEntity 550 562	MCAD−/− mice
+T11	Entity 589 608	human MCAD patients
+T12	Entity 632 650	neonatal mortality
+T13	KeyEntity 654 666	MCAD−/− pups
+T14	Entity 744 767	MCAD-deficient patients
+T15	KeyEntity 773 793	MCAD-deficient mouse
+T16	Entity 826 847	human MCAD deficiency
+T17	Entity 910 929	atty acid oxidation
+T18	Entity 934 946;950 964;975 995	pathogenesis human diseases fatty acid oxidation

@@ -1,0 +1,52 @@
+Instructions for the SemEval 2017 ScienceIE annotation.
+Please read carefully before starting to annotate documents.
+
+Annotation types:
+
+Entities:
+
+- Task: this includes smaller concrete research tasks (e.g. ‘powder processing’, ‘dependency parsing’) and broader research areas (e.g. ‘machine learning’). Generally, these are problems tackled in a paper.
+- Process: this includes methods/techniques/algorithms (e.g. ‘backpropagation’), physical equipment (e.g. ‘plasmatic nanosensors’, ‘electron microscope’) and tools (e.g. ‘MATLAB’). Generally, these are solutions proposed to solve problems in a paper.
+- Material: this includes physical materials (e.g. ‘iron’, nanotube’), as well as datasets/corpora (e.g. ‘the ConLL-2003 NER corpus’). Generally, these are resources studied in the paper or resources used to solve problems in a paper.
+
+Note that the same terms can have different meanings in different papers. Especially, what can be a task in one paper can become part of the solution to a different task, or even a material, in another paper.
+
+
+Relations:
+
+Relations hold between entities of the same type.
+
+- is-a
+- same-as
+
+
+Annotation guidelines:
+
+Entities:
+
+- When selecting entity spans, please select phrases without prepositional modifiers, e.g. in “We develop a method to measure the adsorption of water by the pores in a film”, annotate “measure the adsorption” as a task, but do not include “of water by the pores in a film” or in “based on an extended two-compartment model”, only annotate 
+
+- Please annotate collective noun phrases *as one entity*, e.g. ‘Type 1 and Type 2 error’ as opposed to ‘Type 1’, ‘Type 2 error’
+- If an entity is followed by an abbreviation for that entity, please annotate it as *two separate entities* and define an ‘same-as’ relation between them, e.g. ‘named entity recognition (NER)’ -> ‘named entity recognition’ same-as ‘NER’
+
+
+Relations:
+
+- Please only annotate relations *within a sentence*
+- Please only annotate relations if they are explicitly expressed in a sentence, e.g. do not annotate relations based on your world knowledge alone
+- The direction of a ’same-as’ annotation *does not matter*, e.g. feel free to annotate either ‘named entity recognition’ same-as ‘NER’ or ‘NER’ same-as ‘named entity recognition’
+- If there are multiple hops of is-a relations within a sentence, you only have to annotate the closest hops, e.g. for a sentence ‘A is a B is a C’ you only have to annotate ‘A is a B’, ‘B is a C’, but *not* in addition ‘A is a C’
+
+
+
+BRAT manual: http://brat.nlplab.org/manual.html
+
+In short: 
+- select text spans with mouse by either dragging over the text or double-clicking individual words
+- the span annotation dialog will open which will allow you select a type, or search for the selected text on Wikipedia or Google
+- relations can be annotated by dragging the mouse from one annotation to the other
+
+
+Homepage: https://scienceie.github.io/
+Texts: from ScienceDirect, see: http://www.sciencedirect.com/
+Contact: please contact i.augenstein@ucl.ac.uk for questions regarding the annotation

@@ -1,0 +1,22 @@
+T1	Material 19 23	data
+T2	Material 36 60	Cloud Computing provider
+T3	Process 80 99	excessive marketing
+T4	Task 142 166	cloud computing security
+T5	Task 177 192	Cloud Computing
+T7	Process 287 342	confidentiality, integrity, reliability and consistency
+T8	Process 344 348	CIRC
+*	Synonym-of T7 T8
+T9	Process 422 443	future cloud strategy
+T13	Process 515 527	Multi-Clouds
+T14	Process 529 544	Cloud of Clouds
+T15	Process 548 559	Interclouds
+T16	Process 588 608	security limitations
+T17	Process 616 628	single Cloud
+T18	Task 637 688	usefulness of adopting rather Multi-Clouds strategy
+T19	Process 667 688	Multi-Clouds strategy
+T20	Process 699 713	security risks
+T21	Material 734 740	DepSky
+T22	Material 752 774	virtual storage system
+R1	Hyponym-of Arg1:T22 Arg2:T21	
+T23	Process 788 832	better availability and high confidentiality
+T6	Task 576 628	present the security limitations in the single Cloud

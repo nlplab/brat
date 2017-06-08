@@ -1,0 +1,16 @@
+T1	KeyEntity 161 184	Tripeptidyl-peptidase I
+T2	KeyEntity 200 204	CLN2
+T3	Entity 235 245	sedolisins
+T4	Entity 340 365	neurodegenerative disease
+T5	Entity 317 323	enzyme
+T6	Entity 368 422	lassical late-infantile neuronal ceroid lipofuscinosis
+T7	KeyEntity 682 686	CLN2
+T8	Entity 747 754	Enzymes
+T9	Entity 819 826	genomes
+T10	KeyEntity 1032 1036	CLN2
+T11	KeyEntity 1125 1129	CLN2
+T12	Entity 1241 1252	life cycles
+T13	KeyEntity 1380 1384	CLN2
+R1	participates_in Arg1:T11 Arg2:T12	
+R2	participates_in Arg1:T5 Arg2:T4	
+R3	is_subclass_of Arg1:T6 Arg2:T4	

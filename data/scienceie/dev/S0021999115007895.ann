@@ -1,0 +1,26 @@
+T1	Process 125 146	variational framework
+T2	Task 0 42	The dynamics of various physical phenomena
+T3	Process 167 189	variational principles
+T4	Process 317 325	approach
+T5	Process 378 395	single functional
+T6	Process 427 442	action integral
+T7	Process 402 412	Lagrangian
+R1	Hyponym-of Arg1:T6 Arg2:T7	
+T8	Process 444 465	Hamiltonian mechanics
+T9	Process 471 508	reformulation of Lagrangian mechanics
+R2	Hyponym-of Arg1:T9 Arg2:T8	
+T10	Material 68 77	pendulums
+T11	Material 79 86	planets
+T12	Material 91 102	water waves
+R3	Hyponym-of Arg1:T7 Arg2:T5	
+T13	Process 24 42	physical phenomena
+T14	Process 56 102	movement of pendulums, planets, or water waves
+R4	Hyponym-of Arg1:T14 Arg2:T13	
+T15	Material 537 546	framework
+T16	Task 550 591	study the symmetry properties of a system
+T17	Process 707 726	Hamiltonian systems
+T18	Process 776 782	system
+T20	Process 892 911	Hamiltonian systems
+T19	Task 942 965	numerical approximation
+T21	Process 352 372	dynamics of a system
+T22	Task 336 372	express all the dynamics of a system

@@ -1,0 +1,11 @@
+# tool configuration for CoNLL-X Portuguese data
+# (http://ilk.uvt.nl/conll/free_data.html)
+
+[options]	 
+
+Tokens          tokenizer:ptblike
+Sentences       splitter:newline
+
+[search]	 
+Google	<URL>:http://www.google.com/search?q=%s
+Wikipedia	<URL>:http://en.wikipedia.org/wiki/%s

@@ -1,0 +1,12 @@
+T1	METHOD 524 540	Graphical models
+T2	TASK 569 604	exploiting the dependence structure
+R1	addresses Arg1:T1 Arg2:T2	
+T3	METHOD 636 652	graphical models
+T4	METHOD 1272 1322	directly model the conditional distribution p(y|x)
+T5	METHOD 896 927	modeling the joint distribution
+T6	METHOD 1394 1419	conditional random fields
+T7	METHOD 1447 1471	conditional random field
+T8	METHOD 1484 1508	conditional distribution
+R3	is_subclass_of Arg1:T7 Arg2:T8	
+T9	TASK 1348 1362	classification
+R2	addresses Arg1:T4 Arg2:T9	

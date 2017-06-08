@@ -1,0 +1,24 @@
+T1	Entity 144 211	α-amino-3-hydroxy-5-methyl-4-isoxazolepropionate receptors (AMPARs)
+T2	KeyEntity 359 365	AMPARs
+T3	KeyEntity 389 394	AMPAR
+T4	Entity 441 455	GluR-B subunit
+R1	is_part_of Arg1:T4 Arg2:T3	
+T5	Entity 473 491	unedited GluR-B(Q)
+T6	Entity 509 536	increased Ca2+ permeability
+R2	participates_in Arg1:T5 Arg2:T6	
+R3	participates_in Arg1:T4 Arg2:T6	
+T7	KeyEntity 540 546	AMPARs
+T8	Entity 574 586	AMPAR switch
+T9	Entity 631 655	olfactory discrimination
+T10	Entity 665 679	rapid learning
+R4	participates_in Arg1:T8 Arg2:T9	
+R5	participates_in Arg1:T8 Arg2:T10	
+T11	Entity 775 791	GluR-B depletion
+T12	Entity 888 914	decreased olfactory memory
+R6	other_relation Arg1:T11 Arg2:T12	
+T13	Entity 977 994	transgenic GluR-B
+T14	Entity 1068 1087	odor discrimination
+T15	Entity 1112 1130	GluR-B variability
+T16	Entity 1135 1163	transgenic GluR-B expression
+R7	other_relation Arg1:T14 Arg2:T15	
+R8	other_relation Arg1:T14 Arg2:T16	

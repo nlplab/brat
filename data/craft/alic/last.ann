@@ -1,0 +1,49 @@
+T2	KeyEntity 163 169	kidney
+T3	KeyEntity 185 190	urine
+T4	KeyEntity 206 217	vasopressin
+R1	participates_in Arg1:T4 Arg2:T2	
+T5	KeyEntity 239 269	nephrogenic diabetes insipidus
+T6	Entity 296 305	mutations
+T7	KeyEntity 313 343	vasopressin receptor 2 (Avpr2)
+T8	KeyEntity 392 410	aquaporin-2 (Aqp2)
+T9	Entity 494 506	animal model
+T10	KeyEntity 516 541	forward genetic screening
+T11	KeyEntity 545 573	ethylnitrosourea-mutagenized
+T12	Entity 635 646	mouse model
+T1	KeyEntity 70 117	Congenital nephrogenic diabetes insipidus (NDI)
+T13	KeyEntity 650 654	NDI,
+T14	KeyEntity 663 677	F204V mutation
+T15	KeyEntity 685 689	Aqp2
+R2	other_relation Arg1:T14 Arg2:T13	
+#1	AnnotatorNotes R2	causes phenotype
+T16	KeyEntity 741 744	NDI
+T17	Entity 724 737	murine models
+T18	Entity 766 775	adulthood
+T19	Entity 810 824	human disorder
+T20	KeyEntity 793 805	recapitulate
+T21	Entity 835 843	in vitro
+T22	KeyEntity 862 878	renal cell lines
+T23	KeyEntity 897 901	Aqp2
+T24	Entity 922 942	improper trafficking
+T25	Entity 902 911	mutations
+T26	Entity 897 911	Aqp2 mutations
+R3	other_relation Arg1:T26 Arg2:T24	
+#2	AnnotatorNotes R3	results in
+T27	KeyEntity 1033 1060	improper AQP2 translocation
+T28	Entity 1068 1084	molecular defect
+T29	KeyEntity 1088 1118	nephrogenic diabetes insipidus
+R4	other_relation Arg1:T27 Arg2:T29	
+#3	AnnotatorNotes R4	causes phenotype
+T30	KeyEntity 1165 1180	renal cell line
+T31	KeyEntity 1215 1225	AQP2-F204V
+T32	KeyEntity 1246 1267	endoplasmic reticulum
+T33	KeyEntity 1282 1303	abnormal localization
+T34	KeyEntity 1311 1318	rescued
+T35	KeyEntity 1322 1339	wild-type protein
+R5	other_relation Arg1:T35 Arg2:T33	
+#4	AnnotatorNotes R5	rescues
+T36	Entity 1352 1363	mouse model
+T37	Entity 1383 1402	mechanistic studies
+T38	Entity 1425 1440	pharmacological
+T39	Entity 1445 1459	gene therapies
+T40	KeyEntity 1464 1467	NDI

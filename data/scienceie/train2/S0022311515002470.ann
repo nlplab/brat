@@ -1,0 +1,32 @@
+T1	Task 17 61	electrochemical reduction of uranium dioxide
+T2	Process 173 188	electrochemical
+T3	Process 193 210	synchrotron X-ray
+T4	Material 65 78	uranium metal
+T5	Material 101 157	lithium chloride–potassium chloride eutectic molten salt
+T6	Material 487 502	uranium dioxide
+T7	Material 790 801	molten salt
+T8	Material 938 949	molten salt
+T9	Process 623 643	cyclic voltammograms
+T10	Process 697 706	EDXD data
+T11	Process 712 737	electrochemical reduction
+T12	Process 458 483	electrochemical reduction
+T13	Material 372 384	UO2|U couple
+T14	Material 46 61	uranium dioxide
+T15	Task 244 323	deduce the electrochemical reduction potential, mechanism and reduction pathway
+T16	Material 417 427	oxide ions
+T17	Material 506 519	uranium metal
+T18	Material 550 558	electron
+T19	Material 812 820	O2− ions
+T20	Process 847 863	electroreduction
+T21	Material 885 902	counter electrode
+T22	Material 976 985	electrode
+T23	Material 448 452	melt
+T24	Material 1045 1054	electrode
+T25	Material 1118 1126	O2− ions
+T26	Material 1146 1155	electrode
+T27	Material 1210 1220	oxide ions
+T28	Material 1241 1245	melt
+T29	Process 1268 1293	electrochemical reduction
+T30	Material 1341 1351	electrodes
+T31	Task 1296 1351	exploration of the microstructure of working electrodes
+T32	Process 548 563	4-electron-step

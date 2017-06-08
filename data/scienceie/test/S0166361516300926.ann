@@ -1,0 +1,9 @@
+T1	Material 80 91	ERP modules
+T2	Process 717 734	hybrid ERP system
+T3	Process 832 858	Enterprise Social Software
+T4	Process 860 863	ESS
+*	Synonym-of T3 T4
+T5	Process 1391 1408	hybrid ERP system
+T6	Process 188 198	ERP system
+T7	Process 790 806	ERP installation
+T8	Process 941 951	ERP system

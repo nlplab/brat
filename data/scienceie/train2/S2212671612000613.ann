@@ -1,0 +1,18 @@
+T1	Process 0 17	Video-oculography
+T2	Process 19 22	VOG
+T3	Process 34 66	eye movement measurement methods
+R1	Hyponym-of Arg1:T3 Arg2:T1	
+T4	Process 85 88	VOG
+T5	Task 95 131	accurately estimate the pupil center
+T6	Process 140 161	pupil location method
+T7	Process 171 181	morphology
+T8	Process 186 201	Canny algorithm
+T9	Process 221 242	WIFI-based VOG system
+T10	Material 292 309	healthy volunteer
+T11	Task 331 355	sinusoidal tracking test
+T12	Process 372 393	pupil location method
+T13	Process 450 468	trace eye movement
+T14	Process 507 518	stimulation
+T15	Task 34 58	eye movement measurement
+T16	Process 232 235	VOG
+T17	Task 359 393	evaluate the pupil location method

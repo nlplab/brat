@@ -1,0 +1,19 @@
+T1	Material 59 90	a parametric-model-based method
+T2	Task 0 30	The GFRFs of nonlinear systems
+T3	Material 94 128	a nonparametric-model-based method
+T5	Task 162 190	a nonlinear parametric model
+T4	Task 243 248	GFRFs
+T6	Process 270 323	mapping the resultant model into the frequency domain
+T7	Material 334 348	probing method
+T8	Task 358 380	nonparametric approach
+T9	Task 405 452	frequency-domain Volterra system identification
+R1	Hyponym-of Arg1:T8 Arg2:T9	
+T10	Task 494 529	Volterra model of nonlinear systems
+T11	Material 614 646	corresponds to a linear relation
+T12	Task 737 756	linear relationship
+T13	Material 775 804	a least squares (LS) approach
+T14	Task 822 827	GFRFs
+T15	Task 895 900	GFRFs
+T16	Process 919 938	made the assumption
+T17	Task 970 980	the system
+T18	Material 1020 1038	two or three terms

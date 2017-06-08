@@ -1,0 +1,21 @@
+T1	Material 59 73	lettered words
+T2	Process 96 130	development of economy and culture
+T3	Process 175 188	communication
+T4	Material 226 240	lettered words
+T5	Material 278 292	Lettered words
+T6	Material 330 348	Chinese vocabulary
+T7	Material 358 361	WTO
+R1	Hyponym-of Arg1:T7 Arg2:T6	
+T8	Material 363 371	Ka la OK
+R2	Hyponym-of Arg1:T8 Arg2:T6	
+T9	Material 376 379	MP3
+R3	Hyponym-of Arg1:T9 Arg2:T6	
+T10	Process 408 425	vocabulary system
+T11	Material 453 467	lettered words
+T12	Process 503 517	Ecolinguistics
+T13	Task 703 754	discuss the reasons of appearing the lettered words
+T14	Process 527 547	branch of linguistic
+R4	Hyponym-of Arg1:T12 Arg2:T14	
+T15	Process 555 594	combine the linguistic with the ecology
+*	Synonym-of T12 T15
+T16	Task 620 685	analyze the lettered words from the perspective of Ecolinguistics

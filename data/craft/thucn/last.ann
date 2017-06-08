@@ -1,0 +1,43 @@
+T1	KeyEntity 70 117	Congenital nephrogenic diabetes insipidus (NDI)
+T2	Entity 148 169	failure of the kidney
+T3	Entity 206 217	vasopressin
+T4	Entity 219 233	Human kindreds
+T5	Entity 239 269	nephrogenic diabetes insipidus
+T6	Entity 313 343	vasopressin receptor 2 (Avpr2)
+T7	Entity 356 410	vasopressin-sensitive water channel aquaporin-2 (Aqp2)
+T8	Entity 545 578	ethylnitrosourea-mutagenized mice
+T9	Entity 516 541	forward genetic screening
+T10	Entity 635 653	mouse model of NDI
+T13	Entity 724 744	murine models of NDI
+T14	Entity 887 911	recessive Aqp2 mutations
+T15	Entity 922 967	improper trafficking of the mutant water pore
+T16	Entity 1033 1060	improper AQP2 translocation
+T17	Entity 1068 1084	molecular defect
+T18	Entity 1088 1118	nephrogenic diabetes insipidus
+T19	Entity 1165 1180	renal cell line
+T20	Entity 862 878	renal cell lines
+T21	Entity 1215 1225	AQP2-F204V
+T22	Entity 1352 1363	mouse model
+T23	Entity 1383 1402	mechanistic studies
+T24	KeyEntity 1464 1467	NDI
+R1	other_relation Arg1:T1 Arg2:T2	
+#1	AnnotatorNotes R1	causes phenotype
+R2	regulates Arg1:T3 Arg2:T2	
+R3	regulates Arg1:T6 Arg2:T5	
+#2	AnnotatorNotes T4	study organism
+R4	regulates Arg1:T7 Arg2:T5	
+#3	AnnotatorNotes T9	a method in the study
+#4	AnnotatorNotes T8	animal model in study
+#5	AnnotatorNotes T10	animal model in study
+T11	Entity 663 689	F204V mutation in the Aqp2
+R5	regulates Arg1:T11 Arg2:T10	
+#6	AnnotatorNotes R5	is a property of
+R6	regulates Arg1:T14 Arg2:T15	
+#7	AnnotatorNotes T13	animal model
+R7	other_relation Arg1:T20 Arg2:T14	
+#8	AnnotatorNotes R7	method to study
+R8	other_relation Arg1:T16 Arg2:T18	
+#9	AnnotatorNotes R8	causes phenotype
+T12	Entity 1282 1303	abnormal localization
+R9	other_relation Arg1:T21 Arg2:T12	
+#10	AnnotatorNotes R9	causes phenotype

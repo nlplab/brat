@@ -1,0 +1,62 @@
+T1	Entity 127 171	wingless-related MMTV integration site (WNT)
+T2	Entity 176 206	fibroblast growth factor (FGF)
+T3	Entity 227 233	growth
+T4	Entity 235 248	morphogenesis
+T5	Entity 254 269	differentiation
+T6	Entity 301 312	development
+T7	KeyEntity 328 332	Fgf9
+T8	KeyEntity 337 341	Wnt4
+T9	Entity 359 365	gonads
+T10	Entity 389 406	sex determination
+T12	Entity 430 445	XY sex reversal
+T14	Entity 479 505	partial testis development
+T15	Entity 509 518	XX gonads
+T16	KeyEntity 603 606	Sry
+T17	KeyEntity 681 714	fibroblast growth factor 9 (FGF9)
+T18	KeyEntity 719 723	WNT4
+T19	Entity 760 777	sex determination
+T20	Entity 795 800	gonad
+T21	KeyEntity 802 805	Sry
+T22	KeyEntity 853 857	Sox9
+T23	KeyEntity 862 866	Fgf9
+T24	KeyEntity 887 891	Fgf9
+T25	KeyEntity 906 910	Wnt4
+T26	Entity 928 934	testis
+T27	Entity 958 969	loss of Wnt
+T29	KeyEntity 1013 1017	Fgf9
+T28	KeyEntity 1022 1026	Sox9
+T30	Entity 1045 1048	Sry
+T31	KeyEntity 1132 1136	Fgf9
+T32	KeyEntity 1141 1145	Wnt4
+T33	KeyEntity 1191 1194	Sry
+T34	Entity 1299 1316	sex determination
+R1	regulates Arg1:T2 Arg2:T3	
+R2	regulates Arg1:T2 Arg2:T4	
+R3	regulates Arg1:T2 Arg2:T5	
+R4	regulates Arg1:T1 Arg2:T3	
+R5	regulates Arg1:T1 Arg2:T4	
+R6	regulates Arg1:T1 Arg2:T5	
+R7	is_part_of Arg1:T8 Arg2:T9	
+R8	is_part_of Arg1:T7 Arg2:T9	
+T11	Entity 408 420	Loss of Fgf9
+R9	other_relation Arg1:T11 Arg2:T12	
+#1	AnnotatorNotes R9	causes
+T13	Entity 455 467	loss of Wnt4
+R10	other_relation Arg1:T13 Arg2:T14	
+#2	AnnotatorNotes R10	causes
+R11	regulates Arg1:T17 Arg2:T19	
+R12	regulates Arg1:T18 Arg2:T19	
+R13	is_part_of Arg1:T21 Arg2:T20	
+R14	regulates Arg1:T21 Arg2:T22	
+R15	regulates Arg1:T21 Arg2:T23	
+R16	other_relation Arg1:T21 Arg2:T24	
+#3	AnnotatorNotes R16	upregulates
+R17	other_relation Arg1:T21 Arg2:T25	
+#4	AnnotatorNotes R17	represses
+R18	other_relation Arg1:T27 Arg2:T29	
+#5	AnnotatorNotes R18	upregulates
+R19	other_relation Arg1:T27 Arg2:T28	
+#6	AnnotatorNotes R19	upregulates
+T35	Entity 1078 1095	fate of the gonad
+R20	regulates Arg1:T31 Arg2:T35	
+R21	regulates Arg1:T31 Arg2:T32	

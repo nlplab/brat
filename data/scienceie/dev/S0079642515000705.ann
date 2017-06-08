@@ -1,0 +1,27 @@
+T1	Task 186 214	analyze the growth mechanism
+T2	Process 232 258	geometrical considerations
+T3	Process 334 358	single angular direction
+R1	Hyponym-of Arg1:T3 Arg2:T2	
+T4	Material 283 298	vapor particles
+T5	Material 313 325	film surface
+T6	Process 18 46	surface shadowing mechanisms
+T7	Process 52 97	aggregation of vapor particles onto a surface
+T8	Process 368 388	Continuum approaches
+T10	Material 455 459	film
+T11	Material 528 532	atom
+T12	Process 619 633	analytic model
+T14	Process 689 706	surface diffusion
+T15	Material 776 786	thin films
+T16	Material 861 872	nanocolumns
+T17	Material 922 926	film
+T18	Process 955 986	analytical semi-empirical model
+T19	Task 1004 1066	quantitatively describe the aggregation of columnar structures
+T20	Material 1245 1268	groove seeded substrate
+T21	Material 1326 1330	film
+T22	Process 1500 1515	deposition flux
+T9	Process 658 677	geometrical factors
+T13	Process 427 447	geometrical features
+T23	Process 471 482	nanocolumns
+R2	Hyponym-of Arg1:T23 Arg2:T13	
+T24	Task 1439 1549	prediction of the relation between the incident angle of the deposition flux and the tilt angle of the columns
+T25	Material 67 82	vapor particles

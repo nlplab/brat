@@ -1,0 +1,27 @@
+T1	Task 644 699	model and quantitatively simulate the sintering process
+T2	Task 742 778	estimate the final resulting quality
+T3	Task 817 856	to predict the final net shape and size
+T4	Task 798 806	porosity
+*	Synonym-of T2 T4
+T5	Process 0 17	Powder metallurgy
+T6	Material 864 882	sintered component
+T7	Material 133 142	hardmetal
+T8	Material 152 157	WC-Co
+R1	Hyponym-of Arg1:T8 Arg2:T7	
+T9	Material 182 188	powder
+R2	Hyponym-of Arg1:T9 Arg2:T7	
+T10	Process 222 244	liquid-phase sintering
+T11	Material 195 205	green body
+T12	Process 307 319	Co is heated
+T13	Process 480 507	gradual filling of the pore
+T14	Process 533 554	macroscopic shrinkage
+R3	Hyponym-of Arg1:T14 Arg2:T13	
+T15	Material 598 609	dense state
+T16	Process 33 99	technology for the manufacturing of components to (near) net-shape
+R4	Hyponym-of Arg1:T5 Arg2:T16	
+T17	Process 265 272	heating
+T18	Task 340 387	obtain sufficient mobility via capillary action
+T19	Process 399 415	surface traction
+T20	Material 562 570	particle
+T21	Process 682 699	sintering process
+T22	Material 307 309	Co

@@ -1,0 +1,27 @@
+T1	Entity 127 171	wingless-related MMTV integration site (WNT)
+T2	Entity 176 215	fibroblast growth factor (FGF) families
+T3	Entity 227 233	growth
+T4	Entity 235 248	morphogenesis
+T5	Entity 254 269	differentiation
+T6	KeyEntity 328 332	Fgf9
+T7	KeyEntity 337 341	Wnt4
+T8	Entity 359 365	gonads
+T9	Entity 416 420	Fgf9
+T10	Entity 430 445	XY sex reversal
+T11	KeyEntity 463 467	Wnt4
+T12	Entity 509 518	XX gonads
+T13	Entity 479 505	partial testis development
+T14	Entity 603 606	Sry
+T15	Entity 681 714	fibroblast growth factor 9 (FGF9)
+T16	Entity 719 723	WNT4
+T17	Entity 760 777	sex determination
+T18	Entity 786 800	mouse XY gonad
+T19	Entity 802 805	Sry
+T20	Entity 853 857	Sox9
+T21	KeyEntity 862 866	Fgf9
+T22	KeyEntity 887 891	Fgf9
+T23	KeyEntity 906 910	Wnt4
+T24	Entity 928 942	testis pathway
+T25	Entity 966 970	Wnt4
+T26	Entity 974 983	XX gonads
+T27	KeyEntity 1013 1017	Fgf9

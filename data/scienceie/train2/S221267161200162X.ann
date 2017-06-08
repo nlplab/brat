@@ -1,0 +1,21 @@
+T1	Task 2 51	fuzzy-Hammerstein model predictive control method
+T2	Process 2 25	fuzzy-Hammerstein model
+T3	Material 70 101	continuous stirred-tank reactor
+T4	Material 103 107	CSTR
+T5	Process 124 139	T-S fuzzy model
+T6	Task 167 220	static nonlinear characteristics of Hammerstein model
+T7	Process 228 254	linear autoregressive mode
+T8	Process 288 303	optimal control
+T9	Process 318 349	nonlinear predictive controller
+T10	Process 356 373	Hammerstein model
+T11	Process 203 220	Hammerstein model
+T12	Process 406 434	universal approach nonlinear
+T13	Process 438 447	T-S model
+T14	Process 476 504	nonlinear predictive control
+T15	Process 514 544	nonlinear model recongnization
+T16	Process 565 590	linear predictive control
+T17	Material 619 623	CSTR
+T18	Process 619 631	CSTR process
+T19	Process 650 664	control method
+T20	Material 706 720	PID controller
+*	Synonym-of T3 T4

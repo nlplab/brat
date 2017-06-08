@@ -1,0 +1,33 @@
+T1	Task 30 142	experimental observations on how solvents can vary the TPA and TPF properties of fluorescent rhodamine (Rh) dyes
+T2	Process 85 88	TPA
+T3	Process 93 96	TPF
+T4	Material 111 142	fluorescent rhodamine (Rh) dyes
+T5	Material 143 147	Rh6G
+T6	Material 149 152	RhB
+T7	Material 157 162	Rh101
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+R2	Hyponym-of Arg1:T6 Arg2:T4	
+R3	Hyponym-of Arg1:T7 Arg2:T4	
+T8	Material 190 204	xanthenes dyes
+T9	Process 275 300	single-molecule detection
+T10	Process 307 333	DNA-sequence determination
+T11	Process 340 362	fluorescence labelling
+T12	Material 465 479	rhodamine dyes
+T13	Process 608 611	TPA
+T14	Process 774 810	single-photon absorption (SPA) peaks
+T15	Process 815 824	TPA peaks
+T16	Process 926 929	SPA
+T17	Process 934 937	TPA
+T18	Material 956 960	dyes
+T19	Material 164 174	Rhodamines
+R4	Hyponym-of Arg1:T19 Arg2:T8	
+T20	Process 394 406	fluorescence
+T21	Material 111 132	fluorescent rhodamine
+T22	Material 134 136	Rh
+*	Synonym-of T22 T21
+T23	Process 774 798	single-photon absorption
+T24	Process 800 803	SPA
+*	Synonym-of T24 T23
+T25	Material 711 740	non-centrosymmetric molecules
+T26	Process 748 768	symmetry relaxations
+T27	Material 581 606	centrosymmetric molecules

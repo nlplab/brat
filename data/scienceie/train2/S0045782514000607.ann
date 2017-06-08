@@ -1,0 +1,24 @@
+T1	Task 1174 1198	deteriorated convergence
+T2	Task 1215 1245	initial residual amplification
+T3	Task 1259 1288	amplification of the residual
+T4	Material 970 996	poor nonlinear convergence
+T5	Task 959 961	PL
+T6	Process 773 775	PL
+T7	Process 794 816	inf–sup stable schemes
+R1	Hyponym-of Arg1:T7 Arg2:T6	
+T8	Process 634 656	penalized formulations
+T9	Process 658 690	classic penalty/weakly penalized
+*	Synonym-of T9 T8
+T10	Process 527 541	PL formulation
+T11	Process 398 426	weakly penalized formulation
+T12	Process 468 482	penalty method
+T13	Process 29 45	weakly penalized
+T14	Process 76 99	generalized formulation
+R4	Hyponym-of Arg1:T13 Arg2:T14	
+T15	Process 124 175	PL, penalty or statically condensed PL formulations
+R5	Hyponym-of Arg1:T15 Arg2:T14	
+T16	Material 713 734	nonlinear convergence
+T17	Material 832 843	convergence
+R2	Hyponym-of Arg1:T11 Arg2:T12	
+R3	Hyponym-of Arg1:T11 Arg2:T10	
+T18	Process 1105 1139	weakly penalized and PL approaches

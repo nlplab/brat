@@ -1,0 +1,59 @@
+Title: Never-Ending Learning
+
+Abstract: Humans learn many things, for years, and become better learners over time Why not machines?
+
+Content: Sundin Milson writer radio Air Canada Centre team stadium Canada city stadium politician country Miller airport member Toskala Pearson Skydome Connaught Sunnybrook hospital city company skates helmet uses equipment won Red Wings Detroit hometown GM city company competes with Toyota plays in league Prius Corrola created Hino acquired automobile economic sector city stadium
+
+NELL knowledge fragment
+
+climbing football uses equipment NELL Today
+
+• http://rtw.ml.cmu.edu ß follow NELL here • eg. " diabetes " , " Avandia " , tea, IBM, love " baseball " " BacteriaCausesCondition " " kitchenItem " " ClothingGoesWithClothing " …
+
+NELL on demand
+
+How does NELL work? Semi-Supervised Bootstrap Learning Paris Pittsburgh Seattle Montpelier mayor of arg1 live in arg1 San Francisco Berlin denial arg1 is home of traits such as arg1 its underconstrained!!
+
+anxiety selfishness London
+
+Find cities:
+
+hard
+
+(underconstrained) semi-supervised learning problem Key Idea 1: Coupled semi-supervised training of many functions much easier (more constrained) semi-supervised learning problem person noun phrase
+
+NP:
+
+person Type 1 Coupling: Co-Training, Multi-View Learning Supervised training of 1 function: Minimize:
+
+NP:
+
+person Type 1 Coupling: Co-Training, Multi-View Learning Coupled training of 2 functions: Minimize: NP:
+
+Y person Type 1
+
+Coupling: Co-Training, Multi-View Learning Theorem (Blum & Mitchell, 1998): If f 1 ,and f 2 are PAC learnable from noisy labeled data, and X 1 , X 2 are conditionally independent given Y, Then f 1 , f 2 are PAC learnable from polynomial unlabeled data plus a weak initial predictor
+
+NP:
+
+person Type 1 Coupling: Co-Training, Multi-View Learning [Blum & Mitchell; 98] [Dasgupta et al; 01 ] [Ganchev et al., 08] [Sridharan & Kakade, 08] [Wang & Zhou, ICML10] NP:
+
+person
+
+Type 1 Coupling: Co-Training, Multi-View Learning [Blum & Mitchell; 98] [Dasgupta et al; 01 ] [Ganchev et al., 08] [Sridharan & Kakade, 08] [Bakhir et al., eds. 2007] [Roth et al., 2008] [Taskar et al., 2009] [Carlson et al., 2009] team person NP: athlete coach sport NP text context distribution NP morphology NP HTML contexts Multi-view, Multi-Task Coupling coachesTeam(c,t) playsForTeam(a,t) teamPlaysSport(t,s) playsSport(a,s) NP1 NP2 Type 3 Coupling: Learning Relations team coachesTeam(c,t) playsForTeam(a,t) teamPlaysSport(t,s) playsSport(a,s) person NP1 athlete coach sport team person NP2 athlete coach sport Type 3 Coupling: Argument Types team coachesTeam(c,t) playsForTeam(a,t) teamPlaysSport(t,s) playsSport(a,s) person NP1 athlete coach sport team person NP2 athlete coach sport playsSport(NP1,NP2 ) à athlete( NP1), sport(NP2) Type 3 Coupling: Argument Types
+
+over 2500 coupled functions in NELL
+
+NELL: Learned reading strategies Plays_Sport(arg1,arg2): arg1_was_playing_arg2 arg2_megastar_arg1 arg2_icons_arg1 arg2_player_named_arg1 arg2_prodigy_arg1 arg1_is_the_tiger_woods_of_arg2 arg2_career_of_arg1 arg2_greats_as_arg1 arg1_plays_arg2 arg2_player_is_arg1 arg2_legends_arg1 arg1_announced_his_retirement_from_arg2 arg2_operations_chief_arg1 arg2_player_like_arg1 arg2_and_golfing_personalities_including_arg1 arg2_players_like_arg1 arg2_greats_like_arg1 arg2_players_are_steffi_graf_and_arg1 arg2_great_arg1 arg2_champ_arg1 arg2_greats_such_as_arg1 arg2_professionals_such_as_arg1 arg2_hit_by_arg1 arg2_greats_arg1 arg2_icon_arg1 arg2_stars_like_arg1 arg2_pros_like_arg1 arg1_retires_from_arg2 arg2_phenom_arg1 arg2_lesson_from_arg1 arg2_architects_robert_trent_jones_and_arg1 arg2_sensation_arg1 arg2_pros_arg1 arg2_stars_venus_and_arg1 arg2_hall_of_famer_arg1 arg2_superstar_arg1 arg2_legend_arg1 arg2_legends_such_as_arg1 arg2_players_is_arg1 arg2_pro_arg1 arg2_player_was_arg1 arg2_god_arg1 arg2_idol_arg1 arg1_was_born_to_play_arg2 arg2_star_arg1 arg2_hero_arg1 arg2_players_are_arg1 arg1_retired_from_professional_arg2 arg2_legends_as_arg1 arg2_autographed_by_arg1 arg2_champion_arg1 … If coupled learning is the key, how can we get new coupling constraints? Key Idea 2:
+
+Discover New Coupling Constraints
+
+• first order, probabilistic horn clause constraints: – connects previously uncoupled relation predicates – infers new beliefs for KB – modified version of FOIL [Quinlan] – restricted rule language: form connected KB subgraphs 0.93 athletePlaysSport(?x,?y) ß athletePlaysForTeam(?x,?z) teamPlaysSport(?z,?y) Example Learned Horn Clauses athletePlaysSport(?x,basketball) ß athleteInLeague(?x,NBA) athletePlaysSport(?x,?y) ß athletePlaysForTeam(?x,?z) teamPlaysSport(?z,?y) teamPlaysInLeague(?x,NHL) ß teamWonTrophy(?x,Stanley_Cup) athleteInLeague(?x,?y) ßathletePlaysForTeam(?x,?z), teamPlaysInLeague(?z,?y) cityInState(?x,?y) ß cityCapitalOfState(?x,?y), cityInCountry(?y,USA) newspaperInCity(?x,New_York) ß companyEconomicSector(?x,media) generalizations(?x,blog) 0.95 0.93 0.91 0.90 0.88 0.62*
+
+team
+
+coachesTeam(c,t) playsForTeam(a,t) teamPlaysSport(t,s) playsSport(a,s) person NP1 athlete coach sport team person NP2 athlete coach sport Learned Probabilistic Horn Clause Rules 0.93 playsSport(?x,?y) ß playsForTeam(?x,?z), teamPlaysSport(?z,?y) Key Idea 3: Automatically extend ontology Ontology Extension (1) Goal: • Add new relations to ontology Approach: • For each pair of categories C1, C2, • co-cluster pairs of known instances, and text contexts that connect them [Mohamed et al., EMNLP 2011] Example Discovered Relations
+
+Category Pair Text contexts Extracted Instances Suggested Name
+
+MusicInstrument Musician ARG1 master ARG2 ARG1 virtuoso ARG2 ARG1 legend ARG2 ARG2 plays ARG1 sitar , George Harrison tenor sax, Stan Getz trombone, Tommy Dorsey vibes, Lionel Hampton Master Disease Disease ARG1 is due to ARG2 ARG1 is caused by ARG2 pinched nerve, herniated disk tennis elbow, tendonitis blepharospasm, dystonia IsDueTo CellType Chemical ARG1 that release ARG2 ARG2 releasing ARG1 epithelial cells, surfactant neurons, serotonin mast cells, histomine NELL: sample of self-added relations Approach: • For each category C, • train NELL to read the relation SubsetOf C : C à C [Burr Settles] *no new software here NELL: example self-discovered subcategories Animal: • Pets – Hamsters, Ferrets, Birds, Dog, Cats, Rabbits, Snakes, Parrots, Kittens, … • Predator – Bears, Foxes, Wolves, Coyotes, Snakes, Racoons, Eagles, Lions, Leopards, Hawks, Humans, … Learned reading patterns for "arg1 and other medium sized arg2" "arg1 and other jungle arg2 " "arg1 and other magnificent arg2" "arg1 and other pesky arg2" "arg1 and other mammals and arg2" "arg1 and other Ice Age arg2" "arg1 or other biting arg2" "arg1 and other marsh arg2" "arg1 and other migrant arg2 " "arg1 and other monogastric arg2" "arg1 and other mythical arg2" "arg1 and other nesting arg2" "arg1 and other night arg2" "arg1 Subset(arg1,arg2) NELL: example self-discovered subcategories Animal: • Pets – Hamsters, Ferrets, Birds, Dog, Cats, Rabbits, Snakes, Parrots, Kittens, … • Predator – Bears, Foxes, Wolves, Coyotes, Snakes, Racoons, Eagles, Lions, Leopards, Hawks, Humans, … Chemical: • Fossil fuels – Carbon, Natural gas, Coal, Diesel, Monoxide, Gases, … • Gases – Helium, Carbon dioxide, Methane, Oxygen, Propane, Ozone, Radon… Learned reading patterns: "arg1 and other medium sized arg2" "arg1 and other jungle arg2 " "arg1 and other magnificent arg2" "arg1 and other pesky arg2" "arg1 and other mammals and arg2" "arg1 and other Ice Age arg2" "arg1 or other biting arg2" "arg1 and other marsh arg2" "arg1 and other migrant arg2 " "arg1 and other monogastric arg2" "arg1 and other mythical arg2" "arg1 and other nesting arg2" "arg1 and other night arg2" "arg1 Learned reading patterns: "arg1 and other hydrocarbon arg2 " "arg1 and other aqueous arg2 " "arg1 and other hazardous air arg2" "arg1 and oxygen are arg2 " "arg1 and such synthetic arg2 " "arg1 as a lifting arg2" "arg1 as a tracer arg2" "arg1 as the carrier arg2 " "arg1 as the inert arg2" "arg1 as the primary cleaning arg2 " "arg1 and other noxious arg2" "arg1 and other trace arg2" "arg1 as the reagent arg2" "arg1 as the tracer arg2 "

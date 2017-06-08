@@ -1,0 +1,11 @@
+T1	Process 0 27	Aspect-oriented Programming
+T2	Process 29 32	AOP
+*	Synonym-of T2 T1
+T3	Task 43 75	solve the cross-cutting concerns
+T4	Task 192 230	model to test aspect-oriented software
+T5	Process 256 269	testing model
+T7	Task 371 449	develop a new tool to implement the theoretical of automating select test case
+T8	Process 474 493	Bank Account System
+T9	Process 122 125	AOP
+T6	Process 311 360	algorithm of selecting aspect relevant test cases
+T10	Process 422 449	automating select test case

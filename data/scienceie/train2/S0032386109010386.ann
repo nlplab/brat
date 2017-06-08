@@ -1,0 +1,45 @@
+T1	Process 30 55	polymerization techniques
+T2	Process 89 107	chemical reactions
+T3	Process 109 135	step-growth polymerization
+T4	Process 140 167	free radical polymerization
+R1	Hyponym-of Arg1:T3 Arg2:T2	
+R2	Hyponym-of Arg1:T4 Arg2:T2	
+T5	Process 169 195	Step-growth polymerization
+T6	Task 215 238	synthesis of polyesters
+T7	Material 228 238	polyesters
+T8	Material 240 249	polyamide
+T9	Material 254 261	epoxies
+T10	Process 272 297	synthesis of polyacrylics
+T11	Material 285 297	polyacrylics
+T12	Process 318 345	free radical polymerization
+T13	Process 353 377	polymerization reactions
+T14	Material 416 424	solution
+T15	Material 405 409	bulk
+T16	Material 431 446	dispersed media
+T17	Process 448 475	Heterophase polymerizations
+T18	Process 482 490	emulsion
+T19	Process 492 502	dispersion
+T20	Process 507 535	miniemulsion polymerizations
+R3	Hyponym-of Arg1:T20 Arg2:T17	
+R4	Hyponym-of Arg1:T19 Arg2:T17	
+R5	Hyponym-of Arg1:T18 Arg2:T17	
+T21	Task 569 601	removal of the resulting product
+T22	Material 611 618	reactor
+T23	Process 631 650	bulk polymerization
+T24	Material 686 701	reaction medium
+T25	Process 703 717	Polymerization
+T26	Material 721 729	solution
+T27	Process 774 782	reaction
+T28	Process 796 804	dilution
+T29	Material 812 821	reactants
+T30	Material 881 897	organic solvents
+T31	Process 940 967	heterophase polymerizations
+T32	Material 978 987	reactants
+T33	Material 1008 1016	droplets
+T34	Process 1021 1036	dilution effect
+T35	Material 1042 1047	water
+T36	Material 1078 1098	surfactant molecules
+T37	Process 1126 1162	stabilization of the monomer droplet
+T38	Material 1147 1162	monomer droplet
+T39	Material 1178 1195	polymer particles
+T40	Material 1203 1208	water

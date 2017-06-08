@@ -1,0 +1,20 @@
+T1	Material 4 12	iron ore
+T2	Material 303 319	iron ore deposit
+T3	Process 356 373	SSTPS formulation
+T4	Process 156 174	probable scenarios
+T5	Process 480 510	stochastic simulated technique
+T6	Process 711 740	scenarios of iron ore content
+T7	Material 885 895	734 blocks
+T8	Material 178 190	iron content
+T9	Material 192 203	phosphorous
+T10	Material 205 211	silica
+T11	Material 213 221	aluminum
+T12	Material 226 229	LOI
+T13	Task 242 319	quantify the joint uncertainty in the characteristics of the iron ore deposit
+T14	Task 412 431	simulated scenarios
+T15	Material 832 836	iron
+T16	Material 1037 1040	LOI
+T17	Material 1007 1012	Al2O3
+T18	Material 929 934	Fe2O3
+T19	Material 981 985	SiO2
+T20	Material 958 959	P

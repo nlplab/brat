@@ -1,0 +1,25 @@
+T1	Entity 234 252	small-effect genes
+T2	KeyEntity 354 390	small-effect quantitative trait loci
+T3	KeyEntity 392 395	QTL
+T4	KeyEntity 400 426	collagen induced arthritis
+T5	KeyEntity 428 431	CIA
+T6	KeyEntity 503 526	genome linkage analysis
+T7	KeyEntity 600 616	small-effect QTL
+T8	Entity 548 551	CIA
+T9	Entity 552 585	susceptible and resistant strains
+T10	Entity 638 662	gene expression patterns
+T11	KeyEntity 686 689	CIA
+T12	KeyEntity 960 976	small-effect QTL
+T13	Entity 989 1001	CIA severity
+T14	Entity 1038 1043	genes
+T15	Entity 1059 1074	strain-specific
+T16	Entity 1079 1095	disease-specific
+T17	Entity 1128 1131	CIA
+T18	Entity 1207 1223	small-effect QTL
+T19	Entity 1252 1267	candidate genes
+R1	regulates Arg1:T12 Arg2:T13	
+R2	other_relation Arg1:T14 Arg2:T15	
+#1	AnnotatorNotes R2	describes the first entity
+R3	other_relation Arg1:T14 Arg2:T16	
+#2	AnnotatorNotes R3	describes the first entity
+R4	regulates Arg1:T14 Arg2:T17	

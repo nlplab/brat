@@ -1,0 +1,37 @@
+T1	Process 0 3	DPD
+T2	Process 61 69	isotropy
+T3	Process 75 94	Galilean invariance
+T4	Process 130 150	lattice-gas automata
+T5	Material 198 221	coarse-grained particle
+T6	Process 437 454	Langevin dynamics
+T7	Process 458 468	thermostat
+T8	Process 711 727	angular momentum
+T9	Process 736 751	linear momentum
+T10	Process 849 876	profile-unbiased thermostat
+T11	Process 878 881	PUT
+*	Synonym-of T11 T10
+T12	Task 944 984	nonequilibrium molecular dynamics (NEMD)
+T13	Process 944 977	nonequilibrium molecular dynamics
+T14	Process 979 983	NEMD
+*	Synonym-of T14 T13
+T15	Task 1233 1293	recover thermodynamic, dynamical, and rheological properties
+T16	Material 1297 1311	complex fluids
+T19	Process 1521 1538	polymeric systems
+T20	Process 166 169	DPD
+T21	Process 352 354	MD
+T22	Process 574 591	Langevin dynamics
+T23	Process 769 788	Galilean invariance
+T24	Process 800 835	dependence on the relative velocity
+R1	Hyponym-of Arg1:T24 Arg2:T23	
+T25	Process 843 846	DPD
+T26	Process 1123 1126	DPD
+T27	Process 1205 1208	DPD
+T28	Process 1438 1441	DPD
+T29	Process 1465 1482	Langevin dynamics
+T18	Material 1334 1351	polymer solutions
+T30	Material 1358 1379	colloidal suspensions
+T17	Material 1386 1402	multiphase flows
+T31	Material 1413 1431	biological systems
+T32	Material 229 238	particles
+T33	Material 1606 1614	polymers
+T34	Process 1578 1598	dynamic fluctuations

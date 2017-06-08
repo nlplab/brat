@@ -1,0 +1,35 @@
+T1	Task 26 80	whether carbohydrate coupling increased antigen uptake
+T2	Process 92 124	C-type lectin receptor targeting
+T3	Material 141 149	antigens
+T4	Material 168 182	pHrodo Red dye
+T5	Material 184 194	Invitrogen
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+T6	Process 221 231	fluoresces
+T7	Material 287 296	endosomes
+T8	Material 369 386	neoglycocomplexes
+T9	Material 393 428	bone marrow derived dendritic cells
+T10	Material 430 435	BMDCs
+*	Synonym-of T9 T10
+T11	Material 472 507	mannan-conjugates MN–Ova and MN–Pap
+T12	Process 459 468	ingestion
+T13	Task 568 596	intradermal needle-injection
+T14	Process 717 730	FACS analysis
+T15	Material 911 933	pHrodo-labeled antigen
+T16	Material 1003 1023	pHrodo+MHCIIhigh DCs
+T17	Material 1248 1265	CD8α−/pHrodo+ DCs
+T18	Process 1558 1579	intradermal injection
+T19	Material 863 867	CD8α
+T20	Material 869 874	CD11b
+T21	Material 880 885	CD11c
+T22	Material 1046 1052	MN–Ova
+T23	Material 1057 1063	MN–Pap
+T24	Material 1092 1098	MD–Pap
+T25	Material 1132 1140	antigens
+T26	Material 1180 1187	antigen
+T27	Material 1157 1170	carbohydrates
+T28	Material 1206 1215	CD8α− DCs
+T29	Material 1289 1297	antigens
+T30	Material 1341 1349	antigens
+T31	Material 1492 1512	antigen-loaded cells
+T32	Material 645 652	Antigen
+T33	Material 297 306	lysosomes

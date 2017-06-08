@@ -1,0 +1,13 @@
+T1	Process 105 142	performance of linear algebra solvers
+T2	Process 180 209	performance of direct solvers
+T3	Process 245 259	large problems
+T4	Process 310 372	tearing and interconnecting approach of finite element methods
+T5	Task 399 420	isogeometric analysis
+T6	Process 569 616	isogeometric tearing and interconnecting method
+T7	Material 689 717	extensive numerical examples
+T8	Process 786 801	Schwarz methods
+T9	Material 839 859	BDDC preconditioners
+T10	Task 864 885	isogeometric analysis
+T11	Material 430 445	numerical tests
+T12	Task 648 674	rigorous theoretical study
+T13	Task 465 482	theoretical study

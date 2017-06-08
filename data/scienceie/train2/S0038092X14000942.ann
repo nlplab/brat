@@ -1,0 +1,21 @@
+T1	Task 0 39	Thermal performance of the smart window
+T2	Process 75 95	simulated parameters
+T3	Process 104 136	direct solar radiation intensity
+R1	Hyponym-of Arg1:T3 Arg2:T2	
+T4	Process 138 157	ambient temperature
+R2	Hyponym-of Arg1:T4 Arg2:T2	
+T5	Process 159 182	water inlet temperature
+R3	Hyponym-of Arg1:T5 Arg2:T2	
+T6	Process 188 203	water flow rate
+R4	Hyponym-of Arg1:T6 Arg2:T2	
+T7	Material 263 280	window components
+T8	Material 347 377	simulation physical conditions
+T9	Material 397 412	Simulation data
+T10	Process 593 604	simulations
+T11	Process 452 463	simulations
+T12	Process 479 555	increasing direct solar radiation on both solar cells and water temperatures
+T13	Process 636 651	solar radiation
+T14	Material 705 724	window’s front pane
+T15	Material 912 916	tube
+T16	Material 931 942	solar cells
+T17	Process 1019 1034	solar radiation

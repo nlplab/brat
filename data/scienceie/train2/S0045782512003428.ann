@@ -1,0 +1,20 @@
+T1	Process 18 41	interpolation functions
+T2	Task 116 157	stability and accuracy of the formulation
+T3	Material 46 94	support point coordinates for the gradient field
+T4	Material 279 316	non-physical penalty energy functions
+T5	Process 172 200	nodal integration and NS-FEM
+T6	Material 555 586	first order hexahedral elements
+T7	Material 636 646	C3D_8N_27C
+T8	Material 973 995	first order tetrahedra
+T9	Task 1171 1206	computing time in explicit analysis
+T10	Process 1395 1420	CAG and SFEM formulations
+T11	Process 1001 1031	nodally integrated tetrahedron
+T12	Task 322 336	stabilize them
+T16	Material 651 660	C3D_8N_8I
+T14	Process 710 751	second order tensor-product interpolation
+T13	Process 428 439	W2 variants
+T15	Task 358 439	numerically verify the stability, convergence and accuracy of several W2 variants
+T17	Process 517 549	continuous deformation gradients
+T18	Material 622 635	element types
+R1	Hyponym-of Arg1:T7 Arg2:T18	
+R2	Hyponym-of Arg1:T16 Arg2:T18	

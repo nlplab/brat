@@ -1,0 +1,33 @@
+T1	Entity 124 142	chromatin dynamics
+T2	Entity 147 165	epigenetic marking
+T3	Entity 184 204	genome reprogramming
+R1	participates_in Arg1:T2 Arg2:T3	
+R2	participates_in Arg1:T1 Arg2:T3	
+T4	Entity 252 280	chromatin assembly machinery
+T5	KeyEntity 321 356	chromatin assembly factor 1 (CAF-1)
+T6	Entity 489 498	p150CAF-1
+R3	is_part_of Arg1:T6 Arg2:T5	
+T7	Entity 508 517	p150CAF-1
+T8	Entity 549 569	developmental arrest
+R4	regulates Arg1:T7 Arg2:T8	
+T9	Entity 603 612	p150CAF-1
+T10	Entity 667 719	nuclear organization of constitutive heterochromatin
+R5	participates_in Arg1:T9 Arg2:T10	
+T11	Entity 768 791	heterochromatin domains
+T13	Entity 884 905	16-cell stage embryos
+T12	Entity 935 950	heterochromatin
+T14	KeyEntity 1071 1076	CAF-1
+T15	Entity 1097 1126	maturation of heterochromatin
+R6	regulates Arg1:T14 Arg2:T15	
+T16	Entity 1201 1210	p150CAF-1
+T17	Entity 1308 1343	pericentric heterochromatin domains
+R7	regulates Arg1:T16 Arg2:T17	
+T18	KeyEntity 1366 1371	CAF-1
+T19	Entity 1416 1452	epigenetic histone methylation marks
+R8	regulates Arg1:T18 Arg2:T19	
+T20	KeyEntity 1668 1673	CAF-1
+T21	Entity 1703 1731	heterochromatin organization
+R9	regulates Arg1:T20 Arg2:T21	
+T22	Entity 1803 1831	chromatin assembly machinery
+T23	Entity 1876 1894	epigenetic marking
+R10	regulates Arg1:T22 Arg2:T23	

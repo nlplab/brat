@@ -1,0 +1,17 @@
+T1	Task 0 20	Knowledge Management
+T2	Task 22 24	KM
+*	Synonym-of T1 T2
+T3	Process 122 149	Knowledge Management System
+T4	Process 151 154	KMS
+T5	Task 251 353	defects when existing methods about access control and recommendation are deployed in KMS are analyzed
+T6	Process 407 415	extended
+T7	Process 496 520	Role-Based Access Contro
+T8	Process 523 527	RBAC
+*	Synonym-of T7 T8
+T9	Process 542 572	hybrid recommendation approach
+T10	Process 577 604	Knowledge Management System
+T11	Process 614 630	real-life system
+T12	Task 647 678	verify the proposed methodology
+*	Synonym-of T3 T4
+T13	Task 122 142	Knowledge Management
+T14	Process 337 340	KMS

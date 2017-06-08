@@ -1,0 +1,22 @@
+T1	Material 273 278	grain
+T2	Task 261 297	elucidating grain boundary stability
+T3	Task 330 383	predict the relative stability of the defect energies
+T4	Process 389 412	Morelon potential model
+T5	Task 462 497	replicate defect formation energies
+T6	Process 580 615	Morl and the Arima potential models
+T7	Process 673 689	rigid ion models
+R1	Hyponym-of Arg1:T6 Arg2:T7	
+T8	Process 777 789	shell models
+T9	Process 825 847	Catlow potential model
+R2	Hyponym-of Arg1:T9 Arg2:T8	
+T10	Process 853 902	Morl, along with the Grimes shell potential model
+T11	Material 950 956	oxygen
+T12	Task 915 966	reproduce the activation energy of oxygen migration
+T13	Material 1066 1069	UO2
+T14	Process 1104 1118	Morl potential
+T15	Material 1131 1137	cation
+T16	Material 1188 1194	cation
+T17	Process 1315 1327	grain growth
+T18	Process 972 986	migration path
+T19	Process 1029 1048	diffusion mechanism
+R3	Hyponym-of Arg1:T18 Arg2:T19	

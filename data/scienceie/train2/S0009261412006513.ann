@@ -1,0 +1,34 @@
+T1	Material 0 5	Water
+T2	Material 180 185	water
+T3	Material 241 265	distorted hydrogen bonds
+T4	Process 383 419	inner-shell spectroscopic techniques
+T5	Process 429 458	X-ray absorption spectroscopy
+T6	Process 469 496	X-ray emission spectroscopy
+T7	Material 556 561	water
+T8	Process 945 948	XAS
+T9	Process 952 955	XES
+T10	Task 676 700	hydrogen bonding network
+T11	Process 1024 1063	accurate molecular dynamics simulations
+T12	Task 1104 1123	molecular structure
+T13	Task 1166 1185	spectral properties
+T14	Task 1192 1211	excitation energies
+T15	Task 1216 1232	line intensities
+T16	Material 1247 1264	adequate sampling
+T17	Process 1270 1294	molecular configurations
+T18	Material 787 804	experimental data
+T19	Material 814 826	calculations
+T20	Process 857 883	observed spectral features
+T21	Task 892 912	underlying structure
+T22	Process 601 633	direct structural probe of water
+T23	Material 510 523	oxygen K-edge
+T24	Material 28 34	liquid
+R1	Hyponym-of Arg1:T1 Arg2:T24	
+T25	Process 460 463	XAS
+*	Synonym-of T5 T25
+R2	Hyponym-of Arg1:T4 Arg2:T5	
+T26	Process 498 501	XES
+*	Synonym-of T6 T26
+T27	Material 628 633	water
+T28	Material 960 972	liquid water
+R3	Hyponym-of Arg1:T14 Arg2:T13	
+R4	Hyponym-of Arg1:T15 Arg2:T13	

@@ -1,0 +1,10 @@
+T1	Task 46 108	implementing a quantum search algorithm by adiabatic evolution
+T2	Task 15 41	three different approaches
+T3	Process 166 184	quadratic speed up
+T4	Process 203 229	classical search algorithm
+T5	Process 249 268	adiabatic evolution
+T6	Task 275 294	quantum computation
+T7	Material 306 319	feasibilities
+T8	Process 329 350	quantum circuit model
+T10	Process 61 85	quantum search algorithm
+T11	Process 89 108	adiabatic evolution

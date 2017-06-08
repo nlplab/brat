@@ -1,0 +1,25 @@
+T1	Process 4 28	immersed boundary method
+T2	Process 30 33	IBM
+*	Synonym-of T1 T2
+T3	Task 59 101	studying flow patterns around heart valves
+T4	Task 163 182	arterial blood flow
+T5	Task 189 213	modelling of the cochlea
+T6	Task 220 268	modelling of red blood cells in Poiseuille flow 
+T7	Task 277 312	flows involving suspended particles
+T8	Process 382 385	IBM
+T9	Task 448 484	fluid–structure interaction problems
+T10	Task 521 556	fluid–structure interaction problem
+T11	Material 562 567	fluid
+T12	Material 521 526	fluid
+T13	Material 527 536	structure
+T14	Material 576 585	structure
+T15	Process 621 637	coupled together
+T16	Process 680 683	IBM
+T17	Material 738 753	Newtonian fluid
+T18	Material 785 802	surrounding fluid
+R1	Hyponym-of Arg1:T17 Arg2:T18	
+T19	Process 846 852	motion
+T20	Process 922 925	IBM
+T21	Material 991 996	fluid
+T22	Material 980 1001	underlying fluid mesh
+T23	Process 1032 1041	remeshing

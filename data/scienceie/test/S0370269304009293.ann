@@ -1,0 +1,7 @@
+T1	Material 3 6	OPE
+T2	Material 10 17	VQCD(r)
+T3	Process 358 377	multipole expansion
+T4	Material 624 637	QCD potential
+T5	Process 673 692	multipole expansion
+T6	Process 876 902	dimensional regularization
+T7	Process 937 956	hard cutoff schemes

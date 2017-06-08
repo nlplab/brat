@@ -1,0 +1,25 @@
+T1	Material 44 49	ducts
+T2	Task 4 40	propagation of unsteady disturbances
+T3	Material 106 116	aeroengine
+T4	Process 155 179	multiple scales approach
+T5	Process 215 239	multiple-scales analysis
+T6	Process 243 260	sound propagation
+T7	Material 264 269	ducts
+T8	Process 395 412	uniform mean flow
+T9	Process 418 436	mean swirling flow
+T10	Material 442 447	ducts
+T11	Process 485 502	uniform mean flow
+T12	Process 539 563	multiple-scales approach
+T13	Process 610 627	numerical methods
+T14	Process 662 680	higher frequencies
+T16	Process 743 769	calculating the eigenmodes
+T17	Material 779 801	straight parallel duct
+T18	Process 838 862	multiple scales approach
+T19	Process 890 912	finite-element methods
+T20	Material 931 941	aeroengine
+T21	Task 961 981	acoustic frequencies
+T22	Task 931 956	aeroengine configurations
+T23	Material 508 529	strongly curved ducts
+T24	Process 320 329	mean flow
+R1	Hyponym-of Arg1:T8 Arg2:T24	
+*	Synonym-of T9 T24

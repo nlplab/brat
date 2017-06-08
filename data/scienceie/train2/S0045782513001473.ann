@@ -1,0 +1,23 @@
+T1	Task 521 548	calculate the stress tensor
+T2	Process 47 59	framed’ cell
+T3	Process 117 129	shear stress
+T4	Process 146 171	constraining the velocity
+R1	Hyponym-of Arg1:T3 Arg2:T4	
+T5	Process 1058 1069	framed cell
+T6	Process 236 247	framed cell
+T7	Process 561 577	method of planes
+T8	Process 521 548	calculate the stress tensor
+R2	Hyponym-of Arg1:T7 Arg2:T8	
+T9	Process 588 611	volume-average approach
+R3	Hyponym-of Arg1:T9 Arg2:T8	
+T10	Process 652 676	Schweitz virial relation
+R4	Hyponym-of Arg1:T10 Arg2:T8	
+T11	Process 725 755	complicated computational cell
+R5	Hyponym-of Arg1:T11 Arg2:T8	
+T12	Process 762 779	Lees–Edwards cell
+R6	Hyponym-of Arg1:T12 Arg2:T11	
+T13	Process 840 851	simple cell
+T14	Process 858 869	framed cell
+R7	Hyponym-of Arg1:T14 Arg2:T13	
+R8	Hyponym-of Arg1:T13 Arg2:T8	
+T15	Process 1122 1133	IK equation

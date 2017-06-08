@@ -1,0 +1,18 @@
+T1	Process 5 14	oxidation
+T2	Material 69 84	Ti-based alloys
+T3	Material 186 192	alloys
+T4	Task 264 349	understand the role that composition has on the oxidation behavior of Ti-based alloys
+T5	Process 312 321	oxidation
+T6	Material 334 349	Ti-based alloys
+T7	Material 400 415	Ti-based alloys
+T8	Material 445 451	alloys
+T9	Process 480 489	oxidation
+T10	Material 509 514	β-21S
+T11	Material 445 500	alloys with substantially improved oxidation resistance
+R1	Hyponym-of Arg1:T10 Arg2:T11	
+T12	Task 524 576	development of coatings and pre-oxidation techniques
+T13	Material 539 547	coatings
+T14	Process 552 576	pre-oxidation techniques
+T15	Process 626 635	oxidation
+T16	Material 680 686	oxygen
+T17	Process 778 787	oxidation

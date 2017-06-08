@@ -1,0 +1,49 @@
+T1	KeyEntity 116 120	ATRX
+T2	Entity 127 143	X-encoded member
+T3	Entity 151 162	SNF2 family
+T4	Entity 166 190	ATPase/helicase proteins
+T5	Entity 211 226	gene expression
+T6	Entity 240 249	chromatin
+T7	KeyEntity 279 283	ATRX
+T8	Entity 316 337	human genetic disease
+T9	KeyEntity 413 417	ATRX
+T10	Entity 421 432	development
+T11	Entity 473 478	ATR-X
+T12	Entity 480 516	alpha thalassemia mental retardation
+T13	Entity 518 526	X-linked
+T14	KeyEntity 588 592	Atrx
+T15	Entity 601 620	8- to 16-cell stage
+T16	Entity 641 654	protein, Atrx
+T17	Entity 777 796	9.5 days postcoitus
+T18	Entity 833 859	extraembryonic trophoblast
+T19	Entity 688 692	male
+T20	Entity 1134 1141	females
+T21	Entity 1216 1240	imprinted X-inactivation
+T22	Entity 1310 1318	specific
+T23	Entity 1324 1333	essential
+T24	KeyEntity 1343 1347	Atrx
+T25	Entity 1355 1366	development
+T26	Entity 1374 1392	murine trophoblast
+T27	Entity 1432 1466	mprinted X chromosome inactivation
+R1	is_part_of Arg1:T1 Arg2:T2	
+R2	is_part_of Arg1:T1 Arg2:T3	
+R3	is_part_of Arg1:T1 Arg2:T4	
+R4	regulates Arg1:T1 Arg2:T5	
+R5	interacts_with Arg1:T1 Arg2:T6	
+R6	other_relation Arg1:T7 Arg2:T8	
+#1	AnnotatorNotes R6	human_connection
+R7	other_relation Arg1:T9 Arg2:T10	
+#2	AnnotatorNotes R7	time_stage
+R8	other_relation Arg1:T11 Arg2:T12	
+#3	AnnotatorNotes R8	equivalent
+R9	other_relation Arg1:T11 Arg2:T13	
+#4	AnnotatorNotes R9	equivalent
+R10	other_relation Arg1:T14 Arg2:T15	
+#5	AnnotatorNotes R10	time_stage
+R11	other_relation Arg1:T19 Arg2:T17	
+#6	AnnotatorNotes R11	time_stage
+R12	participates_in Arg1:T18 Arg2:T17	
+R13	participates_in Arg1:T20 Arg2:T21	
+R14	other_relation Arg1:T24 Arg2:T25	
+#7	AnnotatorNotes R14	time stage
+R15	interacts_with Arg1:T24 Arg2:T26	

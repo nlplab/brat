@@ -1,0 +1,9 @@
+T1	Process 16 34	multispecies model
+T2	Process 73 119	harmonic, two-body and three-body interactions
+T3	Task 3 67	define a new multispecies model of Calogero type in D dimensions
+T4	Process 142 167	conformal SU(1,1) algebra
+T6	Process 281 307	equidistant energy spectra
+T7	Process 490 516	construct ladder operators
+T8	Process 442 480	find their corresponding eigenenergies
+T9	Process 338 374	construct all polynomial eigenstates
+T10	Task 553 587	Analysing corresponding Fock space

@@ -1,0 +1,26 @@
+T2	Material 35 41	ylides
+T3	Material 52 66	pyrene adducts
+T4	Material 84 90	1,3-DC
+T5	Material 94 118	second pyridinium ylides
+T6	Material 122 141	ylidepyrene adducts
+T7	Material 226 252	HOMOylide–pyrene–LUMOylide
+T8	Task 254 294	Regioselectivity of second cycloaddition
+T9	Process 319 346	atomic orbital coefficients
+T10	Material 364 390	HOMOylide–LUMOylide–pyrene
+T11	Task 464 493	maximal HOMO–LUMO overlapping
+T12	Material 594 624	ylides and ylidepyrene adducts
+T13	Process 637 676	most favorable regioisomer conformation
+T14	Material 705 710	ylide
+T15	Material 723 734	ylidepyrene
+T16	Material 785 810	ylideC2/C6–ylidepyrene-C3
+T17	Material 815 837	ylideC7–ylidepyrene/C2
+T18	Task 871 896	regioisomer conformations
+T19	Process 914 938	theoretical calculations
+T20	Material 953 980	pyrrolidine attached pyrene
+T21	Material 1094 1121	1,3-DC of pyridinium ylides
+T22	Process 1078 1083	SWNTs
+T23	Process 1017 1059	formation of the same type of regioisomers
+T24	Material 1047 1059	regioisomers
+T25	Material 146 172	HOMOylide–LUMOylide–pyrene
+T1	Material 0 9	HOMO–LUMO
+T26	Material 472 481	HOMO–LUMO

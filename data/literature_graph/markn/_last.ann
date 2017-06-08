@@ -1,0 +1,19 @@
+T1	METHOD 0 15	Word embeddings
+T2	IDK_MAN 74 93	d-dimensional space
+T3	IDK_MAN 156 181	distributional properties
+T4	TASK 211 230	learning embeddings
+T5	METHOD 257 277	matrix factorization
+R1	addresses Arg1:T5 Arg2:T4	
+T6	METHOD 330 354	neural language modeling
+R2	addresses Arg1:T6 Arg2:T4	
+T7	TASK 415 428	POS induction
+T9	METHOD 634 654	Skip-gram embeddings
+T8	METHOD 693 711	log bilinear model
+R3	uses Arg1:T9 Arg2:T8	
+T10	TASK 717 779	predicts an unordered set of context words given a target word
+T11	METHOD 950 981	Structured skip-gram embeddings
+T12	METHOD 1022 1042	skip-gram embeddings
+R4	is_subclass_of Arg1:T11 Arg2:T12	
+T13	SOFTWARE 1157 1165	word2vec
+T14	METHOD 1250 1270	skip-gram embeddings
+R5	implements Arg1:T13 Arg2:T14	

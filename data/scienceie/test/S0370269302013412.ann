@@ -1,0 +1,21 @@
+T1	Task 3 107	consider cosmological consequences of a conformal-invariant formulation of Einstein's General Relativity
+T2	Process 43 107	conformal-invariant formulation of Einstein's General Relativity
+T3	Material 129 141	scale factor
+T4	Material 269 280	Planck mass
+T6	Process 386 421	temperature history of the universe
+T7	Process 441 453	mass history
+T8	Process 473 511	conformal-invariant cosmological model
+T19	Material 192 207	massless scalar
+T20	Material 209 216	dilaton
+*	Synonym-of T19 T20
+T21	Material 192 223	massless scalar (dilaton) field
+T22	Task 78 107	Einstein's General Relativity
+T23	Material 248 254	masses
+R1	Hyponym-of Arg1:T4 Arg2:T23	
+T5	Process 337 374	Hoyle–Narlikar type of mass evolution
+T24	Process 297 322	expansion of the universe
+T25	Material 556 573	supernova Ia data
+T26	Process 582 619	effective magnitude–redshift relation
+T27	Material 630 651	cosmological constant
+T28	Process 682 704	high-redshift behavior
+T29	Task 733 751	standard cosmology

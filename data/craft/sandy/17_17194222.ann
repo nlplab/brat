@@ -1,0 +1,41 @@
+T1	Entity 103 129	Bone morphogenetic protein
+T2	KeyEntity 131 134	BMP
+T3	Entity 209 225	limb development
+T4	Entity 262 277	limb patterning
+T5	Entity 307 321	skeletogenesis
+T6	Entity 802 821	limb bud mesenchyme
+T7	Entity 902 930	secondary signals downstream
+T8	Entity 934 947	Sonic Hedghog
+T9	Entity 949 952	SHH
+T10	Entity 972 992	anteroposterior axis
+T11	Entity 1017 1040	interdigital mesenchyme
+T12	Entity 1055 1069	digit identity
+T13	Entity 1108 1121	BMP signaling
+T14	Entity 1089 1098	threshold
+T15	Entity 1151 1165	chondrogenesis
+T16	Entity 1182 1208	chondrogenic condensations
+T17	Entity 1319 1347	chondrogenic differentiation
+T18	Entity 1512 1524	osteogenesis
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	is
+R2	participates_in Arg1:T2 Arg2:T3	
+T19	KeyEntity 227 230	BMP
+R3	participates_in Arg1:T19 Arg2:T4	
+R4	participates_in Arg1:T19 Arg2:T5	
+T20	KeyEntity 882 885	BMP
+R5	other_relation Arg1:T20 Arg2:T9	
+#2	AnnotatorNotes R5	not_a_part_of
+R6	is_subclass_of Arg1:T7 Arg2:T8	
+R7	other_relation Arg1:T9 Arg2:T8	
+#3	AnnotatorNotes R7	is
+R8	other_relation Arg1:T20 Arg2:T11	
+#4	AnnotatorNotes R8	no_relation
+R9	other_relation Arg1:T20 Arg2:T10	
+#5	AnnotatorNotes R9	no_relation
+R10	is_subclass_of Arg1:T14 Arg2:T13	
+R11	interacts_with Arg1:T13 Arg2:T15	
+T21	Entity 1249 1262	BMP2 and BMP4
+T22	Entity 1225 1240	limbs deficient
+R12	interacts_with Arg1:T21 Arg2:T22	
+T23	Entity 1464 1477	BMP2 and BMP4
+R13	interacts_with Arg1:T23 Arg2:T18	

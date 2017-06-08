@@ -1,0 +1,30 @@
+T1	Process 165 172	forcing
+T2	Process 191 222	wind stress at the free surface
+T3	Process 229 257	astronomical tidal potential
+T4	Process 267 274	damping
+T5	Process 295 338	turbulent stress of a bottom boundary layer
+T6	Process 371 386	forced response
+T7	Material 402 421	shallow-water waves
+T8	Material 442 454	Kelvin waves
+T9	Process 500 517	natural frequency
+T10	Process 518 520	ωf
+*	Synonym-of T10 T9
+T11	Process 542 559	forcing frequency
+T12	Process 560 561	ω
+*	Synonym-of T12 T11
+T13	Task 772 791	numerical solutions
+T14	Material 795 823	near-resonantly forced waves
+T16	Task 81 114	problems with forcing and damping
+T15	Task 13 37	free Kelvin wave problem
+T17	Material 191 195	wind
+T18	Material 487 492	waves
+T19	Process 643 644	ω
+T20	Process 645 647	ωf
+T21	Process 738 750	weak damping
+T22	Process 755 761	|ω−ωf|
+T23	Process 854 856	ωf
+T24	Process 878 900	spatial discretisation
+R1	Hyponym-of Arg1:T8 Arg2:T7	
+R2	Hyponym-of Arg1:T7 Arg2:T18	
+R3	Hyponym-of Arg1:T8 Arg2:T18	
+T25	Material 18 29	Kelvin wave

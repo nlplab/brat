@@ -1,0 +1,44 @@
+T1	KeyEntity 196 255	peroxisome proliferator-activated receptor-γ coactivator-1α
+T2	Entity 150 163	gene encoding
+T3	Entity 168 194	transcriptional coactivato
+R1	is_part_of Arg1:T2 Arg2:T3	
+T4	Entity 281 285	mice
+T5	KeyEntity 287 315	PGC-1α null (PGC-1α−/−) mice
+T6	Entity 348 359	phenotyping
+T7	Entity 369 395	multi-system abnormalities
+R2	participates_in Arg1:T6 Arg2:T7	
+T8	KeyEntity 574 589	PGC-1α−/− mice.
+T9	Entity 454 470	postnatal growth
+T10	Entity 474 479	heart
+T11	Entity 484 511	slow-twitch skeletal muscle
+T12	Entity 513 558	organs with high mitochondrial energy demands
+T13	KeyEntity 604 618	PGC-1α−/− mice
+T14	Entity 627 655	abnormally increased body fa
+T15	Entity 660 669	phenotype
+T16	Entity 693 700	females
+T17	Entity 702 722	Mitochondrial number
+T18	Entity 727 747	respiratory capacity
+T19	Entity 765 792	slow-twitch skeletal muscle
+T20	KeyEntity 796 810	PGC-1α−/− mice
+T21	KeyEntity 873 887	PGC-1α−/− mice
+T22	Entity 955 986	abnormal control of heart rate.
+T23	KeyEntity 991 1005	PGC-1α−/− mice
+T24	Entity 1099 1127	altered thermogenic response
+T25	KeyEntity 1162 1176	PGC-1α−/− mice
+T26	Entity 1185 1202	hepatic steatosis
+T27	Entity 1277 1316	increased expression of lipogenic genes
+R3	regulates Arg1:T27 Arg2:T26	
+T28	KeyEntity 1332 1346	PGC-1α−/− mice
+T29	Entity 1437 1453	vacuolar lesions
+T30	Entity 1475 1497	central nervous system
+T31	KeyEntity 1501 1516	PGC-1α−/− mice.
+R4	physically_interacts_with Arg1:T29 Arg2:T30	
+T32	Entity 1011 1051	unable to maintain core body temperature
+R5	regulates Arg1:T32 Arg2:T24	
+R6	regulates Arg1:T9 Arg2:T10	
+R7	participates_in Arg1:T11 Arg2:T12	
+R8	participates_in Arg1:T14 Arg2:T15	
+R9	participates_in Arg1:T17 Arg2:T19	
+R10	participates_in Arg1:T18 Arg2:T19	
+T33	Entity 905 935	diminution in cardiac function
+R11	participates_in Arg1:T33 Arg2:T22	

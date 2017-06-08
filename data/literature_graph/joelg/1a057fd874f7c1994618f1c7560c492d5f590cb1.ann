@@ -1,0 +1,50 @@
+T1	METHOD 90 99	MapReduce
+T2	SOFTWARE 104 109	Spark
+T3	SOFTWARE 143 171	cluster computing frameworks
+T4	TASK 176 202	large scale data analytics
+R3	addresses Arg1:T3 Arg2:T4	
+R1	implements Arg1:T3 Arg2:T1	
+T5	SOFTWARE 204 220	These frameworks
+T6	METHOD 244 260	task parallelism
+T7	IDK_MAN 265 280	fault-tolerance
+T8	IDK_MAN 303 318	programming API
+T9	SOFTWARE 394 424	MapReduce and Spark frameworks
+T10	TASK 436 443	shuffle
+T11	IDK_MAN 445 460	execution model
+T12	TASK 466 473	caching
+T13	IDK_MAN 503 521	analytic workloads
+T14	SOFTWARE 572 587	profiling tools
+T15	IDK_MAN 610 629	task execution plan
+T16	METRIC 639 659	resource utilization
+T17	METHOD 669 678	MapReduce
+T18	SOFTWARE 683 688	Spark
+T19	METRIC 716 727	correlation
+T20	METRIC 768 782	execution time
+T21	METHOD 884 893	MapReduce
+T22	SOFTWARE 898 903	Spark
+T23	TASK 1122 1149	micro-benchmark experiments
+T24	SOFTWARE 1186 1191	Spark
+T25	METHOD 1230 1239	MapReduce
+T26	TASK 1245 1255	Word Count
+T27	TASK 1257 1264	k-means
+T28	TASK 1270 1278	PageRank
+T29	METHOD 1354 1377	hash-based aggre-gation
+T30	TASK 1392 1399	combine
+T31	METHOD 1450 1461	RDD caching
+T32	SOFTWARE 1465 1470	Spark
+T33	TASK 1500 1504	Sort
+T34	METHOD 1525 1534	MapReduce
+T35	SOFTWARE 1553 1558	Spark
+T36	METHOD 1573 1582	MapReduce
+T37	IDK_MAN 1585 1600	execution model
+T38	TASK 1623 1637	shuffling data
+T39	SOFTWARE 1643 1648	Spark
+T40	TASK 1662 1666	Sort
+T41	METHOD 1681 1691	MapRe-duce
+R2	addresses Arg1:T24 Arg2:T26	
+R4	addresses Arg1:T24 Arg2:T27	
+R5	addresses Arg1:T24 Arg2:T28	
+R6	addresses Arg1:T25 Arg2:T26	
+R7	addresses Arg1:T25 Arg2:T27	
+R8	addresses Arg1:T25 Arg2:T28	
+#1	AnnotatorNotes T15	I might call this a "COMPONENT"? I'm not sure

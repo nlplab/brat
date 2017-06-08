@@ -1,0 +1,31 @@
+T1	Material 0 25	Gamma titanium aluminides
+T2	Material 72 78	alloys
+T3	Material 117 136	Ni-base superalloys
+T4	Material 163 185	aero-engine components
+T5	Task 149 185	production of aero-engine components
+T6	Process 187 205	Investment casting
+T7	Task 247 301	produce titanium and titanium aluminide alloy products
+T8	Material 255 263	titanium
+T9	Material 268 292	titanium aluminide alloy
+R1	Hyponym-of Arg1:T9 Arg2:T8	
+T10	Material 314 328	the components
+R2	Hyponym-of Arg1:T9 Arg2:T10	
+R3	Hyponym-of Arg1:T8 Arg2:T10	
+T11	Material 422 441	Titanium aluminides
+T12	Material 505 515	TiAl alloy
+T13	Material 597 603	oxygen
+T14	Material 605 613	nitrogen
+T15	Material 620 628	titanium
+T16	Material 637 643	alloys
+T17	Material 580 588	elements
+R4	Hyponym-of Arg1:T13 Arg2:T17	
+R5	Hyponym-of Arg1:T14 Arg2:T17	
+R6	Hyponym-of Arg1:T15 Arg2:T17	
+R7	Hyponym-of Arg1:T16 Arg2:T17	
+T18	Material 669 684	mould materials
+T19	Process 707 722	casting process
+T20	Material 790 803	metal surface
+T21	Material 740 766	interaction hardened layer
+T22	Material 816 830	hardened layer
+T23	Material 858 874	dissolved oxygen
+T24	Process 918 950	crack generation and propagation

@@ -1,0 +1,56 @@
+T1	KeyEntity 81 111	nephrogenic diabetes insipidus
+T2	Entity 113 116	NDI
+T3	Entity 70 80	Congenital
+T4	Entity 163 169	kidney
+T5	Entity 173 190	concentrate urine
+T6	Entity 206 217	vasopressin
+T7	KeyEntity 239 269	nephrogenic diabetes insipidus
+T8	Entity 313 335	vasopressin receptor 2
+T9	Entity 337 342	Avpr2
+T10	Entity 356 403	vasopressin-sensitive water channel aquaporin-2
+T11	Entity 405 409	Aqp2
+T12	Entity 545 578	ethylnitrosourea-mutagenized mice
+T13	KeyEntity 650 653	NDI
+T14	Entity 663 677	F204V mutation
+T15	Entity 685 689	Aqp2
+T16	KeyEntity 741 744	NDI
+T18	Entity 1033 1060	improper AQP2 translocation
+T19	Entity 1068 1084	molecular defect
+T20	KeyEntity 1088 1118	nephrogenic diabetes insipidus
+T21	Entity 1215 1225	AQP2-F204V
+T22	Entity 1246 1267	endoplasmic reticulum
+T23	Entity 1282 1303	abnormal localization
+T24	Entity 1322 1339	wild-type protein
+T25	Entity 1383 1402	mechanistic studies
+T26	Entity 1425 1440	pharmacological
+T27	Entity 1445 1459	gene therapies
+T28	KeyEntity 1464 1467	NDI
+R1	other_relation Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	equivalent
+R2	other_relation Arg1:T3 Arg2:T1	
+#2	AnnotatorNotes R2	time_stage
+R3	interacts_with Arg1:T4 Arg2:T5	
+R4	interacts_with Arg1:T4 Arg2:T6	
+R5	other_relation Arg1:T9 Arg2:T8	
+#3	AnnotatorNotes R5	equivalent
+R6	is_part_of Arg1:T9 Arg2:T7	
+R7	other_relation Arg1:T11 Arg2:T10	
+#4	AnnotatorNotes R7	equivalent
+R8	is_part_of Arg1:T10 Arg2:T7	
+R9	is_part_of Arg1:T14 Arg2:T12	
+R10	is_part_of Arg1:T15 Arg2:T12	
+T17	Entity 810 824	human disorder
+R11	other_relation Arg1:T16 Arg2:T17	
+#5	AnnotatorNotes R11	mirrors_human
+R12	is_subclass_of Arg1:T18 Arg2:T19	
+R13	participates_in Arg1:T18 Arg2:T20	
+R14	participates_in Arg1:T21 Arg2:T22	
+R15	other_relation Arg1:T23 Arg2:T24	
+#6	AnnotatorNotes R15	restored
+T29	Entity 1352 1363	mouse model
+R16	other_relation Arg1:T29 Arg2:T25	
+#7	AnnotatorNotes R16	future_studies
+R17	other_relation Arg1:T29 Arg2:T26	
+#8	AnnotatorNotes R17	future_studies
+R18	other_relation Arg1:T29 Arg2:T27	
+#9	AnnotatorNotes R18	future_studies

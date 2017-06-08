@@ -1,0 +1,37 @@
+T1	Process 0 42	Finite Element Tearing and Interconnecting
+T2	Task 95 154	solvers for large-scale problems in computational mechanics
+T3	Material 160 188	numerical simulation problem
+T4	Material 210 244	number of independent sub-problems
+T5	Material 374 392	complex geometries
+T6	Process 335 356	isogeometric analysis
+T7	Task 419 483	computational domain as a collection of several NURBS geometries
+T8	Process 577 592	NURBS-based IGA
+T9	Process 631 643	FETI methods
+T10	Process 672 712	IsogEometric Tearing and Interconnecting
+T11	Process 773 777	FETI
+T12	Process 820 823	IGA
+T13	Process 841 855	IETI framework
+T14	Process 949 992	coupling of the subdomains along interfaces
+T15	Material 1031 1055	interfaces with T-joints
+T16	Task 1264 1319	demonstrate the performance of the proposed IETI method
+T17	Material 557 575	several subdomains
+T19	Task 1111 1184	construction of a suitable preconditioner for the iterative linear solver
+T18	Process 875 896	simple model problems
+T20	Process 898 905	Poisson
+T21	Process 910 931	linearized elasticity
+R1	Hyponym-of Arg1:T20 Arg2:T18	
+R2	Hyponym-of Arg1:T21 Arg2:T18	
+T22	Process 714 718	IETI
+*	Synonym-of T22 T10
+T23	Process 358 361	IGA
+T24	Process 44 48	FETI
+*	Synonym-of T24 T1
+*	Synonym-of T23 T6
+T25	Material 1062 1075	hanging nodes
+*	Synonym-of T25 T15
+T26	Process 298 327	Non-Uniform Rational B-spline
+T27	Process 290 295	NURBS
+*	Synonym-of T27 T26
+T28	Process 467 472	NURBS
+T29	Process 747 769	advanced solver design
+T30	Process 787 816	exact geometry representation

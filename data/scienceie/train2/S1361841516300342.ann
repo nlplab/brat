@@ -1,0 +1,10 @@
+T5	Process 95 118	Evolutionary algorithms
+T6	Process 128 146	genetic population
+R1	Hyponym-of Arg1:T6 Arg2:T5	
+T7	Process 497 524	genetic algorithm optimizer
+T8	Process 707 720	Kalman filter
+T1	Process 0 39	Probabilistic and stochastic approaches
+T2	Task 59 93	search for local and global optima
+T3	Material 332 345	cost function
+T4	Process 549 601	Condensation form of sequential Monte Carlo sampling
+T9	Task 605 637	estimate a cost function gradien

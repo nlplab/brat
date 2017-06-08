@@ -1,0 +1,6 @@
+T1	METHOD 13 32	dynamic programming
+T2	TASK 82 104	semantic role labeling
+T3	METHOD 283 309	integer linear programming
+T4	METHOD 354 390	globally-normalized log-linear model
+T5	DATASET 746 754	PropBank
+T6	DATASET 759 785	FrameNet-annotated corpora

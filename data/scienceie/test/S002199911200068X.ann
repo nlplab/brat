@@ -1,0 +1,26 @@
+T1	Process 0 33	Myocardial electrical propagation
+T2	Material 61 88	monodomain or bidomain PDEs
+T3	Material 137 147	geometries
+T4	Process 203 224	finite element method
+T5	Process 226 229	FEM
+*	Synonym-of T4 T5
+T6	Material 249 253	PDEs
+T7	Process 606 639	high-end supercomputing resources
+T9	Task 766 781	preconditioning
+T10	Task 783 798	parallelisation
+T11	Task 803 831	adaptivity in space and time
+T12	Process 925 950	high-order polynomial FEM
+T13	Material 978 992	monodomain PDE
+T14	Process 1075 1095	piecewise-linear FEM
+T15	Process 1277 1301	finite element p-version
+T16	Task 858 913	investigate the potential of reducing the number of DOF
+T8	Task 378 400	human heart geometries
+T17	Material 276 299	cardiac geometry meshes
+T18	Process 402 429	systems of linear equations
+T19	Process 507 517	simulation
+T20	Task 706 746	developing efficient solution techniques
+R1	Hyponym-of Arg1:T9 Arg2:T20	
+R2	Hyponym-of Arg1:T10 Arg2:T20	
+R3	Hyponym-of Arg1:T11 Arg2:T20	
+T21	Task 1020 1065	significantly improving simulation efficiency
+T22	Process 1044 1065	simulation efficiency

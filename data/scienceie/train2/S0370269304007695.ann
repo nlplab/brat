@@ -1,0 +1,44 @@
+T1	Task 39 130	describe the experimental data of the HERMES Collaboration for hadron attenuation on nuclei
+T2	Process 167 189	fragmentation function
+T3	Process 271 274	FSI
+T4	Process 295 324	‘free’ fragmentation function
+T5	Process 490 513	the z-dependence of RMh
+T6	Task 606 621	determine σlead
+T7	Task 1018 1080	detail the spectra for different particle species (π±,K±,p,p̄)
+T8	Task 1084 1157	examine, if the formation times of mesons and antibaryons are about equal
+T9	Process 627 690	interaction of the leading prehadrons during the formation time
+T10	Task 1179 1282	improve our model to describe the primary photon–nucleon reaction below the PYTHIA threshold of W⩾4 GeV
+T11	Process 102 120	hadron attenuation
+T12	Material 124 130	nuclei
+T13	Process 197 212	gluon radiation
+T14	Task 221 238	dynamical studies
+T15	Material 330 337	nucleon
+T16	Process 356 374	hadron attenuation
+T17	Material 356 362	hadron
+T18	Material 402 424	produced (pre-)hadrons
+T19	Process 432 435	FSI
+T20	Material 443 461	surrounding medium
+T21	Material 510 513	RMh
+T22	Material 568 586	leading prehadrons
+T23	Material 646 664	leading prehadrons
+T24	Process 718 764	in-medium change of the fragmentation function
+*	Synonym-of T9 T24
+T25	Process 839 855	hadron formation
+T26	Material 839 845	hadron
+T27	Task 901 935	analysis of antiproton attenuation
+T28	Material 913 923	antiproton
+T29	Process 939 952	p+A reactions
+T30	Material 1119 1125	mesons
+T31	Material 1130 1141	antibaryons
+T32	Material 1051 1067	particle species
+T33	Material 1069 1071	π±
+T34	Material 1072 1074	K±
+T35	Material 1075 1076	p
+T36	Material 1077 1079	p̄
+R1	Hyponym-of Arg1:T33 Arg2:T32	
+R2	Hyponym-of Arg1:T35 Arg2:T32	
+R3	Hyponym-of Arg1:T34 Arg2:T32	
+R4	Hyponym-of Arg1:T36 Arg2:T32	
+T37	Process 1213 1244	primary photon–nucleon reaction
+T38	Material 1221 1227	photon
+T39	Material 1228 1235	nucleon

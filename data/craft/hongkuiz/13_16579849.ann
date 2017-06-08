@@ -1,0 +1,19 @@
+T1	KeyEntity 126 158	Maple Syrup Urine Disease (MSUD)
+T2	Entity 204 256	deficiency of branched-chain keto acid dehydrogenase
+R1	regulates Arg1:T2 Arg2:T1	
+#1	AnnotatorNotes R1	causes
+T3	KeyEntity 544 572	murine model of classic MSUD
+T4	Entity 682 739	E2 subunit gene of branched-chain keto acid dehydrogenase
+R2	is_part_of Arg1:T4 Arg2:T3	
+T5	KeyEntity 753 786	murine model of intermediate MSUD
+T6	Entity 831 868	human E2 cDNA on the knockout backgro
+R3	is_part_of Arg1:T6 Arg2:T5	
+T7	Entity 996 1053	E2 subunit gene of branched-chain keto acid dehydrogenase
+T8	KeyEntity 1082 1109	mouse model of classic MSUD
+R4	is_part_of Arg1:T7 Arg2:T8	
+T9	Entity 1147 1185	branched-chain keto acid dehydrogenase
+T10	Entity 1246 1284	circulating branched-chain amino acids
+R5	regulates Arg1:T9 Arg2:T10	
+T11	Entity 1347 1387	Transgenic expression of a human E2 cDNA
+T12	KeyEntity 1437 1465	a model of intermediate MSUD
+R6	is_part_of Arg1:T11 Arg2:T12	

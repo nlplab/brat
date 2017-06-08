@@ -1,0 +1,18 @@
+T1	Material 688 698	SNG market
+T2	Process 843 849	survey
+T3	Material 75 101	social networking services
+T4	Material 103 106	SNS
+*	Synonym-of T3 T4
+T5	Process 0 21	Social network gaming
+T6	Material 129 148	mobile applications
+T7	Material 150 154	apps
+*	Synonym-of T6 T7
+T8	Process 187 207	Social network games
+T9	Process 209 212	SNG
+*	Synonym-of T8 T9
+T10	Material 498 501	SNG
+T11	Process 521 524	SNS
+T12	Material 586 589	SNG
+T13	Material 636 639	SNG
+T14	Material 990 993	SNG
+T15	Material 1062 1065	SNG

@@ -1,0 +1,41 @@
+T2	Task 410 440	The search for the Higgs boson
+T3	Material 477 485	Tevatron
+T4	Material 501 522	Large Hadron Collider
+T5	Material 523 528	(LHC)
+*	Synonym-of T4 T5
+T6	Process 551 594	span all the Higgs mass regions up to 1 TeV
+T7	Material 599 615	hadron colliders
+T8	Task 620 651	main Higgs production mechanism
+T9	Process 659 671	gluon fusion
+T10	Process 730 758	put limits on the Higgs mass
+R1	Hyponym-of Arg1:T9 Arg2:T10	
+T11	Material 920 935	hadron collider
+T12	Process 946 995	part of the mass range favored by the LEP results
+T13	Task 939 995	access part of the mass range favored by the LEP results
+T14	Process 1011 1041	intermediate Higgs mass region
+T15	Process 1136 1146	rare decay
+T16	Process 1201 1215	decay channels
+T1	Process 86 126	put a firm lower bound on the Higgs mass
+T17	Process 128 138	mH>114 GeV
+*	Synonym-of T1 T17
+T18	Material 257 268	Higgs boson
+T19	Process 304 318	Standard Model
+T20	Process 320 322	SM
+*	Synonym-of T19 T20
+T21	Material 843 845	SM
+T22	Material 775 780	Higgs
+T23	Material 748 753	Higgs
+T24	Process 1042 1056	114≲mH≲160 GeV
+*	Synonym-of T14 T24 T12
+T25	Material 208 211	SLD
+T26	Material 288 296	particle
+T27	Material 564 574	Higgs mass
+T28	Process 625 651	Higgs production mechanism
+R3	Hyponym-of Arg1:T9 Arg2:T28	
+T29	Process 799 852	compare the measured cross section with the SM result
+T30	Process 869 880	Higgs decay
+T31	Material 1079 1093	QCD background
+T32	Process 1147 1151	H→γγ
+*	Synonym-of T15 T32
+R2	Hyponym-of Arg1:T15 Arg2:T16	
+T33	Material 116 126	Higgs mass

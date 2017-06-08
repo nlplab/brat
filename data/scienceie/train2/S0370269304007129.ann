@@ -1,0 +1,18 @@
+T1	Task 15 94	diagonal and transition magnetic and electric dipole moments of charged leptons
+T2	Process 98 118	extended technicolor
+T3	Process 120 123	ETC
+*	Synonym-of T2 T3 T14
+T4	Process 184 207	gauge symmetry breaking
+T5	Process 209 263	conformal (walking) behavior of the technicolor theory
+T6	Process 269 309	mixing in the charged-lepton mass matrix
+T7	Task 324 338	mixing effects
+T8	Task 373 411	charged lepton electric dipole moments
+T9	Process 439 452	value of |de|
+T10	Process 490 503	rate for μ→eγ
+T11	Task 596 624	charged lepton mixing angles
+T12	Task 684 714	muon anomalous magnetic moment
+T13	Process 745 763	lepton mixing term
+T14	Process 180 183	ETC
+T15	Material 283 309	charged-lepton mass matrix
+T16	Process 660 663	ETC
+T17	Process 352 355	ETC

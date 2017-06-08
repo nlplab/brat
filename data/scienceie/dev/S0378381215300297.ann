@@ -1,0 +1,41 @@
+T1	Process 4 40	Statistical Associating Fluid Theory
+T2	Process 42 46	SAFT
+*	Synonym-of T1 T2
+T3	Process 68 87	perturbation theory
+R1	Hyponym-of Arg1:T2 Arg2:T3	
+T4	Material 149 155	fluids
+T5	Process 379 403	intermolecular potential
+T6	Material 429 460	unbounded constituent particles
+T7	Material 462 474	Hard spheres
+T8	Material 476 494	square well fluids
+T9	Material 496 505	LJ fluids
+T10	Material 507 512	argon
+T11	Material 514 521	alkanes
+T12	Material 548 564	reference fluids
+T13	Process 598 602	SAFT
+R2	Hyponym-of Arg1:T6 Arg2:T12	
+R3	Hyponym-of Arg1:T7 Arg2:T12	
+R4	Hyponym-of Arg1:T8 Arg2:T12	
+R5	Hyponym-of Arg1:T9 Arg2:T12	
+R6	Hyponym-of Arg1:T10 Arg2:T12	
+R7	Hyponym-of Arg1:T11 Arg2:T12	
+T14	Process 679 687	SAFT EoS
+T15	Process 698 709	SAFT-VR Mie
+R8	Hyponym-of Arg1:T15 Arg2:T14	
+T16	Process 772 799	group contribution approach
+T17	Process 801 807	SAFT-γ
+R9	Hyponym-of Arg1:T17 Arg2:T16	
+R10	Hyponym-of Arg1:T17 Arg2:T15	
+T18	Process 864 868	SAFT
+T19	Process 880 895	closed form EoS
+T20	Material 1431 1436	beads
+T21	Material 1620 1638	isotropic molecule
+T22	Material 1704 1709	fluid
+T23	Material 1936 1949	simple fluids
+T24	Process 947 960	Mie potential
+T25	Process 985 1000	(m,n) potential
+*	Synonym-of T24 T25
+T26	Process 1028 1040	LJ potential
+R11	Hyponym-of Arg1:T25 Arg2:T26	
+T27	Process 1079 1092	Mie potential
+T28	Material 1329 1333	bead

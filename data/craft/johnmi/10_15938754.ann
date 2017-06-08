@@ -1,0 +1,36 @@
+T1	Entity 144 168	bitter-tasting compounds
+T2	KeyEntity 336 340	T2Rs
+T3	KeyEntity 376 396	taste receptor cells
+T4	Entity 638 675	brief-access behavioral taste testing
+T5	Entity 741 765	quantitative trait locus
+T6	Entity 894 907	T2Rs (Tas2rs)
+T7	Entity 909 915	Tas2rs
+T8	Entity 965 1003	single nucleotide polymorphisms (SNPs)
+T9	Entity 1048 1076	C57BL/6J (quinine-sensitive)
+T10	Entity 1081 1109	DBA/2J (quinine insensitive)
+T11	KeyEntity 1226 1239	Tas2r alleles
+T13	KeyEntity 1388 1401	Tas2r cluster
+T14	Entity 1451 1472	quinine taster status
+T15	Entity 1520 1539	taste-salient assay
+T16	Entity 1596 1630	T2R-dependent transduction cascade
+T17	KeyEntity 1685 1710	quinine taste sensitivity
+T18	KeyEntity 1786 1799	Tas2r cluster
+T19	Entity 1905 1918	T2R receptors
+T20	Entity 1867 1890	bitter taste phenotypes
+T21	KeyEntity 535 549	bitter stimuli
+T12	Entity 561 589	quinine hydrochloride (QHCl)
+T22	Entity 777 801	aste sensitivity to QHCl
+R1	is_part_of Arg1:T2 Arg2:T3	
+R2	is_subclass_of Arg1:T12 Arg2:T21	
+R3	other_relation Arg1:T4 Arg2:T5	
+R4	regulates Arg1:T5 Arg2:T22	
+T23	KeyEntity 808 811	QTL
+R5	physically_interacts_with Arg1:T23 Arg2:T6	
+R6	regulates Arg1:T8 Arg2:T7	
+R7	regulates Arg1:T8 Arg2:T9	
+R8	regulates Arg1:T8 Arg2:T10	
+T24	Entity 1311 1328	sensitive to QHCl
+R9	regulates Arg1:T11 Arg2:T24	
+R10	regulates Arg1:T13 Arg2:T14	
+R11	regulates Arg1:T16 Arg2:T17	
+R12	regulates Arg1:T18 Arg2:T20	

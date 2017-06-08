@@ -1,0 +1,28 @@
+T1	Material 51 63	carbon atoms
+T2	Material 67 75	graphene
+T3	Process 122 175	aberration-corrected transmission electron microscopy
+T4	Process 196 219	sub-Ångstrom resolution
+T5	Process 242 315	AC-TEM observations of the formation and annealing of Stone–Wales defects
+T6	Process 321 340	edge reconstruction
+T7	Process 351 423	formation of a large hole in graphene sheet from a single vacancy defect
+T8	Material 380 394	graphene sheet
+T9	Material 529 537	graphene
+T10	Task 529 549	graphene nanoribbons
+T11	Material 555 575	molecular precursors
+T12	Process 586 656	formation of nanometre size hollow protrusion on the nanotube sidewall
+T13	Material 639 656	nanotube sidewall
+T14	Process 671 690	AC-TEM observations
+T15	Material 712 739	small finite graphene flake
+T16	Material 745 754	fullerene
+T17	Process 501 549	process of self-assembly of graphene nanoribbons
+T18	Task 896 952	proposed ‘top-down’ mechanism of the fullerene formation
+T19	Process 956 1001	creation of vacancies in small graphene flake
+T20	Process 1017 1083	knock-on damage by electrons of the imaging electron beam (e-beam)
+T21	Task 1089 1122	subsequent formation of pentagons
+T22	Task 762 813	‘top-down’ mechanism for the formation of fullerene
+T23	Process 791 813	formation of fullerene
+T24	Task 1394 1423	e-beam assisted self-assembly
+T25	Task 1428 1482	structural transformations in graphene-like structures
+T26	Material 1458 1482	graphene-like structures
+T27	Process 177 183	AC-TEM
+*	Synonym-of T3 T27

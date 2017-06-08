@@ -1,0 +1,29 @@
+T1	Task 41 93	operators listed in (9) and (10) have to be included
+T2	Process 157 184	QCD factorization framework
+T3	Process 206 265	express the hadronic matrix elements in the schematic form:
+T4	Process 250 264	schematic form
+T5	Process 270 323	〈Vγ|Oi|B〉=FB→VTiI+∫dk+2π∫01duφB,+(k+)TiII(k+,u)φV⊥(u)
+R1	Hyponym-of Arg1:T5 Arg2:T4	
+T6	Process 560 607	leading-twist light-cone distribution amplitude
+T7	Process 609 613	LCDA
+*	Synonym-of T6 T7
+T8	Task 1147 1184	isospin violation in the B→K∗γ decays
+T9	Process 1404 1432	next-to-next-to-leading orde
+T10	Process 1435 1439	NNLO
+*	Synonym-of T9 T10
+T11	Process 331 335	FB→V
+T12	Process 344 426	transition form factors defined through the matrix elements of the operator O7, φB
+R2	Hyponym-of Arg1:T11 Arg2:T12	
+T13	Process 427 432	+(k+)
+T14	Process 440 544	leading-twist B-meson wave-function with k+ being a light-cone component of the spectator quark momentum
+R3	Hyponym-of Arg1:T13 Arg2:T14	
+T15	Process 546 551	φ⊥V(u
+R4	Hyponym-of Arg1:T15 Arg2:T6	
+T16	Process 665 666	u
+T17	Process 674 747	fractional momentum of the vector meson carried by one of the two partons
+R5	Hyponym-of Arg1:T16 Arg2:T17	
+T18	Process 906 931	The factorization formula
+T19	Process 993 1021	This factorization framework
+T20	Task 1303 1374	hard-spectator contribution arising from the chromomagnetic operator O8
+T21	Task 1464 1486	spectator interactions
+T22	Material 950 961	heavy quark

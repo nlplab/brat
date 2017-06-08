@@ -1,0 +1,62 @@
+T1	KeyEntity 139 166	retinoblastoma protein (Rb)
+T2	Entity 176 198	neural differentiation
+R1	participates_in Arg1:T1 Arg2:T2	
+T3	Entity 252 254	Rb
+T4	Entity 271 286	cell cycle exit
+T5	Entity 300 321	death of some neurons
+R2	regulates Arg1:T3 Arg2:T4	
+R3	regulates Arg1:T3 Arg2:T5	
+T6	Entity 415 430	differentiation
+T7	Entity 435 478	light-evoked electrophysiological responses
+T8	KeyEntity 482 508	Rb-deficient retinal cells
+R4	genetically_interacts_with Arg1:T8 Arg2:T7	
+R5	genetically_interacts_with Arg1:T8 Arg2:T6	
+T9	Entity 526 542	ectopic division
+T10	Entity 547 556	apoptosis
+T11	Entity 594 624	E2f transcription factor (E2f)
+R6	participates_in Arg1:T11 Arg2:T10	
+R7	regulates Arg1:T11 Arg2:T9	
+T12	Entity 712 750	cell-cycle–independent differentiation
+T13	Entity 685 703	double-null retina
+R8	participates_in Arg1:T13 Arg2:T12	
+T14	KeyEntity 775 806	starburst amacrine cells (SACs)
+T15	Entity 809 832	holinergic interneurons
+T16	Entity 845 866	direction selectivity
+T17	Entity 897 912	rhythmic bursts
+R9	participates_in Arg1:T15 Arg2:T16	
+R10	participates_in Arg1:T15 Arg2:T17	
+T18	KeyEntity 925 927	Rb
+T19	Entity 971 975	E2fs
+R11	regulates Arg1:T18 Arg2:T19	
+T20	Entity 942 956	block division
+R12	participates_in Arg1:T19 Arg2:T20	
+T21	Entity 992 1007	differentiation
+T22	Entity 1024 1047	tissue-specific factors
+R13	regulates Arg1:T18 Arg2:T22	
+R14	participates_in Arg1:T22 Arg2:T21	
+T23	KeyEntity 1070 1072	Rb
+T24	Entity 1266 1271	E2f3b
+T25	Entity 1309 1318	quiescent
+R15	regulates Arg1:T23 Arg2:T27	
+T26	Entity 1180 1197	developing retina
+T27	Entity 1116 1120	E2f3
+R16	physically_interacts_with Arg1:T24 Arg2:T25	
+T28	KeyEntity 1431 1433	Rb
+T29	Entity 1443 1462	SAC differentiation
+T30	Entity 1471 1476	E2f3a
+R17	regulates Arg1:T28 Arg2:T30	
+R18	regulates Arg1:T30 Arg2:T29	
+T31	Entity 1535 1557	neural differentiation
+R19	is_part_of Arg1:T14 Arg2:T15	
+T32	Entity 1613 1618	E2f3a
+R20	regulates Arg1:T32 Arg2:T31	
+#1	AnnotatorNotes T5	neuronal death
+R21	is_part_of Arg1:T12 Arg2:T14	
+R22	regulates Arg1:T18 Arg2:T20	
+T33	Entity 1082 1101	SAC differentiation
+R23	regulates Arg1:T27 Arg2:T33	
+T34	Entity 1135 1139	E2f3
+T35	Entity 1522 1524	Rb
+T36	Entity 1294 1296	Rb
+R24	regulates Arg1:T24 Arg2:T36	
+R25	regulates Arg1:T35 Arg2:T31	

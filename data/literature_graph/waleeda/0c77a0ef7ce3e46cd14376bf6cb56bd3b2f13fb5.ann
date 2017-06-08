@@ -1,0 +1,11 @@
+T1	TASK 49 83	Unsupervised Structured Prediction
+T2	METHOD 7 44	Conditional Random Field Autoencoders
+R1	addresses Arg1:T2 Arg2:T1	
+T3	METHOD 308 338	conditional random field (CRF)
+T5	METHOD 439 455	generative model
+T6	METHOD 499 511	autoen-coder
+T7	METHOD 726 750	posterior regularization
+T8	METHOD 756 775	multi-view learning
+T9	TASK 874 901	natural language processing
+T10	TASK 903 927	part-of-speech induction
+T11	TASK 932 953	bitext word alignment

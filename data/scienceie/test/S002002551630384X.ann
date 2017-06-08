@@ -1,0 +1,15 @@
+T1	Task 20 71	combine sets and networks in a single visualization
+T2	Process 99 112	Euler diagram
+T3	Process 51 71	single visualization
+T4	Process 334 348	Euler diagrams
+T5	Material 419 431	network data
+T6	Process 472 489	transparent hulls
+T7	Material 437 451	Graph clusters
+T8	Material 692 698	glyphs
+T9	Process 944 957	T1, T3 and T4
+T10	Process 1053 1065	convex hulls
+T11	Process 1075 1082	Vizster
+R1	Hyponym-of Arg1:T11 Arg2:T10	
+T12	Material 350 365	Compound graphs
+T13	Task 905 935	finding relations between sets
+T14	Process 1004 1046	visualize grouping information over graphs

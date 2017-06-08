@@ -1,0 +1,25 @@
+T1	Material 43 61	vector of unknowns
+T2	Material 63 72	xPS=[X,L]
+*	Synonym-of T1 T2
+T3	Material 98 115	nodal coordinates
+T4	Material 153 173	Lagrange multipliers
+T5	Process 228 249	Newton-based solution
+T6	Material 278 301	displacement constraint
+T7	Process 317 339	saddle-point structure
+T8	Process 359 383	tangent stiffness matrix
+T9	Material 391 425	unconstrained pseudo-solid problem
+T10	Material 435 458	two off-diagonal blocks
+T11	Material 459 462	Cxl
+T12	Material 467 475	Clx=CxlT
+R1	Hyponym-of Arg1:T11 Arg2:T10	
+R2	Hyponym-of Arg1:T12 Arg2:T10	
+T13	Material 543 563	Lagrange multipliers
+T14	Process 743 772	Dirichlet boundary conditions
+T15	Process 836 852	Newton iteration
+T16	Process 961 986	equilibrium configuration
+T17	Task 3 30	order the discrete unknowns
+T18	Material 911 935	tangent stiffness matrix
+T19	Process 625 639	discretisation
+T20	Material 603 606	LBB
+T21	Material 682 685	LBB
+T22	Process 703 739	Lagrange-multiplier-based imposition

@@ -1,0 +1,35 @@
+T1	Entity 107 132	ETS transcription factors
+T2	Entity 140 154	Pea3 subfamily
+T3	Entity 188 208	dorsal root ganglion
+T4	Entity 210 213	DRG
+T5	Entity 215 222	sensory
+T6	Entity 227 247	spinal motor neurons
+T7	Entity 251 273	target-derived factors
+T8	Entity 317 341	neuronal differentiation
+T9	Entity 350 365	target invasion
+T10	Entity 370 379	branching
+T11	Entity 418 437	ETS gene expression
+T12	Entity 477 507	sensory neuron differentiation
+T13	Entity 555 580	precocious ETS expression
+T14	KeyEntity 584 603	DRG sensory neurons
+T15	Entity 613 631	axonal projections
+T16	Entity 652 684	terminal differentiation markers
+T17	Entity 710 730	neurotrophic support
+T18	KeyEntity 769 788	DRG sensory neurons
+T19	Entity 799 828	temporal developmental switch
+T20	Entity 875 909	ETS transcription factor signaling
+T21	Entity 933 952	neuronal maturation
+R1	is_part_of Arg1:T1 Arg2:T2	
+R2	other_relation Arg1:T4 Arg2:T3	
+#1	AnnotatorNotes R2	equivalent
+R3	regulates Arg1:T7 Arg2:T6	
+R4	is_part_of Arg1:T9 Arg2:T8	
+R5	is_part_of Arg1:T10 Arg2:T8	
+R6	regulates Arg1:T11 Arg2:T12	
+R7	participates_in Arg1:T13 Arg2:T14	
+R8	interacts_with Arg1:T14 Arg2:T15	
+R9	interacts_with Arg1:T14 Arg2:T16	
+R10	participates_in Arg1:T14 Arg2:T17	
+R11	participates_in Arg1:T18 Arg2:T19	
+R12	regulates Arg1:T20 Arg2:T18	
+R13	participates_in Arg1:T19 Arg2:T21	

@@ -1,0 +1,13 @@
+T1	Task 17 36	regression analysis
+T2	Task 65 102	calculate the Journal Influence Score
+T3	Process 79 102	Journal Influence Score
+T4	Process 109 124	Influence Score
+T5	Material 172 190	scholarly journals
+T6	Process 148 168	scientific influence
+T7	Process 192 215	Journal Influence Score
+T9	Task 295 334	compared with the SCImago Journal Score
+T10	Process 313 334	SCImago Journal Score
+T12	Task 478 519	calculating scientific impact of journals
+T13	Task 136 190	measure the scientific influence of scholarly journals
+T8	Process 17 49	regression analysis based method
+T11	Process 233 275	using various factors in a weighted manner

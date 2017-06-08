@@ -1,0 +1,30 @@
+T1	Material 269 277	database
+T2	Material 292 296	WASI
+R1	Hyponym-of Arg1:T1 Arg2:T2	
+T3	Material 949 954	IOCCG
+T4	Material 1085 1127	NASA bio-Optical Marine Algorithm Data set
+T7	Material 1129 1134	NOMAD
+*	Synonym-of T4 T7
+T5	Material 1144 1190	SeaWiFS Bio-Optical Archive and Storage System
+T8	Material 1192 1199	SeaBASS
+*	Synonym-of T5 T8
+T9	Material 135 140	ai⁎(λ
+T10	Material 143 149	aY⁎(λ)
+T11	Material 151 157	aD⁎(λ)
+T12	Material 159 164	bX(λ)
+T13	Material 166 171	bb,X⁎
+T14	Material 173 175	bb
+T15	Material 176 180	Mie⁎
+T16	Material 115 133	water constituents
+R2	Hyponym-of Arg1:T9 Arg2:T16	
+R3	Hyponym-of Arg1:T10 Arg2:T16	
+R4	Hyponym-of Arg1:T11 Arg2:T16	
+R5	Hyponym-of Arg1:T12 Arg2:T16	
+R6	Hyponym-of Arg1:T13 Arg2:T16	
+R7	Hyponym-of Arg1:T14 Arg2:T16	
+R8	Hyponym-of Arg1:T15 Arg2:T16	
+T6	Material 686 723	region or season specific information
+T17	Material 772 790	optical properties
+T18	Material 1057 1079	IOCCG (2006) data bank
+T19	Material 199 263	optical properties of the bottom [Rib(λ), Bi] and the atmosphere
+T20	Process 319 339	in-situ measurements

@@ -1,0 +1,23 @@
+T1	Process 57 67	churn flow
+T2	Material 309 315	probes
+T3	Process 362 407	time/axial position/void fraction information
+T4	Process 437 455	identify huge wave
+T5	Material 469 486	disturbance waves
+T8	Material 693 710	disturbance waves
+T9	Process 721 749	velocity of individual waves
+T10	Process 837 860	frequency of huge waves
+T11	Process 911 935	gas superficial velocity
+T12	Process 1005 1025	slug flow velocities
+T13	Process 94 113	gas continuous flow
+T14	Material 94 97	gas
+T15	Material 57 62	churn
+T16	Material 157 167	huge waves
+T17	Material 192 198	liquid
+T18	Material 446 455	huge wave
+T19	Material 491 496	slugs
+T20	Material 539 549	huge waves
+T6	Material 744 749	waves
+T7	Material 805 810	waves
+T21	Material 850 860	huge waves
+T22	Material 911 914	gas
+T23	Material 1005 1009	slug

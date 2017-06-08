@@ -1,0 +1,20 @@
+T1	METHOD 0 15	Word embeddings
+T2	TASK 211 230	learning embeddings
+T3	METHOD 257 277	matrix factorization
+T4	METHOD 330 354	neural language modeling
+R1	addresses Arg1:T4 Arg2:T2	
+R2	addresses Arg1:T3 Arg2:T2	
+T5	TASK 415 428	POS induction
+T6	METHOD 585 595	embeddings
+T7	METHOD 634 654	Skip-gram embeddings
+R3	is_subclass_of Arg1:T7 Arg2:T6	
+T8	METHOD 950 981	Structured skip-gram embeddings
+R4	is_subclass_of Arg1:T8 Arg2:T6	
+T9	METHOD 1022 1042	skip-gram embeddings
+R5	is_subclass_of Arg1:T8 Arg2:T9	
+T10	SOFTWARE 1157 1165	word2vec
+T11	SOFTWARE 1172 1209	Ling et al. (2015)'s modified version
+T12	METHOD 1250 1270	skip-gram embeddings
+T13	METHOD 693 711	log bilinear model
+R6	uses Arg1:T7 Arg2:T13	
+T14	METHOD 860 870	embeddings

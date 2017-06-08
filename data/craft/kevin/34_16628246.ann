@@ -1,0 +1,21 @@
+T1	KeyEntity 116 120	ATRX
+T2	Entity 151 162;166 190	SNF2 family ATPase/helicase proteins
+T3	Entity 211 226	gene expression
+T4	KeyEntity 279 283	ATRX
+T5	KeyEntity 413 417	ATRX
+T6	KeyEntity 473 536	ATR-X (alpha thalassemia mental retardation, X-linked) syndrome
+T7	KeyEntity 588 592	Atrx
+T8	Entity 601 635	8- to 16-cell stage of development
+T9	Entity 650 654	Atrx
+T10	Entity 688 714	male embryos null for Atrx
+T11	Entity 833 859	extraembryonic trophoblast
+T12	Entity 878 912	terminally differentiated lineages
+T13	Entity 939 958	Carrier female mice
+T14	Entity 974 994	maternal null allele
+T15	Entity 1034 1046	X chromosome
+T16	Entity 1074 1096	extraembryonic tissues
+T17	Entity 1126 1141	carrier females
+T18	KeyEntity 1217 1240	mprinted X-inactivation
+T19	KeyEntity 1343 1347	Atrx
+T20	Entity 1374 1392	murine trophoblast
+T21	KeyEntity 1431 1466	imprinted X chromosome inactivation

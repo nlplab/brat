@@ -1,0 +1,16 @@
+T1	Material 114 126	two-loop QED
+T2	Process 114 143	two-loop QED effective action
+T3	Process 203 218	one-loop action
+T4	Process 299 311	higher loops
+T5	Process 384 409	all-loop effective action
+T6	Task 681 718	analysis of N=2 covariant supergraphs
+T7	Material 697 718	covariant supergraphs
+T8	Process 856 871	D3-brane action
+T9	Material 875 882	AdS5×S5
+T10	Material 934 948	Coulomb branch
+T11	Material 959 970	gauge group
+T12	Material 971 976	SU(N)
+R1	Hyponym-of Arg1:T12 Arg2:T11	
+T13	Material 1001 1013	SU(N−1)×U(1)
+T14	Material 917 926	SU(N) SYM
+T15	Task 1051 1078	F6 tests of this conjecture

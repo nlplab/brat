@@ -1,0 +1,19 @@
+T1	Task 34 62	physical spacetime dimension
+T2	Process 89 113	prediction of the theory
+T3	Process 127 144	standard theories
+T4	Process 192 215	Einstein–Hilbert action
+T5	Process 252 274	dimensional reductions
+T6	Material 359 374	Minkowski space
+T7	Process 390 412	(super)symmetric state
+T8	Process 480 505	select this configuration
+T9	Process 558 576	compactified space
+T10	Process 644 669	eleven-dimensional theory
+T11	Task 694 711	low energy regime
+T12	Process 734 767	four-dimensional effective theory
+T13	Process 791 810	background solution
+T14	Process 819 848	effective spacetime dimension
+T15	Process 849 852	d>4
+R1	Hyponym-of Arg1:T15 Arg2:T14	
+T16	Process 880 892	false vacuum
+T17	Process 903 939	propagators for the dynamical fields
+T18	Process 964 991	low energy effective theory

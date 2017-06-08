@@ -1,0 +1,27 @@
+T1	Process 29 53	water-gas shift reaction
+T2	Process 55 59	WGSR
+*	Synonym-of T2 T1
+T3	Process 79 106	chemical kinetics equipment
+T4	Process 134 151	hydrogen recovery
+T5	Process 157 177	industrial processes
+T6	Process 213 230	hydrogen recovery
+T7	Material 263 272	catalysts
+T8	Material 442 449	calcite
+T9	Material 451 460	coal char
+T10	Material 422 439	natural catalysts
+R1	Hyponym-of Arg1:T8 Arg2:T10	
+R2	Hyponym-of Arg1:T9 Arg2:T10	
+T11	Material 495 511	modified olivine
+T12	Process 531 551	gasification process
+T13	Process 556 562	heated
+T14	Material 29 34	water
+T15	Material 35 38	gas
+T16	Material 134 142	hydrogen
+T17	Material 213 221	hydrogen
+T18	Material 301 309	hydrogen
+T19	Process 338 346	reaction
+T20	Material 361 369	catalyst
+T21	Process 412 420	reaction
+T22	Material 462 489	unburned residues from coal
+*	Synonym-of T9 T22
+R3	Hyponym-of Arg1:T11 Arg2:T10	

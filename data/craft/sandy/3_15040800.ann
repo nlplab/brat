@@ -1,0 +1,48 @@
+T1	Entity 182 192	STSL locus
+T2	Entity 194 239	ATP-binding cassette (ABC)-transporters ABCG5
+T3	KeyEntity 266 271	ABCG8
+T4	KeyEntity 305 319	sitosterolemia
+T5	Entity 328 347	autosomal recessive
+T6	Entity 360 378	sterol trafficking
+T7	Entity 396 425	increased plasma plant sterol
+T8	Entity 477 493	ABCG5/sterolin-1
+T9	KeyEntity 498 514	ABCG8/sterolin-2
+T10	Entity 547 568	obligate heterodimers
+T11	Entity 757 777	dietary sterol entry
+T12	Entity 782 806	biliary sterol secretion
+R1	participates_in Arg1:T2 Arg2:T4	
+R2	participates_in Arg1:T3 Arg2:T4	
+R3	is_part_of Arg1:T4 Arg2:T5	
+R4	is_part_of Arg1:T4 Arg2:T6	
+R5	participates_in Arg1:T8 Arg2:T10	
+R6	participates_in Arg1:T9 Arg2:T10	
+T13	KeyEntity 910 924	sitosterolemia
+T14	Entity 938 965	Abcg8/sterolin-2 deficiency
+R7	is_part_of Arg1:T14 Arg2:T13	
+T15	KeyEntity 1065 1070	Abcg8
+T16	Entity 1091 1106	ncreased plasma
+T17	Entity 1111 1137	tissue plant sterol levels
+T18	Entity 1214 1230	Abcg5/sterolin-1
+T19	Entity 1253 1258	liver
+T20	Entity 1263 1272	intestine
+T21	Entity 1333 1350	apical expression
+T22	Entity 1276 1302	Abcg8/sterolin-2 deficient
+R8	participates_in Arg1:T18 Arg2:T19	
+R9	participates_in Arg1:T18 Arg2:T20	
+R10	participates_in Arg1:T22 Arg2:T21	
+T23	Entity 1364 1379	Abcg8 deficient
+T24	Entity 1412 1441	secrete cholesterol into bile
+R11	participates_in Arg1:T23 Arg2:T24	
+T25	Entity 1479 1497	secrete sitosterol
+R12	participates_in Arg1:T23 Arg2:T25	
+T26	Entity 1517 1539	intermediate phenotype
+T27	Entity 1583 1601	not sitosterolemic
+R13	is_part_of Arg1:T26 Arg2:T27	
+T28	Entity 1633 1657	biliary sterol secretion
+R14	participates_in Arg1:T26 Arg2:T28	
+T29	KeyEntity 1724 1740	Abcg8/sterolin-2
+T30	Entity 1758 1782	biliary sterol secretion
+T31	Entity 1792 1816	loss of Abcg8/sterolin-2
+T32	Entity 1849 1878	biliary cholesterol secretion
+R15	regulates Arg1:T29 Arg2:T30	
+R16	participates_in Arg1:T31 Arg2:T32	

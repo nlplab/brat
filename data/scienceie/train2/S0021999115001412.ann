@@ -1,0 +1,23 @@
+T1	Task 120 155	theory of active polar viscous gels
+T2	Process 195 238	models the continuum, macroscopic mechanics
+T3	Material 137 155	polar viscous gels
+T4	Material 258 280	uniaxial active agents
+T6	Material 296 315	viscous bulk medium
+T7	Material 415 436	uniaxial polar agents
+T8	Material 454 457	gel
+*	Synonym-of T7 T8
+T9	Material 1074 1092	polar viscous gels
+T10	Material 1099 1149	energy consuming, anisotropic, non-Newtonian fluid
+*	Synonym-of T9 T10
+T11	Material 1241 1266	active polar viscous gels
+T12	Process 628 646	polarization field
+T13	Process 652 670	polarization field
+T14	Process 689 707	equation of motion
+R1	Hyponym-of Arg1:T13 Arg2:T14	
+T15	Process 866 887	constitutive equation
+T16	Process 1023 1057	continuum hydrodynamic description
+T17	Process 959 1011	These equations, along with conservation of momentum
+*	Synonym-of T17 T16
+T18	Process 44 71	cortical cytoskeleton flows
+T19	Process 90 114	biological morphogenesis
+T20	Material 773 778	fluid

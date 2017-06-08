@@ -1,0 +1,23 @@
+T1	Task 0 33	Mice bearing the orthotopic model
+T2	Task 91 128	mice with the pseudo-metastatic model
+T3	Process 231 247	test the effects
+T4	Material 251 276	our targeted formulations
+T5	Task 186 213	These therapeutic schedules
+T6	Material 324 342	preclinical models
+T7	Task 378 385	Animals
+T8	Material 433 443	untargeted
+T9	Material 457 481	peptide-targeted SL[DXR]
+T10	Material 616 637	HEPES-buffered saline
+T11	Task 492 534	Scrambled peptide-functionalized liposomes
+T12	Material 639 653	Survival times
+T13	Task 690 720	determining treatment efficacy
+T14	Material 747 781	time-dependent anti-tumor activity
+T15	Task 729 745	orthotopic model
+T16	Material 1163 1174	d-luciferin
+T17	Task 872 893	the GI-LI-N cell line
+T18	Process 898 906	infected
+T19	Process 1051 1061	visualized
+T20	Task 994 1013	luciferase activity
+T21	Material 1017 1046	retrovirally-transduced cells
+T22	Material 445 452	SL[DXR]
+R1	Hyponym-of Arg1:T22 Arg2:T8	

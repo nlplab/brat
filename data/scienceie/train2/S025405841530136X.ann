@@ -1,0 +1,29 @@
+T1	Material 35 48	Al–12Si alloy
+T2	Process 53 92	inoculated with different level of Nb+B
+T3	Material 88 92	Nb+B
+T4	Task 116 158	grain refining potency of Nb+B inoculation
+T5	Material 199 232	Nb-based intermetallics compounds
+T6	Material 244 279	heterogeneous nucleation substrates
+T7	Material 320 337	Al–Si cast alloys
+T8	Process 306 337	refinement of Al–Si cast alloys
+T9	Material 351 371	α-Al dendritic grain
+T10	Material 411 413	Nb
+T11	Material 418 419	B
+T12	Task 443 459	grain refinement
+T13	Process 467 494	wide range of cooling rates
+T14	Task 511 544	enhanced heterogeneous nucleation
+T15	Material 619 634	Nb+B inoculants
+T16	Material 731 737	alloys
+T17	Material 758 773	Nb+B inoculants
+T18	Task 976 1003	refinement of cast Al alloy
+T19	Material 990 1003	cast Al alloy
+T20	Material 556 561	grain
+T21	Process 661 667	fading
+T22	Material 869 879	inoculants
+T23	Material 802 822	fine grain structure
+T24	Process 926 942	Nb+B inoculation
+T25	Material 926 930	Nb+B
+T26	Task 1117 1145	lighter structural component
+T27	Process 142 158	Nb+B inoculation
+T28	Material 142 146	Nb+B
+R1	Hyponym-of Arg1:T5 Arg2:T6	

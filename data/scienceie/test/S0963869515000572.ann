@@ -1,0 +1,18 @@
+T3	Material 0 38	Shear horizontal (SH) ultrasound waves
+T4	Material 43 55	guided waves
+R1	Hyponym-of Arg1:T3 Arg2:T4	
+T5	Material 431 434	SH0
+T6	Process 635 648	SH ultrasound
+T7	Material 922 930	SH waves
+T8	Material 949 959	bulk waves
+T1	Process 261 282	bulk shear wave speed
+T9	Process 483 499	shear wave speed
+T2	Process 567 583	shear wave speed
+T10	Process 528 549	phase and group speed
+*	Synonym-of T10 T2
+T11	Process 610 621	oscillation
+T12	Material 690 694	wave
+*	Synonym-of T7 T8
+T13	Process 122 133	propagation
+T14	Process 899 910	propagation
+T15	Process 735 746	propagation

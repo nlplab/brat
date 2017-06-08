@@ -1,0 +1,16 @@
+T1	Task 12 45	network virtualization technology
+T2	Task 93 128	new generation network technologies
+R1	Hyponym-of Arg1:T2 Arg2:T1	
+T3	Task 168 218	rapid changing for a topology of a virtual network
+T4	Process 237 272	virtual network construction method
+T5	Process 286 311	shortest path betweenness
+T6	Process 320 335	proposed method
+T7	Material 349 365	service provider
+T8	Process 400 450	reconfiguration of the constructed virtual network
+T9	Material 423 450	constructed virtual network
+T10	Material 470 486	service provider
+T11	Process 487 547	reconfigures the topology of the constructed virtual network
+T12	Material 520 547	constructed virtual network
+T13	Process 565 590	shortest path betweenness
+T15	Process 648 658	simulation
+T14	Material 237 252	virtual network

@@ -1,0 +1,32 @@
+T2	Task 213 299	explaining the optical and electronic properties of SiO2 in the presence of E′ centres
+T3	Process 305 316	irradiation
+T4	Process 343 421	trapping of positive charge in thin layers of a-SiO2 grown on silicon surfaces
+T5	Material 481 511	paramagnetic E′ centre signals
+T7	Material 655 677	E′ centres in α-quartz
+T1	Process 15 67	identification of the paramagnetic E′ centre in SiO2
+T10	Material 37 59	paramagnetic E′ centre
+T11	Material 63 67	SiO2
+T12	Material 74 91	unpaired electron
+T13	Material 108 126	sp3 hybrid orbital
+T14	Material 133 140	Si atom
+T15	Material 161 173	oxygen atoms
+T16	Material 265 269	SiO2
+T17	Material 289 299	E′ centres
+T18	Process 320 334	hole injection
+T19	Process 425 442	thermal oxidation
+T20	Material 389 395	a-SiO2
+T21	Material 405 421	silicon surfaces
+T6	Material 553 575	neutral oxygen vacancy
+T22	Material 583 598	major hole trap
+R1	Hyponym-of Arg1:T6 Arg2:T22	
+T23	Material 602 608	a-SiO2
+T8	Material 705 712	Si atom
+T24	Material 726 734	Si atoms
+T25	Material 790 817	localised unpaired electron
+T9	Process 1005 1029	positive charge trapping
+T26	Material 1052 1062	E′ centres
+T27	Material 1085 1111	high density of E′ centres
+T28	Process 1149 1164	positive charge
+T29	Material 1229 1238	E′ centre
+T30	Process 1287 1322	post-irradiation electron injection
+T31	Material 1326 1330	SiO2

@@ -1,0 +1,51 @@
+T1	Material 0 20	Structural adhesives
+T2	Material 47 65	bonding components
+T3	Material 73 117	critical load bearing engineering structures
+T4	Material 126 135	aerospace
+T5	Material 140 151	automotives
+R1	Hyponym-of Arg1:T4 Arg2:T3	
+R2	Hyponym-of Arg1:T5 Arg2:T3	
+T6	Material 169 178	adhesives
+T7	Material 192 206	epoxy polymers
+T8	Material 208 215	Epoxies
+T9	Material 264 278	microstructure
+T10	Process 371 389	fracture toughness
+T11	Task 357 407	improving the fracture toughness of epoxy polymers
+T12	Material 393 407	epoxy polymers
+T13	Process 411 466	incorporating a second minority phase at the nano-scale
+T14	Material 522 541	inorganic additives
+T15	Material 548 554	silica
+T16	Material 562 567	glass
+T17	Material 573 580	alumina
+T18	Material 586 596	nano-clays
+T19	Material 605 621	carbon nanotubes
+T20	Material 631 638	organic
+T21	Material 648 664	rubber particles
+R3	Hyponym-of Arg1:T15 Arg2:T14	
+R4	Hyponym-of Arg1:T16 Arg2:T14	
+R5	Hyponym-of Arg1:T17 Arg2:T14	
+R6	Hyponym-of Arg1:T18 Arg2:T14	
+R7	Hyponym-of Arg1:T19 Arg2:T14	
+R8	Hyponym-of Arg1:T21 Arg2:T20	
+T22	Material 666 683	Rubbery additives
+T23	Material 698 725	core–shell rubber particles
+T24	Process 752 758	curing
+T25	Process 763 807	reaction induced phase separation mechanisms
+R9	Hyponym-of Arg1:T23 Arg2:T22	
+T26	Process 829 858	energy dissipation mechanisms
+T27	Material 863 887	rubber toughened epoxies
+T28	Task 909 928	plastic void growth
+T29	Task 933 955	shear band development
+T30	Process 909 928	plastic void growth
+T31	Process 933 955	shear band development
+R10	Hyponym-of Arg1:T30 Arg2:T26	
+R11	Hyponym-of Arg1:T31 Arg2:T26	
+T32	Material 1017 1026	additives
+T33	Material 1039 1054	hybrid material
+T34	Process 1067 1097	synergistic toughening effects
+T35	Material 1104 1120	carbon nanotubes
+T36	Material 1125 1145	silica nanoparticles
+T37	Material 1154 1186	rubber with silica nanoparticles
+T38	Material 1104 1145	carbon nanotubes and silica nanoparticles
+R12	Hyponym-of Arg1:T38 Arg2:T33	
+R13	Hyponym-of Arg1:T37 Arg2:T33	

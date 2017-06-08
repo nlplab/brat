@@ -1,0 +1,8 @@
+T1	Material 81 96	polymeric fluid
+T5	Task 739 768	flow-induced central scission
+T6	Process 805 816	DoD jetting
+T7	Process 431 442	DoD jetting
+T2	Material 223 231	polymers
+T3	Material 477 488	polystyrene
+T4	Task 444 460	Central scission
+T8	Process 297 338	reduction in the average molecular weight

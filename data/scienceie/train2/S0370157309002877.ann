@@ -1,0 +1,30 @@
+T1	Process 103 125	cardiovascular signals
+T2	Process 146 168	oscillatory components
+T3	Process 229 236	periods
+T4	Process 238 249	frequencies
+T5	Process 285 307	heart rate variability
+T6	Process 309 312	HRV
+*	Synonym-of T5 T6
+R1	Hyponym-of Arg1:T3 Arg2:T4	
+T7	Process 390 412	statistical approaches
+T8	Task 369 419	introduce one of the statistical approaches to HRV
+T9	Task 455 510	understand the variability of the cardiovascular system
+T10	Material 622 646	physiological components
+T11	Material 648 658	subsystems
+T12	Material 570 591	cardiovascular system
+T13	Material 489 510	cardiovascular system
+T14	Task 734 737	HRV
+T15	Process 813 830	wavelet transform
+T16	Process 861 891	cardio-respiratory interaction
+T17	Process 904 925	phase synchronization
+T18	Process 1010 1024	phase dynamics
+T19	Material 1149 1170	cardiovascular system
+T20	Process 1184 1222	measurements of cardiovascular signals
+T21	Process 1273 1292	statistical methods
+T22	Task 1305 1324	group data analyses
+T23	Process 416 419	HRV
+*	Synonym-of T10 T11
+R2	Hyponym-of Arg1:T12 Arg2:T11	
+T24	Task 849 891	discuss the cardio-respiratory interaction
+T25	Task 976 1024	summarize the basic principles of phase dynamics
+T26	Material 1200 1222	cardiovascular signals

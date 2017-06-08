@@ -1,0 +1,22 @@
+T1	Task 24 56	time-dependent dynamical systems
+T2	Task 118 141	analysis of time series
+T3	Task 194 216	non-autonomous systems
+T4	Process 438 458	‘bottom-up’ approach
+T5	Task 532 551	chronotaxic systems
+T6	Process 569 614	model the stable but time-varying frequencies
+T7	Process 674 694	time series analysis
+T8	Process 743 753	‘top-down’
+T9	Process 732 739	inverse
+*	Synonym-of T9 T8
+T10	Task 826 848	non-autonomous systems
+T11	Process 925 939	deterministic 
+T12	Process 953 964	stochastic 
+T13	Task 1170 1189	chronotaxic systems
+T14	Process 1239 1255	inverse approach
+T15	Task 1302 1325	heart rate variability 
+T16	Task 1380 1402	non-autonomous systems
+T17	Task 258 276	autonomous systems
+T18	Task 634 648	living systems
+T19	Task 1072 1092	analytical framework
+R1	Hyponym-of Arg1:T7 Arg2:T9	
+R2	Hyponym-of Arg1:T7 Arg2:T8	

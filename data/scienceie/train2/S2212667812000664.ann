@@ -1,0 +1,14 @@
+T1	Process 68 99	moving plate recognition system
+T2	Process 116 150	moving plate recognition algorithm
+T3	Process 160 188	principal component analysis
+T4	Process 189 192	PCA
+*	Synonym-of T4 T3
+T5	Process 194 211	color extraction.
+T6	Process 359 383	PCA extraction algorithm
+T7	Process 569 580	recognition
+T8	Task 627 677	research on the moving plate recognition algorithm
+T9	Task 232 294	analysis of moving plate recognition system's basic principles
+T10	Process 244 268	moving plate recognition
+T11	Process 444 447	PRS
+T12	Process 643 667	moving plate recognition
+T13	Task 418 447	applying the algorithm to PRS

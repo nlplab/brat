@@ -1,0 +1,14 @@
+T1	Process 15 29	wear condition
+T2	Material 37 59	tramway superstructure
+T3	Material 130 157	light rail transport system
+T4	Process 110 122	safety level
+T5	Task 0 29	Monitoring the wear condition
+T6	Task 201 230	new non-conventionalprocedure
+T7	Process 249 267	transverse profile
+T8	Material 271 276	rails
+T9	Process 302 328	image-processing technique
+T10	Material 376 388	information”
+T11	Material 402 437	high-resolution photographic images
+T12	Material 441 447	tracks
+T13	Process 455 474	specific algorithms
+T15	Material 532 537	rails

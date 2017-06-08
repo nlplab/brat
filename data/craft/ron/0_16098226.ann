@@ -1,0 +1,19 @@
+T2	KeyEntity 309 313	PAX6
+T5	KeyEntity 402 406	PAX6
+T6	KeyEntity 498 502	PAX6
+T7	KeyEntity 145 149	PAX6
+T1	Entity 150 157	protein
+T8	Entity 163 188	transcriptional regulator
+T11	Entity 262 301	heterozygous loss-of-function mutations
+T9	Entity 208 243	ocular and neurological development
+T3	Entity 324 358	malformations of the eye and brain
+T4	Entity 448 478	systematic screen for proteins
+R1	participates_in Arg1:T7 Arg2:T9	
+R2	is_subclass_of Arg1:T7 Arg2:T1	
+R3	is_subclass_of Arg1:T7 Arg2:T8	
+R4	regulates Arg1:T11 Arg2:T3	
+R5	participates_in Arg1:T2 Arg2:T11	
+T10	Entity 412 426	other proteins
+R6	participates_in Arg1:T5 Arg2:T4	
+R7	participates_in Arg1:T10 Arg2:T4	
+R8	participates_in Arg1:T6 Arg2:T4	

@@ -1,0 +1,15 @@
+T1	Task 27 53	phase-space discretisation
+T2	Task 138 161	Garden Sprinkler Effect
+T3	Task 270 280	ray effect
+T4	Process 341 384	spatial domain (4000km×4000km) is simulated
+T5	Process 479 501	spatial discretisation
+T6	Process 504 528	structured triangle mesh
+R1	Hyponym-of Arg1:T5 Arg2:T6	
+T7	Material 600 610	wave field
+T8	Process 880 890	simulation
+T9	Material 661 691	Gaussian distribution in space
+R2	Hyponym-of Arg1:T7 Arg2:T9	
+T10	Process 61 116	spurious separation of energy into the discretised bins
+T11	Material 393 411	monochromatic wave
+T12	Material 448 458	deep water
+T13	Material 712 716	wave

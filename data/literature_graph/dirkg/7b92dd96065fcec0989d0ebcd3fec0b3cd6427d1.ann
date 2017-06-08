@@ -1,0 +1,22 @@
+T1	DATASET 50 84	DBLP Computer Science Bibliography
+T2	DATASET 261 265	DBLP
+T3	DATASET 332 336	DBLP
+T4	DATASET 380 384	DBLP
+T5	DATASET 493 497	DBLP
+T6	SOFTWARE 594 614	simple XML-based API
+T7	SOFTWARE 847 860	DBLP web site
+T8	FUNDING_AGENCY 2300 2330	Very Large Data Base Endowment
+T9	FUNDING_AGENCY 2540 2554	VLDB Endowment
+T10	TASK 3090 3116	person name disambiguation
+T11	SOFTWARE 3500 3515	DBLP web server
+T12	TASK 3516 3538	lists all known papers
+R1	addresses Arg1:T11 Arg2:T12	
+T13	DATASET 4468 4476	dblp.xml
+T14	SOFTWARE 4763 4780	DBLP XML services
+T15	SOFTWARE 4819 4842	Our example application
+T16	TASK 4869 4917	finds the shortest path between two DBLP authors
+R2	addresses Arg1:T15 Arg2:T16	
+T17	DATASET 1504 1517	the DBLP data
+T18	TASK 1736 1791	analysis and visualization of these medium sized graphs
+T19	METHOD 1724 1731	Methods
+R3	addresses Arg1:T19 Arg2:T18	

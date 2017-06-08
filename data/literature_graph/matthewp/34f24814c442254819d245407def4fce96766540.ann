@@ -1,0 +1,21 @@
+T1	METHOD 89 116	neural network architecture
+T2	METHOD 121 139	learning algorithm
+T3	TASK 171 198	natural language processing
+T4	TASK 215 237	part-of-speech tagging
+T5	TASK 239 247	chunking
+T6	TASK 249 273	named entity recognition
+T7	TASK 279 301	semantic role labeling
+R1	uses Arg1:T1 Arg2:T2	
+R2	addresses Arg1:T1 Arg2:T3	
+R3	addresses Arg1:T1 Arg2:T4	
+R4	addresses Arg1:T1 Arg2:T5	
+R5	addresses Arg1:T1 Arg2:T6	
+R6	addresses Arg1:T1 Arg2:T7	
+R7	is_subclass_of Arg1:T4 Arg2:T3	
+R8	is_subclass_of Arg1:T5 Arg2:T3	
+R9	is_subclass_of Arg1:T6 Arg2:T3	
+R10	is_subclass_of Arg1:T7 Arg2:T3	
+T8	SOFTWARE 684 698	tagging system
+T9	IDK_MAN 529 553	internal representations
+T10	IDK_MAN 452 475	man-made input features
+T11	IDK_MAN 351 376	task-specific engineering

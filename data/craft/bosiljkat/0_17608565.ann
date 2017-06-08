@@ -1,0 +1,64 @@
+T1	KeyEntity 139 166	retinoblastoma protein (Rb)
+T2	KeyEntity 594 626	E2f transcription factor (E2f) 1
+T3	KeyEntity 925 927	Rb
+T4	Entity 971 975	E2fs
+T5	KeyEntity 775 806	starburst amacrine cells (SACs)
+T6	KeyEntity 1116 1120	E2f3
+T7	Entity 1135 1148	E2f3 isoforms
+T8	Entity 1180 1197	developing retina
+T9	Entity 1240 1264	subcellular distribution
+T10	Entity 1309 1324	quiescent cells
+T11	KeyEntity 1266 1271	E2f3b
+T12	KeyEntity 1471 1476	E2f3a
+T13	KeyEntity 1522 1524	Rb
+T14	Entity 1535 1557	neural differentiation
+T15	KeyEntity 1613 1618	E2f3a
+T16	Entity 1640 1663	tissue-specific factors
+T17	Entity 637 669	comprehensive cell-type analysis
+T19	Entity 176 198	neural differentiation
+T21	Entity 271 286	cell cycle exit
+T22	Entity 300 305	death
+T23	Entity 314 321	neurons
+T24	Entity 326 349	differentiation defects
+T25	Entity 415 430	differentiation
+T26	Entity 435 478	light-evoked electrophysiological responses
+T27	Entity 482 508	Rb-deficient retinal cells
+T28	Entity 526 542	ectopic division
+T29	Entity 547 556	apoptosis
+T30	Entity 713 750	ell-cycle–independent differentiation
+T31	Entity 808 832	cholinergic interneurons
+T32	Entity 845 866	direction selectivity
+T33	Entity 871 912	developmentally important rhythmic bursts
+R1	regulates Arg1:T1 Arg2:T19	
+T20	Entity 252 262	Rb absence
+R2	other_relation Arg1:T20 Arg2:T21	
+#1	AnnotatorNotes R2	impairs
+R3	other_relation Arg1:T20 Arg2:T22	
+#2	AnnotatorNotes R3	causes
+R4	other_relation Arg1:T20 Arg2:T24	
+#3	AnnotatorNotes R4	affects
+R5	regulates Arg1:T3 Arg2:T4	
+T34	Entity 1024 1047	tissue-specific factors
+R6	regulates Arg1:T3 Arg2:T34	
+T35	KeyEntity 1070 1072	Rb
+T36	Entity 1082 1101	SAC differentiation
+R7	participates_in Arg1:T35 Arg2:T36	
+R8	other_relation Arg1:T35 Arg2:T6	
+#4	AnnotatorNotes R8	inhibits
+T37	KeyEntity 1294 1296	Rb
+R9	regulates Arg1:T11 Arg2:T37	
+R10	is_part_of Arg1:T11 Arg2:T10	
+T38	KeyEntity 1431 1433	Rb
+T39	Entity 1443 1462	SAC differentiation
+R11	other_relation Arg1:T38 Arg2:T39	
+#5	AnnotatorNotes R11	promotes
+R12	regulates Arg1:T38 Arg2:T12	
+R13	regulates Arg1:T13 Arg2:T14	
+R14	other_relation Arg1:T13 Arg2:T15	
+#6	AnnotatorNotes R14	inhibits
+R15	other_relation Arg1:T13 Arg2:T16	
+#7	AnnotatorNotes R15	does not promote
+R16	genetically_interacts_with Arg1:T2 Arg2:T27	
+T18	Entity 697 703	retina
+T40	Entity 1389 1400	E2f isoform
+R17	is_part_of Arg1:T7 Arg2:T8	

@@ -1,0 +1,18 @@
+T1	Process 104 120	combined systems
+T2	Process 138 159	relativistic energies
+T3	Task 3 96	investigate the density behavior of the symmetry energy with respect to isospin equilibration
+T4	Process 215 237	relativistic framework
+T5	Process 246 276	contribution of the iso-vector
+T6	Task 278 365	scalar δ field to the symmetry energy and the isospin dynamics is particularly explored
+T7	Task 384 398	isospin mixing
+T8	Task 785 845	study of the isovector part of the nuclear equation of state
+T10	Process 871 899	comparisons with experiments
+T11	Process 912 994	introduction of the δ meson in the description of the iso-vector equation of state
+T9	Process 121 134	Ru(Zr)+Zr(Ru)
+R1	Hyponym-of Arg1:T9 Arg2:T1	
+T12	Task 187 192	study
+T13	Process 727 730	σnp
+T14	Process 689 725	medium neutron–proton cross sections
+R2	Hyponym-of Arg1:T13 Arg2:T14	
+T15	Material 932 939	δ meson
+T16	Material 608 630	isovector meson fields

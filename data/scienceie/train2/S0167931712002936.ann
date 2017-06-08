@@ -1,0 +1,31 @@
+T1	Task 128 184	model device operations during single electron detection
+T5	Material 563 572	target d1
+T7	Task 935 960	single electron detection
+T2	Process 2 59	3D finite element based (FEM) COMSOL capacitance analysis
+T8	Process 77 124	Monte Carlo single-electron circuit simulations
+T9	Process 159 184	single electron detection
+T3	Material 190 208	3D structural data
+T10	Material 226 244	nanoscale DQD pair
+T11	Material 249 273	multiple gate electrodes
+T12	Material 299 342	COMSOL’s FEM-based electrostatics simulator
+T4	Material 375 392	device components
+T13	Material 429 474	well-tested single electron circuit simulator
+T14	Material 475 483	SETSPICE
+R1	Hyponym-of Arg1:T14 Arg2:T13	
+T15	Process 522 548	single electron tunnelling
+T16	Task 503 518	orthodox theory
+T6	Process 582 592	simulation
+T17	Material 658 665	gate G1
+T18	Material 667 670	VG1
+T19	Process 672 698	single electron tunnelling
+T20	Material 708 727	turnstile’s two QDs
+T21	Process 744 778	shifts in the electrometer current
+T22	Material 780 783	IDS
+T23	Material 758 778	electrometer current
+T24	Material 846 862	DQD electrometer
+T25	Material 984 988	gate
+T26	Process 992 1014	QD capacitive coupling
+T27	Process 1047 1072	control of QD occupations
+T28	Task 1128 1165	manipulation of single electron spins
+T29	Task 1169 1183	qubit research
+T30	Process 1144 1165	single electron spins

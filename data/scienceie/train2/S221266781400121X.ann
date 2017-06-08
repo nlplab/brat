@@ -1,0 +1,17 @@
+T1	Task 27 111	extended version of the graph-based unsupervised Word Sense Disambiguation algorithm
+T2	Process 76 111	Word Sense Disambiguation algorithm
+T3	Process 117 126	algorithm
+T4	Process 143 170	spreading activation scheme
+T5	Material 231 241	text words
+T6	Material 248 261	large wordnet
+T7	Process 205 260	built on the basis of the text words and a large wordne
+T8	Process 267 276	algorithm
+T9	Material 302 331	English and Princeton WordNet
+T10	Material 348 368	Polish and plWordNet
+T11	Process 373 382	extension
+T12	Process 424 470	corpus-derived Measure of Semantic Relatedness
+T13	Process 489 507	extended algorithm
+T14	Material 534 563	manually disambiguated corpus
+T15	Process 608 622	disambiguation
+T16	Task 723 747	document clustering task
+R1	Hyponym-of Arg1:T3 Arg2:T4	

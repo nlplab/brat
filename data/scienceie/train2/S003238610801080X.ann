@@ -1,0 +1,23 @@
+T1	Task 11 32	morphological studies
+T2	Material 40 75	multi-component polymeric materials
+T3	Process 109 143	microscopic and scattering methods
+T4	Material 145 164	Optical microscopes
+T5	Material 166 199	transmission electron microscopes
+T6	Material 201 205	TEMs
+*	Synonym-of T5 T6
+T7	Material 208 237	scanning electron microscopes
+T8	Material 239 243	SEMs
+T9	Material 249 273	atomic force microscopes
+T10	Material 275 279	AFMs
+*	Synonym-of T9 T10
+*	Synonym-of T7 T8
+T11	Task 350 360	microscopy
+T12	Task 524 534	microscopy
+T13	Process 623 641	scattering methods
+T14	Task 700 710	microscopy
+T15	Material 776 787	microscopes
+T16	Process 826 844	scattering methods
+T17	Process 862 885	“(hypothesized) models”
+T18	Task 890 903	data analysis
+T19	Task 987 997	microscopy
+T20	Task 1123 1133	microscopy

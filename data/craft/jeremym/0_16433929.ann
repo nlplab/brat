@@ -1,0 +1,64 @@
+T1	KeyEntity 974 979	Capn2
+T2	KeyEntity 358 375	Capn2 (m-calpain)
+T3	KeyEntity 109 118	m-calpain
+T4	Entity 95 104	μ-calpain
+T5	Entity 123 155	ubiquitously expressed proteases
+T6	Entity 170 188	cellular migration
+T7	Entity 190 212	cell cycle progression
+T8	Entity 214 236	degenerative processes
+T9	Entity 241 251	cell death
+T10	Entity 259 280	heterodimeric enzymes
+T11	Entity 306 324	catalytic subunits
+T12	Entity 337 354	Capn1 (μ-calpain)
+T13	Entity 390 408	regulatory subunit
+T14	Entity 420 425	Capn4
+T15	Entity 451 456	Capn4
+T16	Entity 477 486	μ-calpain
+T17	KeyEntity 491 500	m-calpain
+T18	Entity 527 546	embryonic lethality
+T19	Entity 623 646	mammalian embryogenesis
+T20	Entity 666 671	Capn1
+T21	KeyEntity 728 737	m-calpain
+T22	Entity 771 780	μ-calpain
+T23	KeyEntity 802 811	m-calpain
+T24	Entity 841 854	Capn4-/- mice
+T25	Entity 937 960	essential coding region
+T26	Entity 988 1009	embryonic stems cells
+T27	Entity 1031 1044	mutant allele
+T28	Entity 1057 1071	mouse germline
+T29	Entity 1073 1081	Breeding
+T30	Entity 1124 1156	homozygous mutant live offspring
+T31	Entity 1160 1177	implanted embryos
+T32	Entity 1188 1211	PCR genotyping protocol
+T33	Entity 1267 1274	embryos
+T34	Entity 1296 1302	morula
+T35	Entity 1318 1328	blastocyts
+T36	KeyEntity 1395 1400	Capn2
+T37	Entity 1417 1453	pre-implantation embryonic lethality
+T38	Entity 1466 1472	morula
+T39	Entity 1477 1487	blastocyst
+T40	Entity 1517 1526	μ-calpain
+T41	KeyEntity 1531 1540	m-calpain
+T42	KeyEntity 1575 1584	m-calpain
+T43	Entity 1617 1646	preimplantation murine embryo
+R1	participates_in Arg1:T3 Arg2:T6	
+R2	participates_in Arg1:T3 Arg2:T7	
+R3	participates_in Arg1:T3 Arg2:T8	
+R4	participates_in Arg1:T3 Arg2:T9	
+R5	participates_in Arg1:T4 Arg2:T6	
+R6	participates_in Arg1:T4 Arg2:T7	
+R7	participates_in Arg1:T4 Arg2:T8	
+R8	participates_in Arg1:T4 Arg2:T9	
+R9	is_part_of Arg1:T11 Arg2:T10	
+R10	other_relation Arg1:T12 Arg2:T11	
+R11	other_relation Arg1:T2 Arg2:T11	
+R12	other_relation Arg1:T14 Arg2:T13	
+R13	genetically_interacts_with Arg1:T15 Arg2:T16	
+R14	genetically_interacts_with Arg1:T15 Arg2:T17	
+R15	other_relation Arg1:T15 Arg2:T18	
+R16	participates_in Arg1:T17 Arg2:T19	
+R17	participates_in Arg1:T16 Arg2:T19	
+R18	other_relation Arg1:T33 Arg2:T34	
+R19	participates_in Arg1:T36 Arg2:T37	
+R20	participates_in Arg1:T42 Arg2:T43	
+R21	participates_in Arg1:T23 Arg2:T24	

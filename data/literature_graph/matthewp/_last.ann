@@ -1,0 +1,21 @@
+T1	METHOD 257 277	matrix factorization
+T2	METHOD 330 354	neural language modeling
+T3	TASK 415 428	POS induction
+T4	SOFTWARE 1157 1165	word2vec
+T5	METHOD 1250 1270	skip-gram embeddings
+T6	METHOD 0 15	Word embeddings
+T7	IDK_MAN 156 181	distributional properties
+T8	TASK 211 230	learning embeddings
+R1	addresses Arg1:T1 Arg2:T8	
+R2	addresses Arg1:T2 Arg2:T8	
+T9	METHOD 456 466	embeddings
+T10	IDK_MAN 480 502	syntactic similarities
+T11	METHOD 585 595	embeddings
+T12	METHOD 634 654	Skip-gram embeddings
+T13	METHOD 693 711	log bilinear model
+R3	uses Arg1:T12 Arg2:T13	
+T14	METHOD 860 870	embeddings
+T15	IDK_MAN 881 902	syntactic information
+T16	METHOD 950 981	Structured skip-gram embeddings
+T17	METHOD 1022 1042	skip-gram embeddings
+R4	addresses Arg1:T9 Arg2:T3	

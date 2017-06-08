@@ -6,5 +6,7 @@ config.py
 *.pyo
 
 # Standard locations of data and server temporary files
-data/
+#data/
 work/
+simstring/
+*~

@@ -1,0 +1,23 @@
+T1	Task 23 49	position estimation method
+T2	Material 53 58	prism
+T3	Material 76 107	single-lens stereovision system
+T4	Material 113 118	prism
+T5	Material 156 177	single optical system
+T6	Material 195 212	refractive planes
+T7	Material 216 237	transformation matrix
+T8	Task 248 272	express the relationship
+T9	Process 318 337	refraction of prism
+T10	Process 359 377	geometrical optics
+T11	Process 385 403	mathematical model
+T12	Material 452 457	prism
+T13	Process 516 573	extend the application of single-lens stereovision system
+T14	Process 542 573	single-lens stereovision system
+T15	Material 580 585	prism
+T16	Process 660 673	effectiveness
+T17	Process 678 688	robustness
+R1	Hyponym-of Arg1:T4 Arg2:T5	
+T18	Material 284 296	object point
+T19	Material 305 310	image
+T20	Material 332 337	prism
+R2	Hyponym-of Arg1:T19 Arg2:T18	
+T21	Material 542 573	single-lens stereovision system

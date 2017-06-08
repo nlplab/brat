@@ -1,0 +1,22 @@
+T1	Material 29 43	drift chambers
+T2	Material 94 127	flash analog-to-digital converter
+T3	Material 288 320	drift chamber simulation package
+T4	Material 322 330	GARFIELD
+R1	Hyponym-of Arg1:T4 Arg2:T3	
+T5	Material 343 374	gas property simulation package
+T6	Material 376 384	MAGBOLTZ
+R2	Hyponym-of Arg1:T6 Arg2:T5	
+T7	Process 894 908	magnetic field
+T8	Process 975 996	chamber manufacturing
+T9	Material 975 982	chamber
+T10	Process 720 732	x–t relation
+T11	Process 172 224	relation between the hit position and the drift time
+T12	Process 226 238	x–t relation
+*	Synonym-of T12 T11
+T13	Process 245 257	x–t relation
+T14	Material 404 412	chambers
+T15	Process 1027 1039	x–t relation
+T16	Process 1271 1283	x–t relation
+T17	Material 1109 1120	chamber gas
+T18	Process 1187 1199	x–t relation
+T19	Material 1287 1291	ODCs

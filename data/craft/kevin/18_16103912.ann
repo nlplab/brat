@@ -1,0 +1,50 @@
+T1	Entity 89 120	Congenital diaphragmatic hernia
+T2	Entity 223 231	neonates
+R1	participates_in Arg1:T1 Arg2:T2	
+T3	KeyEntity 325 338	E18.5 embryos
+T4	Entity 352 356	mice
+T5	Entity 370 391	N-ethyl-N-nitrosourea
+R2	is_part_of Arg1:T5 Arg2:T4	
+R3	is_part_of Arg1:T4 Arg2:T3	
+T6	Entity 430 450	pulmonary hypoplasia
+T7	Entity 455 477	abnormal diaphragmatic
+T8	Entity 409 417	mutation
+#1	AnnotatorNotes T8	basic noun
+R4	participates_in Arg1:T8 Arg2:T6	
+R5	participates_in Arg1:T8 Arg2:T7	
+R6	is_part_of Arg1:T8 Arg2:T3	
+T9	KeyEntity 491 503	Fog2 (Zfpm2)
+T10	Entity 554 592	N-ethyl-N-nitrosourea-induced mutation
+T11	Entity 616 620	Fog2
+T12	Entity 759 779	diaphragmatic defect
+T13	Entity 784 804	pulmonary hypoplasia
+T14	KeyEntity 837 841	FOG2
+T15	Entity 734 747	Human autopsy
+R7	is_part_of Arg1:T12 Arg2:T15	
+R8	is_part_of Arg1:T13 Arg2:T15	
+T16	Entity 872 888	de novo mutation
+T17	Entity 904 924	premature stop codon
+T18	Entity 990 1020	bilateral pulmonary hypoplasia
+T19	Entity 1028 1061	abnormally muscularized diaphragm
+R9	participates_in Arg1:T16 Arg2:T17	
+T20	KeyEntity 1123 1127	Fog2
+T21	Entity 1144 1181	normal diaphragm and lung development
+R10	other_relation Arg1:T20 Arg2:T21	
+T22	KeyEntity 1232 1236	FOG2
+T23	Entity 1273 1285	pathogenesis
+T24	KeyEntity 1289 1340	nonsyndromic human congenital diaphragmatic defects
+R11	is_part_of Arg1:T24 Arg2:T23	
+R12	participates_in Arg1:T22 Arg2:T23	
+R13	is_part_of Arg1:T10 Arg2:T9	
+T25	Entity 715 732	truncated protein
+T26	Entity 634 642	mutation
+R14	participates_in Arg1:T26 Arg2:T25	
+R15	is_part_of Arg1:T26 Arg2:T11	
+#2	AnnotatorNotes R10	is_required
+T27	Entity 1416 1424	neonates
+T28	Entity 1430 1461	congenital diaphragmatic hernia
+T29	Entity 1476 1521	primary pulmonary developmental abnormalities
+R16	other_relation Arg1:T28 Arg2:T27	
+#3	AnnotatorNotes R16	has
+R17	other_relation Arg1:T29 Arg2:T27	
+#4	AnnotatorNotes R17	has

@@ -1,0 +1,70 @@
+T3	Entity 176 198	neural differentiation
+T4	KeyEntity 252 254	Rb
+T5	Entity 271 286	cell cycle exit
+T6	Entity 300 321	death of some neurons
+T7	Entity 326 349	differentiation defects
+T8	Entity 415 478	differentiation and light-evoked electrophysiological responses
+T9	Entity 482 508	Rb-deficient retinal cells
+T10	Entity 526 556	ectopic division and apoptosis
+T11	Entity 594 618	E2f transcription factor
+T12	Entity 651 669	cell-type analysis
+T13	Entity 677 703	rescued double-null retina
+T14	Entity 712 758	cell-cycle–independent differentiation defects
+T15	Entity 775 799	starburst amacrine cells
+T16	Entity 801 805	SACs
+T17	Entity 808 832	cholinergic interneurons
+T18	Entity 845 866	direction selectivity
+T19	Entity 897 912	rhythmic bursts
+T20	KeyEntity 925 927	Rb
+T21	KeyEntity 971 975	E2fs
+T22	Entity 1024 1047	tissue-specific factors
+T23	KeyEntity 1070 1072	Rb
+T24	Entity 1082 1101	SAC differentiation
+T25	Entity 1116 1120	E2f3
+T26	Entity 1135 1148	E2f3 isoforms
+T27	Entity 1180 1197	developing retina
+T28	Entity 1240 1264	subcellular distribution
+T29	Entity 1266 1271	E2f3b
+T31	Entity 1389 1409	E2f isoform function
+T30	Entity 1294 1305	Rb function
+T32	KeyEntity 1431 1433	Rb
+T33	Entity 1443 1462	SAC differentiation
+T34	KeyEntity 1471 1476	E2f3a
+T35	KeyEntity 1522 1524	Rb
+T36	Entity 1535 1557	neural differentiation
+T37	Entity 1599 1618	inhibition of E2f3a
+T38	Entity 1624 1663	potentiation of tissue-specific factors
+R3	regulates Arg1:T4 Arg2:T5	
+R4	other_relation Arg1:T4 Arg2:T6	
+#2	AnnotatorNotes R4	causes phenotype
+R5	other_relation Arg1:T4 Arg2:T7	
+#3	AnnotatorNotes R5	causes phenotype
+R6	other_relation Arg1:T8 Arg2:T9	
+#4	AnnotatorNotes R6	is property of
+R7	regulates Arg1:T11 Arg2:T10	
+R8	other_relation Arg1:T12 Arg2:T13	
+#5	AnnotatorNotes R8	method to study
+R9	other_relation Arg1:T13 Arg2:T14	
+#6	AnnotatorNotes R9	causes phenotype
+R10	other_relation Arg1:T14 Arg2:T15	
+#7	AnnotatorNotes R10	is a phenotype of
+R11	other_relation Arg1:T14 Arg2:T17	
+#8	AnnotatorNotes R11	is a phenotype of
+R12	regulates Arg1:T14 Arg2:T18	
+R13	regulates Arg1:T14 Arg2:T19	
+R14	regulates Arg1:T20 Arg2:T21	
+T1	KeyEntity 139 166	retinoblastoma protein (Rb)
+R1	regulates Arg1:T1 Arg2:T3	
+R2	regulates Arg1:T20 Arg2:T22	
+R15	regulates Arg1:T23 Arg2:T24	
+R16	regulates Arg1:T23 Arg2:T25	
+R17	is_part_of Arg1:T26 Arg2:T27	
+R18	other_relation Arg1:T28 Arg2:T26	
+#1	AnnotatorNotes R18	is property of
+R19	regulates Arg1:T29 Arg2:T30	
+R20	regulates Arg1:T32 Arg2:T33	
+R21	regulates Arg1:T32 Arg2:T34	
+R22	regulates Arg1:T35 Arg2:T36	
+R23	regulates Arg1:T37 Arg2:T36	
+R24	other_relation Arg1:T38 Arg2:T36	
+#9	AnnotatorNotes R24	does not regulate
