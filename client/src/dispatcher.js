@@ -3,7 +3,7 @@
 
 var Dispatcher = (function($, window, undefined) {
     var Dispatcher = function() {
-      var that = this;
+      var dispatcher;
 
       var table = {};
 
@@ -26,7 +26,7 @@ var Dispatcher = (function($, window, undefined) {
           inAsynchError = true;
           // TODO: Hook printout into dispatch elsewhere?
           console.warn('Handled async error:', e);
-          that.post('dispatchAsynchError', [e]);
+          dispatcher.post('dispatchAsynchError', [e]);
           inAsynchError = false;
         } else {
           console.warn('Dropped asynch error:', e);
@@ -52,11 +52,11 @@ var Dispatcher = (function($, window, undefined) {
           var host = post.caller;
           if (asynch !== null) {
             result = setTimeout(function() {
-              try {
+              //try {
                 message.apply(host, args);
-              } catch(e) {
-                handleAsynchError(e);
-              }
+              //} catch(e) {
+                //handleAsynchError(e);
+              //}
             }, asynch);
           } else {
             result = message.apply(host, args);
@@ -70,11 +70,11 @@ var Dispatcher = (function($, window, undefined) {
               var result;
               if (asynch !== null) {
                 result = setTimeout(function() {
-                  try {
+                  //try {
                     item[1].apply(item[0], args);
-                  } catch (e) {
-                    handleAsynchError(e);
-                  }
+                  //} catch (e) {
+                    //handleAsynchError(e);
+                  //}
                 }, asynch);
               } else {
                 result = item[1].apply(item[0], args);
@@ -109,7 +109,7 @@ var Dispatcher = (function($, window, undefined) {
         });
       };
 
-      var dispatcher = {
+      dispatcher = {
         on: on,
         post: post,
         proxy: proxy,

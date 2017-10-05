@@ -339,7 +339,7 @@ class TypeHierarchyNode:
 
     def argument_minimum_count(self, arg):
         """
-        Returns the minumum number of times the given argument is
+        Returns the minimum number of times the given argument is
         required to appear for this type.
         """
         return self.arg_min_count.get(arg, 0)
@@ -958,6 +958,10 @@ def options_get_annlogfile(directory):
 def visual_options_get_arc_bundle(directory):
     v = get_visual_option_config_by_storage_form(directory, 'Arcs')
     return 'none' if v is None else v.get('bundle', 'none')
+
+def visual_options_get_text_direction(directory):
+    v = get_visual_option_config_by_storage_form(directory, 'Text')
+    return 'ltr' if v is None else v.get('direction', 'ltr')
 
 def get_drawing_config_by_storage_form(directory, term):
     cache = get_drawing_config_by_storage_form.__cache

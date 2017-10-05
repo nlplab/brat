@@ -23,7 +23,7 @@ from time import time
 from thread import allocate_lock
 
 ### Constants
-# This handling of version_info is strictly for backwards compability
+# This handling of version_info is strictly for backwards compatibility
 PY_VER_STR = '%d.%d.%d-%s-%d' % tuple(version_info)
 REQUIRED_PY_VERSION = (2, 5, 0, 'alpha', 1)
 REQUIRED_PY_VERSION_STR = '%d.%d.%d-%s-%d' % tuple(REQUIRED_PY_VERSION)
@@ -78,7 +78,7 @@ def _miss_config_msg():
             ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME, 
                 CONF_TEMPLATE_FNAME, CONF_FNAME)
 
-# Check for existance and sanity of the configuration
+# Check for existence and sanity of the configuration
 def _config_check():
     from message import Messager
     
@@ -201,7 +201,7 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         e.json(json_dic)
 
         # Add a human-readable version of the error
-        err_str = str(e)
+        err_str = unicode(e)
         if err_str != '':
             Messager.error(err_str, duration=-1)
     except NoPrintJSONError, e:
@@ -276,7 +276,7 @@ def serve(params, client_ip, client_hostname, cookie_data):
     # Do we have a Python version compatibly with our libs?
     if (version_info[0] != REQUIRED_PY_VERSION[0] or
             version_info < REQUIRED_PY_VERSION):
-        # Bail with hand-writen JSON, this is very fragile to protocol changes
+        # Bail with hand-written JSON, this is very fragile to protocol changes
         return cookie_hdrs, ((JSON_HDR, ),
                 ('''
 {
@@ -300,9 +300,8 @@ def serve(params, client_ip, client_hostname, cookie_data):
         try:
             CONFIG_CHECK_LOCK.acquire()
             _config_check()
-        except:
+        finally:
             CONFIG_CHECK_LOCK.release()
-            raise
     except ConfigurationError, e:
         json_dic = {}
         e.json(json_dic)

@@ -7,6 +7,7 @@
     <title>brat</title>
     <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
     <meta name="google" value="notranslate"/>
+    <link href="static/jquery-theme/jquery-ui.css" rel="stylesheet" type="text/css"/>
     <link href="static/jquery-theme/jquery-ui-redmond.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript" src="client/lib/head.load.min.js"></script>
     <script type="text/javascript">
@@ -18,8 +19,8 @@
           'client/lib/jquery.svg.min.js',
           'client/lib/jquery.svgdom.min.js',
           'client/lib/jquery.ba-bbq.min.js',
-          'client/lib/jquery.sprintf.js',
           'client/lib/jquery.json.min.js',
+          'client/lib/sprintf.js',
           'client/lib/webfont.js',
           // brat helpers
           'client/src/configuration.js',
@@ -124,6 +125,7 @@
             <input id="collection_browser_button" type="button" value="Collection" tabindex="-1" title="Open Collection Browser (Tab)"/>
             <input id="data_button" type="button" value="Data" tabindex="-1" title="Import, Export Data; Manage Collection"/>
             <input id="search_button" type="checkbox" class="login" value="true" tabindex="-1"/><label id="search_button_label" for="search_button" title="Search text and annotations">Search</label><input id="clear_search_button" type="button" value="✕" tabindex="-1" title="Clear search" style="display: none"/>
+            <input id="unlock_type_button" type="button" value="Unlock" tabindex="-1" title="Stop annotating with the locked type"/>
             <!--<input id="undo_button" type="button" class="login" value="Undo" tabindex="-1"/>-->
             <input id="options_button" type="button" value="Options" tabindex="-1" title="Set Visual, Annotation and Network Options"/>
           </div>
