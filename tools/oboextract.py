@@ -24,12 +24,13 @@ def case_normalize_all_words(s):
     return " ".join([case_normalize_initial(w) for w in s.split(" ")])
 
 class Term:
-    def __init__(self, tid, name, synonyms=None, defs=None, 
+    def __init__(self, tid, name, synonyms=None, defs=None, comments=None,
                  is_a=None, part_of=None):
         self.tid      = tid
         self.name     = name
         self.synonyms = synonyms if synonyms is not None else []
         self.defs     = defs     if defs     is not None else []
+        self.comments = comments if comments is not None else []
         self.is_a     = is_a     if is_a     is not None else []
         self.part_of  = part_of  if part_of  is not None else []
 
@@ -128,7 +129,7 @@ def parse_obo(f, limit_prefixes=None, include_nameless=False):
 
     # first non-space block is ontology info
     skip_block = True
-    tid, prefix, name, synonyms, definitions, is_a, part_of, obsolete = None, None, None, [], [], [], [], False
+    tid, prefix, name, synonyms, definitions, comments, is_a, part_of, obsolete = None, None, None, [], [], [], [], [], False
     for ln, l in enumerate(f):
         # don't attempt a full parse, simply match the fields we require
         if l.strip() == "[Term]":
@@ -214,6 +215,16 @@ def parse_obo(f, limit_prefixes=None, include_nameless=False):
                 print >> sys.stderr, "Note: ignoring empty def on line %d: %s" % (ln, l.strip())
             else:
                 definitions.append(definition)
+        elif re.match(r'^comment:.*', l) and not skip_block:
+            assert tid is not None
+            assert name is not None
+            m = re.match(r'^comment: (.*)$', l)
+            assert m is not None, "Error: failed to parse '%s'" % l
+            comment = m.group(1).strip()
+            if comment == "":
+                print >> sys.stderr, "Note: ignoring empty def on line %d: %s" % (ln, l.strip())
+            else:
+                comments.append(comment)
         elif re.match(r'^is_obsolete:', l):
             m = re.match(r'^is_obsolete:\s*true', l)
             if m:
@@ -231,20 +242,20 @@ def parse_obo(f, limit_prefixes=None, include_nameless=False):
             if (obsolete or
                 (limit_prefixes is not None and prefix not in limit_prefixes)):
                 #print >> sys.stderr, "Note: skip %s : %s" % (tid, name)
-                tid, prefix, name, synonyms, definitions, is_a, part_of, obsolete = None, None, None, [], [], [], [], False
+                tid, prefix, name, synonyms, definitions, comments, is_a, part_of, obsolete = None, None, None, [], [], [], [], [], False
             elif not skip_block:
                 assert tid is not None, "line %d: no ID for '%s'!" % (ln, name)
                 if name is None and not include_nameless:
                     print >> sys.stderr, "Note: ignoring term without name (%s) on line %d" % (tid, ln)
                 else:
                     if tid not in term_by_id:
-                        t = Term(tid, name, synonyms, definitions, 
+                        t = Term(tid, name, synonyms, definitions, comments,
                                  is_a, part_of)
                         all_terms.append(t)
                         term_by_id[tid] = t
                     else:
                         print >> sys.stderr, "Error: duplicate ID '%s'; discarding all but first definition" % tid
-                tid, prefix, name, synonyms, definitions, is_a, part_of, obsolete = None, None, None, [], [], [], [], False
+                tid, prefix, name, synonyms, definitions, comments, is_a, part_of, obsolete = None, None, None, [], [], [], [], [], False
             else:
                 pass
         else:
@@ -262,6 +273,7 @@ def argparser():
 
     ap=argparse.ArgumentParser(description="Extract terms from OBO ontology.")
     ap.add_argument("-l", "--limit", default=None, metavar="PREFIX", help="Limit processing to given ontology prefix or prefixes (multiple separated by \"|\").")
+    ap.add_argument("-c", "--comments", default=False, action="store_true", help="Include comments.")
     ap.add_argument("-d", "--depth", default=None, metavar="INT", help="Limit extraction to given depth from initial nodes.")
     ap.add_argument("-nc", "--no-case-normalization", default=False, action="store_true", help="Skip heuristic case normalization of ontology terms.")
     ap.add_argument("-nm", "--no-multiple-inheritance", default=False, action="store_true", help="Exclude subtrees involving multiple inheritance.")
@@ -471,6 +483,9 @@ def main(argv=None):
                 if not arg.no_definitions:
                     for d in t.defs:
                         strs.append("info:Definition:"+d.replace('\t', ' '))
+                if arg.comments:
+                    for c in t.comments:
+                        strs.append("info:Comment:"+c.replace('\t', ' '))
                 # don't include ontology prefix in ID
                 id_ = t.tid.replace(t.obo_idspace()+':', '', 1) 
                 print id_ + '\t' + '\t'.join(strs)
