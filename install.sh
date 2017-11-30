@@ -62,7 +62,8 @@ else
 	echo "Please enter a brat password (this shows on screen):"
 	read password
 	if [ -n "$password" ]; then
-	    break
+        password=$(python -c 'from hashlib import pbkdf2_hmac; from base64 import b64encode; print b64encode(pbkdf2_hmac("sha256", u"'$password'".encode("utf-8"), u"'$user_name'".encode("utf-8"), 30000))')
+        break
 	fi
     done
     echo "Please enter the administrator contact email:"
