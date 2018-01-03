@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Example</title>
+
+    <link rel="stylesheet" type="text/css" href="./static/style-vis.css"/>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js"></script>
+    <script type="text/javascript">
+        head.js(
+            "https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js",
+            "/index.js"
+        );
+    </script>
+</head>
+<body>
+<div id="display">
+</div>
+<script type="text/javascript">
+    head.ready(function () {
+        var container = "display";
+        var collData = {
+            entity_types: [
+                {"type":"UH","labels":["UH"],"bgColor":"#1f77b4","borderColor":"darken"},
+                {"type":"NNP","labels":["NNP"],"bgColor":"#ff7f0e","borderColor":"darken"}
+            ],
+            relation_types: []
+        };
+        var docData = {
+            text: "Hello World\n",
+            entities: [
+                ["entity_0_1","UH",[[0,5]]],
+                ["entity_1_2","NNP",[[6,11]]]
+            ],
+            relations: []
+        };
+        var webFontURLs = [
+            './static/fonts/PT_Sans-Caption-Web-Regular.ttf',
+            './static/fonts/Liberation_Sans-Regular.ttf'
+        ];
+        Util.embed(container, collData, docData, webFontURLs);
+    });
+</script>
+</body>
+</html>
