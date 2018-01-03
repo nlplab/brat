@@ -8,3 +8,6 @@ config.py
 # Standard locations of data and server temporary files
 data/
 work/
+
+.idea/
+node_modules/
