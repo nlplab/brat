@@ -2335,3 +2335,5 @@ var VisualizerUI = (function($, window, undefined) {
 
     return VisualizerUI;
 })(jQuery, window);
+
+module.exports = VisualizerUI;

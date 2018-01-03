@@ -3471,3 +3471,5 @@ Util.profileStart('before render');
 
     return Visualizer;
 })(jQuery, window);
+
+module.exports = Visualizer;

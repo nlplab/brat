@@ -231,3 +231,8 @@ var URLHash = (function($, window, undefined) {
 
     return URLHash;
 })(jQuery, window)
+
+module.exports = {
+  URLMonitor: URLMonitor,
+  URLHash: URLHash
+};
