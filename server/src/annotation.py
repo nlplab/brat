@@ -3,7 +3,6 @@
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 from __future__ import with_statement
-
 '''
 Functionality related to the annotation file format.
 
@@ -25,7 +24,7 @@ from re import match as re_match
 from re import compile as re_compile
 
 from common import ProtocolError
-from filelock import file_lock
+from filelock_brat import file_lock
 from message import Messager
 
 

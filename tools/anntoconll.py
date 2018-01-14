@@ -11,7 +11,9 @@ import os
 from collections import namedtuple
 from os import path
 from subprocess import Popen, PIPE
-from cStringIO import StringIO
+#from cStringIO import StringIO
+from StringIO import StringIO
+from codecs import open
 
 # assume script in brat tools/ directory, extend path to find sentencesplit.py
 sys.path.append(os.path.join(os.path.dirname(__file__), '../server/src'))
@@ -203,7 +205,7 @@ def process_files(files):
                 if fn == '-':
                     lines = process(sys.stdin)
                 else:
-                    with open(fn, 'rU') as f:
+                    with open(fn, 'rU', "utf8") as f:
                         lines = process(f)
 
                 # TODO: better error handling
@@ -214,7 +216,7 @@ def process_files(files):
                     sys.stdout.write(''.join(lines))
                 else:
                     ofn = path.splitext(fn)[0]+options.outsuffix
-                    with open(ofn, 'wt') as of:
+                    with open(ofn, 'wt', "utf8") as of:
                         of.write(''.join(lines))
 
             except:
@@ -278,7 +280,7 @@ def get_annotations(fn):
 
     annfn = path.splitext(fn)[0]+options.annsuffix
     
-    with open(annfn, 'rU') as f:
+    with open(annfn, 'rU', "utf8") as f:
         textbounds = parse_textbounds(f)
 
     textbounds = eliminate_overlaps(textbounds)

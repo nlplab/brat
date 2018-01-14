@@ -148,7 +148,7 @@ def process(fn):
             token, tag = m.groups()
 
             # parse tag
-            m = re.match(r'^([BIO])((?:-[A-Za-z_]+)?)$', tag)
+            m = re.match(r'^([BIO])((?:-[A-Za-z_\-]+)?)$', tag)
             assert m, "ERROR: failed to parse tag '%s' in %s" % (tag, fn)
             ttag, ttype = m.groups()
             if len(ttype) > 0 and ttype[0] == "-":
