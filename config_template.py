@@ -86,6 +86,9 @@ DEBUG = False
 # Unauthorised users can create tutorials (but not edit without a login)
 TUTORIALS = False
 
+### NORMALIZATION
+SHOW_SYNONYMS = False
+
 ### LOG_LEVEL
 # If you are a developer you may want to turn on extensive server
 # logging by enabling LOG_LEVEL = LL_DEBUG

@@ -34,6 +34,12 @@ NORM_LOOKUP_DEBUG = True
 
 REPORT_LOOKUP_TIMINGS = False
 
+try:
+    from config import SHOW_SYNONYMS
+except ImportError:
+    # unlimited
+    SHOW_SYNONYMS = False
+
 # debugging
 def _check_DB_version(database):
     # TODO; not implemented yet for new-style SQL DBs.
@@ -204,17 +210,12 @@ def _format_datas(datas, scores=None, matched=None):
     unique_labels.sort(lambda a,b: cmp(a[0],b[0]))
     unique_labels = [a[1] for a in unique_labels]
 
-    # ID is first field, and datatype is "string" for all labels
-    header = [(label, "string") for label in ["ID"] + unique_labels]
-
-    if DISPLAY_SEARCH_SCORES:
-        header += [("score", "int")]
-
     # construct items, sorted by score first, ID second (latter for stability)
     sorted_keys = sorted(datas.keys(), lambda a,b: cmp((scores.get(b,0),b),
                                                        (scores.get(a,0),a)))
 
     items = []
+    extra_labels = {}
     for key in sorted_keys:
         # make dict for lookup. In case of duplicates (e.g. multiple
         # "synonym" entries), prefer ones that were matched.
@@ -225,18 +226,39 @@ def _format_datas(datas, scores=None, matched=None):
                 if label not in data_dict or (value in matched and
                                               data_dict[label] not in matched):
                     data_dict[label] = value
+                else:
+                    if SHOW_SYNONYMS:
+                        syn_label = "%s Synonyms" % label
+                        data_dict.setdefault(syn_label,[]).append(value)
+                        extra_labels[syn_label] = True
         # construct item
         item = [str(key)]
         for label in unique_labels:
             if label in data_dict:
-                item.append(data_dict[label])
+                value = data_dict[label]
+                item.append(value)
             else:
                 item.append('')
-        
+        if SHOW_SYNONYMS:
+            for label in extra_labels:
+                if label in data_dict:
+                    value = data_dict[label]
+                    if isinstance(value, list):
+                        value = " | ".join(value)
+                    item.append(value)
+                else:
+                    item.append('')
+
         if DISPLAY_SEARCH_SCORES:
             item += [str(scores.get(key))]
 
         items.append(item)
+
+    # ID is first field, and datatype is "string" for all labels
+    header = [(label, "string") for label in ["ID"] + unique_labels + [ k for k in extra_labels ] ]
+
+    if DISPLAY_SEARCH_SCORES:
+        header += [("score", "int")]
 
     return header, items
 
@@ -491,19 +513,23 @@ def _test():
             delta = datetime.now() - start
             found = False
             found_rank = -1
+            has_synonym = False
             for rank, item in enumerate(results['items']):
                 id_ = item[0]
                 if id_ == target:
                     found = True
                     found_rank = rank+1
+                    if len(item) >= 2:
+                        has_synonym = True
                     break
             strdelta = str(delta).replace('0:00:0','').replace('0:00:','')
-            print "%s: '%s' <- '%s' rank %d/%d (%s sec)" % ('  ok' if found 
+            print "%s: '%s' <- '%s' rank %d/%d (%s sec) %s" % ('  ok' if found 
                                                             else 'MISS',
                                                             target, query, 
                                                             found_rank,
                                                             len(results['items']),
-                                                            strdelta)
+                                                            strdelta,
+                                                            ' has Synonym(s)' if has_synonym else '')
             query_count += 1
             if found:
                 hit_count += 1
@@ -530,5 +556,9 @@ def _profile_test():
     cProfile.run('_test()', 'norm.profile')
 
 if __name__ == '__main__':
+    SHOW_SYNONYMS=False
     _test() # normal
+    print '  ### SWITCH SYNONYMS ON ###  '
+    SHOW_SYNONYMS=True
+    _test()
     #_profile_test() # profiled
