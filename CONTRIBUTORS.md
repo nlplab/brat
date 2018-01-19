@@ -16,6 +16,7 @@ In order by changed lines of code ([Ballmer][ballmer] says [SLOC][sloc]
 * David McClosky            &lt;david.mcclosky gmail com&gt;
 * Antony Scerri             &lt;a.scerri elsevier com&gt;
 * Jon Crump                 &lt;jjcrump uw edu&gt;
+* Jose Gonzalez-Brenes      &lt;jgonzalez chegg com&gt;
 
 Extracted using the following bash one-liner:
 

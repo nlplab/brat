@@ -505,6 +505,32 @@ def _inject_annotation_type_conf(dir_path, json_dic=None):
 
     return json_dic
 
+def get_next_unnanotated(collection, start):
+    directory = collection
+    start = int(start)
+    new_pos = start
+    real_dir = real_directory(directory)
+
+    assert_allowed_to_read(real_dir)
+
+    # Get the document names
+    base_names = [fn[0:-4] for fn in _listdir(real_dir)
+                  if fn.endswith('txt')]
+
+    try:
+        stats_types, doc_stats = get_statistics(real_dir, base_names)
+    except OSError:
+        # something like missing access permissions?
+        raise CollectionNotAccessibleError
+
+    if start < len(doc_stats):
+        for i in range(start, len(doc_stats)):  # Have to account for "." , ".."
+            if sum(doc_stats[i]) == 0:
+                new_pos = i + 1
+                break
+    return {"new_pos": new_pos}
+
+
 # TODO: This is not the prettiest of functions
 def get_directory_information(collection):
     directory = collection

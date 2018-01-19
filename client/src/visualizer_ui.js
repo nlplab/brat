@@ -1530,6 +1530,26 @@ var VisualizerUI = (function($, window, undefined) {
         }
       };
 
+      var refreshAndMove = function(response) {
+        dispatcher.post('setDocument', [selectorData.items[response.new_pos][2],
+                                        selectorData.items[response.new_pos][1]]);
+        return false;
+
+      }
+
+      var nextUnannotated = function(dir) {
+        var pos = currentSelectorPosition();
+        // Request the server to reload collection:
+        console.log(selectorData.items)
+        dispatcher.post('ajax',
+                        [{ action: 'get_next_unnanotated', collection: selectorData.collection, start: pos },
+                        'refreshAndMove',
+                         {collection: selectorData.collection, keep: true}]);
+
+
+        return false;
+      };
+
       var moveInFileBrowser = function(dir) {
         var pos = currentSelectorPosition();
         var newPos = pos + dir;
@@ -2264,6 +2284,10 @@ var VisualizerUI = (function($, window, undefined) {
         $('#type_collapse_limit')[0].value = Configuration.typeCollapseLimit;
       }
 
+      $('#fast_forward').button().click(function() {
+        return nextUnannotated();
+      });
+
       $('#prev').button().click(function() {
         return moveInFileBrowser(-1);
       });
@@ -2307,6 +2331,7 @@ var VisualizerUI = (function($, window, undefined) {
           on('initForm', initForm).
           on('collectionLoaded', rememberNormDb).
           on('collectionLoaded', collectionLoaded).
+          on('refreshAndMove', refreshAndMove).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('isReloadOkay', isReloadOkay).
           on('current', gotCurrent).
