@@ -388,20 +388,30 @@
         </div>
         <div id="search_tab_event">
           <table class="fullwidth">
-            <tr>
-              <td>Type</td>
-              <td colspan="3">
-                <select id="search_form_event_type"/>
-              </td>
-            </tr>
-            <tr>
-              <td>Trigger</td>
-              <td colspan="3">
-                <input id="search_form_event_trigger" class="fullwidth"
-                    placeholder="Text to match (empty=anything)"/>
-              </td>
-            </tr>
-            <tbody id="search_form_event_roles"/>
+            <tbody>
+              <tr>
+                <td>Type</td>
+                <td colspan="3">
+                  <select id="search_form_event_type"/>
+                </td>
+              </tr>
+              <tr>
+                <td>Trigger</td>
+                <td colspan="3">
+                  <input id="search_form_event_trigger" class="fullwidth"
+                         placeholder="Text to match (empty=anything)"/>
+                </td>
+              </tr>
+            </tbody>
+            <tbody>
+              <tr><td rowspan="2">Attributes </td></tr>
+              <tr><td colspan="2" id="search_form_event_attrs"></td></tr>
+            </tbody>
+            <tbody id="search_form_event_roles">
+              <tr>
+                <td rowspan="0">Roles</td>
+              </tr>
+            </tbody>
           </table>
         </div>
         <div id="search_tab_relation">
@@ -570,6 +580,19 @@
                    name="match_case_radio"/>
             <label for="match_case_on"
                    title="Require identical character case in text search ('abc' does not match 'ABC')">on</label>
+          </span>
+        </div>
+        <div class="optionRow" id="recursive_row" style="display:none">
+          <span class="optionLabel">Recursive</span>
+          <span id="recursive" class="radio_group small-buttons">
+            <input type="radio" id="recursive_off" value="document"
+                   name="recursive_radio" checked="checked"/>
+            <label for="recursive_off"
+                   title="Search only the current collection directory">off</label>
+            <input type="radio" id="recursive_on" value="collection"
+                   name="recursive_radio"/>
+            <label for="recursive_on"
+                   title="Search all subdirectories of the collection">on</label>
           </span>
         </div>
         </div>

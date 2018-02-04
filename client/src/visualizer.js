@@ -2778,7 +2778,7 @@ Util.profileStart('rows');
               var text;
               if (rtlmode) {
                 text = svg.text(sentNumGroup, canvasWidth - sentNumMargin + Configuration.visual.margin.x, y - rowPadding,
-                    '' + row.sentence, { 'data-sent': row.sentence }); 
+                    '' + row.sentence, { 'data-sent': row.sentence });
               } else {
                 text = svg.text(sentNumGroup, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
                     '' + row.sentence, { 'data-sent': row.sentence });
@@ -2835,8 +2835,8 @@ Util.profileStart('chunkFinish');
           var nextChunk = data.chunks[chunkNo + 1];
           var nextSpace = nextChunk ? nextChunk.space : '';
           if (rtlmode) {
-            // Render every text chunk as a SVG text so we maintain control over the layout. When 
-            // rendering as a SVG span (as brat does), then the browser changes the layout on the 
+            // Render every text chunk as a SVG text so we maintain control over the layout. When
+            // rendering as a SVG span (as brat does), then the browser changes the layout on the
             // X-axis as it likes in RTL mode.
             svg.text(textGroup, chunk.textX, chunk.row.textY, chunk.text + nextSpace, {
               'data-chunk-id': chunk.index

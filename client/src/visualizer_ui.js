@@ -1,5 +1,13 @@
 // -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
+
+// From http://stackoverflow.com/a/5202185
+String.prototype.rsplit = function(sep, maxsplit) {
+    var split = this.split(sep);
+    return maxsplit ? [ split.slice(0, -maxsplit).join(sep) ].concat(split.slice(-maxsplit)) : split;
+}
+
+
 var VisualizerUI = (function($, window, undefined) {
     var VisualizerUI = function(dispatcher, svg) {
       var that = this;
@@ -15,13 +23,14 @@ var VisualizerUI = (function($, window, undefined) {
 
       var currentForm;
       var spanTypes = null;
+      var eventTypes = null;
       var relationTypesHash = null;
-      // TODO: confirm unnecessary and remove
-//       var attributeTypes = null;
+      var attributeTypes = null;
       var data = null;
       var mtime = null;
       var searchConfig = null;
       var coll, doc, args;
+      var searchColl = null;
       var collScroll;
       var docScroll;
       var user = null;
@@ -66,7 +75,7 @@ var VisualizerUI = (function($, window, undefined) {
         }, 2000);
         $('#source_files').hide();
       }
-      
+
       /* END "no svg" message - related */
 
       /* START collection browser sorting - related */
@@ -344,7 +353,7 @@ var VisualizerUI = (function($, window, undefined) {
               // max length restriction
               if (value.length > 300) {
                 value = value.substr(0, 300) + ' ...';
-              }                          
+              }
 
               norminfo += ('<span class="norm_info_label">'+
                            Util.escapeHTML(label)+
@@ -378,7 +387,7 @@ var VisualizerUI = (function($, window, undefined) {
       }
 
       var displaySpanComment = function(
-          evt, target, spanId, spanType, mods, spanText, commentText, 
+          evt, target, spanId, spanType, mods, spanText, commentText,
           commentType, normalizations) {
 
         var immediately = false;
@@ -396,8 +405,8 @@ var VisualizerUI = (function($, window, undefined) {
         }
 
         comment += '</div>';
-        comment += ('<div class="comment_text">"' + 
-                    Util.escapeHTML(spanText) + 
+        comment += ('<div class="comment_text">"' +
+                    Util.escapeHTML(spanText) +
                     '"</div>');
         var validArcTypesForDrag = dispatcher.post('getValidArcTypesForDrag', [spanId, spanType]);
         if (validArcTypesForDrag && validArcTypesForDrag[0]) {
@@ -434,15 +443,15 @@ var VisualizerUI = (function($, window, undefined) {
           }
         });
 
-        // display initial comment HTML 
-        displayComment(evt, target, comment, commentText, commentType, 
+        // display initial comment HTML
+        displayComment(evt, target, comment, commentText, commentType,
                        immediately);
 
         // initiate AJAX calls for the normalization data to query
         $.each(normsToQuery, function(normqNo, normq) {
           // TODO: cache some number of most recent norm_get_data results
           var dbName = normq[0], dbKey = normq[1], infoSeqId = normq[2];
-          
+
           if (normCacheGet(dbName, dbKey)) {
             fillNormInfo(normCacheGet(dbName, dbKey), infoSeqId);
           } else {
@@ -473,14 +482,14 @@ var VisualizerUI = (function($, window, undefined) {
 
       var displayArcComment = function(
           evt, target, symmetric, arcId,
-          originSpanId, originSpanType, role, 
+          originSpanId, originSpanType, role,
           targetSpanId, targetSpanType,
           commentText, commentType) {
         var arcRole = target.attr('data-arc-role');
         // in arrowStr, &#8212 == mdash, &#8594 == Unicode right arrow
         var arrowStr = symmetric ? '&#8212;' : '&#8594;';
-        var arcDisplayForm = Util.arcDisplayForm(spanTypes, 
-                                                 data.spans[originSpanId].type, 
+        var arcDisplayForm = Util.arcDisplayForm(spanTypes,
+                                                 data.spans[originSpanId].type,
                                                  arcRole,
                                                  relationTypesHash);
         var comment = "";
@@ -495,13 +504,13 @@ var VisualizerUI = (function($, window, undefined) {
                                                          targetSpanType)) +
                     '</span>' +
                     '<span class="comment_id">' +
-                    (arcId ? 'ID:'+arcId : 
+                    (arcId ? 'ID:'+arcId :
                      Util.escapeHTML(originSpanId) +
-                     arrowStr + 
+                     arrowStr +
                      Util.escapeHTML(targetSpanId)) +
                     '</span>' +
                     '</span>');
-        comment += ('<div class="comment_text">' + 
+        comment += ('<div class="comment_text">' +
                     Util.escapeHTML('"'+data.spans[originSpanId].text+'"') +
                     arrowStr +
                     Util.escapeHTML('"'+data.spans[targetSpanId].text + '"') +
@@ -593,7 +602,7 @@ var VisualizerUI = (function($, window, undefined) {
         // https://github.com/nlplab/brat/issues/934
 
         var self = $dialog.dialog('instance');
-        
+
         if (self._isOpen) { return; }
 
         self._isOpen = true;
@@ -689,6 +698,7 @@ var VisualizerUI = (function($, window, undefined) {
           },
           width: 500
       });
+
 
       /* XXX removed per #900
       // insert the Save link
@@ -884,7 +894,7 @@ var VisualizerUI = (function($, window, undefined) {
         $('#document_input').val(doc);
 
         $('#readme').val(selectorData.description || '');
-        if (selectorData.description && 
+        if (selectorData.description &&
             (selectorData.description.match(/\n/) ||
              selectorData.description.length > 50)) {
           // multi-line or long description; show "more" button and fill
@@ -912,8 +922,9 @@ var VisualizerUI = (function($, window, undefined) {
 
       var currentSelectorPosition = function() {
         var pos;
+        var loc = searchColl ? coll + doc : doc;
         $.each(selectorData.items, function(docNo, docRow) {
-          if (docRow[2] == doc) {
+          if (loc == (searchColl ? searchColl + docRow[2] : docRow[2])) {
             // args may have changed, so lacking a perfect match return
             // last matching document as best guess
             pos = docNo;
@@ -966,6 +977,20 @@ var VisualizerUI = (function($, window, undefined) {
         });
       }
 
+      var toggleRecursiveVisibility = function(newState) {
+        if (newState) {
+          $('#recursive_row').show();
+        } else {
+          $('#recursive_row').hide();
+        }
+      }
+      $('#search_scope_doc').change(function(evt) {
+        toggleRecursiveVisibility(false);
+      });
+      $('#search_scope_coll').change(function(evt) {
+        toggleRecursiveVisibility(true);
+      });
+
       var setupSearchTypes = function(response) {
         addSpanTypesToSelect($('#search_form_entity_type'), response.entity_types);
         addSpanTypesToSelect($('#search_form_event_type'), response.event_types);
@@ -973,6 +998,35 @@ var VisualizerUI = (function($, window, undefined) {
         // nice-looking selects and upload fields
         $('#search_form select').addClass('ui-widget ui-state-default ui-button-text');
         $('#search_form_load_file').addClass('ui-widget ui-state-default ui-button-text');
+        addAttrsToSearch($('#search_form_event_attrs'), eventAttributeTypes, 'event');
+      }
+
+      var getPropertiesForAllEventSubtypes = function(eventType, propertyName, comparisonKeyFn) {
+        if (!eventType) return [];
+
+        comparisonKeyFn = comparisonKeyFn || function(property) {return property;}
+
+        // TODO: surely there's a more efficient way to do this in JS???
+        var allPropertyValues = eventType[propertyName] || [];
+        for (childNo in eventType.children) {
+          var childPropertyValues = getPropertiesForAllEventSubtypes(eventType.children[childNo], propertyName);
+          for (childValueNo in childPropertyValues) {
+            var childValue = childPropertyValues[childValueNo];
+            var childKey = comparisonKeyFn(childValue);
+            var addValue = true;
+            for (existingValueNo in allPropertyValues) {
+              if (childKey === comparisonKeyFn(allPropertyValues[existingValueNo])) {
+                addValue = false;
+                break;
+              }
+            }
+            if (addValue) {
+              allPropertyValues.push(childValue);
+            }
+          }
+        }
+
+        return allPropertyValues;
       }
 
       // when event role changes, event types do as well
@@ -983,7 +1037,7 @@ var VisualizerUI = (function($, window, undefined) {
         var role = $(this).val();
         var origin = $('#search_form_event_type').val();
         var eventType = spanTypes[origin];
-        var arcTypes = eventType && eventType.arcs || [];
+        var arcTypes = getPropertiesForAllEventSubtypes(eventType, 'arcs', function(prop) {return prop.type;});
         var arcType = null;
         $type.html('<option value="">- Any -</option>');
         $.each(arcTypes, function(arcNo, arcDesc) {
@@ -1052,17 +1106,83 @@ var VisualizerUI = (function($, window, undefined) {
       $('#search_form_event_roles').on('click', '.search_event_role_add input', addEmptySearchEventRole);
       $('#search_form_event_roles').on('click', '.search_event_role_del input', delSearchEventRole);
 
-      // When event type changes, the event roles do as well
-      // Also, put in one empty role row
+      // TODO: de-duplicate this code with the stuff in annotator_ui.js?
+
+      var updateCheckbox = function($input) {
+        var $widget = $input.button('widget');
+        var $textspan = $widget.find('.ui-button-text');
+        $textspan.html(($input[0].checked ? '&#x2611; ' : '&#x2610; ') + $widget.attr('data-bare'));
+      };
+
+      var onBooleanAttrChange = function(evt) {
+        if (evt.type == 'change') { // ignore the click event on the UI element
+          var attrCategory = evt.target.getAttribute('category');
+          updateCheckbox($(evt.target));
+        }
+      };
+
+      var addAttrsToSearch = function(attrsElmt, attrTypes, category) {
+        attrsElmt.empty();
+        $.each(attrTypes, function(attrNo, attr) {
+          var escapedType = Util.escapeQuotes(attr.type);
+          var attrId = category+'_attr_search_'+escapedType;
+          var $span = $('<span class="attribute_type_label"/>').appendTo(attrsElmt);
+          if (attr.unused) {
+            $('<input type="hidden" id="'+attrId+'" value=""/>').appendTo($span);
+          } else if (attr.bool) {
+            var escapedName = Util.escapeQuotes(attr.name);
+            var $input = $('<input type="checkbox" id="'+attrId+
+                           '" value="' + escapedType +
+                           '" category="' + category + '"/>');
+            var $label = $('<label for="'+attrId+
+                           '" data-bare="' + escapedName + '">&#x2610; ' +
+                           escapedName + '</label>');
+            $span.append($input).append($label);
+            $input.button();
+            $input.change(onBooleanAttrChange);
+          } else {
+            // var $div = $('<div class="ui-button ui-button-text-only attribute_type_label"/>');
+            $span.text(attr.name);
+            $span.append(':&#160;');
+            var $select = $('<select id="'+attrId+'" class="ui-widget ui-state-default ui-button-text" category="' + category + '"/>');
+            var $option = $('<option class="ui-state-default" value=""/>').text('?');
+            $select.append($option);
+            $.each(attr.values, function(valueNo, value) {
+              $option = $('<option class="ui-state-active" value="' + Util.escapeQuotes(value.name) + '"/>').text(value.name);
+              $select.append($option);
+            });
+            $span.append($select);
+            $select.combobox();
+          }
+        });
+      }
+
+      // When event type changes, the event roles and attributes do as well.
       $('#search_form_event_type').change(function(evt) {
+        // If "any" was selected, making val undefined, allow any attributes or role types.
+        eventType = spanTypes[$(this).val()] || {'children': eventTypes};
+
+        var validAttrs = getPropertiesForAllEventSubtypes(eventType, 'attributes');
+        $.each(eventAttributeTypes, function(attrNo, attr) {
+          var input = $('#event_attr_search_'+Util.escapeQuotes(attr.type));
+          var attrIsApplicable = $.inArray(attr.type, validAttrs) != -1;
+          if (attrIsApplicable) {
+            // $input.button('widget').parent().show();
+            input.closest('.attribute_type_label').show();
+          } else {
+            // $input.button('widget').parent().hide();
+            input.closest('.attribute_type_label').hide();
+          }
+        });
+
         var $roles = $('#search_form_event_roles').empty();
         searchEventRoles = [];
-        var eventType = spanTypes[$(this).val()];
-        var arcTypes = eventType && eventType.arcs || [];
+        var arcTypes = getPropertiesForAllEventSubtypes(eventType, 'arcs', function(prop) {return prop.type;});
         $.each(arcTypes, function(arcTypeNo, arcType) {
           var arcTypeName = arcType.labels && arcType.labels[0] || arcType.type;
           searchEventRoles.push([arcType.type, arcTypeName]);
         });
+        // Put in one empty role row.
         addEmptySearchEventRole();
       });
 
@@ -1142,7 +1262,7 @@ var VisualizerUI = (function($, window, undefined) {
         }
       });
       $('#search_options div.advancedOptions').hide("highlight");
-      // set up advanced search options; only visible is clicked
+      // set up advanced search options; only visible if clicked
       var advancedSearchOptionsVisible = false;
       $('#advanced_search_option_toggle').click(function(evt) {
         if (advancedSearchOptionsVisible) {
@@ -1233,6 +1353,23 @@ var VisualizerUI = (function($, window, undefined) {
           case 'searchEvent':
             opts.type = $('#search_form_event_type').val() || '';
             opts.trigger = $('#search_form_event_trigger').val();
+            attrs = {}
+            // Select all visible attribute form elements that contain real data.
+            $('#search_form_event_attrs').children(':visible').find('input[category], select[category]').each(function() {
+              node = $(this);
+              // TODO: maybe these checkboxes should be three-way, so that you can also
+              // filter by whether the attribute is *not* present?
+              val = null;
+              if ('checked' in this) { // boolean
+                val = this.checked;
+              } else {
+                val = node.val();
+              }
+              id_cmpts = node.attr('id').split('_');
+              attrs[id_cmpts[id_cmpts.length - 1]] = val;
+            });
+            opts.attrs = $.toJSON(attrs);
+
             var eargs = [];
             $('#search_form_event_roles tr').each(function() {
               var earg = {};
@@ -1280,6 +1417,9 @@ var VisualizerUI = (function($, window, undefined) {
         // fill in text match options
         opts.text_match = $('#text_match input:checked').val()
         opts.match_case = $('#match_case_on').is(':checked');
+
+        // fill in recursive options
+        opts.recursive = $('#recursive_on').is(':checked');
 
         dispatcher.post('hideForm');
         dispatcher.post('ajax', [opts, function(response) {
@@ -1345,6 +1485,7 @@ var VisualizerUI = (function($, window, undefined) {
         // trigger an unnecessary round-trip to the server, though,
         // so there should be a better way ...
         dispatcher.post('setArguments', [{}, true]);
+        searchColl = null;
       }
 
       $('#clear_search_button').click(clearSearchResults);
@@ -1491,9 +1632,9 @@ var VisualizerUI = (function($, window, undefined) {
             // NOTE: spec seems to require this to be upper-case,
             // but at least chrome 8.0.552.215 returns lowercased
             var nodeType = evt.target.type ? evt.target.type.toLowerCase() : '';
-            if (evt.target.nodeName && 
-                evt.target.nodeName.toLowerCase() == 'input' && 
-                (nodeType == 'text' || 
+            if (evt.target.nodeName &&
+                evt.target.nodeName.toLowerCase() == 'input' &&
+                (nodeType == 'text' ||
                  nodeType == 'password')) {
               currentForm.trigger('submit');
               return false;
@@ -1532,18 +1673,27 @@ var VisualizerUI = (function($, window, undefined) {
 
       var moveInFileBrowser = function(dir) {
         var pos = currentSelectorPosition();
+        // TODO: why does this get matches in the wrong order within a file??
         var newPos = pos + dir;
         if (newPos >= 0 && newPos < selectorData.items.length &&
             selectorData.items[newPos][0] != "c") {
           // not at the start, and the previous is not a collection (dir)
           dispatcher.post('allowReloadByURL');
-          dispatcher.post('setDocument', [selectorData.items[newPos][2],
-                                          selectorData.items[newPos][1]]);
+          var newDocCmpts = selectorData.items[newPos][2].rsplit('/', 1);
+          var newDocArgs = selectorData.items[newPos][1];
+          // If we're navigating through recursive search results,
+          // we may need to move to a different collection.
+          var oldDocCmpts = selectorData.items[pos][2].rsplit('/', 1);
+          if (newDocCmpts[0] != oldDocCmpts[0]) {
+            dispatcher.post('setCollection', [searchColl + newDocCmpts[0] + '/', newDocCmpts[1], newDocArgs]);
+          } else {
+            dispatcher.post('setDocument', [newDocCmpts[1], newDocArgs]);
+          }
         }
         return false;
       };
-     
-      /* Automatically proceed from document to document */ 
+
+      /* Automatically proceed from document to document */
       var autoPagingTimeout = null;
       var autoPaging = function(on) {
           clearTimeout(autoPagingTimeout);
@@ -1579,10 +1729,16 @@ var VisualizerUI = (function($, window, undefined) {
         } else {
           lastGoodCollection = response.collection;
           fillDisambiguatorOptions(response.disambiguator_config);
-          selectorData = response;
+          // We can only ever get to loading a collection while search is active if the search
+          // was recursive and the user selected an entry in a different subdirectory. In this
+          // case, make sure we preserve the search results currently residing in selectorData.
+          if (!searchActive) {
+            selectorData = response;
+          }
           documentListing = response; // 'backup'
           searchConfig = response.search_config;
           selectorData.items.sort(docSortFunction);
+          eventTypes = response.event_types;
           setupSearchTypes(response);
           // scroller at the top
           docScroll = 0;
@@ -1593,6 +1749,7 @@ var VisualizerUI = (function($, window, undefined) {
         if (response.exception) {
             ; // TODO: reasonable reaction
         } else {
+          searchColl = coll;
           selectorData = response;
           sortOrder = [2, 1]; // reset
           // NOTE: don't sort, allowing order in which
@@ -1647,9 +1804,13 @@ var VisualizerUI = (function($, window, undefined) {
         if (args && !args.edited) {
           var svgtop = $('svg').offset().top;
           var $inFocus = $('#svg animate[data-type="focus"]:first').parent();
+          if (!$inFocus.length && args.matchfocus) {
+            $inFocus = $('#svg animate[data-type="matchfocus"]').parent();
+          }
           if ($inFocus.length) {
             $('html,body').
-                animate({ scrollTop: $inFocus.offset().top - svgtop - window.innerHeight / 2 }, { duration: 'slow', easing: 'swing'});
+              animate({ scrollTop: $inFocus.offset().top - svgtop - window.innerHeight / 2 },
+                      { duration: 'slow', easing: 'swing' });
           }
         }
         dispatcher.post('allowReloadByURL');
@@ -1765,7 +1926,7 @@ var VisualizerUI = (function($, window, undefined) {
           $cmpButton.append($cmpLink);
           $cmpLink.button();
         }
-          
+
         $docName = $('#document_name input').val(coll + doc);
         var docName = $docName[0];
         // TODO do this on resize, as well
@@ -1882,8 +2043,8 @@ var VisualizerUI = (function($, window, undefined) {
         var val = this.value;
         dispatcher.post('annotationSpeed', [val]);
         return false;
-      });      
-    
+      });
+
       $('#pulldown').find('input').button();
       var headerHeight = $('#mainHeader').height();
       $('#svg').css('margin-top', headerHeight + 10);
@@ -2102,16 +2263,12 @@ var VisualizerUI = (function($, window, undefined) {
         dispatcher.post('setCollection', [collection, '', sourceData.arguments]);
       };
 
-      // TODO: confirm attributeTypes unnecessary and remove
-//       var spanAndAttributeTypesLoaded = function(_spanTypes, _attributeTypes) {
-//         spanTypes = _spanTypes;
-//         attributeTypes = _attributeTypes;
-//       };
       // TODO: spanAndAttributeTypesLoaded is obviously not descriptive of
       // the full function. Rename reasonably.
       var spanAndAttributeTypesLoaded = function(_spanTypes, _entityAttributeTypes, _eventAttributeTypes, _relationTypesHash) {
         spanTypes = _spanTypes;
         relationTypesHash = _relationTypesHash;
+        eventAttributeTypes = _eventAttributeTypes;
       };
 
       var annotationIsAvailable = function() {
@@ -2225,7 +2382,7 @@ var VisualizerUI = (function($, window, undefined) {
 
       var updateConfigurationUI = function() {
         // update UI to reflect non-user config changes (e.g. load)
-        
+
         // Annotation mode
         if (Configuration.confirmModeOn) {
           $('#annotation_speed1')[0].checked = true;
@@ -2238,10 +2395,10 @@ var VisualizerUI = (function($, window, undefined) {
 
         // Label abbrevs
         $('#label_abbreviations_on')[0].checked  = Configuration.abbrevsOn;
-        $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn; 
+        $('#label_abbreviations_off')[0].checked = !Configuration.abbrevsOn;
         $('#label_abbreviations input').button('refresh');
 
-        // Text backgrounds        
+        // Text backgrounds
         $('#text_backgrounds input[value="'+Configuration.textBackgrounds+'"]')[0].checked = true;
         $('#text_backgrounds input').button('refresh');
 
