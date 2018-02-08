@@ -405,6 +405,9 @@ def get_annotator_config(directory):
     # where most annotators are expected to be human. Rethink.
     return ProjectConfiguration(directory).get_annotator_config()
 
+def get_linker_config(directory):
+    return ProjectConfiguration(directory).get_linker_config()
+
 def assert_allowed_to_read(doc_path):
     if not allowed_to_read(doc_path):
         raise AccessDeniedError # Permission denied by access control
@@ -586,6 +589,9 @@ def get_directory_information(collection):
     # fill in NER services, if any
     ner_taggers = get_annotator_config(real_dir)
 
+    # fill in RE services, if any
+    re_taggers = get_linker_config(real_dir)
+
     return _inject_annotation_type_conf(real_dir, json_dic={
             'items': combolist,
             'header' : doclist_header,
@@ -597,6 +603,7 @@ def get_directory_information(collection):
             'normalization_config' : normalization_config,
             'annotation_logging': ann_logging,
             'ner_taggers': ner_taggers,
+            're_taggers': re_taggers
             })
 
 class UnableToReadTextFile(ProtocolError):
