@@ -103,3 +103,5 @@ var OfflineAjax = (function($, window, undefined) {
 
     return OfflineAjax;
 })(jQuery, window);
+
+module.exports = OfflineAjax;

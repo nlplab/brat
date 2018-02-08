@@ -689,3 +689,5 @@ var Util = (function(window, undefined) {
     };
 
 })(window);
+
+module.exports = Util;

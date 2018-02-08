@@ -29,3 +29,5 @@ var Configuration = (function(window, undefined) {
       typeCollapseLimit: typeCollapseLimit,
     };
 })(window);
+
+module.exports = Configuration;

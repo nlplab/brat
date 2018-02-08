@@ -1,3 +1,17 @@
+# Client from brat rapid annotation tool #
+
+## Documentation ##
+
+This fork of *brat* packs modules under `client` folder into an NPM package.
+
+To install run
+```bash
+npm install brat-client --save
+```
+
+Check `example.html` for an example usage of the library.
+Note that some files in `/static` should be copied to the public folder of your server.
+
 # brat rapid annotation tool (brat) #
 
 ## Documentation ##

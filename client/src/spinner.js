@@ -26,3 +26,5 @@ var Spinner = (function($, window, undefined) {
 
     return Spinner;
 })(jQuery, window);
+
+module.exports = Spinner;

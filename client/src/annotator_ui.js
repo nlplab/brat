@@ -2833,3 +2833,5 @@ var AnnotatorUI = (function($, window, undefined) {
 
     return AnnotatorUI;
 })(jQuery, window);
+
+module.exports = AnnotatorUI;
