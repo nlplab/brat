@@ -2102,6 +2102,16 @@ var AnnotatorUI = (function($, window, undefined) {
         dispatcher.post('ajax', [tagOptions, 'edited']);
       }
 
+    var tagRelationCurrentDocument = function(taggerId) {
+        var tagOptions = {
+            action: 'link',
+            collection: coll,
+            'document': doc,
+            tagger: taggerId,
+        };
+        dispatcher.post('ajax', [tagOptions, 'edited']);
+    }
+
       var setupTaggerUI = function(response) {
         var taggers = response.ner_taggers || [];
         $taggerButtons = $('#tagger_buttons').empty();
@@ -2134,6 +2144,39 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#no_tagger_message').hide();
         }
       }
+
+    var setupLinkerUI = function(response) {
+        var taggers = response.re_taggers || [];
+        $taggerButtons = $('#rel_tagger_buttons').empty();
+        $.each(taggers, function(taggerNo, tagger) {
+            // expect a tuple with ID, name, model, and URL
+            var taggerId = tagger[0];
+            var taggerName = tagger[1];
+            var taggerModel = tagger[2];
+            if (!taggerId || !taggerName || !taggerModel) {
+                dispatcher.post('messages', [[['Invalid tagger specification received from server', 'error']]]);
+                return true; // continue
+            }
+            var $row = $('<div class="optionRow"/>');
+            var $label = $('<span class="optionLabel">'+Util.escapeHTML(taggerName)+'</span>');
+            var $button = $('<input id="tag_'+Util.escapeHTML(taggerId)+'_button" type="button" value="'+Util.escapeHTML(taggerModel)+'" tabindex="-1" title="Automatically tag the current document."/>');
+            $row.append($label).append($button);
+            $taggerButtons.append($row);
+            $button.click(function(evt) {
+                tagRelationCurrentDocument(taggerId);
+            });
+        });
+        $taggerButtons.find('input').button();
+        // if nothing was set up, hide the whole fieldset and show
+        // a message to this effect, else the other way around
+        if ($taggerButtons.find('input').length == 0) {
+            $('#auto_rel_tagging_fieldset').hide();
+            $('#no_rel_tagger_message').show();
+        } else {
+            $('#auto_rel_tagging_fieldset').show();
+            $('#no_rel_tagger_message').hide();
+        }
+    }
 
       // recursively traverses type hierarchy (entity_types or
       // event_types) and stores normalizations in normDbsByType.
@@ -2810,6 +2853,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('dataReady', rememberData).
           on('collectionLoaded', rememberSpanSettings).
           on('collectionLoaded', setupTaggerUI).
+          on('collectionLoaded', setupLinkerUI).
           on('collectionLoaded', setupNormalizationUI).
           on('spanAndAttributeTypesLoaded', spanAndAttributeTypesLoaded).
           on('newSourceData', onNewSourceData).

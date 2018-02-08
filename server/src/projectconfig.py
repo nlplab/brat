@@ -58,11 +58,12 @@ __optional_visual_sections = [OPTIONS_SECTION]
 # tools config section name constants
 SEARCH_SECTION     = "search"
 ANNOTATORS_SECTION = "annotators"
+LINKERS_SECTION = "linkers"
 DISAMBIGUATORS_SECTION = "disambiguators"
 NORMALIZATION_SECTION = "normalization"
 
-__expected_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
-__optional_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
+__expected_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, LINKERS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
+__optional_tools_sections = (OPTIONS_SECTION, SEARCH_SECTION, ANNOTATORS_SECTION, LINKERS_SECTION, DISAMBIGUATORS_SECTION, NORMALIZATION_SECTION)
 
 # special relation types for marking which spans can overlap
 # ENTITY_NESTING_TYPE used up to version 1.3, now deprecated
@@ -711,6 +712,7 @@ __minimal_tools = {
     OPTIONS_SECTION    : [],
     SEARCH_SECTION     : [TypeHierarchyNode(["google"], ["<URL>:http://www.google.com/search?q=%s"])],
     ANNOTATORS_SECTION : [],
+    LINKERS_SECTION : [],
     DISAMBIGUATORS_SECTION : [],
     NORMALIZATION_SECTION : [],
     }
@@ -780,6 +782,9 @@ def get_search_config(directory):
 
 def get_annotator_config(directory):
     return get_tools_configs(directory)[0][ANNOTATORS_SECTION]
+
+def get_linker_config(directory):
+    return get_tools_configs(directory)[0][LINKERS_SECTION]
 
 def get_disambiguator_config(directory):
     return get_tools_configs(directory)[0][DISAMBIGUATORS_SECTION]
@@ -875,7 +880,14 @@ def get_annotator_config_list(directory):
     if directory not in cache:
         cache[directory] = __type_hierarchy_to_list(get_annotator_config(directory))
     return cache[directory]
-get_annotator_config_list.__cache = {}    
+get_annotator_config_list.__cache = {}
+
+def get_linker_config_list(directory):
+    cache = get_linker_config_list.__cache
+    if directory not in cache:
+        cache[directory] = __type_hierarchy_to_list(get_linker_config(directory))
+    return cache[directory]
+get_linker_config_list.__cache = {}
 
 def get_disambiguator_config_list(directory):
     cache = get_disambiguator_config_list.__cache
@@ -1534,6 +1546,10 @@ class ProjectConfiguration(object):
         # that does automatic annotation in the context of a tool
         # where most annotators are expected to be human. Rethink.
         tool_list = get_annotator_config_list(self.directory)
+        return self._get_tool_config(tool_list)
+
+    def get_linker_config(self):
+        tool_list = get_linker_config_list(self.directory)
         return self._get_tool_config(tool_list)
 
     def get_normalization_config(self):

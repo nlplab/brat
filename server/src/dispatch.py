@@ -34,7 +34,7 @@ from session import get_session, load_conf, save_conf
 from search import search_text, search_entity, search_event, search_relation, search_note
 from predict import suggest_span_types
 from undo import undo
-from tag import tag
+from tag import tag, link
 from delete import delete_document, delete_collection
 from norm import norm_get_name, norm_search, norm_get_data
 
@@ -90,6 +90,7 @@ DISPATCHER = {
 
         'undo': undo,
         'tag': tag,
+        'link': link,
 
         'deleteDocument': delete_document,
         'deleteCollection': delete_collection,
@@ -134,6 +135,7 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
         'searchNoteInCollection',
 
         'tag',
+        'link',
         ))
 
 # Sanity check
