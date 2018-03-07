@@ -7,9 +7,9 @@
 
 ### Jekyll configuration
 
-markdown:       redcarpet
+markdown:       kramdown
 permalink:      date
-highlighter:    pygments
+highlighter:    rouge
 safe:           true
 
 exclude: [
