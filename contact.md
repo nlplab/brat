@@ -19,7 +19,7 @@ You can join the e-mail list by sending an e-mail to:
 
     brat-users+subscribe@googlegroups.com
     
-Post to the e-mail list by sending an e-mail to:
+After joining, you can post to the e-mail list by sending an e-mail to:
 
     brat-users@googlegroups.com
 
