@@ -7,6 +7,9 @@ from __future__ import with_statement
 import sys
 import re
 import os
+import codecs
+import io
+
 
 from collections import namedtuple
 from os import path
@@ -22,6 +25,9 @@ options = None
 
 EMPTY_LINE_RE = re.compile(r'^\s*$')
 CONLL_LINE_RE = re.compile(r'^\S+\t\d+\t\d+.')
+
+INPUT_ENCODING = "UTF-8"
+OUTPUT_ENCODING = "UTF-8"
 
 class FormatError(Exception):
     pass
@@ -103,7 +109,9 @@ def attach_labels(labels, lines):
 # NERsuite tokenization: any alnum sequence is preserved as a single
 # token, while any non-alnum character is separated into a
 # single-character token. TODO: non-ASCII alnum.
-TOKENIZATION_REGEX = re.compile(r'([0-9a-zA-Z]+|[^0-9a-zA-Z])')
+TOKENIZATION_REGEX = re.compile(ur'([0-9\w]+|[^0-9\w])', re.UNICODE)
+
+
 
 NEWLINE_TERM_REGEX = re.compile(r'(.*?\n)')
 
@@ -142,7 +150,7 @@ def text_to_conll(f):
         lines = relabel(lines, get_annotations(f.name))
 
     lines = [[l[0], str(l[1]), str(l[2]), l[3]] if l else l for l in lines]
-    return StringIO('\n'.join(('\t'.join(l) for l in lines)))
+    return io.StringIO('\n'.join(('\t'.join(l) for l in lines)))
 
 def relabel(lines, annotations):
     global options
@@ -203,7 +211,7 @@ def process_files(files):
                 if fn == '-':
                     lines = process(sys.stdin)
                 else:
-                    with open(fn, 'rU') as f:
+                    with codecs.open(fn, 'rU', INPUT_ENCODING) as f:
                         lines = process(f)
 
                 # TODO: better error handling
@@ -214,7 +222,7 @@ def process_files(files):
                     sys.stdout.write(''.join(lines))
                 else:
                     ofn = path.splitext(fn)[0]+options.outsuffix
-                    with open(ofn, 'wt') as of:
+                    with codecs.open(ofn, 'wt', encoding=OUTPUT_ENCODING) as of:
                         of.write(''.join(lines))
 
             except:
@@ -278,7 +286,7 @@ def get_annotations(fn):
 
     annfn = path.splitext(fn)[0]+options.annsuffix
     
-    with open(annfn, 'rU') as f:
+    with codecs.open(annfn, 'rU', INPUT_ENCODING) as f:
         textbounds = parse_textbounds(f)
 
     textbounds = eliminate_overlaps(textbounds)
