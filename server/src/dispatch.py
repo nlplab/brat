@@ -2,12 +2,11 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-'''
-Server request dispatching mechanism.
+"""Server request dispatching mechanism.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
-'''
+"""
 
 from os.path import abspath, normpath
 from os.path import join as path_join
@@ -21,10 +20,10 @@ from config import DATA_DIR
 from convert.convert import convert
 from docimport import save_import
 from document import (get_directory_information, get_document,
-        get_document_timestamp, get_configuration)
+                      get_document_timestamp, get_configuration)
 from download import download_file, download_collection
 from inspect import getargspec
-from itertools import izip
+
 from jsonwrap import dumps
 from logging import info as log_info
 from annlog import log_annotation
@@ -39,107 +38,110 @@ from delete import delete_document, delete_collection
 from norm import norm_get_name, norm_search, norm_get_data
 
 # no-op function that can be invoked by client to log a user action
+
+
 def logging_no_op(collection, document, log):
     # need to return a dictionary
     return {}
 
-### Constants
+
+# Constants
 # Function call-backs
 DISPATCHER = {
-        'getCollectionInformation': get_directory_information,
-        'getDocument': get_document,
-        'getDocumentTimestamp': get_document_timestamp,
-        'importDocument': save_import,
+    'getCollectionInformation': get_directory_information,
+    'getDocument': get_document,
+    'getDocumentTimestamp': get_document_timestamp,
+    'importDocument': save_import,
 
-        'storeSVG': store_svg,
-        'retrieveStored': retrieve_stored,
-        'downloadFile': download_file,
-        'downloadCollection': download_collection,
+    'storeSVG': store_svg,
+    'retrieveStored': retrieve_stored,
+    'downloadFile': download_file,
+    'downloadCollection': download_collection,
 
-        'login': login,
-        'logout': logout,
-        'whoami': whoami,
+    'login': login,
+    'logout': logout,
+    'whoami': whoami,
 
-        'createSpan': create_span,
-        'deleteSpan': delete_span,
-        'splitSpan' : split_span,
+    'createSpan': create_span,
+    'deleteSpan': delete_span,
+    'splitSpan': split_span,
 
-        'createArc': create_arc,
-        'reverseArc': reverse_arc,
-        'deleteArc': delete_arc,
+    'createArc': create_arc,
+    'reverseArc': reverse_arc,
+    'deleteArc': delete_arc,
 
-        # NOTE: search actions are redundant to allow different
-        # permissions for single-document and whole-collection search.
-        'searchTextInDocument'     : search_text,
-        'searchEntityInDocument'   : search_entity,
-        'searchEventInDocument'    : search_event,
-        'searchRelationInDocument' : search_relation,
-        'searchNoteInDocument'     : search_note,
-        'searchTextInCollection'     : search_text,
-        'searchEntityInCollection'   : search_entity,
-        'searchEventInCollection'    : search_event,
-        'searchRelationInCollection' : search_relation,
-        'searchNoteInCollection'     : search_note,
+    # NOTE: search actions are redundant to allow different
+    # permissions for single-document and whole-collection search.
+    'searchTextInDocument': search_text,
+    'searchEntityInDocument': search_entity,
+    'searchEventInDocument': search_event,
+    'searchRelationInDocument': search_relation,
+    'searchNoteInDocument': search_note,
+    'searchTextInCollection': search_text,
+    'searchEntityInCollection': search_entity,
+    'searchEventInCollection': search_event,
+    'searchRelationInCollection': search_relation,
+    'searchNoteInCollection': search_note,
 
-        'suggestSpanTypes': suggest_span_types,
+    'suggestSpanTypes': suggest_span_types,
 
-        'logAnnotatorAction': logging_no_op,
+    'logAnnotatorAction': logging_no_op,
 
-        'saveConf': save_conf,
-        'loadConf': load_conf,
+    'saveConf': save_conf,
+    'loadConf': load_conf,
 
-        'undo': undo,
-        'tag': tag,
+    'undo': undo,
+    'tag': tag,
 
-        'deleteDocument': delete_document,
-        'deleteCollection': delete_collection,
+    'deleteDocument': delete_document,
+    'deleteCollection': delete_collection,
 
-        # normalization support
-        'normGetName': norm_get_name,
-        'normSearch': norm_search,
-        'normData' : norm_get_data,
+    # normalization support
+    'normGetName': norm_get_name,
+    'normSearch': norm_search,
+    'normData': norm_get_data,
 
-        # Visualisation support
-        'getConfiguration': get_configuration,
-        'convert': convert,
-       }
+    # Visualisation support
+    'getConfiguration': get_configuration,
+    'convert': convert,
+}
 
 # Actions that correspond to annotation functionality
 ANNOTATION_ACTION = set((
-        'createArc',
-        'deleteArc',
-        'createSpan',
-        'deleteSpan',
-        'splitSpan',
-        'suggestSpanTypes',
-        'undo',
-        ))
+    'createArc',
+    'deleteArc',
+    'createSpan',
+    'deleteSpan',
+    'splitSpan',
+    'suggestSpanTypes',
+    'undo',
+))
 
 # Actions that will be logged as annotator actions (if so configured)
 LOGGED_ANNOTATOR_ACTION = ANNOTATION_ACTION | set((
-        'getDocument',
-        'logAnnotatorAction',
-        ))
+    'getDocument',
+    'logAnnotatorAction',
+))
 
 # Actions that require authentication
 REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
-        # Document functionality
-        'importDocument',
-        
-        # Search functionality in whole collection (heavy on the CPU/disk ATM)
-        'searchTextInCollection',
-        'searchEntityInCollection',
-        'searchEventInCollection',
-        'searchRelationInCollection',
-        'searchNoteInCollection',
+    # Document functionality
+    'importDocument',
 
-        'tag',
-        ))
+    # Search functionality in whole collection (heavy on the CPU/disk ATM)
+    'searchTextInCollection',
+    'searchEntityInCollection',
+    'searchEventInCollection',
+    'searchRelationInCollection',
+    'searchNoteInCollection',
+
+    'tag',
+))
 
 # Sanity check
 for req_action in REQUIRES_AUTHENTICATION:
     assert req_action in DISPATCHER, (
-            'INTERNAL ERROR: undefined action in REQUIRES_AUTHENTICATION set')
+        'INTERNAL ERROR: undefined action in REQUIRES_AUTHENTICATION set')
 ###
 
 
@@ -173,7 +175,8 @@ class InvalidActionArgsError(ProtocolError):
         self.missing_arg = missing_arg
 
     def __str__(self):
-        return 'Client did not supply argument "%s" for action "%s"' % (self.missing_arg, self.attempted_action)
+        return 'Client did not supply argument "%s" for action "%s"' % (
+            self.missing_arg, self.attempted_action)
 
     def json(self, json_dic):
         json_dic['exception'] = 'invalidActionArgs',
@@ -204,7 +207,7 @@ class ProtocolVersionMismatchError(ProtocolError):
                 'administrator'),
             ('Client sent request with version "%s", server is using version '
                 '%s') % (self.was, self.correct, ),
-            ))
+        ))
 
     def json(self, json_dic):
         json_dic['exception'] = 'protocolVersionMismatch',
@@ -219,12 +222,13 @@ def _directory_is_safe(dir_path):
 
     # Make a simple test that the directory is inside the data directory
     return abspath(path_join(DATA_DIR, dir_path[1:])
-            ).startswith(normpath(DATA_DIR))
+                   ).startswith(normpath(DATA_DIR))
+
 
 def dispatch(http_args, client_ip, client_hostname):
     action = http_args['action']
 
-    log_info('dispatcher handling action: %s' % (action, ));
+    log_info('dispatcher handling action: %s' % (action, ))
 
     # Verify that we don't have a protocol version mismatch
     PROTOCOL_VERSION = 1
@@ -232,13 +236,13 @@ def dispatch(http_args, client_ip, client_hostname):
         protocol_version = int(http_args['protocol'])
         if protocol_version != PROTOCOL_VERSION:
             raise ProtocolVersionMismatchError(protocol_version,
-                    PROTOCOL_VERSION)
+                                               PROTOCOL_VERSION)
     except TypeError:
         raise ProtocolVersionMismatchError('None', PROTOCOL_VERSION)
     except ValueError:
         raise ProtocolVersionMismatchError(http_args['protocol'],
-                PROTOCOL_VERSION)
-    
+                                           PROTOCOL_VERSION)
+
     # Was an action supplied?
     if action is None:
         raise NoActionError
@@ -278,7 +282,7 @@ def dispatch(http_args, client_ip, client_hostname):
 
     # These arguments already has default values
     default_val_by_arg = {}
-    for arg, default_val in izip(args[-len(defaults):], defaults):
+    for arg, default_val in zip(args[-len(defaults):], defaults):
         default_val_by_arg[arg] = default_val
 
     action_args = []
@@ -294,8 +298,8 @@ def dispatch(http_args, client_ip, client_hostname):
 
         action_args.append(arg_val)
 
-    log_info('dispatcher will call %s(%s)' % (action,
-        ', '.join((repr(a) for a in action_args)), ))
+    log_info('dispatcher will call %s(%s)' %
+             (action, ', '.join((repr(a) for a in action_args)), ))
 
     # Log annotation actions separately (if so configured)
     if action in LOGGED_ANNOTATOR_ACTION:
@@ -310,7 +314,7 @@ def dispatch(http_args, client_ip, client_hostname):
     # Log annotation actions separately (if so configured)
     if action in LOGGED_ANNOTATOR_ACTION:
         log_annotation(http_args['collection'],
-                        http_args['document'],
+                       http_args['document'],
                        'FINISH', action, action_args)
 
     # Assign which action that was performed to the json_dic

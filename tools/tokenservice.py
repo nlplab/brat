@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-'''
-A very simple tokenization service.
-'''
+"""A very simple tokenization service."""
 
 import re
 
@@ -20,19 +18,20 @@ except ImportError:
     from ujson import dumps
 
 from sys import stderr
-from urlparse import urlparse
+from urllib.parse import urlparse
 try:
-    from urlparse import parse_qs
+    from urllib.parse import parse_qs
 except ImportError:
     # old Python again?
     from cgi import parse_qs
-from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
-### Constants
+# Constants
 ARGPARSER = ArgumentParser(description='An trivial tokenization service')
 ARGPARSER.add_argument('-p', '--port', type=int, default=47111,
-        help='port to run the HTTP service on (default: 47111)')
+                       help='port to run the HTTP service on (default: 47111)')
 ###
+
 
 def _tokens(text):
     # Generate Token annotations
@@ -44,24 +43,25 @@ def _tokens(text):
     offset, aseq = 0, 1
     for token in re.split('(\s+)', text):
         if token and not token.isspace():
-            anns['T%d'%aseq] = {
+            anns['T%d' % aseq] = {
                 'type': 'Token',
-                'offsets': ((offset, offset+len(token)), ),
+                'offsets': ((offset, offset + len(token)), ),
                 'texts': (token, ),
-                }
+            }
             aseq += 1
         offset += len(token)
     return anns
 
+
 class TokenizerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         field_storage = FieldStorage(
-                headers=self.headers,
-                environ={
-                    'REQUEST_METHOD':'POST',
-                    'CONTENT_TYPE':self.headers['Content-type'],
-                    },
-                fp=self.rfile)
+            headers=self.headers,
+            environ={
+                'REQUEST_METHOD': 'POST',
+                'CONTENT_TYPE': self.headers['Content-type'],
+            },
+            fp=self.rfile)
 
         # Do your random tagging magic
         try:
@@ -76,23 +76,25 @@ class TokenizerHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.wfile.write(dumps(json_dic))
-        print >> stderr, ('Generated %d tokens' % len(json_dic))
+        print(('Generated %d tokens' % len(json_dic)), file=stderr)
 
     def log_message(self, format, *args):
-        return # Too much noise from the default implementation
+        return  # Too much noise from the default implementation
+
 
 def main(args):
     argp = ARGPARSER.parse_args(args[1:])
 
     server_class = HTTPServer
     httpd = server_class(('localhost', argp.port), TokenizerHandler)
-    print >> stderr, 'Tokenizer service started on port %s' % (argp.port)
+    print('Tokenizer service started on port %s' % (argp.port), file=stderr)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
     httpd.server_close()
-    print >> stderr, 'Tokenizer service stopped'
+    print('Tokenizer service stopped', file=stderr)
+
 
 if __name__ == '__main__':
     from sys import argv

@@ -4,7 +4,7 @@
 
 
 # Preamble {{{
-from __future__ import with_statement
+
 
 '''
 Mark the differences between two annotation files, creating a diff annotation
@@ -33,39 +33,43 @@ sys_path.append(os.path.join(os.path.dirname(__file__), '..'))
 # }}}
 
 
-
-
-class Mapping: # {{{
+class Mapping:  # {{{
     def __init__(self):
         self.first_by_second = dict()
         self.second_by_first = dict()
         self.only_in_second = []
+
     def add(self, first, second, is_clone=False):
         self.first_by_second[second] = first
         self.second_by_first[first] = second
         if is_clone:
             self.only_in_second.append(second)
+
     def get_second(self, first):
         return self.second_by_first[first] if first in self.second_by_first else None
+
     def get_first(self, second):
         return self.first_by_second[second] if second in self.first_by_second else None
+
     def is_only_in_second(self, second):
         return second in self.only_in_second
+
     def is_only_in_first(self, first):
         return first in self.second_by_first
 # }}}
 
 
-class AnnotationDiff: # {{{
-    def __init__(self, first, second, result): # {{{
+class AnnotationDiff:  # {{{
+    def __init__(self, first, second, result):  # {{{
         self.first = first
         self.second = second
         self.result = result
         self.mapping = Mapping()
-        self.first_textbounds = dict((textbound.id, textbound) for textbound in first.get_textbounds())
+        self.first_textbounds = dict(
+            (textbound.id, textbound) for textbound in first.get_textbounds())
     # }}}
 
-    def diff(self): # {{{
+    def diff(self):  # {{{
         # self.second_triggers = [t for t in self.second.get_triggers()]
 
         self.diff_entities()
@@ -78,14 +82,13 @@ class AnnotationDiff: # {{{
         self.diff_relations()
     # }}}
 
-
     # Utilities for adding marks {{{
     def add_mark(self, type, target, reason):
         comment = annotation.OnelineCommentAnnotation(
-                target,
-                self.result.get_new_id('#'),
-                type,
-                "\t" + reason)
+            target,
+            self.result.get_new_id('#'),
+            type,
+            "\t" + reason)
         self.result.add_annotation(comment)
 
     def add_missing(self, target, reason):
@@ -97,7 +100,6 @@ class AnnotationDiff: # {{{
     def add_changed(self, target, reason):
         self.add_mark('ChangedAnnotation', target, reason)
     # }}}
-
 
     # Entities {{{
     def find_entity(self, haystack, needle):
@@ -118,14 +120,13 @@ class AnnotationDiff: # {{{
                 self.mapping.add(found_first.id, entity.id)
         import copy
         for entity in self.first.get_entities():
-            if not entity.id in found_first_ids:
+            if entity.id not in found_first_ids:
                 clone = copy.copy(entity)
                 clone.id = self.result.get_new_id('T')
                 self.result.add_annotation(clone)
                 self.mapping.add(entity.id, clone.id, True)
                 self.add_missing(clone.id, 'Missing entity')
     # }}}
-
 
     # Triggers {{{
     def find_trigger(self, haystack, needle):
@@ -145,13 +146,12 @@ class AnnotationDiff: # {{{
                 # no `else`; the comments are handled by diff_events();
         import copy
         for trigger in self.first.get_triggers():
-            if not trigger.id in found_first_ids:
+            if trigger.id not in found_first_ids:
                 clone = copy.copy(trigger)
                 clone.id = self.result.get_new_id('T')
                 self.result.add_annotation(clone)
                 self.mapping.add(trigger.id, clone.id, True)
     # }}}
-    
 
     # Events {{{
     #
@@ -167,19 +167,39 @@ class AnnotationDiff: # {{{
         except KeyError:
             return target
 
-    def find_closest_events(self, second_event, found_events_dict, first_triggers, second_triggers):
-        second_args = dict((role, self.trigger_or_self(target, second_triggers)) for (role, target) in second_event.args)
+    def find_closest_events(
+            self,
+            second_event,
+            found_events_dict,
+            first_triggers,
+            second_triggers):
+        second_args = dict(
+            (role, self.trigger_or_self(
+                target, second_triggers)) for (
+                role, target) in second_event.args)
         second_roles = set(second_args.keys())
 
         for first_event in self.first.get_events():
-            if self.mapping.get_second(first_event.trigger) == second_event.trigger and first_event.type == second_event.type:
-                first_args = dict((role, self.mapping.get_second(self.trigger_or_self(target, first_triggers))) for (role, target) in first_event.args)
+            if self.mapping.get_second(
+                    first_event.trigger) == second_event.trigger and first_event.type == second_event.type:
+                first_args = dict(
+                    (role, self.mapping.get_second(
+                        self.trigger_or_self(
+                            target, first_triggers))) for (
+                        role, target) in first_event.args)
                 first_roles = set(first_args.keys())
-                
-                only_first = set(role for role in first_roles if first_args.get(role) != second_args.get(role))
-                only_second = set(role for role in second_roles if first_args.get(role) != second_args.get(role))
 
-                match = (first_event.id, first_args, second_args, only_first, only_second)
+                only_first = set(
+                    role for role in first_roles if first_args.get(role) != second_args.get(role))
+                only_second = set(
+                    role for role in second_roles if first_args.get(role) != second_args.get(role))
+
+                match = (
+                    first_event.id,
+                    first_args,
+                    second_args,
+                    only_first,
+                    only_second)
                 score = len(only_first) + len(only_second)
 
                 # XXX this is horrible; what's more Pythonic way?
@@ -194,8 +214,10 @@ class AnnotationDiff: # {{{
                 found_events_dict[score][second_event.id].append(match)
 
     def diff_events(self):
-        second_triggers = dict((event.id, event.trigger) for event in self.second.get_events())
-        first_triggers = dict((event.id, event.trigger) for event in self.first.get_events())
+        second_triggers = dict((event.id, event.trigger)
+                               for event in self.second.get_events())
+        first_triggers = dict((event.id, event.trigger)
+                              for event in self.first.get_events())
 
         found_first_ids = set()
         found_second_ids = set()
@@ -204,44 +226,56 @@ class AnnotationDiff: # {{{
 
         # first pass, collect exact matches
         for event in self.second.get_events():
-            self.find_closest_events(event, found_events_dict, first_triggers, second_triggers)
+            self.find_closest_events(
+                event,
+                found_events_dict,
+                first_triggers,
+                second_triggers)
 
         # XXX Pythonize
         for score in sorted(found_events_dict.keys()):
             for second_event_id in found_events_dict[score]:
-                if not second_event_id in found_second_ids:
+                if second_event_id not in found_second_ids:
                     for match in found_events_dict[score][second_event_id]:
                         first_event_id, first_args, second_args, only_first, only_second = match
 
-                        if not first_event_id in found_first_ids:
+                        if first_event_id not in found_first_ids:
                             found_first_ids.add(first_event_id)
                             found_second_ids.add(second_event_id)
                             self.mapping.add(first_event_id, second_event_id)
                             for role in only_first:
-                                first_text = self.first_textbounds[self.mapping.get_first(first_args[role])].get_text()
+                                first_text = self.first_textbounds[self.mapping.get_first(
+                                    first_args[role])].get_text()
                                 if role in only_second:
-                                    self.add_changed(second_event_id, 'Changed role %s (from %s "%s")' % (role, first_args[role], first_text))
+                                    self.add_changed(
+                                        second_event_id, 'Changed role %s (from %s "%s")' %
+                                        (role, first_args[role], first_text))
                                 else:
-                                    self.add_changed(second_event_id, 'Missing role %s (%s "%s")' % (role, first_args[role], first_text))
+                                    self.add_changed(
+                                        second_event_id, 'Missing role %s (%s "%s")' %
+                                        (role, first_args[role], first_text))
                             for role in only_second - only_first:
-                                self.add_changed(second_event_id, 'Added role %s' % role)
+                                self.add_changed(
+                                    second_event_id,
+                                    'Added role %s' %
+                                    role)
 
         for event in self.second.get_events():
-            if not event.id in found_second_ids:
+            if event.id not in found_second_ids:
                 self.add_added(event.id, 'Added event')
 
         for event in self.first.get_events():
-            if not event.id in found_first_ids:
+            if event.id not in found_first_ids:
                 import copy
                 clone = copy.copy(event)
                 clone.id = self.result.get_new_id('E')
                 clone.trigger = self.mapping.get_second(event.trigger)
-                clone.args = [(role, self.mapping.get_second(trigger)) for (role, trigger) in clone.args]
+                clone.args = [(role, self.mapping.get_second(trigger))
+                              for (role, trigger) in clone.args]
                 self.result.add_annotation(clone)
                 self.mapping.add(event.id, clone.id, True)
                 self.add_missing(clone.id, 'Missing event')
     # }}}
-    
 
     # Attributes {{{
     def find_attribute(self, haystack, needle, target):
@@ -256,12 +290,18 @@ class AnnotationDiff: # {{{
     def diff_attributes(self):
         for attribute in self.second.get_attributes():
             target_in_first = self.mapping.get_first(attribute.target)
-            found_first = self.find_attribute(self.first, attribute, target_in_first)
+            found_first = self.find_attribute(
+                self.first, attribute, target_in_first)
             if found_first is None:
                 if target_in_first:
-                    self.add_changed(attribute.target, 'Added attribute %s' % attribute.type)
+                    self.add_changed(
+                        attribute.target,
+                        'Added attribute %s' %
+                        attribute.type)
             elif found_first.value != attribute.value:
-                self.add_changed(attribute.target, 'Changed attribute %s (from %s)' % (attribute.type, found_first.value))
+                self.add_changed(
+                    attribute.target, 'Changed attribute %s (from %s)' %
+                    (attribute.type, found_first.value))
         for attribute in self.first.get_attributes():
             target_in_second = self.mapping.get_second(attribute.target)
             if self.mapping.is_only_in_first(attribute.target):
@@ -274,10 +314,14 @@ class AnnotationDiff: # {{{
                 clone.target = target_in_second
                 self.result.add_annotation(clone)
             else:
-                if not self.has_attribute(self.second, attribute, target_in_second) and target_in_second:
-                    self.add_changed(attribute.target, 'Missing attribute %s (%s)' % (attribute.type, attribute.value))
+                if not self.has_attribute(
+                        self.second,
+                        attribute,
+                        target_in_second) and target_in_second:
+                    self.add_changed(
+                        attribute.target, 'Missing attribute %s (%s)' %
+                        (attribute.type, attribute.value))
     # }}}
-    
 
     # One-line Comments {{{
     def has_oneline_comment(self, haystack, needle, target):
@@ -289,14 +333,19 @@ class AnnotationDiff: # {{{
     def diff_oneline_comments(self):
         for oneline_comment in self.second.get_oneline_comments():
             target_in_first = self.mapping.get_first(oneline_comment.target)
-            if not self.has_oneline_comment(self.first, oneline_comment, target_in_first):
-                self.add_changed(oneline_comment.target, 'Added %s: "%s"' % (oneline_comment.type, oneline_comment.get_text()))
+            if not self.has_oneline_comment(
+                    self.first, oneline_comment, target_in_first):
+                self.add_changed(
+                    oneline_comment.target, 'Added %s: "%s"' %
+                    (oneline_comment.type, oneline_comment.get_text()))
         for oneline_comment in self.first.get_oneline_comments():
             target_in_second = self.mapping.get_second(oneline_comment.target)
-            if not self.has_oneline_comment(self.second, oneline_comment, target_in_second):
-                self.add_changed(target_in_second, 'Missing %s: "%s"' % (oneline_comment.type, oneline_comment.get_text()))
+            if not self.has_oneline_comment(
+                    self.second, oneline_comment, target_in_second):
+                self.add_changed(
+                    target_in_second, 'Missing %s: "%s"' %
+                    (oneline_comment.type, oneline_comment.get_text()))
     # }}}
-
 
     # Equivs {{{
     def diff_equivs(self):
@@ -318,17 +367,20 @@ class AnnotationDiff: # {{{
                     correspondence_map[entity] = [equiv_group, None]
 
         correspondence_hist = dict()
-        for entity in correspondence_map.keys():
+        for entity in list(correspondence_map.keys()):
             key = "%s-%s" % tuple(correspondence_map[entity])
             if key not in correspondence_hist:
-                correspondence_hist[key] = [1, correspondence_map[entity], [entity]]
+                correspondence_hist[key] = [
+                    1, correspondence_map[entity], [entity]]
             else:
                 correspondence_hist[key][0] += 1
                 correspondence_hist[key][2].append(entity)
 
         seen = []
         import operator
-        sorted_hist = sorted(correspondence_hist.iteritems(), key=operator.itemgetter(1))
+        sorted_hist = sorted(
+            iter(correspondence_hist.items()),
+            key=operator.itemgetter(1))
         for key, equiv_item in sorted_hist:
             count, correspondence_pair, entities = equiv_item
             first_group, second_group = correspondence_pair
@@ -336,32 +388,51 @@ class AnnotationDiff: # {{{
                 if first_group is None:
                     self.add_changed(entity, 'Added to equiv')
                 elif second_group is None:
-                    rest = ["%s (%s)" % (self.mapping.get_second(other), self.first_textbounds[other].get_text()) for other in first_equivs[first_group] if other != entity]
-                    self.add_changed(entity, 'Missing from equiv with %s' % ', '.join(rest))
+                    rest = ["%s (%s)" % (self.mapping.get_second(other), self.first_textbounds[other].get_text(
+                    )) for other in first_equivs[first_group] if other != entity]
+                    self.add_changed(
+                        entity, 'Missing from equiv with %s' %
+                        ', '.join(rest))
                 elif entity in seen:
-                    rest = ["%s (%s)" % (self.mapping.get_second(other), self.first_textbounds[other].get_text()) for other in first_equivs[first_group] if other != entity]
-                    self.add_changed(entity, 'Changed from equiv %s' % ', '.join(rest))
+                    rest = ["%s (%s)" % (self.mapping.get_second(other), self.first_textbounds[other].get_text(
+                    )) for other in first_equivs[first_group] if other != entity]
+                    self.add_changed(
+                        entity, 'Changed from equiv %s' %
+                        ', '.join(rest))
                 else:
                     seen.append(entity)
     # }}}
-    
-    
+
     # Relations {{{
     def diff_relations(self):
-        first_relations = dict(((self.mapping.get_second(relation.arg1), self.mapping.get_second(relation.arg2), relation.type), relation.id) for relation in self.first.get_relations())
-        second_relations = dict(((relation.arg1, relation.arg2, relation.type), relation.id) for relation in self.second.get_relations())
+        first_relations = dict(
+            ((self.mapping.get_second(
+                relation.arg1),
+                self.mapping.get_second(
+                relation.arg2),
+                relation.type),
+                relation.id) for relation in self.first.get_relations())
+        second_relations = dict(
+            ((relation.arg1,
+              relation.arg2,
+              relation.type),
+             relation.id) for relation in self.second.get_relations())
         first_relations_set = set(first_relations)
         second_relations_set = set(second_relations)
 
         for relation in second_relations_set - first_relations_set:
             source, target, relation_type = relation
-            self.add_changed(source, 'Added relation %s to %s' % (relation_type, target))
+            self.add_changed(
+                source, 'Added relation %s to %s' %
+                (relation_type, target))
         for relation in first_relations_set - second_relations_set:
             source, target, relation_type = relation
-            first_text = self.first_textbounds[self.mapping.get_first(target)].get_text()
-            self.add_changed(source, 'Missing relation %s to %s "%s"' % (relation_type, target, first_text))
+            first_text = self.first_textbounds[self.mapping.get_first(
+                target)].get_text()
+            self.add_changed(
+                source, 'Missing relation %s to %s "%s"' %
+                (relation_type, target, first_text))
     # }}}
-    
 
     # Normalizations {{{
     def has_normalization(self, haystack, needle, target):
@@ -373,12 +444,18 @@ class AnnotationDiff: # {{{
     def diff_normalizations(self):
         for normalization in self.second.get_normalizations():
             target_in_first = self.mapping.get_first(normalization.target)
-            if not self.has_normalization(self.first, normalization, target_in_first):
-                self.add_changed(normalization.target, 'Added normalization %s:%s "%s"' % (normalization.refdb, normalization.refid, normalization.reftext))
+            if not self.has_normalization(
+                    self.first, normalization, target_in_first):
+                self.add_changed(
+                    normalization.target, 'Added normalization %s:%s "%s"' %
+                    (normalization.refdb, normalization.refid, normalization.reftext))
         for normalization in self.first.get_normalizations():
             target_in_second = self.mapping.get_second(normalization.target)
-            if not self.has_normalization(self.second, normalization, target_in_second):
-                self.add_changed(target_in_second, 'Missing normalization %s:%s "%s"' % (normalization.refdb, normalization.refid, normalization.reftext))
+            if not self.has_normalization(
+                    self.second, normalization, target_in_second):
+                self.add_changed(
+                    target_in_second, 'Missing normalization %s:%s "%s"' %
+                    (normalization.refdb, normalization.refid, normalization.reftext))
     # }}}
 # }}}
 
@@ -386,26 +463,34 @@ class AnnotationDiff: # {{{
 # Diff invocation {{{
 KNOWN_FILE_SUFF = [annotation.TEXT_FILE_SUFFIX] + annotation.KNOWN_FILE_SUFF
 EXTENSIONS_RE = '\\.(%s)$' % '|'.join(KNOWN_FILE_SUFF)
+
+
 def name_without_extension(file_name):
     import re
     return re.sub(EXTENSIONS_RE, '', file_name)
+
 
 def copy_annotations(original_name, new_name):
     import shutil
     for extension in KNOWN_FILE_SUFF:
         try:
-            shutil.copyfile('%s.%s' % (original_name, extension), '%s.%s' % (new_name, extension))
-        except IOError, e:
-            pass # that extension file does not exist
+            shutil.copyfile(
+                '%s.%s' %
+                (original_name, extension), '%s.%s' %
+                (new_name, extension))
+        except IOError as e:
+            pass  # that extension file does not exist
     return annotation.TextAnnotations(new_name)
+
 
 def delete_annotations(name):
     bare_name = name_without_extension(name)
     for extension in KNOWN_FILE_SUFF:
         try:
             os.remove('%s.%s' % (name, extension))
-        except OSError, e:
-            pass # that extension file does not exist
+        except OSError as e:
+            pass  # that extension file does not exist
+
 
 def diff_files(first_name, second_name, result_name):
     first_bare = name_without_extension(first_name)
@@ -419,6 +504,7 @@ def diff_files(first_name, second_name, result_name):
     with result:
         AnnotationDiff(first, second, result).diff()
 
+
 def is_dir(name):
     import os.path
     if os.path.exists(name):
@@ -429,6 +515,7 @@ def is_dir(name):
             if os.path.isfile('%s.%s' % (bare_name, ext)):
                 return False
         return None
+
 
 def add_files(files, dir_or_file, errors):
     import glob
@@ -441,15 +528,21 @@ def add_files(files, dir_or_file, errors):
         files.append(dir_or_file)
     else:
         subfiles = glob.glob(os.path.join(dir_or_file, '*'))
-        matching_subfiles = [subfile for subfile in subfiles if re.search(EXTENSIONS_RE, subfile)]
-        bare_subfiles = set([name_without_extension(subfile) for subfile in matching_subfiles])
+        matching_subfiles = [
+            subfile for subfile in subfiles if re.search(
+                EXTENSIONS_RE, subfile)]
+        bare_subfiles = set([name_without_extension(subfile)
+                             for subfile in matching_subfiles])
         found = False
         for subfile in bare_subfiles:
             if is_dir(subfile) == False:
                 files.append(subfile)
                 found = True
         if not found:
-            errors.append('Error: no annotation files found in %s' % dir_or_file)
+            errors.append(
+                'Error: no annotation files found in %s' %
+                dir_or_file)
+
 
 def diff_files_and_dirs(firsts, second, result, force=False, verbose=False):
     import os.path
@@ -464,11 +557,15 @@ def diff_files_and_dirs(firsts, second, result, force=False, verbose=False):
         add_files(first_files, first, errors)
 
     if first_files == []:
-        fatal_errors.append('Error: no annotation files found in %s' % ', '.join(firsts))
+        fatal_errors.append(
+            'Error: no annotation files found in %s' %
+            ', '.join(firsts))
     if second_dir is None:
         fatal_errors.append('Error: no annotation files found in %s' % second)
     if not single_first and len(first_files) > 1 and result_dir is False:
-        fatal_errors.append('Error: result of comparison of multiple files doesn\'t fit in %s' % result)
+        fatal_errors.append(
+            'Error: result of comparison of multiple files doesn\'t fit in %s' %
+            result)
     errors.extend(fatal_errors)
 
     if fatal_errors == []:
@@ -481,27 +578,32 @@ def diff_files_and_dirs(firsts, second, result, force=False, verbose=False):
             basename = os.path.basename(first_name)
 
             if verbose:
-                print "Comparing", basename
+                print("Comparing", basename)
 
             if second_dir:
                 second_name = os.path.join(second, basename)
-                if is_dir(second_name) != False:
-                    errors.append('Error: No annotation files found corresponding to %s' % second_name)
+                if is_dir(second_name):
+                    errors.append(
+                        'Error: No annotation files found corresponding to %s' %
+                        second_name)
                     continue
             else:
                 second_name = second
 
-            result_name = os.path.join(result, basename) if result_dir else result
+            result_name = os.path.join(
+                result, basename) if result_dir else result
             real_result_dir = is_dir(result_name)
-            if real_result_dir == True:
+            if real_result_dir:
                 errors.append('Error: %s is a directory' % result_name)
                 continue
 
-            if real_result_dir == False:
+            if not real_result_dir:
                 if force:
                     delete_annotations(result_name)
                 else:
-                    errors.append('Error: %s already exists (use --force to overwrite)' % result_name)
+                    errors.append(
+                        'Error: %s already exists (use --force to overwrite)' %
+                        result_name)
                     continue
 
             diff_files(first_name, second_name, result_name)
@@ -512,29 +614,45 @@ def diff_files_and_dirs(firsts, second, result, force=False, verbose=False):
 # }}}
 
 
-
-
-
-
-
 # Command-line invocation {{{
 def argparser():
     import argparse
 
-    ap=argparse.ArgumentParser(description="Diff two annotation files, creating a diff annotation file")
-    ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
-    ap.add_argument("firsts", metavar="<first>", nargs="+", help="Original (or gold standard) directories/files")
-    ap.add_argument("second", metavar="<second>", help="Changed (or tested) directory/file")
+    ap = argparse.ArgumentParser(
+        description="Diff two annotation files, creating a diff annotation file")
+    ap.add_argument(
+        "-v",
+        "--verbose",
+        default=False,
+        action="store_true",
+        help="Verbose output.")
+    ap.add_argument("firsts", metavar="<first>", nargs="+",
+                    help="Original (or gold standard) directories/files")
+    ap.add_argument(
+        "second",
+        metavar="<second>",
+        help="Changed (or tested) directory/file")
     ap.add_argument("result", metavar="<result>", help="Output file/directory")
-    ap.add_argument("-f", "--force", action="store_true", help="Force overwrite")
+    ap.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Force overwrite")
     return ap
+
 
 def main(argv=None):
     if argv is None:
         argv = sys.argv
     args = argparser().parse_args(argv[1:])
 
-    diff_files_and_dirs(args.firsts, args.second, args.result, args.force, args.verbose)
+    diff_files_and_dirs(
+        args.firsts,
+        args.second,
+        args.result,
+        args.force,
+        args.verbose)
+
 
 if __name__ == "__main__":
     import sys

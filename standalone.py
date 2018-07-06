@@ -11,12 +11,12 @@ import sys
 import os
 
 from posixpath import normpath
-from urllib import unquote
+from urllib.parse import unquote
 
 from cgi import FieldStorage
-from BaseHTTPServer import HTTPServer
-from SimpleHTTPServer import SimpleHTTPRequestHandler
-from SocketServer import ForkingMixIn
+from http.server import HTTPServer
+from http.server import SimpleHTTPRequestHandler
+from socketserver import ForkingMixIn
 import socket
 
 # brat imports
@@ -73,14 +73,16 @@ Disallow: /.htaccess~
 Allow: /
 """
 
+
 class PermissionParseError(Exception):
     def __init__(self, linenum, line, message=None):
         self.linenum = linenum
         self.line = line
         self.message = ' (%s)' % message if message is not None else ''
-    
+
     def __str__(self):
         return 'line %d%s: %s' % (self.linenum, self.message, self.line)
+
 
 class PathPattern(object):
     def __init__(self, path):
@@ -90,8 +92,9 @@ class PathPattern(object):
     def match(self, s):
         # Require prefix match and separator/end.
         return s[:self.plen] == self.path and (self.path[-1] == '/' or
-                                               s[self.plen:] == '' or 
+                                               s[self.plen:] == '' or
                                                s[self.plen] == '/')
+
 
 class ExtensionPattern(object):
     def __init__(self, ext):
@@ -99,6 +102,7 @@ class ExtensionPattern(object):
 
     def match(self, s):
         return os.path.splitext(s)[1] == self.ext
+
 
 class PathPermissions(object):
     """Implements path permission checking with a robots.txt-like syntax."""
@@ -113,14 +117,14 @@ class PathPermissions(object):
             if pattern.match(path):
                 return allow
         return self.default_allow
-    
+
     def parse(self, lines):
         # Syntax: "DIRECTIVE : PATTERN" where
         # DIRECTIVE is either "Disallow:" or "Allow:" and
         # PATTERN either has the form "*.EXT" or "/PATH".
         # Strings starting with "#" and empty lines are ignored.
 
-        for ln, l in enumerate(lines):            
+        for ln, l in enumerate(lines):
             i = l.find('#')
             if i != -1:
                 l = l[:i]
@@ -134,25 +138,28 @@ class PathPermissions(object):
                 raise PermissionParseError(ln, lines[ln], 'missing colon')
 
             directive = l[:i].strip().lower()
-            pattern = l[i+1:].strip()
+            pattern = l[i + 1:].strip()
 
             if directive == 'allow':
                 allow = True
             elif directive == 'disallow':
                 allow = False
             else:
-                raise PermissionParseError(ln, lines[ln], 'unrecognized directive')
-            
+                raise PermissionParseError(
+                    ln, lines[ln], 'unrecognized directive')
+
             if pattern.startswith('/'):
                 patt = PathPattern(pattern)
             elif pattern.startswith('*.'):
                 patt = ExtensionPattern(pattern[1:])
             else:
-                raise PermissionParseError(ln, lines[ln], 'unrecognized pattern')
+                raise PermissionParseError(
+                    ln, lines[ln], 'unrecognized pattern')
 
             self._entries.append((patt, allow))
 
         return self
+
 
 class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
     """Minimal handler for brat server."""
@@ -175,20 +182,21 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         if path == '/ajax.cgi':
             return True
         else:
-            return False    
+            return False
 
     def run_brat_direct(self):
         """Execute brat server directly."""
 
         remote_addr = self.client_address[0]
         remote_host = self.address_string()
-        cookie_data = ', '.join(filter(None, self.headers.getheaders('cookie')))
+        cookie_data = ', '.join(
+            [_f for _f in self.headers.getheaders('cookie') if _f])
 
         query_string = ''
         i = self.path.find('?')
         if i != -1:
-            query_string = self.path[i+1:]
-            
+            query_string = self.path[i + 1:]
+
         saved = sys.stdin, sys.stdout, sys.stderr
         sys.stdin, sys.stdout = self.rfile, self.wfile
 
@@ -217,11 +225,12 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         response_hdrs.extend(response_data[0])
 
         self.send_response(200)
-        self.wfile.write('\n'.join('%s: %s' % (k, v) for k, v in response_hdrs))
+        self.wfile.write('\n'.join('%s: %s' % (k, v)
+                                   for k, v in response_hdrs))
         self.wfile.write('\n')
         self.wfile.write('\n')
         # Hack to support binary data and general Unicode for SVGs and JSON
-        if isinstance(response_data[1], unicode):
+        if isinstance(response_data[1], str):
             self.wfile.write(response_data[1].encode('utf-8'))
         else:
             self.wfile.write(response_data[1])
@@ -237,10 +246,10 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         path = unquote(path)
         path = normpath(path)
         parts = path.split('/')
-        parts = filter(None, parts)
+        parts = [_f for _f in parts if _f]
         if '..' in parts:
             return False
-        path = '/'+'/'.join(parts)
+        path = '/' + '/'.join(parts)
 
         return self.permissions.allow(path)
 
@@ -250,7 +259,10 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         self.send_error(403)
 
     def do_POST(self):
-        """Serve a POST request. Only implemented for brat server."""
+        """Serve a POST request.
+
+        Only implemented for brat server.
+        """
 
         if self.is_brat():
             self.run_brat_direct()
@@ -272,51 +284,54 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
             self.send_error(403)
         else:
             SimpleHTTPRequestHandler.do_HEAD(self)
-       
+
+
 class BratServer(ForkingMixIn, HTTPServer):
     def __init__(self, server_address):
         HTTPServer.__init__(self, server_address, BratHTTPRequestHandler)
+
 
 def main(argv):
     # warn if root/admin
     try:
         if os.getuid() == 0:
-            print >> sys.stderr, """
+            print("""
 ! WARNING: running as root. The brat standalone server is experimental   !
 ! and may be a security risk. It is recommend to run the standalone      !
 ! server as a non-root user with write permissions to the brat work/ and !
 ! data/ directories (e.g. apache if brat is set up using standard        !
 ! installation).                                                         !
-"""
+""", file=sys.stderr)
     except AttributeError:
         # not on UNIX
-        print >> sys.stderr, """
+        print("""
 Warning: could not determine user. Note that the brat standalone
 server is experimental and should not be run as administrator.
-"""
+""", file=sys.stderr)
 
     if len(argv) > 1:
         try:
             port = int(argv[1])
         except ValueError:
-            print >> sys.stderr, "Failed to parse", argv[1], "as port number."
+            print("Failed to parse", argv[1], "as port number.", file=sys.stderr)
             return 1
     else:
         port = _DEFAULT_SERVER_PORT
 
     try:
         server = BratServer((_DEFAULT_SERVER_ADDR, port))
-        print >> sys.stderr, "Serving brat at http://%s:%d" % server.server_address
+        print("Serving brat at http://%s:%d" % server.server_address, file=sys.stderr)
         server.serve_forever()
     except KeyboardInterrupt:
         # normal exit
         pass
-    except socket.error, why:
-        print >> sys.stderr, "Error binding to port", port, ":", why[1]
-    except Exception, e:
-        print >> sys.stderr, "Server error", e
+    except socket.error as why:
+        print("Error binding to port", port, ":", why[1], file=sys.stderr)
+    except Exception as e:
+        print("Server error", e, file=sys.stderr)
         raise
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

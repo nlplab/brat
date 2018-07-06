@@ -3,7 +3,7 @@
 # Script to revise the whitespace content of a PMC NXML file for text
 # content extraction.
 
-from __future__ import with_statement
+
 
 import sys
 import os
@@ -13,7 +13,7 @@ import codecs
 # TODO: switch to lxml
 try:
     import xml.etree.ElementTree as ET
-except ImportError: 
+except ImportError:
     import cElementTree as ET
 
 # TODO: the model of "space wrap" is unnecessarily crude in many
@@ -27,103 +27,107 @@ except ImportError:
 # tag to use for inserted elements
 INSERTED_ELEMENT_TAG = "n2t-spc"
 
-INPUT_ENCODING="UTF-8"
-OUTPUT_ENCODING="UTF-8"
+INPUT_ENCODING = "UTF-8"
+OUTPUT_ENCODING = "UTF-8"
 
 # command-line options
 options = None
 
 newline_wrap_element = set([
-        "CURRENT_TITLE",
+    "CURRENT_TITLE",
 
-        "CURRENT_AUTHORLIST",
+    "CURRENT_AUTHORLIST",
 
-        "ABSTRACT",
-        "P",
+    "ABSTRACT",
+    "P",
 
-        "TABLE",
-        "FIGURE",
+    "TABLE",
+    "FIGURE",
 
-        "HEADER",
+    "HEADER",
 
-        "REFERENCE",
+    "REFERENCE",
 
-        "article-title",
-        "abstract",
-        "title",
-        "sec",
-        "p",
-        "contrib",   # contributor (author list)
-        "aff",       # affiliation
-        "pub-date",  # publication date
-        "copyright-statement",
-        "table",
-        "table-wrap",
-        "figure",
-        "fig",       # figure (alternate)
-        "tr",        # table row
-        "kwd-group", # keyword group
-        ])
+    "article-title",
+    "abstract",
+    "title",
+    "sec",
+    "p",
+    "contrib",   # contributor (author list)
+    "aff",       # affiliation
+    "pub-date",  # publication date
+    "copyright-statement",
+    "table",
+    "table-wrap",
+    "figure",
+    "fig",       # figure (alternate)
+    "tr",        # table row
+    "kwd-group",  # keyword group
+])
 
 space_wrap_element = set([
-        "AUTHOR",
-        "SURNAME",
+    "AUTHOR",
+    "SURNAME",
 
-        "CURRENT_AUTHOR",
-        "CURRENT_SURNAME",
+    "CURRENT_AUTHOR",
+    "CURRENT_SURNAME",
 
-        "TITLE",
-        "JOURNAL",
+    "TITLE",
+    "JOURNAL",
 
-        "YEAR",
+    "YEAR",
 
-        # author lists
-        "surname",
-        "given-names",
-        "email",
-        # citation details
-        "volume",
-        "issue",
-        "year",
-        "month",
-        "day",
-        "fpage",
-        "lpage",
-        "pub-id",
-        "copyright-year",
-        # journal meta
-        "journal-id",
-        "journal-title",
-        "issn",
-        "publisher-name",
-        # article meta
-        "article-id",
-        "kwd",  # keyword
-        # miscellaneous
-        "label",
-        "th",
-        "td",
-        ])
+    # author lists
+    "surname",
+    "given-names",
+    "email",
+    # citation details
+    "volume",
+    "issue",
+    "year",
+    "month",
+    "day",
+    "fpage",
+    "lpage",
+    "pub-id",
+    "copyright-year",
+    # journal meta
+    "journal-id",
+    "journal-title",
+    "issn",
+    "publisher-name",
+    # article meta
+    "article-id",
+    "kwd",  # keyword
+    # miscellaneous
+    "label",
+    "th",
+    "td",
+])
 
 # strip anything that we're wrapping; this is a bit unnecessarily
 # aggressive in cases but guarantees normalization
 strip_element = newline_wrap_element | space_wrap_element
 
+
 class Standoff:
     def __init__(self, element, start, end):
         self.element = element
-        self.start   = start
-        self.end     = end
+        self.start = start
+        self.end = end
+
 
 def txt(s):
     return s if s is not None else ""
+
 
 def text_and_standoffs(e):
     strings, standoffs = [], []
     _text_and_standoffs(e, 0, strings, standoffs)
     text = "".join(strings)
     return text, standoffs
-    
+
+
 def _text_and_standoffs(e, curroff, strings, standoffs):
     startoff = curroff
     # to keep standoffs in element occurrence order, append
@@ -135,8 +139,9 @@ def _text_and_standoffs(e, curroff, strings, standoffs):
         curroff += len(e.text)
     curroff = _subelem_text_and_standoffs(e, curroff, strings, standoffs)
     so.start = startoff
-    so.end   = curroff
+    so.end = curroff
     return curroff
+
 
 def _subelem_text_and_standoffs(e, curroff, strings, standoffs):
     startoff = curroff
@@ -147,12 +152,13 @@ def _subelem_text_and_standoffs(e, curroff, strings, standoffs):
             curroff += len(s.tail)
     return curroff
 
+
 def preceding_space(pos, text, rewritten={}):
     while pos > 0:
         pos -= 1
-        if pos not in rewritten: 
+        if pos not in rewritten:
             # no rewrite, check normally
-            return text[pos].isspace()           
+            return text[pos].isspace()
         elif rewritten[pos] is not None:
             # refer to rewritten instead of original
             return rewritten[pos].isspace()
@@ -162,11 +168,12 @@ def preceding_space(pos, text, rewritten={}):
     # accept start of text
     return True
 
+
 def following_space(pos, text, rewritten={}):
     while pos < len(text):
-        if pos not in rewritten: 
+        if pos not in rewritten:
             # no rewrite, check normally
-            return text[pos].isspace()           
+            return text[pos].isspace()
         elif rewritten[pos] is not None:
             # refer to rewritten instead of original
             return rewritten[pos].isspace()
@@ -177,9 +184,10 @@ def following_space(pos, text, rewritten={}):
     # accept end of text
     return True
 
+
 def preceding_linebreak(pos, text, rewritten={}):
     if pos >= len(text):
-        return True    
+        return True
     while pos > 0:
         pos -= 1
         c = rewritten.get(pos, text[pos])
@@ -191,6 +199,7 @@ def preceding_linebreak(pos, text, rewritten={}):
             # space or deleted, check further
             pass
     return True
+
 
 def following_linebreak(pos, text, rewritten={}):
     while pos < len(text):
@@ -205,10 +214,9 @@ def following_linebreak(pos, text, rewritten={}):
         pos += 1
     return True
 
+
 def index_in_parent(e, p):
-    """
-    Returns the index of the given element in its parent element e.
-    """
+    """Returns the index of the given element in its parent element e."""
     index = None
     for i in range(len(p)):
         if p[i] == e:
@@ -217,11 +225,10 @@ def index_in_parent(e, p):
     assert i is not None, "index_in_parent: error: not parent and child"
     return i
 
+
 def space_normalize(root, text=None, standoffs=None):
-    """
-    Eliminates multiple consequtive spaces and normalizes newlines
-    (and other space) into regular space.
-    """
+    """Eliminates multiple consequtive spaces and normalizes newlines (and
+    other space) into regular space."""
 
     if text is None or standoffs is None:
         text, standoffs = text_and_standoffs(root)
@@ -234,11 +241,10 @@ def space_normalize(root, text=None, standoffs=None):
         if e.tail is not None and e.tail != "":
             e.tail = re.sub(r'\s+', ' ', e.tail)
 
+
 def strip_elements(root, elements_to_strip=set(), text=None, standoffs=None):
-    """
-    Removes initial and terminal space from elements that either have
-    surrounding space or belong to given set of elements to strip.
-    """
+    """Removes initial and terminal space from elements that either have
+    surrounding space or belong to given set of elements to strip."""
 
     if text is None or standoffs is None:
         text, standoffs = text_and_standoffs(root)
@@ -246,27 +252,28 @@ def strip_elements(root, elements_to_strip=set(), text=None, standoffs=None):
     # during processing, keep note at which offsets spaces have
     # been eliminated.
     rewritten = {}
-    
+
     for so in standoffs:
         e = so.element
 
         # don't remove expressly inserted space
         if e.tag == INSERTED_ELEMENT_TAG:
             continue
-        
+
         # if the element contains initial space and is either marked
         # for space stripping or preceded by space, remove the initial
         # space.
         if ((e.text is not None and e.text != "" and e.text[0].isspace()) and
-            (element_in_set(e, elements_to_strip) or 
+            (element_in_set(e, elements_to_strip) or
              preceding_space(so.start, text, rewritten))):
             l = 0
             while l < len(e.text) and e.text[l].isspace():
                 l += 1
             space, end = e.text[:l], e.text[l:]
             for i in range(l):
-                assert so.start+i not in rewritten, "ERROR: dup remove at %d"  % (so.start+i)
-                rewritten[so.start+i] = None
+                assert so.start + \
+                    i not in rewritten, "ERROR: dup remove at %d" % (so.start + i)
+                rewritten[so.start + i] = None
             e.text = end
 
         # element-final space is in e.text only if the element has no
@@ -274,38 +281,37 @@ def strip_elements(root, elements_to_strip=set(), text=None, standoffs=None):
         # the tail of the last child.
         if len(e) == 0:
             if ((e.text is not None and e.text != "" and e.text[-1].isspace()) and
-                (element_in_set(e, elements_to_strip) or 
+                (element_in_set(e, elements_to_strip) or
                  following_space(so.end, text, rewritten))):
                 l = 0
-                while l < len(e.text) and e.text[-l-1].isspace():
+                while l < len(e.text) and e.text[-l - 1].isspace():
                     l += 1
                 start, space = e.text[:-l], e.text[-l:]
                 for i in range(l):
-                    o = so.end-i-1
+                    o = so.end - i - 1
                     assert o not in rewritten, "ERROR: dup remove"
                     rewritten[o] = None
                 e.text = start
-                    
+
         else:
             c = e[-1]
             if ((c.tail is not None and c.tail != "" and c.tail[-1].isspace()) and
-                (element_in_set(e, elements_to_strip) or 
+                (element_in_set(e, elements_to_strip) or
                  following_space(so.end, text, rewritten))):
                 l = 0
-                while l < len(c.tail) and c.tail[-l-1].isspace():
+                while l < len(c.tail) and c.tail[-l - 1].isspace():
                     l += 1
                 start, space = c.tail[:-l], c.tail[-l:]
                 for i in range(l):
-                    o = so.end-i-1
+                    o = so.end - i - 1
                     assert o not in rewritten, "ERROR: dup remove"
                     rewritten[o] = None
                 c.tail = start
 
+
 def trim_tails(root):
-    """
-    Trims the beginning of the tail of elements where it is preceded
-    by space.
-    """
+    """Trims the beginning of the tail of elements where it is preceded by
+    space."""
 
     # This function is primarily necessary to cover the special case
     # of empty elements preceded and followed by space, as the
@@ -319,17 +325,16 @@ def trim_tails(root):
         e = so.element
 
         if (e.tail is not None and e.tail != "" and e.tail[0].isspace() and
-            preceding_space(so.end, text)):
+                preceding_space(so.end, text)):
             l = 0
             while l < len(e.tail) and e.tail[l].isspace():
                 l += 1
             space, end = e.tail[:l], e.tail[l:]
             e.tail = end
 
+
 def reduce_space(root, elements_to_strip=set()):
-    """
-    Performs space-removing normalizations.
-    """
+    """Performs space-removing normalizations."""
 
     # convert tree into text and standoffs for reference
     text, standoffs = text_and_standoffs(root)
@@ -340,6 +345,7 @@ def reduce_space(root, elements_to_strip=set()):
 
     space_normalize(root, text, standoffs)
 
+
 def element_in_set(e, s):
     # strip namespaces for lookup
     if e.tag[0] == "{":
@@ -347,6 +353,7 @@ def element_in_set(e, s):
     else:
         tag = e.tag
     return tag in s
+
 
 def process(fn):
     global strip_element
@@ -358,8 +365,8 @@ def process(fn):
 
     try:
         tree = ET.parse(fn)
-    except:
-        print >> sys.stderr, "Error parsing %s" % fn
+    except BaseException:
+        print("Error parsing %s" % fn, file=sys.stderr)
         raise
 
     root = tree.getroot()
@@ -414,15 +421,15 @@ def process(fn):
             if not (preceding_space(pos, text, rewritten) or
                     following_space(pos, text, rewritten)):
                 filtered[pos] = respace[pos]
-                rewritten[pos-1] = " "
+                rewritten[pos - 1] = " "
         else:
             assert respace[pos][0] == "\n", "INTERNAL ERROR"
             # unnecessary if there's either a preceding or following
             # newline connected by space
-            if not (preceding_linebreak(pos, text, rewritten) or 
+            if not (preceding_linebreak(pos, text, rewritten) or
                     following_linebreak(pos, text, rewritten)):
-                filtered[pos] = respace[pos]                
-                rewritten[pos-1] = "\n"
+                filtered[pos] = respace[pos]
+                rewritten[pos - 1] = "\n"
     respace = filtered
 
     # for reference, create a map from elements to their parents in the tree.
@@ -444,7 +451,7 @@ def process(fn):
     # traverse standoffs again, adding the new elements as needed.
     for so in standoffs:
 
-        if so.start in respace and respace[so.start][1] == True:
+        if so.start in respace and respace[so.start][1]:
             # Early space needed here. The current node can be assumed
             # to be the first to "discover" this, so it's appropriate
             # to add space before the current node.  We can further
@@ -468,10 +475,10 @@ def process(fn):
             # Late space needed here. Add after the current node iff
             # it's the first of the nodes with the longest span ending
             # here (i.e. the outermost).
-            maxlen = max([s.end-s.start for s in end_map[so.end]])
-            if so.end-so.start != maxlen:
+            maxlen = max([s.end - s.start for s in end_map[so.end]])
+            if so.end - so.start != maxlen:
                 continue
-            longest = [s for s in end_map[so.end] if s.end-s.start == maxlen]
+            longest = [s for s in end_map[so.end] if s.end - s.start == maxlen]
             if so != longest[0]:
                 continue
 
@@ -483,7 +490,7 @@ def process(fn):
 
             rse = ET.Element(INSERTED_ELEMENT_TAG)
             rse.text = respace[so.end][0]
-            p.insert(i+1, rse)
+            p.insert(i + 1, rse)
             # need to relocate tail
             rse.tail = e.tail
             e.tail = ""
@@ -514,26 +521,43 @@ def process(fn):
     # TODO: better checking of path identify to protect against
     # clobbering.
     if output_fn == fn and not options.overwrite:
-        print >> sys.stderr, 'respace: skipping output for %s: file would overwrite input (consider -d and -o options)' % fn
+        print('respace: skipping output for %s: file would overwrite input (consider -d and -o options)' % fn, file=sys.stderr)
     else:
         # OK to write output_fn
         try:
             with open(output_fn, 'w') as of:
                 tree.write(of, encoding=OUTPUT_ENCODING)
-        except IOError, ex:
-            print >> sys.stderr, 'respace: failed write: %s' % ex
-                
+        except IOError as ex:
+            print('respace: failed write: %s' % ex, file=sys.stderr)
+
     return True
 
 
 def argparser():
     import argparse
-    ap=argparse.ArgumentParser(description='Revise whitespace content of a PMC NXML file for text extraction.')
-    ap.add_argument('-d', '--directory', default=None, metavar='DIR', help='output directory')
-    ap.add_argument('-o', '--overwrite', default=False, action='store_true', help='allow output to overwrite input files')
-    ap.add_argument('-s', '--stdout', default=False, action='store_true', help='output to stdout')
+    ap = argparse.ArgumentParser(
+        description='Revise whitespace content of a PMC NXML file for text extraction.')
+    ap.add_argument(
+        '-d',
+        '--directory',
+        default=None,
+        metavar='DIR',
+        help='output directory')
+    ap.add_argument(
+        '-o',
+        '--overwrite',
+        default=False,
+        action='store_true',
+        help='allow output to overwrite input files')
+    ap.add_argument(
+        '-s',
+        '--stdout',
+        default=False,
+        action='store_true',
+        help='output to stdout')
     ap.add_argument('file', nargs='+', help='input PubMed Central NXML file')
     return ap
+
 
 def main(argv):
     global options
@@ -544,6 +568,7 @@ def main(argv):
         process(fn)
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

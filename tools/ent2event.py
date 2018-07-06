@@ -12,7 +12,7 @@
 #     python tools/ent2event.py Core_Angiogenesis_Term Angiogenesis-1.4.1/*.ann
 
 
-from __future__ import with_statement
+
 
 import sys
 import re
@@ -27,8 +27,9 @@ except ImportError:
 
 # this seems to be necessary for annotations to find its config
 sys_path.append(os.path.join(os.path.dirname(__file__), '..'))
-    
+
 options = None
+
 
 def ent2event(anntype, fn):
     global options
@@ -37,7 +38,7 @@ def ent2event(anntype, fn):
 
     try:
         # remove possible .ann suffix to make TextAnnotations happy.
-        nosuff_fn = fn.replace(".ann","")
+        nosuff_fn = fn.replace(".ann", "")
 
         with annotation.TextAnnotations(nosuff_fn) as ann_obj:
 
@@ -51,7 +52,8 @@ def ent2event(anntype, fn):
                 # first, create a new event annotation of the
                 # same type for which ann is the trigger
                 new_id = ann_obj.get_new_id('E')
-                eann = annotation.EventAnnotation(ann.id, [], new_id, ann.type, '')            
+                eann = annotation.EventAnnotation(
+                    ann.id, [], new_id, ann.type, '')
 
                 # next, process existing event annotations, remapping ID
                 # references to the source annotation into references to
@@ -74,21 +76,33 @@ def ent2event(anntype, fn):
                 mapped += 1
 
             if options.verbose:
-                print >> sys.stderr, mapped, 'mapped in', fn
+                print(mapped, 'mapped in', fn, file=sys.stderr)
 
     except annotation.AnnotationFileNotFoundError:
-        print >> sys.stderr, "%s:\tFailed: file not found" % fn
-    except annotation.AnnotationNotFoundError, e:
-        print >> sys.stderr, "%s:\tFailed: %s" % (fn, e)
+        print("%s:\tFailed: file not found" % fn, file=sys.stderr)
+    except annotation.AnnotationNotFoundError as e:
+        print("%s:\tFailed: %s" % (fn, e), file=sys.stderr)
+
 
 def argparser():
     import argparse
 
-    ap=argparse.ArgumentParser(description="Rewrite entity annotations of a given type as events.")
-    ap.add_argument("-v", "--verbose", default=False, action="store_true", help="Verbose output.")
+    ap = argparse.ArgumentParser(
+        description="Rewrite entity annotations of a given type as events.")
+    ap.add_argument(
+        "-v",
+        "--verbose",
+        default=False,
+        action="store_true",
+        help="Verbose output.")
     ap.add_argument("type", metavar="TYPE", help="Type to rewrite.")
-    ap.add_argument("files", metavar="FILE", nargs="+", help="File to process.")
+    ap.add_argument(
+        "files",
+        metavar="FILE",
+        nargs="+",
+        help="File to process.")
     return ap
+
 
 def main(argv=None):
     global options
@@ -101,6 +115,7 @@ def main(argv=None):
 
     for fn in arg.files:
         ent2event(arg.type, fn)
+
 
 if __name__ == "__main__":
     import sys

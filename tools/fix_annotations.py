@@ -3,8 +3,9 @@
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
 # Preamble {{{
-from __future__ import with_statement
-from diff_match_patch import diff_match_patch  # NEEDS `pip install diff_match_patch`
+
+# NEEDS `pip install diff_match_patch`
+from diff_match_patch import diff_match_patch
 from shutil import copy
 import re
 
@@ -20,7 +21,6 @@ except ImportError:
 # this seems to be necessary for annotations to find its config
 sys_path.append(os.path.join(os.path.dirname(__file__), '..'))
 # }}}
-
 
 
 # Processing {{{
@@ -41,7 +41,7 @@ def correct_annotations(orig_fn, ann_fn, change_fn):
             offsets.append((orig_offset, delta))
             if kind != 1:
                 orig_offset += size
-        offsets = offsets[::-1]        
+        offsets = offsets[::-1]
         tbs = list(anns.get_textbounds())
         indices = []
         for tbi, tb in enumerate(tbs):
@@ -51,13 +51,15 @@ def correct_annotations(orig_fn, ann_fn, change_fn):
         indices.sort(reverse=True)
         for orig_offset, delta in offsets:
             for index in indices:
-                if index[0] < orig_offset: break
+                if index[0] < orig_offset:
+                    break
                 frag = list(tbs[index[1]].spans[index[2]])
                 frag[index[3]] += delta
                 tbs[index[1]].spans[index[2]] = tuple(frag)
         for tb in tbs:
             if isinstance(tb, annotation.TextBoundAnnotationWithText):
-                tb.text = annotation.DISCONT_SEP.join((changed_text[start:end] for start, end in tb.spans))
+                tb.text = annotation.DISCONT_SEP.join(
+                    (changed_text[start:end] for start, end in tb.spans))
     copy(change_fn, orig_fn)
 # }}}
 
@@ -68,12 +70,18 @@ if __name__ == "__main__":
     import sys
     import argparse
 
-    parser = argparse.ArgumentParser(description="Fit existing annotations to changed text using Google diff-match-patch")
-    parser.add_argument('original_text', help='The original TXT file (accompanied with ANN file)')
+    parser = argparse.ArgumentParser(
+        description="Fit existing annotations to changed text using Google diff-match-patch")
+    parser.add_argument(
+        'original_text',
+        help='The original TXT file (accompanied with ANN file)')
     parser.add_argument('changed_text', help='The changed TXT file')
     opts = parser.parse_args()
 
     opts.original_ann = re.sub(r'\.txt$', '', opts.original_text)
 
-    correct_annotations(opts.original_text, opts.original_ann, opts.changed_text)
+    correct_annotations(
+        opts.original_text,
+        opts.original_ann,
+        opts.changed_text)
 # }}}

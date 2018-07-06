@@ -2,18 +2,17 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-'''
-SVG saving and storage functionality.
+"""SVG saving and storage functionality.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Author:     Goran Topic         <goran is s u-tokyo ac jp>
 Version:    2011-04-22
-'''
+"""
 
 # TODO: Can we verify somehow that what we are getting is actually an svg?
 # TODO: Limits to size? Or inherent from HTTP?
 
-from __future__ import with_statement
+
 
 from os.path import join as path_join
 from os.path import isfile, exists
@@ -26,18 +25,18 @@ from document import real_directory
 from message import Messager
 from session import get_session
 
-### Constants
+# Constants
 SVG_DIR = path_join(WORK_DIR, 'svg')
 CSS_PATH = path_join(BASE_DIR, 'static/style-vis.css')
 FONT_DIR = path_join(BASE_DIR, 'static', 'fonts')
 SVG_FONTS = (
-        path_join(FONT_DIR, 'Liberation_Sans-Regular.svg'),
-        path_join(FONT_DIR, 'PT_Sans-Caption-Web-Regular.svg'),
-        )
-SVG_SUFFIX='svg'
-PNG_SUFFIX='png'
-PDF_SUFFIX='pdf'
-EPS_SUFFIX='eps'
+    path_join(FONT_DIR, 'Liberation_Sans-Regular.svg'),
+    path_join(FONT_DIR, 'PT_Sans-Caption-Web-Regular.svg'),
+)
+SVG_SUFFIX = 'svg'
+PNG_SUFFIX = 'png'
+PDF_SUFFIX = 'pdf'
+EPS_SUFFIX = 'eps'
 # Maintain a mirror of the data directory where we keep the latest stored svg
 #   for each document. Incurs some disk write overhead.
 SVG_STORE_DIR = path_join(WORK_DIR, 'svg_store')
@@ -62,7 +61,8 @@ class NoSVGError(ProtocolError):
         self.version = version
 
     def __str__(self):
-        return 'Stored document with version "%s" does not exist' % (self.version, )
+        return 'Stored document with version "%s" does not exist' % (
+            self.version, )
 
     def json(self, json_dic):
         json_dic['exception'] = 'noSVG'
@@ -80,13 +80,14 @@ class CorruptSVGError(ProtocolError):
         json_dic['exception'] = 'corruptSVG'
         return json_dic
 
+
 def _save_svg(collection, document, svg):
     svg_path = _svg_path()
 
     with open_textfile(svg_path, 'w') as svg_file:
         svg_hdr = ('<?xml version="1.0" encoding="UTF-8" standalone="no"?>'
-                '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
-                '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
+                   '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
+                   '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
         defs = svg.find('</defs>')
 
         with open_textfile(CSS_PATH, 'r') as css_file:
@@ -100,7 +101,7 @@ def _save_svg(collection, document, svg):
                     font_data.append(font_file.read().strip())
             fonts = '\n'.join(font_data)
             svg = (svg_hdr + '\n' + svg[:defs] + '\n' + fonts + '\n' + css
-                    + '\n' + svg[defs:])
+                   + '\n' + svg[defs:])
             svg_file.write(svg)
 
             # Create a copy in the svg store?
@@ -124,8 +125,10 @@ def _stored_path():
 
     return path_join(SVG_DIR, get_session().get_sid())
 
+
 def _svg_path():
-    return _stored_path()+'.'+SVG_SUFFIX
+    return _stored_path() + '.' + SVG_SUFFIX
+
 
 def store_svg(collection, document, svg):
     stored = []
@@ -145,7 +148,7 @@ def store_svg(collection, document, svg):
 
             svgfn = _svg_path()
             # TODO: assuming format name matches suffix; generalize
-            outfn = svgfn.replace('.'+SVG_SUFFIX, '.'+format)
+            outfn = svgfn.replace('.' + SVG_SUFFIX, '.' + format)
             cmd = command % (svgfn, outfn)
 
             import logging
@@ -165,24 +168,25 @@ def store_svg(collection, document, svg):
             # just assume everything's OK ...
             # TODO: check return value, react appropriately
             stored.append({'name': format, 'suffix': format})
-            
-        except: # whatever
+
+        except BaseException:  # whatever
             Messager.warning("Failed conversion to %s" % format)
             # no luck, but doesn't matter
             pass
 
-    return { 'stored' : stored }
+    return {'stored': stored}
+
 
 def retrieve_stored(document, suffix):
-    stored_path = _stored_path()+'.'+suffix
+    stored_path = _stored_path() + '.' + suffix
 
     if not isfile(stored_path):
         # @ninjin: not sure what 'version' was supposed to be returned
         # here, but none was defined, so returning that
-#         raise NoSVGError(version)
+        #         raise NoSVGError(version)
         raise NoSVGError('None')
 
-    filename = document+'.'+suffix
+    filename = document + '.' + suffix
 
     # sorry, quick hack to get the content-type right
     # TODO: send this with initial 'stored' response instead of
@@ -196,7 +200,9 @@ def retrieve_stored(document, suffix):
     elif suffix == EPS_SUFFIX:
         content_type = 'application/postscript'
     else:
-        Messager.error('Unknown suffix "%s"; cannot determine Content-Type' % suffix)
+        Messager.error(
+            'Unknown suffix "%s"; cannot determine Content-Type' %
+            suffix)
         # TODO: reasonable backoff value
         content_type = None
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-'''
-Grammar for the brat stand-off format.
+"""Grammar for the brat stand-off format.
 
 Example, test grammar on a collection:
 
@@ -9,7 +8,7 @@ Example, test grammar on a collection:
 
 Author:   Pontus Stenetorp    <pontus stenetorp se>
 Version:  2011-07-11
-'''
+"""
 
 try:
     import ply.yacc as yacc
@@ -28,6 +27,7 @@ from bratlex import tokens
 # TODO: Recurse all the way to a file
 # TODO: Comment annotation
 
+
 def p_annotation_line(p):
     '''
     annotation_line : annotation NEWLINE
@@ -36,6 +36,8 @@ def p_annotation_line(p):
     return p
 
 # TODO: Ugly newline
+
+
 def p_annotation(p):
     '''
     annotation  : textbound
@@ -49,6 +51,8 @@ def p_annotation(p):
     return p
 
 # TODO: What do we really call these?
+
+
 def p_equiv(p):
     '''
     equiv : equiv_core SPACE equiv_members
@@ -56,12 +60,14 @@ def p_equiv(p):
     p[0] = '%s %s' % (p[1], p[3], )
     return p
 
+
 def p_equiv_core(p):
     '''
     equiv_core : WILDCARD TAB TYPE
     '''
     p[0] = '*\t%s' % (p[3], )
     return p
+
 
 def p_equiv_members(p):
     '''
@@ -76,12 +82,14 @@ def p_equiv_members(p):
         pass
     return p
 
+
 def p_equiv_member(p):
     '''
     equiv_member : id
     '''
     p[0] = '%s' % (p[1], )
     return p
+
 
 def p_textbound(p):
     '''
@@ -91,12 +99,14 @@ def p_textbound(p):
     p[0] = p[1]
     return p
 
+
 def p_textbound_core(p):
     '''
     textbound_core : TEXT_BOUND_ID TAB TYPE SPACE INTEGER SPACE INTEGER
     '''
     p[0] = '%s\t%s %d %d' % (p[1], p[3], p[5], p[7], )
     return p
+
 
 def p_textbound_freetext(p):
     '''
@@ -105,12 +115,14 @@ def p_textbound_freetext(p):
     p[0] = '%s\t%s' % (p[1], p[3], )
     return p
 
+
 def p_comment(p):
     '''
     comment : COMMENT_ID TAB TYPE SPACE id
     '''
     p[0] = '%s\t%s %s' % (p[1], p[3], p[5])
     return p
+
 
 def p_event(p):
     '''
@@ -129,12 +141,14 @@ def p_event(p):
         pass
     return p
 
+
 def p_event_core(p):
     '''
     event_core : EVENT_ID TAB TYPE COLON id
     '''
     p[0] = '%s\t%s:%s' % (p[1], p[3], p[5], )
     return p
+
 
 def p_event_arguments(p):
     '''
@@ -148,12 +162,14 @@ def p_event_arguments(p):
         pass
     return p
 
+
 def p_event_argument(p):
     '''
     event_argument : argument COLON id
     '''
     p[0] = '%s:%s' % (p[1], p[3], )
     return p
+
 
 def p_modifier(p):
     '''
@@ -162,6 +178,7 @@ def p_modifier(p):
     p[0] = '%s\t%s %s' % (p[1], p[3], p[5], )
     return p
 
+
 def p_relation(p):
     '''
     relation : RELATION_ID TAB TYPE SPACE argument COLON id SPACE argument COLON id
@@ -169,6 +186,7 @@ def p_relation(p):
     # TODO: Should probably require only one of each argument type
     p[0] = '%s\t%s %s:%s %s:%s' % (p[1], p[3], p[5], p[7], p[9], p[11], )
     return p
+
 
 def p_argument(p):
     '''
@@ -183,6 +201,8 @@ def p_argument(p):
     return p
 
 # Generic id
+
+
 def p_id(p):
     '''
     id  : TEXT_BOUND_ID
@@ -194,17 +214,19 @@ def p_id(p):
     p[0] = p[1]
     return p
 
+
 def p_error(p):
-    print 'Syntax error in input! "%s"'  % (str(p), )
+    print('Syntax error in input! "%s"' % (str(p), ))
     raise Exception
+
 
 parser = yacc.yacc()
 
 if __name__ == '__main__':
     from sys import stdin
     for line in stdin:
-        print 'Input: "%s"' % line.rstrip('\n')
+        print('Input: "%s"' % line.rstrip('\n'))
         result = parser.parse(line)
         assert result == line, ('"%s" != "%s"' % (result, line)
-                ).replace('\n', '\\n')
-        print result,
+                                ).replace('\n', '\\n')
+        print(result, end=' ')

@@ -2,13 +2,12 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-'''
-Authentication and authorization mechanisms.
+"""Authentication and authorization mechanisms.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
             Illes Solt          <solt tmit bme hu>
 Version:    2011-04-21
-'''
+"""
 
 from hashlib import sha512
 from os.path import dirname, join as path_join, isdir
@@ -69,10 +68,12 @@ def _is_authenticated(user, password):
     # TODO: Replace with a database back-end
     return (user in USER_PASSWORD and
             password == USER_PASSWORD[user])
-            #password == _password_hash(USER_PASSWORD[user]))
+    # password == _password_hash(USER_PASSWORD[user]))
+
 
 def _password_hash(password):
     return sha512(password).hexdigest()
+
 
 def login(user, password):
     if not _is_authenticated(user, password):
@@ -81,6 +82,7 @@ def login(user, password):
     get_session()['user'] = user
     Messager.info('Hello!')
     return {}
+
 
 def logout():
     try:
@@ -92,6 +94,7 @@ def logout():
     Messager.info('Bye!')
     return {}
 
+
 def whoami():
     json_dic = {}
     try:
@@ -101,16 +104,17 @@ def whoami():
         Messager.error('Not logged in!', duration=3)
     return json_dic
 
+
 def allowed_to_read(real_path):
     data_path = path_join('/', relpath(real_path, DATA_DIR))
     # add trailing slash to directories, required to comply to robots.txt
     if isdir(real_path):
-        data_path = '%s/' % ( data_path )
-        
+        data_path = '%s/' % (data_path)
+
     real_dir = dirname(real_path)
     robotparser = ProjectConfiguration(real_dir).get_access_control()
     if robotparser is None:
-        return True # default allow
+        return True  # default allow
 
     try:
         user = get_session().get('user')

@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
-'''
-Annotation undo functionality.
+"""Annotation undo functionality.
 
 Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2011-11-30
-'''
+"""
 
-from __future__ import with_statement
+
 
 from os.path import join as path_join
 
@@ -60,12 +59,19 @@ def undo(collection, document, token):
     if action == 'mod_tb':
         # Undo a modification
         # TODO: We do not handle attributes and comments
-        return create_span(collection, document, token['start'], token['end'],
-                token['type'], id=token['id'], attributes=token['attributes'],
-                comment=token['comment'] if 'comment' in token else None)
+        return create_span(
+            collection,
+            document,
+            token['start'],
+            token['end'],
+            token['type'],
+            id=token['id'],
+            attributes=token['attributes'],
+            comment=token['comment'] if 'comment' in token else None)
     else:
         raise NonUndoableActionError
     assert False, 'should have returned prior to this point'
+
 
 if __name__ == '__main__':
     # XXX: Path to...

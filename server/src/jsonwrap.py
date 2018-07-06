@@ -1,9 +1,8 @@
-'''
-json wrapper to be used instead of a direct call.
+"""json wrapper to be used instead of a direct call.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
-'''
+"""
 
 # use ultrajson if set up
 try:
@@ -21,7 +20,7 @@ try:
     lib_dumps = _lib_dumps
     lib_loads = _lib_loads
 
-except ImportError, e:
+except ImportError as e:
 
     # fall back to native json if available
     try:
@@ -42,15 +41,18 @@ except ImportError, e:
 
     # Wrap the loads and dumps to expect utf-8
     from functools import partial
-    lib_dumps = partial(_lib_dumps, encoding='utf-8')#, ensure_ascii=False)
-    lib_loads = partial(_lib_loads, encoding='utf-8')#, ensure_ascii=False)
+    lib_dumps = partial(_lib_dumps, encoding='utf-8')  # , ensure_ascii=False)
+    lib_loads = partial(_lib_loads, encoding='utf-8')  # , ensure_ascii=False)
 
-#ensure_ascii[, check_circular[, allow_nan[, cls[, indent[, separators[, encoding
+# ensure_ascii[, check_circular[, allow_nan[, cls[, indent[, separators[,
+# encoding
+
 
 def dumps(dic):
     # ultrajson has neither sort_keys nor indent
-#     return lib_dumps(dic, sort_keys=True, indent=2)
+    #     return lib_dumps(dic, sort_keys=True, indent=2)
     return lib_dumps(dic)
+
 
 def loads(s):
     return lib_loads(s)

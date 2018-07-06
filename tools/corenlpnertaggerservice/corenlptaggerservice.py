@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
-'''
-Simple tagger service using CoreNLP.
+"""Simple tagger service using CoreNLP.
 
 Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2012-04-18
-'''
+"""
 
 from argparse import ArgumentParser
 from cgi import FieldStorage
@@ -22,28 +21,28 @@ except ImportError:
     from ujson import dumps
 
 from sys import stderr
-from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
-### Constants
-ARGPARSER = ArgumentParser(description='XXX')#XXX:
+# Constants
+ARGPARSER = ArgumentParser(description='XXX')  # XXX:
 ARGPARSER.add_argument('-p', '--port', type=int, default=47111,
-        help='port to run the HTTP service on (default: 47111)')
+                       help='port to run the HTTP service on (default: 47111)')
 TAGGER = None
-#XXX: Hard-coded!
+# XXX: Hard-coded!
 CORENLP_PATH = path_join(dirname(__file__), 'stanford-corenlp-2012-04-09')
 ###
 
 
 class CoreNLPTaggerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
-        print >> stderr, 'Received request'
+        print('Received request', file=stderr)
         field_storage = FieldStorage(
-                headers=self.headers,
-                environ={
-                    'REQUEST_METHOD':'POST',
-                    'CONTENT_TYPE':self.headers['Content-Type'],
-                    },
-                fp=self.rfile)
+            headers=self.headers,
+            environ={
+                'REQUEST_METHOD': 'POST',
+                'CONTENT_TYPE': self.headers['Content-Type'],
+            },
+            fp=self.rfile)
 
         global TAGGER
         json_dic = TAGGER.tag(field_storage.value)
@@ -54,30 +53,32 @@ class CoreNLPTaggerHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.wfile.write(dumps(json_dic))
-        print >> stderr, ('Generated %d annotations' % len(json_dic))
+        print(('Generated %d annotations' % len(json_dic)), file=stderr)
 
     def log_message(self, format, *args):
-        return # Too much noise from the default implementation
+        return  # Too much noise from the default implementation
+
 
 def main(args):
     argp = ARGPARSER.parse_args(args[1:])
 
-    print >> stderr, "WARNING: Don't use this in a production environment!"
+    print("WARNING: Don't use this in a production environment!", file=stderr)
 
-    print >> stderr, 'Starting CoreNLP process (this takes a while)...',
+    print('Starting CoreNLP process (this takes a while)...', end=' ', file=stderr)
     global TAGGER
     TAGGER = CoreNLPTagger(CORENLP_PATH)
-    print >> stderr, 'Done!'
+    print('Done!', file=stderr)
 
     server_class = HTTPServer
     httpd = server_class(('localhost', argp.port), CoreNLPTaggerHandler)
-    print >> stderr, 'CoreNLP tagger service started'
+    print('CoreNLP tagger service started', file=stderr)
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         pass
     httpd.server_close()
-    print >> stderr, 'CoreNLP tagger service stopped'
+    print('CoreNLP tagger service stopped', file=stderr)
+
 
 if __name__ == '__main__':
     from sys import argv

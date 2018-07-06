@@ -4,7 +4,7 @@
 # file into BioNLP ST-flavored standoff and a reconstruction of the
 # original text.
 
-from __future__ import with_statement
+
 
 import sys
 import re
@@ -16,10 +16,12 @@ OUTPUT_ENCODING = "UTF-8"
 
 output_directory = None
 
+
 def quote(s):
     return s in ('"', )
 
-def space(t1, t2, quote_count = None):
+
+def space(t1, t2, quote_count=None):
     # Helper for reconstructing sentence text. Given the text of two
     # consecutive tokens, returns a heuristic estimate of whether a
     # space character should be placed between them.
@@ -34,11 +36,13 @@ def space(t1, t2, quote_count = None):
         return False
     return True
 
+
 def tagstr(start, end, ttype, idnum, text):
     # sanity checks
     assert '\n' not in text, "ERROR: newline in entity '%s'" % (text)
     assert text == text.strip(), "ERROR: tagged span contains extra whitespace: '%s'" % (text)
     return "T%d\t%s %d %d\t%s" % (idnum, ttype, start, end, text)
+
 
 def output(infn, docnum, sentences):
     global output_directory
@@ -47,9 +51,13 @@ def output(infn, docnum, sentences):
         txtout = sys.stdout
         soout = sys.stdout
     else:
-        outfn = os.path.join(output_directory, os.path.basename(infn)+'-doc-'+str(docnum))
-        txtout = codecs.open(outfn+'.txt', 'wt', encoding=OUTPUT_ENCODING)
-        soout = codecs.open(outfn+'.ann', 'wt', encoding=OUTPUT_ENCODING)
+        outfn = os.path.join(
+            output_directory,
+            os.path.basename(infn) +
+            '-doc-' +
+            str(docnum))
+        txtout = codecs.open(outfn + '.txt', 'wt', encoding=OUTPUT_ENCODING)
+        soout = codecs.open(outfn + '.ann', 'wt', encoding=OUTPUT_ENCODING)
 
     offset, idnum = 0, 1
 
@@ -67,11 +75,13 @@ def output(infn, docnum, sentences):
             if curr_type is not None and (ttag != "I" or ttype != curr_type):
                 # a previously started tagged sequence does not
                 # continue into this position.
-                print >> soout, tagstr(curr_start, offset, curr_type, idnum, doctext[curr_start:offset])
+                print(tagstr(
+                    curr_start, offset, curr_type, idnum, doctext[curr_start:offset]), file=soout)
                 idnum += 1
                 curr_start, curr_type = None, None
 
-            if prev_token is not None and space(prev_token, token, quote_count):
+            if prev_token is not None and space(
+                    prev_token, token, quote_count):
                 doctext = doctext + ' '
                 offset += 1
 
@@ -87,17 +97,19 @@ def output(infn, docnum, sentences):
 
             prev_token = token
             prev_tag = ttag
-        
+
         # leftovers?
         if curr_type is not None:
-            print >> soout, tagstr(curr_start, offset, curr_type, idnum, doctext[curr_start:offset])
+            print(tagstr(
+                curr_start, offset, curr_type, idnum, doctext[curr_start:offset]), file=soout)
             idnum += 1
 
-        if si+1 != len(sentences):
-            doctext = doctext + '\n'        
+        if si + 1 != len(sentences):
+            doctext = doctext + '\n'
             offset += 1
-            
-    print >> txtout, doctext
+
+    print(doctext, file=txtout)
+
 
 def process(fn):
     docnum = 1
@@ -128,9 +140,9 @@ def process(fn):
                 docnum += 1
                 continue
 
-            if (ln + 2 < len(lines) and 
-                re.match(r'^\s*$', lines[ln+1]) and
-                re.match(r'^-+\s+O\s*$', lines[ln+2])):
+            if (ln + 2 < len(lines) and
+                re.match(r'^\s*$', lines[ln + 1]) and
+                    re.match(r'^-+\s+O\s*$', lines[ln + 2])):
                 # heuristic match for likely doc before current line
                 if len(sentences) > 0:
                     output(fn, docnum, sentences)
@@ -144,7 +156,7 @@ def process(fn):
             m = re.match(r'^(\S+)\s(\S+)$', l)
             if not m:
                 m = re.match(r'^(\S+)\s\S+\s(\S+)$', l)
-            assert m, "Error parsing line %d: %s" % (ln+1, l)
+            assert m, "Error parsing line %d: %s" % (ln + 1, l)
             token, tag = m.groups()
 
             # parse tag
@@ -162,36 +174,37 @@ def process(fn):
         if len(sentences) > 0:
             output(fn, docnum, sentences)
 
+
 def main(argv):
     global output_directory
-
 
     # Take an optional "-o" arg specifying an output directory for the results
     output_directory = None
     filenames = argv[1:]
     if len(argv) > 2 and argv[1] == "-o":
         output_directory = argv[2]
-        print >> sys.stderr, "Writing output to %s" % output_directory
+        print("Writing output to %s" % output_directory, file=sys.stderr)
         filenames = argv[3:]
 
     fail_count = 0
     for fn in filenames:
         try:
             process(fn)
-        except Exception, e:
-            print >> sys.stderr, "Error processing %s: %s" % (fn, e)
+        except Exception as e:
+            print("Error processing %s: %s" % (fn, e), file=sys.stderr)
             fail_count += 1
 
     if fail_count > 0:
-        print >> sys.stderr, """
+        print("""
 ##############################################################################
 #
 # WARNING: error in processing %d/%d files, output is incomplete!
 #
 ##############################################################################
-""" % (fail_count, len(filenames))
+""" % (fail_count, len(filenames)), file=sys.stderr)
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

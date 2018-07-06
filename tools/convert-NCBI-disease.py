@@ -12,7 +12,7 @@
 # Note that the texts are tokenized. This script does not attempt to
 # recover the original texts but instead keep the tokenization.
 
-from __future__ import with_statement
+
 
 import sys
 import os
@@ -28,6 +28,7 @@ FILE_PREFIX = "PMID-"
 
 output_directory = None
 
+
 def output(docid, text, anns):
     global output_directory
 
@@ -37,22 +38,23 @@ def output(docid, text, anns):
     else:
         # add doc numbering if there is a sentence count limit,
         # implying multiple outputs per input
-        outfn = os.path.join(output_directory, FILE_PREFIX+docid)
-        txtout = codecs.open(outfn+'.txt', 'wt', encoding=OUTPUT_ENCODING)
-        soout = codecs.open(outfn+'.ann', 'wt', encoding=OUTPUT_ENCODING)
+        outfn = os.path.join(output_directory, FILE_PREFIX + docid)
+        txtout = codecs.open(outfn + '.txt', 'wt', encoding=OUTPUT_ENCODING)
+        soout = codecs.open(outfn + '.ann', 'wt', encoding=OUTPUT_ENCODING)
 
     txtout.write(text)
     idseq = 1
     for start, end, type_, text in anns:
         # write type as separate attribute
-        print >> soout, "T%d\t%s %d %d\t%s" % (idseq, ENTITY_TYPE, start, end,
-                                               text)
-        print >> soout, "A%d\t%s T%d %s" % (idseq, ATTR_TYPE, idseq, type_)
+        print("T%d\t%s %d %d\t%s" % (idseq, ENTITY_TYPE, start, end,
+                                               text), file=soout)
+        print("A%d\t%s T%d %s" % (idseq, ATTR_TYPE, idseq, type_), file=soout)
         idseq += 1
 
     if output_directory is not None:
         txtout.close()
         soout.close()
+
 
 def parse(s):
     text, anns = "", []
@@ -66,10 +68,11 @@ def parse(s):
             break
         pre, type_, tagged, rest = m.groups()
         text += pre
-        anns.append((len(text), len(text)+len(tagged), type_, tagged))
+        anns.append((len(text), len(text) + len(tagged), type_, tagged))
         text += tagged
     text += rest
     return text, anns
+
 
 def process(fn):
     docnum = 1
@@ -81,7 +84,7 @@ def process(fn):
             try:
                 PMID, title, body = l.split('\t', 2)
             except ValueError:
-                assert False, "Expected three TAB-separated fields, got '%s'" %l
+                assert False, "Expected three TAB-separated fields, got '%s'" % l
             # In a few cases, the body text contains tabs (probably by
             # error). Replace these with space.
             body = body.replace('\t', ' ')
@@ -91,9 +94,10 @@ def process(fn):
             t_text += '\n'
             b_text += '\n'
             text = t_text + b_text
-            anns = t_anns + [(a[0]+len(t_text),a[1]+len(t_text),a[2],a[3]) 
-                             for a in b_anns]
+            anns = t_anns + [(a[0] + len(t_text), a[1] +
+                              len(t_text), a[2], a[3]) for a in b_anns]
             output(PMID, text, anns)
+
 
 def main(argv):
     global output_directory
@@ -103,25 +107,26 @@ def main(argv):
     filenames = argv[1:]
     if len(argv) > 2 and argv[1] == "-o":
         output_directory = argv[2]
-        print >> sys.stderr, "Writing output to %s" % output_directory
+        print("Writing output to %s" % output_directory, file=sys.stderr)
         filenames = argv[3:]
 
     fail_count = 0
     for fn in filenames:
         try:
             process(fn)
-        except Exception, e:
-            print >> sys.stderr, "Error processing %s: %s" % (fn, e)
+        except Exception as e:
+            print("Error processing %s: %s" % (fn, e), file=sys.stderr)
             fail_count += 1
 
     if fail_count > 0:
-        print >> sys.stderr, """
+        print("""
 ##############################################################################
 #
 # WARNING: error in processing %d/%d files, output is incomplete!
 #
 ##############################################################################
-""" % (fail_count, len(filenames))
+""" % (fail_count, len(filenames)), file=sys.stderr)
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

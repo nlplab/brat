@@ -2,12 +2,11 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-'''
-Functionality shared between server components.
+"""Functionality shared between server components.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
-'''
+"""
 
 
 class ProtocolError(Exception):
@@ -23,7 +22,8 @@ class ProtocolError(Exception):
         return 'ProtocolError: %s (TODO: __str__() method)' % self.__class__
 
     def json(self, json_dic):
-        raise NotImplementedError, 'abstract method'
+        raise NotImplementedError('abstract method')
+
 
 class ProtocolArgumentError(ProtocolError):
     def json(self, json_dic):
@@ -31,14 +31,18 @@ class ProtocolArgumentError(ProtocolError):
 
 # If received by ajax.cgi, no JSON will be sent
 # XXX: This is an ugly hack to circumvent protocol flaws
+
+
 class NoPrintJSONError(Exception):
     def __init__(self, hdrs, data):
         self.hdrs = hdrs
         self.data = data
 
+
 class NotImplementedError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'notImplemented'
+
 
 class CollectionNotAccessibleError(ProtocolError):
     def json(self, json_dic):
@@ -50,6 +54,8 @@ class CollectionNotAccessibleError(ProtocolError):
 # TODO: We have issues using this in relation to our inspection
 #       in dispatch, can we make it work?
 # Wrapper to send a deprecation warning to the client if debug is set
+
+
 def deprecated_action(func):
     try:
         from config import DEBUG
@@ -61,16 +67,20 @@ def deprecated_action(func):
     @wraps(func)
     def wrapper(*args, **kwds):
         if DEBUG:
-            Messager.warning(('Client sent "%s" action '
-                              'which is marked as deprecated') % func.__name__,)
+            Messager.warning(
+                ('Client sent "%s" action '
+                 'which is marked as deprecated') %
+                func.__name__,)
         return func(*args, **kwds)
     return wrapper
 
 # relpath is not included in python 2.5; alternative implementation from
 # BareNecessities package, License: MIT, Author: James Gardner
 # TODO: remove need for relpath instead
+
+
 def relpath(path, start):
-    """Return a relative version of a path"""
+    """Return a relative version of a path."""
     from os.path import abspath, sep, pardir, commonprefix
     from os.path import join as path_join
     if not path:
@@ -79,7 +89,7 @@ def relpath(path, start):
     path_list = abspath(path).split(sep)
     # Work out how much of the filepath is shared by start and path.
     i = len(commonprefix([start_list, path_list]))
-    rel_list = [pardir] * (len(start_list)-i) + path_list[i:]
+    rel_list = [pardir] * (len(start_list) - i) + path_list[i:]
     if not rel_list:
         return path
     return path_join(*rel_list)

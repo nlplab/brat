@@ -2,22 +2,20 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-'''
-Prediction for annotation types.
+"""Prediction for annotation types.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Author:     Sampo Pyysalo       <smp is s u-tokyo ac jp>
 Version:    2011-11-17
-'''
+"""
 
-### Constants
+# Constants
 CUT_OFF = 0.95
 # In seconds
 QUERY_TIMEOUT = 30
-###
-
-from urllib import urlencode, quote_plus
-from urllib2 import urlopen, HTTPError, URLError
+from urllib.parse import urlencode, quote_plus
+from urllib.request import urlopen
+from urllib.error import HTTPError, URLError
 
 from annlog import log_annotation
 from document import real_directory
@@ -26,6 +24,7 @@ from jsonwrap import loads
 from projectconfig import ProjectConfiguration
 
 # TODO: Reduce the SimSem coupling
+
 
 class SimSemConnectionNotConfiguredError(ProtocolError):
     def __str__(self):
@@ -69,7 +68,7 @@ def suggest_span_types(collection, document, start, end, text, model):
     except URLError:
         # TODO: Could give more details
         raise SimSemConnectionError
-    
+
     json = loads(resp.read())
 
     preds = json['result'][text.decode('utf-8')]
@@ -83,18 +82,19 @@ def suggest_span_types(collection, document, start, end, text, model):
             break
 
     log_annotation(collection, document, 'DONE', 'suggestion',
-            [None, None, text, ] + [selected_preds, ])
+                   [None, None, text, ] + [selected_preds, ])
 
     # array so that server can control presentation order in UI
     # independently from scores if needed
-    return { 'types': selected_preds,
-             'collection': collection, # echo for reference
-             'document': document,
-             'start': start,
-             'end': end,
-             'text': text,
-             }
+    return {'types': selected_preds,
+            'collection': collection,  # echo for reference
+            'document': document,
+            'start': start,
+            'end': end,
+            'text': text,
+            }
+
 
 if __name__ == '__main__':
     from config import DATA_DIR
-    print suggest_span_types(DATA_DIR, 'dummy', -1, -1, 'proposición', 'ner_spanish')
+    print(suggest_span_types(DATA_DIR, 'dummy', -1, -1, 'proposición', 'ner_spanish'))

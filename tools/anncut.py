@@ -4,7 +4,7 @@
 
 # Note: not comprehensively tested, use with caution.
 
-from __future__ import with_statement
+
 
 import sys
 import re
@@ -26,16 +26,19 @@ class ArgumentError(Exception):
     def __str__(self):
         return 'Argument error: %s' % (self.errstr)
 
+
 def argparser():
-    ap=argparse.ArgumentParser(description="Remove portions of text from annotated files.")
+    ap = argparse.ArgumentParser(
+        description="Remove portions of text from annotated files.")
     ap.add_argument("-c", "--characters", metavar="[LIST]", default=None,
                     help="Select only these characters")
     ap.add_argument("--complement", default=False, action="store_true",
                     help="Complement the selected spans of text")
-    ap.add_argument("file", metavar="FILE", nargs=1, 
+    ap.add_argument("file", metavar="FILE", nargs=1,
                     help="Annotation file")
     return ap
-                    
+
+
 class Annotation(object):
     def __init__(self, id_, type_):
         self.id_ = id_
@@ -49,6 +52,7 @@ class Annotation(object):
         # assume not text-bound: no-op
         return None
 
+
 class Textbound(Annotation):
     def __init__(self, id_, type_, offsets, text):
         Annotation.__init__(self, id_, type_)
@@ -57,7 +61,8 @@ class Textbound(Annotation):
         self.offsets = []
         if ';' in offsets:
             # not tested w/discont, so better not to try
-            raise NotImplementedError('Discontinuous annotations not supported')
+            raise NotImplementedError(
+                'Discontinuous annotations not supported')
         assert len(offsets) == 2, "Data format error"
         self.offsets.append((int(offsets[0]), int(offsets[1])))
 
@@ -74,14 +79,17 @@ class Textbound(Annotation):
         self.offsets = remapped
 
     def __str__(self):
-        return "%s\t%s %s\t%s" % (self.id_, self.type_, 
+        return "%s\t%s %s\t%s" % (self.id_, self.type_,
                                   ';'.join(['%d %d' % (s, e)
                                             for s, e in self.offsets]),
                                   self.text)
+
+
 class ArgAnnotation(Annotation):
     def __init__(self, id_, type_, args):
         Annotation.__init__(self, id_, type_)
         self.args = args
+
 
 class Relation(ArgAnnotation):
     def __init__(self, id_, type_, args):
@@ -90,14 +98,16 @@ class Relation(ArgAnnotation):
     def __str__(self):
         return "%s\t%s %s" % (self.id_, self.type_, ' '.join(self.args))
 
+
 class Event(ArgAnnotation):
     def __init__(self, id_, type_, trigger, args):
         ArgAnnotation.__init__(self, id_, type_, args)
         self.trigger = trigger
 
     def __str__(self):
-        return "%s\t%s:%s %s" % (self.id_, self.type_, self.trigger, 
+        return "%s\t%s:%s %s" % (self.id_, self.type_, self.trigger,
                                  ' '.join(self.args))
+
 
 class Attribute(Annotation):
     def __init__(self, id_, type_, target, value):
@@ -106,8 +116,9 @@ class Attribute(Annotation):
         self.value = value
 
     def __str__(self):
-        return "%s\t%s %s%s" % (self.id_, self.type_, self.target, 
-                                '' if self.value is None else ' '+self.value)
+        return "%s\t%s %s%s" % (self.id_, self.type_, self.target,
+                                '' if self.value is None else ' ' + self.value)
+
 
 class Normalization(Annotation):
     def __init__(self, id_, type_, target, ref, reftext):
@@ -120,6 +131,7 @@ class Normalization(Annotation):
         return "%s\t%s %s %s\t%s" % (self.id_, self.type_, self.target,
                                      self.ref, self.reftext)
 
+
 class Equiv(Annotation):
     def __init__(self, id_, type_, targets):
         Annotation.__init__(self, id_, type_)
@@ -127,6 +139,7 @@ class Equiv(Annotation):
 
     def __str__(self):
         return "%s\t%s %s" % (self.id_, self.type_, ' '.join(self.targets))
+
 
 class Note(Annotation):
     def __init__(self, id_, type_, target, text):
@@ -137,11 +150,13 @@ class Note(Annotation):
     def __str__(self):
         return "%s\t%s %s\t%s" % (self.id_, self.type_, self.target, self.text)
 
+
 def parse_textbound(fields):
     id_, type_offsets, text = fields
     type_offsets = type_offsets.split(' ')
     type_, offsets = type_offsets[0], type_offsets[1:]
     return Textbound(id_, type_, offsets, text)
+
 
 def parse_relation(fields):
     # allow a variant where the two initial TAB-separated fields are
@@ -153,12 +168,14 @@ def parse_relation(fields):
     type_, args = type_args[0], type_args[1:]
     return Relation(id_, type_, args)
 
+
 def parse_event(fields):
     id_, type_trigger_args = fields
     type_trigger_args = type_trigger_args.split(' ')
     type_trigger, args = type_trigger_args[0], type_trigger_args[1:]
     type_, trigger = type_trigger.split(':')
     return Event(id_, type_, trigger, args)
+
 
 def parse_attribute(fields):
     id_, type_target_value = fields
@@ -170,21 +187,25 @@ def parse_attribute(fields):
         value = None
     return Attribute(id_, type_, target, value)
 
+
 def parse_normalization(fields):
     id_, type_target_ref, reftext = fields
     type_, target, ref = type_target_ref.split(' ')
     return Normalization(id_, type_, target, ref, reftext)
+
 
 def parse_note(fields):
     id_, type_target, text = fields
     type_, target = type_target.split(' ')
     return Note(id_, type_, target, text)
 
+
 def parse_equiv(fields):
     id_, type_targets = fields
     type_targets = type_targets.split(' ')
     type_, targets = type_targets[0], type_targets[1:]
     return Equiv(id_, type_, targets)
+
 
 parse_func = {
     'T': parse_textbound,
@@ -195,7 +216,8 @@ parse_func = {
     'A': parse_attribute,
     '#': parse_note,
     '*': parse_equiv,
-    }
+}
+
 
 def parse(l, ln):
     assert len(l) and l[0] in parse_func, "Error on line %d: %s" % (ln, l)
@@ -204,13 +226,14 @@ def parse(l, ln):
     except Exception:
         assert False, "Error on line %d: %s" % (ln, l)
 
+
 def process(fn, selection):
     with open(fn, "rU") as f:
         lines = [l.rstrip('\n') for l in f.readlines()]
 
         annotations = []
         for i, l in enumerate(lines):
-            annotations.append(parse(l, i+1))
+            annotations.append(parse(l, i + 1))
 
     for a in annotations:
         if not a.in_range(selection):
@@ -220,7 +243,8 @@ def process(fn, selection):
             a.remap(selection)
 
     for a in annotations:
-        print a
+        print(a)
+
 
 class Selection(object):
     def __init__(self, options):
@@ -283,7 +307,8 @@ class Selection(object):
                 if end >= rs and end < re:
                     return not self.complement
                 else:
-                    raise NotImplementedError('Annotations partially included in range not supported')
+                    raise NotImplementedError(
+                        'Annotations partially included in range not supported')
         return self.complement
 
     def remap_single(self, offset):
@@ -296,7 +321,7 @@ class Selection(object):
         else:
             assert self.complement, "Error: remap for excluded offset %d" % offset
             # all after max_offset included, so 1-to-1 mapping past that
-            return self.max_mapped + (offset-self.max_offset)
+            return self.max_mapped + (offset - self.max_offset)
 
     def remap(self, start, end):
         # end-exclusive to end-inclusive
@@ -309,6 +334,7 @@ class Selection(object):
 
         return (start, end)
 
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -316,15 +342,16 @@ def main(argv=None):
 
     try:
         selection = Selection(arg)
-    except Exception, e:
-        print >> sys.stderr, e
+    except Exception as e:
+        print(e, file=sys.stderr)
         argparser().print_help()
-        return 1        
+        return 1
 
     for fn in arg.file:
         process(fn, selection)
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

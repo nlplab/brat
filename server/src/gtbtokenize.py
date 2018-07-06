@@ -2,7 +2,7 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-# Implements a GENIA Treebank - like tokenization. 
+# Implements a GENIA Treebank - like tokenization.
 
 # This is a python translation of my GTB-tokenize.pl, which in turn
 # draws in part on Robert MacIntyre's 1995 PTB tokenizer,
@@ -16,7 +16,7 @@
 # NOTE: intended differences to GTB tokenization:
 # - Does not break "protein(s)" -> "protein ( s )"
 
-from __future__ import with_statement
+
 
 import re
 
@@ -33,10 +33,12 @@ PTB_ESCAPES = [('(', '-LRB-'),
                ('}', '-RCB-'),
                ]
 
+
 def PTB_escape(s):
     for u, e in PTB_ESCAPES:
         s = s.replace(u, e)
     return s
+
 
 def PTB_unescape(s):
     for u, e in PTB_ESCAPES:
@@ -47,6 +49,7 @@ def PTB_unescape(s):
 # "repeated" run as long as there are changes, and then "final"
 # run. As the tokenize() function itself is trivial, comments relating
 # to regexes given with the re.compiles.
+
 
 __initial, __repeated, __final = [], [], []
 
@@ -106,12 +109,21 @@ __initial.append((re.compile(r'(<?--+\>?)'), r' \1 '))
 __initial.append((re.compile(r'\(([^ A-Z()\[\]{}]+)\)-'), r'-LRB-\1-RRB--'))
 
 # These are repeated until there's no more change (per above comment)
-__repeated.append((re.compile(r'(?<![ (\[{])\(([^ ()\[\]{}]*)\)'), r'-LRB-\1-RRB-'))
-__repeated.append((re.compile(r'\(([^ ()\[\]{}]*)\)(?![ )\]}\/-])'), r'-LRB-\1-RRB-'))
-__repeated.append((re.compile(r'(?<![ (\[{])\[([^ ()\[\]{}]*)\]'), r'-LSB-\1-RSB-'))
-__repeated.append((re.compile(r'\[([^ ()\[\]{}]*)\](?![ )\]}\/-])'), r'-LSB-\1-RSB-'))
-__repeated.append((re.compile(r'(?<![ (\[{])\{([^ ()\[\]{}]*)\}'), r'-LCB-\1-RCB-'))
-__repeated.append((re.compile(r'\{([^ ()\[\]{}]*)\}(?![ )\]}\/-])'), r'-LCB-\1-RCB-'))
+__repeated.append(
+    (re.compile(r'(?<![ (\[{])\(([^ ()\[\]{}]*)\)'), r'-LRB-\1-RRB-'))
+__repeated.append(
+    (re.compile(r'\(([^ ()\[\]{}]*)\)(?![ )\]}\/-])'),
+     r'-LRB-\1-RRB-'))
+__repeated.append(
+    (re.compile(r'(?<![ (\[{])\[([^ ()\[\]{}]*)\]'), r'-LSB-\1-RSB-'))
+__repeated.append(
+    (re.compile(r'\[([^ ()\[\]{}]*)\](?![ )\]}\/-])'),
+     r'-LSB-\1-RSB-'))
+__repeated.append(
+    (re.compile(r'(?<![ (\[{])\{([^ ()\[\]{}]*)\}'), r'-LCB-\1-RCB-'))
+__repeated.append(
+    (re.compile(r'\{([^ ()\[\]{}]*)\}(?![ )\]}\/-])'),
+     r'-LCB-\1-RCB-'))
 
 # Remaining brackets are not token-internal and should be
 # separated.
@@ -172,12 +184,13 @@ __final.append((re.compile(r' wanna '), ' wan na '))
 # clean up possible extra space
 __final.append((re.compile(r'  +'), r' '))
 
+
 def _tokenize(s):
-    """
-    Tokenizer core. Performs GTP-like tokenization, using PTB escapes
-    for brackets (but not quotes). Assumes given string has initial
-    and terminating space. You probably want to use tokenize() instead
-    of this function.
+    """Tokenizer core.
+
+    Performs GTP-like tokenization, using PTB escapes for brackets (but
+    not quotes). Assumes given string has initial and terminating space.
+    You probably want to use tokenize() instead of this function.
     """
 
     # see re.complies for comments
@@ -188,18 +201,20 @@ def _tokenize(s):
         o = s
         for r, t in __repeated:
             s = r.sub(t, s)
-        if o == s: break
+        if o == s:
+            break
 
     for r, t in __final:
         s = r.sub(t, s)
 
     return s
 
+
 def tokenize(s, ptb_escaping=False, use_single_quotes_only=False,
              escape_token_internal_parens=False):
-    """
-    Tokenizes the given string with a GTB-like tokenization. Input
-    will adjusted by removing surrounding space, if any. Arguments
+    """Tokenizes the given string with a GTB-like tokenization.
+
+    Input will adjusted by removing surrounding space, if any. Arguments
     hopefully self-explanatory.
     """
 
@@ -211,14 +226,14 @@ def tokenize(s, ptb_escaping=False, use_single_quotes_only=False,
     # TODO: this isn't this difficult ... rewrite nicely
     s = re.sub(r'^', ' ', s)
     m = re.match(r'^((?:.+|\n)*?) *(\n*)$', s)
-    assert m, "INTERNAL ERROR on '%s'" % s # should always match
-    s, s_end = m.groups()    
+    assert m, "INTERNAL ERROR on '%s'" % s  # should always match
+    s, s_end = m.groups()
     s = re.sub(r'$', ' ', s)
 
     if ptb_escaping:
         if use_single_quotes_only:
-            # special case for McCCJ: escape into single quotes. 
-            s = re.sub(r'([ \(\[\{\<])\"', r'\1 '+"' ", s)
+            # special case for McCCJ: escape into single quotes.
+            s = re.sub(r'([ \(\[\{\<])\"', r'\1 ' + "' ", s)
         else:
             # standard PTB quote escaping
             s = re.sub(r'([ \(\[\{\<])\"', r'\1 `` ', s)
@@ -262,22 +277,62 @@ def tokenize(s, ptb_escaping=False, use_single_quotes_only=False,
         # revised must match original when whitespace, quotes (etc.)
         # and escapes are ignored
         # TODO: clean this up
-        r1 = PTB_unescape(orig.replace(' ', '').replace('\n','').replace("'",'').replace('"','').replace('``',''))
-        r2 = PTB_unescape(s.replace(' ', '').replace('\n','').replace("'",'').replace('"','').replace('``',''))
+        r1 = PTB_unescape(
+            orig.replace(
+                ' ',
+                '').replace(
+                '\n',
+                '').replace(
+                "'",
+                '').replace(
+                    '"',
+                    '').replace(
+                        '``',
+                ''))
+        r2 = PTB_unescape(
+            s.replace(
+                ' ',
+                '').replace(
+                '\n',
+                '').replace(
+                "'",
+                '').replace(
+                    '"',
+                    '').replace(
+                        '``',
+                ''))
         if r1 != r2:
-            print >> sys.stderr, "tokenize(): error: text mismatch (returning original):\nORIG: '%s'\nNEW:  '%s'" % (orig, s)
+            print("tokenize(): error: text mismatch (returning original):\nORIG: '%s'\nNEW:  '%s'" % (orig, s), file=sys.stderr)
             s = orig
 
-    return s+s_end
+    return s + s_end
+
 
 def __argparser():
     import argparse
 
-    ap=argparse.ArgumentParser(description="Perform GENIA Treebank-like text tokenization.")
-    ap.add_argument("-ptb", default=False, action="store_true", help="Use Penn Treebank escapes")
-    ap.add_argument("-mccc", default=False, action="store_true", help="Special processing for McClosky-Charniak-Johnson parser input")
-    ap.add_argument("-sp", default=False, action="store_true", help="Special processing for Stanford parser+PTBEscapingProcessor input. (not necessary for Stanford Parser version 1.6.5 and newer)")
-    ap.add_argument("files", metavar="FILE", nargs="*", help="Files to tokenize.")
+    ap = argparse.ArgumentParser(
+        description="Perform GENIA Treebank-like text tokenization.")
+    ap.add_argument(
+        "-ptb",
+        default=False,
+        action="store_true",
+        help="Use Penn Treebank escapes")
+    ap.add_argument(
+        "-mccc",
+        default=False,
+        action="store_true",
+        help="Special processing for McClosky-Charniak-Johnson parser input")
+    ap.add_argument(
+        "-sp",
+        default=False,
+        action="store_true",
+        help="Special processing for Stanford parser+PTBEscapingProcessor input. (not necessary for Stanford Parser version 1.6.5 and newer)")
+    ap.add_argument(
+        "files",
+        metavar="FILE",
+        nargs="*",
+        help="Files to tokenize.")
     return ap
 
 
@@ -289,17 +344,17 @@ def main(argv):
 
     # sorry, the special cases are a bit of a mess
     ptb_escaping, use_single_quotes_only, escape_token_internal_parens = False, False, False
-    if arg.ptb: 
+    if arg.ptb:
         ptb_escaping = True
     if arg.mccc:
-        ptb_escaping = True 
+        ptb_escaping = True
         # current version of McCCJ has trouble with double quotes
         use_single_quotes_only = True
     if arg.sp:
         # current version of Stanford parser PTBEscapingProcessor
         # doesn't correctly escape word-internal parentheses
         escape_token_internal_parens = True
-    
+
     # for testing, read stdin if no args
     if len(arg.files) == 0:
         arg.files.append('/dev/stdin')
@@ -308,13 +363,16 @@ def main(argv):
         try:
             with codecs.open(fn, encoding=INPUT_ENCODING) as f:
                 for l in f:
-                    t = tokenize(l, ptb_escaping=ptb_escaping,
-                                 use_single_quotes_only=use_single_quotes_only,
-                                 escape_token_internal_parens=escape_token_internal_parens)
+                    t = tokenize(
+                        l,
+                        ptb_escaping=ptb_escaping,
+                        use_single_quotes_only=use_single_quotes_only,
+                        escape_token_internal_parens=escape_token_internal_parens)
                     sys.stdout.write(t.encode(OUTPUT_ENCODING))
-        except Exception, e:
-            print >> sys.stderr, "Failed to read", fn, ":", e
-            
+        except Exception as e:
+            print("Failed to read", fn, ":", e, file=sys.stderr)
+
+
 if __name__ == "__main__":
     import sys
     sys.exit(main(sys.argv))
