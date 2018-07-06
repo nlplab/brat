@@ -17,7 +17,6 @@ Version:    2011-04-21
 from os import listdir
 from os.path import abspath, dirname, isabs, isdir, normpath, getmtime
 from os.path import join as path_join
-from re import match, sub
 from errno import ENOENT, EACCES
 
 from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
@@ -280,7 +279,6 @@ def _fill_attribute_configuration(nodes, project_conf):
                     Messager.warning(
                         "Config error: empty <DEFAULT> for %s" %
                         item['name'])
-                    pass
 
             # Each item's 'values' entry is a list of dictionaries, one
             # dictionary per value option.
@@ -701,7 +699,6 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
 
     j_dic['text'] = text
 
-    from logging import info as log_info
 
     tokeniser = options_get_tokenization(dirname(txt_file_path))
 
@@ -740,7 +737,7 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
 
 
 def _enrich_json_with_data(j_dic, ann_obj):
-    # TODO: figure out if there's a reason for all the unicode()
+    # TODO: figure out if there's a reason for all the str()
     # invocations here; remove if not.
 
     # We collect trigger ids to be able to link the textbound later on
@@ -759,7 +756,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
         )
 
     for tb_ann in ann_obj.get_textbounds():
-        #j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
+        #j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
         j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.spans]
 
         # If we spotted it in the previous pass as a trigger for an

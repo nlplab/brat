@@ -8,7 +8,6 @@ Version:    2011-11-30
 
 
 
-from os.path import join as path_join
 
 from annotator import delete_span, create_span
 from annotation import TextAnnotations

@@ -21,14 +21,12 @@ except ImportError:
     sys_path.append(path_join(dirname(__file__), '../server/lib/ujson'))
     from ujson import dumps
 
-from random import choice, randint
 from sys import stderr
-from urllib.parse import urlparse
 try:
-    from urllib.parse import parse_qs
+    pass
 except ImportError:
     # old Python again?
-    from cgi import parse_qs
+    pass
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 import json

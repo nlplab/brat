@@ -190,7 +190,7 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         remote_addr = self.client_address[0]
         remote_host = self.address_string()
         cookie_data = ', '.join(
-            [_f for _f in self.headers.getheaders('cookie') if _f])
+            [_f for _f in self.headers.get('cookie') if _f])
 
         query_string = ''
         i = self.path.find('?')
@@ -203,7 +203,7 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         # set env to get FieldStorage to read params
         env = {}
         env['REQUEST_METHOD'] = self.command
-        content_length = self.headers.getheader('content-length')
+        content_length = self.headers.get('content-length')
         if content_length:
             env['CONTENT_LENGTH'] = content_length
         if query_string:

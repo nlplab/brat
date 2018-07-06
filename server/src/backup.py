@@ -21,10 +21,10 @@ from os.path import getmtime, isfile, dirname, abspath, basename
 from os.path import join as join_path
 from shlex import split as split_shlex
 from datetime import datetime, timedelta
-from os import listdir, walk
-from subprocess import Popen, PIPE
+from os import listdir
+from subprocess import Popen
 
-from filelock import file_lock, PID_WARN
+from filelock import FileLock, PID_WARN
 
 from config import BACKUP_DIR, DATA_DIR
 
@@ -84,7 +84,7 @@ def backup(
     #       with a sane default and then refer to how long the last back-up
     #       took?
     backup_lock = join_path(DATA_DIR, '.backup.lock')
-    with file_lock(backup_lock, pid_policy=PID_WARN, timeout=60):
+    with FileLock(backup_lock, pid_policy=PID_WARN, timeout=60):
         _backup(min_interval, backup_dir, data_dir)
 
 

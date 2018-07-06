@@ -67,7 +67,6 @@ def correct_annotations(orig_fn, ann_fn, change_fn):
 
 # Parsing command line {{{
 if __name__ == "__main__":
-    import sys
     import argparse
 
     parser = argparse.ArgumentParser(

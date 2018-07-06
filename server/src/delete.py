@@ -6,7 +6,6 @@
 
 
 
-from os.path import join as path_join
 from message import Messager
 
 

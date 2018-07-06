@@ -17,9 +17,7 @@ Version:    2011-01-17
 from collections import defaultdict
 from os.path import join as join_path
 from os.path import split as split_path
-from shlex import split as shlex_split
-from sys import stderr, stdin
-from subprocess import Popen, PIPE
+from sys import stdin
 
 try:
     from argparse import ArgumentParser

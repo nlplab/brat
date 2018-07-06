@@ -7,7 +7,7 @@ Version:    2012-05-22
 """
 
 from http.client import HTTPConnection, HTTPSConnection
-from http.client import FORBIDDEN, MOVED_PERMANENTLY, NOT_FOUND, OK, TEMPORARY_REDIRECT
+from http.client import FORBIDDEN, MOVED_PERMANENTLY, OK, TEMPORARY_REDIRECT
 from sys import stderr
 from urllib.parse import urlparse
 

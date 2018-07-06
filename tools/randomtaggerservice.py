@@ -21,12 +21,11 @@ except ImportError:
 
 from random import choice, randint
 from sys import stderr
-from urllib.parse import urlparse
 try:
-    from urllib.parse import parse_qs
+    pass
 except ImportError:
     # old Python again?
-    from cgi import parse_qs
+    pass
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Constants

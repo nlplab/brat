@@ -16,7 +16,6 @@ Version:    2011-12-05
 
 from sys import stdin, stdout
 from re import compile as _compile
-from codecs import open as _open
 
 # Constants
 MALT_REGEX = _compile(r'^(?P<token>.*?)\t(?P<pos>[^\t]+)\t'

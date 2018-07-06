@@ -10,7 +10,6 @@ import os
 
 from collections import namedtuple
 from os import path
-from subprocess import Popen, PIPE
 from io import StringIO
 
 # assume script in brat tools/ directory, extend path to find sentencesplit.py

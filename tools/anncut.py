@@ -7,7 +7,6 @@
 
 
 import sys
-import re
 
 try:
     import argparse

@@ -6,8 +6,8 @@ Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2011-08-09
 """
 
-from string import digits, lowercase
-from sys import maxsize
+from string import digits, ascii_lowercase as lowercase
+from sys import maxsize as maxint
 
 DIGITS = set(digits)
 LOWERCASE = set(lowercase)
@@ -24,7 +24,7 @@ NONNUM_T2004_REPL_CHEAP = set([(a, a.upper()) for a in LOWERCASE] +
 
 TSURUOKA_INS = dict([(c, 10) for c in TSURUOKA_2004_INS_CHEAP])
 TSURUOKA_DEL = dict([(c, 10) for c in TSURUOKA_2004_DEL_CHEAP])
-#TSURUOKA_REPL = dict([(c, 10) for c in TSURUOKA_2004_REPL_CHEAP])
+# TSURUOKA_REPL = dict([(c, 10) for c in TSURUOKA_2004_REPL_CHEAP])
 TSURUOKA_REPL = dict([(c, 10) for c in NONNUM_T2004_REPL_CHEAP])
 
 

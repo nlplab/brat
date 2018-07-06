@@ -24,7 +24,6 @@
 
 
 import sys
-import re
 import codecs
 
 INPUT_ENCODING = "UTF-8"

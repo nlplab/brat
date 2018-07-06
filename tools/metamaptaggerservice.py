@@ -17,7 +17,6 @@ except ImportError:
 
 from subprocess import PIPE, Popen
 
-from random import choice, randint
 from sys import stderr
 from urllib.parse import urlparse
 try:
@@ -26,7 +25,6 @@ except ImportError:
     # old Python again?
     from cgi import parse_qs
 from http.server import HTTPServer, BaseHTTPRequestHandler
-import re
 
 # use the brat sentence splitter
 from sentencesplit import sentencebreaks_to_newlines

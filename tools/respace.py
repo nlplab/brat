@@ -8,7 +8,6 @@
 import sys
 import os
 import re
-import codecs
 
 # TODO: switch to lxml
 try:

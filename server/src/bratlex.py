@@ -152,5 +152,4 @@ if __name__ == '__main__':
         lexer.input(line)
 
         for tok in lexer:
-            pass
             print(tok)

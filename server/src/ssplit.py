@@ -13,10 +13,6 @@ Version:    2011-05-09
 
 from re import compile as re_compile
 from re import DOTALL, VERBOSE
-from os.path import join as path_join
-from os.path import dirname
-from subprocess import Popen, PIPE
-from shlex import split as shlex_split
 
 # Constants
 # Reasonably well-behaved sentence end regular expression

@@ -5,8 +5,6 @@
 
 import sys
 import re
-import os
-import codecs
 
 # Regex for the "signature" of a metamap "fielded" output line
 FIELDED_OUTPUT_RE = re.compile(r'^\d+\|')

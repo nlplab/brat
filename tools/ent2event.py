@@ -15,7 +15,6 @@
 
 
 import sys
-import re
 try:
     import annotation
 except ImportError:

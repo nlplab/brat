@@ -16,9 +16,9 @@ from common import NoPrintJSONError
 from subprocess import Popen
 
 try:
-    from io import StringIO
+    pass
 except ImportError:
-    from io import StringIO
+    pass
 
 
 def download_file(document, collection, extension):

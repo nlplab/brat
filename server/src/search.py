@@ -1681,8 +1681,6 @@ def argparser():
 
 def main(argv=None):
     import sys
-    import os
-    import urllib.request, urllib.parse, urllib.error
 
     # ignore search result number limits on command-line invocations
     global MAX_SEARCH_RESULT_NUMBER

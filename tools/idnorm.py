@@ -6,7 +6,6 @@
 
 
 import sys
-import re
 
 DEBUG = True
 

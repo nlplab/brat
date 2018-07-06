@@ -15,7 +15,6 @@ from os.path import join as path_join
 from shlex import split as shlex_split
 from subprocess import Popen
 from sys import path as sys_path
-from sys import stderr as sys_stderr
 
 sys_path.append(path_join(dirname(__file__), '..'))
 

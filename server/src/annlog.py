@@ -12,7 +12,6 @@ Version:    2011-11-22
 import logging
 from session import get_session
 from message import Messager
-from inspect import getargspec
 from os.path import isabs
 from os.path import join as path_join
 

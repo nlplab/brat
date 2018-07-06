@@ -13,9 +13,9 @@ Version:    2011-11-17
 CUT_OFF = 0.95
 # In seconds
 QUERY_TIMEOUT = 30
-from urllib.parse import urlencode, quote_plus
+from urllib.parse import quote_plus
 from urllib.request import urlopen
-from urllib.error import HTTPError, URLError
+from urllib.error import URLError
 
 from annlog import log_annotation
 from document import real_directory

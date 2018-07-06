@@ -548,7 +548,6 @@ def _profile_test():
     # pstats.Stats("norm.profile").strip_dirs().sort_stats("time").print_stats()'
     # | less
     import cProfile
-    import os.path
     cProfile.run('_test()', 'norm.profile')
 
 

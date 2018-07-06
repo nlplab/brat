@@ -172,7 +172,6 @@ def store_svg(collection, document, svg):
         except BaseException:  # whatever
             Messager.warning("Failed conversion to %s" % format)
             # no luck, but doesn't matter
-            pass
 
     return {'stored': stored}
 

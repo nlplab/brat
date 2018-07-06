@@ -738,7 +738,6 @@ class ArgumentError(Exception):
 
 class ArgumentTypeError(Exception):
     """An error from trying to convert a command line string to a type."""
-    pass
 
 
 # ==============

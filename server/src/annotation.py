@@ -11,21 +11,17 @@ Author:     Pontus Stenetorp   <pontus is s u-tokyo ac jp>
 Version:    2011-01-25
 '''
 
-# TODO: Major re-work, cleaning up and conforming with new server paradigm
-
-from logging import info as log_info
 from codecs import open as codecs_open
-from functools import partial
 from itertools import chain, takewhile
-from os import close as os_close, utime
+from os import close as os_close
 from time import time
 from os.path import join as path_join
-from os.path import basename, splitext
+from os.path import splitext
 from re import match as re_match
 from re import compile as re_compile
 
 from common import ProtocolError
-from filelock import file_lock
+from filelock import FileLock
 from message import Messager
 
 
@@ -190,14 +186,14 @@ class DependingAnnotationDeleteError(Exception):
         self.dependants = dependants
 
     def __str__(self):
-        return u'%s can not be deleted due to depending annotations %s' % (unicode(
-            self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
+        return u'%s can not be deleted due to depending annotations %s' % (str(
+            self.target).rstrip(), ",".join([str(d).rstrip() for d in self.dependants]))
 
     def html_error_str(self, response=None):
         return u'''Annotation:
         %s
         Has depending annotations attached to it:
-        %s''' % (unicode(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
+        %s''' % (str(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
 
 
 class SpanOffsetOverlapError(ProtocolError):
@@ -206,7 +202,7 @@ class SpanOffsetOverlapError(ProtocolError):
 
     def __str__(self):
         return u'The offsets [%s] overlap' % (
-            ', '.join(unicode(e) for e in self.offsets, ))
+            ', '.join(str(e) for e in self.offsets, ))
 
     def json(self, json_dic):
         json_dic['exception'] = 'spanOffsetOverlapError'
@@ -338,7 +334,7 @@ class Annotations(object):
         # TODO: Incorparate file locking! Is the destructor called upon inter
         # crash?
         from collections import defaultdict
-        from os.path import basename, getmtime, getctime
+        from os.path import getctime, getmtime
         #from fileinput import FileInput, hook_encoded
 
         # we should remember this
@@ -503,7 +499,7 @@ class Annotations(object):
     # TODO: getters for other categories of annotations
     # TODO: Remove read and use an internal and external version instead
     def add_annotation(self, ann, read=False):
-        #log_info(u'Will add: ' + unicode(ann).rstrip('\n') + ' ' + unicode(type(ann)))
+        #log_info(u'Will add: ' + str(ann).rstrip('\n') + ' ' + unicode(type(ann)))
         # TODO: DOC!
         # TODO: Check read only
         if not read and self._read_only:
@@ -518,7 +514,7 @@ class Annotations(object):
                 try:
                     # Make sure that this Equiv duck quacks
                     eq_ann.entities
-                except AttributeError, e:
+                except AttributeError as e:
                     assert False, 'got a non-entity from an entity call'
 
                 # Do we have an entitiy in common with this equiv?
@@ -596,7 +592,7 @@ class Annotations(object):
 
         for other_ann in self:
             soft_deps, hard_deps = other_ann.get_deps()
-            if unicode(ann.id) in soft_deps | hard_deps:
+            if str(ann.id) in soft_deps | hard_deps:
                 ann_deps.append(other_ann)
 
         # If all depending are AttributeAnnotations or EquivAnnotations,
@@ -625,8 +621,8 @@ class Annotations(object):
                             tracker.deletion(d)
                     else:
                         if tracker is not None:
-                            before = unicode(d)
-                        d.entities.remove(unicode(ann.id))
+                            before = str(d)
+                        d.entities.remove(str(ann.id))
                         if tracker is not None:
                             tracker.change(before, d)
                 elif isinstance(d, OnelineCommentAnnotation):
@@ -709,7 +705,7 @@ class Annotations(object):
         # XXX: Arbitrary constant!
         for suggestion in (
             prefix +
-            unicode(i) +
+            str(i) +
             suffix for i in xrange(
                 1,
                 2**15)):
@@ -960,7 +956,7 @@ class Annotations(object):
 
                         assert new_ann is not None, "INTERNAL ERROR"
                         self.add_annotation(new_ann, read=True)
-                    except IdedAnnotationLineSyntaxError, e:
+                    except IdedAnnotationLineSyntaxError as e:
                         # Could parse an ID but not the whole line; add
                         # UnparsedIdedAnnotation
                         self.add_annotation(
@@ -968,7 +964,7 @@ class Annotations(object):
                                 e.id, e.line, source_id=e.filepath), read=True)
                         self.failed_lines.append(e.line_num - 1)
 
-                    except AnnotationLineSyntaxError, e:
+                    except AnnotationLineSyntaxError as e:
                         # We could not parse even an ID on the line, just add
                         # it as an unknown annotation
                         self.add_annotation(
@@ -980,7 +976,7 @@ class Annotations(object):
                         self.failed_lines.append(e.line_num - 1)
 
     def __str__(self):
-        s = u'\n'.join(unicode(ann).rstrip(u'\r\n') for ann in self)
+        s = u'\n'.join(str(ann).rstrip(u'\r\n') for ann in self)
         if not s:
             return u''
         else:
@@ -1014,7 +1010,7 @@ class Annotations(object):
             # should have is a modification flag in the object but we can't
             # due to how we change the annotations.
 
-            out_str = unicode(self)
+            out_str = str(self)
             with open_textfile(self._input_files[0], 'r') as old_ann_file:
                 old_str = old_ann_file.read()
 
@@ -1026,10 +1022,9 @@ class Annotations(object):
             from config import WORK_DIR
 
             # Protect the write so we don't corrupt the file
-            with file_lock(path_join(WORK_DIR,
-                                     str(hash(self._input_files[0].replace('/', '_')))
-                                     + '.lock')
-                           ) as lock_file:
+            with FileLock(path_join(
+                    WORK_DIR, str(hash(self._input_files[0].replace('/', '_'))) + '.lock'
+            )) as lock_file:
                 #from tempfile import NamedTemporaryFile
                 from tempfile import mkstemp
                 # TODO: XXX: Is copyfile really atomic?
@@ -1059,7 +1054,7 @@ class Annotations(object):
                                 now = time()
                                 # XXX: Disabled for now!
                                 #utime(DATA_DIR, (now, now))
-                        except Exception, e:
+                        except Exception as e:
                             Messager.error(
                                 'ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' %
                                 e, -1)
@@ -1068,7 +1063,7 @@ class Annotations(object):
                     try:
                         from os import remove
                         remove(tmp_fname)
-                    except Exception, e:
+                    except Exception as e:
                         Messager.error(
                             "Error removing temporary file '%s'" %
                             tmp_fname)
@@ -1221,7 +1216,7 @@ class Annotation(object):
         raise NotImplementedError
 
     def __repr__(self):
-        return u'%s("%s")' % (unicode(self.__class__), unicode(self))
+        return u'%s("%s")' % (str(self.__class__), unicode(self))
 
     def get_deps(self):
         return (set(), set())
@@ -1257,7 +1252,7 @@ class UnparsedIdedAnnotation(Annotation):
         self.id = id
 
     def __str__(self):
-        return unicode(self.tail)
+        return str(self.tail)
 
 
 class TypedAnnotation(Annotation):
@@ -1397,7 +1392,7 @@ class EquivAnnotation(TypedAnnotation):
     def __str__(self):
         return u'*\t%s %s%s' % (
             self.type,
-            ' '.join([unicode(e) for e in self.entities]),
+            ' '.join([str(e) for e in self.entities]),
             self.tail
         )
 
@@ -1418,7 +1413,7 @@ class EquivAnnotation(TypedAnnotation):
             return ['equiv', self.type, self.entities]
 
     def reference_text(self):
-        return '(' + ','.join([unicode(e) for e in self.entities]) + ')'
+        return '(' + ','.join([str(e) for e in self.entities]) + ')'
 
 
 class AttributeAnnotation(IdedAnnotation):
@@ -1433,7 +1428,7 @@ class AttributeAnnotation(IdedAnnotation):
             self.type,
             self.target,
             # We hack in old modifiers with this trick using bools
-            ' ' + unicode(self.value) if self.value != True else '',
+            ' ' + str(self.value) if self.value != True else '',
             self.tail,
         )
 
@@ -1703,7 +1698,7 @@ if __name__ == '__main__':
         try:
             with Annotations(ann_path) as anns:
                 for ann in anns:
-                    print >> stderr, unicode(ann).rstrip('\n')
+                    print >> stderr, str(ann).rstrip('\n')
         except ImportError:
             # Will try to load the config, probably not available
             pass

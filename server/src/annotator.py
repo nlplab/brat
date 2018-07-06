@@ -167,9 +167,7 @@ def _json_from_ann(ann_obj):
     return j_dic
 
 
-from logging import info as log_info
 from annotation import TextBoundAnnotation, TextBoundAnnotationWithText
-from copy import deepcopy
 
 
 def _offsets_equal(o1, o2):
@@ -255,7 +253,6 @@ def _edit_span(ann_obj, mods, id, offsets, projectconf, attributes, type,
                            % (ann.type, projectconf.type_category(ann.type),
                               type, projectconf.type_category(type)),
                            duration=10)
-            pass
         else:
             before = str(ann)
             ann.type = type

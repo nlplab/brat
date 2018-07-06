@@ -18,12 +18,11 @@ except ImportError:
     from ujson import dumps
 
 from sys import stderr
-from urllib.parse import urlparse
 try:
-    from urllib.parse import parse_qs
+    pass
 except ImportError:
     # old Python again?
-    from cgi import parse_qs
+    pass
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Constants

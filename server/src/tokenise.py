@@ -10,10 +10,6 @@ Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-05-23
 '''
 
-from os.path import join as path_join
-from os.path import dirname
-from subprocess import Popen, PIPE
-from shlex import split as shlex_split
 
 
 def _token_boundaries_by_alignment(tokens, original_text):
