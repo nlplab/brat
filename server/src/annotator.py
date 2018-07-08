@@ -641,7 +641,7 @@ def _create_span(collection, document, offsets, _type, attributes=None,
 
     txt_file_path = document + '.' + TEXT_FILE_SUFFIX
 
-    working_directory = path_split(document)[0]
+    path_split(document)[0]
 
     with TextAnnotations(document) as ann_obj:
         # bail as quick as possible if read-only

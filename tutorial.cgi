@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
-'''
-Initiate a tutorial session.
+"""Initiate a tutorial session.
 
 Author:     Goran Topic
             Sampo Pyysalo
             Pontus Stenetorp
 Version:    2012-11-12
-'''
+"""
 
 from sys import path as sys_path
 from os.path import join as path_join
@@ -29,11 +28,11 @@ except ImportError:
     TUTORIALS = False
 
 if not TUTORIALS:
-    print 'Content-Type: text/plain'
-    print ''
-    print 'Tutorials disabled on this server, please enable it in config.py'
-    print ''
-    print ''
+    print('Content-Type: text/plain')
+    print('')
+    print('Tutorials disabled on this server, please enable it in config.py')
+    print('')
+    print('')
     exit(0)
 
 TUTORIAL_BASE = '.tutorials'
@@ -42,14 +41,16 @@ TUTORIAL_DATA_DIR = DATA_DIR
 TUTORIAL_SKELETON = 'example-data/tutorials/'
 DEFAULT_TUTORIAL_TYPE = 'news'
 
+
 def mkdir_p(path):
     try:
         makedirs(path)
-    except OSError, x:
+    except OSError as x:
         if x.errno == errno.EEXIST and isdir(path):
             pass
         else:
             raise
+
 
 try:
     remote_addr = environ['REMOTE_ADDR']
@@ -63,11 +64,11 @@ except KeyError:
 params = FieldStorage()
 
 if 'type' in params:
-    tutorial_type = unicode(params.getvalue('type'))
+    tutorial_type = str(params.getvalue('type'))
 else:
     tutorial_type = DEFAULT_TUTORIAL_TYPE
 if 'overwrite' in params:
-    overwrite = unicode(params.getvalue('overwrite'))
+    overwrite = str(params.getvalue('overwrite'))
 else:
     overwrite = False
 # security check; don't allow arbitrary path specs for copytree
@@ -87,7 +88,7 @@ if not isdir(tutorial_dir) or overwrite:
 
 start = path_join(reldir, tutorial_type, TUTORIAL_START)
 
-print 'Content-Type: text/plain'
-print 'Refresh: 0; url=index.xhtml#/%s' % start
-print ''
-print ''
+print('Content-Type: text/plain')
+print('Refresh: 0; url=index.xhtml#/%s' % start)
+print('')
+print('')

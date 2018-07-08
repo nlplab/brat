@@ -97,7 +97,7 @@ def tag(collection, document, tagger):
     else:
         raise UnknownTaggerError(tagger)
 
-    doc_path = path_join(real_directory(collection), document)
+    path_join(real_directory(collection), document)
 
     with TextAnnotations(path_join(real_directory(collection),
                                    document)) as ann_obj:

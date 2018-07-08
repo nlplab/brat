@@ -75,8 +75,7 @@ def parse(s):
 
 
 def process(fn):
-    docnum = 1
-    sentences = []
+    pass
 
     with codecs.open(fn, encoding=INPUT_ENCODING) as f:
         for l in f:

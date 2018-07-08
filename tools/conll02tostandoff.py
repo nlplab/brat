@@ -66,7 +66,6 @@ def output(infn, docnum, sentences):
     for si, sentence in enumerate(sentences):
 
         prev_token = None
-        prev_tag = "O"
         curr_start, curr_type = None, None
         quote_count = 0
 
@@ -96,7 +95,6 @@ def output(infn, docnum, sentences):
                 quote_count += 1
 
             prev_token = token
-            prev_tag = ttag
 
         # leftovers?
         if curr_type is not None:

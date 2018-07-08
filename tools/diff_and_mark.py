@@ -483,7 +483,7 @@ def copy_annotations(original_name, new_name):
 
 
 def delete_annotations(name):
-    bare_name = name_without_extension(name)
+    name_without_extension(name)
     for extension in KNOWN_FILE_SUFF:
         try:
             os.remove('%s.%s' % (name, extension))

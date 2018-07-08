@@ -154,7 +154,7 @@ def store_svg(collection, document, svg):
             import logging
             logging.error(cmd)
 
-            retval = system(cmd)
+            system(cmd)
 
             # TODO: this check may not work on all architectures.
             # consider rather checking is the intended output file

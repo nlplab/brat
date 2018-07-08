@@ -31,7 +31,6 @@ def correct_annotations(orig_fn, ann_fn, change_fn):
             changed_text = f.read()
         diffs = diff_match_patch().diff_main(orig_text, changed_text)
         orig_offset = 0
-        change_offset = 0
         offsets = []
         for diff in diffs:
             kind = diff[0]

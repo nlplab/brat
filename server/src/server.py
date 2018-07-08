@@ -15,6 +15,7 @@ Version:    2011-09-29
 """
 
 # Standard library version
+from __future__ import print_function
 from os.path import abspath
 from os.path import join as path_join
 from sys import version_info, stderr
@@ -193,8 +194,9 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
             # Also take the opportunity to convert Strings into Unicode,
             #   according to HTTP they should be UTF-8
             try:
-                http_args[k] = str(params.getvalue(k), encoding='utf-8')
-            except TypeError:
+                http_args[k] = params.getvalue(k)
+            except TypeError as e:
+                # Messager.error(e)
                 Messager.error(
                     'protocol argument error: expected string argument %s, got %s' %
                     (k, type(
@@ -289,8 +291,7 @@ def serve(params, client_ip, client_hostname, cookie_data):
     cookie_hdrs = None
 
     # Do we have a Python version compatibly with our libs?
-    if (version_info[0] != REQUIRED_PY_VERSION[0] or
-            version_info < REQUIRED_PY_VERSION):
+    if (version_info < REQUIRED_PY_VERSION):
         # Bail with hand-written JSON, this is very fragile to protocol changes
         return cookie_hdrs, ((JSON_HDR, ),
                              ('''

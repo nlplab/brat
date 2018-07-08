@@ -265,7 +265,7 @@ def main(argv):
         try:
             process(fn)
         except Exception as e:
-            m = str(e).encode(OUTPUT_ENCODING)
+            str(e).encode(OUTPUT_ENCODING)
             raise
             #print >> sys.stderr, "Error processing %s: %s" % (fn, m)
             #fail_count += 1

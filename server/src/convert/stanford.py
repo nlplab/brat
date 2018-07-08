@@ -240,7 +240,7 @@ def _find_sentences_element(soup):
 
 def _dep(xml, source_element='basic-dependencies'):
     soup = _soup(xml)
-    token_by_ids = _token_by_ids(soup)
+    _token_by_ids(soup)
 
     ann_by_ids = defaultdict(dict)
     for s_id, t_id, ann in _pos(xml):

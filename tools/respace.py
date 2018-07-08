@@ -143,7 +143,6 @@ def _text_and_standoffs(e, curroff, strings, standoffs):
 
 
 def _subelem_text_and_standoffs(e, curroff, strings, standoffs):
-    startoff = curroff
     for s in e:
         curroff = _text_and_standoffs(s, curroff, strings, standoffs)
         if s.tail is not None and s.tail != "":
@@ -216,10 +215,8 @@ def following_linebreak(pos, text, rewritten={}):
 
 def index_in_parent(e, p):
     """Returns the index of the given element in its parent element e."""
-    index = None
     for i in range(len(p)):
         if p[i] == e:
-            index = i
             break
     assert i is not None, "index_in_parent: error: not parent and child"
     return i

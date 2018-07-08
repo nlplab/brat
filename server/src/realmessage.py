@@ -71,7 +71,7 @@ class Messager:
         convertable_messages = []
         for m in Messager.__pending_messages:
             try:
-                encoded = m[0].encode('utf-8')
+                m[0].encode('utf-8')
                 convertable_messages.append(m)
             except UnicodeDecodeError:
                 convertable_messages.append(

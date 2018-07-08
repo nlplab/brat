@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-# -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; -*- 
+# -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-'''
-Entry for CGI calls to brat. A simple wrapper around the CGI handling that then
-delegates the work to the CGI-agnostic brat server.
+"""Entry for CGI calls to brat. A simple wrapper around the CGI handling that
+then delegates the work to the CGI-agnostic brat server.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-02-07
-'''
+"""
 
 # Standard library imports
 from cgi import FieldStorage
@@ -21,6 +20,7 @@ from sys import path as sys_path, stdout
 sys_path.append(path_join(dirname(__file__), 'server/src'))
 
 from server import serve
+
 
 def main(args):
     # Get data required for server call
@@ -41,7 +41,7 @@ def main(args):
 
     # Call main server
     cookie_hdrs, response_data = serve(params, remote_addr, remote_host,
-            cookie_data)
+                                       cookie_data)
 
     # Package and send response
     if cookie_hdrs is not None:
@@ -54,20 +54,23 @@ def main(args):
     stdout.write('\n')
     stdout.write('\n')
     # Hack to support binary data and general Unicode for SVGs and JSON
-    if isinstance(response_data[1], unicode):
-        stdout.write(response_data[1].encode('utf-8'))
+    if isinstance(response_data[1], str):
+        stdout.write(response_data[1])
     else:
         stdout.write(response_data[1])
     return 0
 
+
 def profile_main(argv):
     # runs main() with profiling, storing in a rotating set of files
     # in work. To see a profile, run e.g.
-    # python -c 'import pstats; pstats.Stats("work/serverprofile0").strip_dirs().sort_stats("time").print_stats()' | less
+    # python -c 'import pstats;
+    # pstats.Stats("work/serverprofile0").strip_dirs().sort_stats("time").print_stats()'
+    # | less
     import cProfile
     import os.path
-    for i in range(0,10):
-        pfn = 'work/serverprofile'+str(i)
+    for i in range(0, 10):
+        pfn = 'work/serverprofile' + str(i)
         if not os.path.exists(pfn):
             break
     if os.path.exists(pfn):
@@ -75,8 +78,9 @@ def profile_main(argv):
         pfn = 'work/serverprofile0'
     cProfile.run('main(argv)', pfn)
 
+
 if __name__ == '__main__':
     from sys import argv, exit
     exit(main(argv))
     # To turn on server profiles, comment out the line above and use the one below.
-    #exit(profile_main(argv))
+    # exit(profile_main(argv))

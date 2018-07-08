@@ -23,40 +23,6 @@ import socket
 sys.path.append(os.path.join(os.path.dirname(__file__), 'server/src'))
 from server import serve
 
-# pre-import everything possible (TODO: prune unnecessary)
-import annlog
-import annotation
-import annotator
-import auth
-import common
-import delete
-import dispatch
-import docimport
-import document
-import download
-import filelock
-import gtbtokenize
-import jsonwrap
-import message
-import normdb
-import norm
-import predict
-import projectconfig
-import realmessage
-import sdistance
-import search
-import server
-import session
-import simstringdb
-import sosmessage
-import ssplit
-import sspostproc
-import stats
-import svg
-import tag
-import tokenise
-import undo
-import verify_annotations
 
 _VERBOSE_HANDLER = False
 _DEFAULT_SERVER_ADDR = ''
@@ -124,21 +90,21 @@ class PathPermissions(object):
         # PATTERN either has the form "*.EXT" or "/PATH".
         # Strings starting with "#" and empty lines are ignored.
 
-        for ln, l in enumerate(lines):
-            i = l.find('#')
+        for ln, line in enumerate(lines):
+            i = line.find('#')
             if i != -1:
-                l = l[:i]
-            l = l.strip()
+                line = line[:i]
+            line = line.strip()
 
-            if not l:
+            if not line:
                 continue
 
-            i = l.find(':')
+            i = line.find(':')
             if i == -1:
                 raise PermissionParseError(ln, lines[ln], 'missing colon')
 
-            directive = l[:i].strip().lower()
-            pattern = l[i + 1:].strip()
+            directive = line[:i].strip().lower()
+            pattern = line[i + 1:].strip()
 
             if directive == 'allow':
                 allow = True
@@ -225,10 +191,13 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         response_hdrs.extend(response_data[0])
 
         self.send_response(200)
-        self.wfile.write('\n'.join('%s: %s' % (k, v)
-                                   for k, v in response_hdrs))
-        self.wfile.write('\n')
-        self.wfile.write('\n')
+        self.wfile.write(
+            '\n'.join(
+                ['{}: {}'.format(k, v) for k, v in list(response_hdrs)]
+            ).encode()
+        )
+        self.wfile.write('\n'.encode())
+        self.wfile.write('\n'.encode())
         # Hack to support binary data and general Unicode for SVGs and JSON
         if isinstance(response_data[1], str):
             self.wfile.write(response_data[1].encode('utf-8'))

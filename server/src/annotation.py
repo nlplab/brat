@@ -193,7 +193,7 @@ class DependingAnnotationDeleteError(Exception):
         return u'''Annotation:
         %s
         Has depending annotations attached to it:
-        %s''' % (str(self.target).rstrip(), ",".join([unicode(d).rstrip() for d in self.dependants]))
+        %s''' % (str(self.target).rstrip(), ",".join([str(d).rstrip() for d in self.dependants]))
 
 
 class SpanOffsetOverlapError(ProtocolError):
@@ -369,21 +369,14 @@ class Annotations(object):
                 raise AnnotationFileNotFoundError(document)
 
         # We then try to open the files we got using the heuristics
-        #self._file_input = FileInput(openhook=hook_encoded('utf-8'))
+        # self._file_input = FileInput(openhook=hook_encoded('utf-8'))
         self._input_files = input_files
 
         # Finally, parse the given annotation file
-        try:
-            self._parse_ann_file()
+        self._parse_ann_file()
 
-            # Sanity checking that can only be done post-parse
-            self._sanity()
-        except UnicodeDecodeError:
-            Messager.error('Encoding error reading annotation file: '
-                           'nonstandard encoding or binary?', -1)
-            # TODO: more specific exception
-            raise AnnotationFileNotFoundError(document)
-
+        # Sanity checking that can only be done post-parse
+        self._sanity()
         # XXX: Hack to get the timestamps after parsing
         if (len(self._input_files) == 1 and
                 self._input_files[0].endswith(JOINED_ANN_FILE_SUFF)):
@@ -499,7 +492,7 @@ class Annotations(object):
     # TODO: getters for other categories of annotations
     # TODO: Remove read and use an internal and external version instead
     def add_annotation(self, ann, read=False):
-        #log_info(u'Will add: ' + str(ann).rstrip('\n') + ' ' + unicode(type(ann)))
+        # log_info(u'Will add: ' + str(ann).rstrip('\n') + ' ' + str(type(ann)))
         # TODO: DOC!
         # TODO: Check read only
         if not read and self._read_only:
@@ -553,7 +546,7 @@ class Annotations(object):
                 ann.id), annotation_id_number(
                 ann.id)
             self._max_id_num_by_prefix[pre] = max(
-                num, self._max_id_num_by_prefix[pre])
+                int(num), int(self._max_id_num_by_prefix[pre]))
         except AttributeError:
             # The annotation simply lacked an id which is fine
             pass
@@ -665,7 +658,7 @@ class Annotations(object):
         del self._line_by_ann[ann]
         # Update the line shorthand of every annotation after this one
         # to reflect the new self._lines
-        for l_num in xrange(ann_line, len(self)):
+        for l_num in range(ann_line, len(self)):
             self._line_by_ann[self[l_num]] = l_num
         # Update the modification time
         from time import time
@@ -706,7 +699,7 @@ class Annotations(object):
         for suggestion in (
             prefix +
             str(i) +
-            suffix for i in xrange(
+            suffix for i in range(
                 1,
                 2**15)):
             # This is getting more complicated by the minute, two checks since
@@ -1216,7 +1209,7 @@ class Annotation(object):
         raise NotImplementedError
 
     def __repr__(self):
-        return u'%s("%s")' % (str(self.__class__), unicode(self))
+        return u'%s("%s")' % (str(self.__class__), str(self))
 
     def get_deps(self):
         return (set(), set())

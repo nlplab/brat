@@ -238,10 +238,12 @@ def dispatch(http_args, client_ip, client_hostname):
             raise ProtocolVersionMismatchError(protocol_version,
                                                PROTOCOL_VERSION)
     except TypeError:
-        raise ProtocolVersionMismatchError('None', PROTOCOL_VERSION)
+        #raise ProtocolVersionMismatchError('None', PROTOCOL_VERSION)
+        pass
     except ValueError:
-        raise ProtocolVersionMismatchError(http_args['protocol'],
-                                           PROTOCOL_VERSION)
+        #raise ProtocolVersionMismatchError(http_args['protocol'],
+        #                                   PROTOCOL_VERSION)
+        pass
 
     # Was an action supplied?
     if action is None:
