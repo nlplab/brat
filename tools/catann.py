@@ -7,9 +7,9 @@
 
 
 
-import sys
-import re
 import codecs
+import re
+import sys
 
 
 def parse_id(l):

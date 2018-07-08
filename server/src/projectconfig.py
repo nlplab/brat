@@ -13,9 +13,9 @@ Version:    2011-08-15
 """
 
 import re
-import urllib.robotparser  # TODO reduce scope
-import urllib.parse  # TODO reduce scope
 import sys
+import urllib.parse  # TODO reduce scope
+import urllib.robotparser  # TODO reduce scope
 
 from annotation import open_textfile
 from message import Messager

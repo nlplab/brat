@@ -6,10 +6,10 @@
 
 
 
-import sys
-import re
-import os
 import codecs
+import os
+import re
+import sys
 
 INPUT_ENCODING = "Latin-1"
 OUTPUT_ENCODING = "UTF-8"

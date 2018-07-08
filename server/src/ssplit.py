@@ -3,13 +3,12 @@
 
 
 
-'''
-Primitive sentence splitting using Sampo Pyysalo's GeniaSS sentence split
+"""Primitive sentence splitting using Sampo Pyysalo's GeniaSS sentence split
 refiner. Also a primitive Japanese sentence splitter without refinement.
 
 Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-05-09
-'''
+"""
 
 from re import compile as re_compile
 from re import DOTALL, VERBOSE

@@ -13,8 +13,10 @@ Version:    2012-06-26
 
 from collections import defaultdict
 from itertools import chain
-from sys import argv, path as sys_path, stderr, stdout
-from os.path import dirname, join as path_join
+from os.path import join as path_join
+from os.path import dirname
+from sys import path as sys_path
+from sys import argv, stderr, stdout
 from xml.etree import ElementTree
 
 from .ptbesc import unescape as ptb_unescape

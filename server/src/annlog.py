@@ -10,13 +10,14 @@ Version:    2011-11-22
 """
 
 import logging
-from session import get_session
-from message import Messager
-from os.path import isabs
 from os.path import join as path_join
+from os.path import isabs
 
 from config import DATA_DIR
+
+from message import Messager
 from projectconfig import options_get_annlogfile
+from session import get_session
 
 
 def real_directory(directory, rel_to=DATA_DIR):

@@ -6,49 +6,40 @@
 
 
 
-'''
-Document handling functionality.
+"""Document handling functionality.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
             Illes Solt          <solt tmit bme hu>
 Version:    2011-04-21
-'''
+"""
 
-from os import listdir
-from os.path import abspath, dirname, isabs, isdir, normpath, getmtime
-from os.path import join as path_join
-from errno import ENOENT, EACCES
-
-from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
-                        AnnotationFileNotFoundError,
-                        AnnotationCollectionNotFoundError,
-                        JOINED_ANN_FILE_SUFF,
-                        open_textfile,
-                        BIONLP_ST_2013_COMPATIBILITY)
-from common import ProtocolError, CollectionNotAccessibleError
-from config import BASE_DIR, DATA_DIR
-from projectconfig import (
-    ProjectConfiguration,
-    SEPARATOR_STR,
-    SPAN_DRAWING_ATTRIBUTES,
-    ARC_DRAWING_ATTRIBUTES,
-    VISUAL_SPAN_DEFAULT,
-    VISUAL_ARC_DEFAULT,
-    ATTR_DRAWING_ATTRIBUTES,
-    VISUAL_ATTR_DEFAULT,
-    SPECIAL_RELATION_TYPES,
-    options_get_validation,
-    options_get_tokenization,
-    options_get_ssplitter,
-    get_annotation_config_section_labels,
-    visual_options_get_arc_bundle,
-    visual_options_get_text_direction)
-from stats import get_statistics
-from message import Messager
-from auth import allowed_to_read, AccessDeniedError
-from annlog import annotation_logging_active
-
+from errno import EACCES, ENOENT
 from itertools import chain
+from os import listdir
+from os.path import join as path_join
+from os.path import abspath, dirname, getmtime, isabs, isdir, normpath
+
+from config import BASE_DIR, DATA_DIR
+
+from annlog import annotation_logging_active
+from annotation import (BIONLP_ST_2013_COMPATIBILITY, JOINED_ANN_FILE_SUFF,
+                        TEXT_FILE_SUFFIX, AnnotationCollectionNotFoundError,
+                        AnnotationFileNotFoundError, TextAnnotations,
+                        open_textfile)
+from auth import AccessDeniedError, allowed_to_read
+from common import CollectionNotAccessibleError, ProtocolError
+from message import Messager
+from projectconfig import (ARC_DRAWING_ATTRIBUTES, ATTR_DRAWING_ATTRIBUTES,
+                           SEPARATOR_STR, SPAN_DRAWING_ATTRIBUTES,
+                           SPECIAL_RELATION_TYPES, VISUAL_ARC_DEFAULT,
+                           VISUAL_ATTR_DEFAULT, VISUAL_SPAN_DEFAULT,
+                           ProjectConfiguration,
+                           get_annotation_config_section_labels,
+                           options_get_ssplitter, options_get_tokenization,
+                           options_get_validation,
+                           visual_options_get_arc_bundle,
+                           visual_options_get_text_direction)
+from stats import get_statistics
 
 
 def _fill_type_configuration(

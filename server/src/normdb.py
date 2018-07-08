@@ -4,9 +4,11 @@
 
 """Functionality for normalization SQL database access."""
 
-import sys
-from os.path import join as path_join, exists, sep as path_sep
 import sqlite3 as sqlite
+import sys
+from os.path import join as path_join
+from os.path import sep as path_sep
+from os.path import exists
 
 try:
     from config import BASE_DIR, WORK_DIR

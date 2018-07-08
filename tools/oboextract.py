@@ -5,8 +5,8 @@
 
 # TODO: replace with a proper lib.
 
-import sys
 import re
+import sys
 from string import lowercase
 
 options = None

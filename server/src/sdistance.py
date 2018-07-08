@@ -6,7 +6,8 @@ Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2011-08-09
 """
 
-from string import digits, ascii_lowercase as lowercase
+from string import ascii_lowercase as lowercase
+from string import digits
 from sys import maxsize as maxint
 
 DIGITS = set(digits)

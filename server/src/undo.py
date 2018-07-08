@@ -9,8 +9,8 @@ Version:    2011-11-30
 
 
 
-from annotator import delete_span, create_span
 from annotation import TextAnnotations
+from annotator import create_span, delete_span
 from common import ProtocolError
 from jsonwrap import loads as json_loads
 

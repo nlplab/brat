@@ -8,8 +8,8 @@
 
 
 import re
-import annotation
 
+import annotation
 from message import Messager
 
 # Constants

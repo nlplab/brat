@@ -3,8 +3,8 @@
 # Script to convert MetaMap "fielded" ("-N" argument) output into
 # standoff with reference to the original text.
 
-import sys
 import re
+import sys
 
 # Regex for the "signature" of a metamap "fielded" output line
 FIELDED_OUTPUT_RE = re.compile(r'^\d+\|')

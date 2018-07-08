@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import sys
-import re
 import os
+import re
+import sys
 
 options = None
 

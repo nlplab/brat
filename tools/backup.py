@@ -10,15 +10,16 @@ Version:    2011-05-11
 
 from datetime import datetime
 from os import mkdir, remove
-from os.path import dirname, exists, basename
 from os.path import join as path_join
+from os.path import basename, dirname, exists
 from shlex import split as shlex_split
 from subprocess import Popen
 from sys import path as sys_path
 
+from config import DATA_DIR, WORK_DIR
+
 sys_path.append(path_join(dirname(__file__), '..'))
 
-from config import WORK_DIR, DATA_DIR
 
 # Constants
 TOOL_BACKUP_DIR = path_join(WORK_DIR, 'bckup_tool')

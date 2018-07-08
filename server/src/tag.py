@@ -15,9 +15,9 @@ from os.path import join as path_join
 from socket import error as SocketError
 from urllib.parse import urlparse
 
-from annotation import TextAnnotations, TextBoundAnnotationWithText
-from annotation import NormalizationAnnotation
-from annotator import _json_from_ann, ModificationTracker
+from annotation import (NormalizationAnnotation, TextAnnotations,
+                        TextBoundAnnotationWithText)
+from annotator import ModificationTracker, _json_from_ann
 from common import ProtocolError
 from document import real_directory
 from jsonwrap import loads

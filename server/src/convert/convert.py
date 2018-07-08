@@ -10,20 +10,19 @@ from os.path import join as path_join
 from shutil import rmtree
 from tempfile import mkdtemp
 
-from annotation import open_textfile, Annotations
+from annotation import Annotations, open_textfile
 from common import ProtocolError
 from document import _document_json_dict
-from .stanford import (
-    basic_dep as stanford_basic_dep,
-    collapsed_ccproc_dep as stanford_collapsed_ccproc_dep,
-    collapsed_dep as stanford_collapsed_dep,
-    coref as stanford_coref,
-    ner as stanford_ner,
-    pos as stanford_pos,
-    text as stanford_text,
-    token_offsets as stanford_token_offsets,
-    sentence_offsets as stanford_sentence_offsets
-)
+
+from .stanford import basic_dep as stanford_basic_dep
+from .stanford import collapsed_ccproc_dep as stanford_collapsed_ccproc_dep
+from .stanford import collapsed_dep as stanford_collapsed_dep
+from .stanford import coref as stanford_coref
+from .stanford import ner as stanford_ner
+from .stanford import pos as stanford_pos
+from .stanford import sentence_offsets as stanford_sentence_offsets
+from .stanford import text as stanford_text
+from .stanford import token_offsets as stanford_token_offsets
 
 # Constants
 CONV_BY_SRC = {

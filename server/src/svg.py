@@ -14,13 +14,14 @@ Version:    2011-04-22
 
 
 
-from os.path import join as path_join
-from os.path import isfile, exists
 from os import makedirs, mkdir
+from os.path import join as path_join
+from os.path import exists, isfile
+
+from config import BASE_DIR, WORK_DIR
 
 from annotator import open_textfile
-from common import ProtocolError, NoPrintJSONError
-from config import BASE_DIR, WORK_DIR
+from common import NoPrintJSONError, ProtocolError
 from document import real_directory
 from message import Messager
 from session import get_session

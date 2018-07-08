@@ -31,9 +31,9 @@
 
 
 
-import sys
-import re
 import codecs
+import re
+import sys
 
 INPUT_ENCODING = "UTF-8"
 

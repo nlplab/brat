@@ -8,34 +8,34 @@ Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
 """
 
-from os.path import abspath, normpath
-from os.path import join as path_join
-
-from annotator import create_arc, delete_arc, reverse_arc
-from annotator import create_span, delete_span
-from annotator import split_span
-from auth import login, logout, whoami, NotAuthorisedError
-from common import ProtocolError
-from config import DATA_DIR
-from convert.convert import convert
-from docimport import save_import
-from document import (get_directory_information, get_document,
-                      get_document_timestamp, get_configuration)
-from download import download_file, download_collection
 from inspect import getargspec
-
-from jsonwrap import dumps
 from logging import info as log_info
+from os.path import join as path_join
+from os.path import abspath, normpath
+
+from config import DATA_DIR
+
 from annlog import log_annotation
+from annotator import (create_arc, create_span, delete_arc, delete_span,
+                       reverse_arc, split_span)
+from auth import NotAuthorisedError, login, logout, whoami
+from common import ProtocolError
+from convert.convert import convert
+from delete import delete_collection, delete_document
+from docimport import save_import
+from document import (get_configuration, get_directory_information,
+                      get_document, get_document_timestamp)
+from download import download_collection, download_file
+from jsonwrap import dumps
 from message import Messager
-from svg import store_svg, retrieve_stored
-from session import get_session, load_conf, save_conf
-from search import search_text, search_entity, search_event, search_relation, search_note
+from norm import norm_get_data, norm_get_name, norm_search
 from predict import suggest_span_types
-from undo import undo
+from search import (search_entity, search_event, search_note, search_relation,
+                    search_text)
+from session import get_session, load_conf, save_conf
+from svg import retrieve_stored, store_svg
 from tag import tag
-from delete import delete_document, delete_collection
-from norm import norm_get_name, norm_search, norm_get_data
+from undo import undo
 
 # no-op function that can be invoked by client to log a user action
 

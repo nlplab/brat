@@ -13,21 +13,24 @@ Version:    2011-03-11
 
 
 
-from http.cookies import CookieError, SimpleCookie
 from atexit import register as atexit_register
 from datetime import datetime, timedelta
 from hashlib import sha224
-from os import close as os_close, makedirs, remove
-from os.path import isfile, join as path_join
+from http.cookies import CookieError, SimpleCookie
+from os import close as os_close
+from os import makedirs, remove
+from os.path import join as path_join
+from os.path import isfile
 from shutil import copy
 from tempfile import mkstemp
+
+from config import WORK_DIR
 
 try:
     from pickle import dump as pickle_dump, load as pickle_load
 except ImportError:
     from pickle import dump as pickle_dump, load as pickle_load
 
-from config import WORK_DIR
 
 # Constants
 CURRENT_SESSION = None

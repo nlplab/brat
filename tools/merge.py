@@ -4,15 +4,14 @@
 
 
 
-'''
-Merge BioNLP Shared Task annotation format into a single annotation file.
+"""Merge BioNLP Shared Task annotation format into a single annotation file.
 
 find data -name '*.a1' -o -name '*.a2' -o -name '*.rel' -o -name '*.co' \
     | ./merge.py
 
 Author:     Pontus Stenetorp
 Version:    2011-01-17
-'''
+"""
 
 from collections import defaultdict
 from os.path import join as join_path

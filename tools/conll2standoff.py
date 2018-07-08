@@ -4,10 +4,10 @@
 # into BioNLP ST-flavored standoff with reference to the original
 # text.
 
-import sys
-import re
-import os
 import codecs
+import os
+import re
+import sys
 
 try:
     import psyco

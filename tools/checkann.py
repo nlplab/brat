@@ -3,10 +3,9 @@
 # Check that text-bound annotations in .ann file align with the
 # corresponding .txt file.
 
-import sys
-import re
 import codecs
-
+import re
+import sys
 from collections import namedtuple
 from os.path import basename
 

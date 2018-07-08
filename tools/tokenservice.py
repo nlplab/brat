@@ -3,9 +3,10 @@
 """A very simple tokenization service."""
 
 import re
-
 from argparse import ArgumentParser
 from cgi import FieldStorage
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from sys import stderr
 
 try:
     from json import dumps
@@ -17,13 +18,11 @@ except ImportError:
     sys_path.append(path_join(dirname(__file__), '../server/lib/ujson'))
     from ujson import dumps
 
-from sys import stderr
 try:
     pass
 except ImportError:
     # old Python again?
     pass
-from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Constants
 ARGPARSER = ArgumentParser(description='An trivial tokenization service')

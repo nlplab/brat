@@ -3,12 +3,11 @@
 
 
 
-'''
-Tokenisation related functionality.
+"""Tokenisation related functionality.
 
 Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-05-23
-'''
+"""
 
 
 

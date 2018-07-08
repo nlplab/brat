@@ -5,9 +5,9 @@
 
 
 
-import sys
-import re
 import os
+import re
+import sys
 
 
 def char_offsets(text, start, end, ttext):

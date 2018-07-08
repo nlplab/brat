@@ -6,14 +6,16 @@ Version:    2011-10-03
 
 
 
-from os import close as os_close, remove
-from os.path import join as path_join, dirname, basename, normpath
+from os import close as os_close
+from os import remove
+from os.path import join as path_join
+from os.path import basename, dirname, normpath
+from subprocess import Popen
 from tempfile import mkstemp
 
-from document import real_directory
 from annotation import open_textfile
 from common import NoPrintJSONError
-from subprocess import Popen
+from document import real_directory
 
 try:
     pass

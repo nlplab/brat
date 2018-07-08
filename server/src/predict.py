@@ -13,13 +13,13 @@ Version:    2011-11-17
 CUT_OFF = 0.95
 # In seconds
 QUERY_TIMEOUT = 30
+from urllib.error import URLError
 from urllib.parse import quote_plus
 from urllib.request import urlopen
-from urllib.error import URLError
 
 from annlog import log_annotation
-from document import real_directory
 from common import ProtocolError
+from document import real_directory
 from jsonwrap import loads
 from projectconfig import ProjectConfiguration
 

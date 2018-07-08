@@ -21,10 +21,12 @@ Version:    2011-10-07
 '''
 
 import sys
-from urllib.parse import urlparse, urljoin
-from os.path import dirname, join as joinpath
 from os import makedirs
+from os.path import join as joinpath
+from os.path import dirname
+from urllib.parse import urljoin, urlparse
 from urllib.request import urlopen
+
 from simplejson import loads
 
 try:

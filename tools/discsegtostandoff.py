@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import sys
 import re
+import sys
+
 try:
     import cElementTree as ET
 except BaseException:

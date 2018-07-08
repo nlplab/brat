@@ -10,18 +10,21 @@ Version:    2011-04-21
 """
 
 from hashlib import sha512
-from os.path import dirname, join as path_join, isdir
+from os.path import join as path_join
+from os.path import dirname, isdir
+
+from config import DATA_DIR, USER_PASSWORD
+
+from common import ProtocolError
+from message import Messager
+from projectconfig import ProjectConfiguration
+from session import get_session, invalidate_session
 
 try:
     from os.path import relpath
 except ImportError:
     # relpath new to python 2.6; use our implementation if not found
     from common import relpath
-from common import ProtocolError
-from config import USER_PASSWORD, DATA_DIR
-from message import Messager
-from session import get_session, invalidate_session
-from projectconfig import ProjectConfiguration
 
 
 # To raise if the authority to carry out an operation is lacking

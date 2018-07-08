@@ -16,10 +16,12 @@ Version:    2011-09-29
 
 # Standard library version
 from __future__ import print_function
-from os.path import abspath
+
 from os.path import join as path_join
-from sys import version_info, stderr
+from os.path import abspath
+from sys import stderr, version_info
 from time import time
+
 from _thread import allocate_lock
 
 # Constants

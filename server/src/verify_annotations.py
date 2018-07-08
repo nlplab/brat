@@ -7,7 +7,6 @@
 
 
 import annotation
-
 from projectconfig import ProjectConfiguration
 
 # Issue types. Values should match with annotation interface.

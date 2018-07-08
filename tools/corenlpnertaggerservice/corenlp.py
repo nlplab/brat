@@ -7,8 +7,10 @@ Version:    2012-04-18
 """
 
 from os import listdir
-from os.path import isdir, join as path_join
-from re import compile as re_compile, match
+from os.path import join as path_join
+from os.path import isdir
+from re import compile as re_compile
+from re import match
 
 # I am not a huge fan of pexpect, but it will get the job done
 from pexpect import spawn

@@ -2,16 +2,15 @@
 
 """An example of a tagging service using RESTful Open Annotation."""
 
-import sys
 import logging
-import requests
 import re
-
-from logging import info, warn
-from json import dumps
-
+import sys
 from cgi import FieldStorage
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from json import dumps
+from logging import info, warn
+
+import requests
 
 TAGGER_URI = 'http://tagger.jensenlab.org/OpenAnnotation'
 

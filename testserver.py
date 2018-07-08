@@ -6,11 +6,11 @@ Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2012-07-01
 """
 
-from http.server import HTTPServer, test as simple_http_server_test
-from http.server import CGIHTTPRequestHandler
+from http.server import test as simple_http_server_test
 # Note: It is a terrible idea to import the function below, but we don't have
 #   a choice if we want to emulate the super-class is_cgi method.
-from http.server import _url_collapse_path_split
+from http.server import (CGIHTTPRequestHandler, HTTPServer,
+                         _url_collapse_path_split)
 from sys import stderr
 from urllib.parse import urlparse
 

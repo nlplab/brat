@@ -14,8 +14,8 @@ Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2011-12-05
 """
 
-from sys import stdin, stdout
 from re import compile as _compile
+from sys import stdin, stdout
 
 # Constants
 MALT_REGEX = _compile(r'^(?P<token>.*?)\t(?P<pos>[^\t]+)\t'

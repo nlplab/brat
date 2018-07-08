@@ -4,6 +4,20 @@
 
 from __future__ import with_statement
 
+from codecs import open as codecs_open
+from itertools import chain, takewhile
+from os import close as os_close
+from os.path import join as path_join
+from os.path import splitext
+from re import compile as re_compile
+from re import match as re_match
+from time import time
+
+from filelock import FileLock
+
+from common import ProtocolError
+from message import Messager
+
 '''
 Functionality related to the annotation file format.
 
@@ -11,18 +25,7 @@ Author:     Pontus Stenetorp   <pontus is s u-tokyo ac jp>
 Version:    2011-01-25
 '''
 
-from codecs import open as codecs_open
-from itertools import chain, takewhile
-from os import close as os_close
-from time import time
-from os.path import join as path_join
-from os.path import splitext
-from re import match as re_match
-from re import compile as re_compile
 
-from common import ProtocolError
-from filelock import FileLock
-from message import Messager
 
 
 # Constants
@@ -1044,7 +1047,7 @@ class Annotations(object):
                                 # As a matter of convention we adjust the modified
                                 # time of the data dir when we write to it. This
                                 # helps us to make back-ups
-                                now = time()
+                                time()
                                 # XXX: Disabled for now!
                                 #utime(DATA_DIR, (now, now))
                         except Exception as e:

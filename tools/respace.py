@@ -5,9 +5,9 @@
 
 
 
-import sys
 import os
 import re
+import sys
 
 # TODO: switch to lxml
 try:

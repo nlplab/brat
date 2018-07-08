@@ -8,8 +8,15 @@ Author:     Han-Cheol Cho
 Version:    2014-04-05
 """
 
+import base64
+import json
+import urllib.error
+import urllib.parse
+import urllib.request
 from argparse import ArgumentParser
 from cgi import FieldStorage
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from sys import stderr
 
 try:
     from json import dumps
@@ -21,18 +28,12 @@ except ImportError:
     sys_path.append(path_join(dirname(__file__), '../server/lib/ujson'))
     from ujson import dumps
 
-from sys import stderr
 try:
     pass
 except ImportError:
     # old Python again?
     pass
-from http.server import HTTPServer, BaseHTTPRequestHandler
 
-import json
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
-import base64
 
 
 # Constants

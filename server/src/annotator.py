@@ -16,29 +16,26 @@ from os.path import join as path_join
 from os.path import split as path_split
 from re import compile as re_compile
 
-from annotation import (
-    OnelineCommentAnnotation,
-    TEXT_FILE_SUFFIX,
-    TextAnnotations,
-    DependingAnnotationDeleteError,
-    TextBoundAnnotation,
-    EventAnnotation,
-    EquivAnnotation,
-    open_textfile,
-    AnnotationsIsReadOnlyError,
-    AttributeAnnotation,
-    NormalizationAnnotation,
-    SpanOffsetOverlapError,
-    DISCONT_SEP)
-from common import ProtocolError, ProtocolArgumentError
+from annotation import (DISCONT_SEP, TEXT_FILE_SUFFIX,
+                        AnnotationsIsReadOnlyError, AttributeAnnotation,
+                        BinaryRelationAnnotation,
+                        DependingAnnotationDeleteError, EquivAnnotation,
+                        EventAnnotation, NormalizationAnnotation,
+                        OnelineCommentAnnotation, SpanOffsetOverlapError,
+                        TextAnnotations, TextBoundAnnotation,
+                        TextBoundAnnotationWithText, open_textfile)
+from common import ProtocolArgumentError, ProtocolError
+from document import real_directory
+from jsonwrap import dumps as json_dumps
+from jsonwrap import loads as json_loads
+from message import Messager
+from projectconfig import (ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY,
+                           UNKNOWN_CATEGORY, ProjectConfiguration)
+
 try:
     from config import DEBUG
 except ImportError:
     DEBUG = False
-from document import real_directory
-from jsonwrap import loads as json_loads, dumps as json_dumps
-from message import Messager
-from projectconfig import ProjectConfiguration, ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY
 
 # Constants
 MUL_NL_REGEX = re_compile(r'\n+')
@@ -167,7 +164,6 @@ def _json_from_ann(ann_obj):
     return j_dic
 
 
-from annotation import TextBoundAnnotation, TextBoundAnnotationWithText
 
 
 def _offsets_equal(o1, o2):
@@ -702,7 +698,6 @@ def _create_span(collection, document, offsets, _type, attributes=None,
         return mods_json
 
 
-from annotation import BinaryRelationAnnotation
 
 
 def _create_equiv(ann_obj, projectconf, mods, origin, target, type, attributes,

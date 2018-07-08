@@ -3,9 +3,17 @@
 """An example of a tagging service using NER suite."""
 
 from argparse import ArgumentParser
-
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from os.path import join as path_join
 from os.path import dirname
+from subprocess import PIPE, Popen
+from sys import stderr
+from urllib.parse import urlparse
+
+# and use this hack for converting BIO to standoff
+from BIOtoStandoff import BIO_lines_to_standoff
+# use the brat sentence splitter
+from sentencesplit import sentencebreaks_to_newlines
 
 try:
     from json import dumps
@@ -15,22 +23,14 @@ except ImportError:
     sys_path.append(path_join(dirname(__file__), '../server/lib/ujson'))
     from ujson import dumps
 
-from subprocess import PIPE, Popen
 
-from sys import stderr
-from urllib.parse import urlparse
 try:
     from urllib.parse import parse_qs
 except ImportError:
     # old Python again?
     from cgi import parse_qs
-from http.server import HTTPServer, BaseHTTPRequestHandler
 
-# use the brat sentence splitter
-from sentencesplit import sentencebreaks_to_newlines
 
-# and use this hack for converting BIO to standoff
-from BIOtoStandoff import BIO_lines_to_standoff
 
 # Constants
 DOCUMENT_BOUNDARY = 'END-DOCUMENT'

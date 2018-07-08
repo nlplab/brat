@@ -7,15 +7,15 @@ Version:    2011-11-25
 """
 
 from argparse import ArgumentParser
+from collections import namedtuple
+from datetime import datetime
+from sys import stderr
 
 # Constants
 ARGPARSER = ArgumentParser()  # XXX:
 ARGPARSER.add_argument('ann_log', nargs='+')
 ###
 
-from collections import namedtuple
-from datetime import datetime
-from sys import stderr
 
 # TODO: Some arguments left out
 LogLine = namedtuple('LogLine', ('time', 'user', 'collection', 'document',

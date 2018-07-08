@@ -4,16 +4,16 @@
 
 """Normalization support."""
 
-import normdb
-import simstringdb
-import sdistance
 from datetime import datetime
-from message import Messager
-
-from normdb import string_norm_form
-from document import real_directory
-from projectconfig import ProjectConfiguration
 from functools import reduce
+
+import normdb
+import sdistance
+import simstringdb
+from document import real_directory
+from message import Messager
+from normdb import string_norm_form
+from projectconfig import ProjectConfiguration
 
 # whether to display alignment scores in search result table
 DISPLAY_SEARCH_SCORES = False

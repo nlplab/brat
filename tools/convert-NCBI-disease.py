@@ -14,10 +14,10 @@
 
 
 
-import sys
+import codecs
 import os
 import re
-import codecs
+import sys
 
 INPUT_ENCODING = "UTF-8"
 OUTPUT_ENCODING = "UTF-8"

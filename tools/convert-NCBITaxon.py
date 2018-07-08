@@ -23,8 +23,8 @@
 
 
 
-import sys
 import codecs
+import sys
 
 INPUT_ENCODING = "UTF-8"
 

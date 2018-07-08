@@ -7,21 +7,19 @@
 #     APACHE_USER=`./apache-user.sh`
 #     sudo -u $APACHE_USER python standalone.py
 
-import sys
 import os
-
+import socket
+import sys
+from cgi import FieldStorage
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 from posixpath import normpath
+from socketserver import ForkingMixIn
 from urllib.parse import unquote
 
-from cgi import FieldStorage
-from http.server import HTTPServer
-from http.server import SimpleHTTPRequestHandler
-from socketserver import ForkingMixIn
-import socket
+from server import serve
 
 # brat imports
 sys.path.append(os.path.join(os.path.dirname(__file__), 'server/src'))
-from server import serve
 
 
 _VERBOSE_HANDLER = False

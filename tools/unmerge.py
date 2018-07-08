@@ -4,15 +4,14 @@
 
 
 
-'''
-Split merged BioNLP Shared Task annotations into separate files.
+"""Split merged BioNLP Shared Task annotations into separate files.
 
 Author:     Sampo Pyysalo
 Version:    2011-02-24
-'''
+"""
 
-import sys
 import re
+import sys
 
 try:
     import argparse

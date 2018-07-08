@@ -6,9 +6,8 @@
 # Preamble {{{
 
 
-'''
-Mark the differences between two annotation files, creating a diff annotation
-'''
+"""Mark the differences between two annotation files, creating a diff
+annotation."""
 
 try:
     import annotation

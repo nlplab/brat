@@ -34,12 +34,11 @@
 
 
 
-import sys
 import codecs
-from datetime import datetime
-from os.path import dirname, basename, splitext, join
-
 import sqlite3 as sqlite
+import sys
+from datetime import datetime
+from os.path import basename, dirname, join, splitext
 
 try:
     import simstring

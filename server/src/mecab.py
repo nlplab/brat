@@ -9,8 +9,8 @@ Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-05-17
 """
 
-from os.path import dirname
 from os.path import join as path_join
+from os.path import dirname
 from re import compile as re_compile
 from re import DOTALL
 

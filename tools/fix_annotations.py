@@ -4,10 +4,11 @@
 
 # Preamble {{{
 
+import re
+from shutil import copy
+
 # NEEDS `pip install diff_match_patch`
 from diff_match_patch import diff_match_patch
-from shutil import copy
-import re
 
 try:
     import annotation

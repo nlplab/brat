@@ -4,18 +4,18 @@
 
 
 
-import sys
-import re
 import os
-
+import re
+import sys
 from collections import namedtuple
-from os import path
 from io import StringIO
+from os import path
+
+from sentencesplit import sentencebreaks_to_newlines
 
 # assume script in brat tools/ directory, extend path to find sentencesplit.py
 sys.path.append(os.path.join(os.path.dirname(__file__), '../server/src'))
 sys.path.append('.')
-from sentencesplit import sentencebreaks_to_newlines
 
 options = None
 

@@ -6,9 +6,9 @@
 
 
 
+import codecs
 import sys
 
-import codecs
 # import numpy
 
 DEFAULT_ENCODING = 'UTF-8'

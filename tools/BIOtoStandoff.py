@@ -5,8 +5,8 @@
 
 
 
-import sys
 import re
+import sys
 
 
 class taggedEntity:

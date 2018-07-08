@@ -6,10 +6,10 @@
 
 
 
-import sys
-import re
-import os
 import codecs
+import os
+import re
+import sys
 
 # maximum number of sentences to include in single output document
 # (if None, doesn't split into documents)

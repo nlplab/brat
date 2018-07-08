@@ -5,9 +5,9 @@
 
 # TODO: duplicates parts of primary norm DB implementation, dedup.
 
-import sys
 import os.path
 import sqlite3 as sqlite
+import sys
 
 TYPE_TABLES = ["names", "attributes", "infos"]
 NON_EMPTY_TABLES = set(["names"])

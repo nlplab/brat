@@ -15,6 +15,7 @@
 
 
 import sys
+
 try:
     import annotation
 except ImportError:

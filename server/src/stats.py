@@ -4,23 +4,23 @@
 
 
 
-'''
-Annotation statistics generation.
+"""Annotation statistics generation.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-04-21
-'''
+"""
 
-from pickle import UnpicklingError
-from pickle import dump as pickle_dump
-from pickle import load as pickle_load
 from logging import info as log_info
 from os import listdir
-from os.path import isfile, getmtime
 from os.path import join as path_join
+from os.path import getmtime, isfile
+from pickle import dump as pickle_dump
+from pickle import load as pickle_load
+from pickle import UnpicklingError
+
+from config import BASE_DIR, DATA_DIR
 
 from annotation import Annotations, open_textfile
-from config import DATA_DIR, BASE_DIR
 from message import Messager
 from projectconfig import get_config_path, options_get_validation
 

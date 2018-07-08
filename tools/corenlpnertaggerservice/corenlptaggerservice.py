@@ -8,7 +8,10 @@ Version:    2012-04-18
 
 from argparse import ArgumentParser
 from cgi import FieldStorage
-from os.path import dirname, join as path_join
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from os.path import join as path_join
+from os.path import dirname
+from sys import stderr
 
 from corenlp import CoreNLPTagger
 
@@ -20,8 +23,6 @@ except ImportError:
     sys_path.append(path_join(dirname(__file__), '../../server/lib/ujson'))
     from ujson import dumps
 
-from sys import stderr
-from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Constants
 ARGPARSER = ArgumentParser(description='XXX')  # XXX:

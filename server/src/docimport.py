@@ -2,21 +2,21 @@
 
 
 
-'''
-Simple interface to for importing files into the data directory.
+"""Simple interface to for importing files into the data directory.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-02-21
-'''
+"""
 
-from annotation import open_textfile
-from common import ProtocolError
-from config import DATA_DIR
-from document import real_directory
-from annotation import JOINED_ANN_FILE_SUFF, TEXT_FILE_SUFFIX
+from os import W_OK, access
 from os.path import join as join_path
 from os.path import isdir, isfile
-from os import access, W_OK
+
+from config import DATA_DIR
+
+from annotation import JOINED_ANN_FILE_SUFF, TEXT_FILE_SUFFIX, open_textfile
+from common import ProtocolError
+from document import real_directory
 
 # Constants
 DEFAULT_IMPORT_DIR = 'import'

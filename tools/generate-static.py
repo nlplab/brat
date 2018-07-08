@@ -5,8 +5,8 @@
 # Generates a web pages linking to visualizations of each document in
 # a BioNLP ST 2011 Shared Task dataset.
 
-import sys
 import os
+import sys
 
 try:
     import argparse

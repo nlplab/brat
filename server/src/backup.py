@@ -2,12 +2,11 @@
 
 
 
-'''
-Back-up mechanisms for the data directory.
+"""Back-up mechanisms for the data directory.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-02-22
-'''
+"""
 
 # XXX: We can potentially miss a change within the same second as the back-up,
 #       we need to share a mutex with the rest of the system somehow
@@ -17,16 +16,15 @@ Version:    2011-02-22
 #       changed, if it has been changed it will not do a back-up although
 #       there is no existing back-up
 
-from os.path import getmtime, isfile, dirname, abspath, basename
-from os.path import join as join_path
-from shlex import split as split_shlex
 from datetime import datetime, timedelta
 from os import listdir
+from os.path import join as join_path
+from os.path import abspath, basename, dirname, getmtime, isfile
+from shlex import split as split_shlex
 from subprocess import Popen
 
-from filelock import FileLock, PID_WARN
-
 from config import BACKUP_DIR, DATA_DIR
+from filelock import PID_WARN, FileLock
 
 # Constants
 # TODO: Move to a config

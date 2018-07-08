@@ -28,11 +28,12 @@ except ImportError:
 sys_path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import re
+# gathering the annotations into the XML {{{
+import xml.etree.cElementTree as ET
+
 # }}}
 
 
-# gathering the annotations into the XML {{{
-import xml.etree.cElementTree as ET
 
 WORD_RE = re.compile(r'\S+')
 
