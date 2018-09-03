@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
-'''
-Generate a set of colours for a given set of input labels.
+"""Generate a set of colours for a given set of input labels.
 
 Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2012-06-28
-'''
+"""
 
 # TODO: With some frequency information this could be done even more
 #   intelligently, attempting to use the space optimally by keeping frequent
@@ -15,12 +14,18 @@ from argparse import ArgumentParser, FileType
 from colorsys import hls_to_rgb, rgb_to_hls
 from sys import stdin, stdout
 
+
 def _argparser():
     argparser = ArgumentParser()
     argparser.add_argument('-i', '--input', type=FileType('r'), default=stdin)
-    argparser.add_argument('-o', '--output', type=FileType('w'), default=stdout)
+    argparser.add_argument(
+        '-o',
+        '--output',
+        type=FileType('w'),
+        default=stdout)
     argparser.add_argument('-c', '--visual-conf', action='store_true')
     return argparser
+
 
 def main(args):
     argp = _argparser().parse_args(args[1:])
@@ -34,8 +39,8 @@ def main(args):
     hue_step = 1.0 / len(lbls)
 
     for lbl in lbls:
-        hex_output = '#{:02x}{:02x}{:02x}'.format(*[int(255 * e)
-            for e in hls_to_rgb(hue, lightness, saturation)])
+        hex_output = '#{:02x}{:02x}{:02x}'.format(
+            *[int(255 * e) for e in hls_to_rgb(hue, lightness, saturation)])
 
         if argp.visual_conf:
             argp.output.write('{}\tbgColor:{}'.format(lbl, hex_output))
@@ -45,6 +50,7 @@ def main(args):
 
         hue += hue_step
     return 0
+
 
 if __name__ == '__main__':
     from sys import argv

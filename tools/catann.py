@@ -5,25 +5,28 @@
 # files) so that the resulting .ann applies for the simple catenation
 # of the .txt files.
 
-from __future__ import with_statement
 
-import sys
-import re
-import os
+
 import codecs
+import re
+import sys
+
 
 def parse_id(l):
     m = re.match(r'^((\S)(\S*))', l)
     assert m, "Failed to parse ID: %s" % l
     return m.groups()
 
+
 def parse_key_value(kv):
     m = re.match(r'^(\S+):(\S+)$', kv)
     assert m, "Failed to parse key-value pair: %s" % kv
     return m.groups()
 
+
 def join_key_value(k, v):
     return "%s:%s" % (k, v)
+
 
 def remap_key_values(kvs, idmap):
     remapped = []
@@ -32,6 +35,7 @@ def remap_key_values(kvs, idmap):
         v = idmap.get(v, v)
         remapped.append(join_key_value(k, v))
     return remapped
+
 
 def remap_relation_idrefs(l, idmap):
     fields = l.split('\t')
@@ -43,8 +47,9 @@ def remap_relation_idrefs(l, idmap):
     args = type_args[1:]
     args = remap_key_values(args, idmap)
 
-    fields[1] = " ".join(type_args[:1]+args)
+    fields[1] = " ".join(type_args[:1] + args)
     return '\t'.join(fields)
+
 
 def remap_event_idrefs(l, idmap):
     fields = l.split('\t')
@@ -56,6 +61,7 @@ def remap_event_idrefs(l, idmap):
     fields[1] = " ".join(type_args)
     return '\t'.join(fields)
 
+
 def remap_attrib_idrefs(l, idmap):
     fields = l.split('\t')
     assert len(fields) >= 2, "format error"
@@ -64,14 +70,16 @@ def remap_attrib_idrefs(l, idmap):
     assert len(type_args) >= 2, "format error"
 
     args = type_args[1:]
-    args = [idmap.get(a,a) for a in args]
+    args = [idmap.get(a, a) for a in args]
 
-    fields[1] = " ".join(type_args[:1]+args)
+    fields[1] = " ".join(type_args[:1] + args)
     return '\t'.join(fields)
+
 
 def remap_note_idrefs(l, idmap):
     # format matches attrib in relevant parts
     return remap_attrib_idrefs(l, idmap)
+
 
 def remap_equiv_idrefs(l, idmap):
     fields = l.split('\t')
@@ -81,10 +89,11 @@ def remap_equiv_idrefs(l, idmap):
     assert len(type_args) >= 3, "format error"
 
     args = type_args[1:]
-    args = [idmap.get(a,a) for a in args]
+    args = [idmap.get(a, a) for a in args]
 
-    fields[1] = " ".join(type_args[:1]+args)
+    fields[1] = " ".join(type_args[:1] + args)
     return '\t'.join(fields)
+
 
 def main(argv):
     filenames = argv[1:]
@@ -93,7 +102,8 @@ def main(argv):
     anns = []
     texts = []
     for fn in filenames:
-        assert re.search(r'\.ann$', fn), 'Error: argument %s not a .ann file.' % fn
+        assert re.search(
+            r'\.ann$', fn), 'Error: argument %s not a .ann file.' % fn
         txtfn = re.sub(r'\.ann$', '.txt', fn)
 
         with codecs.open(fn, 'r', encoding='utf-8') as annf:
@@ -120,7 +130,7 @@ def main(argv):
             for offset in offsets.split(';'):
                 startoff, endoff = offset.split(' ')
                 startoff = int(startoff) + baseoff
-                endoff   = int(endoff) + baseoff
+                endoff = int(endoff) + baseoff
                 new_offsets.append('%d %d' % (startoff, endoff))
             offsets = ';'.join(new_offsets)
 
@@ -176,7 +186,7 @@ def main(argv):
                 assert aid not in idmap
                 idmap[aid] = newid
 
-                l = "\t".join([newid]+l.split('\t')[1:])
+                l = "\t".join([newid] + l.split('\t')[1:])
                 reserved[newid] = True
 
             anns[i][j] = l
@@ -207,14 +217,15 @@ def main(argv):
                 l = remap_note_idrefs(l, idmap)
             else:
                 # ???
-                print >> sys.stderr, "Warning: unrecognized annotation, cannot remap ID references: %s" % l
+                print("Warning: unrecognized annotation, cannot remap ID references: %s" % l, file=sys.stderr)
 
-            anns[i][j] = l+tail
-                
+            anns[i][j] = l + tail
+
     # output
     for i in range(len(anns)):
         for l in anns[i]:
             sys.stdout.write(l.encode('utf-8'))
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

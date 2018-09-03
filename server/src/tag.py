@@ -2,30 +2,29 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-'''
-Functionality for invoking tagging services.
+"""Functionality for invoking tagging services.
 
 Author:     Pontus Stenetorp
 Version:    2011-04-22
-'''
+"""
 
-from __future__ import with_statement
 
-from httplib import HTTPConnection
+
+from http.client import HTTPConnection
 from os.path import join as path_join
 from socket import error as SocketError
-from urlparse import urlparse
+from urllib.parse import urlparse
 
-from annotation import TextAnnotations, TextBoundAnnotationWithText
-from annotation import NormalizationAnnotation
-from annotator import _json_from_ann, ModificationTracker
+from annotation import (NormalizationAnnotation, TextAnnotations,
+                        TextBoundAnnotationWithText)
+from annotator import ModificationTracker, _json_from_ann
 from common import ProtocolError
 from document import real_directory
 from jsonwrap import loads
 from message import Messager
 from projectconfig import ProjectConfiguration
 
-### Constants
+# Constants
 QUERY_TIMEOUT = 30
 ###
 
@@ -62,8 +61,8 @@ class InvalidTaggerResponseError(ProtocolError):
 
     def __str__(self):
         return (('The tagger "%s" returned an invalid JSON response, please '
-            'contact the tagger service mantainer. Response: "%s"')
-            % (self.tagger, self.response.decode('utf-8'), ))
+                 'contact the tagger service mantainer. Response: "%s"')
+                % (self.tagger, self.response.decode('utf-8'), ))
 
     def json(self, json_dic):
         json_dic['exception'] = 'unknownTaggerError'
@@ -81,11 +80,14 @@ class TaggerConnectionError(ProtocolError):
     def json(self, json_dic):
         json_dic['exception'] = 'taggerConnectionError'
 
+
 def _is_textbound(ann):
     return 'offsets' in ann
 
+
 def _is_normalization(ann):
     return 'target' in ann
+
 
 def tag(collection, document, tagger):
     pconf = ProjectConfiguration(real_directory(collection))
@@ -95,10 +97,10 @@ def tag(collection, document, tagger):
     else:
         raise UnknownTaggerError(tagger)
 
-    doc_path = path_join(real_directory(collection), document)
+    path_join(real_directory(collection), document)
 
     with TextAnnotations(path_join(real_directory(collection),
-            document)) as ann_obj:
+                                   document)) as ann_obj:
 
         url_soup = urlparse(tagger_service_url)
 
@@ -109,7 +111,7 @@ def tag(collection, document, tagger):
             #   missing if you roll your own Python, for once we should not
             #   fail early since tagging is currently an edge case and we
             #   can't allow it to bring down the whole server.
-            from httplib import HTTPSConnection
+            from http.client import HTTPSConnection
             Connection = HTTPSConnection
         else:
             raise InvalidConnectionSchemeError(tagger_token, url_soup.scheme)
@@ -118,31 +120,32 @@ def tag(collection, document, tagger):
         try:
             conn = Connection(url_soup.netloc)
             req_headers = {
-                    'Content-type': 'text/plain; charset=utf-8',
-                    'Accept': 'application/json',
-                    }
+                'Content-type': 'text/plain; charset=utf-8',
+                'Accept': 'application/json',
+            }
             # Build a new service URL since the request method doesn't accept
             #   a parameters argument
             service_url = url_soup.path + (
-                    '?' + url_soup.query if url_soup.query else '')
+                '?' + url_soup.query if url_soup.query else '')
             try:
                 data = ann_obj.get_document_text().encode('utf-8')
                 req_headers['Content-length'] = len(data)
                 # Note: Trout slapping for anyone sending Unicode objects here
                 conn.request('POST',
-                        # As per: http://bugs.python.org/issue11898
-                        # Force the url to be an ascii string
-                        str(service_url),
-                        data,
-                        headers=req_headers)
-            except SocketError, e:
+                             # As per: http://bugs.python.org/issue11898
+                             # Force the url to be an ascii string
+                             str(service_url),
+                             data,
+                             headers=req_headers)
+            except SocketError as e:
                 raise TaggerConnectionError(tagger_token, e)
             resp = conn.getresponse()
 
             # Did the request succeed?
             if resp.status != 200:
-                raise TaggerConnectionError(tagger_token,
-                        '%s %s' % (resp.status, resp.reason))
+                raise TaggerConnectionError(
+                    tagger_token, '%s %s' %
+                    (resp.status, resp.reason))
             # Finally, we can read the response data
             resp_data = resp.read()
         finally:
@@ -157,7 +160,7 @@ def tag(collection, document, tagger):
         mods = ModificationTracker()
         cidmap = {}
 
-        for cid, ann in ((i, a) for i, a in json_resp.iteritems()
+        for cid, ann in ((i, a) for i, a in json_resp.items()
                          if _is_textbound(a)):
             assert 'offsets' in ann, 'Tagger response lacks offsets'
             offsets = ann['offsets']
@@ -168,7 +171,8 @@ def tag(collection, document, tagger):
 
             # sanity
             assert len(offsets) != 0, 'Tagger response has empty offsets'
-            assert len(texts) == len(offsets), 'Tagger response has different numbers of offsets and texts'
+            assert len(texts) == len(
+                offsets), 'Tagger response has different numbers of offsets and texts'
 
             start, end = offsets[0]
             text = texts[0]
@@ -176,19 +180,21 @@ def tag(collection, document, tagger):
             _id = ann_obj.get_new_id('T')
             cidmap[cid] = _id
 
-            tb = TextBoundAnnotationWithText(offsets, _id, _type, text, " " + ' '.join(texts[1:]))
+            tb = TextBoundAnnotationWithText(
+                offsets, _id, _type, text, " " + ' '.join(texts[1:]))
 
             mods.addition(tb)
             ann_obj.add_annotation(tb)
 
-        for norm in (a for a in json_resp.itervalues() if _is_normalization(a)):
+        for norm in (a for a in json_resp.values()
+                     if _is_normalization(a)):
             try:
                 _type = norm['type']
                 target = norm['target']
                 refdb = norm['refdb']
                 refid = norm['refid']
-            except KeyError, e:
-                raise # TODO
+            except KeyError as e:
+                raise  # TODO
 
             _id = ann_obj.get_new_id('N')
             target = cidmap[target]
@@ -201,6 +207,7 @@ def tag(collection, document, tagger):
         mod_resp = mods.json_response()
         mod_resp['annotations'] = _json_from_ann(ann_obj)
         return mod_resp
+
 
 if __name__ == '__main__':
     # Silly test, but helps

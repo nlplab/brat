@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-# -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; -*- 
+# -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-'''
-Main entry for the brat server, ensures integrity, handles dispatch and
+"""Main entry for the brat server, ensures integrity, handles dispatch and
 processes potential exceptions before returning them to be sent as responses.
 
 NOTE(S):
@@ -13,16 +12,19 @@ NOTE(S):
 
 Author:     Pontus Stenetorp   <pontus is s u-tokyo ac jp>
 Version:    2011-09-29
-'''
+"""
 
 # Standard library version
-from os.path import abspath
-from os.path import join as path_join
-from sys import version_info, stderr
-from time import time
-from thread import allocate_lock
+from __future__ import print_function
 
-### Constants
+from os.path import join as path_join
+from os.path import abspath
+from sys import stderr, version_info
+from time import time
+
+from _thread import allocate_lock
+
+# Constants
 # This handling of version_info is strictly for backwards compatibility
 PY_VER_STR = '%d.%d.%d-%s-%d' % tuple(version_info)
 REQUIRED_PY_VERSION = (2, 5, 0, 'alpha', 1)
@@ -37,6 +39,7 @@ CONFIG_CHECK_LOCK = allocate_lock()
 class PermissionError(Exception):
     def json(self, json_dic):
         json_dic['exception'] = 'permissionError'
+
 
 class ConfigurationError(Exception):
     def json(self, json_dic):
@@ -53,12 +56,12 @@ def _permission_check():
 
     if not access(WORK_DIR, R_OK | W_OK):
         Messager.error((('Work dir: "%s" is not read-able and ' % WORK_DIR) +
-                'write-able by the server'), duration=-1)
+                        'write-able by the server'), duration=-1)
         raise PermissionError
-    
+
     if not access(DATA_DIR, R_OK):
         Messager.error((('Data dir: "%s" is not read-able ' % DATA_DIR) +
-                'by the server'), duration=-1)
+                        'by the server'), duration=-1)
         raise PermissionError
 
 
@@ -70,18 +73,21 @@ def _miss_var_msg(var):
             'installation directory and edit it to suit your environment'
             ) % (var, CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME)
 
+
 def _miss_config_msg():
     return ('Missing file %s in the installation dir. If this is a new '
             'installation, copy the template file %s to %s in '
             'your installation directory ("cp %s %s") and edit '
             'it to suit your environment.'
-            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME, 
-                CONF_TEMPLATE_FNAME, CONF_FNAME)
+            ) % (CONF_FNAME, CONF_TEMPLATE_FNAME, CONF_FNAME,
+                 CONF_TEMPLATE_FNAME, CONF_FNAME)
 
 # Check for existence and sanity of the configuration
+
+
 def _config_check():
     from message import Messager
-    
+
     from sys import path
     from copy import deepcopy
     from os.path import dirname
@@ -98,7 +104,7 @@ def _config_check():
         try:
             import config
             del config
-        except ImportError, e:
+        except ImportError as e:
             path.extend(orig_path)
             # "Prettiest" way to check specific failure
             if e.message == 'No module named config':
@@ -127,6 +133,8 @@ def _config_check():
         path.extend(orig_path)
 
 # Convert internal log level to `logging` log level
+
+
 def _convert_log_level(log_level):
     import config
     import logging
@@ -162,7 +170,7 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         from logging import WARNING as LOG_LEVEL_WARNING
         log_level = LOG_LEVEL_WARNING
     log_basic_config(filename=path_join(WORK_DIR, 'server.log'),
-            level=log_level)
+                     level=log_level)
 
     # Do the necessary imports after enabling the logging, order critical
     try:
@@ -188,23 +196,27 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
             # Also take the opportunity to convert Strings into Unicode,
             #   according to HTTP they should be UTF-8
             try:
-                http_args[k] = unicode(params.getvalue(k), encoding='utf-8')
-            except TypeError:
-                Messager.error('protocol argument error: expected string argument %s, got %s' % (k, type(params.getvalue(k))))
+                http_args[k] = params.getvalue(k)
+            except TypeError as e:
+                # Messager.error(e)
+                Messager.error(
+                    'protocol argument error: expected string argument %s, got %s' %
+                    (k, type(
+                        params.getvalue(k))))
                 raise ProtocolArgumentError
 
         # Dispatch the request
         json_dic = dispatch(http_args, client_ip, client_hostname)
-    except ProtocolError, e:
+    except ProtocolError as e:
         # Internal error, only reported to client not to log
         json_dic = {}
         e.json(json_dic)
 
         # Add a human-readable version of the error
-        err_str = unicode(e)
+        err_str = str(e)
         if err_str != '':
             Messager.error(err_str, duration=-1)
-    except NoPrintJSONError, e:
+    except NoPrintJSONError as e:
         # Terrible hack to serve other things than JSON
         response_data = (e.hdrs, e.data)
         response_is_JSON = False
@@ -214,7 +226,8 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
         cookie_hdrs = get_session().cookie.hdrs()
         close_session()
     except SessionStoreError:
-        Messager.error("Failed to store cookie (missing write permission to brat work directory)?", -1)
+        Messager.error(
+            "Failed to store cookie (missing write permission to brat work directory)?", -1)
     except NoSessionError:
         cookie_hdrs = None
 
@@ -224,13 +237,15 @@ def _safe_serve(params, client_ip, client_hostname, cookie_data):
     return (cookie_hdrs, response_data)
 
 # Programmatically access the stack-trace
+
+
 def _get_stack_trace():
     from traceback import print_exc
-    
+
     try:
-        from cStringIO import StringIO
+        from io import StringIO
     except ImportError:
-        from StringIO import StringIO
+        from io import StringIO
 
     # Getting the stack-trace requires a small trick
     buf = StringIO()
@@ -239,6 +254,8 @@ def _get_stack_trace():
     return buf.read()
 
 # Encapsulate an interpreter crash
+
+
 def _server_crash(cookie_hdrs, e):
     from config import ADMIN_CONTACT_EMAIL, DEBUG
     from jsonwrap import dumps
@@ -249,36 +266,37 @@ def _server_crash(cookie_hdrs, e):
     if DEBUG:
         # Send back the stack-trace as json
         error_msg = '\n'.join(('Server Python crash, stack-trace is:\n',
-            stack_trace))
+                               stack_trace))
         Messager.error(error_msg, duration=-1)
     else:
         # Give the user an error message
         # Use the current time since epoch as an id for later log look-up
         error_msg = ('The server encountered a serious error, '
-                'please contact the administrators at %s '
-                'and give the id #%d'
-                ) % (ADMIN_CONTACT_EMAIL, int(time()))
+                     'please contact the administrators at %s '
+                     'and give the id #%d'
+                     ) % (ADMIN_CONTACT_EMAIL, int(time()))
         Messager.error(error_msg, duration=-1)
 
     # Print to stderr so that the exception is logged by the webserver
-    print >> stderr, stack_trace
+    print(stack_trace, file=stderr)
 
     json_dic = {
-            'exception': 'serverCrash',
-            }
+        'exception': 'serverCrash',
+    }
     return (cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic))))
 
 # Serve the client request
+
+
 def serve(params, client_ip, client_hostname, cookie_data):
     # The session relies on the config, wait-for-it
     cookie_hdrs = None
 
     # Do we have a Python version compatibly with our libs?
-    if (version_info[0] != REQUIRED_PY_VERSION[0] or
-            version_info < REQUIRED_PY_VERSION):
+    if (version_info < REQUIRED_PY_VERSION):
         # Bail with hand-written JSON, this is very fragile to protocol changes
         return cookie_hdrs, ((JSON_HDR, ),
-                ('''
+                             ('''
 {
   "messages": [
     [
@@ -293,7 +311,7 @@ def serve(params, client_ip, client_hostname, cookie_data):
     # We can now safely use json and Messager
     from jsonwrap import dumps
     from message import Messager
-    
+
     try:
         # We need to lock here since flup uses threads for each request and
         # can thus manipulate each other's global variables
@@ -302,23 +320,25 @@ def serve(params, client_ip, client_hostname, cookie_data):
             _config_check()
         finally:
             CONFIG_CHECK_LOCK.release()
-    except ConfigurationError, e:
+    except ConfigurationError as e:
         json_dic = {}
         e.json(json_dic)
-        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
+        return cookie_hdrs, ((JSON_HDR, ), dumps(
+            Messager.output_json(json_dic)))
     # We can now safely read the config
     from config import DEBUG
 
     try:
         _permission_check()
-    except PermissionError, e:
+    except PermissionError as e:
         json_dic = {}
         e.json(json_dic)
-        return cookie_hdrs, ((JSON_HDR, ), dumps(Messager.output_json(json_dic)))
+        return cookie_hdrs, ((JSON_HDR, ), dumps(
+            Messager.output_json(json_dic)))
 
     try:
         # Safe region, can throw any exception, has verified installation
         return _safe_serve(params, client_ip, client_hostname, cookie_data)
-    except BaseException, e:
+    except BaseException as e:
         # Handle the server crash
         return _server_crash(cookie_hdrs, e)

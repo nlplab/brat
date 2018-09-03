@@ -1,24 +1,24 @@
 #!/usr/bin/env python
 
-from __future__ import with_statement
 
-'''
-Simple interface to for importing files into the data directory.
+
+"""Simple interface to for importing files into the data directory.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
 Version:    2011-02-21
-'''
+"""
 
-from annotation import open_textfile
-from common import ProtocolError
-from config import DATA_DIR
-from document import real_directory
-from annotation import JOINED_ANN_FILE_SUFF, TEXT_FILE_SUFFIX
+from os import W_OK, access
 from os.path import join as join_path
 from os.path import isdir, isfile
-from os import access, W_OK
 
-### Constants
+from config import DATA_DIR
+
+from annotation import JOINED_ANN_FILE_SUFF, TEXT_FILE_SUFFIX, open_textfile
+from common import ProtocolError
+from document import real_directory
+
+# Constants
 DEFAULT_IMPORT_DIR = 'import'
 ###
 
@@ -59,7 +59,7 @@ class NoWritePermissionError(ProtocolError):
         return json_dic
 
 
-#TODO: Chop this function up
+# TODO: Chop this function up
 def save_import(text, docid, collection=None):
     '''
     TODO: DOC:
@@ -70,7 +70,7 @@ def save_import(text, docid, collection=None):
     if directory is None:
         dir_path = DATA_DIR
     else:
-        #XXX: These "security" measures can surely be fooled
+        # XXX: These "security" measures can surely be fooled
         if (directory.count('../') or directory == '..'):
             raise InvalidDirError(directory)
 
@@ -103,16 +103,13 @@ def save_import(text, docid, collection=None):
     with open(ann_path, 'w') as _:
         pass
 
-    return { 'document': docid }
+    return {'document': docid}
+
 
 if __name__ == '__main__':
     # TODO: Update these to conform with the new API
-    '''
-    from unittest import TestCase
-    from tempfile import mkdtemp
-    from shutil import rmtree
-    from os import mkdir
-
+    """from unittest import TestCase from tempfile import mkdtemp from shutil
+    import rmtree from os import mkdir.
 
     class SaveImportTest(TestCase):
         test_text = 'This is not a drill, this is a drill *BRRR!*'
@@ -131,12 +128,12 @@ if __name__ == '__main__':
             save_import(SaveImportTest.test_text, SaveImportTest.test_filename,
                     relative_dir=SaveImportTest.test_dir,
                     directory=self.tmpdir)
-        
+
         def test_default_import_dir(self):
             save_import(SaveImportTest.test_text, SaveImportTest.test_filename,
                     directory=self.tmpdir)
-   
+
 
     import unittest
     unittest.main()
-    '''
+    """
