@@ -1,4 +1,3 @@
-// -*- Mode: JavaScript; tab-width: 2; indent-tabs-mode: nil; -*-
 // vim:set ft=javascript ts=2 sw=2 sts=2 cindent:
 
 var Visualizer = (function($, window, undefined) {
@@ -372,6 +371,7 @@ var Visualizer = (function($, window, undefined) {
       var collapseArcs = false;
       var rtlmode = false;
       var collapseArcSpace = false;
+      var pagingOffset = 0;
 
       // var commentPrioLevels = ['Unconfirmed', 'Incomplete', 'Warning', 'Error', 'AnnotatorNotes'];
       // XXX Might need to be tweaked - inserted diff levels
@@ -526,6 +526,13 @@ var Visualizer = (function($, window, undefined) {
       };
 
 
+      var outOfPage = function(sentenceNo) {
+        if (!Configuration.pagingSize) return 0;
+        if (sentenceNo < pagingOffset) return -1;
+        if (sentenceNo >= pagingOffset + Configuration.pagingSize) return 1;
+        return 0;
+      };
+
       var setData = function(_sourceData) {
         if (!args) args = {};
         sourceData = _sourceData;
@@ -585,7 +592,127 @@ var Visualizer = (function($, window, undefined) {
           span.fragments.sort(midpointComparator);
           span.wholeFrom = span.fragments[0].from;
           span.wholeTo = span.fragments[span.fragments.length - 1].to;
-          span.headFragment = span.fragments[(true) ? span.fragments.length - 1 : 0]; // TODO configurable!
+        });
+
+        // prepare span boundaries for token containment testing
+        var sortedFragments = [];
+        $.each(data.spans, function(spanNo, span) {
+          $.each(span.fragments, function(fragmentNo, fragment) {
+            sortedFragments.push(fragment);
+          });
+        });
+        // sort fragments by beginning, then by end
+        sortedFragments.sort(function(a, b) {
+          var x = a.from;
+          var y = b.from;
+          if (x == y) {
+            x = a.to;
+            y = b.to;
+          }
+          return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+        var currentFragmentId = 0;
+        var startFragmentId = 0;
+        var numFragments = sortedFragments.length;
+        var lastTo = 0;
+        var firstFrom = null;
+        var chunkNo = 0;
+        var space;
+        var chunk = null;
+        // token containment testing (chunk recognition)
+        $.each(sourceData.token_offsets, function() {
+          var from = this[0];
+          var to = this[1];
+          if (firstFrom === null) firstFrom = from;
+
+          // Replaced for speedup; TODO check correctness
+          // inSpan = false;
+          // $.each(data.spans, function(spanNo, span) {
+          //   if (span.from < to && to < span.to) {
+          //     // it does; no word break
+          //     inSpan = true;
+          //     return false;
+          //   }
+          // });
+
+          // Is the token end inside a span?
+          if (startFragmentId && to > sortedFragments[startFragmentId - 1].to) {
+            while (startFragmentId < numFragments && to > sortedFragments[startFragmentId].from) {
+              startFragmentId++;
+            }
+          }
+          currentFragmentId = startFragmentId;
+          while (currentFragmentId < numFragments && to >= sortedFragments[currentFragmentId].to) {
+            currentFragmentId++;
+          }
+          // if yes, the next token is in the same chunk
+          if (currentFragmentId < numFragments && to > sortedFragments[currentFragmentId].from) {
+            return;
+          }
+
+          // otherwise, create the chunk found so far
+          space = data.text.substring(lastTo, firstFrom);
+          var text = data.text.substring(firstFrom, to);
+          if (chunk) chunk.nextSpace = space;
+          //               (index,     text, from,      to, space) {
+          chunk = new Chunk(chunkNo++, text, firstFrom, to, space);
+          chunk.lastSpace = space;
+          data.chunks.push(chunk);
+          lastTo = to;
+          firstFrom = null;
+        });
+        var numChunks = chunkNo;
+
+        // find sentence boundaries in relation to chunks
+        chunkNo = 0;
+        var sentenceNo = 0;
+        var pastFirst = false;
+        var pos = outOfPage(sentenceNo);
+        $.each(sourceData.sentence_offsets, function() {
+          var from = this[0];
+          if (chunkNo >= numChunks) return false;
+          if (data.chunks[chunkNo].from > from) return;
+          var chunk;
+          while (chunkNo < numChunks && (chunk = data.chunks[chunkNo]).from < from) {
+            chunk.outOfPage = pos;
+            chunkNo++;
+          }
+          chunkNo++;
+          if (pastFirst && from <= chunk.from) {
+            var numNL = chunk.space.split("\n").length - 1;
+            if (!numNL) numNL = 1;
+            sentenceNo += numNL;
+            pos = outOfPage(sentenceNo);
+            chunk.sentence = sentenceNo;
+          } else {
+            pastFirst = true;
+          }
+          chunk.outOfPage = pos;
+        });
+        while (chunkNo < numChunks) {
+          data.chunks[chunkNo++].outOfPage = Configuration.pagingSize ? pos : 0;
+        }
+
+        // assign fragments to appropriate chunks
+        var currentChunkId = 0;
+        var chunk;
+        $.each(sortedFragments, function(fragmentId, fragment) {
+          while (fragment.to > (chunk = data.chunks[currentChunkId]).to) currentChunkId++;
+          chunk.fragments.push(fragment);
+          fragment.text = chunk.text.substring(fragment.from - chunk.from, fragment.to - chunk.from);
+          fragment.chunk = chunk;
+          var pos = chunk.outOfPage;
+          if (pos == 0) {
+            if (!fragment.span.firstFragment) fragment.span.firstFragment = fragment;
+            fragment.span.lastFragment = fragment;
+          }
+        });
+
+        $.each(data.spans, function(spanNo, span) {
+          if (!span.firstFragment) {
+            span.firstFragment = span.lastFragment = span.fragments[0];
+          }
+          span.headFragment = span.lastFragment; // TODO configurable?
         });
 
         var spanComparator = function(a, b) {
@@ -741,108 +868,6 @@ var Visualizer = (function($, window, undefined) {
           span.normalized = 'Normalized';
         });
 
-        // prepare span boundaries for token containment testing
-        var sortedFragments = [];
-        $.each(data.spans, function(spanNo, span) {
-          $.each(span.fragments, function(fragmentNo, fragment) {
-            sortedFragments.push(fragment);
-          });
-        });
-        // sort fragments by beginning, then by end
-        sortedFragments.sort(function(a, b) {
-          var x = a.from;
-          var y = b.from;
-          if (x == y) {
-            x = a.to;
-            y = b.to;
-          }
-          return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-        });
-        var currentFragmentId = 0;
-        var startFragmentId = 0;
-        var numFragments = sortedFragments.length;
-        var lastTo = 0;
-        var firstFrom = null;
-        var chunkNo = 0;
-        var space;
-        var chunk = null;
-        // token containment testing (chunk recognition)
-        $.each(sourceData.token_offsets, function() {
-          var from = this[0];
-          var to = this[1];
-          if (firstFrom === null) firstFrom = from;
-
-          // Replaced for speedup; TODO check correctness
-          // inSpan = false;
-          // $.each(data.spans, function(spanNo, span) {
-          //   if (span.from < to && to < span.to) {
-          //     // it does; no word break
-          //     inSpan = true;
-          //     return false;
-          //   }
-          // });
-
-          // Is the token end inside a span?
-          if (startFragmentId && to > sortedFragments[startFragmentId - 1].to) {
-            while (startFragmentId < numFragments && to > sortedFragments[startFragmentId].from) {
-              startFragmentId++;
-            }
-          }
-          currentFragmentId = startFragmentId;
-          while (currentFragmentId < numFragments && to >= sortedFragments[currentFragmentId].to) {
-            currentFragmentId++;
-          }
-          // if yes, the next token is in the same chunk
-          if (currentFragmentId < numFragments && to > sortedFragments[currentFragmentId].from) {
-            return;
-          }
-
-          // otherwise, create the chunk found so far
-          space = data.text.substring(lastTo, firstFrom);
-          var text = data.text.substring(firstFrom, to);
-          if (chunk) chunk.nextSpace = space;
-          //               (index,     text, from,      to, space) {
-          chunk = new Chunk(chunkNo++, text, firstFrom, to, space);
-          chunk.lastSpace = space;
-          data.chunks.push(chunk);
-          lastTo = to;
-          firstFrom = null;
-        });
-        var numChunks = chunkNo;
-
-        // find sentence boundaries in relation to chunks
-        chunkNo = 0;
-        var sentenceNo = 0;
-        var pastFirst = false;
-        $.each(sourceData.sentence_offsets, function() {
-          var from = this[0];
-          if (chunkNo >= numChunks) return false;
-          if (data.chunks[chunkNo].from > from) return;
-          var chunk;
-          while (chunkNo < numChunks && (chunk = data.chunks[chunkNo]).from < from) {
-            chunkNo++;
-          }
-          chunkNo++;
-          if (pastFirst && from <= chunk.from) {
-            var numNL = chunk.space.split("\n").length - 1;
-            if (!numNL) numNL = 1;
-            sentenceNo += numNL;
-            chunk.sentence = sentenceNo;
-          } else {
-            pastFirst = true;
-          }
-        });
-
-        // assign fragments to appropriate chunks
-        var currentChunkId = 0;
-        var chunk;
-        $.each(sortedFragments, function(fragmentId, fragment) {
-          while (fragment.to > (chunk = data.chunks[currentChunkId]).to) currentChunkId++;
-          chunk.fragments.push(fragment);
-          fragment.text = chunk.text.substring(fragment.from - chunk.from, fragment.to - chunk.from);
-          fragment.chunk = chunk;
-        });
-
         // assign arcs to spans; calculate arc distances
         $.each(data.eventDescs, function(eventNo, eventDesc) {
           var dist = 0;
@@ -924,6 +949,7 @@ var Visualizer = (function($, window, undefined) {
 
         // Final sort of fragments in chunks for drawing purposes
         // Also identify the marked text boundaries regarding chunks
+        var sentenceNo = 0;
         $.each(data.chunks, function(chunkNo, chunk) {
           // and make the next sort take this into account. Note that this will
           // now resolve first-order dependencies between sort orders but not
@@ -1451,12 +1477,12 @@ Util.profileStart('chunks');
         var rows = [];
         var fragmentHeights = [];
         var sentenceToggle = 0;
-        var sentenceNumber = 0;
+        var rowIndex = 0;
+        var sentenceNumber = pagingOffset ? pagingOffset - 1 : 0;
         var row = new Row(svg);
         row.sentence = ++sentenceNumber;
         row.backgroundIndex = sentenceToggle;
-        row.index = 0;
-        var rowIndex = 0;
+        row.index = rowIndex;
         var twoBarWidths; // HACK to avoid measuring space's width
         var openTextHighlights = {};
         var textMarkedRows = [];
@@ -1482,8 +1508,7 @@ Util.profileStart('chunks');
             return;
           }
 
-          var f1 = span.fragments[0];
-          var f2 = span.fragments[span.fragments.length - 1];
+          var f1 = span.firstFragment, f2 = span.lastFragment;
 
           var x1 = (f1.curly.from + f1.curly.to - f1.width) / 2 -
               Configuration.visual.margin.x;
@@ -1588,7 +1613,24 @@ Util.profileStart('chunks');
           span.floor = carpet + thisCurlyHeight;
         });
 
+        var firstChunk, lastChunk;
         $.each(data.chunks, function(chunkNo, chunk) {
+          if (chunk.outOfPage) return;
+          if (!firstChunk) {
+            firstChunk = chunk;
+            if (chunkNo) row.sentence++;
+            while (sentenceNumber < chunk.sentence) {
+              sentenceNumber++;
+              rows.push(row);
+              row = new Row(svg);
+              sentenceToggle = 1 - sentenceToggle;
+              row.backgroundIndex = sentenceToggle;
+              row.index = ++rowIndex;
+            }
+            // sentenceToggle = 1 - sentenceToggle;
+          }
+          lastChunk = chunk;
+
           var spaceWidth = 0;
           if (chunk.lastSpace) {
             var spaceLen = chunk.lastSpace.length || 0;
@@ -1912,7 +1954,7 @@ Util.profileStart('chunks');
           var lastX = currentX;
           var lastRow = row;
 
-          if (chunk.sentence) {
+          if (chunk.sentence && chunk != firstChunk) {
             while (sentenceNumber < chunk.sentence) {
               sentenceNumber++;
               row.arcs = svg.group(row.group, { 'class': 'arcs' });
@@ -2035,6 +2077,13 @@ Util.profileStart('chunks');
           currentX += rtlmode ? -boxWidth : boxWidth;
         }); // chunks
 
+        if (!lastChunk) {
+          // nothing here
+          drawing = false;
+          dispatcher.post('doneRendering', [coll, doc, args]);
+          return;
+        }
+
         // finish the last row
         row.arcs = svg.group(row.group, { 'class': 'arcs' });
         rows.push(row);
@@ -2046,7 +2095,7 @@ Util.profileStart('arcsPrep');
         var arrow = makeArrow(defs, 'none');
         if (arrow) arrows['none'] = arrow;
 
-        var len = fragmentHeights.length;
+        var len = lastChunk.index * 2 + 1;
         for (var i = 0; i < len; i++) {
           if (!fragmentHeights[i] || fragmentHeights[i] < Configuration.visual.arcStartHeight) {
             fragmentHeights[i] = Configuration.visual.arcStartHeight;
@@ -2150,6 +2199,10 @@ Util.profileStart('arcs');
         // add the arcs
         $.each(data.arcs, function(arcNo, arc) {
           if (arc.hidden) return;
+
+          var originSpan = data.spans[arc.origin];
+          var targetSpan = data.spans[arc.target];
+
           // separate out possible numeric suffix from type
           var noNumArcType;
           var splitArcType;
@@ -2157,9 +2210,6 @@ Util.profileStart('arcs');
             splitArcType = arc.type.match(/^(.*?)(\d*)$/);
             noNumArcType = splitArcType[1];
           }
-
-          var originSpan = data.spans[arc.origin];
-          var targetSpan = data.spans[arc.target];
 
           var leftToRight = originSpan.headFragment.towerId < targetSpan.headFragment.towerId;
           var left, right;
@@ -2170,6 +2220,10 @@ Util.profileStart('arcs');
             left = targetSpan.headFragment;
             right = originSpan.headFragment;
           }
+
+          var leftPos = left.chunk.outOfPage;
+          var rightPos = right.chunk.outOfPage;
+          if (leftPos && rightPos) return;
 
           // fall back on relation types in case we still don't have
           // an arc description, with final fallback to unnumbered relation
@@ -2235,10 +2289,12 @@ Util.profileStart('arcs');
           arrowHead +=  ',' + color;
           labelArrowHead += ',' + color;
 
-          var leftBox = rowBBox(left);
-          var rightBox = rowBBox(right);
-          var leftRow = left.chunk.row.index;
-          var rightRow = right.chunk.row.index;
+          if (!leftPos)
+            var leftBox = rowBBox(left);
+          if (!rightPos)
+            var rightBox = rowBBox(right);
+          var leftRow = left.chunk.row ? left.chunk.row.index : 0;
+          var rightRow = right.chunk.row ? right.chunk.row.index : rows.length - 1;
 
           if (!arrows[arrowHead]) {
             var arrow = makeArrow(defs, arrowHead);
@@ -2254,11 +2310,15 @@ Util.profileStart('arcs');
 
           var fromIndex2, toIndex2;
           if (left.chunk.index == right.chunk.index) {
+            // always in page
             fromIndex2 = left.towerId * 2 + left.chunk.row.heightsAdjust;
             toIndex2 = right.towerId * 2 + right.chunk.row.heightsAdjust;
           } else {
-            fromIndex2 = left.towerId * 2 + 1 + left.chunk.row.heightsAdjust;
-            toIndex2 = right.towerId * 2 - 1 + right.chunk.row.heightsAdjust;
+            // can be out of page
+            var leftChunk = left.chunk.outOfPage ? firstChunk : left.chunk;
+            var rightChunk = right.chunk.outOfPage ? lastChunk : right.chunk;
+            fromIndex2 = left.towerId * 2 + 1 + leftChunk.row.heightsAdjust;
+            toIndex2 = right.towerId * 2 - 1 + rightChunk.row.heightsAdjust;
           }
           if (!collapseArcSpace) {
             height = findArcHeight(fromIndex2, toIndex2, fragmentHeights);
@@ -2297,7 +2357,7 @@ Util.profileStart('arcs');
               });
               var from, to;
 
-              if (rowIndex == leftRow) {
+              if (leftBox && rowIndex == leftRow) {
                 if (rtlmode) {
                   from = leftBox.x + (chunkReverse ? leftBox.width : 0);
                 } else {
@@ -2307,7 +2367,7 @@ Util.profileStart('arcs');
                 from = rtlmode ? canvasWidth - 2 * Configuration.visual.margin.y - sentNumMargin : sentNumMargin;
               }
 
-              if (rowIndex == rightRow) {
+              if (rightBox && rowIndex == rightRow) {
                 if (rtlmode) {
                   to = rightBox.x + (chunkReverse ? 0 : rightBox.width);
                 } else {
@@ -2491,7 +2551,7 @@ Util.profileStart('arcs');
               }
               var arrowStart = textStart - arrowAtLabelAdjust;
               path = svg.createPath().move(arrowStart, -height);
-              if (rowIndex == leftRow) {
+              if (leftBox && rowIndex == leftRow) {
                 var cornerx = from + (rtlmode ? -ufoCatcherMod : ufoCatcherMod) * arcSlant;
                 // for normal cases, should not be past textStart even if narrow
                 if (rtlmode) {
@@ -2580,7 +2640,7 @@ Util.profileStart('arcs');
               }
               var arrowEnd = textEnd + arrowAtLabelAdjust;
               path = svg.createPath().move(arrowEnd, -height);
-              if (rowIndex == rightRow) {
+              if (rightBox && rowIndex == rightRow) {
                 var cornerx = to - (rtlmode ? -1 : 1) * ufoCatcherMod * arcSlant;
                 // TODO: duplicates above in part, make funcs
                 // for normal cases, should not be past textEnd even if narrow
@@ -2648,29 +2708,33 @@ Util.profileStart('fragmentConnectors');
             var left = span.fragments[connectorNo];
             var right = span.fragments[connectorNo + 1];
 
-            var leftBox = rowBBox(left);
-            var rightBox = rowBBox(right);
-            var leftRow = left.chunk.row.index;
-            var rightRow = right.chunk.row.index;
+            if (!left.chunk.outOfPage)
+              var leftBox = rowBBox(left);
+            if (!right.chunk.outOfPage)
+              var rightBox = rowBBox(right);
+            var leftRow = left.chunk.row ? left.chunk.row.index : 0;
+            var rightRow = right.chunk.row ? right.chunk.row.index : rows.length - 1;
+            var box = leftBox || rightBox;
+            if (!box) continue;
 
             for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
               var row = rows[rowIndex];
               if (row.chunks.length) {
                 row.hasAnnotations = true;
 
-                if (rowIndex == leftRow) {
+                if (leftBox && rowIndex == leftRow) {
                   from = rtlmode ? leftBox.x : leftBox.x + leftBox.width;
                 } else {
                   from = rtlmode ? canvasWidth - 2 * Configuration.visual.margin.y - sentNumMargin : sentNumMargin;
                 }
 
-                if (rowIndex == rightRow) {
+                if (rightBox && rowIndex == rightRow) {
                   to = rtlmode ? rightBox.x + rightBox.width : rightBox.x;
                 } else {
                   to = rtlmode ? 0 : canvasWidth - 2 * Configuration.visual.margin.y;
                 }
 
-                var height = leftBox.y + leftBox.height - Configuration.visual.margin.y;
+                var height = box.y + box.height - Configuration.visual.margin.y;
                 if (roundCoordinates) {
                   // don't ask
                   height = (height|0)+0.5;
@@ -2818,6 +2882,8 @@ Util.profileStart('chunkFinish');
 
         var sentenceText = null;
         $.each(data.chunks, function(chunkNo, chunk) {
+          if (chunk.outOfPage) return;
+
           // context for sort
           currentChunk = chunk;
 
@@ -3444,6 +3510,11 @@ Util.profileStart('before render');
         }
       };
 
+      var setPagingOffset = function(offset, rerender) {
+        pagingOffset = offset;
+        if (rerender) dispatcher.post('renderData', [sourceData]);
+      };
+
       var isReloadOkay = function() {
         // do not reload while the user is in the dialog
         return !drawing;
@@ -3454,6 +3525,7 @@ Util.profileStart('before render');
       dispatcher.
           on('collectionChanged', collectionChanged).
           on('collectionLoaded', collectionLoaded).
+          on('setPagingOffset', setPagingOffset).
           on('renderData', renderData).
           on('triggerRender', triggerRender).
           on('requestRenderData', requestRenderData).
