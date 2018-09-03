@@ -4,7 +4,7 @@
 # heuristic postprocessor for the geniass sentence splitter, drawing
 # in part on Yoshimasa Tsuruoka's medss.pl.
 
-from __future__ import with_statement
+
 
 import re
 
@@ -36,14 +36,22 @@ __initial.append((re.compile(r'\n([.!?]+)\n'), r' \1\n'))
 __repeated = []
 
 # unlimited length for no intevening parens/brackets
-__repeated.append((re.compile(r'(\([^\[\]\(\)]*)\n([^\[\]\(\)]*\))'),r'\1 \2'))
-__repeated.append((re.compile(r'(\[[^\[\]\(\)]*)\n([^\[\]\(\)]*\])'),r'\1 \2'))
+__repeated.append(
+    (re.compile(r'(\([^\[\]\(\)]*)\n([^\[\]\(\)]*\))'), r'\1 \2'))
+__repeated.append(
+    (re.compile(r'(\[[^\[\]\(\)]*)\n([^\[\]\(\)]*\])'), r'\1 \2'))
 # standard mismatched with possible intervening
-__repeated.append((re.compile(r'(\([^\(\)]{0,250})\n([^\(\)]{0,250}\))'), r'\1 \2'))
-__repeated.append((re.compile(r'(\[[^\[\]]{0,250})\n([^\[\]]{0,250}\])'), r'\1 \2'))
+__repeated.append(
+    (re.compile(r'(\([^\(\)]{0,250})\n([^\(\)]{0,250}\))'), r'\1 \2'))
+__repeated.append(
+    (re.compile(r'(\[[^\[\]]{0,250})\n([^\[\]]{0,250}\])'), r'\1 \2'))
 # nesting to depth one
-__repeated.append((re.compile(r'(\((?:[^\(\)]|\([^\(\)]*\)){0,250})\n((?:[^\(\)]|\([^\(\)]*\)){0,250}\))'), r'\1 \2'))
-__repeated.append((re.compile(r'(\[(?:[^\[\]]|\[[^\[\]]*\]){0,250})\n((?:[^\[\]]|\[[^\[\]]*\]){0,250}\])'), r'\1 \2'))
+__repeated.append(
+    (re.compile(r'(\((?:[^\(\)]|\([^\(\)]*\)){0,250})\n((?:[^\(\)]|\([^\(\)]*\)){0,250}\))'),
+     r'\1 \2'))
+__repeated.append(
+    (re.compile(r'(\[(?:[^\[\]]|\[[^\[\]]*\]){0,250})\n((?:[^\[\]]|\[[^\[\]]*\]){0,250}\])'),
+     r'\1 \2'))
 
 __final = []
 
@@ -60,13 +68,16 @@ __final.append((re.compile(r'\b([A-Z]\.)\n([a-z]{3,})\b'), r'\1 \2'))
 # no break in likely person names with abbreviated middle name
 # (e.g. "Anton P. Chekhov", "A. P. Chekhov"). Note: Won't do
 # "A. Chekhov" as it yields too many false positives.
-__final.append((re.compile(r'\b((?:[A-Z]\.|[A-Z][a-z]{3,}) [A-Z]\.)\n([A-Z][a-z]{3,})\b'), r'\1 \2'))
+__final.append(
+    (re.compile(r'\b((?:[A-Z]\.|[A-Z][a-z]{3,}) [A-Z]\.)\n([A-Z][a-z]{3,})\b'),
+     r'\1 \2'))
 
 # no break before CC ..
 __final.append((re.compile(r'\n((?:and|or|but|nor|yet) )'), r' \1'))
 
 # or IN. (this is nothing like a "complete" list...)
-__final.append((re.compile(r'\n((?:of|in|by|as|on|at|to|via|for|with|that|than|from|into|upon|after|while|during|within|through|between|whereas|whether) )'), r' \1'))
+__final.append((re.compile(
+    r'\n((?:of|in|by|as|on|at|to|via|for|with|that|than|from|into|upon|after|while|during|within|through|between|whereas|whether) )'), r' \1'))
 
 # no sentence breaks in the middle of specific abbreviations
 __final.append((re.compile(r'\b(e\.)\n(g\.)'), r'\1 \2'))
@@ -74,19 +85,23 @@ __final.append((re.compile(r'\b(i\.)\n(e\.)'), r'\1 \2'))
 __final.append((re.compile(r'\b(i\.)\n(v\.)'), r'\1 \2'))
 
 # no sentence break after specific abbreviations
-__final.append((re.compile(r'\b(e\. ?g\.|i\. ?e\.|i\. ?v\.|vs\.|cf\.|Dr\.|Mr\.|Ms\.|Mrs\.)\n'), r'\1 '))
+__final.append(
+    (re.compile(r'\b(e\. ?g\.|i\. ?e\.|i\. ?v\.|vs\.|cf\.|Dr\.|Mr\.|Ms\.|Mrs\.)\n'),
+     r'\1 '))
 
 # or others taking a number after the abbrev
-__final.append((re.compile(r'\b([Aa]pprox\.|[Nn]o\.|[Ff]igs?\.)\n(\d+)'), r'\1 \2'))
+__final.append(
+    (re.compile(r'\b([Aa]pprox\.|[Nn]o\.|[Ff]igs?\.)\n(\d+)'), r'\1 \2'))
 
 # no break before comma (e.g. Smith, A., Black, B., ...)
 __final.append((re.compile(r'(\.\s*)\n(\s*,)'), r'\1 \2'))
 
+
 def refine_split(s):
-    """
-    Given a string with sentence splits as newlines, attempts to
-    heuristically improve the splitting. Heuristics tuned for geniass
-    sentence splitting errors.
+    """Given a string with sentence splits as newlines, attempts to
+    heuristically improve the splitting.
+
+    Heuristics tuned for geniass sentence splitting errors.
     """
 
     if DEBUG_SS_POSTPROCESSING:
@@ -98,7 +113,8 @@ def refine_split(s):
     for r, t in __repeated:
         while True:
             n = r.sub(t, s)
-            if n == s: break
+            if n == s:
+                break
             s = n
 
     for r, t in __final:
@@ -111,10 +127,11 @@ def refine_split(s):
         r1 = orig.replace('\n', ' ')
         r2 = s.replace('\n', ' ')
         if r1 != r2:
-            print >> sys.stderr, "refine_split(): error: text mismatch (returning original):\nORIG: '%s'\nNEW:  '%s'" % (orig, s)
+            print("refine_split(): error: text mismatch (returning original):\nORIG: '%s'\nNEW:  '%s'" % (orig, s), file=sys.stderr)
             s = orig
 
     return s
+
 
 if __name__ == "__main__":
     import sys
@@ -129,6 +146,5 @@ if __name__ == "__main__":
             with codecs.open(fn, encoding=INPUT_ENCODING) as f:
                 s = "".join(f.read())
                 sys.stdout.write(refine_split(s).encode(OUTPUT_ENCODING))
-        except Exception, e:
-            print >> sys.stderr, "Failed to read", fn, ":", e
-            
+        except Exception as e:
+            print("Failed to read", fn, ":", e, file=sys.stderr)

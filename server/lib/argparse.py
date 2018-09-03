@@ -16,7 +16,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Command-line parsing library
+"""Command-line parsing library.
 
 This module is an optparse-inspired command-line parsing library that:
 
@@ -96,7 +96,6 @@ import os as _os
 import re as _re
 import sys as _sys
 import textwrap as _textwrap
-
 from gettext import gettext as _
 
 try:
@@ -105,7 +104,7 @@ except NameError:
     from sets import Set as _set
 
 try:
-    _basestring = basestring
+    _basestring = str
 except NameError:
     _basestring = str
 
@@ -114,8 +113,7 @@ try:
 except NameError:
 
     def _sorted(iterable, reverse=False):
-        result = list(iterable)
-        result.sort()
+        result = sorted(iterable)
         if reverse:
             result.reverse()
         return result
@@ -123,6 +121,7 @@ except NameError:
 
 def _callable(obj):
     return hasattr(obj, '__call__') or hasattr(obj, '__bases__')
+
 
 # silence Python 2.6 buggy warnings about Exception.message
 if _sys.version_info[:2] == (2, 6):
@@ -146,13 +145,14 @@ REMAINDER = '...'
 # Utility functions and classes
 # =============================
 
+
 class _AttributeHolder(object):
     """Abstract base class that provides __repr__.
 
     The __repr__ method returns a string in the format::
-        ClassName(attr=name, attr=name, ...)
-    The attributes are determined either by a class-level attribute,
-    '_kwarg_names', or by inspecting the instance __dict__.
+    ClassName(attr=name, attr=name, ...) The attributes are determined
+    either by a class-level attribute, '_kwarg_names', or by inspecting
+    the instance __dict__.
     """
 
     def __repr__(self):
@@ -165,7 +165,7 @@ class _AttributeHolder(object):
         return '%s(%s)' % (type_name, ', '.join(arg_strings))
 
     def _get_kwargs(self):
-        return _sorted(self.__dict__.items())
+        return _sorted(list(self.__dict__.items()))
 
     def _get_args(self):
         return []
@@ -184,8 +184,9 @@ def _ensure_value(namespace, name, value):
 class HelpFormatter(object):
     """Formatter for generating usage messages and argument help strings.
 
-    Only the name of this class is considered a public API. All the methods
-    provided by the class are considered an implementation detail.
+    Only the name of this class is considered a public API. All the
+    methods provided by the class are considered an implementation
+    detail.
     """
 
     def __init__(self,
@@ -649,7 +650,7 @@ class HelpFormatter(object):
     def _fill_text(self, text, width, indent):
         text = self._whitespace_matcher.sub(' ', text).strip()
         return _textwrap.fill(text, width, initial_indent=indent,
-                                           subsequent_indent=indent)
+                              subsequent_indent=indent)
 
     def _get_help_string(self, action):
         return action.help
@@ -658,8 +659,9 @@ class HelpFormatter(object):
 class RawDescriptionHelpFormatter(HelpFormatter):
     """Help message formatter which retains any formatting in descriptions.
 
-    Only the name of this class is considered a public API. All the methods
-    provided by the class are considered an implementation detail.
+    Only the name of this class is considered a public API. All the
+    methods provided by the class are considered an implementation
+    detail.
     """
 
     def _fill_text(self, text, width, indent):
@@ -669,8 +671,9 @@ class RawDescriptionHelpFormatter(HelpFormatter):
 class RawTextHelpFormatter(RawDescriptionHelpFormatter):
     """Help message formatter which retains formatting of all help text.
 
-    Only the name of this class is considered a public API. All the methods
-    provided by the class are considered an implementation detail.
+    Only the name of this class is considered a public API. All the
+    methods provided by the class are considered an implementation
+    detail.
     """
 
     def _split_lines(self, text, width):
@@ -680,8 +683,9 @@ class RawTextHelpFormatter(RawDescriptionHelpFormatter):
 class ArgumentDefaultsHelpFormatter(HelpFormatter):
     """Help message formatter which adds default values to argument help.
 
-    Only the name of this class is considered a public API. All the methods
-    provided by the class are considered an implementation detail.
+    Only the name of this class is considered a public API. All the
+    methods provided by the class are considered an implementation
+    detail.
     """
 
     def _get_help_string(self, action):
@@ -702,7 +706,7 @@ def _get_action_name(argument):
     if argument is None:
         return None
     elif argument.option_strings:
-        return  '/'.join(argument.option_strings)
+        return '/'.join(argument.option_strings)
     elif argument.metavar not in (None, SUPPRESS):
         return argument.metavar
     elif argument.dest not in (None, SUPPRESS):
@@ -733,7 +737,6 @@ class ArgumentError(Exception):
 
 class ArgumentTypeError(Exception):
     """An error from trying to convert a command line string to a type."""
-    pass
 
 
 # ==============
@@ -1124,7 +1127,7 @@ class _SubParsersAction(Action):
 # ==============
 
 class FileType(object):
-    """Factory for creating file object types
+    """Factory for creating file object types.
 
     Instances of FileType are typically passed as type= arguments to the
     ArgumentParser add_argument() method.
@@ -1166,11 +1169,12 @@ class FileType(object):
 # Optional and Positional Parsing
 # ===========================
 
+
 class Namespace(_AttributeHolder):
     """Simple object for storing attributes.
 
-    Implements equality by attribute names and values, and provides a simple
-    string representation.
+    Implements equality by attribute names and values, and provides a
+    simple string representation.
     """
 
     def __init__(self, **kwargs):
@@ -1266,15 +1270,12 @@ class _ActionsContainer(object):
                 return action.default
         return self._defaults.get(dest, None)
 
-
     # =======================
     # Adding argument actions
     # =======================
     def add_argument(self, *args, **kwargs):
-        """
-        add_argument(dest, ..., name=value, ...)
-        add_argument(option_string, option_string, ..., name=value, ...)
-        """
+        """add_argument(dest, ..., name=value, ...) add_argument(option_string,
+        option_string, ..., name=value, ...)"""
 
         # if no positional args are supplied or only one is supplied and
         # it doesn't look like an option string, parse a positional
@@ -2067,8 +2068,8 @@ class ArgumentParser(_AttributeHolder, _ActionsContainer):
 
         # if multiple actions match, the option string was ambiguous
         if len(option_tuples) > 1:
-            options = ', '.join([option_string
-                for action, option_string, explicit_arg in option_tuples])
+            options = ', '.join(
+                [option_string for action, option_string, explicit_arg in option_tuples])
             tup = arg_string, options
             self.error(_('ambiguous option: %s could match %s') % tup)
 

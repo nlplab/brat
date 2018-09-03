@@ -5,8 +5,8 @@
 # Generates a web pages linking to visualizations of each document in
 # a BioNLP ST 2011 Shared Task dataset.
 
-import sys
 import os
+import sys
 
 try:
     import argparse
@@ -23,12 +23,31 @@ known_filename_extensions = [".txt", ".a1", ".a2"]
 
 
 def argparser():
-    ap=argparse.ArgumentParser(description="Generate web page linking to visualizations of BioNLP ST documents.")
-    ap.add_argument("-v", "--visualizer", default="visualizer.xhtml", metavar="URL", help="Visualization script")
-    ap.add_argument("-s", "--staticdir", default="static", metavar="DIR", help="Directory containing static visualizations")
-    ap.add_argument("-d", "--dataset", default=None, metavar="NAME", help="Dataset name (derived from directory by default.)")
+    ap = argparse.ArgumentParser(
+        description="Generate web page linking to visualizations of BioNLP ST documents.")
+    ap.add_argument(
+        "-v",
+        "--visualizer",
+        default="visualizer.xhtml",
+        metavar="URL",
+        help="Visualization script")
+    ap.add_argument(
+        "-s",
+        "--staticdir",
+        default="static",
+        metavar="DIR",
+        help="Directory containing static visualizations")
+    ap.add_argument(
+        "-d",
+        "--dataset",
+        default=None,
+        metavar="NAME",
+        help="Dataset name (derived from directory by default.)")
     ap.add_argument("directory", help="Directory containing ST documents.")
-    ap.add_argument("prefix", metavar="URL", help="URL prefix to prepend to links")
+    ap.add_argument(
+        "prefix",
+        metavar="URL",
+        help="URL prefix to prepend to links")
     return ap
 
 
@@ -39,15 +58,16 @@ def files_to_process(dir):
         for fn in os.listdir(dir):
             fp = os.path.join(dir, fn)
             if os.path.isdir(fp):
-                print >> sys.stderr, "Skipping directory %s" % fn
+                print("Skipping directory %s" % fn, file=sys.stderr)
             elif os.path.splitext(fn)[1] not in known_filename_extensions:
-                print >> sys.stderr, "Skipping %s: unrecognized suffix" % fn
+                print("Skipping %s: unrecognized suffix" % fn, file=sys.stderr)
             else:
                 toprocess.append(fp)
-    except OSError, e:
-        print >> sys.stderr, "Error processing %s: %s" % (dir, e)
+    except OSError as e:
+        print("Error processing %s: %s" % (dir, e), file=sys.stderr)
 
     return toprocess
+
 
 def print_links(files, arg, out=sys.stdout):
     # group by filename root (filename without extension)
@@ -59,35 +79,39 @@ def print_links(files, arg, out=sys.stdout):
         grouped[root].append(ext)
 
     # output in sort order
-    sorted = grouped.keys()
-    sorted.sort()
+    sorted = sorted(grouped.keys())
 
-    print >> out, "<table>"
+    print("<table>", file=out)
 
     for root in sorted:
         path, fn = os.path.split(root)
 
-        print >> out, "<tr>"
-        print >> out, "  <td>%s</td>" % fn
+        print("<tr>", file=out)
+        print("  <td>%s</td>" % fn, file=out)
 
         # dynamic visualization
-        print >> out, "  <td><a href=\"%s\">dynamic</a></td>" % (arg.prefix+arg.visualizer+"#"+arg.dataset+"/"+fn)
+        print("  <td><a href=\"%s\">dynamic</a></td>" % (
+            arg.prefix + arg.visualizer + "#" + arg.dataset + "/" + fn), file=out)
 
         # static visualizations
-        print >> out, "  <td><a href=\"%s\">svg</a></td>" % (arg.prefix+arg.staticdir+"/svg/"+arg.dataset+"/"+fn+".svg")
-        print >> out, "  <td><a href=\"%s\">png</a></td>" % (arg.prefix+arg.staticdir+"/png/"+arg.dataset+"/"+fn+".png")
+        print("  <td><a href=\"%s\">svg</a></td>" % (
+            arg.prefix + arg.staticdir + "/svg/" + arg.dataset + "/" + fn + ".svg"), file=out)
+        print("  <td><a href=\"%s\">png</a></td>" % (
+            arg.prefix + arg.staticdir + "/png/" + arg.dataset + "/" + fn + ".png"), file=out)
 
         # data files
         for ext in known_filename_extensions:
             if ext in grouped[root]:
-                print >> out, "  <td><a href=\"%s\">%s</a></td>" % (arg.prefix+root+ext, ext[1:])
+                print("  <td><a href=\"%s\">%s</a></td>" % (
+                    arg.prefix + root + ext, ext[1:]), file=out)
             else:
                 # missing
-                print >> out, "  <td>-</td>"
+                print("  <td>-</td>", file=out)
 
-        print >> out, "</tr>"
+        print("</tr>", file=out)
 
-    print >> out, "</table>"
+    print("</table>", file=out)
+
 
 def main(argv=None):
     if argv is None:
@@ -101,23 +125,25 @@ def main(argv=None):
         while dir[-1] == os.sep:
             dir = dir[:-1]
         arg.dataset = os.path.split(dir)[1]
-        print >> sys.stderr, "Assuming dataset name '%s', visualizations in %s" % (arg.dataset, os.path.join(arg.staticdir,arg.dataset))
+        print("Assuming dataset name '%s', visualizations in %s" % (
+            arg.dataset, os.path.join(arg.staticdir, arg.dataset)), file=sys.stderr)
 
     try:
         files = files_to_process(arg.directory)
         if files is None or len(files) == 0:
-            print >> sys.stderr, "No files found"
+            print("No files found", file=sys.stderr)
             return 1
         print_header()
         print_links(files, arg)
         print_footer()
-    except:
-        print >> sys.stderr, "Error processing %s" % arg.directory
+    except BaseException:
+        print("Error processing %s" % arg.directory, file=sys.stderr)
         raise
     return 0
 
+
 def print_header(out=sys.stdout):
-    print >> out, """<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+    print("""<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <link rel="stylesheet" href="bionlp-st-11.css" type="text/css" />
@@ -141,8 +167,8 @@ def print_header(out=sys.stdout):
 		</div>
 	      </td>
 	    </tr>
-	  </table>  
-	</div> 
+	  </table>
+	</div>
 	<div id="sites-chrome-main-wrapper">
 	  <div id="sites-chrome-main-wrapper-inside">
 	    <table id="sites-chrome-main" class="sites-layout-hbox" cellspacing="0">
@@ -165,10 +191,11 @@ def print_header(out=sys.stdout):
 
 			<!-- ##################################################################### -->
 			<div id="main">
-"""
+""", file=out)
+
 
 def print_footer(out=sys.stdout):
-    print >> out, """		      </div> 		      
+    print("""		      </div>
 		    </div>
 		  </div>
 		</td>
@@ -180,7 +207,8 @@ def print_footer(out=sys.stdout):
     </div>
   </div>
 </body>
-</html>"""
+</html>""", file=out)
+
 
 if __name__ == "__main__":
     sys.exit(main())

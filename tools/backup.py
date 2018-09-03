@@ -1,34 +1,35 @@
 #!/usr/bin/env python
 
-'''
-Make a data back-up into the work directory.
+"""Make a data back-up into the work directory.
 
 This script is a quick hack until we come up with something better.
 
 Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-05-11
-'''
+"""
 
 from datetime import datetime
 from os import mkdir, remove
-from os.path import dirname, exists, basename
 from os.path import join as path_join
+from os.path import basename, dirname, exists
 from shlex import split as shlex_split
 from subprocess import Popen
 from sys import path as sys_path
-from sys import stderr as sys_stderr
+
+from config import DATA_DIR, WORK_DIR
 
 sys_path.append(path_join(dirname(__file__), '..'))
 
-from config import WORK_DIR, DATA_DIR
 
-### Constants
+# Constants
 TOOL_BACKUP_DIR = path_join(WORK_DIR, 'bckup_tool')
 ###
+
 
 def _safe_dirname(path):
     # Handles the case of a trailing slash for the dir path
     return basename(path) or dirname(dirname(path))
+
 
 def main(args):
     if not exists(TOOL_BACKUP_DIR):
@@ -40,7 +41,7 @@ def main(args):
     data_dir_parent = path_join(DATA_DIR, '..')
 
     tar_cmd = 'tar -c -z -f %s -C %s %s' % (backup_path, data_dir_parent,
-            _safe_dirname(DATA_DIR))
+                                            _safe_dirname(DATA_DIR))
     tar_p = Popen(shlex_split(tar_cmd))
     tar_p.wait()
 
@@ -50,6 +51,7 @@ def main(args):
         return -1
     else:
         return 0
+
 
 if __name__ == '__main__':
     from sys import argv

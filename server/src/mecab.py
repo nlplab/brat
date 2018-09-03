@@ -1,21 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-`
 
-'''
-MeCab wrapper for brat
+"""MeCab wrapper for brat.
 
 http://mecab.sourceforge.net/
 
 Author:     Pontus Stenetorp <pontus stenetorp se>
 Version:    2011-05-17
-'''
+"""
 
-from os.path import dirname
 from os.path import join as path_join
+from os.path import dirname
 from re import compile as re_compile
 from re import DOTALL
 
-### Constants
+# Constants
 # TODO: EXTERNAL_DIR_PATH really should be specified elsewhere
 EXTERNAL_DIR_PATH = path_join(dirname(__file__), '..', '..', 'external')
 MECAB_PYTHON_PATH = path_join(EXTERNAL_DIR_PATH, 'mecab-python-0.98')
@@ -32,6 +31,8 @@ except ImportError:
     import MeCab as mecab
 
 # Boundaries are on the form: [start, end]
+
+
 def token_offsets_gen(text):
     # Parse in Wakati format
     tagger = mecab.Tagger('-O wakati')
@@ -54,9 +55,10 @@ def token_offsets_gen(text):
         yield [start, end]
         last_end = end
 
+
 if __name__ == '__main__':
     # Minor test: Is it a duck? Maybe?
-    sentence = u'鴨かも？'
+    sentence = '鴨かも？'
     token_offsets = [t for t in token_offsets_gen(sentence)]
     segmented = [sentence[start:end + 1] for start, end in token_offsets]
-    print '\t'.join((sentence, unicode(token_offsets), '|'.join(segmented)))
+    print('\t'.join((sentence, str(token_offsets), '|'.join(segmented))))

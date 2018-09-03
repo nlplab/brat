@@ -3,25 +3,24 @@
 # Script to convert a column-based BIO-formatted entity-tagged file
 # into standoff with reference to the original text.
 
-from __future__ import with_statement
 
-import sys
+
 import re
-import os
-import codecs
+import sys
+
 
 class taggedEntity:
     def __init__(self, startOff, endOff, eType, idNum, fullText):
         self.startOff = startOff
-        self.endOff   = endOff  
-        self.eType    = eType   
-        self.idNum    = idNum   
+        self.endOff = endOff
+        self.eType = eType
+        self.idNum = idNum
         self.fullText = fullText
 
         self.eText = fullText[startOff:endOff]
 
     def __str__(self):
-        return "T%d\t%s %d %d\t%s" % (self.idNum, self.eType, self.startOff, 
+        return "T%d\t%s %d %d\t%s" % (self.idNum, self.eType, self.startOff,
                                       self.endOff, self.eText)
 
     def check(self):
@@ -32,11 +31,14 @@ class taggedEntity:
         assert self.eText == self.eText.strip(), \
             "ERROR: entity contains extra whitespace: '%s'" % self.eText
 
+
 def BIO_to_standoff(BIOtext, reftext, tokenidx=2, tagidx=-1):
     BIOlines = BIOtext.split('\n')
     return BIO_lines_to_standoff(BIOlines, reftext, tokenidx, tagidx)
 
+
 next_free_id_idx = 1
+
 
 def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
     global next_free_id_idx
@@ -46,7 +48,7 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
     ri, bi = 0, 0
     while(ri < len(reftext)):
         if bi >= len(BIOlines):
-            print >> sys.stderr, "Warning: received BIO didn't cover given text"
+            print("Warning: received BIO didn't cover given text", file=sys.stderr)
             break
 
         BIOline = BIOlines[bi]
@@ -60,16 +62,16 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
 
             try:
                 tokentext = fields[tokenidx]
-            except:
-                print >> sys.stderr, "Error: failed to get token text " \
-                    "(field %d) on line: %s" % (tokenidx, BIOline)
+            except BaseException:
+                print("Error: failed to get token text " \
+                    "(field %d) on line: %s" % (tokenidx, BIOline), file=sys.stderr)
                 raise
 
             try:
                 tag = fields[tagidx]
-            except:
-                print >> sys.stderr, "Error: failed to get token text " \
-                    "(field %d) on line: %s" % (tagidx, BIOline)
+            except BaseException:
+                print("Error: failed to get token text " \
+                    "(field %d) on line: %s" % (tagidx, BIOline), file=sys.stderr)
                 raise
 
             m = re.match(r'^([BIO])((?:-[A-Za-z0-9_-]+)?)$', tag)
@@ -82,22 +84,22 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
 
             # sanity check
             assert ((ttype == "" and ttag == "O") or
-                    (ttype != "" and ttag in ("B","I"))), \
-                    "Error: tag/type mismatch %s" % tag
+                    (ttype != "" and ttag in ("B", "I"))), \
+                "Error: tag/type mismatch %s" % tag
 
             # go to the next token on reference; skip whitespace
             while ri < len(reftext) and reftext[ri].isspace():
                 ri += 1
 
             # verify that the text matches the original
-            assert reftext[ri:ri+len(tokentext)] == tokentext, \
+            assert reftext[ri:ri + len(tokentext)] == tokentext, \
                 "ERROR: text mismatch: reference '%s' tagged '%s'" % \
-                (reftext[ri:ri+len(tokentext)].encode("UTF-8"), 
+                (reftext[ri:ri + len(tokentext)].encode("UTF-8"),
                  tokentext.encode("UTF-8"))
 
             # store tagged token as (begin, end, tag, tagtype) tuple.
-            taggedTokens.append((ri, ri+len(tokentext), ttag, ttype))
-            
+            taggedTokens.append((ri, ri + len(tokentext), ttag, ttype))
+
             # skip the processed token
             ri += len(tokentext)
             bi += 1
@@ -105,11 +107,11 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
             # ... and skip whitespace on reference
             while ri < len(reftext) and reftext[ri].isspace():
                 ri += 1
-            
+
     # if the remaining part either the reference or the tagged
     # contains nonspace characters, something's wrong
     if (len([c for c in reftext[ri:] if not c.isspace()]) != 0 or
-        len([c for c in BIOlines[bi:] if not re.match(r'^\s*$', c)]) != 0):
+            len([c for c in BIOlines[bi:] if not re.match(r'^\s*$', c)]) != 0):
         assert False, "ERROR: failed alignment: '%s' remains in reference, " \
             "'%s' in tagged" % (reftext[ri:], BIOlines[bi:])
 
@@ -121,7 +123,7 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
     prevTag = None
     for startoff, endoff, ttag, ttype in taggedTokens:
         if prevTag == "O" and ttag == "I":
-            print >> sys.stderr, "Note: rewriting \"I\" -> \"B\" after \"O\""
+            print("Note: rewriting \"I\" -> \"B\" after \"O\"", file=sys.stderr)
             ttag = "B"
         revisedTagged.append((startoff, endoff, ttag, ttype))
         prevTag = ttag
@@ -133,11 +135,11 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
     prevTag, prevType = None, None
     for startoff, endoff, ttag, ttype in taggedTokens:
         if prevTag in ("B", "I") and ttag == "I" and prevType != ttype:
-            print >> sys.stderr, "Note: rewriting \"I\" -> \"B\" at type switch"
+            print("Note: rewriting \"I\" -> \"B\" at type switch", file=sys.stderr)
             ttag = "B"
         revisedTagged.append((startoff, endoff, ttag, ttype))
         prevTag, prevType = ttag, ttype
-    taggedTokens = revisedTagged    
+    taggedTokens = revisedTagged
 
     prevTag, prevEnd = "O", 0
     currType, currStart = None, None
@@ -147,8 +149,8 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
             # previous entity does not continue into this tag; output
             assert currType is not None and currStart is not None, \
                 "ERROR in %s" % fn
-            
-            standoff_entities.append(taggedEntity(currStart, prevEnd, currType, 
+
+            standoff_entities.append(taggedEntity(currStart, prevEnd, currType,
                                                   next_free_id_idx, reftext))
 
             next_free_id_idx += 1
@@ -161,11 +163,11 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
             assert ttag == "I", "ERROR in %s" % fn
             assert currType == ttype, "ERROR: entity of type '%s' continues " \
                 "as type '%s'" % (currType, ttype)
-            
+
         if ttag == "B":
             # new entity starts
             currType, currStart = ttype, startoff
-            
+
         prevTag, prevEnd = ttag, endoff
 
     # if there's an open entity after all tokens have been processed,
@@ -183,6 +185,7 @@ def BIO_lines_to_standoff(BIOlines, reftext, tokenidx=2, tagidx=-1):
 
 RANGE_RE = re.compile(r'^(-?\d+)-(-?\d+)$')
 
+
 def parse_indices(idxstr):
     # parse strings of forms like "4,5" and "6,8-11", return list of
     # indices.
@@ -196,9 +199,10 @@ def parse_indices(idxstr):
                 indices.append(j)
     return indices
 
+
 def main(argv):
     if len(argv) < 3 or len(argv) > 5:
-        print >> sys.stderr, "Usage:", argv[0], "TEXTFILE BIOFILE [TOKENIDX [BIOIDX]]"
+        print("Usage:", argv[0], "TEXTFILE BIOFILE [TOKENIDX [BIOIDX]]", file=sys.stderr)
         return 1
     textfn, biofn = argv[1], argv[2]
 
@@ -221,17 +225,18 @@ def main(argv):
     else:
         try:
             indices = parse_indices(bioIdx)
-        except:
-            print >> sys.stderr, 'Error: failed to parse indices "%s"' % bioIdx
+        except BaseException:
+            print('Error: failed to parse indices "%s"' % bioIdx, file=sys.stderr)
             return 1
         so = []
         for i in indices:
             so.extend(BIO_to_standoff(bio, text, tokenIdx, i))
 
     for s in so:
-        print s
+        print(s)
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
