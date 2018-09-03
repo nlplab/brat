@@ -14,9 +14,6 @@ Author:     Pontus Stenetorp   <pontus is s u-tokyo ac jp>
 Version:    2011-09-29
 """
 
-# Standard library version
-from __future__ import print_function
-
 from os.path import join as path_join
 from os.path import abspath
 from sys import stderr, version_info

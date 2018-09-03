@@ -16,10 +16,10 @@ from posixpath import normpath
 from socketserver import ForkingMixIn
 from urllib.parse import unquote
 
-from server import serve
 
 # brat imports
 sys.path.append(os.path.join(os.path.dirname(__file__), 'server/src'))
+from server import serve
 
 
 _VERBOSE_HANDLER = False
@@ -154,7 +154,7 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         remote_addr = self.client_address[0]
         remote_host = self.address_string()
         cookie_data = ', '.join(
-            [_f for _f in self.headers.get('cookie') if _f])
+            [_f for _f in self.headers.get('cookie', []) if _f])
 
         query_string = ''
         i = self.path.find('?')
@@ -173,7 +173,7 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         if query_string:
             env['QUERY_STRING'] = query_string
         os.environ.update(env)
-        params = FieldStorage()
+        params = FieldStorage(fp=self.rfile)
 
         # Call main server
         cookie_hdrs, response_data = serve(params, remote_addr, remote_host,
@@ -189,13 +189,10 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         response_hdrs.extend(response_data[0])
 
         self.send_response(200)
-        self.wfile.write(
-            '\n'.join(
-                ['{}: {}'.format(k, v) for k, v in list(response_hdrs)]
-            ).encode()
-        )
-        self.wfile.write('\n'.encode())
-        self.wfile.write('\n'.encode())
+        for k, v in response_hdrs:
+            self.send_header(k, v)
+        self.end_headers()
+
         # Hack to support binary data and general Unicode for SVGs and JSON
         if isinstance(response_data[1], str):
             self.wfile.write(response_data[1].encode('utf-8'))

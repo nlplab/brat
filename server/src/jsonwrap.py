@@ -12,13 +12,8 @@ try:
 
 except ImportError:
     # fall back to native json if available
-    from json import dumps as _lib_dumps
-    from json import loads as _lib_loads
-
-    # Wrap the loads and dumps to expect utf-8
-    from functools import partial
-    lib_dumps = partial(_lib_dumps, encoding='utf-8')  # , ensure_ascii=False)
-    lib_loads = partial(_lib_loads, encoding='utf-8')  # , ensure_ascii=False)
+    from json import dumps as lib_dumps
+    from json import loads as lib_loads
 
 # ensure_ascii[, check_circular[, allow_nan[, cls[, indent[, separators[,
 # encoding

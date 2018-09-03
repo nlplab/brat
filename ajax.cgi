@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
