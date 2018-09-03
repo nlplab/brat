@@ -114,6 +114,6 @@ are recognised in the CONTRIBUTORS.md file.
 For help and feedback please contact the authors below, preferably with all on
 them on CC since their responsibilities and availability may vary:
 
-* Goran Topić       &lt;goran_topic nii ac jp&gt;
+* Goran Topić       &lt;amadanmath gmail com&gt;
 * Sampo Pyysalo     &lt;sampo.pyysalo gmail com&gt;
 * Pontus Stenetorp  &lt;pontus stenetorp se&gt;

@@ -27,7 +27,7 @@ from os.path import dirname
 from urllib.parse import urljoin, urlparse
 from urllib.request import urlopen
 
-from simplejson import loads
+from json import loads
 
 try:
     base_url = sys.argv[1]

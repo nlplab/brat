@@ -140,7 +140,7 @@ fi
 
 # Extract the most important library dependencies.
 
-( cd server/lib && tar xfz simplejson-2.1.5.tar.gz )
+# ( cd server/lib && tar xfz simplejson-2.1.5.tar.gz )
 
 # Dump some last instructions to the user
 
