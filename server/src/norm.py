@@ -207,7 +207,7 @@ def _format_datas(datas, scores=None, matched=None):
 
     # sort unique labels by group index (should be otherwise stable,
     # holds since python 2.3), and flatten
-    unique_labels.sort(lambda a, b: cmp(a[0], b[0]))
+    unique_labels.sort(key=lambda a: a[0])
     unique_labels = [a[1] for a in unique_labels]
 
     # ID is first field, and datatype is "string" for all labels
@@ -217,8 +217,7 @@ def _format_datas(datas, scores=None, matched=None):
         header += [("score", "int")]
 
     # construct items, sorted by score first, ID second (latter for stability)
-    sorted_keys = sorted(list(datas.keys()), lambda a, b: cmp((scores.get(b, 0), b),
-                                                        (scores.get(a, 0), a)))
+    sorted_keys = sorted(list(datas.keys()), key=lambda a: (scores.get(a, 0), a), reverse=True)
 
     items = []
     for key in sorted_keys:
@@ -325,7 +324,7 @@ def _norm_search_name_attr(database, name, attr,
     # consider removing as unnecessary complication (ss_norm_score also).
     id_name_scores = [(i, n, ss_norm_score[string_norm_form(n)])
                       for i, n in id_names]
-    id_name_scores.sort(lambda a, b: cmp(b[2], a[2]))
+    id_name_scores.sort(key=lambda a: a[2], reverse=True)
     id_names = [(i, n) for i, n, s in id_name_scores]
 
     # update matches and scores

@@ -54,11 +54,7 @@ class SearchMatchSet(object):
 
     def sort_matches(self):
         # sort by document name
-        self.__matches.sort(
-            lambda a,
-            b: cmp(
-                a[0].get_document(),
-                b[0].get_document()))
+        self.__matches.sort(key=lambda a: a[0].get_document())
 
     def limit_to(self, num):
         # don't limit to less than one match
@@ -708,8 +704,7 @@ def search_anns_for_textbound(ann_objs, text, restrict_types=None,
             ann_matches.append(t)
 
         # sort by start offset
-        ann_matches.sort(lambda a, b: cmp((a.first_start(), -a.last_end()),
-                                          (b.first_start(), -b.last_end())))
+        ann_matches.sort(key=lambda a: (a.first_start(), -a.last_end()))
 
         # add to overall collection
         for t in ann_matches:
@@ -787,8 +782,7 @@ def search_anns_for_note(ann_objs, text, category,
 
             ann_matches.append(NoteMatch(n, a))
 
-        ann_matches.sort(lambda a, b: cmp((a.first_start(), -a.last_end()),
-                                          (b.first_start(), -b.last_end())))
+        ann_matches.sort(key=lambda a: (a.first_start(), -a.last_end()))
 
         # add to overall collection
         for t in ann_matches:
@@ -1055,8 +1049,7 @@ def search_anns_for_event(ann_objs, trigger_text, args,
             ann_matches.append((t_ann, e))
 
         # sort by trigger start offset
-        ann_matches.sort(lambda a, b: cmp((a[0].first_start(), -a[0].last_end()),
-                                          (b[0].first_start(), -b[0].last_end())))
+        ann_matches.sort(key=lambda a: (a[0].first_start(), -a[0].last_end()))
 
         # add to overall collection
         for t_obj, e in ann_matches:
