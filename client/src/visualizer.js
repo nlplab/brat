@@ -369,6 +369,7 @@ var Visualizer = (function($, window, undefined) {
       var spanTypes = null;
       var highlightGroup;
       var collapseArcs = false;
+      var hideMidArcs = false;
       var rtlmode = false;
       var collapseArcSpace = false;
       var pagingOffset = 0;
@@ -2341,6 +2342,10 @@ Util.profileStart('arcs');
           var ufoCatcherMod = ufoCatcher ? chunkReverse ? -0.5 : 0.5 : 1;
 
           for (var rowIndex = leftRow; rowIndex <= rightRow; rowIndex++) {
+            if (hideMidArcs && rowIndex != leftRow && rowIndex != rightRow) {
+              continue;
+            }
+
             var row = rows[rowIndex];
             if (row.chunks.length) {
               row.hasAnnotations = true;
@@ -2377,7 +2382,6 @@ Util.profileStart('arcs');
                 to = rtlmode ? 0 : canvasWidth - 2 * Configuration.visual.margin.y;
               }
 
-              var adjustHeight = true;
               if (collapseArcs) {
                 var arcCacheKey = arc.type + ' ' + rowIndex + ' ' + from + ' ' + to;
                 if (rowIndex == leftRow) arcCacheKey = left.span.id + ' ' + arcCacheKey;
@@ -2385,13 +2389,12 @@ Util.profileStart('arcs');
                 var rowHeight = arcCache[arcCacheKey];
                 if (rowHeight !== undefined) {
                   height = rowHeight;
-                  adjustHeight = false;
                 } else {
                   arcCache[arcCacheKey] = height;
                 }
               }
 
-              if (collapseArcSpace && adjustHeight) {
+              if (collapseArcSpace) {
                 adjustFragmentHeights(fromIndex2R, toIndex2R, fragmentHeights, height);
 
                 // Adjust the height to align with pixels when rendered
@@ -3497,6 +3500,7 @@ Util.profileStart('before render');
           var arcBundle = (response.visual_options || {}).arc_bundle || 'none';
           var textDirection = (response.visual_options || {}).text_direction || 'ltr';
           collapseArcs = arcBundle == "all";
+          hideMidArcs = arcBundle == "hide";
           collapseArcSpace = arcBundle != "none";
           rtlmode = textDirection == 'rtl';
 
