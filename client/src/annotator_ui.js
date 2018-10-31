@@ -143,7 +143,6 @@ var AnnotatorUI = (function($, window, undefined) {
           return;
         }
 
-        if (!keymap) return;
 
         // disable shortcuts when working with elements that you could
         // conceivably type in
@@ -154,17 +153,73 @@ var AnnotatorUI = (function($, window, undefined) {
         if (nodeName == 'textarea' || nodeName == 'select') return;
 
         var prefix = '';
-        if (evt.altKey) {
-          prefix = "A-";
-        }
         if (Util.isMac ? evt.metaKey : evt.ctrlKey) {
-          prefix = "C-";
+          prefix += "C-";
+        }
+        if (evt.altKey) {
+          prefix += "A-";
         }
         if (evt.shiftKey) {
-          prefix = "S-";
+          prefix += "S-";
         }
-        var binding = keymap[prefix + code];
-        if (!binding) binding = keymap[prefix + String.fromCharCode(code)];
+        var key = String.fromCharCode(code);
+
+        // repeat last action on the match focus (the current search result)
+        if (prefix + key == 'C-H') {
+          if (args.matchfocus) {
+            var valency = args.matchfocus[0].length;
+            if (valency == 2) { // text offsets
+              if (spanOptions) { // previous span edit exists
+                if (spanOptions.action == 'createSpan' && !spanOptions.id) {
+                  // new
+                  spanOptions.offsets = args.matchfocus;
+                  spanFormSubmit();
+                  dispatcher.post('logAction', ['spanSearchCreated']);
+                } else {
+                  // edit
+                  var spanId = Object.keys(data.spans).find(function(spanId) {
+                    return Util.isEqual(data.spans[spanId].offsets, args.matchfocus);
+                  });
+                  if (spanId) {
+                    spanOptions.id = spanId;
+                    var span = data.spans[spanId];
+                    if (spanOptions.action == 'deleteSpan') {
+                      spanOptions.type = span.type;
+                      deleteSpan();
+                      dispatcher.post('logAction', ['spanSearchDeleted']);
+                    } else if (spanOptions.action == 'createSpan') {
+                      // modify: type, attributes, normalizations, comment
+                      spanOptions.offsets = span.offsets;
+                      spanFormSubmit();
+                      dispatcher.post('logAction', ['spanSearchModified']);
+                    } else {
+                      //TODO
+                      console.log("Not implemented yet");
+                    }
+                  }
+                }
+              } else { // no previous span edit, so bring up the dialog
+                var spanText = data.text.substring(args.matchfocus[0][0], args.matchfocus[0][1]);
+                spanOptions = {
+                  action: 'createSpan',
+                  offsets: args.matchfocus
+                }
+                fillSpanTypesAndDisplayForm(evt, spanText, null);
+                // for precise timing, log annotation display to user.
+                dispatcher.post('logAction', ['spanSearchSelected']);
+              }
+            } else if (valency == 1) { // span ID
+              let spanId = args.matchfocus[0][0];
+            } else if (valency == 3) { // relationship; XXX TODO not sure what to do with this
+            }
+          }
+          evt.preventDefault();
+          return false;
+        }
+
+        if (!keymap) return;
+
+        var binding = keymap[prefix + code] || keymap[prefix + key];
         if (binding) {
           var boundInput = $('#' + binding)[0];
           if (boundInput && !boundInput.disabled) {
