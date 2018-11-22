@@ -858,6 +858,9 @@ var AnnotatorUI = (function($, window, undefined) {
               // TODO: check if ID is valid
               $normId.addClass('valid_value')
               normFilled = true;
+              // fill only with the first configured normalization.
+              // (TODO: multiple normalizations?)
+              return false;
             } else {
               // can't set the DB selector; assume DB is not configured,
               // warn and leave blank (will remove norm when dialog is OK'd)
