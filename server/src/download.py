@@ -33,7 +33,7 @@ def download_file(document, collection, extension):
             ('Content-Disposition',
                 'inline; filename=%s' % fname)]
     with open_textfile(fpath, 'r') as txt_file:
-        data = txt_file.read().encode('utf-8')
+        data = txt_file.read()
     raise NoPrintJSONError(hdrs, data)
 
 

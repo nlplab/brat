@@ -36,12 +36,7 @@ except ImportError:
 def token_offsets_gen(text):
     # Parse in Wakati format
     tagger = mecab.Tagger('-O wakati')
-
-    # Parse into Wakati format, MeCab only takes utf-8
-    parse = tagger.parse(text.encode('utf-8'))
-
-    # Remember to decode or you WILL get the number of bytes
-    parse = parse.decode('utf-8')
+    parse = tagger.parse(text)
 
     # Wakati inserts spaces, but only after non-space tokens.
     # We find these iteratively and then allow additional spaces to be treated

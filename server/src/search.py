@@ -537,7 +537,7 @@ def eq_text_partially_marked(
                 matches.add_match(ann_obj, m)
             for ann_obj, m in untagged:
                 matches.add_match(ann_obj, m)
-            print("(note: omitting %d instances of tagged '%s')" % (len(tagged) - cutoff_limit, text.encode('utf-8')))
+            print("(note: omitting %d instances of tagged '%s')" % (len(tagged) - cutoff_limit, text))
         elif (len(untagged) > freq_ratio_cutoff * len(tagged) and
               len(untagged) > cutoff_limit):
             # cut off all but cutoff_limit from tagged
@@ -545,7 +545,7 @@ def eq_text_partially_marked(
                 matches.add_match(ann_obj, m)
             for ann_obj, m in untagged[:cutoff_limit]:
                 matches.add_match(ann_obj, m)
-            print("(note: omitting %d instances of untagged '%s')" % (len(untagged) - cutoff_limit, text.encode('utf-8')))
+            print("(note: omitting %d instances of untagged '%s')" % (len(untagged) - cutoff_limit, text))
         else:
             # include all
             for ann_obj, m in tagged + untagged:
@@ -1731,7 +1731,7 @@ def main(argv=None):
             anns = str(ann).rstrip()
             annloc = ann_obj.get_document().replace("data/", "")
             outs = "\t%s%s?focus=%s (%s)" % (baseurl, annloc, annp, anns)
-            print(outs.encode('utf-8'))
+            print(outs)
 
 
 if __name__ == "__main__":
