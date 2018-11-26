@@ -130,7 +130,7 @@ def init_session(remote_address, cookie_data=None):
         cookie = None
 
     # Default sid for the session
-    sid = sha224('%s-%s'.format(remote_address, datetime.utcnow()).encode('utf-8')).hexdigest()
+    sid = sha224(('%s-%s' % (remote_address, datetime.utcnow())).encode()).hexdigest()
     if cookie is None:
         cookie = SessionCookie(sid)
     else:
