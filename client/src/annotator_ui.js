@@ -1644,15 +1644,15 @@ var AnnotatorUI = (function($, window, undefined) {
 
       var tryToAnnotate = function(evt) {
         var sel = window.getSelection();
-        var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
         var theFocusNode = sel.focusNode;
+        if (!theFocusNode) return;
+
+        var chunkIndexFrom = sel.anchorNode && $(sel.anchorNode.parentNode).attr('data-chunk-id');
         var chunkIndexTo;
-        if (theFocusNode) {
+        chunkIndexTo = $(theFocusNode.parentNode).attr('data-chunk-id');
+        if (!chunkIndexTo) {
+          theFocusNode = $(theFocusNode).children()[0].firstChild;
           chunkIndexTo = $(theFocusNode.parentNode).attr('data-chunk-id');
-          if (!chunkIndexTo) {
-            theFocusNode = $(theFocusNode).children()[0].firstChild;
-            chunkIndexTo = $(theFocusNode.parentNode).attr('data-chunk-id');
-          }
         }
         // var chunkIndexTo = sel.focusNode && ($(sel.focusNode.parentNode).attr('data-chunk-id') || $(sel.focusNode).children().first().attr('data-chunk-id'));
 
@@ -1817,7 +1817,7 @@ var AnnotatorUI = (function($, window, undefined) {
                             }, 'suggestedSpanTypes']);
           }
         }
-      };      
+      };
 
       var onMouseUp = function(evt) {
         if (that.user === null) return;
