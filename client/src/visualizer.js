@@ -1453,7 +1453,7 @@ Util.profileStart('measures');
         var sizes = getTextAndSpanTextMeasurements();
         data.sizes = sizes;
 
-        var styleMap = createStyleMap(sourceData['styles']);
+        var styleMap = createStyleMap(data.styles);
 
         adjustTowerAnnotationSizes();
         var maxTextWidth = 0;
