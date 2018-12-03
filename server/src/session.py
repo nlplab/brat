@@ -18,9 +18,8 @@ from Cookie import CookieError, SimpleCookie
 from atexit import register as atexit_register
 from datetime import datetime, timedelta
 from hashlib import sha224
-from os import close as os_close, makedirs, remove
-from os.path import exists, dirname, join as path_join, isfile
-from shutil import copy
+from os import close as os_close, makedirs, remove, rename
+from os.path import dirname, join as path_join, isfile
 from shutil import move
 from tempfile import mkstemp
 
@@ -36,6 +35,7 @@ CURRENT_SESSION = None
 SESSION_COOKIE_KEY = 'sid'
 # Where we store our session data files
 SESSIONS_DIR=path_join(WORK_DIR, 'sessions')
+TEMP_DIR=path_join(WORK_DIR, 'tmp')
 EXPIRATION_DELTA = timedelta(days=30)
 ###
 
@@ -118,11 +118,9 @@ class Session(dict):
 def get_session_pickle_path(sid):
     return path_join(SESSIONS_DIR, '%s.pickle' % (sid, ))
 
-def init_session(remote_address, cookie_data=None):
+def init_session(remote_address, cookie_data=None, cookie=None):
     if cookie_data is not None:
         cookie = SessionCookie.load(cookie_data)
-    else:
-        cookie = None
  
     # Default sid for the session
     sid = sha224('%s-%s' % (remote_address, datetime.utcnow())).hexdigest()
@@ -181,20 +179,30 @@ def close_session():
         else:
             raise
 
+    try:
+        makedirs(TEMP_DIR)
+    except OSError, e:
+        if e.errno == 17:
+            # Already exists
+            pass
+        else:
+            raise
+
     # Write to a temporary file and move it in place, for safety
     tmp_file_path = None
     try:
-        tmp_file_fh, tmp_file_path = mkstemp()
+        tmp_file_fh, tmp_file_path = mkstemp(dir=TEMP_DIR, prefix='', suffix='.tmp')
         os_close(tmp_file_fh)
 
         with open(tmp_file_path, 'wb') as tmp_file:
             pickle_dump(CURRENT_SESSION, tmp_file)
-        copy(tmp_file_path, get_session_pickle_path(CURRENT_SESSION.get_sid()))
+        real_file_path = get_session_pickle_path(CURRENT_SESSION.get_sid())
+        rename(tmp_file_path, real_file_path)
     except IOError:
         # failed store: no permissions?
         raise SessionStoreError
     finally:
-        if tmp_file_path is not None:
+        if tmp_file_path is not None and isfile(tmp_file_path):
             remove(tmp_file_path)
 
 def save_conf(config):
@@ -218,30 +226,15 @@ if __name__ == '__main__':
     except NoSessionError:
         pass
 
-    # New "fresh" cookie session check
     init_session('127.0.0.1')
-    
-    try:
-        session = get_session()
-        session['foo'] = 'bar'
-    except NoSessionError:
-        assert False
+    first_session = get_session()
+    first_session['foo'] = 'bar'
+    cookie = first_session.cookie
+    close_session()
 
-    # Pickle check
-    init_session('127.0.0.1')
-    tmp_file_path = None
-    try:
-        tmp_file_fh, tmp_file_path = mkstemp()
-        os_close(tmp_file_fh)
-        session = get_session()
-        session['foo'] = 'bar'
-        with open(tmp_file_path, 'wb') as tmp_file:
-            pickle_dump(session, tmp_file)
-        del session
+    init_session('127.0.0.1', cookie=cookie)
+    second_session = get_session()
+    assert second_session['foo'] == 'bar'
+    close_session()
 
-        with open(tmp_file_path, 'rb') as tmp_file:
-            session = pickle_load(tmp_file)
-            assert session['foo'] == 'bar'
-    finally:
-        if tmp_file_path is not None:
-            remove(tmp_file_path)
+    assert first_session is not second_session
