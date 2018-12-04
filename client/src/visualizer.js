@@ -1275,12 +1275,15 @@ var Visualizer = (function($, window, undefined) {
                 from: Math.min(startPos, endPos),
                 to: Math.max(startPos, endPos)
               };
-            } else { // it's markedText [id, start?, char#, offset]
-              if (fragment[2] < 0) fragment[2] = 0;
-              if (!fragment[2]) { // start
-                fragment[3] = text.getStartPositionOfChar(fragment[2]).x;
+            } else { // it's markedText [id, start?, char#, offset, kind]
+              var textUpToChar = text.textContent.substring(0, fragment[2]);
+              var textUpToCharUnspaced = textUpToChar.replace(/\s\s+/g, ' ');
+              var pos = fragment[2] - (textUpToChar.length - textUpToCharUnspaced.length);
+              if (pos < 0) pos = 0;
+              if (!pos) { // start
+                fragment[3] = text.getStartPositionOfChar(pos).x;
               } else {
-                fragment[3] = text.getEndPositionOfChar(fragment[2] - 1).x + 1;
+                fragment[3] = text.getEndPositionOfChar(pos - 1).x + 1;
               }
             }
           });
