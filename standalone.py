@@ -154,7 +154,7 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         remote_addr = self.client_address[0]
         remote_host = self.address_string()
         cookie_data = ', '.join(
-            [_f for _f in self.headers.get('cookie', []) if _f])
+            [_f for _f in self.headers.get_all('cookie', []) if _f])
 
         query_string = ''
         i = self.path.find('?')
