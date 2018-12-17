@@ -35,6 +35,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var lastStartRec = null;
       var lastEndRec = null;
       var inForm = false;
+      var normalizations = {};
 
       var draggedArcHeight = 30;
       var maxNormSearchHistory = 10;
@@ -901,30 +902,32 @@ var AnnotatorUI = (function($, window, undefined) {
 
           // fill if found (NOTE: only shows last on multiple)
           var normFilled = false;
+          normalizations = {};
           $.each(span ? span.normalizations : [], function(normNo, norm) {
             var refDb = norm[0], refId = norm[1], refText = norm[2];
             $normDb.val(refDb);
             // could the DB selector be set? (i.e. is refDb configured?)
             if ($normDb.val() == refDb) {
-              // DB is OK, set the rest also
-              $normId.val(refId);
-              oldSpanNormIdValue = refId;
-              $normText.val(refText);
-              // TODO: check if ID is valid
-              $normId.addClass('valid_value')
-              normFilled = true;
-              // fill only with the first configured normalization.
-              // (TODO: multiple normalizations?)
-              return false;
+              if (!normFilled) normFilled = refDb;
+              if (!normalizations[refDb]) normalizations[refDb] = []
+              normalizations[refDb].push([refId, refText]);
             } else {
               // can't set the DB selector; assume DB is not configured,
               // warn and leave blank (will remove norm when dialog is OK'd)
               dispatcher.post('messages', [[['Warning: '+refDb+' not configured, removing normalization.', 'warning']]]);
             }
           });
-
-          // if there is no existing normalization, show valid ones
-          if (!normFilled) {
+          if (normFilled) {
+            // DB is OK, set the rest also
+            var norm = normalizations[normFilled][0];
+            oldSpanNormIdValue = norm[0];
+            $normId.val(norm[0]);
+            $normText.val(norm[1]);
+            // TODO: check if ID is valid
+            console.log(normalizations, normFilled);
+            $normId.attr('data-value', normalizations[normFilled].length == 1 ? 'valid' : 'multi')
+          } else {
+            // if there is no existing normalization, show valid ones
             showValidNormalizations();
           }
 
@@ -1134,15 +1137,15 @@ var AnnotatorUI = (function($, window, undefined) {
           return false;
         }        
         // set input style according to whether we have a valid value
-        var $idinput = $('#span_norm_id');
+        var $normId = $('#span_norm_id');
         // TODO: make sure the key echo in the response matches the
         // current value of the $idinput
-        $idinput.removeClass('valid_value').removeClass('invalid_value');
+        $normId.attr('data-value', null);
         if (response.value === null) {
-          $idinput.addClass('invalid_value');
+          $normId.addClass('invalid_value');
           hideNormalizationRefLink();
         } else {
-          $idinput.addClass('valid_value');
+          $normId.attr('data-value', 'valid');
           updateNormalizationRefLink();
         }
         $('#span_norm_txt').val(response.value);
@@ -1151,10 +1154,30 @@ var AnnotatorUI = (function($, window, undefined) {
       // on any change to the normalization DB, clear everything and
       // update link
       var spanNormDbUpdate = function(evt) {
-        clearNormalizationUI();
+        var normDb = $('span_norm_db').val();
+        if (normalizations[normDb]) {
+          var norm = normalizations[normDb][0];
+          $('#span_norm_id').val(norm[0]).
+              attr('data-value', normalizations[normFilled].length == 1 ? 'valid' : 'multi')
+          $('#span_norm_txt').val(norm[1]);
+        } else {
+          clearNormalizationUI();
+        }
         updateNormalizationDbLink();
       }
       $('#span_norm_db').change(spanNormDbUpdate);
+
+      // if there's multiple normalisations for the type, allow selection
+      var spanNormSelect = function(evt) {
+        var normDb = $('#span_norm_db').val();
+        if (normalizations[normDb].length > 1) {
+          showNormSearchDialog();
+          setSpanNormSearchResults({
+            header: ['ID', 'Text'],
+            items: normalizations[normDb],
+          });
+        }
+      }
 
       // on any change to the normalization ID, update the text of the
       // reference
@@ -1174,9 +1197,12 @@ var AnnotatorUI = (function($, window, undefined) {
           }
           oldSpanNormIdValue = key;
         }
+        // TODO make it possible for multiple types of normalisations
+        // to survive to save
       }
       // see http://stackoverflow.com/questions/1948332/detect-all-changes-to-a-input-type-text-immediately-using-jquery
-      $('#span_norm_id').bind('propertychange keyup input paste', spanNormIdUpdate);
+      $('#span_norm_id').bind('propertychange keyup input paste', spanNormIdUpdate).
+          bind('click', spanNormSelect);
       // nice-looking select for normalization
       $('#span_norm_db').addClass('ui-widget ui-state-default ui-button-text');
 
@@ -2291,7 +2317,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var $normText = $('#span_norm_txt');
         $normId.val('');
         oldSpanNormIdValue = '';
-        $normId.removeClass('valid_value').removeClass('invalid_value');
+        $normId.attr('data-value', null);
         $normText.val('');
         updateNormalizationRefLink();
       }
