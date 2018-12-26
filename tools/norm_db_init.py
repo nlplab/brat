@@ -38,7 +38,7 @@ import codecs
 import sqlite3 as sqlite
 import sys
 from datetime import datetime
-from os.path import basename, dirname, join, splitext
+from os.path import basename, dirname, join, splitext, abspath
 
 try:
     import simstring
@@ -48,9 +48,13 @@ except ImportError:
     This library is required for approximate string matching DB lookup.
     Please install simstring and its python bindings from
     http://www.chokkan.org/software/simstring/
+    or `pip install simstring-pure`
 """
     print(errorstr, file=sys.stderr)
     sys.exit(1)
+
+# simstring: Binary or pure?
+SIMSTRING_BINARY = hasattr(simstring, 'writer')
 
 # Default encoding for input text
 DEFAULT_INPUT_ENCODING = 'UTF-8'
@@ -226,8 +230,9 @@ def main(argv):
     arg = argparser().parse_args(argv[1:])
 
     # only simstring library default supported at the moment (TODO)
-    assert DEFAULT_NGRAM_LENGTH == 3, "Error: unsupported n-gram length"
-    assert DEFAULT_INCLUDE_MARKS == False, "Error: begin/end marks not supported"
+    if SIMSTRING_BINARY:
+        assert DEFAULT_NGRAM_LENGTH == 3, "Error: unsupported n-gram length"
+        assert DEFAULT_INCLUDE_MARKS == False, "Error: begin/end marks not supported"
 
     infn = arg.file
 
@@ -381,13 +386,30 @@ def main(argv):
             print("Creating simstring DB ...", end=' ', file=sys.stderr)
 
         try:
-            ssdb = simstring.writer(ssdbfn)
-            for row in cursor.execute(SELECT_SIMSTRING_STRINGS_COMMAND):
-                # encode as UTF-8 for simstring
-                s = row[0].encode('utf-8')
-                ssdb.insert(s)
-                simstring_count += 1
-            ssdb.close()
+            if SIMSTRING_BINARY:
+                ssdb = simstring.writer(ssdbfn)
+
+                for row in cursor.execute(SELECT_SIMSTRING_STRINGS_COMMAND):
+                    s = row[0]
+                    ssdb.insert(s)
+                    simstring_count += 1
+                ssdb.close()
+
+            else:
+                sys.path.append(join(dirname(abspath(__file__)), '..', 'server', 'src'))
+                from simstring_pure_sqlite3 import SQLite3Database
+                from simstring.feature_extractor.character_ngram import CharacterNgramFeatureExtractor
+                from simstring.searcher import Searcher
+
+                fx = CharacterNgramFeatureExtractor(DEFAULT_NGRAM_LENGTH)
+                ssdb = SQLite3Database(fx)
+                ssdb.use(connection)
+
+                for row in cursor.execute(SELECT_SIMSTRING_STRINGS_COMMAND):
+                    s = row[0]
+                    ssdb.add(s)
+                    simstring_count += 1
+
         except BaseException:
             print("Error building simstring DB", file=sys.stderr)
             raise
