@@ -522,11 +522,11 @@ def _parse_attributes(attributes):
 
         # XXX: Hack since the client is sending back False and True as values...
         # These are __not__ to be sent, they violate the protocol
-        for _del in [k for k, v in list(_attributes.items()) if v == False]:
+        for _del in [k for k, v in _attributes.items() if v == False]:
             del _attributes[_del]
 
         # These are to be old-style modifiers without values
-        for _revalue in [k for k, v in list(_attributes.items()) if v]:
+        for _revalue in [k for k, v in _attributes.items() if v == True]:
             _attributes[_revalue] = True
         ###
     return _attributes
