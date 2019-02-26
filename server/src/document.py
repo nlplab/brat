@@ -40,6 +40,7 @@ from projectconfig import (ARC_DRAWING_ATTRIBUTES, ATTR_DRAWING_ATTRIBUTES,
                            visual_options_get_arc_bundle,
                            visual_options_get_text_direction)
 from stats import get_statistics
+import urllib.parse
 
 
 def _fill_type_configuration(
@@ -914,7 +915,7 @@ def _document_json_dict(document):
 def get_document(collection, document):
     directory = collection
     real_dir = real_directory(directory)
-    doc_path = path_join(real_dir, document)
+    doc_path = path_join(real_dir, urllib.parse.unquote(document))
     return _document_json_dict(doc_path)
 
 
