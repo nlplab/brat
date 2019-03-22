@@ -22,6 +22,8 @@ sys_path.append(path_join(dirname(__file__), 'server/src'))
 from server import serve
 
 
+stdout = open(stdout.fileno(), mode='w', encoding='utf8', buffering=1)
+
 def main(args):
     # Get data required for server call
     try:
@@ -53,11 +55,7 @@ def main(args):
     stdout.write('\n'.join('%s: %s' % (k, v) for k, v in response_hdrs))
     stdout.write('\n')
     stdout.write('\n')
-    # Hack to support binary data and general Unicode for SVGs and JSON
-    if isinstance(response_data[1], str):
-        stdout.write(response_data[1])
-    else:
-        stdout.write(response_data[1])
+    stdout.write(response_data[1])
     return 0
 
 
