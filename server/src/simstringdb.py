@@ -75,7 +75,7 @@ def __import_simstring():
         from simstring_pure_sqlite3 import SQLite3Database
         from simstring.feature_extractor.character_ngram import CharacterNgramFeatureExtractor
         from simstring.measure.cosine import CosineMeasure
-        from simstring.measure.overlap import OverlapMeasure
+        from simstring_pure_overlap import OverlapMeasure
         from simstring.searcher import Searcher
 
 
@@ -126,7 +126,7 @@ def ssdb_build(strs, dbname, ngram_length=DEFAULT_NGRAM_LENGTH,
                 db.add(s)
 
     except BaseException:
-        print("Error building simstring DB", file=sys.stderr)
+        print >> sys.stderr, "Error building simstring DB"
         raise
 
     return dbfn

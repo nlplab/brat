@@ -33,7 +33,6 @@
 # Fields with TYPE "info" are not used for querying.
 
 
-
 import codecs
 import sqlite3 as sqlite
 import sys

@@ -1,14 +1,14 @@
 from simstring.database.base import BaseDatabase
 import sqlite3
 
-_CREATE_STRINGS_SQL = """
+_CREATE_STRINGS_SQL = u"""
 CREATE TABLE IF NOT EXISTS strings (
   id INTEGER PRIMARY KEY,
   string TEXT UNIQUE
 );
 """
 
-_CREATE_FEATURES_SQL = """
+_CREATE_FEATURES_SQL = u"""
 CREATE TABLE IF NOT EXISTS features (
   id INTEGER PRIMARY KEY,
   size INTEGER,
@@ -17,20 +17,20 @@ CREATE TABLE IF NOT EXISTS features (
 );
 """
 
-_INDEX_FEATURES_SQL = """
+_INDEX_FEATURES_SQL = u"""
 CREATE INDEX IF NOT EXISTS features_index
 ON features (size, feature);
 """
 
-_INSERT_STRING_SQL = """
+_INSERT_STRING_SQL = u"""
 INSERT INTO strings (string) VALUES (?);
 """
 
-_INSERT_FEATURE_SQL = """
+_INSERT_FEATURE_SQL = u"""
 INSERT INTO features (size, feature, string_id) VALUES (?, ?, ?);
 """
 
-_FIND_STRINGS_SQL = """
+_FIND_STRINGS_SQL = u"""
 SELECT string
 FROM strings
 JOIN features ON features.string_id = strings.id
@@ -38,11 +38,11 @@ WHERE features.size = ?
   AND features.feature = ?;
 """
 
-_FIND_MAX_FEATURES = """
+_FIND_MAX_FEATURES = u"""
 SELECT DISTINCT MAX(size) FROM features;
 """
 
-_FIND_MIN_FEATURES = """
+_FIND_MIN_FEATURES = u"""
 SELECT DISTINCT MIN(size) FROM features;
 """
 
