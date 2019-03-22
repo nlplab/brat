@@ -124,7 +124,7 @@ def ssdb_build(strs, dbname, ngram_length=DEFAULT_NGRAM_LENGTH,
                 db.add(s)
 
     except BaseException:
-        print("Error building simstring DB", file=sys.stderr)
+        print >> sys.stderr, "Error building simstring DB"
         raise
 
     return dbfn
@@ -178,7 +178,7 @@ def ssdb_lookup(s, dbname, measure=DEFAULT_SIMILARITY_MEASURE,
     db.close()
 
     # assume simstring DBs always contain UTF-8 - encoded strings
-    result = [r.decode('UTF-8') for r in result]
+    #result = [r.decode('UTF-8') for r in result]
     return result
 
 def ngrams(s, out=None, n=DEFAULT_NGRAM_LENGTH, be=DEFAULT_INCLUDE_MARKS):
@@ -247,7 +247,7 @@ def ssdb_supstring_lookup(s, dbname, threshold=DEFAULT_THRESHOLD,
     db.close()
 
     # assume simstring DBs always contain UTF-8 - encoded strings
-    result = [r.decode('UTF-8') for r in result]
+    #result = [r.decode('UTF-8') for r in result]
 
     # The simstring overlap measure is symmetric and thus does not
     # differentiate between substring and superstring matches.
@@ -295,7 +295,7 @@ def ssdb_supstring_exists(s, dbname, threshold=DEFAULT_THRESHOLD):
         db.close()
 
         # assume simstring DBs always contain UTF-8 - encoded strings
-        result = [r.decode('UTF-8') for r in result]
+        #result = [r.decode('UTF-8') for r in result]
 
         for r in result:
             if s in r:
