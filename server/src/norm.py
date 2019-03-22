@@ -287,8 +287,7 @@ def _norm_search_name_attr(database, name, attr,
     # if the attributes were in a separate simstring DB from the
     # names.
     if attr is not None:
-        utfattr = attr.encode('UTF-8')
-        normattr = string_norm_form(utfattr)
+        normattr = string_norm_form(attr)
         if not simstringdb.ssdb_supstring_exists(normattr, database, 1.0):
             # debugging
             #Messager.info('Early norm search fail on "%s"' % attr)
@@ -301,8 +300,7 @@ def _norm_search_name_attr(database, name, attr,
     else:
         # expand to substrings using simstring
         # simstring requires UTF-8
-        utfname = name.encode('UTF-8')
-        normname = string_norm_form(utfname)
+        normname = string_norm_form(name)
         str_scores = simstringdb.ssdb_supstring_lookup(normname, database,
                                                        threshold, True)
         strs = [s[0] for s in str_scores]

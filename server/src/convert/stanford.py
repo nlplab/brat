@@ -87,7 +87,7 @@ def _tok_it(token_by_ids):
 
 
 def _soup(xml):
-    return ElementTree.fromstring(xml.encode('utf-8'))
+    return ElementTree.fromstring(xml)
 
 
 def token_offsets(xml):
@@ -563,7 +563,7 @@ if __name__ == '__main__':
 
     def _test_xml(xml_string):
         stdout.write('Text:\n')
-        stdout.write(text(xml_string).encode('utf-8'))
+        stdout.write(text(xml_string))
         stdout.write('\n')
 
         stdout.write('\n')

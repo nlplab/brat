@@ -231,7 +231,12 @@ var VisualizerUI = (function($, window, undefined) {
 
       /* START comment popup - related */
 
+      var cursor = { x: 0, y: 0 };
       var adjustToCursor = function(evt, element, offset, top, right) {
+        if (evt) {
+          cursor.x = evt.clientX;
+          cursor.y = evt.clientY;
+        }
         // get the real width, without wrapping
         element.css({ left: 0, top: 0 });
         var screenHeight = $(window).height();
@@ -242,18 +247,18 @@ var VisualizerUI = (function($, window, undefined) {
         var x, y;
         offset = offset || 0;
         if (top) {
-          y = evt.clientY - elementHeight - offset;
+          y = cursor.y - elementHeight - offset;
           if (y < 0) top = false;
         }
         if (!top) {
-          y = evt.clientY + offset;
+          y = cursor.y + offset;
         }
         if (right) {
-          x = evt.clientX + offset;
+          x = cursor.x + offset;
           if (x >= screenWidth - elementWidth) right = false;
         }
         if (!right) {
-          x = evt.clientX - elementWidth - offset;
+          x = cursor.x - elementWidth - offset;
         }
         if (y < 0) y = 0;
         if (x < 0) x = 0;
@@ -360,6 +365,7 @@ var VisualizerUI = (function($, window, undefined) {
         var drop=$('#norm_info_drop_point_'+infoSeqId);
         if (drop) {
           drop.html(norminfo);
+          adjustToCursor(null, commentPopup, 10, true, true);
         } else {
           console.log('norm info drop point not found!'); //TODO XXX
         }
