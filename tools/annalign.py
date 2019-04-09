@@ -5,11 +5,9 @@
 # Note: not comprehensively tested, use with caution.
 
 
-
 import codecs
 import sys
 
-# import numpy
 
 DEFAULT_ENCODING = 'UTF-8'
 TEST_ARG = '--test'
@@ -47,6 +45,10 @@ class Annotation(object):
         self.type_ = type_
 
     def remap(self, _):
+        # assume not text-bound: no-op
+        return None
+
+    def fragment(self, _):
         # assume not text-bound: no-op
         return None
 
@@ -423,16 +425,16 @@ def swchoice(A, B, i, j, F, choices):
 def smithwaterman(A, B, cost=swcost, as_str=False, align_full_A=True):
     """
     >>> smithwaterman('Simple', ' Simple ', as_str=True)
-    ['-Simple-', ' Simple ']
+    ('-Simple-', ' Simple ')
 
     >>> smithwaterman('space is     cheap', 'space     is cheap', as_str=True)
-    ['space---- is     cheap', 'space     is ----cheap']
+    ('space---- is     cheap', 'space     is---- cheap')
 
     >>> smithwaterman('Gaps by space', 'Gaps bbyy space', as_str=True)
-    ['Gaps -by- space', 'Gaps bbyy space']
+    ('Gaps -by- space', 'Gaps bbyy space')
 
     >>> smithwaterman('Gaps bbyy space', 'Gaps by space', as_str=True)
-    ['Gaps bbyy space', 'Gaps -by- space']
+    ('Gaps bbyy space', 'Gaps -by- space')
     """
 
     global options
@@ -525,7 +527,7 @@ def smithwaterman(A, B, cost=swcost, as_str=False, align_full_A=True):
         alignA = ''.join([a if a is not None else '-' for a in alignA])
         alignB = ''.join([b if b is not None else '-' for b in alignB])
 
-    return [alignA, alignB]
+    return alignA, alignB
 
 
 def needlemanwunsch(A, B, gap_penalty=-5):
@@ -591,6 +593,14 @@ class CannotSpaceAlign(Exception):
 
 
 def spacealign(A, B, as_str=False):
+    """
+    >>> spacealign('Simple', ' Simple ', as_str=True)
+    ('-Simple-', ' Simple ')
+
+    >>> spacealign(' Simple ', 'Simple', as_str=True)
+    (' Simple ', '-Simple-')
+    """
+
     As = ''.join([c for c in A if not c.isspace()])
     Bs = ''.join([c for c in B if not c.isspace()])
 
@@ -617,17 +627,19 @@ def spacealign(A, B, as_str=False):
             assert False, 'internal error'
 
     while i < len(A):
-        alignA.insert(0, A[i - 1])
-        alignB.insert(0, None)
+        alignA.append(A[i])
+        alignB.append(None)
         i += 1
     while j < len(B):
-        alignA.insert(0, None)
-        alignB.insert(0, B[j - 1])
+        alignA.append(None)
+        alignB.append(B[j])
         j += 1
 
     # sanity
-    assert A == ''.join([a for a in alignA if a is not None])
-    assert B == ''.join([b for b in alignB if b is not None])
+    newA = ''.join([a for a in alignA if a is not None])
+    newB = ''.join([b for b in alignB if b is not None])
+    assert A == newA, 'spacealign mismatch: "{}" vs "{}"'.format(A, newA)
+    assert B == newB, 'spacealign mismatch: "{}" vs "{}"'.format(B, newB)
 
     if as_str:
         alignA = ''.join([a if a is not None else '-' for a in alignA])
@@ -706,7 +718,7 @@ def main(argv=None):
         a.remap(Remapper(offset_map))
         a.fragment(newtext)
         a.retext(newtext)
-        print(str(a).encode(options.encoding))
+        print(a)
 
     return 0
 
