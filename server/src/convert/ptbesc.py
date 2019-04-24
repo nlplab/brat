@@ -1,37 +1,39 @@
 #!/usr/bin/env python
 
-'''
-Penn TreeBank escaping.
+"""Penn TreeBank escaping.
 
 Author:     Pontus Stenetorp    <pontus stenetorp se>
 Version:    2011-09-12
-'''
+"""
 
-### Constants
+# Constants
 # From: To
 PTB_ESCAPES = {
-        u'(': u'-LRB-',
-        u')': u'-RRB-',
-        u'[': u'-LSB-',
-        u']': u'-RSB-',
-        u'{': u'-LCB-',
-        u'}': u'-RCB-',
-        u'/': u'\/',
-        u'*': u'\*',
-    }
+    '(': '-LRB-',
+    ')': '-RRB-',
+    '[': '-LSB-',
+    ']': '-RSB-',
+    '{': '-LCB-',
+    '}': '-RCB-',
+    '/': '\/',
+    '*': '\*',
+}
 ###
+
 
 def escape(s):
     r = s
-    for _from, to in PTB_ESCAPES.iteritems():
+    for _from, to in PTB_ESCAPES.items():
         r = r.replace(_from, to)
     return r
 
+
 def unescape(s):
     r = s
-    for _from, to in PTB_ESCAPES.iteritems():
+    for _from, to in PTB_ESCAPES.items():
         r = r.replace(to, _from)
     return r
+
 
 def main(args):
     from argparse import ArgumentParser
@@ -50,7 +52,7 @@ def main(args):
         stdout.write(r)
         stdout.write('\n')
 
+
 if __name__ == '__main__':
     from sys import argv
     exit(main(argv))
-

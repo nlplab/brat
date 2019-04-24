@@ -207,6 +207,7 @@ var URLHash = (function($, window, undefined) {
         // Remove the leading hash (#)
         hash = hash.substr(1);
       }
+      hash = decodeURIComponent(hash);
 
       var pathAndArgs = hash.split('?');
       var path = pathAndArgs[0] || '';

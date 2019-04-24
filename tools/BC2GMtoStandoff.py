@@ -3,11 +3,12 @@
 # Converts the BioCreative 2 Gene Mention task data into brat-flavored
 # standoff format.
 
-from __future__ import with_statement
 
-import sys
-import re
+
 import os
+import re
+import sys
+
 
 def char_offsets(text, start, end, ttext):
     # Given a text and a tagged span marked by start and end offsets
@@ -18,7 +19,7 @@ def char_offsets(text, start, end, ttext):
     # offsets are exclusive of last (ala BioNLP ST/brat).
 
     # scan to start offset
-    idx, nospcidx = 0,0
+    idx, nospcidx = 0, 0
     while True:
         while idx < len(text) and text[idx].isspace():
             idx += 1
@@ -36,25 +37,27 @@ def char_offsets(text, start, end, ttext):
         idx += 1
         while idx < len(text) and text[idx].isspace():
             idx += 1
-        
-    char_end = idx+1
+
+    char_end = idx + 1
 
     # special case allowing for slight adjustment for known error in
     # BC2 data
     if (text[char_start:char_end] == '/translation upstream factor' and
-        ttext                     == 'translation upstream factor'):
-        print >> sys.stderr, "NOTE: applying special-case fix ..."
+            ttext == 'translation upstream factor'):
+        print("NOTE: applying special-case fix ...", file=sys.stderr)
         char_start += 1
 
     # sanity
     ref_text = text[char_start:char_end]
-    assert ref_text == ttext, "Mismatch: '%s' vs '%s' [%d:%d] (%s %d-%d)" % (ttext, ref_text, char_start, char_end, text, start, end)
+    assert ref_text == ttext, "Mismatch: '%s' vs '%s' [%d:%d] (%s %d-%d)" % (
+        ttext, ref_text, char_start, char_end, text, start, end)
 
     return char_start, char_end
 
+
 def main(argv):
     if len(argv) != 4:
-        print >> sys.stderr, "Usage:", argv[0], "BC2TEXT BC2TAGS OUTPUT-DIR"
+        print("Usage:", argv[0], "BC2TEXT BC2TAGS OUTPUT-DIR", file=sys.stderr)
         return 1
 
     textfn, tagfn, outdir = argv[1:]
@@ -90,19 +93,21 @@ def main(argv):
     offsets = {}
     for sid in texts:
         offsets[sid] = []
-        for start, end, ttext in tags.get(sid,[]):
+        for start, end, ttext in tags.get(sid, []):
             soff, eoff = char_offsets(texts[sid], start, end, ttext)
             offsets[sid].append((soff, eoff))
 
     # output one .txt and one .a1 file per sentence
     for sid in texts:
-        with open(os.path.join(outdir, sid+".txt"), 'w') as txtf:
-            print >> txtf, texts[sid]
-        with open(os.path.join(outdir, sid+".ann"), 'w') as annf:
+        with open(os.path.join(outdir, sid + ".txt"), 'w') as txtf:
+            print(texts[sid], file=txtf)
+        with open(os.path.join(outdir, sid + ".ann"), 'w') as annf:
             tidx = 1
             for soff, eoff in offsets[sid]:
-                print >> annf, "T%d\tGENE %d %d\t%s" % (tidx, soff, eoff, texts[sid][soff:eoff])
+                print("T%d\tGENE %d %d\t%s" % (
+                    tidx, soff, eoff, texts[sid][soff:eoff]), file=annf)
                 tidx += 1
+
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

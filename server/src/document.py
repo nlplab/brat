@@ -4,46 +4,49 @@
 
 # XXX: This module along with stats and annotator is pretty much pure chaos
 
-from __future__ import with_statement
 
-'''
-Document handling functionality.
+
+"""Document handling functionality.
 
 Author:     Pontus Stenetorp    <pontus is s u-tokyo ac jp>
             Illes Solt          <solt tmit bme hu>
 Version:    2011-04-21
-'''
+"""
 
-from os import listdir
-from os.path import abspath, dirname, isabs, isdir, normpath, getmtime
-from os.path import join as path_join
-from re import match,sub
-from errno import ENOENT, EACCES
-
-from annotation import (TextAnnotations, TEXT_FILE_SUFFIX,
-        AnnotationFileNotFoundError, 
-        AnnotationCollectionNotFoundError,
-        JOINED_ANN_FILE_SUFF,
-        open_textfile,
-        BIONLP_ST_2013_COMPATIBILITY)
-from common import ProtocolError, CollectionNotAccessibleError
-from config import BASE_DIR, DATA_DIR
-from projectconfig import (ProjectConfiguration, SEPARATOR_STR, 
-        SPAN_DRAWING_ATTRIBUTES, ARC_DRAWING_ATTRIBUTES,
-        VISUAL_SPAN_DEFAULT, VISUAL_ARC_DEFAULT, 
-        ATTR_DRAWING_ATTRIBUTES, VISUAL_ATTR_DEFAULT,
-        SPECIAL_RELATION_TYPES, 
-        options_get_validation, options_get_tokenization,
-        options_get_ssplitter, get_annotation_config_section_labels,
-        visual_options_get_arc_bundle)
-from stats import get_statistics
-from message import Messager
-from auth import allowed_to_read, AccessDeniedError
-from annlog import annotation_logging_active
-
+from errno import EACCES, ENOENT
 from itertools import chain
+from os import listdir
+from os.path import join as path_join
+from os.path import abspath, dirname, getmtime, isabs, isdir, normpath
 
-def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connections=None):
+from config import BASE_DIR, DATA_DIR
+
+from annlog import annotation_logging_active
+from annotation import (BIONLP_ST_2013_COMPATIBILITY, JOINED_ANN_FILE_SUFF,
+                        TEXT_FILE_SUFFIX, AnnotationCollectionNotFoundError,
+                        AnnotationFileNotFoundError, TextAnnotations,
+                        open_textfile)
+from auth import AccessDeniedError, allowed_to_read
+from common import CollectionNotAccessibleError, ProtocolError
+from message import Messager
+from projectconfig import (ARC_DRAWING_ATTRIBUTES, ATTR_DRAWING_ATTRIBUTES,
+                           SEPARATOR_STR, SPAN_DRAWING_ATTRIBUTES,
+                           SPECIAL_RELATION_TYPES, VISUAL_ARC_DEFAULT,
+                           VISUAL_ATTR_DEFAULT, VISUAL_SPAN_DEFAULT,
+                           ProjectConfiguration,
+                           get_annotation_config_section_labels,
+                           options_get_ssplitter, options_get_tokenization,
+                           options_get_validation,
+                           visual_options_get_arc_bundle,
+                           visual_options_get_text_direction)
+from stats import get_statistics
+
+
+def _fill_type_configuration(
+        nodes,
+        project_conf,
+        hotkey_by_type,
+        all_connections=None):
     # all_connections is an optimization to reduce invocations of
     # projectconfig methods such as arc_types_from_to.
     if all_connections is None:
@@ -55,7 +58,7 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
             items.append(None)
         else:
             item = {}
-            _type = node.storage_form() 
+            _type = node.storage_form()
 
             # This isn't really a great place to put this, but we need
             # to block these magic values from getting to the client.
@@ -71,15 +74,16 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
             item['attributes'] = project_conf.attributes_for(_type)
             item['normalizations'] = node.normalizations()
 
-            span_drawing_conf = project_conf.get_drawing_config_by_type(_type) 
+            span_drawing_conf = project_conf.get_drawing_config_by_type(_type)
             if span_drawing_conf is None:
-                span_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_SPAN_DEFAULT)
+                span_drawing_conf = project_conf.get_drawing_config_by_type(
+                    VISUAL_SPAN_DEFAULT)
             if span_drawing_conf is None:
                 span_drawing_conf = {}
             for k in SPAN_DRAWING_ATTRIBUTES:
                 if k in span_drawing_conf:
                     item[k] = span_drawing_conf[k]
-            
+
             try:
                 item['hotkey'] = hotkey_by_type[_type]
             except KeyError:
@@ -93,7 +97,9 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
             # To avoid redundant entries, fill each type at most once.
             filled_arc_type = {}
 
-            for arc in chain(project_conf.relation_types_from(_type), node.arg_list):
+            for arc in chain(
+                    project_conf.relation_types_from(_type),
+                    node.arg_list):
                 if arc in filled_arc_type:
                     continue
                 filled_arc_type[arc] = True
@@ -108,15 +114,16 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
                     curr_arc['hotkey'] = hotkey_by_type[arc]
                 except KeyError:
                     pass
-                
+
                 arc_drawing_conf = project_conf.get_drawing_config_by_type(arc)
                 if arc_drawing_conf is None:
-                    arc_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ARC_DEFAULT)
+                    arc_drawing_conf = project_conf.get_drawing_config_by_type(
+                        VISUAL_ARC_DEFAULT)
                 if arc_drawing_conf is None:
                     arc_drawing_conf = {}
                 for k in ARC_DRAWING_ATTRIBUTES:
                     if k in arc_drawing_conf:
-                        curr_arc[k] = arc_drawing_conf[k]                    
+                        curr_arc[k] = arc_drawing_conf[k]
 
                 # Client needs also possible arc 'targets',
                 # defined as the set of types (entity or event) that
@@ -154,17 +161,19 @@ def _fill_type_configuration(nodes, project_conf, hotkey_by_type, all_connection
                 curr_arc['targets'] = targets
 
                 arcs.append(curr_arc)
-                    
+
             # If we found any arcs, attach them
             if arcs:
                 item['arcs'] = arcs
 
-            item['children'] = _fill_type_configuration(node.children,
-                    project_conf, hotkey_by_type, all_connections)
+            item['children'] = _fill_type_configuration(
+                node.children, project_conf, hotkey_by_type, all_connections)
             items.append(item)
     return items
 
 # TODO: duplicates part of _fill_type_configuration
+
+
 def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
     items = []
     for node in nodes:
@@ -172,7 +181,7 @@ def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
             items.append(None)
         else:
             item = {}
-            _type = node.storage_form() 
+            _type = node.storage_form()
 
             if _type in SPECIAL_RELATION_TYPES:
                 continue
@@ -191,13 +200,14 @@ def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
 
             arc_drawing_conf = project_conf.get_drawing_config_by_type(_type)
             if arc_drawing_conf is None:
-                arc_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ARC_DEFAULT)
+                arc_drawing_conf = project_conf.get_drawing_config_by_type(
+                    VISUAL_ARC_DEFAULT)
             if arc_drawing_conf is None:
                 arc_drawing_conf = {}
             for k in ARC_DRAWING_ATTRIBUTES:
                 if k in arc_drawing_conf:
-                    item[k] = arc_drawing_conf[k]                    
-            
+                    item[k] = arc_drawing_conf[k]
+
             try:
                 item['hotkey'] = hotkey_by_type[_type]
             except KeyError:
@@ -209,15 +219,16 @@ def _fill_relation_configuration(nodes, project_conf, hotkey_by_type):
             for arg in node.arg_list:
                 curr_arg = {}
                 curr_arg['role'] = arg
-                # TODO: special type (e.g. "<ENTITY>") expansion via projectconf
+                # TODO: special type (e.g. "<ENTITY>") expansion via
+                # projectconf
                 curr_arg['targets'] = node.arguments[arg]
 
                 args.append(curr_arg)
 
             item['args'] = args
 
-            item['children'] = _fill_relation_configuration(node.children,
-                    project_conf, hotkey_by_type)
+            item['children'] = _fill_relation_configuration(
+                node.children, project_conf, hotkey_by_type)
             items.append(item)
     return items
 
@@ -230,7 +241,7 @@ def _fill_attribute_configuration(nodes, project_conf):
             continue
         else:
             item = {}
-            _type = node.storage_form() 
+            _type = node.storage_form()
             item['name'] = project_conf.preferred_display_form(_type)
             item['type'] = _type
             item['unused'] = node.unused
@@ -238,7 +249,8 @@ def _fill_attribute_configuration(nodes, project_conf):
 
             attr_drawing_conf = project_conf.get_drawing_config_by_type(_type)
             if attr_drawing_conf is None:
-                attr_drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_ATTR_DEFAULT)
+                attr_drawing_conf = project_conf.get_drawing_config_by_type(
+                    VISUAL_ATTR_DEFAULT)
             if attr_drawing_conf is None:
                 attr_drawing_conf = {}
 
@@ -255,28 +267,37 @@ def _fill_attribute_configuration(nodes, project_conf):
                 try:
                     item['default'] = node.special_arguments['<DEFAULT>'][0]
                 except IndexError:
-                    Messager.warning("Config error: empty <DEFAULT> for %s" % item['name'])
-                    pass
+                    Messager.warning(
+                        "Config error: empty <DEFAULT> for %s" %
+                        item['name'])
 
+            # Each item's 'values' entry is a list of dictionaries, one
+            # dictionary per value option.
             if len(args) == 0:
                 # binary; use drawing config directly
-                item['values'] = { _type : {} }
+                attr_values = {'name': _type}
                 for k in ATTR_DRAWING_ATTRIBUTES:
                     if k in attr_drawing_conf:
                         # protect against error from binary attribute
                         # having multi-valued visual config (#698)
                         if isinstance(attr_drawing_conf[k], list):
-                            Messager.warning("Visual config error: expected single value for %s binary attribute '%s' config, found %d. Visuals may be wrong." % (_type, k, len(attr_drawing_conf[k])))
+                            Messager.warning(
+                                "Visual config error: expected single value for %s binary attribute '%s' config, found %d. Visuals may be wrong." %
+                                (_type, k, len(
+                                    attr_drawing_conf[k])))
                             # fall back on the first just to have something.
-                            item['values'][_type][k] = attr_drawing_conf[k][0]
+                            attr_values[k] = attr_drawing_conf[k][0]
                         else:
-                            item['values'][_type][k] = attr_drawing_conf[k]
+                            attr_values[k] = attr_drawing_conf[k]
+                item['values'] = [attr_values]
             else:
                 # has normal arguments, use these as possible values.
                 # (this is quite terrible all around, sorry.)
-                item['values'] = {}
+                # we'll populate this incrementally as we process the args
+                item['values'] = []
                 for i, v in enumerate(args):
-                    item['values'][v] = {}
+                    attr_values = {'name': v}
+
                     # match up annotation config with drawing config by
                     # position in list of alternative values so that e.g.
                     # "Values:L1|L2|L3" can have the visual config
@@ -288,21 +309,27 @@ def _fill_attribute_configuration(nodes, project_conf):
                             if isinstance(attr_drawing_conf[k], list):
                                 # sufficiently many specified?
                                 if len(attr_drawing_conf[k]) > i:
-                                    item['values'][v][k] = attr_drawing_conf[k][i]
+                                    attr_values[k] = attr_drawing_conf[k][i]
                                 else:
-                                    Messager.warning("Visual config error: expected %d values for %s attribute '%s' config, found only %d. Visuals may be wrong." % (len(args), v, k, len(attr_drawing_conf[k])))
+                                    Messager.warning(
+                                        "Visual config error: expected %d values for %s attribute '%s' config, found only %d. Visuals may be wrong." %
+                                        (len(args), v, k, len(
+                                            attr_drawing_conf[k])))
                             else:
                                 # single value (presumably), apply to all
-                                item['values'][v][k] = attr_drawing_conf[k]
+                                attr_values[k] = attr_drawing_conf[k]
 
                     # if no drawing attribute was defined, fall back to
                     # using a glyph derived from the attribute value
                     if len([k for k in ATTR_DRAWING_ATTRIBUTES if
-                            k in item['values'][v]]) == 0:
-                        item['values'][v]['glyph'] = '['+v+']'
+                            k in attr_values]) == 0:
+                        attr_values['glyph'] = '[' + v + ']'
+
+                    item['values'].append(attr_values)
 
             items.append(item)
     return items
+
 
 def _fill_visual_configuration(types, project_conf):
     # similar to _fill_type_configuration, but for types for which
@@ -318,10 +345,11 @@ def _fill_visual_configuration(types, project_conf):
         item['unused'] = True
         item['labels'] = project_conf.get_labels_by_type(_type)
 
-        drawing_conf = project_conf.get_drawing_config_by_type(_type) 
+        drawing_conf = project_conf.get_drawing_config_by_type(_type)
         # not sure if this is a good default, but let's try
         if drawing_conf is None:
-            drawing_conf = project_conf.get_drawing_config_by_type(VISUAL_SPAN_DEFAULT)
+            drawing_conf = project_conf.get_drawing_config_by_type(
+                VISUAL_SPAN_DEFAULT)
         if drawing_conf is None:
             drawing_conf = {}
         # just plug in everything found, whether for a span or arc
@@ -336,61 +364,77 @@ def _fill_visual_configuration(types, project_conf):
     return items
 
 # TODO: this is not a good spot for this
+
+
 def get_base_types(directory):
     project_conf = ProjectConfiguration(directory)
 
     keymap = project_conf.get_kb_shortcuts()
-    hotkey_by_type = dict((v, k) for k, v in keymap.iteritems())
+    hotkey_by_type = dict((v, k) for k, v in keymap.items())
 
     # fill config for nodes for which annotation is configured
 
     # calculate once only (this can get heavy)
     all_connections = project_conf.all_connections()
-    
+
     event_hierarchy = project_conf.get_event_type_hierarchy()
-    event_types = _fill_type_configuration(event_hierarchy,
-            project_conf, hotkey_by_type, all_connections)
+    event_types = _fill_type_configuration(
+        event_hierarchy,
+        project_conf,
+        hotkey_by_type,
+        all_connections)
 
     entity_hierarchy = project_conf.get_entity_type_hierarchy()
-    entity_types = _fill_type_configuration(entity_hierarchy,
-            project_conf, hotkey_by_type, all_connections)
+    entity_types = _fill_type_configuration(
+        entity_hierarchy,
+        project_conf,
+        hotkey_by_type,
+        all_connections)
 
     relation_hierarchy = project_conf.get_relation_type_hierarchy()
     relation_types = _fill_relation_configuration(relation_hierarchy,
-            project_conf, hotkey_by_type)
+                                                  project_conf, hotkey_by_type)
 
     # make visual config available also for nodes for which there is
     # no annotation config. Note that defaults (SPAN_DEFAULT etc.)
     # are included via get_drawing_types() if defined.
-    unconfigured = [l for l in (project_conf.get_labels().keys() +
-                                project_conf.get_drawing_types()) if 
+    unconfigured = [l for l in (list(project_conf.get_labels().keys()) +
+                                project_conf.get_drawing_types()) if
                     not project_conf.is_configured_type(l)]
     unconf_types = _fill_visual_configuration(unconfigured, project_conf)
 
     return event_types, entity_types, relation_types, unconf_types
 
+
 def get_attribute_types(directory):
     project_conf = ProjectConfiguration(directory)
 
     entity_attribute_hierarchy = project_conf.get_entity_attribute_type_hierarchy()
-    entity_attribute_types = _fill_attribute_configuration(entity_attribute_hierarchy, project_conf)
-    
+    entity_attribute_types = _fill_attribute_configuration(
+        entity_attribute_hierarchy, project_conf)
+
     relation_attribute_hierarchy = project_conf.get_relation_attribute_type_hierarchy()
-    relation_attribute_types = _fill_attribute_configuration(relation_attribute_hierarchy, project_conf)
+    relation_attribute_types = _fill_attribute_configuration(
+        relation_attribute_hierarchy, project_conf)
 
     event_attribute_hierarchy = project_conf.get_event_attribute_type_hierarchy()
-    event_attribute_types = _fill_attribute_configuration(event_attribute_hierarchy, project_conf)
+    event_attribute_types = _fill_attribute_configuration(
+        event_attribute_hierarchy, project_conf)
 
     return entity_attribute_types, relation_attribute_types, event_attribute_types
+
 
 def get_search_config(directory):
     return ProjectConfiguration(directory).get_search_config()
 
+
 def get_disambiguator_config(directory):
     return ProjectConfiguration(directory).get_disambiguator_config()
 
+
 def get_normalization_config(directory):
     return ProjectConfiguration(directory).get_normalization_config()
+
 
 def get_annotator_config(directory):
     # TODO: "annotator" is a very confusing term for a web service
@@ -398,13 +442,16 @@ def get_annotator_config(directory):
     # where most annotators are expected to be human. Rethink.
     return ProjectConfiguration(directory).get_annotator_config()
 
+
 def assert_allowed_to_read(doc_path):
     if not allowed_to_read(doc_path):
-        raise AccessDeniedError # Permission denied by access control
+        raise AccessDeniedError  # Permission denied by access control
+
 
 def real_directory(directory, rel_to=DATA_DIR):
     assert isabs(directory), 'directory "%s" is not absolute' % directory
     return path_join(rel_to, directory[1:])
+
 
 def relative_directory(directory):
     # inverse of real_directory
@@ -412,32 +459,34 @@ def relative_directory(directory):
     assert directory.startswith(DATA_DIR), 'directory "%s" not under DATA_DIR'
     return directory[len(DATA_DIR):]
 
+
 def _is_hidden(file_name):
     return file_name.startswith('hidden_') or file_name.startswith('.')
 
+
 def _listdir(directory):
-    #return listdir(directory)
+    # return listdir(directory)
     try:
         assert_allowed_to_read(directory)
         return [f for f in listdir(directory) if not _is_hidden(f)
                 and allowed_to_read(path_join(directory, f))]
-    except OSError, e:
+    except OSError as e:
         Messager.error("Error listing %s: %s" % (directory, e))
         raise AnnotationCollectionNotFoundError(directory)
-    
+
+
 def _getmtime(file_path):
-    '''
-    Internal wrapper of getmtime that handles access denied and invalid paths
-    according to our specification.
+    """Internal wrapper of getmtime that handles access denied and invalid
+    paths according to our specification.
 
     Arguments:
 
     file_path - path to the file to get the modification time for
-    '''
+    """
 
     try:
         return getmtime(file_path)
-    except OSError, e:
+    except OSError as e:
         if e.errno in (EACCES, ENOENT):
             # The file did not exist or permission denied, we use -1 to
             #   indicate this since mtime > 0 is an actual time.
@@ -466,14 +515,15 @@ def get_configuration(name):
 
     return _inject_annotation_type_conf(config_path)
 
+
 def _inject_annotation_type_conf(dir_path, json_dic=None):
     if json_dic is None:
         json_dic = {}
 
     (event_types, entity_types, rel_types,
-            unconf_types) = get_base_types(dir_path)
+     unconf_types) = get_base_types(dir_path)
     (entity_attr_types, rel_attr_types,
-            event_attr_types) = get_attribute_types(dir_path)
+     event_attr_types) = get_attribute_types(dir_path)
 
     json_dic['event_types'] = event_types
     json_dic['entity_types'] = entity_types
@@ -488,26 +538,30 @@ def _inject_annotation_type_conf(dir_path, json_dic=None):
     section_labels = get_annotation_config_section_labels(dir_path)
     json_dic['ui_names'] = {}
     for c in ['entities', 'relations', 'events', 'attributes']:
-        json_dic['ui_names'][c] = section_labels.get(c,c)
+        json_dic['ui_names'][c] = section_labels.get(c, c)
 
     # inject general visual options (currently just arc bundling) (#949)
     visual_options = {}
     visual_options['arc_bundle'] = visual_options_get_arc_bundle(dir_path)
+    visual_options['text_direction'] = visual_options_get_text_direction(
+        dir_path)
     json_dic['visual_options'] = visual_options
 
     return json_dic
 
 # TODO: This is not the prettiest of functions
+
+
 def get_directory_information(collection):
     directory = collection
 
     real_dir = real_directory(directory)
-    
+
     assert_allowed_to_read(real_dir)
-    
+
     # Get the document names
     base_names = [fn[0:-4] for fn in _listdir(real_dir)
-            if fn.endswith('txt')]
+                  if fn.endswith('txt')]
 
     doclist = base_names[:]
     doclist_header = [("Document", "string")]
@@ -516,7 +570,7 @@ def get_directory_information(collection):
     doclist_with_time = []
     for file_name in doclist:
         file_path = path_join(DATA_DIR, real_dir,
-            file_name + "." + JOINED_ANN_FILE_SUFF)
+                              file_name + "." + JOINED_ANN_FILE_SUFF)
         doclist_with_time.append([file_name, _getmtime(file_path)])
     doclist = doclist_with_time
     doclist_header.append(("Modified", "time"))
@@ -526,12 +580,12 @@ def get_directory_information(collection):
     except OSError:
         # something like missing access permissions?
         raise CollectionNotAccessibleError
-                
+
     doclist = [doclist[i] + doc_stats[i] for i in range(len(doclist))]
     doclist_header += stats_types
 
     dirlist = [dir for dir in _listdir(real_dir)
-            if isdir(path_join(real_dir, dir))]
+               if isdir(path_join(real_dir, dir))]
     # just in case, and for generality
     dirlist = [[dir] for dir in dirlist]
 
@@ -550,9 +604,9 @@ def get_directory_information(collection):
     # (i.e. directory) and "d" for "document".
     combolist = []
     for i in dirlist:
-        combolist.append(["c", None]+i)
+        combolist.append(["c", None] + i)
     for i in doclist:
-        combolist.append(["d", None]+i)
+        combolist.append(["d", None] + i)
 
     # plug in the search config too
     search_config = get_search_config(real_dir)
@@ -579,17 +633,18 @@ def get_directory_information(collection):
     ner_taggers = get_annotator_config(real_dir)
 
     return _inject_annotation_type_conf(real_dir, json_dic={
-            'items': combolist,
-            'header' : doclist_header,
-            'parent': parent,
-            'messages': [],
-            'description': readme_text,
-            'search_config': search_config,
-            'disambiguator_config' : disambiguator_config,
-            'normalization_config' : normalization_config,
-            'annotation_logging': ann_logging,
-            'ner_taggers': ner_taggers,
-            })
+        'items': combolist,
+        'header': doclist_header,
+        'parent': parent,
+        'messages': [],
+        'description': readme_text,
+        'search_config': search_config,
+        'disambiguator_config': disambiguator_config,
+        'normalization_config': normalization_config,
+        'annotation_logging': ann_logging,
+        'ner_taggers': ner_taggers,
+    })
+
 
 class UnableToReadTextFile(ProtocolError):
     def __init__(self, path):
@@ -602,6 +657,7 @@ class UnableToReadTextFile(ProtocolError):
         json_dic['exception'] = 'unableToReadTextFile'
         return json_dic
 
+
 class IsDirectoryError(ProtocolError):
     def __init__(self, path):
         self.path = path
@@ -613,7 +669,9 @@ class IsDirectoryError(ProtocolError):
         json_dic['exception'] = 'isDirectoryError'
         return json_dic
 
-#TODO: All this enrichment isn't a good idea, at some point we need an object
+# TODO: All this enrichment isn't a good idea, at some point we need an object
+
+
 def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
     if raw_text is not None:
         # looks like somebody read this already; nice
@@ -626,12 +684,12 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
         except IOError:
             raise UnableToReadTextFile(txt_file_path)
         except UnicodeDecodeError:
-            Messager.error('Error reading text file: nonstandard encoding or binary?', -1)
+            Messager.error(
+                'Error reading text file: nonstandard encoding or binary?', -1)
             raise UnableToReadTextFile(txt_file_path)
 
     j_dic['text'] = text
-    
-    from logging import info as log_info
+
 
     tokeniser = options_get_tokenization(dirname(txt_file_path))
 
@@ -647,7 +705,7 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
         tok_offset_gen = gtb_token_boundary_gen
     else:
         Messager.warning('Unrecognized tokenisation option '
-                ', reverting to whitespace tokenisation.')
+                         ', reverting to whitespace tokenisation.')
         from tokenise import whitespace_token_boundary_gen
         tok_offset_gen = whitespace_token_boundary_gen
     j_dic['token_offsets'] = [o for o in tok_offset_gen(text)]
@@ -661,15 +719,16 @@ def _enrich_json_with_text(j_dic, txt_file_path, raw_text=None):
         ss_offset_gen = regex_sentence_boundary_gen
     else:
         Messager.warning('Unrecognized sentence splitting option '
-                ', reverting to newline sentence splitting.')
+                         ', reverting to newline sentence splitting.')
         from ssplit import newline_sentence_boundary_gen
         ss_offset_gen = newline_sentence_boundary_gen
     j_dic['sentence_offsets'] = [o for o in ss_offset_gen(text)]
 
     return True
 
+
 def _enrich_json_with_data(j_dic, ann_obj):
-    # TODO: figure out if there's a reason for all the unicode()
+    # TODO: figure out if there's a reason for all the str()
     # invocations here; remove if not.
 
     # We collect trigger ids to be able to link the textbound later on
@@ -677,26 +736,26 @@ def _enrich_json_with_data(j_dic, ann_obj):
     for event_ann in ann_obj.get_events():
         trigger_ids.add(event_ann.trigger)
         j_dic['events'].append(
-                [unicode(event_ann.id), unicode(event_ann.trigger), event_ann.args]
-                )
+            [str(event_ann.id), str(event_ann.trigger), event_ann.args]
+        )
 
     for rel_ann in ann_obj.get_relations():
         j_dic['relations'].append(
-            [unicode(rel_ann.id), unicode(rel_ann.type), 
+            [str(rel_ann.id), str(rel_ann.type),
              [(rel_ann.arg1l, rel_ann.arg1),
               (rel_ann.arg2l, rel_ann.arg2)]]
-            )
+        )
 
     for tb_ann in ann_obj.get_textbounds():
-        #j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
-        j_tb = [unicode(tb_ann.id), tb_ann.type, tb_ann.spans]
+        #j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.start, tb_ann.end]
+        j_tb = [str(tb_ann.id), tb_ann.type, tb_ann.spans]
 
         # If we spotted it in the previous pass as a trigger for an
         # event or if the type is known to be an event type, we add it
         # as a json trigger.
         # TODO: proper handling of disconnected triggers. Currently
         # these will be erroneously passed as 'entities'
-        if unicode(tb_ann.id) in trigger_ids:
+        if str(tb_ann.id) in trigger_ids:
             j_dic['triggers'].append(j_tb)
             # special case for BioNLP ST 2013 format: send triggers
             # also as entities for those triggers that are referenced
@@ -707,34 +766,32 @@ def _enrich_json_with_data(j_dic, ann_obj):
                         j_dic['entities'].append(j_tb)
                     except KeyError:
                         j_dic['entities'] = [j_tb, ]
-        else: 
+        else:
             try:
                 j_dic['entities'].append(j_tb)
             except KeyError:
                 j_dic['entities'] = [j_tb, ]
 
-
     for eq_ann in ann_obj.get_equivs():
         j_dic['equivs'].append(
-                (['*', eq_ann.type]
-                    + [e for e in eq_ann.entities])
-                )
+            (['*', eq_ann.type]
+             + [e for e in eq_ann.entities])
+        )
 
     for att_ann in ann_obj.get_attributes():
-        j_dic['attributes'].append(
-                [unicode(att_ann.id), unicode(att_ann.type), unicode(att_ann.target), att_ann.value]
-                )
+        j_dic['attributes'].append([str(att_ann.id), str(
+            att_ann.type), str(att_ann.target), att_ann.value])
 
     for norm_ann in ann_obj.get_normalizations():
         j_dic['normalizations'].append(
-                [unicode(norm_ann.id), unicode(norm_ann.type), 
-                 unicode(norm_ann.target), unicode(norm_ann.refdb), 
-                 unicode(norm_ann.refid), unicode(norm_ann.reftext)]
-                )
+            [str(norm_ann.id), str(norm_ann.type),
+             str(norm_ann.target), str(norm_ann.refdb),
+             str(norm_ann.refid), str(norm_ann.reftext)]
+        )
 
     for com_ann in ann_obj.get_oneline_comments():
-        comment = [unicode(com_ann.target), unicode(com_ann.type),
-                com_ann.tail.strip()]
+        comment = [str(com_ann.target), str(com_ann.type),
+                   com_ann.tail.strip()]
         try:
             j_dic['comments'].append(comment)
         except KeyError:
@@ -742,14 +799,14 @@ def _enrich_json_with_data(j_dic, ann_obj):
 
     if ann_obj.failed_lines:
         error_msg = 'Unable to parse the following line(s):\n%s' % (
-                '\n'.join(
-                [('%s: %s' % (
-                            # The line number is off by one
-                            unicode(line_num + 1),
-                            unicode(ann_obj[line_num])
-                            )).strip()
-                 for line_num in ann_obj.failed_lines])
-                )
+            '\n'.join(
+                    [('%s: %s' % (
+                        # The line number is off by one
+                        str(line_num + 1),
+                        str(ann_obj[line_num])
+                    )).strip()
+                        for line_num in ann_obj.failed_lines])
+        )
         Messager.error(error_msg, duration=len(ann_obj.failed_lines) * 3)
 
     j_dic['mtime'] = ann_obj.ann_mtime
@@ -765,16 +822,16 @@ def _enrich_json_with_data(j_dic, ann_obj):
             issues = verify_annotation(ann_obj, projectconf)
         else:
             issues = []
-    except Exception, e:
+    except Exception as e:
         # TODO add an issue about the failure?
         issues = []
         Messager.error('Error: verify_annotation() failed: %s' % e, -1)
 
     for i in issues:
-        issue = (unicode(i.ann_id), i.type, i.description)
+        issue = (str(i.ann_id), i.type, i.description)
         try:
             j_dic['comments'].append(issue)
-        except:
+        except BaseException:
             j_dic['comments'] = [issue, ]
 
     # Attach the source files for the annotations and text
@@ -782,17 +839,17 @@ def _enrich_json_with_data(j_dic, ann_obj):
     from annotation import TEXT_FILE_SUFFIX
     ann_files = [splitext(p)[1][1:] for p in ann_obj._input_files]
     ann_files.append(TEXT_FILE_SUFFIX)
-    ann_files = [p for p in set(ann_files)]
-    ann_files.sort()
+    ann_files = sorted([p for p in set(ann_files)])
     j_dic['source_files'] = ann_files
+
 
 def _enrich_json_with_base(j_dic):
     # TODO: Make the names here and the ones in the Annotations object conform
 
     # TODO: "from offset" of what? Commented this out, remove once
     # sure that nothing is actually using this.
-#     # This is the from offset
-#     j_dic['offset'] = 0
+    #     # This is the from offset
+    #     j_dic['offset'] = 0
 
     for d in (
         'entities',
@@ -804,11 +861,12 @@ def _enrich_json_with_base(j_dic):
         'equivs',
         'normalizations',
         'comments',
-        ):
+    ):
         j_dic[d] = []
 
+
 def _document_json_dict(document):
-    #TODO: DOC!
+    # TODO: DOC!
 
     # pointing at directory instead of document?
     if isdir(document):
@@ -817,7 +875,7 @@ def _document_json_dict(document):
     j_dic = {}
     _enrich_json_with_base(j_dic)
 
-    #TODO: We don't check if the files exist, let's be more error friendly
+    # TODO: We don't check if the files exist, let's be more error friendly
     # Read in the textual data to make it ready to push
     _enrich_json_with_text(j_dic, document + '.' + TEXT_FILE_SUFFIX)
 
@@ -847,16 +905,18 @@ def _document_json_dict(document):
                     del s_breaks[s_i + 1]
                 else:
                     s_i += 1
-        
+
         _enrich_json_with_data(j_dic, ann_obj)
 
     return j_dic
+
 
 def get_document(collection, document):
     directory = collection
     real_dir = real_directory(directory)
     doc_path = path_join(real_dir, document)
     return _document_json_dict(doc_path)
+
 
 def get_document_timestamp(collection, document):
     directory = collection
@@ -867,5 +927,5 @@ def get_document_timestamp(collection, document):
     mtime = _getmtime(ann_path)
 
     return {
-            'mtime': mtime,
-            }
+        'mtime': mtime,
+    }

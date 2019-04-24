@@ -91,6 +91,14 @@ path {
   font-size: 11px;
   font-family: 'PT Sans Caption', sans-serif;
 }
+text[data-arc-role] {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 .attribute_type_label .ui-button-text {
   font-size: 11px;
   font-family: 'PT Sans Caption', sans-serif;
@@ -101,7 +109,6 @@ path {
 }
 
 .glyph {
-  fill: #444444;
   font-family: sans-serif;
   font-weight: bold;
 }
@@ -356,6 +363,7 @@ fieldset legend {
   color: #2e6e9e;
 }   
 
+
 .accesskey {
   text-decoration: underline;
 }
@@ -477,13 +485,13 @@ fieldset legend {
   font-family: 'Liberation Sans';
   font-style: normal;
   font-weight: normal;
-  src: local('Liberation Sans'), local('Liberation-Sans'), url('static/fonts/Liberation_Sans-Regular.ttf') format('truetype');
+  src: local('Liberation Sans'), local('Liberation-Sans'), url('fonts/Liberation_Sans-Regular.ttf') format('truetype');
 }
 @font-face {
   font-family: 'PT Sans Caption';
   font-style: normal;
   font-weight: normal;
-  src: local('PT Sans Caption'), local('PTSans-Caption'), url('static/fonts/PT_Sans-Caption-Web-Regular.ttf') format('truetype');
+  src: local('PT Sans Caption'), local('PTSans-Caption'), url('fonts/PT_Sans-Caption-Web-Regular.ttf') format('truetype');
 }
 
 /* Apple iPad, iPhone, iPod */

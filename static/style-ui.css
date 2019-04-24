@@ -7,6 +7,11 @@ html {
   overflow-y: scroll;
 }
 
+body .ui-widget {
+  font-size: 0.9em; /* override jQuery UI */
+}
+
+
 #navbuttons * {
   vertical-align: middle;
   padding: 2px 5px;
@@ -50,7 +55,7 @@ html {
   position: fixed;
   bottom: 0;
   left: 0;
-  background: url('static/img/Fugue-shadowless-information-balloon.png') center no-repeat;
+  background: url('img/Fugue-shadowless-information-balloon.png') center no-repeat;
 }
 #messagepullup {
   max-height: 300px;
@@ -103,10 +108,7 @@ html {
   display: block;
 }
 
-#notes_container {
-  position: relative;
-}
-#norm_container {
+#span_notes_container, #arc_notes_container, #norm_container {
   position: relative;
 }
 #arc_notes:disabled {
@@ -118,7 +120,7 @@ html {
 #arc_notes_fieldset:disabled legend {
   background-color: #BBBBBB;
 }
-#clear_notes_button, #clear_norm_button {                   
+#clear_span_notes_button, #clear_arc_notes_button, #clear_norm_button {                   
   padding: 2px 5px;
   position: absolute;
   top: -2px;
@@ -127,11 +129,14 @@ html {
 .span_norm_txt_input {
   background-color: #eaf4fd;
 }
-input.valid_value {
+input[data-value="valid"] {
   background-color: #ccffcc;
 }
-input.invalid_value {
+input[data-value="invalid"] {
   background-color: #ffcccc;
+}
+input[data-value="multi"] {
+  background-color: #ccccff;
 }
 #norm_search_result_select {
   height: 200px;
@@ -167,29 +172,27 @@ input.invalid_value {
   right: -2px;
 }
 
-#span_form .collapser {
+#span_form .collapser, #arc_form .collapser {
     float: left;
     height: 16px;
     width: 16px;
     margin-top: 3px;
     cursor: hand;
-    background: url('static/img/expand_icon.gif') no-repeat;
+    background: url('img/expand_icon.gif') no-repeat;
 }
-#span_form .collapser.open {
-    background: url('static/img/collapse_icon.gif') no-repeat;
+#span_form .collapser.open, #arc_form .collapser.open {
+    background: url('img/collapse_icon.gif') no-repeat;
 }
-#span_form .collapsible.open {
+#span_form .collapsible.open, #arc_form .collapsible.open {
     display: block;
 }
-#span_form .collapsible {
+#span_form .collapsible, #arc_form .collapsible {
     display: none;
+    margin-left: 20px;
 }
-#span_form .item_content {
+#span_form .item_content, #arc_form .item_content {
     margin-left: 16px;
     white-space: nowrap;
-}
-#span_form .collapsible {
-    margin-left: 20px;
 }
 .type_scroller { /* TODO remove */
     overflow-y: scroll;
@@ -272,7 +275,7 @@ div.scroll_wrapper_upper div.scroller {
 } 
 /* END new entity and event dialog style */
 
-.small-buttons .ui-button-text {
+.small-buttons .ui-button-text, .small-buttons input[type="button"] {
   padding: 2px 5px;
 }
 
@@ -372,6 +375,10 @@ div.scroll_wrapper_upper div.scroller {
   position: fixed;
   right:10px;
   top: 55px;
+}
+
+#span_form_lock_bset button {
+  margin: 0;
 }
 
 #document_select {
@@ -500,9 +507,25 @@ div.scroll_wrapper_upper div.scroller {
   margin-top: 25px;
 }
 
+/* Lifted from http://jqueryui.com/autocomplete/#combobox */
+.ui-combobox {
+  position: relative;
+  display: inline-block;
+}
+.ui-combobox-input {
+  margin: 0;
+  padding: 2px;
+}
+.ui-combobox, .ui-combobox input, .ui-autocomplete {
+  font-size: 11px !important;
+  font-family: 'PT Sans Caption', sans-serif !important;
+}
+
+
 @font-face {
   font-family: 'Astloch';
   font-style: normal;
   font-weight: bold;
-  src: local('Astloch Bold'), local('Astloch-Bold'), url('static/fonts/Astloch-Bold.ttf') format('truetype');
+  src: local('Astloch Bold'), local('Astloch-Bold'), url('fonts/Astloch-Bold.ttf') format('truetype');
 }
+

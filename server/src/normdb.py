@@ -2,13 +2,13 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
-'''
-Functionality for normalization SQL database access.
-'''
+"""Functionality for normalization SQL database access."""
 
-import sys
-from os.path import join as path_join, exists, sep as path_sep
 import sqlite3 as sqlite
+import sys
+from os.path import join as path_join
+from os.path import sep as path_sep
+from os.path import exists
 
 try:
     from config import BASE_DIR, WORK_DIR
@@ -33,12 +33,13 @@ MAX_SQL_VARIABLE_COUNT = 999
 
 __query_count = {}
 
+
 class dbNotFoundError(Exception):
     def __init__(self, fn):
         self.fn = fn
 
     def __str__(self):
-        return u'Database file "%s" not found' % self.fn
+        return 'Database file "%s" not found' % self.fn
 
 # Normalizes a given string for search. Used to implement
 # case-insensitivity and similar in search.
@@ -48,35 +49,40 @@ class dbNotFoundError(Exception):
 # NOTE2: it is critically important that this function is performed
 # identically during DB initialization and actual lookup.
 # TODO: enforce a single implementation.
+
+
 def string_norm_form(s):
     return s.lower().strip().replace('-', ' ')
 
+
 def __db_path(db):
-    '''
-    Given a DB name/path, returns the path for the file that is
-    expected to contain the DB.
-    '''
+    """Given a DB name/path, returns the path for the file that is expected to
+    contain the DB."""
     # Assume we have a path relative to the brat root if the value
-    # contains a separator, name only otherwise. 
+    # contains a separator, name only otherwise.
     # TODO: better treatment of name / path ambiguity, this doesn't
     # allow e.g. DBs to be located in brat root
     if path_sep in db:
         base = BASE_DIR
     else:
         base = WORK_DIR
-    return path_join(base, db+'.'+DB_FILENAME_EXTENSION)
+    return path_join(base, db + '.' + DB_FILENAME_EXTENSION)
+
 
 def reset_query_count(dbname):
     global __query_count
     __query_count[dbname] = 0
 
+
 def get_query_count(dbname):
     global __query_count
     return __query_count.get(dbname, 0)
 
+
 def __increment_query_count(dbname):
     global __query_count
     __query_count[dbname] = __query_count.get(dbname, 0) + 1
+
 
 def _get_connection_cursor(dbname):
     # helper for DB access functions
@@ -90,20 +96,20 @@ def _get_connection_cursor(dbname):
 
     return connection, cursor
 
+
 def _execute_fetchall(cursor, command, args, dbname):
     # helper for DB access functions
     cursor.execute(command, args)
     __increment_query_count(dbname)
     return cursor.fetchall()
 
+
 def data_by_id(dbname, id_):
-    '''
-    Given a DB name and an entity id, returns all the information
-    contained in the DB for the id.
-    '''
+    """Given a DB name and an entity id, returns all the information contained
+    in the DB for the id."""
     connection, cursor = _get_connection_cursor(dbname)
 
-    # select separately from names, attributes and infos    
+    # select separately from names, attributes and infos
     responses = {}
     for table in TYPE_TABLES:
         command = '''
@@ -133,8 +139,10 @@ WHERE E.uid=?''' % table
         combined.append(responses[t])
     return combined
 
+
 def ids_by_name(dbname, name, exactmatch=False, return_match=False):
     return ids_by_names(dbname, [name], exactmatch, return_match)
+
 
 def ids_by_names(dbname, names, exactmatch=False, return_match=False):
     if len(names) < MAX_SQL_VARIABLE_COUNT:
@@ -144,20 +152,22 @@ def ids_by_names(dbname, names, exactmatch=False, return_match=False):
         result = []
         i = 0
         while i < len(names):
-            n = names[i:i+MAX_SQL_VARIABLE_COUNT]
+            n = names[i:i + MAX_SQL_VARIABLE_COUNT]
             r = _ids_by_names(dbname, n, exactmatch, return_match)
             result.extend(r)
             i += MAX_SQL_VARIABLE_COUNT
         return result
 
+
 def _ids_by_names(dbname, names, exactmatch=False, return_match=False):
-    '''
-    Given a DB name and a list of entity names, returns the ids of all
-    entities having one of the given names. Uses exact string lookup
-    if exactmatch is True, otherwise performs normalized string lookup
-    (case-insensitive etc.). If return_match is True, returns pairs of
-    (id, matched name), otherwise returns only ids.
-    '''
+    """Given a DB name and a list of entity names, returns the ids of all
+    entities having one of the given names.
+
+    Uses exact string lookup if exactmatch is True, otherwise performs
+    normalized string lookup (case-insensitive etc.). If return_match is
+    True, returns pairs of (id, matched name), otherwise returns only
+    ids.
+    """
     connection, cursor = _get_connection_cursor(dbname)
 
     if not return_match:
@@ -183,37 +193,42 @@ JOIN names N
     if not return_match:
         return [r[0] for r in responses]
     else:
-        return [(r[0],r[1]) for r in responses]
+        return [(r[0], r[1]) for r in responses]
+
 
 def ids_by_name_attr(dbname, name, attr, exactmatch=False, return_match=False):
     return ids_by_names_attr(dbname, [name], attr, exactmatch, return_match)
 
-def ids_by_names_attr(dbname, names, attr, exactmatch=False, 
+
+def ids_by_names_attr(dbname, names, attr, exactmatch=False,
                       return_match=False):
-    if len(names) < MAX_SQL_VARIABLE_COUNT-1:
-        return _ids_by_names_attr(dbname, names, attr, exactmatch, return_match)
+    if len(names) < MAX_SQL_VARIABLE_COUNT - 1:
+        return _ids_by_names_attr(
+            dbname, names, attr, exactmatch, return_match)
     else:
         # break up
         result = []
         i = 0
         while i < len(names):
             # -1 for attr
-            n = names[i:i+MAX_SQL_VARIABLE_COUNT-1]
+            n = names[i:i + MAX_SQL_VARIABLE_COUNT - 1]
             r = _ids_by_names_attr(dbname, n, attr, exactmatch, return_match)
             result.extend(r)
-            i += MAX_SQL_VARIABLE_COUNT-1
+            i += MAX_SQL_VARIABLE_COUNT - 1
         return result
-            
-def _ids_by_names_attr(dbname, names, attr, exactmatch=False, 
+
+
+def _ids_by_names_attr(dbname, names, attr, exactmatch=False,
                        return_match=False):
-    '''
-    Given a DB name, a list of entity names, and an attribute text,
-    returns the ids of all entities having one of the given names and
-    an attribute matching the given attribute. Uses exact string
-    lookup if exactmatch is True, otherwise performs normalized string
-    lookup (case-insensitive etc.). If return_match is True, returns
-    pairs of (id, matched name), otherwise returns only names.
-    '''
+    """Given a DB name, a list of entity names, and an attribute text, returns
+    the ids of all entities having one of the given names and an attribute
+    matching the given attribute.
+
+    Uses exact string lookup if exactmatch is True, otherwise performs
+    normalized string lookup (case-insensitive etc.). If return_match is
+    True, returns pairs of (id, matched name), otherwise returns only
+    names.
+    """
     connection, cursor = _get_connection_cursor(dbname)
 
     if not return_match:
@@ -229,11 +244,13 @@ JOIN attributes A
   ON E.id = A.entity_id
 '''
     if exactmatch:
-        command += 'WHERE N.value IN (%s) AND A.value=?' % ','.join(['?' for n in names])
+        command += 'WHERE N.value IN (%s) AND A.value=?' % ','.join([
+            '?' for n in names])
     else:
         # NOTE: using 'LIKE', not '=' here
-        command += 'WHERE N.normvalue IN (%s) AND A.normvalue LIKE ?' % ','.join(['?' for n in names])
-        attr = '%'+string_norm_form(attr)+'%'
+        command += 'WHERE N.normvalue IN (%s) AND A.normvalue LIKE ?' % ','.join([
+            '?' for n in names])
+        attr = '%' + string_norm_form(attr) + '%'
         names = [string_norm_form(n) for n in names]
 
     responses = _execute_fetchall(cursor, command, names + [attr], dbname)
@@ -243,7 +260,8 @@ JOIN attributes A
     if not return_match:
         return [r[0] for r in responses]
     else:
-        return [(r[0],r[1]) for r in responses]
+        return [(r[0], r[1]) for r in responses]
+
 
 def datas_by_ids(dbname, ids):
     if len(ids) < MAX_SQL_VARIABLE_COUNT:
@@ -254,21 +272,20 @@ def datas_by_ids(dbname, ids):
         i = 0
         ids = list(ids)
         while i < len(ids):
-            ids_ = ids[i:i+MAX_SQL_VARIABLE_COUNT]
+            ids_ = ids[i:i + MAX_SQL_VARIABLE_COUNT]
             r = _datas_by_ids(dbname, ids_)
             for k in r:
                 datas[k] = r[k]
             i += MAX_SQL_VARIABLE_COUNT
         return datas
 
+
 def _datas_by_ids(dbname, ids):
-    '''
-    Given a DB name and a list of entity ids, returns all the
-    information contained in the DB for the ids.
-    '''
+    """Given a DB name and a list of entity ids, returns all the information
+    contained in the DB for the ids."""
     connection, cursor = _get_connection_cursor(dbname)
 
-    # select separately from names, attributes and infos    
+    # select separately from names, attributes and infos
     responses = {}
     for table in TYPE_TABLES:
         command = '''
@@ -291,7 +308,7 @@ WHERE E.uid IN (%s)''' % (table, ','.join(['?' for i in ids]))
 
         # short-circuit on missing or incomplete entry
         if (table in NON_EMPTY_TABLES and
-            len([i for i in responses if responses[i][table] == 0]) != 0):
+                len([i for i in responses if responses[i][table] == 0]) != 0):
             return None
 
     cursor.close()
@@ -307,8 +324,9 @@ WHERE E.uid IN (%s)''' % (table, ','.join(['?' for i in ids]))
     for id_ in responses:
         datas[id_] = []
         for t in TYPE_TABLES:
-            datas[id_].append(responses[id_].get(t,[]))
+            datas[id_].append(responses[id_].get(t, []))
     return datas
+
 
 def datas_by_name(dbname, name, exactmatch=False):
     # TODO: optimize
@@ -316,6 +334,7 @@ def datas_by_name(dbname, name, exactmatch=False):
     for id_ in ids_by_name(dbname, name, exactmatch):
         datas[id_] = data_by_id(dbname, id_)
     return datas
+
 
 if __name__ == "__main__":
     # test
@@ -327,6 +346,6 @@ if __name__ == "__main__":
         id_ = sys.argv[2]
     else:
         id_ = "10883"
-    print data_by_id(dbname, id_)
-    print ids_by_name(dbname, 'Pleural branch of left sixth posterior intercostal artery')
-    print datas_by_name(dbname, 'Pleural branch of left sixth posterior intercostal artery')
+    print(data_by_id(dbname, id_))
+    print(ids_by_name(dbname, 'Pleural branch of left sixth posterior intercostal artery'))
+    print(datas_by_name(dbname, 'Pleural branch of left sixth posterior intercostal artery'))
