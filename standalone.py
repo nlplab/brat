@@ -1,11 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Minimal standalone brat server based on SimpleHTTPRequestHandler.
 
 # Run as apache, e.g. as
 #
 #     APACHE_USER=`./apache-user.sh`
-#     sudo -u $APACHE_USER python standalone.py
+#     sudo -u $APACHE_USER python3 standalone.py
 
 import os
 import socket
