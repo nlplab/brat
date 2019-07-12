@@ -20,7 +20,7 @@ BRAT_URL=$1
 SCRIPT_DIR=`dirname $0`
 
 # Baby-steps, do we even have Python?
-/usr/bin/env python -c 'print "Hello world!"' > /dev/null 2>&1
+/usr/bin/env python3 -c 'print("Hello world!")' > /dev/null 2>&1
 if [ $? != 0 ]
 then
     echo 'You do not appear to have Python installed.' 2>&1
