@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """Attempt to diagnose common problems with the brat server by using HTTP.
 
@@ -34,7 +34,7 @@ def _request_wrap(conn, method, url, body=None,
             return res
         res.read()  # Empty the results
         res_headers = dict(res.getheaders())
-        url_soup = urlparse(res_headers['location'])
+        url_soup = urlparse(res_headers['Location'])
         # Note: Could give us a "weird" scheme, but fuck it... can't be arsed
         # to think of all the crap http can potentially throw at us
         try:
@@ -101,7 +101,7 @@ def main(args):
     # Verify that we actually got json data back
     res_headers = dict(res.getheaders())
     try:
-        content_type = res_headers['content-type']
+        content_type = res_headers['Content-Type']
     except KeyError:
         content_type = None
 
