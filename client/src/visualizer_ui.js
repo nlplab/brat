@@ -1448,7 +1448,12 @@ var VisualizerUI = (function($, window, undefined) {
       $('#rapid_model').addClass('ui-widget ui-state-default ui-button-text');
 
       var fillDisambiguatorOptions = function(disambiguators) {
-        $('#annotation_speed3').button(disambiguators.length ? 'enable': 'disable');
+        //begin 2019.7.19: this is to compatible with jquery3.4.0
+        //$('#annotation_speed3').button(disambiguators.length ? 'enable': 'disable');
+        $('#annotation_speed3').button();
+        var btnEnable = disambiguators.length ? 'enable': 'disable' ;
+        $('#annotation_speed3').button(btnEnable);
+        //end 2019.7.19
         //XXX: We need to disable rapid in the conf too if it is not available
         var $rapid_mode = $('#rapid_model').html('');
         $.each(disambiguators, function(modelNo, model) {
