@@ -269,6 +269,7 @@ def dispatch(http_args, client_ip, client_hostname):
     if action in REQUIRES_AUTHENTICATION:
         try:
             user = get_session()['user']
+            http_args['user'] = user
         except KeyError:
             user = None
         if user is None:
