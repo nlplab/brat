@@ -36,6 +36,7 @@ from session import get_session, load_conf, save_conf
 from svg import retrieve_stored, store_svg
 from tag import tag
 from undo import undo
+from auditing import AuditLog
 
 # no-op function that can be invoked by client to log a user action
 
@@ -136,6 +137,16 @@ REQUIRES_AUTHENTICATION = ANNOTATION_ACTION | set((
     'searchNoteInCollection',
 
     'tag',
+))
+
+AUDIT_ANNOTATOR_ACTION = ANNOTATION_ACTION | set((
+    'login',
+    'createSpan',
+    'deleteSpan',
+    'splitSpan',
+    'createArc',
+    'reverseArc',
+    'deleteArc',
 ))
 
 # Sanity check
@@ -318,6 +329,19 @@ def dispatch(http_args, client_ip, client_hostname):
         log_annotation(http_args['collection'],
                        http_args['document'],
                        'FINISH', action, action_args)
+
+    if action in AUDIT_ANNOTATOR_ACTION:
+        label_type_id = None
+        if 'edited' in json_dic:
+            label_type_id = json_dic['edited'][0][0]
+
+        AuditLog.log_event(
+            user=http_args['user'],
+            action=action,
+            collection=http_args['collection'],
+            document=http_args['document'],
+            label_type_id=label_type_id,
+        )
 
     # Assign which action that was performed to the json_dic
     json_dic['action'] = action
