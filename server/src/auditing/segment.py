@@ -24,6 +24,5 @@ class _AuditLog:
             self.event_mapper[action](user=user, action=action, *args, **kwargs)
         else:
             self._annotation_event(user=user, action=action, *args, **kwargs)
-        self.client.flush()
 
 AuditLog = _AuditLog()
