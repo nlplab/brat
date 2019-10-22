@@ -9,7 +9,7 @@ class _AuditLog:
         self.event_mapper = {'login': self._login_event}
 
     def _login_event(self, user, *args, **kwargs):
-        self.client.identify(user_id=user, timestamp=datetime.now())
+        self.client.identify(user_id=user)
 
     def _annotation_event(self, user, action, collection, document, label_type_id, *args, **kwargs):
         properties = {
@@ -17,7 +17,7 @@ class _AuditLog:
             'document': document,
             'label_type_id': label_type_id,
         }
-        self.client.track(user_id=user, event=action, properties=properties, timestamp=datetime.now())
+        self.client.track(user_id=user, event=action, properties=properties)
 
     def log_event(self, user, action, *args, **kwargs):
         if action in self.event_mapper:
