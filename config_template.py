@@ -115,3 +115,5 @@ except NameError:
 #    ('pdf', 'inkscape --export-area-drawing --without-gui --file=%s --export-pdf=%s'),
 #    ('eps', 'inkscape --export-area-drawing --without-gui --file=%s --export-eps=%s'),
 # ]
+
+SEGMENT_API_KEY = "MY_SEGMENT_KEY"
