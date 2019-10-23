@@ -26,6 +26,7 @@ class _AuditLog:
                 "collection": collection,
                 "document": document,
                 "label_type_id": label_type_id,
+                "timestamp": datetime.now().isoformat()
             }
             output_file.write("{}\n".format(json.dumps(output_entry)))
         # self.client.track(user_id=user, event=action, properties=properties)
