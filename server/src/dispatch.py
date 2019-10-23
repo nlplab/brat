@@ -334,7 +334,7 @@ def dispatch(http_args, client_ip, client_hostname):
 
     if action in AUDIT_ANNOTATOR_ACTION:
         label_type_id = None
-        if 'edited' in json_dic:
+        if 'edited' in json_dic and json_dic['edited']:
             label_type_id = json_dic['edited'][0][0]
         log_process_kwargs = {
             "user": http_args['user'],
