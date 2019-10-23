@@ -1,3 +1,5 @@
+import json
+
 from analytics import Client
 import config
 from datetime import datetime
@@ -17,8 +19,17 @@ class _AuditLog:
             'document': document,
             'label_type_id': label_type_id,
         }
-        self.client.track(user_id=user, event=action, properties=properties)
-        self.client.flush()
+        with open(f"auditing/{user}.txt", "a+") as output_file:
+            output_entry = {
+                "user": user,
+                "event": action,
+                "collection": collection,
+                "document": document,
+                "label_type_id": label_type_id,
+            }
+            output_file.write("{}\n".format(json.dumps(output_entry)))
+        # self.client.track(user_id=user, event=action, properties=properties)
+        # self.client.flush()
 
     def log_event(self, user, action, *args, **kwargs):
         if action in self.event_mapper:
