@@ -10,7 +10,6 @@ Version:    2011-04-21
 
 from inspect import getargspec
 from logging import info as log_info
-from multiprocessing import Process
 from os.path import join as path_join
 from os.path import abspath, normpath
 
@@ -38,6 +37,7 @@ from svg import retrieve_stored, store_svg
 from tag import tag
 from undo import undo
 from auditing import AuditLog
+import multiprocessing as mp
 
 # no-op function that can be invoked by client to log a user action
 
@@ -337,13 +337,14 @@ def dispatch(http_args, client_ip, client_hostname):
         if 'edited' in json_dic:
             label_type_id = json_dic['edited'][0][0]
         log_process_kwargs = {
-            "user": http_args['user'],
-            "action": action,
-            "collection": http_args['collection'],
-            "document": http_args['document'],
-            "label_type_id": label_type_id,
+            "user": str(http_args['user']),
+            "action": str(action),
+            "collection": str(http_args['collection']),
+            "document": str(http_args['document']),
+            "label_type_id": str(label_type_id),
         }
-        log_process = Process(target=AuditLog.log_event, kwargs=log_process_kwargs)
+        ctx = mp.get_context('fork')
+        log_process = ctx.Process(target=AuditLog.log_event, kwargs=log_process_kwargs, daemon=True)
         log_process.start()
 
     # Assign which action that was performed to the json_dic
