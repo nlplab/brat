@@ -60,7 +60,7 @@ def main(args):
     stdout.write('\n')
     stdout.write(response_data[1])
     stdout.close()
-    time.sleep(50)
+    # time.sleep(50)
     return 0
 
 
