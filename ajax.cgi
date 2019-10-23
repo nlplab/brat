@@ -18,7 +18,7 @@ from os import environ
 from os.path import dirname
 from os.path import join as path_join
 from sys import path as sys_path, stdout
-
+import time
 # Local imports
 sys_path.append(path_join(dirname(__file__), 'server/src'))
 
@@ -59,6 +59,8 @@ def main(args):
     stdout.write('\n')
     stdout.write('\n')
     stdout.write(response_data[1])
+    stdout.close()
+    time.sleep(50)
     return 0
 
 
