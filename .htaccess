@@ -11,7 +11,8 @@
 #
 # (See also http://brat.nlplab.org/troubleshooting.html)
 <FilesMatch "^(\.htaccess|config\.py)$">
-    Require all granted
+    Order allow,deny
+    Deny from all
 </FilesMatch>
 
 Options +ExecCGI +FollowSymLinks
