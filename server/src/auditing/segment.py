@@ -17,7 +17,7 @@ class _AuditLog:
             'document': document,
             'label_type_id': label_type_id,
         }
-        self.client.track(user_id=user, event=action, properties=properties)
+        # self.client.track(user_id=user, event=action, properties=properties)
 
     def log_event(self, user, action, *args, **kwargs):
         if action in self.event_mapper:
