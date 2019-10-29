@@ -3,7 +3,7 @@ import json
 from analytics import Client
 import config
 from datetime import datetime
-
+from uuid import uuid4
 
 class _AuditLog:
     def __init__(self):
@@ -26,7 +26,8 @@ class _AuditLog:
                 "collection": collection,
                 "document": document,
                 "label_type_id": label_type_id,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
+                "uuid": str(uuid4()),
             }
             output_file.write("{}\n".format(json.dumps(output_entry)))
         # self.client.track(user_id=user, event=action, properties=properties)
