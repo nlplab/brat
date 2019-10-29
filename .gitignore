@@ -9,3 +9,4 @@ config.py
 data/
 work/
 auditing/
+.DS_Store
