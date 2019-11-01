@@ -10,3 +10,4 @@ data/
 work/
 auditing/
 .DS_Store
+*.tar.gz
