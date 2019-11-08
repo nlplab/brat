@@ -2519,6 +2519,7 @@ var AnnotatorUI = (function($, window, undefined) {
           });
         dispatcher.post('ajax', [spanOptions, 'createSpanBatch']);
         dispatcher.post('hideForm');
+        location.reload();
       };
 
       var deleteFragment = function() {

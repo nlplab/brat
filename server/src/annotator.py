@@ -9,9 +9,7 @@ Version:    2011-04-22
 """
 
 # XXX: This module is messy, re-factor to be done
-
-
-
+import re
 from os.path import join as path_join
 from os.path import split as path_split
 from re import compile as re_compile
@@ -446,10 +444,20 @@ def _json_offsets_to_list(offsets):
 def create_span_batch(collection, document, offsets, type, attributes=None,
                 normalizations=None, id=None, comment=None):
     offsets = _json_offsets_to_list(offsets)
-    # from ipdb import launch_ipdb_on_exception
-    # with launch_ipdb_on_exception():
-    #     raise Exception("I am a fish")
-    import ipdb; ipdb.sset_trace()
+
+    document_path = path_join(DATA_DIR, collection.lstrip("/"), f"{document}.txt")
+    with open(document_path) as document_file:
+        document_data = document_file.read()
+
+    initial_span = document_data[offsets[0][0]:offsets[0][1]]
+    matches = re.finditer(initial_span, document_data)
+    offset_list = [m.span() for m in matches if m.span() != offsets[0]]
+
+    for offset_item in offset_list:
+        _create_span(collection, document, [offset_item], type, attributes, normalizations, id, comment)
+
+    return _create_span(collection, document, offsets, type, attributes,
+                        normalizations, id, comment)
 
 
 def create_span(collection, document, offsets, type, attributes=None,
@@ -632,11 +640,7 @@ def _create_span(collection, document, offsets, _type, attributes=None,
 
     if _offset_overlaps(offsets):
         raise SpanOffsetOverlapError(offsets)
-    document_path = path_join(DATA_DIR, collection.lstrip("/"), f"{document}.txt")
-    with open(document_path) as document_file:
-        document_data = document_file.read()
 
-    import ipdb; ipdb.set_trace()
     directory = collection
     undo_resp = {}
 
