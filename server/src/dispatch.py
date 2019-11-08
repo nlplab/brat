@@ -16,7 +16,7 @@ from os.path import abspath, normpath
 from config import DATA_DIR
 
 from annlog import log_annotation
-from annotator import (create_arc, create_span, delete_arc, delete_span,
+from annotator import (create_arc, create_span, create_span_batch, delete_arc, delete_span,
                        reverse_arc, split_span)
 from auth import NotAuthorisedError, login, logout, whoami
 from common import ProtocolError
@@ -65,6 +65,7 @@ DISPATCHER = {
     'whoami': whoami,
 
     'createSpan': create_span,
+    'createSpanBatch': create_span_batch,
     'deleteSpan': delete_span,
     'splitSpan': split_span,
 

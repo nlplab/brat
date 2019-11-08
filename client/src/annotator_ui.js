@@ -2505,6 +2505,22 @@ var AnnotatorUI = (function($, window, undefined) {
         selectedFragment = editedFragment;
       };
 
+      var createSpanBatch = function() {
+        spanOptions.action = "createSpanBatch";
+        spanOptions.offsets = JSON.stringify([spanOptions.offsets[0]]);
+        typeRadio = $('#span_form input:radio:checked');
+        var type = typeRadio.val();
+          $.extend(spanOptions, {
+            action: 'createSpanBatch',
+            collection: coll,
+            'document': doc,
+            type: type,
+            comment: $('#span_notes').val()
+          });
+        dispatcher.post('ajax', [spanOptions, 'createSpanBatch']);
+        dispatcher.post('hideForm');
+      };
+
       var deleteFragment = function() {
         if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this fragment?")) {
           return;
@@ -2568,7 +2584,11 @@ var AnnotatorUI = (function($, window, undefined) {
               id: 'span_form_split',
               text: 'Split',
               click: splitSpan
-            }
+            }, {
+              id: 'span_form_batch_annotate',
+              text: 'Create Batch Annotation',
+              click: createSpanBatch
+          }
           ],
           create: function(evt) {
             var $ok = $('#span_form-ok').wrap('<span id="span_form_lock_bset"/>');

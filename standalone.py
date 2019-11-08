@@ -214,7 +214,6 @@ class BratHTTPRequestHandler(SimpleHTTPRequestHandler):
         if '..' in parts:
             return False
         path = '/' + '/'.join(parts)
-
         return self.permissions.allow(path)
 
     def list_directory(self, path):
