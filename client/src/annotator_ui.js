@@ -73,7 +73,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // utility function, originally for stripping numerix suffixes
         // from arc types (e.g. "Theme2" -> "Theme"). For values
         // without suffixes (including non-strings), returns given value.
-        if (typeof(s) != "string") {          
+        if (typeof(s) != "string") {
           return s; // can't strip
         }
         var m = s.match(/^(.*?)(\d*)$/);
@@ -129,7 +129,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         // in rapid annotation mode, prioritize the keys 0..9 for the
         // ordered choices in the quick annotation dialog.
-        if (Configuration.rapidModeOn && rapidAnnotationDialogVisible && 
+        if (Configuration.rapidModeOn && rapidAnnotationDialogVisible &&
             "0".charCodeAt() <= code && code <= "9".charCodeAt()) {
           var idx = String.fromCharCode(code);
           var $input = $('#rapid_span_'+idx);
@@ -658,7 +658,7 @@ var AnnotatorUI = (function($, window, undefined) {
             eLeft = Math.min(Math.max(eLeft,0), screenWidth - elementWidth);
         } else {
             eLeft = 0;
-        } 
+        }
         if (screenHeight > elementHeight) {
             eTop  = Math.min(Math.max(eTop,0), screenHeight - elementHeight);
         } else {
@@ -728,7 +728,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
 
         $('#span_selected').text(spanText);
-        var encodedText = encodeURIComponent(spanText);       
+        var encodedText = encodeURIComponent(spanText);
         $.each(searchConfig, function(searchNo, search) {
           $('#span_'+search[0]).attr('href', search[1].replace('%s', encodedText));
         });
@@ -941,8 +941,17 @@ var AnnotatorUI = (function($, window, undefined) {
           var shownCount = 0;
           $.each(attrTypes, function(attrNo, attr) {
             var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
-            var showAttr = showAllAttributes || $.inArray(attr.type, validAttrs) != -1;
-            if (showAttr) {
+            var attrIsApplicable = $.inArray(attr.type, validAttrs) != -1;
+            if (attrIsApplicable) {
+              // If attribute is not currently showing, then reset form value to default.
+              if ($input.closest('.attribute_type_label').css('display') == 'none') {
+                $input.val(attr.default).change();
+              }
+            } else {
+              $input.val('').change(); // clear form value to avoid submitting inapplicable default value
+            }
+
+            if (showAllAttributes || attrIsApplicable) {
               // $input.button('widget').parent().show();
               $input.closest('.attribute_type_label').show();
               shownCount++;
@@ -956,12 +965,12 @@ var AnnotatorUI = (function($, window, undefined) {
 
         showValidAttributes = function() {
           var type = $('#span_form input:radio:checked').val();
-          
+
           showAllAttributes = false;
-          
+
           var entityAttrCount = showAttributesFor(entityAttributeTypes, 'entity', type);
           var eventAttrCount = showAttributesFor(eventAttributeTypes, 'event', type);
-          
+
           // show attribute frames only if at least one attribute is
           // shown, and set size classes appropriately
           if (eventAttrCount > 0) {
@@ -1036,7 +1045,7 @@ var AnnotatorUI = (function($, window, undefined) {
           var $label = $('<label class="span_type_label"/>').
             attr('for', 'rapid_span_' + (typeNo+1)).
             text(name+' (' + (100.0 * prob).toFixed(1) + '%)');
-          $label.css('background-color', spanBgColor);          
+          $label.css('background-color', spanBgColor);
           // TODO: check for unnecessary extra wrapping here
           var $content = $('<div class="item_content"/>').
             append($numlabel).
@@ -1077,7 +1086,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
         // fill in some space and the special "Other" option, with key "0" (zero)
         $spanTypeDiv.append($('<div class="item_content">&#160;</div>')); // non-breaking space
-        var $numlabel = $('<span class="accesskey">0</span><span>:</span>');        
+        var $numlabel = $('<span class="accesskey">0</span><span>:</span>');
         var $input = $('<input type="radio" name="rapid_span_type" id="rapid_span_0" value=""/>');
         var $label = $('<label class="span_type_label" for="rapid_span_0" style="background-color:lightgray">Other...</label>');
         var $content = $('<div class="item_content"/>').
@@ -1135,7 +1144,7 @@ var AnnotatorUI = (function($, window, undefined) {
           // TODO: better response to failure
           dispatcher.post('messages', [[['Lookup error', 'warning', -1]]]);
           return false;
-        }        
+        }
         // set input style according to whether we have a valid value
         var $normId = $('#span_norm_id');
         // TODO: make sure the key echo in the response matches the
@@ -1271,7 +1280,7 @@ var AnnotatorUI = (function($, window, undefined) {
       };
       var normSearchSubmit = function(evt) {
         if (normSearchSubmittable) {
-          var selectedId = $('#norm_search_id').val(); 
+          var selectedId = $('#norm_search_id').val();
           var selectedTxt = $('#norm_search_query').val();
 
           normSubmit(selectedId, selectedTxt);
@@ -1368,7 +1377,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#norm_search_query').val($('#span_selected').text());
         // blank the table
         $('#norm_search_result_select thead').empty();
-        $('#norm_search_result_select tbody').empty();        
+        $('#norm_search_result_select tbody').empty();
         // TODO: support for two (or more) dialogs open at the same time
         // so we don't need to hide this before showing normSearchDialog
         dispatcher.post('hideForm');
@@ -1436,7 +1445,7 @@ var AnnotatorUI = (function($, window, undefined) {
               // do not allow equiv<->non-equiv change options
               if (arcType && isEquiv != isThisEquiv) return;
 
-              var displayName = ((arcDesc.labels && arcDesc.labels[0]) || 
+              var displayName = ((arcDesc.labels && arcDesc.labels[0]) ||
                                  arcTypeName);
               var $input = $('<input id="arc_' + arcTypeName + '" type="radio" name="arc_type" value="' + arcTypeName + '"/>');
               var $label = $('<label class="arc_type_label" for="arc_' + arcTypeName + '"/>').text(displayName);
@@ -1832,7 +1841,7 @@ var AnnotatorUI = (function($, window, undefined) {
             // but this is clumsy and suboptimal (user may have scrolled
             // during the ajax invocation); think of a better way.
             lastRapidAnnotationEvent = evt;
-            dispatcher.post('ajax', [ { 
+            dispatcher.post('ajax', [ {
                             action: 'suggestSpanTypes',
                             collection: coll,
                             'document': doc,
@@ -1943,9 +1952,9 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#arc_roles, #entity_types').on('click', '.collapser', collapseHandler);
 
       var spanFormSubmitRadio = function(evt) {
+        showValidAttributes();
+        showValidNormalizations();
         if (Configuration.confirmModeOn) {
-          showValidAttributes();
-          showValidNormalizations();
           $('#span_form-ok').focus();
         } else {
           spanFormSubmit(evt, $(evt.target));
@@ -2041,10 +2050,10 @@ var AnnotatorUI = (function($, window, undefined) {
           } else if (attr.bool) {
             var escapedName = Util.escapeQuotes(attr.name);
             var $input = $('<input type="checkbox" id="'+attrId+
-                           '" value="' + escapedType + 
+                           '" value="' + escapedType +
                            '" category="' + category + '"/>');
             var $label = $('<label for="'+attrId+
-                           '" data-bare="' + escapedName + '">&#x2610; ' + 
+                           '" data-bare="' + escapedName + '">&#x2610; ' +
                            escapedName + '</label>');
             $span.append($input).append($label);
             $input.button();
@@ -2072,7 +2081,7 @@ var AnnotatorUI = (function($, window, undefined) {
         // disable not only categories of types (events or entities),
         // but the specific set of types that are incompatible with
         // the current attribute settings.
-        
+
         // just assume all attributes are event attributes
         // TODO: support for entity attributes
         // TODO2: the above comment is almost certainly false, check and remove
@@ -2363,7 +2372,7 @@ var AnnotatorUI = (function($, window, undefined) {
         return attributes;
       }
 
-      var spanAndAttributeTypesLoaded = function(_spanTypes, 
+      var spanAndAttributeTypesLoaded = function(_spanTypes,
                                                  _entityAttributeTypes,
                                                  _eventAttributeTypes,
                                                  _relationTypesHash) {
@@ -2423,7 +2432,7 @@ var AnnotatorUI = (function($, window, undefined) {
       // TODO: why are these globals defined here instead of at the top?
       var spanForm = $('#span_form');
       var rapidSpanForm = $('#rapid_span_form');
-    
+
       var deleteSpan = function() {
         if (Configuration.confirmModeOn && !confirm("Are you sure you want to delete this annotation?")) {
           return;
@@ -2488,7 +2497,7 @@ var AnnotatorUI = (function($, window, undefined) {
           $roles.append($role).append($label);
         });
         var $roleButtons = $roles.find('input').button();
-        
+
         dispatcher.post('showForm', [splitForm]);
       };
 
@@ -2611,7 +2620,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       dispatcher.post('initForm', [rapidSpanForm, {
           alsoResize: '#rapid_span_types',
-          width: 400,             
+          width: 400,
           close: function(evt) {
             keymap = null;
           }
