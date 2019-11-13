@@ -9,5 +9,6 @@ config.py
 data/
 work/
 auditing/
+logfiles/
 .DS_Store
 *.tar.gz
