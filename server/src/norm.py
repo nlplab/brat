@@ -9,7 +9,7 @@ from functools import reduce
 
 import normdb
 import sdistance
-import simstringdb
+from simstringdb import Simstring
 from document import real_directory
 from message import Messager
 from normdb import string_norm_form
@@ -53,25 +53,29 @@ def _report_timings(dbname, start, msg=None):
 def _get_db_path(database, collection):
     if collection is None:
         # TODO: default to WORK_DIR config?
-        return None
+        return (None, DEFAULT_UNICODE)
     else:
+        conf_dir = real_directory(collection)
+        projectconf = ProjectConfiguration(conf_dir)
+        norm_conf = projectconf.get_normalization_config()
         try:
             conf_dir = real_directory(collection)
             projectconf = ProjectConfiguration(conf_dir)
             norm_conf = projectconf.get_normalization_config()
             for entry in norm_conf:
-                dbname, dbpath = entry[0], entry[3]
+                # TODO THIS IS WRONG
+                dbname, dbpath, dbunicode = entry[0], entry[3], entry[4]
                 if dbname == database:
-                    return dbpath
+                    return (dbpath, dbunicode)
             # not found in config.
             Messager.warning('DB ' + database + ' not defined in config for ' +
                              collection + ', falling back on default.')
-            return None
+            return (None, DEFAULT_UNICODE)
         except Exception:
             # whatever goes wrong, just warn and fall back on the default.
             Messager.warning('Failed to get DB path from config for ' +
                              collection + ', falling back on default.')
-            return None
+            return (None, DEFAULT_UNICODE)
 
 
 def norm_get_name(database, key, collection=None):
@@ -80,7 +84,7 @@ def norm_get_name(database, key, collection=None):
     if REPORT_LOOKUP_TIMINGS:
         lookup_start = datetime.now()
 
-    dbpath = _get_db_path(database, collection)
+    dbpath, dbunicode = _get_db_path(database, collection)
     if dbpath is None:
         # full path not configured, fall back on name as default
         dbpath = database
@@ -115,7 +119,7 @@ def norm_get_data(database, key, collection=None):
     if REPORT_LOOKUP_TIMINGS:
         lookup_start = datetime.now()
 
-    dbpath = _get_db_path(database, collection)
+    dbpath, dbunicode = _get_db_path(database, collection)
     if dbpath is None:
         # full path not configured, fall back on name as default
         dbpath = database
@@ -147,7 +151,7 @@ def norm_get_data(database, key, collection=None):
 #     if REPORT_LOOKUP_TIMINGS:
 #         lookup_start = datetime.now()
 #
-#     dbpath = _get_db_path(database, collection)
+#     dbpath, dbunicode = _get_db_path(database, collection)
 #     if dbpath is None:
 #         # full path not configured, fall back on name as default
 #         dbpath = database
@@ -269,10 +273,9 @@ def _norm_score(substring, name, max_cost=500):
 _norm_score.__cache = {}
 
 
-def _norm_search_name_attr(database, name, attr,
+def _norm_search_name_attr(ss, name, attr,
                            matched, score_by_id, score_by_str,
-                           best_score=0, exactmatch=False,
-                           threshold=simstringdb.DEFAULT_THRESHOLD):
+                           best_score=0, exactmatch=False):
     # helper for norm_search, searches for matches where given name
     # appears either in full or as an approximate substring of a full
     # name (if exactmatch is False) in given DB. If attr is not None,
@@ -288,7 +291,7 @@ def _norm_search_name_attr(database, name, attr,
     # names.
     if attr is not None:
         normattr = string_norm_form(attr)
-        if not simstringdb.ssdb_supstring_exists(normattr, database, 1.0):
+        if not ss.supstring_lookup(normattr):
             # debugging
             #Messager.info('Early norm search fail on "%s"' % attr)
             return best_score
@@ -301,8 +304,7 @@ def _norm_search_name_attr(database, name, attr,
         # expand to substrings using simstring
         # simstring requires UTF-8
         normname = string_norm_form(name)
-        str_scores = simstringdb.ssdb_supstring_lookup(normname, database,
-                                                       threshold, True)
+        str_scores = ss.supstring_lookup(normname, True)
         strs = [s[0] for s in str_scores]
         ss_norm_score = dict(str_scores)
 
@@ -312,9 +314,9 @@ def _norm_search_name_attr(database, name, attr,
 
     # look up IDs
     if attr is None:
-        id_names = normdb.ids_by_names(database, strs, False, True)
+        id_names = normdb.ids_by_names(ss.name, strs, False, True)
     else:
-        id_names = normdb.ids_by_names_attr(database, strs, attr, False, True)
+        id_names = normdb.ids_by_names_attr(ss.name, strs, attr, False, True)
 
     # sort by simstring (n-gram overlap) score to prioritize likely
     # good hits.
@@ -360,10 +362,11 @@ def _norm_search_impl(database, name, collection=None, exactmatch=False):
     if REPORT_LOOKUP_TIMINGS:
         lookup_start = datetime.now()
 
-    dbpath = _get_db_path(database, collection)
+    dbpath, dbunicode = _get_db_path(database, collection)
     if dbpath is None:
         # full path not configured, fall back on name as default
         dbpath = database
+
 
     # maintain map from searched names to matching IDs and scores for
     # ranking
@@ -371,58 +374,61 @@ def _norm_search_impl(database, name, collection=None, exactmatch=False):
     score_by_id = {}
     score_by_str = {}
 
-    # look up hits where name appears in full
-    best_score = _norm_search_name_attr(dbpath, name, None,
-                                        matched, score_by_id, score_by_str,
-                                        0, exactmatch)
+    with Simstring(dbpath, unicode=dbunicode) as ss:
 
-    # if there are no hits and we only have a simple candidate string,
-    # look up with a low threshold
-    if best_score == 0 and len(name.split()) == 1:
-        best_score = _norm_search_name_attr(dbpath, name, None,
+        # look up hits where name appears in full
+        best_score = _norm_search_name_attr(ss, name, None,
                                             matched, score_by_id, score_by_str,
-                                            0, exactmatch, 0.5)
+                                            0, exactmatch)
 
-    # if there are no good hits, also consider only part of the input
-    # as name and the rest as an attribute.
-    # TODO: reconsider arbitrary cutoff
-    if best_score < 900 and not exactmatch:
-        parts = name.split()
+        # if there are no hits and we only have a simple candidate string,
+        # look up with a low threshold
+        if best_score == 0 and len(name.split()) == 1:
+            with Simstring(database, threshold=0.5, unicode=dbunicode) as low_threshold_ss:
+                best_score = _norm_search_name_attr(low_threshold_ss, name, None,
+                                                    matched, score_by_id, score_by_str,
+                                                    0, exactmatch)
 
-        # prioritize having the attribute after the name
-        for i in range(len(parts) - 1, 0, -1):
-            # TODO: this early termination is sub-optimal: it's not
-            # possible to know in advance which way of splitting the
-            # query into parts yields best results. Reconsider.
-            if len(score_by_id) > MAX_SEARCH_RESULT_NUMBER:
-                break
+        # if there are no good hits, also consider only part of the input
+        # as name and the rest as an attribute.
+        # TODO: reconsider arbitrary cutoff
+        if best_score < 900 and not exactmatch:
+            parts = name.split()
 
-            start = ' '.join(parts[:i])
-            end = ' '.join(parts[i:])
+            # prioritize having the attribute after the name
+            for i in range(len(parts) - 1, 0, -1):
+                # TODO: this early termination is sub-optimal: it's not
+                # possible to know in advance which way of splitting the
+                # query into parts yields best results. Reconsider.
+                if len(score_by_id) > MAX_SEARCH_RESULT_NUMBER:
+                    break
 
-            # query both ways (start is name, end is attr and vice versa)
-            best_score = _norm_search_name_attr(dbpath, start, end,
-                                                matched, score_by_id,
-                                                score_by_str,
-                                                best_score, exactmatch)
-            best_score = _norm_search_name_attr(dbpath, end, start,
-                                                matched, score_by_id,
-                                                score_by_str,
-                                                best_score, exactmatch)
+                start = ' '.join(parts[:i])
+                end = ' '.join(parts[i:])
 
-    # flatten to single set of IDs
-    ids = reduce(set.union, list(matched.values()), set())
+                # query both ways (start is name, end is attr and vice versa)
+                best_score = _norm_search_name_attr(ss, start, end,
+                                                    matched, score_by_id,
+                                                    score_by_str,
+                                                    best_score, exactmatch)
+                best_score = _norm_search_name_attr(ss, end, start,
+                                                    matched, score_by_id,
+                                                    score_by_str,
+                                                    best_score, exactmatch)
 
-    # filter ids that now (after all queries complete) fail
-    # TODO: are we sure that this is a good idea?
-    ids = set([i for i in ids
-               if not _norm_filter_score(score_by_id[i], best_score)])
+        # flatten to single set of IDs
+        ids = reduce(set.union, list(matched.values()), set())
 
-    # TODO: avoid unnecessary queries: datas_by_ids queries for names,
-    # attributes and infos, but _format_datas only uses the first two.
-    datas = normdb.datas_by_ids(dbpath, ids)
+        # filter ids that now (after all queries complete) fail
+        # TODO: are we sure that this is a good idea?
+        ids = set([i for i in ids
+                if not _norm_filter_score(score_by_id[i], best_score)])
 
-    header, items = _format_datas(datas, score_by_id, matched)
+        # TODO: avoid unnecessary queries: datas_by_ids queries for names,
+        # attributes and infos, but _format_datas only uses the first two.
+        datas = normdb.datas_by_ids(dbpath, ids)
+
+        header, items = _format_datas(datas, score_by_id, matched)
 
     if REPORT_LOOKUP_TIMINGS:
         _report_timings(database, lookup_start,
@@ -441,7 +447,7 @@ def _norm_search_impl(database, name, collection=None, exactmatch=False):
 def norm_search(database, name, collection=None, exactmatch=False):
     try:
         return _norm_search_impl(database, name, collection, exactmatch)
-    except simstringdb.ssdbNotFoundError as e:
+    except Simstring.ssdbNotFoundError as e:
         Messager.warning(str(e))
         return {
             'database': database,

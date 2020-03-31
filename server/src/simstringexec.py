@@ -1,9 +1,16 @@
 from subprocess import Popen, PIPE, run
 from simstringbase import SimstringBase, test
+from os.path import isfile
+import select
 
 
 # make sure the simstring executable can be run
-assert not run(["which", "simstring"], capture_output=True).returncode, "Error: simstring not found"
+try:
+    from config import SIMSTRING_EXECUTABLE
+except ImportError:
+    SIMSTRING_EXECUTABLE = 'simstring'
+
+assert isfile(SIMSTRING_EXECUTABLE), "Error: simstring not found (Hint: set SIMSTRING_EXECUTABLE in config.py"
 
 
 class SimstringExecException(Exception):
@@ -15,44 +22,58 @@ class SimstringExecException(Exception):
 
 
 class SimstringExec(SimstringBase):
-    SS_EXECUTABLE = "simstring"
-
     def __init__(self, dbfn,
             ngram_length=SimstringBase.DEFAULT_NGRAM_LENGTH,
             include_marks=SimstringBase.DEFAULT_INCLUDE_MARKS,
             threshold=SimstringBase.DEFAULT_THRESHOLD,
             similarity_measure=SimstringBase.DEFAULT_SIMILARITY_MEASURE,
-            build=False,
-            unicode=True):
+            unicode=SimstringBase.DEFAULT_UNICODE,
+            build=False):
 
-        dbfn = self.find_db(dbfn, build)
-        cmd = [SimstringExec.SS_EXECUTABLE,
-                "-d", dbfn,
+        super().__init__(dbfn,
+                ngram_length=ngram_length,
+                include_marks=include_marks,
+                threshold=threshold,
+                similarity_measure=similarity_measure,
+                unicode=unicode,
+                build=build)
+
+        cmd = [SIMSTRING_EXECUTABLE,
+                "-d", self.dbfn,
                 "-n", str(ngram_length),
                 "-s", similarity_measure,
                 "-t", str(threshold),
                 ]
-        self.is_build = build
-        if build:
+        if self.is_build:
             cmd.append("-b")
         if unicode:
             cmd.append("-u")
 
-        self.dbfn = dbfn
-        self.threshold = threshold
         self.proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+        # TODO use `self.proc.poll()` to check if the process ran into trouble
+
+    def _check_error(self, errs=None):
+        if self.proc.returncode:
+            if errs is None:
+                outs, errs = self.proc.communicate('')
+            raise SimstringExecException("Error: simstring invocation: {errs}".format(errs=errs))
 
     def build(self, strs):
         assert self.is_build, "Error: build on non-build simstring"
         instr = ''.join(s + '\n' for s in strs)
         outs, errs = self.proc.communicate(instr)
-        assert not self.proc.returncode, "Error: simstring invocation: {errs}".format(errs=errs)
+        self._check_error(errs)
         self.close()
+
+    def insert(self, s):
+        assert self.is_build, "Error: build on non-build simstring"
+        self.proc.stdin.write(s + "\n")
+        self._check_error()
 
     def lookup(self, s):
         assert not self.is_build, "Error: lookup on build simstring"
         try:
-            self.proc.stdin.write(s + '\n')
+            self.proc.stdin.write(s + "\n")
             self.proc.stdin.flush()
             response = []
             while True:
@@ -68,7 +89,7 @@ class SimstringExec(SimstringBase):
 
     def close(self):
         if self.proc:
-            self.proc.terminate()
+            outs, errs = self.proc.communicate('')
             self.proc = None
 
 

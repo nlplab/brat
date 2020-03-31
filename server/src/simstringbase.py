@@ -1,6 +1,7 @@
 from os.path import sep as path_sep, join as path_join, isfile
 import glob
 import os
+import config
 
 try:
     from config import BASE_DIR, WORK_DIR
@@ -12,15 +13,16 @@ except ImportError:
     from config import BASE_DIR, WORK_DIR
 
 
-class ssdbNotFoundError(Exception):
-    def __init__(self, fn):
-        self.fn = fn
-
-    def __str__(self):
-        return 'Simstring database file "%s" not found' % self.fn
 
 
 class SimstringBase:
+    class ssdbNotFoundError(Exception):
+        def __init__(self, fn):
+            self.fn = fn
+
+        def __str__(self):
+            return 'Simstring database file "%s" not found' % self.fn
+
     # Default similarity measure
     DEFAULT_SIMILARITY_MEASURE = 'cosine'
 
@@ -33,8 +35,25 @@ class SimstringBase:
     # Whether to include marks for begins and ends of strings
     DEFAULT_INCLUDE_MARKS = False
 
+    # Whether simstring uses Unicode
+    DEFAULT_UNICODE = getattr(config, 'SIMSTRING_DEFAULT_UNICODE', True)
+
     # Filename extension used for DB file.
     SS_DB_FILENAME_EXTENSION = "ss.db"
+
+    def __init__(self, dbfn,
+            ngram_length=DEFAULT_NGRAM_LENGTH,
+            include_marks=DEFAULT_INCLUDE_MARKS,
+            threshold=DEFAULT_THRESHOLD,
+            similarity_measure=DEFAULT_SIMILARITY_MEASURE,
+            unicode=DEFAULT_UNICODE,
+            build=False):
+
+        self.name = dbfn
+        dbfn = self.find_db(dbfn, build)
+        self.dbfn = dbfn
+        self.threshold = threshold
+        self.is_build = build
 
     def __enter__(self):
         return self
@@ -56,7 +75,7 @@ class SimstringBase:
             base = WORK_DIR
         fname = path_join(base, db + '.' + SimstringBase.SS_DB_FILENAME_EXTENSION)
         if not (missing_ok or isfile(fname)):
-            raise ssdbNotFoundError(db)
+            raise SimstringBase.ssdbNotFoundError(fname)
         return fname
 
     def supstring_lookup(self, s, score=False):
@@ -176,12 +195,12 @@ def test(simstringClass):
     ]
     print('strings:', strings)
 
-    ss = simstringClass(dbname, build=True)
-    ss.build(strings)
+    with simstringClass(dbname, build=True) as ss:
+        ss.build(strings)
 
-    ss = simstringClass(dbname)
-    for t in ['0', '012', '012345', '0123456', '0123456789']:
-        print('lookup for', t)
-        for s in ss.lookup(t):
-            print(s, 'contains', t, '(threshold %f)' % simstringClass.DEFAULT_THRESHOLD)
-    ss.delete()
+    with simstringClass(dbname) as ss:
+        for t in ['0', '012', '012345', '0123456', '0123456789']:
+            print('lookup for', t)
+            for s in ss.lookup(t):
+                print(s, 'contains', t, '(threshold %f)' % simstringClass.DEFAULT_THRESHOLD)
+        ss.delete()

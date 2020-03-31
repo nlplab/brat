@@ -115,3 +115,7 @@ except NameError:
 #    ('pdf', 'inkscape --export-area-drawing --without-gui --file=%s --export-pdf=%s'),
 #    ('eps', 'inkscape --export-area-drawing --without-gui --file=%s --export-eps=%s'),
 # ]
+
+### SIMSTRING
+# SIMSTRING_EXECUTABLE = ''
+SIMSTRING_DEFAULT_UNICODE = True

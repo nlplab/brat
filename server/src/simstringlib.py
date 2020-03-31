@@ -13,27 +13,36 @@ class SimstringLib(SimstringBase):
             include_marks=SimstringBase.DEFAULT_INCLUDE_MARKS,
             threshold=SimstringBase.DEFAULT_THRESHOLD,
             similarity_measure=SimstringBase.DEFAULT_SIMILARITY_MEASURE,
+            unicode=SimstringBase.DEFAULT_UNICODE,
             build=False):
 
         assert include_marks == False, "Error: begin/end marks not supported"
         assert ngram_length == 3, "Error: unsupported n-gram length"
 
-        dbfn = self.find_db(dbfn, build)
-        self.build = build
+        super().__init__(dbfn,
+                ngram_length=ngram_length,
+                include_marks=include_marks,
+                threshold=threshold,
+                similarity_measure=similarity_measure,
+                unicode=unicode,
+                build=build)
+
         if build:
-            self.db = simstring.writer(dbfn)
+            self.db = simstring.writer(self.dbfn)
         else:
-            self.db = simstring.reader(dbfn)
+            self.db = simstring.reader(self.dbfn)
 
         self.db.measure = SIMILARITY_MEASURES[similarity_measure]
-        self.threshold = threshold
         self.db.threshold = threshold
 
     def build(self, strs):
-        assert self.build, "Error: build on non-build simstring"
         for s in strs:
-            self.db.insert(s)
+            self.insert(s)
         self.close()
+
+    def insert(self, s):
+        assert self.build, "Error: build on non-build simstring"
+        self.db.insert(s)
 
     def lookup(self, s):
         assert not self.build, "Error: lookup on build simstring"
