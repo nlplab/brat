@@ -56,11 +56,20 @@ var AnnotatorUI = (function($, window, undefined) {
       // for normalization: URLs bases by norm DB name
       var normDbUrlByDbName = {};
       var normDbUrlBaseByDbName = {};
+      var normMulti = {};
       // for normalization: appropriate DBs per type
       var normDbsByType = {};
+      var normAllowedNormalizations = [];
       // for normalization
       var oldSpanNormIdValue = '';
       var lastNormSearches = [];
+
+      // backup for keymap while opening subdialogs
+      var savedSpanKeymap;
+
+      // normalizations store
+      var normCurrent;
+      var normEditedIndex = undefined;
 
       that.user = null;
       var svgElement = $(svg._svg);
@@ -874,67 +883,71 @@ var AnnotatorUI = (function($, window, undefined) {
           });
         }
 
-        var showValidNormalizationsFor = function(type) {
-          // set DB selector to the first appropriate for the type.
-          // TODO: actually disable inappropriate ones.
-          // TODO: support specific IDs, not just DB specifiers
-          var firstDb = type && normDbsByType[type] ? normDbsByType[type][0] : null;
-          if (firstDb) {
-            $('#span_norm_db').val(firstDb);
-          }
-        }
+        // // NORM TODO
+        // var showValidNormalizationsFor = function(type) {
+        //   // set DB selector to the first appropriate for the type.
+        //   // TODO: actually disable inappropriate ones.
+        //   // TODO: support specific IDs, not just DB specifiers
+        //   var firstDb = type && normDbsByType[type] ? normDbsByType[type][0] : null;
+        //   if (firstDb) {
+        //     $('#span_norm_db').val(firstDb);
+        //   }
+        // }
 
-        showValidNormalizations = function() {
-          // set norm DB selector according to the first selected type
-          var firstSelected = $('#entity_and_event_wrapper input:radio:checked')[0];
-          var selectedType = firstSelected ? firstSelected.value : null;
-          showValidNormalizationsFor(selectedType);
-        }
+        // // NORM TODO
+        // showValidNormalizations = function() {
+        //   // set norm DB selector according to the first selected type
+        //   var firstSelected = $('#entity_and_event_wrapper input:radio:checked')[0];
+        //   var selectedType = firstSelected ? firstSelected.value : null;
+        //   showValidNormalizationsFor(selectedType);
+        // }
 
-        // fill normalizations (if any)
-        if (!reselectedSpan) {
-          // clear first
-          clearNormalizationUI();
+        // // NORM TODO
+        // // fill normalizations (if any)
+        // if (!reselectedSpan) {
+        //   // clear first
+        //   clearNormalizationUI();
 
-          var $normDb = $('#span_norm_db');
-          var $normId = $('#span_norm_id');
-          var $normText = $('#span_norm_txt');
+        //   var $normDb = $('#span_norm_db');
+        //   var $normId = $('#span_norm_id');
+        //   var $normText = $('#span_norm_txt');
 
-          // fill if found (NOTE: only shows last on multiple)
-          var normFilled = false;
-          normalizations = {};
-          $.each(span ? span.normalizations : [], function(normNo, norm) {
-            var refDb = norm[0], refId = norm[1], refText = norm[2];
-            $normDb.val(refDb);
-            // could the DB selector be set? (i.e. is refDb configured?)
-            if ($normDb.val() == refDb) {
-              if (!normFilled) normFilled = refDb;
-              if (!normalizations[refDb]) normalizations[refDb] = []
-              normalizations[refDb].push([refId, refText]);
-            } else {
-              // can't set the DB selector; assume DB is not configured,
-              // warn and leave blank (will remove norm when dialog is OK'd)
-              dispatcher.post('messages', [[['Warning: '+refDb+' not configured, removing normalization.', 'warning']]]);
-            }
-          });
-          if (normFilled) {
-            // DB is OK, set the rest also
-            var norm = normalizations[normFilled][0];
-            oldSpanNormIdValue = norm[0];
-            $normId.val(norm[0]);
-            $normText.val(norm[1]);
-            // TODO: check if ID is valid
-            console.log(normalizations, normFilled);
-            $normId.attr('data-value', normalizations[normFilled].length == 1 ? 'valid' : 'multi')
-          } else {
-            // if there is no existing normalization, show valid ones
-            showValidNormalizations();
-          }
+        //   // fill if found (NOTE: only shows last on multiple)
+        //   var normFilled = false;
+        //   normalizations = {};
+        //   $.each(span ? span.normalizations : [], function(normNo, norm) {
+        //     var refDb = norm[0], refId = norm[1], refText = norm[2];
+        //     $normDb.val(refDb);
+        //     // could the DB selector be set? (i.e. is refDb configured?)
+        //     if ($normDb.val() == refDb) {
+        //       if (!normFilled) normFilled = refDb;
+        //       if (!normalizations[refDb]) normalizations[refDb] = []
+        //       normalizations[refDb].push([refId, refText]);
+        //     } else {
+        //       // can't set the DB selector; assume DB is not configured,
+        //       // warn and leave blank (will remove norm when dialog is OK'd)
+        //       dispatcher.post('messages', [[['Warning: '+refDb+' not configured, removing normalization.', 'warning']]]);
+        //     }
+        //   });
+        //   if (normFilled) {
+        //     // DB is OK, set the rest also
+        //     var norm = normalizations[normFilled][0];
+        //     oldSpanNormIdValue = norm[0];
+        //     $normId.val(norm[0]);
+        //     $normText.val(norm[1]);
+        //     // TODO: check if ID is valid
+        //     console.log(normalizations, normFilled);
+        //     $normId.attr('data-value', normalizations[normFilled].length == 1 ? 'valid' : 'multi')
+        //   } else {
+        //     // if there is no existing normalization, show valid ones
+        //     showValidNormalizations();
+        //   }
 
-          // update links
-          updateNormalizationRefLink();
-          updateNormalizationDbLink();
-        }
+        //   // update links
+        //   updateNormalizationRefLink();
+        //   updateNormalizationDbLink();
+        // }
+        saveNormalizations(span && span.normalizations || []);
 
         var showAttributesFor = function(attrTypes, category, type) {
           var validAttrs = type ? spanTypes[type].attributes : [];
@@ -1004,6 +1017,33 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#span_form-ok').focus();
           adjustToCursor(evt, spanForm.parent());
         }
+
+        // make sure the normalization is set up for whatever span type is selected at start
+        checkAllowedNormalizations();
+      };
+
+      var saveNormalizations = function(normalizations) {
+        normalizations = normalizations || normCurrent;
+        $('#norm_json').val(JSON.stringify(normalizations))
+        $('#norm_count').text(normalizations.length);
+        return false;
+      };
+
+      var updateNormalizationsList = function(normalizations) {
+        normCurrent = normalizations;
+        $('#norm_list_table tbody')
+          .empty()
+          .append(
+            $.map(normCurrent, function(normalization, index) {
+              var allowed = $.inArray(normalization[0], normAllowedNormalizations) != -1;
+              var allowedHTML = allowed ? '' : '&#x2757;';
+              return $('<tr>').data('index', index)
+                .append($('<td>').html(allowedHTML))
+                .append($('<td>').text(normalization[0]))
+                .append($('<td>').text(normalization[1]))
+                .append($('<td>').text(normalization[2]));
+            })
+          );
       };
 
       var submitReselect = function() {
@@ -1123,12 +1163,112 @@ var AnnotatorUI = (function($, window, undefined) {
       $('#clear_span_notes_button').button();
       $('#clear_span_notes_button').click(clearSpanNotes);
 
+
+      // NORM NEW XXX
+      var deleteNormalization = function(evt) {
+        var selectedIndex = $('#norm_list_table .selected').data('index');
+        var normalizations = normCurrent;
+        normalizations.splice(selectedIndex, 1);
+        updateNormalizationsList(normalizations);
+      };
+      var startNormalizationSearch = function(editedIndex) {
+        normEditedIndex = editedIndex;
+        dispatcher.post('hideForm');
+        dispatcher.post('showForm', [normSearchDialog]);
+      };
+      var addNormalization = function(evt) {
+        normEditedIndex = null;
+        startNormalizationSearch(null);
+      };
+      var editNormalization = function(evt) {
+        normEditedIndex = $('#norm_list_table .selected').data('index');
+        startNormalizationSearch(normEditedIndex);
+      };
+
+      var normListDialog = $('#norm_list_dialog');
+      var normListDialogSubmit = function(evt) {
+        saveNormalizations();
+        normListDialog.dialog('close');
+      };
+      normListDialog.on('click', 'tr', function(evt) {
+        var $selected = $(evt.target).closest('tr');
+        $selected.closest('table').find('.selected').removeClass('selected');
+        $selected.addClass('selected');
+        var normalizations = JSON.parse($('#norm_json').val());
+        var index = $selected.data('index');
+        var normalization = normalizations[index];
+        var allowed = $.inArray(normalization[0], normAllowedNormalizations) != -1;
+        $('#norm_delete').show();
+        $('#norm_edit').toggle(allowed);
+      });
+      normListDialog.submit(normListDialogSubmit);
+      dispatcher.post('initForm', [normListDialog, {
+          width: 600,
+          width: 400,
+          buttons: [{
+              id: 'norm_delete',
+              text: 'Delete',
+              click: deleteNormalization,
+            }, {
+              id: 'norm_edit',
+              text: 'Edit',
+              click: editNormalization,
+            }, {
+              id: 'norm_add',
+              text: 'Add',
+              click: addNormalization,
+            }],
+          resizable: true,
+          alsoResize: '#norm_list_table',
+          open: function(evt) {
+            keymap = {};
+            var normalizations = JSON.parse($('#norm_json').val());
+            if (normEditedIndex === undefined) {
+              updateNormalizationsList(normalizations);
+            }
+            normEditedIndex = undefined;
+            $('#norm_delete, #norm_edit').hide();
+            $('#norm_add').toggle(normAllowedNormalizations.length > 0);
+            normEditedIndex = undefined;
+          },
+          close: function(evt) {
+            // assume that we always want to return to the span dialog
+            // on normalization list dialog close, unless we were searching for a normalization
+            if (normEditedIndex === undefined) {
+              dispatcher.post('showForm', [spanForm, true]);
+            }
+          },
+      }]);
+
+      var checkAllowedNormalizations = function() {
+        var spanType = $('#entity_and_event_wrapper :checked').val();
+        normAllowedNormalizations = normDbsByType[spanType];
+        $('#norm_qadd_button').toggle(normAllowedNormalizations.length > 0);
+      }
+
+      var openNormList = function(evt) {
+        dispatcher.post('hideForm');
+        dispatcher.post('showForm', [normListDialog]);
+        return false;
+      }
+      $('#norm_list_button').button();
+      $('#norm_list_button').click(openNormList);
+
+      var startNormQuickAdd = function(evt) {
+        startNormalizationSearch(false); // go directly back to span dialog later
+        return false;
+      }
+      $('#norm_qadd_button').button();
+      $('#norm_qadd_button').click(startNormQuickAdd);
+
+      // NORM TODO
       var clearSpanNorm = function(evt) {
         clearNormalizationUI();
       }
       $('#clear_norm_button').button();
       $('#clear_norm_button').click(clearSpanNorm);
 
+      // NORM TODO
       // invoked on response to ajax request for id lookup
       var setSpanNormText = function(response) {
         if (response.exception) {
@@ -1151,6 +1291,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $('#span_norm_txt').val(response.value);
       }
 
+      // NORM TODO
       // on any change to the normalization DB, clear everything and
       // update link
       var spanNormDbUpdate = function(evt) {
@@ -1181,6 +1322,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
       // on any change to the normalization ID, update the text of the
       // reference
+      // NORM TODO FIXME
       var spanNormIdUpdate = function(evt) {
         var key = $(this).val();
         var db = $('#span_norm_db').val();
@@ -1205,6 +1347,7 @@ var AnnotatorUI = (function($, window, undefined) {
           bind('click', spanNormSelect);
       // nice-looking select for normalization
       $('#span_norm_db').addClass('ui-widget ui-state-default ui-button-text');
+      // TODO XXX up to here
 
       var normSearchDialog = $('#norm_search_dialog');
       initForm(normSearchDialog, {
@@ -1215,10 +1358,33 @@ var AnnotatorUI = (function($, window, undefined) {
           open: function(evt) {
             keymap = {};
           },
+          open: function(evt) {
+            var $choice = $('#norm_db_choice').empty();
+            $.each(normAllowedNormalizations, function(_, normDb) {
+              var $option = $('<option>').val(normDb).text(normDb).appendTo($choice);
+            });
+            var initialQuery = '';
+            if (normEditedIndex !== false && normEditedIndex !== null) {
+              var normalization = normCurrent[normEditedIndex];
+              $('#norm_db_choice').val(normalization[0]);
+              $('#norm_search_query').val(normalization[2]);
+              $('#norm_search_id').val(normalization[1]);
+            } else {
+              $('#norm_db_choice')[0].selectedIndex = 0;
+              $('#norm_search_query').val('');
+              $('#norm_search_id').val('');
+            }
+            $('#norm_search_result_select > tbody').empty();
+            $('#norm_search_query').focus();
+          },
           close: function(evt) {
-            // assume that we always want to return to the span dialog
-            // on normalization dialog close
-            dispatcher.post('showForm', [spanForm, true]);
+            // we want to go back to span dialog if quick-add,
+            // or normalisation list dialog if not
+            if (normEditedIndex === false) {
+              dispatcher.post('showForm', [spanForm, true]);
+            } else {
+              dispatcher.post('showForm', [normListDialog, true]);
+            }
           },
       });
       $('#norm_search_query').autocomplete({
@@ -1247,10 +1413,31 @@ var AnnotatorUI = (function($, window, undefined) {
       var normSubmit = function(selectedId, selectedTxt) {
         // we got a value; act if it was a submit
         $('#span_norm_id').val(selectedId);
-        // don't forget to update this reference value
-        oldSpanNormIdValue = selectedId;
-        $('#span_norm_txt').val(selectedTxt);
-        updateNormalizationRefLink();
+
+        // NORM XXX
+        // // don't forget to update this reference value
+        // oldSpanNormIdValue = selectedId;
+        // $('#span_norm_txt').val(selectedTxt);
+        // updateNormalizationRefLink();
+
+        var normDb = $('#norm_db_choice').val();
+        var newNormalization = [normDb, selectedId, selectedTxt];
+        if (normEditedIndex === false) {
+          // direct save as new
+          var normalizations = JSON.parse($('#norm_json').val());
+          normalizations.push(newNormalization);
+          saveNormalizations(normalizations);
+        } else {
+          if (normEditedIndex === null) {
+            // save to current as new
+            normCurrent.push(newNormalization);
+          } else {
+            // save to current as replacement
+            normCurrent[normEditedIndex] = newNormalization;
+          }
+          updateNormalizationsList(normCurrent);
+        }
+
         // update history
         var nextLastNormSearches = [
           {
@@ -1264,7 +1451,7 @@ var AnnotatorUI = (function($, window, undefined) {
           }
         });
         lastNormSearches = nextLastNormSearches;
-        lastNormSearches.slice(0, maxNormSearchHistory);
+        lastNormSearches.splice(0, maxNormSearchHistory);
         // Switch dialogs. NOTE: assuming we closed the spanForm when
         // bringing up the normSearchDialog.
         normSearchDialog.dialog('close');
@@ -1288,7 +1475,7 @@ var AnnotatorUI = (function($, window, undefined) {
       normSearchDialog.submit(normSearchSubmit);
       var chooseNormId = function(evt) {
         var $element = $(evt.target).closest('tr');
-        $('#norm_search_result_select tr').removeClass('selected');
+        $('#norm_search_result_select .selected').removeClass('selected');
         $element.addClass('selected');
         $('#norm_search_query').val($element.attr('data-txt'));
         $('#norm_search_id').val($element.attr('data-id'));
@@ -1350,7 +1537,7 @@ var AnnotatorUI = (function($, window, undefined) {
       }
       var performNormSearch = function() {
         var val = $('#norm_search_query').val();
-        var db = $('#span_norm_db').val();
+        var db = $('#norm_db_choice').val();
         dispatcher.post('ajax', [ {
                         action: 'normSearch',
                         database: db,
@@ -1379,6 +1566,8 @@ var AnnotatorUI = (function($, window, undefined) {
       }
       $('#span_norm_txt').click(showNormSearchDialog);
       $('#norm_search_button').button();
+      $('#norm_db_choice').addClass('ui-widget ui-state-default ui-button-text');
+      // NORM TODO end
 
       var arcFormSubmitRadio = function(evt) {
         // TODO: check for confirm_mode?
@@ -1945,7 +2134,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var spanFormSubmitRadio = function(evt) {
         if (Configuration.confirmModeOn) {
           showValidAttributes();
-          showValidNormalizations();
+          checkAllowedNormalizations();
           $('#span_form-ok').focus();
         } else {
           spanFormSubmit(evt, $(evt.target));
@@ -2229,6 +2418,7 @@ var AnnotatorUI = (function($, window, undefined) {
         });
       };
 
+      // NORM TODO
       var setupNormalizationUI = function(response) {
         var norm_resources = response.normalization_config || [];
         var $norm_select = $('#span_norm_db');
@@ -2238,12 +2428,13 @@ var AnnotatorUI = (function($, window, undefined) {
         html = [];
         $.each(norm_resources, function(normNo, norm) {
           var normName = norm[0], normUrl = norm[1], normUrlBase = norm[2];
-          var serverDb = norm[3];
+          var serverDb = norm[3], normMulti = norm[5];
           html.push('<option value="'+Util.escapeHTML(normName)+'">'+
                     Util.escapeHTML(normName)+'</option>');
           // remember the urls for updates
           normDbUrlByDbName[normName] = normUrl;
           normDbUrlBaseByDbName[normName] = normUrlBase;
+          normMulti[normName] = normMulti;
         });
         // remember per-type appropriate DBs
         normDbsByType = {};
@@ -2321,22 +2512,7 @@ var AnnotatorUI = (function($, window, undefined) {
         $normText.val('');
         updateNormalizationRefLink();
       }
-
-      // returns the normalizations currently filled in the span
-      // dialog, or empty list if there are none
-      var spanNormalizations = function() {
-        // Note that only no or one normalization is supported in the
-        // UI at the moment.
-        var normalizations = [];
-        var normDb = $('#span_norm_db').val();
-        var normId = $('#span_norm_id').val();
-        var normText = $('#span_norm_txt').val();
-        // empty ID -> no normalization
-        if (!normId.match(/^\s*$/)) {
-          normalizations.push([normDb, normId, normText]);
-        }
-        return normalizations;
-      }
+      // NORM TODO end
 
       // returns attributes that are valid for the selected type in
       // the span dialog
@@ -2521,7 +2697,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         spanOptions.attributes = $.toJSON(spanAttributes());
 
-        spanOptions.normalizations = $.toJSON(spanNormalizations());
+        spanOptions.normalizations = $('#norm_json').val(); // as JSON
 
         dispatcher.post('ajax', [spanOptions, 'edited']);
         dispatcher.post('hideForm');
@@ -2596,6 +2772,9 @@ var AnnotatorUI = (function($, window, undefined) {
               reselectedSpan = null;
               svgElement.removeClass('reselect');
             }
+          },
+          open: function(evt) {
+            normEditedIndex = undefined;
           }
         }]);
       // set button tooltips (@amadanmath: can this be done in init?)
@@ -2640,7 +2819,7 @@ var AnnotatorUI = (function($, window, undefined) {
 
         spanOptions.attributes = $.toJSON(spanAttributes());
 
-        spanOptions.normalizations = $.toJSON(spanNormalizations());
+        spanOptions.normalizations = $('#norm_json').val(); // as JSON
 
         if (spanOptions.offsets) {
           spanOptions.offsets = $.toJSON(spanOptions.offsets);
@@ -2904,6 +3083,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('mousemove', onMouseMove).
           on('annotationSpeed', setAnnotationSpeed).
           on('suggestedSpanTypes', receivedSuggestedSpanTypes).
+          // NORM TODO
           on('normGetNameResult', setSpanNormText).
           on('normSearchResult', setSpanNormSearchResults);
     };

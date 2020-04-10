@@ -14,6 +14,7 @@ var VisualizerUI = (function($, window, undefined) {
       var loadedSearchData = null;
 
       var currentForm;
+
       var spanTypes = null;
       var relationTypesHash = null;
       // TODO: confirm unnecessary and remove
@@ -1910,11 +1911,11 @@ var VisualizerUI = (function($, window, undefined) {
             resizable: false,
             modal: true,
             open: function() {
-                aboutDialog.find('*').blur();
-              },
+              aboutDialog.find('*').blur();
+            },
             beforeClose: function() {
-                currentForm = null;
-              }
+              currentForm = null;
+            }
           });
       $('#mainlogo').click(function() {
         showForm(aboutDialog);

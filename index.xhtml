@@ -647,23 +647,34 @@
         </div>
       </fieldset>
       <!-- Span dialog normalization -->
+      <!-- TODO -->
       <fieldset id="norm_fieldset">
         <legend>Normalization</legend>
         <div id="norm_container">
-          <select id="span_norm_db"/>
-          <a id="span_norm_db_link" target="brat_linked" href="#" title="Search DB"><img src="static/img/Fugue-shadowless-magnifier.png" style="vertical-align: middle"/></a>
-          <span class="span_norm_label">ID:</span>
-          <input id="span_norm_id" class="span_norm_id_input"
-                 style="width:20%"/>
-          <span class="span_norm_label">Ref:</span>
-          <input id="span_norm_txt" class="span_norm_txt_input"
-                 readonly="readonly" style="width:45%"
-                 placeholder="Click here to search"/>
-          <a id="span_norm_ref_link" target="brat_linked" href="#" title="See in DB"><img src="static/img/Fugue-shadowless-external.png" style="vertical-align: middle"/></a>
-          <input id="clear_norm_button" type="button"
-                 value="&#x2715;" title="Clear normalization"/>
+          <span class="small-buttons">
+            <button id="norm_list_button">List (<span id="norm_count">0</span>)</button>
+            <button id="norm_qadd_button">Quick Add</button>
+          </span>
+          <input type="hidden" id="norm_json" name="norm_json" value=""/>
         </div>
       </fieldset>
+      <!-- <fieldset id="norm_fieldset"> -->
+      <!--   <legend>Normalization</legend> -->
+      <!--   <div id="norm_container"> -->
+      <!--     <select id="span_norm_db"/> -->
+      <!--     <a id="span_norm_db_link" target="brat_linked" href="#" title="Search DB"><img src="static/img/Fugue-shadowless-magnifier.png" style="vertical-align: middle"/></a> -->
+      <!--     <span class="span_norm_label">ID:</span> -->
+      <!--     <input id="span_norm_id" class="span_norm_id_input" -->
+      <!--            style="width:20%"/> -->
+      <!--     <span class="span_norm_label">Ref:</span> -->
+      <!--     <input id="span_norm_txt" class="span_norm_txt_input" -->
+      <!--            readonly="readonly" style="width:45%" -->
+      <!--            placeholder="Click here to search"/> -->
+      <!--     <a id="span_norm_ref_link" target="brat_linked" href="#" title="See in DB"><img src="static/img/Fugue-shadowless-external.png" style="vertical-align: middle"/></a> -->
+      <!--     <input id="clear_norm_button" type="button" -->
+      <!--            value="&#x2715;" title="Clear normalization"/> -->
+      <!--   </div> -->
+      <!-- </fieldset> -->
       <!-- Span dialog notes -->
       <fieldset>
         <legend>Notes</legend>
@@ -759,20 +770,44 @@
         <tbody class="ui-widget-content"/>
       </table>
     </form>
+    <!-- Normalization list dialog -->
+    <!-- TODO -->
+    <form id="norm_list_dialog" class="dialog" title="Normalization List">
+      <table id="norm_list_table" class="rowselectable ui-widget unselectable">
+        <thead class="ui-widget-header">
+          <tr>
+            <th></th>
+            <th>DB</th>
+            <th>ID</th>
+            <th>Text</th>
+          </tr>
+        </thead>
+        <tbody class="ui-widget-content"/>
+      </table>
+    </form>
     <!-- Normalization DB search dialog -->
     <form id="norm_search_dialog" class="dialog" title="Search">
       <fieldset>
         <legend>Query</legend>
-        <div id="norm_search_container">
-          <input id="norm_search_query" placeholder="Query string" class="borderless"/>
-          <input id="norm_search_button" type="button" value="Search"/>
-        </div>
+        <table id="norm_search_container">
+          <tr class="small-buttons">
+            <td class="narrow">
+              <select id="norm_db_choice"/>
+            </td>
+            <td>
+              <input id="norm_search_query" placeholder="Query string" class="borderless"/>
+            </td>
+            <td class="narrow">
+              <input id="norm_search_button" type="button" value="Search"/>
+            </td>
+          </tr>
+        </table>
       </fieldset>
       <fieldset>
         <legend>ID</legend>
         <input id="norm_search_id" placeholder="Identifier" class="borderless" readonly="readonly"/>
       </fieldset>
-      <table id="norm_search_result_select" class="ui-widget unselectable">
+      <table id="norm_search_result_select" class="rowselectable ui-widget unselectable">
         <thead class="ui-widget-header"/>
         <tbody class="ui-widget-content"/>
       </table>
