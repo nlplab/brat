@@ -578,7 +578,7 @@ var VisualizerUI = (function($, window, undefined) {
           }, opts);
 
         form.dialog(opts);
-        form.bind('dialogclose', function() {
+        form.on('dialogbeforeclose', function(evt) {
           if (form == currentForm) {
             currentForm = null;
           }
@@ -635,7 +635,6 @@ var VisualizerUI = (function($, window, undefined) {
         if (!currentForm) return;
         // currentForm.fadeOut(function() { currentForm = null; });
         currentForm.dialog('close');
-        currentForm = null;
       };
 
       /* END form management - related */

@@ -127,7 +127,7 @@ var AnnotatorUI = (function($, window, undefined) {
         if (code === $.ui.keyCode.ESCAPE) {
           setTypeLock(false);
           stopArcDrag();
-          hideForm();
+          dispatcher.post('hideForm');
           if (reselectedSpan) {
             $(reselectedSpan.rect).removeClass('reselect');
             reselectedSpan = null;
@@ -1014,7 +1014,7 @@ var AnnotatorUI = (function($, window, undefined) {
           submitReselect();
         } else {
           dispatcher.post('showForm', [spanForm, true]);
-          $('#span_form-ok').focus();
+          //$('#span_form-ok').focus();
           adjustToCursor(evt, spanForm.parent());
         }
 
@@ -1139,7 +1139,7 @@ var AnnotatorUI = (function($, window, undefined) {
         }
         dispatcher.post('showForm', [rapidSpanForm]);
         rapidAnnotationDialogVisible = true;
-        $('#rapid_span_form-ok').focus();
+        //$('#rapid_span_form-ok').focus();
         // TODO: avoid using global for stored click event
 //         adjustToCursor(lastRapidAnnotationEvent, rapidSpanForm.parent(),
 //                        true, true);
@@ -1170,6 +1170,7 @@ var AnnotatorUI = (function($, window, undefined) {
         var normalizations = normCurrent;
         normalizations.splice(selectedIndex, 1);
         updateNormalizationsList(normalizations);
+        $('#norm_list_dialog-ok').focus();
       };
       var startNormalizationSearch = function(editedIndex) {
         normEditedIndex = editedIndex;
@@ -1194,9 +1195,8 @@ var AnnotatorUI = (function($, window, undefined) {
         var $selected = $(evt.target).closest('tr');
         $selected.closest('table').find('.selected').removeClass('selected');
         $selected.addClass('selected');
-        var normalizations = JSON.parse($('#norm_json').val());
         var index = $selected.data('index');
-        var normalization = normalizations[index];
+        var normalization = normCurrent[index];
         var allowed = $.inArray(normalization[0], normAllowedNormalizations) != -1;
         $('#norm_delete').show();
         $('#norm_edit').toggle(allowed);
@@ -1230,11 +1230,13 @@ var AnnotatorUI = (function($, window, undefined) {
             $('#norm_delete, #norm_edit').hide();
             $('#norm_add').toggle(normAllowedNormalizations.length > 0);
             normEditedIndex = undefined;
+            $('#norm_list_dialog-ok').focus();
           },
           close: function(evt) {
             // assume that we always want to return to the span dialog
             // on normalization list dialog close, unless we were searching for a normalization
             if (normEditedIndex === undefined) {
+              keymap = spanKeymap;
               dispatcher.post('showForm', [spanForm, true]);
             }
           },
@@ -1357,8 +1359,7 @@ var AnnotatorUI = (function($, window, undefined) {
           alsoResize: '#norm_search_result_select',
           open: function(evt) {
             keymap = {};
-          },
-          open: function(evt) {
+            keymap[$.ui.keyCode.ENTER] = 'norm_search_dialog-ok';
             var $choice = $('#norm_db_choice').empty();
             $.each(normAllowedNormalizations, function(_, normDb) {
               var $option = $('<option>').val(normDb).text(normDb).appendTo($choice);
@@ -1381,6 +1382,7 @@ var AnnotatorUI = (function($, window, undefined) {
             // we want to go back to span dialog if quick-add,
             // or normalisation list dialog if not
             if (normEditedIndex === false) {
+              keymap = spanKeymap;
               dispatcher.post('showForm', [spanForm, true]);
             } else {
               dispatcher.post('showForm', [normListDialog, true]);
@@ -2775,6 +2777,7 @@ var AnnotatorUI = (function($, window, undefined) {
           },
           open: function(evt) {
             normEditedIndex = undefined;
+            $('#span_form-ok').focus();
           }
         }]);
       // set button tooltips (@amadanmath: can this be done in init?)
