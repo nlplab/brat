@@ -7,11 +7,10 @@
 Simstring = None
 try:
     # Use the simstring library
-    import simstringlib
+    import simstring
     if hasattr(simstring, 'writer'):
+        import simstringlib
         Simstring = simstringlib.SimstringLib
-    else:
-        del simstring
 except ImportError:
     pass
 

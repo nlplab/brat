@@ -1177,8 +1177,9 @@ var AnnotatorUI = (function($, window, undefined) {
       }]);
 
       var checkAllowedNormalizations = function() {
-        var spanType = $('#entity_and_event_wrapper :checked').val();
+        var spanType = $('#entity_and_event_wrapper .item input:checked').val();
         normAllowedNormalizations = normDbsByType[spanType];
+        console.log(normDbsByType, spanType, normAllowedNormalizations)
         $('#norm_qadd_button').toggle(normAllowedNormalizations.length > 0);
       }
 
