@@ -170,7 +170,6 @@ reserved_config_name = [
     "URL",
     "URLBASE",
     "UNICODE",
-    "MULTI",
     "GLYPH-POS",
     "DEFAULT",
     "NORM",
@@ -1813,8 +1812,6 @@ class ProjectConfiguration(object):
                 continue
             if '<UNICODE>' not in n.special_arguments:
                 n.special_arguments['<UNICODE>'] = [str(getattr(config, 'SIMSTRING_DEFAULT_UNICODE', True))]
-            if '<MULTI>' not in n.special_arguments:
-                n.special_arguments['<MULTI>'] = ['False']
             if '<URLBASE>' not in n.special_arguments:
                 # now optional, client skips link generation if None
                 n.special_arguments['<URLBASE>'] = [None]
@@ -1822,8 +1819,7 @@ class ProjectConfiguration(object):
                                 n.special_arguments['<URL>'][0],
                                 n.special_arguments['<URLBASE>'][0],
                                 n.arguments['DB'][0],
-                                n.special_arguments['<UNICODE>'][0].lower() in BOOLEAN_EXPRESSIONS[True],
-                                n.special_arguments['<MULTI>'][0].lower() in BOOLEAN_EXPRESSIONS[True]))
+                                n.special_arguments['<UNICODE>'][0].lower() in BOOLEAN_EXPRESSIONS[True]))
         return norm_config
 
     def get_entity_types(self):

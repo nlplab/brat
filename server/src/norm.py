@@ -53,7 +53,7 @@ def _report_timings(dbname, start, msg=None):
 def _get_db_path(database, collection):
     if collection is None:
         # TODO: default to WORK_DIR config?
-        return (None, DEFAULT_UNICODE)
+        return (None, Simstring.DEFAULT_UNICODE)
     else:
         conf_dir = real_directory(collection)
         projectconf = ProjectConfiguration(conf_dir)
@@ -70,12 +70,12 @@ def _get_db_path(database, collection):
             # not found in config.
             Messager.warning('DB ' + database + ' not defined in config for ' +
                              collection + ', falling back on default.')
-            return (None, DEFAULT_UNICODE)
+            return (None, Simstring.DEFAULT_UNICODE)
         except Exception:
             # whatever goes wrong, just warn and fall back on the default.
             Messager.warning('Failed to get DB path from config for ' +
                              collection + ', falling back on default.')
-            return (None, DEFAULT_UNICODE)
+            return (None, Simstring.DEFAULT_UNICODE)
 
 
 def norm_get_name(database, key, collection=None):

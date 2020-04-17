@@ -351,7 +351,7 @@ var VisualizerUI = (function($, window, undefined) {
               // max length restriction
               if (value.length > 300) {
                 value = value.substr(0, 300) + ' ...';
-              }                          
+              }
 
               norminfo += ('<span class="norm_info_label">'+
                            Util.escapeHTML(label)+
@@ -364,7 +364,7 @@ var VisualizerUI = (function($, window, undefined) {
           }
         }
         var drop=$('#norm_info_drop_point_'+infoSeqId);
-        if (drop) {
+        if (drop.length) {
           drop.html(norminfo);
           adjustToCursor(null, commentPopup, 10, true, true);
         } else {
