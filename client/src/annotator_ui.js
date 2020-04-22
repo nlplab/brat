@@ -972,9 +972,26 @@ var AnnotatorUI = (function($, window, undefined) {
             $.map(normCurrent, function(normalization, index) {
               var allowed = $.inArray(normalization[0], normAllowedNormalizations) != -1;
               var allowedHTML = allowed ? '' : '&#x2757;';
+              var base = normDbUrlBaseByDbName[normalization[0]];
+              var $linkTd = $('<td/>');
+              if (base) {
+                var link = base.replace('%s', encodeURIComponent(normalization[1]));
+                $('<img/>').attr({
+                  src: "static/img/Fugue-shadowless-magnifier.png",
+                  style: "vertical-align: middle",
+                }).appendTo(
+                  $('<a/>').attr({
+                    xmlns: "",
+                    target: "brat_linked",
+                    href: link,
+                    title: "Look up in DB"
+                  }).appendTo($linkTd)
+                );
+              }
               return $('<tr>').data('index', index)
                 .append($('<td>').html(allowedHTML))
                 .append($('<td>').text(normalization[0]))
+                .append($linkTd)
                 .append($('<td>').text(normalization[1]))
                 .append($('<td>').text(normalization[2]));
             })
@@ -1179,7 +1196,6 @@ var AnnotatorUI = (function($, window, undefined) {
       var checkAllowedNormalizations = function() {
         var spanType = $('#entity_and_event_wrapper .item input:checked').val();
         normAllowedNormalizations = normDbsByType[spanType];
-        console.log(normDbsByType, spanType, normAllowedNormalizations)
         $('#norm_qadd_button').toggle(normAllowedNormalizations.length > 0);
       }
 
@@ -1272,6 +1288,7 @@ var AnnotatorUI = (function($, window, undefined) {
               $('#norm_search_query').val('');
               $('#norm_search_id').val('');
             }
+            updateNormDbLink();
             $('#norm_search_result_select > tbody').empty();
             $('#norm_search_query').focus();
           },
@@ -1444,9 +1461,19 @@ var AnnotatorUI = (function($, window, undefined) {
                         name: val,
                         collection: coll}, 'normSearchResult']);
       }
-      $('#norm_search_button').click(performNormSearch);
-      $('#norm_search_button').button();
-      $('#norm_db_choice').addClass('ui-widget ui-state-default ui-button-text');
+      $('#norm_search_button').click(performNormSearch).button();
+      var updateNormDbLink = function() {
+        var db = $('#norm_db_choice').val();
+        var link = normDbUrlByDbName[db];
+        var $dbLink = $('#norm_db_link');
+        if (link) {
+          $dbLink.attr('href', link).show();
+        } else {
+          $dbLink.hide();
+        }
+      }
+      $('#norm_db_link').hide();
+      $('#norm_db_choice').addClass('ui-widget ui-state-default ui-button-text').change(updateNormDbLink);
 
       var arcFormSubmitRadio = function(evt) {
         // TODO: check for confirm_mode?
@@ -2307,10 +2334,11 @@ var AnnotatorUI = (function($, window, undefined) {
         $.each(norm_resources, function(normNo, norm) {
           var normName = norm[0], normUrl = norm[1], normUrlBase = norm[2];
           var serverDb = norm[3];
-          // TODO normUrl/normUrlBase use
-          html.push('<option value="'+Util.escapeHTML(normName)+'">'+
-                    Util.escapeHTML(normName)+'</option>');
+          $('<option/>').val('normName').text(normName).appendTo($norm_select);
           // remember the urls for updates
+          if (normUrlBase && normUrlBase.indexOf('%s') == -1) {
+            dispatcher.post('messages', [[['Base URL "' + base + '" for ' + normDb + ' does not contain "%s"', 'warning']]]);
+          }
           normDbUrlByDbName[normName] = normUrl;
           normDbUrlBaseByDbName[normName] = normUrlBase;
         });
@@ -2327,54 +2355,6 @@ var AnnotatorUI = (function($, window, undefined) {
           $('#norm_fieldset').show();
         }
       }
-
-      // NORM TODO
-      // updates the reference link in the normalization UI according
-      // to the current value of the normalization DB and ID.
-      var updateNormalizationRefLink = function() {
-        var $normId = $('#span_norm_id');
-        var $normLink = $('#span_norm_ref_link');
-        var normId = $normId.val();
-        var $normDb = $('#span_norm_db');
-        var normDb = $normDb.val();
-        if (!normId || !normDb || normId.match(/^\s*$/)) {
-          $normLink.hide();
-        } else {
-          var base = normDbUrlBaseByDbName[normDb];
-          // assume hidden unless everything goes through
-          $normLink.hide();
-          if (!base) {
-            // base URL is now optional, just skip link generation if not set
-            ;
-          } else if (base.indexOf('%s') == -1) {
-            dispatcher.post('messages', [[['Base URL "'+base+'" for '+normDb+' does not contain "%s"', 'error']]]);
-          } else {
-            // TODO: protect against strange chars in ID
-            link = base.replace('%s', normId);
-            $normLink.attr('href', link);
-            $normLink.show();
-          }
-        }
-      }
-
-      // updates the DB search link in the normalization UI according
-      // to the current value of the normalization DB.
-      var updateNormalizationDbLink = function() {
-        var $dbLink = $('#span_norm_db_link');
-        var $normDb = $('#span_norm_db');
-        var normDb = $normDb.val();
-        if (!normDb) return; // no normalisation configured
-        var link = normDbUrlByDbName[normDb];
-        if (!link || link.match(/^\s*$/)) {
-          dispatcher.post('messages', [[['No URL for '+normDb, 'error']]]);
-          $dbLink.hide();
-        } else {
-          // TODO: protect against weirdness in DB link
-          $dbLink.attr('href', link);
-          $dbLink.show();
-        }
-      }
-      // NORM TODO end
 
       // resets user-settable normalization-related UI elements to a
       // blank state (does not blank #norm_db_choice <select>).
@@ -2957,7 +2937,6 @@ var AnnotatorUI = (function($, window, undefined) {
           on('mousemove', onMouseMove).
           on('annotationSpeed', setAnnotationSpeed).
           on('suggestedSpanTypes', receivedSuggestedSpanTypes).
-          // NORM TODO
           on('normGetNameResult', setNormText).
           on('normSearchResult', setSpanNormSearchResults);
     };

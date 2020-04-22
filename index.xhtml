@@ -647,7 +647,6 @@
         </div>
       </fieldset>
       <!-- Span dialog normalization -->
-      <!-- TODO -->
       <fieldset id="norm_fieldset">
         <legend>Normalization</legend>
         <div id="norm_container">
@@ -760,6 +759,7 @@
           <tr>
             <th></th>
             <th>DB</th>
+            <th></th>
             <th>ID</th>
             <th>Text</th>
           </tr>
@@ -775,6 +775,11 @@
           <tr class="small-buttons">
             <td class="narrow">
               <select id="norm_db_choice"/>
+            </td>
+            <td>
+              <a xmlns="http://www.w3.org/1999/xhtml" id="norm_db_link" target="brat_linked" href="#" title="Search DB">
+                <img src="static/img/Fugue-shadowless-magnifier.png" style="vertical-align: middle" />
+              </a>
             </td>
             <td>
               <input id="norm_search_query" placeholder="Query string" class="borderless"/>
