@@ -33,27 +33,23 @@
 # Fields with TYPE "info" are not used for querying.
 
 
+
 import codecs
 import sqlite3 as sqlite
 import sys
 from datetime import datetime
-from os.path import basename, dirname, join, splitext, abspath
+from os.path import basename, dirname, join, splitext
 
 try:
-    import simstring
+    from simstringdb import Simstring
 except ImportError:
-    errorstr = """
-    Error: failed to import the simstring library.
-    This library is required for approximate string matching DB lookup.
-    Please install simstring and its python bindings from
-    http://www.chokkan.org/software/simstring/
-    or `pip install simstring-pure`
-"""
-    print(errorstr, file=sys.stderr)
-    sys.exit(1)
+    import os.path
+    from sys import path as sys_path
+    # Guessing that we might be in the brat tools/ directory ...
+    sys_path.append(os.path.join(os.path.dirname(__file__), '../server/src'))
+    sys_path.append(os.path.join(os.path.dirname(__file__), '..'))
+    from simstringdb import Simstring
 
-# simstring: Binary or pure?
-SIMSTRING_BINARY = hasattr(simstring, 'writer')
 
 # Default encoding for input text
 DEFAULT_INPUT_ENCODING = 'UTF-8'
@@ -65,15 +61,6 @@ NORM_DB_VERSION = '1.0.1'
 
 # Default filename extension of the SQL database
 SQL_DB_FILENAME_EXTENSION = 'db'
-
-# Filename extension used for simstring database file.
-SS_DB_FILENAME_EXTENSION = 'ss.db'
-
-# Length of n-grams in simstring DBs
-DEFAULT_NGRAM_LENGTH = 3
-
-# Whether to include marks for begins and ends of strings
-DEFAULT_INCLUDE_MARKS = False
 
 # Maximum number of "error" lines to output
 MAX_ERROR_LINES = 100
@@ -222,16 +209,11 @@ def sqldb_filename(dbname):
 def ssdb_filename(dbname):
     """Given a DB name, returns the  name of the file that is expected to
     contain the simstring DB."""
-    return join(default_db_dir(), dbname + '.' + SS_DB_FILENAME_EXTENSION)
+    return join(default_db_dir(), dbname)
 
 
 def main(argv):
     arg = argparser().parse_args(argv[1:])
-
-    # only simstring library default supported at the moment (TODO)
-    if SIMSTRING_BINARY:
-        assert DEFAULT_NGRAM_LENGTH == 3, "Error: unsupported n-gram length"
-        assert DEFAULT_INCLUDE_MARKS == False, "Error: begin/end marks not supported"
 
     infn = arg.file
 
@@ -242,11 +224,11 @@ def main(argv):
         ssdbfn = ssdb_filename(bn)
     else:
         sqldbfn = arg.database + '.' + SQL_DB_FILENAME_EXTENSION
-        ssdbfn = arg.database + '.' + SS_DB_FILENAME_EXTENSION
+        ssdbfn = arg.database
 
     if arg.verbose:
         print("Storing SQL DB as %s and" % sqldbfn, file=sys.stderr)
-        print("  simstring DB as %s" % ssdbfn, file=sys.stderr)
+        print("  simstring DB as %s" % (ssdbfn + '.' + Simstring.SS_DB_FILENAME_EXTENSION), file=sys.stderr)
     start_time = datetime.now()
 
     import_count, duplicate_count, error_count, simstring_count = 0, 0, 0, 0
@@ -385,30 +367,13 @@ def main(argv):
             print("Creating simstring DB ...", end=' ', file=sys.stderr)
 
         try:
-            if SIMSTRING_BINARY:
-                ssdb = simstring.writer(ssdbfn)
-
+            # TODO simstring options
+            with Simstring(ssdbfn, unicode=True, build=True) as ss:
                 for row in cursor.execute(SELECT_SIMSTRING_STRINGS_COMMAND):
+                    # encode as UTF-8 for simstring
                     s = row[0]
-                    ssdb.insert(s)
+                    ss.insert(s)
                     simstring_count += 1
-                ssdb.close()
-
-            else:
-                sys.path.append(join(dirname(abspath(__file__)), '..', 'server', 'src'))
-                from simstring_pure_sqlite3 import SQLite3Database
-                from simstring.feature_extractor.character_ngram import CharacterNgramFeatureExtractor
-                from simstring.searcher import Searcher
-
-                fx = CharacterNgramFeatureExtractor(DEFAULT_NGRAM_LENGTH)
-                ssdb = SQLite3Database(fx)
-                ssdb.use(connection)
-
-                for row in cursor.execute(SELECT_SIMSTRING_STRINGS_COMMAND):
-                    s = row[0]
-                    ssdb.add(s)
-                    simstring_count += 1
-
         except BaseException:
             print("Error building simstring DB", file=sys.stderr)
             raise

@@ -19,6 +19,7 @@ import urllib.robotparser  # TODO reduce scope
 
 from annotation import open_textfile
 from message import Messager
+import config
 
 ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY, UNKNOWN_CATEGORY = range(
     4)
@@ -66,6 +67,10 @@ SEARCH_SECTION = "search"
 ANNOTATORS_SECTION = "annotators"
 DISAMBIGUATORS_SECTION = "disambiguators"
 NORMALIZATION_SECTION = "normalization"
+
+BOOLEAN_EXPRESSIONS = {
+    True: {'true', 't', '1', 'yes', 'y', 'on'},
+    False: {'false', 'f', '0', 'no', 'n', 'off'} }
 
 __expected_tools_sections = (
     OPTIONS_SECTION,
@@ -164,6 +169,7 @@ reserved_config_name = [
     "REL-TYPE",
     "URL",
     "URLBASE",
+    "UNICODE",
     "GLYPH-POS",
     "DEFAULT",
     "NORM",
@@ -176,6 +182,8 @@ reserved_config_string = ["<%s>" % n for n in reserved_config_name]
 
 # Magic string to use to represent a separator in a config
 SEPARATOR_STR = "SEPARATOR"
+
+
 
 
 def normalize_to_storage_form(t):
@@ -284,6 +292,8 @@ class TypeHierarchyNode:
                 # (really sorry about this.)
                 if key == "<REL-TYPE>":
                     self.special_arguments[key] = atypes.split("-")
+                elif key == "<NORM>":
+                    self.special_arguments[key] = atypes.split("|")
                 else:
                     self.special_arguments[key] = [atypes]
                 # NOTE: skip the rest of processing -- don't add in normal args
@@ -1800,13 +1810,16 @@ class ProjectConfiguration(object):
                     'Project configuration: config error: missing <URL> specification for %s.' %
                     n.storage_form())
                 continue
+            if '<UNICODE>' not in n.special_arguments:
+                n.special_arguments['<UNICODE>'] = [str(getattr(config, 'SIMSTRING_DEFAULT_UNICODE', True))]
             if '<URLBASE>' not in n.special_arguments:
                 # now optional, client skips link generation if None
                 n.special_arguments['<URLBASE>'] = [None]
             norm_config.append((n.storage_form(),
                                 n.special_arguments['<URL>'][0],
                                 n.special_arguments['<URLBASE>'][0],
-                                n.arguments['DB'][0]))
+                                n.arguments['DB'][0],
+                                n.special_arguments['<UNICODE>'][0].lower() in BOOLEAN_EXPRESSIONS[True]))
         return norm_config
 
     def get_entity_types(self):

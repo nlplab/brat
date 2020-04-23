@@ -689,3 +689,30 @@ var Util = (function(window, undefined) {
     };
 
 })(window);
+
+// DEBUG
+function propWatch(obj, prop, displayFn, makeProxy) {
+  Object.defineProperty(obj, prop, {
+    get: function () {
+      return window["_" + prop];
+    },
+
+    set: function (value) {
+      var displayValue = (value && displayFn) ? displayFn(value) : value;
+      if (makeProxy && value && typeof value == "object") {
+        value = new Proxy(value, {
+          set(o, p, v) {
+            console.warn(prop + "." + p, "=", v);
+            o[p] = v;
+          },
+          deleteProperty(o, p) {
+            console.warn(prop + "." + p, "deleted");
+            delete o[p];
+          }
+        });
+      }
+      console.warn(prop, "=", displayValue);
+      window["_" + prop] = value;
+    }
+  });
+}
