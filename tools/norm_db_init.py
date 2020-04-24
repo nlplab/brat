@@ -38,18 +38,19 @@ import codecs
 import sqlite3 as sqlite
 import sys
 from datetime import datetime
-from os.path import basename, dirname, join, splitext
+from os.path import abspath, basename, dirname, join, splitext
+from sys import path as sys_path
 
-try:
-    from simstringdb import Simstring
-except ImportError:
-    import os.path
-    from sys import path as sys_path
-    # Guessing that we might be in the brat tools/ directory ...
-    sys_path.append(os.path.join(os.path.dirname(__file__), '../server/src'))
-    sys_path.append(os.path.join(os.path.dirname(__file__), '..'))
-    from simstringdb import Simstring
 
+
+# Guessing that we might be in the brat tools/ directory ...
+scriptpath = abspath(dirname(__file__))
+sys_path.append(join(scriptpath, '../server/src'))
+sys_path.append(join(scriptpath, '..'))
+from simstringdb import Simstring
+import config
+
+DEFAULT_UNICODE = getattr(config, 'SIMSTRING_DEFAULT_UNICODE', True)
 
 # Default encoding for input text
 DEFAULT_INPUT_ENCODING = 'UTF-8'
@@ -161,20 +162,6 @@ def string_norm_form(s):
     return s.lower().strip().replace('-', ' ')
 
 
-def default_db_dir():
-    # Returns the default directory into which to store the created DBs.
-    # This is taken from the brat configuration, config.py.
-
-    # (Guessing we're in the brat tools/ directory...)
-    sys.path.append(join(dirname(__file__), '..'))
-    try:
-        from config import WORK_DIR
-        return WORK_DIR
-    except ImportError:
-        print("Warning: failed to determine brat work directory, using current instead.", file=sys.stderr)
-        return "."
-
-
 def argparser():
     import argparse
 
@@ -196,6 +183,47 @@ def argparser():
         "--encoding",
         default=DEFAULT_INPUT_ENCODING,
         help="Input text encoding (default " + DEFAULT_INPUT_ENCODING + ")")
+    if DEFAULT_UNICODE:
+        ap.add_argument(
+            "-b",
+            "--binary",
+            "--no-unicode",
+            action="store_false",
+            dest="unicode",
+            help="Make simstring database binary (simstring executable only)")
+        ap.add_argument(
+            "-u",
+            "--unicode",
+            "--no-binary",
+            action="store_false",
+            dest="ignore",
+            help=argparse.SUPPRESS)
+    else:
+        ap.add_argument(
+            "-u",
+            "--unicode",
+            "--no-binary",
+            action="store_true",
+            help="Make simstring database unicode (simstring executable only)")
+        ap.add_argument(
+            "-b",
+            "--binary",
+            "--no-unicode",
+            action="store_false",
+            dest="ignore",
+            help=argparse.SUPPRESS)
+    ap.add_argument(
+        "-m",
+        "--mark",
+        default=False,
+        action="store_true",
+        help="include marks for begins and ends of strings")
+    ap.add_argument(
+        "-n",
+        "--ngram",
+        type=int,
+        default=3,
+        help="Ngram length (simstring executable only)")
     ap.add_argument("file", metavar="FILE", help="Normalization data")
     return ap
 
@@ -203,13 +231,13 @@ def argparser():
 def sqldb_filename(dbname):
     """Given a DB name, returns the name of the file that is expected to
     contain the SQL DB."""
-    return join(default_db_dir(), dbname + '.' + SQL_DB_FILENAME_EXTENSION)
+    return join(config.WORK_DIR, dbname + '.' + SQL_DB_FILENAME_EXTENSION)
 
 
 def ssdb_filename(dbname):
     """Given a DB name, returns the  name of the file that is expected to
     contain the simstring DB."""
-    return join(default_db_dir(), dbname)
+    return join(config.WORK_DIR, dbname)
 
 
 def main(argv):
@@ -368,11 +396,13 @@ def main(argv):
 
         try:
             # TODO simstring options
-            with Simstring(ssdbfn, unicode=True, build=True) as ss:
+            with Simstring(ssdbfn,
+                    ngram_length=arg.ngram,
+                    include_marks=arg.mark,
+                    unicode=arg.unicode,
+                    build=True) as ss:
                 for row in cursor.execute(SELECT_SIMSTRING_STRINGS_COMMAND):
-                    # encode as UTF-8 for simstring
-                    s = row[0]
-                    ss.insert(s)
+                    ss.insert(row[0])
                     simstring_count += 1
         except BaseException:
             print("Error building simstring DB", file=sys.stderr)
