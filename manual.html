@@ -268,17 +268,18 @@ cmeta:  "Manual for the brat user-interface, covering document annotation
     <h2>Keyboard shortcuts</h2>
     <p>The following keyboard shortcuts are accessible in normal
       visualization or annotation state. (When a menu is open, these
-      keyboard shortcuts are disabled.)
+      keyboard shortcuts are disabled.) Note: On Mac, use Cmd instead
+      of Ctrl.
     </p>
     <ul>
       <li><b>ESC</b>: clear any open menus (canceling possible
       modifications) and on-screen messages</li>
-      <li><b>TAB</b>: open
-	the <a href="#collection_browser">collection browser</a>
-      <li><b>CTRL-F</b>: search
-      <li><b>CTRL-G</b>: next search result (after search)
-      <li><b>Left arrow</b>: previous document</li>
-      <li><b>Right arrow</b>: next document</li>
+      <li><b>TAB</b>: open the <a href="#collection_browser">collection browser</a></li>
+      <li><b>CTRL-F</b>: search</li>
+      <li><b>CTRL-G</b>: next search result (after search)</li>
+      <li><b>CTRL-H</b>: repeat the previous annotation action on the current search result (after search)</li>
+      <li><b>Left arrow</b>: previous document (or search result)</li>
+      <li><b>Right arrow</b>: next document (or search result)</li>
     </ul>
     <p>The order in which &quot;previous&quot; and &quot;next&quot;
       documents are visited when pressing the arrow keys depends on
@@ -392,7 +393,7 @@ cmeta:  "Manual for the brat user-interface, covering document annotation
 	<a href="http://en.wikipedia.org/wiki/Regular_expression">regular
 	expression</a> (regex) search. In regular expression mode, the
 	given string is interpreted as a
-	(<a href="http://en.wikipedia.org/wiki/PCRE">PCRE</a>) regular
+	(<a href="https://docs.python.org/3/library/re.html#regular-expression-syntax">Python-flavoured</a>) regular
 	expression that is matched against target text.
       </li>
       <li><b>Case</b>: whether or not to require character case to

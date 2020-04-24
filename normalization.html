@@ -58,8 +58,10 @@ cmeta:  "Introduction to the brat normalisation feature."
 <p>The brat normalization system uses 
   <a href="http://chokkan.org/software/simstring/">SimString</a> for
   approximate string matching. Before trying to set up brat for
-  normalization, please install SimString and its python bindings
+  normalization, please install SimString (and optionally its python bindings)
   following the instructions on the SimString homepage.
+  If python bindings are not installed, make sure the simstring executable path
+  is set up correctly in the configuration file.
 </p>
 
 <h2 id="quickstart">Quick start</h2>
@@ -96,6 +98,13 @@ cmeta:  "Introduction to the brat normalisation feature."
   lookup that will be shown in the brat UI.
 </p>
 
+<p>Then open the <code>annotation.conf</code> file, and enable the normalisation for each entity and event type where it is applicable, like this:
+</p>
+
+<p><pre><code>    Person  &lt;NORM&gt;:Wiki
+    Family             Arg1:Person, Arg2:Person, &lt;NORM&gt;:Wiki</code></pre>
+</p>
+
 <p>That's all! Now, when creating annotations, you will be able to
   search (a small sample of) Wikipedia from within brat and attach
   normalization annotations to other annotations, as shown in the next
@@ -114,21 +123,51 @@ cmeta:  "Introduction to the brat normalisation feature."
   annotation, the "Edit annotation" dialog should now include an
   additional section for normalization:
 </p>
+
+<!-- TODO IMAGE: span dialog with normalization fieldset -->
+<!--
 <div class="image">
   <img src="img/span-dialog-with-normalization-1.png" alt="edit annotation dialog with normalization"/>
   <div style="width: 800px" class="caption">"Edit annotation" dialog configured for normalization.</div>
 </div>
+-->
 
+<p>The <em>List</em> button opens a list of all normalizations the that have
+  already been added to this span, and allows adding, editing and deleting of
+  normalizations. The parenthesised number on the button is the number of existing
+  normalizations. To allow a new normalization to be added quickly, there is also a
+  <em>Quick Add</em> button, which skips the normalization list dialog.
+</p>
+
+<!-- TODO IMAGE: normalization list dialog -->
+<p>It is only possible to add normalizations that are configured
+  as appropriate for the span type. If there are any normalizations already
+  present that do not match the span type, they will be marked in the
+  normalization list dialog with a red exclamation mark. Each normalization
+  shows the normalization database, the ID of the normalization in that
+  database, and the canonical name. If the normalization database has a direct
+  URL pattern configured, the magnifier icon will open the corresponding web
+  page. The <em>Edit</em> and <em>Add</em> buttons will open the normalization
+  search dialog. Note that the changes to the normalization list are not saved unless
+  both the normalization list dialog and the span dialog are confirmed with the
+  OK button.
+</p>
+
+<!-- TODO IMAGE: normalization search dialog -->
 <p>To create a normalization annotation, it's often necessary to
   search for the unique identifier (ID) of the intended entry, as IDs
-  are typically just meaningless sequences of numbers. The brat UI
-  provides access to two alternative searches:
+  are typically just meaningless sequences of characters. The normalization search
+  dialog provides access to two alternative searches, after selecting the
+  desired normalization database:
 </p>
 <ul>
-  <li>clicking on the box with "Click here to search" opens the built-in
+  <li>
+    entering a query in the query text input field and clicking the
+    <em>Search</em> button (or equivalently, hitting <em>Enter</em>) will use the
     normalization DB search functionality within brat (shown below)
   </li>
-  <li>clicking on the magnifying glass logo opens a separate page with
+  <li>clicking on the magnifying glass logo next to the normalization database
+    selector opens a separate page with
     the resource URL (as <a href="#norm-config">configured
     in <code>tools.conf</code></a> by the &lt;URL&gt; setting),
     providing fast access to "native" search functionality that can
@@ -136,23 +175,19 @@ cmeta:  "Introduction to the brat normalisation feature."
     dialog.
   </li>
 </ul>
+<!-- TODO IMAGE: normalization search dialog result -->
+<!--
 <div class="image">
   <img src="img/normalization-search-example.png" alt="normalization search dialog"/>
   <div style="width: 800px" class="caption">Normalization search dialog showing search results from Wikipedia.</div>
 </div>
+-->
 
 <p>The search dialog can be used to query the brat normalization DB
   using approximate string matching, which allows for variation and
   typos (e.g. "Barak Obama"). The correct entry can be selected and
   its ID associated with the annotation simply by double-clicking on
   it.
-</p>
-
-<p>After filling in the ID, the brat annotation dialog is updated to
-  show also a direct link to the entry in the resource
-  (as <a href="#norm-config">configured in <code>tools.conf</code></a>
-  by the &lt;URLBASE&gt; setting).
-  <!-- TODO image -->
 </p>
 
 <p>If you're going to be working on normalization annotation on a brat
@@ -207,13 +242,13 @@ cmeta:  "Introduction to the brat normalisation feature."
   in this section is as follows:
 </p>
 
-<p><pre><code>    DBNAME     DB:DBPATH, &lt;URL&gt;:HOMEURL, &lt;URLBASE&gt;:ENTRYURL</code></pre>
+<p><pre><code>    DBNAME     DB:DBPATH, &lt;URL&gt;:HOMEURL, &lt;URLBASE&gt;:ENTRYURL, &lt;UNICODE&gt;:TRUEorFALSE</code></pre>
 </p>
 
 <p>Here, <code>DB</code>, <code>&lt;URL&gt;</code>, 
   <code>&lt;URLBASE&gt;</code> and <code>&lt;PATH&gt;</code> are
   literal strings (they should appear as written here), while
-  "DBNAME", "DBPATH", "HOMEURL" and "ENTRYURL" should be replaced with
+  "DBNAME", "DBPATH", "HOMEURL", "ENTRYURL" and "TRUEorFALSE" should be replaced with
   specific values appropriate for the database being configured:
 </p>
 
@@ -226,13 +261,13 @@ cmeta:  "Introduction to the brat normalisation feature."
     (&quot;_&quot;). This name will be used both in the brat UI and in
     the <a href="#norm-standoff">annotation file</a> to identify the DB.
   </li>
-  <li><code>DBPATH</code> (optional): provides the file system path to
+  <li><code>DB</code> (optional): provides the file system path to
     the normalization DB data on the server, relative to the brat
-    server root. If <code>DBPATH</code> isn't set, the system assumes
-    the DB can be found in the default location under the
+    server root. If <code>DB</code> parameter isn't set, the system assumes
+    the database can be found in the default location under the
     given <code>DBNAME</code>.
   </li>
-  <li><code>HOMEURL</code>: sets the URL for the home page of the
+  <li><code>URL</code>: sets the URL for the home page of the
     normalization resource (e.g. "http://en.wikipedia.org/wiki/").
     Used both to identify the resource more specifically
     than <code>DBNAME</code> and to provide a link in the
@@ -243,16 +278,25 @@ cmeta:  "Introduction to the brat normalisation feature."
     (e.g. "http://en.wikipedia.org/?curid=%s") that can be filled in
     to generate a direct link in
     the <a href="#norm-annotation">annotation UI</a> to an entry in
-    the normalization resource. The value should contain the
-    characters "%s" as a placeholder that will be replaced with the ID
+    the normalization resource. The value must contain the
+    characters <code>%s</code> as a placeholder that will be replaced with the ID
     of the entry.
+  </li>
+  <li><code>UNICODE</code> (optional): specifies whether the database is
+    created as Unicode or binary. Note that simstring bindings library only
+    handles binary databases. The accepted values are: <code>true</code>,
+    <code>t</code>, <code>1</code>, <code>yes</code>, <code>y</code>,
+    <code>on</code>, <code>false</code>, <code>f</code>, <code>0</code>,
+    <code>no</code>, <code>n</code>, <code>off</code>.
   </li>
 </ul>
 
-<p>Note that it's individual collections can have their
+<p>Note that individual collections can have their
   own <code>tools.conf</code> files, so different annotation projects
   can have different normalization settings.
 </p>
+
+<p>To use a normalization database in annotation, additionally <code>annotation.conf</code> entity and event specifications need to have a parameter <code>&lt;NORM&gt;:DB1|DB2|...</code>, specifying which databases are relevant to each span type.
 
 <p>After creating a normalization DB and configuring brat to use it,
   brat is ready for <a href="#norm-annotation">normalization
