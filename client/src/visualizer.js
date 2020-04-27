@@ -196,7 +196,7 @@ var Visualizer = (function($, window, undefined) {
       var lastCharPos = null;
 
       for (var i = 0; i < text.length; i++) {
-        var c = text[i];
+        var c = text.charAt(i);
         // Have we found the start of a token?
         if (tokenStart == null && !/\s/.test(c)) {
           tokenStart = i;
@@ -1416,6 +1416,7 @@ var Visualizer = (function($, window, undefined) {
       var redraw = false;
 
       var renderDataReal = function(sourceData) {
+        console.log(sourceData);
 Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
@@ -1646,7 +1647,7 @@ Util.profileStart('chunks');
               // * non-first word in a line
               // don't indent if
               // * the first word in a non-paragraph line
-              for (var i = spacePos; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.lastSpace[i]] || 0;
+              for (var i = spacePos; i < spaceLen; i++) spaceWidth += spaceWidths[chunk.lastSpace.charAt(i)] || 0;
               currentX += rtlmode ? -spaceWidth : spaceWidth;
             }
           }
@@ -3114,6 +3115,7 @@ Util.profileReport();
         } else {
           // Fill in default values that don't necessarily go over the protocol
           if (sourceData) {
+            sourceData.text = Util.unicodeString(sourceData.text);
             setSourceDataDefaults(sourceData);
           }
 
