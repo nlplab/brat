@@ -717,6 +717,10 @@ var Util = (function(window, undefined) {
         }
       };
     }
+    UnicodeString.prototype.correctOffset = function(badOffset) {
+      var prefix = this.value.substring(0, badOffset);
+      return unicodeChars(prefix).length;
+    };
 
     var unicodeString = function(str) {
       if (str.match(/[\ud800-\udbff]/)) {
