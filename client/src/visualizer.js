@@ -1416,7 +1416,6 @@ var Visualizer = (function($, window, undefined) {
       var redraw = false;
 
       var renderDataReal = function(sourceData) {
-        console.log(sourceData);
 Util.profileEnd('before render');
 Util.profileStart('render');
 Util.profileStart('init');
