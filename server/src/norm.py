@@ -55,9 +55,6 @@ def _get_db_path(database, collection):
         # TODO: default to WORK_DIR config?
         return (None, Simstring.DEFAULT_UNICODE)
     else:
-        conf_dir = real_directory(collection)
-        projectconf = ProjectConfiguration(conf_dir)
-        norm_conf = projectconf.get_normalization_config()
         try:
             conf_dir = real_directory(collection)
             projectconf = ProjectConfiguration(conf_dir)
