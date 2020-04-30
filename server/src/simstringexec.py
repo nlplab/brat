@@ -8,9 +8,9 @@ import select
 try:
     from config import SIMSTRING_EXECUTABLE
 except ImportError:
-    SIMSTRING_EXECUTABLE = 'simstring'
-
-assert isfile(SIMSTRING_EXECUTABLE), "Error: simstring not found (Hint: set SIMSTRING_EXECUTABLE in config.py"
+    from shutil import which
+    SIMSTRING_EXECUTABLE = which('simstring')
+simstring_found = isfile(SIMSTRING_EXECUTABLE)
 
 
 class SimstringExecException(Exception):
@@ -38,6 +38,12 @@ class SimstringExec(SimstringBase):
                 unicode=unicode,
                 build=build)
 
+        self.proc = None
+        from message import Messager
+        if not simstring_found:
+            Messager.error("Error: simstring not found (Hint: set SIMSTRING_EXECUTABLE in config.py")
+            return
+
         cmd = [SIMSTRING_EXECUTABLE,
                 "-d", self.dbfn,
                 "-n", str(ngram_length),
@@ -60,6 +66,7 @@ class SimstringExec(SimstringBase):
 
     def build(self, strs):
         assert self.is_build, "Error: build on non-build simstring"
+        assert self.proc, "Simstring not found"
         instr = ''.join(s + '\n' for s in strs)
         outs, errs = self.proc.communicate(instr)
         self._check_error(errs)
@@ -67,11 +74,13 @@ class SimstringExec(SimstringBase):
 
     def insert(self, s):
         assert self.is_build, "Error: build on non-build simstring"
+        assert self.proc, "Simstring not found"
         self.proc.stdin.write(s + "\n")
         self._check_error()
 
     def lookup(self, s):
-        assert not self.is_build, "Error: lookup on build simstring"
+        if not self.proc:
+            return []
         try:
             self.proc.stdin.write(s + "\n")
             self.proc.stdin.flush()
