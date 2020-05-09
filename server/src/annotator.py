@@ -32,6 +32,8 @@ from message import Messager
 from projectconfig import (ENTITY_CATEGORY, EVENT_CATEGORY, RELATION_CATEGORY,
                            UNKNOWN_CATEGORY, ProjectConfiguration)
 
+import urllib.parse
+
 try:
     from config import DEBUG
 except ImportError:
@@ -327,7 +329,7 @@ def __create_span(ann_obj, mods, type, offsets, txt_file_path,
         # Get a new ID
         new_id = ann_obj.get_new_id('T')  # XXX: Cons
         # Get the text span
-        with open_textfile(txt_file_path, 'r') as txt_file:
+        with open_textfile(urllib.parse.unquote(txt_file_path), 'r') as txt_file:
             text = txt_file.read()
             text_span = _text_for_offsets(text, offsets)
 
@@ -447,7 +449,7 @@ def create_span(collection, document, offsets, type, attributes=None,
     # end) pairs; convert once at this interface
     offsets = _json_offsets_to_list(offsets)
 
-    return _create_span(collection, document, offsets, type, attributes,
+    return _create_span(collection, urllib.parse.unquote(document), offsets, type, attributes,
                         normalizations, id, comment)
 
 
@@ -866,6 +868,8 @@ def reverse_arc(collection, document, origin, target, type, attributes=None):
     real_dir = real_directory(directory)
     # mods = ModificationTracker() # TODO
     projectconf = ProjectConfiguration(real_dir)
+
+    document = urllib.parse.unquote(document)
     document = path_join(real_dir, document)
     with TextAnnotations(document) as ann_obj:
         # bail as quick as possible if read-only
@@ -912,6 +916,7 @@ def create_arc(collection, document, origin, target, type, attributes=None,
 
     projectconf = ProjectConfiguration(real_dir)
 
+    document = urllib.parse.unquote(document)
     document = path_join(real_dir, document)
 
     with TextAnnotations(document) as ann_obj:
@@ -1040,6 +1045,7 @@ def delete_arc(collection, document, origin, target, type):
 
     projectconf = ProjectConfiguration(real_dir)
 
+    document = urllib.parse.unquote(document)
     document = path_join(real_dir, document)
 
     with TextAnnotations(document) as ann_obj:
@@ -1063,6 +1069,7 @@ def delete_span(collection, document, id):
 
     real_dir = real_directory(directory)
 
+    document = urllib.parse.unquote(document)
     document = path_join(real_dir, document)
 
     with TextAnnotations(document) as ann_obj:
@@ -1116,6 +1123,7 @@ def split_span(collection, document, args, id):
     directory = collection
 
     real_dir = real_directory(directory)
+    document = urllib.parse.unquote(document)
     document = path_join(real_dir, document)
     # TODO don't know how to pass an array directly, so doing extra catenate
     # and split
@@ -1246,6 +1254,7 @@ def split_span(collection, document, args, id):
 
 def set_status(directory, document, status=None):
     real_dir = real_directory(directory)
+    document = urllib.parse.unquote(document)
 
     with TextAnnotations(path_join(real_dir, document)) as ann:
         # Erase all old status annotations

@@ -18,6 +18,8 @@ from filelock import FileLock
 from common import ProtocolError
 from message import Messager
 
+import urllib.parse
+
 '''
 Functionality related to the annotation file format.
 
@@ -364,7 +366,7 @@ class Annotations(object):
         input_files = self._select_input_files(document)
 
         if not input_files:
-            with open('{}.{}'.format(document, JOINED_ANN_FILE_SUFF), 'w'):
+            with open('{}.{}'.format(urllib.parse.unquote(document), JOINED_ANN_FILE_SUFF), 'w'):
                 pass
 
             input_files = self._select_input_files(document)
@@ -1192,7 +1194,7 @@ class TextAnnotations(Annotations):
         # TODO: this is too naive; document may be e.g. "PMID.a1",
         # in which case the reasonable text file name guess is
         # "PMID.txt", not "PMID.a1.txt"
-        textfn = document + '.' + TEXT_FILE_SUFFIX
+        textfn = urllib.parse.unquote(document) + '.' + TEXT_FILE_SUFFIX
         try:
             with open_textfile(textfn, 'r') as f:
                 return f.read()
