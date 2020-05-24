@@ -13,10 +13,35 @@ from re import compile as re_compile
 from re import match as re_match
 from time import time
 
-from filelock import FileLock
 
-from common import ProtocolError
-from message import Messager
+try:
+    from common import ProtocolError
+    from message import Messager
+    from common import WORK_DIR
+    try:
+        from filelock import FileLock
+    except:
+        raise Exception("Please install `filelock` module")
+    STANDALONE = False
+except (ModuleNotFoundError, ImportError):
+    STANDALONE = True
+    ProtocolError = Exception
+
+    import contextlib
+    from collections import namedtuple
+    MessageCollection = namedtuple('MessageCollection', ('ok', 'errors', 'warnings'))
+
+    class MessageCollector(object):
+        def __init__(self):
+            self.messages = MessageCollection(True, [], [])
+
+        def error(self, message, timeout):
+            self.messages.ok = False
+            self.messages.errors.append(message)
+
+        def warning(self, message, timeout):
+            self.messages.warnings.append(message)
+
 
 '''
 Functionality related to the annotation file format.
@@ -81,7 +106,10 @@ class AnnotationNotFoundError(Exception):
         return u'Could not find an annotation with id: %s' % (self.id, )
 
 
-class AnnotationFileNotFoundError(ProtocolError):
+class AnnotationError(ProtocolError):
+    pass
+
+class AnnotationFileNotFoundError(AnnotationError):
     def __init__(self, fn):
         self.fn = fn
 
@@ -93,7 +121,7 @@ class AnnotationFileNotFoundError(ProtocolError):
         return json_dic
 
 
-class AnnotationCollectionNotFoundError(ProtocolError):
+class AnnotationCollectionNotFoundError(AnnotationError):
     def __init__(self, cn):
         self.cn = cn
 
@@ -106,7 +134,7 @@ class AnnotationCollectionNotFoundError(ProtocolError):
         return json_dic
 
 
-class EventWithoutTriggerError(ProtocolError):
+class EventWithoutTriggerError(AnnotationError):
     def __init__(self, event):
         self.event = event
 
@@ -118,7 +146,7 @@ class EventWithoutTriggerError(ProtocolError):
         return json_dic
 
 
-class EventWithNonTriggerError(ProtocolError):
+class EventWithNonTriggerError(AnnotationError):
     def __init__(self, event, non_trigger):
         self.event = event
         self.non_trigger = non_trigger
@@ -132,7 +160,7 @@ class EventWithNonTriggerError(ProtocolError):
         return json_dic
 
 
-class TriggerReferenceError(ProtocolError):
+class TriggerReferenceError(AnnotationError):
     def __init__(self, trigger, referencer):
         self.trigger = trigger
         self.referencer = referencer
@@ -151,7 +179,7 @@ class AnnotationTextFileNotFoundError(AnnotationFileNotFoundError):
         return u'Could not read text file for %s' % (self.fn, )
 
 
-class AnnotationsIsReadOnlyError(ProtocolError):
+class AnnotationsIsReadOnlyError(AnnotationError):
     def __init__(self, fn):
         self.fn = fn
 
@@ -199,7 +227,7 @@ class DependingAnnotationDeleteError(Exception):
         %s''' % (str(self.target).rstrip(), ",".join([str(d).rstrip() for d in self.dependants]))
 
 
-class SpanOffsetOverlapError(ProtocolError):
+class SpanOffsetOverlapError(AnnotationError):
     def __init__(self, offsets):
         self.offsets = offsets
 
@@ -213,7 +241,7 @@ class SpanOffsetOverlapError(ProtocolError):
 
 
 # Open function that enforces strict, utf-8, and universal newlines for reading
-# TODO: Could have another wrapping layer raising an appropriate ProtocolError
+# TODO: Could have another wrapping layer raising an appropriate AnnotationError
 def open_textfile(filename, mode='rU'):
     # enforce universal newline support ('U') in read modes
     if len(mode) != 0 and mode[0] == 'r' and 'U' not in mode:
@@ -318,8 +346,26 @@ class Annotations(object):
 
         return input_files
 
+    if STANDALONE:
+        def get_messages(self):
+            return self.messages.messages
+
     # TODO: DOC!
-    def __init__(self, document, read_only=False):
+    def __init__(self, document=None, read_only=False, work_dir=None):
+        if work_dir is None:
+            if STANDALONE:
+                from tempfile import gettempdir
+                work_dir = gettempdir()
+            else:
+                work_dir = WORK_DIR
+
+        if STANDALONE:
+            self.messages = MessageCollector()
+        else:
+            self.messages = Messager
+
+        self.work_dir = work_dir
+
         # this decides which parsing function is invoked by annotation
         # ID prefix (first letter)
         self._parse_function_by_id_prefix = {
@@ -361,27 +407,33 @@ class Annotations(object):
 
         # We use some heuristics to find the appropriate annotation files
         self._read_only = read_only
-        input_files = self._select_input_files(document)
-
-        if not input_files:
-            with open('{}.{}'.format(document, JOINED_ANN_FILE_SUFF), 'w'):
-                pass
-
+        if document is not None:
             input_files = self._select_input_files(document)
+
             if not input_files:
-                raise AnnotationFileNotFoundError(document)
+                with open('{}.{}'.format(document, JOINED_ANN_FILE_SUFF), 'w'):
+                    pass
+
+                input_files = self._select_input_files(document)
+                if not input_files and not STANDALONE:
+                    raise AnnotationFileNotFoundError(document)
+
+        else:
+            input_files = None
 
         # We then try to open the files we got using the heuristics
         # self._file_input = FileInput(openhook=hook_encoded('utf-8'))
         self._input_files = input_files
 
         # Finally, parse the given annotation file
-        self._parse_ann_file()
+        if input_files:
+            self._parse_ann_file()
 
         # Sanity checking that can only be done post-parse
         self._sanity()
         # XXX: Hack to get the timestamps after parsing
-        if (len(self._input_files) == 1 and
+        if (document is not None and
+                len(self._input_files) == 1 and
                 self._input_files[0].endswith(JOINED_ANN_FILE_SUFF)):
             self.ann_mtime = getmtime(self._input_files[0])
             self.ann_ctime = getctime(self._input_files[0])
@@ -999,6 +1051,11 @@ class Annotations(object):
 
     def __exit__(self, type, value, traceback):
         # self._file_input.close()
+
+        # is it even needed?
+        if self._document is None:
+            return
+
         if not self._read_only:
             assert len(self._input_files) == 1, 'more than one valid outfile'
 
@@ -1015,12 +1072,14 @@ class Annotations(object):
                 # Then just return
                 return
 
-            from config import WORK_DIR
-
             # Protect the write so we don't corrupt the file
-            with FileLock(path_join(
-                    WORK_DIR, str(hash(self._input_files[0].replace('/', '_'))) + '.lock'
-            )) as lock_file:
+            if STANDALONE:
+                lock_file = contextlib.suppress()
+            else:
+                lock_file = FileLock(path_join(
+                        self.work_dir, str(hash(self._input_files[0].replace('/', '_'))) + '.lock'
+                ))
+            with lock_file:
                 #from tempfile import NamedTemporaryFile
                 from tempfile import mkstemp
                 # TODO: XXX: Is copyfile really atomic?
@@ -1078,21 +1137,25 @@ class TextAnnotations(Annotations):
     annotations against the text.
     """
 
-    def __init__(self, document, read_only=False):
+    def __init__(self, document=None, text=None, read_only=False, work_dir=None):
         # First read the text or the Annotations can't verify the annotations
-        if document.endswith('.txt'):
-            textfile_path = document
-        else:
-            # Do we have a known extension?
-            _, file_ext = splitext(document)
-            if not file_ext or file_ext not in KNOWN_FILE_SUFF:
+        if document:
+            if document.endswith('.txt'):
                 textfile_path = document
             else:
-                textfile_path = document[:len(document) - len(file_ext)]
+                # Do we have a known extension?
+                _, file_ext = splitext(document)
+                if not file_ext or file_ext not in KNOWN_FILE_SUFF:
+                    textfile_path = document
+                else:
+                    textfile_path = document[:len(document) - len(file_ext)]
 
-        self._document_text = self._read_document_text(textfile_path)
+            self._document_text = self._read_document_text(textfile_path)
 
-        Annotations.__init__(self, document, read_only)
+        else:
+            self._document_text = text
+
+        Annotations.__init__(self, document=document, read_only=read_only, work_dir=work_dir)
 
     def _parse_textbound_annotation(
             self, id, data, data_tail, input_file_path):
@@ -1698,3 +1761,4 @@ if __name__ == '__main__':
         except ImportError:
             # Will try to load the config, probably not available
             pass
+
