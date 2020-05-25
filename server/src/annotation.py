@@ -109,9 +109,9 @@ try:
         from filelock import FileLock
     except:
         raise Exception("Please install `filelock` module")
-    STANDALONE = False
+    PROGRAMMATIC = False
 except (ModuleNotFoundError, ImportError):
-    STANDALONE = True
+    PROGRAMMATIC = True
     ProtocolError = Exception
 
     import contextlib
@@ -398,7 +398,7 @@ class Annotations(object):
                 # It is only a partial annotation, we will most likely fail
                 # but we will try opening it
                 input_files = [document]
-                if not STANDALONE:
+                if not PROGRAMMATIC:
                     self._read_only = True
             else:
                 input_files = []
@@ -419,7 +419,7 @@ class Annotations(object):
                                (document + '.' + suff
                                 for suff in PARTIAL_ANN_FILE_SUFF)
                                if isfile(sugg_path)]
-                if not STANDALONE:
+                if not PROGRAMMATIC:
                     self._read_only = True
 
         # Do we lack write permissions?
@@ -430,20 +430,20 @@ class Annotations(object):
 
         return input_files
 
-    if STANDALONE:
+    if PROGRAMMATIC:
         def get_messages(self):
             return self.messages.messages
 
     # TODO: DOC!
     def __init__(self, document=None, read_only=False, lock_dir=None):
         if lock_dir is None:
-            if STANDALONE:
+            if PROGRAMMATIC:
                 from tempfile import gettempdir
                 lock_dir = gettempdir()
             else:
                 lock_dir = WORK_DIR
 
-        if STANDALONE:
+        if PROGRAMMATIC:
             self.messages = MessageCollector()
         else:
             self.messages = Messager
@@ -499,7 +499,7 @@ class Annotations(object):
                     pass
 
                 input_files = self._select_input_files(document)
-                if not input_files and not STANDALONE:
+                if not input_files and not PROGRAMMATIC:
                     raise AnnotationFileNotFoundError(document)
 
         else:
@@ -1171,7 +1171,7 @@ class Annotations(object):
             return
 
         # Protect the write so we don't corrupt the file
-        if STANDALONE:
+        if PROGRAMMATIC:
             lock_file = contextlib.suppress()
         else:
             lock_file = FileLock(path_join(
