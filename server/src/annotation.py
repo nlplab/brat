@@ -351,20 +351,20 @@ class Annotations(object):
             return self.messages.messages
 
     # TODO: DOC!
-    def __init__(self, document=None, read_only=False, work_dir=None):
-        if work_dir is None:
+    def __init__(self, document=None, read_only=False, lock_dir=None):
+        if lock_dir is None:
             if STANDALONE:
                 from tempfile import gettempdir
-                work_dir = gettempdir()
+                lock_dir = gettempdir()
             else:
-                work_dir = WORK_DIR
+                lock_dir = WORK_DIR
 
         if STANDALONE:
             self.messages = MessageCollector()
         else:
             self.messages = Messager
 
-        self.work_dir = work_dir
+        self.lock_dir = lock_dir
 
         # this decides which parsing function is invoked by annotation
         # ID prefix (first letter)
@@ -1077,7 +1077,7 @@ class Annotations(object):
                 lock_file = contextlib.suppress()
             else:
                 lock_file = FileLock(path_join(
-                        self.work_dir, str(hash(self._input_files[0].replace('/', '_'))) + '.lock'
+                        self.lock_dir, str(hash(self._input_files[0].replace('/', '_'))) + '.lock'
                 ))
             with lock_file:
                 #from tempfile import NamedTemporaryFile
@@ -1137,7 +1137,7 @@ class TextAnnotations(Annotations):
     annotations against the text.
     """
 
-    def __init__(self, document=None, text=None, read_only=False, work_dir=None):
+    def __init__(self, document=None, text=None, read_only=False, lock_dir=None):
         # First read the text or the Annotations can't verify the annotations
         if document:
             if document.endswith('.txt'):
@@ -1155,7 +1155,7 @@ class TextAnnotations(Annotations):
         else:
             self._document_text = text
 
-        Annotations.__init__(self, document=document, read_only=read_only, work_dir=work_dir)
+        Annotations.__init__(self, document=document, read_only=read_only, lock_dir=lock_dir)
 
     def _parse_textbound_annotation(
             self, id, data, data_tail, input_file_path):
