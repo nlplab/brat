@@ -1663,6 +1663,15 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
     """
 
     def __init__(self, spans, id, type, text, text_tail="", source_id=None):
+        # For convenience, you can pass in a `TextAnnotations` object for `text`
+        if isinstance(text, TextAnnotations):
+            text_annotations = text
+            doc_text = text.get_document_text()
+            text = DISCONT_SEP.join(doc_text[start:end]
+                                    for start, end in spans)
+        else:
+            text_annotations = None
+
         IdedAnnotation.__init__(
             self,
             id,
@@ -1674,6 +1683,9 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
         self.spans = spans
         self.text = text
         self.text_tail = text_tail
+
+        if text_annotations is not None:
+            text_annotations.add_annotation(self)
 
     # TODO: temp hack while building support for discontinuous
     # annotations; remove once done
