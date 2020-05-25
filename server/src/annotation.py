@@ -7,8 +7,9 @@ from __future__ import with_statement
 from codecs import open as codecs_open
 from itertools import chain, takewhile
 from os import close as os_close
+from os import access, W_OK
 from os.path import join as path_join
-from os.path import splitext
+from os.path import splitext, dirname, isfile, isdir, exists
 from re import compile as re_compile
 from re import match as re_match
 from time import time
@@ -301,24 +302,18 @@ class Annotations(object):
         May set self._read_only flag to True.
         """
 
-        from os.path import isfile
-        from os import access, W_OK
-
         try:
             # Do we have a valid suffix? If so, it is probably best to the file
             suff = document[document.rindex('.') + 1:]
             if suff == JOINED_ANN_FILE_SUFF:
                 # It is a joined file, let's load it
                 input_files = [document]
-                # Do we lack write permissions?
-                if not access(document, W_OK):
-                    # TODO: Should raise an exception or warning
-                    self._read_only = True
             elif suff in PARTIAL_ANN_FILE_SUFF:
                 # It is only a partial annotation, we will most likely fail
                 # but we will try opening it
                 input_files = [document]
-                self._read_only = True
+                if not STANDALONE:
+                    self._read_only = True
             else:
                 input_files = []
         except ValueError:
@@ -332,16 +327,19 @@ class Annotations(object):
             if isfile(sugg_path):
                 # We found a joined file by adding the joined suffix
                 input_files = [sugg_path]
-                # Do we lack write permissions?
-                if not access(sugg_path, W_OK):
-                    # TODO: Should raise an exception or warning
-                    self._read_only = True
             else:
                 # Our last shot, we go for as many partial files as possible
                 input_files = [sugg_path for sugg_path in
                                (document + '.' + suff
                                 for suff in PARTIAL_ANN_FILE_SUFF)
                                if isfile(sugg_path)]
+                if not STANDALONE:
+                    self._read_only = True
+
+        # Do we lack write permissions?
+        # TODO: Should raise an exception or warning
+        if not self._read_only:
+            if not all(_writable(filename) for filename in input_files):
                 self._read_only = True
 
         return input_files
@@ -1056,73 +1054,86 @@ class Annotations(object):
         if self._document is None:
             return
 
-        if not self._read_only:
-            assert len(self._input_files) == 1, 'more than one valid outfile'
+        if self._read_only:
+            return
 
-            # We are hitting the disk a lot more than we should here, what we
-            # should have is a modification flag in the object but we can't
-            # due to how we change the annotations.
+        self.save()
 
-            out_str = str(self)
-            with open_textfile(self._input_files[0], 'r') as old_ann_file:
-                old_str = old_ann_file.read()
+    def save(self, document=None):
+        if document is None:
+            document = self._document
 
-            # Was it changed?
-            if out_str == old_str:
-                # Then just return
-                return
+            if document is None:
+                raise Exception("No document path provided")
 
-            # Protect the write so we don't corrupt the file
-            if STANDALONE:
-                lock_file = contextlib.suppress()
-            else:
-                lock_file = FileLock(path_join(
-                        self.lock_dir, str(hash(self._input_files[0].replace('/', '_'))) + '.lock'
-                ))
-            with lock_file:
-                #from tempfile import NamedTemporaryFile
-                from tempfile import mkstemp
-                # TODO: XXX: Is copyfile really atomic?
-                from shutil import copyfile
-                # XXX: NamedTemporaryFile only supports encoding for Python 3
-                #       so we hack around it.
-                # with NamedTemporaryFile('w', suffix='.ann') as tmp_file:
-                # Grab the filename, but discard the handle
-                tmp_fh, tmp_fname = mkstemp(suffix='.ann')
-                os_close(tmp_fh)
-                try:
-                    with open_textfile(tmp_fname, 'w') as tmp_file:
-                        # XXX: Temporary hack to make sure we don't write corrupted
-                        #       files, but the client will already have the version
-                        #       at this stage leading to potential problems upon
-                        #       the next change to the file.
-                        tmp_file.write(out_str)
-                        tmp_file.flush()
+        if self._read_only:
+            raise Exception("Cannot save, read only")
 
-                        try:
-                            with Annotations(tmp_file.name) as ann:
-                                # Move the temporary file onto the old file
-                                copyfile(tmp_file.name, self._input_files[0])
-                                # As a matter of convention we adjust the modified
-                                # time of the data dir when we write to it. This
-                                # helps us to make back-ups
-                                time()
-                                # XXX: Disabled for now!
-                                #utime(DATA_DIR, (now, now))
-                        except Exception as e:
-                            Messager.error(
-                                'ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' %
-                                e, -1)
-                            raise
-                finally:
+        assert len(self._input_files) == 1, 'more than one valid outfile'
+
+        # We are hitting the disk a lot more than we should here, what we
+        # should have is a modification flag in the object but we can't
+        # due to how we change the annotations.
+
+        out_str = str(self)
+        with open_textfile(self._input_files[0], 'r') as old_ann_file:
+            old_str = old_ann_file.read()
+
+        # Was it changed?
+        if out_str == old_str:
+            # Then just return
+            return
+
+        # Protect the write so we don't corrupt the file
+        if STANDALONE:
+            lock_file = contextlib.suppress()
+        else:
+            lock_file = FileLock(path_join(
+                    self.lock_dir, str(hash(self._input_files[0].replace('/', '_'))) + '.lock'
+            ))
+        with lock_file:
+            #from tempfile import NamedTemporaryFile
+            from tempfile import mkstemp
+            # TODO: XXX: Is copyfile really atomic?
+            from shutil import copyfile
+            # XXX: NamedTemporaryFile only supports encoding for Python 3
+            #       so we hack around it.
+            # with NamedTemporaryFile('w', suffix='.ann') as tmp_file:
+            # Grab the filename, but discard the handle
+            tmp_fh, tmp_fname = mkstemp(suffix='.ann')
+            os_close(tmp_fh)
+            try:
+                with open_textfile(tmp_fname, 'w') as tmp_file:
+                    # XXX: Temporary hack to make sure we don't write corrupted
+                    #       files, but the client will already have the version
+                    #       at this stage leading to potential problems upon
+                    #       the next change to the file.
+                    tmp_file.write(out_str)
+                    tmp_file.flush()
+
                     try:
-                        from os import remove
-                        remove(tmp_fname)
+                        with Annotations(tmp_file.name) as ann:
+                            # Move the temporary file onto the old file
+                            copyfile(tmp_file.name, self._input_files[0])
+                            # As a matter of convention we adjust the modified
+                            # time of the data dir when we write to it. This
+                            # helps us to make back-ups
+                            time()
+                            # XXX: Disabled for now!
+                            #utime(DATA_DIR, (now, now))
                     except Exception as e:
                         Messager.error(
-                            "Error removing temporary file '%s'" %
-                            tmp_fname)
-            return
+                            'ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' %
+                            e, -1)
+                        raise
+            finally:
+                try:
+                    from os import remove
+                    remove(tmp_fname)
+                except Exception as e:
+                    Messager.error(
+                        "Error removing temporary file '%s'" %
+                        tmp_fname)
 
     def __in__(self, other):
         # XXX: You should do this one!
@@ -1762,16 +1773,23 @@ class BinaryRelationAnnotation(IdedAnnotation):
         return soft_deps, hard_deps
 
 
+def _writable(sugg_path):
+    if exists(sugg_path):
+        # check the file itself for writability
+        check_path = sugg_path
+        correct_type = isfile
+    else:
+        # check the directory if file can be created
+        check_path = dirname(sugg_path)
+        correct_type = isdir
+    return correct_type(check_path) and access(check_path, W_OK)
+
+
 if __name__ == '__main__':
     from sys import stderr, argv
     for ann_path_i, ann_path in enumerate(argv[1:]):
-        print >> stderr, ("%s.) '%s' " % (ann_path_i, ann_path, )
-                          ).ljust(80, '#')
-        try:
-            with Annotations(ann_path) as anns:
-                for ann in anns:
-                    print >> stderr, str(ann).rstrip('\n')
-        except ImportError:
-            # Will try to load the config, probably not available
-            pass
-
+        print(("%s.) '%s' " % (ann_path_i, ann_path, )
+                          ).ljust(80, '#'))
+        with Annotations(ann_path) as anns:
+            for ann in anns:
+                print(str(ann).rstrip('\n'))
