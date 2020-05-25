@@ -1150,9 +1150,10 @@ class TextAnnotations(Annotations):
                 else:
                     textfile_path = document[:len(document) - len(file_ext)]
 
-            self._document_text = self._read_document_text(textfile_path)
+            if text is None:
+                self._document_text = self._read_document_text(textfile_path)
 
-        else:
+        if text is not None:
             self._document_text = text
 
         Annotations.__init__(self, document=document, read_only=read_only, lock_dir=lock_dir)
