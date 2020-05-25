@@ -2,6 +2,92 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
+
+# Programmatic usage
+#
+# # TextAnnotations(
+# #     document=None,    # document path without extension
+# #                       #   if None, the document will not be read or saved
+# #     text=None,        # provides the text instead of loading from `.txt` file
+# #     read_only=False,  # if True, the document will not be saved
+# #     lock_dir=None)    # lock file directory (system tmp dir if None)
+#
+# # TextBoundAnnotationWithText(
+# #     spans,            # list of (start, end) pairs
+# #     id,               # ID like "T1"; can get new id with `get_new_id`
+# #     type,             # label
+# #     text,             # the text or the `TextAnnotations` object
+# #                       #   if the latter, annotation automatically added to it
+# #     text_tail="",
+# #     source_id=None)
+# #
+# # .get_events()
+# # .get_attributes()
+# # .get_equivs()
+# # .get_textbounds()
+# # .get_relations()
+# # .get_normalizations()
+# # .get_entities()
+# # .get_oneline_comments()
+# # .get_statuses()
+# # .get_triggers()
+# # .add_annotation(ann)
+# # .del_annotation(ann)
+# # .get_ann_by_id(id)
+# # .get_new_id(prefix, suffix=None)
+# # .get_document_text()
+# # .save(document=None)
+# # .get_messages()
+# #   .ok
+# #   .errors
+# #   .warnings
+#
+#
+# doc1_path = "./brat_read"
+# doc2_path = "./brat_write"
+# doc3_path = "./brat_manual"
+# doc4_path = "./brat_saveas"
+#
+# from annotation import TextAnnotations, TextBoundAnnotationWithText
+#
+# # Read `.ann` and `.txt` (and don't save)
+# # (Strictly speaking, `read_only=True` is not necessary,
+# # the annotations are only written to disk at context exit,
+# # or with `.save` - no `with` or `.save`, no write)
+# doc = TextAnnotations(doc1_path, read_only=True)
+# for ann in doc.get_textbounds():
+#     print(ann.id, ann.spans, ann.type, ann.text)
+#
+# # Create from scratch (and save `.ann` file)
+# # (This class doesn't save text. If needed, save it yourself.)
+# text = "To boldly go where no one has gone before"
+# with TextAnnotations(doc2_path, text=text) as doc:
+#     ann = TextBoundAnnotationWithText([[3, 9]], "T1", "Adverb", "boldly")
+#     doc.add_annotation(ann)
+#     # Alternately, you can just pass the `TextAnnotations` object instead of text
+#     # this will automatically extract the text, and also add the annotation
+#     # Also note that you can generate a new ID using `get_new_id`, if you want
+#     id = doc.get_new_id("T")
+#     TextBoundAnnotationWithText([[0, 2], [10, 12]], id, "Verb", doc)
+#
+# # Create from scratch entirely in-memory; get data as strings
+# doc = TextAnnotations(text=text)
+# TextBoundAnnotationWithText([[3, 9]], "T1", "Adverb", doc)
+# TextBoundAnnotationWithText([[0, 2], [10, 12]], "T2", "Verb", doc)
+# txt_file = open(doc3_path + ".txt", "tw", encoding="utf-8")
+# ann_file = open(doc3_path + ".ann", "tw", encoding="utf-8")
+# with txt_file, ann_file:
+#     txt_file.write(text)
+#     ann_file.write(str(doc))
+#
+# # Read one file, modify it, save as a different file
+# # Not using `with` so the original file is not modified
+# doc = TextAnnotations(doc2_path)
+# ann = doc.get_ann_by_id("T1")
+# doc.del_annotation(ann)
+# doc.save(ann)
+
+
 from __future__ import with_statement
 
 from codecs import open as codecs_open
