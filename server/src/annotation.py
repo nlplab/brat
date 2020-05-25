@@ -42,6 +42,33 @@
 # #   .errors
 # #   .warnings
 #
+# # Available annotations:
+# #
+# # Annotation(tail)
+# #   .get_deps()
+# #   UnknownAnnotation(line)
+# #   UnparsedIdedAnnotation(id, line)
+# #   TypedAnnotation(type, tail)
+# #     IdedAnnotation(id, type, tail)
+# #       .reference_id()
+# #       .reference_text()
+# #       EventAnnotation(trigger, args, id, type, tail)
+# #         .add_argument(role, argid)
+# #       AttributeAnnotation(target, id, type, tail, value)
+# #       NormalizationAnnotation(id, type, target, refdb, refid, tail)
+# #       OnelineCommentAnnotation(target, id, type, tail)
+# #         .get_text()
+# #       TextBoundAnnotation(spans, id, type, tail)
+# #         .first_start()
+# #         .last_end()
+# #         .get_text()
+# #         .same_span(other)
+# #         .contains(other)
+# #         TextBoundAnnotationWithText(spans, id, type, text, text_tail)
+# #       BinaryRelationAnnotation(id, type, arg1l, arg1, arg2l, arg2, tail)
+# #     EquivAnnotation(type, entities, tail)
+# #       .reference_id()
+# #       .reference_text()
 #
 # doc1_path = "./brat_read"
 # doc2_path = "./brat_write"
@@ -1601,8 +1628,8 @@ class AttributeAnnotation(IdedAnnotation):
 
 
 class NormalizationAnnotation(IdedAnnotation):
-    def __init__(self, _id, _type, target, refdb, refid, tail, source_id=None):
-        IdedAnnotation.__init__(self, _id, _type, tail, source_id=source_id)
+    def __init__(self, id, type, target, refdb, refid, tail, source_id=None):
+        IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.target = target
         self.refdb = refdb
         self.refid = refid
