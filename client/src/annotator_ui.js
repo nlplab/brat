@@ -1179,7 +1179,7 @@ var AnnotatorUI = (function($, window, undefined) {
             }
             normEditedIndex = undefined;
             $('#norm_delete, #norm_edit').hide();
-            $('#norm_add').toggle(normAllowedNormalizations.length > 0);
+            $('#norm_add').toggle(normAllowedNormalizations && normAllowedNormalizations.length > 0);
             normEditedIndex = undefined;
             $('#norm_list_dialog-ok').focus();
           },
@@ -1196,7 +1196,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var checkAllowedNormalizations = function() {
         var spanType = $('#entity_and_event_wrapper .item input:checked').val();
         normAllowedNormalizations = normDbsByType[spanType];
-        $('#norm_qadd_button').toggle(normAllowedNormalizations.length > 0);
+        $('#norm_qadd_button').toggle(normAllowedNormalizations && normAllowedNormalizations.length > 0);
       }
 
       var openNormList = function(evt) {
@@ -2385,7 +2385,7 @@ var AnnotatorUI = (function($, window, undefined) {
         } else {
           console.error('Unrecognized type category:', category);
         }
-        $.each(attributeTypes, function(attrNo, attr) {
+        $.each(attributeTypes || [], function(attrNo, attr) {
           var $input = $('#'+category+'_attr_'+Util.escapeQuotes(attr.type));
           if (attr.bool) {
             attributes[attr.type] = $input[0].checked;
