@@ -10,7 +10,7 @@ try:
 except ImportError:
     from shutil import which
     SIMSTRING_EXECUTABLE = which('simstring')
-simstring_found = isfile(SIMSTRING_EXECUTABLE)
+simstring_found = SIMSTRING_EXECUTABLE and isfile(SIMSTRING_EXECUTABLE)
 
 
 class SimstringExecException(Exception):
