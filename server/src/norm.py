@@ -381,7 +381,7 @@ def _norm_search_impl(database, name, collection=None, exactmatch=False):
         # if there are no hits and we only have a simple candidate string,
         # look up with a low threshold
         if best_score == 0 and len(name.split()) == 1:
-            with Simstring(database, threshold=0.5, unicode=dbunicode) as low_threshold_ss:
+            with Simstring(dbpath, threshold=0.5, unicode=dbunicode) as low_threshold_ss:
                 best_score = _norm_search_name_attr(low_threshold_ss, name, None,
                                                     matched, score_by_id, score_by_str,
                                                     0, exactmatch)
