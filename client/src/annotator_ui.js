@@ -971,6 +971,7 @@ var AnnotatorUI = (function($, window, undefined) {
           .append(
             $.map(normCurrent, function(normalization, index) {
               var allowed = $.inArray(normalization[0], normAllowedNormalizations) != -1;
+              console.log(allowed, normalization[0], normAllowedNormalizations);
               var allowedHTML = allowed ? '' : '&#x2757;';
               var base = normDbUrlBaseByDbName[normalization[0]];
               var $linkTd = $('<td/>');
@@ -1141,6 +1142,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var normListDialogSubmit = function(evt) {
         saveNormalizations();
         normListDialog.dialog('close');
+        return false;
       };
       normListDialog.on('click', 'tr', function(evt) {
         var $selected = $(evt.target).closest('tr');
