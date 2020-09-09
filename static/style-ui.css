@@ -138,7 +138,7 @@ input[data-value="invalid"] {
 input[data-value="multi"] {
   background-color: #ccccff;
 }
-#norm_search_result_select {
+.rowselectable {
   height: 200px;
   display: inline-block;
   border: 2px inset;
@@ -148,28 +148,27 @@ input[data-value="multi"] {
   margin-top: 10px;
   overflow: scroll;
 }
-#norm_search_result_select thead tr * {
+.rowselectable thead tr * {
   padding: 2px 5px;
 }
-#norm_search_result_select tbody tr * {
+.rowselectable tbody tr * {
   padding: 0 5px;
 }
-#norm_search_result_select tr {
+.rowselectable tr {
   cursor: pointer;
 }
-#norm_search_result_select tr * {
+.rowselectable tr * {
   white-space: nowrap;
 }
-#norm_search_result_select tr.selected {
+.rowselectable tr.selected {
   background-color: #cccccc;
 }
 #norm_search_container {
   position: relative;
+  width: 100%;
 }
-#norm_search_button {
-  position: absolute;
-  top: -6px;
-  right: -2px;
+#norm_search_container td.narrow {
+  width: 1px;
 }
 
 #span_form .collapser, #arc_form .collapser {

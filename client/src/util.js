@@ -655,6 +655,83 @@ var Util = (function(window, undefined) {
       return fontsLoaded;
     };
 
+    var unicodeChars;
+    if (typeof Array.from == "function" && Array.from("\ud83d\ude02").length == 1) {
+      // Array.from handles astral characters correctly
+      unicodeChars = function(str) {
+        return Array.from(str);
+      }
+    } else {
+      // Array.from does not handle astral characters correctly, use regexp instead
+      unicodeChars = function(str) {
+        return str.match(/[\ud800-\udbff][\udc00-\udfff]|./g);
+      }
+    }
+    // Make a String subclass
+    // based on https://stackoverflow.com/a/28188150/240443
+    function UnicodeString(str) {
+      this.chars = unicodeChars(str || '');
+      this.value = this.chars.join('');
+    };
+    UnicodeString.prototype = Object.create(String.prototype);
+    UnicodeString.prototype.toString = UnicodeString.prototype.valueOf = function() { return this.value };
+    Object.defineProperty(UnicodeString.prototype, 'length', {
+      get: function () { return this.chars.length; }
+    });
+    UnicodeString.prototype.substring = function(start, end) {
+      return new UnicodeString(this.chars.slice(start, end));
+    };
+    UnicodeString.prototype.substr = function(start, len) {
+      if (len === undefined) {
+        return this.substring(start);
+      } else {
+        return this.substring(start, start + len);
+      }
+    };
+    UnicodeString.prototype.charAt = function(i) {
+      return this.chars[i];
+    };
+    UnicodeString.prototype.indexOf = function(substr) {
+      var pos = this.value.indexOf(substr);
+      if (pos == -1) return pos;
+      return unicodeChars(this.value.substring(0, pos)).length;
+    };
+    UnicodeString.prototype.lastIndexOf = function(substr) {
+      var pos = this.value.lastIndexOf(substr);
+      if (pos == -1) return pos;
+      return unicodeChars(this.value.substring(0, pos)).length;
+    };
+    if (typeof String.prototype.codePointAt == "function") {
+      UnicodeString.prototype.charCodeAt = function(i) {
+        return this.chars[i].codePointAt(0);
+      }
+    } else {
+      UnicodeString.prototype.charCodeAt = function(i) {
+        var c = this.chars[i];
+        if (c.length == 1) {
+          return c.charAt(0);
+        } else {
+          var high = c.charCodeAt(0) - 0xd800;
+          var low = c.charCodeAt(1) - 0xdc00;
+          return 0x10000 + high * 0x400 + low;
+        }
+      };
+    }
+    UnicodeString.prototype.correctOffset = function(badOffset) {
+      var prefix = this.value.substring(0, badOffset);
+      return unicodeChars(prefix).length;
+    };
+
+    var unicodeString = function(str) {
+      if (str.match(/[\ud800-\udbff]/)) {
+        // contains astral characters, wrapping needed
+        return new UnicodeString(str);
+      } else {
+        // JavaScript can handle it, no wrapping needed
+        return str;
+      }
+    }
+
 
     return {
       profileEnable: profileEnable,
@@ -686,6 +763,34 @@ var Util = (function(window, undefined) {
       isMac: isMac,
       loadFonts: loadFonts,
       areFontsLoaded: areFontsLoaded,
+      unicodeString: unicodeString,
     };
 
 })(window);
+
+// DEBUG
+function propWatch(obj, prop, displayFn, makeProxy) {
+  Object.defineProperty(obj, prop, {
+    get: function () {
+      return window["_" + prop];
+    },
+
+    set: function (value) {
+      var displayValue = (value && displayFn) ? displayFn(value) : value;
+      if (makeProxy && value && typeof value == "object") {
+        value = new Proxy(value, {
+          set(o, p, v) {
+            console.warn(prop + "." + p, "=", v);
+            o[p] = v;
+          },
+          deleteProperty(o, p) {
+            console.warn(prop + "." + p, "deleted");
+            delete o[p];
+          }
+        });
+      }
+      console.warn(prop, "=", displayValue);
+      window["_" + prop] = value;
+    }
+  });
+}

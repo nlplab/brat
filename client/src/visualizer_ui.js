@@ -14,6 +14,7 @@ var VisualizerUI = (function($, window, undefined) {
       var loadedSearchData = null;
 
       var currentForm;
+
       var spanTypes = null;
       var relationTypesHash = null;
       // TODO: confirm unnecessary and remove
@@ -350,7 +351,7 @@ var VisualizerUI = (function($, window, undefined) {
               // max length restriction
               if (value.length > 300) {
                 value = value.substr(0, 300) + ' ...';
-              }                          
+              }
 
               norminfo += ('<span class="norm_info_label">'+
                            Util.escapeHTML(label)+
@@ -363,7 +364,7 @@ var VisualizerUI = (function($, window, undefined) {
           }
         }
         var drop=$('#norm_info_drop_point_'+infoSeqId);
-        if (drop) {
+        if (drop.length) {
           drop.html(norminfo);
           adjustToCursor(null, commentPopup, 10, true, true);
         } else {
@@ -577,7 +578,7 @@ var VisualizerUI = (function($, window, undefined) {
           }, opts);
 
         form.dialog(opts);
-        form.bind('dialogclose', function() {
+        form.on('dialogbeforeclose', function(evt) {
           if (form == currentForm) {
             currentForm = null;
           }
@@ -634,7 +635,6 @@ var VisualizerUI = (function($, window, undefined) {
         if (!currentForm) return;
         // currentForm.fadeOut(function() { currentForm = null; });
         currentForm.dialog('close');
-        currentForm = null;
       };
 
       /* END form management - related */
@@ -1910,11 +1910,11 @@ var VisualizerUI = (function($, window, undefined) {
             resizable: false,
             modal: true,
             open: function() {
-                aboutDialog.find('*').blur();
-              },
+              aboutDialog.find('*').blur();
+            },
             beforeClose: function() {
-                currentForm = null;
-              }
+              currentForm = null;
+            }
           });
       $('#mainlogo').click(function() {
         showForm(aboutDialog);

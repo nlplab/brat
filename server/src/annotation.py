@@ -2,21 +2,160 @@
 # -*- Mode: Python; tab-width: 4; indent-tabs-mode: nil; coding: utf-8; -*-
 # vim:set ft=python ts=4 sw=4 sts=4 autoindent:
 
+
+# Programmatic usage
+#
+# # TextAnnotations(
+# #     document=None,    # document path without extension
+# #                       #   if None, the document will not be read or saved
+# #     text=None,        # provides the text instead of loading from `.txt` file
+# #     read_only=False,  # if True, the document will not be saved
+# #     lock_dir=None)    # lock file directory (system tmp dir if None)
+#
+# # TextBoundAnnotationWithText(
+# #     spans,            # list of (start, end) pairs
+# #     id,               # ID like "T1"; can get new id with `get_new_id`
+# #     type,             # label
+# #     text,             # the text or the `TextAnnotations` object
+# #                       #   if the latter, annotation automatically added to it
+# #     text_tail="",
+# #     source_id=None)
+# #
+# # .get_events()
+# # .get_attributes()
+# # .get_equivs()
+# # .get_textbounds()
+# # .get_relations()
+# # .get_normalizations()
+# # .get_entities()
+# # .get_oneline_comments()
+# # .get_statuses()
+# # .get_triggers()
+# # .add_annotation(ann)
+# # .del_annotation(ann)
+# # .get_ann_by_id(id)
+# # .get_new_id(prefix, suffix=None)
+# # .get_document_text()
+# # .save(document=None)
+# # .get_messages()
+# #   .ok
+# #   .errors
+# #   .warnings
+#
+# # Available annotations:
+# #
+# # Annotation(tail)
+# #   .get_deps()
+# #   UnknownAnnotation(line)
+# #   UnparsedIdedAnnotation(id, line)
+# #   TypedAnnotation(type, tail)
+# #     IdedAnnotation(id, type, tail)
+# #       .reference_id()
+# #       .reference_text()
+# #       EventAnnotation(trigger, args, id, type, tail)
+# #         .add_argument(role, argid)
+# #       AttributeAnnotation(target, id, type, tail, value)
+# #       NormalizationAnnotation(id, type, target, refdb, refid, tail)
+# #       OnelineCommentAnnotation(target, id, type, tail)
+# #         .get_text()
+# #       TextBoundAnnotation(spans, id, type, tail)
+# #         .first_start()
+# #         .last_end()
+# #         .get_text()
+# #         .same_span(other)
+# #         .contains(other)
+# #         TextBoundAnnotationWithText(spans, id, type, text, text_tail)
+# #       BinaryRelationAnnotation(id, type, arg1l, arg1, arg2l, arg2, tail)
+# #     EquivAnnotation(type, entities, tail)
+# #       .reference_id()
+# #       .reference_text()
+#
+# doc1_path = "./brat_read"
+# doc2_path = "./brat_write"
+# doc3_path = "./brat_manual"
+# doc4_path = "./brat_saveas"
+#
+# from annotation import TextAnnotations, TextBoundAnnotationWithText
+#
+# # Read `.ann` and `.txt` (and don't save)
+# # (Strictly speaking, `read_only=True` is not necessary,
+# # the annotations are only written to disk at context exit,
+# # or with `.save` - no `with` or `.save`, no write)
+# doc = TextAnnotations(doc1_path, read_only=True)
+# for ann in doc.get_textbounds():
+#     print(ann.id, ann.spans, ann.type, ann.text)
+#
+# # Create from scratch (and save `.ann` file)
+# # (This class doesn't save text. If needed, save it yourself.)
+# text = "To boldly go where no one has gone before"
+# with TextAnnotations(doc2_path, text=text) as doc:
+#     ann = TextBoundAnnotationWithText([[3, 9]], "T1", "Adverb", "boldly")
+#     doc.add_annotation(ann)
+#     # Alternately, you can just pass the `TextAnnotations` object instead of text
+#     # this will automatically extract the text, and also add the annotation
+#     # Also note that you can generate a new ID using `get_new_id`, if you want
+#     id = doc.get_new_id("T")
+#     TextBoundAnnotationWithText([[0, 2], [10, 12]], id, "Verb", doc)
+#
+# # Create from scratch entirely in-memory; get data as strings
+# doc = TextAnnotations(text=text)
+# TextBoundAnnotationWithText([[3, 9]], "T1", "Adverb", doc)
+# TextBoundAnnotationWithText([[0, 2], [10, 12]], "T2", "Verb", doc)
+# txt_file = open(doc3_path + ".txt", "tw", encoding="utf-8")
+# ann_file = open(doc3_path + ".ann", "tw", encoding="utf-8")
+# with txt_file, ann_file:
+#     txt_file.write(text)
+#     ann_file.write(str(doc))
+#
+# # Read one file, modify it, save as a different file
+# # Not using `with` so the original file is not modified
+# doc = TextAnnotations(doc2_path)
+# ann = doc.get_ann_by_id("T1")
+# doc.del_annotation(ann)
+# doc.save(ann)
+
+
 from __future__ import with_statement
 
 from codecs import open as codecs_open
 from itertools import chain, takewhile
 from os import close as os_close
+from os import access, W_OK
 from os.path import join as path_join
-from os.path import splitext
+from os.path import splitext, dirname, isfile, isdir, exists
 from re import compile as re_compile
 from re import match as re_match
 from time import time
 
-from filelock import FileLock
 
-from common import ProtocolError
-from message import Messager
+try:
+    from common import ProtocolError
+    from message import Messager
+    from common import WORK_DIR
+    try:
+        from filelock import FileLock
+    except:
+        raise Exception("Please install `filelock` module")
+    PROGRAMMATIC = False
+except (ModuleNotFoundError, ImportError):
+    PROGRAMMATIC = True
+    ProtocolError = Exception
+
+    import contextlib
+    from collections import namedtuple
+    MessageCollection = namedtuple('MessageCollection', ('ok', 'errors', 'warnings'))
+
+    class MessageCollector(object):
+        def __init__(self):
+            self.messages = MessageCollection(True, [], [])
+
+        def error(self, message, timeout):
+            self.messages.ok = False
+            self.messages.errors.append(message)
+
+        def warning(self, message, timeout):
+            self.messages.warnings.append(message)
+
 
 '''
 Functionality related to the annotation file format.
@@ -81,7 +220,10 @@ class AnnotationNotFoundError(Exception):
         return u'Could not find an annotation with id: %s' % (self.id, )
 
 
-class AnnotationFileNotFoundError(ProtocolError):
+class AnnotationError(ProtocolError):
+    pass
+
+class AnnotationFileNotFoundError(AnnotationError):
     def __init__(self, fn):
         self.fn = fn
 
@@ -93,7 +235,7 @@ class AnnotationFileNotFoundError(ProtocolError):
         return json_dic
 
 
-class AnnotationCollectionNotFoundError(ProtocolError):
+class AnnotationCollectionNotFoundError(AnnotationError):
     def __init__(self, cn):
         self.cn = cn
 
@@ -106,7 +248,7 @@ class AnnotationCollectionNotFoundError(ProtocolError):
         return json_dic
 
 
-class EventWithoutTriggerError(ProtocolError):
+class EventWithoutTriggerError(AnnotationError):
     def __init__(self, event):
         self.event = event
 
@@ -118,7 +260,7 @@ class EventWithoutTriggerError(ProtocolError):
         return json_dic
 
 
-class EventWithNonTriggerError(ProtocolError):
+class EventWithNonTriggerError(AnnotationError):
     def __init__(self, event, non_trigger):
         self.event = event
         self.non_trigger = non_trigger
@@ -132,7 +274,7 @@ class EventWithNonTriggerError(ProtocolError):
         return json_dic
 
 
-class TriggerReferenceError(ProtocolError):
+class TriggerReferenceError(AnnotationError):
     def __init__(self, trigger, referencer):
         self.trigger = trigger
         self.referencer = referencer
@@ -151,7 +293,7 @@ class AnnotationTextFileNotFoundError(AnnotationFileNotFoundError):
         return u'Could not read text file for %s' % (self.fn, )
 
 
-class AnnotationsIsReadOnlyError(ProtocolError):
+class AnnotationsIsReadOnlyError(AnnotationError):
     def __init__(self, fn):
         self.fn = fn
 
@@ -199,7 +341,7 @@ class DependingAnnotationDeleteError(Exception):
         %s''' % (str(self.target).rstrip(), ",".join([str(d).rstrip() for d in self.dependants]))
 
 
-class SpanOffsetOverlapError(ProtocolError):
+class SpanOffsetOverlapError(AnnotationError):
     def __init__(self, offsets):
         self.offsets = offsets
 
@@ -213,7 +355,7 @@ class SpanOffsetOverlapError(ProtocolError):
 
 
 # Open function that enforces strict, utf-8, and universal newlines for reading
-# TODO: Could have another wrapping layer raising an appropriate ProtocolError
+# TODO: Could have another wrapping layer raising an appropriate AnnotationError
 def open_textfile(filename, mode='rU'):
     # enforce universal newline support ('U') in read modes
     if len(mode) != 0 and mode[0] == 'r' and 'U' not in mode:
@@ -273,24 +415,18 @@ class Annotations(object):
         May set self._read_only flag to True.
         """
 
-        from os.path import isfile
-        from os import access, W_OK
-
         try:
             # Do we have a valid suffix? If so, it is probably best to the file
             suff = document[document.rindex('.') + 1:]
             if suff == JOINED_ANN_FILE_SUFF:
                 # It is a joined file, let's load it
                 input_files = [document]
-                # Do we lack write permissions?
-                if not access(document, W_OK):
-                    # TODO: Should raise an exception or warning
-                    self._read_only = True
             elif suff in PARTIAL_ANN_FILE_SUFF:
                 # It is only a partial annotation, we will most likely fail
                 # but we will try opening it
                 input_files = [document]
-                self._read_only = True
+                if not PROGRAMMATIC:
+                    self._read_only = True
             else:
                 input_files = []
         except ValueError:
@@ -304,22 +440,43 @@ class Annotations(object):
             if isfile(sugg_path):
                 # We found a joined file by adding the joined suffix
                 input_files = [sugg_path]
-                # Do we lack write permissions?
-                if not access(sugg_path, W_OK):
-                    # TODO: Should raise an exception or warning
-                    self._read_only = True
             else:
                 # Our last shot, we go for as many partial files as possible
                 input_files = [sugg_path for sugg_path in
                                (document + '.' + suff
                                 for suff in PARTIAL_ANN_FILE_SUFF)
                                if isfile(sugg_path)]
+                if not PROGRAMMATIC:
+                    self._read_only = True
+
+        # Do we lack write permissions?
+        # TODO: Should raise an exception or warning
+        if not self._read_only:
+            if not all(_writable(filename) for filename in input_files):
                 self._read_only = True
 
         return input_files
 
+    if PROGRAMMATIC:
+        def get_messages(self):
+            return self.messages.messages
+
     # TODO: DOC!
-    def __init__(self, document, read_only=False):
+    def __init__(self, document=None, read_only=False, lock_dir=None):
+        if lock_dir is None:
+            if PROGRAMMATIC:
+                from tempfile import gettempdir
+                lock_dir = gettempdir()
+            else:
+                lock_dir = WORK_DIR
+
+        if PROGRAMMATIC:
+            self.messages = MessageCollector()
+        else:
+            self.messages = Messager
+
+        self.lock_dir = lock_dir
+
         # this decides which parsing function is invoked by annotation
         # ID prefix (first letter)
         self._parse_function_by_id_prefix = {
@@ -361,27 +518,33 @@ class Annotations(object):
 
         # We use some heuristics to find the appropriate annotation files
         self._read_only = read_only
-        input_files = self._select_input_files(document)
-
-        if not input_files:
-            with open('{}.{}'.format(document, JOINED_ANN_FILE_SUFF), 'w'):
-                pass
-
+        if document is not None:
             input_files = self._select_input_files(document)
+
             if not input_files:
-                raise AnnotationFileNotFoundError(document)
+                with open('{}.{}'.format(document, JOINED_ANN_FILE_SUFF), 'w'):
+                    pass
+
+                input_files = self._select_input_files(document)
+                if not input_files and not PROGRAMMATIC:
+                    raise AnnotationFileNotFoundError(document)
+
+        else:
+            input_files = None
 
         # We then try to open the files we got using the heuristics
         # self._file_input = FileInput(openhook=hook_encoded('utf-8'))
         self._input_files = input_files
 
         # Finally, parse the given annotation file
-        self._parse_ann_file()
+        if input_files:
+            self._parse_ann_file()
 
         # Sanity checking that can only be done post-parse
         self._sanity()
         # XXX: Hack to get the timestamps after parsing
-        if (len(self._input_files) == 1 and
+        if (document is not None and
+                len(self._input_files) == 1 and
                 self._input_files[0].endswith(JOINED_ANN_FILE_SUFF)):
             self.ann_mtime = getmtime(self._input_files[0])
             self.ann_ctime = getctime(self._input_files[0])
@@ -999,71 +1162,91 @@ class Annotations(object):
 
     def __exit__(self, type, value, traceback):
         # self._file_input.close()
-        if not self._read_only:
-            assert len(self._input_files) == 1, 'more than one valid outfile'
 
-            # We are hitting the disk a lot more than we should here, what we
-            # should have is a modification flag in the object but we can't
-            # due to how we change the annotations.
+        # is it even needed?
+        if self._document is None:
+            return
 
-            out_str = str(self)
-            with open_textfile(self._input_files[0], 'r') as old_ann_file:
-                old_str = old_ann_file.read()
+        if self._read_only:
+            return
 
-            # Was it changed?
-            if out_str == old_str:
-                # Then just return
-                return
+        self.save()
 
-            from config import WORK_DIR
+    def save(self, document=None):
+        if document is None:
+            document = self._document
 
-            # Protect the write so we don't corrupt the file
-            with FileLock(path_join(
-                    WORK_DIR, str(hash(self._input_files[0].replace('/', '_'))) + '.lock'
-            )) as lock_file:
-                #from tempfile import NamedTemporaryFile
-                from tempfile import mkstemp
-                # TODO: XXX: Is copyfile really atomic?
-                from shutil import copyfile
-                # XXX: NamedTemporaryFile only supports encoding for Python 3
-                #       so we hack around it.
-                # with NamedTemporaryFile('w', suffix='.ann') as tmp_file:
-                # Grab the filename, but discard the handle
-                tmp_fh, tmp_fname = mkstemp(suffix='.ann')
-                os_close(tmp_fh)
-                try:
-                    with open_textfile(tmp_fname, 'w') as tmp_file:
-                        # XXX: Temporary hack to make sure we don't write corrupted
-                        #       files, but the client will already have the version
-                        #       at this stage leading to potential problems upon
-                        #       the next change to the file.
-                        tmp_file.write(out_str)
-                        tmp_file.flush()
+            if document is None:
+                raise Exception("No document path provided")
 
-                        try:
-                            with Annotations(tmp_file.name) as ann:
-                                # Move the temporary file onto the old file
-                                copyfile(tmp_file.name, self._input_files[0])
-                                # As a matter of convention we adjust the modified
-                                # time of the data dir when we write to it. This
-                                # helps us to make back-ups
-                                time()
-                                # XXX: Disabled for now!
-                                #utime(DATA_DIR, (now, now))
-                        except Exception as e:
-                            Messager.error(
-                                'ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' %
-                                e, -1)
-                            raise
-                finally:
+        if self._read_only:
+            raise Exception("Cannot save, read only")
+
+        assert len(self._input_files) == 1, 'more than one valid outfile'
+
+        # We are hitting the disk a lot more than we should here, what we
+        # should have is a modification flag in the object but we can't
+        # due to how we change the annotations.
+
+        out_str = str(self)
+        with open_textfile(self._input_files[0], 'r') as old_ann_file:
+            old_str = old_ann_file.read()
+
+        # Was it changed?
+        if out_str == old_str:
+            # Then just return
+            return
+
+        # Protect the write so we don't corrupt the file
+        if PROGRAMMATIC:
+            lock_file = contextlib.suppress()
+        else:
+            lock_file = FileLock(path_join(
+                    self.lock_dir, str(hash(self._input_files[0].replace('/', '_'))) + '.lock'
+            ))
+        with lock_file:
+            #from tempfile import NamedTemporaryFile
+            from tempfile import mkstemp
+            # TODO: XXX: Is copyfile really atomic?
+            from shutil import copyfile
+            # XXX: NamedTemporaryFile only supports encoding for Python 3
+            #       so we hack around it.
+            # with NamedTemporaryFile('w', suffix='.ann') as tmp_file:
+            # Grab the filename, but discard the handle
+            tmp_fh, tmp_fname = mkstemp(suffix='.ann')
+            os_close(tmp_fh)
+            try:
+                with open_textfile(tmp_fname, 'w') as tmp_file:
+                    # XXX: Temporary hack to make sure we don't write corrupted
+                    #       files, but the client will already have the version
+                    #       at this stage leading to potential problems upon
+                    #       the next change to the file.
+                    tmp_file.write(out_str)
+                    tmp_file.flush()
+
                     try:
-                        from os import remove
-                        remove(tmp_fname)
+                        with Annotations(tmp_file.name) as ann:
+                            # Move the temporary file onto the old file
+                            copyfile(tmp_file.name, self._input_files[0])
+                            # As a matter of convention we adjust the modified
+                            # time of the data dir when we write to it. This
+                            # helps us to make back-ups
+                            time()
+                            # XXX: Disabled for now!
+                            #utime(DATA_DIR, (now, now))
                     except Exception as e:
                         Messager.error(
-                            "Error removing temporary file '%s'" %
-                            tmp_fname)
-            return
+                            'ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' %
+                            e, -1)
+                        raise
+            finally:
+                try:
+                    from os import remove
+                    remove(tmp_fname)
+                except Exception as e:
+                    Messager.error(
+                        "Error removing temporary file '%s'" %
+                        tmp_fname)
 
     def __in__(self, other):
         # XXX: You should do this one!
@@ -1078,21 +1261,26 @@ class TextAnnotations(Annotations):
     annotations against the text.
     """
 
-    def __init__(self, document, read_only=False):
+    def __init__(self, document=None, text=None, read_only=False, lock_dir=None):
         # First read the text or the Annotations can't verify the annotations
-        if document.endswith('.txt'):
-            textfile_path = document
-        else:
-            # Do we have a known extension?
-            _, file_ext = splitext(document)
-            if not file_ext or file_ext not in KNOWN_FILE_SUFF:
+        if document:
+            if document.endswith('.txt'):
                 textfile_path = document
             else:
-                textfile_path = document[:len(document) - len(file_ext)]
+                # Do we have a known extension?
+                _, file_ext = splitext(document)
+                if not file_ext or file_ext not in KNOWN_FILE_SUFF:
+                    textfile_path = document
+                else:
+                    textfile_path = document[:len(document) - len(file_ext)]
 
-        self._document_text = self._read_document_text(textfile_path)
+            if text is None:
+                self._document_text = self._read_document_text(textfile_path)
 
-        Annotations.__init__(self, document, read_only)
+        if text is not None:
+            self._document_text = text
+
+        Annotations.__init__(self, document=document, read_only=read_only, lock_dir=lock_dir)
 
     def _parse_textbound_annotation(
             self, id, data, data_tail, input_file_path):
@@ -1440,8 +1628,8 @@ class AttributeAnnotation(IdedAnnotation):
 
 
 class NormalizationAnnotation(IdedAnnotation):
-    def __init__(self, _id, _type, target, refdb, refid, tail, source_id=None):
-        IdedAnnotation.__init__(self, _id, _type, tail, source_id=source_id)
+    def __init__(self, id, type, target, refdb, refid, tail, source_id=None):
+        IdedAnnotation.__init__(self, id, type, tail, source_id=source_id)
         self.target = target
         self.refdb = refdb
         self.refid = refid
@@ -1600,6 +1788,15 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
     """
 
     def __init__(self, spans, id, type, text, text_tail="", source_id=None):
+        # For convenience, you can pass in a `TextAnnotations` object for `text`
+        if isinstance(text, TextAnnotations):
+            text_annotations = text
+            doc_text = text.get_document_text()
+            text = DISCONT_SEP.join(doc_text[start:end]
+                                    for start, end in spans)
+        else:
+            text_annotations = None
+
         IdedAnnotation.__init__(
             self,
             id,
@@ -1611,6 +1808,9 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
         self.spans = spans
         self.text = text
         self.text_tail = text_tail
+
+        if text_annotations is not None:
+            text_annotations.add_annotation(self)
 
     # TODO: temp hack while building support for discontinuous
     # annotations; remove once done
@@ -1686,15 +1886,23 @@ class BinaryRelationAnnotation(IdedAnnotation):
         return soft_deps, hard_deps
 
 
+def _writable(sugg_path):
+    if exists(sugg_path):
+        # check the file itself for writability
+        check_path = sugg_path
+        correct_type = isfile
+    else:
+        # check the directory if file can be created
+        check_path = dirname(sugg_path)
+        correct_type = isdir
+    return correct_type(check_path) and access(check_path, W_OK)
+
+
 if __name__ == '__main__':
     from sys import stderr, argv
     for ann_path_i, ann_path in enumerate(argv[1:]):
-        print >> stderr, ("%s.) '%s' " % (ann_path_i, ann_path, )
-                          ).ljust(80, '#')
-        try:
-            with Annotations(ann_path) as anns:
-                for ann in anns:
-                    print >> stderr, str(ann).rstrip('\n')
-        except ImportError:
-            # Will try to load the config, probably not available
-            pass
+        print(("%s.) '%s' " % (ann_path_i, ann_path, )
+                          ).ljust(80, '#'))
+        with Annotations(ann_path) as anns:
+            for ann in anns:
+                print(str(ann).rstrip('\n'))
