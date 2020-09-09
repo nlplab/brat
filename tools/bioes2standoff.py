@@ -80,6 +80,19 @@ def get_doc(tokens, text):
     return doc
 
 
+def convert(text, bio, output=None):
+    text = read_text(text)
+    tokens = read_bio(bio)
+    tokens = get_standoffs(text, tokens)
+    doc = get_doc(tokens, text)
+
+    if output:
+        with open(output, "wt", encoding="utf-8") as w:
+            w.write(str(doc))
+    else:
+        sys.stdout.write(str(doc))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("text", help="text file")
@@ -87,16 +100,7 @@ def main():
     parser.add_argument("output", nargs="?", help="output (ann) file")
     args = parser.parse_args()
 
-    text = read_text(args.text)
-    tokens = read_bio(args.bio)
-    tokens = get_standoffs(text, tokens)
-    doc = get_doc(tokens, text)
-
-    if args.output:
-        with open(args.output, "wt", encoding="utf-8") as w:
-            w.write(str(doc))
-    else:
-        sys.stdout.write(str(doc))
+    convert(args.text, args.bio, args.output)
 
 if __name__ == "__main__":
     main()
