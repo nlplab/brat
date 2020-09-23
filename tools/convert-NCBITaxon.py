@@ -22,9 +22,11 @@
 # to run on the full NCBI taxonomy data.
 
 
-
 import codecs
 import sys
+
+from functools import cmp_to_key
+
 
 INPUT_ENCODING = "UTF-8"
 
@@ -63,6 +65,13 @@ NAME_ORDER_BY_CLASS = [
     "common name",
     "synonym",
 ] + DISCARD_NAME_CLASS
+
+
+# for python3
+try:
+    cmp
+except NameError:
+    def cmp(x, y): return (x > y) - (x < y)
 
 
 def main(argv):
@@ -107,11 +116,12 @@ def main(argv):
     # sort for output
     nc_rank = dict((b, a) for a, b in enumerate(NAME_ORDER_BY_CLASS))
     for tax_id in names_by_tax_id:
-        names_by_tax_id[tax_id].sort(lambda a, b: cmp(nc_rank[a[1]],
-                                                      nc_rank[b[1]]))
+        names_by_tax_id[tax_id].sort(key=cmp_to_key(
+            lambda a, b: cmp(nc_rank[a[1]], nc_rank[b[1]])))
 
     # output in numerical order by taxonomy ID.
-    for tax_id in sorted(names_by_tax_id, lambda a, b: cmp(int(a), int(b))):
+    for tax_id in sorted(names_by_tax_id, key=cmp_to_key(
+            lambda a, b: cmp(int(a), int(b)))):
         sys.stdout.write(tax_id)
         for t, c in names_by_tax_id[tax_id]:
             c = c[0].upper() + c[1:]
