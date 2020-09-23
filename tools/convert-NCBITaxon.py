@@ -18,6 +18,11 @@
 # as "Drosophila <fruit fly, genus>"), groups the others by tax_id,
 # and filters likely irrelevance names by name class.
 
+# The file nodes.dmp contains a number of fields separated by pipe
+# characters ("|"), the first being tax_id, parent tax_id, and rank.
+# This script only uses the tax_id and the rank to attach taxonomixal
+# rank information to normalization DB entries.
+
 # Note that this script is not optimized in any way takes some minutes
 # to run on the full NCBI taxonomy data.
 
@@ -75,11 +80,21 @@ except NameError:
 
 
 def main(argv):
-    if len(argv) < 2:
-        print("Usage:", argv[0], "names.dmp", file=sys.stderr)
+    if len(argv) < 3:
+        print("Usage:", argv[0], "names.dmp nodes.dmp", file=sys.stderr)
         return 1
 
-    namesfn = argv[1]
+    namesfn, nodesfn = argv[1:3]
+
+    # read in nodes.dmp, store mapping from tax_id to rank
+    rank_by_tax_id = {}
+    with codecs.open(nodesfn, encoding=INPUT_ENCODING) as f:
+        for i, l in enumerate(f):
+            l = l.strip('\n\r')
+            fields = l.split('|')
+            fields = [t.strip() for t in fields]
+            tax_id, rank = fields[0], fields[2]
+            rank_by_tax_id[tax_id] = rank
 
     # read in names.dmp, store name_txt and name class by tax_id
     names_by_tax_id = {}
@@ -126,6 +141,8 @@ def main(argv):
         for t, c in names_by_tax_id[tax_id]:
             c = c[0].upper() + c[1:]
             sys.stdout.write("\tname:%s:%s" % (c, t))
+        rank = rank_by_tax_id.get(tax_id, 'unknown')
+        sys.stdout.write("\tinfo:rank:%s" % rank)
         sys.stdout.write("\n")
 
 
