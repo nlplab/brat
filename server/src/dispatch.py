@@ -17,7 +17,7 @@ from config import DATA_DIR
 
 from annlog import log_annotation
 from annotator import (create_arc, create_span, delete_arc, delete_span,
-                       reverse_arc, split_span)
+                       reverse_arc, split_span, create_comment)
 from auth import NotAuthorisedError, login, logout, whoami
 from common import ProtocolError
 from convert.convert import convert
@@ -65,6 +65,7 @@ DISPATCHER = {
     'createSpan': create_span,
     'deleteSpan': delete_span,
     'splitSpan': split_span,
+    'createComment': create_comment,
 
     'createArc': create_arc,
     'reverseArc': reverse_arc,

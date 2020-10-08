@@ -23,6 +23,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var selectedFragment = null;
       var editedSpan = null;
       var editedFragment = null;
+      var editedSentComment = null;
       var repeatingArcTypes = [];
       var spanTypes = null;
       var entityAttributeTypes = null;
@@ -239,6 +240,20 @@ var AnnotatorUI = (function($, window, undefined) {
         }
       };
 
+      var onClick = function(evt) {
+        // must be logged in
+        if (that.user === null) return;
+        // must not be reselecting a span or an arc
+        if (reselectedSpan || arcDragOrigin) return;
+
+        var target = $(evt.target);
+        var text = target.closest('.sentnum a').find('text');
+        if (text.length) {
+          evt.preventDefault();
+          evt.stopPropagation();
+        }
+      };
+
       var onDblClick = function(evt) {
         // must be logged in
         if (that.user === null) return;
@@ -315,6 +330,13 @@ var AnnotatorUI = (function($, window, undefined) {
           // simulating double-click selection on browsers that do
           // not support it.
           lastDoubleClickedChunkId = id;
+        } else {
+          // is it a sentence comment?
+          var text = target.closest('.sentnum a').find('text');
+          if (text.length) {
+            editedSentComment = text.data('sent');
+            dispatcher.post('showForm', [sentCommentForm]);
+          }
         }
       };
 
@@ -971,7 +993,6 @@ var AnnotatorUI = (function($, window, undefined) {
           .append(
             $.map(normCurrent, function(normalization, index) {
               var allowed = $.inArray(normalization[0], normAllowedNormalizations) != -1;
-              console.log(allowed, normalization[0], normAllowedNormalizations);
               var allowedHTML = allowed ? '' : '&#x2757;';
               var base = normDbUrlBaseByDbName[normalization[0]];
               var $linkTd = $('<td/>');
@@ -2482,6 +2503,52 @@ var AnnotatorUI = (function($, window, undefined) {
         selectedFragment = null;
       };
 
+      function saveComment(id, comment) {
+        var commentOptions = {
+          action: 'createComment',
+          collection: coll,
+          'document': doc,
+          id: id,
+          comment: comment || null
+        };
+
+        $('#waiter').dialog('open');
+        dispatcher.post('ajax', [commentOptions, 'edited']);
+        return false;
+      }
+      var sentCommentForm = $('#sent_comment_form');
+      sentCommentForm.submit(function(evt) {
+        var sentComment = $('#sent_comment_text').val()
+        var id = 'sent:' + editedSentComment;
+        var comment = $('#sent_comment_text').val();
+        saveComment(id, comment);
+        dispatcher.post('hideForm');
+      });
+      initForm(sentCommentForm, {
+          alsoResize: '#sent_comment_fs, #sent_comment_text',
+          buttons: [{
+              id: 'sent_comment_form_delete',
+              text: "Delete",
+              click: function(evt) {
+                var id = 'sent:' + editedSentComment;
+                saveComment(id);
+                // TODO HERE delete comment
+                dispatcher.post('hideForm');
+              }
+            }],
+          open: function() {
+            var editedComment = data.sentComment[editedSentComment];
+            if (editedComment) {
+              var comment = editedComment.text;
+              $('#sent_comment_form_delete').show();
+            } else {
+              var comment = '';
+              $('#sent_comment_form_delete').hide();
+            }
+            $('#sent_comment_text').val(comment).focus().select();
+          }
+      });
+
       var splitForm = $('#split_form');
       splitForm.submit(function(evt) {
         var splitRoles = [];
@@ -2937,6 +3004,7 @@ var AnnotatorUI = (function($, window, undefined) {
           on('isReloadOkay', isReloadOkay).
           on('keydown', onKeyDown).
           on('dblclick', onDblClick).
+          on('click', onClick).
           on('dragstart', preventDefault).
           on('mousedown', onMouseDown).
           on('mouseup', onMouseUp).

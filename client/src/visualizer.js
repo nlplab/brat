@@ -86,7 +86,7 @@ var Visualizer = (function($, window, undefined) {
       for (var fi = 0, nfi = 0; fi < this.unsegmentedOffsets.length; fi++) {
         var begin = this.unsegmentedOffsets[fi][0];
         var end = this.unsegmentedOffsets[fi][1];
-      
+
         for (var ti = begin; ti < end; ti++) {
           var c = text.charAt(ti);
           if (c == '\n' || c == '\r') {
@@ -100,7 +100,7 @@ var Visualizer = (function($, window, undefined) {
             begin = ti;
           }
         }
-      
+
         if (begin !== null) {
           this.offsets.push([begin, end]);
           this.segmentedOffsetsMap[nfi++] = fi;
@@ -804,6 +804,9 @@ var Visualizer = (function($, window, undefined) {
 
           // TODO error handling
 
+          if (typeof comment[0] == 'string' && comment[0].indexOf(':') != -1) {
+            comment[0] = comment[0].split(':');
+          }
           // sentence id: ['sent', sentId]
           if (comment[0] instanceof Array && comment[0][0] == 'sent') {
             // sentence comment
@@ -913,7 +916,7 @@ var Visualizer = (function($, window, undefined) {
           // calculate average arc distances
           // average distance of arcs (0 for no arcs)
           span.avgDist = span.numArcs ? span.totalDist / span.numArcs : 0;
-          lastSpan = span;
+          lastSpan = span; // DELETETHIS
 
           // collect fragment texts into span texts
           var fragmentTexts = [];
@@ -2833,11 +2836,11 @@ Util.profileStart('rows');
               svg.remove(text);
               // TODO: using rectShadowSize, but this shadow should
               // probably have its own setting for shadow size
-              shadowRect = svg.rect(sentNumGroup,
+              shadowRect = svg.rect(link,
                   box.x - rectShadowSize, box.y - rectShadowSize,
                   box.width + 2 * rectShadowSize, box.height + 2 * rectShadowSize, {
 
-                  'class': 'shadow_' + sentComment.type,
+                  'class': 'sent shadow_' + sentComment.type,
                   filter: 'url(#Gaussian_Blur)',
                   rx: rectShadowRounding,
                   ry: rectShadowRounding,
@@ -2847,10 +2850,10 @@ Util.profileStart('rows');
               // Render sentence comment
               var text;
               if (rtlmode) {
-                text = svg.text(sentNumGroup, canvasWidth - sentNumMargin + Configuration.visual.margin.x, y - rowPadding,
+                text = svg.text(link, canvasWidth - sentNumMargin + Configuration.visual.margin.x, y - rowPadding,
                     '' + row.sentence, { 'data-sent': row.sentence }); 
               } else {
-                text = svg.text(sentNumGroup, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
+                text = svg.text(link, sentNumMargin - Configuration.visual.margin.x, y - rowPadding,
                     '' + row.sentence, { 'data-sent': row.sentence });
               }
             }

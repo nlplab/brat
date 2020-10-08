@@ -790,7 +790,7 @@ def _enrich_json_with_data(j_dic, ann_obj):
         )
 
     for com_ann in ann_obj.get_oneline_comments():
-        comment = [str(com_ann.target), str(com_ann.type),
+        comment = [com_ann.target, str(com_ann.type),
                    com_ann.tail.strip()]
         try:
             j_dic['comments'].append(comment)

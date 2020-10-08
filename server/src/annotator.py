@@ -451,6 +451,36 @@ def create_span(collection, document, offsets, type, attributes=None,
                         normalizations, id, comment)
 
 
+def create_comment(collection, document, id, comment=None):
+    directory = collection
+    undo_resp = {}
+
+    real_dir = real_directory(directory)
+    document = path_join(real_dir, document)
+
+    projectconf = ProjectConfiguration(real_dir)
+
+    txt_file_path = document + '.' + TEXT_FILE_SUFFIX
+
+    # XXX what is this doing here?
+    # path_split(document)[0]
+
+    with TextAnnotations(document) as ann_obj:
+        # bail as quick as possible if read-only
+        if ann_obj._read_only:
+            raise AnnotationsIsReadOnlyError(ann_obj.get_document())
+
+        mods = ModificationTracker()
+
+        _set_special_comments(ann_obj, id, comment, mods, undo_resp=undo_resp)
+
+        mods_json = mods.json_response()
+        if undo_resp:
+            mods_json['undo'] = json_dumps(undo_resp)
+        mods_json['annotations'] = _json_from_ann(ann_obj)
+        return mods_json
+
+
 def _set_normalizations(ann_obj, ann, normalizations, mods, undo_resp={}):
     # Find existing normalizations (if any)
     existing_norm_anns = set((a for a in ann_obj.get_normalizations()
@@ -584,6 +614,41 @@ def _set_comments(ann_obj, ann, comment, mods, undo_resp={}):
             # Create a new comment
             new_comment = OnelineCommentAnnotation(
                 ann.id, ann_obj.get_new_id('#'),
+                # XXX: Note the ugly tab
+                'AnnotatorNotes', '\t' + comment)
+            ann_obj.add_annotation(new_comment)
+            mods.addition(new_comment)
+    else:
+        # We are to erase the annotation
+        if found is not None:
+            ann_obj.del_annotation(found)
+            mods.deletion(found)
+
+# XXX TODO DRY (`_set_comments`)
+def _set_special_comments(ann_obj, __id, comment, mods, undo_resp={}):
+    # Check if there is already an annotation comment
+    for com_ann in ann_obj.get_oneline_comments():
+        if (com_ann.type == 'AnnotatorNotes'
+                and com_ann.target == __id):
+            found = com_ann
+
+            # Note the comment in the undo
+            undo_resp['comment'] = found.tail[1:]
+            break
+    else:
+        found = None
+
+    if comment:
+        if found is not None:
+            # Change the comment
+            # XXX: Note the ugly tab, it is for parsing the tail
+            before = str(found)
+            found.tail = '\t' + comment
+            mods.change(before, found)
+        else:
+            # Create a new comment
+            new_comment = OnelineCommentAnnotation(
+                __id, ann_obj.get_new_id('#'),
                 # XXX: Note the ugly tab
                 'AnnotatorNotes', '\t' + comment)
             ann_obj.add_annotation(new_comment)

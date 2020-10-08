@@ -314,6 +314,10 @@ rect.shadow_EditHighlight {
   stroke-width: 1px;
 }
 
+.sentnum rect {
+  fill: #e5e5e5;
+}
+
 .span_cue {
   fill: #eeeeee !important;
 }

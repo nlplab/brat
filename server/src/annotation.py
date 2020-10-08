@@ -1677,7 +1677,9 @@ class OnelineCommentAnnotation(IdedAnnotation):
 
     def get_deps(self):
         soft_deps, hard_deps = IdedAnnotation.get_deps(self)
-        hard_deps.add(self.target)
+        # XXX don't check sentence or other special targets
+        if ':' not in self.target:
+            hard_deps.add(self.target)
         return (soft_deps, hard_deps)
 
 
