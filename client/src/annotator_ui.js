@@ -1869,6 +1869,12 @@ var AnnotatorUI = (function($, window, undefined) {
         if (chunkIndexFrom !== undefined && chunkIndexTo !== undefined) {
           var chunkFrom = data.chunks[chunkIndexFrom];
           var chunkTo = data.chunks[chunkIndexTo];
+          if (chunkFrom.text.correctOffset) {
+            anchorOffset = chunkFrom.text.correctOffset(anchorOffset);
+          }
+          if (chunkTo.text.correctOffset) {
+            focusOffset = chunkTo.text.correctOffset(focusOffset);
+          }
           var selectedFrom = chunkFrom.from + anchorOffset;
           var selectedTo = chunkTo.from + focusOffset;
           sel.removeAllRanges();
@@ -1877,10 +1883,6 @@ var AnnotatorUI = (function($, window, undefined) {
             var tmp = selectedFrom; selectedFrom = selectedTo; selectedTo = tmp;
           }
           // trim
-          if (data.text.correctOffset) {
-            selectedFrom = data.text.correctOffset(selectedFrom);
-            selectedTo = data.text.correctOffset(selectedTo);
-          }
           while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedFrom, 1)) !== -1) selectedFrom++;
           while (selectedFrom < selectedTo && " \n\t".indexOf(data.text.substr(selectedTo - 1, 1)) !== -1) selectedTo--;
 
