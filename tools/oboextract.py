@@ -7,7 +7,7 @@
 
 import re
 import sys
-from string import lowercase
+
 
 options = None
 
@@ -53,7 +53,7 @@ class Term:
             # Special case: if all lowercased, uppercase in order to get
             # e.g. "sao" match the OBO foundry convention.
             s = self.tid[:self.tid.index(":")]
-            if len([c for c in s if c in lowercase]) == len(s):
+            if s.lower() == s:
                 return s.upper()
             else:
                 return s
