@@ -55,7 +55,11 @@ def main(args):
     stdout.write('\n'.join('%s: %s' % (k, v) for k, v in response_hdrs))
     stdout.write('\n')
     stdout.write('\n')
-    stdout.write(response_data[1])
+    if isinstance(response_data[1], bytes):
+        stdout.flush()
+        stdout.buffer.write(response_data[1])
+    else:
+        stdout.write(response_data[1])
     return 0
 
 
