@@ -2041,6 +2041,11 @@ var VisualizerUI = (function($, window, undefined) {
               auth_button.val('Logout ' + user);
               dispatcher.post('user', [user]);
               $('.login').show();
+            } else if (response.anonymous) {
+              user = 'Anonymous';
+              auth_button.hide();
+              dispatcher.post('user', [user]);
+              $('.login').show();
             } else {
               user = null;
               auth_button.val('Login');

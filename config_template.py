@@ -45,6 +45,7 @@ WORK_DIR = CHANGE_ME
 #WORK_DIR = join(BASE_DIR, 'work')
 
 # To allow editing, include at least one USERNAME:PASSWORD pair below.
+# To allow anonymous editing, set `USER_PASSWORD = False`.
 # The format is the following:
 #
 #     'USERNAME': 'PASSWORD',

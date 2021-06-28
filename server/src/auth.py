@@ -101,7 +101,10 @@ def logout():
 def whoami():
     json_dic = {}
     try:
-        json_dic['user'] = get_session().get('user')
+        if USER_PASSWORD != False:
+            json_dic['user'] = get_session().get('user')
+        else:
+            json_dic['anonymous'] = True
     except KeyError:
         # TODO: Really send this message?
         Messager.error('Not logged in!', duration=3)
