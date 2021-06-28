@@ -1178,8 +1178,15 @@ var Visualizer = (function($, window, undefined) {
         var commentName = (coll + '/' + doc).replace('--', '-\\-');
         $svg.append('<!-- document: ' + commentName + ' -->');
         var defs = svg.defs();
-        var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
-        svg.add(defs, $blurFilter);
+        var blurFilter = document.createElementNS(defs.namespaceURI, 'filter');
+        blurFilter.setAttribute('id', 'Gaussian_Blur');
+        var blur = document.createElementNS(defs.namespaceURI, 'feGaussianBlur');
+        blur.setAttribute('in', 'SourceGraphic');
+        blur.setAttribute('stdDeviation', '2');
+        blurFilter.appendChild(blur);
+        defs.appendChild(blurFilter);
+        // var $blurFilter = $('<filter id="Gaussian_Blur"><feGaussianBlur in="SourceGraphic" stdDeviation="2" /></filter>');
+        // svg.add(defs, $blurFilter);
         return defs;
       }
 
