@@ -1284,6 +1284,7 @@ class TextAnnotations(Annotations):
             if document.endswith('.txt'):
                 textfile_path = document
             else:
+                textfile_path = remove_known_suffix(document, KNOWN_FILE_SUFF)
                 # Do we have a known extension?
                 _, file_ext = splitext(document)
                 if not file_ext or file_ext not in KNOWN_FILE_SUFF:
