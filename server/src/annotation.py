@@ -10,7 +10,8 @@
 # #                       #   if None, the document will not be read or saved
 # #     text=None,        # provides the text instead of loading from `.txt` file
 # #     read_only=False,  # if True, the document will not be saved
-# #     lock_dir=None)    # lock file directory (system tmp dir if None)
+# #     lock_dir=None,    # lock file directory (system tmp dir if None)
+# #     source=None)      # provides the annotations instead of loading from `.ann` file
 #
 # # TextBoundAnnotationWithText(
 # #     spans,            # list of (start, end) pairs
@@ -142,18 +143,21 @@ except (ModuleNotFoundError, ImportError):
     ProtocolError = Exception
 
     import contextlib
-    from collections import namedtuple
-    MessageCollection = namedtuple('MessageCollection', ('ok', 'errors', 'warnings'))
+    class MessageCollection:
+        def __init__(self):
+            self.ok = True
+            self.errors = []
+            self.warnings = []
 
     class MessageCollector(object):
         def __init__(self):
-            self.messages = MessageCollection(True, [], [])
+            self.messages = MessageCollection()
 
-        def error(self, message, timeout):
+        def error(self, message, timeout=None):
             self.messages.ok = False
             self.messages.errors.append(message)
 
-        def warning(self, message, timeout):
+        def warning(self, message, timeout=None):
             self.messages.warnings.append(message)
 
 
@@ -461,8 +465,16 @@ class Annotations(object):
         def get_messages(self):
             return self.messages.messages
 
+    def _init_messager(self):
+        if not hasattr(self, 'messager'):
+            if PROGRAMMATIC:
+                self.messages = MessageCollector()
+            else:
+                self.messages = Messager
+
+
     # TODO: DOC!
-    def __init__(self, document=None, read_only=False, lock_dir=None):
+    def __init__(self, document=None, read_only=False, lock_dir=None, source=None):
         if lock_dir is None:
             if PROGRAMMATIC:
                 from tempfile import gettempdir
@@ -470,10 +482,7 @@ class Annotations(object):
             else:
                 lock_dir = WORK_DIR
 
-        if PROGRAMMATIC:
-            self.messages = MessageCollector()
-        else:
-            self.messages = Messager
+        self._init_messager()
 
         self.lock_dir = lock_dir
 
@@ -537,8 +546,11 @@ class Annotations(object):
         self._input_files = input_files
 
         # Finally, parse the given annotation file
+        self.ann_line_num = -1
         if input_files:
-            self._parse_ann_file()
+            self._parse_ann_file(input_files)
+        elif source:
+            self._parse_ann_lines(source.splitlines(keepends=True))
 
         # Sanity checking that can only be done post-parse
         self._sanity()
@@ -563,7 +575,7 @@ class Annotations(object):
                     self.get_ann_by_id(rid)
                 except AnnotationNotFoundError:
                     # TODO: do more than just send a message for this error?
-                    Messager.error(
+                    self.messages.error(
                         'ID ' +
                         rid +
                         ' not defined, referenced from annotation ' +
@@ -947,13 +959,13 @@ class Annotations(object):
                 id, self.ann_line, self.ann_line_num + 1, input_file_path)
 
         if len(args) != 2:
-            Messager.error(
+            self.messages.error(
                 'Error parsing relation: must have exactly two arguments')
             raise IdedAnnotationLineSyntaxError(
                 id, self.ann_line, self.ann_line_num + 1, input_file_path)
 
         if args[0][0] == args[1][0]:
-            Messager.error(
+            self.messages.error(
                 'Error parsing relation: arguments must not be identical')
             raise IdedAnnotationLineSyntaxError(
                 id, self.ann_line, self.ann_line_num + 1, input_file_path)
@@ -1003,7 +1015,7 @@ class Annotations(object):
                 end_str = end_str.rstrip()
 
                 if any((c.isspace() for c in end_str)):
-                    Messager.error(
+                    self.messages.error(
                         'Error parsing textbound "%s\t%s". (Using space instead of tab?)' %
                         (id, data))
                     raise IdedAnnotationLineSyntaxError(
@@ -1059,80 +1071,83 @@ class Annotations(object):
         return OnelineCommentAnnotation(
             target, _id, _type, data_tail, source_id=input_file_path)
 
-    def _parse_ann_file(self):
-        self.ann_line_num = -1
-        for input_file_path in self._input_files:
+    def _parse_ann_file(self, input_files):
+        for input_file_path in input_files:
             with open_textfile(input_file_path) as input_file:
-                # for self.ann_line_num, self.ann_line in
-                # enumerate(self._file_input):
-                for self.ann_line in input_file:
-                    self.ann_line_num += 1
-                    try:
-                        # ID processing
-                        try:
-                            id, id_tail = self.ann_line.split('\t', 1)
-                        except ValueError:
-                            raise AnnotationLineSyntaxError(
-                                self.ann_line, self.ann_line_num + 1, input_file_path)
+                ann_lines = input_file.readlines()
+                self._parse_ann_lines(ann_lines, input_file_path)
 
-                        pre = annotation_id_prefix(id)
+    def _parse_ann_lines(self, ann_lines, input_file_path=None):
+        # for self.ann_line_num, self.ann_line in
+        # enumerate(self._file_input):
+        for self.ann_line in ann_lines:
+            self.ann_line_num += 1
+            try:
+                # ID processing
+                try:
+                    id, id_tail = self.ann_line.split('\t', 1)
+                except ValueError:
+                    raise AnnotationLineSyntaxError(
+                        self.ann_line, self.ann_line_num + 1, input_file_path)
 
-                        if id in self._ann_by_id and pre != '*':
-                            raise DuplicateAnnotationIdError(
-                                id, self.ann_line, self.ann_line_num + 1, input_file_path)
+                pre = annotation_id_prefix(id)
 
-                        # if the ID is not valid, need to fail with
-                        # AnnotationLineSyntaxError (not
-                        # IdedAnnotationLineSyntaxError).
-                        if not is_valid_id(id):
-                            raise AnnotationLineSyntaxError(
-                                self.ann_line, self.ann_line_num + 1, input_file_path)
+                if id in self._ann_by_id and pre != '*':
+                    raise DuplicateAnnotationIdError(
+                        id, self.ann_line, self.ann_line_num + 1, input_file_path)
 
-                        # Cases for lines
-                        try:
-                            data_delim = id_tail.index('\t')
-                            data, data_tail = (id_tail[:data_delim],
-                                               id_tail[data_delim:])
-                        except ValueError:
-                            data = id_tail
-                            # No tail at all, although it should have a \t
-                            data_tail = ''
+                # if the ID is not valid, need to fail with
+                # AnnotationLineSyntaxError (not
+                # IdedAnnotationLineSyntaxError).
+                if not is_valid_id(id):
+                    raise AnnotationLineSyntaxError(
+                        self.ann_line, self.ann_line_num + 1, input_file_path)
 
-                        new_ann = None
+                # Cases for lines
+                try:
+                    data_delim = id_tail.index('\t')
+                    data, data_tail = (id_tail[:data_delim],
+                                        id_tail[data_delim:])
+                except ValueError:
+                    data = id_tail
+                    # No tail at all, although it should have a \t
+                    data_tail = ''
 
-                        #log_info('Will evaluate prefix: ' + pre)
+                new_ann = None
 
-                        assert len(pre) >= 1, "INTERNAL ERROR"
-                        pre_first = pre[0]
+                #log_info('Will evaluate prefix: ' + pre)
 
-                        try:
-                            parse_func = self._parse_function_by_id_prefix[pre_first]
-                            new_ann = parse_func(
-                                id, data, data_tail, input_file_path)
-                        except KeyError:
-                            raise IdedAnnotationLineSyntaxError(
-                                id, self.ann_line, self.ann_line_num + 1, input_file_path)
+                assert len(pre) >= 1, "INTERNAL ERROR"
+                pre_first = pre[0]
 
-                        assert new_ann is not None, "INTERNAL ERROR"
-                        self.add_annotation(new_ann, read=True)
-                    except IdedAnnotationLineSyntaxError as e:
-                        # Could parse an ID but not the whole line; add
-                        # UnparsedIdedAnnotation
-                        self.add_annotation(
-                            UnparsedIdedAnnotation(
-                                e.id, e.line, source_id=e.filepath), read=True)
-                        self.failed_lines.append(e.line_num - 1)
+                try:
+                    parse_func = self._parse_function_by_id_prefix[pre_first]
+                    new_ann = parse_func(
+                        id, data, data_tail, input_file_path)
+                except KeyError:
+                    raise IdedAnnotationLineSyntaxError(
+                        id, self.ann_line, self.ann_line_num + 1, input_file_path)
 
-                    except AnnotationLineSyntaxError as e:
-                        # We could not parse even an ID on the line, just add
-                        # it as an unknown annotation
-                        self.add_annotation(
-                            UnknownAnnotation(
-                                e.line,
-                                source_id=e.filepath),
-                            read=True)
-                        # NOTE: For access we start at line 0, not 1 as in here
-                        self.failed_lines.append(e.line_num - 1)
+                assert new_ann is not None, "INTERNAL ERROR"
+                self.add_annotation(new_ann, read=True)
+            except IdedAnnotationLineSyntaxError as e:
+                # Could parse an ID but not the whole line; add
+                # UnparsedIdedAnnotation
+                self.add_annotation(
+                    UnparsedIdedAnnotation(
+                        e.id, e.line, source_id=e.filepath), read=True)
+                self.failed_lines.append(e.line_num - 1)
+
+            except AnnotationLineSyntaxError as e:
+                # We could not parse even an ID on the line, just add
+                # it as an unknown annotation
+                self.add_annotation(
+                    UnknownAnnotation(
+                        e.line,
+                        source_id=e.filepath),
+                    read=True)
+                # NOTE: For access we start at line 0, not 1 as in here
+                self.failed_lines.append(e.line_num - 1)
 
     def __str__(self):
         s = u'\n'.join(str(ann).rstrip(u'\r\n') for ann in self)
@@ -1235,7 +1250,7 @@ class Annotations(object):
                             # XXX: Disabled for now!
                             #utime(DATA_DIR, (now, now))
                     except Exception as e:
-                        Messager.error(
+                        self.messages.error(
                             'ERROR writing changes: generated annotations cannot be read back in!\n(This is almost certainly a system error, please contact the developers.)\n%s' %
                             e, -1)
                         raise
@@ -1244,7 +1259,7 @@ class Annotations(object):
                     from os import remove
                     remove(tmp_fname)
                 except Exception as e:
-                    Messager.error(
+                    self.messages.error(
                         "Error removing temporary file '%s'" %
                         tmp_fname)
 
@@ -1261,7 +1276,9 @@ class TextAnnotations(Annotations):
     annotations against the text.
     """
 
-    def __init__(self, document=None, text=None, read_only=False, lock_dir=None):
+    def __init__(self, document=None, text=None, read_only=False, lock_dir=None, source=None):
+        self._init_messager()
+
         # First read the text or the Annotations can't verify the annotations
         if document:
             if document.endswith('.txt'):
@@ -1280,7 +1297,7 @@ class TextAnnotations(Annotations):
         if text is not None:
             self._document_text = text
 
-        Annotations.__init__(self, document=document, read_only=read_only, lock_dir=lock_dir)
+        Annotations.__init__(self, document=document, read_only=read_only, lock_dir=lock_dir, source=source)
 
     def _parse_textbound_annotation(
             self, id, data, data_tail, input_file_path):
@@ -1290,22 +1307,22 @@ class TextAnnotations(Annotations):
         seen_spans = []
         for start, end in spans:
             if start > end:
-                Messager.error('Text-bound annotation start > end.')
+                self.messages.error('Text-bound annotation start > end.')
                 raise IdedAnnotationLineSyntaxError(
                     id, self.ann_line, self.ann_line_num + 1, input_file_path)
             if start < 0:
-                Messager.error('Text-bound annotation start < 0.')
+                self.messages.error('Text-bound annotation start < 0.')
                 raise IdedAnnotationLineSyntaxError(
                     id, self.ann_line, self.ann_line_num + 1, input_file_path)
             if end > len(self._document_text):
-                Messager.error(
+                self.messages.error(
                     'Text-bound annotation offset exceeds text length.')
                 raise IdedAnnotationLineSyntaxError(
                     id, self.ann_line, self.ann_line_num + 1, input_file_path)
 
             for ostart, oend in seen_spans:
                 if end >= ostart and start < oend:
-                    Messager.error('Text-bound annotation spans overlap')
+                    self.messages.error('Text-bound annotation spans overlap')
                     raise IdedAnnotationLineSyntaxError(
                         id, self.ann_line, self.ann_line_num + 1, input_file_path)
 
@@ -1319,19 +1336,19 @@ class TextAnnotations(Annotations):
         # corresponding to the catenation of the start:end spans.
         # If the tail is empty, force a fill with the corresponding text.
         if data_tail.strip() == '' and spanlen > 0:
-            Messager.error(
+            self.messages.error(
                 u"Text-bound annotation missing text (expected format 'ID\\tTYPE START END\\tTEXT'). Filling from reference text. NOTE: This changes annotations on disk unless read-only.")
             text = "".join([self._document_text[start:end]
                             for start, end in spans])
 
         elif data_tail[0] != '\t':
-            Messager.error(
+            self.messages.error(
                 'Text-bound annotation missing tab before text (expected format "ID\\tTYPE START END\\tTEXT").')
             raise IdedAnnotationLineSyntaxError(
                 id, self.ann_line, self.ann_line_num + 1, input_file_path)
 
         elif spanlen > len(data_tail) - 1:  # -1 for tab
-            Messager.error(
+            self.messages.error(
                 'Text-bound annotation text "%s" shorter than marked span(s) %s' % (data_tail[1:], str(spans)))
             raise IdedAnnotationLineSyntaxError(
                 id, self.ann_line, self.ann_line_num + 1, input_file_path)
@@ -1349,13 +1366,13 @@ class TextAnnotations(Annotations):
                 # discont that catenated spans without DISCONT_SEP
                 oldstylereftext = ''.join(spantexts)
                 if text[:len(oldstylereftext)] == oldstylereftext:
-                    Messager.warning(
+                    self.messages.warning(
                         u'NOTE: replacing old-style (pre-1.3) discontinuous annotation text span with new-style one, i.e. adding space to "%s" in .ann' % text[:len(oldstylereftext)], -1)
                     text = reftext
                     data_tail = ''
                 else:
                     # unanticipated mismatch
-                    Messager.error(
+                    self.messages.error(
                         (u'Text-bound annotation text "%s" does not '
                          u'match marked span(s) %s text "%s" in document') %
                         (text, str(spans), reftext.replace(
@@ -1364,7 +1381,7 @@ class TextAnnotations(Annotations):
                         id, self.ann_line, self.ann_line_num + 1, input_file_path)
 
             if data_tail != '' and not data_tail[0].isspace():
-                Messager.error(
+                self.messages.error(
                     u'Text-bound annotation text "%s" not separated from rest of line ("%s") by space!' %
                     (text, data_tail))
                 raise IdedAnnotationLineSyntaxError(
@@ -1385,7 +1402,7 @@ class TextAnnotations(Annotations):
             with open_textfile(textfn, 'r') as f:
                 return f.read()
         except IOError:
-            Messager.error('Error reading document text from %s' % textfn)
+            self.messages.error('Error reading document text from %s' % textfn)
         raise AnnotationTextFileNotFoundError(document)
 
 
@@ -1637,7 +1654,7 @@ class NormalizationAnnotation(IdedAnnotation):
         self.reftext = tail.lstrip('\t').rstrip('\n')
 
     def __str__(self):
-        return u'%s\t%s %s %s:%s%s' % (
+        return u'%s\t%s %s %s:%s\t%s' % (
             self.id,
             self.type,
             self.target,
@@ -1677,9 +1694,7 @@ class OnelineCommentAnnotation(IdedAnnotation):
 
     def get_deps(self):
         soft_deps, hard_deps = IdedAnnotation.get_deps(self)
-        # XXX don't check sentence or other special targets
-        if ':' not in self.target:
-            hard_deps.add(self.target)
+        hard_deps.add(self.target)
         return (soft_deps, hard_deps)
 
 
@@ -1709,11 +1724,11 @@ class TextBoundAnnotation(IdedAnnotation):
     # TODO: temp hack while building support for discontinuous
     # annotations; remove once done
     def get_start(self):
-        Messager.warning('TextBoundAnnotation.start access')
+        self.messages.warning('TextBoundAnnotation.start access')
         return self.spans[0][0]
 
     def get_end(self):
-        Messager.warning('TextBoundAnnotation.end access')
+        self.messages.warning('TextBoundAnnotation.end access')
         return self.spans[-1][1]
     start = property(get_start)
     end = property(get_end)
@@ -1817,11 +1832,11 @@ class TextBoundAnnotationWithText(TextBoundAnnotation):
     # TODO: temp hack while building support for discontinuous
     # annotations; remove once done
     def get_start(self):
-        Messager.warning('TextBoundAnnotationWithText.start access')
+        self.messages.warning('TextBoundAnnotationWithText.start access')
         return self.spans[0][0]
 
     def get_end(self):
-        Messager.warning('TextBoundAnnotationWithText.end access')
+        self.messages.warning('TextBoundAnnotationWithText.end access')
         return self.spans[-1][1]
     start = property(get_start)
     end = property(get_end)
