@@ -13,7 +13,7 @@ from logging import info as log_info
 from os.path import join as path_join
 from os.path import abspath, normpath
 
-from config import DATA_DIR
+from config import DATA_DIR, USER_PASSWORD
 
 from annlog import log_annotation
 from annotator import (create_arc, create_span, delete_arc, delete_span,
@@ -256,7 +256,7 @@ def dispatch(http_args, client_ip, client_hostname):
             raise DirectorySecurityError(http_args['collection'])
 
     # Make sure that we are authenticated if we are to do certain actions
-    if action in REQUIRES_AUTHENTICATION:
+    if action in REQUIRES_AUTHENTICATION and USER_PASSWORD:
         try:
             user = get_session()['user']
         except KeyError:
