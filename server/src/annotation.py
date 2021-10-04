@@ -1240,13 +1240,14 @@ class Annotations(object):
                     tmp_file.flush()
 
                     try:
-                        with Annotations(tmp_file.name) as ann:
+                        # read only, because we write manually using copyfile; this prevents certain reentrant errors
+                        with Annotations(tmp_file.name, read_only=True) as ann:
                             # Move the temporary file onto the old file
                             copyfile(tmp_file.name, self._input_files[0])
                             # As a matter of convention we adjust the modified
                             # time of the data dir when we write to it. This
                             # helps us to make back-ups
-                            time()
+                            # time()
                             # XXX: Disabled for now!
                             #utime(DATA_DIR, (now, now))
                     except Exception as e:
