@@ -262,10 +262,11 @@ def parse_textbounds(f):
             continue
 
         id_, type_offsets, text = l.split('\t')
-        type_, start, end = type_offsets.split()
-        start, end = int(start), int(end)
-
-        textbounds.append(Textbound(start, end, type_, text))
+        offsets = ' '.join(type_offsets.split()[1:]).split(';')
+        for offset in offsets:
+            start = int(offset.split()[0])
+            end = int(offset.split()[1])
+            textbounds.append(Textbound(start, end, type_, text))
 
     return textbounds
 
