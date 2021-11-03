@@ -68,8 +68,8 @@ def output(infn, docnum, sentences):
         else:
             outfnbase = os.path.basename(infn)
         outfn = os.path.join(output_directory, outfnbase)
-        txtout = codecs.open(outfn + '.txt', 'wt', encoding=OUTPUT_ENCODING)
-        soout = codecs.open(outfn + '.ann', 'wt', encoding=OUTPUT_ENCODING)
+        txtout = codecs.open(outfn + '.txt', 'w', encoding=OUTPUT_ENCODING)
+        soout = codecs.open(outfn + '.ann', 'w', encoding=OUTPUT_ENCODING)
 
     offset, idnum, ridnum = 0, 1, 1
 
