@@ -114,7 +114,7 @@ def attach_labels(labels, lines):
 # NERsuite tokenization: any alnum sequence is preserved as a single
 # token, while any non-alnum character is separated into a
 # single-character token. TODO: non-ASCII alnum.
-TOKENIZATION_REGEX = re.compile(r'([0-9a-zA-Z]+|[^0-9a-zA-Z])')
+TOKENIZATION_REGEX = re.compile(r'([0-9a-zA-ZÀ-ÿ]+|[^0-9a-zA-ZÀ-ÿ])')
 
 NEWLINE_TERM_REGEX = re.compile(r'(.*?\n)')
 
