@@ -170,6 +170,7 @@ def relabel(lines, annotations):
             offset_label[i] = tb
 
     prev_label = None
+    prev_tb = None
     for i, l in enumerate(lines):
         if not l:
             prev_label = None
@@ -178,20 +179,23 @@ def relabel(lines, annotations):
 
         # TODO: warn for multiple, detailed info for non-initial
         label = None
+        tb = None
         for o in range(start, end):
             if o in offset_label:
                 if o != start:
                     print('Warning: annotation-token boundary mismatch: "%s" --- "%s"' % (
                         token, offset_label[o].text), file=sys.stderr)
                 label = offset_label[o].type
+                tb = offset_label[o]
                 break
 
         if label is not None:
-            if label == prev_label:
+            if tb == prev_tb:
                 tag = 'I-' + label
             else:
                 tag = 'B-' + label
         prev_label = label
+        prev_tb = tb
 
         lines[i] = [tag, start, end, token]
 
