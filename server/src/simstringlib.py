@@ -31,8 +31,7 @@ class SimstringLib(SimstringBase):
             self.db = simstring.writer(self.dbfn)
         else:
             self.db = simstring.reader(self.dbfn)
-
-        self.db.measure = SIMILARITY_MEASURES[similarity_measure]
+        self.db.measure = self.SIMILARITY_MEASURES[similarity_measure]
         self.db.threshold = threshold
 
     def build(self, strs):
@@ -41,11 +40,11 @@ class SimstringLib(SimstringBase):
         self.close()
 
     def insert(self, s):
-        assert self.build, "Error: build on non-build simstring"
+        assert self.is_build, "Error: build on non-build simstring"
         self.db.insert(s)
 
     def lookup(self, s):
-        assert not self.build, "Error: lookup on build simstring"
+        assert not self.is_build, "Error: lookup on build simstring"
         return self.db.retrieve(s)
 
     def close(self):
