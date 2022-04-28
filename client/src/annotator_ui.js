@@ -2064,7 +2064,7 @@ var AnnotatorUI = (function($, window, undefined) {
       var collapseHandler = function(evt) {
         toggleCollapsible($(evt.target));
       }
-      $('#arc_roles, #entity_types').on('click', '.collapser', collapseHandler);
+      $('#arc_roles, #entity_types, #event_types').on('click', '.collapser', collapseHandler);
 
       var spanFormSubmitRadio = function(evt) {
         if (Configuration.confirmModeOn) {
